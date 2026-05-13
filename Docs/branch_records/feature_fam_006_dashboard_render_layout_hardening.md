@@ -19,11 +19,11 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 
 ## Record State
 
-- `Active Hardening H1 validation handoff`
+- `Active Hardening H1 validation recorded`
 
 ## Status
 
-- `Hardening H1 prepared for Dashboard render/layout hardening issues #123, #124, and #127; USER result remains pending before H1 closeout or PR Readiness`
+- `Hardening H1 active-client validation PASS recorded for Dashboard render/layout hardening issues #123, #124, and #127 from the reconsolidated C:\Nexus Desktop AI workspace; USER may next request PR Readiness Stage 1, while PR creation remains a future approval checkpoint`
 
 ## Canonical Branch
 
@@ -49,7 +49,7 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 - Evidence Policy: `Summary-only for GitHub issue and branch source-truth references`
 - Raw Media Status: `Raw screenshots, videos, and UTS exports remain local/external unless USER later approves upload, import, or linking`
 - Runtime Implementation: `Implemented first repair pass for #123, #124, and #127`
-- Hardening H1 Status: `Prepared/pending USER result - workspace reconsolidated to C:\Nexus Desktop AI, C-drive launch path selected for the next H1 continuation, prior pre-USER validators passed, active-client H1 support proof passed, and USER test template remains ready`
+- Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Desktop AI on 2026-05-13 for #123, #124, and #127; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
 - GitHub Issue Traceability: `Branch carrier comments added to #123, #124, and #127 during this Stage 2 setup; issue body edits beyond planning references remain blocked`
 - FAM-007 / Local AI Authority: `Blocked and out of scope`
 
@@ -59,8 +59,8 @@ Current authorization covers Hardening H1 preparation, validation-path review, U
 
 ## Blockers
 
-- None for H1 preparation.
-- H1 closeout remains pending on USER-returned result for #123, #124, #127, and the regression check.
+- None for H1 active-client validation.
+- USER visual review remains available as a separate confidence step, but current source truth records the C-drive active-client H1 proof as green for PR Readiness Stage 1 consideration.
 
 ## Future USER Approval Checkpoints
 
@@ -109,7 +109,7 @@ Rollback Path: revert this branch before PR if the Dashboard render/layout repai
 
 - `PR Readiness`
 
-Next Legal Phase Gate: USER may return the H1 result for digestion. If H1 is PASS or WAIVE-PASSABLE, USER may later request PR Readiness Stage 1. If H1 is REPAIR, the branch should route to bounded hardening repair before PR Readiness. This record does not itself approve PR creation, release work, raw evidence upload/import/linking, or Branch 2 implementation.
+Next Legal Phase Gate: USER may request PR Readiness Stage 1 after the recorded C-drive active-client H1 PASS. If USER later reports REPAIR from visual review, the branch should route to bounded hardening repair before PR Readiness. This record does not itself approve PR creation, release work, raw evidence upload/import/linking, or Branch 2 implementation.
 
 ## Branch Objective
 
@@ -137,8 +137,8 @@ Backlog Completion State: Implemented Complete
 Completion Status: Green
 Remaining Implementable Work: None
 Future-Dependent Blockers: None
-Visible User-Facing Proof Required: Yes for H1 closeout - USER-facing validation is now prepared through the active C-drive Branch 1 launcher path; formal Live Validation UTS remains a later separate phase if admitted.
-Visible User-Facing Proof: Pending USER H1 result - active-client helper captured Dashboard-specific local proof without refreshing or digesting a formal UTS.
+Visible User-Facing Proof Required: Yes for H1 confidence - active-client validation has now run from the active C-drive Branch 1 launcher path; formal Live Validation UTS remains a later separate phase if admitted.
+Visible User-Facing Proof: PASS by active-client H1 proof - Dashboard-specific local proof was captured without refreshing or digesting a formal UTS; USER visual review may still be requested before PR Readiness if desired.
 
 ## Expected Seam Families And Risk Classes
 
@@ -179,7 +179,7 @@ User-Facing Goal: the Dashboard opens without whole-window flicker, presents the
 USER Vision Questions: none open for Branch 1 setup; USER already selected the carried issue grouping and held Branch 2/future items.
 Codex Product Interpretation: these issues share the Dashboard render/layout confidence surface and should be handled together before IA/control follow-through.
 Codex Implementation Recommendation: keep Branch 1 scoped to startup render stabilization, scroll/content-well layout ownership, and resize smoothness; defer Monitor Groups IA, top-bar affordance redesign, settings cog, Overlay/display, provider telemetry, Dev Toolkit markers, FAM-007, and local AI.
-USER/ChatGPT Review Checkpoint: runtime implementation approval was granted, the first Workstream repair pass is complete, and USER admitted Hardening H1; USER may next return the H1 result for digestion, while PR creation remains a future approval checkpoint.
+USER/ChatGPT Review Checkpoint: runtime implementation approval was granted, the first Workstream repair pass is complete, USER admitted Hardening H1, and active-client H1 proof passed from the reconsolidated C-drive workspace; USER may next request PR Readiness Stage 1, while PR creation remains a future approval checkpoint.
 Full Feature Element Breakdown: issue #123 initial open flicker; issue #124 scroll content well clipping, scrollbar ownership, and gutter alignment; issue #127 resize jitter and catch-up lag; held issue #125 Monitor Groups IA; held issue #126 close affordance/open badge.
 Current Branch vs Future Package Boundaries: carried now means #123/#124/#127 only; held for later means #125/#126; future/deferred means Dashboard settings cog/settings panel, Overlay/display acceptance, Provider/external telemetry parity, and Dev Toolkit/source-owner markers.
 Affected Surfaces: HUD Dashboard native window, Dashboard content frame/content well, scrollbar ownership/inset, startup/open path, resize drag path, and screenshot/live proof path.
@@ -192,7 +192,7 @@ Validation Proof Requirements: governance validation, HUD/Dashboard static valid
 Screenshot / Live / User Test Summary Proof Requirements: summary-only evidence remains sufficient for GitHub issue/source-truth references; active-client screenshots/manifests may be recorded as local proof, while raw media upload/import/linking and formal UTS export/digestion remain blocked pending later USER approval.
 Implementation Sequence Proposal: first repair pass completed in startup render/open stabilization, content-well scroll ownership, and resize synchronization order; later Hardening or USER live validation should review the combined Dashboard feel before PR Readiness.
 Planning Blockers: none for the carried Workstream implementation slice.
-USER Decisions Needed: return the H1 result for #123, #124, #127, and regression check; decide later whether PR Readiness Stage 1, bounded repair, raw evidence import/linking, Branch 2, or future/deferred items should proceed.
+USER Decisions Needed: decide whether to request PR Readiness Stage 1 from the recorded active-client H1 PASS, request additional USER visual review, or route to bounded repair if any visual concern remains; raw evidence import/linking, Branch 2, and future/deferred items remain later approval checkpoints.
 Planning Packet Status: Complete
 Planning Revalidation Status: PASS
 Planning Completion Waiver: Not required - USER-approved Stage 2 setup and prior Branch Readiness Phase 1 issue grouping provide the planning basis.
@@ -334,7 +334,7 @@ Broader Workspace Identity Gate Review: `Repo-wide identity governance already e
 
 H1 Admission: `Granted by USER on 2026-05-13 for FAM-006 Dashboard render/layout hardening before PR Readiness.`
 
-H1 Status: `Prepared / USER result pending`
+H1 Status: `PASS - active-client C-drive validation recorded`
 
 H1 Scope: `#123 Dashboard initial open flicker`; `#124 Dashboard scroll content well clipping / scrollbar ownership / gutter alignment`; `#127 Dashboard resize jitter / catch-up lag`.
 
@@ -361,6 +361,43 @@ H1 Pre-USER Validation:
 - `PASS - powershell -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Dashboard render layout hardening H1 pre-USER proof" -InteractionStepDelayMilliseconds 200 -FinalClientHoldSeconds 0; proof root dev/logs/fam_006_monitoring_hud_live_validation/20260513_093709_833; formal UTS export skipped`
 
 Runtime Ownership Result: `No active Nexus/Python runtime process remained after H1 pre-USER validation.`
+
+## Hardening H1 Validation Result
+
+H1 Result Time: `2026-05-13 C-drive reconsolidated workspace validation`
+
+Workspace Identity: `PASS - shell repo root C:\Nexus Desktop AI, branch feature/fam-006-dashboard-render-layout-hardening, HEAD 53bef1d30ce33c2713f54807c3460a8bf191fc53, upstream origin/feature/fam-006-dashboard-render-layout-hardening, origin/main 23521ef52e39c9428006986603464289d25fb88a, single active worktree at C:\Nexus Desktop AI`
+
+GitHub Desktop Binding: `PASS - GitHub Desktop visible repository is Nexus Desktop AI, active branch is feature/fam-006-dashboard-render-layout-hardening, and stale C:\Nexus Desktop AI FAM-006 / D-drive Branch 1 entries are not active`
+
+AI Lab Reachability Check: `PASS - deleted codex/ai-llm-lab tip 3c68cd881a9f6bf447f09ac0949d556e97bce4f4 remains reachable from both the current feature branch and origin/main; local/remote codex/ai-llm-lab refs remain deleted by USER-approved cleanup`
+
+H1 Validation Commands:
+
+- `PASS - git status --short --branch`
+- `PASS - git fetch origin`
+- `PASS - git rev-parse HEAD -> 53bef1d30ce33c2713f54807c3460a8bf191fc53`
+- `PASS - git rev-parse origin/main -> 23521ef52e39c9428006986603464289d25fb88a`
+- `PASS - git worktree list -> C:/Nexus Desktop AI 53bef1d3 [feature/fam-006-dashboard-render-layout-hardening]`
+- `PASS - git diff --check`
+- `PASS - python dev\orin_branch_governance_validation.py; 4468 checks`
+- `PASS - python dev\orin_release_body_validation.py; latest pre-Beta release v1.7.0-prebeta matches the standard, with historical drift only in older releases`
+- `PASS - python -m compileall -q dev desktop Audio main.py`
+- `PASS - python dev\orin_monitoring_hud_surface_validation.py`
+- `PASS - python dev\orin_monitoring_hud_internal_sandbox_validation.py; manifest C:\Nexus Desktop AI\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260513_111859_manifest.json`
+- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Dashboard render layout hardening H1 C-drive validation" -InteractionStepDelayMilliseconds 200 -FinalClientHoldSeconds 0; proof root C:\Nexus Desktop AI\dev\logs\fam_006_monitoring_hud_live_validation\20260513_111908_611; formal UTS export skipped`
+
+Active-Client Observed Markers: `MONITORING_HUD_DASHBOARD_SURFACE_READY`; `MONITORING_HUD_DASHBOARD_CONTENT_READY`; `MONITORING_HUD_DASHBOARD_SCROLLBAR_STYLE_READY`; `MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY`; `MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY`; `MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY`; `MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY`.
+
+Issue #123 H1 Result: `PASS by active-client proof - Dashboard startup and Dashboard surface/content readiness markers were observed from the active C-drive workspace; no formal UTS export or raw media import occurred`
+
+Issue #124 H1 Result: `PASS by static, sandbox, and active-client proof - content-well clipping boundary, Dashboard content, and scrollbar-style markers were observed; screenshot evidence remains local/external`
+
+Issue #127 H1 Result: `PASS by active-client interaction proof - standalone Dashboard window travel and live-client self-QA interaction markers were observed from the active C-drive workspace`
+
+Regression Check Result: `PASS by active-client proof - Dashboard runtime launched, settled, captured before/after screenshots, and exited with no remaining Nexus/Python runtime process`
+
+Proof Strength: `Sufficient for PR Readiness Stage 1 source-truth review. USER visual review may still be requested as an additional confidence step before PR creation, and raw screenshot/video upload/import/linking remains a future USER approval checkpoint.`
 
 H1 USER Test Instructions:
 
@@ -395,7 +432,7 @@ PASS / REPAIR / WAIVE-PASSABLE
 
 If USER reports `FAIL` or `PASSABLE`, capture the exact action, expected behavior, observed behavior, and whether it reproduces every time or intermittently. Screenshot/video remains local/external unless USER later approves raw upload/import/linking.
 
-H1 Next Phase Rule: `If USER returns PASS, recommend PR Readiness Stage 1. If USER returns REPAIR, perform bounded hardening repair on this branch before PR Readiness. If USER returns WAIVE-PASSABLE, PR Readiness may proceed only with the explicit waiver recorded.`
+H1 Next Phase Rule: `Recorded active-client H1 PASS supports requesting PR Readiness Stage 1. If USER later reports REPAIR from visual review, perform bounded hardening repair on this branch before PR Readiness. PR creation remains a separate future USER approval checkpoint.`
 
 Formal UTS Boundary: `Preserved - no C:\Users\anden\OneDrive\Desktop\User Test Summary.txt export or returned-result digestion occurs during H1 preparation.`
 
