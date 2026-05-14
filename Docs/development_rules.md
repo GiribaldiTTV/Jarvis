@@ -482,6 +482,7 @@ That means:
   - between-branch canon repair is blocked
   - standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
   - governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`
+  - the only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`; it accepts a `Release Readiness digest` only, uses `RRI-YYYYMMDD-NNN`, enforces `One Active Cycle`, requires the pre-intake `Sync Rule` against clean `origin/main`, pauses the originating lane in `Waiting For Governance Intake` or `Waiting For Updated Main`, and must send a post-merge `Return Digest`
   - a USER-approved workspace-resilience or dev-tooling governance foundation carrier may exist only when repo truth records a multi-worktree/thread-safety gap that blocks safe future branch work; it must not admit runtime implementation, package admission, release work, issue work, AI Product Contract import, or future standalone governance branch creation
   - if no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia
   - historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation
@@ -508,6 +509,7 @@ Thread / Worktree Identity Preflight:
 - across related Nexus worktrees, use one Git operation at a time where practical, and run source-truth freshness checks before phase transitions
 - before PR creation, run changed-file overlap review and merge/conflict forecasting against `origin/main`
 - before USER-driven GitHub Desktop operations, confirm GitHub Desktop is bound to the intended local repository folder
+- for the `Standing Governance Intake Branch`, GitHub Desktop must be bound to `C:\Nexus Worktrees\Governance` before USER-driven Desktop operations so the standing branch is not confused with FAM-006, FAM-007, or the main/consolidator folder
 - if the active folder, branch, upstream, workspace role, expected phase/seam, write target, runtime/process owner, or GitHub Desktop binding does not match the requested work, stop on `Thread / Worktree Identity Mismatch` and report expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected thread/workstream role, actual repo state, mismatch evidence, and the safest next correction
 - `Thread Launch / Write-Target Identity Lock` is the permanent pre-mutation gate for Nexus work: a stale parked branch, AI Lab context, old worktree, fallback folder, wrong GitHub Desktop repository, wrong write target, or unknown lane identity requires a routing packet and blocks source edits, branch/worktree creation, commits, pushes, PR work, release work, shortcut mutation, provider/model installation, and runtime validation until corrected
 

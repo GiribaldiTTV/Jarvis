@@ -36,6 +36,7 @@ BRANCH_CLASSES = (
     "emergency canon repair",
     "repair/dev-tooling-governance",
     "release packaging",
+    "standing governance intake",
 )
 
 BLOCKED_FUTURE_ACTIVE_BRANCH_CLASSES = (
@@ -1808,6 +1809,61 @@ GOVERNANCE_ONLY_BLOCK_PHRASES = (
     "between-branch",
 )
 
+STANDING_GOVERNANCE_INTAKE_BRANCH = "feature/release-readiness-source-truth-intake"
+STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS = "standing governance intake"
+STANDING_GOVERNANCE_INTAKE_RECORD = Path(
+    "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
+)
+STANDING_GOVERNANCE_INTAKE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+STANDING_GOVERNANCE_INTAKE_PHRASES = (
+    "Standing Governance Intake Branch",
+    "feature/release-readiness-source-truth-intake",
+    "Release Readiness digest",
+    "Waiting For Governance Intake",
+    "Return Digest",
+    "RRI-YYYYMMDD-NNN",
+    "One Active Cycle",
+    "Sync Rule",
+)
+STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
+    "dev/orin_branch_governance_validation.py",
+    "dev/orin_pr_body_quality_audit.py",
+}
+STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS = (
+    "Standing Branch",
+    "Worktree",
+    "Intake Source",
+    "Cycle ID Format",
+    "Active RRI Cycle",
+    "One Active Cycle",
+    "Sync Rule",
+    "Return Digest",
+    "Originating Lane Pause",
+)
+STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
+    "Originating Branch",
+    "Originating Worktree",
+    "RRI Cycle ID",
+    "Governance PR",
+    "Merge Commit",
+    "Updated origin/main",
+    "Files Changed",
+    "Blockers Cleared",
+    "Blockers Remaining",
+    "Validations",
+    "Rebaseline Instructions",
+    "Next Legal Phase",
+)
+
 MULTI_SEAM_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -2638,7 +2694,7 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "`## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only",
     "inclusion-only",
     "defensive scope language",
-    "GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.",
+    "GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.",
 )
 
 PR_READINESS_STAGE_GATE_DOCS = (
@@ -14187,6 +14243,175 @@ def _gate_state_matches(marker_state: str, allowed_states: set[str]) -> bool:
     )
 
 
+def _standing_governance_intake_file_allowed(path: str) -> bool:
+    normalized = path.replace("\\", "/")
+    return normalized.startswith("Docs/") or normalized in STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES
+
+
+def _run_standing_governance_intake_gate(require) -> None:
+    branch_name = _git_current_branch()
+    branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
+    active_branch_record_paths = _collect_branch_record_paths(
+        branch_record_index_text,
+        "Active Branch Authority Records",
+    )
+    expected_record_path = STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
+    record_path, record_text = _active_branch_record_for_branch(
+        active_branch_record_paths,
+        branch_name,
+    )
+
+    require(
+        branch_name == STANDING_GOVERNANCE_INTAKE_BRANCH,
+        (
+            "Standing Governance Intake gate must run on "
+            f"`{STANDING_GOVERNANCE_INTAKE_BRANCH}`, found `{branch_name or 'detached HEAD'}`"
+        ),
+    )
+    require(
+        expected_record_path in active_branch_record_paths,
+        (
+            f"{BRANCH_RECORD_INDEX}: Standing Governance Intake Branch record "
+            f"`{expected_record_path}` must be listed under Active Branch Authority Records"
+        ),
+    )
+    require(
+        record_path == expected_record_path,
+        (
+            "Standing Governance Intake gate must resolve the active authority record "
+            f"`{expected_record_path}`, found `{record_path or 'none'}`"
+        ),
+    )
+    if not record_text:
+        return
+
+    info = _parse_workstream_doc(record_text)
+    require(
+        str(info["branch_class"]) == STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS,
+        (
+            f"{expected_record_path}: Branch Class must be "
+            f"`{STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS}`"
+        ),
+    )
+
+    tracked_status = _git_status_porcelain(tracked_only=True)
+    require(
+        not tracked_status,
+        (
+            "Standing Governance Intake gate requires a clean tracked worktree; "
+            f"dirty tracked status: {tracked_status}"
+        ),
+    )
+
+    contract = _section(record_text, "Standing Governance Intake Contract")
+    return_digest = _section(record_text, "Return Digest Contract")
+    require(
+        bool(contract),
+        f"{expected_record_path}: missing ## Standing Governance Intake Contract",
+    )
+    require(
+        bool(return_digest),
+        f"{expected_record_path}: missing ## Return Digest Contract",
+    )
+    for marker in STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS:
+        value = _extract_marker_value(contract, marker)
+        require(
+            bool(value),
+            f"{expected_record_path}: Standing Governance Intake Contract is missing '{marker}:'",
+        )
+    for marker in STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS:
+        require(
+            marker in return_digest,
+            f"{expected_record_path}: Return Digest Contract is missing '{marker}:'",
+        )
+
+    intake_source = _extract_marker_value(contract, "Intake Source")
+    require(
+        "Release Readiness digest only" in intake_source,
+        (
+            f"{expected_record_path}: Intake Source must be limited to "
+            "`Release Readiness digest only`"
+        ),
+    )
+    require(
+        "Waiting For Governance Intake" in record_text and "Waiting For Updated Main" in record_text,
+        (
+            f"{expected_record_path}: originating-lane pause semantics must include "
+            "`Waiting For Governance Intake` and `Waiting For Updated Main`"
+        ),
+    )
+
+    active_cycle_values = re.findall(
+        r"^\s*(?:-\s*)?Active RRI Cycle:\s*`?([^`\n]+)`?\s*$",
+        record_text,
+        flags=re.M,
+    )
+    active_cycles = [
+        value.strip()
+        for value in active_cycle_values
+        if re.fullmatch(r"RRI-\d{8}-\d{3}", value.strip())
+    ]
+    require(
+        len(set(active_cycles)) <= 1,
+        f"{expected_record_path}: only one active `RRI-*` cycle may be recorded",
+    )
+
+    active_cycle = active_cycles[-1] if active_cycles else ""
+    bootstrap_active = (
+        "Bootstrap Setup:" in record_text
+        and "RRI-20260514-001" in record_text
+        and "one-time USER-approved exception" in record_text
+    )
+    if active_cycle:
+        require(
+            "Release Readiness digest only" in intake_source,
+            f"{expected_record_path}: active {active_cycle} must originate from Release Readiness",
+        )
+
+    head_sha = _git_head_sha()
+    origin_main_sha = _git_ref_sha("refs/remotes/origin/main")
+    require(bool(head_sha), "Standing Governance Intake gate could not resolve HEAD")
+    require(bool(origin_main_sha), "Standing Governance Intake gate could not resolve origin/main")
+    if head_sha and origin_main_sha:
+        changed_files, changed_error = _git_changed_files(origin_main_sha, head_sha)
+        require(
+            not changed_error,
+            f"Standing Governance Intake gate could not inspect origin/main..HEAD: {changed_error}",
+        )
+        if changed_files:
+            ancestor_ok, ancestor_error = _git_is_ancestor(origin_main_sha, head_sha)
+            require(
+                not ancestor_error and ancestor_ok,
+                (
+                    "Standing Governance Intake branch must be based on current origin/main "
+                    f"before carrying bootstrap or RRI-cycle changes: {ancestor_error}"
+                ),
+            )
+            for changed_file in changed_files:
+                require(
+                    _standing_governance_intake_file_allowed(changed_file),
+                    (
+                        "Standing Governance Intake may touch only source-truth/governance "
+                        f"docs or registered governance validators; forbidden file: {changed_file}"
+                    ),
+                )
+            require(
+                bool(active_cycle or bootstrap_active),
+                (
+                    "Standing Governance Intake branch is ahead of origin/main without an "
+                    "active RRI cycle or the recorded bootstrap setup exception"
+                ),
+            )
+        else:
+            require(
+                not active_cycle,
+                (
+                    "Standing Governance Intake is equal to origin/main but still records "
+                    f"active cycle `{active_cycle}`"
+                ),
+            )
+
+
 def _run_release_readiness_health_gate(
     require,
     *,
@@ -14411,6 +14636,7 @@ def _run_pr_readiness_gate(
 def main() -> int:
     pr_readiness_gate = "--pr-readiness-gate" in sys.argv[1:]
     release_readiness_health_gate = "--release-readiness-health-gate" in sys.argv[1:]
+    standing_governance_intake_gate = "--standing-governance-intake-gate" in sys.argv[1:]
     errors: list[str] = []
     checks = 0
 
@@ -14512,6 +14738,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: governance-only / between-branch repair blocker guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in STANDING_GOVERNANCE_INTAKE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in STANDING_GOVERNANCE_INTAKE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Standing Governance Intake Branch guidance is missing '{required_phrase}'",
             )
 
     for relative_path in MULTI_SEAM_CONTRACT_DOCS:
@@ -15467,9 +15701,11 @@ def main() -> int:
             active_branch_record_path=active_branch_record_path,
             active_branch_record_text=active_branch_record_text,
         )
+    elif standing_governance_intake_gate:
+        _run_standing_governance_intake_gate(require)
 
     selected_entries = _selected_next_workstream_entries(backlog_entries)
-    if len(selected_entries) == 1 and not pr_readiness_gate:
+    if len(selected_entries) == 1 and not pr_readiness_gate and not standing_governance_intake_gate:
         selected = selected_entries[0]
         selected_id = selected["id"]
         roadmap_section = _next_workstream_roadmap_section(roadmap_text)

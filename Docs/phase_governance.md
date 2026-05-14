@@ -300,6 +300,7 @@ This path is for:
 `docs/governance` branch records may exist as historical records, but new governance-only branches are not used in the normal Nexus flow.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`, and it may accept only a `Release Readiness digest` with an `RRI-YYYYMMDD-NNN` cycle ID, `One Active Cycle`, the pre-intake `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main` pause semantics, and a post-merge `Return Digest`.
 If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 Tightly coupled governance and canon repair must ride on the active branch that owns the affected truth.
@@ -1059,7 +1060,7 @@ The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary
 Branch-specific boundaries are allowed inside `## Branch Evidence` when they clarify reliable branch truth, but generic exclusion dumps, `Not Included` sections, and defensive scope language remain prohibited.
 `## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only; branch boundaries and phase handoff fields do not belong there.
 The PR summary must describe implemented work, validation evidence, governance/canon state, post-merge truth, and next-branch handling only when those items are part of the implemented branch truth.
-GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.
+GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.
 If `May Create Now` is `NO`, the `Next Branch` subsection must explain the blocking gate rather than implying branch creation is allowed.
 
 ### Operator Output Content Rule
@@ -2250,7 +2251,38 @@ When `No Active Branch` is steady-state:
 - do not start the next implementation branch by inertia
 - it is valid for `Next Safe Move` to say explicitly that no branch should open yet
 - a release packaging branch may still enter `Branch Readiness` if its branch-class admission rules pass
-- governance-only branches are not used; governance or canon repair must ride on the next legitimate runtime-focused backlog branch's `Branch Readiness`
+- governance-only branches are not used; governance or canon repair must ride on the next legitimate runtime-focused backlog branch's `Branch Readiness`, except for the single `Standing Governance Intake Branch` defined below
+
+## Standing Governance Intake Branch
+
+Purpose:
+
+- keep Release Readiness file-frozen while routing source-truth drift that Release Readiness discovers to one governed repair lane
+
+Allowed:
+
+- one standing worktree: `C:\Nexus Worktrees\Governance`
+- one standing branch: `feature/release-readiness-source-truth-intake`
+- one intake source: `Release Readiness digest`
+- one cycle ID format: `RRI-YYYYMMDD-NNN`
+- `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
+- `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
+- source-truth/governance/validator drift repair named by the intake digest
+- a post-merge `Return Digest` to the originating worktree/thread
+
+Forbidden:
+
+- runtime/provider/model/memory/voice/Core/shortcut/installer implementation
+- release execution, tags, GitHub Releases, release artifacts, or release-note publication
+- GitHub issue creation, AI Product Contract import, private Dev ORIN import, direct-main mutation, broad docs churn, or next runtime branch creation
+- accepting a non-Release Readiness digest after the one-time bootstrap setup
+
+Originating-lane pause:
+
+- when a Release Readiness blocker is handed off, the originating thread/worktree enters `Waiting For Governance Intake` or `Waiting For Updated Main`
+- that lane must not mutate repository files until the governance PR merges, the standing branch syncs to `origin/main`, the `Return Digest` arrives, and the originating lane fetches/revalidates updated `origin/main`
+
+The `Return Digest` must include the originating branch/worktree, `RRI-*` cycle ID, governance PR, merge commit, updated `origin/main` commit, files changed, blockers cleared/remaining, validations, rebaseline instructions, and `Next Legal Phase`.
 
 ## Exception Path: Post-Release Canon Repair
 

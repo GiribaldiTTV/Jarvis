@@ -179,6 +179,7 @@ If execution needs wider scope than the bounded state allows, stop on `Bounded S
 Do not open a governance-only branch or between-branch canon repair lane.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`; it accepts a `Release Readiness digest` only, uses `RRI-YYYYMMDD-NNN`, enforces `One Active Cycle`, requires the clean pre-intake `Sync Rule`, pauses the originating lane in `Waiting For Governance Intake` or `Waiting For Updated Main`, and must send a post-merge `Return Digest`.
 If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 Release-packaging branches may proceed only when the branch-class admission rules from `C:\Nexus Desktop AI\Docs\phase_governance.md` allow them.
@@ -765,7 +766,7 @@ The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary
 Use concrete Branch Evidence subheads such as `### Changes`, `### Context`, `### Source Truth`, or `### Boundaries` only when they improve scanability.
 The PR summary must report implemented branch and validation truth only. Generic exclusion dumps, `Not Included` sections, and defensive scope language remain prohibited; concise branch-specific boundaries are allowed inside `## Branch Evidence` when they clarify reliable branch truth.
 `## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only.
-GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.
+GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.
 
 If `Release Readiness` is green for release execution, the final response must include these inclusion-only copy-ready operator blocks:
 
@@ -808,5 +809,6 @@ During Release Execution, use GitHub-generated release notes through the GitHub 
 - Do not open a governance-only branch or between-branch repair window for missed PR Readiness work; carry the repair in the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation begins.
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+- Exception: the single `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, may handle a `Release Readiness digest` using `RRI-YYYYMMDD-NNN`, `One Active Cycle`, the `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main`, and a `Return Digest`.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.

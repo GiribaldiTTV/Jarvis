@@ -26,6 +26,11 @@ PHASE_DIGEST_MARKERS = {
     "Continue Decision",
     "Stop Basis",
 }
+PR_BODY_FIREWALL_MARKERS = PHASE_DIGEST_MARKERS | {
+    "Exact next USER decision",
+    "Implemented, validated",
+    "::git-",
+}
 BOUNDARY_HEADINGS = {
     "not included",
     "not included:",
@@ -419,6 +424,14 @@ def normalize_evidence(
     return tidy_markdown(evidence), reasons, warnings
 
 
+def pr_body_firewall_warnings(body: str) -> list[str]:
+    warnings: list[str] = []
+    for marker in sorted(PR_BODY_FIREWALL_MARKERS):
+        if marker in body:
+            warnings.append(f"PR body firewall marker remains: {marker}")
+    return warnings
+
+
 def build_body(summary: str, evidence: str, validation: str) -> str:
     return (
         f"## Summary\n\n{summary.strip()}\n\n"
@@ -460,7 +473,8 @@ def normalize_body(pr: PullRequest) -> NormalizedBody:
     original = strip_bom(pr.body).strip()
     if body.strip() != original and not reasons:
         reasons.append("normalized whitespace")
-    return NormalizedBody(body=body, reasons=reasons, warnings=evidence_warnings)
+    warnings = evidence_warnings + pr_body_firewall_warnings(body)
+    return NormalizedBody(body=body, reasons=reasons, warnings=warnings)
 
 
 def write_text(path: Path, value: str) -> None:

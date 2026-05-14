@@ -8,6 +8,7 @@ Use this layer for:
 
 - active `Registry-only` backlog branches in `Branch Readiness` before a promoted canonical workstream exists
 - `release packaging` branches
+- the single `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, for Release Readiness digest source-truth drift intake only
 - active `repair/dev-tooling-governance` feature branches when USER-admitted repair scope includes developer-tooling plus governance hardening
 - USER-approved bounded issue-readiness/source-truth repair carriers that extend an existing family branch authority record without creating GitHub issues or admitting implementation
 - preserved historical `docs/governance` or `emergency canon repair` records
@@ -26,6 +27,7 @@ Do not use this layer to replace:
 - active `Registry-only` backlog branches may use this layer during `Branch Readiness` before promotion
 - active-branch-first remains the default during `pre-Beta`
 - new governance-only branches are not used for Nexus work
+- Exception: exactly one `Standing Governance Intake Branch` is allowed: `feature/release-readiness-source-truth-intake` at `C:\Nexus Worktrees\Governance`. It accepts a `Release Readiness digest` only, uses cycle IDs shaped `RRI-YYYYMMDD-NNN`, enforces `One Active Cycle`, requires a clean `Sync Rule` match to `origin/main` before each new intake, and must emit a `Return Digest` after merge/sync before the originating lane leaves `Waiting For Governance Intake` or `Waiting For Updated Main`.
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
 - USER-approved workspace-resilience or dev-tooling governance foundation carriers may exist only to clear a recorded multi-worktree/thread-safety blocker before future branch work; they do not authorize runtime implementation, package admission, release work, issue work, AI Product Contract import, or future standalone governance branches.
@@ -92,6 +94,8 @@ Do not use this layer to replace:
   - what it must not change
 
 ## Active Branch Authority Records
+
+- `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
 ## Historical Branch Authority Records
 
