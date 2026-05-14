@@ -458,6 +458,12 @@ body {
 .ai-provider-status__selection,
 .ai-provider-status__configuration,
 .ai-provider-status__registry,
+.ai-provider-status__hardware,
+.ai-provider-status__capability-pack,
+.ai-provider-status__memory,
+.ai-provider-status__windows,
+.ai-provider-status__persona,
+.ai-provider-status__validation,
 .ai-provider-status__consent,
 .ai-provider-status__disclosure,
 .ai-provider-status__fallback,
@@ -476,6 +482,21 @@ body {
 .ai-provider-status__configuration,
 .ai-provider-status__registry {
   color: rgba(204, 229, 240, 0.9);
+}
+
+.ai-provider-status__hardware,
+.ai-provider-status__capability-pack {
+  color: rgba(196, 224, 246, 0.9);
+}
+
+.ai-provider-status__memory,
+.ai-provider-status__windows {
+  color: rgba(196, 231, 224, 0.9);
+}
+
+.ai-provider-status__persona,
+.ai-provider-status__validation {
+  color: rgba(222, 218, 246, 0.9);
 }
 
 .ai-provider-status__consent {

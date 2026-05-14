@@ -11,6 +11,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from desktop.ai_provider_state import (  # noqa: E402
+    CAPABILITY_PACK_DOWNLOADS_BLOCKED,
+    CAPABILITY_PACK_LIFECYCLE_PLANNED,
+    FAM007_FOUNDATION_READINESS_MODE,
+    FAM007_FOUNDATION_READINESS_STATE_ID,
+    LOCAL_HARDWARE_CAPABILITY_STATE,
     LOCAL_PROVIDER_REGISTRY_AVAILABILITY,
     LOCAL_PROVIDER_REGISTRY_MODE,
     LOCAL_PROVIDER_REGISTRY_STATE,
@@ -29,6 +34,17 @@ from desktop.ai_provider_state import (  # noqa: E402
     PROVIDER_SELECTION_STATE_ID,
     SLC_017_ID,
     SLC_018_ID,
+    SLC_031_ID,
+    SLC_032_ID,
+    SLC_033_ID,
+    SLC_034_ID,
+    SLC_035_ID,
+    SLC_036_ID,
+    VALIDATION_PROOF_GATES_PLANNED,
+    MEMORY_CONTEXT_DISABLED,
+    WINDOWS_RESILIENCE_PLANNED,
+    PERSONA_CORE_VOICE_BOUNDARY_PLANNED,
+    build_fam007_foundation_readiness_state,
     build_local_provider_registry_state,
     build_no_provider_ai_state,
     build_provider_selection_consent_state,
@@ -50,9 +66,11 @@ def validate() -> list[str]:
     snapshot = build_no_provider_ai_state(surface_role="core")
     selection_snapshot = build_provider_selection_consent_state(surface_role="core")
     registry_snapshot = build_local_provider_registry_state(surface_role="core")
+    foundation_snapshot = build_fam007_foundation_readiness_state(surface_role="core")
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
+    foundation_payload = foundation_snapshot.as_renderer_payload()
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     html = _read("nexus_visual/orin_core.html")
@@ -210,6 +228,116 @@ def validate() -> list[str]:
         _require(entry["providerVisibleData"] == "none", "provider registry entries must not expose provider-visible data", failures)
         _require(entry["externalCalls"] == "blocked", "provider registry entries must block external calls", failures)
 
+    expected_foundation_slices = (
+        SLC_017_ID,
+        SLC_018_ID,
+        SLC_031_ID,
+        SLC_032_ID,
+        SLC_033_ID,
+        SLC_034_ID,
+        SLC_035_ID,
+        SLC_036_ID,
+    )
+    _require(
+        foundation_snapshot.state_id == FAM007_FOUNDATION_READINESS_STATE_ID,
+        "foundation readiness scaffold must use the admitted FAM-007 readiness state id",
+        failures,
+    )
+    _require(
+        foundation_snapshot.slice_ids == expected_foundation_slices,
+        "foundation readiness scaffold must carry every admitted branch-material slice",
+        failures,
+    )
+    _require(
+        foundation_snapshot.mode == FAM007_FOUNDATION_READINESS_MODE,
+        "foundation readiness scaffold must use foundation-readiness mode",
+        failures,
+    )
+    _require(
+        foundation_payload["selectedProviderId"] == NO_PROVIDER_ID,
+        "foundation readiness scaffold must keep no-provider selected",
+        failures,
+    )
+    _require(
+        foundation_payload["providerConfigurationState"] == PROVIDER_CONFIGURATION_UNCONFIGURED,
+        "foundation readiness scaffold must keep provider configuration unconfigured",
+        failures,
+    )
+    _require(
+        foundation_payload["providerRegistryState"] == LOCAL_PROVIDER_REGISTRY_STATE,
+        "foundation readiness scaffold must preserve local-only registry posture",
+        failures,
+    )
+    _require(
+        foundation_payload["hardwareCapabilityState"] == LOCAL_HARDWARE_CAPABILITY_STATE,
+        "foundation readiness scaffold must expose local-only hardware planning state",
+        failures,
+    )
+    _require(
+        foundation_payload["gpuCapabilityState"] == "gpu-unprobed",
+        "foundation readiness scaffold must not claim GPU capability proof",
+        failures,
+    )
+    _require(
+        foundation_payload["cpuFallbackState"] == "cpu-fallback-preserved",
+        "foundation readiness scaffold must preserve CPU fallback",
+        failures,
+    )
+    _require(
+        foundation_payload["modelWorkloadState"] == "model-workload-disabled",
+        "foundation readiness scaffold must keep model workloads disabled",
+        failures,
+    )
+    _require(
+        foundation_payload["capabilityPackLifecycleState"] == CAPABILITY_PACK_LIFECYCLE_PLANNED,
+        "foundation readiness scaffold must expose capability-pack lifecycle planning state",
+        failures,
+    )
+    _require(
+        foundation_payload["capabilityPackDownloadState"] == CAPABILITY_PACK_DOWNLOADS_BLOCKED,
+        "foundation readiness scaffold must block capability-pack downloads",
+        failures,
+    )
+    _require(
+        foundation_payload["memoryContextState"] == MEMORY_CONTEXT_DISABLED,
+        "foundation readiness scaffold must keep memory/context disabled",
+        failures,
+    )
+    _require(
+        foundation_payload["windowsResilienceState"] == WINDOWS_RESILIENCE_PLANNED,
+        "foundation readiness scaffold must expose Windows resilience planning state",
+        failures,
+    )
+    _require(
+        foundation_payload["personaCoreVoiceState"] == PERSONA_CORE_VOICE_BOUNDARY_PLANNED,
+        "foundation readiness scaffold must expose persona/Core/voice planning boundary",
+        failures,
+    )
+    _require(
+        foundation_payload["voiceRuntimeState"] == "voice-runtime-disabled",
+        "foundation readiness scaffold must keep voice runtime disabled",
+        failures,
+    )
+    _require(
+        foundation_payload["validationProofGateState"] == VALIDATION_PROOF_GATES_PLANNED,
+        "foundation readiness scaffold must expose validation proof gates",
+        failures,
+    )
+    _require(foundation_payload["sentToProvider"] is False, "foundation readiness scaffold must send nothing to providers", failures)
+    _require(foundation_payload["storedLocally"] is False, "foundation readiness scaffold must not persist local memory", failures)
+    _require(foundation_payload["canAcceptPrompts"] is False, "foundation readiness scaffold must not accept prompts", failures)
+    _require(foundation_payload["externalCalls"] == "blocked", "foundation readiness scaffold must block external calls", failures)
+    _require(
+        foundation_payload["providerVisibleData"] == "none",
+        "foundation readiness scaffold must expose no provider-visible data",
+        failures,
+    )
+    _require(
+        len(foundation_payload["foundationReadiness"]) == len(expected_foundation_slices),
+        "foundation readiness scaffold must publish one readiness item per admitted slice",
+        failures,
+    )
+
     for forbidden in ("openai", "anthropic", "ollama", "llama_cpp", "pynvml", "cuda"):
         _require(
             forbidden not in _read("desktop/ai_provider_state.py").casefold(),
@@ -218,7 +346,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "build_local_provider_registry_state",
+        "build_fam007_foundation_readiness_state",
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
@@ -239,11 +367,23 @@ def validate() -> list[str]:
             'data-provider-registry="local-only-registry"',
             'data-configured-provider-count="0"',
             'data-available-provider-count="0"',
+            'data-hardware-capability="local-planning-only"',
+            'data-capability-pack-lifecycle="capability-pack-lifecycle-planned"',
+            'data-memory-context="memory-context-disabled"',
+            'data-windows-resilience="windows-resilience-planned"',
+            'data-persona-voice-boundary="persona-core-voice-boundary-planned"',
+            'data-validation-gates="validation-proof-gates-planned"',
             'data-consent-state="required-before-provider"',
             "No AI provider",
             "No-provider fallback active",
             "Provider configuration: none",
             "Local provider registry: no configured providers",
+            "Hardware capability: local planning only",
+            "Capability packs: lifecycle planned",
+            "Memory/context: disabled; no indexing",
+            "Windows resilience: planning only",
+            "Persona/Core/voice: planning boundary",
+            "Validation gates: static proof active",
             "Consent required before provider setup",
             "Provider-visible data: none",
             'id="ai-provider-status-action"',
@@ -273,6 +413,12 @@ def validate() -> list[str]:
         "providerSelectionState",
         "providerConfigurationState",
         "providerRegistryState",
+        "hardwareCapabilityState",
+        "capabilityPackLifecycleState",
+        "memoryContextState",
+        "windowsResilienceState",
+        "personaCoreVoiceState",
+        "validationProofGateState",
         "configuredProviderCount",
         "availableProviderCount",
         "requiresConsent",
@@ -290,6 +436,12 @@ def validate() -> list[str]:
         "SLC-017/SLC-018 Provider Selection And Consent Boundary Scaffold",
         "SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface",
         "SLC-018 Local Provider Registry And Configuration State",
+        "SLC-031 Hardware/GPU/CPU Capability Planning Scaffold",
+        "SLC-032 Model And Capability-Pack Lifecycle Planning Scaffold",
+        "SLC-033 Data Classification Memory Context Consent Audit Secrets Planning Scaffold",
+        "SLC-034 Windows Resilience Platform Posture Planning Scaffold",
+        "SLC-035 Persona Core Voice Planning Boundary",
+        "SLC-036 Validation Eval Abuse Release Proof Gates",
         "model downloads",
         "real provider SDK integration",
         "AI Product Contract v0.6.2",
