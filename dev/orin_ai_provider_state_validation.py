@@ -517,8 +517,10 @@ def validate() -> list[str]:
         "visible consent-boundary copy",
         "provider-visible-data detail",
         "disabled provider setup next action",
-        "Next Bounded Seam Approval Missing",
+        "Completion Status: `In Progress`",
+        "Continue Decision: `Continue`",
         "Continuation Execution Latch:",
+        "SLC-031/SLC-032 Local Capability-Readiness Continuation is the active same-branch continuation seam",
         "Bounded means one active seam at a time, not one-seam Workstream authority",
     ):
         _require(

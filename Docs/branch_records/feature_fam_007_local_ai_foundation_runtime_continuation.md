@@ -35,7 +35,7 @@ This branch inherits the release-dependent source-truth closure from RRI-2026051
 - Standing Governance Intake State: `Idle - feature/release-readiness-source-truth-intake is the standing governance intake exception with Active RRI Cycle: None`
 - Release Canon Closure: `Inherited closed state from RRI-20260514-006 / PR #151 - v1.7.1-prebeta is published and current source truth records it as the latest public prerelease`
 - Workstream Entry Analysis: `Complete - SLC-017/SLC-018 Local AI Foundation Runtime Continuation - Provider Boundary Interaction Plan is admitted as the current bounded Workstream seam for source-truth entry only`
-- Runtime Implementation: `SLC-017/SLC-018 provider-boundary interaction continuation seam executed as local-only scaffold; next bounded seam is blocked until USER approves SLC-031/SLC-032 local capability-readiness continuation`
+- Runtime Implementation: `SLC-017/SLC-018 provider-boundary interaction continuation seam executed as local-only scaffold; SLC-031/SLC-032 local capability-readiness continuation is the active same-branch bounded Workstream seam`
 - AI Product Contract v0.6.2: `External USER planning evidence only; not imported`
 
 ## Branch Class
@@ -81,21 +81,23 @@ No Unique Commit Loss Proof: `PASS - zero local-only commits, empty branch diff,
 
 ## Blockers
 
-- `Next Bounded Seam Approval Missing`: active until USER approves SLC-031/SLC-032 local capability-readiness continuation as the next bounded Workstream seam on this branch.
-- `Provider SDK Approval Missing`: active.
-- `Model Download Approval Missing`: active.
-- `External Provider Call Approval Missing`: active.
-- `Memory/Indexing Approval Missing`: active.
-- `Voice/Core Sync Approval Missing`: active.
-- `Shortcut/Installer Approval Missing`: active.
-- `AI Product Contract Full Import Approval Missing`: active.
-- `Private Dev ORIN Import Approval Missing`: active.
-- `GitHub Issue Creation Approval Missing`: active.
-- `PR Creation Approval Missing`: active.
-- `Merge Approval Missing`: active.
-- `Release Execution Approval Missing`: active for any future release beyond already published `v1.7.1-prebeta`.
-- `Backlog Completion Unproven`: active because PKG-007 still has remaining same-branch bounded Workstream seams before Hardening.
-- `Package Completion Unproven`: active because PKG-007 is admitted and scaffold evidence is preserved, but the package is not complete.
+- `Backlog Completion Unproven`: active as a non-stop progress marker because same-branch admitted seams remain; it is not authority to halt bounded Workstream continuation.
+- No stop-authorizing blocker exists for the active bounded Workstream continuation. Same-branch admitted seams remain and no USER single-seam or single-slice waiver is recorded, so Workstream continuation must proceed until Completion Status is Green with Hardening next or Red with a valid non-waived blocker.
+
+## Pending USER Decisions
+
+- Provider SDK integration.
+- Model downloads.
+- External provider calls.
+- Memory/indexing implementation.
+- Voice/Core sync.
+- Shortcut/installer work.
+- AI Product Contract full import.
+- Private Dev ORIN import.
+- GitHub issue creation.
+- PR creation.
+- Merge.
+- Release execution beyond already published `v1.7.1-prebeta`.
 
 ## Entry Basis
 
@@ -136,7 +138,7 @@ Rollback Path: if validation fails before commit, repair source truth on this br
 
 - `Workstream`
 
-Next Legal Phase Gate: SLC-017/SLC-018 provider-boundary interaction continuation is executed and validated as local-only scaffold work. The next legal phase remains Workstream, blocked on USER approval for the next bounded seam: SLC-031/SLC-032 Local Capability-Readiness Continuation, limited to local hardware/capability and capability-pack planning state without provider SDKs, model downloads, external calls, memory/indexing, voice/Core sync, shortcut/installer changes, release work, AI Product Contract import, private Dev ORIN import, PR creation, merge, or GitHub issue creation.
+Next Legal Phase Gate: SLC-017/SLC-018 provider-boundary interaction continuation is executed and validated as local-only scaffold work. The next legal phase remains Workstream continuation with SLC-031/SLC-032 Local Capability-Readiness Continuation as the active bounded seam, limited to local hardware/capability and capability-pack planning state without provider SDKs, model downloads, external calls, memory/indexing, voice/Core sync, shortcut/installer changes, release work, AI Product Contract import, private Dev ORIN import, PR creation, merge, or GitHub issue creation.
 
 ## Product Definition Plan
 
@@ -144,13 +146,13 @@ Product Vision: `FAM-007 should make Nexus a Windows-first desktop product with 
 
 User-Facing Goal: `After the prior local-only scaffold release, the next continuation should make the no-provider/provider-boundary posture clearer and more actionable without enabling provider calls or model execution.`
 
-USER Vision Questions: `No new product-vision questions block the completed SLC-017/SLC-018 provider-boundary interaction continuation. The next same-branch Workstream approval should name the SLC-031/SLC-032 local capability-readiness seam if USER wants continuation.`
+USER Vision Questions: `No new product-vision questions block the completed SLC-017/SLC-018 provider-boundary interaction continuation. The next same-branch Workstream action is SLC-031/SLC-032 local capability-readiness continuation unless a later USER waiver or valid blocker changes the sequence.`
 
-Codex Product Interpretation: `The branch should continue from the released local-only scaffold evidence, keep one active FAM-007 branch instead of a branch-per-slice spread, and progress seam-by-seam only after explicit USER approval.`
+Codex Product Interpretation: `The branch should continue from the released local-only scaffold evidence, keep one active FAM-007 branch instead of a branch-per-slice spread, and progress seam-by-seam under the existing bounded Workstream authority until Workstream Completion Status is Green with Hardening next or Red with a valid blocker or USER waiver.`
 
 Codex Implementation Recommendation: `Use this branch for the next bounded local-only FAM-007 Workstream seam. Do not start provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcuts, installer work, release work, issue creation, or contract import.`
 
-USER/ChatGPT Review Checkpoint: `USER approved the SLC-017/SLC-018 Workstream execution; ChatGPT may challenge whether the executed seam remained local-only, provider-safe, and bounded before USER approves the next SLC-031/SLC-032 seam.`
+USER/ChatGPT Review Checkpoint: `USER approved the bounded Workstream execution path; ChatGPT may challenge whether each executed seam remains local-only, provider-safe, and bounded, but SLC-031/SLC-032 remains the active same-branch continuation seam unless a valid blocker or USER waiver changes the sequence.`
 
 Full Feature Element Breakdown: `SLC-017 no-provider shell state, Assisted Desktop Mode, disabled/unavailable interaction affordance, and no-provider fallback; SLC-018 provider boundary, provider-selection visibility, consent-required posture, privacy-visible state, no hidden external provider calls, and provider-visible-data disclosure; SLC-031 hardware safety, power state, GPU/CPU capability routing, and CPU fallback; SLC-032 model and capability-pack lifecycle, install/update/uninstall state, disk expectation, and lean default posture; SLC-033 data classification, memory/context retention, consent, audit, secrets, and trust reset; SLC-034 Windows compatibility, resilience, degraded/offline behavior, and platform posture; SLC-035 ORIN/ARIA persona shell, progress presence, Core/voice sync planning, and deferral boundaries; SLC-036 validation, eval, abuse testing, privacy proof, hardware proof, capability-pack proof, and release proof gates.`
 
@@ -172,11 +174,11 @@ Validation Proof Requirements: `git diff --check origin/main...HEAD`; `python de
 
 Screenshot / Live / User Test Summary Proof Requirements: `Static validation is required for this local-only Workstream seam. Screenshot/live/User Test Summary proof remains a Hardening or Live Validation decision and must be defined or explicitly waived before later phase green.`
 
-Implementation Sequence Proposal: `SLC-017/SLC-018 provider-boundary interaction continuation is executed and validated. Next, request USER approval for SLC-031/SLC-032 local capability-readiness continuation, then SLC-033 through SLC-036 proof and safety expansion, each as a named bounded seam.`
+Implementation Sequence Proposal: `SLC-017/SLC-018 provider-boundary interaction continuation is executed and validated. Next, execute SLC-031/SLC-032 local capability-readiness continuation, then continue through SLC-033 through SLC-036 proof and safety expansion, each as a named bounded seam unless a valid blocker or USER waiver changes the sequence.`
 
-Planning Blockers: `Next Bounded Seam Approval Missing`; `Provider SDK Approval Missing`; `Model Download Approval Missing`; `External Provider Call Approval Missing`; `Memory/Indexing Approval Missing`; `Voice/Core Sync Approval Missing`; `Shortcut/Installer Approval Missing`; `AI Product Contract Full Import Approval Missing`; `Private Dev ORIN Import Approval Missing`; `GitHub Issue Creation Approval Missing`; `PR Creation Approval Missing`; `Merge Approval Missing`.
+Planning Blockers: None for active bounded Workstream continuation. Provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, AI Product Contract full import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and release execution remain separate pending USER decisions and non-includes, not stop-authorizing blockers for the local-only SLC-031/SLC-032 seam.
 
-USER Decisions Needed: `Approve SLC-031/SLC-032 Local Capability-Readiness Continuation as the next bounded Workstream seam on this branch, or choose to stop on the named Next Bounded Seam Approval Missing blocker. Later decisions remain separate for provider SDK/model work, memory/indexing, voice/Core sync, shortcut/installer work, PR creation, merge, release work, AI Product Contract import, Private Dev ORIN import, and GitHub issue creation.`
+USER Decisions Needed: `No USER waiver or additional USER approval is recorded as required for same-branch local-only Workstream continuation into SLC-031/SLC-032. Later decisions remain separate for provider SDK/model work, memory/indexing, voice/Core sync, shortcut/installer work, PR creation, merge, release work, AI Product Contract import, Private Dev ORIN import, and GitHub issue creation.`
 
 Planning Packet Status: Complete
 
@@ -184,11 +186,11 @@ Planning Revalidation Status: PASS
 
 User Test Summary Strategy: `No UTS for Branch Readiness. Future user-facing Workstream proof must define UTS applicability or waiver.`
 
-Planning Completion Waiver: `Not required; SLC-017/SLC-018 execution is complete and the next SLC-031/SLC-032 Workstream seam requires USER approval.`
+Planning Completion Waiver: `Not required; SLC-017/SLC-018 execution is complete and the next SLC-031/SLC-032 Workstream seam remains same-branch bounded Workstream continuation.`
 
 ## Branch Objective
 
-Recreate the stale empty FAM-007 local continuation branch from current `origin/main`, assign it as the active FAM-007 carrier on top of PR #151 closed release-canon truth, execute the SLC-017/SLC-018 provider-boundary interaction plan as a bounded local-only Workstream seam, and stop on the named next-seam blocker before SLC-031/SLC-032.
+Recreate the stale empty FAM-007 local continuation branch from current `origin/main`, assign it as the active FAM-007 carrier on top of PR #151 closed release-canon truth, execute the SLC-017/SLC-018 provider-boundary interaction plan as a bounded local-only Workstream seam, and continue into SLC-031/SLC-032 until Workstream Completion Status is Green with Hardening next or Red with a valid blocker or USER waiver.
 
 ## Target End-State
 
@@ -197,21 +199,21 @@ Recreate the stale empty FAM-007 local continuation branch from current `origin/
 - `v1.7.1-prebeta` is recorded as the latest public prerelease for this Branch Readiness entry.
 - PR #129, PR #132, PR #138, and PR #142 are no longer treated as unreleased relative to the current release window because they are included in `v1.7.1-prebeta`.
 - `PKG-007` remains admitted and not package-complete.
-- SLC-017/SLC-018 provider-boundary interaction continuation is executed as a local-only bounded Workstream seam; the next SLC-031/SLC-032 local capability-readiness seam remains blocked until USER approval.
+- SLC-017/SLC-018 provider-boundary interaction continuation is executed as a local-only bounded Workstream seam; the next SLC-031/SLC-032 local capability-readiness seam is the active Workstream continuation seam.
 
 ## Backlog Completion Strategy
 
 This branch does not complete `PKG-007`. It creates the current FAM-007 continuation carrier on top of the release/current-state closure already completed by RRI-20260514-006 / PR #151, executes the first bounded SLC-017/SLC-018 continuation seam, and preserves a named same-branch continuation path for SLC-031/SLC-032 and later slices.
 
 Branch Completion Goal: `Establish durable active branch authority, backlog/roadmap selected-next truth, executed SLC-017/SLC-018 provider-boundary interaction proof, and explicit next-seam continuation posture.`
-Known Future-Dependent Blockers: `Next bounded seam approval, provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, PR creation, merge, release execution, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation remain future USER approval gates.`
+Known Future-Dependent Blockers: `Provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, PR creation, merge, release execution, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation remain future USER approval gates. These do not block local-only SLC-031/SLC-032 Workstream continuation.`
 Branch Closure Rule: `This Workstream carrier may close only after source truth, static validation, and runtime scaffold proof are current and the branch is pushed; it does not imply package completion, slice completion, Workstream completion, PR readiness, merge readiness, or release readiness.`
 
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
 
-Completion Status: `Red`
+Completion Status: `In Progress`
 
 Remaining Implementable Work: `SLC-031/SLC-032 local capability-readiness continuation, then later bounded seams across SLC-033/SLC-036 data, resilience, persona, validation, and proof-gate continuation.`
 
@@ -236,7 +238,7 @@ No User Test Summary is required during this Workstream seam execution. Future H
 
 ## Later-Phase Expectations
 
-After this SLC-017/SLC-018 Workstream seam validates and is pushed, the next legal phase remains bounded Workstream execution only after USER approves SLC-031/SLC-032 Local Capability-Readiness Continuation on `feature/fam-007-local-ai-foundation-runtime-continuation`. Runtime/provider/model/memory/voice/shortcut/installer/release/contract/issue/PR/merge work remains blocked unless the USER approval names that later phase and scope.
+After this SLC-017/SLC-018 Workstream seam validates and is pushed, the next legal phase remains bounded Workstream execution on SLC-031/SLC-032 Local Capability-Readiness Continuation on `feature/fam-007-local-ai-foundation-runtime-continuation`. Runtime/provider/model/memory/voice/shortcut/installer/release/contract/issue/PR/merge work remains blocked unless the USER approval names that later phase and scope.
 
 ## Initial Workstream Seam Sequence
 
@@ -252,7 +254,7 @@ Non-Includes: `provider SDK integration`; `model downloads`; `external provider 
 
 Seam 2: `SLC-031/SLC-032 Local Capability-Readiness Continuation`
 
-Admission Status: `Pending USER approval`
+Admission Status: `Admitted for bounded Workstream continuation`
 
 Goal: `Continue the same-branch FAM-007 Workstream with local-only hardware/capability and capability-pack readiness state, while preserving disabled provider and no-model-execution posture.`
 
@@ -262,7 +264,7 @@ Non-Includes: `provider SDK integration`; `model downloads`; `model execution`; 
 
 Seam 3: `SLC-033/SLC-036 Local Data Resilience Persona And Proof-Gate Continuation`
 
-Admission Status: `Pending USER approval after Seam 2 or a USER-approved resequence`
+Admission Status: `Sequenced after Seam 2 unless a USER-approved resequence or valid blocker changes the order`
 
 Goal: `Continue through the remaining admitted same-branch FAM-007 branch material without leaving Workstream until Completion Status is Green and Hardening is the next phase, or Red with a named blocker or USER waiver.`
 
@@ -305,39 +307,39 @@ Prior Released Evidence: `PR #138 released in v1.7.1-prebeta as a local-only FAM
 - Developer-Tooling Delta: `Static FAM-007 provider-state validation now checks the provider-boundary interaction fields, Core/desktop renderer propagation markers, visible HTML/JS/CSS surface markers, current continuation branch source truth, and bounded Workstream continuation posture.`
 - Exact Affected Paths: `desktop/ai_provider_state.py`; `desktop/core_visualization_renderer.py`; `desktop/desktop_renderer.py`; `nexus_visual/orin_core.html`; `nexus_visual/orin_core_desktop.html`; `nexus_visual/orin_core.css`; `nexus_visual/orin_core.js`; `dev/orin_ai_provider_state_validation.py`; `Docs/validation_helper_registry.md`; this branch record; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`.
 - Non-Includes: `provider SDK integration`; `model downloads`; `model execution`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR creation`; `merge`.
-- Implementation Admission Status: `Granted by USER for the bounded SLC-017/SLC-018 provider-boundary interaction continuation seam only; SLC-031/SLC-032 Local Capability-Readiness Continuation and all later seams remain blocked until USER approval.`
+- Implementation Admission Status: `Granted by USER for bounded local-only Workstream execution on this branch; SLC-017/SLC-018 provider-boundary interaction continuation is complete, SLC-031/SLC-032 Local Capability-Readiness Continuation is the active same-branch continuation seam, and all provider SDK, model download, external call, memory/indexing, voice/Core sync, shortcut/installer, release, PR, merge, contract import, private import, and issue work remains USER-gated.`
 
 ## Active Seam
 
 Active seam: `SLC-031/SLC-032 Local Capability-Readiness Continuation`
 
-Active Seam Status: `Blocked pending USER approval for the next bounded Workstream seam`
+Active Seam Status: `Active bounded Workstream continuation`
 
 Completed Prior Seam: `SLC-017/SLC-018 Local AI Foundation Runtime Continuation - Provider Boundary Interaction Plan is implemented as local-only provider-boundary interaction scaffold with visible consent-boundary copy, provider-visible-data detail, disabled provider setup next action, no-provider fallback, and direct validation.`
 
-Stop Basis: `Next Bounded Seam Approval Missing`
+Stop Basis: `None`
 
 ## Seam Continuation Decision
 
-Seam Status: `Blocked`
+Seam Status: `In Progress`
 
 Slice Status: `In Progress`
 
-Completion Status: `Red`
+Completion Status: `In Progress`
 
 Waiver Status: `None`
 
-Continue Decision: `Stop`
+Continue Decision: `Continue`
 
-Continuation Execution Latch: `Inactive - named USER approval blocker stops bounded Workstream execution before runtime changes; once USER approves execution, the latch becomes active and final responses are prohibited until the same bounded Workstream run reaches Green or Red.`
+Continuation Execution Latch: `Active - final responses are prohibited once the bounded Workstream run begins; execute the next active seam in the same bounded Workstream run until Completion Status is Green with Hardening next or Red with a valid blocker or USER waiver.`
 
-Stop Basis: `Named Blocker`
+Stop Basis: `None`
 
 Next Active Seam: `SLC-031/SLC-032 Local Capability-Readiness Continuation`
 
-Stop Condition: `Next Bounded Seam Approval Missing`
+Stop Condition: `None`
 
-Continuation Action: `Clear the named blocker by obtaining USER approval to execute SLC-031/SLC-032 Local Capability-Readiness Continuation as the next bounded Workstream seam; after approval, continue seam-to-seam and slice-to-slice on this branch until Completion Status is Green and the next legal phase is Hardening, or Red with a named blocker or USER waiver.`
+Continuation Action: `Execute SLC-031/SLC-032 Local Capability-Readiness Continuation as the next bounded Workstream seam, then continue seam-to-seam and slice-to-slice on this branch until Completion Status is Green and the next legal phase is Hardening, or Red with a valid blocker or USER waiver.`
 
 Single-Seam Workstream Waiver: `None`
 
