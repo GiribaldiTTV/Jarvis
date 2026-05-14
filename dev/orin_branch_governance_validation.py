@@ -3128,6 +3128,39 @@ STALE_BRANCH_CLEANUP_PHRASES = (
     "Branch Readiness Stage 2 - Execution Gate",
 )
 
+BRANCH_READINESS_CARRIER_LIFECYCLE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+
+BRANCH_READINESS_CARRIER_LIFECYCLE_PHRASES = (
+    "Carrier Lifecycle Decision",
+    "Carrier Lifecycle Classification:",
+    "Remote Branch State:",
+    "Unique Branch Diff:",
+    "Origin/Main Ancestry:",
+    "Origin/Main Advanced Since Branch Creation:",
+    "Open PR State:",
+    "Worktree Checkout State:",
+    "Recommended Stage 2 Carrier Action:",
+    "Stale Branch Cleanup Plan:",
+    "Branch Cleanup Execution Gate:",
+    "Recreate From Current origin/main:",
+    "No Unique Commit Loss Proof:",
+    "Fresh current branch",
+    "Stale empty local branch",
+    "Stale branch with unique commits",
+    "Historical merged branch",
+    "Wrong carrier/worktree",
+    "Active remote/open PR branch",
+)
+
 CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES = {
     Path("Docs/nexus_startup_contract.md"): (
         "Local ChatGPT custom instructions should stay compact",
@@ -15414,6 +15447,17 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: stale branch cleanup governance is missing '{required_phrase}'",
+            )
+
+    for relative_path in BRANCH_READINESS_CARRIER_LIFECYCLE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in BRANCH_READINESS_CARRIER_LIFECYCLE_PHRASES:
+            require(
+                required_phrase in text,
+                (
+                    f"{relative_path}: Branch Readiness carrier lifecycle "
+                    f"governance is missing '{required_phrase}'"
+                ),
             )
 
     for relative_path, required_phrases in PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES.items():
