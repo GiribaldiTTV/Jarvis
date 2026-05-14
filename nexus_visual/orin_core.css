@@ -455,12 +455,22 @@ body {
 }
 
 .ai-provider-status__provider,
+.ai-provider-status__selection,
+.ai-provider-status__consent,
 .ai-provider-status__privacy {
   margin-top: 7px;
   color: rgba(214, 233, 242, 0.88);
   font-size: 12px;
   line-height: 1.35;
   overflow-wrap: anywhere;
+}
+
+.ai-provider-status__selection {
+  color: rgba(205, 224, 255, 0.9);
+}
+
+.ai-provider-status__consent {
+  color: rgba(255, 218, 151, 0.94);
 }
 
 .ai-provider-status__privacy {

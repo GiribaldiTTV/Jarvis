@@ -46,6 +46,8 @@
       data-availability="disabled"
       data-mode="no-provider"
       data-privacy-scope="local-only"
+      data-provider-selection="fallback-no-provider"
+      data-consent-state="required-before-provider"
       aria-live="polite"
     >
       <div class="ai-provider-status__topline">
@@ -53,6 +55,8 @@
         <span id="ai-provider-status-state" class="ai-provider-status__state">AI unavailable</span>
       </div>
       <div id="ai-provider-status-provider" class="ai-provider-status__provider">No AI provider</div>
+      <div id="ai-provider-status-selection" class="ai-provider-status__selection">No-provider fallback active</div>
+      <div id="ai-provider-status-consent" class="ai-provider-status__consent">Consent required before provider setup</div>
       <div id="ai-provider-status-privacy" class="ai-provider-status__privacy">Local shell only; nothing is sent</div>
     </div>
   </div>

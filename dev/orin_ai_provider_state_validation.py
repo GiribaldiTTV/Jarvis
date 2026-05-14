@@ -12,12 +12,19 @@ if str(ROOT) not in sys.path:
 
 from desktop.ai_provider_state import (  # noqa: E402
     NO_PROVIDER_AVAILABILITY,
+    NO_PROVIDER_FALLBACK_SELECTION,
+    NO_PROVIDER_ID,
     NO_PROVIDER_MODE,
     NO_PROVIDER_PRIVACY_SCOPE,
     PACKAGE_ID,
+    PROVIDER_CONSENT_REQUIRED,
+    PROVIDER_SELECTION_AVAILABILITY,
+    PROVIDER_SELECTION_MODE,
+    PROVIDER_SELECTION_STATE_ID,
     SLC_017_ID,
     SLC_018_ID,
     build_no_provider_ai_state,
+    build_provider_selection_consent_state,
 )
 
 
@@ -34,7 +41,9 @@ def validate() -> list[str]:
     failures: list[str] = []
 
     snapshot = build_no_provider_ai_state(surface_role="core")
+    selection_snapshot = build_provider_selection_consent_state(surface_role="core")
     payload = snapshot.as_renderer_payload()
+    selection_payload = selection_snapshot.as_renderer_payload()
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     html = _read("nexus_visual/orin_core.html")
@@ -54,6 +63,39 @@ def validate() -> list[str]:
     _require(payload["externalCalls"] == "blocked", "external calls must be blocked", failures)
     _require(payload["modelState"] == "not installed", "model state must not imply an installed model", failures)
     _require(payload["surfaceRole"] == "core", "desktop Core visualization must own the visible provider rail", failures)
+    _require(selection_snapshot.state_id == PROVIDER_SELECTION_STATE_ID, "provider-selection scaffold must use the admitted state id", failures)
+    _require(selection_snapshot.mode == PROVIDER_SELECTION_MODE, "provider-selection scaffold must use provider-selection mode", failures)
+    _require(
+        selection_snapshot.availability == PROVIDER_SELECTION_AVAILABILITY,
+        "provider-selection scaffold must be unavailable until configured",
+        failures,
+    )
+    _require(
+        selection_payload["selectedProviderId"] == NO_PROVIDER_ID,
+        "provider-selection scaffold must default to no-provider fallback",
+        failures,
+    )
+    _require(
+        selection_payload["providerSelectionState"] == NO_PROVIDER_FALLBACK_SELECTION,
+        "provider-selection scaffold must expose no-provider fallback state",
+        failures,
+    )
+    _require(
+        selection_payload["consentState"] == PROVIDER_CONSENT_REQUIRED,
+        "provider-selection scaffold must expose consent-required posture",
+        failures,
+    )
+    _require(selection_payload["requiresConsent"] is True, "provider-selection scaffold must require consent", failures)
+    _require(selection_payload["sentToProvider"] is False, "provider-selection scaffold must send nothing to providers", failures)
+    _require(selection_payload["storedLocally"] is False, "provider-selection scaffold must not persist local memory", failures)
+    _require(selection_payload["canAcceptPrompts"] is False, "provider-selection scaffold must not accept prompts", failures)
+    _require(selection_payload["externalCalls"] == "blocked", "provider-selection scaffold must block external calls", failures)
+    _require(selection_payload["providerVisibleData"] == "none", "provider-selection scaffold must expose no provider-visible data", failures)
+    _require(
+        len(selection_payload["providerOptions"]) >= 3,
+        "provider-selection scaffold must publish visible local/provider option metadata",
+        failures,
+    )
 
     for forbidden in ("openai", "anthropic", "ollama", "llama_cpp", "pynvml", "cuda"):
         _require(
@@ -63,7 +105,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "build_no_provider_ai_state",
+        "build_provider_selection_consent_state",
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
@@ -79,7 +121,11 @@ def validate() -> list[str]:
             'id="ai-provider-status"',
             'data-mode="no-provider"',
             'data-privacy-scope="local-only"',
+            'data-provider-selection="fallback-no-provider"',
+            'data-consent-state="required-before-provider"',
             "No AI provider",
+            "No-provider fallback active",
+            "Consent required before provider setup",
             "Local shell only; nothing is sent",
         ):
             _require(needle in markup, f"{label} is missing {needle!r}", failures)
@@ -102,6 +148,9 @@ def validate() -> list[str]:
         "const aiProviderStatus",
         "renderAIProviderState",
         "window.setAIProviderState",
+        "providerSelectionState",
+        "requiresConsent",
+        "consentState",
         "sentToProvider",
         "canAcceptPrompts",
     ):
@@ -109,6 +158,7 @@ def validate() -> list[str]:
 
     for needle in (
         "SLC-017/SLC-018 No-Provider Shell And Provider-Privacy State",
+        "SLC-017/SLC-018 Provider Selection And Consent Boundary Scaffold",
         "model downloads",
         "real provider SDK integration",
         "AI Product Contract v0.6.2",

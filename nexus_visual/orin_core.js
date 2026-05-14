@@ -17,6 +17,8 @@ const commandConfirmTarget = document.getElementById("command-confirm-target");
 const aiProviderStatus = document.getElementById("ai-provider-status");
 const aiProviderStatusState = document.getElementById("ai-provider-status-state");
 const aiProviderStatusProvider = document.getElementById("ai-provider-status-provider");
+const aiProviderStatusSelection = document.getElementById("ai-provider-status-selection");
+const aiProviderStatusConsent = document.getElementById("ai-provider-status-consent");
 const aiProviderStatusPrivacy = document.getElementById("ai-provider-status-privacy");
 
 let w = 0;
@@ -48,11 +50,18 @@ let aiProviderState = {
   availability: "disabled",
   providerLabel: "No AI provider",
   statusLabel: "AI unavailable",
+  selectedProviderId: "no-provider",
+  providerSelectionState: "fallback-no-provider",
+  providerSelectionLabel: "No-provider fallback active",
   privacyScope: "local-only",
   privacyLabel: "Local shell only; nothing is sent",
+  consentState: "required-before-provider",
+  consentLabel: "Consent required before provider setup",
   providerVisibleData: "none",
   sentToProvider: false,
-  canAcceptPrompts: false
+  canAcceptPrompts: false,
+  requiresConsent: true,
+  providerOptions: []
 };
 
 const backParticles = [];
@@ -1149,6 +1158,10 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.mode = state.mode || "unknown";
   aiProviderStatus.dataset.availability = state.availability || "disabled";
   aiProviderStatus.dataset.privacyScope = state.privacyScope || "unknown";
+  aiProviderStatus.dataset.providerSelection = state.providerSelectionState || "unknown";
+  aiProviderStatus.dataset.selectedProvider = state.selectedProviderId || "unknown";
+  aiProviderStatus.dataset.consentState = state.consentState || "unknown";
+  aiProviderStatus.dataset.requiresConsent = state.requiresConsent ? "true" : "false";
   aiProviderStatus.dataset.sentToProvider = state.sentToProvider ? "true" : "false";
   aiProviderStatus.dataset.canAcceptPrompts = state.canAcceptPrompts ? "true" : "false";
 
@@ -1157,6 +1170,12 @@ function renderAIProviderState() {
   }
   if (aiProviderStatusProvider) {
     aiProviderStatusProvider.textContent = state.providerLabel || "No AI provider";
+  }
+  if (aiProviderStatusSelection) {
+    aiProviderStatusSelection.textContent = state.providerSelectionLabel || "No-provider fallback active";
+  }
+  if (aiProviderStatusConsent) {
+    aiProviderStatusConsent.textContent = state.consentLabel || "Consent required before provider setup";
   }
   if (aiProviderStatusPrivacy) {
     aiProviderStatusPrivacy.textContent = state.privacyLabel || "Local shell only; nothing is sent";
