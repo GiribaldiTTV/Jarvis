@@ -44,6 +44,16 @@ PR Readiness Stage 1 is the Stage 2 readiness-lock gate. It stays active until o
 Active branch names must not use the `codex/` prefix; use `feature/` or another USER-approved non-`codex/` prefix, and treat historical `codex/` branch names as traceability only.
 Prompt text may frame requested task scope, but it cannot redefine phase behavior, restrict required continuation, define seam continuation, weaken validation requirements, change durability, or change branch authority.
 
+## Mandatory Bounded State
+
+Workflow mode is legal only inside a proven `Bounded State:` unless USER grants an explicit bounded-state waiver.
+
+Before any file mutation, branch/worktree creation or switch, commit, push, PR action, release action, runtime validation, shortcut mutation, provider/model installation, or GitHub Desktop handoff, Codex must prove the exact phase/stage, workspace, git root, branch, upstream, `HEAD`, `origin/main`, worktree role, write target, owning authority record, active package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase.
+
+If that bounded state is absent or ambiguous, Codex must stop on `Bounded State Missing`. If the task needs wider scope than the bounded state allows, Codex must stop on `Bounded State Waiver Missing` unless `Bounded State User Waiver: Granted` names the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions.
+
+Broad work requests do not authorize implementation. `Continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording can execute only when source truth resolves it to one exact active bounded seam. Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver.
+
 That startup assessment should explicitly answer:
 
 - `Source-of-Truth`
@@ -160,6 +170,7 @@ In Workflow mode, Codex should:
 - same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green.
 - when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 - `Workstream` reaches `Hardening` only when `Completion Status: Green`
+- `Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; one green seam or one green slice cannot move the branch to Hardening while admitted branch material remains.
 - `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
 - use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required
@@ -238,6 +249,7 @@ Workflow mode should usually return:
 Generic `Results` or `Validation` summaries do not replace the governed state markers above.
 A green seam does not authorize stop while `Slice Status` is still non-green.
 A green slice does not authorize stop while `Completion Status` is still non-green.
+A green seam or green slice is continuation proof, not Hardening authority, while any admitted same-branch seam or slice remains implementable; the next legal unit is the next named Workstream seam or the next admitted slice.
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, Workflow mode must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.

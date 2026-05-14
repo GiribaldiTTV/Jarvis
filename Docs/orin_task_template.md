@@ -76,6 +76,15 @@ PR Readiness Stage 2 Approval:
 Branch Class:
 [implementation / release packaging / historical repair context only as canon allows]
 
+Bounded State:
+[exact phase/stage, workspace, branch, write target, authority record, package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase]
+
+Bounded State User Waiver:
+[Granted with exact waiver fields / None]
+
+Bounded State Waiver Scope:
+[required when waiver is Granted; otherwise None]
+
 Implementation Delta Class:
 [runtime/user-facing / backend/runtime / developer-tooling / docs-only / comma-separated non-docs-only values]
 
@@ -164,6 +173,9 @@ Note: task mode defines the task type. Codex collaboration posture is defined se
 If the task is phase-sensitive and the exact `Phase` field is missing, stop and clarify before execution.
 If repo state is blocked `No Active Branch`, implementation is blocked and the task should resolve the blocking repair path instead of starting implementation.
 If repo state is steady-state `No Active Branch`, do not start implementation by inertia.
+If `Bounded State` is missing, stale, or ambiguous, stop on `Bounded State Missing` before mutation.
+Broad work requests do not authorize implementation. `Continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording may execute only when repo source truth resolves it to one exact active bounded seam.
+If execution needs wider scope than the bounded state allows, stop on `Bounded State Waiver Missing` unless `Bounded State User Waiver: Granted` names the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions.
 Do not open a governance-only branch or between-branch canon repair lane.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
@@ -209,6 +221,7 @@ A `continue` decision must be acted on immediately by starting the next seam nee
 continue decision must be acted on immediately by starting the next seam needed inside the current slice.
 when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 `Workstream` reaches `Hardening` only when `Completion Status: Green`
+`Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; one green seam or one green slice cannot move the branch to Hardening while admitted branch material remains.
 `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` wording is retired in active source-of-truth.
 `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
@@ -243,6 +256,7 @@ For phase-sensitive execution, the response must explicitly report:
 Do not rely on generic `Results` or `Validation` headings by themselves.
 A green seam does not authorize stop while `Slice Status` remains non-green.
 A green slice does not authorize stop while `Completion Status` remains non-green.
+A green seam or green slice is continuation proof, not Hardening authority, while any admitted same-branch seam or slice remains implementable; the next legal unit is the next named Workstream seam or the next admitted slice.
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
