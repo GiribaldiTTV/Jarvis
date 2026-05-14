@@ -5779,12 +5779,34 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_window_resize_base = QRect()
         self._monitoring_hud_native_window_resize_poll_active = False
         self._monitoring_hud_native_window_resize_last_rect = QRect()
+        self._monitoring_hud_native_window_resize_pending_point = QPoint()
+        self._monitoring_hud_native_window_resize_last_apply = 0.0
+        self._monitoring_hud_native_window_resize_frame_interval_ms = 8
+        self._monitoring_hud_native_window_resize_poll_timer = QTimer(self)
+        self._monitoring_hud_native_window_resize_poll_timer.setSingleShot(False)
+        try:
+            self._monitoring_hud_native_window_resize_poll_timer.setTimerType(Qt.PreciseTimer)
+        except Exception:
+            pass
+        self._monitoring_hud_native_window_resize_poll_timer.timeout.connect(
+            self._poll_monitoring_hud_fallback_window_resize
+        )
+        self._monitoring_hud_native_window_resize_frame_timer = QTimer(self)
+        self._monitoring_hud_native_window_resize_frame_timer.setSingleShot(True)
+        try:
+            self._monitoring_hud_native_window_resize_frame_timer.setTimerType(Qt.PreciseTimer)
+        except Exception:
+            pass
+        self._monitoring_hud_native_window_resize_frame_timer.timeout.connect(
+            self._apply_monitoring_hud_queued_window_resize
+        )
         self._monitoring_hud_user_geometry_override_active = False
         self._monitoring_hud_native_move_user_active = False
         self._monitoring_hud_native_move_start_geometry = QRect()
         self._monitoring_hud_native_move_last_geometry = QRect()
         self._monitoring_hud_native_move_source = ""
         self._monitoring_hud_resize_frame_sync_last = 0.0
+        self._monitoring_hud_resize_js_sync_last = 0.0
         self._monitoring_hud_show_guard_active = False
         self._monitoring_hud_show_guard_generation = 0
         self._monitoring_hud_show_guard_release_delay_ms = 360
@@ -7418,6 +7440,28 @@ class DesktopRuntimeWindow(QWidget):
         except Exception:
             return False
 
+    def _monitoring_hud_resize_refresh_rate_hz(self) -> float:
+        screens = []
+        try:
+            screens.append(self.screen())
+        except Exception:
+            pass
+        screens.extend([getattr(self, "screen_ref", None), QApplication.primaryScreen()])
+        for screen in screens:
+            if screen is None:
+                continue
+            try:
+                refresh_rate = float(screen.refreshRate())
+            except Exception:
+                continue
+            if 30.0 <= refresh_rate <= 360.0:
+                return refresh_rate
+        return 60.0
+
+    def _monitoring_hud_resize_frame_interval_ms(self) -> int:
+        refresh_rate = self._monitoring_hud_resize_refresh_rate_hz()
+        return max(4, min(16, int(round(1000.0 / refresh_rate))))
+
     def _start_monitoring_hud_native_system_resize(self, edges, screen_point: QPoint) -> bool:
         if self.surface_role != "hud" or not edges:
             return False
@@ -7537,14 +7581,20 @@ class DesktopRuntimeWindow(QWidget):
         self._set_monitoring_hud_resize_cursor(Qt.Edges())
 
     def _start_monitoring_hud_fallback_window_resize(self, edges, screen_point: QPoint):
+        resize_refresh_rate_hz = self._monitoring_hud_resize_refresh_rate_hz()
+        resize_frame_interval_ms = self._monitoring_hud_resize_frame_interval_ms()
         self._monitoring_hud_native_window_resize_active = True
         self._monitoring_hud_user_geometry_override_active = True
         self._monitoring_hud_native_window_resize_edges = edges
         self._monitoring_hud_native_window_resize_start = screen_point
         self._monitoring_hud_native_window_resize_base = QRect(self.geometry())
         self._monitoring_hud_native_window_resize_last_rect = QRect(self.geometry())
+        self._monitoring_hud_native_window_resize_pending_point = QPoint(screen_point)
+        self._monitoring_hud_native_window_resize_last_apply = 0.0
+        self._monitoring_hud_native_window_resize_frame_interval_ms = resize_frame_interval_ms
         self._monitoring_hud_native_window_resize_poll_active = True
         self._monitoring_hud_resize_frame_sync_last = 0.0
+        self._monitoring_hud_resize_js_sync_last = 0.0
         self._clear_monitoring_hud_native_user_move()
         try:
             SetCapture(ctypes.wintypes.HWND(int(self.winId())))
@@ -7557,40 +7607,68 @@ class DesktopRuntimeWindow(QWidget):
             seam="WS56",
             x=screen_point.x(),
             y=screen_point.y(),
-            resize_model="preclick-hover-cursor-owned-fluid-geometry-resize",
+            resize_model="refresh-rate-paced-cursor-owned-fluid-geometry-resize",
             resize_edge_scope="all-edges-and-corners",
             resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
-            resize_poll_interval_ms=4,
+            resize_refresh_rate_hz=round(resize_refresh_rate_hz, 2),
+            resize_frame_interval_ms=resize_frame_interval_ms,
+            resize_poll_interval_ms=resize_frame_interval_ms,
             edges=str(edges),
         )
-        QTimer.singleShot(4, self._poll_monitoring_hud_fallback_window_resize)
+        self._monitoring_hud_native_window_resize_poll_timer.stop()
+        self._monitoring_hud_native_window_resize_poll_timer.setInterval(resize_frame_interval_ms)
+        self._monitoring_hud_native_window_resize_poll_timer.start()
+        self._poll_monitoring_hud_fallback_window_resize()
 
     def _poll_monitoring_hud_fallback_window_resize(self):
         if not self._monitoring_hud_native_window_resize_active:
+            self._monitoring_hud_native_window_resize_poll_timer.stop()
             self._monitoring_hud_native_window_resize_poll_active = False
             return
         screen_point = self._monitoring_hud_cursor_screen_point()
         if not screen_point.isNull():
             self._update_monitoring_hud_fallback_window_resize(screen_point)
         if self._monitoring_hud_left_mouse_button_down():
-            QTimer.singleShot(4, self._poll_monitoring_hud_fallback_window_resize)
             return
         self._finish_monitoring_hud_fallback_window_resize(screen_point)
 
     def _update_monitoring_hud_fallback_window_resize(self, screen_point: QPoint):
         if not self._monitoring_hud_native_window_resize_active:
             return
+        self._monitoring_hud_native_window_resize_pending_point = QPoint(screen_point)
+        interval_s = max(0.004, self._monitoring_hud_native_window_resize_frame_interval_ms / 1000.0)
+        now = time.monotonic()
+        elapsed = now - self._monitoring_hud_native_window_resize_last_apply
+        if self._monitoring_hud_native_window_resize_last_apply <= 0.0 or elapsed >= interval_s:
+            self._apply_monitoring_hud_queued_window_resize()
+            return
+        if not self._monitoring_hud_native_window_resize_frame_timer.isActive():
+            remaining_ms = max(1, int(round((interval_s - elapsed) * 1000.0)))
+            self._monitoring_hud_native_window_resize_frame_timer.start(remaining_ms)
+
+    def _apply_monitoring_hud_queued_window_resize(self):
+        if not self._monitoring_hud_native_window_resize_active:
+            return
+        screen_point = QPoint(self._monitoring_hud_native_window_resize_pending_point)
+        if screen_point.isNull():
+            screen_point = self._monitoring_hud_cursor_screen_point()
+        if screen_point.isNull():
+            return
         next_rect = self._monitoring_hud_resize_rect_from_native_delta(screen_point)
         if next_rect == self._monitoring_hud_native_window_resize_last_rect:
+            self._monitoring_hud_native_window_resize_last_apply = time.monotonic()
             return
         self.setGeometry(next_rect)
         self._monitoring_hud_native_window_resize_last_rect = QRect(next_rect)
         self._monitoring_hud_interactive_screen_rect = self.geometry()
+        self._monitoring_hud_native_window_resize_last_apply = time.monotonic()
         self._sync_monitoring_hud_resize_frame()
 
     def _finish_monitoring_hud_fallback_window_resize(self, screen_point: QPoint):
         if not self._monitoring_hud_native_window_resize_active:
             return
+        self._monitoring_hud_native_window_resize_poll_timer.stop()
+        self._monitoring_hud_native_window_resize_frame_timer.stop()
         if screen_point.isNull():
             screen_point = self._monitoring_hud_native_window_resize_start
         next_rect = self._monitoring_hud_resize_rect_from_native_delta(screen_point)
@@ -7602,6 +7680,8 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_window_resize_poll_active = False
         self._monitoring_hud_native_window_resize_edges = Qt.Edges()
         self._monitoring_hud_native_window_resize_last_rect = QRect()
+        self._monitoring_hud_native_window_resize_pending_point = QPoint()
+        self._monitoring_hud_native_window_resize_last_apply = 0.0
         try:
             ReleaseCapture()
         except Exception:
@@ -7613,14 +7693,18 @@ class DesktopRuntimeWindow(QWidget):
         if self.surface_role != "hud" or self._is_shutting_down:
             return
         now = time.monotonic()
-        if not force and now - self._monitoring_hud_resize_frame_sync_last < 0.003:
+        frame_interval_s = max(0.004, self._monitoring_hud_native_window_resize_frame_interval_ms / 1000.0)
+        if not force and now - self._monitoring_hud_resize_frame_sync_last < frame_interval_s:
             return
         self._monitoring_hud_resize_frame_sync_last = now
         self.webview.setGeometry(self.rect())
         self.webview.updateGeometry()
         self.webview.update()
         self.update()
-        self._run_javascript("window.dispatchEvent(new Event('resize'));")
+        js_interval_s = frame_interval_s
+        if force or now - self._monitoring_hud_resize_js_sync_last >= js_interval_s:
+            self._monitoring_hud_resize_js_sync_last = now
+            self._run_javascript("window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));")
 
     def _bound_monitoring_hud_window_resize_rect(self, rect: QRect) -> QRect:
         virtual = self._virtual_desktop_geometry()

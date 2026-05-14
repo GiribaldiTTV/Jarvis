@@ -438,6 +438,18 @@ public static class CodexHumanClientWin32 {
         return result.ToInt64();
     }
 
+    public static int[] GetWindowRectByHandle(long hwndValue) {
+        if (hwndValue == 0) {
+            return new int[0];
+        }
+        IntPtr hwnd = new IntPtr(hwndValue);
+        RECT rect;
+        if (GetWindowRect(hwnd, out rect) && rect.Right > rect.Left && rect.Bottom > rect.Top) {
+            return new int[] { rect.Left, rect.Top, rect.Right, rect.Bottom };
+        }
+        return new int[0];
+    }
+
     public static int[] GetVisibleWindowRectForProcessByTitle(int processId, string expectedTitle) {
         int[] result = new int[0];
         EnumWindows(delegate(IntPtr hWnd, IntPtr lParam) {
@@ -878,6 +890,21 @@ function Drag-FromTo {
     Start-Sleep -Milliseconds 550
 }
 
+function Get-NativeWindowRectByHandle {
+    param([long]$WindowHandle)
+    if ($WindowHandle -eq 0) { return $null }
+    $rect = [CodexHumanClientWin32]::GetWindowRectByHandle($WindowHandle)
+    if (-not $rect -or $rect.Count -ne 4) { return $null }
+    return [pscustomobject]@{
+        Left = [int]$rect[0]
+        Top = [int]$rect[1]
+        Right = [int]$rect[2]
+        Bottom = [int]$rect[3]
+        Width = [int]($rect[2] - $rect[0])
+        Height = [int]($rect[3] - $rect[1])
+    }
+}
+
 function Drag-FromToWithGeometrySamples {
     param(
         [object]$Element,
@@ -886,10 +913,12 @@ function Drag-FromToWithGeometrySamples {
         [int]$EndX,
         [int]$EndY,
         [string]$Label,
+        [long]$WindowHandle = 0,
         [int]$Steps = 28,
         [int]$StepDelayMs = 16
     )
     $samples = @()
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
     [CodexHumanClientWin32]::SetCursorPos($StartX, $StartY) | Out-Null
     Start-Sleep -Milliseconds 120
     [CodexHumanClientWin32]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero)
@@ -898,16 +927,20 @@ function Drag-FromToWithGeometrySamples {
         $y = [int]($StartY + (($EndY - $StartY) * $i / $Steps))
         [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
         Start-Sleep -Milliseconds $StepDelayMs
-        $currentElement = Get-DashboardWindow
-        if ($currentElement) {
-            $rect = $currentElement.Current.BoundingRectangle
-        } else {
-            $rect = $Element.Current.BoundingRectangle
+        $rect = if ($WindowHandle -ne 0) { Get-NativeWindowRectByHandle -WindowHandle $WindowHandle } else { $null }
+        if (-not $rect) {
+            $currentElement = Get-DashboardWindow
+            if ($currentElement) {
+                $rect = $currentElement.Current.BoundingRectangle
+            } else {
+                $rect = $Element.Current.BoundingRectangle
+            }
         }
         $samples += [pscustomobject]@{
             Step = $i
             X = $x
             Y = $y
+            ElapsedMs = [Math]::Round($stopwatch.Elapsed.TotalMilliseconds, 1)
             Width = [int]$rect.Width
             Height = [int]$rect.Height
         }
@@ -915,6 +948,70 @@ function Drag-FromToWithGeometrySamples {
     [CodexHumanClientWin32]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)
     Start-Sleep -Milliseconds 350
     return $samples
+}
+
+function Measure-ResizeTracking {
+    param(
+        [object[]]$Samples,
+        [double]$BaseWidth,
+        [double]$BaseHeight,
+        [double]$StartX,
+        [double]$StartY,
+        [string]$Mode
+    )
+    $lagSamples = @()
+    $maxLag = 0.0
+    $sumLag = 0.0
+    $count = 0
+    $maxInterval = 0.0
+    $previousElapsed = $null
+    foreach ($sample in @($Samples)) {
+        $expectedWidth = $BaseWidth
+        $expectedHeight = $BaseHeight
+        if ($Mode -eq "right" -or $Mode -eq "corner") {
+            $expectedWidth = $BaseWidth + ([double]$sample.X - $StartX)
+        }
+        if ($Mode -eq "bottom" -or $Mode -eq "corner") {
+            $expectedHeight = $BaseHeight + ([double]$sample.Y - $StartY)
+        }
+        $widthLag = if ($Mode -eq "right" -or $Mode -eq "corner") { [Math]::Abs(([double]$sample.Width) - $expectedWidth) } else { 0.0 }
+        $heightLag = if ($Mode -eq "bottom" -or $Mode -eq "corner") { [Math]::Abs(([double]$sample.Height) - $expectedHeight) } else { 0.0 }
+        $lag = [Math]::Max($widthLag, $heightLag)
+        $maxLag = [Math]::Max($maxLag, $lag)
+        $sumLag += $lag
+        $count += 1
+        if ($null -ne $previousElapsed -and $null -ne $sample.ElapsedMs) {
+            $maxInterval = [Math]::Max($maxInterval, [Math]::Abs(([double]$sample.ElapsedMs) - $previousElapsed))
+        }
+        if ($null -ne $sample.ElapsedMs) {
+            $previousElapsed = [double]$sample.ElapsedMs
+        }
+        $lagSamples += [pscustomobject]@{
+            Step = $sample.Step
+            ElapsedMs = $sample.ElapsedMs
+            X = $sample.X
+            Y = $sample.Y
+            Width = $sample.Width
+            Height = $sample.Height
+            ExpectedWidth = [Math]::Round($expectedWidth, 1)
+            ExpectedHeight = [Math]::Round($expectedHeight, 1)
+            LagPx = [Math]::Round($lag, 1)
+        }
+    }
+    $averageLag = if ($count -gt 0) { $sumLag / $count } else { 999.0 }
+    $pass = $count -ge 36 -and $maxLag -le 16.0 -and $averageLag -le 8.0 -and $maxInterval -le 34.0
+    return [pscustomobject]@{
+        Mode = $Mode
+        Pass = [bool]$pass
+        SampleCount = $count
+        MaxLagPx = [Math]::Round($maxLag, 1)
+        AverageLagPx = [Math]::Round($averageLag, 1)
+        MaxSampleIntervalMs = [Math]::Round($maxInterval, 1)
+        MaxAllowedLagPx = 16
+        MaxAllowedAverageLagPx = 8
+        MaxAllowedSampleIntervalMs = 34
+        Samples = $lagSamples
+    }
 }
 
 function Get-CursorKindAtPoint {
@@ -2282,7 +2379,7 @@ try {
     Add-Step -Id "dashboard_resize_cursor_transition_discovery" -Title "Dashboard resize cursor appears before click from outside and inside approaches" -Status ($(if ($transitionPass) { "PASS" } else { "FAIL" })) -Detail "preclick hover delay=90ms; corner=$($cornerTransition.Found)/$($cornerTransition.HitTest)/$($cornerTransition.Cursor)/offset=$cornerOffset; rightOutside=$($rightTransitionFromOutside.Found)/$($rightTransitionFromOutside.HitTest)/$($rightTransitionFromOutside.Cursor)/offset=$rightOutsideOffset; rightInside=$($rightTransitionFromInside.Found)/$($rightTransitionFromInside.HitTest)/$($rightTransitionFromInside.Cursor)/offset=$rightInsideOffset; bottomOutside=$($bottomTransitionFromOutside.Found)/$($bottomTransitionFromOutside.HitTest)/$($bottomTransitionFromOutside.Cursor)/offset=$bottomOutsideOffset; bottomInside=$($bottomTransitionFromInside.Found)/$($bottomTransitionFromInside.HitTest)/$($bottomTransitionFromInside.Cursor)/offset=$bottomInsideOffset" -Evidence @{ corner = $cornerTransition; rightOutside = $rightTransitionFromOutside; rightInside = $rightTransitionFromInside; bottomOutside = $bottomTransitionFromOutside; bottomInside = $bottomTransitionFromInside; maxExpectedVisibleEdgeOffsetPx = 14; hoverDelayMs = 90; mouseButtonState = "not pressed before transition detection" }
     if (-not $transitionPass) { throw "Dashboard resize cursor transition was not discoverable near the visible edge from outside/inside approaches" }
 
-    $cornerSamples = Drag-FromToWithGeometrySamples -Element $dashboard -StartX ([int]$cornerTransition.X) -StartY ([int]$cornerTransition.Y) -EndX ([int]($cornerTransition.X + 80)) -EndY ([int]($cornerTransition.Y + 70)) -Label "Dashboard discovered bottom-right resize cursor transition"
+    $cornerSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$cornerTransition.X) -StartY ([int]$cornerTransition.Y) -EndX ([int]($cornerTransition.X + 80)) -EndY ([int]($cornerTransition.Y + 70)) -Label "Dashboard discovered bottom-right resize cursor transition" -Steps 42 -StepDelayMs 8
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
     $resizeShot = Capture-VirtualScreenshot "05a_after_dashboard_corner_resize"
@@ -2302,7 +2399,7 @@ try {
     if (-not $rightResizeTransition.Found -or $rightResizeTransitionOffset -gt 14) {
         throw "Dashboard right-edge resize cursor was not discoverable near the visible edge before resize action"
     }
-    $rightSamples = Drag-FromToWithGeometrySamples -Element $dashboard -StartX ([int]$rightResizeTransition.X) -StartY ([int]$rightResizeTransition.Y) -EndX ([int]($rightResizeTransition.X + 76)) -EndY ([int]$rightResizeTransition.Y) -Label "Dashboard discovered right-edge resize cursor transition"
+    $rightSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$rightResizeTransition.X) -StartY ([int]$rightResizeTransition.Y) -EndX ([int]($rightResizeTransition.X + 76)) -EndY ([int]$rightResizeTransition.Y) -Label "Dashboard discovered right-edge resize cursor transition" -Steps 42 -StepDelayMs 8
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
     $rightResizeShot = Capture-VirtualScreenshot "05b_after_dashboard_right_edge_resize"
@@ -2323,7 +2420,7 @@ try {
     if (-not $bottomResizeTransition.Found -or $bottomResizeTransitionOffset -gt 14) {
         throw "Dashboard bottom-edge resize cursor was not discoverable near the visible edge before resize action"
     }
-    $bottomSamples = Drag-FromToWithGeometrySamples -Element $dashboard -StartX ([int]$bottomResizeTransition.X) -StartY ([int]$bottomResizeTransition.Y) -EndX ([int]$bottomResizeTransition.X) -EndY ([int]($bottomResizeTransition.Y + 76)) -Label "Dashboard discovered bottom-edge resize cursor transition"
+    $bottomSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$bottomResizeTransition.X) -StartY ([int]$bottomResizeTransition.Y) -EndX ([int]$bottomResizeTransition.X) -EndY ([int]($bottomResizeTransition.Y + 76)) -Label "Dashboard discovered bottom-edge resize cursor transition" -Steps 42 -StepDelayMs 8
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
     $bottomResizeShot = Capture-VirtualScreenshot "05c_after_dashboard_bottom_edge_resize"
@@ -2339,10 +2436,20 @@ try {
 
     $resizeShot = Capture-VirtualScreenshot "05_after_dashboard_mouse_resize"
     $cornerUniqueSizes = @($cornerSamples | ForEach-Object { "$($_.Width)x$($_.Height)" } | Sort-Object -Unique).Count
-    $resizeFluidityPass = $cornerUniqueSizes -ge 6 -and $rightUniqueWidths -ge 6 -and $bottomUniqueHeights -ge 6
-    Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize grows through multiple geometry samples during drag" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; sampled at 28 steps with 16ms delay while the left button was held." -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; minimumUniqueSamples = 6; expectation = "returned UTS said #127 is improved but still needs smoother tracking, so LV1 now requires denser intermediate geometry proof" }
-    if (-not $resizeFluidityPass) { throw "Dashboard resize did not produce enough intermediate geometry samples during drag" }
-    Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through pre-click Windows resize cursor transitions" -Status "PASS" -Detail "Corner, right-edge, and bottom-edge resize actions changed real Dashboard geometry after the helper discovered the same standard Windows resize cursor transition a USER would look for before clicking." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior; cornerTransition = $cornerTransition; rightTransition = $rightResizeTransition; bottomTransition = $bottomResizeTransition; resizeFluidity = @{ cornerUniqueSizes = $cornerUniqueSizes; rightUniqueWidths = $rightUniqueWidths; bottomUniqueHeights = $bottomUniqueHeights } }
+    $cornerTracking = Measure-ResizeTracking -Samples $cornerSamples -BaseWidth $rectBeforeResize.Width -BaseHeight $rectBeforeResize.Height -StartX $cornerTransition.X -StartY $cornerTransition.Y -Mode "corner"
+    $rightTracking = Measure-ResizeTracking -Samples $rightSamples -BaseWidth $rectBeforeRightResize.Width -BaseHeight $rectBeforeRightResize.Height -StartX $rightResizeTransition.X -StartY $rightResizeTransition.Y -Mode "right"
+    $bottomTracking = Measure-ResizeTracking -Samples $bottomSamples -BaseWidth $rectBeforeBottomResize.Width -BaseHeight $rectBeforeBottomResize.Height -StartX $bottomResizeTransition.X -StartY $bottomResizeTransition.Y -Mode "bottom"
+    $resizeFluidityPass = (
+        $cornerUniqueSizes -ge 12 -and
+        $rightUniqueWidths -ge 12 -and
+        $bottomUniqueHeights -ge 12 -and
+        $cornerTracking.Pass -and
+        $rightTracking.Pass -and
+        $bottomTracking.Pass
+    )
+    Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize tracks the cursor at a high-refresh cadence" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; cornerMaxLag=$($cornerTracking.MaxLagPx)px/avg=$($cornerTracking.AverageLagPx)px; rightMaxLag=$($rightTracking.MaxLagPx)px/avg=$($rightTracking.AverageLagPx)px; bottomMaxLag=$($bottomTracking.MaxLagPx)px/avg=$($bottomTracking.AverageLagPx)px; sampled at 42 steps with 8ms delay while the left button was held." -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking; minimumUniqueSamples = 12; expectation = "returned UTS said #127 is improved but still needs smoother tracking, so LV1 now requires high-cadence intermediate geometry plus cursor-to-window tracking-lag proof" }
+    if (-not $resizeFluidityPass) { throw "Dashboard resize did not track cursor movement smoothly enough during high-cadence drag proof" }
+    Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through pre-click Windows resize cursor transitions" -Status "PASS" -Detail "Corner, right-edge, and bottom-edge resize actions changed real Dashboard geometry after the helper discovered the same standard Windows resize cursor transition a USER would look for before clicking." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior; cornerTransition = $cornerTransition; rightTransition = $rightResizeTransition; bottomTransition = $bottomResizeTransition; resizeFluidity = @{ cornerUniqueSizes = $cornerUniqueSizes; rightUniqueWidths = $rightUniqueWidths; bottomUniqueHeights = $bottomUniqueHeights; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking } }
 
     $closeEvidence = Invoke-TrayAction -ActionName "Close HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=false" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 1000
