@@ -1,3 +1,4 @@
+import json
 import os
 
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, Signal
@@ -5,6 +6,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
+from .ai_provider_state import build_no_provider_ai_state
 from .workerw_utils import (
     attach_window_to_desktop,
     make_window_noninteractive,
@@ -31,6 +33,7 @@ class CoreVisualizationWindow(QWidget):
         self._is_shutting_down = False
         self._pending_visual_state = "dormant"
         self._pending_voice_level = None
+        self._ai_provider_state = build_no_provider_ai_state(surface_role="core")
         self._desktop_layer_attached = False
         self._desktop_layer_logged = False
         self._visible_logged = False
@@ -172,6 +175,7 @@ class CoreVisualizationWindow(QWidget):
             return
         self._page_ready = True
         self._apply_desktop_layer_mode(source="load_finished")
+        self._publish_ai_provider_state_to_page()
         self._apply_pending_visual_state()
         self._apply_pending_voice_level()
         self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_READY")
@@ -257,6 +261,31 @@ class CoreVisualizationWindow(QWidget):
             f"window.setCoreVoiceLevel && window.setCoreVoiceLevel({level:.4f});"
         )
         self._pending_voice_level = None
+
+    def _publish_ai_provider_state_to_page(self):
+        if not self._page_ready or self._is_shutting_down:
+            return
+
+        payload = self._ai_provider_state.as_renderer_payload()
+        payload_json = json.dumps(payload, sort_keys=True)
+        self.webview.page().runJavaScript(
+            f"""
+            if (window.setAIProviderState) {{
+                window.setAIProviderState({payload_json});
+            }}
+            """
+        )
+        self._log_event(
+            "RENDERER_MAIN|AI_PROVIDER_STATE_READY"
+            "|surface=core_visualization"
+            f"|package={payload.get('packageId', '')}"
+            f"|slices={','.join(payload.get('sliceIds', []))}"
+            f"|state_id={payload.get('stateId', '')}"
+            f"|mode={payload.get('mode', '')}"
+            f"|availability={payload.get('availability', '')}"
+            f"|privacy_scope={payload.get('privacyScope', '')}"
+            f"|sent_to_provider={str(payload.get('sentToProvider', False)).lower()}"
+        )
 
     def set_visual_state(self, state_name):
         self._pending_visual_state = state_name

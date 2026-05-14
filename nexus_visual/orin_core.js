@@ -14,6 +14,10 @@ const commandConfirmRequest = document.getElementById("command-confirm-request")
 const commandConfirmTitle = document.getElementById("command-confirm-title");
 const commandConfirmKind = document.getElementById("command-confirm-kind");
 const commandConfirmTarget = document.getElementById("command-confirm-target");
+const aiProviderStatus = document.getElementById("ai-provider-status");
+const aiProviderStatusState = document.getElementById("ai-provider-status-state");
+const aiProviderStatusProvider = document.getElementById("ai-provider-status-provider");
+const aiProviderStatusPrivacy = document.getElementById("ai-provider-status-privacy");
 
 let w = 0;
 let h = 0;
@@ -38,6 +42,17 @@ let commandOverlayState = {
   typed_request: "",
   pending_action: null,
   ambiguous_titles: []
+};
+let aiProviderState = {
+  mode: "no-provider",
+  availability: "disabled",
+  providerLabel: "No AI provider",
+  statusLabel: "AI unavailable",
+  privacyScope: "local-only",
+  privacyLabel: "Local shell only; nothing is sent",
+  providerVisibleData: "none",
+  sentToProvider: false,
+  canAcceptPrompts: false
 };
 
 const backParticles = [];
@@ -1127,6 +1142,27 @@ function renderCommandOverlay() {
   }
 }
 
+function renderAIProviderState() {
+  if (!aiProviderStatus) return;
+
+  const state = aiProviderState || {};
+  aiProviderStatus.dataset.mode = state.mode || "unknown";
+  aiProviderStatus.dataset.availability = state.availability || "disabled";
+  aiProviderStatus.dataset.privacyScope = state.privacyScope || "unknown";
+  aiProviderStatus.dataset.sentToProvider = state.sentToProvider ? "true" : "false";
+  aiProviderStatus.dataset.canAcceptPrompts = state.canAcceptPrompts ? "true" : "false";
+
+  if (aiProviderStatusState) {
+    aiProviderStatusState.textContent = state.statusLabel || "AI unavailable";
+  }
+  if (aiProviderStatusProvider) {
+    aiProviderStatusProvider.textContent = state.providerLabel || "No AI provider";
+  }
+  if (aiProviderStatusPrivacy) {
+    aiProviderStatusPrivacy.textContent = state.privacyLabel || "Local shell only; nothing is sent";
+  }
+}
+
 function frame(ts) {
   t = ts;
   if (currentState === "boot" && bootStartTime === null) bootStartTime = t;
@@ -1190,7 +1226,13 @@ window.setCommandOverlayState = function(state) {
   renderCommandOverlay();
 };
 
+window.setAIProviderState = function(state) {
+  aiProviderState = Object.assign({}, aiProviderState, state || {});
+  renderAIProviderState();
+};
+
 window.setCoreVisualState("boot");
 window.setCoreVoiceLevel(0);
 window.setCommandOverlayState({ visible: false });
+window.setAIProviderState(aiProviderState);
 requestAnimationFrame(frame);

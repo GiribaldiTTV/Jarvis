@@ -34,6 +34,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
+from .ai_provider_state import build_no_provider_ai_state
 from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
@@ -5729,6 +5730,7 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.create_custom_group_requested.connect(self.handle_create_custom_group_requested)
         self._command_panel.created_groups_requested.connect(self.handle_created_groups_requested)
         self._command_panel.edit_saved_action_requested.connect(self.handle_edit_saved_action_requested)
+        self._ai_provider_state = build_no_provider_ai_state(surface_role=self.surface_role)
         self._result_close_timer = QTimer(self)
         self._result_close_timer.setSingleShot(True)
         self._result_close_timer.timeout.connect(self._close_command_overlay_after_result)
@@ -10025,6 +10027,7 @@ class DesktopRuntimeWindow(QWidget):
         self._publish_monitoring_hud_controls_visibility()
         self._publish_monitoring_hud_status_behavior()
         self._publish_monitoring_hud_control_state_to_page()
+        self._publish_ai_provider_state_to_page()
         self._apply_pending_visual_state()
         self._apply_pending_voice_level()
         self._apply_command_overlay_state()
@@ -11473,6 +11476,31 @@ class DesktopRuntimeWindow(QWidget):
             slice="SLC-028",
             status="hud-local-readiness-status",
             source_truth="renderer_local",
+        )
+
+    def _publish_ai_provider_state_to_page(self):
+        if not self._page_ready or self._is_shutting_down:
+            return
+
+        payload = self._ai_provider_state.as_renderer_payload()
+        payload_json = json.dumps(payload, sort_keys=True)
+        self._run_javascript(
+            f"""
+            if (window.setAIProviderState) {{
+                window.setAIProviderState({payload_json});
+            }}
+            """
+        )
+        self._emit_runtime_signal(
+            "AI_PROVIDER_STATE_READY",
+            package=payload.get("packageId", ""),
+            slices=",".join(payload.get("sliceIds", [])),
+            state_id=payload.get("stateId", ""),
+            mode=payload.get("mode", ""),
+            availability=payload.get("availability", ""),
+            privacy_scope=payload.get("privacyScope", ""),
+            provider_visible_data=payload.get("providerVisibleData", ""),
+            sent_to_provider=payload.get("sentToProvider", False),
         )
 
     def request_shutdown(self):
