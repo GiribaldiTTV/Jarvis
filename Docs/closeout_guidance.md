@@ -91,6 +91,7 @@ The public GitHub prerelease title format for Nexus `pre-Beta` releases is:
 Milestone names, user-facing scope, capabilities, system behavior, evidence roots, and implementation details belong in inclusion-only release notes, not in the GitHub release title.
 Post-release confirmation must treat that concise `Pre-Beta v<major>.<minor>.<patch>` title as the expected published title when it matches the tag and release notes carry the scoped summary.
 The live GitHub release body must not repeat that title as a leading `# <release title>` heading; release notes should start with `## Release Summary` or `## Release Overview`, carry one or more detailed user-facing sections before generated notes, include GitHub-generated `## What's Changed`, and end with the generated `**Full Changelog**:` compare link.
+Public GitHub release bodies must not include internal automation/tooling brand tokens, generated branch-prefix noise, phase-handoff text, operator transcript text, or generated `[codex]` / `codex/...` PR labels. Historical Nexus pre-Beta release bodies remain public release surfaces and must be normalized to the same standard when drift is found.
 
 ## Current Policy
 

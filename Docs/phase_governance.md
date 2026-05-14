@@ -1392,6 +1392,8 @@ The live GitHub release body must use the standard Markdown release body shape:
 - `**Full Changelog**:`
 
 The live release body must not start with or repeat the release title as `# <release title>`. Keep the public title in GitHub release metadata and the separate `Release Title` operator block; keep milestone names, scope, behavior, capabilities, validation, and next-step context inside the Markdown body.
+Public GitHub release bodies must be user-facing and must not include internal automation/tooling brand tokens, generated branch-prefix noise, phase-handoff text, or operator transcript text. If GitHub-generated notes include `[codex]`, `codex/...`, or equivalent internal tooling prefixes from PR titles, Release Execution must rewrite those line labels into neutral user-facing PR names before publication or repair the release body immediately after publication.
+All published Nexus pre-Beta release bodies remain part of the live public release surface. Historical public prereleases must continue to satisfy the same release-body standard unless a release is explicitly legacy-scoped outside the Nexus pre-Beta line.
 The `## What's Changed` section and `**Full Changelog**:` compare link must be populated by GitHub-generated release notes, using the GitHub release notes button or the generated-release-notes API with the previous release selected. Release Readiness may prepare the human-written summary and highlights, but Release Execution must combine them with the GitHub-generated notes before publication or repair the release body immediately after publication.
 
 If Release Readiness discovers missing PR-owned canon or docs work, stop immediately and classify the issue as `PR Readiness Scope Missed` and `Release Readiness Scope Drift`.

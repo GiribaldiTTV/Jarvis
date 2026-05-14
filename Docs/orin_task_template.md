@@ -862,6 +862,8 @@ Release notes must clearly explain what was built, what capabilities exist, and 
 Release notes must use the standard Markdown release body shape: `## Release Summary` or `## Release Overview`, `## Release Highlights` or release-specific rich sections, GitHub-generated `## What's Changed`, and the generated `**Full Changelog**:` compare link to the previous release.
 The live GitHub release body must not start with or repeat the release title as `# <release title>`; the release title belongs in GitHub release metadata and the separate `Release Title` operator block only.
 During Release Execution, use GitHub-generated release notes through the GitHub release notes button or generated-release-notes API so the `## What's Changed` section and previous-release compare link are populated by GitHub.
+Public release bodies must not include internal automation/tooling brand tokens, generated branch-prefix noise, phase-handoff text, operator transcript text, or generated `[codex]` / `codex/...` PR labels. Rewrite those labels into neutral user-facing PR names before publication or repair them immediately after publication.
+Validate the full published Nexus pre-Beta release set, not only the latest release, before reporting release-body standardization green.
 
 ## Important
 

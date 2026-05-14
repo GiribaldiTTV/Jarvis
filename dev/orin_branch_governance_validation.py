@@ -1838,6 +1838,7 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
     "dev/orin_pr_body_quality_audit.py",
+    "dev/orin_release_body_validation.py",
 }
 STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS = (
     "Standing Branch",

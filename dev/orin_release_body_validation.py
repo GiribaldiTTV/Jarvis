@@ -8,6 +8,12 @@ from datetime import datetime, timezone
 
 REPO = "GiribaldiTTV/Nexus-Desktop-AI"
 PREBETA_TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)-prebeta$")
+MOJIBAKE_BOM = "\u00ef\u00bb\u00bf"
+FORBIDDEN_PUBLIC_RELEASE_TOKENS = (
+    re.compile(r"\bcodex\b", flags=re.I),
+    re.compile(r"\[codex\]", flags=re.I),
+    re.compile(r"\bcodex/", flags=re.I),
+)
 
 
 @dataclass(frozen=True)
@@ -53,9 +59,11 @@ def _release_body_failures(tag_name: str, name: str, body: str) -> tuple[str, ..
     expected_title = _expected_title(tag_name)
     if expected_title and name.strip() != expected_title:
         failures.append(f"title should be {expected_title!r}, found {name.strip()!r}")
+    if body.startswith("\ufeff") or body.startswith(MOJIBAKE_BOM):
+        failures.append("body must not start with a BOM or mojibake BOM prefix")
     if stripped_body.startswith("# "):
         failures.append("body must not start with a top-level release-title heading")
-    if "## Release Summary" not in body and "## Release Overview" not in body:
+    if not (stripped_body.startswith("## Release Summary") or stripped_body.startswith("## Release Overview")):
         failures.append("body is missing ## Release Summary or ## Release Overview")
     whats_changed_index = body.find("## What's Changed")
     if whats_changed_index == -1:
@@ -71,6 +79,10 @@ def _release_body_failures(tag_name: str, name: str, body: str) -> tuple[str, ..
             failures.append("body is missing a detailed user-facing section before ## What's Changed")
     if "**Full Changelog**:" not in body:
         failures.append("body is missing **Full Changelog**:")
+    for forbidden_token in FORBIDDEN_PUBLIC_RELEASE_TOKENS:
+        if forbidden_token.search(body):
+            failures.append("body includes internal automation/tooling branding")
+            break
     return tuple(failures)
 
 
@@ -115,7 +127,7 @@ def _check_release(release: dict[str, object]) -> ReleaseCheck:
 
 def main() -> int:
     try:
-        checks = [_check_release(release) for release in _load_prebeta_releases()[:11]]
+        checks = [_check_release(release) for release in _load_prebeta_releases()]
     except Exception as exc:
         print(f"FAIL: unable to inspect GitHub releases: {exc}", file=sys.stderr)
         return 1
@@ -126,20 +138,14 @@ def main() -> int:
 
     latest = checks[0]
     print(f"Latest pre-Beta release: {latest.tag_name} ({latest.name})")
-    if latest.failures:
-        print("FAIL: latest release body does not match the standard:")
-        for failure in latest.failures:
-            print(f"- {failure}")
+    failed_checks = [check for check in checks if check.failures]
+    if failed_checks:
+        print("FAIL: pre-Beta release bodies do not match the standard:")
+        for check in failed_checks:
+            print(f"- {check.tag_name}: {'; '.join(check.failures)}")
         return 1
 
-    print("PASS: latest release body matches the standard.")
-    historical_drifts = [check for check in checks[1:] if check.failures]
-    if historical_drifts:
-        print("Historical release-body drift found in previous 10 releases:")
-        for check in historical_drifts:
-            print(f"- {check.tag_name}: {'; '.join(check.failures)}")
-    else:
-        print("Previous 10 releases match the release-body standard.")
+    print(f"PASS: all {len(checks)} published pre-Beta release bodies match the standard.")
     return 0
 
 
