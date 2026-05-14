@@ -516,7 +516,7 @@ This section is forward-looking admission truth only. It does not reopen FB-040,
 - No driver-install behavior is admitted.
 - No remote or cloud telemetry is admitted.
 - No arbitrary third-party plugin execution is admitted.
-- No third-party monitoring app UI scraping is admitted.
+- Third-party monitoring app UI scraping remains outside admitted scope.
 - No silent provider install, provider update, or provider replacement is admitted.
 - Provider failures must degrade to explicit stale, unavailable, partial, invalid, or unknown state handling rather than hidden remediation.
 

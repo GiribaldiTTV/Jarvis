@@ -171,6 +171,41 @@ Active seam: `Provider Governance Source-Truth Repair`
 
 The active seam is the Branch Readiness Stage 2 docs/governance repair that updates existing source-truth owners for optional provider behavior, no-Libre baseline usability, provider choice, update governance, and MPL / third-party notice requirements.
 
+## Hardening H1 Record
+
+- Phase Admission: `PASS - USER requested hardening and validation pressure-test after Branch Readiness Stage 2 source-truth commit`
+- Active Seam: `Hardening H1 - Sensor HUD Provider Governance Source-Truth Pressure Test`
+- Scope Classification: `Docs/governance only - no runtime, provider, installer, shortcut, Dashboard, Overlay, FAM-006 worktree, FAM-007 worktree, issue, PR, release, or third-party artifact mutation`
+- Changed-File Scope: `PASS - branch delta remains limited to Docs source-truth files`
+- Runtime Boundary: `PASS - no desktop, dev, nexus_visual, launcher, provider, or main runtime implementation files changed`
+- Optional Libre Boundary: `PASS - source truth now records LibreHardwareMonitor as optional and no longer describes Libre as the primary required backend`
+- No-Advanced-Provider Boundary: `PASS - source truth requires usable baseline/no-advanced-provider behavior with explicit setup-required/provider-required/unavailable states and no fake telemetry`
+- Provider Choice Boundary: `PASS - user-pinned provider choice is authoritative, and LibreHardwareMonitor must not silently override HWiNFO64, vendor/local, or other admitted providers`
+- Update Boundary: `PASS - LibreHardwareMonitor update monitoring is future scope, user-consented, source-verified, integrity-aware, non-silent, deferrable, disable-capable, rollback-aware where practical, and privacy-described`
+- License Boundary: `PASS - MPL 2.0, upstream third-party notices, version/source metadata, and source-availability requirements are recorded before bundling or redistributing LibreHardwareMonitor`
+- Wording Hardening: `PASS - third-party monitoring app UI scraping wording was tightened to avoid scanner-hostile admitted-scope wording while preserving the intended exclusion`
+- FAM-006 Worktree Isolation: `PASS - C:\Nexus Worktrees\FAM-006 remains outside this branch's write target`
+
+## Validation V1 Record
+
+- `git diff --check origin/main...HEAD`: `PASS`
+- `python dev\orin_branch_governance_validation.py`: `PASS - branch governance validation passed 4594 checks`
+- `python dev\orin_release_body_validation.py`: `PASS - latest release body matches the standard; historical prior-release body drift was reported as historical only`
+- `python -m compileall -q dev desktop Audio main.py`: `PASS`
+- Changed-file scope scan: `PASS - changed files are docs-only`
+- Runtime/dev/visual scope scan: `PASS - no runtime/dev/visual implementation files changed`
+- Provider wording scan: `PASS after H1 wording hardening - prohibited mandatory-Libre/provider wording absent`
+- User Test Summary Applicability: `Not applicable - source-truth/governance only, no user-facing runtime behavior changed`
+
+## PR Readiness Status
+
+- PR Readiness Status: `Ready for USER decision on PR Readiness Stage 2 / PR creation after hardening and validation`
+- PR Creation Approval: `Missing - no PR should be created until USER explicitly approves PR Readiness Stage 2 / PR creation`
+- Current Blocker: `PR Creation Approval Missing`
+- PR Readiness Stage 2 Expected Scope: `project merge-stable historical/no-active branch authority, add required Governance Drift Audit / Post-Merge State truth if needed, rerun validation, commit/push any PR-readiness source-truth sync, create the PR only after explicit USER approval, and stop before merge`
+- Merge Approval: `Not granted`
+- Release Approval: `Not granted`
+
 ## Rollback Target
 
 - `Branch Readiness`
