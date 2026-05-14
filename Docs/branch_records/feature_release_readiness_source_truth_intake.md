@@ -14,17 +14,18 @@ This branch is the single standing governance lane for Release Readiness source-
 
 ## Current Phase
 
-- Phase: `Historical Traceability`
+- Phase: `Branch Readiness`
 
 ## Phase Status
 
-- Branch Authority Marker: `Historical / idle standing intake lane`
-- Branch Authority State: `Historical / merge-stable on projected No Active Branch main`
-- Intake State: `Idle - no active Release Readiness intake cycle is recorded in merged source truth`
-- Historical Posture: `Bootstrap truth is preserved as traceability; future Release Readiness intake work requires a fresh USER-approved RRI cycle and source-truth activation on the Governance worktree before mutation`
-- Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record is written in merge-stable idle posture so the branch must sync to origin/main after the setup PR merges before accepting any Release Readiness digest`
+- Branch Authority Marker: `Active standing governance intake lane`
+- `Active Branch`: `feature/release-readiness-source-truth-intake`
+- Branch Authority State: `Active standing authority / idle or single-cycle Release Readiness intake only`
+- Intake State: `Active - RRI-20260514-002 repairs the No Active Branch versus standing governance intake validator/source-truth mismatch discovered after PR #142 merge`
+- Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake only`
+- Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest`
-- Active RRI Cycle: `None`
+- Active RRI Cycle: `RRI-20260514-002`
 
 ## Branch Class
 
@@ -52,7 +53,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `None`
+- Active RRI Cycle: `RRI-20260514-002`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -130,7 +131,7 @@ Branch Completion Goal: `Standing intake lane bootstrapped and validated`
 
 Known Future-Dependent Blockers: `Future RRI cycles require a Release Readiness digest, clean sync to origin/main, USER-gated PR merge, and return digest before originating-lane continuation`
 
-Branch Closure Rule: `The standing branch name may persist after merge, but merged main records no active branch authority while no RRI cycle is admitted; each intake cycle closes by PR merge, sync to origin/main, return digest, and Active RRI Cycle returning to None`
+Branch Closure Rule: `The standing branch name and active standing authority persist after merge; merged main may still report No Active Branch for runtime/product work because the standing governance intake record is the only active-authority exception. Each intake cycle closes by PR merge, sync to origin/main, return digest, and Active RRI Cycle returning to None after the return-digest closeout is recorded by the next admitted intake or governance closeout path.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -151,6 +152,16 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 - PR Readiness: Open one governance PR for bootstrap or for one active `RRI-*` cycle after validation.
 - Release Readiness: File-frozen validation only; it may produce future intake digests but must not mutate files.
 
+## Active Seam
+
+Active seam: `RRI-20260514-002 - Standing governance intake No Active Branch authority exception repair`
+
+Seam Goal: `Repair the validator/source-truth mismatch that treated merged-main No Active Branch as incompatible with the single standing governance intake authority record.`
+
+Seam Scope: `Docs/branch_records/index.md`, this authority record, governance docs, helper registry text, and `dev/orin_branch_governance_validation.py`.
+
+Seam Non-Includes: `runtime/provider/model/memory/voice/Core/shortcut/installer work, release execution, issue work, FAM-006 or FAM-007 mutation, broad docs churn, or direct-main mutation.`
+
 ## Initial Workstream Seam Sequence
 
 Seam 1: Standing Governance Intake Bootstrap
@@ -164,11 +175,11 @@ Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/
 ## Historical Seam
 
 - Historical seam: `Standing Governance Intake Bootstrap`
-- Status: `Merge-stable bootstrap posture - after setup PR merge, the standing lane idles as historical traceability with Active RRI Cycle: None until a Release Readiness digest is handed off and USER approves activation`
+- Status: `Active standing authority - after setup PR merge, the standing lane remains the only allowed active governance intake authority while idling with no runtime carrier; RRI-20260514-002 now repairs the validator/source-truth mismatch that treated No Active Branch as requiring the standing authority record to be historical-only`
 
 ## Exit Criteria
 
-- `Docs/branch_records/index.md` lists this record under Historical Branch Authority Records while no active RRI cycle is admitted.
+- `Docs/branch_records/index.md` lists this record under Active Branch Authority Records as the single standing governance intake exception while merged-main runtime/product truth may still report No Active Branch.
 - Governance docs describe the standing exception, allowed/forbidden scope, one-cycle limit, sync-to-main rule, originating-lane pause, and return digest.
 - `dev/orin_branch_governance_validation.py --standing-governance-intake-gate` validates the branch identity, clean tracked state, source-truth markers, cycle count, sync/base posture, and file scope.
 - `dev/orin_pr_body_quality_audit.py` rejects PR body firewall markers.
