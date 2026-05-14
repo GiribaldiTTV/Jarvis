@@ -26,6 +26,8 @@ This active record preserves the planning, selected-next reconciliation, and fir
 - Stage 1 Basis: `Complete - USER approved FAM-007 selected-next focus in this thread/worktree and approved creating a fresh separate FAM-007 worktree because the GitHub Desktop FAM-007 alias pointed at the FAM-006 lane`
 - Stage 2 USER Approval: `Granted - USER approved creating C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell from current origin/main, creating feature/fam-007-provider-boundary-no-provider-shell, recording Branch Readiness planning/source truth, and beginning the first bounded provider/no-provider shell implementation seam after planning validation`
 - Branch Creation: `Created in C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell from origin/main at 98b53fafd63abfe4876b718d5649b4a0df46f2a0`
+- Carrier Restoration: `Restored in C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell from e65df058a57f3f7c8a9ddf6e64482d870e42d8d8 after PR #135 merged source-truth closure at 6f9a13d17a65a3385001b8e463113295f5463b01`
+- GitHub Desktop Alias Target: `FAM-007 should bind to C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell`
 - Carrier Separation: `C:\Nexus Desktop AI remains the separate FAM-006 release-support lane and must not be touched by this branch`
 - Active Branch: `feature/fam-007-provider-boundary-no-provider-shell`
 - Branch Authority Marker: `Active Branch`
@@ -76,6 +78,9 @@ Current / Pending Decision Context: This branch record is active after PR #135 r
 - Branch: `feature/fam-007-provider-boundary-no-provider-shell`
 - Upstream: `origin/main` at branch creation time
 - Branch creation base: `98b53fafd63abfe4876b718d5649b4a0df46f2a0`
+- Branch restoration base: `6f9a13d17a65a3385001b8e463113295f5463b01`
+- Restored branch head before this carrier-planning update: `e65df058a57f3f7c8a9ddf6e64482d870e42d8d8`
+- Restored workspace path: `C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell`
 - `origin/main`: `98b53fafd63abfe4876b718d5649b4a0df46f2a0`
 - Worktree state: clean before Branch Readiness source-truth edits
 - Existing worktrees at branch creation: `C:\Nexus Desktop AI` on the separate FAM-006 release-support lane and this new FAM-007 worktree

@@ -108,7 +108,7 @@ Selected Next Workstream: FAM-007 Provider Boundary And No-Provider Shell - USER
 Selected Next Record State: Active branch-local continuation under admitted FAM-007 / PKG-007; PR #134 remains merged-unreleased evidence and this branch owns next-seam planning.
 Selected Next Runtime Package Candidate: `PKG-007` remains admitted and in progress; no package completion is claimed.
 Selected Next Implementation Branch: `feature/fam-007-provider-boundary-no-provider-shell`.
-Runtime Branch Evidence: `feature/fam-007-provider-boundary-no-provider-shell` remains PR #134 evidence; current execution is now in `C:\Nexus Desktop AI` on the same branch name after fast-forwarding through PR #135.
+Runtime Branch Evidence: `feature/fam-007-provider-boundary-no-provider-shell` remains PR #134 evidence and is restored in `C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell` as the FAM-007-only runtime carrier after PR #135.
 Selected Next Status: USER approved returning to the FAM-007 runtime branch after PR #135 merged; PR #129/#132 release-support remains a separate USER-gated FAM-006 lane.
 Runtime Package Admission: Historical - `PKG-006` was admitted on the FAM-006 branch and merged through PR #118.
 Next Legal Runtime Step: FAM-007 Branch Readiness Stage 1 for the next bounded SLC-017/SLC-018 provider-selection/consent seam on this branch.
