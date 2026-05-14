@@ -54,6 +54,10 @@ Watcher / Live PR State Projection: `No live PR, watcher, merge-watch, PR URL, b
 
 FAM Overlap Routing: `FAM-007, provider/model/memory/shortcut/installer work, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate pending USER decisions.`
 
+Release Candidate Anchor Projection: `Current fetched origin/main is the default release-candidate anchor unless USER explicitly selects another release target. Target commit 9cc529b3036bd4badf3bde86779eb6640b9e7bc9 includes PR #145 / PR #146 Release Readiness Candidate Anchor and Release Window Aggregation Ownership governance repairs; PR #142 merge commit fdcc76a8f80cf2ed91798962610f4112056a4bf6 is historical audit evidence only unless USER explicitly selects it as the release target. Candidate Includes Later Governance Repairs: YES.`
+
+Release Window Contributor Inventory: `Release Ownership Model: Aggregated release window. Release Window Contributors: FAM-006 PR #129 Dashboard render/layout hardening, FAM-006 PR #132 Dashboard IA/control follow-through, FAM-006 PR #142 Dashboard settings-panel runtime work, and FAM-007 PR #138 provider-boundary / no-provider shell scaffold. Merged-Unreleased Scope Inventory: PR #129, PR #132, PR #142, and PR #138 remain merged-unreleased implementation scope until USER-approved release execution. Last Runtime PR: PR #142 for FAM-006 Dashboard settings-panel payload in this lane. Post-Runtime Governance Repairs: PR #133, PR #139, PR #141, PR #143, PR #144, PR #145, and PR #146 are source-truth/governance/readiness support, not runtime release execution. FAM Contributor Routing: FAM-006 Dashboard blockers route to the FAM-006 lane; FAM-007 provider/runtime blockers route to the FAM-007 lane; release-window aggregation blockers route to Governance only when they are source-truth/validator drift.`
+
 Projected Post-Merge Validation: `After merge, run source-truth validation from updated main, confirm No Active Branch, confirm this record is historical, confirm merged-unreleased FAM-006 settings-panel release debt, and confirm issue/release/raw-evidence/FAM-007 gates remain pending.`
 
 ## Release Readiness Health Pass
@@ -73,6 +77,10 @@ Watcher / Live PR State Projection: `PASS - watcher and live PR state belong to 
 Branch Cleanup Plan: `PASS - cleanup is deferred until after merge verification; no branch deletion or worktree removal is authorized by this record.`
 
 FAM Overlap Routing: `PASS - FAM-007, provider/model/memory/shortcut/installer work, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate pending USER decisions.`
+
+Release Candidate Anchor Projection: `PASS - current fetched origin/main is the release-candidate anchor by default, target commit 9cc529b3036bd4badf3bde86779eb6640b9e7bc9 includes later governance repairs, and PR #142 fdcc76a8f80cf2ed91798962610f4112056a4bf6 remains historical audit evidence only unless USER explicitly selects it as the release target.`
+
+Release Window Contributor Inventory: `PASS - release ownership is an aggregated release window with FAM-006 PR #129, PR #132, PR #142 and FAM-007 PR #138 as merged-unreleased implementation contributors; PR #133, PR #139, PR #141, PR #143, PR #144, PR #145, and PR #146 are governance/readiness support contributors; contributor-specific blockers route to their owning lanes.`
 
 Projected Post-Merge Validation: `PASS - after merge, validate updated main, confirm No Active Branch, confirm this record is historical, confirm merged-unreleased FAM-006 settings-panel release debt, and confirm pending USER gates remain intact.`
 

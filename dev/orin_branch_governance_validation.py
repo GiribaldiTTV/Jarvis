@@ -14356,7 +14356,13 @@ def _run_merge_target_authority_projection_gate(
     if "No Active Branch" not in post_merge_state:
         return
 
-    remaining_active_record_paths = sorted(active_branch_record_paths)
+    # Merged-main `No Active Branch` allows the single standing governance intake
+    # authority record; it is not a runtime/implementation/release carrier.
+    remaining_active_record_paths = sorted(
+        record_path
+        for record_path in active_branch_record_paths
+        if record_path != STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
+    )
     require(
         not remaining_active_record_paths,
         (
