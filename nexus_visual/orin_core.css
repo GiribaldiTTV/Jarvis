@@ -456,6 +456,8 @@ body {
 
 .ai-provider-status__provider,
 .ai-provider-status__selection,
+.ai-provider-status__configuration,
+.ai-provider-status__registry,
 .ai-provider-status__consent,
 .ai-provider-status__disclosure,
 .ai-provider-status__fallback,
@@ -469,6 +471,11 @@ body {
 
 .ai-provider-status__selection {
   color: rgba(205, 224, 255, 0.9);
+}
+
+.ai-provider-status__configuration,
+.ai-provider-status__registry {
+  color: rgba(204, 229, 240, 0.9);
 }
 
 .ai-provider-status__consent {

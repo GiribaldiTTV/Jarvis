@@ -18,6 +18,8 @@ const aiProviderStatus = document.getElementById("ai-provider-status");
 const aiProviderStatusState = document.getElementById("ai-provider-status-state");
 const aiProviderStatusProvider = document.getElementById("ai-provider-status-provider");
 const aiProviderStatusSelection = document.getElementById("ai-provider-status-selection");
+const aiProviderStatusConfiguration = document.getElementById("ai-provider-status-configuration");
+const aiProviderStatusRegistry = document.getElementById("ai-provider-status-registry");
 const aiProviderStatusConsent = document.getElementById("ai-provider-status-consent");
 const aiProviderStatusDisclosure = document.getElementById("ai-provider-status-disclosure");
 const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
@@ -56,6 +58,12 @@ let aiProviderState = {
   selectedProviderId: "no-provider",
   providerSelectionState: "fallback-no-provider",
   providerSelectionLabel: "No-provider fallback active",
+  providerConfigurationState: "unconfigured",
+  providerConfigurationLabel: "Provider configuration: none",
+  providerRegistryState: "local-only-registry",
+  providerRegistryLabel: "Local provider registry: no configured providers",
+  configuredProviderCount: 0,
+  availableProviderCount: 0,
   privacyScope: "local-only",
   privacyLabel: "Local shell only; nothing is sent",
   consentState: "required-before-provider",
@@ -1167,6 +1175,10 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.availability = state.availability || "disabled";
   aiProviderStatus.dataset.privacyScope = state.privacyScope || "unknown";
   aiProviderStatus.dataset.providerSelection = state.providerSelectionState || "unknown";
+  aiProviderStatus.dataset.providerConfiguration = state.providerConfigurationState || "unknown";
+  aiProviderStatus.dataset.providerRegistry = state.providerRegistryState || "unknown";
+  aiProviderStatus.dataset.configuredProviderCount = String(state.configuredProviderCount || 0);
+  aiProviderStatus.dataset.availableProviderCount = String(state.availableProviderCount || 0);
   aiProviderStatus.dataset.selectedProvider = state.selectedProviderId || "unknown";
   aiProviderStatus.dataset.consentState = state.consentState || "unknown";
   aiProviderStatus.dataset.interactionAffordance = state.interactionAffordance || "unknown";
@@ -1183,6 +1195,12 @@ function renderAIProviderState() {
   }
   if (aiProviderStatusSelection) {
     aiProviderStatusSelection.textContent = state.providerSelectionLabel || "No-provider fallback active";
+  }
+  if (aiProviderStatusConfiguration) {
+    aiProviderStatusConfiguration.textContent = state.providerConfigurationLabel || "Provider configuration: none";
+  }
+  if (aiProviderStatusRegistry) {
+    aiProviderStatusRegistry.textContent = state.providerRegistryLabel || "Local provider registry: no configured providers";
   }
   if (aiProviderStatusConsent) {
     aiProviderStatusConsent.textContent = state.consentLabel || "Consent required before provider setup";

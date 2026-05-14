@@ -11,6 +11,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from desktop.ai_provider_state import (  # noqa: E402
+    LOCAL_PROVIDER_REGISTRY_AVAILABILITY,
+    LOCAL_PROVIDER_REGISTRY_MODE,
+    LOCAL_PROVIDER_REGISTRY_STATE,
+    LOCAL_PROVIDER_REGISTRY_STATE_ID,
     NO_PROVIDER_AVAILABILITY,
     NO_PROVIDER_FALLBACK_SELECTION,
     NO_PROVIDER_ID,
@@ -18,12 +22,14 @@ from desktop.ai_provider_state import (  # noqa: E402
     NO_PROVIDER_MODE,
     NO_PROVIDER_PRIVACY_SCOPE,
     PACKAGE_ID,
+    PROVIDER_CONFIGURATION_UNCONFIGURED,
     PROVIDER_CONSENT_REQUIRED,
     PROVIDER_SELECTION_AVAILABILITY,
     PROVIDER_SELECTION_MODE,
     PROVIDER_SELECTION_STATE_ID,
     SLC_017_ID,
     SLC_018_ID,
+    build_local_provider_registry_state,
     build_no_provider_ai_state,
     build_provider_selection_consent_state,
 )
@@ -43,8 +49,10 @@ def validate() -> list[str]:
 
     snapshot = build_no_provider_ai_state(surface_role="core")
     selection_snapshot = build_provider_selection_consent_state(surface_role="core")
+    registry_snapshot = build_local_provider_registry_state(surface_role="core")
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
+    registry_payload = registry_snapshot.as_renderer_payload()
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     html = _read("nexus_visual/orin_core.html")
@@ -122,6 +130,85 @@ def validate() -> list[str]:
         "provider-selection scaffold must publish visible local/provider option metadata",
         failures,
     )
+    _require(
+        registry_snapshot.state_id == LOCAL_PROVIDER_REGISTRY_STATE_ID,
+        "provider registry scaffold must use the admitted registry/configuration state id",
+        failures,
+    )
+    _require(
+        registry_snapshot.mode == LOCAL_PROVIDER_REGISTRY_MODE,
+        "provider registry scaffold must use provider-registry mode",
+        failures,
+    )
+    _require(
+        registry_snapshot.availability == LOCAL_PROVIDER_REGISTRY_AVAILABILITY,
+        "provider registry scaffold must remain unavailable until configured",
+        failures,
+    )
+    _require(
+        registry_payload["selectedProviderId"] == NO_PROVIDER_ID,
+        "provider registry scaffold must keep no-provider selected",
+        failures,
+    )
+    _require(
+        registry_payload["providerSelectionState"] == NO_PROVIDER_FALLBACK_SELECTION,
+        "provider registry scaffold must preserve no-provider fallback compatibility",
+        failures,
+    )
+    _require(
+        registry_payload["providerConfigurationState"] == PROVIDER_CONFIGURATION_UNCONFIGURED,
+        "provider registry scaffold must expose unconfigured provider state",
+        failures,
+    )
+    _require(
+        registry_payload["providerRegistryState"] == LOCAL_PROVIDER_REGISTRY_STATE,
+        "provider registry scaffold must expose local-only registry state",
+        failures,
+    )
+    _require(
+        registry_payload["configuredProviderCount"] == 0,
+        "provider registry scaffold must not report configured providers",
+        failures,
+    )
+    _require(
+        registry_payload["availableProviderCount"] == 0,
+        "provider registry scaffold must not report available providers",
+        failures,
+    )
+    _require(registry_payload["requiresConsent"] is True, "provider registry scaffold must require consent", failures)
+    _require(registry_payload["sentToProvider"] is False, "provider registry scaffold must send nothing to providers", failures)
+    _require(registry_payload["storedLocally"] is False, "provider registry scaffold must not persist local memory", failures)
+    _require(registry_payload["canAcceptPrompts"] is False, "provider registry scaffold must not accept prompts", failures)
+    _require(registry_payload["externalCalls"] == "blocked", "provider registry scaffold must block external calls", failures)
+    _require(
+        registry_payload["providerVisibleData"] == "none",
+        "provider registry scaffold must expose no provider-visible data",
+        failures,
+    )
+    _require(
+        registry_payload["providerVisibleDataLabel"] == "Provider-visible data: none",
+        "provider registry scaffold must keep provider-visible-data disclosure consistent",
+        failures,
+    )
+    _require(
+        registry_payload["providerConfigurationLabel"] == "Provider configuration: none",
+        "provider registry scaffold must visibly disclose empty provider configuration",
+        failures,
+    )
+    _require(
+        registry_payload["providerRegistryLabel"] == "Local provider registry: no configured providers",
+        "provider registry scaffold must visibly disclose local-only registry posture",
+        failures,
+    )
+    _require(
+        len(registry_payload["providerRegistry"]) >= 3,
+        "provider registry scaffold must publish local provider registry metadata",
+        failures,
+    )
+    for entry in registry_payload["providerRegistry"]:
+        _require(entry["configured"] is False, "provider registry entries must not be configured", failures)
+        _require(entry["providerVisibleData"] == "none", "provider registry entries must not expose provider-visible data", failures)
+        _require(entry["externalCalls"] == "blocked", "provider registry entries must block external calls", failures)
 
     for forbidden in ("openai", "anthropic", "ollama", "llama_cpp", "pynvml", "cuda"):
         _require(
@@ -131,7 +218,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "build_provider_selection_consent_state",
+        "build_local_provider_registry_state",
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
@@ -148,9 +235,15 @@ def validate() -> list[str]:
             'data-mode="no-provider"',
             'data-privacy-scope="local-only"',
             'data-provider-selection="fallback-no-provider"',
+            'data-provider-configuration="unconfigured"',
+            'data-provider-registry="local-only-registry"',
+            'data-configured-provider-count="0"',
+            'data-available-provider-count="0"',
             'data-consent-state="required-before-provider"',
             "No AI provider",
             "No-provider fallback active",
+            "Provider configuration: none",
+            "Local provider registry: no configured providers",
             "Consent required before provider setup",
             "Provider-visible data: none",
             'id="ai-provider-status-action"',
@@ -178,6 +271,10 @@ def validate() -> list[str]:
         "renderAIProviderState",
         "window.setAIProviderState",
         "providerSelectionState",
+        "providerConfigurationState",
+        "providerRegistryState",
+        "configuredProviderCount",
+        "availableProviderCount",
         "requiresConsent",
         "consentState",
         "interactionAffordance",
@@ -192,6 +289,7 @@ def validate() -> list[str]:
         "SLC-017/SLC-018 No-Provider Shell And Provider-Privacy State",
         "SLC-017/SLC-018 Provider Selection And Consent Boundary Scaffold",
         "SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface",
+        "SLC-018 Local Provider Registry And Configuration State",
         "model downloads",
         "real provider SDK integration",
         "AI Product Contract v0.6.2",

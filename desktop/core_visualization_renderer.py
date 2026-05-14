@@ -6,7 +6,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from .ai_provider_state import build_provider_selection_consent_state
+from .ai_provider_state import build_local_provider_registry_state
 from .workerw_utils import (
     attach_window_to_desktop,
     make_window_noninteractive,
@@ -33,7 +33,7 @@ class CoreVisualizationWindow(QWidget):
         self._is_shutting_down = False
         self._pending_visual_state = "dormant"
         self._pending_voice_level = None
-        self._ai_provider_state = build_provider_selection_consent_state(surface_role="core")
+        self._ai_provider_state = build_local_provider_registry_state(surface_role="core")
         self._desktop_layer_attached = False
         self._desktop_layer_logged = False
         self._visible_logged = False
@@ -285,6 +285,10 @@ class CoreVisualizationWindow(QWidget):
             f"|availability={payload.get('availability', '')}"
             f"|privacy_scope={payload.get('privacyScope', '')}"
             f"|provider_selection={payload.get('providerSelectionState', '')}"
+            f"|provider_configuration={payload.get('providerConfigurationState', '')}"
+            f"|provider_registry={payload.get('providerRegistryState', '')}"
+            f"|configured_provider_count={payload.get('configuredProviderCount', 0)}"
+            f"|available_provider_count={payload.get('availableProviderCount', 0)}"
             f"|consent_state={payload.get('consentState', '')}"
             f"|interaction_affordance={payload.get('interactionAffordance', '')}"
             f"|provider_visible_data={payload.get('providerVisibleData', '')}"
