@@ -96,7 +96,7 @@ Rollback Path: if this setup fails validation, current authorization covers boun
 
 - `Hardening`
 
-Next Legal Phase Gate: after runtime implementation validation, commit, and push, the next legal phase is `Hardening` for H1/live validation by USER decision. PR Readiness and PR creation remain later phase decisions after Hardening/LV posture is established; merge, issue closeout/comments, release execution, raw evidence handling, FAM-007/runtime provider work, AI Product Contract import, and Private Dev ORIN import remain separate USER approval checkpoints.
+Next Legal Phase Gate: after runtime implementation validation, commit, and push, the next legal phase is `Hardening` by USER decision. Live Validation is a separate later phase and must not be bundled into Hardening. PR Readiness and PR creation remain later phase decisions after Hardening completes and any separate Live Validation posture is admitted or waived; merge, issue closeout/comments, release execution, raw evidence handling, FAM-007/runtime provider work, AI Product Contract import, and Private Dev ORIN import remain separate USER approval checkpoints.
 
 ## Branch Objective
 
@@ -143,13 +143,13 @@ Acceptance Criteria: `Dashboard exposes a clear settings affordance; settings pa
 
 Validation Proof Requirements: `Runtime proof requires static HUD validator, internal sandbox validator, branch governance validation, release body validation, compileall, and live-client self-QA when USER-facing H1/PR readiness is requested.`
 
-Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation adds active-client self-QA hooks for the settings panel; H1/live validation should exercise the visible Settings button, settings panel open/close, and warning toggle before PR Readiness unless USER grants a specific waiver.`
+Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation adds active-client self-QA hooks for the settings panel. The next phase is Hardening H1, which should pressure-test the visible Settings button, settings panel open/close, and warning toggle. Live Validation remains a separate later phase unless USER records a specific waiver or phase admission.`
 
-Implementation Sequence Proposal: `Implemented settings entry/panel, updated validators, recorded source truth, and stop after validation/commit/push for H1/live validation or PR Readiness decision.`
+Implementation Sequence Proposal: `Implemented settings entry/panel, updated validators, recorded source truth, and stop after validation/commit/push for a Hardening decision. Live Validation and PR Readiness remain separate later phases.`
 
 Planning Blockers: `GitHub Issue Closeout Approval Missing`; `Release Execution Approval Missing`; `Raw Evidence Import Decision Pending`; `FAM-007 / Local AI Authority Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
 
-USER Decisions Needed: `Approve H1/live validation or PR Readiness next, approve PR creation later, approve GitHub issue closeout/comments, approve release execution/tags/releases/artifacts, approve raw evidence handling, and approve any FAM-007/provider/model/memory/shortcut/installer work separately.`
+USER Decisions Needed: `Approve Hardening next, approve Live Validation only as a later separate phase if needed, approve PR Readiness/PR creation later, approve GitHub issue closeout/comments, approve release execution/tags/releases/artifacts, approve raw evidence handling, and approve any FAM-007/provider/model/memory/shortcut/installer work separately.`
 
 Planning Packet Status: Complete
 
@@ -169,7 +169,7 @@ Interface Bundle User Approval: `Not granted - this branch has one primary Dashb
 
 Fallback Point: `If settings-panel runtime scope proves larger than the Dashboard surface, stop and request USER decision before expanding into provider/runtime/installer/FAM-007 work.`
 
-Interface Acceptance Path: `The settings-panel implementation is ready for H1/live validation; optional USER visual/UTS acceptance remains a later governed step.`
+Interface Acceptance Path: `The settings-panel implementation is ready for Hardening; optional Live Validation and USER visual/UTS acceptance remain later governed steps.`
 
 ## Admitted Implementation Slice
 
@@ -193,7 +193,7 @@ Runtime source is changed by the USER-approved Workstream implementation on this
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Complete the bounded FAM-006 Dashboard settings cog/settings panel runtime surface, validate, commit, push, and then await USER decision on H1/live validation or PR Readiness.`
+Branch Completion Goal: `Complete the bounded FAM-006 Dashboard settings cog/settings panel runtime surface, validate, commit, push, and then await USER decision on Hardening.`
 
 Known Future-Dependent Blockers: `PR creation, GitHub issue closeout/comments, raw evidence upload/import/linking, release execution, tags, GitHub Releases, artifacts, FAM-007 runtime/admission, AI Product Contract import, Private Dev ORIN import, Overlay/display acceptance, external telemetry parity, and runtime/provider/model/memory/shortcut/installer work all require later USER approval.`
 
@@ -258,7 +258,7 @@ No User Test Summary is generated, refreshed, imported, uploaded, linked, or dig
 
 ## Later-Phase Expectations
 
-- USER may approve H1/live validation or PR Readiness after this implementation is pushed.
+- USER may approve Hardening after this implementation is pushed. Live Validation and PR Readiness remain separate later phase decisions.
 - PR creation remains a later USER decision after implementation/validation.
 - GitHub issue closeout/comments for #123 through #127 remain pending USER approval.
 - Release execution, tags, GitHub Releases, artifacts, and raw evidence handling remain pending USER approval.
@@ -280,7 +280,7 @@ Active seam: `Runtime implementation for FAM-006 Dashboard settings panel`
 
 Active Seam Status: `Green after runtime validation and active-client proof; commit and push complete this authorized run`
 
-Next active seam: `Hardening H1/live validation by USER decision`
+Next active seam: `Hardening H1 by USER decision`
 
 Single-Seam Workstream Waiver: None
 Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice authority from branch size, branch name, or a narrow implementation pass.
@@ -296,8 +296,8 @@ Waiver Status: None
 Continue Decision: Stop
 Continuation Execution Latch: Inactive - runtime implementation and active-client proof are green; final response is allowed after validation, commit, and push, and the next seam requires a USER phase decision.
 Stop Basis: Workstream Green
-Next Active Seam: Hardening H1/live validation by USER decision.
-Stop Condition: Stop after validation, commit, and push; continue only if USER admits H1/live validation, PR Readiness, PR creation, issue closeout, release, artifacts, raw evidence handling, FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, AI Product Contract import, or Private Dev ORIN import.
+Next Active Seam: Hardening H1 by USER decision.
+Stop Condition: Stop after validation, commit, and push; continue only if USER admits Hardening. Live Validation, PR Readiness, PR creation, issue closeout, release, artifacts, raw evidence handling, FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate later USER decisions.
 Continuation Action: Stop at phase boundary until USER admits Hardening; report the proof packet and surface before continuing into the next phase.
 
 ## Recorded Seam
