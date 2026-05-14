@@ -2885,6 +2885,7 @@ RELEASE_READINESS_HEALTH_GATE_PHRASES = (
     "Branch Cleanup Plan:",
     "Branch Cleanup Execution Gate:",
     "FAM Overlap Routing:",
+    "Release Candidate Anchor Projection:",
     "Projected Post-Merge Validation:",
 )
 
@@ -2897,6 +2898,7 @@ RELEASE_READINESS_HEALTH_PASS_REQUIRED_MARKERS = (
     "Watcher / Live PR State Projection",
     "Branch Cleanup Plan",
     "FAM Overlap Routing",
+    "Release Candidate Anchor Projection",
     "Projected Post-Merge Validation",
 )
 
@@ -2908,6 +2910,7 @@ RELEASE_READINESS_HEALTH_PASS_PASS_ONLY_MARKERS = (
     "Watcher / Live PR State Projection",
     "Branch Cleanup Plan",
     "FAM Overlap Routing",
+    "Release Candidate Anchor Projection",
     "Projected Post-Merge Validation",
 )
 
@@ -3494,6 +3497,12 @@ RELEASE_READINESS_TARGET_DOCS = (
 )
 
 RELEASE_READINESS_TARGET_PHRASES = (
+    "Release Candidate Anchor:",
+    "Release Candidate Anchor Source:",
+    "Target Commit:",
+    "Historical Endpoint Handling:",
+    "Candidate Includes Later Governance Repairs:",
+    "Release Candidate Anchor Missing",
     "Release Target Undefined",
     "Release Target:",
     "Release Floor:",

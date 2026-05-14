@@ -21,13 +21,14 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / idle or single-cycle Release Readiness intake only`
-- Intake State: `Idle - no active Release Readiness intake cycle after RRI-20260514-002 merge/sync closeout`
+- Intake State: `Active - RRI-20260514-003 adds Release Readiness Candidate Anchor governance so Release Readiness validates the selected release candidate instead of turning historical PR endpoints into cleanup blockers`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest`
-- Active RRI Cycle: `None`
+- Active RRI Cycle: `RRI-20260514-003`
 - Latest Closed RRI Cycle: `RRI-20260514-002`
-- Return Digest Status: `Complete - RRI-20260514-002 return digest targets originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Return Digest Status: `Pending - RRI-20260514-003 return digest must target originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006 after merge/sync`
+- Active Cycle Identity: `RRI-20260514-003 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
 
 ## Branch Class
 
@@ -55,9 +56,10 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `None`
+- Active RRI Cycle: `RRI-20260514-003`
 - Latest Closed RRI Cycle: `RRI-20260514-002`
-- Return Digest Status: `Complete - RRI-20260514-002 return digest targets originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Return Digest Status: `Pending - RRI-20260514-003 return digest must target originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006 after merge/sync`
+- Active Cycle Identity: `RRI-20260514-003 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -80,6 +82,7 @@ Allowed:
 
 - Release Readiness digest source-truth drift repair only.
 - Governance/source-truth wording that prevents Release Readiness from becoming a cleanup phase.
+- Governance/source-truth wording that defines `Release Readiness Candidate Anchor` and keeps historical PR endpoints audit-only unless USER explicitly selects one as the release target.
 - Governance/source-truth wording that routes stale/old branch cleanup to Branch Readiness branch/worktree setup instead of Release Readiness.
 - Validator support for standing intake, Release Readiness Health Pass, and PR body firewall behavior.
 - Helper registry updates tied directly to those validators.
@@ -172,9 +175,9 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `None - standing governance intake idle after RRI-20260514-002 merge/sync closeout`
+Active seam: `RRI-20260514-003 - Release Readiness Candidate Anchor governance`
 
-Seam Goal: `Preserve the idle standing governance lane and prevent return digests from substituting the wrong originating worktree or branch.`
+Seam Goal: `Prevent Release Readiness from overreaching into historical PR endpoint cleanup by requiring it to validate the declared release candidate anchor and route missing source-truth repairs back to PR Readiness, Branch Readiness, or the standing governance intake lane.`
 
 Seam Scope: `This authority record, governance docs, helper registry text, and dev/orin_branch_governance_validation.py.`
 
