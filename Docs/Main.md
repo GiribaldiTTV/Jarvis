@@ -219,6 +219,7 @@ Rules:
 - backlog is not the seam-by-seam traceability surface for continuation, blocker-clearing, or validator follow-through; canonical workstreams and branch authority records own that history
 - historical pass aliases, support/governance lanes, old registry-only implemented IDs, and all legacy `FB-###` references in `Docs/feature_backlog.md` are trace rows only; do not treat them as live backlog identities or selected-next candidates
 - continuation or reopening on an existing feature family should reuse that same backlog identity by default unless the USER explicitly approves a backlog split or the work is materially a new user-facing feature family
+- Assigned Worktree Confinement is required for assigned Codex threads: branch records must report `Expected Worktree Root:`, `Actual Worktree Root:`, `No Cross-Worktree Mutation:`, and `GitHub Desktop-bound worktree`; operating outside the assigned root blocks on `Worktree Escape User Waiver Missing` until USER grants `Worktree Escape User Waiver: Granted` with exact scope, duration, validation, and return path
 - backlog candidate selection is priority-led; `Priority` and deferred-context fields are the selection inputs for open items
 - `Target Version` is not an open-backlog selection input and belongs only to release posture, release debt, or historical closed/implemented evidence
 - deferred open backlog entries must explain `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` before they can be selected efficiently

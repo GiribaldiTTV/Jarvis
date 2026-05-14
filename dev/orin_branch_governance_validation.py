@@ -1864,6 +1864,35 @@ STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
     "Next Legal Phase",
 )
 
+ASSIGNED_WORKTREE_CONFINEMENT_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
+    "Assigned Worktree Confinement",
+    "Worktree Escape User Waiver: Granted",
+    "Worktree Escape User Waiver Missing",
+    "Expected Worktree Root:",
+    "Actual Worktree Root:",
+    "No Cross-Worktree Mutation",
+    "GitHub Desktop-bound worktree",
+)
+ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
+    "Assigned Worktree Confinement",
+    "Expected Worktree Root",
+    "Actual Worktree Root",
+    "No Cross-Worktree Mutation",
+    "GitHub Desktop-bound worktree",
+    "Worktree Escape User Waiver",
+    "Worktree Escape User Waiver Missing",
+)
+
 MULTI_SEAM_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -11449,6 +11478,45 @@ def _git_current_branch() -> str:
     return completed.stdout.strip()
 
 
+def _git_top_level() -> str:
+    completed = subprocess.run(
+        ("git", "rev-parse", "--show-toplevel"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return ""
+    return completed.stdout.strip()
+
+
+def _git_upstream_branch() -> str:
+    completed = subprocess.run(
+        ("git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return ""
+    return completed.stdout.strip()
+
+
+def _normalized_local_path(value: str) -> str:
+    normalized = value.strip().strip("`").strip('"').replace("/", "\\")
+    if not normalized:
+        return ""
+    try:
+        normalized = str(Path(normalized).resolve(strict=False))
+    except (OSError, RuntimeError, ValueError):
+        pass
+    return normalized.rstrip("\\").casefold()
+
+
 def _git_head_sha() -> str:
     completed = subprocess.run(
         ("git", "rev-parse", "HEAD"),
@@ -14432,6 +14500,82 @@ def _run_standing_governance_intake_gate(require) -> None:
             )
 
 
+def _run_worktree_confinement_gate(require) -> None:
+    branch_name = _git_current_branch()
+    actual_root = _git_top_level()
+    upstream_branch = _git_upstream_branch()
+    branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
+    active_branch_record_paths = _collect_branch_record_paths(
+        branch_record_index_text,
+        "Active Branch Authority Records",
+    )
+    record_path, record_text = _active_branch_record_for_branch(
+        active_branch_record_paths,
+        branch_name,
+    )
+
+    require(
+        bool(branch_name),
+        "Assigned Worktree Confinement gate requires a checked-out branch, found detached HEAD",
+    )
+    require(
+        bool(actual_root),
+        "Assigned Worktree Confinement gate could not resolve git top-level worktree root",
+    )
+    require(
+        bool(record_text),
+        (
+            "Assigned Worktree Confinement gate requires the current branch to have an "
+            "active branch authority record"
+        ),
+    )
+    if not record_text:
+        return
+
+    identity = _section(record_text, "Branch Identity")
+    expected_root = _extract_marker_value(identity, "Worktree")
+    confinement = _section(record_text, "Assigned Worktree Confinement")
+    require(
+        bool(expected_root),
+        f"{record_path}: Assigned Worktree Confinement requires a Branch Identity `Worktree:` marker",
+    )
+    require(
+        bool(confinement),
+        f"{record_path}: missing ## Assigned Worktree Confinement",
+    )
+    for marker in ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS:
+        require(
+            marker in confinement,
+            f"{record_path}: Assigned Worktree Confinement is missing '{marker}:'",
+        )
+
+    if expected_root and actual_root:
+        roots_match = _normalized_local_path(expected_root) == _normalized_local_path(actual_root)
+        waiver_state = _extract_marker_value(confinement, "Worktree Escape User Waiver")
+        if roots_match:
+            require(True, "Assigned Worktree Confinement root match")
+        else:
+            require(
+                waiver_state.startswith("Granted") and actual_root in confinement,
+                (
+                    "Worktree Escape User Waiver Missing: active git root does not match "
+                    f"the assigned worktree. Expected `{expected_root}`, actual `{actual_root}`. "
+                    "Stop before mutation unless USER grants `Worktree Escape User Waiver: Granted` "
+                    "with expected root, actual root, target root, allowed commands/files, expiration, "
+                    "validation, and return path."
+                ),
+            )
+
+    if branch_name and upstream_branch:
+        require(
+            upstream_branch == f"origin/{branch_name}",
+            (
+                "Assigned Worktree Confinement gate requires the branch upstream to match "
+                f"`origin/{branch_name}`, found `{upstream_branch}`"
+            ),
+        )
+
+
 def _run_release_readiness_health_gate(
     require,
     *,
@@ -14657,6 +14801,7 @@ def main() -> int:
     pr_readiness_gate = "--pr-readiness-gate" in sys.argv[1:]
     release_readiness_health_gate = "--release-readiness-health-gate" in sys.argv[1:]
     standing_governance_intake_gate = "--standing-governance-intake-gate" in sys.argv[1:]
+    worktree_confinement_gate = "--worktree-confinement-gate" in sys.argv[1:]
     errors: list[str] = []
     checks = 0
 
@@ -14766,6 +14911,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: Standing Governance Intake Branch guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in ASSIGNED_WORKTREE_CONFINEMENT_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in ASSIGNED_WORKTREE_CONFINEMENT_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: assigned worktree confinement guidance is missing '{required_phrase}'",
             )
 
     for relative_path in MULTI_SEAM_CONTRACT_DOCS:
@@ -15731,9 +15884,16 @@ def main() -> int:
         )
     elif standing_governance_intake_gate:
         _run_standing_governance_intake_gate(require)
+    elif worktree_confinement_gate:
+        _run_worktree_confinement_gate(require)
 
     selected_entries = _selected_next_workstream_entries(backlog_entries)
-    if len(selected_entries) == 1 and not pr_readiness_gate and not standing_governance_intake_gate:
+    if (
+        len(selected_entries) == 1
+        and not pr_readiness_gate
+        and not standing_governance_intake_gate
+        and not worktree_confinement_gate
+    ):
         selected = selected_entries[0]
         selected_id = selected["id"]
         roadmap_section = _next_workstream_roadmap_section(roadmap_text)

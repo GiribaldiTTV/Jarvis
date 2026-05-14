@@ -79,6 +79,29 @@ Branch Class:
 Bounded State:
 [exact phase/stage, workspace, branch, write target, authority record, package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase]
 
+Assigned Worktree Confinement:
+[Required / not applicable]
+
+Expected Worktree Root:
+[fill in assigned worktree root, or not applicable]
+
+Actual Worktree Root:
+[fill in current git root from preflight]
+
+No Cross-Worktree Mutation:
+[Required / not applicable]
+
+GitHub Desktop-bound worktree:
+[fill in bound folder when GitHub Desktop is used, or not applicable]
+
+Worktree Escape User Waiver:
+[Granted with expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path / None]
+
+Worktree Escape User Waiver: Granted is valid only when USER explicitly supplies the expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path.
+
+Worktree Escape User Waiver Missing:
+[Active when actual root differs from assigned root and no waiver exists / Clear]
+
 Bounded State User Waiver:
 [Granted with exact waiver fields / None]
 

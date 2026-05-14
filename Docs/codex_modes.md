@@ -52,6 +52,8 @@ Before any file mutation, branch/worktree creation or switch, commit, push, PR a
 
 If that bounded state is absent or ambiguous, Codex must stop on `Bounded State Missing`. If the task needs wider scope than the bounded state allows, Codex must stop on `Bounded State Waiver Missing` unless `Bounded State User Waiver: Granted` names the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions.
 
+Assigned Worktree Confinement is part of bounded state. A thread assigned to a worktree must report `Expected Worktree Root:`, `Actual Worktree Root:`, `No Cross-Worktree Mutation:`, and `GitHub Desktop-bound worktree` before mutation or handoff. If the active git root is outside the assigned worktree, stop on `Worktree Escape User Waiver Missing`; only USER can grant `Worktree Escape User Waiver: Granted`, and the waiver must name the expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path.
+
 Broad work requests do not authorize implementation. `Continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording can execute only when source truth resolves it to one exact active bounded seam. Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver.
 
 That startup assessment should explicitly answer:

@@ -144,6 +144,8 @@ PR Readiness must prove post-merge source truth before PR creation or merge read
 
 `Branch Cleanup Plan:` records stale/old branches, retired worktrees, and stale GitHub Desktop entries that may need cleanup after merge. `Branch Cleanup Execution Gate:` must keep cleanup blocked during Release Readiness; stale/old branch cleanup executes only during the next `Branch Readiness Stage 2 - Execution Gate` that creates or validates the replacement branch/worktree. Before deleting any branch or removing any worktree, Codex must prove `git worktree list`, current branch targets, and GitHub Desktop binding so no GitHub Desktop-bound worktree is left without a valid branch target.
 
+Assigned Worktree Confinement is mandatory for every thread assigned to a specific worktree. Before mutation, Stage 2 execution, commit, push, PR work, release work, runtime validation, shortcut/provider/model action, branch/worktree cleanup, or GitHub Desktop handoff, report `Expected Worktree Root:`, `Actual Worktree Root:`, `No Cross-Worktree Mutation:`, and the `GitHub Desktop-bound worktree`. If the active root is not the assigned root, stop on `Worktree Escape User Waiver Missing` unless the USER grants `Worktree Escape User Waiver: Granted` with expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path. The assigned thread must not mutate sibling worktrees, parked clones, or the neutral/main folder by convenience.
+
 That startup pass must make explicit:
 
 - source-of-truth layer selection

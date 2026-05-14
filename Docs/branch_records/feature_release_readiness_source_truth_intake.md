@@ -56,6 +56,16 @@ This branch is the single standing governance lane for Release Readiness source-
 - Return Digest: Required after governance PR merge and branch sync.
 - Originating Lane Pause: Required - the originating thread/worktree enters `Waiting For Governance Intake` or `Waiting For Updated Main` and must not mutate until return digest and rebaseline.
 
+## Assigned Worktree Confinement
+
+- Assigned Worktree Confinement: `Required`
+- Expected Worktree Root: `C:\Nexus Worktrees\Governance`
+- Actual Worktree Root: `Must resolve to C:\Nexus Worktrees\Governance before mutation, branch/worktree action, runtime launch, PR/release action, shortcut/provider/model action, or GitHub Desktop handoff`
+- No Cross-Worktree Mutation: `Required - this thread must not mutate C:\Nexus Desktop AI, C:\Nexus Worktrees\FAM-006, C:\Nexus Worktrees\FAM-007, parked clones, sibling worktrees, or neutral/main folders by convenience`
+- GitHub Desktop-bound worktree: `C:\Nexus Worktrees\Governance`
+- Worktree Escape User Waiver: `None; Worktree Escape User Waiver: Granted is valid only when USER explicitly names expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path`
+- Worktree Escape User Waiver Missing: `Blocks mutation, branch/worktree changes, runtime launch, shortcut/provider/model actions, PR/release actions, and GitHub Desktop handoff outside C:\Nexus Worktrees\Governance`
+
 ## Allowed / Forbidden Scope
 
 Allowed:
@@ -65,6 +75,7 @@ Allowed:
 - Governance/source-truth wording that routes stale/old branch cleanup to Branch Readiness branch/worktree setup instead of Release Readiness.
 - Validator support for standing intake, Release Readiness Health Pass, and PR body firewall behavior.
 - Helper registry updates tied directly to those validators.
+- Assigned Worktree Confinement governance/validator support for this standing worktree.
 - One PR per active `RRI-*` cycle after validation.
 
 Forbidden:
@@ -76,6 +87,7 @@ Forbidden:
 - AI Product Contract import or private Dev ORIN import.
 - Direct-main mutation, broad docs churn, implementation branch planning, or selected-next runtime branch creation.
 - Accepting anything other than a Release Readiness digest after the bootstrap setup cycle.
+- Cross-worktree mutation outside `C:\Nexus Worktrees\Governance` without `Worktree Escape User Waiver: Granted`.
 
 ## Return Digest Contract
 

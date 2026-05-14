@@ -2225,6 +2225,24 @@ If the active folder, branch, upstream, worktree role, phase/seam, write target,
 
 The routing packet must include expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected phase/seam, actual repo state, mismatch evidence, and safest next correction.
 
+### Assigned Worktree Confinement
+
+Assigned Worktree Confinement is mandatory once a thread is assigned to a specific worktree. The thread must treat that worktree root as its boundary for repo mutation, branch operations, runtime launch, shortcut mutation, provider/model install, PR work, release work, and GitHub Desktop handoff.
+
+Every assigned branch authority record must carry:
+
+- Assigned Worktree Confinement: Required
+- Expected Worktree Root:
+- Actual Worktree Root:
+- No Cross-Worktree Mutation: Required
+- GitHub Desktop-bound worktree:
+- Worktree Escape User Waiver: Granted only when USER explicitly names the expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path
+- Worktree Escape User Waiver Missing: Blocks mutation, branch/worktree changes, runtime launch, shortcut/provider/model actions, PR/release actions, and GitHub Desktop handoff outside the assigned worktree
+
+Read-only identity checks may inspect `git worktree list`, remotes, branch names, and GitHub Desktop binding evidence from the assigned root. Any write, branch switch, cleanup, runtime launch, shortcut edit, or helper execution against a sibling worktree or parked clone is `No Cross-Worktree Mutation` scope and must stop on `Worktree Escape User Waiver Missing` unless the USER grants the waiver in clear text.
+
+The active thread must run or report the equivalent of `python dev\orin_branch_governance_validation.py --worktree-confinement-gate` before Stage 2 execution, phase entry, branch/worktree creation, commit, push, PR work, release work, runtime validation, or GitHub Desktop handoff when the assigned branch record declares a worktree.
+
 Stale parked branches, old worktrees, fallback folders, AI Lab context, deleted/recreated historical refs, and unknown write targets are stop conditions until USER explicitly routes the work to a legal target.
 
 ## Repo-Level State: No Active Branch

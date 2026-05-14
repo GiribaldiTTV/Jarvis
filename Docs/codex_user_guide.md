@@ -247,6 +247,8 @@ For tracked work, that means:
 
 `Thread / Worktree Identity Preflight` proves the current working directory, repository root, branch, upstream, `HEAD`, `origin/main`, `git worktree list`, clean/dirty state, workspace role, runtime/process ownership, and GitHub Desktop folder binding when relevant. If the thread is in the wrong folder or branch for the requested work, stop on `Thread / Worktree Identity Mismatch` instead of correcting by inertia.
 
+`Assigned Worktree Confinement` means a thread assigned to one worktree stays inside that worktree for repo mutation, branch/worktree actions, runtime launches, shortcut/provider/model changes, PR/release work, and GitHub Desktop handoff. The preflight must show `Expected Worktree Root:`, `Actual Worktree Root:`, `No Cross-Worktree Mutation:`, and `GitHub Desktop-bound worktree`. If the actual root is different, stop on `Worktree Escape User Waiver Missing`; only USER can grant `Worktree Escape User Waiver: Granted` with exact root, scope, expiration, validation, and return-path details.
+
 Promoted workstream docs remain the place to read branch-local feature state, evidence, active seams, artifact history, and branch-local reuse notes.
 Repo-wide lifecycle rules such as phases, stop-loss, timeout governance, and proof authority come from `Docs/phase_governance.md`.
 Repo-wide validation-helper rules and the desktop UI audit rule also come from `Docs/phase_governance.md`.
