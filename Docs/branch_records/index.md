@@ -99,11 +99,12 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md`
-- `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
+None.
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
+- `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md`
 - `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md`
 - `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md`
 - `Docs/branch_records/feature_fam_006_dashboard_release_support.md`

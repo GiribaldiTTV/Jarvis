@@ -6,25 +6,26 @@
 - Worktree: `C:\Nexus Worktrees\FAM-006`
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
-- Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; not a governance-only branch`
-- Current Delta Status: `Live Validation Stage 1 bounded repair continued after returned USER UTS failure and live USER visual feedback; latest red user-facing shortcut human-client validation proves #123 first-open visual continuity, #127 cursor alignment, central-50-percent rounded-corner diagonal resize affordance, and high-refresh resize smoothness, Dashboard Settings open/close, Settings double-click non-maximize, Dashboard Close behavior, Quick Access warning-notification shadow clearance, #137 rounded-corner native-mask white-backdrop proof, and #140 NCP tray icon left-click / tray Open-Close state repair; Close is a window-level top-right control while Settings and HUD Overlay deferred remain Dashboard IA-card controls; formal UTS handoff was refreshed from proof root dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466; USER returned refreshed UTS results as PASS after confirming all raised issues and testing returned good; PR Readiness Stage 1 is the next USER-gated phase`
+- Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; implementation and Live Validation are complete; projected post-merge state is historical / merged-unreleased until release execution`
+- Current Delta Status: `PR Readiness Stage 1 projection repair: Live Validation Stage 1 bounded repair continued after returned USER UTS failure and live USER visual feedback; latest red user-facing shortcut human-client validation proves #123 first-open visual continuity, #127 cursor alignment, central-50-percent rounded-corner diagonal resize affordance, and high-refresh resize smoothness, Dashboard Settings open/close, Settings double-click non-maximize, Dashboard Close behavior, Quick Access warning-notification shadow clearance, #137 rounded-corner native-mask white-backdrop proof, and #140 NCP tray icon left-click / tray Open-Close state repair; Close is a window-level top-right control while Settings and HUD Overlay deferred remain Dashboard IA-card controls; formal UTS handoff was refreshed from proof root dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466; USER returned refreshed UTS results as PASS after confirming all raised issues and testing returned good; merged main must return to No Active Branch and carry this work as merged-unreleased implementation debt until release execution`
 - Backlog Record State: `Registry-only runtime continuation under historical FAM-006 / PKG-006`
 - Package ID: `PKG-006`
 - Package Name: `Monitoring HUD Dashboard Product Surface`
 
 ## Purpose / Why It Exists
 
-This branch is the USER-approved Branch Readiness Stage 2 carrier for the next FAM-006 runtime-focused Dashboard surface after PR #133 merged the release-support source truth into main.
+This record preserves the USER-approved Branch Readiness Stage 2 carrier for the FAM-006 runtime-focused Dashboard settings-panel surface after PR #133 merged the release-support source truth into main.
 
-It exists because the Dashboard settings cog/settings panel remained a deferred FAM-006 Dashboard controls/settings surface after the Dashboard product-surface release and the later issue-resolution PRs. This is not a governance-only branch: the accepted carrier is the FAM-006 Dashboard settings-panel runtime branch. Runtime implementation is now USER-approved for the bounded Dashboard settings cog/settings panel seam, while the branch also preserves the bounded post-PR #133 source-truth drift repair that landed before implementation began.
+It exists because the Dashboard settings cog/settings panel remained a deferred FAM-006 Dashboard controls/settings surface after the Dashboard product-surface release and the later issue-resolution PRs. This was not a governance-only branch: the accepted carrier is the FAM-006 Dashboard settings-panel runtime branch. Runtime implementation, Hardening H1, and Live Validation Stage 1 are complete for the bounded Dashboard settings cog/settings panel seam, while the record also preserves the bounded post-PR #133 source-truth drift repair that landed before implementation began. For merge-target projection, this record is historical / merge-stable and must not make merged `main` active on this branch.
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- `Active Branch`: `feature/fam-006-dashboard-settings-panel`
+- `Projected Merged-Main Branch State`: `No Active Branch`
+- `Historical Posture`: `Historical / merge-stable after projected merge; pre-merge PR execution happens before this projected state and must not land as active main truth`
 - Branch Readiness Stage 1: `Complete - USER selected the FAM-006 Dashboard settings panel as the next runtime-focused carrier after PR #133 merge`
 - Branch Readiness Stage 2: `Complete - USER approved worktree creation from updated origin/main, branch creation, PR #133 post-merge source-truth drift repair, branch authority setup, validation, commit, and push`
 - Runtime Implementation: `USER-approved and implemented for the bounded Dashboard settings cog/settings panel surface`
@@ -33,7 +34,60 @@ It exists because the Dashboard settings cog/settings panel remained a deferred 
 - Live Validation Status: `STAGE 1 PASS - returned UTS was first digested as REPAIR after #123 first-open flicker, #127 remaining resize jitter, and Dashboard Close styling/placement feedback; later live visual review found Quick Access warning-notification shadow bleed, remaining resize lag, #137 Dashboard rounded-corner native background bleed, and #140 NCP tray toggle/state regression. Active-client precheck remains supporting evidence at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260; latest red user-facing shortcut human-client validation passed at dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json with #137 white-backdrop corner-sampling proof, #140 NCP tray icon left-click open/close and tray menu Open/Close Command Overlay state proof, corrected bottom/corner resize cursor proof, and central-50-percent rounded-corner diagonal resize-zone proof; compact UTS handoff refreshed at dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466; USER returned refreshed UTS results as PASS after confirming all raised issues and testing returned good`
 - GitHub Issue Closeout: `Pending USER approval for #123, #124, #125, #126, #127, #137, and #140`
 - Release Execution: `Pending USER approval`
-- Branch Authority State: `Active`
+- Branch Authority State: `Historical / merge-stable projection`
+- Merged-Unreleased Posture: `After PR merge, this settings-panel runtime work joins PR #129 and PR #132 as merged-unreleased FAM-006 Dashboard implementation debt until a later USER-approved release executes`
+
+## PR Readiness Stage 1 Projection
+
+Origin/Main Freshness Check: `PASS - current origin/main is b5b83f34de16440e51b504d25a9293dae9f2ef0f after PR #141, and origin/main is an ancestor of this branch through merge commit 058aecf3729837d2bc4f52f4cf2ad872be8f451c.`
+
+Post-Merge Branch Authority Projection: `Merged main returns to No Active Branch. This branch authority record is historical / merge-stable and remains traceability for the FAM-006 Dashboard settings-panel runtime work, not an active branch owner on main.`
+
+Merged-Unreleased Scope Posture: `PR #129, PR #132, PR #138 FAM-007 scaffold scope, and this FAM-006 settings-panel runtime branch remain merged-unreleased implementation work until later USER-approved release execution publishes the appropriate release scope.`
+
+Release Execution Gate: `Pending USER approval. No tag, GitHub Release, artifact, raw evidence upload/import/linking, or release execution is authorized by this branch record.`
+
+Issue Closeout Gate: `Pending USER approval for GitHub issue comments or closeout on #123, #124, #125, #126, #127, #137, and #140.`
+
+Watcher / Live PR State Projection: `No live PR, watcher, merge-watch, PR URL, bot-review state, or open-PR narration is projected into merged main by this record. PR creation and watcher posture belong to PR Readiness Stage 2 operator output and any explicit PR metadata update if repo governance later requires it.`
+
+FAM Overlap Routing: `FAM-007, provider/model/memory/shortcut/installer work, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate pending USER decisions.`
+
+Projected Post-Merge Validation: `After merge, run source-truth validation from updated main, confirm No Active Branch, confirm this record is historical, confirm merged-unreleased FAM-006 settings-panel release debt, and confirm issue/release/raw-evidence/FAM-007 gates remain pending.`
+
+## Release Readiness Health Pass
+
+Post-Merge Branch Authority Projection: `PASS - merged main returns to No Active Branch, and this branch authority record is listed as historical / merge-stable.`
+
+Stale Active Branch Wording Scan: `PASS - projected current-state owners record no active FAM-006 settings-panel branch after merge.`
+
+Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - merged main projection carries no live PR, open PR, watcher, merge-watch, or PR-creation-next state.`
+
+Merged-Unreleased Scope Posture: `PASS - FAM-006 Dashboard settings-panel runtime work is recorded as merged-unreleased implementation work until USER-approved release execution publishes it.`
+
+Release Execution Gate: `PASS - release execution, tags, GitHub Release, artifacts, and release publication remain pending USER approval.`
+
+Watcher / Live PR State Projection: `PASS - watcher and live PR state belong to PR execution output only and are not projected into merged main.`
+
+Branch Cleanup Plan: `PASS - cleanup is deferred until after merge verification; no branch deletion or worktree removal is authorized by this record.`
+
+FAM Overlap Routing: `PASS - FAM-007, provider/model/memory/shortcut/installer work, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate pending USER decisions.`
+
+Projected Post-Merge Validation: `PASS - after merge, validate updated main, confirm No Active Branch, confirm this record is historical, confirm merged-unreleased FAM-006 settings-panel release debt, and confirm pending USER gates remain intact.`
+
+## Post-Merge State
+
+Branch Authority: `No Active Branch`
+
+Branch Record State: `Historical / merge-stable`
+
+Merged-Unreleased Scope: `FAM-006 Dashboard settings-panel runtime work remains merged-unreleased implementation debt until release execution is USER-approved.`
+
+Issue Closeout State: `Pending USER approval for #123, #124, #125, #126, #127, #137, and #140.`
+
+Release State: `Release execution, tags, GitHub Release, artifacts, and raw evidence upload/import/linking remain pending USER approval.`
+
+Future Work State: `FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, AI Product Contract import, Private Dev ORIN import, and future FAM-006 runtime carriers remain pending USER decisions.`
 
 ## Branch Class
 
@@ -60,8 +114,8 @@ Backlog-Split Reason: `None`
 - `Runtime Implementation Approval`: cleared for the bounded Dashboard settings cog/settings panel runtime surface.
 - `Real USER-Facing Shortcut Validation`: cleared for issue #140 after USER reported NCP tray icon left-click no longer closes the NCP and tray state stays on Open. The canonical red user-facing desktop shortcut is `C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk`; the redundant legacy Settings Panel red shortcut was archived so USER testing and helpers share one FAM-006 launcher path. Latest human-client proof passed at `dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json` with `shortcut_targets_active_worktree=PASS`, the existing first-open/resize/settings/close regressions, white-backdrop rounded-corner mask proof, central-50-percent rounded-corner diagonal resize-zone proof, NCP tray icon left-click open/close proof, and tray menu Open/Close Command Overlay state proof.
 - `User Test Summary Results`: cleared for Live Validation Stage 1. The prior returned UTS was digested as REPAIR. The compact formal UTS handoff was refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` from proof root `dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466` after the high-refresh resize smoothness repair, central-50-percent rounded-corner diagonal resize-zone repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair. USER returned refreshed UTS results as PASS after confirming all raised issues and testing returned good.
-- `PR Readiness Approval Missing`: active now that Live Validation Stage 1 is PASS; PR Readiness Stage 1 still requires separate USER approval before analysis or PR creation.
-- `PR Readiness / PR Creation Approval Missing`: active after Live Validation blockers clear until USER approves PR Readiness and any later PR creation.
+- `PR Readiness Stage 1 Projection Repair`: cleared by this source-truth projection pass when validated and pushed.
+- `Pre-Merge PR Creation Gate`: pending USER approval before live PR creation; no live PR state is projected into merged main.
 - `GitHub Issue Closeout Approval Missing`: active for comments or state changes on #123, #124, #125, #126, #127, #137, and #140.
 - `Release Execution Approval Missing`: active.
 - `Raw Evidence Import Decision Pending`: active.
@@ -85,7 +139,7 @@ Backlog-Split Reason: `None`
 - Worktree `C:\Nexus Worktrees\FAM-006` exists and is clean on `feature/fam-006-dashboard-settings-panel`.
 - Branch is created from updated `origin/main` at `228f18e73faabf6ffb6e3b9a5cf32d2f92cd3060`.
 - Source truth records PR #133 as merged/historical and no longer treats release-support as the active FAM-006 carrier.
-- Source truth establishes this branch as the active FAM-006 settings-panel runtime carrier.
+- Source truth projects this branch as historical / merge-stable after PR merge while preserving it as the FAM-006 settings-panel runtime carrier evidence.
 - PR #129 and PR #132 remain merged-unreleased FAM-006 Dashboard release debt.
 - #123 through #127 remain completed in source truth and pending USER-approved GitHub closeout.
 - FAM-007, provider/model/memory/shortcut/installer work, release execution, artifacts, raw evidence handling, AI Product Contract import, and Private Dev ORIN import remain pending USER decisions.
@@ -100,9 +154,9 @@ Rollback Path: if this setup fails validation, current authorization covers boun
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
-Next Legal Phase Gate: Hardening H1 is complete and green. Live Validation Stage 1 has refreshed red-shortcut human-client PASS after the high-refresh resize smoothness repair, central-50-percent rounded-corner diagonal resize-zone repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair. Refreshed returned USER UTS results are digested as PASS. PR Readiness Stage 1 is now eligible by separate USER approval; PR creation remains a later USER decision.
+Next Legal Phase Gate: Hardening H1 is complete and green. Live Validation Stage 1 has refreshed red-shortcut human-client PASS after the high-refresh resize smoothness repair, central-50-percent rounded-corner diagonal resize-zone repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair. Refreshed returned USER UTS results are digested as PASS. PR Readiness Stage 1 projection repair records that merged `main` returns to No Active Branch and carries this work as merged-unreleased FAM-006 Dashboard implementation debt because release execution remains pending. After merge, the next repository phase is Release Readiness only if USER approves it.
 
 ## Branch Objective
 
@@ -111,11 +165,11 @@ Create the FAM-006 Dashboard settings-panel runtime-focused carrier from updated
 ## Target End-State
 
 - The FAM-006 settings-panel worktree and branch exist from updated `origin/main`.
-- Active branch authority points to `feature/fam-006-dashboard-settings-panel`.
+- Branch authority is projected as historical / merge-stable for post-merge `main`; the local pre-merge branch remains the execution vehicle only until PR outcome.
 - Release-support source truth is historical after PR #133 merge.
 - PR #129 and PR #132 remain merged-unreleased release debt.
 - Issues #123 through #127 remain completed in source truth and pending USER-approved GitHub closeout.
-- Runtime implementation is bounded to the Dashboard settings cog/settings panel surface and remains separate from FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, issue closeout, release execution, raw evidence handling, and PR creation.
+- Runtime implementation is bounded to the Dashboard settings cog/settings panel surface and remains separate from FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, issue closeout, release execution, raw evidence handling, and PR creation. After merge, the implementation is merged-unreleased release debt until USER approves release execution.
 
 ## Product Definition Plan
 
@@ -284,11 +338,11 @@ Non-Includes: `GitHub issue closeout/comments, release execution, tags, GitHub R
 
 ## Active Seam
 
-Active seam: `Live Validation for FAM-006 Dashboard settings panel`
+Recorded seam: `Live Validation for FAM-006 Dashboard settings panel`
 
 Active Seam Status: `Live Validation Stage 1 PASS after active-client precheck PASS, strengthened red shortcut human-client PASS including #137 rounded-corner white-backdrop proof, refreshed formal UTS handoff generation, and returned USER UTS PASS digestion`
 
-Next active seam: `PR Readiness Stage 1 by separate USER approval`
+Next pre-merge seam: `PR Readiness Stage 2 / PR creation by separate USER approval after projection repair validates`
 
 Single-Seam Workstream Waiver: None
 Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice authority from branch size, branch name, or a narrow implementation pass.
@@ -301,12 +355,12 @@ Seam Status: Green - repaired red shortcut human-client validation, #137 rounded
 Slice Status: Green
 Completion Status: Green - Live Validation Stage 1 PASS after #137 proof refresh, #140 proof refresh, diagonal corner resize proof, and returned USER UTS PASS digestion
 Waiver Status: None
-Continue Decision: Stop before PR Readiness execution
+Continue Decision: Stop before PR Readiness Stage 2 / PR creation
 Continuation Execution Latch: Inactive - runtime implementation, Hardening H1, bounded live-validation repair, strengthened red shortcut human-client validation, #137 rounded-corner white-backdrop proof, refreshed UTS handoff, and returned USER UTS PASS digestion are green.
-Stop Basis: PR Readiness Stage 1 USER approval pending
-Next Active Seam: PR Readiness Stage 1 by separate USER approval.
-Stop Condition: Stop after source-truth repair, validation, commit, and push; continue only after USER approves PR Readiness Stage 1. PR creation, issue closeout, release, artifacts, raw evidence handling, FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate later USER decisions.
-Continuation Action: Stop after Live Validation Stage 1 PASS digestion until USER approves PR Readiness Stage 1.
+Stop Basis: PR Readiness Stage 2 / PR creation USER approval pending after projection repair.
+Next Active Seam: PR Readiness Stage 2 / PR creation by separate USER approval.
+Stop Condition: Stop after source-truth projection repair, validation, commit, and push; continue only after USER approves PR Readiness Stage 2 / PR creation. PR merge, issue closeout, release, artifacts, raw evidence handling, FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate later USER decisions.
+Continuation Action: Stop after PR Readiness Stage 1 projection repair until USER approves PR Readiness Stage 2 / PR creation.
 
 ## Recorded Seam
 
@@ -390,9 +444,9 @@ H1 Validation Commands:
 
 Live Validation Separation: `PASS - Hardening and Live Validation remained separate phases. Live Validation was run only after USER admission for this phase. The earlier active-client proof command did not complete the real USER-facing shortcut gate or formal User Test Summary gate; the later bounded repair pass completed the red shortcut human-client gate and generated the formal UTS handoff while preserving returned USER results as pending. The returned USER UTS failure was then digested as REPAIR and a second bounded repair refreshed the proof/UTS handoff without moving into PR Readiness.`
 
-Current-Main Reconciliation Gate: `PR #135 moved origin/main to 6f9a13d17a65a3385001b8e463113295f5463b01. Live Validation Stage 1 is PASS after returned UTS digestion. PR Readiness Stage 1 remains a separate USER approval checkpoint and must later re-check current main and shared source-truth overlap before any PR creation path.`
+Current-Main Reconciliation Gate: `PASS - branch merged current origin/main b5b83f34de16440e51b504d25a9293dae9f2ef0f after PR #141. Origin/main is an ancestor of branch HEAD 058aecf3729837d2bc4f52f4cf2ad872be8f451c before this projection repair. Shared source-truth conflicts were reconciled so FAM-006 settings-panel remains the branch-local runtime carrier before PR outcome while projected merged main returns to No Active Branch.`
 
-Next Legal Seam: `Digest refreshed returned USER UTS results as PASS or record explicit USER waiver with reason, then reevaluate PR Readiness eligibility.`
+Next Legal Seam: `PR Readiness Stage 2 / PR creation after this projection repair validates, commits, and pushes, with separate USER approval.`
 
 ## Live Validation Stage 1 Gate State
 
