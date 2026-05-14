@@ -24,6 +24,7 @@ PROVIDER_SELECTION_AVAILABILITY = "unavailable"
 NO_PROVIDER_ID = "no-provider"
 NO_PROVIDER_FALLBACK_SELECTION = "fallback-no-provider"
 PROVIDER_CONSENT_REQUIRED = "required-before-provider"
+NO_PROVIDER_INTERACTION_AFFORDANCE = "disabled-no-provider-interaction"
 
 
 @dataclass(frozen=True)
@@ -76,9 +77,14 @@ class AIProviderStateSnapshot:
     privacy_scope: str
     privacy_label: str
     provider_visible_data: str
+    provider_visible_data_label: str
     local_storage: str
     consent_state: str
     consent_label: str
+    interaction_affordance: str
+    interaction_label: str
+    interaction_disabled_reason: str
+    no_provider_fallback_label: str
     prompt_acceptance: str
     external_calls: str
     model_state: str
@@ -104,9 +110,14 @@ class AIProviderStateSnapshot:
             "privacy_scope": self.privacy_scope,
             "privacy_label": self.privacy_label,
             "provider_visible_data": self.provider_visible_data,
+            "provider_visible_data_label": self.provider_visible_data_label,
             "local_storage": self.local_storage,
             "consent_state": self.consent_state,
             "consent_label": self.consent_label,
+            "interaction_affordance": self.interaction_affordance,
+            "interaction_label": self.interaction_label,
+            "interaction_disabled_reason": self.interaction_disabled_reason,
+            "no_provider_fallback_label": self.no_provider_fallback_label,
             "prompt_acceptance": self.prompt_acceptance,
             "external_calls": self.external_calls,
             "model_state": self.model_state,
@@ -133,9 +144,14 @@ class AIProviderStateSnapshot:
             "privacyScope": self.privacy_scope,
             "privacyLabel": self.privacy_label,
             "providerVisibleData": self.provider_visible_data,
+            "providerVisibleDataLabel": self.provider_visible_data_label,
             "localStorage": self.local_storage,
             "consentState": self.consent_state,
             "consentLabel": self.consent_label,
+            "interactionAffordance": self.interaction_affordance,
+            "interactionLabel": self.interaction_label,
+            "interactionDisabledReason": self.interaction_disabled_reason,
+            "noProviderFallbackLabel": self.no_provider_fallback_label,
             "promptAcceptance": self.prompt_acceptance,
             "externalCalls": self.external_calls,
             "modelState": self.model_state,
@@ -202,9 +218,14 @@ def build_no_provider_ai_state(*, surface_role: str = "hud") -> AIProviderStateS
         privacy_scope=NO_PROVIDER_PRIVACY_SCOPE,
         privacy_label="Local shell only; nothing is sent",
         provider_visible_data="none",
+        provider_visible_data_label="Provider-visible data: none",
         local_storage="none",
         consent_state="not required until a provider is configured",
         consent_label="No provider consent requested",
+        interaction_affordance=NO_PROVIDER_INTERACTION_AFFORDANCE,
+        interaction_label="Assisted Desktop unavailable",
+        interaction_disabled_reason="Choose and approve a provider before AI prompts can run",
+        no_provider_fallback_label="No-provider fallback active",
         prompt_acceptance="disabled",
         external_calls="blocked",
         model_state="not installed",
@@ -243,9 +264,14 @@ def build_provider_selection_consent_state(
         privacy_scope=NO_PROVIDER_PRIVACY_SCOPE,
         privacy_label="Local selection only; nothing is sent",
         provider_visible_data="none",
+        provider_visible_data_label="Provider-visible data: none",
         local_storage="none",
         consent_state=PROVIDER_CONSENT_REQUIRED,
         consent_label="Consent required before a provider can be configured",
+        interaction_affordance=NO_PROVIDER_INTERACTION_AFFORDANCE,
+        interaction_label="Assisted Desktop setup paused",
+        interaction_disabled_reason="Consent and provider configuration are required before prompts can run",
+        no_provider_fallback_label="No-provider fallback active",
         prompt_acceptance="disabled",
         external_calls="blocked",
         model_state="not installed",

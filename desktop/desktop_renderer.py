@@ -11501,6 +11501,7 @@ class DesktopRuntimeWindow(QWidget):
             privacy_scope=payload.get("privacyScope", ""),
             provider_selection=payload.get("providerSelectionState", ""),
             consent_state=payload.get("consentState", ""),
+            interaction_affordance=payload.get("interactionAffordance", ""),
             requires_consent=payload.get("requiresConsent", False),
             provider_visible_data=payload.get("providerVisibleData", ""),
             sent_to_provider=payload.get("sentToProvider", False),

@@ -286,6 +286,8 @@ class CoreVisualizationWindow(QWidget):
             f"|privacy_scope={payload.get('privacyScope', '')}"
             f"|provider_selection={payload.get('providerSelectionState', '')}"
             f"|consent_state={payload.get('consentState', '')}"
+            f"|interaction_affordance={payload.get('interactionAffordance', '')}"
+            f"|provider_visible_data={payload.get('providerVisibleData', '')}"
             f"|requires_consent={str(payload.get('requiresConsent', False)).lower()}"
             f"|sent_to_provider={str(payload.get('sentToProvider', False)).lower()}"
         )

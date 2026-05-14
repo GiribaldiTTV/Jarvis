@@ -19,6 +19,9 @@ const aiProviderStatusState = document.getElementById("ai-provider-status-state"
 const aiProviderStatusProvider = document.getElementById("ai-provider-status-provider");
 const aiProviderStatusSelection = document.getElementById("ai-provider-status-selection");
 const aiProviderStatusConsent = document.getElementById("ai-provider-status-consent");
+const aiProviderStatusDisclosure = document.getElementById("ai-provider-status-disclosure");
+const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
+const aiProviderStatusFallback = document.getElementById("ai-provider-status-fallback");
 const aiProviderStatusPrivacy = document.getElementById("ai-provider-status-privacy");
 
 let w = 0;
@@ -58,6 +61,11 @@ let aiProviderState = {
   consentState: "required-before-provider",
   consentLabel: "Consent required before provider setup",
   providerVisibleData: "none",
+  providerVisibleDataLabel: "Provider-visible data: none",
+  interactionAffordance: "disabled-no-provider-interaction",
+  interactionLabel: "Assisted Desktop unavailable",
+  interactionDisabledReason: "Consent and provider configuration are required before prompts can run",
+  noProviderFallbackLabel: "No-provider fallback active",
   sentToProvider: false,
   canAcceptPrompts: false,
   requiresConsent: true,
@@ -1161,6 +1169,8 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.providerSelection = state.providerSelectionState || "unknown";
   aiProviderStatus.dataset.selectedProvider = state.selectedProviderId || "unknown";
   aiProviderStatus.dataset.consentState = state.consentState || "unknown";
+  aiProviderStatus.dataset.interactionAffordance = state.interactionAffordance || "unknown";
+  aiProviderStatus.dataset.providerVisibleData = state.providerVisibleData || "unknown";
   aiProviderStatus.dataset.requiresConsent = state.requiresConsent ? "true" : "false";
   aiProviderStatus.dataset.sentToProvider = state.sentToProvider ? "true" : "false";
   aiProviderStatus.dataset.canAcceptPrompts = state.canAcceptPrompts ? "true" : "false";
@@ -1176,6 +1186,19 @@ function renderAIProviderState() {
   }
   if (aiProviderStatusConsent) {
     aiProviderStatusConsent.textContent = state.consentLabel || "Consent required before provider setup";
+  }
+  if (aiProviderStatusDisclosure) {
+    aiProviderStatusDisclosure.textContent = state.providerVisibleDataLabel || "Provider-visible data: none";
+  }
+  if (aiProviderStatusAction) {
+    aiProviderStatusAction.textContent = state.interactionLabel || "Assisted Desktop unavailable";
+    aiProviderStatusAction.title =
+      state.interactionDisabledReason || "Provider consent is required before AI prompts can run";
+    aiProviderStatusAction.disabled = true;
+    aiProviderStatusAction.setAttribute("aria-disabled", "true");
+  }
+  if (aiProviderStatusFallback) {
+    aiProviderStatusFallback.textContent = state.noProviderFallbackLabel || "No-provider fallback active";
   }
   if (aiProviderStatusPrivacy) {
     aiProviderStatusPrivacy.textContent = state.privacyLabel || "Local shell only; nothing is sent";

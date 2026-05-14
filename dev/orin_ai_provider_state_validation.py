@@ -14,6 +14,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     NO_PROVIDER_AVAILABILITY,
     NO_PROVIDER_FALLBACK_SELECTION,
     NO_PROVIDER_ID,
+    NO_PROVIDER_INTERACTION_AFFORDANCE,
     NO_PROVIDER_MODE,
     NO_PROVIDER_PRIVACY_SCOPE,
     PACKAGE_ID,
@@ -60,6 +61,16 @@ def validate() -> list[str]:
     _require(payload["sentToProvider"] is False, "no-provider state must send nothing to providers", failures)
     _require(payload["storedLocally"] is False, "no-provider state must not persist local memory", failures)
     _require(payload["canAcceptPrompts"] is False, "no-provider state must not accept prompts", failures)
+    _require(
+        payload["interactionAffordance"] == NO_PROVIDER_INTERACTION_AFFORDANCE,
+        "no-provider state must expose the disabled interaction affordance",
+        failures,
+    )
+    _require(
+        payload["providerVisibleDataLabel"] == "Provider-visible data: none",
+        "no-provider state must disclose provider-visible data as none",
+        failures,
+    )
     _require(payload["externalCalls"] == "blocked", "external calls must be blocked", failures)
     _require(payload["modelState"] == "not installed", "model state must not imply an installed model", failures)
     _require(payload["surfaceRole"] == "core", "desktop Core visualization must own the visible provider rail", failures)
@@ -91,6 +102,21 @@ def validate() -> list[str]:
     _require(selection_payload["canAcceptPrompts"] is False, "provider-selection scaffold must not accept prompts", failures)
     _require(selection_payload["externalCalls"] == "blocked", "provider-selection scaffold must block external calls", failures)
     _require(selection_payload["providerVisibleData"] == "none", "provider-selection scaffold must expose no provider-visible data", failures)
+    _require(
+        selection_payload["providerVisibleDataLabel"] == "Provider-visible data: none",
+        "provider-selection scaffold must visibly disclose provider-visible data",
+        failures,
+    )
+    _require(
+        selection_payload["interactionAffordance"] == NO_PROVIDER_INTERACTION_AFFORDANCE,
+        "provider-selection scaffold must keep the Assisted Desktop interaction disabled",
+        failures,
+    )
+    _require(
+        "Consent and provider configuration" in selection_payload["interactionDisabledReason"],
+        "provider-selection scaffold must explain the consent/configuration block",
+        failures,
+    )
     _require(
         len(selection_payload["providerOptions"]) >= 3,
         "provider-selection scaffold must publish visible local/provider option metadata",
@@ -126,6 +152,9 @@ def validate() -> list[str]:
             "No AI provider",
             "No-provider fallback active",
             "Consent required before provider setup",
+            "Provider-visible data: none",
+            'id="ai-provider-status-action"',
+            "Assisted Desktop unavailable",
             "Local shell only; nothing is sent",
         ):
             _require(needle in markup, f"{label} is missing {needle!r}", failures)
@@ -151,6 +180,9 @@ def validate() -> list[str]:
         "providerSelectionState",
         "requiresConsent",
         "consentState",
+        "interactionAffordance",
+        "providerVisibleDataLabel",
+        "aiProviderStatusAction.disabled = true",
         "sentToProvider",
         "canAcceptPrompts",
     ):
@@ -159,6 +191,7 @@ def validate() -> list[str]:
     for needle in (
         "SLC-017/SLC-018 No-Provider Shell And Provider-Privacy State",
         "SLC-017/SLC-018 Provider Selection And Consent Boundary Scaffold",
+        "SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface",
         "model downloads",
         "real provider SDK integration",
         "AI Product Contract v0.6.2",
