@@ -81,6 +81,14 @@ Branch Authority: `No Active Branch`
 
 Branch Record State: `Historical / merge-stable`
 
+Selected Next Workstream: `None - USER-approved selected-next defer; no successor workstream is selected on projected merged main.`
+
+Selected Next Implementation Branch: `Not created - successor branch creation remains pending USER approval.`
+
+Next Workstream User Waiver: Granted - USER approved post-merge `No Active Branch` projection for this PR path and preserved future FAM-006/FAM-007/runtime/release work as pending decisions; no selected-next successor is admitted by this PR.
+
+Backlog Addition User Approval Missing: `Cleared for this PR projection by the USER-approved selected-next defer; active for any future backlog identity, successor workstream, successor branch creation, or package expansion.`
+
 Merged-Unreleased Scope: `FAM-006 Dashboard settings-panel runtime work remains merged-unreleased implementation debt until release execution is USER-approved.`
 
 Issue Closeout State: `Pending USER approval for #123, #124, #125, #126, #127, #137, and #140.`
