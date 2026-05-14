@@ -32,7 +32,8 @@ This branch does not admit runtime provider implementation, LibreHardwareMonitor
 - Runtime Implementation: `Blocked`
 - FAM-006 Worktree Mutation: `Blocked`
 - Provider Install / Bundle: `Blocked`
-- PR / Release Work: `Blocked pending later explicit USER approval`
+- PR Readiness Stage 2: `Denied by USER - hold this branch out of PR creation while FAM-007 proceeds toward PR/merge`
+- PR / Release Work: `Blocked pending later explicit USER approval after FAM-007 reconciliation`
 
 ## Branch Class
 
@@ -48,6 +49,8 @@ Waiver Basis: USER explicitly approved conducting Branch Readiness for a governa
 - `FAM-006 Worktree Mutation Blocked`: `Active`
 - `GitHub Issue Closeout Approval Missing`: `Active`
 - `PR Creation Approval Missing`: `Active`
+- `PR Readiness Stage 2 Denied`: `Active - USER denied PR Readiness Phase 2 and directed this branch to hold until FAM-007 PR/merge reconciliation`
+- `FAM-007 PR/Merge Reconciliation Hold`: `Active - keep this branch available to reconcile conflicts or source-truth issues that may surface from FAM-007 before any PR creation`
 - `Release Execution Approval Missing`: `Active`
 - `FAM-007 Admission Missing`: `Active`
 - `AI Product Contract Import Approval Missing`: `Active`
@@ -199,9 +202,10 @@ The active seam is the Branch Readiness Stage 2 docs/governance repair that upda
 
 ## PR Readiness Status
 
-- PR Readiness Status: `Ready for USER decision on PR Readiness Stage 2 / PR creation after hardening and validation`
-- PR Creation Approval: `Missing - no PR should be created until USER explicitly approves PR Readiness Stage 2 / PR creation`
-- Current Blocker: `PR Creation Approval Missing`
+- PR Readiness Status: `Hold - PR Readiness Stage 2 / PR creation denied by USER after hardening and validation`
+- PR Creation Approval: `Denied - no PR should be created while this hold is active`
+- Hold Basis: `USER directed this branch to wait for FAM-007 PR/merge so any conflicts or source-truth issues from this provider-governance branch can be reconciled afterward`
+- Current Blocker: `PR Readiness Stage 2 Denied; FAM-007 PR/Merge Reconciliation Hold`
 - PR Readiness Stage 2 Expected Scope: `project merge-stable historical/no-active branch authority, add required Governance Drift Audit / Post-Merge State truth if needed, rerun validation, commit/push any PR-readiness source-truth sync, create the PR only after explicit USER approval, and stop before merge`
 - Merge Approval: `Not granted`
 - Release Approval: `Not granted`
@@ -216,4 +220,4 @@ Rollback Path: abandon branch `feature/fam-006-sensor-hud-provider-governance`; 
 
 - `PR Readiness`
 
-Next Legal Phase Gate: after validation, USER must separately approve PR Readiness / PR creation if this source-truth carrier should be pushed and opened as a PR. Runtime implementation, provider bundling, Libre update tooling, release work, issue closeout, FAM-007 work, and AI Product Contract import remain separate USER approval checkpoints.
+Next Legal Phase Gate: USER denied PR Readiness Stage 2 for now. This branch must hold until FAM-007 PR/merge reconciliation is complete or USER explicitly reopens PR Readiness Stage 2 / PR creation for this carrier. Runtime implementation, provider bundling, Libre update tooling, release work, issue closeout, FAM-007 work, and AI Product Contract import remain separate USER approval checkpoints.
