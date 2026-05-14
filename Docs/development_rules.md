@@ -200,6 +200,7 @@ For governed execution output, also return:
 
 Generic `Results` or `Validation` headings are not enough by themselves.
 Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.
+Formal Next Legal Phase Digest is required whenever a phase packet stops for USER approval. The response must include a `Next Legal Phase Digest` with `Current Phase:`, `Next Legal Phase:`, `Why This Phase Is Next:`, `Approval Required:`, `Exact USER Approval Text:`, `Allowed Scope:`, `Explicit Exclusions:`, `Validation Required:`, and `Stop Conditions:`. Missing fields block on `Next Legal Phase Digest Missing`; `Next Safe Move` or informal recommendations cannot replace the digest.
 A green seam does not authorize stop while `Slice Status` remains non-green.
 A green slice does not authorize stop while `Completion Status` remains non-green.
 A green seam or green slice is continuation proof, not Hardening authority, while any admitted same-branch seam or slice remains implementable; the next legal unit is the next named Workstream seam or the next admitted slice.

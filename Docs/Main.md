@@ -86,6 +86,10 @@ Bounded State Lock:
 - widening beyond that seam requires `Bounded State User Waiver: Granted`; without explicit waiver text naming the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions, stop on `Bounded State Waiver Missing`
 - clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver
 
+Formal Next Legal Phase Digest:
+
+Every phase packet that stops for USER approval must include a formal `Next Legal Phase Digest` before the final answer ends. The digest is mandatory even when the next phase seems obvious from the task title. Required fields are `Current Phase:`, `Next Legal Phase:`, `Why This Phase Is Next:`, `Approval Required:`, `Exact USER Approval Text:`, `Allowed Scope:`, `Explicit Exclusions:`, `Validation Required:`, and `Stop Conditions:`. If any required field is missing, the packet is incomplete and Codex must treat the next step as `Next Legal Phase Digest Missing` until the digest is returned. `Next Safe Move` or a casual recommendation is not a substitute for this approval-ready digest.
+
 ## Protected Main Law
 
 `main` is a protected branch for Codex work.

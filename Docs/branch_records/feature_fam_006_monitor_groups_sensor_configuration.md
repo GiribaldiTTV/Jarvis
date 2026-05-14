@@ -277,3 +277,23 @@ Delete the unmerged branch/worktree setup only if USER later decides to abandon 
 `Workstream`
 
 USER decision for FAM-006 Monitor Groups runtime implementation on `feature/fam-006-monitor-groups-sensor-configuration`.
+
+## Next Legal Phase Digest
+
+Current Phase: `Branch Readiness`
+
+Next Legal Phase: `Workstream`
+
+Why This Phase Is Next: `Branch Readiness Stage 2 setup has created the FAM-006 Monitor Groups branch, restored the stable FAM-006 worktree path, established branch authority, recorded package/slice boundaries, added the family-scoped and stable-worktree governance repairs, validated, committed, and pushed. Runtime implementation is the next legal phase only after USER approval.`
+
+Approval Required: `USER approval for FAM-006 Monitor Groups runtime implementation.`
+
+Exact USER Approval Text: `Approve Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006. Scope is FAM-006 Monitor Groups sensor configuration only: configurable monitor groups, created monitor list in the manage/edit window, in-window Create, per-monitor Edit, per-monitor Delete with confirmation, supported sensor/data-source assignment, per-sensor settings where current runtime supports them, directly supporting validators/helpers/source truth, validation, commit, and push.`
+
+Allowed Scope: `Dashboard Monitor Groups management UI, child-window flow, list state, Create/Edit/Delete controls, delete confirmation, sensor/data-source assignment truth, per-sensor settings where supported, and directly supporting FAM-006 HUD validators/helpers/source truth.`
+
+Explicit Exclusions: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, tags, GitHub Releases, artifacts, raw evidence upload/import/linking, and future branch/worktree cleanup after this branch closes.`
+
+Validation Required: `git status --short --branch; git fetch origin --prune; git rev-parse HEAD; git rev-parse origin/main; git worktree list; git diff --check; git diff --check origin/main...HEAD; directly relevant FAM-006 HUD/Monitor Groups validators added or updated by implementation; python dev\orin_branch_governance_validation.py; python dev\orin_release_body_validation.py; python -m compileall -q dev desktop Audio main.py.`
+
+Stop Conditions: `Stop if branch/worktree identity mismatches C:\Nexus Worktrees\FAM-006 / feature/fam-006-monitor-groups-sensor-configuration, origin/main movement creates required reconciliation, implementation requires excluded Overlay/FAM-007/provider/model/installer/AI Product/release/PR/raw-evidence scope, validation cannot prove behavior beyond marker presence, or another USER decision is required.`

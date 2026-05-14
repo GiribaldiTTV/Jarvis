@@ -2334,6 +2334,30 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
     ),
 }
 
+NEXT_LEGAL_PHASE_DIGEST_DOCS = (
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+NEXT_LEGAL_PHASE_DIGEST_REQUIRED_PHRASES = (
+    "Formal Next Legal Phase Digest",
+    "Next Legal Phase Digest",
+    "Current Phase:",
+    "Next Legal Phase:",
+    "Why This Phase Is Next:",
+    "Approval Required:",
+    "Exact USER Approval Text:",
+    "Allowed Scope:",
+    "Explicit Exclusions:",
+    "Validation Required:",
+    "Stop Conditions:",
+    "Next Legal Phase Digest Missing",
+    "Next Safe Move",
+)
+
 WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/codex_modes.md"),
@@ -15491,6 +15515,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness Stage 1 readiness-lock guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in NEXT_LEGAL_PHASE_DIGEST_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in NEXT_LEGAL_PHASE_DIGEST_REQUIRED_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Next Legal Phase Digest guidance is missing '{required_phrase}'",
             )
 
     for relative_path in BRANCH_READINESS_STAGE_GATE_DOCS:
