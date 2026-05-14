@@ -2792,6 +2792,7 @@ RELEASE_READINESS_HEALTH_GATE_PHRASES = (
     "Release Execution Gate:",
     "Watcher / Live PR State Projection:",
     "Branch Cleanup Plan:",
+    "Branch Cleanup Execution Gate:",
     "FAM Overlap Routing:",
     "Projected Post-Merge Validation:",
 )
@@ -3004,11 +3005,30 @@ BRANCH_READINESS_STAGE_PACKET_PHRASES = (
     "User Test Summary",
     "implementation sequence proposal",
     "validation plan",
+    "Stale Branch Cleanup Plan:",
     "expected docs sync",
     "Branch Readiness Planning Incomplete",
     "USER Vision Recommendation Missing",
     "Next Legal Phase:",
     "Stage 2 green-light decision",
+)
+
+STALE_BRANCH_CLEANUP_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+
+STALE_BRANCH_CLEANUP_PHRASES = (
+    "Stale Branch Cleanup Plan:",
+    "Branch Cleanup Execution Gate:",
+    "GitHub Desktop-bound worktree",
+    "Branch Readiness Stage 2 - Execution Gate",
 )
 
 CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES = {
@@ -15003,6 +15023,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: Release Readiness Health Pass guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in STALE_BRANCH_CLEANUP_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in STALE_BRANCH_CLEANUP_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: stale branch cleanup governance is missing '{required_phrase}'",
             )
 
     for relative_path, required_phrases in PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES.items():

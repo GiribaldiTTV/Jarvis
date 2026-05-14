@@ -62,6 +62,7 @@ Allowed:
 
 - Release Readiness digest source-truth drift repair only.
 - Governance/source-truth wording that prevents Release Readiness from becoming a cleanup phase.
+- Governance/source-truth wording that routes stale/old branch cleanup to Branch Readiness branch/worktree setup instead of Release Readiness.
 - Validator support for standing intake, Release Readiness Health Pass, and PR body firewall behavior.
 - Helper registry updates tied directly to those validators.
 - One PR per active `RRI-*` cycle after validation.
@@ -70,6 +71,7 @@ Forbidden:
 
 - Runtime/provider/model/memory/voice/Core/shortcut/installer implementation.
 - Release execution, tags, GitHub Releases, release artifacts, or release-note publication.
+- Stale branch deletion, worktree removal, branch switching, or GitHub Desktop-bound worktree cleanup during Release Readiness.
 - GitHub issue creation or issue-resolution branch work.
 - AI Product Contract import or private Dev ORIN import.
 - Direct-main mutation, broad docs churn, implementation branch planning, or selected-next runtime branch creation.
@@ -141,7 +143,7 @@ Goal: Create the durable branch authority record, governance docs, validator gat
 
 Scope: `Docs/branch_records/index.md`, this branch authority record, governance/source-truth docs, `dev/orin_branch_governance_validation.py`, `dev/orin_pr_body_quality_audit.py`, and `Docs/validation_helper_registry.md`.
 
-Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/installer changes, release execution, GitHub issues, AI Product Contract import, private Dev ORIN import, or next runtime branch creation.
+Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/installer changes, release execution, GitHub issues, AI Product Contract import, private Dev ORIN import, next runtime branch creation, or actual stale branch/worktree cleanup.
 
 ## Active Seam
 

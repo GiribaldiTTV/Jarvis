@@ -889,10 +889,13 @@ The owning branch/workstream authority record must include:
 - `Release Execution Gate:`
 - `Watcher / Live PR State Projection:`
 - `Branch Cleanup Plan:`
+- `Branch Cleanup Execution Gate:`
 - `FAM Overlap Routing:`
 - `Projected Post-Merge Validation:`
 
 Passing posture means exact post-merge branch-authority projection is recorded, no stale active branch wording lands on `main`, no stale PR creation / PR Readiness Stage 2 pending wording lands on `main`, merged scope is recorded as merged-unreleased when release execution is not being performed, release execution/tag/GitHub Release/artifact work remains gated, watcher/live PR state stays out of merged-main source truth, branch cleanup plan is known, FAM overlap is either non-blocking or routed to the owning lane, selected-next or successor truth is not stale, release-window/release-floor posture is resolved, and projected post-merge main would pass validation without a later source-truth repair.
+
+Branch cleanup is planning-only until Branch Readiness owns a new branch/worktree target. `Branch Cleanup Plan:` records stale/old branch refs, retired worktrees, or GitHub Desktop repository entries that may need cleanup after merge. `Branch Cleanup Execution Gate:` must say cleanup is blocked in Release Readiness and may execute only during the next `Branch Readiness Stage 2 - Execution Gate` that creates or validates the next branch/worktree target. Multi-worktree cleanup must not delete a branch checked out by any worktree, remove a worktree before its replacement target is validated, or leave a GitHub Desktop-bound worktree without a valid branch target; stale/old branch cleanup waits until the replacement branch/worktree is created, Desktop is bound to the intended folder, and `git worktree list` proves no checked-out branch will be orphaned.
 
 `PR Readiness GREEN` requires all `PR package ready` conditions plus:
 
@@ -1918,7 +1921,9 @@ Branch Readiness uses two internal stage gates without changing the canonical ph
 - `Branch Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits are allowed. Stage 1 must output `## Branch Readiness Stage 1 Analysis Packet` for USER review and stop on `Branch Readiness Execution User Approval Missing`.
 - `Branch Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs approved branch/package admission work, docs sync, branch creation, and authority-record setup only inside the USER-approved FAM/package scope.
 
-The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, product vision, USER vision questions, `USER Vision Question Packet`, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current branch vs future package boundaries, affected surfaces, branch reach, why the branch is large enough, why it should not split into tiny branches, acceptance criteria, screenshot and User Test Summary proof expectations, implementation sequence proposal, validation plan, expected docs sync, blockers and waivers, rollback path, `Branch Readiness Planning Incomplete` blocker review, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER.
+The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, product vision, USER vision questions, `USER Vision Question Packet`, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current branch vs future package boundaries, affected surfaces, branch reach, why the branch is large enough, why it should not split into tiny branches, acceptance criteria, screenshot and User Test Summary proof expectations, implementation sequence proposal, validation plan, `Stale Branch Cleanup Plan:`, expected docs sync, blockers and waivers, rollback path, `Branch Readiness Planning Incomplete` blocker review, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER.
+
+`Stale Branch Cleanup Plan:` is required when Release Readiness, PR Readiness, or multi-worktree preflight identified old/stale branches, retired worktrees, or stale GitHub Desktop entries. Stage 1 analyzes only. The cleanup itself belongs to `Branch Readiness Stage 2 - Execution Gate` alongside branch/worktree creation or validation, because every Git repository and GitHub Desktop-bound worktree must keep a valid branch target until the replacement target is ready.
 
 For broad implementation family packages, Branch Readiness planning is not complete until the planning packet records USER vision inputs or explicit unanswered-question blockers, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current-branch versus future-package boundaries, affected files/surfaces, branch reach/package-size proof, acceptance criteria, screenshot/live/User Test Summary proof requirements for user-facing work, implementation sequence proposal, and USER decisions needed. Marker-only planning is insufficient.
 
@@ -2173,6 +2178,7 @@ Forbidden:
 - hidden fix work
 - hidden next-lane planning
 - branch-authority cleanup that should have been merge-safe in PR Readiness
+- stale/old branch deletion, worktree removal, branch switching, or GitHub Desktop-bound worktree cleanup; Release Readiness may record `Branch Cleanup Plan:` and `Branch Cleanup Execution Gate:` only
 - between-branch canon repair
 - source, docs, canon, validator, helper, release-note, or handoff-file mutation
 
