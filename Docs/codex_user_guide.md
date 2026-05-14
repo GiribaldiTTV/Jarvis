@@ -5,6 +5,7 @@
 **DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; a prompt-level request not to commit is not enough to stop durability. The only exceptions are a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker; when that self-imposed blocker is lifted, Codex must automatically commit and push.**
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
+**Release Readiness Candidate Anchor: require `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:`; default to current fetched `origin/main` unless USER explicitly selects another release target; historical PR merge commits are audit evidence only unless USER selects a historical commit as the release target, and missing anchor fields block as `Release Candidate Anchor Missing`.**
 
 ## Purpose
 
@@ -138,6 +139,11 @@ If `Completion Status` is `Red`, `Continuation Action` must report the blocker-c
 
 For Release Readiness, also include:
 
+- `Release Candidate Anchor: <current origin/main unless USER selects another release target>`
+- `Release Candidate Anchor Source: <current origin/main / USER-selected historical commit / release branch>`
+- `Target Commit: <candidate commit SHA>`
+- `Historical Endpoint Handling: <audit evidence only unless USER-selected historical commit>`
+- `Candidate Includes Later Governance Repairs: <YES/NO/N/A>`
 - `Release Target: <version or identifier>` for release-bearing branches
 - `Release Floor: <patch prerelease / minor prerelease / no release>` for release-bearing branches
 - `Version Rationale: <why the target follows the floor>` for release-bearing branches
@@ -480,6 +486,11 @@ Use:
 Required add-ons for release-bearing branches:
 
 - `Phase: Release Readiness`
+- `Release Candidate Anchor: [current origin/main unless USER selects another release target]`
+- `Release Candidate Anchor Source: [current origin/main / USER-selected historical commit / release branch]`
+- `Target Commit: [candidate commit SHA]`
+- `Historical Endpoint Handling: [audit evidence only unless USER-selected historical commit]`
+- `Candidate Includes Later Governance Repairs: [YES / NO / N/A]`
 - `Release Target: [version or release identifier]`
 - `Release Floor: [patch prerelease / minor prerelease / no release]`
 - `Version Rationale: [why this is patch/minor/no release]`
@@ -495,9 +506,12 @@ Use `Release Branch: No` only for preserved historical records.
 Do not use `Release Branch: No` for `implementation` or `release packaging` branches.
 If a release-bearing branch lacks `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, or `Release Artifacts:`, Release Readiness is blocked by `Release Target Undefined`.
 If the declared target is semantically wrong for the latest public prerelease and declared release floor, it is also blocked by `Release Target Undefined`.
-If Release Readiness analysis discovers missing, stale, or ambiguous release truth that requires a file update, do not patch in Release Readiness. Return to `PR Readiness` before merge, or defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge. Treat any file mutation while the authority record says `Release Readiness` as `Release Readiness File Mutation Attempt`.
+If Release Readiness lacks `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, or `Candidate Includes Later Governance Repairs:`, it is blocked by `Release Candidate Anchor Missing`.
+Unless USER explicitly selects a historical commit as the release target, current fetched `origin/main` is the release candidate anchor and historical PR merge commits are audit evidence only. Do not fail the current release candidate for stale wording that existed only at an older PR endpoint when later merged governance/source-truth PRs repaired the selected candidate.
+Governance/source-truth-only PRs merged after the last runtime PR may be included in the release candidate. They do not force the release candidate back to the last runtime merge commit; record `Candidate Includes Later Governance Repairs: YES` and keep those repairs in internal validation/traceability instead of presenting them as user-facing product features when writing release notes.
+If Release Readiness analysis discovers missing, stale, or ambiguous release truth that requires a file update, do not patch in Release Readiness. Return to `PR Readiness` before merge, or defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness` or the standing governance intake lane after merge. Treat any file mutation while the authority record says `Release Readiness` as `Release Readiness File Mutation Attempt`.
 If Release Readiness discovers stale/old branches, retired worktrees, or stale GitHub Desktop entries, output `Branch Cleanup Plan:` and `Branch Cleanup Execution Gate:` only. Do not delete branches, remove worktrees, switch branch targets, or clean up a GitHub Desktop-bound worktree in Release Readiness; execute cleanup only during `Branch Readiness Stage 2 - Execution Gate` after the replacement branch/worktree target is created or validated.
-Release Readiness consumes inherited release truth only; it must not create `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, `Release Artifacts:`, merged-unreleased owner, or post-release truth in repository files.
+Release Readiness consumes inherited release truth only; it must not create `Release Candidate Anchor:`, `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, `Release Artifacts:`, merged-unreleased owner, or post-release truth in repository files.
 
 ### Run A Narrow Fix Pass
 

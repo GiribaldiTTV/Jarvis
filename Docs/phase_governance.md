@@ -953,6 +953,7 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Stage 1 Repairs Made:
 - Stage 1 Repair Validation:
 - Release Readiness Health Pass:
+- Release Candidate Anchor Projection:
 - Governance Ledger Fallback:
 - Branch Readiness Fallback:
 - Stage 1 Outcome:
@@ -970,6 +971,8 @@ Stage 2 begins only after `Stage 1 Ready For Stage 2` and explicit USER approval
 The next-workstream/package hierarchy is reviewed in PR Readiness Stage 1, not selected in Branch Readiness by default.
 
 `Origin/Main Freshness Check` is required during PR Readiness Stage 1 before Stage 2 can begin. Stage 1 must compare `Branch Creation Base:` to `Current origin/main:` and report whether `Origin/Main Advanced Since Branch Creation:` is `YES` or `NO`. When `origin/main` advanced, Stage 1 must list `Origin/Main Changed Files:` from `git diff --name-only <branch-creation-base>..origin/main`, list `Branch Changed Files:` from `git diff --name-only <branch-creation-base>..HEAD`, decide `Reconciliation Required: YES / NO`, and, when reconciliation is needed, output a complete `Reconciliation File List:` plus `Reconciliation Recommendation:`. The `Reconciliation Mutation Status:` must be analysis-only with no file fixes during Stage 1. If changed upstream files/data need review and the packet is missing or incomplete, `Origin Main Reconciliation Packet Required` blocks Stage 2 and PR creation.
+
+`Release Candidate Anchor Projection` is required during PR Readiness Stage 1 before Stage 2 can begin for any release-bearing or merged-unreleased branch. Stage 1 must name the default post-merge `Release Candidate Anchor:` as current fetched `origin/main` after merge unless USER explicitly selects a historical release target, must name `Target Commit:` projection or source, must state whether later governance/source-truth PRs are part of the candidate, and must keep historical PR endpoints as audit evidence only unless USER approves `Release Candidate Anchor Source: USER-selected historical commit`.
 
 Stage 1 must also include this user-facing block so USER and ChatGPT can review the successor/runtime path before Stage 2. This is analysis-first output; it may encode selected-next truth only when USER explicitly approves selected-next sync, but it must not create a branch, admit a package, or waive any blocker without separate approval:
 
@@ -1218,11 +1221,42 @@ Routing after digestion:
 - if returned results expose mismatch, regression, unclear behavior, cleanup failure, or scope drift, route back to `Workstream` or `Hardening` as appropriate
 - if returned results raise new feature ideas, keep them out of current scope until backlog carry-forward is explicitly approved
 
+### Release Readiness Candidate Anchor Rule
+
+Release Readiness must validate the selected release candidate, not re-open historical PR endpoint cleanup by default.
+
+Every Release Readiness packet must declare:
+
+- `Release Candidate Anchor:`
+- `Release Candidate Anchor Source:`
+- `Target Commit:`
+- `Historical Endpoint Handling:`
+- `Candidate Includes Later Governance Repairs:`
+
+Default anchor rule:
+
+- unless USER explicitly selects another release target, `Release Candidate Anchor:` is current fetched `origin/main`
+- `Target Commit:` is the current fetched `origin/main` SHA for the repository being released
+- later governance/source-truth repair PRs already merged into the selected candidate are part of candidate truth
+- a release candidate may include governance/source-truth-only repair PRs after the last runtime PR; those PRs do not disqualify the candidate or force the release target back to the last runtime merge commit
+- `Candidate Includes Later Governance Repairs:` must be `YES` when the selected candidate contains governance/source-truth repair PRs after the runtime PR that carried the user-facing release payload, and the release notes may keep those repairs in internal validation/traceability instead of presenting them as user-facing product features
+- historical PR merge commits may be inspected as audit evidence, but they do not become the release-validation base unless USER explicitly selects that historical commit as the release target
+- if USER selects a historical PR merge commit as the release target, Release Readiness must label `Release Candidate Anchor Source:` as `USER-selected historical commit` and must verify that commit's source truth without silently mixing later `origin/main` repairs
+
+Scope routing:
+
+- if the selected release candidate is current `origin/main`, stale wording at an older PR endpoint is historical PR Readiness miss evidence, not a current Release Readiness blocker when later merged governance/source-truth repairs fixed the selected candidate
+- if the selected release candidate still lacks release target, release floor, release debt, merged-unreleased, or issue-posture truth, Release Readiness stops and emits a blocker digest only
+- if the branch has not merged, the repair routes back to `PR Readiness`
+- if the branch has already merged, the repair routes to the next legitimate runtime-focused backlog branch's `Branch Readiness` or to the single standing governance intake lane when the blocker is a Release Readiness source-truth/governance drift digest
+
+The blocker for missing or ambiguous anchor data is `Release Candidate Anchor Missing`.
+
 ### Release Readiness Target Gate
 
 Release Readiness must not report green while any release target blocker remains unresolved.
 
-Release Readiness is an analysis-only file-freeze phase. Required release target, scope, and artifact truth must already exist before entering Release Readiness, normally as PR-owned merge-target canon or a PR-ready response package. If Release Readiness analysis discovers that those fields are missing, ambiguous, stale, or require source-file changes, do not patch files inside Release Readiness. Return the active branch to `PR Readiness` if it has not merged; if the branch has already merged, defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness`.
+Release Readiness is an analysis-only file-freeze phase. Required release target, scope, artifact truth, and release-candidate anchor truth must already exist before entering Release Readiness, normally as PR-owned merge-target canon or a PR-ready response package. If Release Readiness analysis discovers that those fields are missing, ambiguous, stale, or require source-file changes, do not patch files inside Release Readiness. Return the active branch to `PR Readiness` if it has not merged; if the branch has already merged, defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness` or the standing governance intake lane when the issue is Release Readiness source-truth/governance drift.
 
 Hard blocker:
 
@@ -1271,6 +1305,7 @@ Release Readiness is analysis-only for repository files:
 
 Allowed in `Release Readiness`:
 
+- release-candidate anchor validation
 - release-target validation
 - release-scope validation
 - release-artifact validation
@@ -1280,6 +1315,7 @@ Allowed in `Release Readiness`:
 
 Forbidden in `Release Readiness`:
 
+- treating a historical PR endpoint as the release base without explicit USER-selected historical commit approval
 - broad canon or docs sync that should have been completed in `PR Readiness`
 - branch-authority cleanup that should have been merge-safe before PR green
 - next-workstream selection, planning, or branch creation
@@ -1332,7 +1368,7 @@ The `## What's Changed` section and `**Full Changelog**:` compare link must be p
 
 If Release Readiness discovers missing PR-owned canon or docs work, stop immediately and classify the issue as `PR Readiness Scope Missed` and `Release Readiness Scope Drift`.
 If the branch has not merged, return to `PR Readiness` and repair the miss there before any Release Readiness output can be treated as green.
-If the branch has already merged, the next legitimate runtime-focused backlog branch's `Branch Readiness` must repair the miss before implementation begins and must update governance or validator coverage so the miss cannot recur.
+If the branch has already merged, the next legitimate runtime-focused backlog branch's `Branch Readiness` or the standing governance intake lane must repair the miss before implementation begins and must update governance or validator coverage so the miss cannot recur.
 
 ### Release Window Audit
 
@@ -1906,7 +1942,7 @@ Readiness or user handoff again.
 - `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, every admitted same-branch seam and slice for the current branch is complete, deferred, blocked, or explicitly waived in source truth, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
-- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the USER-approved next-workstream selection gate passes or a USER-approved next-workstream waiver/defer is explicitly recorded, branch creation remains deferred to `Branch Readiness`, the watcher on the approved reporting surface has verified that the live PR is `merged`, and any release target/scope/artifact truth needed for release review is already available without file mutation
+- `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the USER-approved next-workstream selection gate passes or a USER-approved next-workstream waiver/defer is explicitly recorded, branch creation remains deferred to `Branch Readiness`, the watcher on the approved reporting surface has verified that the live PR is `merged`, and any release candidate anchor/target/scope/artifact truth needed for release review is already available without file mutation
 - `Release Readiness` stays restricted to analysis-only release target, scope, artifact, release-execution authorization, and release-state confirmation work; it does not transition into a docs-sync phase or a file-mutation phase
 
 There is no default direct `Workstream` -> `PR Readiness` transition.
@@ -2197,6 +2233,7 @@ Forbidden:
 Required evidence:
 
 - merged or legitimately merge-ready truth
+- `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:` for the selected release candidate
 - explicit `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches
 - or explicit `Release Branch: No` only for preserved historical records
 - release-context verification
