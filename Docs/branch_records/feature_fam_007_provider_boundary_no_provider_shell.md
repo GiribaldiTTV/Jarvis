@@ -24,10 +24,10 @@ This active record preserves the planning, selected-next reconciliation, and fir
 ## Phase Status
 
 - Stage 1 Basis: `Complete - USER approved FAM-007 selected-next focus in this thread/worktree and approved creating a fresh separate FAM-007 worktree because the GitHub Desktop FAM-007 alias pointed at the FAM-006 lane`
-- Stage 2 USER Approval: `Granted - USER approved creating C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell from current origin/main, creating feature/fam-007-provider-boundary-no-provider-shell, recording Branch Readiness planning/source truth, and beginning the first bounded provider/no-provider shell implementation seam after planning validation`
-- Branch Creation: `Created in C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell from origin/main at 98b53fafd63abfe4876b718d5649b4a0df46f2a0`
-- Carrier Restoration: `Restored in C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell from e65df058a57f3f7c8a9ddf6e64482d870e42d8d8 after PR #135 merged source-truth closure at 6f9a13d17a65a3385001b8e463113295f5463b01`
-- GitHub Desktop Alias Target: `FAM-007 should bind to C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell`
+- Stage 2 USER Approval: `Granted - USER approved creating a separate FAM-007 worktree from current origin/main, creating feature/fam-007-provider-boundary-no-provider-shell, recording Branch Readiness planning/source truth, and beginning the first bounded provider/no-provider shell implementation seam after planning validation`
+- Branch Creation: `Created in a separate FAM-007 worktree from origin/main at 98b53fafd63abfe4876b718d5649b4a0df46f2a0; current GitHub Desktop FAM-007 repo/worktree is C:\Nexus Worktrees\FAM-007`
+- Carrier Restoration: `Restored from e65df058a57f3f7c8a9ddf6e64482d870e42d8d8 after PR #135 merged source-truth closure at 6f9a13d17a65a3385001b8e463113295f5463b01; current carrier path is C:\Nexus Worktrees\FAM-007`
+- GitHub Desktop Alias Target: `FAM-007 is bound to C:\Nexus Worktrees\FAM-007`
 - Carrier Separation: `C:\Nexus Desktop AI remains the separate FAM-006 release-support lane and must not be touched by this branch`
 - Active Branch: `feature/fam-007-provider-boundary-no-provider-shell`
 - Branch Authority Marker: `Active Branch`
@@ -36,7 +36,8 @@ This active record preserves the planning, selected-next reconciliation, and fir
 - Current Runtime Branch: `feature/fam-007-provider-boundary-no-provider-shell` - USER-approved FAM-007 Workstream carrier preserved as PR #134 merged-unreleased proof and selected again as the active branch-local carrier for the next bounded FAM-007 runtime seam
 - Post-Merge Successor Selection: `Same-branch current carrier selected by USER; no additional successor branch is selected by this reconcile`
 - PR #134 Live State: `Merged - PR #134 merged repaired head c1b47a6b53f4286c2f60ebf5d74d9afe38dadb52 into main at 2c0b2ce6f602651cf85682e0fbfce3c3367cb509`
-- Runtime Implementation Approval: `Granted only for first bounded SLC-017/SLC-018 seam scaffolding; real provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation remain blocked`
+- Branch Readiness / Planning Approval: `Granted - USER approved Branch Readiness and planning on C:\Nexus Worktrees\FAM-007 for the next same-branch SLC-017/SLC-018 provider-selection and consent-boundary seam; runtime implementation remains pending separate USER approval`
+- Runtime Implementation Approval: `Granted only for first bounded SLC-017/SLC-018 seam scaffolding already merged by PR #134; provider-selection/consent implementation, real provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation remain blocked`
 - AI Product Contract v0.6.2: `External USER planning evidence only; not repo source truth and not imported`
 
 ## Branch Class
@@ -65,23 +66,23 @@ Backlog-Split Reason: None
 
 Current / Pending Decision Context: This branch record is active after PR #135 repair merge and branch-local reconciliation; blockers below apply to future release, next-seam, or runtime expansion decisions.
 
-- `FAM-007 Next Runtime Seam Approval Missing`: active for any later FAM-007 runtime work beyond branch-local planning and source-truth reconciliation.
-- `Next Provider-Boundary Seam USER Approval Missing`: active for future work after the first bounded SLC-017/SLC-018 scaffold; additional provider-selection, provider-failure, real provider SDK, model, memory, voice/Core, shortcut/installer, release, PR, or contract-import work requires later USER approval.
+- `FAM-007 Next Runtime Implementation Approval Missing`: active for any later FAM-007 runtime implementation beyond Branch Readiness planning and source-truth reconciliation.
+- `Next Provider-Boundary Implementation USER Approval Missing`: active for future implementation after the first bounded SLC-017/SLC-018 scaffold; provider-selection, consent-boundary runtime changes, provider-failure behavior, real provider SDK, model, memory, voice/Core, shortcut/installer, release, PR, or contract-import work requires later USER approval.
 - `Backlog Completion Unproven`: active because PKG-007 and SLC-017/SLC-018 remain in progress after the first bounded no-provider/provider-privacy scaffold.
 - `Release Execution Approval Missing`: active.
 - `AI Product Contract Full Import Approval Missing`: active.
 
 ## Entry Basis
 
-- Workspace path: `C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell`
-- Git root: `C:/Nexus Worktrees/Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell`
+- Workspace path: `C:\Nexus Worktrees\FAM-007`
+- Git root: `C:/Nexus Worktrees/FAM-007`
 - Branch: `feature/fam-007-provider-boundary-no-provider-shell`
 - Upstream: `origin/main` at branch creation time
 - Branch creation base: `98b53fafd63abfe4876b718d5649b4a0df46f2a0`
 - Branch restoration base: `6f9a13d17a65a3385001b8e463113295f5463b01`
 - Restored branch head before this carrier-planning update: `e65df058a57f3f7c8a9ddf6e64482d870e42d8d8`
-- Restored workspace path: `C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell`
-- `origin/main`: `98b53fafd63abfe4876b718d5649b4a0df46f2a0`
+- Restored workspace path: `C:\Nexus Worktrees\FAM-007`
+- `origin/main`: `6f9a13d17a65a3385001b8e463113295f5463b01`
 - Worktree state: clean before Branch Readiness source-truth edits
 - Existing worktrees at branch creation: `C:\Nexus Desktop AI` on the separate FAM-006 release-support lane and this new FAM-007 worktree
 - Source truth before this branch: PKG-007 admitted as the FAM-007 readiness package; SLC-017 and SLC-018 admitted as planned slices; runtime Workstream implementation not yet started; PR #129 release-support separate and USER-gated
@@ -108,7 +109,7 @@ Rollback Path: stop this active runtime carrier before additional implementation
 
 - `Branch Readiness`
 
-Next Legal Phase Gate: this branch is the active FAM-007 runtime carrier after PR #135 repaired merged-main source truth. The next legal phase is Branch Readiness Stage 1 for the next bounded SLC-017/SLC-018 provider-boundary seam on this branch; provider selection/consent implementation, real provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain blocked without later USER approval.
+Next Legal Phase Gate: this branch is the active FAM-007 runtime carrier after PR #135 repaired merged-main source truth. USER has approved Branch Readiness and planning on `C:\Nexus Worktrees\FAM-007` for the next bounded SLC-017/SLC-018 provider-selection and consent-boundary seam on this branch; provider selection/consent implementation, real provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain blocked without later USER approval.
 
 ## Branch Objective
 
@@ -133,7 +134,7 @@ Start FAM-007 implementation on a real provider-boundary branch instead of creat
 - Developer-Tooling Delta: `Static validation scaffold proving the no-provider state contract and visible renderer integration markers.`
 - Exact Affected Paths: `desktop/ai_provider_state.py`; `desktop/core_visualization_renderer.py`; `desktop/desktop_renderer.py`; `nexus_visual/orin_core.html`; `nexus_visual/orin_core_desktop.html`; `nexus_visual/orin_core.css`; `nexus_visual/orin_core.js`; `dev/orin_ai_provider_state_validation.py`; this branch record; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; `Docs/branch_records/index.md`.
 - Non-Includes: `model downloads`; `real provider SDK integration`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR #129/#132 release-support execution`.
-- Implementation Admission Status: `Admitted by USER for the first bounded SLC-017/SLC-018 seam only; first scaffold implemented and additional provider-boundary seams are USER-gated.`
+- Implementation Admission Status: `Admitted by USER for the first bounded SLC-017/SLC-018 seam only; first scaffold implemented and additional provider-boundary implementation seams are USER-gated.`
 
 ## Backlog Completion Status
 
@@ -143,7 +144,7 @@ Completion Status: Red
 
 Remaining Implementable Work: `Later same-branch FAM-007 seams include provider selection and consent boundary, provider failure/degraded modes, local/LAN/remote/test provider boundary adapters, settings/state persistence boundaries, hardware/capability-pack readiness, and validation proof expansion.`
 
-Future-Dependent Blockers: `Next provider-boundary seam approval, model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution.`
+Future-Dependent Blockers: `Next provider-boundary implementation approval, model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution.`
 
 Visible User-Facing Proof Required: No for this first disabled/no-provider scaffold; static visible-surface validation and compile proof are sufficient before any prompt/action flow exists.
 
@@ -193,7 +194,7 @@ Screenshot / Live / User Test Summary Proof Requirements: `Static and compile va
 
 Implementation Sequence Proposal: `Record active branch authority and selected-next truth; validate Branch Readiness planning; add local no-provider state contract; publish it to the renderer; render visible provider/privacy status; add static validation; run validation; commit and push.`
 
-Planning Blockers: `Next provider-boundary seam approval, real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain USER-gated.`
+Planning Blockers: `Next provider-boundary implementation approval, real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain USER-gated.`
 
 USER Decisions Needed: `Later decide the next FAM-007 provider-boundary seam on this active runtime branch, provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution.`
 
@@ -250,11 +251,11 @@ Continuation Execution Latch: Inactive - named blocker stops the same bounded Wo
 
 Stop Basis: Named Blocker
 
-Next Candidate Seam: USER decision for a same-branch SLC-017/SLC-018 provider-selection and consent-boundary seam
+Next Candidate Seam: USER decision for same-branch SLC-017/SLC-018 provider-selection and consent-boundary implementation after Branch Readiness planning
 
-Stop Condition: `Next Provider-Boundary Seam USER Approval Missing`
+Stop Condition: `Next Provider-Boundary Implementation USER Approval Missing`
 
-Continuation Action: `Report blocker-clearing action: USER may approve Branch Readiness Stage 1 for the next same-branch FAM-007 provider-selection/consent seam, approve a different governed path, or keep the branch paused; no blocked provider/model work starts by inertia.`
+Continuation Action: `Report blocker-clearing action: USER approved Branch Readiness/planning for the next same-branch FAM-007 provider-selection/consent seam in C:\Nexus Worktrees\FAM-007; USER may next approve bounded runtime implementation, approve a different governed path, or keep the branch paused; no blocked provider/model work starts by inertia.`
 
 Single-Seam Workstream Waiver: None
 
@@ -288,11 +289,11 @@ Non-Includes: `provider SDK integration`; `model download`; `memory/indexing`; `
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 1 for the next same-branch SLC-017/SLC-018 provider-selection and consent-boundary seam`
+Active seam: `Branch Readiness planning for the next same-branch SLC-017/SLC-018 provider-selection and consent-boundary seam`
 
-Seam status: `Pending USER approval for analysis and later Stage 2 implementation authorization`
+Seam status: `Branch Readiness/planning approved; runtime implementation pending later USER approval`
 
-Scope: `planning and source-truth evaluation only until USER approves the next bounded Workstream seam`
+Scope: `planning and source-truth evaluation only; no provider-selection or consent-boundary runtime implementation starts until USER approves the next bounded Workstream seam`
 
 Non-Includes: `real provider SDK integration`; `model downloads`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR #129/#132 release-support execution`.
 
@@ -304,6 +305,6 @@ Historical Seam Status: `Green / merged by PR #134`
 
 Continue Decision: `Stop on named USER-decision blocker after first seam`
 
-Stop Basis: `Next Provider-Boundary Seam USER Approval Missing`
+Stop Basis: `Next Provider-Boundary Implementation USER Approval Missing`
 
-Next Candidate Seam: `USER decision for a same-branch SLC-017/SLC-018 provider-selection and consent-boundary seam`
+Next Candidate Seam: `USER decision for same-branch SLC-017/SLC-018 provider-selection and consent-boundary implementation after Branch Readiness planning`
