@@ -21,14 +21,14 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / idle or single-cycle Release Readiness intake only`
-- Intake State: `Idle - RRI-20260514-005 completed by PR #148 merge commit 067713004b03c1be1fd948be947842ab864ab5a8; standing branch synced to origin/main and ready for the next USER-approved Release Readiness intake`
+- Intake State: `Active - RRI-20260514-006 repairs post-release canon closure after v1.7.1-prebeta publication, standardizes the public Nexus pre-Beta release-body surface, and clears release-dependent closure drift`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest or a bot-review repair on an open standing-governance PR that already has USER approval`
-- Active RRI Cycle: `None`
+- Active RRI Cycle: `RRI-20260514-006`
 - Latest Closed RRI Cycle: `RRI-20260514-005`
-- Return Digest Status: `Complete - RRI-20260514-005 closed PR #148 bot-review repair after merge commit 067713004b03c1be1fd948be947842ab864ab5a8 and standing branch sync to origin/main 067713004b03c1be1fd948be947842ab864ab5a8`
-- Active Cycle Identity: `None - latest closed RRI-20260514-005 originated from PR #148 bot-review feedback on feature/release-readiness-source-truth-intake at C:\Nexus Worktrees\Governance`
+- Return Digest Status: `Pending - RRI-20260514-006 return digest must target the Release Readiness originating lane after post-release canon closure / release-body standardization PR merge and branch sync`
+- Active Cycle Identity: `RRI-20260514-006 originated from Release Readiness post-release closure digest for v1.7.1-prebeta plus USER-approved public release-body standardization using the v1.6.13-prebeta structure with internal tooling labels removed`
 
 ## Branch Class
 
@@ -56,10 +56,10 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only for new blocker intake; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `None`
+- Active RRI Cycle: `RRI-20260514-006`
 - Latest Closed RRI Cycle: `RRI-20260514-005`
-- Return Digest Status: `Complete - RRI-20260514-005 closed PR #148 bot-review repair after merge commit 067713004b03c1be1fd948be947842ab864ab5a8 and standing branch sync to origin/main 067713004b03c1be1fd948be947842ab864ab5a8`
-- Active Cycle Identity: `None - latest closed RRI-20260514-005 originated from PR #148 bot-review feedback on feature/release-readiness-source-truth-intake at C:\Nexus Worktrees\Governance`
+- Return Digest Status: `Pending - RRI-20260514-006 return digest must target the Release Readiness originating lane after post-release canon closure / release-body standardization PR merge and branch sync`
+- Active Cycle Identity: `RRI-20260514-006 originated from Release Readiness post-release closure digest for v1.7.1-prebeta plus USER-approved public release-body standardization using the v1.6.13-prebeta structure with internal tooling labels removed`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -177,11 +177,11 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `None - standing governance intake lane idle after RRI-20260514-005 closeout`
+Active seam: `RRI-20260514-006 - v1.7.1 post-release canon closure and release-body standardization`
 
-Seam Goal: `Wait cleanly for the next USER-approved Release Readiness intake with the standing branch synced to origin/main and no active RRI cycle.`
+Seam Goal: `Update release-dependent current source truth from v1.7.0-prebeta to v1.7.1-prebeta, clear pending closure drift, standardize the published Nexus pre-Beta release-body surface after the v1.6.13-prebeta structure without internal tooling labels, preserve issue/branch/worktree/runtime gates, validate, and return the Release Readiness lane to a clean post-release state.`
 
-Seam Scope: `This authority record, governance docs, helper registry text, and dev/orin_branch_governance_validation.py.`
+Seam Scope: `This authority record, governance docs, helper registry text, dev/orin_release_body_validation.py, post-release source truth, and live Nexus pre-Beta GitHub Release body normalization.`
 
 Seam Non-Includes: `runtime/provider/model/memory/voice/Core/shortcut/installer work, release execution, issue work, FAM-006 or FAM-007 mutation, broad docs churn, or direct-main mutation.`
 

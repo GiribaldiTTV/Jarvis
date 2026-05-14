@@ -511,6 +511,8 @@ The Release Notes block must prepare the human-written Markdown release body usi
 The live GitHub release body must not start with or repeat the release title as `# <release title>`; the release title belongs in GitHub release metadata and the separate `Release Title` operator block only.
 During Release Execution, the live GitHub release body must also include GitHub-generated release notes with `## What's Changed` and the generated `**Full Changelog**:` compare link to the previous release, populated through the GitHub release notes button or generated-release-notes API.
 Do not hand-write or omit the generated changelog section when publishing or repairing a GitHub release.
+Public release bodies must not include internal automation/tooling brand tokens, generated branch-prefix noise, phase-handoff text, or operator transcript text. Rewrite generated `[codex]` / `codex/...` PR labels into neutral user-facing PR names before publication or repair them immediately after publication.
+The release-body standard applies to every published Nexus pre-Beta release body, not only the latest release.
 
 - release notes must clearly explain what was built, what capabilities exist, and how the system behaves
 - release notes must not include exclusion lists, `Not Included` sections, negative scope framing, or defensive wording
