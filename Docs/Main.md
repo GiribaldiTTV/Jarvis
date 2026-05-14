@@ -339,6 +339,7 @@ These are reference layers, not active workstream or roadmap owners.
 - do not open a standalone docs-only canon lane, governance-only branch, or between-branch repair window for routine canon completion
 - if PR Readiness misses required canon, branch-authority cleanup, or post-merge truth work, the next active branch must treat that miss as a `Branch Readiness` blocker and repair it before implementation begins
 - if a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete
+- escaped drift prevention proof is mandatory: every repair for a miss discovered after the phase that should have caught it must include source-truth, governance, validator, helper, or prompt-contract hardening that prevents the same class from passing again, or must record why the gap is not machine-checkable yet and what human review marker replaces it before green
 - when post-merge truth will remain `No Active Branch`, merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership; that transient execution truth belongs only in the active branch authority record until merge
 - do not write directly to `main`; `main` is protected and any Codex file mutation there is a `Main Write Attempt`
 - the normal governed branch lifecycle is:
