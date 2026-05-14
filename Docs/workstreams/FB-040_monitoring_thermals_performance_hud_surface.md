@@ -491,16 +491,20 @@ This section is forward-looking admission truth only. It does not reopen FB-040,
 - The first admitted beta is a dedicated Nexus Sensor HUD.
 - The admitted beta is not a generic widget platform.
 - The admitted beta is not a plugin marketplace.
+- The Sensor HUD and later Overlay path must remain usable without LibreHardwareMonitor or any third-party monitoring app.
+- LibreHardwareMonitor is an optional advanced local sensor bridge, not a mandatory runtime dependency.
+- User-selected provider choice is first-class; supported providers must not silently override a user-pinned source.
 - Widget-like movement, search, sort, grouping, and personalization are allowed only inside the dedicated Sensor HUD surface.
 
 ### Admitted Beta Providers
 
 - Mock provider for deterministic development, validation, and fallback proof.
+- No-advanced-provider / baseline mode for usable HUD launch, layout, edit/lock, provider-health, and explicit unavailable/setup-required states without advanced sensor data.
 - Windows performance counters for baseline operating-system-owned CPU, memory, disk, and network posture.
 - `psutil` for bounded local process and system metrics where available.
 - `nvidia-smi` for NVIDIA GPU metrics such as temperature, utilization, VRAM, power, clocks, and related bounded status.
-- LibreHardwareMonitor bridge as the primary broad hardware-sensor backend for the beta.
-- HWiNFO64 as an optional detected advanced source with explicit provider-health and availability reporting.
+- LibreHardwareMonitor bridge as an optional advanced local broad hardware-sensor backend for the beta.
+- HWiNFO64 and later USER-admitted third-party monitoring integrations as optional detected or user-selected advanced sources with explicit provider-health and availability reporting.
 
 ### Read-Only Provider Rules
 
@@ -512,7 +516,19 @@ This section is forward-looking admission truth only. It does not reopen FB-040,
 - No driver-install behavior is admitted.
 - No remote or cloud telemetry is admitted.
 - No arbitrary third-party plugin execution is admitted.
+- No third-party monitoring app UI scraping is admitted.
+- No silent provider install, provider update, or provider replacement is admitted.
 - Provider failures must degrade to explicit stale, unavailable, partial, invalid, or unknown state handling rather than hidden remediation.
+
+### Optional Provider, Update, And License Contract
+
+- Baseline/no-advanced-provider mode must keep the Sensor HUD usable and truthful when LibreHardwareMonitor, HWiNFO64, vendor tools, or other optional sources are absent.
+- Advanced sensors that are unavailable without a provider must appear as explicit setup-required, provider-required, unavailable, partial, stale, or unknown states; fake telemetry remains blocked.
+- The user may pin or disable a supported provider family. LibreHardwareMonitor must not override a user-selected HWiNFO64, vendor/local, or other admitted provider.
+- Provider management UI must distinguish built-in baseline providers, bundled bridges, detected external apps, and user-installed integrations.
+- LibreHardwareMonitor update checks are future scope and must be user-consented, source-verified, integrity-aware, non-silent, deferrable, disable-capable, and privacy-described.
+- If LibreHardwareMonitor or LibreHardwareMonitorLib is bundled or redistributed, packaging must include MPL 2.0 license text, required upstream third-party notices, version/source metadata, and a reasonable path to the MPL-covered source code.
+- If Nexus modifies MPL-covered LibreHardwareMonitor source files, those modified MPL-covered files must remain available under MPL 2.0. Proprietary Nexus files may remain separate when they do not contain MPL-covered source code.
 
 ### HUD UX Contract
 
@@ -555,7 +571,9 @@ This section is forward-looking admission truth only. It does not reopen FB-040,
 
 ### Provider Precedence, Merge, And Dedup Contract
 
-- Provider precedence order is: user-pinned provider override, then LibreHardwareMonitor, then HWiNFO64, then `nvidia-smi`, then Windows performance counters, then `psutil`, then mock provider.
+- User-pinned provider override is authoritative when present.
+- Default provider precedence order when no user override exists is: LibreHardwareMonitor if enabled and available, then HWiNFO64 if enabled and available, then `nvidia-smi`, then Windows performance counters, then `psutil`, then mock provider.
+- LibreHardwareMonitor absence, disablement, slowness, stale data, invalid data, or incompatibility must fall through to the next admitted provider or explicit unavailable state without breaking the HUD.
 - Lower-priority providers may fill gaps only when a higher-priority admitted provider does not already own the normalized metric.
 - Lower-priority providers must not silently override a higher-priority bound metric.
 - Merge and dedup must preserve provenance so the HUD can explain which provider owns the shown value.
@@ -575,6 +593,10 @@ This section is forward-looking admission truth only. It does not reopen FB-040,
 ### Validation And Evidence Contract For Future Beta Implementation
 
 - A future implementation branch must add provider-contract proof for discovery, normalized catalog shape, merge and dedup behavior, stale-state handling, pause and resume, fallback, and effective polling-rate reporting.
+- A future implementation branch must prove no-advanced-provider / no-Libre usability without fake values.
+- A future implementation branch must prove provider selection, provider disablement, and user override behavior when multiple providers are available.
+- A future implementation branch that bundles or redistributes LibreHardwareMonitor must prove MPL 2.0 license text, upstream third-party notices, version/source metadata, and source-availability handling.
+- A future implementation branch that checks LibreHardwareMonitor updates must prove consent, source verification, integrity/compatibility handling, no-silent-update behavior, disable/defer/rollback posture, and privacy copy.
 - A future implementation branch must add HUD-layout proof for persistence, rematch behavior, unresolved placeholder behavior, search, pinning, categorization, and card ordering.
 - A future implementation branch must add live desktop proof for tray entry, command-overlay entry, edit and lock mode behavior, pause and resume behavior, and provider-health presentation.
 - A future implementation branch must add the exact `## User Test Summary` artifact once the HUD becomes user-visible.
@@ -586,6 +608,10 @@ This section is forward-looking admission truth only. It does not reopen FB-040,
 - The user can search for a sensor, place it, move it, resize it, categorize it, and save the layout.
 - Saved layouts reload with safe sensor rematch behavior and unresolved placeholders when rematch is not valid.
 - The HUD surfaces provider health, stale state, and conflict provenance.
+- The HUD remains usable when LibreHardwareMonitor and other optional advanced providers are missing or disabled.
+- The user can select or disable an admitted provider source without LibreHardwareMonitor silently taking over.
+- LibreHardwareMonitor update handling, if implemented, is user-approved and non-silent.
+- Any bundled LibreHardwareMonitor distribution includes required license, notice, version/source, and MPL source-availability material.
 - The HUD shows requested polling rate and effective polling rate.
 - The HUD runs without hardware writes.
 - The HUD degrades cleanly when optional providers are missing, slow, stale, or unavailable.
