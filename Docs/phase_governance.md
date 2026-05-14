@@ -306,6 +306,7 @@ Historical repair-only branch records remain traceability only and do not author
 Tightly coupled governance and canon repair must ride on the active branch that owns the affected truth.
 It must not be used to avoid carrying supporting canon sync on an already-active implementation branch.
 If a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete.
+Escaped drift prevention proof is mandatory: every repair for a miss discovered after the phase that should have caught it must include source-truth, governance, validator, helper, or prompt-contract hardening that prevents the same class from passing again, or must record why the gap is not machine-checkable yet and what human review marker replaces it before green.
 
 ### Protected Main Law
 

@@ -72,7 +72,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - Required Response:
   classify the issue as `PR Readiness Scope Missed`; if it appears during Release Readiness, also classify `Release Readiness Scope Drift`; do not open a standalone closeout or canon-repair branch; carry the miss as a blocker into the next legitimate runtime-focused backlog branch's `Branch Readiness` and repair it before any implementation begins
 - Prevention:
-  block governance-only branches, block repair-only feature branches, block between-branch canon repair, block all Codex direct `main` writes, require branch-authority cleanup before PR green, and extend the validator whenever a miss exposes a machine-checkable gap
+  block governance-only branches, block repair-only feature branches, block between-branch canon repair, block all Codex direct `main` writes, require branch-authority cleanup before PR green, and extend the validator whenever a miss exposes a machine-checkable gap. Escaped drift prevention proof is mandatory: every repair for a miss discovered after the phase that should have caught it must include source-truth, governance, validator, helper, or prompt-contract hardening that prevents the same class from passing again, or must record why the gap is not machine-checkable yet and what human review marker replaces it before green.
 - source references:
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`

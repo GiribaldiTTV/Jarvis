@@ -289,6 +289,7 @@ There is no emergency direct-main repair path for Codex.
 If canon drift is discovered before merge, repair it on the owning branch before PR green.
 If canon drift is discovered after merge, do not open or resurrect a standalone repair branch for that drift; block the next legitimate runtime-focused backlog branch's `Branch Readiness` and repair there before implementation.
 If a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must also patch the canon or validator rule that allowed it before the repair is considered complete.
+Escaped drift prevention proof is mandatory: every repair for a miss discovered after the phase that should have caught it must include source-truth, governance, validator, helper, or prompt-contract hardening that prevents the same class from passing again, or must record why the gap is not machine-checkable yet and what human review marker replaces it before green.
 merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership while merged-main truth remains `No Active Branch`.
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt` blocker.
 
