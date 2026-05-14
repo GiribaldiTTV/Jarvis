@@ -28,11 +28,11 @@ This branch records the planning and selected-next reconciliation for `PKG-007`,
 - Branch Creation: `Created in C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell from origin/main at 98b53fafd63abfe4876b718d5649b4a0df46f2a0`
 - Carrier Separation: `C:\Nexus Desktop AI remains the separate FAM-006 release-support lane and must not be touched by this branch`
 - Selected-Next Decision: `Granted for this thread/worktree - FAM-007 provider-boundary / no-provider shell is selected; PR #129 release-support remains separate unless USER later selects it`
-- Branch Authority State: `Active Branch` - Workstream first seam complete, next bounded provider-boundary seam USER-gated
-- Current Carrier Branch: `feature/fam-007-provider-boundary-no-provider-shell` - already created by USER approval as the active FAM-007 Workstream carrier, not an uncreated selected-next successor branch
-- Post-Merge Successor Selection: `Pending USER decision; this PR Readiness Phase 1 repair does not select an additional successor branch or workstream beyond the current carrier`
-- Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval pending`
-- Runtime Implementation Approval: `Granted only for first bounded SLC-017/SLC-018 seam scaffolding; real provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, and merge remain blocked`
+- Branch Authority State: `Active Branch` - PR #134 merged the first bounded Workstream seam; next bounded provider-boundary seam remains USER-gated
+- Current Runtime Branch: `feature/fam-007-provider-boundary-no-provider-shell` - already created by USER approval as the active FAM-007 Workstream carrier, with PR #134 merged-unreleased proof on main
+- Post-Merge Successor Selection: `Pending USER decision; PR #134 does not select an additional successor branch or workstream beyond the current FAM-007 runtime lane`
+- PR #134 Live State: `Merged - PR #134 merged repaired head c1b47a6b53f4286c2f60ebf5d74d9afe38dadb52 into main at 2c0b2ce6f602651cf85682e0fbfce3c3367cb509`
+- Runtime Implementation Approval: `Granted only for first bounded SLC-017/SLC-018 seam scaffolding; real provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation remain blocked`
 - AI Product Contract v0.6.2: `External USER planning evidence only; not repo source truth and not imported`
 
 ## Branch Class
@@ -61,7 +61,6 @@ Backlog-Split Reason: None
 
 - `Next Provider-Boundary Seam USER Approval Missing`: active after the first bounded SLC-017/SLC-018 scaffold; additional provider-selection, provider-failure, real provider SDK, model, memory, voice/Core, shortcut/installer, release, PR, or contract-import work requires later USER approval.
 - `Backlog Completion Unproven`: active because PKG-007 and SLC-017/SLC-018 remain in progress after the first bounded no-provider/provider-privacy scaffold.
-- `PR Creation Approval Missing`: active.
 - `Release Execution Approval Missing`: active.
 - `AI Product Contract Full Import Approval Missing`: active.
 
@@ -85,20 +84,21 @@ Backlog-Split Reason: None
 - SLC-017 and SLC-018 planning identifies the first bounded implementation seam and non-includes.
 - Branch Readiness validation passes before any runtime seam files change.
 - The first seam implements only provider/no-provider shell state, visible disabled/unavailable/no-provider status, visible provider/privacy state scaffolding, and direct validation scaffolds.
-- The branch remains free of model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, and merge work.
+- The implementation seam remains free of model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation.
 - Changes are validated, committed, and pushed to the same branch.
+- PR #134 merged the first bounded seam after Codex bot review repair and validation; it is now merged-unreleased FAM-007 scope on main.
 
 ## Rollback Target
 
 - `Branch Readiness`
 
-Rollback Path: abandon or repair `feature/fam-007-provider-boundary-no-provider-shell` before PR creation if validation fails or USER rejects the seam shape. Do not mutate main, touch the FAM-006 release-support worktree, install providers/models, import private contract material, create shortcuts, create GitHub issues, create PRs, create tags, publish releases, or generate artifacts.
+Rollback Path: repair `feature/fam-007-provider-boundary-no-provider-shell` through the next approved branch/PR carrier if later validation finds FAM-007 source-truth drift. Do not mutate main directly, touch PR #129/#132 release-support, install providers/models, import private contract material, create shortcuts, create GitHub issues, create tags, publish releases, or generate artifacts without separate USER approval.
 
 ## Next Legal Phase
 
 - `Workstream`
 
-Next Legal Phase Gate: the approved first bounded SLC-017/SLC-018 Workstream seam is complete. The next same-branch Workstream seam requires a later USER decision because provider selection/consent, real provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, PR creation, merge, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129 release-support execution remain blocked.
+Next Legal Phase Gate: the approved first bounded SLC-017/SLC-018 Workstream seam is merged through PR #134. The next same-branch Workstream seam requires a later USER decision because provider selection/consent, real provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain blocked.
 
 ## Branch Objective
 
@@ -122,7 +122,7 @@ Start FAM-007 implementation on a real provider-boundary branch instead of creat
 - Backend/Runtime Delta: `Local provider-state snapshot contract for no-provider behavior that reports local-only privacy posture and blocks prompt acceptance when no provider is configured.`
 - Developer-Tooling Delta: `Static validation scaffold proving the no-provider state contract and visible renderer integration markers.`
 - Exact Affected Paths: `desktop/ai_provider_state.py`; `desktop/core_visualization_renderer.py`; `desktop/desktop_renderer.py`; `nexus_visual/orin_core.html`; `nexus_visual/orin_core_desktop.html`; `nexus_visual/orin_core.css`; `nexus_visual/orin_core.js`; `dev/orin_ai_provider_state_validation.py`; this branch record; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; `Docs/branch_records/index.md`.
-- Non-Includes: `model downloads`; `real provider SDK integration`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR creation`; `merge`; `PR #129 release-support execution`.
+- Non-Includes: `model downloads`; `real provider SDK integration`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR #129/#132 release-support execution`.
 - Implementation Admission Status: `Admitted by USER for the first bounded SLC-017/SLC-018 seam only; first scaffold implemented and additional provider-boundary seams are USER-gated.`
 
 ## Backlog Completion Status
@@ -133,7 +133,7 @@ Completion Status: Red
 
 Remaining Implementable Work: `Later same-branch FAM-007 seams include provider selection and consent boundary, provider failure/degraded modes, local/LAN/remote/test provider boundary adapters, settings/state persistence boundaries, hardware/capability-pack readiness, and validation proof expansion.`
 
-Future-Dependent Blockers: `Next provider-boundary seam approval, PR creation, merge, model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129 release-support execution.`
+Future-Dependent Blockers: `Next provider-boundary seam approval, model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution.`
 
 Visible User-Facing Proof Required: No for this first disabled/no-provider scaffold; static visible-surface validation and compile proof are sufficient before any prompt/action flow exists.
 
@@ -143,9 +143,9 @@ Visible User-Facing Proof: WAIVED - no formal UTS or screenshot is required for 
 
 Branch Completion Goal: `Complete the first bounded provider-boundary / no-provider shell seam, keep PKG-007 in progress, and require a later USER decision before additional provider-boundary seams or PR Readiness.`
 
-Known Future-Dependent Blockers: `Model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and PR #129 release-support execution require later USER approval.`
+Known Future-Dependent Blockers: `Model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution require later USER approval.`
 
-Branch Closure Rule: `Do not close or PR this branch as a rebaseline-only carrier by inertia; after the first seam validates, report the Workstream handoff state and pending USER decisions without expanding into blocked provider/model/runtime work.`
+Branch Closure Rule: `PR #134 merged the first seam as runtime-bearing FAM-007 scope, not a rebaseline-only carrier. After the merged-main repair validates, report the active runtime lane and pending USER decisions without expanding into blocked provider/model/runtime work.`
 
 ## Product Definition Plan
 
@@ -183,9 +183,9 @@ Screenshot / Live / User Test Summary Proof Requirements: `Static and compile va
 
 Implementation Sequence Proposal: `Record active branch authority and selected-next truth; validate Branch Readiness planning; add local no-provider state contract; publish it to the renderer; render visible provider/privacy status; add static validation; run validation; commit and push.`
 
-Planning Blockers: `Next provider-boundary seam approval, PR creation, merge, real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129 release-support execution remain USER-gated.`
+Planning Blockers: `Next provider-boundary seam approval, real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain USER-gated.`
 
-USER Decisions Needed: `Later decide PR creation, merge, provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129 release-support execution.`
+USER Decisions Needed: `Later decide the next bounded FAM-007 provider-boundary seam, provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution.`
 
 Planning Packet Status: Complete
 
@@ -211,6 +211,8 @@ No formal User Test Summary is required for this first scaffold. The proof path 
 ## Workstream Implementation Record
 
 Implementation Status: `First bounded SLC-017/SLC-018 scaffold complete on feature/fam-007-provider-boundary-no-provider-shell`
+
+PR #134 Merge Proof: `Merged repaired head c1b47a6b53f4286c2f60ebf5d74d9afe38dadb52 into main at 2c0b2ce6f602651cf85682e0fbfce3c3367cb509 after Codex bot review repair and validation.`
 
 No-Provider State Contract: `desktop/ai_provider_state.py defines a renderer-local PKG-007 no-provider snapshot with mode no-provider, disabled availability, local-only privacy scope, no provider-visible data, no local memory persistence, no prompt acceptance, blocked external calls, and not-installed model/capability-pack state.`
 
@@ -254,7 +256,7 @@ Bounded Seam Default: One active seam at a time, not one-seam Workstream authori
 
 ## Later-Phase Expectations
 
-After this first seam validates, the next legal action is a USER decision on the next bounded same-branch FAM-007 Workstream seam, PR Readiness routing, or another governed path. Real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129 release-support execution remain separate pending USER decisions.
+After this first seam merged through PR #134, the next legal action is a USER decision on the next bounded same-branch FAM-007 Workstream seam, Release Readiness rerun after merged-main repair, or another governed runtime path. Real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain separate pending USER decisions.
 
 ## Initial Workstream Seam Sequence
 
@@ -264,7 +266,7 @@ Goal: `Implement a local no-provider state contract plus visible provider/privac
 
 Scope: `provider/no-provider shell state; visible disabled/unavailable/no-provider status; visible local-only provider/privacy state; static validation scaffolds directly supporting the seam.`
 
-Non-Includes: `model downloads`; `real provider SDK integration`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR creation`; `merge`; `PR #129 release-support execution`.
+Non-Includes: `model downloads`; `real provider SDK integration`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR #129/#132 release-support execution`.
 
 Seam 2: `Provider Selection And Consent Boundary Planning`
 
