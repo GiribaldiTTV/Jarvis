@@ -954,6 +954,7 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Stage 1 Repair Validation:
 - Release Readiness Health Pass:
 - Release Candidate Anchor Projection:
+- Release Window Contributor Inventory:
 - Governance Ledger Fallback:
 - Branch Readiness Fallback:
 - Stage 1 Outcome:
@@ -973,6 +974,8 @@ The next-workstream/package hierarchy is reviewed in PR Readiness Stage 1, not s
 `Origin/Main Freshness Check` is required during PR Readiness Stage 1 before Stage 2 can begin. Stage 1 must compare `Branch Creation Base:` to `Current origin/main:` and report whether `Origin/Main Advanced Since Branch Creation:` is `YES` or `NO`. When `origin/main` advanced, Stage 1 must list `Origin/Main Changed Files:` from `git diff --name-only <branch-creation-base>..origin/main`, list `Branch Changed Files:` from `git diff --name-only <branch-creation-base>..HEAD`, decide `Reconciliation Required: YES / NO`, and, when reconciliation is needed, output a complete `Reconciliation File List:` plus `Reconciliation Recommendation:`. The `Reconciliation Mutation Status:` must be analysis-only with no file fixes during Stage 1. If changed upstream files/data need review and the packet is missing or incomplete, `Origin Main Reconciliation Packet Required` blocks Stage 2 and PR creation.
 
 `Release Candidate Anchor Projection` is required during PR Readiness Stage 1 before Stage 2 can begin for any release-bearing or merged-unreleased branch. Stage 1 must name the default post-merge `Release Candidate Anchor:` as current fetched `origin/main` after merge unless USER explicitly selects a historical release target, must name `Target Commit:` projection or source, must state whether later governance/source-truth PRs are part of the candidate, and must keep historical PR endpoints as audit evidence only unless USER approves `Release Candidate Anchor Source: USER-selected historical commit`.
+
+`Release Window Contributor Inventory` is required during PR Readiness Stage 1 before Stage 2 can begin for any release-bearing or merged-unreleased branch. Stage 1 must identify whether the projected release candidate may include multiple FAM/worktree contributors, must name each known merged-unreleased contributor included or expected to be included in the target commit, must state whether the release is `Release Ownership Model: Aggregated release window`, and must route any contributor-specific blocker to the owning lane instead of letting merge order decide release ownership.
 
 Stage 1 must also include this user-facing block so USER and ChatGPT can review the successor/runtime path before Stage 2. This is analysis-first output; it may encode selected-next truth only when USER explicitly approves selected-next sync, but it must not create a branch, admit a package, or waive any blocker without separate approval:
 
@@ -1232,6 +1235,7 @@ Every Release Readiness packet must declare:
 - `Target Commit:`
 - `Historical Endpoint Handling:`
 - `Candidate Includes Later Governance Repairs:`
+- `Release Window Contributor Inventory:`
 
 Default anchor rule:
 
@@ -1243,10 +1247,34 @@ Default anchor rule:
 - historical PR merge commits may be inspected as audit evidence, but they do not become the release-validation base unless USER explicitly selects that historical commit as the release target
 - if USER selects a historical PR merge commit as the release target, Release Readiness must label `Release Candidate Anchor Source:` as `USER-selected historical commit` and must verify that commit's source truth without silently mixing later `origin/main` repairs
 
+### Release Window Aggregation Ownership
+
+A release is owned by the selected release candidate window, not by whichever implementation PR or worktree merged last.
+
+Every release-bearing candidate must declare:
+
+- `Release Ownership Model:`
+- `Release Window Contributors:`
+- `Merged-Unreleased Scope Inventory:`
+- `Last Runtime PR:`
+- `Post-Runtime Governance Repairs:`
+- `FAM Contributor Routing:`
+
+Aggregation rule:
+
+- when multiple FAM/worktree branches merge before the next public prerelease, the selected release candidate must inventory every merged-unreleased contributor included in the target commit
+- merge order does not determine release ownership; the release owner is `Release Ownership Model: Aggregated release window` unless USER explicitly opens a release packaging branch or selects a narrower historical/release-branch target
+- if current fetched `origin/main` contains both FAM-006 and FAM-007 merged-unreleased scope, both scopes are in the release candidate and both must have release-debt, validation, and issue/posture truth before Release Readiness can be green
+- if one merged contributor is not release-ready, Release Readiness must block or USER must explicitly select a release target that excludes it, such as a historical commit or release branch; Release Readiness must not silently pretend the contributor is outside the candidate
+- governance/source-truth-only PRs after runtime payload PRs are recorded under `Post-Runtime Governance Repairs:` and may be included without becoming user-facing feature claims
+- after release publication, durable post-release closure must clear or move every included `Merged-Unreleased Scope Inventory:` item, not just the last merged branch
+
+The blocker for missing or ambiguous contributor inventory is `Release Window Contributor Inventory Missing`.
+
 Scope routing:
 
 - if the selected release candidate is current `origin/main`, stale wording at an older PR endpoint is historical PR Readiness miss evidence, not a current Release Readiness blocker when later merged governance/source-truth repairs fixed the selected candidate
-- if the selected release candidate still lacks release target, release floor, release debt, merged-unreleased, or issue-posture truth, Release Readiness stops and emits a blocker digest only
+- if the selected release candidate still lacks release target, release floor, release debt, merged-unreleased, contributor inventory, or issue-posture truth, Release Readiness stops and emits a blocker digest only
 - if the branch has not merged, the repair routes back to `PR Readiness`
 - if the branch has already merged, the repair routes to the next legitimate runtime-focused backlog branch's `Branch Readiness` or to the single standing governance intake lane when the blocker is a Release Readiness source-truth/governance drift digest
 
@@ -2234,6 +2262,7 @@ Required evidence:
 
 - merged or legitimately merge-ready truth
 - `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:` for the selected release candidate
+- `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, and `FAM Contributor Routing:` for the selected release candidate
 - explicit `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches
 - or explicit `Release Branch: No` only for preserved historical records
 - release-context verification

@@ -6,6 +6,7 @@
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
 **Release Readiness Candidate Anchor: require `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:`; default to current fetched `origin/main` unless USER explicitly selects another release target; historical PR merge commits are audit evidence only unless USER selects a historical commit as the release target, and missing anchor fields block as `Release Candidate Anchor Missing`.**
+**Release Window Aggregation Ownership: merge order does not decide release ownership; require `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, and `FAM Contributor Routing:` so multiple FAM/worktree contributors in the selected target release as an aggregated release window unless USER selects a narrower target.**
 
 You are working inside the Nexus Desktop AI project as an implementation and analysis partner.
 
@@ -730,6 +731,7 @@ If the phase is `PR Readiness`, the final response must include:
 - Stage 1 Repair Validation:
 - Release Readiness Health Pass:
 - Release Candidate Anchor Projection:
+- Release Window Contributor Inventory:
 - Governance Ledger Fallback:
 - Branch Readiness Fallback:
 - Stage 1 Outcome:
@@ -744,9 +746,11 @@ If the phase is `PR Readiness`, the final response must include:
 
 If the current stage is `PR Readiness Stage 1 - Analysis Gate`, the final response must also report Stage 1 repair findings, Stage 1 repairs made, validation results, files changed or none, whether `PR Readiness Stage 1 Repair Pending` is clear, and one explicit readiness-lock outcome: `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required`. It must state `PR Readiness Execution User Approval Missing` and stop for USER approval to enter Stage 2 unless Stage 1 is ready and USER approval already exists.
 
-PR Readiness must prove post-merge source truth before PR creation, after any Stage 2 or bot-review source-truth repair, and before merge approval with the `Release Readiness Health Pass` by running `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`. The packet must report `Post-Merge Branch Authority Projection:`, `Stale Active Branch Wording Scan:`, `Stale PR Creation / PR Readiness Pending Wording Scan:`, `Merged-Unreleased Scope Posture:`, `Release Execution Gate:`, `Watcher / Live PR State Projection:`, `Branch Cleanup Plan:`, `Branch Cleanup Execution Gate:`, `FAM Overlap Routing:`, `Release Candidate Anchor Projection:`, and `Projected Post-Merge Validation:` so projected merged main can enter Release Readiness as validation, not cleanup.
+PR Readiness must prove post-merge source truth before PR creation, after any Stage 2 or bot-review source-truth repair, and before merge approval with the `Release Readiness Health Pass` by running `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`. The packet must report `Post-Merge Branch Authority Projection:`, `Stale Active Branch Wording Scan:`, `Stale PR Creation / PR Readiness Pending Wording Scan:`, `Merged-Unreleased Scope Posture:`, `Release Execution Gate:`, `Watcher / Live PR State Projection:`, `Branch Cleanup Plan:`, `Branch Cleanup Execution Gate:`, `FAM Overlap Routing:`, `Release Candidate Anchor Projection:`, `Release Window Contributor Inventory:`, and `Projected Post-Merge Validation:` so projected merged main can enter Release Readiness as validation, not cleanup.
 
 Release Readiness must declare `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:`. Unless USER explicitly selects a historical commit as the release target, current fetched `origin/main` is the release candidate anchor and historical PR merge commits are audit evidence only. Missing or ambiguous anchor data is `Release Candidate Anchor Missing`; do not repair it inside Release Readiness.
+
+Release Readiness must declare `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, and `FAM Contributor Routing:`. Merge order does not decide release ownership; when multiple FAM/worktree branches merge before the next release, use `Release Ownership Model: Aggregated release window` unless USER selects a narrower target. Missing or ambiguous contributor inventory is `Release Window Contributor Inventory Missing`.
 
 If the phase is `Branch Readiness` and the current stage is `Branch Readiness Stage 1 - Analysis Gate`, the final response must include:
 
