@@ -302,7 +302,7 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - PR #139 Ready State: `PASS - PR #139 is open, non-draft, mergeable, and targets main from feature/fam-006-sensor-hud-provider-governance`
 - Same-Thread Watcher: `Provisioned - native Codex heartbeat automation pr-139-same-thread-watcher is active on the current thread`
 - Successor Lock Repair: `PASS - roadmap and backlog now record FAM-007 as selected next runtime direction with Branch: Not created after PR #138 merge`
-- PR Readiness Gate Remaining Blocker: `Bot Review Signal addressed by commit 38071df80fb88affdc9ee8f5ecf53a05fff653e3; final PR-readiness gate revalidation remains pending until the closeout record is committed and pushed`
+- PR Readiness Gate Remaining Blocker: `Cleared - bot review signal was addressed by commit 38071df80fb88affdc9ee8f5ecf53a05fff653e3, recorded by branch-record follow-through, resolved in GitHub, and revalidated by PR readiness gate PASS`
 - Runtime Boundary: `PASS - no runtime/provider/model/memory/voice/Core/shortcut/installer implementation files changed`
 - Release Boundary: `PASS - no merge, tag, GitHub Release, artifact, release-note, or release execution performed`
 
@@ -314,6 +314,22 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Bot Review Signal Timestamp: `2026-05-14T17:35:33Z`
 - Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
 - Bot Review Signal Closeout: `Addressed by preserving nonstandard PR body sections in dev/orin_pr_body_quality_audit.py; this branch-record-only follow-through records the closeout without expanding runtime or release scope`
+
+## Validation V9 Record
+
+- Scope: `PR Readiness Stage 2 final live PR closeout after Codex bot-review repair`
+- PR #139 Live State: `PASS - open, non-draft, targets main, mergeable, and GitHub reports merge state CLEAN`
+- Codex Review Thread: `PASS - thread PRRT_kwDORwnWIs6CJAKJ was addressed, recorded, and resolved in GitHub`
+- Same-Thread Watcher: `Provisioned - native Codex heartbeat automation pr-139-same-thread-watcher remains the read-only PR state monitor`
+- `git diff --check origin/main...HEAD`: `PASS`
+- `python dev\orin_branch_governance_validation.py`: `PASS - branch governance validation passed 4780 checks`
+- `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`: `PASS - branch governance validation passed 4826 checks`
+- `python dev\orin_branch_governance_validation.py --pr-readiness-gate`: `PASS - branch governance validation passed 4855 checks`
+- `python dev\orin_release_body_validation.py`: `PASS - latest release body matches the standard; historical prior-release drift reported only`
+- `python dev\orin_pr_body_quality_audit.py --report dev\logs\pr_body_quality_audit_stage2_after_body_edit.json`: `PASS - 128 PR bodies inspected, 0 changed, 0 warnings`
+- `python -m compileall -q dev desktop Audio main.py`: `PASS`
+- Runtime Boundary: `PASS - no runtime/provider/model/memory/voice/Core/shortcut/installer implementation files changed`
+- Release Boundary: `PASS - no merge, tag, GitHub Release, artifact, release-note, or release execution performed`
 
 ## PR Readiness Stage 1 Projection Record
 
