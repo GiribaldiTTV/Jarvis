@@ -407,15 +407,15 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardChildWindowScope = "branch2-create-edit-monitor-windows";
     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
-    monitoringHud.dataset.dashboardCloseAffordance = "top-chrome-close-button";
-    monitoringHud.dataset.dashboardCloseLayout = "top-most-right-close-pill-with-control-gutter";
+    monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
+    monitoringHud.dataset.dashboardCloseLayout = "window-level-top-right-close-pill";
     monitoringHud.dataset.dashboardOpenBadge = "removed";
     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
     monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
     monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned";
     monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable";
     monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness";
-    monitoringHud.dataset.dashboardSettingsAffordance = "top-chrome-settings-button";
+    monitoringHud.dataset.dashboardSettingsAffordance = "dashboard-ia-card-settings-button";
     monitoringHud.dataset.dashboardSettingsPanel = "settings-panel-child-window";
     monitoringHud.dataset.dashboardSettingsProof = "visible-open-close-control-hit-target";
     monitoringHud.dataset.dashboardSettingsPanelState = monitoringHudActiveChildWindow === "dashboard-settings" ? "open" : "closed";
@@ -565,8 +565,8 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-dedicated-child-window-actions";
     monitoringHud.dataset.dashboardChildWindowScope = "branch2-create-edit-monitor-windows";
     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
-    monitoringHud.dataset.dashboardCloseAffordance = "top-chrome-close-button";
-    monitoringHud.dataset.dashboardCloseLayout = "top-most-right-close-pill-with-control-gutter";
+    monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
+    monitoringHud.dataset.dashboardCloseLayout = "window-level-top-right-close-pill";
     monitoringHud.dataset.dashboardOpenBadge = "removed";
     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
     monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
@@ -1148,7 +1148,7 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
     dashboardSettingsContentReady: Boolean(
       split.dashboardContentPolish === "branch2-monitor-groups-no-dead-space"
       && split.dashboardSettingsModel === "hud-overlay-monitor-groups-provider-warning"
-      && split.dashboardSettingsAffordance === "top-chrome-settings-button"
+      && split.dashboardSettingsAffordance === "dashboard-ia-card-settings-button"
       && split.dashboardSettingsPanel === "settings-panel-child-window"
       && split.dashboardSettingsProof === "visible-open-close-control-hit-target"
       && split.monitorGroupModel === "organizational-groups-settings-only"

@@ -1021,17 +1021,19 @@ function DoubleClick-ScreenPoint {
 
 function Get-DashboardTopChromeControlPoints {
     param([object]$Dashboard)
-    if (-not $Dashboard) { throw "Dashboard is missing while calculating top-chrome control points" }
+    if (-not $Dashboard) { throw "Dashboard is missing while calculating Dashboard control points" }
     $rect = $Dashboard.Current.BoundingRectangle
     $headerHeight = [Math]::Min(170, [int]$rect.Height)
-    $actionsWidth = [Math]::Min(260, [Math]::Max(168, [int]($rect.Width / 3)))
-    $actionsLeft = [Math]::Max([int]$rect.Left, [int]$rect.Right - $actionsWidth - 18)
-    $actionsTop = [int]$rect.Top + 10
+    $actionsWidth = [Math]::Min(360, [Math]::Max(154, [int]($rect.Width / 3)))
+    $actionsLeft = [int]$rect.Left + 43
+    $actionsTop = [int]$rect.Top + 132
+    $closeLeft = [int]$rect.Right - 14 - 82
+    $closeTop = [int]$rect.Top + 12
     return [ordered]@{
         headerRect = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]($rect.Top + $headerHeight))
-        actionsRect = @($actionsLeft, $actionsTop, [int]($actionsLeft + $actionsWidth), [int]($actionsTop + [Math]::Min(146, [Math]::Max(112, $headerHeight - 20))))
-        closePoint = @([int]($actionsLeft + ($actionsWidth / 2)), [int]($actionsTop + 18))
-        settingsPoint = @([int]($actionsLeft + ($actionsWidth / 2)), [int]($actionsTop + 64))
+        actionsRect = @($actionsLeft, $actionsTop, [int]($actionsLeft + $actionsWidth), [int]($actionsTop + 44))
+        closePoint = @([int]($closeLeft + 41), [int]($closeTop + 21))
+        settingsPoint = @([int]($actionsLeft + [Math]::Min(77, $actionsWidth / 2)), [int]($actionsTop + 22))
     }
 }
 
@@ -1713,6 +1715,65 @@ function Click-VisibleRuntimeDialogButton {
                 }
             }
         }
+        if ($lastDialogRect.Count -eq 4) {
+            $runtimeButtons = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
+                [System.Windows.Automation.TreeScope]::Descendants,
+                (New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button))
+            )
+            $bestButton = $null
+            $bestButtonRect = $null
+            $bestCenterY = -2147483648
+            for ($j = 0; $j -lt $runtimeButtons.Count; $j++) {
+                $button = $runtimeButtons.Item($j)
+                try {
+                    if (
+                        $button.Current.Name -ne $ButtonName -or
+                        -not $button.Current.IsEnabled -or
+                        $runtimeIds -notcontains [int]$button.Current.ProcessId
+                    ) {
+                        continue
+                    }
+                    $rect = $button.Current.BoundingRectangle
+                    if ($rect.IsEmpty -or $rect.Width -le 0 -or $rect.Height -le 0 -or $button.Current.IsOffscreen) {
+                        continue
+                    }
+                    $centerX = [int]($rect.X + ($rect.Width / 2))
+                    $centerY = [int]($rect.Y + ($rect.Height / 2))
+                    if (
+                        $centerX -lt $lastDialogRect[0] -or
+                        $centerX -gt $lastDialogRect[2] -or
+                        $centerY -lt $lastDialogRect[1] -or
+                        $centerY -gt ($lastDialogRect[1] + 1100)
+                    ) {
+                        continue
+                    }
+                    if (-not $bestButton -or $centerY -gt $bestCenterY) {
+                        $bestButton = $button
+                        $bestButtonRect = $rect
+                        $bestCenterY = $centerY
+                    }
+                } catch {}
+            }
+            if ($bestButton) {
+                $x = [int]($bestButtonRect.X + ($bestButtonRect.Width / 2))
+                $y = [int]($bestButtonRect.Y + ($bestButtonRect.Height / 2))
+                [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
+                Start-Sleep -Milliseconds 150
+                [CodexHumanClientWin32]::SendLeftClick()
+                return @{
+                    button = $ButtonName
+                    clicked = @($x, $y)
+                    buttonRect = @(
+                        [int]$bestButtonRect.X,
+                        [int]$bestButtonRect.Y,
+                        [int]($bestButtonRect.X + $bestButtonRect.Width),
+                        [int]($bestButtonRect.Y + $bestButtonRect.Height)
+                    )
+                    fallback = "runtime-wide-dialog-button"
+                    dialogRect = $lastDialogRect
+                }
+            }
+        }
         Start-Sleep -Milliseconds 120
     }
 
@@ -1739,6 +1800,41 @@ function Dismiss-VisibleRuntimeDialog {
 
     $before = Wait-ForVisibleRuntimeWindowByTitle -Title $Title -TimeoutSeconds 1
     $beforeLineCount = (Read-RuntimeLines).Count
+    $preferredButtons = @()
+    if ($Title -in @("Create Custom Task", "Create Custom Group")) {
+        $preferredButtons = @("Cancel")
+    } elseif ($Title -in @("Manage Custom Tasks", "Manage Custom Groups")) {
+        $preferredButtons = @("Close", "Cancel")
+    }
+    foreach ($preferredButton in $preferredButtons) {
+        try {
+            $clickEvidence = Click-VisibleRuntimeDialogButton -Title $Title -ButtonName $preferredButton -TimeoutSeconds 2
+            $buttonDeadline = (Get-Date).AddSeconds($TimeoutSeconds)
+            while ((Get-Date) -lt $buttonDeadline) {
+                if ($ExpectedDismissMarker -and (Wait-ForRuntimeMarkerAfterLine -Marker $ExpectedDismissMarker -AfterLine $beforeLineCount -TimeoutSeconds 1)) {
+                    return @{
+                        method = "visible-runtime-button-runtime-marker"
+                        beforeRect = $before
+                        clicked = $clickEvidence.clicked
+                        button = $preferredButton
+                        dismissed = $true
+                        marker = $ExpectedDismissMarker
+                    }
+                }
+                $afterButton = Wait-ForVisibleRuntimeWindowByTitle -Title $Title -TimeoutSeconds 1
+                if (-not $afterButton -or $afterButton.Count -ne 4) {
+                    return @{
+                        method = "visible-runtime-button"
+                        beforeRect = $before
+                        clicked = $clickEvidence.clicked
+                        button = $preferredButton
+                        dismissed = $true
+                    }
+                }
+                Start-Sleep -Milliseconds 120
+            }
+        } catch {}
+    }
     if ($before -and $before.Count -eq 4 -and $Title -in @("Create Custom Task", "Create Custom Group", "Manage Custom Tasks", "Manage Custom Groups")) {
         $x = [int]($before[2] - 205)
         $y = [int]($before[1] + 342)
@@ -2002,14 +2098,14 @@ try {
     $settingsPoint = @($chromePoints.settingsPoint)
     $settingsHit = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandleForControls -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1])
     $settingsBeforeLine = (Read-RuntimeLines).Count
-    $settingsClickEvidence = Click-ScreenPoint -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1]) -Label "Dashboard Settings top-chrome button"
+    $settingsClickEvidence = Click-ScreenPoint -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1]) -Label "Dashboard Settings IA-card button"
     $settingsNativeMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY" -AfterLine $settingsBeforeLine -TimeoutSeconds 4
     $settingsChildMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY" -AfterLine $settingsBeforeLine -TimeoutSeconds 4
     $settingsShot = Capture-VirtualScreenshot "03d_after_dashboard_settings_real_mouse_click"
     $dashboardAfterSettings = Get-DashboardWindow
     $settingsPass = $settingsNativeMarker -and $settingsChildMarker -and $dashboardAfterSettings -and ($settingsHit -eq "htclient")
     Add-Step -Id "dashboard_settings_opens_with_real_mouse" -Title "Dashboard Settings opens through real mouse control hit-test path" -Status ($(if ($settingsPass) { "PASS" } else { "FAIL" })) -Detail "settingsPoint=($($settingsPoint -join ',')); hitTest=$settingsHit; native_marker=$settingsNativeMarker; child_window_marker=$settingsChildMarker; dashboard_visible_after_click=$([bool]$dashboardAfterSettings)." -Evidence @{ screenshot = $settingsShot; click = $settingsClickEvidence; controlPoints = $chromePoints; hitTest = $settingsHit; expectedMarkers = @("MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY", "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY") }
-    if (-not $settingsPass) { throw "Dashboard Settings did not open through the real mouse/top-chrome path" }
+    if (-not $settingsPass) { throw "Dashboard Settings did not open through the real mouse IA-card path" }
 
     $rectBeforeDoubleClick = $dashboardAfterSettings.Current.BoundingRectangle
     $doubleClickBeforeLine = (Read-RuntimeLines).Count
@@ -2040,25 +2136,25 @@ try {
     if (-not $settingsClosedMarker) { throw "Dashboard Settings panel did not close through the visible Done control" }
 
     $dashboard = Get-DashboardWindow
-    if (-not $dashboard) { throw "Dashboard disappeared before top-chrome Close proof" }
+    if (-not $dashboard) { throw "Dashboard disappeared before window-level Close proof" }
     $chromePoints = Get-DashboardTopChromeControlPoints -Dashboard $dashboard
     $closePoint = @($chromePoints.closePoint)
     $closeHit = Get-NativeHitTestKindAtPoint -WindowHandle ([long]$dashboard.Current.NativeWindowHandle) -X ([int]$closePoint[0]) -Y ([int]$closePoint[1])
     $topCloseBeforeLine = (Read-RuntimeLines).Count
-    $topCloseClick = Click-ScreenPoint -X ([int]$closePoint[0]) -Y ([int]$closePoint[1]) -Label "Dashboard top-chrome Close button"
+    $topCloseClick = Click-ScreenPoint -X ([int]$closePoint[0]) -Y ([int]$closePoint[1]) -Label "Dashboard window-level Close button"
     $topCloseMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY" -AfterLine $topCloseBeforeLine -TimeoutSeconds 4
     $topCloseShot = Capture-VirtualScreenshot "03g_after_dashboard_top_chrome_close"
     $dashboardAfterTopClose = Get-DashboardWindow
     $topClosePass = $topCloseMarker -and (-not $dashboardAfterTopClose) -and ($closeHit -eq "htclient")
-    Add-Step -Id "dashboard_top_chrome_close_hides_dashboard" -Title "Dashboard top-chrome Close hides Dashboard without disabling HUD Feature" -Status ($(if ($topClosePass) { "PASS" } else { "FAIL" })) -Detail "closePoint=($($closePoint -join ',')); hitTest=$closeHit; native_marker=$topCloseMarker; dashboard_visible_after_close=$([bool]$dashboardAfterTopClose)." -Evidence @{ screenshot = $topCloseShot; click = $topCloseClick; controlPoints = $chromePoints; hitTest = $closeHit; expectedMarker = "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY"; expectedLayout = "top-most right Close pill, separated from Settings by a visible gutter" }
-    if (-not $topClosePass) { throw "Dashboard top-chrome Close did not hide the Dashboard through the real mouse path" }
+    Add-Step -Id "dashboard_top_chrome_close_hides_dashboard" -Title "Dashboard window-level Close hides Dashboard without disabling HUD Feature" -Status ($(if ($topClosePass) { "PASS" } else { "FAIL" })) -Detail "closePoint=($($closePoint -join ',')); hitTest=$closeHit; native_marker=$topCloseMarker; dashboard_visible_after_close=$([bool]$dashboardAfterTopClose)." -Evidence @{ screenshot = $topCloseShot; click = $topCloseClick; controlPoints = $chromePoints; hitTest = $closeHit; expectedMarker = "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY"; expectedLayout = "window-level top-right Close pill, outside the Dashboard IA card controls" }
+    if (-not $topClosePass) { throw "Dashboard window-level Close did not hide the Dashboard through the real mouse path" }
 
     $reopenAfterX = Invoke-TrayAction -ActionName "Open HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=true" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 900
     $reopenAfterXShot = Capture-VirtualScreenshot "03h_after_reopen_dashboard_after_top_chrome_close"
     $dashboard = Get-DashboardWindow
-    Add-Step -Id "dashboard_reopens_after_top_chrome_close" -Title "Tray reopens Dashboard after top-chrome Close" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after tray reopen from top-chrome Close: $([bool]$dashboard)" -Evidence @{ screenshot = $reopenAfterXShot; trayClick = $reopenAfterX }
-    if (-not $dashboard) { throw "Dashboard did not reopen after top-chrome Close" }
+    Add-Step -Id "dashboard_reopens_after_top_chrome_close" -Title "Tray reopens Dashboard after window-level Close" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after tray reopen from window-level Close: $([bool]$dashboard)" -Evidence @{ screenshot = $reopenAfterXShot; trayClick = $reopenAfterX }
+    if (-not $dashboard) { throw "Dashboard did not reopen after window-level Close" }
 
     $rectBeforeMove = $dashboard.Current.BoundingRectangle
     Drag-FromTo -StartX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2))) -StartY ([int]($rectBeforeMove.Top + 48)) -EndX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2) + 90)) -EndY ([int]($rectBeforeMove.Top + 88)) -Label "Dashboard header move"

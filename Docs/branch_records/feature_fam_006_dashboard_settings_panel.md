@@ -7,7 +7,7 @@
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
 - Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; not a governance-only branch`
-- Current Delta Status: `Live Validation Stage 1 bounded repair complete after returned USER UTS failure; red user-facing shortcut human-client validation now proves #123 first-open visual continuity, #127 stricter resize fluidity, Dashboard Settings open/close, Settings double-click non-maximize, and top-chrome Close behavior; refreshed formal UTS handoff generated, with new returned USER UTS results still pending or requiring explicit waiver before PR Readiness`
+- Current Delta Status: `Live Validation Stage 1 bounded repair continues after returned USER UTS failure and live USER visual feedback; red user-facing shortcut human-client validation proves #123 first-open visual continuity, #127 stricter resize fluidity, Dashboard Settings open/close, Settings double-click non-maximize, and Dashboard Close behavior; Close is now a window-level top-right control while Settings and HUD Overlay deferred remain Dashboard IA-card controls; refreshed formal UTS handoff generated, with new returned USER results still pending or requiring explicit waiver before PR Readiness`
 - Backlog Record State: `Registry-only runtime continuation under historical FAM-006 / PKG-006`
 - Package ID: `PKG-006`
 - Package Name: `Monitoring HUD Dashboard Product Surface`
@@ -29,8 +29,8 @@ It exists because the Dashboard settings cog/settings panel remained a deferred 
 - Branch Readiness Stage 2: `Complete - USER approved worktree creation from updated origin/main, branch creation, PR #133 post-merge source-truth drift repair, branch authority setup, validation, commit, and push`
 - Runtime Implementation: `USER-approved and implemented for the bounded Dashboard settings cog/settings panel surface`
 - Hardening H1 Admission: `Granted - USER approved Hardening H1 for the FAM-006 Dashboard settings-panel runtime seam`
-- Hardening H1 Status: `PASS - settings affordance, settings child-window panel, warning toggle, hit-test controls, Dashboard Close, Create Monitor, Edit Monitor, tray reopen, resize/scroll/first-open regressions, truthful provider/overlay copy, and validator coverage were pressure-tested without requiring repair`
-- Live Validation Status: `STAGE 1 REPAIRED HANDOFF READY / REFRESHED USER RESULTS PENDING - returned UTS was digested as REPAIR after #123 first-open flicker, #127 remaining resize jitter, and top-chrome Close styling/placement feedback; active-client precheck remains supporting evidence at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260; latest red user-facing shortcut human-client validation passes at dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json with shortcut_targets_active_worktree=PASS, 11-frame first-open visual-continuity proof, Settings real-mouse open/Done close, Settings double-click non-maximize, top-chrome Close hide/reopen, and stricter resize-fluidity proof; formal UTS handoff was regenerated at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt from dev/logs/fam_006_monitoring_hud_live_validation/20260514_054254_905; refreshed returned USER UTS results remain pending unless USER explicitly waives that gate with a reason`
+- Hardening H1 Status: `PASS - settings affordance, settings child-window panel, warning toggle, hit-test controls, Dashboard Close, Create Monitor, Edit Monitor, tray reopen, resize/scroll/first-open regressions, truthful provider/overlay copy, and validator coverage were pressure-tested; no runtime product repair was required, and the human-client dialog cleanup helper was repaired so the proof can finish after visible NCP dialog checks`
+- Live Validation Status: `STAGE 1 REPAIRED HANDOFF READY / REFRESHED USER RESULTS PENDING - returned UTS was digested as REPAIR after #123 first-open flicker, #127 remaining resize jitter, and Dashboard Close styling/placement feedback; active-client precheck remains supporting evidence at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260; latest red user-facing shortcut human-client validation passes at dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json with shortcut_targets_active_worktree=PASS, 11-frame first-open visual-continuity proof, Settings real-mouse open/Done close, Settings double-click non-maximize, Dashboard Close hide/reopen, and stricter resize-fluidity proof; formal UTS handoff was regenerated at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt from dev/logs/fam_006_monitoring_hud_live_validation/20260514_054254_905; refreshed returned USER UTS results remain pending unless USER explicitly waives that gate with a reason`
 - GitHub Issue Closeout: `Pending USER approval for #123, #124, #125, #126, and #127`
 - Release Execution: `Pending USER approval`
 - Branch Authority State: `Active`
@@ -224,6 +224,8 @@ Release Floor: `patch prerelease`
 
 Issue Closeout Plan: `#123`, `#124`, and `#127` should be closeout-reviewed as completed by PR #129; `#125` and `#126` should be closeout-reviewed as completed by PR #132. Summary-only GitHub comments and issue closure require later USER approval.
 
+Release Readiness Issue Thread Cleanup Gate: `Required during Release Readiness after USER approval - GitHub issue threads #123, #124, #125, #126, and #127 must receive appropriate closeout/traceability updates before release execution can be treated as complete. Each issue update should summarize what solved the issue, name the solving PR/branch/proof path, preserve any known limitations or waivers, and link the release-support/source-truth evidence. This gate records the requirement only; posting comments, changing issue state, or closing issues remains a future USER approval checkpoint.`
+
 Raw Evidence Policy: raw screenshots, videos, and UTS exports remain local/external unless USER later approves upload, import, or linking.
 
 ## Multi-Worktree Coordination
@@ -308,27 +310,39 @@ Continuation Action: Stop inside Live Validation until the returned UTS gate cle
 
 ## Recorded Seam
 
-Recorded seam: Runtime implementation for the FAM-006 Dashboard settings-panel carrier, including top-chrome Settings affordance, settings child-window panel, truthful supported/deferred-state copy, settings hit-target coverage, HUD validators, active-client self-QA hooks, and source-truth update.
+Recorded seam: Runtime implementation for the FAM-006 Dashboard settings-panel carrier, including Dashboard IA-card Settings affordance, settings child-window panel, truthful supported/deferred-state copy, settings hit-target coverage, HUD validators, active-client self-QA hooks, and source-truth update.
 
 ## Runtime Implementation Record
 
-- Runtime Affordance: `Top-chrome Settings button opens the Dashboard settings panel.`
+- Runtime Affordance: `Dashboard IA-card Settings button opens the Dashboard settings panel.`
 - Runtime Panel: `Dashboard settings child-window opens/closes independently and does not disable the HUD feature.`
 - Supported Control: `Warning notifications toggle mirrors the existing Dashboard warning-notification state.`
 - Deferred Truth Copy: `Overlay/display acceptance, provider setup, external telemetry parity, provider/model work, and installer/runtime scope remain pending USER decisions and are not represented as ready.`
 - Hit-Testing Coverage: `Settings button and settings warning toggle are included in native control hit-testing so they are treated as controls instead of drag gestures.`
 - Validator Coverage: `HUD surface and internal sandbox validators assert settings affordance, settings panel markup/CSS/JS state, live-client geometry hooks, and active-client self-QA step labels.`
-- Live Proof Posture: `REPAIRED HANDOFF READY - active-client precheck proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260 remains supporting evidence. Strengthened red user-facing shortcut proof at dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json proves shortcut_targets_active_worktree=PASS, #123 first-open visual-continuity stability, #127 stricter resize discoverability/fluidity, Settings real-mouse open/Done close, Settings double-click non-maximize, Dashboard top-chrome Close hide/reopen, live-human tray/window proof, NCP interaction, and regression cleanup. Formal UTS handoff was regenerated from dev/logs/fam_006_monitoring_hud_live_validation/20260514_054254_905. Refreshed returned USER UTS results remain pending or require explicit waiver.`
+- Live Proof Posture: `REPAIRED HANDOFF READY - active-client precheck proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260 remains supporting evidence. Strengthened red user-facing shortcut proof at dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json proves shortcut_targets_active_worktree=PASS, #123 first-open visual-continuity stability, #127 stricter resize discoverability/fluidity, Settings real-mouse open/Done close, Settings double-click non-maximize, Dashboard Close hide/reopen, live-human tray/window proof, NCP interaction, and regression cleanup. Formal UTS handoff was regenerated from dev/logs/fam_006_monitoring_hud_live_validation/20260514_054254_905. Refreshed returned USER UTS results remain pending or require explicit waiver.`
+
+## Deferred Monitor / Overlay Customization Planning Note
+
+Traceability Owner: `FAM-006 / PKG-006 - Monitoring and HUD; no new backlog family admitted by this note`
+
+USER Idea: `Monitor Groups should eventually let the USER create groups, assign available sensor/data sources into those groups, and configure sensor-specific monitor settings inside Create Monitor and Edit Monitor flows. HUD Overlay customization should own how those monitor groups and sensors are visually displayed in the Overlay, including color/border/text display choices and presets where appropriate. A broader NDAI Theme/Skins reskin feature should be planned separately for app-wide uniform styling, while Overlay-specific font/display customization may remain Overlay-owned.`
+
+Current Authorization: `Record the design purpose and defer it; do not implement sensor assignment, overlay renderer customization, app-wide reskin/theme settings, provider/data-source integration, or Overlay/display acceptance on this branch.`
+
+Deferred Carrier Recommendation: `Keep Monitor Groups sensor membership and per-sensor settings under future FAM-006 Monitor Groups / Create/Edit Monitor implementation. Keep Overlay visual layout, per-monitor display styling, color/border/text presentation, and preset behavior under future FAM-006 HUD Overlay settings/customization. Treat app-wide NDAI skins/themes as a future separate cross-app settings/theming candidate requiring explicit USER backlog admission; font customization should remain excluded from global NDAI theme by default but may be considered inside Overlay customization.`
+
+Selection / Unblock: `Admit this deferred planning when the implementation path is ready to connect monitor groups to real data/sensor sources or when Overlay/display work becomes blocked on monitor visualization/customization decisions.`
 
 ## Hardening H1 Validation Result
 
 H1 Admission: `PASS - USER approved Hardening H1 for the FAM-006 Dashboard settings-panel runtime seam only.`
 
-H1 Result: `PASS - no bounded H1 runtime repair required.`
+H1 Result: `PASS - no bounded H1 runtime product repair required; bounded supporting-validator repair completed for human-client NCP dialog cleanup after the proof path latched a titlebar-sized Create Custom Task rectangle instead of the visible dialog button path.`
 
 H1 Scope: `Dashboard Settings affordance; settings child-window open/close path; warning-notification toggle; Settings and Close native hit-test control handling; Dashboard Close, Create Monitor, Edit Monitor, tray reopen, resize, scroll gutter, first-open behavior, truthful provider/setup/deferred overlay copy, and validator coverage.`
 
-Settings Affordance Result: `PASS - top-chrome Settings button is present, exported through live-client geometry as settingsAction, and covered by static, internal sandbox, renderer self-QA, and prior active-client proof.`
+Settings Affordance Result: `PASS - Dashboard IA-card Settings button is present, exported through live-client geometry as settingsAction, and covered by static, internal sandbox, renderer self-QA, and prior active-client proof.`
 
 Settings Panel Result: `PASS - Dashboard settings child-window opens and closes independently, exposes settingsWindow/settingsWarningToggle geometry, and preserves Dashboard/HUD Feature state.`
 
@@ -340,7 +354,7 @@ Regression Result: `PASS - Dashboard Close still hides only the Dashboard, Creat
 
 Truthful Copy Result: `PASS - panel copy states provider setup required, no fake telemetry values, Overlay/display deferred, and supported Dashboard settings only.`
 
-Validator Coverage Result: `PASS - validation covers visible settings affordance/panel markup, CSS, JS state, exported geometry hooks, renderer self-QA labels, remembered native hit-test rects, static source truth, internal sandbox proof, branch governance, release body, and Python compile checks.`
+Validator Coverage Result: `PASS - validation covers visible settings affordance/panel markup, CSS, JS state, exported geometry hooks, renderer self-QA labels, remembered native hit-test rects, static source truth, internal sandbox proof, red-shortcut human-client proof, branch governance, release body, and Python compile checks. The human-client validator now scopes dialog cleanup to visible runtime buttons before falling back to coordinate/keyboard cleanup so NCP duplicate-dialog regression proof can complete reliably.`
 
 H1 Validation Commands:
 
@@ -352,8 +366,9 @@ H1 Validation Commands:
 - `PASS - git diff --check`
 - `PASS - git diff --check origin/main...HEAD`
 - `PASS - python dev\orin_monitoring_hud_surface_validation.py`
-- `PASS - python dev\orin_monitoring_hud_internal_sandbox_validation.py; manifest C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260513_194746_manifest.json`
-- `PASS - python dev\orin_branch_governance_validation.py; 4688 checks`
+- `PASS - python dev\orin_monitoring_hud_internal_sandbox_validation.py; manifest C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260514_064140_manifest.json`
+- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_human_client_validation.ps1 with NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH=C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Settings Panel Launcher.lnk; manifest C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel\dev\logs\fam_006_human_client_validation\20260514_064206_754\human_client_manifest.json`
+- `PASS - python dev\orin_branch_governance_validation.py; 4613 checks`
 - `PASS - python dev\orin_release_body_validation.py`
 - `PASS - python -m compileall -q dev desktop Audio main.py`
 
@@ -371,13 +386,13 @@ Live Validation Result: `REPAIRED HANDOFF READY / REFRESHED USER RESULTS PENDING
 
 Live Validation Scope: `Dashboard Settings affordance visibility/reachability; settings child-window open/close; warning-notification toggle state; Dashboard usability while Settings is used; Settings and Close control hit-testing; Create Monitor, Edit Monitor, Dashboard Close, tray reopen, resize, scroll gutter, first-open, and truthful provider/overlay/deferred-state copy regression boundaries.`
 
-Settings Affordance Proof: `PASS - active-client interaction clicked monitoring-hud-settings-action as supporting evidence, and red shortcut human-client proof clicked the real top-chrome Settings control at screen point (3236,161), received htclient hit-test, emitted MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY, and opened the settings child window.`
+Settings Affordance Proof: `PASS - active-client interaction clicked monitoring-hud-settings-action as supporting evidence, and red shortcut human-client proof clicked the real Settings control, received htclient hit-test, emitted MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY, and opened the settings child window.`
 
 Settings Panel Proof: `PASS - interaction manifest recorded settings_window_present, settings_panel_state_open, settings_toggle_present, truthful_copy, and settings panel close restoring the Dashboard home as supporting evidence; red shortcut human-client proof opened Settings, verified double-click did not maximize Dashboard geometry, and closed the panel through the visible Done control path.`
 
 Warning Toggle Proof: `PRECHECK PASS - warning toggle was present in live geometry and remained tied to the supported Dashboard warning-notification state without provider/model/overlay scope expansion.`
 
-Hit-Testing Proof: `PASS - active-client hit-target proof reported settingsAction, warningToggle, dashboardClose, Create Monitor, and Edit Monitor targets as visible/large enough; renderer now treats Settings and top-chrome Close as HTCLIENT controls, preserves native Settings/Close fallback rects, suppresses header double-click maximize, and the red shortcut validator proved Settings and Close with real mouse clicks.`
+Hit-Testing Proof: `PASS - active-client hit-target proof reported settingsAction, warningToggle, dashboardClose, Create Monitor, and Edit Monitor targets as visible/large enough; renderer now treats Settings and window-level Close as HTCLIENT controls, preserves native Settings/Close fallback rects, suppresses header double-click maximize, and the red shortcut validator proved Settings and Close with real mouse clicks.`
 
 Regression Proof: `PRECHECK PASS - active-client proof covered Dashboard close hides only Dashboard, control hub restore, Create Monitor child-window route, Edit Monitor child-window route, monitor editor mutation, standalone travel, clipping boundary, and Core/Overlay decoupling.`
 
@@ -430,11 +445,11 @@ Final Live Validation Gate: `Not final PASS until USER returns completed refresh
 
 ## Returned UTS Repair Refresh - 2026-05-14
 
-Returned UTS Result: `REPAIR - USER returned formal UTS results reporting #123 initial open instability, #127 resize jitter/catch-up lag, Settings button visible but not opening with double-click maximizing Dashboard, and top-chrome close not working / needing a clearer affordance. Later returned UTS clarified the desired affordance as a Settings-window-style Close pill, not an X.`
+Returned UTS Result: `REPAIR - USER returned formal UTS results reporting #123 initial open instability, #127 resize jitter/catch-up lag, Settings button visible but not opening with double-click maximizing Dashboard, and Dashboard close not working / needing a clearer affordance. Later returned UTS clarified the desired affordance as a Settings-window-style Close pill.`
 
-Runtime Repair Summary: `Renderer now treats Settings and top-chrome Close as native-protected HTCLIENT controls, adds a native Settings open fallback, emits Settings and child-window proof markers, suppresses native header double-click maximize, narrows the top-chrome Close fallback rect away from Settings, restores visible top-chrome Close text as a Settings-window-style pill, and preserves the first-open show guard.`
+Runtime Repair Summary: `Renderer now treats Settings and Dashboard Close as native-protected HTCLIENT controls, adds a native Settings open fallback, emits Settings and child-window proof markers, suppresses native header double-click maximize, narrows the Close fallback rect away from Settings, restores visible Close text as a Settings-window-style pill, and preserves the first-open show guard.`
 
-Validator Repair Summary: `The human-client validator now uses the governed red desktop shortcut to prove #123 first-open stability through an 11-frame full-desktop screenshot sequence with visual-continuity analysis, #127 resize discoverability/fluidity through stricter real mouse edge/corner samples, Settings real-mouse open/Done close, Settings double-click non-maximize, top-chrome Close hide/reopen, NCP regression behavior, and shortcut_targets_active_worktree=PASS. Video proof remains unavailable because ffmpeg is not installed; screenshot-sequence and manifest proof are captured instead.`
+Validator Repair Summary: `The human-client validator now uses the governed red desktop shortcut to prove #123 first-open stability through an 11-frame full-desktop screenshot sequence with visual-continuity analysis, #127 resize discoverability/fluidity through stricter real mouse edge/corner samples, Settings real-mouse open/Done close, Settings double-click non-maximize, Dashboard Close hide/reopen, NCP regression behavior, and shortcut_targets_active_worktree=PASS. Video proof remains unavailable because ffmpeg is not installed; screenshot-sequence and manifest proof are captured instead.`
 
 Repaired Proof:
 - `Red shortcut human-client PASS: dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json`
@@ -445,11 +460,11 @@ Refreshed UTS Gate: `Pending USER return or explicit waiver. PR Readiness remain
 
 ## Returned UTS Repair Refresh 2 - 2026-05-14
 
-Returned UTS Result: `REPAIR - USER returned the refreshed UTS with three remaining failures: #127 resize jitter is much improved but still needs smoother tracking, Dashboard top-chrome Close should match the Settings-window Close pill and sit at the top-most right with a clear gutter from Settings, and #123 first-open flicker is still visible.`
+Returned UTS Result: `REPAIR - USER returned the refreshed UTS with three remaining failures: #127 resize jitter is much improved but still needs smoother tracking, Dashboard Close should match the Settings-window Close pill and sit at the top-most right as a window-level control, and #123 first-open flicker is still visible.`
 
-Runtime Repair Summary: `The Dashboard-specific show guard now blocks the generic startup visibility release from exposing the HUD before the Dashboard-specific guard settles, then emits the startup-visible signal after the guard releases so STARTUP_READY is preserved. Resize frame sync now refreshes the WebEngine child geometry on a tighter 6 ms frame-sync threshold while the fallback resize poll stays user-mouse driven. The Dashboard top-chrome Close is restored as a visible Close pill, placed before Settings at the top-right of the chrome actions with a clear gutter, matching the Settings child-window Close styling.`
+Runtime Repair Summary: `The Dashboard-specific show guard now blocks the generic startup visibility release from exposing the HUD before the Dashboard-specific guard settles, then emits the startup-visible signal after the guard releases so STARTUP_READY is preserved. Resize frame sync now refreshes the WebEngine child geometry on a tighter 6 ms frame-sync threshold while the fallback resize poll stays user-mouse driven. The Dashboard Close is a visible window-level top-right Close pill that sits in the outer window gutter and belongs to the whole Dashboard window. Settings and HUD Overlay deferred remain together inside the Dashboard IA card, stacked horizontally under the IA card body text.`
 
-Validator Repair Summary: `The human-client validator now proves #123 with an 11-frame real-shortcut screenshot sequence and visual-continuity analysis that fails repeated visible flicker or late settled-frame shifts. The #127 resize proof now requires at least 6 unique geometry samples for corner, right-edge, and bottom-edge drags and recorded 28 samples for each path. Top-chrome Close proof now uses the visible Close control and validates HTCLIENT hit-testing, hide behavior, and tray reopen. The Live Validation UTS now lists RUI-062 through RUI-064 for the returned resize, Close styling/placement, and first-open flicker feedback.`
+Validator Repair Summary: `The human-client validator now proves #123 with an 11-frame real-shortcut screenshot sequence and visual-continuity analysis that fails repeated visible flicker or late settled-frame shifts. The #127 resize proof now requires at least 6 unique geometry samples for corner, right-edge, and bottom-edge drags and recorded 28 samples for each path. Dashboard Close proof now uses the visible window-level Close control and validates HTCLIENT hit-testing, hide behavior, and tray reopen. The Live Validation UTS now lists RUI-062 through RUI-064 for the returned resize, Close styling/placement, and first-open flicker feedback.`
 
 Repaired Proof:
 - `Red shortcut human-client PASS: dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json`

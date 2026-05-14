@@ -6364,13 +6364,16 @@ class DesktopRuntimeWindow(QWidget):
             self._monitoring_hud_settings_action_last_screen_rect = QRect(settings_action_rect)
 
     def _monitoring_hud_dashboard_close_fallback_screen_rect(self) -> QRect:
-        actions_rect = self._monitoring_hud_dashboard_actions_fallback_screen_rect()
-        if not actions_rect.isValid() or actions_rect.isNull():
+        rect = self._monitoring_hud_interactive_screen_rect
+        if rect.isNull() or not rect.isValid():
+            rect = self._estimate_monitoring_hud_interactive_screen_rect()
+            self._monitoring_hud_interactive_screen_rect = rect
+        if not rect.isValid() or rect.isNull():
             return QRect()
         return QRect(
-            actions_rect.x(),
-            actions_rect.y(),
-            actions_rect.width(),
+            rect.right() + 1 - 14 - 82,
+            rect.y() + 12,
+            82,
             42,
         )
 
@@ -6380,7 +6383,7 @@ class DesktopRuntimeWindow(QWidget):
             return QRect()
         return QRect(
             actions_rect.x(),
-            actions_rect.y() + 46,
+            actions_rect.y(),
             actions_rect.width(),
             44,
         )
@@ -6389,12 +6392,12 @@ class DesktopRuntimeWindow(QWidget):
         header_rect = self._monitoring_hud_header_rect()
         if not header_rect.isValid() or header_rect.isNull():
             return QRect()
-        width = min(260, max(168, header_rect.width() // 3))
-        height = min(146, max(112, header_rect.height() - 20))
-        left = max(header_rect.x(), header_rect.right() - width + 1 - 18)
+        width = min(360, max(154, header_rect.width() // 3))
+        height = 44
+        left = header_rect.x() + 43
         return QRect(
             left,
-            header_rect.y() + 10,
+            header_rect.y() + 132,
             width,
             height,
         )
@@ -8863,12 +8866,12 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
                 "dashboard_settings_content_polished": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
-                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
+                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
                 "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",
                 "dashboard_monitor_selection_in_child_window": dataset.get("dashboardMonitorSelectionPlacement") == "edit-child-window-only",
                 "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-overlay-monitor-groups-provider-warning",
-                "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "top-chrome-settings-button",
+                "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "dashboard-ia-card-settings-button",
                 "dashboard_settings_panel": dataset.get("dashboardSettingsPanel") == "settings-panel-child-window",
                 "dashboard_settings_proof": dataset.get("dashboardSettingsProof") == "visible-open-close-control-hit-target",
                 "monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
@@ -9140,7 +9143,7 @@ class DesktopRuntimeWindow(QWidget):
                     and overlay_proof.get("dashboardCoupled") is False,
                 "fake_telemetry_policy_blocked": dataset.get("dashboardFakeTelemetryPolicy") == "blocked",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
-                "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "top-chrome-settings-button",
+                "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "dashboard-ia-card-settings-button",
                 "dashboard_settings_panel_closed": dataset.get("dashboardSettingsPanelState") == "closed",
             }
             checks.update(monitor_groups_visual_checks(result))
@@ -9156,7 +9159,7 @@ class DesktopRuntimeWindow(QWidget):
             checks = {
                 "active_child_window": state.get("activeChildWindow") == "dashboard-settings",
                 "settings_panel_state_open": dataset.get("dashboardSettingsPanelState") == "open",
-                "settings_affordance": dataset.get("dashboardSettingsAffordance") == "top-chrome-settings-button",
+                "settings_affordance": dataset.get("dashboardSettingsAffordance") == "dashboard-ia-card-settings-button",
                 "settings_panel_model": dataset.get("dashboardSettingsPanel") == "settings-panel-child-window",
                 "settings_proof_marker": dataset.get("dashboardSettingsProof") == "visible-open-close-control-hit-target",
                 "settings_window_present": isinstance(settings_window, dict)
@@ -9181,7 +9184,7 @@ class DesktopRuntimeWindow(QWidget):
             checks = {
                 "visible_state": bool(state.get("visible")),
                 "dataset_visible": dataset.get("visibilityState") == "visible",
-                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
+                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_close_target_present": isinstance(close_rect, dict)
                     and float(close_rect.get("width") or 0) > 24
                     and float(close_rect.get("height") or 0) > 18,
@@ -9202,7 +9205,7 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
                 "dashboard_settings_content_polish": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
-                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
+                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
                 "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",
                 "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
@@ -10024,11 +10027,11 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-dedicated-child-window-actions";
                     monitoringHud.dataset.dashboardChildWindowScope = "branch2-create-edit-monitor-windows";
                     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
-                    monitoringHud.dataset.dashboardCloseAffordance = "top-chrome-close-button";
+                    monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
                     monitoringHud.dataset.dashboardOpenBadge = "removed";
                     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
                     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
-                    monitoringHud.dataset.dashboardSettingsAffordance = "top-chrome-settings-button";
+                    monitoringHud.dataset.dashboardSettingsAffordance = "dashboard-ia-card-settings-button";
                     monitoringHud.dataset.dashboardSettingsPanel = "settings-panel-child-window";
                     monitoringHud.dataset.dashboardSettingsPanelState = "closed";
                     monitoringHud.dataset.dashboardSettingsProof = "visible-open-close-control-hit-target";

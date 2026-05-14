@@ -74,17 +74,17 @@
     data-dashboard-ia-model="branch2-ia-controls-followthrough"
     data-dashboard-home-model="control-hub-cards-dedicated-child-window-actions"
     data-dashboard-child-window-scope="branch2-create-edit-monitor-windows"
-    data-dashboard-close-affordance="top-chrome-close-button"
+    data-dashboard-close-affordance="window-level-close-button"
     data-dashboard-open-badge="removed"
     data-dashboard-quick-access="warning-notifications-only"
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
     data-dashboard-card-order="hud-overlay-monitor-groups-data-sources-readiness"
-    data-dashboard-settings-affordance="top-chrome-settings-button"
+    data-dashboard-settings-affordance="dashboard-ia-card-settings-button"
     data-dashboard-settings-panel="settings-panel-child-window"
     data-dashboard-settings-panel-state="closed"
     data-dashboard-settings-proof="visible-open-close-control-hit-target"
-    data-dashboard-close-layout="top-most-right-close-pill-with-control-gutter"
+    data-dashboard-close-layout="window-level-top-right-close-pill"
     data-overlay-acceptance-policy="deferred-non-gating"
     data-interface-bundle-approval="not-granted"
     data-core-repair-classification="dependency-repair-only"
@@ -92,6 +92,9 @@
     aria-hidden="true"
   >
     <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Monitoring HUD panel">
+      <button type="button" id="monitoring-hud-dashboard-close-action" class="monitoring-hud__chrome-button monitoring-hud__chrome-button--close monitoring-hud__window-close" data-control="close-dashboard" aria-label="Close HUD Dashboard" title="Close HUD Dashboard">
+        Close
+      </button>
       <div class="monitoring-hud__title-group">
         <div class="monitoring-hud__header" id="monitoring-hud-drag-handle">
           <div>
@@ -99,23 +102,22 @@
             <div class="monitoring-hud__title">HUD Dashboard</div>
             <div class="monitoring-hud__subtitle">Configure HUD access, monitor groups, data sources, warning notifications, and future display behavior.</div>
           </div>
-          <div class="monitoring-hud__chrome-actions" aria-label="HUD Dashboard window controls">
-            <button type="button" id="monitoring-hud-dashboard-close-action" class="monitoring-hud__chrome-button monitoring-hud__chrome-button--close" data-control="close-dashboard" aria-label="Close HUD Dashboard" title="Close HUD Dashboard">
-              Close
-            </button>
+        </div>
+        <div class="monitoring-hud__surface-role" data-dashboard-role="configuration-settings-surface">
+          <div class="monitoring-hud__surface-role-copy">
+            <span>Dashboard</span>
+            <strong>Settings and control hub</strong>
+            <span>HUD Overlay</span>
+            <strong>Deferred future overlay</strong>
+            <span>Relationship</span>
+            <strong>Dashboard configures overlay behavior</strong>
+          </div>
+          <div class="monitoring-hud__surface-role-actions" aria-label="HUD Dashboard IA card controls">
             <button type="button" id="monitoring-hud-settings-action" class="monitoring-hud__chrome-button monitoring-hud__chrome-button--settings" data-control="open-dashboard-settings" data-child-window-target="dashboard-settings" aria-label="Open HUD Dashboard settings" aria-haspopup="dialog" aria-expanded="false" title="Open HUD Dashboard settings">
               Settings
             </button>
             <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">HUD Overlay deferred</div>
           </div>
-        </div>
-        <div class="monitoring-hud__surface-role" data-dashboard-role="configuration-settings-surface">
-          <span>Dashboard</span>
-          <strong>Settings and control hub</strong>
-          <span>HUD Overlay</span>
-          <strong>Deferred future overlay</strong>
-          <span>Relationship</span>
-          <strong>Dashboard configures overlay behavior</strong>
         </div>
       </div>
       <div class="monitoring-hud__toolbar" aria-label="HUD Dashboard quick access" data-dashboard-quick-access="warning-notifications-only">
@@ -123,7 +125,6 @@
         <button type="button" id="monitoring-hud-warning-toggle" class="monitoring-hud__control-button" data-control="warning-notifications">
           Warning Notifications On
         </button>
-        <span class="monitoring-hud__toolbar-note">Tray owns HUD feature enablement; Dashboard stays focused on settings.</span>
       </div>
       <div
         class="monitoring-hud__control-hub"
