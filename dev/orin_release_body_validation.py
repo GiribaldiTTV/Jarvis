@@ -38,6 +38,20 @@ def _run_gh_json(args: tuple[str, ...]) -> object:
     return json.loads(completed.stdout)
 
 
+def _run_gh(args: tuple[str, ...]) -> str:
+    completed = subprocess.run(
+        ("gh", *args),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+        encoding="utf-8",
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(completed.stderr.strip() or completed.stdout.strip())
+    return completed.stdout
+
+
 def _prebeta_version(tag_name: str) -> tuple[int, int, int] | None:
     match = PREBETA_TAG_RE.fullmatch(tag_name)
     if not match:
@@ -98,9 +112,14 @@ def _published_sort_key(release: dict[str, object]) -> datetime:
 
 
 def _load_prebeta_releases() -> list[dict[str, object]]:
-    releases = _run_gh_json(("api", f"repos/{REPO}/releases?per_page=100"))
-    if not isinstance(releases, list):
-        raise RuntimeError("GitHub release API returned an unexpected payload")
+    raw_releases = _run_gh(
+        ("api", "--paginate", f"repos/{REPO}/releases?per_page=100", "--jq", ".[]")
+    )
+    releases = [
+        json.loads(line)
+        for line in raw_releases.splitlines()
+        if line.strip()
+    ]
     prebeta_releases = [
         release
         for release in releases

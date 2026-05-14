@@ -3372,6 +3372,7 @@ GOVERNANCE_RECURRENCE_DOCS = (
 
 GOVERNANCE_RECURRENCE_PHRASES = (
     "patch the canon or validator rule that allowed it before the repair is considered complete",
+    "drift prevention proof is mandatory",
     "merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership",
     "PR Watcher Provisioning Unproven",
     "PR Watcher Routing Unverified",
