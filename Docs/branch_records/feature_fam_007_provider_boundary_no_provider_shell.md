@@ -37,17 +37,17 @@ This active record preserves the planning, selected-next reconciliation, PR #134
 - Post-Merge Successor Selection: `Same-branch current carrier selected by USER; no additional successor branch is selected by this reconcile`
 - PR #134 Live State: `Merged - PR #134 merged repaired head c1b47a6b53f4286c2f60ebf5d74d9afe38dadb52 into main at 2c0b2ce6f602651cf85682e0fbfce3c3367cb509`
 - Branch Readiness / Planning Approval: `Granted - USER approved Branch Readiness and planning on C:\Nexus Worktrees\FAM-007 for the next same-branch SLC-017/SLC-018 provider-selection and consent-boundary seam; runtime implementation remains pending separate USER approval`
-- Workstream USER Approval: `Granted - USER approved bounded same-branch Workstream execution through all remaining admitted branch-material seams needed before Hardening, while preserving local-only planning/visibility/validation limits and all blocked provider/model/memory/voice/installer/release/PR lanes`
+- Workstream USER Approval: `Granted - USER approved the bounded SLC-017/SLC-018 Provider Selection And Consent Boundary Scaffold Workstream on this branch`
 - Branch Readiness Rebaseline USER Approval: `Granted - USER approved reverting the lane to Branch Readiness Phase 1/Stage 2 rebaseline, consolidating all FAM-007 branch material on this branch where legal, and avoiding a large spread of small FAM-007 branches`
 - Preserved Scaffold Evidence: `Green - commit 439979fc1204c08cb82af8e95abf7023a311d0d9 preserves completed local-only no-provider/provider-privacy plus provider-selection/consent-boundary scaffold evidence`
 - Consolidated Branch-Material Planning Status: `Complete - this branch plans admitted PKG-007 branch material and continues one named bounded Workstream seam at a time`
-- Current Workstream USER Approval: `Granted - USER approved completing all relevant same-branch bounded Workstream seams for admitted PKG-007 branch material before Hardening, including SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 as local-only planning/visibility/validation scaffolds`
-- Current Workstream Status: `Green - SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 branch-material seams are implemented as local-only provider-boundary, privacy, hardware/capability, capability-pack, data/memory/consent, Windows-resilience, persona/Core/voice-boundary, and validation/proof-gate scaffolds`
+- Current Workstream USER Approval: `Granted - USER approved the bounded SLC-018 Local Provider Registry And Configuration State Workstream on this branch`
+- Current Workstream Status: `Green - local-only provider registry/configuration state, configured/unconfigured provider posture, consent-gated configuration posture, provider-visible-data disclosure consistency, no-provider fallback compatibility, and direct validation coverage are implemented`
 - Governance Drift Repair USER Approval: `Granted - USER directed correction of the seam-to-seam governance drift that treated one green bounded seam as a Hardening handoff`
 - Mandatory Bounded State Governance Repair USER Approval: `Granted - USER directed strict governance that Codex MUST work in a bounded state unless USER grants an explicit bounded-state waiver`
-- Current Workstream Continuation Status: `Complete for current branch material - the next legal phase is Hardening H1 after explicit USER approval`
-- Current Proof Review Status: `Green - proof review confirms local-only provider boundary, provider-selection, consent, provider registry/configuration, hardware/capability planning, capability-pack lifecycle planning, data/memory/consent/audit/secrets planning, Windows resilience posture, persona/Core/voice boundary, renderer/Core visual rail publication, and direct validation coverage`
-- Runtime Implementation Approval: `Granted only for local-only scaffolds on this branch: no-provider/provider-privacy, provider-selection/consent, Assisted Desktop disabled/no-provider interaction, local provider registry/configuration, hardware/GPU/CPU capability planning without probing/model execution, capability-pack lifecycle planning without downloads, data classification/memory-off/consent/audit/secrets planning without indexing or secrets storage, Windows resilience/platform posture planning without shortcut/installer/startup/process-owner changes, persona/Core/voice planning boundary without voice runtime, and validation/eval/abuse/release proof-gate planning; real provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, and merge remain blocked`
+- Current Workstream Continuation Status: `Blocked on next bounded seam approval - the completed SLC-018 Local Provider Registry And Configuration State is a green seam, not whole-branch Workstream completion`
+- Current Proof Review Status: `Green - proof review confirms the local-only provider registry/configuration state, configured/unconfigured provider posture, consent-gated configuration posture, provider-visible-data disclosure consistency, no-provider fallback compatibility, renderer/Core visual rail publication, and direct validation coverage`
+- Runtime Implementation Approval: `Granted only for the first bounded SLC-017/SLC-018 no-provider/provider-privacy scaffold already merged by PR #134, the provider-selection/consent scaffold, the Assisted Desktop no-provider interaction/consent surface, and the current bounded SLC-018 local provider registry/configuration scaffold; real provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation remain blocked`
 - AI Product Contract v0.6.2: `External USER planning evidence only; not repo source truth and not imported`
 
 ## Branch Class
@@ -74,11 +74,11 @@ Backlog-Split Reason: None
 
 ## Blockers
 
-Current / Pending Decision Context: This branch record is active after PR #135 repair merge and branch-local reconciliation; blockers below apply to Hardening admission, future release, PR, or runtime expansion decisions.
+Current / Pending Decision Context: This branch record is active after PR #135 repair merge and branch-local reconciliation; blockers below apply to future release, next-seam, or runtime expansion decisions.
 
-- `Hardening H1 USER Approval Missing`: active until USER approves Hardening H1 for the complete same-branch FAM-007 provider-boundary / no-provider shell Workstream.
-- `Bounded State Waiver Expired`: the USER waiver for executing all remaining same-branch local-only scaffolds expires at this Workstream green point; any additional implementation before Hardening or outside Hardening requires a new explicit USER decision.
-- `Package Completion Not Claimed`: active because Workstream green and Hardening readiness do not claim package completion, PR readiness, merge readiness, release readiness, or release completion.
+- `Next Bounded Workstream Seam Approval Missing`: exact next blocker after the current green bounded seam; active until USER approves the next named same-branch FAM-007 Workstream seam, specifically SLC-031 Hardware/GPU/CPU Capability Planning Scaffold.
+- `Bounded State Waiver Missing`: active for any request to widen beyond the current named bounded seam; broad requests such as `complete all`, `continue all`, or `finish the branch` do not authorize implementation unless source truth resolves them to one exact active bounded seam or USER records `Bounded State User Waiver: Granted`.
+- `Backlog Completion Unproven`: active because admitted PKG-007 branch material remains in progress and one green seam does not complete the Workstream, slice chain, or package.
 - `Future Runtime Expansion Approval Missing`: active for work outside the bounded scaffold, including provider-failure behavior, real provider SDK, model, memory, voice/Core, shortcut/installer, release, PR, or contract-import work.
 - `Release Execution Approval Missing`: active.
 - `AI Product Contract Full Import Approval Missing`: active.
@@ -110,12 +110,6 @@ Current / Pending Decision Context: This branch record is active after PR #135 r
 - The second bounded seam implements only local provider-selection state scaffolding, visible consent-required/disabled/unavailable provider/privacy status, no-provider fallback behavior, and direct validation coverage.
 - The third bounded seam implements only local-only disabled/no-provider interaction affordance, explicit consent posture, provider-visible-data disclosure, no-provider fallback behavior, and direct validation coverage.
 - The fourth bounded seam implements only local-only provider registry/configuration state, configured/unconfigured provider posture, consent-gated configuration posture, provider-visible-data disclosure consistency, no-provider fallback compatibility, and direct validation coverage.
-- The fifth bounded seam implements only local-only hardware/GPU/CPU capability planning state, unprobed GPU posture, preserved CPU fallback, power/thermal guardrail planning, disabled model workload state, and direct validation coverage.
-- The sixth bounded seam implements only local-only model/capability-pack lifecycle planning state, not-installed model/capability-pack posture, blocked downloads, lean default install posture, and direct validation coverage.
-- The seventh bounded seam implements only local-only data classification, memory/context disabled state, consent/audit/secrets planning posture, no indexing, no secrets storage, no provider-visible data, and direct validation coverage.
-- The eighth bounded seam implements only local-only Windows resilience/platform planning posture, offline/degraded planning, no shortcut/installer/startup/process-owner mutation, and direct validation coverage.
-- The ninth bounded seam implements only persona/Core/voice planning boundary state, visual-only Core/ORIN posture, disabled voice runtime, no voice/Core sync implementation, and direct validation coverage.
-- The tenth bounded seam implements only validation/eval/abuse/release proof-gate planning state, static proof markers, future live eval/release proof blockers, and direct validation coverage.
 - The implementation seam remains free of model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation.
 - Changes are validated, committed, and pushed to the same branch.
 - PR #134 merged the first bounded seam after Codex bot review repair and validation; it is now merged-unreleased FAM-007 scope on main while this branch carries the next runtime-branch planning posture.
@@ -128,23 +122,23 @@ Rollback Path: stop this active runtime carrier before additional implementation
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Workstream`
 
-Next Legal Phase Gate: the admitted same-branch SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 branch-material seams are green in bounded Workstream scope. The next legal phase is Hardening H1 for the FAM-007 provider-boundary / no-provider shell branch. Exact USER decision needed: approve Hardening H1 for `feature/fam-007-provider-boundary-no-provider-shell`, limited to proof review, source-truth hardening, validation hardening, and bounded defect repair for the completed local-only scaffolds; provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and PR #129/#132 release-support execution remain separate pending USER decisions.
+Next Legal Phase Gate: the completed SLC-018 Local Provider Registry And Configuration State is a green bounded seam, not whole-branch Workstream completion and not a Hardening handoff. The next legal phase is Workstream, specifically the next bounded same-branch seam: SLC-031 Hardware/GPU/CPU Capability Planning Scaffold. Hardening is not legal until every admitted branch-material seam and slice for this FAM-007 carrier is complete, deferred, blocked, or explicitly waived in source truth, and `Completion Status: Green` is recorded for the whole Workstream. Exact USER decision needed: approve SLC-031 Hardware/GPU/CPU Capability Planning Scaffold as the next bounded Workstream seam, limited to local hardware/capability state planning without provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, or PR #129/#132 release-support execution.
 
 ## Bounded State Lock
 
-Bounded State: `Complete - Workstream / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / all admitted branch-material seams SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 green / next legal phase Hardening H1 only`
+Bounded State: `Active - Workstream / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / next named seam SLC-031 Hardware/GPU/CPU Capability Planning Scaffold only`
 
-Bounded State User Waiver: Granted
+Bounded State User Waiver: None
 
-Bounded State Waiver Scope: `USER explicitly approved executing all relevant same-branch bounded Workstream tasks for all remaining admitted branch-material seams before Hardening; scope was limited to local-only planning, visible state, provider/privacy/hardware/capability/memory/resilience/persona/validation scaffolds and direct validation, and it did not admit provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, or PR #129/#132 release-support execution. The waiver expires at Workstream green and does not authorize new implementation beyond Hardening proof/repair if USER later approves Hardening.`
+Bounded State Waiver Scope: None
 
-Broad Work Request Handling: `Broad requests remain non-executable by default. This branch has one explicit branch-local exception: USER approved completing the remaining admitted same-branch branch-material seams SLC-031 through SLC-036 in bounded Workstream order, with blocked areas preserved. After this Workstream-green point, any new broad work request must stop unless it resolves to an exact Hardening H1 approval, PR Readiness approval, or another named bounded seam with explicit USER approval.`
+Broad Work Request Handling: `Broad requests such as complete all, continue all, finish the branch, or complete remaining FAM-007 work are not executable on this branch unless they resolve to one exact active bounded seam. Current source truth resolves the next executable candidate to SLC-031 Hardware/GPU/CPU Capability Planning Scaffold only, and implementation remains stopped until USER approves that named seam.`
 
 Bounded State Missing Stop: `If phase/stage, workspace, branch, write target, authority record, package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, or next legal phase cannot be proven before mutation, stop on Bounded State Missing.`
 
-Bounded State Waiver Missing Stop: `If Codex would need to widen beyond the completed same-branch local-only scaffold chain or execute new implementation without a named phase/seam approval, stop on Bounded State Waiver Missing. Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver.`
+Bounded State Waiver Missing Stop: `If Codex would need to widen beyond SLC-031 or execute multiple seams without a named seam-by-seam approval chain, stop on Bounded State Waiver Missing. Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver.`
 
 ## Branch Objective
 
@@ -155,34 +149,32 @@ Keep FAM-007 implementation on one real provider-boundary branch instead of crea
 - FAM-007 active branch authority and PR #134 merged-unreleased proof are recorded.
 - `PKG-007` remains in progress and not complete.
 - `SLC-017` and `SLC-018` preserve completed scaffold evidence, including the Assisted Desktop no-provider interaction and consent surface plus local provider registry/configuration state.
-- SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 are green as same-branch local-only planning/visibility/validation scaffolds.
+- SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 are planned as same-branch material unless a later Branch Readiness review proves a split is necessary.
 - The no-provider shell contract exists as local runtime scaffolding.
 - The desktop shell exposes visible disabled/unavailable/no-provider provider/privacy state plus provider-selection, provider registry/configuration, and consent-required status.
-- Validation proves the no-provider, provider-selection, provider-registry, hardware/capability, capability-pack, memory/context, Windows resilience, persona/Core/voice, and proof-gate snapshots are local-only, send no provider data, require consent before provider configuration/capability setup, and do not imply model/provider availability.
-- Later FAM-007 work now requires Hardening H1 approval, PR Readiness approval, or another explicit USER-approved phase/seam decision.
+- Validation proves the no-provider, provider-selection, and provider-registry snapshots are local-only, send no provider data, require consent before provider configuration, and do not imply model/provider availability.
+- Later FAM-007 seams require USER approval on this active FAM-007 runtime carrier or another explicitly selected branch.
 
 ## Admitted Implementation Slice
 
-- Slice IDs: `SLC-017`; `SLC-018`; `SLC-031`; `SLC-032`; `SLC-033`; `SLC-034`; `SLC-035`; `SLC-036`
-- Goal: `Complete the local-only FAM-007 provider-boundary branch-material scaffold before Hardening by exposing truthful no-provider state, provider/privacy state, hardware/capability planning state, capability-pack lifecycle planning state, data/memory/consent/audit/secrets planning state, Windows resilience planning state, persona/Core/voice boundary state, and validation/eval/abuse/release proof-gate state without provider SDK, model download, external call, memory/indexing, voice runtime, shortcut, installer, release, contract-import, PR, merge, or GitHub issue work.`
-- Runtime/User-Facing Delta: `Visible disabled/unavailable/no-provider state in the desktop shell plus renderer-owned provider/privacy, hardware/capability, capability-pack, memory/context, Windows resilience, persona/Core/voice, and validation proof-gate status publication.`
-- Backend/Runtime Delta: `Local provider-state snapshot contract for no-provider behavior and foundation-readiness posture that reports local-only privacy, provider-visible data none, CPU fallback preserved, model workloads disabled, capability-pack downloads blocked, memory/context disabled, voice runtime disabled, and blocked external calls.`
-- Developer-Tooling Delta: `Static validation scaffold proving the no-provider, provider-selection, provider-registry, hardware/capability, capability-pack, memory/context, Windows resilience, persona/Core/voice, validation proof-gate, and visible renderer integration markers.`
+- Slice IDs: `SLC-017`; `SLC-018`
+- Goal: `Establish the local AI shell/provider-boundary entry seam by exposing truthful no-provider state and visible provider/privacy scaffolding before any provider SDK, model download, memory, voice, shortcut, or installer work.`
+- Runtime/User-Facing Delta: `Visible disabled/unavailable/no-provider state in the desktop shell plus renderer-owned provider/privacy state publication.`
+- Backend/Runtime Delta: `Local provider-state snapshot contract for no-provider behavior that reports local-only privacy posture and blocks prompt acceptance when no provider is configured.`
+- Developer-Tooling Delta: `Static validation scaffold proving the no-provider state contract and visible renderer integration markers.`
 - Exact Affected Paths: `desktop/ai_provider_state.py`; `desktop/core_visualization_renderer.py`; `desktop/desktop_renderer.py`; `nexus_visual/orin_core.html`; `nexus_visual/orin_core_desktop.html`; `nexus_visual/orin_core.css`; `nexus_visual/orin_core.js`; `dev/orin_ai_provider_state_validation.py`; this branch record; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; `Docs/validation_helper_registry.md`; `Docs/branch_records/index.md`.
 - Non-Includes: `model downloads`; `real provider SDK integration`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR #129/#132 release-support execution`.
-- Implementation Admission Status: `Admitted by USER for the completed same-branch local-only bounded Workstream chain covering SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 as branch-material scaffolds only; provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, and merge remain USER-gated.`
+- Implementation Admission Status: `Admitted by USER for the first bounded SLC-017/SLC-018 seam, Provider Selection And Consent Boundary Scaffold, Assisted Desktop Mode No-Provider Interaction And Consent Surface, and SLC-018 Local Provider Registry And Configuration State only; additional provider-boundary implementation seams are USER-gated.`
 
 ## Backlog Completion Status
 
-Backlog Completion State: Implemented Complete Except Future Dependency
+Backlog Completion State: In Progress
 
-Completion Status: Green
+Completion Status: Red
 
-Remaining Implementable Work: None
+Remaining Implementable Work: SLC-031 hardware/GPU/CPU capability planning scaffold; SLC-032 model/capability-pack lifecycle planning scaffold; SLC-033 data classification, memory/context/consent/audit/secrets planning scaffold; SLC-034 Windows resilience/platform posture planning scaffold; SLC-035 persona/Core/voice planning boundary; SLC-036 validation/eval/abuse/release proof gates.
 
-Remaining Work Note: SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 are green as local-only scaffolds and the branch is ready for Hardening H1 once USER approves that phase.
-
-Future-Dependent Blockers: `Hardening H1 approval, PR Readiness approval, model downloads, real provider SDK integration, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, merge, and PR #129/#132 release-support execution.`
+Future-Dependent Blockers: `Next bounded Workstream seam approval for later same-branch PKG-007 seams, model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution.`
 
 Visible User-Facing Proof Required: No for this first disabled/no-provider scaffold; static visible-surface validation and compile proof are sufficient before any prompt/action flow exists.
 
@@ -190,7 +182,7 @@ Visible User-Facing Proof: WAIVED - no formal UTS or screenshot is required for 
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Use this active runtime branch as the consolidated FAM-007 foundation carrier, preserve completed local-only scaffold evidence, complete all admitted PKG-007 branch-material seams in bounded Workstream order, and stop at Hardening H1 approval once every same-branch scaffold is green.`
+Branch Completion Goal: `Use this active runtime branch as the consolidated FAM-007 foundation carrier, preserve completed local-only scaffold evidence, complete each admitted PKG-007 branch-material seam one bounded Workstream at a time, and require a specific USER-approved bounded Workstream seam before additional implementation.`
 
 Known Future-Dependent Blockers: `Model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution require later USER approval.`
 
@@ -230,11 +222,11 @@ Validation Proof Requirements: `git diff --check origin/main...HEAD`; `python de
 
 Screenshot / Live / User Test Summary Proof Requirements: `Static and compile validation are sufficient for this bounded provider-selection/consent scaffold. No formal User Test Summary, screenshot, or live provider proof is required because no provider, model, external call, or user action flow is implemented.`
 
-Implementation Sequence Proposal: `Complete - WS-03 SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface, WS-04 SLC-018 local provider registry/configuration state, WS-05 SLC-031 hardware capability and GPU/CPU recommendation state, WS-06 SLC-032 capability-pack lifecycle state, WS-07 SLC-033 data classification/consent/audit/secrets/memory-off state, WS-08 SLC-034 Windows degraded/offline resilience state, WS-09 SLC-035 persona/Core/voice planning state, and WS-10 SLC-036 validation/eval/abuse/release proof gates are green in local-only scaffold scope.`
+Implementation Sequence Proposal: `Preserve completed scaffold evidence, then proceed one named bounded Workstream seam at a time on this branch: WS-03 SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface; WS-04 SLC-018 local provider registry/configuration state without SDKs; WS-05 SLC-031 hardware capability and GPU/CPU recommendation state without model execution; WS-06 SLC-032 capability-pack lifecycle state without downloads; WS-07 SLC-033 data classification, consent, audit, secrets, and memory-off state without indexing; WS-08 SLC-034 Windows degraded/offline resilience state without shortcut/installer work; WS-09 SLC-035 persona/Core/voice planning state without voice runtime; WS-10 SLC-036 validation/eval/abuse/release proof gate expansion.`
 
-Planning Blockers: `Hardening H1 approval, real provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and PR #129/#132 release-support execution remain USER-gated.`
+Planning Blockers: `Next bounded Workstream seam approval, real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain USER-gated.`
 
-USER Decisions Needed: `Exact next decision: approve Hardening H1 for feature/fam-007-provider-boundary-no-provider-shell, limited to proof review, source-truth hardening, validation hardening, and bounded defect repair for the completed local-only scaffolds. Provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and PR #129/#132 release-support execution remain separate later decisions.`
+USER Decisions Needed: `Exact next decision: approve the next named bounded Workstream seam on this active runtime branch, with SLC-031 Hardware/GPU/CPU Capability Planning Scaffold as the next planned candidate. Provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and PR #129/#132 release-support execution remain separate later decisions.`
 
 Planning Packet Status: Complete
 
@@ -263,7 +255,7 @@ No formal User Test Summary is required for this first scaffold. The proof path 
 
 ## Workstream Implementation Record
 
-Implementation Status: `Bounded FAM-007 provider-boundary branch-material Workstream complete on feature/fam-007-provider-boundary-no-provider-shell; SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 are green as local-only scaffolds`
+Implementation Status: `Fourth bounded SLC-018 Local Provider Registry And Configuration State complete on feature/fam-007-provider-boundary-no-provider-shell`
 
 PR #134 Merge Proof: `Merged repaired head c1b47a6b53f4286c2f60ebf5d74d9afe38dadb52 into main at 2c0b2ce6f602651cf85682e0fbfce3c3367cb509 after Codex bot review repair and validation.`
 
@@ -283,25 +275,19 @@ Visible Provider Registry/Configuration Surface: `nexus_visual/orin_core_desktop
 
 Provider Registry Publication: `desktop/core_visualization_renderer.py` builds and publishes the visible Core provider registry/configuration state to `CoreVisualizationWindow` after the Core page loads through `window.setAIProviderState`; `desktop/desktop_renderer.py` keeps the same local provider-registry payload available for the HUD-owned runtime surface. Both remain local-only and emit `AI_PROVIDER_STATE_READY` with provider-selection state, provider-configuration state, provider-registry state, consent state, requires-consent posture, provider-visible data set to none, configured/available provider counts set to zero, and sent_to_provider false.`
 
-Validation Scaffold: `dev/orin_ai_provider_state_validation.py` proves local-only no-provider, provider-selection/consent, provider-registry/configuration, hardware/capability planning, capability-pack lifecycle planning, data/memory/consent/audit/secrets planning, Windows resilience posture, persona/Core/voice boundary, validation proof-gate semantics, and renderer/visual integration markers without importing provider SDKs, loading models, indexing memory, starting voice runtime, mutating shortcuts/installers, or calling external services.
+Validation Scaffold: `dev/orin_ai_provider_state_validation.py` proves local-only no-provider, provider-selection/consent, and provider-registry/configuration semantics plus renderer/visual integration markers without importing provider SDKs, loading models, or calling external services.
 
 Assisted Desktop No-Provider Interaction Surface: `desktop/ai_provider_state.py exposes disabled interaction affordance, interaction disabled reason, provider-visible-data disclosure, and no-provider fallback labels; nexus_visual/orin_core.html, nexus_visual/orin_core_desktop.html, nexus_visual/orin_core.css, and nexus_visual/orin_core.js render the disabled Assisted Desktop affordance, provider-visible-data disclosure, and no-provider fallback status in the Core provider rail.`
 
-FAM-007 Foundation Readiness State: `desktop/ai_provider_state.py exposes a renderer-local FAM-007 foundation-readiness snapshot carrying SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 with GPU capability unprobed, CPU fallback preserved, model workloads disabled, capability-pack downloads blocked, memory/context disabled, no secrets stored, Windows resilience planning only, persona/Core/voice boundary planning, voice runtime disabled, validation proof gates planned, no provider-visible data, no local memory persistence, disabled prompt acceptance, and blocked external calls.`
-
-Visible Foundation Readiness Surface: `nexus_visual/orin_core_desktop.html`, `nexus_visual/orin_core.html`, `nexus_visual/orin_core.css`, and `nexus_visual/orin_core.js` render the local-only hardware capability, capability-pack lifecycle, memory/context, Windows resilience, persona/Core/voice boundary, and validation proof-gate status in the Core provider rail.`
-
-Foundation Readiness Publication: `desktop/core_visualization_renderer.py` and `desktop/desktop_renderer.py` build and publish the FAM-007 foundation-readiness payload through `window.setAIProviderState`; both emit `AI_PROVIDER_STATE_READY` with hardware capability, capability-pack lifecycle, memory/context, Windows resilience, persona/Core/voice boundary, validation gate state, consent state, provider-visible data set to none, configured/available provider counts set to zero, and sent_to_provider false.`
-
-Known Proof Boundary: `No live provider, model execution, hardware probing, memory indexing, action execution, voice/Core sync, shortcut, installer, release, PR, merge, or UTS proof is produced by this Workstream chain.`
+Known Proof Boundary: `No live provider, model, memory, action execution, voice/Core, shortcut, installer, release, or UTS proof is produced by this seam.`
 
 ## Seam Proof Review Record
 
-Proof Review Status: `Green - proof review completed for all admitted same-branch FAM-007 branch-material scaffolds before Hardening`
+Proof Review Status: `Green - proof review completed for the SLC-018 Local Provider Registry And Configuration State`
 
-Proof Review: `desktop/ai_provider_state.py preserves local-only provider/no-provider, provider-selection, provider-registry, hardware/capability, capability-pack lifecycle, data/memory/consent/audit/secrets, Windows resilience, persona/Core/voice, and validation proof-gate snapshots with disabled prompt acceptance, explicit consent-required posture, provider-visible data set to none, sent_to_provider false, configured provider count zero, available provider count zero, CPU fallback preserved, model workloads disabled, capability-pack downloads blocked, memory/context disabled, voice runtime disabled, and no-provider fallback labels; desktop/core_visualization_renderer.py and desktop/desktop_renderer.py publish the same local state; nexus_visual/orin_core.html, nexus_visual/orin_core_desktop.html, nexus_visual/orin_core.css, and nexus_visual/orin_core.js render all local-only foundation-readiness statuses; dev/orin_ai_provider_state_validation.py validates the contract without provider SDKs, models, external calls, memory/indexing, voice runtime, shortcut/installer work, release work, PR work, or AI Product Contract import.`
+Proof Review: `desktop/ai_provider_state.py preserves local-only provider/no-provider, provider-selection, and provider-registry snapshots with disabled prompt acceptance, explicit consent-required posture, provider-visible data set to none, sent_to_provider false, configured provider count zero, available provider count zero, and no-provider fallback labels; desktop/core_visualization_renderer.py and desktop/desktop_renderer.py publish the same local state; nexus_visual/orin_core.html, nexus_visual/orin_core_desktop.html, nexus_visual/orin_core.css, and nexus_visual/orin_core.js render provider configuration none, local provider registry no configured providers, provider-visible-data disclosure, consent posture, and no-provider fallback status; dev/orin_ai_provider_state_validation.py validates the contract without provider SDKs, models, external calls, or memory/indexing.`
 
-Repair Result: `No runtime defect repair required; source truth now records the completed same-branch Workstream chain as ready for Hardening H1, not as package completion, PR readiness, merge readiness, release readiness, or permission for blocked runtime expansion.`
+Repair Result: `No runtime defect repair required; source truth now records the completed seam as Workstream proof rather than a mandatory Hardening phase boundary.`
 
 Validation Scope: `git diff --check origin/main...HEAD`; `python dev/orin_branch_governance_validation.py`; `python dev/orin_ai_provider_state_validation.py`; `python dev/orin_release_body_validation.py`; `python -m compileall -q dev desktop Audio main.py`.
 
@@ -309,37 +295,37 @@ Validation Scope: `git diff --check origin/main...HEAD`; `python dev/orin_branch
 
 Seam Status: Green
 
-Slice Status: Green
+Slice Status: In Progress
 
-Scope Note: The same-branch SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 branch-material scaffolds are green, and the Workstream now stops at the Hardening H1 phase gate.
+Scope Note: Current SLC-017/SLC-018 provider-boundary scaffold seam proof is green, and the active Workstream immediately advances to the next admitted slice seam while whole `PKG-007` remains in progress.
 
-Completion Status: Green
+Completion Status: Red
 
 Waiver Status: None
 
 Continue Decision: Stop
 
-Continuation Execution Latch: Inactive - Workstream complete and Hardening H1 approval is missing; a final response is allowed after reporting validation and preserving the unapproved provider/model/runtime boundaries.
+Continuation Execution Latch: Inactive - next bounded Workstream seam approval is missing; a final response is allowed after reporting validation and preserving the unapproved provider/model/runtime boundaries.
 
-Stop Basis: Workstream Green
+Stop Basis: Named Blocker
 
-Next Active Seam: Hardening H1 FAM-007 Provider Boundary And No-Provider Shell
+Next Active Seam: SLC-031 Hardware/GPU/CPU Capability Planning Scaffold
 
-Stop Condition: `Hardening H1 USER Approval Missing`
+Stop Condition: `Next Bounded Workstream Seam Approval Missing`
 
-Continuation Action: `Stop at phase boundary until USER admits Hardening H1; USER must approve Hardening H1 before proof review, source-truth hardening, validation hardening, or bounded defect repair begins. This does not authorize PR creation, merge, release execution, provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, AI Product Contract import, private Dev ORIN import, GitHub issue creation, or PR #129/#132 release-support execution.`
+Continuation Action: `Stop on named USER-decision blocker; USER must approve SLC-031 Hardware/GPU/CPU Capability Planning Scaffold before additional FAM-007 implementation starts. This is not a phase boundary and does not authorize Hardening.`
 
 Single-Seam Workstream Waiver: None
 
 Single-Seam Or Single-Slice Waiver Authority: USER only; Codex, ChatGPT, validators, clean validation, or prompt wording cannot infer a single-seam or single-slice Workstream waiver.
 
-Single-Seam Or Single-Slice Workstream Blocker: One visible seam or one visible slice is a blocker unless USER waives it; cleared for this branch because the record preserves and completes the multi-seam same-branch Workstream chain, and remains active for future branches that try to stop after one seam or one slice without USER waiver.
+Single-Seam Or Single-Slice Workstream Blocker: One seam or one slice visible plan is a blocker unless USER waiver is recorded; this record preserves later same-branch provider-boundary, consent, failure-mode, settings, hardware/capability-pack, and validation seams as remaining work.
 
 Bounded Seam Default: One active seam at a time, not one-seam Workstream authority.
 
 ## Later-Phase Expectations
 
-After PR #134 and commit 439979fc preserved the first local-only scaffolds, PR #135 repaired merged-main source truth, the disabled Assisted Desktop no-provider interaction surface was completed, the local provider registry/configuration seam was completed, and the USER approved completing all remaining admitted same-branch scaffolds before Hardening, this branch is Workstream green and ready for Hardening H1. Any new FAM-007 work requires USER approval for Hardening H1, PR Readiness, or another exact phase/seam; real provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and PR #129/#132 release-support execution remain separate pending USER decisions.
+After PR #134 and commit 439979fc preserved the first local-only scaffolds, PR #135 repaired merged-main source truth, the disabled Assisted Desktop no-provider interaction surface was completed, and this seam added local-only provider registry/configuration state, this branch remains the active consolidated FAM-007 Workstream carrier. A green seam does not force a Hardening bounce while admitted same-branch PKG-007 branch material remains implementable. Any new FAM-007 runtime work requires USER approval for the next named bounded same-branch seam. Real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain separate pending USER decisions.
 
 ## Initial Workstream Seam Sequence
 
@@ -375,76 +361,30 @@ Scope: `local-only provider registry state; configured/unconfigured provider pos
 
 Non-Includes: `provider SDK integration`; `model download`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `installer/shortcut work`; `release work`; `private contract import`.
 
-Seam 5: `SLC-031 Hardware/GPU/CPU Capability Planning Scaffold`
-
-Goal: `Represent local hardware/capability planning state before any hardware probing, model execution, or provider selection expansion.`
-
-Scope: `local-only hardware capability state; GPU capability unprobed; CPU fallback preserved; power state not evaluated; thermal guardrails required; model workloads disabled; capability recommendation pending hardware proof; direct validation coverage.`
-
-Non-Includes: `hardware probing`; `model execution`; `provider SDK integration`; `model download`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release work`; `private contract import`.
-
-Seam 6: `SLC-032 Model And Capability-Pack Lifecycle Planning Scaffold`
-
-Goal: `Represent optional capability-pack lifecycle posture while preserving a lean default install and blocking downloads until later USER approval.`
-
-Scope: `not-installed model/capability-pack state; capability-pack lifecycle planned; capability-pack downloads blocked; install/update/uninstall execution blocked; direct validation coverage.`
-
-Non-Includes: `model downloads`; `capability-pack install/update/uninstall execution`; `provider SDK integration`; `external provider calls`; `release work`; `private contract import`.
-
-Seam 7: `SLC-033 Data Classification Memory Context Consent Audit Secrets Planning Scaffold`
-
-Goal: `Represent local-only data classification, memory/context-off, consent, audit, and secrets posture before any indexing or retention work.`
-
-Scope: `local-only data classification; memory/context disabled; no indexing; no local memory persistence; no secrets stored; consent-required posture; provider-visible data remains none; direct validation coverage.`
-
-Non-Includes: `memory/indexing`; `context retention`; `secret storage`; `external provider calls`; `AI Product Contract import`; `private Dev ORIN import`.
-
-Seam 8: `SLC-034 Windows Resilience Platform Posture Planning Scaffold`
-
-Goal: `Represent Windows-first degraded/offline/platform posture without changing startup, shortcut, installer, or process ownership behavior.`
-
-Scope: `Windows resilience planning state; offline/degraded mode planned; no startup/process-owner mutation; shortcut/installer work blocked; direct validation coverage.`
-
-Non-Includes: `shortcut work`; `installer work`; `startup behavior changes`; `process-owner changes`; `release/tag/artifact work`.
-
-Seam 9: `SLC-035 Persona Core Voice Planning Boundary`
-
-Goal: `Represent ORIN/Core/persona/voice planning boundary while keeping voice runtime and Core/voice sync disabled.`
-
-Scope: `persona/Core/voice planning boundary; visual-only Core presence; voice runtime disabled; no voice/Core sync implementation; direct validation coverage.`
-
-Non-Includes: `voice runtime`; `voice/Core sync`; `provider calls`; `model downloads`; `private Dev ORIN import`.
-
-Seam 10: `SLC-036 Validation Eval Abuse Release Proof Gates`
-
-Goal: `Represent proof gates for later validation, eval, abuse, privacy, hardware, capability-pack, and release readiness without executing release or provider/model work.`
-
-Scope: `validation proof gates planned; static proof active; abuse/eval pending future approval; release proof pending future approval; direct validation coverage.`
-
-Non-Includes: `release execution`; `tag creation`; `GitHub Release creation`; `release artifacts`; `live provider eval`; `GitHub issue creation`.
+Future same-branch seams: `SLC-031 hardware capability state without model execution`; `SLC-032 capability-pack lifecycle state without downloads`; `SLC-033 data classification/consent/audit/memory-off state without indexing`; `SLC-034 Windows degraded/offline resilience state without shortcut or installer work`; `SLC-035 persona/Core/voice planning state without voice runtime`; `SLC-036 validation/eval/abuse/release proof gates`.
 
 ## Active Seam
 
-Active seam: `Phase boundary - Workstream green; Hardening H1 pending USER approval`
+Active seam: `SLC-018 Local Provider Registry And Configuration State`
 
-Seam status: `Green / SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 local-only scaffolds complete`
+Seam status: `Green / local-only provider registry/configuration state, configured/unconfigured provider posture, consent-gated configuration posture, provider-visible-data disclosure consistency, no-provider fallback compatibility, renderer/Core visual publication, and direct validation coverage complete`
 
-Scope: `local-only no-provider/provider state; provider configuration none; configured provider count zero; available provider count zero; consent-gated configuration posture; provider-visible data remains none; no-provider fallback compatibility; hardware/capability planning; capability-pack lifecycle planning; memory/context disabled; Windows resilience planning; persona/Core/voice boundary planning; validation proof-gate planning; direct validation coverage`
+Scope: `local-only provider registry state; provider configuration none; configured provider count zero; available provider count zero; consent-gated configuration posture; provider-visible data remains none; no-provider fallback compatibility; direct validation coverage`
 
 Non-Includes: `real provider SDK integration`; `model downloads`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR #129/#132 release-support execution`.
 
-Current completed seam: `SLC-017/SLC-018/SLC-031/SLC-032/SLC-033/SLC-034/SLC-035/SLC-036 FAM-007 Provider Boundary And No-Provider Shell Workstream Chain`
+Current completed seam: `SLC-018 Local Provider Registry And Configuration State`
 
-Current seam status: `Green / all admitted branch-material seams complete in local-only scaffold scope`
+Current seam status: `Green / local-only provider registry/configuration state, configured/unconfigured provider posture, consent-gated configuration posture, provider-visible-data disclosure consistency, no-provider fallback compatibility, and direct validation coverage complete`
 
 ## Historical Seam
 
-Historical seam: `SLC-017/SLC-018 No-Provider Shell And Provider-Privacy State; SLC-017/SLC-018 Provider Selection And Consent Boundary Scaffold; SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface; SLC-018 Local Provider Registry And Configuration State; SLC-031 Hardware/GPU/CPU Capability Planning Scaffold; SLC-032 Model And Capability-Pack Lifecycle Planning Scaffold; SLC-033 Data Classification Memory Context Consent Audit Secrets Planning Scaffold; SLC-034 Windows Resilience Platform Posture Planning Scaffold; SLC-035 Persona Core Voice Planning Boundary; SLC-036 Validation Eval Abuse Release Proof Gates`
+Historical seam: `SLC-017/SLC-018 No-Provider Shell And Provider-Privacy State; SLC-017/SLC-018 Provider Selection And Consent Boundary Scaffold; SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface; SLC-018 Local Provider Registry And Configuration State`
 
-Historical Seam Status: `Green / first scaffold merged by PR #134; second scaffold preserved by commit 439979fc1204c08cb82af8e95abf7023a311d0d9; third through tenth scaffolds complete on this branch`
+Historical Seam Status: `Green / first scaffold merged by PR #134; second scaffold preserved by commit 439979fc1204c08cb82af8e95abf7023a311d0d9; third and fourth scaffolds complete on this branch`
 
-Continue Decision: `Stop on Hardening H1 USER-decision blocker after Workstream green`
+Continue Decision: `Stop on named USER-decision blocker after the current green seam`
 
-Stop Basis: `Phase Boundary`
+Stop Basis: `Named Blocker`
 
-Next Candidate Seam: `USER decision to approve Hardening H1 for the completed FAM-007 provider-boundary / no-provider shell Workstream`
+Next Candidate Seam: `USER decision to approve the next named bounded Workstream seam, with SLC-031 Hardware/GPU/CPU Capability Planning Scaffold as the next planned candidate`

@@ -20,12 +20,6 @@ const aiProviderStatusProvider = document.getElementById("ai-provider-status-pro
 const aiProviderStatusSelection = document.getElementById("ai-provider-status-selection");
 const aiProviderStatusConfiguration = document.getElementById("ai-provider-status-configuration");
 const aiProviderStatusRegistry = document.getElementById("ai-provider-status-registry");
-const aiProviderStatusHardware = document.getElementById("ai-provider-status-hardware");
-const aiProviderStatusCapabilityPack = document.getElementById("ai-provider-status-capability-pack");
-const aiProviderStatusMemory = document.getElementById("ai-provider-status-memory");
-const aiProviderStatusWindows = document.getElementById("ai-provider-status-windows");
-const aiProviderStatusPersona = document.getElementById("ai-provider-status-persona");
-const aiProviderStatusValidation = document.getElementById("ai-provider-status-validation");
 const aiProviderStatusConsent = document.getElementById("ai-provider-status-consent");
 const aiProviderStatusDisclosure = document.getElementById("ai-provider-status-disclosure");
 const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
@@ -70,18 +64,6 @@ let aiProviderState = {
   providerRegistryLabel: "Local provider registry: no configured providers",
   configuredProviderCount: 0,
   availableProviderCount: 0,
-  hardwareCapabilityState: "local-planning-only",
-  hardwareCapabilityLabel: "Hardware capability: local planning only",
-  capabilityPackLifecycleState: "capability-pack-lifecycle-planned",
-  capabilityPackLifecycleLabel: "Capability packs: lifecycle planned",
-  memoryContextState: "memory-context-disabled",
-  memoryContextLabel: "Memory/context: disabled; no indexing",
-  windowsResilienceState: "windows-resilience-planned",
-  windowsResilienceLabel: "Windows resilience: planning only",
-  personaCoreVoiceState: "persona-core-voice-boundary-planned",
-  personaCoreVoiceLabel: "Persona/Core/voice: planning boundary",
-  validationProofGateState: "validation-proof-gates-planned",
-  validationProofGateLabel: "Validation gates: static proof active",
   privacyScope: "local-only",
   privacyLabel: "Local shell only; nothing is sent",
   consentState: "required-before-provider",
@@ -1197,12 +1179,6 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.providerRegistry = state.providerRegistryState || "unknown";
   aiProviderStatus.dataset.configuredProviderCount = String(state.configuredProviderCount || 0);
   aiProviderStatus.dataset.availableProviderCount = String(state.availableProviderCount || 0);
-  aiProviderStatus.dataset.hardwareCapability = state.hardwareCapabilityState || "unknown";
-  aiProviderStatus.dataset.capabilityPackLifecycle = state.capabilityPackLifecycleState || "unknown";
-  aiProviderStatus.dataset.memoryContext = state.memoryContextState || "unknown";
-  aiProviderStatus.dataset.windowsResilience = state.windowsResilienceState || "unknown";
-  aiProviderStatus.dataset.personaVoiceBoundary = state.personaCoreVoiceState || "unknown";
-  aiProviderStatus.dataset.validationGates = state.validationProofGateState || "unknown";
   aiProviderStatus.dataset.selectedProvider = state.selectedProviderId || "unknown";
   aiProviderStatus.dataset.consentState = state.consentState || "unknown";
   aiProviderStatus.dataset.interactionAffordance = state.interactionAffordance || "unknown";
@@ -1225,24 +1201,6 @@ function renderAIProviderState() {
   }
   if (aiProviderStatusRegistry) {
     aiProviderStatusRegistry.textContent = state.providerRegistryLabel || "Local provider registry: no configured providers";
-  }
-  if (aiProviderStatusHardware) {
-    aiProviderStatusHardware.textContent = state.hardwareCapabilityLabel || "Hardware capability: local planning only";
-  }
-  if (aiProviderStatusCapabilityPack) {
-    aiProviderStatusCapabilityPack.textContent = state.capabilityPackLifecycleLabel || "Capability packs: lifecycle planned";
-  }
-  if (aiProviderStatusMemory) {
-    aiProviderStatusMemory.textContent = state.memoryContextLabel || "Memory/context: disabled; no indexing";
-  }
-  if (aiProviderStatusWindows) {
-    aiProviderStatusWindows.textContent = state.windowsResilienceLabel || "Windows resilience: planning only";
-  }
-  if (aiProviderStatusPersona) {
-    aiProviderStatusPersona.textContent = state.personaCoreVoiceLabel || "Persona/Core/voice: planning boundary";
-  }
-  if (aiProviderStatusValidation) {
-    aiProviderStatusValidation.textContent = state.validationProofGateLabel || "Validation gates: static proof active";
   }
   if (aiProviderStatusConsent) {
     aiProviderStatusConsent.textContent = state.consentLabel || "Consent required before provider setup";

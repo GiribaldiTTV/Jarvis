@@ -1935,9 +1935,9 @@ MANDATORY_BOUNDED_STATE_REQUIRED_PHRASES = {
 
 FAM007_BOUNDED_STATE_RECORD_REQUIRED_PHRASES = (
     "## Bounded State Lock",
-    "Bounded State: `Complete - Workstream / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / all admitted branch-material seams SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 green / next legal phase Hardening H1 only`",
-    "Bounded State User Waiver: Granted",
-    "Bounded State Waiver Scope: `USER explicitly approved executing all relevant same-branch bounded Workstream tasks for all remaining admitted branch-material seams before Hardening",
+    "Bounded State: `Active - Workstream / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / next named seam SLC-031 Hardware/GPU/CPU Capability Planning Scaffold only`",
+    "Bounded State User Waiver: None",
+    "Bounded State Waiver Scope: None",
     "Broad Work Request Handling:",
     "Bounded State Missing Stop:",
     "Bounded State Waiver Missing Stop:",
