@@ -300,6 +300,7 @@ This path is for:
 `docs/governance` branch records may exist as historical records, but new governance-only branches are not used in the normal Nexus flow.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`, and it may accept only a `Release Readiness digest` with an `RRI-YYYYMMDD-NNN` cycle ID, `One Active Cycle`, the pre-intake `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main` pause semantics, and a post-merge `Return Digest`.
 If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 Tightly coupled governance and canon repair must ride on the active branch that owns the affected truth.
@@ -888,10 +889,13 @@ The owning branch/workstream authority record must include:
 - `Release Execution Gate:`
 - `Watcher / Live PR State Projection:`
 - `Branch Cleanup Plan:`
+- `Branch Cleanup Execution Gate:`
 - `FAM Overlap Routing:`
 - `Projected Post-Merge Validation:`
 
 Passing posture means exact post-merge branch-authority projection is recorded, no stale active branch wording lands on `main`, no stale PR creation / PR Readiness Stage 2 pending wording lands on `main`, merged scope is recorded as merged-unreleased when release execution is not being performed, release execution/tag/GitHub Release/artifact work remains gated, watcher/live PR state stays out of merged-main source truth, branch cleanup plan is known, FAM overlap is either non-blocking or routed to the owning lane, selected-next or successor truth is not stale, release-window/release-floor posture is resolved, and projected post-merge main would pass validation without a later source-truth repair.
+
+Branch cleanup is planning-only until Branch Readiness owns a new branch/worktree target. `Branch Cleanup Plan:` records stale/old branch refs, retired worktrees, or GitHub Desktop repository entries that may need cleanup after merge. `Branch Cleanup Execution Gate:` must say cleanup is blocked in Release Readiness and may execute only during the next `Branch Readiness Stage 2 - Execution Gate` that creates or validates the next branch/worktree target. Multi-worktree cleanup must not delete a branch checked out by any worktree, remove a worktree before its replacement target is validated, or leave a GitHub Desktop-bound worktree without a valid branch target; stale/old branch cleanup waits until the replacement branch/worktree is created, Desktop is bound to the intended folder, and `git worktree list` proves no checked-out branch will be orphaned.
 
 `PR Readiness GREEN` requires all `PR package ready` conditions plus:
 
@@ -932,6 +936,16 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Selected-Next / No-Release-Debt Handling Status:
 - Required Current-Branch Source-Truth Sync:
 - Planned Merge-Target Canon Updates:
+- Origin/Main Freshness Check:
+- Branch Creation Base:
+- Current origin/main:
+- Origin/Main Advanced Since Branch Creation:
+- Origin/Main Changed Files:
+- Branch Changed Files:
+- Reconciliation Required:
+- Reconciliation File List:
+- Reconciliation Recommendation:
+- Reconciliation Mutation Status:
 - Planned Next Branch Block:
 - Planned Watcher Provisioning:
 - Planned Validation Commands:
@@ -954,6 +968,8 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 Allowed Stage 1 outcomes are exactly `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, and `Stage 1 USER Waiver Required`. `PR Readiness Stage 1 Repair Required` means bounded current-branch PR-readiness repair/sync remains in Stage 1 before Stage 2. `Current-Branch Branch Readiness Re-entry Required` means the current branch is still the legal carrier, but the fix is broader than PR-readiness sync and must re-enter Branch Readiness on the same branch. `New Carrier Branch Required` means the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required. Stage 2 may begin only after `Stage 1 Ready For Stage 2` is recorded and explicit USER approval to enter Stage 2 exists.
 Stage 2 begins only after `Stage 1 Ready For Stage 2` and explicit USER approval.
 The next-workstream/package hierarchy is reviewed in PR Readiness Stage 1, not selected in Branch Readiness by default.
+
+`Origin/Main Freshness Check` is required during PR Readiness Stage 1 before Stage 2 can begin. Stage 1 must compare `Branch Creation Base:` to `Current origin/main:` and report whether `Origin/Main Advanced Since Branch Creation:` is `YES` or `NO`. When `origin/main` advanced, Stage 1 must list `Origin/Main Changed Files:` from `git diff --name-only <branch-creation-base>..origin/main`, list `Branch Changed Files:` from `git diff --name-only <branch-creation-base>..HEAD`, decide `Reconciliation Required: YES / NO`, and, when reconciliation is needed, output a complete `Reconciliation File List:` plus `Reconciliation Recommendation:`. The `Reconciliation Mutation Status:` must be analysis-only with no file fixes during Stage 1. If changed upstream files/data need review and the packet is missing or incomplete, `Origin Main Reconciliation Packet Required` blocks Stage 2 and PR creation.
 
 Stage 1 must also include this user-facing block so USER and ChatGPT can review the successor/runtime path before Stage 2. This is analysis-first output; it may encode selected-next truth only when USER explicitly approves selected-next sync, but it must not create a branch, admit a package, or waive any blocker without separate approval:
 
@@ -1059,7 +1075,7 @@ The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary
 Branch-specific boundaries are allowed inside `## Branch Evidence` when they clarify reliable branch truth, but generic exclusion dumps, `Not Included` sections, and defensive scope language remain prohibited.
 `## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only; branch boundaries and phase handoff fields do not belong there.
 The PR summary must describe implemented work, validation evidence, governance/canon state, post-merge truth, and next-branch handling only when those items are part of the implemented branch truth.
-GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.
+GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.
 If `May Create Now` is `NO`, the `Next Branch` subsection must explain the blocking gate rather than implying branch creation is allowed.
 
 ### Operator Output Content Rule
@@ -1917,7 +1933,9 @@ Branch Readiness uses two internal stage gates without changing the canonical ph
 - `Branch Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits are allowed. Stage 1 must output `## Branch Readiness Stage 1 Analysis Packet` for USER review and stop on `Branch Readiness Execution User Approval Missing`.
 - `Branch Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs approved branch/package admission work, docs sync, branch creation, and authority-record setup only inside the USER-approved FAM/package scope.
 
-The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, product vision, USER vision questions, `USER Vision Question Packet`, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current branch vs future package boundaries, affected surfaces, branch reach, why the branch is large enough, why it should not split into tiny branches, acceptance criteria, screenshot and User Test Summary proof expectations, implementation sequence proposal, validation plan, expected docs sync, blockers and waivers, rollback path, `Branch Readiness Planning Incomplete` blocker review, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER.
+The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, product vision, USER vision questions, `USER Vision Question Packet`, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current branch vs future package boundaries, affected surfaces, branch reach, why the branch is large enough, why it should not split into tiny branches, acceptance criteria, screenshot and User Test Summary proof expectations, implementation sequence proposal, validation plan, `Stale Branch Cleanup Plan:`, expected docs sync, blockers and waivers, rollback path, `Branch Readiness Planning Incomplete` blocker review, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER.
+
+`Stale Branch Cleanup Plan:` is required when Release Readiness, PR Readiness, or multi-worktree preflight identified old/stale branches, retired worktrees, or stale GitHub Desktop entries. Stage 1 analyzes only. The cleanup itself belongs to `Branch Readiness Stage 2 - Execution Gate` alongside branch/worktree creation or validation, because every Git repository and GitHub Desktop-bound worktree must keep a valid branch target until the replacement target is ready.
 
 For broad implementation family packages, Branch Readiness planning is not complete until the planning packet records USER vision inputs or explicit unanswered-question blockers, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current-branch versus future-package boundaries, affected files/surfaces, branch reach/package-size proof, acceptance criteria, screenshot/live/User Test Summary proof requirements for user-facing work, implementation sequence proposal, and USER decisions needed. Marker-only planning is insufficient.
 
@@ -2172,6 +2190,7 @@ Forbidden:
 - hidden fix work
 - hidden next-lane planning
 - branch-authority cleanup that should have been merge-safe in PR Readiness
+- stale/old branch deletion, worktree removal, branch switching, or GitHub Desktop-bound worktree cleanup; Release Readiness may record `Branch Cleanup Plan:` and `Branch Cleanup Execution Gate:` only
 - between-branch canon repair
 - source, docs, canon, validator, helper, release-note, or handoff-file mutation
 
@@ -2218,6 +2237,24 @@ If the active folder, branch, upstream, worktree role, phase/seam, write target,
 
 The routing packet must include expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected phase/seam, actual repo state, mismatch evidence, and safest next correction.
 
+### Assigned Worktree Confinement
+
+Assigned Worktree Confinement is mandatory once a thread is assigned to a specific worktree. The thread must treat that worktree root as its boundary for repo mutation, branch operations, runtime launch, shortcut mutation, provider/model install, PR work, release work, and GitHub Desktop handoff.
+
+Every assigned branch authority record must carry:
+
+- Assigned Worktree Confinement: Required
+- Expected Worktree Root:
+- Actual Worktree Root:
+- No Cross-Worktree Mutation: Required
+- GitHub Desktop-bound worktree:
+- Worktree Escape User Waiver: Granted only when USER explicitly names the expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path
+- Worktree Escape User Waiver Missing: Blocks mutation, branch/worktree changes, runtime launch, shortcut/provider/model actions, PR/release actions, and GitHub Desktop handoff outside the assigned worktree
+
+Read-only identity checks may inspect `git worktree list`, remotes, branch names, and GitHub Desktop binding evidence from the assigned root. Any write, branch switch, cleanup, runtime launch, shortcut edit, or helper execution against a sibling worktree or parked clone is `No Cross-Worktree Mutation` scope and must stop on `Worktree Escape User Waiver Missing` unless the USER grants the waiver in clear text.
+
+The active thread must run or report the equivalent of `python dev\orin_branch_governance_validation.py --worktree-confinement-gate` before Stage 2 execution, phase entry, branch/worktree creation, commit, push, PR work, release work, runtime validation, or GitHub Desktop handoff when the assigned branch record declares a worktree.
+
 Stale parked branches, old worktrees, fallback folders, AI Lab context, deleted/recreated historical refs, and unknown write targets are stop conditions until USER explicitly routes the work to a legal target.
 
 ## Repo-Level State: No Active Branch
@@ -2250,7 +2287,39 @@ When `No Active Branch` is steady-state:
 - do not start the next implementation branch by inertia
 - it is valid for `Next Safe Move` to say explicitly that no branch should open yet
 - a release packaging branch may still enter `Branch Readiness` if its branch-class admission rules pass
-- governance-only branches are not used; governance or canon repair must ride on the next legitimate runtime-focused backlog branch's `Branch Readiness`
+- governance-only branches are not used; governance or canon repair must ride on the next legitimate runtime-focused backlog branch's `Branch Readiness`, except for the single `Standing Governance Intake Branch` defined below
+
+## Standing Governance Intake Branch
+
+Purpose:
+
+- keep Release Readiness file-frozen while routing source-truth drift that Release Readiness discovers to one governed repair lane
+
+Allowed:
+
+- one standing worktree: `C:\Nexus Worktrees\Governance`
+- one standing branch: `feature/release-readiness-source-truth-intake`
+- one intake source: `Release Readiness digest`
+- one cycle ID format: `RRI-YYYYMMDD-NNN`
+- `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
+- `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
+- `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest
+- source-truth/governance/validator drift repair named by the intake digest
+- a post-merge `Return Digest` to the originating worktree/thread
+
+Forbidden:
+
+- runtime/provider/model/memory/voice/Core/shortcut/installer implementation
+- release execution, tags, GitHub Releases, release artifacts, or release-note publication
+- GitHub issue creation, AI Product Contract import, private Dev ORIN import, direct-main mutation, broad docs churn, or next runtime branch creation
+- accepting a non-Release Readiness digest after the one-time bootstrap setup
+
+Originating-lane pause:
+
+- when a Release Readiness blocker is handed off, the originating thread/worktree enters `Waiting For Governance Intake` or `Waiting For Updated Main`
+- that lane must not mutate repository files until the governance PR merges, the standing branch syncs to `origin/main`, the `Return Digest` arrives, and the originating lane fetches/revalidates updated `origin/main`
+
+The `Return Digest` must include the originating branch/worktree, `RRI-*` cycle ID, governance PR, merge commit, updated `origin/main` commit, files changed, blockers cleared/remaining, validations, rebaseline instructions, and `Next Legal Phase`.
 
 ## Exception Path: Post-Release Canon Repair
 
