@@ -983,6 +983,117 @@ function Test-NonResizeCursorKind {
     return $Kind -ne "unknown" -and $Kind -notlike "size-*"
 }
 
+function Click-ScreenPoint {
+    param([int]$X, [int]$Y, [string]$Label)
+    $before = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($X, $Y)
+    [CodexHumanClientWin32]::SetCursorPos($X, $Y) | Out-Null
+    Start-Sleep -Milliseconds 120
+    [CodexHumanClientWin32]::SendAbsoluteLeftClick($X, $Y)
+    Start-Sleep -Milliseconds 480
+    $after = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($X, $Y)
+    return [ordered]@{
+        label = $Label
+        clicked = @($X, $Y)
+        windowAtPointBeforeClick = $before
+        windowAtPointAfterClick = $after
+        method = "SetCursorPos + SendInput absolute left click"
+    }
+}
+
+function DoubleClick-ScreenPoint {
+    param([int]$X, [int]$Y, [string]$Label)
+    $before = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($X, $Y)
+    [CodexHumanClientWin32]::SetCursorPos($X, $Y) | Out-Null
+    Start-Sleep -Milliseconds 120
+    [CodexHumanClientWin32]::SendAbsoluteLeftClick($X, $Y)
+    Start-Sleep -Milliseconds 120
+    [CodexHumanClientWin32]::SendAbsoluteLeftClick($X, $Y)
+    Start-Sleep -Milliseconds 520
+    $after = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($X, $Y)
+    return [ordered]@{
+        label = $Label
+        clicked = @($X, $Y)
+        windowAtPointBeforeClick = $before
+        windowAtPointAfterClick = $after
+        method = "SetCursorPos + two SendInput absolute left clicks"
+    }
+}
+
+function Get-DashboardTopChromeControlPoints {
+    param([object]$Dashboard)
+    if (-not $Dashboard) { throw "Dashboard is missing while calculating top-chrome control points" }
+    $rect = $Dashboard.Current.BoundingRectangle
+    $headerHeight = [Math]::Min(170, [int]$rect.Height)
+    $actionsWidth = [Math]::Min(260, [Math]::Max(168, [int]($rect.Width / 3)))
+    $actionsLeft = [Math]::Max([int]$rect.Left, [int]$rect.Right - $actionsWidth - 18)
+    $actionsTop = [int]$rect.Top + 10
+    return [ordered]@{
+        headerRect = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]($rect.Top + $headerHeight))
+        actionsRect = @($actionsLeft, $actionsTop, [int]($actionsLeft + $actionsWidth), [int]($actionsTop + [Math]::Min(146, [Math]::Max(112, $headerHeight - 20))))
+        settingsPoint = @([int]($actionsLeft + ($actionsWidth / 2)), [int]($actionsTop + 46 + 22))
+        closePoint = @([int]($actionsLeft + ($actionsWidth / 2)), [int]($actionsTop + 90 + 23))
+    }
+}
+
+function Get-SettingsChildWindowControlPoints {
+    param([object]$Dashboard)
+    if (-not $Dashboard) { throw "Dashboard is missing while calculating settings child-window control points" }
+    $rect = $Dashboard.Current.BoundingRectangle
+    $childWidth = [Math]::Min(520, [Math]::Max(320, [int]$rect.Width - 44))
+    $childHeight = [Math]::Min(460, [Math]::Max(360, [int]$rect.Height - 44))
+    $left = [int]($rect.Left + (($rect.Width - $childWidth) / 2))
+    $top = [int]($rect.Top + (($rect.Height - $childHeight) / 2))
+    return [ordered]@{
+        estimatedRect = @($left, $top, [int]($left + $childWidth), [int]($top + $childHeight))
+        closePoint = @([int]($left + $childWidth - 42), [int]($top + 30))
+        donePoint = @([int]($left + 42), [int]($top + $childHeight - 32))
+    }
+}
+
+function Capture-DashboardTimedSequence {
+    param(
+        [string]$LabelPrefix,
+        [int]$FrameCount = 8,
+        [int]$IntervalMs = 140
+    )
+    $frames = @()
+    for ($i = 0; $i -lt $FrameCount; $i++) {
+        $dashboard = Get-DashboardWindow
+        $rectPayload = $null
+        if ($dashboard) {
+            $rect = $dashboard.Current.BoundingRectangle
+            $rectPayload = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]$rect.Bottom)
+        }
+        $shot = Capture-VirtualScreenshot ("{0}_{1:00}" -f $LabelPrefix, $i)
+        $frames += [ordered]@{
+            index = $i
+            elapsedMs = $i * $IntervalMs
+            dashboardVisible = [bool]$dashboard
+            dashboardRect = $rectPayload
+            screenshot = $shot
+        }
+        Start-Sleep -Milliseconds $IntervalMs
+    }
+    return $frames
+}
+
+function Test-DashboardSequenceGeometryStable {
+    param([object[]]$Frames, [int]$MaxDeltaPx = 10)
+    $visibleFrames = @($Frames | Where-Object { $_.dashboardVisible -and $_.dashboardRect -and $_.dashboardRect.Count -eq 4 })
+    if ($visibleFrames.Count -ne $Frames.Count) { return $false }
+    $lefts = @($visibleFrames | ForEach-Object { [int]$_.dashboardRect[0] })
+    $tops = @($visibleFrames | ForEach-Object { [int]$_.dashboardRect[1] })
+    $widths = @($visibleFrames | ForEach-Object { [int]$_.dashboardRect[2] - [int]$_.dashboardRect[0] })
+    $heights = @($visibleFrames | ForEach-Object { [int]$_.dashboardRect[3] - [int]$_.dashboardRect[1] })
+    $maxDelta = @(
+        (($lefts | Measure-Object -Maximum).Maximum - ($lefts | Measure-Object -Minimum).Minimum),
+        (($tops | Measure-Object -Maximum).Maximum - ($tops | Measure-Object -Minimum).Minimum),
+        (($widths | Measure-Object -Maximum).Maximum - ($widths | Measure-Object -Minimum).Minimum),
+        (($heights | Measure-Object -Maximum).Maximum - ($heights | Measure-Object -Minimum).Minimum)
+    ) | Measure-Object -Maximum | Select-Object -ExpandProperty Maximum
+    return [int]$maxDelta -le $MaxDeltaPx
+}
+
 function Read-RuntimeLines {
     if (-not $script:RuntimeLogPath -or -not (Test-Path -LiteralPath $script:RuntimeLogPath)) { return @() }
     try { return Get-Content -LiteralPath $script:RuntimeLogPath -ErrorAction Stop } catch { return @() }
@@ -1772,12 +1883,80 @@ try {
     Add-Step -Id "close_dashboard_from_tray_before_move" -Title "Tray Close HUD Dashboard hides visible Dashboard before movement/resize" -Status ($(if (-not $dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after close before move: $([bool]$dashboard)" -Evidence @{ screenshot = $earlyCloseShot; trayClick = $earlyCloseEvidence }
     if ($dashboard) { throw "Close HUD Dashboard did not hide the visible Dashboard before movement/resize" }
 
+    $firstOpenStartLine = (Read-RuntimeLines).Count
     $earlyOpenEvidence = Invoke-TrayAction -ActionName "Open HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=true" -TimeoutSeconds $ActionTimeoutSeconds
-    Start-Sleep -Milliseconds 1000
+    $firstOpenFrames = @(Capture-DashboardTimedSequence -LabelPrefix "03c_first_open_stability" -FrameCount 8 -IntervalMs 140)
+    $firstOpenShowGuardReleased = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_VISIBLE_SHOW_GUARD_RELEASED" -AfterLine $firstOpenStartLine -TimeoutSeconds 2
+    $firstOpenStable = Test-DashboardSequenceGeometryStable -Frames $firstOpenFrames -MaxDeltaPx 10
+    Add-Step -Id "dashboard_first_open_stability_sequence" -Title "Dashboard first-open shortcut path stays visually and geometrically stable" -Status ($(if ($firstOpenStable -and $firstOpenShowGuardReleased) { "PASS" } else { "FAIL" })) -Detail "Captured $($firstOpenFrames.Count) full-desktop frames at 140ms cadence after real tray Open HUD Dashboard; show_guard_released=$firstOpenShowGuardReleased; geometry_stable=$firstOpenStable." -Evidence @{ frames = $firstOpenFrames; maxAllowedGeometryDeltaPx = 10; expectedMarker = "MONITORING_HUD_VISIBLE_SHOW_GUARD_RELEASED" }
+    if (-not ($firstOpenStable -and $firstOpenShowGuardReleased)) { throw "Dashboard first-open sequence did not meet stability proof through the real shortcut/tray path" }
     $earlyOpenShot = Capture-VirtualScreenshot "03c_after_open_hud_dashboard_before_move"
     $dashboard = Get-DashboardWindow
     Add-Step -Id "open_dashboard_from_tray_before_move" -Title "Tray Open HUD Dashboard shows visible Dashboard before movement/resize" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after open before move: $([bool]$dashboard)" -Evidence @{ screenshot = $earlyOpenShot; trayClick = $earlyOpenEvidence }
     if (-not $dashboard) { throw "Open HUD Dashboard did not show the visible Dashboard before movement/resize" }
+
+    $dashboardHandleForControls = [long]$dashboard.Current.NativeWindowHandle
+    $chromePoints = Get-DashboardTopChromeControlPoints -Dashboard $dashboard
+    $settingsPoint = @($chromePoints.settingsPoint)
+    $settingsHit = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandleForControls -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1])
+    $settingsBeforeLine = (Read-RuntimeLines).Count
+    $settingsClickEvidence = Click-ScreenPoint -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1]) -Label "Dashboard Settings top-chrome button"
+    $settingsNativeMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY" -AfterLine $settingsBeforeLine -TimeoutSeconds 4
+    $settingsChildMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY" -AfterLine $settingsBeforeLine -TimeoutSeconds 4
+    $settingsShot = Capture-VirtualScreenshot "03d_after_dashboard_settings_real_mouse_click"
+    $dashboardAfterSettings = Get-DashboardWindow
+    $settingsPass = $settingsNativeMarker -and $settingsChildMarker -and $dashboardAfterSettings -and ($settingsHit -eq "htclient")
+    Add-Step -Id "dashboard_settings_opens_with_real_mouse" -Title "Dashboard Settings opens through real mouse control hit-test path" -Status ($(if ($settingsPass) { "PASS" } else { "FAIL" })) -Detail "settingsPoint=($($settingsPoint -join ',')); hitTest=$settingsHit; native_marker=$settingsNativeMarker; child_window_marker=$settingsChildMarker; dashboard_visible_after_click=$([bool]$dashboardAfterSettings)." -Evidence @{ screenshot = $settingsShot; click = $settingsClickEvidence; controlPoints = $chromePoints; hitTest = $settingsHit; expectedMarkers = @("MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY", "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY") }
+    if (-not $settingsPass) { throw "Dashboard Settings did not open through the real mouse/top-chrome path" }
+
+    $rectBeforeDoubleClick = $dashboardAfterSettings.Current.BoundingRectangle
+    $doubleClickBeforeLine = (Read-RuntimeLines).Count
+    $doubleClickEvidence = DoubleClick-ScreenPoint -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1]) -Label "Dashboard Settings double-click protection"
+    $doubleClickSuppressed = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_NATIVE_HEADER_DOUBLE_CLICK_SUPPRESSED" -AfterLine $doubleClickBeforeLine -TimeoutSeconds 2
+    $dashboardAfterDoubleClick = Get-DashboardWindow
+    $rectAfterDoubleClick = if ($dashboardAfterDoubleClick) { $dashboardAfterDoubleClick.Current.BoundingRectangle } else { $null }
+    $doubleClickGeometryOk = $dashboardAfterDoubleClick -and [Math]::Abs($rectAfterDoubleClick.Width - $rectBeforeDoubleClick.Width) -le 10 -and [Math]::Abs($rectAfterDoubleClick.Height - $rectBeforeDoubleClick.Height) -le 10
+    $doubleClickShot = Capture-VirtualScreenshot "03e_after_dashboard_settings_double_click"
+    Add-Step -Id "dashboard_settings_double_click_does_not_maximize" -Title "Settings click area does not turn into a native header maximize gesture" -Status ($(if ($doubleClickGeometryOk) { "PASS" } else { "FAIL" })) -Detail "suppressed_marker_seen=$doubleClickSuppressed; width_before=$($rectBeforeDoubleClick.Width); height_before=$($rectBeforeDoubleClick.Height); width_after=$($rectAfterDoubleClick.Width); height_after=$($rectAfterDoubleClick.Height)." -Evidence @{ screenshot = $doubleClickShot; click = $doubleClickEvidence; geometryTolerancePx = 10 }
+    if (-not $doubleClickGeometryOk) { throw "Dashboard Settings double-click changed the native Dashboard geometry" }
+
+    $settingsDone = Find-VisibleRuntimeElementByName -Name "Done" -ControlTypeName "ControlType.Button" -TimeoutSeconds 4
+    $settingsCloseBeforeLine = (Read-RuntimeLines).Count
+    $settingsCloseEvidence = $null
+    if ($settingsDone) {
+        Click-ElementCenter -Element $settingsDone -Label "Dashboard Settings Done"
+        Start-Sleep -Milliseconds 650
+        $settingsCloseEvidence = @{ method = "uia-visible-done-button" }
+    } else {
+        $settingsChildPoints = Get-SettingsChildWindowControlPoints -Dashboard $dashboardAfterDoubleClick
+        $donePoint = @($settingsChildPoints.donePoint)
+        $settingsCloseEvidence = Click-ScreenPoint -X ([int]$donePoint[0]) -Y ([int]$donePoint[1]) -Label "Dashboard Settings estimated Done button"
+    }
+    $settingsClosedMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY" -AfterLine $settingsCloseBeforeLine -TimeoutSeconds 4
+    $settingsClosedShot = Capture-VirtualScreenshot "03f_after_dashboard_settings_done"
+    Add-Step -Id "dashboard_settings_done_closes_with_real_mouse" -Title "Dashboard Settings panel closes through visible user control" -Status ($(if ($settingsClosedMarker) { "PASS" } else { "FAIL" })) -Detail "Done button found by UIA=$([bool]$settingsDone); child_window_close_marker=$settingsClosedMarker." -Evidence @{ screenshot = $settingsClosedShot; marker = "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY"; closeEvidence = $settingsCloseEvidence }
+    if (-not $settingsClosedMarker) { throw "Dashboard Settings panel did not close through the visible Done control" }
+
+    $dashboard = Get-DashboardWindow
+    if (-not $dashboard) { throw "Dashboard disappeared before top-chrome X proof" }
+    $chromePoints = Get-DashboardTopChromeControlPoints -Dashboard $dashboard
+    $closePoint = @($chromePoints.closePoint)
+    $closeHit = Get-NativeHitTestKindAtPoint -WindowHandle ([long]$dashboard.Current.NativeWindowHandle) -X ([int]$closePoint[0]) -Y ([int]$closePoint[1])
+    $topCloseBeforeLine = (Read-RuntimeLines).Count
+    $topCloseClick = Click-ScreenPoint -X ([int]$closePoint[0]) -Y ([int]$closePoint[1]) -Label "Dashboard top-chrome X button"
+    $topCloseMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY" -AfterLine $topCloseBeforeLine -TimeoutSeconds 4
+    $topCloseShot = Capture-VirtualScreenshot "03g_after_dashboard_top_chrome_x"
+    $dashboardAfterTopClose = Get-DashboardWindow
+    $topClosePass = $topCloseMarker -and (-not $dashboardAfterTopClose) -and ($closeHit -eq "htclient")
+    Add-Step -Id "dashboard_top_chrome_x_hides_dashboard" -Title "Dashboard top-chrome X hides Dashboard without disabling HUD Feature" -Status ($(if ($topClosePass) { "PASS" } else { "FAIL" })) -Detail "closePoint=($($closePoint -join ',')); hitTest=$closeHit; native_marker=$topCloseMarker; dashboard_visible_after_x=$([bool]$dashboardAfterTopClose)." -Evidence @{ screenshot = $topCloseShot; click = $topCloseClick; controlPoints = $chromePoints; hitTest = $closeHit; expectedMarker = "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY" }
+    if (-not $topClosePass) { throw "Dashboard top-chrome X did not hide the Dashboard through the real mouse path" }
+
+    $reopenAfterX = Invoke-TrayAction -ActionName "Open HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=true" -TimeoutSeconds $ActionTimeoutSeconds
+    Start-Sleep -Milliseconds 900
+    $reopenAfterXShot = Capture-VirtualScreenshot "03h_after_reopen_dashboard_after_top_chrome_x"
+    $dashboard = Get-DashboardWindow
+    Add-Step -Id "dashboard_reopens_after_top_chrome_x" -Title "Tray reopens Dashboard after top-chrome X close" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after tray reopen from top-chrome X close: $([bool]$dashboard)" -Evidence @{ screenshot = $reopenAfterXShot; trayClick = $reopenAfterX }
+    if (-not $dashboard) { throw "Dashboard did not reopen after top-chrome X close" }
 
     $rectBeforeMove = $dashboard.Current.BoundingRectangle
     Drag-FromTo -StartX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2))) -StartY ([int]($rectBeforeMove.Top + 48)) -EndX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2) + 90)) -EndY ([int]($rectBeforeMove.Top + 88)) -Label "Dashboard header move"

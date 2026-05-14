@@ -292,6 +292,14 @@ body.desktop-mode #monitoring-hud > * {
   background: linear-gradient(145deg, rgba(9, 55, 88, 0.88), rgba(5, 31, 54, 0.82));
 }
 
+.monitoring-hud__chrome-button--close {
+  width: 42px;
+  min-width: 42px;
+  padding: 8px 0;
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
 .monitoring-hud__summary {
   margin-top: 14px;
   display: flex;
