@@ -476,7 +476,7 @@ $LogRoot = Join-Path $RootDir "dev\logs\fam_006_human_client_validation\$Stamp"
 $ScreenshotRoot = Join-Path $LogRoot "screenshots"
 $ManifestPath = Join-Path $LogRoot "human_client_manifest.json"
 $LatestManifestPath = Join-Path $RootDir "dev\logs\fam_006_human_client_validation\latest_manifest.json"
-$DefaultDesktopShortcutPath = Join-Path $env:USERPROFILE "OneDrive\Desktop\Nexus Desktop Launcher.lnk"
+$DefaultDesktopShortcutPath = Join-Path $env:USERPROFILE "OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk"
 $DesktopShortcutPath = if ($env:NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH) {
     $env:NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH
 } else {

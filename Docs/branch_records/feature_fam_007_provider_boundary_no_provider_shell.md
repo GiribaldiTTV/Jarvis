@@ -27,7 +27,7 @@ This branch records the planning and selected-next reconciliation for `PKG-007`,
 - Stage 2 USER Approval: `Granted - USER approved creating C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell from current origin/main, creating feature/fam-007-provider-boundary-no-provider-shell, recording Branch Readiness planning/source truth, and beginning the first bounded provider/no-provider shell implementation seam after planning validation`
 - Branch Creation: `Created in C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell from origin/main at 98b53fafd63abfe4876b718d5649b4a0df46f2a0`
 - PR #134 Merge State: `Merged into main at 2c0b2ce6f602651cf85682e0fbfce3c3367cb509`
-- Carrier Separation: `FAM-006 Dashboard settings-panel work is active only in C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel and must not be touched by this historical FAM-007 record`
+- Carrier Separation: `FAM-006 Dashboard settings-panel work is active only in C:\Nexus Worktrees\FAM-006 and must not be touched by this historical FAM-007 record`
 - Selected-Next Decision: `Granted for this thread/worktree - FAM-007 provider-boundary / no-provider shell is selected; PR #129 release-support remains separate unless USER later selects it`
 - Branch Authority State: `Historical / No Active Branch after PR #134 merge`
 - Current Carrier Branch: `None in this record - feature/fam-007-provider-boundary-no-provider-shell is merged historical truth after PR #134`

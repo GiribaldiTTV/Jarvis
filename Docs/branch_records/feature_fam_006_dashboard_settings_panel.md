@@ -3,7 +3,7 @@
 ## Branch Identity
 
 - Branch: `feature/fam-006-dashboard-settings-panel`
-- Worktree: `C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel`
+- Worktree: `C:\Nexus Worktrees\FAM-006`
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
 - Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; not a governance-only branch`
@@ -58,7 +58,7 @@ Backlog-Split Reason: `None`
 ## Blockers
 
 - `Runtime Implementation Approval`: cleared for the bounded Dashboard settings cog/settings panel runtime surface.
-- `Real USER-Facing Shortcut Validation`: cleared for the repaired Live Validation Stage 1 handoff. The red user-facing desktop shortcut at `C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Settings Panel Launcher.lnk` targets the active worktree and passed strengthened human-client validation at `dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json`.
+- `Real USER-Facing Shortcut Validation`: cleared for the repaired Live Validation Stage 1 handoff. The canonical red user-facing desktop shortcut is `C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk`, and the legacy Settings Panel red shortcut also resolves to the active worktree. The strengthened human-client validation passed at `dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json`.
 - `User Test Summary Results Pending`: active for Live Validation Stage 1. The prior returned UTS was digested as REPAIR. A refreshed UTS handoff was generated at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`, but refreshed returned USER results have not been digested as PASS. USER may return the completed refreshed UTS or explicitly waive the returned-results gate with a reason.
 - `PR Readiness Blocked By Live Validation`: active until returned UTS results are PASS or explicitly WAIVED and digested into source truth.
 - `PR Readiness / PR Creation Approval Missing`: active after Live Validation blockers clear until USER approves PR Readiness and any later PR creation.
@@ -82,7 +82,7 @@ Backlog-Split Reason: `None`
 
 ## Exit Criteria
 
-- Worktree `C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel` exists and is clean on `feature/fam-006-dashboard-settings-panel`.
+- Worktree `C:\Nexus Worktrees\FAM-006` exists and is clean on `feature/fam-006-dashboard-settings-panel`.
 - Branch is created from updated `origin/main` at `228f18e73faabf6ffb6e3b9a5cf32d2f92cd3060`.
 - Source truth records PR #133 as merged/historical and no longer treats release-support as the active FAM-006 carrier.
 - Source truth establishes this branch as the active FAM-006 settings-panel runtime carrier.
@@ -232,9 +232,9 @@ Raw Evidence Policy: raw screenshots, videos, and UTS exports remain local/exter
 
 USER Waiver: USER confirmed FAM-006 and FAM-007 are assigned to two different worktrees and are not cross-editing repo files in the same worktree.
 
-FAM-006 Assigned Worktree: `C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel`
+FAM-006 Assigned Worktree: `C:\Nexus Worktrees\FAM-006`
 
-FAM-007 Assigned Worktree: `C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell`
+FAM-007 Assigned Worktree: `C:\Nexus Worktrees\FAM-007`
 
 Coordination Rule: FAM-006 work in this branch must stay in the FAM-006 settings-panel worktree and must not edit the FAM-007 worktree. FAM-007 remains separate context only for same-file overlap awareness and merge sequencing.
 
@@ -366,8 +366,8 @@ H1 Validation Commands:
 - `PASS - git diff --check`
 - `PASS - git diff --check origin/main...HEAD`
 - `PASS - python dev\orin_monitoring_hud_surface_validation.py`
-- `PASS - python dev\orin_monitoring_hud_internal_sandbox_validation.py; manifest C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260514_064140_manifest.json`
-- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_human_client_validation.ps1 with NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH=C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Settings Panel Launcher.lnk; manifest C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel\dev\logs\fam_006_human_client_validation\20260514_064206_754\human_client_manifest.json`
+- `PASS - python dev\orin_monitoring_hud_internal_sandbox_validation.py; manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260514_064140_manifest.json`
+- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_human_client_validation.ps1 with canonical FAM-006 red shortcut C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk; manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260514_064206_754\human_client_manifest.json`
 - `PASS - python dev\orin_branch_governance_validation.py; 4613 checks`
 - `PASS - python dev\orin_release_body_validation.py`
 - `PASS - python -m compileall -q dev desktop Audio main.py`
@@ -404,11 +404,11 @@ Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_
 
 USER-Inspectable Screenshot Folder: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260513_195556_260`
 
-Real USER-Facing Shortcut Validation Status: `PASS - validator used the same red desktop shortcut intended for Live Validation, C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Settings Panel Launcher.lnk; shortcut_targets_active_worktree=PASS and the strengthened human-client manifest passed after the returned UTS repair.`
+Real USER-Facing Shortcut Validation Status: `PASS - validator now defaults to the canonical red FAM-006 desktop shortcut, C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk; the legacy Settings Panel red shortcut also resolves to the same active worktree. shortcut_targets_active_worktree=PASS and the strengthened human-client manifest passed after the returned UTS repair.`
 
 Human-Client Manifest: `dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json`
 
-Shortcut Targets Active Worktree: `PASS - target and working directory resolved to C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel from the red desktop shortcut`
+Shortcut Targets Active Worktree: `PASS - target and working directory resolve to C:\Nexus Worktrees\FAM-006 from the canonical red FAM-006 desktop shortcut`
 
 Human-Client Failure Step: `Resolved - prior failure at ncp_create_custom_task_clickable_with_dashboard_open was caused by the tray Open Command Overlay route toggling the overlay closed while the validator credited the route marker. The tray route now opens the overlay idempotently, and the validator now requires COMMAND_OVERLAY_READY before continuing.`
 
@@ -422,7 +422,7 @@ Live Validation Blockers:
 Live Validation Commands:
 
 - `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Dashboard settings panel Live Validation" -MarkerTimeoutSeconds 240 -NoProgressTimeoutSeconds 240 -FinalClientHoldSeconds 0`
-- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_human_client_validation.ps1 with NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH=C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Settings Panel Launcher.lnk; shortcut_targets_active_worktree=PASS, manifest dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json`
+- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_human_client_validation.ps1 with canonical FAM-006 red shortcut C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk; shortcut_targets_active_worktree=PASS, manifest dev/logs/fam_006_human_client_validation/20260514_053936_189/human_client_manifest.json`
 - `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -PrepareLiveValidationUserTestSummary -ProofSeam "FAM-006 Dashboard settings panel returned UTS repair proof"; proof root dev/logs/fam_006_monitoring_hud_live_validation/20260514_054254_905; formal UTS handoff C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
 ## Bounded Live Validation Repair Record
