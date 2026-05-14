@@ -85,6 +85,8 @@ For governed closeout recovery, also include:
 
 For bounded multi-seam Workstream execution, also include:
 
+- `Bounded State: <exact phase/stage, workspace, branch, write target, authority record, package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase>`
+- `Bounded State User Waiver: <Granted with exact waiver fields / None>`
 - `Current active seam: <seam name>`
 - `Seam Sequence: <ordered seam list>` when the admitted sequence is already explicit in canon
 - `Validation Contract: <summary or authority reference>` when validation governance matters
@@ -111,8 +113,11 @@ If only one seam or one slice is planned or visible, stop immediately on `Single
 Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
 A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
 
+If `Bounded State` is missing, stale, or ambiguous, Codex must stop on `Bounded State Missing` before mutation. Broad work requests do not authorize implementation: `continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording may execute only when source truth resolves it to one exact active bounded seam. Widening beyond that bounded state requires `Bounded State User Waiver: Granted`; without explicit USER waiver text naming the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions, Codex must stop on `Bounded State Waiver Missing`. Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver.
+
 A green seam does not authorize stop while `Slice Status` remains non-green.
 A green slice does not authorize stop while `Completion Status` remains non-green.
+A green seam or green slice is continuation proof, not Hardening authority, while any admitted same-branch seam or slice remains implementable; the next legal unit is the next named Workstream seam or the next admitted slice.
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
@@ -450,6 +455,7 @@ Source-truth reminders that stay in canon rather than prompt body:
 - same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green
 - when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 - `Workstream` reaches `Hardening` only when `Completion Status: Green`
+- `Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; one green seam or one green slice cannot move the branch to Hardening while admitted branch material remains.
 - `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 - stopping after the first slice or splitting the backlog item across branches requires an explicit `Backlog-Split User Approval` or a named bounded stop condition
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item

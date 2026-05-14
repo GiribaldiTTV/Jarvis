@@ -15,6 +15,7 @@
 - Logs, code, and merged docs are the source of truth for implemented behavior
 - No silent scope expansion
 - No silent backlog or policy drift
+- Bounded State is mandatory before execution, and broad work language cannot widen scope without explicit USER waiver
 
 ## Analysis-First Operating Posture
 
@@ -37,6 +38,20 @@ Execution language such as:
 belongs to execution planning after analysis, not to the initial investigative posture.
 
 Short prompts, shorthand cues, or mode-only requests do not waive source-of-truth reading.
+
+## Mandatory Bounded Execution State
+
+Before Codex mutates files, creates or switches branches/worktrees, commits, pushes, creates a PR, handles PR comments, performs release actions, launches runtime validation, mutates shortcuts, installs providers/models, or changes GitHub Desktop handoff state, it must prove a `Bounded State:`.
+
+That bounded state must name the exact phase/stage, workspace, git root, branch, upstream, `HEAD`, `origin/main`, worktree role, write target, owning authority record, active package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase.
+
+If Codex cannot prove that bounded state, it must stop on `Bounded State Missing` before mutation and report the exact missing field or USER decision needed.
+
+Broad work requests do not authorize implementation. `Continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording may be used only when repo source truth resolves it to one exact active bounded seam. If it does not, Codex must stop on `Bounded State Missing` or `Next Bounded Workstream Seam Approval Missing`.
+
+Widening beyond the current bounded state requires `Bounded State User Waiver: Granted` in the owning source truth or current USER approval. The waiver must name the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions. Without that explicit waiver, stop on `Bounded State Waiver Missing`.
+
+Clean validation, clean git state, branch existence, prior broad approval, prompt wording, Codex discretion, or ChatGPT review cannot infer a bounded-state waiver.
 
 ## Live-State Validation Gate
 
@@ -177,6 +192,7 @@ For governed execution output, also return:
 Generic `Results` or `Validation` headings are not enough by themselves.
 A green seam does not authorize stop while `Slice Status` remains non-green.
 A green slice does not authorize stop while `Completion Status` remains non-green.
+A green seam or green slice is continuation proof, not Hardening authority, while any admitted same-branch seam or slice remains implementable; the next legal unit is the next named Workstream seam or the next admitted slice.
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, do not end on a seam-complete final response, rollback path, or next-seam recommendation; keep executing until a lawful `Stop` decision exists.
@@ -563,6 +579,7 @@ and keep that validator green before calling the branch ready.
 - same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green.
 - when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 - `Workstream` reaches `Hardening` only when `Completion Status: Green`
+- `Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; one green seam or one green slice cannot move the branch to Hardening while admitted branch material remains.
 - `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
 - use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required

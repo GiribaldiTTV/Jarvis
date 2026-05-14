@@ -72,6 +72,11 @@ Do not use this layer to replace:
 - relevant desktop user-facing Live Validation must include the `Codex Live Client Self-QA Gate` before User Test Summary handoff: the active authority record must declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Usability Check:`, and `Platform Uniformity Check:`, and `Codex Live Client Self-QA Pending` blocks USER handoff readiness until Codex inspects the launched client like a user or an explicit waiver is recorded
 - historical branch authority records are preserved traceability records, not live execution authority
 - historical-only closeout traceability records must report `Phase: Historical Traceability` and must not retain live PR state, active seam ownership, or open-PR narration
+- active branch authority records must prove `Bounded State:` before file mutation, branch/worktree actions, commit, push, PR work, release work, runtime validation, shortcut mutation, provider/model installation, or GitHub Desktop handoff
+- `Bounded State Missing` blocks execution when the phase/stage, workspace, branch, write target, authority record, active package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, or next legal phase is missing, stale, or ambiguous
+- broad work requests do not authorize implementation; `continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording may execute only when source truth resolves it to one exact active bounded seam
+- widening beyond the current bounded state requires `Bounded State User Waiver: Granted`; without explicit USER waiver text naming the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions, stop on `Bounded State Waiver Missing`
+- clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver
 - each active branch authority record must carry the modern phase-state block:
   - `## Current Phase`
   - `## Phase Status`
@@ -88,10 +93,9 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md`
-
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md`
 - `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md`
 - `Docs/branch_records/feature_fam_006_dashboard_release_support.md`
 - `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`

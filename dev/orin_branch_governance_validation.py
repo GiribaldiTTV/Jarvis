@@ -1835,6 +1835,8 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green",
     "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
     "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
+    "green seam or green slice is continuation proof, not Hardening authority",
+    "`Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
     "`Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver",
     "Phase Boundary Stop Required",
@@ -1866,6 +1868,90 @@ MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
     "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
+)
+
+MANDATORY_BOUNDED_STATE_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Bounded State is mandatory",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+        "Clean validation, a clean git tree, branch existence, prior broad approval, Codex discretion, ChatGPT wording, or prompt output shape cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Bounded State is mandatory before execution",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+        "Clean validation, clean git state, branch existence, prior broad approval, prompt wording, Codex discretion, or ChatGPT review cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Workflow mode is legal only inside a proven `Bounded State:` unless USER grants an explicit bounded-state waiver",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+        "Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver",
+    ),
+    Path("Docs/Main.md"): (
+        "Bounded State Lock:",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "broad work requests do not authorize implementation",
+        "clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/branch_records/index.md"): (
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "broad work requests do not authorize implementation",
+        "clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Bounded State:",
+        "Bounded State User Waiver:",
+        "Bounded State Missing",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Bounded State:",
+        "Bounded State User Waiver:",
+        "Bounded State Missing",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Bounded State:",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "broad work requests do not authorize implementation",
+    ),
+}
+
+FAM007_BOUNDED_STATE_RECORD_REQUIRED_PHRASES = (
+    "## Bounded State Lock",
+    "Bounded State: `Complete - PR Readiness Stage 1 / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / all admitted branch-material seams SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 green, H1 proof reviewed, UTS applicability waived, LV1 green, PR-readiness scope validated, and next legal phase PR Readiness Stage 2 only`",
+    "Bounded State User Waiver: Granted",
+    "Bounded State Waiver Scope: `USER explicitly approved executing all relevant same-branch bounded Workstream tasks for all remaining admitted branch-material seams before Hardening",
+    "Hardening H1 USER Approval: `Granted - USER approved Hardening H1 proof review",
+    "Current Hardening Seam: `Hardening H1 - FAM-007 Provider Boundary And No-Provider Shell Local-Only Scaffold Chain`",
+    "Current Hardening Seam Status: `Green - H1 proof review found no runtime defect repair required`",
+    "Live Validation LV1 USER Approval: `Granted - USER approved Live Validation LV1",
+    "Current Live Validation Seam: `Live Validation LV1 - FAM-007 Provider Boundary And No-Provider Shell Applicability And No-Provider Surface Proof`",
+    "Current Live Validation Seam Status: `Green - LV1 classifies formal UTS, screenshot, shortcut, and live-client self-QA as waived",
+    "User Test Summary Results: `WAIVED`",
+    "Codex Live Client Self-QA: `WAIVED`",
+    "PR Readiness Stage 1 USER Approval: `Granted",
+    "PR Readiness Execution User Approval Missing",
+    "Broad Work Request Handling:",
+    "Bounded State Missing Stop:",
+    "Bounded State Waiver Missing Stop:",
+    "Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver",
 )
 
 INTERFACE_RELEASE_BOUNDARY_DOCS = (
@@ -1937,6 +2023,8 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green",
     "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
     "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
+    "green seam or green slice is continuation proof, not Hardening authority",
+    "`Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
     "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
     "Phase Boundary Stop Required",
@@ -13613,6 +13701,15 @@ def _run_pr_live_state_gate(
     fallback_bot_approval = bool(pr_info.get("botApproval"))
     fallback_bot_comment_count = int(pr_info.get("botCommentCount") or 0)
     if (
+        pr_state != "OPEN"
+        and _pre_pr_stage1_state_allows_missing_live_pr(
+            active_branch_record_text,
+            "no open pull request",
+        )
+        and "historical merge proof" in active_branch_record_text.casefold()
+    ):
+        return
+    if (
         repository_full_name
         and not fallback_local_state
         and (not mergeable or mergeable == "UNKNOWN" or not merge_state or merge_state == "UNKNOWN")
@@ -14421,6 +14518,25 @@ def main() -> int:
                 prohibited_phrase not in lower_text,
                 f"{relative_path}: bounded seam workflow must not recreate single-seam throttling authority via '{prohibited_phrase}'",
             )
+
+    for relative_path, required_phrases in MANDATORY_BOUNDED_STATE_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        lower_text = text.casefold()
+        for required_phrase in required_phrases:
+            require(
+                required_phrase.casefold() in lower_text,
+                f"{relative_path}: mandatory bounded-state governance is missing '{required_phrase}'",
+            )
+
+    fam007_record_path = Path(
+        "Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md"
+    )
+    fam007_record_text = _read_text(fam007_record_path)
+    for required_phrase in FAM007_BOUNDED_STATE_RECORD_REQUIRED_PHRASES:
+        require(
+            required_phrase in fam007_record_text,
+            f"{fam007_record_path}: FAM-007 bounded-state lock is missing '{required_phrase}'",
+        )
 
     for relative_path in INTERFACE_RELEASE_BOUNDARY_DOCS:
         text = _read_text(relative_path)

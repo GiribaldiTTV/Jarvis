@@ -74,6 +74,14 @@ Thread Launch / Write-Target Identity Lock:
 - the routing packet must report expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected phase/seam, actual repo state, mismatch evidence, and safest next correction
 - no source-truth update, branch/worktree creation, commit, push, PR action, release action, shortcut mutation, runtime launch for validation, provider/model install, or GitHub Desktop handoff may proceed until the identity lock passes or USER explicitly routes the work to the corrected target
 
+Bounded State Lock:
+
+- before mutation or execution, Codex must also prove `Bounded State:` for the exact phase/stage, workspace, branch, write target, owning authority record, active package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase
+- if any bounded-state field is missing, stale, or ambiguous, stop on `Bounded State Missing`
+- broad work requests do not authorize implementation; `continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording may execute only when source truth resolves it to one exact active bounded seam
+- widening beyond that seam requires `Bounded State User Waiver: Granted`; without explicit waiver text naming the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions, stop on `Bounded State Waiver Missing`
+- clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver
+
 ## Protected Main Law
 
 `main` is a protected branch for Codex work.
@@ -339,6 +347,7 @@ These are reference layers, not active workstream or roadmap owners.
 - Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
 - Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
 - during `Workstream`, `bounded multi-seam workflow` is the primary model inside the current slice; execute one active seam at a time, validate it, record evidence, report `continue` or `stop`, and keep going until all required seams in the current slice are complete and the slice status is green, then advance into the next admitted slice while `Completion Status` remains `In Progress`, unless a named blocker or waiver requirement turns `Completion Status` red
+- a green seam or green slice is continuation proof, not Hardening authority, while any admitted same-branch seam or slice remains implementable; the next legal unit is the next named Workstream seam or the next admitted slice
 - bounded means one active seam at a time, not one-seam Workstream authority.
 - a single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.
 - a task-level `Return:` block, rollback request, commit request, or next-seam recommendation is not stop authority while `Continue Decision` remains `Continue`
@@ -363,6 +372,7 @@ These are reference layers, not active workstream or roadmap owners.
 - `Next-Seam Continuation Required` means continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green.
 - when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 - `Workstream` reaches `Hardening` only when `Completion Status: Green`
+- `Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; only then may `Workstream` hand off to `Hardening`
 - `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item.
 - use `Backlog Completion State: In Progress`, `Implemented Complete`, or `Implemented Complete Except Future Dependency` to record whether more same-branch slices are still required

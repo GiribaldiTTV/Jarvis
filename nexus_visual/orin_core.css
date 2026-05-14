@@ -455,6 +455,18 @@ body {
 }
 
 .ai-provider-status__provider,
+.ai-provider-status__selection,
+.ai-provider-status__configuration,
+.ai-provider-status__registry,
+.ai-provider-status__hardware,
+.ai-provider-status__capability-pack,
+.ai-provider-status__memory,
+.ai-provider-status__windows,
+.ai-provider-status__persona,
+.ai-provider-status__validation,
+.ai-provider-status__consent,
+.ai-provider-status__disclosure,
+.ai-provider-status__fallback,
 .ai-provider-status__privacy {
   margin-top: 7px;
   color: rgba(214, 233, 242, 0.88);
@@ -463,8 +475,61 @@ body {
   overflow-wrap: anywhere;
 }
 
+.ai-provider-status__selection {
+  color: rgba(205, 224, 255, 0.9);
+}
+
+.ai-provider-status__configuration,
+.ai-provider-status__registry {
+  color: rgba(204, 229, 240, 0.9);
+}
+
+.ai-provider-status__hardware,
+.ai-provider-status__capability-pack {
+  color: rgba(196, 224, 246, 0.9);
+}
+
+.ai-provider-status__memory,
+.ai-provider-status__windows {
+  color: rgba(196, 231, 224, 0.9);
+}
+
+.ai-provider-status__persona,
+.ai-provider-status__validation {
+  color: rgba(222, 218, 246, 0.9);
+}
+
+.ai-provider-status__consent {
+  color: rgba(255, 218, 151, 0.94);
+}
+
+.ai-provider-status__disclosure,
+.ai-provider-status__fallback {
+  color: rgba(206, 231, 244, 0.9);
+}
+
 .ai-provider-status__privacy {
   color: rgba(175, 219, 215, 0.92);
+}
+
+.ai-provider-status__action {
+  width: 100%;
+  margin-top: 9px;
+  padding: 7px 9px;
+  border: 1px solid rgba(245, 198, 96, 0.32);
+  border-radius: 6px;
+  background: rgba(245, 198, 96, 0.08);
+  color: rgba(255, 230, 176, 0.88);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.ai-provider-status__action:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
 }
 
 .ai-provider-status[data-availability="ready"] {
