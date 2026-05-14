@@ -19,7 +19,7 @@ This active record preserves the planning, selected-next reconciliation, PR #134
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -43,6 +43,9 @@ This active record preserves the planning, selected-next reconciliation, PR #134
 - Consolidated Branch-Material Planning Status: `Complete - this branch plans admitted PKG-007 branch material and continues one named bounded Workstream seam at a time`
 - Current Workstream USER Approval: `Granted - USER approved the bounded SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface Workstream on this branch`
 - Current Workstream Status: `Green - local-only disabled/no-provider interaction affordance, explicit consent posture, provider-visible-data disclosure, no-provider fallback behavior, and direct validation coverage are implemented`
+- Hardening H1 USER Approval: `Granted - USER approved Hardening H1 proof review, source-truth hardening, validation hardening, and bounded defect repair if evidence showed a gap for the completed SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface`
+- Current Hardening Seam: `Hardening H1 - SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface`
+- Current Hardening Status: `Green - proof review confirms the local-only disabled/no-provider interaction affordance, explicit consent posture, provider-visible-data disclosure, no-provider fallback behavior, renderer/Core visual rail publication, and direct validation coverage`
 - Runtime Implementation Approval: `Granted only for the first bounded SLC-017/SLC-018 no-provider/provider-privacy scaffold already merged by PR #134 and the current bounded SLC-017/SLC-018 provider-selection/consent scaffold; real provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation remain blocked`
 - AI Product Contract v0.6.2: `External USER planning evidence only; not repo source truth and not imported`
 
@@ -72,7 +75,7 @@ Backlog-Split Reason: None
 
 Current / Pending Decision Context: This branch record is active after PR #135 repair merge and branch-local reconciliation; blockers below apply to future release, next-seam, or runtime expansion decisions.
 
-- `Hardening Approval Missing`: exact next blocker after this bounded Workstream; active until USER approves Hardening for the SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface.
+- `Next Bounded Workstream Seam Approval Missing`: exact next blocker after this Hardening H1 pass; active until USER approves the next named bounded same-branch FAM-007 Workstream seam, with SLC-018 Local Provider Registry And Configuration State as the next planned candidate.
 - `Future Runtime Expansion Approval Missing`: active for work outside the bounded scaffold, including provider-failure behavior, real provider SDK, model, memory, voice/Core, shortcut/installer, release, PR, or contract-import work.
 - `Release Execution Approval Missing`: active.
 - `AI Product Contract Full Import Approval Missing`: active.
@@ -115,9 +118,9 @@ Rollback Path: stop this active runtime carrier before additional implementation
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Workstream`
 
-Next Legal Phase Gate: this completed bounded Workstream must hand off to Hardening before another implementation seam starts. Exact USER decision needed: approve Hardening H1 for the SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface on `feature/fam-007-provider-boundary-no-provider-shell`, limited to proof review for the local-only disabled/no-provider interaction affordance, explicit consent posture, provider-visible-data disclosure, no-provider fallback behavior, and direct validation coverage. Future same-branch seams, including SLC-018 local provider registry/configuration state, remain planned but unapproved until this phase boundary clears. Real provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain blocked without later USER approval.
+Next Legal Phase Gate: Hardening H1 for the completed SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface is green. The next legal phase is Workstream in a bounded Workstream seam on this same active FAM-007 carrier. Exact USER decision needed: approve the next named bounded Workstream seam, with SLC-018 Local Provider Registry And Configuration State as the next planned candidate, limited to local-only registry/configuration state without provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, or PR #129/#132 release-support execution.
 
 ## Branch Objective
 
@@ -153,7 +156,7 @@ Completion Status: Green
 
 Remaining Implementable Work: None
 
-Future-Dependent Blockers: `Hardening H1 approval for this bounded SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface seam, bounded Workstream seam approval for later same-branch PKG-007 seams, model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution.`
+Future-Dependent Blockers: `Next bounded Workstream seam approval for later same-branch PKG-007 seams, model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution.`
 
 Visible User-Facing Proof Required: No for this first disabled/no-provider scaffold; static visible-surface validation and compile proof are sufficient before any prompt/action flow exists.
 
@@ -205,7 +208,7 @@ Implementation Sequence Proposal: `Preserve completed scaffold evidence, then pr
 
 Planning Blockers: `Next bounded Workstream seam approval, real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain USER-gated.`
 
-USER Decisions Needed: `Exact next decision: approve Hardening H1 for the bounded SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface on this active runtime branch. Provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and PR #129/#132 release-support execution remain separate later decisions.`
+USER Decisions Needed: `Exact next decision: approve the next named bounded Workstream seam on this active runtime branch, with SLC-018 Local Provider Registry And Configuration State as the next planned candidate. Provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and PR #129/#132 release-support execution remain separate later decisions.`
 
 Planning Packet Status: Complete
 
@@ -254,6 +257,16 @@ Assisted Desktop No-Provider Interaction Surface: `desktop/ai_provider_state.py 
 
 Known Proof Boundary: `No live provider, model, memory, action execution, voice/Core, shortcut, installer, release, or UTS proof is produced by this seam.`
 
+## Hardening H1 Record
+
+Hardening Status: `Green - proof review completed for the SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface`
+
+Proof Review: `desktop/ai_provider_state.py preserves local-only provider/no-provider snapshots with disabled prompt acceptance, explicit consent-required posture, provider-visible data set to none, sent_to_provider false, and no-provider fallback labels; desktop/core_visualization_renderer.py and desktop/desktop_renderer.py publish the same local state; nexus_visual/orin_core.html, nexus_visual/orin_core_desktop.html, nexus_visual/orin_core.css, and nexus_visual/orin_core.js render the disabled Assisted Desktop affordance, provider-visible-data disclosure, consent posture, and no-provider fallback status; dev/orin_ai_provider_state_validation.py validates the contract without provider SDKs, models, external calls, or memory/indexing.`
+
+Repair Result: `No runtime defect repair required; source-truth hardening records USER-approved H1 status and clears the stale Hardening Approval Missing blocker.`
+
+Validation Scope: `git diff --check origin/main...HEAD`; `python dev/orin_branch_governance_validation.py`; `python dev/orin_ai_provider_state_validation.py`; `python dev/orin_release_body_validation.py`; `python -m compileall -q dev desktop Audio main.py`.
+
 ## Seam Continuation Decision
 
 Seam Status: Green
@@ -266,15 +279,15 @@ Waiver Status: None
 
 Continue Decision: Stop
 
-Continuation Execution Latch: Inactive - Workstream green stops at the phase boundary; a final response is allowed after reporting validation and preserving the unapproved provider/model/runtime boundaries.
+Continuation Execution Latch: Inactive - Hardening H1 green stops at the next bounded Workstream decision boundary; a final response is allowed after reporting validation and preserving the unapproved provider/model/runtime boundaries.
 
-Stop Basis: Workstream Green
+Stop Basis: Hardening H1 Green
 
-Next Active Seam: Hardening H1 - SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface
+Next Active Seam: SLC-018 Local Provider Registry And Configuration State
 
-Stop Condition: `Hardening Approval Missing`
+Stop Condition: `Next Bounded Workstream Seam Approval Missing`
 
-Continuation Action: `Stop at phase boundary; USER must admit Hardening H1 for the bounded SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface before Hardening work starts; no blocked provider/model work starts by inertia.`
+Continuation Action: `Stop at phase boundary; USER must approve the next named bounded Workstream seam before additional FAM-007 implementation starts; no blocked provider/model work starts by inertia.`
 
 Single-Seam Workstream Waiver: None
 
@@ -286,7 +299,7 @@ Bounded Seam Default: One active seam at a time, not one-seam Workstream authori
 
 ## Later-Phase Expectations
 
-After PR #134 and commit 439979fc preserved the first local-only scaffolds, PR #135 repaired merged-main source truth, and this seam added the disabled Assisted Desktop no-provider interaction surface, this branch remains the active consolidated FAM-007 Workstream carrier. Any new FAM-007 runtime work requires USER approval for the next named bounded same-branch seam. Real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain separate pending USER decisions.
+After PR #134 and commit 439979fc preserved the first local-only scaffolds, PR #135 repaired merged-main source truth, this seam added the disabled Assisted Desktop no-provider interaction surface, and Hardening H1 proof review passed, this branch remains the active consolidated FAM-007 Workstream carrier. Any new FAM-007 runtime work requires USER approval for the next named bounded same-branch seam. Real provider SDK integration, model downloads, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain separate pending USER decisions.
 
 ## Initial Workstream Seam Sequence
 
@@ -318,11 +331,11 @@ Future same-branch seams: `SLC-018 provider registry/config state without SDKs`;
 
 ## Active Seam
 
-Active seam: `Branch Readiness Rebaseline - Consolidated FAM-007 Branch-Material Planning`
+Active seam: `Hardening H1 - SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface`
 
-Seam status: `Green / completed by Branch Readiness rebaseline`
+Seam status: `Green / proof review complete for local-only disabled no-provider interaction, consent posture, provider-visible-data disclosure, no-provider fallback, renderer/Core visual publication, and direct validation coverage`
 
-Scope: `source-truth rebaseline, consolidated PKG-007 branch-material plan, one-branch carrier strategy, and next bounded Workstream seam definition`
+Scope: `Hardening proof review, source-truth hardening, validation hardening, and bounded defect repair only if evidence shows a gap`
 
 Non-Includes: `real provider SDK integration`; `model downloads`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR #129/#132 release-support execution`.
 
@@ -340,4 +353,4 @@ Continue Decision: `Stop on named USER-decision blocker after first seam`
 
 Stop Basis: `Workstream Green`
 
-Next Candidate Seam: `USER decision to approve Hardening H1 for the bounded SLC-017/SLC-018 Assisted Desktop Mode No-Provider Interaction And Consent Surface on this branch`
+Next Candidate Seam: `USER decision to approve the next named bounded Workstream seam, with SLC-018 Local Provider Registry And Configuration State as the next planned candidate`
