@@ -33,10 +33,12 @@ def _require(condition: bool, message: str, failures: list[str]) -> None:
 def validate() -> list[str]:
     failures: list[str] = []
 
-    snapshot = build_no_provider_ai_state(surface_role="hud")
+    snapshot = build_no_provider_ai_state(surface_role="core")
     payload = snapshot.as_renderer_payload()
     renderer = _read("desktop/desktop_renderer.py")
+    core_renderer = _read("desktop/core_visualization_renderer.py")
     html = _read("nexus_visual/orin_core.html")
+    desktop_html = _read("nexus_visual/orin_core_desktop.html")
     css = _read("nexus_visual/orin_core.css")
     js = _read("nexus_visual/orin_core.js")
     branch_record = _read("Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md")
@@ -51,6 +53,7 @@ def validate() -> list[str]:
     _require(payload["canAcceptPrompts"] is False, "no-provider state must not accept prompts", failures)
     _require(payload["externalCalls"] == "blocked", "external calls must be blocked", failures)
     _require(payload["modelState"] == "not installed", "model state must not imply an installed model", failures)
+    _require(payload["surfaceRole"] == "core", "desktop Core visualization must own the visible provider rail", failures)
 
     for forbidden in ("openai", "anthropic", "ollama", "llama_cpp", "pynvml", "cuda"):
         _require(
@@ -66,15 +69,27 @@ def validate() -> list[str]:
         "window.setAIProviderState",
     ):
         _require(needle in renderer, f"desktop renderer is missing {needle!r}", failures)
+        _require(needle in core_renderer, f"Core visualization renderer is missing {needle!r}", failures)
+
+    for label, markup in (
+        ("core HTML", html),
+        ("desktop Core HTML", desktop_html),
+    ):
+        for needle in (
+            'id="ai-provider-status"',
+            'data-mode="no-provider"',
+            'data-privacy-scope="local-only"',
+            "No AI provider",
+            "Local shell only; nothing is sent",
+        ):
+            _require(needle in markup, f"{label} is missing {needle!r}", failures)
 
     for needle in (
-        'id="ai-provider-status"',
-        'data-mode="no-provider"',
-        'data-privacy-scope="local-only"',
-        "No AI provider",
-        "Local shell only; nothing is sent",
+        'href="orin_core.css"',
+        'src="orin_core.js"',
+        'data-surface-role="core-visualization"',
     ):
-        _require(needle in html, f"core HTML is missing {needle!r}", failures)
+        _require(needle in desktop_html, f"desktop Core HTML is missing {needle!r}", failures)
 
     for needle in (
         ".ai-provider-status",

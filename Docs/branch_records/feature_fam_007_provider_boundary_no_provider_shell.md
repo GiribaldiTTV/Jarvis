@@ -121,7 +121,7 @@ Start FAM-007 implementation on a real provider-boundary branch instead of creat
 - Runtime/User-Facing Delta: `Visible disabled/unavailable/no-provider state in the desktop shell plus renderer-owned provider/privacy state publication.`
 - Backend/Runtime Delta: `Local provider-state snapshot contract for no-provider behavior that reports local-only privacy posture and blocks prompt acceptance when no provider is configured.`
 - Developer-Tooling Delta: `Static validation scaffold proving the no-provider state contract and visible renderer integration markers.`
-- Exact Affected Paths: `desktop/ai_provider_state.py`; `desktop/desktop_renderer.py`; `nexus_visual/orin_core.html`; `nexus_visual/orin_core.css`; `nexus_visual/orin_core.js`; `dev/orin_ai_provider_state_validation.py`; this branch record; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; `Docs/branch_records/index.md`.
+- Exact Affected Paths: `desktop/ai_provider_state.py`; `desktop/core_visualization_renderer.py`; `desktop/desktop_renderer.py`; `nexus_visual/orin_core.html`; `nexus_visual/orin_core_desktop.html`; `nexus_visual/orin_core.css`; `nexus_visual/orin_core.js`; `dev/orin_ai_provider_state_validation.py`; this branch record; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; `Docs/branch_records/index.md`.
 - Non-Includes: `model downloads`; `real provider SDK integration`; `external provider calls`; `memory/indexing`; `voice/Core sync`; `shortcut/installer work`; `release/tag/artifact work`; `full AI Product Contract import`; `private Dev ORIN import`; `GitHub issue creation`; `PR creation`; `merge`; `PR #129 release-support execution`.
 - Implementation Admission Status: `Admitted by USER for the first bounded SLC-017/SLC-018 seam only; first scaffold implemented and additional provider-boundary seams are USER-gated.`
 
@@ -214,9 +214,9 @@ Implementation Status: `First bounded SLC-017/SLC-018 scaffold complete on featu
 
 No-Provider State Contract: `desktop/ai_provider_state.py defines a renderer-local PKG-007 no-provider snapshot with mode no-provider, disabled availability, local-only privacy scope, no provider-visible data, no local memory persistence, no prompt acceptance, blocked external calls, and not-installed model/capability-pack state.`
 
-Visible Provider/Privacy Surface: `nexus_visual/orin_core.html`, `nexus_visual/orin_core.css`, and `nexus_visual/orin_core.js` render a compact AI provider status rail that shows AI unavailable, No AI provider, and Local shell only; nothing is sent.`
+Visible Provider/Privacy Surface: `nexus_visual/orin_core_desktop.html`, `nexus_visual/orin_core.html`, `nexus_visual/orin_core.css`, and `nexus_visual/orin_core.js` render a compact AI provider status rail on the actual desktop Core surface that shows AI unavailable, No AI provider, and Local shell only; nothing is sent.`
 
-Renderer Publication: `desktop/desktop_renderer.py builds the no-provider state during DesktopRuntimeWindow setup, publishes it after the page loads through window.setAIProviderState, and emits AI_PROVIDER_STATE_READY with provider-visible data set to none and sent_to_provider false.`
+Renderer Publication: `desktop/core_visualization_renderer.py` builds and publishes the visible Core no-provider state to `CoreVisualizationWindow` after the Core page loads through `window.setAIProviderState`; `desktop/desktop_renderer.py` keeps the same local no-provider payload available for the HUD-owned runtime surface. Both remain local-only and emit `AI_PROVIDER_STATE_READY` with provider-visible data set to none and sent_to_provider false.
 
 Validation Scaffold: `dev/orin_ai_provider_state_validation.py proves local-only no-provider semantics and renderer/visual integration markers without importing provider SDKs, loading models, or calling external services.`
 

@@ -99,7 +99,7 @@ class AIProviderStateSnapshot:
 def build_no_provider_ai_state(*, surface_role: str = "hud") -> AIProviderStateSnapshot:
     """Build the local-only no-provider state used before any provider is admitted."""
 
-    normalized_surface = surface_role if surface_role in {"hud", "combined"} else "hud"
+    normalized_surface = surface_role if surface_role in {"core", "hud", "combined"} else "hud"
     return AIProviderStateSnapshot(
         package_id=PACKAGE_ID,
         slice_ids=(SLC_017_ID, SLC_018_ID),
