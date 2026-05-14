@@ -7,7 +7,7 @@
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
 - Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; not a governance-only branch`
-- Current Delta Status: `Hardening H1 PASS after USER-approved settings-panel runtime implementation; branch remains the FAM-006 Dashboard settings-panel runtime carrier`
+- Current Delta Status: `Live Validation PASS after USER-approved settings-panel runtime implementation and Hardening H1; branch remains the FAM-006 Dashboard settings-panel runtime carrier`
 - Backlog Record State: `Registry-only runtime continuation under historical FAM-006 / PKG-006`
 - Package ID: `PKG-006`
 - Package Name: `Monitoring HUD Dashboard Product Surface`
@@ -20,7 +20,7 @@ It exists because the Dashboard settings cog/settings panel remained a deferred 
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
@@ -30,7 +30,7 @@ It exists because the Dashboard settings cog/settings panel remained a deferred 
 - Runtime Implementation: `USER-approved and implemented for the bounded Dashboard settings cog/settings panel surface`
 - Hardening H1 Admission: `Granted - USER approved Hardening H1 for the FAM-006 Dashboard settings-panel runtime seam`
 - Hardening H1 Status: `PASS - settings affordance, settings child-window panel, warning toggle, hit-test controls, Dashboard Close, Create Monitor, Edit Monitor, tray reopen, resize/scroll/first-open regressions, truthful provider/overlay copy, and validator coverage were pressure-tested without requiring repair`
-- Live Validation Status: `Pending separate USER phase admission or waiver; Live Validation was not bundled into this Hardening pass`
+- Live Validation Status: `PASS - USER admitted the separate Live Validation Phase and active-client/user-visible proof passed at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260`
 - GitHub Issue Closeout: `Pending USER approval for #123, #124, #125, #126, and #127`
 - Release Execution: `Pending USER approval`
 - Branch Authority State: `Active`
@@ -58,7 +58,7 @@ Backlog-Split Reason: `None`
 ## Blockers
 
 - `Runtime Implementation Approval`: cleared for the bounded Dashboard settings cog/settings panel runtime surface.
-- `PR Creation Approval Missing`: active after Branch Readiness setup until USER approves PR Readiness / PR creation.
+- `PR Readiness / PR Creation Approval Missing`: active after Live Validation until USER approves PR Readiness and any later PR creation.
 - `GitHub Issue Closeout Approval Missing`: active for comments or state changes on #123, #124, #125, #126, and #127.
 - `Release Execution Approval Missing`: active.
 - `Raw Evidence Import Decision Pending`: active.
@@ -97,9 +97,9 @@ Rollback Path: if this setup fails validation, current authorization covers boun
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
-Next Legal Phase Gate: Hardening H1 is complete and green. The next legal phase is `Live Validation` only by separate USER admission or waiver. PR Readiness and PR creation remain later phase decisions after Live Validation posture is admitted, completed, or explicitly waived; merge, issue closeout/comments, release execution, raw evidence handling, FAM-007/runtime provider work, AI Product Contract import, and Private Dev ORIN import remain separate USER approval checkpoints.
+Next Legal Phase Gate: Hardening H1 and the separately admitted Live Validation Phase are complete and green. The next legal phase is `PR Readiness` by separate USER approval. PR creation remains a later PR Readiness Stage 2 decision; merge, issue closeout/comments, release execution, raw evidence handling, FAM-007/runtime provider work, AI Product Contract import, and Private Dev ORIN import remain separate USER approval checkpoints.
 
 ## Branch Objective
 
@@ -146,7 +146,7 @@ Acceptance Criteria: `Dashboard exposes a clear settings affordance; settings pa
 
 Validation Proof Requirements: `Runtime proof requires static HUD validator, internal sandbox validator, branch governance validation, release body validation, compileall, and live-client self-QA when USER-facing H1/PR readiness is requested.`
 
-Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation adds active-client self-QA hooks for the settings panel. The next phase is Hardening H1, which should pressure-test the visible Settings button, settings panel open/close, and warning toggle. Live Validation remains a separate later phase unless USER records a specific waiver or phase admission.`
+Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation added active-client self-QA hooks for the settings panel. Hardening H1 pressure-tested the visible Settings button, settings panel open/close, warning toggle, and regression boundaries. The separately admitted Live Validation Phase passed active-client/user-visible proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260. Formal UTS generation/digestion was not performed by this active-client proof command.`
 
 Implementation Sequence Proposal: `Implemented settings entry/panel, updated validators, recorded source truth, and stop after validation/commit/push for a Hardening decision. Live Validation and PR Readiness remain separate later phases.`
 
@@ -209,7 +209,7 @@ Completion Status: Green
 Remaining Implementable Work: None
 Future-Dependent Blockers: PR creation, GitHub issue closeout/comments, raw evidence upload/import/linking, release execution, FAM-007 runtime/admission, AI Product Contract import, Private Dev ORIN import, Overlay/display acceptance, external telemetry parity, and runtime/provider/model/memory/shortcut/installer work all require later USER approval.
 Visible User-Facing Proof Required: Yes for Dashboard settings-panel confidence - active-client live proof is required before PR Readiness unless USER grants a specific waiver.
-Visible User-Facing Proof: PASS - active-client live proof captured at `dev/logs/fam_006_monitoring_hud_live_validation/20260513_190929_547`.
+Visible User-Facing Proof: PASS - active-client Live Validation proof captured at `dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260`.
 
 ## Release Debt And Issue Closeout
 
@@ -279,11 +279,11 @@ Non-Includes: `GitHub issue closeout/comments, release execution, tags, GitHub R
 
 ## Active Seam
 
-Active seam: `Runtime implementation for FAM-006 Dashboard settings panel`
+Active seam: `Live Validation for FAM-006 Dashboard settings panel`
 
-Active Seam Status: `Green after runtime validation and active-client proof; commit and push complete this authorized run`
+Active Seam Status: `Green after separate USER-admitted Live Validation proof; source-truth recording, validation, commit, and push complete this authorized run`
 
-Next active seam: `Hardening H1 by USER decision`
+Next active seam: `PR Readiness Stage 1 by USER decision`
 
 Single-Seam Workstream Waiver: None
 Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice authority from branch size, branch name, or a narrow implementation pass.
@@ -297,11 +297,11 @@ Slice Status: Green
 Completion Status: Green
 Waiver Status: None
 Continue Decision: Stop
-Continuation Execution Latch: Inactive - runtime implementation and active-client proof are green; final response is allowed after validation, commit, and push, and the next seam requires a USER phase decision.
-Stop Basis: Workstream Green
-Next Active Seam: Hardening H1 by USER decision.
-Stop Condition: Stop after validation, commit, and push; continue only if USER admits Hardening. Live Validation, PR Readiness, PR creation, issue closeout, release, artifacts, raw evidence handling, FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate later USER decisions.
-Continuation Action: Stop at phase boundary until USER admits Hardening; report the proof packet and surface before continuing into the next phase.
+Continuation Execution Latch: Inactive - runtime implementation, Hardening H1, and Live Validation proof are green; final response is allowed after validation, commit, and push, and the next seam requires a USER phase decision.
+Stop Basis: Live Validation Green
+Next Active Seam: PR Readiness Stage 1 by USER decision.
+Stop Condition: Stop after validation, commit, and push; continue only if USER admits PR Readiness. PR creation, issue closeout, release, artifacts, raw evidence handling, FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate later USER decisions.
+Continuation Action: Stop at phase boundary until USER admits PR Readiness; report the proof packet and surface before continuing into the next phase.
 
 ## Recorded Seam
 
@@ -315,7 +315,7 @@ Recorded seam: Runtime implementation for the FAM-006 Dashboard settings-panel c
 - Deferred Truth Copy: `Overlay/display acceptance, provider setup, external telemetry parity, provider/model work, and installer/runtime scope remain pending USER decisions and are not represented as ready.`
 - Hit-Testing Coverage: `Settings button and settings warning toggle are included in native control hit-testing so they are treated as controls instead of drag gestures.`
 - Validator Coverage: `HUD surface and internal sandbox validators assert settings affordance, settings panel markup/CSS/JS state, live-client geometry hooks, and active-client self-QA step labels.`
-- Live Proof Posture: `PASS - active-client self-QA proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_190929_547 proves Settings open/close, truthful panel copy, settings hit-target behavior, Dashboard close behavior, standalone travel, clipping boundaries, and control decoupling.`
+- Live Proof Posture: `PASS - active-client Live Validation proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260 proves Settings open/close, truthful panel copy, settings hit-target behavior, Dashboard close behavior, standalone travel, clipping boundaries, Create/Edit regression behavior, and control decoupling.`
 
 ## Hardening H1 Validation Result
 
@@ -354,8 +354,40 @@ H1 Validation Commands:
 - `PASS - python dev\orin_release_body_validation.py`
 - `PASS - python -m compileall -q dev desktop Audio main.py`
 
-Live Validation Separation: `PASS - formal Live Validation was not run, no formal User Test Summary was generated/refreshed/digested, and Live Validation remains a separate later phase requiring USER admission or waiver.`
+Live Validation Separation: `PASS - Hardening and Live Validation remained separate phases. Live Validation was run only after USER admission for this phase. No formal User Test Summary export was generated/refreshed/digested by this active-client proof command.`
 
-Current-Main Reconciliation Gate: `PR #135 moved origin/main to 6f9a13d17a65a3385001b8e463113295f5463b01. H1 is not blocked because runtime seam validation remains green, but PR Readiness must reconcile current main and shared source-truth overlap before PR creation.`
+Current-Main Reconciliation Gate: `PR #135 moved origin/main to 6f9a13d17a65a3385001b8e463113295f5463b01. Live Validation is not blocked because runtime seam validation remains green, but PR Readiness must reconcile current main and shared source-truth overlap before PR creation.`
 
-Next Legal Seam: `Live Validation LV1 by separate USER phase admission or waiver. PR Readiness remains later.`
+Next Legal Seam: `PR Readiness Stage 1 by separate USER approval; PR creation remains a later PR Readiness Stage 2 decision.`
+
+## Live Validation Phase Result
+
+Live Validation Admission: `PASS - USER approved the Live Validation Phase for the FAM-006 Dashboard settings-panel runtime seam after Hardening H1 completed.`
+
+Live Validation Result: `PASS - active-client/user-visible Dashboard settings-panel proof passed without bounded runtime repair.`
+
+Live Validation Scope: `Dashboard Settings affordance visibility/reachability; settings child-window open/close; warning-notification toggle state; Dashboard usability while Settings is used; Settings and Close control hit-testing; Create Monitor, Edit Monitor, Dashboard Close, tray reopen, resize, scroll gutter, first-open, and truthful provider/overlay/deferred-state copy regression boundaries.`
+
+Settings Affordance Proof: `PASS - active-client interaction clicked monitoring-hud-settings-action and opened the settings panel.`
+
+Settings Panel Proof: `PASS - interaction manifest recorded settings_window_present, settings_panel_state_open, settings_toggle_present, truthful_copy, and settings panel close restoring the Dashboard home without disabling the HUD Feature.`
+
+Warning Toggle Proof: `PASS - warning toggle was present in live geometry and remained tied to the supported Dashboard warning-notification state without provider/model/overlay scope expansion.`
+
+Hit-Testing Proof: `PASS - real mouse hit-target proof reported settingsAction, warningToggle, dashboardClose, Create Monitor, and Edit Monitor targets as visible/large enough, with Settings and Close treated as controls rather than drag gestures.`
+
+Regression Proof: `PASS - active-client proof covered Dashboard close hides only Dashboard, control hub restore, Create Monitor child-window route, Edit Monitor child-window route, monitor editor mutation, standalone travel, clipping boundary, and Core/Overlay decoupling.`
+
+Active-Client Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260`
+
+Live Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260/manifest.json`
+
+Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260/monitoring_hud_live_client_interaction_manifest.json`
+
+USER-Inspectable Screenshot Folder: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260513_195556_260`
+
+Formal User Test Summary Status: `Not generated/refreshed/digested by this active-client proof command; raw evidence upload/import/linking remains a later USER decision.`
+
+Live Validation Commands:
+
+- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Dashboard settings panel Live Validation" -MarkerTimeoutSeconds 240 -NoProgressTimeoutSeconds 240 -FinalClientHoldSeconds 0`
