@@ -126,7 +126,7 @@ The return digest must preserve the originating lane identity exactly as recorde
 - Originating Branch Source: `Copy exactly from the accepted Release Readiness intake digest / recorded cycle identity; do not infer from the governance worktree, neutral main folder, or current shell CWD`
 - Originating Worktree Source: `Copy exactly from the accepted Release Readiness intake digest / recorded cycle identity; do not infer from the governance worktree, neutral main folder, or GitHub Desktop's currently selected repository`
 - Operating Workspace Requirement: `The originating-lane prompt must name the exact originating assigned worktree as its operating workspace and must also name the expected branch`
-- Default Workspace Ban: `The governance lane must not default to C:\Nexus Desktop AI unless that exact path is the recorded originating worktree for the accepted intake`
+- Default Workspace Ban: `The governance lane must not default to C:\Nexus Desktop AI or C:\Nexus Worktrees\Governance unless that exact path is the recorded originating worktree for the accepted intake`
 - Return Digest Origin Identity Missing: `Blocks return-digest handoff when the originating branch, originating worktree, operating workspace, or expected branch is absent, generic, contradictory, or inferred`
 - Thread / Worktree Identity Mismatch: `Blocks originating-lane continuation when the return digest points at a different worktree or branch than the accepted intake recorded`
 - Latest Closed Cycle Identity: `RRI-20260514-002 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
