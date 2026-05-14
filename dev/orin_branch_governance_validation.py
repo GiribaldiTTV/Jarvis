@@ -36,6 +36,7 @@ BRANCH_CLASSES = (
     "emergency canon repair",
     "repair/dev-tooling-governance",
     "release packaging",
+    "standing governance intake",
 )
 
 BLOCKED_FUTURE_ACTIVE_BRANCH_CLASSES = (
@@ -1808,6 +1809,91 @@ GOVERNANCE_ONLY_BLOCK_PHRASES = (
     "between-branch",
 )
 
+STANDING_GOVERNANCE_INTAKE_BRANCH = "feature/release-readiness-source-truth-intake"
+STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS = "standing governance intake"
+STANDING_GOVERNANCE_INTAKE_RECORD = Path(
+    "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
+)
+STANDING_GOVERNANCE_INTAKE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+STANDING_GOVERNANCE_INTAKE_PHRASES = (
+    "Standing Governance Intake Branch",
+    "feature/release-readiness-source-truth-intake",
+    "Release Readiness digest",
+    "Waiting For Governance Intake",
+    "Return Digest",
+    "RRI-YYYYMMDD-NNN",
+    "One Active Cycle",
+    "Sync Rule",
+)
+STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
+    "dev/orin_branch_governance_validation.py",
+    "dev/orin_pr_body_quality_audit.py",
+}
+STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS = (
+    "Standing Branch",
+    "Worktree",
+    "Intake Source",
+    "Cycle ID Format",
+    "Active RRI Cycle",
+    "One Active Cycle",
+    "Sync Rule",
+    "Bootstrap Exception Limit",
+    "Return Digest",
+    "Originating Lane Pause",
+)
+STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
+    "Originating Branch",
+    "Originating Worktree",
+    "RRI Cycle ID",
+    "Governance PR",
+    "Merge Commit",
+    "Updated origin/main",
+    "Files Changed",
+    "Blockers Cleared",
+    "Blockers Remaining",
+    "Validations",
+    "Rebaseline Instructions",
+    "Next Legal Phase",
+)
+
+ASSIGNED_WORKTREE_CONFINEMENT_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
+    "Assigned Worktree Confinement",
+    "Worktree Escape User Waiver: Granted",
+    "Worktree Escape User Waiver Missing",
+    "Expected Worktree Root:",
+    "Actual Worktree Root:",
+    "No Cross-Worktree Mutation",
+    "GitHub Desktop-bound worktree",
+)
+ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
+    "Assigned Worktree Confinement",
+    "Expected Worktree Root",
+    "Actual Worktree Root",
+    "No Cross-Worktree Mutation",
+    "GitHub Desktop-bound worktree",
+    "Worktree Escape User Waiver",
+    "Worktree Escape User Waiver Missing",
+)
+
 MULTI_SEAM_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -1835,6 +1921,8 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green",
     "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
     "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
+    "green seam or green slice is continuation proof, not Hardening authority",
+    "`Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
     "`Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver",
     "Phase Boundary Stop Required",
@@ -1866,6 +1954,90 @@ MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.",
     "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
+)
+
+MANDATORY_BOUNDED_STATE_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Bounded State is mandatory",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+        "Clean validation, a clean git tree, branch existence, prior broad approval, Codex discretion, ChatGPT wording, or prompt output shape cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Bounded State is mandatory before execution",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+        "Clean validation, clean git state, branch existence, prior broad approval, prompt wording, Codex discretion, or ChatGPT review cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Workflow mode is legal only inside a proven `Bounded State:` unless USER grants an explicit bounded-state waiver",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+        "Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver",
+    ),
+    Path("Docs/Main.md"): (
+        "Bounded State Lock:",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "broad work requests do not authorize implementation",
+        "clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/branch_records/index.md"): (
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "broad work requests do not authorize implementation",
+        "clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Bounded State:",
+        "Bounded State User Waiver:",
+        "Bounded State Missing",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Bounded State:",
+        "Bounded State User Waiver:",
+        "Bounded State Missing",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Bounded State:",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "broad work requests do not authorize implementation",
+    ),
+}
+
+FAM007_BOUNDED_STATE_RECORD_REQUIRED_PHRASES = (
+    "## Bounded State Lock",
+    "Bounded State: `Complete - PR Readiness Stage 1 / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / all admitted branch-material seams SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 green, H1 proof reviewed, UTS applicability waived, LV1 green, PR-readiness scope validated, and next legal phase PR Readiness Stage 2 only`",
+    "Bounded State User Waiver: Granted",
+    "Bounded State Waiver Scope: `USER explicitly approved executing all relevant same-branch bounded Workstream tasks for all remaining admitted branch-material seams before Hardening",
+    "Hardening H1 USER Approval: `Granted - USER approved Hardening H1 proof review",
+    "Current Hardening Seam: `Hardening H1 - FAM-007 Provider Boundary And No-Provider Shell Local-Only Scaffold Chain`",
+    "Current Hardening Seam Status: `Green - H1 proof review found no runtime defect repair required`",
+    "Live Validation LV1 USER Approval: `Granted - USER approved Live Validation LV1",
+    "Current Live Validation Seam: `Live Validation LV1 - FAM-007 Provider Boundary And No-Provider Shell Applicability And No-Provider Surface Proof`",
+    "Current Live Validation Seam Status: `Green - LV1 classifies formal UTS, screenshot, shortcut, and live-client self-QA as waived",
+    "User Test Summary Results: `WAIVED`",
+    "Codex Live Client Self-QA: `WAIVED`",
+    "PR Readiness Stage 1 USER Approval: `Granted",
+    "PR Readiness Execution User Approval Missing",
+    "Broad Work Request Handling:",
+    "Bounded State Missing Stop:",
+    "Bounded State Waiver Missing Stop:",
+    "Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver",
 )
 
 INTERFACE_RELEASE_BOUNDARY_DOCS = (
@@ -1937,6 +2109,8 @@ MULTI_SEAM_PROMPT_PHRASES = (
     "continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green",
     "when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`",
     "`Workstream` reaches `Hardening` only when `Completion Status: Green`",
+    "green seam or green slice is continuation proof, not Hardening authority",
+    "`Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth",
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
     "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
     "Phase Boundary Stop Required",
@@ -2012,6 +2186,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision:",
         "Continuation Execution Latch:",
         "Stop Basis:",
+        "Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.",
         "A green seam does not authorize stop while `Slice Status` is not green.",
         "A green slice does not authorize stop while `Completion Status` is not green.",
         "`Await Next Instruction` is only legal in `Workstream` when `Completion Status: Green`, or when `Completion Status: Red` is justified by a named blocker or waiver.",
@@ -2038,6 +2213,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision",
         "Continuation Execution Latch",
         "Stop Basis",
+        "Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue rather than returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, do not end on a seam-complete final response, rollback path, or next-seam recommendation; keep executing until a lawful `Stop` decision exists.",
@@ -2060,6 +2236,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision",
         "Continuation Execution Latch",
         "Stop Basis",
+        "Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Workflow mode must continue rather than returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Workflow mode must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
@@ -2082,6 +2259,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision:",
         "Continuation Execution Latch:",
         "Stop Basis:",
+        "Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
@@ -2105,6 +2283,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision:",
         "Continuation Execution Latch:",
         "Stop Basis:",
+        "Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, Codex must continue instead of returning `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, Codex must not end on a seam-complete final response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.",
@@ -2128,6 +2307,7 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "Continue Decision",
         "Continuation Execution Latch",
         "Stop Basis",
+        "Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.",
         "If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.",
         "Use these governed state markers as execution control, not just reporting.",
         "If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.",
@@ -2448,6 +2628,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "Release Window Audit Incomplete",
     "Between-Branch Canon Repair Attempt",
     "Next Branch Created Too Early",
+    "Origin Main Reconciliation Packet Required",
     "Next Branch Package Shape Unproven",
     "Single-Slice Branch Drift Risk Unresolved",
     "Family Organization Drift Risk Unresolved",
@@ -2537,8 +2718,14 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "### Base Branch",
     "### Head Branch",
     "### PR Summary",
+    "## Branch Evidence",
+    "The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.",
+    "`## Summary` must be one concise outcome paragraph",
+    "`## Branch Evidence` must not repeat the Summary",
+    "`## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only",
     "inclusion-only",
     "defensive scope language",
+    "GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.",
 )
 
 PR_READINESS_STAGE_GATE_DOCS = (
@@ -2601,17 +2788,141 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Selected-Next / No-Release-Debt Handling Status:",
     "Required Current-Branch Source-Truth Sync:",
     "Planned Merge-Target Canon Updates:",
+    "Origin/Main Freshness Check:",
+    "Branch Creation Base:",
+    "Current origin/main:",
+    "Origin/Main Advanced Since Branch Creation:",
+    "Origin/Main Changed Files:",
+    "Branch Changed Files:",
+    "Reconciliation Required:",
+    "Reconciliation File List:",
+    "Reconciliation Recommendation:",
+    "Reconciliation Mutation Status:",
+    "Origin Main Reconciliation Packet Required",
     "Planned Next Branch Block:",
     "Planned Watcher Provisioning:",
     "Expected Files To Change:",
     "Stage 1 Repairs Made:",
     "Stage 1 Repair Validation:",
+    "Release Readiness Health Pass:",
     "PR Readiness Stage 1 Repair Pending",
     "Governance Ledger Fallback:",
     "Branch Readiness Fallback:",
     "Stage 1 Outcome:",
     "Stage 2 Sync Plan:",
+    "Next Legal Phase:",
     "Stage 2 Green-Light Decision Needed:",
+)
+
+PR_READINESS_ORIGIN_MAIN_FRESHNESS_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+
+PR_READINESS_ORIGIN_MAIN_FRESHNESS_PHRASES = (
+    "Origin/Main Freshness Check",
+    "Branch Creation Base:",
+    "Current origin/main:",
+    "Origin/Main Advanced Since Branch Creation:",
+    "Origin/Main Changed Files:",
+    "Branch Changed Files:",
+    "Reconciliation Required:",
+    "Reconciliation File List:",
+    "Reconciliation Recommendation:",
+    "Reconciliation Mutation Status:",
+    "Origin Main Reconciliation Packet Required",
+    "no file fixes during Stage 1",
+)
+
+PR_READINESS_ORIGIN_MAIN_FRESHNESS_MARKERS = (
+    "Branch Creation Base",
+    "Current origin/main",
+    "Origin/Main Advanced Since Branch Creation",
+    "Origin/Main Changed Files",
+    "Branch Changed Files",
+    "Reconciliation Required",
+    "Reconciliation File List",
+    "Reconciliation Recommendation",
+    "Reconciliation Mutation Status",
+)
+
+RELEASE_READINESS_HEALTH_GATE_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+
+RELEASE_READINESS_HEALTH_GATE_PHRASES = (
+    "Release Readiness Health Pass",
+    "--release-readiness-health-gate",
+    "post-merge source truth",
+    "Post-Merge Branch Authority Projection:",
+    "Stale Active Branch Wording Scan:",
+    "Stale PR Creation / PR Readiness Pending Wording Scan:",
+    "Merged-Unreleased Scope Posture:",
+    "Release Execution Gate:",
+    "Watcher / Live PR State Projection:",
+    "Branch Cleanup Plan:",
+    "Branch Cleanup Execution Gate:",
+    "FAM Overlap Routing:",
+    "Projected Post-Merge Validation:",
+)
+
+RELEASE_READINESS_HEALTH_PASS_REQUIRED_MARKERS = (
+    "Post-Merge Branch Authority Projection",
+    "Stale Active Branch Wording Scan",
+    "Stale PR Creation / PR Readiness Pending Wording Scan",
+    "Merged-Unreleased Scope Posture",
+    "Release Execution Gate",
+    "Watcher / Live PR State Projection",
+    "Branch Cleanup Plan",
+    "FAM Overlap Routing",
+    "Projected Post-Merge Validation",
+)
+
+RELEASE_READINESS_HEALTH_PASS_PASS_ONLY_MARKERS = (
+    "Post-Merge Branch Authority Projection",
+    "Stale Active Branch Wording Scan",
+    "Stale PR Creation / PR Readiness Pending Wording Scan",
+    "Release Execution Gate",
+    "Watcher / Live PR State Projection",
+    "Branch Cleanup Plan",
+    "FAM Overlap Routing",
+    "Projected Post-Merge Validation",
+)
+
+RELEASE_READINESS_HEALTH_PASS_OPTIONAL_MARKERS = {
+    "Merged-Unreleased Scope Posture": {"PASS", "NOT APPLICABLE", "N/A"},
+}
+
+RELEASE_READINESS_HEALTH_STALE_POST_MERGE_PATTERNS = (
+    ("active branch authority marker", r"Branch Authority Marker:\s*`?Active Branch`?"),
+    ("active branch authority state", r"Branch Authority State:\s*`?Active\b"),
+    ("active current phase", r"Phase:\s*`?(?:Branch Readiness|Workstream|Hardening|Live Validation|PR Readiness)`?"),
+    ("PR creation pending", r"\bPR Creation Pending\b"),
+    ("PR creation approval missing", r"\bPR Creation Approval Missing\b"),
+    ("PR readiness Stage 2 pending", r"\bPR Readiness Stage 2\s*(?:Pending|Denied)\b"),
+    ("PR readiness execution approval missing", r"\bPR Readiness Execution User Approval Missing\b"),
+    ("PR validation pending", r"\bPR Validation Pending\b"),
+    ("PR merge verification pending", r"\bPR Merge Verification Pending\b"),
+    ("bot review signal pending", r"\bBot Review Signal Pending\b"),
+    ("PR watcher provisioning unproven", r"\bPR Watcher Provisioning Unproven\b"),
+    ("PR watcher routing unverified", r"\bPR Watcher Routing Unverified\b"),
+    ("current PR readiness seam", r"\bCurrent PR Readiness Seam:\b"),
+    ("live open PR state", r"\bLive PR State:\s*`?open\b"),
+    ("merge-watch ownership", r"\bmerge-watch ownership\b"),
+    ("selected-next pending", r"\b(?:selected-next|selected next).{0,40}\b(?:pending|unresolved|unknown)\b"),
+    ("release floor unresolved", r"\bRelease Floor:\s*`?(?:TBD|Unknown|Unresolved|Pending)\b"),
+    ("release window unresolved", r"\bRelease Window(?: Audit)?:\s*`?(?:TBD|Unknown|Unresolved|Pending)\b"),
 )
 
 PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
@@ -2774,10 +3085,30 @@ BRANCH_READINESS_STAGE_PACKET_PHRASES = (
     "User Test Summary",
     "implementation sequence proposal",
     "validation plan",
+    "Stale Branch Cleanup Plan:",
     "expected docs sync",
     "Branch Readiness Planning Incomplete",
     "USER Vision Recommendation Missing",
+    "Next Legal Phase:",
     "Stage 2 green-light decision",
+)
+
+STALE_BRANCH_CLEANUP_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+
+STALE_BRANCH_CLEANUP_PHRASES = (
+    "Stale Branch Cleanup Plan:",
+    "Branch Cleanup Execution Gate:",
+    "GitHub Desktop-bound worktree",
+    "Branch Readiness Stage 2 - Execution Gate",
 )
 
 CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES = {
@@ -11198,6 +11529,45 @@ def _git_current_branch() -> str:
     return completed.stdout.strip()
 
 
+def _git_top_level() -> str:
+    completed = subprocess.run(
+        ("git", "rev-parse", "--show-toplevel"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return ""
+    return completed.stdout.strip()
+
+
+def _git_upstream_branch() -> str:
+    completed = subprocess.run(
+        ("git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return ""
+    return completed.stdout.strip()
+
+
+def _normalized_local_path(value: str) -> str:
+    normalized = value.strip().strip("`").strip('"').replace("/", "\\")
+    if not normalized:
+        return ""
+    try:
+        normalized = str(Path(normalized).resolve(strict=False))
+    except (OSError, RuntimeError, ValueError):
+        pass
+    return normalized.rstrip("\\").casefold()
+
+
 def _git_head_sha() -> str:
     completed = subprocess.run(
         ("git", "rev-parse", "HEAD"),
@@ -13540,6 +13910,15 @@ def _run_pr_live_state_gate(
     fallback_bot_approval = bool(pr_info.get("botApproval"))
     fallback_bot_comment_count = int(pr_info.get("botCommentCount") or 0)
     if (
+        pr_state != "OPEN"
+        and _pre_pr_stage1_state_allows_missing_live_pr(
+            active_branch_record_text,
+            "no open pull request",
+        )
+        and "historical merge proof" in active_branch_record_text.casefold()
+    ):
+        return
+    if (
         repository_full_name
         and not fallback_local_state
         and (not mergeable or mergeable == "UNKNOWN" or not merge_state or merge_state == "UNKNOWN")
@@ -13992,6 +14371,492 @@ def _run_merge_target_authority_projection_gate(
         )
 
 
+def _normalized_gate_state(value: str) -> str:
+    return value.strip().strip("`").strip().replace("-", " ").upper()
+
+
+def _gate_state_matches(marker_state: str, allowed_states: set[str]) -> bool:
+    return any(
+        marker_state == allowed_state or marker_state.startswith(f"{allowed_state} ")
+        for allowed_state in allowed_states
+    )
+
+
+def _standing_governance_intake_file_allowed(path: str) -> bool:
+    normalized = path.replace("\\", "/")
+    return normalized.startswith("Docs/") or normalized in STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES
+
+
+def _run_standing_governance_intake_gate(require) -> None:
+    branch_name = _git_current_branch()
+    branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
+    active_branch_record_paths = _collect_branch_record_paths(
+        branch_record_index_text,
+        "Active Branch Authority Records",
+    )
+    expected_record_path = STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
+    record_path, record_text = _active_branch_record_for_branch(
+        active_branch_record_paths,
+        branch_name,
+    )
+
+    require(
+        branch_name == STANDING_GOVERNANCE_INTAKE_BRANCH,
+        (
+            "Standing Governance Intake gate must run on "
+            f"`{STANDING_GOVERNANCE_INTAKE_BRANCH}`, found `{branch_name or 'detached HEAD'}`"
+        ),
+    )
+    require(
+        expected_record_path in active_branch_record_paths,
+        (
+            f"{BRANCH_RECORD_INDEX}: Standing Governance Intake Branch record "
+            f"`{expected_record_path}` must be listed under Active Branch Authority Records"
+        ),
+    )
+    require(
+        record_path == expected_record_path,
+        (
+            "Standing Governance Intake gate must resolve the active authority record "
+            f"`{expected_record_path}`, found `{record_path or 'none'}`"
+        ),
+    )
+    if not record_text:
+        return
+
+    info = _parse_workstream_doc(record_text)
+    require(
+        str(info["branch_class"]) == STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS,
+        (
+            f"{expected_record_path}: Branch Class must be "
+            f"`{STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS}`"
+        ),
+    )
+
+    tracked_status = _git_status_porcelain(tracked_only=True)
+    require(
+        not tracked_status,
+        (
+            "Standing Governance Intake gate requires a clean tracked worktree; "
+            f"dirty tracked status: {tracked_status}"
+        ),
+    )
+
+    contract = _section(record_text, "Standing Governance Intake Contract")
+    return_digest = _section(record_text, "Return Digest Contract")
+    require(
+        bool(contract),
+        f"{expected_record_path}: missing ## Standing Governance Intake Contract",
+    )
+    require(
+        bool(return_digest),
+        f"{expected_record_path}: missing ## Return Digest Contract",
+    )
+    for marker in STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS:
+        value = _extract_marker_value(contract, marker)
+        require(
+            bool(value),
+            f"{expected_record_path}: Standing Governance Intake Contract is missing '{marker}:'",
+        )
+    for marker in STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS:
+        require(
+            marker in return_digest,
+            f"{expected_record_path}: Return Digest Contract is missing '{marker}:'",
+        )
+
+    intake_source = _extract_marker_value(contract, "Intake Source")
+    require(
+        "Release Readiness digest only" in intake_source,
+        (
+            f"{expected_record_path}: Intake Source must be limited to "
+            "`Release Readiness digest only`"
+        ),
+    )
+    require(
+        "Waiting For Governance Intake" in record_text and "Waiting For Updated Main" in record_text,
+        (
+            f"{expected_record_path}: originating-lane pause semantics must include "
+            "`Waiting For Governance Intake` and `Waiting For Updated Main`"
+        ),
+    )
+
+    active_cycle_values = re.findall(
+        r"^\s*(?:-\s*)?Active RRI Cycle:\s*`?([^`\n]+)`?\s*$",
+        record_text,
+        flags=re.M,
+    )
+    active_cycles = [
+        value.strip()
+        for value in active_cycle_values
+        if re.fullmatch(r"RRI-\d{8}-\d{3}", value.strip())
+    ]
+    require(
+        len(set(active_cycles)) <= 1,
+        f"{expected_record_path}: only one active `RRI-*` cycle may be recorded",
+    )
+
+    active_cycle = active_cycles[-1] if active_cycles else ""
+    bootstrap_setup_recorded = (
+        "Bootstrap Setup:" in record_text
+        and "RRI-20260514-001" in record_text
+        and "one-time USER-approved exception" in record_text
+    )
+    bootstrap_base_match = re.search(
+        r"Branch created from `origin/main` at `([0-9a-f]{40})`",
+        record_text,
+    )
+    bootstrap_base_sha = bootstrap_base_match.group(1) if bootstrap_base_match else ""
+    if bootstrap_setup_recorded:
+        require(
+            bool(bootstrap_base_sha),
+            (
+                f"{expected_record_path}: Bootstrap Exception Limit requires the "
+                "branch creation base SHA to be recorded"
+            ),
+        )
+    if active_cycle:
+        require(
+            "Release Readiness digest only" in intake_source,
+            f"{expected_record_path}: active {active_cycle} must originate from Release Readiness",
+        )
+
+    head_sha = _git_head_sha()
+    origin_main_sha = _git_ref_sha("refs/remotes/origin/main")
+    require(bool(head_sha), "Standing Governance Intake gate could not resolve HEAD")
+    require(bool(origin_main_sha), "Standing Governance Intake gate could not resolve origin/main")
+    bootstrap_active = bool(
+        bootstrap_setup_recorded
+        and bootstrap_base_sha
+        and origin_main_sha
+        and origin_main_sha == bootstrap_base_sha
+    )
+    if head_sha and origin_main_sha:
+        changed_files, changed_error = _git_changed_files(origin_main_sha, head_sha)
+        require(
+            not changed_error,
+            f"Standing Governance Intake gate could not inspect origin/main..HEAD: {changed_error}",
+        )
+        if changed_files:
+            ancestor_ok, ancestor_error = _git_is_ancestor(origin_main_sha, head_sha)
+            require(
+                not ancestor_error and ancestor_ok,
+                (
+                    "Standing Governance Intake branch must be based on current origin/main "
+                    f"before carrying bootstrap or RRI-cycle changes: {ancestor_error}"
+                ),
+            )
+            for changed_file in changed_files:
+                require(
+                    _standing_governance_intake_file_allowed(changed_file),
+                    (
+                        "Standing Governance Intake may touch only source-truth/governance "
+                        f"docs or registered governance validators; forbidden file: {changed_file}"
+                    ),
+                )
+            require(
+                bool(active_cycle or bootstrap_active),
+                (
+                    "Standing Governance Intake branch is ahead of origin/main without an "
+                    "active RRI cycle or the recorded bootstrap setup exception"
+                ),
+            )
+        else:
+            require(
+                not active_cycle,
+                (
+                    "Standing Governance Intake is equal to origin/main but still records "
+                    f"active cycle `{active_cycle}`"
+                ),
+            )
+
+
+def _run_worktree_confinement_gate(require) -> None:
+    branch_name = _git_current_branch()
+    actual_root = _git_top_level()
+    upstream_branch = _git_upstream_branch()
+    branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
+    active_branch_record_paths = _collect_branch_record_paths(
+        branch_record_index_text,
+        "Active Branch Authority Records",
+    )
+    record_path, record_text = _active_branch_record_for_branch(
+        active_branch_record_paths,
+        branch_name,
+    )
+
+    require(
+        bool(branch_name),
+        "Assigned Worktree Confinement gate requires a checked-out branch, found detached HEAD",
+    )
+    require(
+        bool(actual_root),
+        "Assigned Worktree Confinement gate could not resolve git top-level worktree root",
+    )
+    require(
+        bool(record_text),
+        (
+            "Assigned Worktree Confinement gate requires the current branch to have an "
+            "active branch authority record"
+        ),
+    )
+    if not record_text:
+        return
+
+    identity = _section(record_text, "Branch Identity")
+    expected_root = _extract_marker_value(identity, "Worktree")
+    confinement = _section(record_text, "Assigned Worktree Confinement")
+    require(
+        bool(expected_root),
+        f"{record_path}: Assigned Worktree Confinement requires a Branch Identity `Worktree:` marker",
+    )
+    require(
+        bool(confinement),
+        f"{record_path}: missing ## Assigned Worktree Confinement",
+    )
+    for marker in ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS:
+        require(
+            marker in confinement,
+            f"{record_path}: Assigned Worktree Confinement is missing '{marker}:'",
+        )
+
+    if expected_root and actual_root:
+        roots_match = _normalized_local_path(expected_root) == _normalized_local_path(actual_root)
+        waiver_state = _extract_marker_value(confinement, "Worktree Escape User Waiver")
+        if roots_match:
+            require(True, "Assigned Worktree Confinement root match")
+        else:
+            require(
+                waiver_state.startswith("Granted") and actual_root in confinement,
+                (
+                    "Worktree Escape User Waiver Missing: active git root does not match "
+                    f"the assigned worktree. Expected `{expected_root}`, actual `{actual_root}`. "
+                    "Stop before mutation unless USER grants `Worktree Escape User Waiver: Granted` "
+                    "with expected root, actual root, target root, allowed commands/files, expiration, "
+                    "validation, and return path."
+                ),
+            )
+
+    if branch_name and upstream_branch:
+        require(
+            upstream_branch == f"origin/{branch_name}",
+            (
+                "Assigned Worktree Confinement gate requires the branch upstream to match "
+                f"`origin/{branch_name}`, found `{upstream_branch}`"
+            ),
+        )
+
+
+def _run_release_readiness_health_gate(
+    require,
+    *,
+    backlog_entries: list[dict[str, str]] | None = None,
+    active_branch_record_path: str = "",
+    active_branch_record_text: str = "",
+) -> None:
+    branch_name = _git_current_branch()
+    branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
+    active_branch_record_paths = _collect_branch_record_paths(
+        branch_record_index_text,
+        "Active Branch Authority Records",
+    )
+    historical_branch_record_paths = _collect_branch_record_paths(
+        branch_record_index_text,
+        "Historical Branch Authority Records",
+    )
+    current_active_branch_record_path, current_active_branch_record_text = _active_branch_record_for_branch(
+        active_branch_record_paths,
+        branch_name,
+    )
+    historical_branch_record_path, historical_branch_record_text = _branch_record_for_branch(
+        historical_branch_record_paths,
+        branch_name,
+    )
+
+    record_path = current_active_branch_record_path or active_branch_record_path
+    record_text = current_active_branch_record_text or active_branch_record_text
+    if historical_branch_record_text:
+        record_path = historical_branch_record_path
+        record_text = historical_branch_record_text
+    if not record_text:
+        if backlog_entries is None:
+            backlog_entries = _parse_backlog_sections(_read_text(Path("Docs/feature_backlog.md")))
+        for entry in backlog_entries:
+            entry_branch = _extract_colon_value(entry["block"], "Branch").strip("`")
+            if entry_branch != branch_name:
+                continue
+            canonical_path = entry["canonical_path"]
+            if canonical_path:
+                record_path = canonical_path
+                record_text = _read_text(Path(canonical_path))
+            break
+    if not record_text:
+        require(True, "Release Readiness Health Pass: not applicable without a current branch authority record")
+        return
+
+    info = _parse_workstream_doc(record_text)
+    current_phase = str(info["current_phase"])
+    is_projected_historical_pr_context = bool(
+        historical_branch_record_path and _section(record_text, "Post-Merge State")
+    )
+    if current_phase != "PR Readiness" and not is_projected_historical_pr_context:
+        require(True, "Release Readiness Health Pass: not applicable outside PR Readiness")
+        return
+
+    health_pass = _section(record_text, "Release Readiness Health Pass")
+    require(
+        bool(health_pass),
+        f"{record_path}: PR Readiness requires a ## Release Readiness Health Pass section",
+    )
+    if not health_pass:
+        return
+
+    for marker in RELEASE_READINESS_HEALTH_PASS_REQUIRED_MARKERS:
+        marker_state = _normalized_gate_state(_extract_marker_value(health_pass, marker))
+        require(
+            bool(marker_state),
+            f"{record_path}: Release Readiness Health Pass is missing '{marker}:'",
+        )
+        if not marker_state:
+            continue
+        if marker in RELEASE_READINESS_HEALTH_PASS_PASS_ONLY_MARKERS:
+            require(
+                _gate_state_matches(marker_state, {"PASS"}),
+                (
+                    f"{record_path}: Release Readiness Health Pass marker '{marker}:' "
+                    f"must be PASS before PR merge readiness, found '{marker_state}'"
+                ),
+            )
+        else:
+            allowed_states = RELEASE_READINESS_HEALTH_PASS_OPTIONAL_MARKERS.get(marker, {"PASS"})
+            require(
+                _gate_state_matches(marker_state, allowed_states),
+                (
+                    f"{record_path}: Release Readiness Health Pass marker '{marker}:' "
+                    f"must be one of {sorted(allowed_states)}, found '{marker_state}'"
+                ),
+            )
+
+    post_merge_state = _section(record_text, "Post-Merge State")
+    require(
+        bool(post_merge_state),
+        f"{record_path}: Release Readiness Health Pass requires a Post-Merge State section",
+    )
+    if not post_merge_state:
+        return
+
+    if "No Active Branch" in post_merge_state:
+        _run_merge_target_authority_projection_gate(
+            require,
+            active_branch_record_paths=active_branch_record_paths,
+            active_branch_record_path=current_active_branch_record_path,
+            active_branch_record_text=current_active_branch_record_text,
+            merge_stable_branch_record_path=historical_branch_record_path,
+            merge_stable_branch_record_text=historical_branch_record_text,
+        )
+
+    projected_truth = "\n".join(
+        (
+            _section(record_text, "Current Phase"),
+            _section(record_text, "Phase Status"),
+            post_merge_state,
+        )
+    )
+    for label, pattern in RELEASE_READINESS_HEALTH_STALE_POST_MERGE_PATTERNS:
+        require(
+            re.search(pattern, projected_truth, flags=re.I) is None,
+            (
+                f"{record_path}: Release Readiness Health Pass failed; projected "
+                f"post-merge source truth still contains stale {label}"
+            ),
+        )
+
+    merged_unreleased_state = _normalized_gate_state(
+        _extract_marker_value(health_pass, "Merged-Unreleased Scope Posture")
+    )
+    if str(info["branch_class"]) == "implementation":
+        require(
+            _gate_state_matches(merged_unreleased_state, {"PASS"})
+            and "merged-unreleased" in f"{health_pass}\n{post_merge_state}".casefold(),
+            (
+                f"{record_path}: implementation PRs must record the merged-unreleased "
+                "scope posture before merge when release execution is not being performed"
+            ),
+        )
+
+
+def _run_pr_origin_main_freshness_gate(
+    require,
+    *,
+    active_branch_record_path: str,
+    active_branch_record_text: str,
+) -> None:
+    if not active_branch_record_text:
+        return
+
+    info = _parse_workstream_doc(active_branch_record_text)
+    if str(info["current_phase"]) != "PR Readiness":
+        return
+
+    freshness = _section(active_branch_record_text, "Origin/Main Freshness Check")
+    if not freshness:
+        stage1_packet = _section(active_branch_record_text, "PR Readiness Stage 1 Analysis Packet")
+        if "Origin/Main Freshness Check:" in stage1_packet:
+            freshness = stage1_packet
+    require(
+        bool(freshness),
+        (
+            f"{active_branch_record_path}: PR Readiness Stage 1 requires "
+            "Origin/Main Freshness Check fields in the Stage 1 packet before Stage 2 or PR creation"
+        ),
+    )
+    if not freshness:
+        return
+
+    for marker in PR_READINESS_ORIGIN_MAIN_FRESHNESS_MARKERS:
+        require(
+            bool(_extract_marker_value(freshness, marker)),
+            f"{active_branch_record_path}: Origin/Main Freshness Check is missing '{marker}:'",
+        )
+
+    mutation_status = _extract_marker_value(
+        freshness, "Reconciliation Mutation Status"
+    ).casefold()
+    require(
+        "no file fixes during stage 1" in mutation_status
+        or ("analysis-only" in mutation_status and "no file" in mutation_status),
+        (
+            f"{active_branch_record_path}: Origin/Main Freshness Check must make "
+            "reconciliation analysis-only with no file fixes during Stage 1"
+        ),
+    )
+
+    advanced = _normalized_gate_state(
+        _extract_marker_value(freshness, "Origin/Main Advanced Since Branch Creation")
+    )
+    reconciliation_required = _normalized_gate_state(
+        _extract_marker_value(freshness, "Reconciliation Required")
+    )
+    reconciliation_list = _extract_marker_value(freshness, "Reconciliation File List")
+    recommendation = _extract_marker_value(freshness, "Reconciliation Recommendation")
+    if _gate_state_matches(advanced, {"YES"}) and _gate_state_matches(
+        reconciliation_required, {"YES"}
+    ):
+        require(
+            bool(reconciliation_list) and reconciliation_list.upper() not in {"NONE", "N/A"},
+            (
+                f"{active_branch_record_path}: Origin Main Reconciliation Packet Required; "
+                "Reconciliation File List must enumerate every file/data owner needing review"
+            ),
+        )
+        require(
+            bool(recommendation) and recommendation.upper() not in {"NONE", "N/A"},
+            (
+                f"{active_branch_record_path}: Origin Main Reconciliation Packet Required; "
+                "Reconciliation Recommendation must explain the recommended reconcile route"
+            ),
+        )
+
+
 def _run_pr_readiness_gate(
     require,
     backlog_entries: list[dict[str, str]],
@@ -14045,6 +14910,11 @@ def _run_pr_readiness_gate(
             "and required branch truth must be durable in commit history before PR READY: YES"
         ),
     )
+    _run_pr_origin_main_freshness_gate(
+        require,
+        active_branch_record_path=active_branch_record_path,
+        active_branch_record_text=active_branch_record_text,
+    )
     _run_uts_results_pr_gate(require, backlog_entries)
     _run_next_workstream_gate(
         require,
@@ -14062,6 +14932,12 @@ def _run_pr_readiness_gate(
         merge_stable_branch_record_path=historical_branch_record_path,
         merge_stable_branch_record_text=historical_branch_record_text,
     )
+    _run_release_readiness_health_gate(
+        require,
+        backlog_entries=backlog_entries,
+        active_branch_record_path=active_branch_record_path,
+        active_branch_record_text=active_branch_record_text,
+    )
     _run_pr_live_state_gate(
         require,
         active_branch_record_path=active_branch_record_path,
@@ -14071,6 +14947,9 @@ def _run_pr_readiness_gate(
 
 def main() -> int:
     pr_readiness_gate = "--pr-readiness-gate" in sys.argv[1:]
+    release_readiness_health_gate = "--release-readiness-health-gate" in sys.argv[1:]
+    standing_governance_intake_gate = "--standing-governance-intake-gate" in sys.argv[1:]
+    worktree_confinement_gate = "--worktree-confinement-gate" in sys.argv[1:]
     errors: list[str] = []
     checks = 0
 
@@ -14174,6 +15053,22 @@ def main() -> int:
                 f"{relative_path}: governance-only / between-branch repair blocker guidance is missing '{required_phrase}'",
             )
 
+    for relative_path in STANDING_GOVERNANCE_INTAKE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in STANDING_GOVERNANCE_INTAKE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Standing Governance Intake Branch guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in ASSIGNED_WORKTREE_CONFINEMENT_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in ASSIGNED_WORKTREE_CONFINEMENT_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: assigned worktree confinement guidance is missing '{required_phrase}'",
+            )
+
     for relative_path in MULTI_SEAM_CONTRACT_DOCS:
         text = _read_text(relative_path)
         lower_text = text.casefold()
@@ -14192,6 +15087,25 @@ def main() -> int:
                 prohibited_phrase not in lower_text,
                 f"{relative_path}: bounded seam workflow must not recreate single-seam throttling authority via '{prohibited_phrase}'",
             )
+
+    for relative_path, required_phrases in MANDATORY_BOUNDED_STATE_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        lower_text = text.casefold()
+        for required_phrase in required_phrases:
+            require(
+                required_phrase.casefold() in lower_text,
+                f"{relative_path}: mandatory bounded-state governance is missing '{required_phrase}'",
+            )
+
+    fam007_record_path = Path(
+        "Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md"
+    )
+    fam007_record_text = _read_text(fam007_record_path)
+    for required_phrase in FAM007_BOUNDED_STATE_RECORD_REQUIRED_PHRASES:
+        require(
+            required_phrase in fam007_record_text,
+            f"{fam007_record_path}: FAM-007 bounded-state lock is missing '{required_phrase}'",
+        )
 
     for relative_path in INTERFACE_RELEASE_BOUNDARY_DOCS:
         text = _read_text(relative_path)
@@ -14402,6 +15316,30 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness Stage 1 packet contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in PR_READINESS_ORIGIN_MAIN_FRESHNESS_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_READINESS_ORIGIN_MAIN_FRESHNESS_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR Readiness origin/main freshness guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in RELEASE_READINESS_HEALTH_GATE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in RELEASE_READINESS_HEALTH_GATE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Release Readiness Health Pass guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in STALE_BRANCH_CLEANUP_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in STALE_BRANCH_CLEANUP_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: stale branch cleanup governance is missing '{required_phrase}'",
             )
 
     for relative_path, required_phrases in PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES.items():
@@ -15093,9 +16031,25 @@ def main() -> int:
             active_branch_record_path,
             active_branch_record_text,
         )
+    elif release_readiness_health_gate:
+        _run_release_readiness_health_gate(
+            require,
+            backlog_entries=backlog_entries,
+            active_branch_record_path=active_branch_record_path,
+            active_branch_record_text=active_branch_record_text,
+        )
+    elif standing_governance_intake_gate:
+        _run_standing_governance_intake_gate(require)
+    elif worktree_confinement_gate:
+        _run_worktree_confinement_gate(require)
 
     selected_entries = _selected_next_workstream_entries(backlog_entries)
-    if len(selected_entries) == 1 and not pr_readiness_gate:
+    if (
+        len(selected_entries) == 1
+        and not pr_readiness_gate
+        and not standing_governance_intake_gate
+        and not worktree_confinement_gate
+    ):
         selected = selected_entries[0]
         selected_id = selected["id"]
         roadmap_section = _next_workstream_roadmap_section(roadmap_text)

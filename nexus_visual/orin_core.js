@@ -17,6 +17,19 @@ const commandConfirmTarget = document.getElementById("command-confirm-target");
 const aiProviderStatus = document.getElementById("ai-provider-status");
 const aiProviderStatusState = document.getElementById("ai-provider-status-state");
 const aiProviderStatusProvider = document.getElementById("ai-provider-status-provider");
+const aiProviderStatusSelection = document.getElementById("ai-provider-status-selection");
+const aiProviderStatusConfiguration = document.getElementById("ai-provider-status-configuration");
+const aiProviderStatusRegistry = document.getElementById("ai-provider-status-registry");
+const aiProviderStatusHardware = document.getElementById("ai-provider-status-hardware");
+const aiProviderStatusCapabilityPack = document.getElementById("ai-provider-status-capability-pack");
+const aiProviderStatusMemory = document.getElementById("ai-provider-status-memory");
+const aiProviderStatusWindows = document.getElementById("ai-provider-status-windows");
+const aiProviderStatusPersona = document.getElementById("ai-provider-status-persona");
+const aiProviderStatusValidation = document.getElementById("ai-provider-status-validation");
+const aiProviderStatusConsent = document.getElementById("ai-provider-status-consent");
+const aiProviderStatusDisclosure = document.getElementById("ai-provider-status-disclosure");
+const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
+const aiProviderStatusFallback = document.getElementById("ai-provider-status-fallback");
 const aiProviderStatusPrivacy = document.getElementById("ai-provider-status-privacy");
 
 let w = 0;
@@ -48,11 +61,41 @@ let aiProviderState = {
   availability: "disabled",
   providerLabel: "No AI provider",
   statusLabel: "AI unavailable",
+  selectedProviderId: "no-provider",
+  providerSelectionState: "fallback-no-provider",
+  providerSelectionLabel: "No-provider fallback active",
+  providerConfigurationState: "unconfigured",
+  providerConfigurationLabel: "Provider configuration: none",
+  providerRegistryState: "local-only-registry",
+  providerRegistryLabel: "Local provider registry: no configured providers",
+  configuredProviderCount: 0,
+  availableProviderCount: 0,
+  hardwareCapabilityState: "local-planning-only",
+  hardwareCapabilityLabel: "Hardware capability: local planning only",
+  capabilityPackLifecycleState: "capability-pack-lifecycle-planned",
+  capabilityPackLifecycleLabel: "Capability packs: lifecycle planned",
+  memoryContextState: "memory-context-disabled",
+  memoryContextLabel: "Memory/context: disabled; no indexing",
+  windowsResilienceState: "windows-resilience-planned",
+  windowsResilienceLabel: "Windows resilience: planning only",
+  personaCoreVoiceState: "persona-core-voice-boundary-planned",
+  personaCoreVoiceLabel: "Persona/Core/voice: planning boundary",
+  validationProofGateState: "validation-proof-gates-planned",
+  validationProofGateLabel: "Validation gates: static proof active",
   privacyScope: "local-only",
   privacyLabel: "Local shell only; nothing is sent",
+  consentState: "required-before-provider",
+  consentLabel: "Consent required before provider setup",
   providerVisibleData: "none",
+  providerVisibleDataLabel: "Provider-visible data: none",
+  interactionAffordance: "disabled-no-provider-interaction",
+  interactionLabel: "Assisted Desktop unavailable",
+  interactionDisabledReason: "Consent and provider configuration are required before prompts can run",
+  noProviderFallbackLabel: "No-provider fallback active",
   sentToProvider: false,
-  canAcceptPrompts: false
+  canAcceptPrompts: false,
+  requiresConsent: true,
+  providerOptions: []
 };
 
 const backParticles = [];
@@ -1149,6 +1192,22 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.mode = state.mode || "unknown";
   aiProviderStatus.dataset.availability = state.availability || "disabled";
   aiProviderStatus.dataset.privacyScope = state.privacyScope || "unknown";
+  aiProviderStatus.dataset.providerSelection = state.providerSelectionState || "unknown";
+  aiProviderStatus.dataset.providerConfiguration = state.providerConfigurationState || "unknown";
+  aiProviderStatus.dataset.providerRegistry = state.providerRegistryState || "unknown";
+  aiProviderStatus.dataset.configuredProviderCount = String(state.configuredProviderCount || 0);
+  aiProviderStatus.dataset.availableProviderCount = String(state.availableProviderCount || 0);
+  aiProviderStatus.dataset.hardwareCapability = state.hardwareCapabilityState || "unknown";
+  aiProviderStatus.dataset.capabilityPackLifecycle = state.capabilityPackLifecycleState || "unknown";
+  aiProviderStatus.dataset.memoryContext = state.memoryContextState || "unknown";
+  aiProviderStatus.dataset.windowsResilience = state.windowsResilienceState || "unknown";
+  aiProviderStatus.dataset.personaVoiceBoundary = state.personaCoreVoiceState || "unknown";
+  aiProviderStatus.dataset.validationGates = state.validationProofGateState || "unknown";
+  aiProviderStatus.dataset.selectedProvider = state.selectedProviderId || "unknown";
+  aiProviderStatus.dataset.consentState = state.consentState || "unknown";
+  aiProviderStatus.dataset.interactionAffordance = state.interactionAffordance || "unknown";
+  aiProviderStatus.dataset.providerVisibleData = state.providerVisibleData || "unknown";
+  aiProviderStatus.dataset.requiresConsent = state.requiresConsent ? "true" : "false";
   aiProviderStatus.dataset.sentToProvider = state.sentToProvider ? "true" : "false";
   aiProviderStatus.dataset.canAcceptPrompts = state.canAcceptPrompts ? "true" : "false";
 
@@ -1157,6 +1216,49 @@ function renderAIProviderState() {
   }
   if (aiProviderStatusProvider) {
     aiProviderStatusProvider.textContent = state.providerLabel || "No AI provider";
+  }
+  if (aiProviderStatusSelection) {
+    aiProviderStatusSelection.textContent = state.providerSelectionLabel || "No-provider fallback active";
+  }
+  if (aiProviderStatusConfiguration) {
+    aiProviderStatusConfiguration.textContent = state.providerConfigurationLabel || "Provider configuration: none";
+  }
+  if (aiProviderStatusRegistry) {
+    aiProviderStatusRegistry.textContent = state.providerRegistryLabel || "Local provider registry: no configured providers";
+  }
+  if (aiProviderStatusHardware) {
+    aiProviderStatusHardware.textContent = state.hardwareCapabilityLabel || "Hardware capability: local planning only";
+  }
+  if (aiProviderStatusCapabilityPack) {
+    aiProviderStatusCapabilityPack.textContent = state.capabilityPackLifecycleLabel || "Capability packs: lifecycle planned";
+  }
+  if (aiProviderStatusMemory) {
+    aiProviderStatusMemory.textContent = state.memoryContextLabel || "Memory/context: disabled; no indexing";
+  }
+  if (aiProviderStatusWindows) {
+    aiProviderStatusWindows.textContent = state.windowsResilienceLabel || "Windows resilience: planning only";
+  }
+  if (aiProviderStatusPersona) {
+    aiProviderStatusPersona.textContent = state.personaCoreVoiceLabel || "Persona/Core/voice: planning boundary";
+  }
+  if (aiProviderStatusValidation) {
+    aiProviderStatusValidation.textContent = state.validationProofGateLabel || "Validation gates: static proof active";
+  }
+  if (aiProviderStatusConsent) {
+    aiProviderStatusConsent.textContent = state.consentLabel || "Consent required before provider setup";
+  }
+  if (aiProviderStatusDisclosure) {
+    aiProviderStatusDisclosure.textContent = state.providerVisibleDataLabel || "Provider-visible data: none";
+  }
+  if (aiProviderStatusAction) {
+    aiProviderStatusAction.textContent = state.interactionLabel || "Assisted Desktop unavailable";
+    aiProviderStatusAction.title =
+      state.interactionDisabledReason || "Provider consent is required before AI prompts can run";
+    aiProviderStatusAction.disabled = true;
+    aiProviderStatusAction.setAttribute("aria-disabled", "true");
+  }
+  if (aiProviderStatusFallback) {
+    aiProviderStatusFallback.textContent = state.noProviderFallbackLabel || "No-provider fallback active";
   }
   if (aiProviderStatusPrivacy) {
     aiProviderStatusPrivacy.textContent = state.privacyLabel || "Local shell only; nothing is sent";

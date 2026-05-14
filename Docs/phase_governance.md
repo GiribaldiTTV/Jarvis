@@ -49,6 +49,28 @@ If `Seam Sequence` is present, it is structure only.
 Prompt text may name the entry seam and downstream planned seams, but it does not define seam behavior, bypass phase rules, or authorize continuation by itself.
 The canonical seam workflow contract below controls whether Codex may continue, must stop, or may split a backlog item across branches only with explicit USER approval.
 
+## Mandatory Bounded State Gate
+
+Bounded State is mandatory for every execution pass that can mutate repo files, create or switch branches/worktrees, commit, push, create a PR, handle PR comments, run release actions, launch runtime validation, mutate shortcuts, install providers/models, or hand off GitHub Desktop state.
+
+Before mutation or execution, Codex must prove and report a `Bounded State:` with all of these fields:
+
+- exact phase and stage
+- active workspace, git root, branch, upstream, `HEAD`, `origin/main`, worktree role, and write target
+- owning workstream or branch authority record
+- active package, slice, and seam, or an explicit non-FAM repair carrier allowed by source truth
+- exact allowed scope, affected surfaces, and validation contract
+- explicit non-includes and pending USER decisions
+- stop/report conditions and the next legal phase
+
+If any required bounded-state field is missing, stale, contradictory, or cannot be resolved from source truth, Codex must stop on `Bounded State Missing` before mutation. Analysis may continue only far enough to report the missing field and the exact USER decision needed.
+
+Broad work requests do not authorize implementation. Phrases such as `continue`, `complete all`, `all remaining work`, `finish FAM-007`, `do whatever is next`, or similar broad wording must resolve to the next named bounded same-branch seam already recorded in source truth. If they do not resolve to exactly one active bounded seam, Codex must stop on `Bounded State Missing` or `Next Bounded Workstream Seam Approval Missing`.
+
+Widening beyond the current bounded state requires explicit USER waiver text recorded as `Bounded State User Waiver: Granted`. The waiver must name the branch/worktree, phase, slice/seam, the exact bound being relaxed, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions. If a task needs wider scope and that waiver is absent, stop on `Bounded State Waiver Missing`.
+
+Clean validation, a clean git tree, branch existence, prior broad approval, Codex discretion, ChatGPT wording, or prompt output shape cannot infer a bounded-state waiver. `Bounded State User Waiver: None` means execute only the single named bounded seam or stop.
+
 ## Branch Naming Prefix Rule
 
 Active Nexus branch names and active branch authority records must not use the `codex/` prefix.
@@ -108,13 +130,14 @@ The response or status handoff must explicitly report:
 `Green` means complete for the level it names.
 A green seam does not authorize stop while `Slice Status` is not green.
 A green slice does not authorize stop while `Completion Status` is not green.
+A green seam or green slice is continuation proof, not Hardening authority, while any admitted same-branch seam or slice remains implementable; the next legal unit is the next named Workstream seam or the next admitted slice.
 
 `Completion Status` is the `Workstream`-level bounded gate:
 It is the exact `Phase: Workstream Status` field for stop authority.
 
 - `In Progress` = more same-branch `Workstream` work remains and continuation is required
 - `Red` = a named blocker or waiver currently stops bounded `Workstream` continuation
-- `Green` = `Workstream` backlog completion is proven complete and `Hardening` is the next legal phase
+- `Green` = every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; `Workstream` backlog completion is proven complete and `Hardening` is the next legal phase
 
 `Phase: Workstream` must remain bounded at all times.
 The only lawful `Workstream` stop conditions are:
@@ -277,6 +300,7 @@ This path is for:
 `docs/governance` branch records may exist as historical records, but new governance-only branches are not used in the normal Nexus flow.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
+The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`, and it may accept only a `Release Readiness digest` with an `RRI-YYYYMMDD-NNN` cycle ID, `One Active Cycle`, the pre-intake `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main` pause semantics, and a post-merge `Return Digest`.
 If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 Tightly coupled governance and canon repair must ride on the active branch that owns the affected truth.
@@ -818,6 +842,8 @@ Hard blockers:
   PR Readiness cannot be green if branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, or release-debt routing is incomplete or being deferred to Release Readiness, updated `main`, or a later governance-only branch
 - `Release Window Audit Incomplete`:
   PR Readiness cannot be green inside an unreleased release window until the active branch has audited that window, listed the currently known blocker set, and either clears those blockers on the same branch or records an explicit split waiver with user approval. Do not merge one blocker-clearing PR while already knowing that another blocker-clearing PR is queued behind it in the same unreleased window by default.
+- `Release Readiness Health Pass Incomplete`:
+  PR Readiness must prove post-merge source truth before PR creation or merge readiness. PR Readiness cannot be green until the active PR branch has run and recorded the `Release Readiness Health Pass`, using `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`, so projected merged `main` would enter Release Readiness without stale source-truth cleanup.
 - `Between-Branch Canon Repair Attempt`:
   PR Readiness cannot rely on any canon repair that is planned between branches rather than committed on the active branch before merge
 - `Next Branch Created Too Early`:
@@ -834,7 +860,7 @@ If the normal governance validator passes but the PR-specific gate reports dirty
   This preserves the existing analysis-first blocker repair gate inside the readiness lock.
 - `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2 and only when Stage 1 reports `Stage 1 Ready For Stage 2`. Stage 2 owns final PR execution only: verifying durable Stage 1 projection, commit/push only for bounded operator metadata if legally needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch.
 
-The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, release-debt impact, release-debt handling status, selected-next / no-release-debt handling status, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size / single-slice drift review, Element Coverage review, required current-branch source-truth sync, completed merge-target canon updates when repairable drift is found, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected Stage 2 execution work, Stage 1 repairs made, Stage 1 repair validation, Governance Ledger fallback status, Branch Readiness fallback status, Stage 2 execution plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, and the exact Stage 2 green-light decision needed from the USER. It may repair Stage 1 PR-readiness blockers on the current branch, but it must not perform Stage 2 or create the PR/watcher. It may encode selected-next truth only when USER explicitly approves selected-next sync, and branch creation plus runtime package admission must stay blocked for Branch Readiness. PR creation is blocked while any Stage 1 blocker, Stage 1 repair item, next-workstream hierarchy item, branch-shape review item, merge-target authority projection item, no-release-debt posture, unavoidable release-debt owner contract, selected-next truth or USER waiver, or Stage 2 execution prerequisite remains unresolved.
+The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, release-debt impact, release-debt handling status, selected-next / no-release-debt handling status, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size / single-slice drift review, Element Coverage review, required current-branch source-truth sync, completed merge-target canon updates when repairable drift is found, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected Stage 2 execution work, Stage 1 repairs made, Stage 1 repair validation, Governance Ledger fallback status, Branch Readiness fallback status, Stage 2 execution plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER. It may repair Stage 1 PR-readiness blockers on the current branch, but it must not perform Stage 2 or create the PR/watcher. It may encode selected-next truth only when USER explicitly approves selected-next sync, and branch creation plus runtime package admission must stay blocked for Branch Readiness. PR creation is blocked while any Stage 1 blocker, Stage 1 repair item, next-workstream hierarchy item, branch-shape review item, merge-target authority projection item, no-release-debt posture, unavoidable release-debt owner contract, selected-next truth or USER waiver, or Stage 2 execution prerequisite remains unresolved.
 
 `PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
 
@@ -843,6 +869,33 @@ Live PR creation and validation facts are required for operator output and PR va
 Merge-target post-merge-stable authority projection is mandatory before PR green and is a PR Readiness Stage 1 repair responsibility when Stage 1 finds it. If post-merge truth will be `No Active Branch`, the PR branch must not merge an active branch authority record into `main`; the active authority record must be moved to historical/no-active posture or otherwise made merge-stable during Stage 1 before Stage 2 can execute, and that `No Active Branch` projection must be backed by explicit USER waiver/defer when a next branch/workstream should otherwise be selected. Historical branch records must not retain active PR Readiness phase, active seam ownership, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`. Operational PR/watcher facts may live in operator output or explicit historical PR sections, but merged current-state owners and historical authority records must already describe the post-merge truth that will remain valid after merge.
 
 `Merge-Target Authority Projection Unproven` blocks PR green whenever that post-merge-stable authority projection is missing or would leave active branch-authority truth in merged `main`.
+
+### Release Readiness Health Pass
+
+The `Release Readiness Health Pass` is a PR Readiness pre-merge gate. It must run during PR Readiness Stage 1, after any Stage 2 or bot-review repair that changes source truth, and again before merge approval if the branch source truth changed after the prior run. The command is:
+
+```powershell
+python dev\orin_branch_governance_validation.py --release-readiness-health-gate
+```
+
+The health pass proves post-merge source truth before PR creation or merge readiness. It must fail if projected merged `main` would force Release Readiness to repair source truth instead of validating release posture.
+
+The owning branch/workstream authority record must include:
+
+- `Post-Merge Branch Authority Projection:`
+- `Stale Active Branch Wording Scan:`
+- `Stale PR Creation / PR Readiness Pending Wording Scan:`
+- `Merged-Unreleased Scope Posture:`
+- `Release Execution Gate:`
+- `Watcher / Live PR State Projection:`
+- `Branch Cleanup Plan:`
+- `Branch Cleanup Execution Gate:`
+- `FAM Overlap Routing:`
+- `Projected Post-Merge Validation:`
+
+Passing posture means exact post-merge branch-authority projection is recorded, no stale active branch wording lands on `main`, no stale PR creation / PR Readiness Stage 2 pending wording lands on `main`, merged scope is recorded as merged-unreleased when release execution is not being performed, release execution/tag/GitHub Release/artifact work remains gated, watcher/live PR state stays out of merged-main source truth, branch cleanup plan is known, FAM overlap is either non-blocking or routed to the owning lane, selected-next or successor truth is not stale, release-window/release-floor posture is resolved, and projected post-merge main would pass validation without a later source-truth repair.
+
+Branch cleanup is planning-only until Branch Readiness owns a new branch/worktree target. `Branch Cleanup Plan:` records stale/old branch refs, retired worktrees, or GitHub Desktop repository entries that may need cleanup after merge. `Branch Cleanup Execution Gate:` must say cleanup is blocked in Release Readiness and may execute only during the next `Branch Readiness Stage 2 - Execution Gate` that creates or validates the next branch/worktree target. Multi-worktree cleanup must not delete a branch checked out by any worktree, remove a worktree before its replacement target is validated, or leave a GitHub Desktop-bound worktree without a valid branch target; stale/old branch cleanup waits until the replacement branch/worktree is created, Desktop is bound to the intended folder, and `git worktree list` proves no checked-out branch will be orphaned.
 
 `PR Readiness GREEN` requires all `PR package ready` conditions plus:
 
@@ -883,12 +936,23 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Selected-Next / No-Release-Debt Handling Status:
 - Required Current-Branch Source-Truth Sync:
 - Planned Merge-Target Canon Updates:
+- Origin/Main Freshness Check:
+- Branch Creation Base:
+- Current origin/main:
+- Origin/Main Advanced Since Branch Creation:
+- Origin/Main Changed Files:
+- Branch Changed Files:
+- Reconciliation Required:
+- Reconciliation File List:
+- Reconciliation Recommendation:
+- Reconciliation Mutation Status:
 - Planned Next Branch Block:
 - Planned Watcher Provisioning:
 - Planned Validation Commands:
 - Expected Files To Change:
 - Stage 1 Repairs Made:
 - Stage 1 Repair Validation:
+- Release Readiness Health Pass:
 - Governance Ledger Fallback:
 - Branch Readiness Fallback:
 - Stage 1 Outcome:
@@ -897,12 +961,15 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Blockers And Waivers Needed:
 - Release Window Audit Posture:
 - Rollback Plan:
+- Next Legal Phase:
 - Stage 2 Green-Light Decision Needed:
 ```
 
 Allowed Stage 1 outcomes are exactly `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, and `Stage 1 USER Waiver Required`. `PR Readiness Stage 1 Repair Required` means bounded current-branch PR-readiness repair/sync remains in Stage 1 before Stage 2. `Current-Branch Branch Readiness Re-entry Required` means the current branch is still the legal carrier, but the fix is broader than PR-readiness sync and must re-enter Branch Readiness on the same branch. `New Carrier Branch Required` means the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required. Stage 2 may begin only after `Stage 1 Ready For Stage 2` is recorded and explicit USER approval to enter Stage 2 exists.
 Stage 2 begins only after `Stage 1 Ready For Stage 2` and explicit USER approval.
 The next-workstream/package hierarchy is reviewed in PR Readiness Stage 1, not selected in Branch Readiness by default.
+
+`Origin/Main Freshness Check` is required during PR Readiness Stage 1 before Stage 2 can begin. Stage 1 must compare `Branch Creation Base:` to `Current origin/main:` and report whether `Origin/Main Advanced Since Branch Creation:` is `YES` or `NO`. When `origin/main` advanced, Stage 1 must list `Origin/Main Changed Files:` from `git diff --name-only <branch-creation-base>..origin/main`, list `Branch Changed Files:` from `git diff --name-only <branch-creation-base>..HEAD`, decide `Reconciliation Required: YES / NO`, and, when reconciliation is needed, output a complete `Reconciliation File List:` plus `Reconciliation Recommendation:`. The `Reconciliation Mutation Status:` must be analysis-only with no file fixes during Stage 1. If changed upstream files/data need review and the packet is missing or incomplete, `Origin Main Reconciliation Packet Required` blocks Stage 2 and PR creation.
 
 Stage 1 must also include this user-facing block so USER and ChatGPT can review the successor/runtime path before Stage 2. This is analysis-first output; it may encode selected-next truth only when USER explicitly approves selected-next sync, but it must not create a branch, admit a package, or waive any blocker without separate approval:
 
@@ -987,20 +1054,37 @@ Required PR operator copy blocks:
 
 ### PR Summary
 ```markdown
-<implemented work only>
+## Summary
+
+<concise branch outcome and purpose>
+
+## Branch Evidence
+
+<concrete implemented work, source-truth changes, behavior/capability changes, historical context, branch-specific boundaries when useful, and evidence only; do not repeat the Summary>
+
+## Validation
+
+<validation commands, evidence paths, or "Validation was not recorded in the original PR body.">
 ```
 ````
 
 Each PR operator field must be its own copy-ready block and must be usable independently.
+The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.
+`## Summary` must be one concise outcome paragraph, not a duplicated changelog.
+`## Branch Evidence` must not repeat the Summary verbatim or keep nested `### Summary`, `### Purpose`, or `### Overview` sections that only restate the Summary; use concrete subheads such as `### Changes`, `### Context`, `### Source Truth`, or `### Boundaries` only when they improve scanability.
+Branch-specific boundaries are allowed inside `## Branch Evidence` when they clarify reliable branch truth, but generic exclusion dumps, `Not Included` sections, and defensive scope language remain prohibited.
+`## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only; branch boundaries and phase handoff fields do not belong there.
 The PR summary must describe implemented work, validation evidence, governance/canon state, post-merge truth, and next-branch handling only when those items are part of the implemented branch truth.
-The PR summary must not include exclusion lists, `Not Included` sections, or defensive scope language.
+GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.
 If `May Create Now` is `NO`, the `Next Branch` subsection must explain the blocking gate rather than implying branch creation is allowed.
 
 ### Operator Output Content Rule
 
-Operator-facing PR summaries and GitHub release notes are inclusion-only.
+Operator-facing PR summaries are evidence-first, and GitHub release notes are inclusion-only.
 They must report what exists, what was implemented, what capabilities are available, how the system behaves, and which validation or release facts support the package.
-They must not report what was not done, include exclusion lists, use `Not Included` sections, or use defensive scope framing.
+PR summaries must not report generic defensive scope dumps; branch-specific boundaries may be recorded only inside `## Branch Evidence` when they clarify the branch truth.
+Operator-facing PR summaries must stay evidence-only and must not carry phase-digest handoff fields; a surrounding Codex closeout may include governed phase markers, but the GitHub PR body may not.
+Historical PR normalization must preserve available historical evidence inside the same three-section PR body shape, remove redundant Summary/Purpose repetition from Branch Evidence, and state `Validation was not recorded in the original PR body.` when no validation evidence existed in the old body.
 GitHub release notes must also use the standard Markdown release body shape used by the current pre-Beta releases: the body starts with `## Release Summary` or `## Release Overview`, continues with `## Release Highlights` or release-specific rich sections, then includes GitHub-generated `## What's Changed` and the generated `**Full Changelog**:` compare link to the previous release. The live release body must not start with or repeat the release title as `# <release title>`; the release title belongs in GitHub release metadata and in the separate `Release Title` operator block only.
 This rule governs operator output packages; it does not remove normal canon requirements for branch scope, non-goals, stop conditions, or blockers in source-of-truth records.
 
@@ -1418,6 +1502,7 @@ Required output for any “what phase are we in?” or “what’s next?” answ
 - `Next Legal Phase`
 - `Plan To Reach That Phase`
 
+Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.
 If a blocker exists, do not recommend a later phase or next-lane execution.
 If repo truth is a steady-state `No Active Branch`, do not invent an implementation branch by inertia; either report that no branch should open yet or name the explicitly approved non-implementation branch class that may legally begin.
 
@@ -1595,6 +1680,7 @@ Durability commit/push is not a lawful stop while `Continue Decision` remains `C
 The `Continuation Execution Latch` is active whenever `Continue Decision: Continue`, `Stop Basis: None`, and a same-phase `Next Active Seam` are recorded; Codex must execute the next seam in the same bounded Workstream run instead of returning a terminal report.
 when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 `Workstream` reaches `Hardening` only when `Completion Status: Green`
+`Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; one green seam or one green slice cannot move the branch to Hardening while admitted branch material remains.
 `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 If `Completion Status` is `Red`, report the blocker or waiver and the action needed to clear it before continuation can resume.
 
@@ -1817,7 +1903,7 @@ Readiness or user handoff again.
 ## Phase Transition Rule
 
 - `Branch Readiness` -> `Workstream` only after branch base, branch class, authority record, branch objective, target end-state, complete family-package product planning packet when applicable, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam or initial seam sequence are explicit, and no `Branch Readiness Planning Incomplete` blocker remains active unless explicitly USER-waived
-- `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
+- `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, every admitted same-branch seam and slice for the current branch is complete, deferred, blocked, or explicitly waived in source truth, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
 - `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the USER-approved next-workstream selection gate passes or a USER-approved next-workstream waiver/defer is explicitly recorded, branch creation remains deferred to `Branch Readiness`, the watcher on the approved reporting surface has verified that the live PR is `merged`, and any release target/scope/artifact truth needed for release review is already available without file mutation
@@ -1847,7 +1933,9 @@ Branch Readiness uses two internal stage gates without changing the canonical ph
 - `Branch Readiness Stage 1 - Analysis Gate`: analysis-only; no repository file mutation, branch creation, package admission, docs sync, PR work, release work, selected-next truth, or canon edits are allowed. Stage 1 must output `## Branch Readiness Stage 1 Analysis Packet` for USER review and stop on `Branch Readiness Execution User Approval Missing`.
 - `Branch Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2. Stage 2 performs approved branch/package admission work, docs sync, branch creation, and authority-record setup only inside the USER-approved FAM/package scope.
 
-The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, product vision, USER vision questions, `USER Vision Question Packet`, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current branch vs future package boundaries, affected surfaces, branch reach, why the branch is large enough, why it should not split into tiny branches, acceptance criteria, screenshot and User Test Summary proof expectations, implementation sequence proposal, validation plan, expected docs sync, blockers and waivers, rollback path, `Branch Readiness Planning Incomplete` blocker review, and the exact Stage 2 green-light decision needed from the USER.
+The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, product vision, USER vision questions, `USER Vision Question Packet`, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current branch vs future package boundaries, affected surfaces, branch reach, why the branch is large enough, why it should not split into tiny branches, acceptance criteria, screenshot and User Test Summary proof expectations, implementation sequence proposal, validation plan, `Stale Branch Cleanup Plan:`, expected docs sync, blockers and waivers, rollback path, `Branch Readiness Planning Incomplete` blocker review, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER.
+
+`Stale Branch Cleanup Plan:` is required when Release Readiness, PR Readiness, or multi-worktree preflight identified old/stale branches, retired worktrees, or stale GitHub Desktop entries. Stage 1 analyzes only. The cleanup itself belongs to `Branch Readiness Stage 2 - Execution Gate` alongside branch/worktree creation or validation, because every Git repository and GitHub Desktop-bound worktree must keep a valid branch target until the replacement target is ready.
 
 For broad implementation family packages, Branch Readiness planning is not complete until the planning packet records USER vision inputs or explicit unanswered-question blockers, Codex product interpretation, Codex implementation recommendation, USER/ChatGPT review checkpoint, full feature element breakdown, current-branch versus future-package boundaries, affected files/surfaces, branch reach/package-size proof, acceptance criteria, screenshot/live/User Test Summary proof requirements for user-facing work, implementation sequence proposal, and USER decisions needed. Marker-only planning is insufficient.
 
@@ -2102,6 +2190,7 @@ Forbidden:
 - hidden fix work
 - hidden next-lane planning
 - branch-authority cleanup that should have been merge-safe in PR Readiness
+- stale/old branch deletion, worktree removal, branch switching, or GitHub Desktop-bound worktree cleanup; Release Readiness may record `Branch Cleanup Plan:` and `Branch Cleanup Execution Gate:` only
 - between-branch canon repair
 - source, docs, canon, validator, helper, release-note, or handoff-file mutation
 
@@ -2148,6 +2237,24 @@ If the active folder, branch, upstream, worktree role, phase/seam, write target,
 
 The routing packet must include expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected phase/seam, actual repo state, mismatch evidence, and safest next correction.
 
+### Assigned Worktree Confinement
+
+Assigned Worktree Confinement is mandatory once a thread is assigned to a specific worktree. The thread must treat that worktree root as its boundary for repo mutation, branch operations, runtime launch, shortcut mutation, provider/model install, PR work, release work, and GitHub Desktop handoff.
+
+Every assigned branch authority record must carry:
+
+- Assigned Worktree Confinement: Required
+- Expected Worktree Root:
+- Actual Worktree Root:
+- No Cross-Worktree Mutation: Required
+- GitHub Desktop-bound worktree:
+- Worktree Escape User Waiver: Granted only when USER explicitly names the expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path
+- Worktree Escape User Waiver Missing: Blocks mutation, branch/worktree changes, runtime launch, shortcut/provider/model actions, PR/release actions, and GitHub Desktop handoff outside the assigned worktree
+
+Read-only identity checks may inspect `git worktree list`, remotes, branch names, and GitHub Desktop binding evidence from the assigned root. Any write, branch switch, cleanup, runtime launch, shortcut edit, or helper execution against a sibling worktree or parked clone is `No Cross-Worktree Mutation` scope and must stop on `Worktree Escape User Waiver Missing` unless the USER grants the waiver in clear text.
+
+The active thread must run or report the equivalent of `python dev\orin_branch_governance_validation.py --worktree-confinement-gate` before Stage 2 execution, phase entry, branch/worktree creation, commit, push, PR work, release work, runtime validation, or GitHub Desktop handoff when the assigned branch record declares a worktree.
+
 Stale parked branches, old worktrees, fallback folders, AI Lab context, deleted/recreated historical refs, and unknown write targets are stop conditions until USER explicitly routes the work to a legal target.
 
 ## Repo-Level State: No Active Branch
@@ -2180,7 +2287,39 @@ When `No Active Branch` is steady-state:
 - do not start the next implementation branch by inertia
 - it is valid for `Next Safe Move` to say explicitly that no branch should open yet
 - a release packaging branch may still enter `Branch Readiness` if its branch-class admission rules pass
-- governance-only branches are not used; governance or canon repair must ride on the next legitimate runtime-focused backlog branch's `Branch Readiness`
+- governance-only branches are not used; governance or canon repair must ride on the next legitimate runtime-focused backlog branch's `Branch Readiness`, except for the single `Standing Governance Intake Branch` defined below
+
+## Standing Governance Intake Branch
+
+Purpose:
+
+- keep Release Readiness file-frozen while routing source-truth drift that Release Readiness discovers to one governed repair lane
+
+Allowed:
+
+- one standing worktree: `C:\Nexus Worktrees\Governance`
+- one standing branch: `feature/release-readiness-source-truth-intake`
+- one intake source: `Release Readiness digest`
+- one cycle ID format: `RRI-YYYYMMDD-NNN`
+- `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
+- `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
+- `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest
+- source-truth/governance/validator drift repair named by the intake digest
+- a post-merge `Return Digest` to the originating worktree/thread
+
+Forbidden:
+
+- runtime/provider/model/memory/voice/Core/shortcut/installer implementation
+- release execution, tags, GitHub Releases, release artifacts, or release-note publication
+- GitHub issue creation, AI Product Contract import, private Dev ORIN import, direct-main mutation, broad docs churn, or next runtime branch creation
+- accepting a non-Release Readiness digest after the one-time bootstrap setup
+
+Originating-lane pause:
+
+- when a Release Readiness blocker is handed off, the originating thread/worktree enters `Waiting For Governance Intake` or `Waiting For Updated Main`
+- that lane must not mutate repository files until the governance PR merges, the standing branch syncs to `origin/main`, the `Return Digest` arrives, and the originating lane fetches/revalidates updated `origin/main`
+
+The `Return Digest` must include the originating branch/worktree, `RRI-*` cycle ID, governance PR, merge commit, updated `origin/main` commit, files changed, blockers cleared/remaining, validations, rebaseline instructions, and `Next Legal Phase`.
 
 ## Exception Path: Post-Release Canon Repair
 
