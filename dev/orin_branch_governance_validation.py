@@ -2886,6 +2886,7 @@ RELEASE_READINESS_HEALTH_GATE_PHRASES = (
     "Branch Cleanup Execution Gate:",
     "FAM Overlap Routing:",
     "Release Candidate Anchor Projection:",
+    "Release Window Contributor Inventory:",
     "Projected Post-Merge Validation:",
 )
 
@@ -2899,6 +2900,7 @@ RELEASE_READINESS_HEALTH_PASS_REQUIRED_MARKERS = (
     "Branch Cleanup Plan",
     "FAM Overlap Routing",
     "Release Candidate Anchor Projection",
+    "Release Window Contributor Inventory",
     "Projected Post-Merge Validation",
 )
 
@@ -2911,6 +2913,7 @@ RELEASE_READINESS_HEALTH_PASS_PASS_ONLY_MARKERS = (
     "Branch Cleanup Plan",
     "FAM Overlap Routing",
     "Release Candidate Anchor Projection",
+    "Release Window Contributor Inventory",
     "Projected Post-Merge Validation",
 )
 
@@ -3502,7 +3505,13 @@ RELEASE_READINESS_TARGET_PHRASES = (
     "Target Commit:",
     "Historical Endpoint Handling:",
     "Candidate Includes Later Governance Repairs:",
+    "Release Window Contributor Inventory:",
+    "Release Ownership Model:",
+    "Release Window Contributors:",
+    "Merged-Unreleased Scope Inventory:",
+    "FAM Contributor Routing:",
     "Release Candidate Anchor Missing",
+    "Release Window Contributor Inventory Missing",
     "Release Target Undefined",
     "Release Target:",
     "Release Floor:",
@@ -14552,7 +14561,7 @@ def _run_standing_governance_intake_gate(require) -> None:
     closeout_cycle_recorded = bool(
         latest_closed_cycle
         and "Return Digest Status:" in record_text
-        and "Complete" in record_text
+        and ("Complete" in record_text or "Closeout Pending" in record_text)
         and "Active RRI Cycle: `None`" in record_text
     )
     bootstrap_setup_recorded = (

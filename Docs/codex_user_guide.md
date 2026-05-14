@@ -6,6 +6,7 @@
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
 **Release Readiness Candidate Anchor: require `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:`; default to current fetched `origin/main` unless USER explicitly selects another release target; historical PR merge commits are audit evidence only unless USER selects a historical commit as the release target, and missing anchor fields block as `Release Candidate Anchor Missing`.**
+**Release Window Aggregation Ownership: merge order does not decide release ownership; require `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, and `FAM Contributor Routing:` so multiple FAM/worktree contributors in the selected target release as an aggregated release window unless USER selects a narrower target.**
 
 ## Purpose
 
@@ -144,6 +145,12 @@ For Release Readiness, also include:
 - `Target Commit: <candidate commit SHA>`
 - `Historical Endpoint Handling: <audit evidence only unless USER-selected historical commit>`
 - `Candidate Includes Later Governance Repairs: <YES/NO/N/A>`
+- `Release Ownership Model: <aggregated release window / release packaging branch / USER-selected narrow target>`
+- `Release Window Contributors: <included FAM/worktree contributors>`
+- `Merged-Unreleased Scope Inventory: <included unreleased scopes>`
+- `Last Runtime PR: <last runtime payload PR in the selected candidate>`
+- `Post-Runtime Governance Repairs: <governance/source-truth-only PRs after the last runtime PR>`
+- `FAM Contributor Routing: <owning lane for each contributor blocker>`
 - `Release Target: <version or identifier>` for release-bearing branches
 - `Release Floor: <patch prerelease / minor prerelease / no release>` for release-bearing branches
 - `Version Rationale: <why the target follows the floor>` for release-bearing branches
@@ -491,6 +498,12 @@ Required add-ons for release-bearing branches:
 - `Target Commit: [candidate commit SHA]`
 - `Historical Endpoint Handling: [audit evidence only unless USER-selected historical commit]`
 - `Candidate Includes Later Governance Repairs: [YES / NO / N/A]`
+- `Release Ownership Model: [aggregated release window / release packaging branch / USER-selected narrow target]`
+- `Release Window Contributors: [included FAM/worktree contributors]`
+- `Merged-Unreleased Scope Inventory: [included unreleased scopes]`
+- `Last Runtime PR: [last runtime payload PR in the selected candidate]`
+- `Post-Runtime Governance Repairs: [governance/source-truth-only PRs after the last runtime PR]`
+- `FAM Contributor Routing: [owning lane for each contributor blocker]`
 - `Release Target: [version or release identifier]`
 - `Release Floor: [patch prerelease / minor prerelease / no release]`
 - `Version Rationale: [why this is patch/minor/no release]`
@@ -507,7 +520,9 @@ Do not use `Release Branch: No` for `implementation` or `release packaging` bran
 If a release-bearing branch lacks `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, or `Release Artifacts:`, Release Readiness is blocked by `Release Target Undefined`.
 If the declared target is semantically wrong for the latest public prerelease and declared release floor, it is also blocked by `Release Target Undefined`.
 If Release Readiness lacks `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, or `Candidate Includes Later Governance Repairs:`, it is blocked by `Release Candidate Anchor Missing`.
+If Release Readiness lacks `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, or `FAM Contributor Routing:`, it is blocked by `Release Window Contributor Inventory Missing`.
 Unless USER explicitly selects a historical commit as the release target, current fetched `origin/main` is the release candidate anchor and historical PR merge commits are audit evidence only. Do not fail the current release candidate for stale wording that existed only at an older PR endpoint when later merged governance/source-truth PRs repaired the selected candidate.
+Merge order does not decide release ownership. When multiple FAM/worktree branches merge before the next release, use `Release Ownership Model: Aggregated release window` and inventory every included merged-unreleased contributor; if one contributor is not release-ready, block or choose a USER-approved narrower target instead of silently excluding it.
 Governance/source-truth-only PRs merged after the last runtime PR may be included in the release candidate. They do not force the release candidate back to the last runtime merge commit; record `Candidate Includes Later Governance Repairs: YES` and keep those repairs in internal validation/traceability instead of presenting them as user-facing product features when writing release notes.
 If Release Readiness analysis discovers missing, stale, or ambiguous release truth that requires a file update, do not patch in Release Readiness. Return to `PR Readiness` before merge, or defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness` or the standing governance intake lane after merge. Treat any file mutation while the authority record says `Release Readiness` as `Release Readiness File Mutation Attempt`.
 If Release Readiness discovers stale/old branches, retired worktrees, or stale GitHub Desktop entries, output `Branch Cleanup Plan:` and `Branch Cleanup Execution Gate:` only. Do not delete branches, remove worktrees, switch branch targets, or clean up a GitHub Desktop-bound worktree in Release Readiness; execute cleanup only during `Branch Readiness Stage 2 - Execution Gate` after the replacement branch/worktree target is created or validated.

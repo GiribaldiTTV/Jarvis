@@ -6,6 +6,7 @@
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
 **Release Readiness Candidate Anchor: require `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:`; default to current fetched `origin/main` unless USER explicitly selects another release target; historical PR merge commits are audit evidence only unless USER selects a historical commit as the release target, and missing anchor fields block as `Release Candidate Anchor Missing`.**
+**Release Window Aggregation Ownership: merge order does not decide release ownership; require `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, and `FAM Contributor Routing:` so multiple FAM/worktree contributors in the selected target release as an aggregated release window unless USER selects a narrower target.**
 
 ## Purpose
 
