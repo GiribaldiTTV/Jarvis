@@ -334,6 +334,22 @@ Deferred Carrier Recommendation: `Keep Monitor Groups sensor membership, monitor
 
 Selection / Unblock: `Admit this deferred planning when the implementation path is ready to connect monitor groups to real data/sensor sources or when Overlay/display work becomes blocked on monitor visualization/customization decisions.`
 
+## Deferred Window Close Standardization Note
+
+Traceability Owner: `Future UI standardization / secondary-window chrome; GitHub issue #136`
+
+GitHub Issue: `#136 - Close Button Standardization Mismatch`
+
+USER Idea: `The Dashboard window-level Close pill introduced during this FAM-006 settings-panel branch should become the standard close affordance for future secondary NDAI windows. The control should read as belonging to the whole window, live in the outer window chrome/gutter, and keep an intentional top/right spacing relationship. This should apply to future child/management windows, including NCP-adjacent Create / Manage windows and future Monitor Create/Edit windows, while not implying a redesign of the main NCP itself.`
+
+Overlay Exception: `Future Overlay/display work should give the unanchored Overlay matching Close and Anchor affordances. When the Overlay is anchored, both controls should disappear so the anchored Overlay preserves its edge-to-edge and immersive presentation.`
+
+Non-Physical Evidence: `Dashboard Close is implemented and validated on feature/fam-006-dashboard-settings-panel at commit 76b44afa420f59221f177d89ad0a8df73f9393ed. Source-truth proof remains in this branch record; latest red-shortcut human-client proof is dev/logs/fam_006_human_client_validation/20260514_082313_887/human_client_manifest.json; latest compact UTS handoff root is dev/logs/fam_006_monitoring_hud_live_validation/20260514_082639_463. No screenshot/upload/raw evidence import is required for this issue thread.`
+
+Current Authorization: `Record the future standardization and GitHub issue traceability only; do not implement shared window chrome, NCP-adjacent child-window redesign, Overlay Close/Anchor controls, Overlay/display acceptance, or validator expansion on this branch without later USER admission.`
+
+Deferred Carrier Recommendation: `Admit this through a future UI standardization/runtime carrier, or through the next branch that touches NCP-adjacent child windows, Monitor Create/Edit windows, or Overlay unanchored/anchored controls. That carrier should add the shared Close-pill convention, per-window exceptions, hit-test/close behavior proof, and source-truth updates.`
+
 ## Hardening H1 Validation Result
 
 H1 Admission: `PASS - USER approved Hardening H1 for the FAM-006 Dashboard settings-panel runtime seam only.`
