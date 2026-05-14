@@ -3,7 +3,7 @@
 ## Branch Identity
 
 - Branch: `feature/fam-006-dashboard-settings-panel`
-- Worktree: `C:\Nexus Worktrees\FAM-006`
+- Historical Worktree: `Retired after release; former path C:\Nexus Worktrees\FAM-006 now hosts the active FAM-006 Monitor Groups branch feature/fam-006-monitor-groups-sensor-configuration`
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
 - Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; implementation and Live Validation are complete; PR #142 is merged and this record is historical / merged-unreleased until release execution`
@@ -74,7 +74,7 @@ Release Execution Gate: `PASS - release execution, tags, GitHub Release, artifac
 
 Watcher / Live PR State Projection: `PASS - watcher and live PR state belong to PR execution output only and are not projected into merged main.`
 
-Branch Cleanup Plan: `PASS - cleanup is deferred until after merge verification; no branch deletion or worktree removal is authorized by this record.`
+Branch Cleanup Plan: `COMPLETE - after PR #142 release closure and successor FAM-006 branch validation, the retired feature/fam-006-dashboard-settings-panel worktree was removed, the remote branch was deleted, and the local stale branch was deleted. The stable C:\Nexus Worktrees\FAM-006 path now hosts feature/fam-006-monitor-groups-sensor-configuration.`
 
 FAM Overlap Routing: `PASS - FAM-007, provider/model/memory/shortcut/installer work, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate pending USER decisions.`
 
@@ -155,7 +155,7 @@ Backlog-Split Reason: `None`
 
 ## Exit Criteria
 
-- Worktree `C:\Nexus Worktrees\FAM-006` exists and is clean on `feature/fam-006-dashboard-settings-panel`.
+- Former worktree `C:\Nexus Worktrees\FAM-006` existed and was clean on `feature/fam-006-dashboard-settings-panel` during PR #142 and release validation; it is now retired and the stable path is reassigned to the active FAM-006 Monitor Groups branch.
 - Branch is created from updated `origin/main` at `228f18e73faabf6ffb6e3b9a5cf32d2f92cd3060`.
 - Source truth records PR #133 as merged/historical and no longer treats release-support as the active FAM-006 carrier.
 - Source truth projects this branch as historical / merge-stable after PR merge while preserving it as the FAM-006 settings-panel runtime carrier evidence.
@@ -183,7 +183,7 @@ Create the FAM-006 Dashboard settings-panel runtime-focused carrier from updated
 
 ## Target End-State
 
-- The FAM-006 settings-panel worktree and branch exist from updated `origin/main`.
+- The FAM-006 settings-panel worktree and branch existed from updated `origin/main` through PR #142, v1.7.1-prebeta release, and release-closure validation; after successor branch validation they were retired as stale merged branch/worktree state.
 - Branch authority is historical / merge-stable for merged `main` after PR #142.
 - Release-support source truth is historical after PR #133 merge.
 - PR #129, PR #132, and PR #142 remain merged-unreleased release debt.
@@ -228,7 +228,7 @@ Implementation Sequence Proposal: `Implemented settings entry/panel, updated val
 
 Planning Blockers: `GitHub Issue Closeout Approval Missing`; `Release Execution Approval Missing`; `Raw Evidence Import Decision Pending`; `FAM-007 / Local AI Authority Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
 
-USER Decisions Needed: `Approve any future branch/worktree cleanup, approve release execution/tags/releases/artifacts beyond v1.7.1-prebeta if needed, approve raw evidence handling, and approve any FAM-007/provider/model/memory/shortcut/installer work separately.`
+USER Decisions Needed: `Approve any future branch/worktree cleanup for active branches after their closure, approve release execution/tags/releases/artifacts beyond v1.7.1-prebeta if needed, approve raw evidence handling, and approve any FAM-007/provider/model/memory/shortcut/installer work separately.`
 
 Planning Packet Status: Complete
 
@@ -305,11 +305,11 @@ Raw Evidence Policy: raw screenshots, videos, and UTS exports remain local/exter
 
 USER Waiver: USER confirmed FAM-006 and FAM-007 are assigned to two different worktrees and are not cross-editing repo files in the same worktree.
 
-FAM-006 Assigned Worktree: `C:\Nexus Worktrees\FAM-006`
+FAM-006 Assigned Worktree: `C:\Nexus Worktrees\FAM-006` now hosts the active FAM-006 Monitor Groups branch; this settings-panel record is historical.
 
 FAM-007 Assigned Worktree: `C:\Nexus Worktrees\FAM-007`
 
-Coordination Rule: FAM-006 work in this branch must stay in the FAM-006 settings-panel worktree and must not edit the FAM-007 worktree. FAM-007 remains separate context only for same-file overlap awareness and merge sequencing.
+Coordination Rule: historical settings-panel proof remains in this record; new FAM-006 work must use the active FAM-006 worktree and branch selected by current source truth, currently `C:\Nexus Worktrees\FAM-006` on `feature/fam-006-monitor-groups-sensor-configuration`, and must not edit the FAM-007 worktree. FAM-007 remains separate context only for same-file overlap awareness and merge sequencing.
 
 Same-File Overlap Result: overlap exists in repo-wide source-truth owners such as backlog, roadmap, branch-record index, and governance validators. The USER waiver permits the separate worktrees while requiring each branch to validate, push, and reconcile current main before PR or merge actions.
 

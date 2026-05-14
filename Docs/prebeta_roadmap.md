@@ -97,7 +97,7 @@ Published Release Pending Canon Closure: None - v1.7.1-prebeta source truth repa
 Closure Repair Surface: Standing Governance Intake RRI-20260514-006
 Closure Drift Scope: release-dependent fields only
 Implementation Entry: Allowed only after the owning branch/worktree rebaselines to v1.7.1-prebeta source truth and phase validation reports green
-Release-Debt Avoidance Status: Clear for the v1.7.1-prebeta release window - PR #129, PR #132, PR #142, and PR #138 are published in v1.7.1-prebeta; branch/worktree cleanup, FAM-007 runtime expansion, provider/model/memory/shortcut/installer work, Overlay acceptance, and AI Product work remain separate USER-gated decisions.
+Release-Debt Avoidance Status: Clear for the v1.7.1-prebeta release window - PR #129, PR #132, PR #142, and PR #138 are published in v1.7.1-prebeta; retired FAM-006 settings-panel branch/worktree cleanup is complete; future branch/worktree cleanup, FAM-007 runtime expansion, provider/model/memory/shortcut/installer work, Overlay acceptance, and AI Product work remain separate USER-gated decisions.
 Merged-main current active workstream: None
 Current active workstream: FAM-006 Monitor Groups sensor configuration Branch Readiness Stage 2 setup.
 Current Active Workstream Before Reform: None
@@ -145,18 +145,18 @@ Version Rationale: `v1.7.1-prebeta` is the next prerelease because PR #129, PR #
 Release Scope: FAM-006 PR #129 Dashboard render/layout hardening, PR #132 Dashboard IA/control follow-through, and PR #142 Dashboard settings-panel runtime work; FAM-007 PR #138 provider-boundary / no-provider shell scaffold noted as under-the-hood support; governance/readiness support PRs #133, #139, #141, #143, #144, #145, #146, and #147.
 Release Artifacts: Published - lightweight tag `v1.7.1-prebeta` and GitHub Release `Pre-Beta v1.7.1` exist at tag commit `47134640381909e9eec7127d4e826ee68b182ffb`; release URL `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.1-prebeta`; assets none attached.
 Post-Release Truth: `v1.7.1-prebeta` is the latest public prerelease; PR #129, PR #132, and PR #142 are released FAM-006 Dashboard implementation scope; PR #138 is released under-the-hood FAM-007 provider-boundary / no-provider shell scaffold support; governance/readiness PRs #133, #139, #141, #143, #144, #145, #146, and #147 support the release window. Merged main is No Active Branch, and no active FAM-007 successor branch exists after PR #138.
-Next-Branch Creation Gate: None selected after v1.7.1-prebeta publication. FAM-007 successor work, issue closeout, branch/worktree cleanup, or successor branch remains pending later USER approval and updated-main revalidation.
-Next Legal Phase: Post-release canon closure can complete after this bounded source-truth repair merges and the originating lane rebases to updated `origin/main`; issue creation/comments/closeout, FAM-007 runtime implementation, additional release work, branch/worktree cleanup, and AI Product Contract import remain pending separate USER approval.
+Next-Branch Creation Gate: Cleared for the USER-selected FAM-006 Monitor Groups branch `feature/fam-006-monitor-groups-sensor-configuration`; retired settings-panel branch/worktree cleanup is complete. FAM-007 successor work, issue creation/comments/closeout, future branch/worktree cleanup, or another successor branch remains pending later USER approval and updated-main revalidation.
+Next Legal Phase: FAM-006 Monitor Groups Branch Readiness Stage 2 setup can complete after this source-truth recovery validates and pushes; runtime implementation, issue creation/comments/closeout, FAM-007 runtime implementation, additional release work, future branch/worktree cleanup, and AI Product Contract import remain pending separate USER approval.
 
 ## Selected Next Workstream
 
-Selected Next Workstream: FAM-006 Dashboard settings panel.
-Record State: Registry-only runtime continuation.
-Minimal Scope: Historical traceability for Branch Readiness Stage 2 source-truth repair for PR #133 drift plus the USER-approved bounded Dashboard settings cog/settings panel runtime implementation.
-Branch: Historical / merge-stable after PR #142 merge as `feature/fam-006-dashboard-settings-panel`.
-Selection Scope: USER approved FAM-006 settings-panel as the next runtime-focused carrier after PR #133 merge. PR #130, PR #131, PR #134, PR #135, PR #138, PR #139, and PR #141 preserve merged current-main governance/readiness/runtime-scaffold history only; this carrier does not admit new FAM-007 runtime Workstream entry.
-PR #129 / PR #132 Boundary: release-support records are now released in v1.7.1-prebeta; issue closeout remains USER-gated.
-Runtime Implementation: USER-approved and complete for the bounded Dashboard settings cog/settings panel surface; PR #142 is released in v1.7.1-prebeta.
+Selected Next Workstream: FAM-006 Monitor Groups sensor configuration.
+Record State: Registry-only FAM-006 / PKG-006 runtime continuation under active branch authority.
+Minimal Scope: Branch Readiness Stage 2 source-truth authority, package/slice boundaries, validation planning, family-scoped Branch Readiness governance repair, and stable FAM-006 worktree recovery for the Monitor Groups sensor-configuration runtime carrier.
+Branch: Active Branch Readiness Stage 2 setup as `feature/fam-006-monitor-groups-sensor-configuration` in `C:\Nexus Worktrees\FAM-006`.
+Selection Scope: USER approved FAM-006 Monitor Groups sensor configuration as the next FAM-006 runtime-focused carrier after v1.7.1-prebeta release closure. PR #130, PR #131, PR #134, PR #135, PR #138, PR #139, PR #141, and PR #142 preserve merged current-main governance/readiness/runtime-scaffold/history only; this carrier does not admit new FAM-007 runtime Workstream entry.
+PR #129 / PR #132 / PR #142 Boundary: FAM-006 Dashboard release-window work is released in v1.7.1-prebeta; issue closeout traceability is complete for the released FAM-006 issue set, and future issue work remains USER-gated.
+Runtime Implementation: Pending separate USER approval after Branch Readiness Stage 2 setup validates, commits, and pushes.
 
 ## Released Historical Scope
 

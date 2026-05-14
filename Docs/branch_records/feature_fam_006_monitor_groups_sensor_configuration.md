@@ -3,8 +3,8 @@
 ## Branch Authority
 
 - Branch: `feature/fam-006-monitor-groups-sensor-configuration`
-- Expected Worktree Root: `C:\Nexus Worktrees\FAM-006-Monitor-Groups`
-- Actual Worktree Root: `C:\Nexus Worktrees\FAM-006-Monitor-Groups`
+- Expected Worktree Root: `C:\Nexus Worktrees\FAM-006`
+- Actual Worktree Root: `C:\Nexus Worktrees\FAM-006`
 - Upstream / Creation Base: `origin/main`
 - Creation Base Commit: `74185039beb0fa0d8b8f06d5cb2c593c94608870`
 - Family: `FAM-006`
@@ -14,8 +14,16 @@
 - Bounded State: `Branch Readiness Stage 2 setup only - source-truth authority, package/slice boundaries, validation planning, and bounded governance repair`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
-- No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006-Monitor-Groups`
-- GitHub Desktop-bound worktree: `FAM-006 Monitor Groups` recommended alias after USER adds the repository to GitHub Desktop
+- No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
+- GitHub Desktop-bound worktree: `FAM-006` recommended alias after USER adds or refreshes the repository in GitHub Desktop
+
+## Worktree Recovery And Stale Branch Cleanup
+
+FAM-006 Stable Worktree Path: `C:\Nexus Worktrees\FAM-006`
+
+Recovery Reason: `The initial Stage 2 setup created the active Monitor Groups branch in C:\Nexus Worktrees\FAM-006-Monitor-Groups and then removed the retired settings-panel worktree at C:\Nexus Worktrees\FAM-006 during stale-branch cleanup, which caused GitHub Desktop to lose the stable FAM-006 repository path. The active Monitor Groups worktree was moved to the stable FAM-006 path so GitHub Desktop and future helpers have one durable FAM-006 repository target.`
+
+Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-settings-panel worktree C:\Nexus Worktrees\FAM-006 was removed only after merge/equality proof, the remote branch feature/fam-006-dashboard-settings-panel was deleted, and the local stale branch was deleted. The active FAM-006 worktree now points to feature/fam-006-monitor-groups-sensor-configuration.`
 
 ## Current Phase
 
@@ -152,14 +160,14 @@ Planning Completion Waiver: `Not required`
 - Runtime/User-Facing Delta: `Monitor Groups manage/edit child-window flow and sensor assignment controls.`
 - Exact Affected Paths: `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`; `desktop/desktop_renderer.py`; `desktop/monitoring_hud_controls.py`; FAM-006 HUD validators/helpers as needed by implementation.
 - Carried Issues: `None newly created by Stage 2 setup`; all released FAM-006 issue threads #123, #124, #125, #126, #127, #137, and #140 are closed / fixed or completed.
-- Non-Includes: `HUD Overlay visual display acceptance`; `Overlay customization`; `NDAI-wide Theme/Skins`; `FAM-007`; `provider/model/memory/shortcut/installer work`; `external telemetry parity`; `AI Product Contract import`; `raw evidence upload/import/linking`; `release execution`; `PR creation`; `merge`; `branch/worktree cleanup`.
+- Non-Includes: `HUD Overlay visual display acceptance`; `Overlay customization`; `NDAI-wide Theme/Skins`; `FAM-007`; `provider/model/memory/shortcut/installer work`; `external telemetry parity`; `AI Product Contract import`; `raw evidence upload/import/linking`; `release execution`; `PR creation`; `merge`; `future branch/worktree cleanup after this branch closes`.
 - Implementation Admission Status: `Pending USER approval after Branch Readiness Stage 2 setup validates and pushes.`
 
 ## Backlog Completion Strategy
 
 Branch Completion Goal: `Complete the FAM-006 Monitor Groups sensor-configuration runtime flow through implementation, Hardening, Live Validation, PR Readiness, merge, and later release handling after each phase receives USER approval.`
 
-Known Future-Dependent Blockers: `Runtime implementation approval, PR creation, merge, release execution, artifacts, raw evidence handling, branch/worktree cleanup, FAM-007 work, provider/model/memory/shortcut/installer work, Overlay acceptance, external telemetry parity, AI Product work, and app-wide Theme/Skins all require later USER approval.`
+Known Future-Dependent Blockers: `Runtime implementation approval, PR creation, merge, release execution, artifacts, raw evidence handling, future branch/worktree cleanup after this branch closes, FAM-007 work, provider/model/memory/shortcut/installer work, Overlay acceptance, external telemetry parity, AI Product work, and app-wide Theme/Skins all require later USER approval.`
 
 Branch Closure Rule: `Stop after Stage 2 setup validation, commit, and push; continue only after USER approves runtime implementation on this branch.`
 
@@ -224,7 +232,7 @@ Goal: `Build the Monitor Groups manage/edit flow so users can create, edit, dele
 
 Scope: `Dashboard Monitor Groups management UI, child-window flow, list state, Create/Edit/Delete controls, delete confirmation, sensor/data-source assignment truth, per-sensor settings where supported, and validators.`
 
-Non-Includes: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, artifacts, raw evidence handling, and branch/worktree cleanup.`
+Non-Includes: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, artifacts, raw evidence handling, and future branch/worktree cleanup after this branch closes.`
 
 ## Active Seam
 
