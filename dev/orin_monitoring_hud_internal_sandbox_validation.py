@@ -99,6 +99,8 @@ def _validate_static_surface(failures: list[str]) -> None:
     core_renderer = _read("desktop/core_visualization_renderer.py")
     tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
     hud_state = _read("desktop/monitoring_hud_state.py")
+    human_client_validation = _read("dev/orin_monitoring_hud_human_client_validation.ps1")
+    rounded_mask_probe = _read("dev/orin_dashboard_rounded_corner_mask_probe.py")
 
     for needle in (
         "Primary Interface Release Surface: `Monitoring HUD Dashboard / control panel`",
@@ -406,6 +408,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "window.getMonitoringHudSurfaceSplitState = function()",
         "window.getMonitoringHudDashboardAcceptanceState = function()",
         "window.setMonitoringHudControlState = function(state)",
+        "geometry: window.getMonitoringHudLiveClientGeometry",
         "monitoringHudUpdateSurfaceSplit",
         "primaryInterfaceReleaseSurface",
         "dashboardAcceptanceBaseline",
@@ -579,12 +582,29 @@ def _validate_static_surface(failures: list[str]) -> None:
         "_monitoring_hud_dashboard_close_fallback_screen_rect",
         "_monitoring_hud_dashboard_close_last_screen_rect",
         "_monitoring_hud_settings_action_last_screen_rect",
+        "_monitoring_hud_window_corner_radius_px = 28",
+        "_monitoring_hud_rounded_window_mask_signature",
+        "_apply_monitoring_hud_rounded_window_mask",
+        "_monitoring_hud_screen_point_inside_rounded_window_mask",
+        "self.setAttribute(Qt.WA_NoSystemBackground, True)",
+        "self.webview.setAttribute(Qt.WA_TranslucentBackground, True)",
+        "path.addRoundedRect(QRectF(rect), float(radius), float(radius))",
+        "self.setMask(region)",
+        "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY",
+        'mask_model="native-rounded-window-region-matches-css-chrome"',
+        'corner_bleed_policy="no-opaque-rectangular-corners-over-light-backdrops"',
+        'resize_hit_test_model="rounded-mask-clipped-visible-rail"',
         "_monitoring_hud_dashboard_settings_control_rect_contains",
         "_handle_monitoring_hud_dashboard_settings_native_control",
         "_handle_monitoring_hud_dashboard_close_native_control",
         "MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY",
         "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY",
         "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY",
+        "settings_window_present=settings_window_present",
+        "settings_window_left=settings_window_left",
+        "settings_window_top=settings_window_top",
+        "settings_window_right=settings_window_right",
+        "settings_window_bottom=settings_window_bottom",
         "MONITORING_HUD_NATIVE_HEADER_DOUBLE_CLICK_SUPPRESSED",
         "MONITORING_HUD_VISIBLE_SHOW_GUARD_ARMED",
         "MONITORING_HUD_VISIBLE_SHOW_GUARD_RELEASED",
@@ -620,6 +640,30 @@ def _validate_static_surface(failures: list[str]) -> None:
         "native_cpu_load_bounded",
     ):
         _require_contains(renderer, needle, "desktop renderer HUD runtime", failures)
+
+    for needle in (
+        "Invoke-DashboardRoundedCornerMaskProbe",
+        "Get-LatestSettingsWindowRectFromRuntimeLog",
+        "orin_dashboard_rounded_corner_mask_probe.py",
+        "dashboard_rounded_corner_mask_light_backdrop",
+        "Dashboard rounded native window mask prevents black corner bleed over a white backdrop",
+        "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY",
+        "Close-CommandOverlayBeforeDashboardResize",
+        "ncp_closed_before_dashboard_resize",
+    ):
+        _require_contains(human_client_validation, needle, "monitoring HUD human-client validation helper", failures)
+    for needle in (
+        "NDAI rounded corner validation backdrop",
+        "win32gui.GetPixel",
+        "LIGHT_THRESHOLD = 210",
+        "DASHBOARD_VISIBLE_THRESHOLD = 190",
+        "_capture_virtual_desktop",
+        "_bring_dashboard_front",
+        "rounded corner exterior samples must show the white validation backdrop",
+        "cornerSamples",
+        "visibleSamples",
+    ):
+        _require_contains(rounded_mask_probe, needle, "Dashboard rounded-corner live mask probe", failures)
 
     for needle in (
         "from desktop.core_visualization_renderer import CoreVisualizationWindow",

@@ -5833,6 +5833,8 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_live_page_state: dict[str, object] = {}
         self._monitoring_hud_dashboard_close_last_screen_rect = QRect()
         self._monitoring_hud_settings_action_last_screen_rect = QRect()
+        self._monitoring_hud_window_corner_radius_px = 28
+        self._monitoring_hud_rounded_window_mask_signature = None
         self._monitoring_hud_native_anchor_click_pending = False
         self._monitoring_hud_native_anchor_click_expected = True
         self._monitoring_hud_tray_menu_guard_active = False
@@ -5850,6 +5852,7 @@ class DesktopRuntimeWindow(QWidget):
         self.setAutoFillBackground(self.surface_role != "hud")
         if self.surface_role == "hud":
             self.setAttribute(Qt.WA_TranslucentBackground, True)
+            self.setAttribute(Qt.WA_NoSystemBackground, True)
             self.setStyleSheet("background-color: transparent;")
         else:
             self.setStyleSheet("background-color: rgb(0, 0, 0);")
@@ -5858,6 +5861,7 @@ class DesktopRuntimeWindow(QWidget):
         self.setGeometry(self.compute_compact_geometry())
         if self.surface_role == "hud":
             self.setMinimumSize(640, 520)
+            self._apply_monitoring_hud_rounded_window_mask(source="init")
         self.setMouseTracking(True)
 
         root = QVBoxLayout(self)
@@ -5873,6 +5877,10 @@ class DesktopRuntimeWindow(QWidget):
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setFocusPolicy(Qt.NoFocus)
         self.webview.setMouseTracking(True)
+        if self.surface_role == "hud":
+            self.webview.setAttribute(Qt.WA_TranslucentBackground, True)
+            self.webview.setAttribute(Qt.WA_NoSystemBackground, True)
+            self.webview.setAutoFillBackground(False)
         self.webview.installEventFilter(self)
         QApplication.instance().installEventFilter(self)
         if self.surface_role == "hud":
@@ -5903,6 +5911,11 @@ class DesktopRuntimeWindow(QWidget):
         ):
             self._monitoring_hud_native_move_last_geometry = QRect(self.geometry())
             self._monitoring_hud_native_move_finalize_timer.start()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.surface_role == "hud":
+            self._apply_monitoring_hud_rounded_window_mask(source="resize")
 
     def compute_compact_geometry(self):
         g = self.screen_ref.geometry()
@@ -5935,16 +5948,56 @@ class DesktopRuntimeWindow(QWidget):
 
     def prepare_desktop_geometry(self):
         self.setGeometry(self.compute_compact_geometry())
+        self._apply_monitoring_hud_rounded_window_mask(source="prepare_desktop_geometry")
 
     def is_core_visualization_ready(self):
         return self._page_ready
 
     def showEvent(self, event):
         super().showEvent(event)
+        self._apply_monitoring_hud_rounded_window_mask(source="show")
 
         if not self.desktop_mode:
             self._desktop_mode_requested = True
             self._schedule_desktop_mode_enable()
+
+    def _apply_monitoring_hud_rounded_window_mask(self, *, source: str = "runtime"):
+        if self.surface_role != "hud":
+            return
+        rect = self.rect()
+        if rect.width() <= 0 or rect.height() <= 0:
+            return
+        radius = min(
+            self._monitoring_hud_window_corner_radius_px,
+            max(1, rect.width() // 2),
+            max(1, rect.height() // 2),
+        )
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(rect), float(radius), float(radius))
+        region = QRegion(path.toFillPolygon().toPolygon())
+        if region.isEmpty():
+            return
+        self.setMask(region)
+        signature = (rect.width(), rect.height(), radius)
+        if signature == self._monitoring_hud_rounded_window_mask_signature:
+            return
+        self._monitoring_hud_rounded_window_mask_signature = signature
+        bounds = region.boundingRect()
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            issue=137,
+            source=source,
+            mask_model="native-rounded-window-region-matches-css-chrome",
+            corner_bleed_policy="no-opaque-rectangular-corners-over-light-backdrops",
+            resize_hit_test_model="rounded-mask-clipped-visible-rail",
+            radius_px=radius,
+            width=rect.width(),
+            height=rect.height(),
+            bounds_width=bounds.width(),
+            bounds_height=bounds.height(),
+        )
 
     def _log_event(self, event):
         if callable(self.event_logger):
@@ -7329,6 +7382,8 @@ class DesktopRuntimeWindow(QWidget):
         margin = self._monitoring_hud_resize_hit_zone_px()
         if not rect.adjusted(-2, -2, 2, 2).contains(point):
             return Qt.Edges()
+        if not self._monitoring_hud_screen_point_inside_rounded_window_mask(point):
+            return Qt.Edges()
         edges = Qt.Edges()
         if abs(point.x() - rect.left()) <= margin:
             edges |= Qt.LeftEdge
@@ -7342,6 +7397,41 @@ class DesktopRuntimeWindow(QWidget):
 
     def _monitoring_hud_resize_hit_zone_px(self) -> int:
         return 12
+
+    def _monitoring_hud_screen_point_inside_rounded_window_mask(self, point: QPoint) -> bool:
+        if self.surface_role != "hud":
+            return True
+        rect = self.geometry()
+        if rect.isNull() or not rect.isValid():
+            return False
+        local_x = int(point.x() - rect.x())
+        local_y = int(point.y() - rect.y())
+        width = int(rect.width())
+        height = int(rect.height())
+        if local_x < 0 or local_y < 0 or local_x >= width or local_y >= height:
+            return False
+        radius = min(
+            int(self._monitoring_hud_window_corner_radius_px),
+            max(1, width // 2),
+            max(1, height // 2),
+        )
+        if radius <= 0:
+            return True
+        corner_center_x = None
+        corner_center_y = None
+        if local_x < radius:
+            corner_center_x = radius
+        elif local_x >= width - radius:
+            corner_center_x = width - radius
+        if local_y < radius:
+            corner_center_y = radius
+        elif local_y >= height - radius:
+            corner_center_y = height - radius
+        if corner_center_x is None or corner_center_y is None:
+            return True
+        dx = local_x - corner_center_x
+        dy = local_y - corner_center_y
+        return (dx * dx + dy * dy) <= (radius * radius)
 
     def _monitoring_hud_window_resize_interaction_available(self) -> bool:
         return (
@@ -9863,8 +9953,30 @@ class DesktopRuntimeWindow(QWidget):
             tuple(monitor_signature_parts),
         )
         active_child_window = str(state.get("activeChildWindow", "none") or "none")
-        if active_child_window != self._monitoring_hud_active_child_window_signature:
-            self._monitoring_hud_active_child_window_signature = active_child_window
+        geometry_state = state.get("geometry") if isinstance(state.get("geometry"), dict) else {}
+        settings_window = geometry_state.get("settingsWindow") if isinstance(geometry_state.get("settingsWindow"), dict) else {}
+        settings_window_present = active_child_window == "dashboard-settings" and bool(settings_window)
+        try:
+            settings_window_left = int(self.x() + float(settings_window.get("left", 0)))
+            settings_window_top = int(self.y() + float(settings_window.get("top", 0)))
+            settings_window_width = int(float(settings_window.get("width", 0)))
+            settings_window_height = int(float(settings_window.get("height", 0)))
+        except (TypeError, ValueError):
+            settings_window_left = 0
+            settings_window_top = 0
+            settings_window_width = 0
+            settings_window_height = 0
+        settings_window_right = settings_window_left + settings_window_width
+        settings_window_bottom = settings_window_top + settings_window_height
+        active_child_window_signature = (
+            active_child_window,
+            settings_window_left,
+            settings_window_top,
+            settings_window_width,
+            settings_window_height,
+        )
+        if active_child_window_signature != self._monitoring_hud_active_child_window_signature:
+            self._monitoring_hud_active_child_window_signature = active_child_window_signature
             self._emit_runtime_signal(
                 "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY",
                 package="PKG-006",
@@ -9872,6 +9984,13 @@ class DesktopRuntimeWindow(QWidget):
                 seam="LV1",
                 active_child_window=active_child_window,
                 dashboard_settings_open=active_child_window == "dashboard-settings",
+                settings_window_present=settings_window_present,
+                settings_window_left=settings_window_left,
+                settings_window_top=settings_window_top,
+                settings_window_right=settings_window_right,
+                settings_window_bottom=settings_window_bottom,
+                settings_window_width=settings_window_width,
+                settings_window_height=settings_window_height,
             )
         if monitor_signature != self._monitoring_hud_monitor_management_signature:
             self._monitoring_hud_monitor_management_signature = monitor_signature

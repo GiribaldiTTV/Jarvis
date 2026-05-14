@@ -998,7 +998,10 @@ function monitoringHudInitializeControls() {
 window.getMonitoringHudControlState = function() {
   return Object.assign({}, monitoringHudControlState, {
     cards: Object.assign({}, monitoringHudControlState.cards),
-    activeChildWindow: monitoringHudActiveChildWindow || "none"
+    activeChildWindow: monitoringHudActiveChildWindow || "none",
+    geometry: window.getMonitoringHudLiveClientGeometry
+      ? window.getMonitoringHudLiveClientGeometry()
+      : {}
   });
 };
 

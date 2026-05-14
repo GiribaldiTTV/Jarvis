@@ -501,15 +501,19 @@ Step 6 - Dashboard Window-Level Close
 Expected: The Close pill sits at the top-right as a whole-window control, hides only the Dashboard, and tray Open HUD Dashboard brings it back.
 USER Result / Notes:
 
-Step 7 - Quick Access Warning Notifications
+Step 7 - #137 Dashboard Rounded Corners On Light Background
+Expected: With a white or light window behind the Dashboard, the rounded corners show the backdrop cleanly and no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
+USER Result / Notes:
+
+Step 8 - Quick Access Warning Notifications
 Expected: The Warning Notifications button is readable, not shadowed or pinched from the top, and still works as a quick access control.
 USER Result / Notes:
 
-Step 8 - Regression Sweep
+Step 9 - Regression Sweep
 Expected: Create Monitor, Edit Monitor, tray Open Command Overlay, scroll gutter, tray enable/disable, and tray Exit confirmation still behave normally.
 USER Result / Notes:
 
-Step 9 - Closing Additions
+Step 10 - Closing Additions
 Any remaining readability, placement, motion, clipping, confusion, or polish notes:
 
 Final USER Result

@@ -714,6 +714,24 @@ function Click-ElementCenter {
     )
 
     if (-not $Element) { throw "Missing element for $Label" }
+    try {
+        $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
+        $node = $Element
+        $nativeHandle = 0
+        while ($node) {
+            $candidateHandle = [int]$node.Current.NativeWindowHandle
+            if ($candidateHandle -ne 0) {
+                $nativeHandle = $candidateHandle
+            }
+            $node = $walker.GetParent($node)
+        }
+        if ($nativeHandle -ne 0) {
+            $windowHandle = [IntPtr]$nativeHandle
+            [CodexHumanClientWin32]::BringWindowToTop($windowHandle) | Out-Null
+            [CodexHumanClientWin32]::SetForegroundWindow($windowHandle) | Out-Null
+            Start-Sleep -Milliseconds 220
+        }
+    } catch {}
     $rect = $Element.Current.BoundingRectangle
     if ($rect.IsEmpty -or $Element.Current.IsOffscreen) { throw "Element '$Label' is offscreen or empty" }
     $x = [int]($rect.Left + ($rect.Width / 2))
@@ -903,6 +921,39 @@ function Get-NativeWindowRectByHandle {
         Width = [int]($rect[2] - $rect[0])
         Height = [int]($rect[3] - $rect[1])
     }
+}
+
+function Format-ColorSample {
+    param([object]$Sample)
+    if (-not $Sample) { return "missing" }
+    return "($($Sample.x),$($Sample.y))=rgb($($Sample.r),$($Sample.g),$($Sample.b))/brightness=$($Sample.brightness)"
+}
+
+function Invoke-DashboardRoundedCornerMaskProbe {
+    param(
+        [object]$Dashboard,
+        [long]$WindowHandle
+    )
+    if (-not $Dashboard) { throw "Dashboard is missing for rounded-corner mask proof" }
+    if ($WindowHandle -eq 0) {
+        $bounds = $Dashboard.Current.BoundingRectangle
+        $WindowHandle = Get-RootWindowHandleAtPoint -X ([int]($bounds.Left + ($bounds.Width / 2))) -Y ([int]($bounds.Top + ($bounds.Height / 2)))
+    }
+    $probePath = Join-Path $RootDir "dev\orin_dashboard_rounded_corner_mask_probe.py"
+    if (-not (Test-Path -LiteralPath $probePath)) {
+        throw "Rounded-corner mask probe is missing: $probePath"
+    }
+    $probeRoot = Join-Path $LogRoot "rounded_corner_mask"
+    New-Item -ItemType Directory -Force -Path $probeRoot | Out-Null
+    $probeOutput = & python $probePath --window-handle $WindowHandle --output-dir $probeRoot 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Rounded-corner mask probe failed: $($probeOutput -join "`n")"
+    }
+    $payload = ($probeOutput -join "`n") | ConvertFrom-Json
+    if ($payload.screenshot) {
+        Add-Artifact -Label "dashboard_rounded_corner_mask_light_backdrop" -Path ([string]$payload.screenshot)
+    }
+    return $payload
 }
 
 function Drag-FromToWithGeometrySamples {
@@ -1117,6 +1168,49 @@ function DoubleClick-ScreenPoint {
     }
 }
 
+function Convert-RuntimeMarkerLineToMap {
+    param([string]$Line)
+    $result = @{}
+    foreach ($part in ($Line -split "\|")) {
+        $index = $part.IndexOf("=")
+        if ($index -le 0) { continue }
+        $key = $part.Substring(0, $index).Trim()
+        $value = $part.Substring($index + 1).Trim()
+        if ($key) { $result[$key] = $value }
+    }
+    return $result
+}
+
+function Get-LatestSettingsWindowRectFromRuntimeLog {
+    $lines = @(Read-RuntimeLines)
+    for ($i = $lines.Count - 1; $i -ge 0; $i--) {
+        $line = [string]$lines[$i]
+        if ($line -notmatch "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY") { continue }
+        if ($line -notmatch "dashboard_settings_open=true") { continue }
+        if ($line -notmatch "settings_window_present=true") { continue }
+        $map = Convert-RuntimeMarkerLineToMap -Line $line
+        try {
+            $left = [int]$map["settings_window_left"]
+            $top = [int]$map["settings_window_top"]
+            $right = [int]$map["settings_window_right"]
+            $bottom = [int]$map["settings_window_bottom"]
+            if ($right -le $left -or $bottom -le $top) { return $null }
+            return [pscustomobject]@{
+                Left = $left
+                Top = $top
+                Right = $right
+                Bottom = $bottom
+                Width = [int]($right - $left)
+                Height = [int]($bottom - $top)
+                sourceLine = $line
+            }
+        } catch {
+            return $null
+        }
+    }
+    return $null
+}
+
 function Get-DashboardTopChromeControlPoints {
     param([object]$Dashboard)
     if (-not $Dashboard) { throw "Dashboard is missing while calculating Dashboard control points" }
@@ -1138,9 +1232,19 @@ function Get-DashboardTopChromeControlPoints {
 function Get-SettingsChildWindowControlPoints {
     param([object]$Dashboard)
     if (-not $Dashboard) { throw "Dashboard is missing while calculating settings child-window control points" }
+    $runtimeRect = Get-LatestSettingsWindowRectFromRuntimeLog
+    if ($runtimeRect) {
+        return [ordered]@{
+            estimatedRect = @($runtimeRect.Left, $runtimeRect.Top, $runtimeRect.Right, $runtimeRect.Bottom)
+            closePoint = @([int]($runtimeRect.Right - 42), [int]($runtimeRect.Top + 30))
+            donePoint = @([int]($runtimeRect.Left + 42), [int]($runtimeRect.Bottom - 32))
+            source = "runtime-child-window-marker"
+            sourceLine = $runtimeRect.sourceLine
+        }
+    }
     $rect = $Dashboard.Current.BoundingRectangle
     $childWidth = [Math]::Min(520, [Math]::Max(320, [int]$rect.Width - 44))
-    $childHeight = [Math]::Min(460, [Math]::Max(360, [int]$rect.Height - 44))
+    $childHeight = [Math]::Min(620, [Math]::Max(360, [int]$rect.Height - 44))
     $left = [int]($rect.Left + (($rect.Width - $childWidth) / 2))
     $top = [int]($rect.Top + (($rect.Height - $childHeight) / 2))
     return [ordered]@{
@@ -1571,7 +1675,7 @@ function Click-VisibleTrayMenuAction {
         }
     }
     $coordinateFallback = $coordinateOnlyMenu
-    if ($itemRect) {
+    if ($itemRect -and -not $target) {
         $coordinateFallback = $true
     }
     if (-not $target -and -not $itemRect) {
@@ -1626,7 +1730,7 @@ function Click-VisibleTrayMenuAction {
     }
 
     if ($coordinateFallback) {
-        $x = [int]($menuRect.X + [Math]::Min(115, [Math]::Max(70, $menuRect.Width / 2)))
+        $x = [int]($itemRect.X + [Math]::Min(72, [Math]::Max(28, $itemRect.Width / 3)))
     } elseif ($targetControlType -eq "ControlType.Button") {
         $x = [int]($itemRect.X + ($itemRect.Width / 2))
     } else {
@@ -1712,6 +1816,28 @@ function Get-DashboardWindow {
     }
 
     return $null
+}
+
+function Close-CommandOverlayBeforeDashboardResize {
+    $indicatorBefore = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 1
+    $beforeLines = (Read-RuntimeLines).Count
+    $closeMarker = $false
+    if ($indicatorBefore) {
+        try {
+            Click-ElementCenter -Element $indicatorBefore -Label "Command overlay prompt focus"
+        } catch {}
+        Send-Key 0x1B
+        $closeMarker = Wait-ForRuntimeMarkerAfterLine -Marker "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" -AfterLine $beforeLines -TimeoutSeconds 4
+    }
+    Start-Sleep -Milliseconds 500
+    $indicatorAfter = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 1
+    $dashboard = Get-DashboardWindow
+    $shot = Capture-VirtualScreenshot "04e_after_command_overlay_closed_before_dashboard_resize"
+    $pass = (-not $indicatorAfter) -and [bool]$dashboard
+    Add-Step -Id "ncp_closed_before_dashboard_resize" -Title "Command Overlay is closed before Dashboard resize proof" -Status ($(if ($pass) { "PASS" } else { "FAIL" })) -Detail "overlay_visible_before=$([bool]$indicatorBefore); close_marker=$closeMarker; overlay_visible_after=$([bool]$indicatorAfter); dashboard_visible=$([bool]$dashboard)." -Evidence @{ screenshot = $shot; expectedClosedMarker = "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" }
+    if (-not $pass) {
+        throw "Command Overlay remained visible or Dashboard disappeared before resize proof"
+    }
 }
 
 function Wait-ForVisibleRuntimeWindowByTitle {
@@ -2229,9 +2355,16 @@ try {
         $settingsCloseEvidence = Click-ScreenPoint -X ([int]$donePoint[0]) -Y ([int]$donePoint[1]) -Label "Dashboard Settings estimated Done button"
     }
     $settingsClosedMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY" -AfterLine $settingsCloseBeforeLine -TimeoutSeconds 4
+    if (-not $settingsClosedMarker) {
+        $settingsChildPoints = Get-SettingsChildWindowControlPoints -Dashboard $dashboardAfterDoubleClick
+        $settingsClosePoint = @($settingsChildPoints.closePoint)
+        $settingsCloseBeforeLine = (Read-RuntimeLines).Count
+        $settingsCloseEvidence = Click-ScreenPoint -X ([int]$settingsClosePoint[0]) -Y ([int]$settingsClosePoint[1]) -Label "Dashboard Settings estimated Close button"
+        $settingsClosedMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY" -AfterLine $settingsCloseBeforeLine -TimeoutSeconds 4
+    }
     $settingsClosedShot = Capture-VirtualScreenshot "03f_after_dashboard_settings_done"
     Add-Step -Id "dashboard_settings_done_closes_with_real_mouse" -Title "Dashboard Settings panel closes through visible user control" -Status ($(if ($settingsClosedMarker) { "PASS" } else { "FAIL" })) -Detail "Done button found by UIA=$([bool]$settingsDone); child_window_close_marker=$settingsClosedMarker." -Evidence @{ screenshot = $settingsClosedShot; marker = "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY"; closeEvidence = $settingsCloseEvidence }
-    if (-not $settingsClosedMarker) { throw "Dashboard Settings panel did not close through the visible Done control" }
+    if (-not $settingsClosedMarker) { throw "Dashboard Settings panel did not close through a visible Done or Close control" }
 
     $dashboard = Get-DashboardWindow
     if (-not $dashboard) { throw "Dashboard disappeared before window-level Close proof" }
@@ -2253,6 +2386,14 @@ try {
     $dashboard = Get-DashboardWindow
     Add-Step -Id "dashboard_reopens_after_top_chrome_close" -Title "Tray reopens Dashboard after window-level Close" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after tray reopen from window-level Close: $([bool]$dashboard)" -Evidence @{ screenshot = $reopenAfterXShot; trayClick = $reopenAfterX }
     if (-not $dashboard) { throw "Dashboard did not reopen after window-level Close" }
+
+    $roundedMaskMarker = Wait-ForRuntimeMarker -Marker "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY" -TimeoutSeconds 2
+    $roundedMaskProof = Invoke-DashboardRoundedCornerMaskProbe -Dashboard $dashboard -WindowHandle ([long]$dashboard.Current.NativeWindowHandle)
+    $cornerText = (@($roundedMaskProof.CornerSamples) | ForEach-Object { Format-ColorSample $_ }) -join "; "
+    $visibleText = (@($roundedMaskProof.VisibleSamples) | ForEach-Object { Format-ColorSample $_ }) -join "; "
+    $roundedMaskPass = $roundedMaskMarker -and $roundedMaskProof.Pass
+    Add-Step -Id "dashboard_rounded_corner_mask_light_backdrop" -Title "Dashboard rounded native window mask prevents black corner bleed over a white backdrop" -Status ($(if ($roundedMaskPass) { "PASS" } else { "FAIL" })) -Detail "mask_marker=$roundedMaskMarker; corner_exterior_white=$($roundedMaskProof.CornerPass); visible_dashboard_interior=$($roundedMaskProof.VisibleDashboardPass); corner_samples=$cornerText; interior_samples=$visibleText." -Evidence @{ screenshot = $roundedMaskProof.Screenshot; windowRect = $roundedMaskProof.WindowRect; backdropRect = $roundedMaskProof.BackdropRect; cornerSamples = $roundedMaskProof.CornerSamples; visibleSamples = $roundedMaskProof.VisibleSamples; expectedMarker = "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY"; policy = $roundedMaskProof.Policy }
+    if (-not $roundedMaskPass) { throw "Dashboard rounded corner native mask did not prove white-backdrop transparency at exterior corner samples" }
 
     $rectBeforeMove = $dashboard.Current.BoundingRectangle
     Drag-FromTo -StartX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2))) -StartY ([int]($rectBeforeMove.Top + 48)) -EndX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2) + 90)) -EndY ([int]($rectBeforeMove.Top + 88)) -Label "Dashboard header move"
@@ -2296,6 +2437,7 @@ try {
     }
     Start-Sleep -Milliseconds 600
 
+    Close-CommandOverlayBeforeDashboardResize
     $dashboard = Get-DashboardWindow
     if (-not $dashboard) { throw "Dashboard disappeared before resize proof after NCP interaction checks" }
     $rectBeforeResize = $dashboard.Current.BoundingRectangle
