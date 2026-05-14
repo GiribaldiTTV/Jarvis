@@ -1,5 +1,6 @@
 import inspect
 import json
+import math
 import os
 import re
 import ctypes
@@ -78,11 +79,13 @@ WM_SETCURSOR = 0x0020
 WM_NCMOUSEMOVE = 0x00A0
 WM_NCLBUTTONDOWN = 0x00A1
 WM_NCLBUTTONUP = 0x00A2
+WM_NCLBUTTONDBLCLK = 0x00A3
 WM_MOUSEMOVE = 0x0200
 WM_LBUTTONUP = 0x0202
 WM_CAPTURECHANGED = 0x0215
 VK_LBUTTON = 0x01
 HTTRANSPARENT = -1
+HTCLIENT = 1
 HTCAPTION = 2
 HTLEFT = 10
 HTRIGHT = 11
@@ -99,6 +102,7 @@ IDC_SIZEWE = 32644
 IDC_SIZENS = 32645
 user32 = ctypes.windll.user32
 kernel32 = ctypes.windll.kernel32
+gdi32 = ctypes.windll.gdi32
 LoadCursorW = user32.LoadCursorW
 LoadCursorW.restype = ctypes.wintypes.HCURSOR
 SetCursor = user32.SetCursor
@@ -184,6 +188,24 @@ IsWindowVisible.restype = ctypes.c_bool
 GetParentW = user32.GetParent
 GetParentW.argtypes = [ctypes.wintypes.HWND]
 GetParentW.restype = ctypes.wintypes.HWND
+HRGN = getattr(ctypes.wintypes, "HRGN", ctypes.wintypes.HANDLE)
+HGDIOBJ = getattr(ctypes.wintypes, "HGDIOBJ", ctypes.wintypes.HANDLE)
+CreateRoundRectRgn = gdi32.CreateRoundRectRgn
+CreateRoundRectRgn.argtypes = [
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+]
+CreateRoundRectRgn.restype = HRGN
+SetWindowRgn = user32.SetWindowRgn
+SetWindowRgn.argtypes = [ctypes.wintypes.HWND, HRGN, ctypes.wintypes.BOOL]
+SetWindowRgn.restype = ctypes.c_int
+DeleteObject = gdi32.DeleteObject
+DeleteObject.argtypes = [HGDIOBJ]
+DeleteObject.restype = ctypes.wintypes.BOOL
 SW_HIDE = 0
 GWL_EXSTYLE = -20
 WS_EX_TRANSPARENT = 0x00000020
@@ -5757,6 +5779,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_polling_rate_ms = 1000
         self._monitoring_hud_control_signature = None
         self._monitoring_hud_monitor_management_signature = None
+        self._monitoring_hud_active_child_window_signature = None
         self._monitoring_hud_control_sync_timer = QTimer(self)
         self._monitoring_hud_control_sync_timer.timeout.connect(self._sync_monitoring_hud_control_state_from_page)
         self._monitoring_hud_poll_timer = QTimer(self)
@@ -5776,16 +5799,42 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_window_resize_base = QRect()
         self._monitoring_hud_native_window_resize_poll_active = False
         self._monitoring_hud_native_window_resize_last_rect = QRect()
+        self._monitoring_hud_native_window_resize_pending_point = QPoint()
+        self._monitoring_hud_native_window_resize_last_apply = 0.0
+        self._monitoring_hud_native_window_resize_frame_interval_ms = 8
+        self._monitoring_hud_native_window_resize_poll_timer = QTimer(self)
+        self._monitoring_hud_native_window_resize_poll_timer.setSingleShot(False)
+        try:
+            self._monitoring_hud_native_window_resize_poll_timer.setTimerType(Qt.PreciseTimer)
+        except Exception:
+            pass
+        self._monitoring_hud_native_window_resize_poll_timer.timeout.connect(
+            self._poll_monitoring_hud_fallback_window_resize
+        )
+        self._monitoring_hud_native_window_resize_frame_timer = QTimer(self)
+        self._monitoring_hud_native_window_resize_frame_timer.setSingleShot(True)
+        try:
+            self._monitoring_hud_native_window_resize_frame_timer.setTimerType(Qt.PreciseTimer)
+        except Exception:
+            pass
+        self._monitoring_hud_native_window_resize_frame_timer.timeout.connect(
+            self._apply_monitoring_hud_queued_window_resize
+        )
         self._monitoring_hud_user_geometry_override_active = False
         self._monitoring_hud_native_move_user_active = False
         self._monitoring_hud_native_move_start_geometry = QRect()
         self._monitoring_hud_native_move_last_geometry = QRect()
         self._monitoring_hud_native_move_source = ""
         self._monitoring_hud_resize_frame_sync_last = 0.0
+        self._monitoring_hud_resize_js_sync_last = 0.0
+        self._monitoring_hud_show_guard_active = False
+        self._monitoring_hud_show_guard_generation = 0
+        self._monitoring_hud_show_guard_release_delay_ms = 360
+        self._monitoring_hud_deferred_initial_visibility_release = False
         self._monitoring_hud_resize_cursor_key = None
         self._monitoring_hud_resize_override_cursor_active = False
         self._monitoring_hud_resize_hover_timer = QTimer(self)
-        self._monitoring_hud_resize_hover_timer.setInterval(20)
+        self._monitoring_hud_resize_hover_timer.setInterval(8)
         self._monitoring_hud_resize_hover_timer.timeout.connect(self._poll_monitoring_hud_resize_hover_cursor)
         self._monitoring_hud_native_move_finalize_timer = QTimer(self)
         self._monitoring_hud_native_move_finalize_timer.setSingleShot(True)
@@ -5802,6 +5851,10 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_card_drag_base: dict[str, int] = {}
         self._monitoring_hud_live_screen_rects: dict[str, QRect] = {}
         self._monitoring_hud_live_page_state: dict[str, object] = {}
+        self._monitoring_hud_dashboard_close_last_screen_rect = QRect()
+        self._monitoring_hud_settings_action_last_screen_rect = QRect()
+        self._monitoring_hud_window_corner_radius_px = 28
+        self._monitoring_hud_rounded_window_mask_signature = None
         self._monitoring_hud_native_anchor_click_pending = False
         self._monitoring_hud_native_anchor_click_expected = True
         self._monitoring_hud_tray_menu_guard_active = False
@@ -5819,6 +5872,7 @@ class DesktopRuntimeWindow(QWidget):
         self.setAutoFillBackground(self.surface_role != "hud")
         if self.surface_role == "hud":
             self.setAttribute(Qt.WA_TranslucentBackground, True)
+            self.setAttribute(Qt.WA_NoSystemBackground, True)
             self.setStyleSheet("background-color: transparent;")
         else:
             self.setStyleSheet("background-color: rgb(0, 0, 0);")
@@ -5827,6 +5881,7 @@ class DesktopRuntimeWindow(QWidget):
         self.setGeometry(self.compute_compact_geometry())
         if self.surface_role == "hud":
             self.setMinimumSize(640, 520)
+            self._apply_monitoring_hud_rounded_window_mask(source="init")
         self.setMouseTracking(True)
 
         root = QVBoxLayout(self)
@@ -5842,6 +5897,10 @@ class DesktopRuntimeWindow(QWidget):
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setFocusPolicy(Qt.NoFocus)
         self.webview.setMouseTracking(True)
+        if self.surface_role == "hud":
+            self.webview.setAttribute(Qt.WA_TranslucentBackground, True)
+            self.webview.setAttribute(Qt.WA_NoSystemBackground, True)
+            self.webview.setAutoFillBackground(False)
         self.webview.installEventFilter(self)
         QApplication.instance().installEventFilter(self)
         if self.surface_role == "hud":
@@ -5872,6 +5931,11 @@ class DesktopRuntimeWindow(QWidget):
         ):
             self._monitoring_hud_native_move_last_geometry = QRect(self.geometry())
             self._monitoring_hud_native_move_finalize_timer.start()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.surface_role == "hud":
+            self._apply_monitoring_hud_rounded_window_mask(source="resize")
 
     def compute_compact_geometry(self):
         g = self.screen_ref.geometry()
@@ -5904,16 +5968,110 @@ class DesktopRuntimeWindow(QWidget):
 
     def prepare_desktop_geometry(self):
         self.setGeometry(self.compute_compact_geometry())
+        self._apply_monitoring_hud_rounded_window_mask(source="prepare_desktop_geometry")
 
     def is_core_visualization_ready(self):
         return self._page_ready
 
     def showEvent(self, event):
         super().showEvent(event)
+        self._apply_monitoring_hud_rounded_window_mask(source="show")
 
         if not self.desktop_mode:
             self._desktop_mode_requested = True
             self._schedule_desktop_mode_enable()
+
+    def _apply_monitoring_hud_rounded_window_mask(self, *, source: str = "runtime"):
+        if self.surface_role != "hud":
+            return
+        rect = self.rect()
+        if rect.width() <= 0 or rect.height() <= 0:
+            return
+        radius = min(
+            self._monitoring_hud_window_corner_radius_px,
+            max(1, rect.width() // 2),
+            max(1, rect.height() // 2),
+        )
+        signature = (rect.width(), rect.height(), radius, "win32-roundrect" if os.name == "nt" else "qt-region")
+        if signature == self._monitoring_hud_rounded_window_mask_signature:
+            return
+        if os.name == "nt":
+            try:
+                # Use a simple native rounded rectangle region instead of a polygonal
+                # Qt mask. The native region keeps the light-backdrop corner fix while
+                # avoiding complex shaped-window movement/resize jank.
+                region_handle = CreateRoundRectRgn(
+                    0,
+                    0,
+                    int(rect.width()) + 1,
+                    int(rect.height()) + 1,
+                    int(radius * 2),
+                    int(radius * 2),
+                )
+                if region_handle:
+                    applied = bool(SetWindowRgn(ctypes.wintypes.HWND(int(self.winId())), region_handle, True))
+                    if applied:
+                        self._monitoring_hud_rounded_window_mask_signature = signature
+                        self._emit_monitoring_hud_rounded_window_mask_ready(
+                            source=source,
+                            radius=radius,
+                            width=rect.width(),
+                            height=rect.height(),
+                            bounds_width=rect.width(),
+                            bounds_height=rect.height(),
+                            mask_model="simple-native-roundrect-region-matches-css-chrome",
+                        )
+                        return
+                    DeleteObject(HGDIOBJ(region_handle))
+            except Exception:
+                pass
+            signature = (rect.width(), rect.height(), radius, "qt-region")
+            if signature == self._monitoring_hud_rounded_window_mask_signature:
+                return
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(rect), float(radius), float(radius))
+        region = QRegion(path.toFillPolygon().toPolygon())
+        if region.isEmpty():
+            return
+        self.setMask(region)
+        self._monitoring_hud_rounded_window_mask_signature = signature
+        bounds = region.boundingRect()
+        self._emit_monitoring_hud_rounded_window_mask_ready(
+            source=source,
+            radius=radius,
+            width=rect.width(),
+            height=rect.height(),
+            bounds_width=bounds.width(),
+            bounds_height=bounds.height(),
+            mask_model="native-rounded-window-region-matches-css-chrome",
+        )
+
+    def _emit_monitoring_hud_rounded_window_mask_ready(
+        self,
+        *,
+        source: str,
+        radius: int,
+        width: int,
+        height: int,
+        bounds_width: int,
+        bounds_height: int,
+        mask_model: str,
+    ):
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY",
+            package="PKG-006",
+            slice="SLC-027",
+            issue=137,
+            source=source,
+            mask_model=mask_model,
+            corner_bleed_policy="no-opaque-rectangular-corners-over-light-backdrops",
+            resize_hit_test_model="rounded-mask-clipped-visible-rail",
+            radius_px=radius,
+            width=width,
+            height=height,
+            bounds_width=bounds_width,
+            bounds_height=bounds_height,
+        )
 
     def _log_event(self, event):
         if callable(self.event_logger):
@@ -6347,17 +6505,48 @@ class DesktopRuntimeWindow(QWidget):
                     if screen_rect.isValid() and not screen_rect.isNull():
                         screen_rects[str(name)] = screen_rect
         self._monitoring_hud_live_screen_rects = screen_rects
+        dashboard_close_rect = screen_rects.get("dashboardClose", QRect())
+        if dashboard_close_rect.isValid() and not dashboard_close_rect.isNull():
+            self._monitoring_hud_dashboard_close_last_screen_rect = QRect(dashboard_close_rect)
+        settings_action_rect = screen_rects.get("settingsAction", QRect())
+        if settings_action_rect.isValid() and not settings_action_rect.isNull():
+            self._monitoring_hud_settings_action_last_screen_rect = QRect(settings_action_rect)
 
     def _monitoring_hud_dashboard_close_fallback_screen_rect(self) -> QRect:
+        rect = self._monitoring_hud_interactive_screen_rect
+        if rect.isNull() or not rect.isValid():
+            rect = self._estimate_monitoring_hud_interactive_screen_rect()
+            self._monitoring_hud_interactive_screen_rect = rect
+        if not rect.isValid() or rect.isNull():
+            return QRect()
+        return QRect(
+            rect.right() + 1 - 14 - 82,
+            rect.y() + 12,
+            82,
+            42,
+        )
+
+    def _monitoring_hud_settings_action_fallback_screen_rect(self) -> QRect:
+        actions_rect = self._monitoring_hud_dashboard_actions_fallback_screen_rect()
+        if not actions_rect.isValid() or actions_rect.isNull():
+            return QRect()
+        return QRect(
+            actions_rect.x(),
+            actions_rect.y(),
+            actions_rect.width(),
+            44,
+        )
+
+    def _monitoring_hud_dashboard_actions_fallback_screen_rect(self) -> QRect:
         header_rect = self._monitoring_hud_header_rect()
         if not header_rect.isValid() or header_rect.isNull():
             return QRect()
-        width = min(220, max(120, header_rect.width() // 3))
-        height = min(116, max(64, header_rect.height() - 24))
-        left = max(header_rect.x(), header_rect.right() - width + 1 - 18)
+        width = min(360, max(154, header_rect.width() // 3))
+        height = 44
+        left = header_rect.x() + 43
         return QRect(
             left,
-            header_rect.y() + 18,
+            header_rect.y() + 132,
             width,
             height,
         )
@@ -7004,11 +7193,13 @@ class DesktopRuntimeWindow(QWidget):
         control_rect_names = (
             "anchorToggle",
             "visibilityToggle",
+            "settingsAction",
             "dashboardClose",
             "createMonitor",
             "snapToggle",
             "pollingRate",
             "warningModeControl",
+            "settingsWarningToggle",
             "monitorSelector",
             "monitorEnabled",
             "monitorPollingRate",
@@ -7018,7 +7209,23 @@ class DesktopRuntimeWindow(QWidget):
             if rect.isValid() and not rect.isNull() and rect.contains(point):
                 return True
             if name == "dashboardClose":
+                if (
+                    self._monitoring_hud_dashboard_close_last_screen_rect.isValid()
+                    and not self._monitoring_hud_dashboard_close_last_screen_rect.isNull()
+                    and self._monitoring_hud_dashboard_close_last_screen_rect.contains(point)
+                ):
+                    return True
                 fallback_rect = self._monitoring_hud_dashboard_close_fallback_screen_rect()
+                if fallback_rect.isValid() and not fallback_rect.isNull() and fallback_rect.contains(point):
+                    return True
+            if name == "settingsAction":
+                if (
+                    self._monitoring_hud_settings_action_last_screen_rect.isValid()
+                    and not self._monitoring_hud_settings_action_last_screen_rect.isNull()
+                    and self._monitoring_hud_settings_action_last_screen_rect.contains(point)
+                ):
+                    return True
+                fallback_rect = self._monitoring_hud_settings_action_fallback_screen_rect()
                 if fallback_rect.isValid() and not fallback_rect.isNull() and fallback_rect.contains(point):
                     return True
         return False
@@ -7027,7 +7234,38 @@ class DesktopRuntimeWindow(QWidget):
         rect = self._monitoring_hud_live_screen_rects.get("dashboardClose", QRect())
         if rect.isValid() and not rect.isNull() and rect.contains(point):
             return True
+        settings_rect = self._monitoring_hud_live_screen_rects.get("settingsAction", QRect())
+        if settings_rect.isValid() and not settings_rect.isNull() and settings_rect.contains(point):
+            return False
+        if (
+            self._monitoring_hud_settings_action_last_screen_rect.isValid()
+            and not self._monitoring_hud_settings_action_last_screen_rect.isNull()
+            and self._monitoring_hud_settings_action_last_screen_rect.contains(point)
+        ):
+            return False
+        settings_fallback_rect = self._monitoring_hud_settings_action_fallback_screen_rect()
+        if settings_fallback_rect.isValid() and not settings_fallback_rect.isNull() and settings_fallback_rect.contains(point):
+            return False
+        if (
+            self._monitoring_hud_dashboard_close_last_screen_rect.isValid()
+            and not self._monitoring_hud_dashboard_close_last_screen_rect.isNull()
+            and self._monitoring_hud_dashboard_close_last_screen_rect.contains(point)
+        ):
+            return True
         fallback_rect = self._monitoring_hud_dashboard_close_fallback_screen_rect()
+        return bool(fallback_rect.isValid() and not fallback_rect.isNull() and fallback_rect.contains(point))
+
+    def _monitoring_hud_dashboard_settings_control_rect_contains(self, point: QPoint) -> bool:
+        rect = self._monitoring_hud_live_screen_rects.get("settingsAction", QRect())
+        if rect.isValid() and not rect.isNull() and rect.contains(point):
+            return True
+        if (
+            self._monitoring_hud_settings_action_last_screen_rect.isValid()
+            and not self._monitoring_hud_settings_action_last_screen_rect.isNull()
+            and self._monitoring_hud_settings_action_last_screen_rect.contains(point)
+        ):
+            return True
+        fallback_rect = self._monitoring_hud_settings_action_fallback_screen_rect()
         return bool(fallback_rect.isValid() and not fallback_rect.isNull() and fallback_rect.contains(point))
 
     def _handle_monitoring_hud_dashboard_close_native_control(self, screen_point: QPoint) -> bool:
@@ -7042,6 +7280,30 @@ class DesktopRuntimeWindow(QWidget):
             seam="WS43",
             feature_enabled=bool(self._monitoring_hud_feature_enabled),
             dashboard_visible=bool(self.isVisible() and self._monitoring_hud_visible),
+            x=screen_point.x(),
+            y=screen_point.y(),
+        )
+        return True
+
+    def _handle_monitoring_hud_dashboard_settings_native_control(self, screen_point: QPoint) -> bool:
+        if not self._monitoring_hud_dashboard_settings_control_rect_contains(screen_point):
+            return False
+        script = """
+        (() => {
+          const button = document.getElementById("monitoring-hud-settings-action");
+          if (!button) return "missing";
+          button.click();
+          return "clicked";
+        })();
+        """
+        self._run_javascript(script)
+        self._emit_runtime_signal(
+            "MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY",
+            package="PKG-006",
+            slice="SLC-029",
+            seam="LV1",
+            control="dashboard-settings",
+            action="open",
             x=screen_point.x(),
             y=screen_point.y(),
         )
@@ -7144,6 +7406,8 @@ class DesktopRuntimeWindow(QWidget):
             native_resize_hit_zone="preclick-hover-cursor-aligned-12px-app-owned-resize-action",
             resize_edge_scope="all-edges-and-corners",
             resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
+            corner_diagonal_resize_arc_percent=50,
+            corner_diagonal_resize_model="central-half-of-rounded-corner-arc",
             resize_hover_cursor_model="polls-real-cursor-before-click",
             resize_poll_interval_ms=8,
             deadzone_policy="auto-height-content-no-empty-hit-zones",
@@ -7194,6 +7458,21 @@ class DesktopRuntimeWindow(QWidget):
         margin = self._monitoring_hud_resize_hit_zone_px()
         if not rect.adjusted(-2, -2, 2, 2).contains(point):
             return Qt.Edges()
+        if not self._monitoring_hud_screen_point_inside_rounded_window_mask(point):
+            return Qt.Edges()
+        radius = min(
+            int(self._monitoring_hud_window_corner_radius_px),
+            max(1, rect.width() // 2),
+            max(1, rect.height() // 2),
+        )
+        corner_edges = self._monitoring_hud_rounded_corner_diagonal_resize_edges_for_point(
+            point,
+            rect,
+            radius,
+            margin,
+        )
+        if corner_edges:
+            return corner_edges
         edges = Qt.Edges()
         if abs(point.x() - rect.left()) <= margin:
             edges |= Qt.LeftEdge
@@ -7207,6 +7486,87 @@ class DesktopRuntimeWindow(QWidget):
 
     def _monitoring_hud_resize_hit_zone_px(self) -> int:
         return 12
+
+    def _monitoring_hud_rounded_corner_diagonal_resize_edges_for_point(
+        self,
+        point: QPoint,
+        rect: QRect,
+        radius: int,
+        margin: int,
+    ):
+        if radius <= 0:
+            return Qt.Edges()
+        local_x = int(point.x() - rect.x())
+        local_y = int(point.y() - rect.y())
+        width = int(rect.width())
+        height = int(rect.height())
+
+        corner_center_x = None
+        corner_center_y = None
+        horizontal_edge = Qt.Edges()
+        vertical_edge = Qt.Edges()
+        if local_x < radius:
+            corner_center_x = radius
+            horizontal_edge = Qt.LeftEdge
+        elif local_x >= width - radius:
+            corner_center_x = width - radius
+            horizontal_edge = Qt.RightEdge
+        if local_y < radius:
+            corner_center_y = radius
+            vertical_edge = Qt.TopEdge
+        elif local_y >= height - radius:
+            corner_center_y = height - radius
+            vertical_edge = Qt.BottomEdge
+        if corner_center_x is None or corner_center_y is None:
+            return Qt.Edges()
+
+        dx = abs(local_x - corner_center_x)
+        dy = abs(local_y - corner_center_y)
+        distance = math.hypot(dx, dy)
+        # The rounded edge is a 90 degree arc. Treat the central 50 percent of
+        # that arc as diagonal resize, while the outer quarters still behave as
+        # the adjacent horizontal or vertical edge.
+        if not (max(0, radius - margin) <= distance <= radius):
+            return Qt.Edges()
+        angle = math.degrees(math.atan2(dy, dx)) if dx or dy else 45.0
+        if 22.5 <= angle <= 67.5:
+            return horizontal_edge | vertical_edge
+        return Qt.Edges()
+
+    def _monitoring_hud_screen_point_inside_rounded_window_mask(self, point: QPoint) -> bool:
+        if self.surface_role != "hud":
+            return True
+        rect = self.geometry()
+        if rect.isNull() or not rect.isValid():
+            return False
+        local_x = int(point.x() - rect.x())
+        local_y = int(point.y() - rect.y())
+        width = int(rect.width())
+        height = int(rect.height())
+        if local_x < 0 or local_y < 0 or local_x >= width or local_y >= height:
+            return False
+        radius = min(
+            int(self._monitoring_hud_window_corner_radius_px),
+            max(1, width // 2),
+            max(1, height // 2),
+        )
+        if radius <= 0:
+            return True
+        corner_center_x = None
+        corner_center_y = None
+        if local_x < radius:
+            corner_center_x = radius
+        elif local_x >= width - radius:
+            corner_center_x = width - radius
+        if local_y < radius:
+            corner_center_y = radius
+        elif local_y >= height - radius:
+            corner_center_y = height - radius
+        if corner_center_x is None or corner_center_y is None:
+            return True
+        dx = local_x - corner_center_x
+        dy = local_y - corner_center_y
+        return (dx * dx + dy * dy) <= (radius * radius)
 
     def _monitoring_hud_window_resize_interaction_available(self) -> bool:
         return (
@@ -7305,6 +7665,28 @@ class DesktopRuntimeWindow(QWidget):
         except Exception:
             return False
 
+    def _monitoring_hud_resize_refresh_rate_hz(self) -> float:
+        screens = []
+        try:
+            screens.append(self.screen())
+        except Exception:
+            pass
+        screens.extend([getattr(self, "screen_ref", None), QApplication.primaryScreen()])
+        for screen in screens:
+            if screen is None:
+                continue
+            try:
+                refresh_rate = float(screen.refreshRate())
+            except Exception:
+                continue
+            if 30.0 <= refresh_rate <= 360.0:
+                return refresh_rate
+        return 60.0
+
+    def _monitoring_hud_resize_frame_interval_ms(self) -> int:
+        refresh_rate = self._monitoring_hud_resize_refresh_rate_hz()
+        return max(4, min(16, int(round(1000.0 / refresh_rate))))
+
     def _start_monitoring_hud_native_system_resize(self, edges, screen_point: QPoint) -> bool:
         if self.surface_role != "hud" or not edges:
             return False
@@ -7394,7 +7776,9 @@ class DesktopRuntimeWindow(QWidget):
     def _set_monitoring_hud_resize_cursor(self, edges):
         key = self._monitoring_hud_resize_edge_key(edges) if edges else None
         if key == self._monitoring_hud_resize_cursor_key:
-            if key is not None:
+            if os.name == "nt":
+                self._apply_monitoring_hud_windows_resize_cursor(edges if key is not None else Qt.Edges())
+            elif key is not None:
                 self._apply_monitoring_hud_windows_resize_cursor(edges)
             return
         self._monitoring_hud_resize_cursor_key = key
@@ -7406,11 +7790,8 @@ class DesktopRuntimeWindow(QWidget):
             pass
         if os.name == "nt":
             for target in targets:
-                if cursor is None:
-                    target.unsetCursor()
-                else:
-                    target.setCursor(QCursor(cursor))
-            self._set_monitoring_hud_override_resize_cursor(cursor)
+                target.unsetCursor()
+            self._set_monitoring_hud_override_resize_cursor(None)
             self._apply_monitoring_hud_windows_resize_cursor(edges)
             return
         for target in targets:
@@ -7425,14 +7806,20 @@ class DesktopRuntimeWindow(QWidget):
         self._set_monitoring_hud_resize_cursor(Qt.Edges())
 
     def _start_monitoring_hud_fallback_window_resize(self, edges, screen_point: QPoint):
+        resize_refresh_rate_hz = self._monitoring_hud_resize_refresh_rate_hz()
+        resize_frame_interval_ms = self._monitoring_hud_resize_frame_interval_ms()
         self._monitoring_hud_native_window_resize_active = True
         self._monitoring_hud_user_geometry_override_active = True
         self._monitoring_hud_native_window_resize_edges = edges
         self._monitoring_hud_native_window_resize_start = screen_point
         self._monitoring_hud_native_window_resize_base = QRect(self.geometry())
         self._monitoring_hud_native_window_resize_last_rect = QRect(self.geometry())
+        self._monitoring_hud_native_window_resize_pending_point = QPoint(screen_point)
+        self._monitoring_hud_native_window_resize_last_apply = 0.0
+        self._monitoring_hud_native_window_resize_frame_interval_ms = resize_frame_interval_ms
         self._monitoring_hud_native_window_resize_poll_active = True
         self._monitoring_hud_resize_frame_sync_last = 0.0
+        self._monitoring_hud_resize_js_sync_last = 0.0
         self._clear_monitoring_hud_native_user_move()
         try:
             SetCapture(ctypes.wintypes.HWND(int(self.winId())))
@@ -7445,40 +7832,68 @@ class DesktopRuntimeWindow(QWidget):
             seam="WS56",
             x=screen_point.x(),
             y=screen_point.y(),
-            resize_model="preclick-hover-cursor-owned-fluid-geometry-resize",
+            resize_model="refresh-rate-paced-cursor-owned-fluid-geometry-resize",
             resize_edge_scope="all-edges-and-corners",
             resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
-            resize_poll_interval_ms=8,
+            resize_refresh_rate_hz=round(resize_refresh_rate_hz, 2),
+            resize_frame_interval_ms=resize_frame_interval_ms,
+            resize_poll_interval_ms=resize_frame_interval_ms,
             edges=str(edges),
         )
-        QTimer.singleShot(8, self._poll_monitoring_hud_fallback_window_resize)
+        self._monitoring_hud_native_window_resize_poll_timer.stop()
+        self._monitoring_hud_native_window_resize_poll_timer.setInterval(resize_frame_interval_ms)
+        self._monitoring_hud_native_window_resize_poll_timer.start()
+        self._poll_monitoring_hud_fallback_window_resize()
 
     def _poll_monitoring_hud_fallback_window_resize(self):
         if not self._monitoring_hud_native_window_resize_active:
+            self._monitoring_hud_native_window_resize_poll_timer.stop()
             self._monitoring_hud_native_window_resize_poll_active = False
             return
         screen_point = self._monitoring_hud_cursor_screen_point()
         if not screen_point.isNull():
             self._update_monitoring_hud_fallback_window_resize(screen_point)
         if self._monitoring_hud_left_mouse_button_down():
-            QTimer.singleShot(8, self._poll_monitoring_hud_fallback_window_resize)
             return
         self._finish_monitoring_hud_fallback_window_resize(screen_point)
 
     def _update_monitoring_hud_fallback_window_resize(self, screen_point: QPoint):
         if not self._monitoring_hud_native_window_resize_active:
             return
+        self._monitoring_hud_native_window_resize_pending_point = QPoint(screen_point)
+        interval_s = max(0.004, self._monitoring_hud_native_window_resize_frame_interval_ms / 1000.0)
+        now = time.monotonic()
+        elapsed = now - self._monitoring_hud_native_window_resize_last_apply
+        if self._monitoring_hud_native_window_resize_last_apply <= 0.0 or elapsed >= interval_s:
+            self._apply_monitoring_hud_queued_window_resize()
+            return
+        if not self._monitoring_hud_native_window_resize_frame_timer.isActive():
+            remaining_ms = max(1, int(round((interval_s - elapsed) * 1000.0)))
+            self._monitoring_hud_native_window_resize_frame_timer.start(remaining_ms)
+
+    def _apply_monitoring_hud_queued_window_resize(self):
+        if not self._monitoring_hud_native_window_resize_active:
+            return
+        screen_point = QPoint(self._monitoring_hud_native_window_resize_pending_point)
+        if screen_point.isNull():
+            screen_point = self._monitoring_hud_cursor_screen_point()
+        if screen_point.isNull():
+            return
         next_rect = self._monitoring_hud_resize_rect_from_native_delta(screen_point)
         if next_rect == self._monitoring_hud_native_window_resize_last_rect:
+            self._monitoring_hud_native_window_resize_last_apply = time.monotonic()
             return
         self.setGeometry(next_rect)
         self._monitoring_hud_native_window_resize_last_rect = QRect(next_rect)
         self._monitoring_hud_interactive_screen_rect = self.geometry()
+        self._monitoring_hud_native_window_resize_last_apply = time.monotonic()
         self._sync_monitoring_hud_resize_frame()
 
     def _finish_monitoring_hud_fallback_window_resize(self, screen_point: QPoint):
         if not self._monitoring_hud_native_window_resize_active:
             return
+        self._monitoring_hud_native_window_resize_poll_timer.stop()
+        self._monitoring_hud_native_window_resize_frame_timer.stop()
         if screen_point.isNull():
             screen_point = self._monitoring_hud_native_window_resize_start
         next_rect = self._monitoring_hud_resize_rect_from_native_delta(screen_point)
@@ -7490,6 +7905,8 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_window_resize_poll_active = False
         self._monitoring_hud_native_window_resize_edges = Qt.Edges()
         self._monitoring_hud_native_window_resize_last_rect = QRect()
+        self._monitoring_hud_native_window_resize_pending_point = QPoint()
+        self._monitoring_hud_native_window_resize_last_apply = 0.0
         try:
             ReleaseCapture()
         except Exception:
@@ -7501,13 +7918,19 @@ class DesktopRuntimeWindow(QWidget):
         if self.surface_role != "hud" or self._is_shutting_down:
             return
         now = time.monotonic()
-        if not force and now - self._monitoring_hud_resize_frame_sync_last < 0.032:
+        frame_interval_s = max(0.004, self._monitoring_hud_native_window_resize_frame_interval_ms / 1000.0)
+        if not force and now - self._monitoring_hud_resize_frame_sync_last < frame_interval_s:
             return
         self._monitoring_hud_resize_frame_sync_last = now
-        self.webview.updateGeometry()
-        self.webview.update()
-        self.update()
-        self._run_javascript("window.dispatchEvent(new Event('resize'));")
+        self.webview.setGeometry(self.rect())
+        if force:
+            self.webview.updateGeometry()
+            self.webview.update()
+            self.update()
+        js_interval_s = max(0.033, frame_interval_s * 2.0)
+        if force or now - self._monitoring_hud_resize_js_sync_last >= js_interval_s:
+            self._monitoring_hud_resize_js_sync_last = now
+            self._run_javascript("window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));")
 
     def _bound_monitoring_hud_window_resize_rect(self, rect: QRect) -> QRect:
         virtual = self._virtual_desktop_geometry()
@@ -7774,6 +8197,8 @@ class DesktopRuntimeWindow(QWidget):
             return False
         if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
             screen_point = event.globalPosition().toPoint()
+            if self._handle_monitoring_hud_dashboard_settings_native_control(screen_point):
+                return True
             if self._handle_monitoring_hud_dashboard_close_native_control(screen_point):
                 return True
             resize_edges = self._monitoring_hud_native_resize_edges_for_point(screen_point)
@@ -7924,6 +8349,9 @@ class DesktopRuntimeWindow(QWidget):
         anchored = bool(self._monitoring_hud_anchored)
         feature_enabled = bool(self._monitoring_hud_feature_enabled)
         dashboard_visible = bool(feature_enabled and self._monitoring_hud_visible)
+        was_visible = bool(self.isVisible() and self.webview.isVisible() and self.windowOpacity() > 0.0)
+        if dashboard_visible and self.desktop_mode and not was_visible:
+            self._arm_monitoring_hud_visible_show_guard("interaction_state")
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.setAttribute(Qt.WA_ShowWithoutActivating, False)
         if self.surface_role == "hud":
@@ -7972,6 +8400,66 @@ class DesktopRuntimeWindow(QWidget):
         self._emit_monitoring_hud_window_ownership_focus_ready(source="interaction_state")
         self._emit_monitoring_hud_window_status(source="interaction_state")
         self._sync_monitoring_hud_minimal_native_overlay(source="interaction_state")
+
+    def _arm_monitoring_hud_visible_show_guard(self, source: str = "runtime") -> None:
+        if self.surface_role != "hud" or self._is_shutting_down:
+            return
+        self._monitoring_hud_show_guard_generation += 1
+        generation = self._monitoring_hud_show_guard_generation
+        self._monitoring_hud_show_guard_active = True
+        self.setWindowOpacity(0.0)
+        self._emit_runtime_signal(
+            "MONITORING_HUD_VISIBLE_SHOW_GUARD_ARMED",
+            package="PKG-006",
+            slice="SLC-029",
+            seam="LV1",
+            source=source,
+            release_delay_ms=self._monitoring_hud_show_guard_release_delay_ms,
+            visual_release_model="dashboard_geometry_settled_before_opacity",
+        )
+        QTimer.singleShot(
+            self._monitoring_hud_show_guard_release_delay_ms,
+            lambda source=source, generation=generation: self._release_monitoring_hud_visible_show_guard(
+                source,
+                generation,
+            ),
+        )
+
+    def _release_monitoring_hud_visible_show_guard(self, source: str = "runtime", generation: int | None = None) -> None:
+        if self.surface_role != "hud" or self._is_shutting_down:
+            return
+        if not self._monitoring_hud_show_guard_active:
+            return
+        if generation is not None and generation != self._monitoring_hud_show_guard_generation:
+            return
+        if not (self._monitoring_hud_feature_enabled and self._monitoring_hud_visible and self.isVisible()):
+            return
+        if (
+            not self._monitoring_hud_user_geometry_override_active
+            and not self._monitoring_hud_native_window_resize_active
+            and not self._monitoring_hud_native_move_user_active
+        ):
+            target_geometry = self.compute_compact_geometry()
+            if not self._native_window_matches_target(int(self.winId()), target_geometry):
+                self.setGeometry(target_geometry)
+            self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
+        self._monitoring_hud_show_guard_active = False
+        self.setWindowOpacity(1.0)
+        self._emit_runtime_signal(
+            "MONITORING_HUD_VISIBLE_SHOW_GUARD_RELEASED",
+            package="PKG-006",
+            slice="SLC-029",
+            seam="LV1",
+            source=source,
+            release_delay_ms=self._monitoring_hud_show_guard_release_delay_ms,
+        )
+        if self._monitoring_hud_deferred_initial_visibility_release:
+            self._monitoring_hud_deferred_initial_visibility_release = False
+            self._log_event(
+                "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE"
+                "|source=monitoring_hud_visible_show_guard"
+            )
+            self.core_visualization_visible.emit()
 
     def _set_monitoring_hud_control_state(
         self,
@@ -8630,6 +9118,7 @@ class DesktopRuntimeWindow(QWidget):
             geometry = result.get("geometry") or {}
             controls = {
                 "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
+                "settingsAction": geometry.get("settingsAction") if isinstance(geometry, dict) else None,
                 "createMonitor": geometry.get("createMonitor") if isinstance(geometry, dict) else None,
                 "editMonitor": geometry.get("editMonitor") if isinstance(geometry, dict) else None,
                 "dashboardClose": geometry.get("dashboardClose") if isinstance(geometry, dict) else None,
@@ -8686,11 +9175,14 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
                 "dashboard_settings_content_polished": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
-                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
+                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
                 "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",
                 "dashboard_monitor_selection_in_child_window": dataset.get("dashboardMonitorSelectionPlacement") == "edit-child-window-only",
                 "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-overlay-monitor-groups-provider-warning",
+                "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "dashboard-ia-card-settings-button",
+                "dashboard_settings_panel": dataset.get("dashboardSettingsPanel") == "settings-panel-child-window",
+                "dashboard_settings_proof": dataset.get("dashboardSettingsProof") == "visible-open-close-control-hit-target",
                 "monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
                 "dashboard_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
                 "dashboard_provider_truth": dataset.get("dashboardProviderTruth") == "provider-contract-first",
@@ -8960,8 +9452,36 @@ class DesktopRuntimeWindow(QWidget):
                     and overlay_proof.get("dashboardCoupled") is False,
                 "fake_telemetry_policy_blocked": dataset.get("dashboardFakeTelemetryPolicy") == "blocked",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
+                "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "dashboard-ia-card-settings-button",
+                "dashboard_settings_panel_closed": dataset.get("dashboardSettingsPanelState") == "closed",
             }
             checks.update(monitor_groups_visual_checks(result))
+            return all(checks.values()), checks
+
+        def assert_settings_panel_open(result):
+            text = str(result.get("text") or "").casefold()
+            dataset = result.get("dataset") or {}
+            state = result.get("state") or {}
+            geometry = result.get("geometry") or {}
+            settings_window = geometry.get("settingsWindow") if isinstance(geometry, dict) else {}
+            settings_toggle = geometry.get("settingsWarningToggle") if isinstance(geometry, dict) else {}
+            checks = {
+                "active_child_window": state.get("activeChildWindow") == "dashboard-settings",
+                "settings_panel_state_open": dataset.get("dashboardSettingsPanelState") == "open",
+                "settings_affordance": dataset.get("dashboardSettingsAffordance") == "dashboard-ia-card-settings-button",
+                "settings_panel_model": dataset.get("dashboardSettingsPanel") == "settings-panel-child-window",
+                "settings_proof_marker": dataset.get("dashboardSettingsProof") == "visible-open-close-control-hit-target",
+                "settings_window_present": isinstance(settings_window, dict)
+                    and float(settings_window.get("width") or 0) >= 320
+                    and float(settings_window.get("height") or 0) >= 240,
+                "settings_toggle_present": isinstance(settings_toggle, dict)
+                    and float(settings_toggle.get("width") or 0) >= 16
+                    and float(settings_toggle.get("height") or 0) >= 16,
+                "truthful_copy": "settings panel" in text
+                    and "provider setup required" in text
+                    and "no fake telemetry values" in text
+                    and "overlay display deferred" in text,
+            }
             return all(checks.values()), checks
 
         def assert_dashboard_close_ready(result):
@@ -8973,7 +9493,7 @@ class DesktopRuntimeWindow(QWidget):
             checks = {
                 "visible_state": bool(state.get("visible")),
                 "dataset_visible": dataset.get("visibilityState") == "visible",
-                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
+                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_close_target_present": isinstance(close_rect, dict)
                     and float(close_rect.get("width") or 0) > 24
                     and float(close_rect.get("height") or 0) > 18,
@@ -8994,7 +9514,7 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
                 "dashboard_settings_content_polish": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
-                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "top-chrome-close-button",
+                "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
                 "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",
                 "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
@@ -9103,7 +9623,28 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(250), step_hit_targets)
 
         def step_hit_targets():
-            query("real mouse hit targets are visible and large enough", assert_user_hit_targets, step_surface_travel)
+            query("real mouse hit targets are visible and large enough", assert_user_hit_targets, step_settings_panel)
+
+        def step_settings_panel():
+            clicked = self._monitoring_hud_send_mouse_click(rect_center("settingsAction"))
+            add_step(
+                "active live-client Dashboard settings affordance opens settings panel",
+                clicked,
+                {"target": "monitoring-hud-settings-action", "screenPoint": rect_center("settingsAction")},
+            )
+            if not clicked:
+                finish("FAIL", "active live-client Dashboard settings affordance click failed before state assertion")
+                return
+            QTimer.singleShot(delay(600), lambda: query("Dashboard settings panel exposes truthful supported settings", assert_settings_panel_open, step_settings_panel_close))
+
+        def step_settings_panel_close():
+            self._run_javascript(
+                """
+                const closeSettings = document.querySelector('[data-child-window-close="dashboard-settings"]');
+                if (closeSettings) closeSettings.click();
+                """
+            )
+            QTimer.singleShot(delay(400), lambda: query("Dashboard settings panel closes without disabling Dashboard", assert_dashboard_restored, step_surface_travel))
 
         def step_user_unanchor_click():
             clicked = self._monitoring_hud_send_mouse_click(rect_center("anchorToggle"))
@@ -9547,6 +10088,46 @@ class DesktopRuntimeWindow(QWidget):
             str(state.get("selectedMonitorId", "")),
             tuple(monitor_signature_parts),
         )
+        active_child_window = str(state.get("activeChildWindow", "none") or "none")
+        geometry_state = state.get("geometry") if isinstance(state.get("geometry"), dict) else {}
+        settings_window = geometry_state.get("settingsWindow") if isinstance(geometry_state.get("settingsWindow"), dict) else {}
+        settings_window_present = active_child_window == "dashboard-settings" and bool(settings_window)
+        try:
+            settings_window_left = int(self.x() + float(settings_window.get("left", 0)))
+            settings_window_top = int(self.y() + float(settings_window.get("top", 0)))
+            settings_window_width = int(float(settings_window.get("width", 0)))
+            settings_window_height = int(float(settings_window.get("height", 0)))
+        except (TypeError, ValueError):
+            settings_window_left = 0
+            settings_window_top = 0
+            settings_window_width = 0
+            settings_window_height = 0
+        settings_window_right = settings_window_left + settings_window_width
+        settings_window_bottom = settings_window_top + settings_window_height
+        active_child_window_signature = (
+            active_child_window,
+            settings_window_left,
+            settings_window_top,
+            settings_window_width,
+            settings_window_height,
+        )
+        if active_child_window_signature != self._monitoring_hud_active_child_window_signature:
+            self._monitoring_hud_active_child_window_signature = active_child_window_signature
+            self._emit_runtime_signal(
+                "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY",
+                package="PKG-006",
+                slice="SLC-029",
+                seam="LV1",
+                active_child_window=active_child_window,
+                dashboard_settings_open=active_child_window == "dashboard-settings",
+                settings_window_present=settings_window_present,
+                settings_window_left=settings_window_left,
+                settings_window_top=settings_window_top,
+                settings_window_right=settings_window_right,
+                settings_window_bottom=settings_window_bottom,
+                settings_window_width=settings_window_width,
+                settings_window_height=settings_window_height,
+            )
         if monitor_signature != self._monitoring_hud_monitor_management_signature:
             self._monitoring_hud_monitor_management_signature = monitor_signature
             self._emit_runtime_signal(
@@ -9616,15 +10197,14 @@ class DesktopRuntimeWindow(QWidget):
         if not GetWindowRect(hwnd, ctypes.byref(rect)):
             return False
 
-        parent = GetParentW(hwnd)
         width = max(0, rect.right - rect.left)
         height = max(0, rect.bottom - rect.top)
 
-        return bool(parent) and (
-            rect.left == target_geometry.x()
-            and rect.top == target_geometry.y()
-            and width == target_geometry.width()
-            and height == target_geometry.height()
+        return (
+            abs(rect.left - target_geometry.x()) <= 1
+            and abs(rect.top - target_geometry.y()) <= 1
+            and abs(width - target_geometry.width()) <= 1
+            and abs(height - target_geometry.height()) <= 1
         )
 
     def _apply_pending_visual_state(self):
@@ -9785,10 +10365,14 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-dedicated-child-window-actions";
                     monitoringHud.dataset.dashboardChildWindowScope = "branch2-create-edit-monitor-windows";
                     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
-                    monitoringHud.dataset.dashboardCloseAffordance = "top-chrome-close-button";
+                    monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
                     monitoringHud.dataset.dashboardOpenBadge = "removed";
                     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
                     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
+                    monitoringHud.dataset.dashboardSettingsAffordance = "dashboard-ia-card-settings-button";
+                    monitoringHud.dataset.dashboardSettingsPanel = "settings-panel-child-window";
+                    monitoringHud.dataset.dashboardSettingsPanelState = "closed";
+                    monitoringHud.dataset.dashboardSettingsProof = "visible-open-close-control-hit-target";
                     monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
                     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
                     monitoringHud.dataset.dashboardProviderTruth = "provider-contract-first";
@@ -10039,6 +10623,13 @@ class DesktopRuntimeWindow(QWidget):
             return
 
         self._startup_visibility_guard_active = False
+        if self.surface_role == "hud" and self._monitoring_hud_show_guard_active:
+            self._monitoring_hud_deferred_initial_visibility_release = True
+            self._log_event(
+                "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE_DEFERRED"
+                "|reason=monitoring_hud_visible_show_guard"
+            )
+            return
         self.setWindowOpacity(1.0)
         self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE")
         self.core_visualization_visible.emit()
@@ -10106,6 +10697,12 @@ class DesktopRuntimeWindow(QWidget):
 
     def overlay_monitors_global_clicks(self):
         return self._command_model.visible and self._command_model.phase == "entry" and not self._overlay_local_input_engaged
+
+    def command_overlay_state(self):
+        return {
+            "visible": bool(self._command_model.visible),
+            "phase": self._command_model.phase,
+        }
 
     def close_command_overlay(self):
         if not self._command_model.visible:
@@ -11319,6 +11916,8 @@ class DesktopRuntimeWindow(QWidget):
                     x = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
                     y = ctypes.c_short((int(msg.lParam) >> 16) & 0xFFFF).value
                     screen_point = QPoint(x, y)
+                    if self._monitoring_hud_dashboard_control_rect_contains(screen_point):
+                        return True, HTCLIENT
                     edges = self._monitoring_hud_native_resize_edges_for_point(screen_point)
                     hit_test = self._monitoring_hud_native_resize_hit_test_for_edges(edges)
                     if hit_test and not self._monitoring_hud_dashboard_control_rect_contains(screen_point):
@@ -11330,17 +11929,47 @@ class DesktopRuntimeWindow(QWidget):
                         and not self._monitoring_hud_dashboard_control_rect_contains(screen_point)
                     ):
                         return True, HTCAPTION
-                if message_id in (WM_SETCURSOR, WM_MOUSEMOVE, WM_NCMOUSEMOVE) and not self._monitoring_hud_native_window_resize_active:
+                if message_id == WM_NCLBUTTONDBLCLK:
+                    screen_point = self._monitoring_hud_cursor_screen_point()
+                    if (
+                        not screen_point.isNull()
+                        and self._monitoring_hud_header_rect().contains(screen_point)
+                    ):
+                        self._emit_runtime_signal(
+                            "MONITORING_HUD_NATIVE_HEADER_DOUBLE_CLICK_SUPPRESSED",
+                            package="PKG-006",
+                            slice="SLC-029",
+                            seam="LV1",
+                            x=screen_point.x(),
+                            y=screen_point.y(),
+                        )
+                        return True, 0
+                if message_id == WM_SETCURSOR and not self._monitoring_hud_native_window_resize_active:
+                    hit_test = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
+                    edges = self._monitoring_hud_native_resize_edges_for_hit_test(hit_test)
+                    if edges:
+                        self._set_monitoring_hud_resize_cursor(edges)
+                        return True, 1
+                    self._reset_monitoring_hud_resize_cursor()
+                if message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE) and not self._monitoring_hud_native_window_resize_active:
+                    if message_id == WM_NCMOUSEMOVE:
+                        edges = self._monitoring_hud_native_resize_edges_for_hit_test(int(msg.wParam))
+                        if edges:
+                            self._set_monitoring_hud_resize_cursor(edges)
+                            return True, 0
                     _, edges = self._monitoring_hud_resize_edges_under_cursor()
                     if edges:
                         self._set_monitoring_hud_resize_cursor(edges)
-                        if message_id == WM_SETCURSOR:
-                            return True, 1
-                    elif message_id == WM_SETCURSOR:
+                    elif message_id == WM_MOUSEMOVE:
                         self._reset_monitoring_hud_resize_cursor()
                 if message_id == WM_NCLBUTTONDOWN:
                     edges = self._monitoring_hud_native_resize_edges_for_hit_test(int(msg.wParam))
                     screen_point = self._monitoring_hud_cursor_screen_point()
+                    if not screen_point.isNull():
+                        if self._handle_monitoring_hud_dashboard_settings_native_control(screen_point):
+                            return True, 0
+                        if self._handle_monitoring_hud_dashboard_close_native_control(screen_point):
+                            return True, 0
                     if edges and not screen_point.isNull() and not self._monitoring_hud_dashboard_control_rect_contains(screen_point):
                         self._set_monitoring_hud_resize_cursor(edges)
                         self._start_monitoring_hud_fallback_window_resize(edges, screen_point)
@@ -11378,6 +12007,7 @@ class DesktopRuntimeWindow(QWidget):
         self._clear_monitoring_hud_native_user_move()
         target_geometry = self.compute_compact_geometry()
 
+        self._arm_monitoring_hud_visible_show_guard("enable_desktop_mode")
         self.setGeometry(target_geometry)
         self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
         self._publish_monitoring_hud_control_state_to_page()
@@ -11398,7 +12028,7 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(1600, lambda: self._capture_startup_snapshot("after_1600ms"))
             QTimer.singleShot(2200, lambda: self._capture_startup_snapshot("after_2200ms"))
 
-        self._release_initial_visibility_guard()
+        QTimer.singleShot(80, self._release_initial_visibility_guard)
         self._publish_monitoring_hud_telemetry_boundary()
         self._publish_monitoring_hud_placement_ownership()
         self._publish_monitoring_hud_controls_visibility()

@@ -28,7 +28,7 @@ This active record preserves the planning, selected-next reconciliation, PR #134
 - Branch Creation: `Created in a separate FAM-007 worktree from origin/main at 98b53fafd63abfe4876b718d5649b4a0df46f2a0; current GitHub Desktop FAM-007 repo/worktree is C:\Nexus Worktrees\FAM-007`
 - Carrier Restoration: `Restored from e65df058a57f3f7c8a9ddf6e64482d870e42d8d8 after PR #135 merged source-truth closure at 6f9a13d17a65a3385001b8e463113295f5463b01; current carrier path is C:\Nexus Worktrees\FAM-007`
 - GitHub Desktop Alias Target: `FAM-007 is bound to C:\Nexus Worktrees\FAM-007`
-- Carrier Separation: `C:\Nexus Desktop AI remains the separate FAM-006 release-support lane and must not be touched by this branch`
+- Carrier Separation: `FAM-006 Dashboard settings-panel work is active only in C:\Nexus Worktrees\FAM-006 and must not be touched by this historical FAM-007 record`
 - Active Branch: `feature/fam-007-provider-boundary-no-provider-shell`
 - Branch Authority Marker: `Historical Branch`
 - Selected-Next Decision: `Granted for this thread/worktree - FAM-007 provider-boundary / no-provider shell is selected; PR #129 release-support remains separate unless USER later selects it`

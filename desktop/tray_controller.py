@@ -369,6 +369,7 @@ class DesktopTrayEntry:
             overlay_anchor_enabled = bool(state.get("overlay_anchor_enabled")) and not overlay_deferred
             feature_text = "Disable HUD Feature" if feature_enabled else "Enable HUD Feature"
             dashboard_text = "Close HUD Dashboard" if dashboard_visible else "Open HUD Dashboard"
+            command_overlay_text = self._command_overlay_action_text()
 
             def append(command_id, text, enabled=True):
                 flags = MF_STRING if enabled else (MF_STRING | MF_GRAYED)
@@ -379,7 +380,7 @@ class DesktopTrayEntry:
                 append(101, dashboard_text, True)
             append(102, "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay", feature_enabled and overlay_anchor_enabled)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
-            append(200, "Open Command Overlay", True)
+            append(200, command_overlay_text, True)
             append(201, "Create Custom Task", True)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append(300, "Exit Nexus Desktop AI", True)
@@ -444,9 +445,23 @@ class DesktopTrayEntry:
         self.refresh_monitoring_hud_actions("tray_popup_about_to_hide")
 
     def request_overlay_from_tray(self, source):
-        self._emit(f"RENDERER_MAIN|TRAY_ACTIVATION_REQUESTED|source={source}")
-        self.window.toggle_command_overlay()
-        self._emit(f"RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY|source={source}")
+        visible_before = self._command_overlay_visible()
+        next_visible = not visible_before
+        self._emit(
+            "RENDERER_MAIN|TRAY_ACTIVATION_REQUESTED"
+            f"|source={source}|command_overlay_visible={str(visible_before).lower()}"
+        )
+        handler_name = "close_command_overlay" if visible_before else "open_command_overlay"
+        handler = getattr(self.window, handler_name, None)
+        if callable(handler):
+            handler()
+        else:
+            self.window.toggle_command_overlay()
+        self.refresh_monitoring_hud_actions(source)
+        self._emit(
+            "RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY"
+            f"|source={source}|next_visible={str(next_visible).lower()}"
+        )
 
     def request_create_custom_task_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source={source}")
@@ -468,6 +483,23 @@ class DesktopTrayEntry:
             "overlay_anchor_enabled": False,
         }
 
+    def _command_overlay_state(self):
+        provider = getattr(self.window, "command_overlay_state", None)
+        if callable(provider):
+            try:
+                state = provider()
+                if isinstance(state, dict):
+                    return state
+            except Exception:
+                pass
+        return {"visible": False, "phase": "closed"}
+
+    def _command_overlay_visible(self):
+        return bool(self._command_overlay_state().get("visible"))
+
+    def _command_overlay_action_text(self):
+        return "Close Command Overlay" if self._command_overlay_visible() else "Open Command Overlay"
+
     def refresh_monitoring_hud_actions(self, source="runtime"):
         if (
             self.monitoring_hud_primary_action is None
@@ -482,6 +514,8 @@ class DesktopTrayEntry:
         overlay_anchor_enabled = bool(state.get("overlay_anchor_enabled")) and not overlay_deferred
         open_enabled = feature_enabled and not dashboard_visible
         close_enabled = feature_enabled and dashboard_visible
+        command_overlay_visible = self._command_overlay_visible()
+        command_overlay_text = "Close Command Overlay" if command_overlay_visible else "Open Command Overlay"
 
         if not feature_enabled:
             self._set_action_text(self.monitoring_hud_primary_action, "Enable HUD Feature")
@@ -535,6 +569,9 @@ class DesktopTrayEntry:
             self.monitoring_hud_unanchor_button,
             feature_enabled and overlay_anchor_enabled,
         )
+        if self.open_overlay_action is not None:
+            self._set_action_text(self.open_overlay_action, command_overlay_text)
+        self._set_button_text(self.open_overlay_button, command_overlay_text)
         self._emit(
             "RENDERER_MAIN|TRAY_MONITORING_HUD_ACTIONS_REFRESHED"
             f"|source={source}"
@@ -545,6 +582,8 @@ class DesktopTrayEntry:
             f"|dashboard_close_action_enabled={str(close_enabled).lower()}"
             f"|overlay_deferred={str(overlay_deferred).lower()}"
             f"|overlay_anchor_enabled={str(overlay_anchor_enabled).lower()}"
+            f"|command_overlay_visible={str(command_overlay_visible).lower()}"
+            f"|command_overlay_action={'close' if command_overlay_visible else 'open'}"
         )
 
     def _handle_menu_about_to_show(self):

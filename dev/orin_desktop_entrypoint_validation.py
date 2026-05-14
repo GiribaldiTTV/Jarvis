@@ -993,8 +993,12 @@ def validate_tray_overlay_route():
 
         class FakeWindow:
             def __init__(self):
+                self.open_count = 0
                 self.toggle_count = 0
                 self.create_custom_task_sources = []
+
+            def open_command_overlay(self):
+                self.open_count += 1
 
             def toggle_command_overlay(self):
                 self.toggle_count += 1
@@ -1013,6 +1017,7 @@ def validate_tray_overlay_route():
         return {
             "ok": True,
             "events": events,
+            "open_count": fake_window.open_count,
             "toggle_count": fake_window.toggle_count,
             "create_custom_task_sources": fake_window.create_custom_task_sources,
             "error": "",
@@ -1021,6 +1026,7 @@ def validate_tray_overlay_route():
         return {
             "ok": False,
             "events": [],
+            "open_count": 0,
             "toggle_count": 0,
             "create_custom_task_sources": [],
             "error": f"{type(exc).__name__}: {exc}",
@@ -7320,9 +7326,9 @@ def run_validation():
         tray_route_result["ok"],
         tray_route_result["error"] or "DesktopTrayEntry imported and exercised",
     )
-    checks["tray_route_toggle_overlay_called"] = line_status(
-        tray_route_result["toggle_count"] == 1,
-        f"toggle_count={tray_route_result['toggle_count']}",
+    checks["tray_route_open_overlay_called"] = line_status(
+        tray_route_result["open_count"] == 1 and tray_route_result["toggle_count"] == 0,
+        f"open_count={tray_route_result['open_count']}; toggle_count={tray_route_result['toggle_count']}",
     )
     checks["tray_route_requested_marker"] = line_status(
         any(

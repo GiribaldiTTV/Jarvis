@@ -14,15 +14,16 @@ This branch is the single standing governance lane for Release Readiness source-
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- Branch Authority Marker: `Active Branch`
-- Branch Authority State: `standing governance intake lane`
+- Branch Authority Marker: `Historical / idle standing intake lane`
+- Branch Authority State: `Historical / merge-stable on projected No Active Branch main`
 - Intake State: `Idle - no active Release Readiness intake cycle is recorded in merged source truth`
+- Historical Posture: `Bootstrap truth is preserved as traceability; future Release Readiness intake work requires a fresh USER-approved RRI cycle and source-truth activation on the Governance worktree before mutation`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record is written in merge-stable idle posture so the branch must sync to origin/main after the setup PR merges before accepting any Release Readiness digest`
-- Bootstrap Exception Limit: `Active only while origin/main still equals the branch creation base 926c7c90880419830be99611d741c6bac51252de; after setup PR merge or any origin/main movement, ahead-of-main work requires an active RRI cycle sourced from a Release Readiness digest`
+- Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest`
 - Active RRI Cycle: `None`
 
 ## Branch Class
@@ -121,7 +122,7 @@ Bootstrap and preserve the one legal standing governance intake lane so Release 
 
 ## Target End-State
 
-The setup PR merges, the standing branch is synced to current `origin/main`, no active `RRI-*` cycle remains recorded, GitHub Desktop can open `C:\Nexus Worktrees\Governance`, and the lane waits cleanly for the next Release Readiness digest.
+The setup PR merges, the standing branch is synced to current `origin/main`, no active `RRI-*` cycle remains recorded, GitHub Desktop can open `C:\Nexus Worktrees\Governance`, the branch authority record sits in historical / idle traceability on merged main, and the lane waits cleanly for the next USER-approved Release Readiness digest.
 
 ## Backlog Completion Strategy
 
@@ -129,7 +130,7 @@ Branch Completion Goal: `Standing intake lane bootstrapped and validated`
 
 Known Future-Dependent Blockers: `Future RRI cycles require a Release Readiness digest, clean sync to origin/main, USER-gated PR merge, and return digest before originating-lane continuation`
 
-Branch Closure Rule: `The standing branch name persists after merge; each intake cycle closes by PR merge, sync to origin/main, return digest, and Active RRI Cycle returning to None`
+Branch Closure Rule: `The standing branch name may persist after merge, but merged main records no active branch authority while no RRI cycle is admitted; each intake cycle closes by PR merge, sync to origin/main, return digest, and Active RRI Cycle returning to None`
 
 ## Expected Seam Families And Risk Classes
 
@@ -160,18 +161,18 @@ Scope: `Docs/branch_records/index.md`, this branch authority record, governance/
 
 Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/installer changes, release execution, GitHub issues, AI Product Contract import, private Dev ORIN import, next runtime branch creation, or actual stale branch/worktree cleanup.
 
-## Active Seam
+## Historical Seam
 
-- Active seam: `Standing Governance Intake Bootstrap`
-- Status: `Merge-stable bootstrap posture - after setup PR merge, the standing lane idles with Active RRI Cycle: None until a Release Readiness digest is handed off`
+- Historical seam: `Standing Governance Intake Bootstrap`
+- Status: `Merge-stable bootstrap posture - after setup PR merge, the standing lane idles as historical traceability with Active RRI Cycle: None until a Release Readiness digest is handed off and USER approves activation`
 
 ## Exit Criteria
 
-- `Docs/branch_records/index.md` lists this record under Active Branch Authority Records.
+- `Docs/branch_records/index.md` lists this record under Historical Branch Authority Records while no active RRI cycle is admitted.
 - Governance docs describe the standing exception, allowed/forbidden scope, one-cycle limit, sync-to-main rule, originating-lane pause, and return digest.
 - `dev/orin_branch_governance_validation.py --standing-governance-intake-gate` validates the branch identity, clean tracked state, source-truth markers, cycle count, sync/base posture, and file scope.
 - `dev/orin_pr_body_quality_audit.py` rejects PR body firewall markers.
-- The setup PR is opened from `feature/release-readiness-source-truth-intake` and remains USER-gated for merge.
+- The setup PR merged and future intake PRs remain USER-gated for creation and merge.
 
 ## Rollback Target
 
@@ -179,4 +180,4 @@ Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/
 
 ## Next Legal Phase
 
-- `Branch Readiness`
+- `Release Readiness`

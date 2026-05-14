@@ -438,6 +438,18 @@ public static class CodexHumanClientWin32 {
         return result.ToInt64();
     }
 
+    public static int[] GetWindowRectByHandle(long hwndValue) {
+        if (hwndValue == 0) {
+            return new int[0];
+        }
+        IntPtr hwnd = new IntPtr(hwndValue);
+        RECT rect;
+        if (GetWindowRect(hwnd, out rect) && rect.Right > rect.Left && rect.Bottom > rect.Top) {
+            return new int[] { rect.Left, rect.Top, rect.Right, rect.Bottom };
+        }
+        return new int[0];
+    }
+
     public static int[] GetVisibleWindowRectForProcessByTitle(int processId, string expectedTitle) {
         int[] result = new int[0];
         EnumWindows(delegate(IntPtr hWnd, IntPtr lParam) {
@@ -476,7 +488,7 @@ $LogRoot = Join-Path $RootDir "dev\logs\fam_006_human_client_validation\$Stamp"
 $ScreenshotRoot = Join-Path $LogRoot "screenshots"
 $ManifestPath = Join-Path $LogRoot "human_client_manifest.json"
 $LatestManifestPath = Join-Path $RootDir "dev\logs\fam_006_human_client_validation\latest_manifest.json"
-$DefaultDesktopShortcutPath = Join-Path $env:USERPROFILE "OneDrive\Desktop\Nexus Desktop Launcher.lnk"
+$DefaultDesktopShortcutPath = Join-Path $env:USERPROFILE "OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk"
 $DesktopShortcutPath = if ($env:NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH) {
     $env:NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH
 } else {
@@ -702,6 +714,24 @@ function Click-ElementCenter {
     )
 
     if (-not $Element) { throw "Missing element for $Label" }
+    try {
+        $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
+        $node = $Element
+        $nativeHandle = 0
+        while ($node) {
+            $candidateHandle = [int]$node.Current.NativeWindowHandle
+            if ($candidateHandle -ne 0) {
+                $nativeHandle = $candidateHandle
+            }
+            $node = $walker.GetParent($node)
+        }
+        if ($nativeHandle -ne 0) {
+            $windowHandle = [IntPtr]$nativeHandle
+            [CodexHumanClientWin32]::BringWindowToTop($windowHandle) | Out-Null
+            [CodexHumanClientWin32]::SetForegroundWindow($windowHandle) | Out-Null
+            Start-Sleep -Milliseconds 220
+        }
+    } catch {}
     $rect = $Element.Current.BoundingRectangle
     if ($rect.IsEmpty -or $Element.Current.IsOffscreen) { throw "Element '$Label' is offscreen or empty" }
     $x = [int]($rect.Left + ($rect.Width / 2))
@@ -878,6 +908,54 @@ function Drag-FromTo {
     Start-Sleep -Milliseconds 550
 }
 
+function Get-NativeWindowRectByHandle {
+    param([long]$WindowHandle)
+    if ($WindowHandle -eq 0) { return $null }
+    $rect = [CodexHumanClientWin32]::GetWindowRectByHandle($WindowHandle)
+    if (-not $rect -or $rect.Count -ne 4) { return $null }
+    return [pscustomobject]@{
+        Left = [int]$rect[0]
+        Top = [int]$rect[1]
+        Right = [int]$rect[2]
+        Bottom = [int]$rect[3]
+        Width = [int]($rect[2] - $rect[0])
+        Height = [int]($rect[3] - $rect[1])
+    }
+}
+
+function Format-ColorSample {
+    param([object]$Sample)
+    if (-not $Sample) { return "missing" }
+    return "($($Sample.x),$($Sample.y))=rgb($($Sample.r),$($Sample.g),$($Sample.b))/brightness=$($Sample.brightness)"
+}
+
+function Invoke-DashboardRoundedCornerMaskProbe {
+    param(
+        [object]$Dashboard,
+        [long]$WindowHandle
+    )
+    if (-not $Dashboard) { throw "Dashboard is missing for rounded-corner mask proof" }
+    if ($WindowHandle -eq 0) {
+        $bounds = $Dashboard.Current.BoundingRectangle
+        $WindowHandle = Get-RootWindowHandleAtPoint -X ([int]($bounds.Left + ($bounds.Width / 2))) -Y ([int]($bounds.Top + ($bounds.Height / 2)))
+    }
+    $probePath = Join-Path $RootDir "dev\orin_dashboard_rounded_corner_mask_probe.py"
+    if (-not (Test-Path -LiteralPath $probePath)) {
+        throw "Rounded-corner mask probe is missing: $probePath"
+    }
+    $probeRoot = Join-Path $LogRoot "rounded_corner_mask"
+    New-Item -ItemType Directory -Force -Path $probeRoot | Out-Null
+    $probeOutput = & python $probePath --window-handle $WindowHandle --output-dir $probeRoot 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Rounded-corner mask probe failed: $($probeOutput -join "`n")"
+    }
+    $payload = ($probeOutput -join "`n") | ConvertFrom-Json
+    if ($payload.screenshot) {
+        Add-Artifact -Label "dashboard_rounded_corner_mask_light_backdrop" -Path ([string]$payload.screenshot)
+    }
+    return $payload
+}
+
 function Drag-FromToWithGeometrySamples {
     param(
         [object]$Element,
@@ -886,10 +964,12 @@ function Drag-FromToWithGeometrySamples {
         [int]$EndX,
         [int]$EndY,
         [string]$Label,
+        [long]$WindowHandle = 0,
         [int]$Steps = 28,
         [int]$StepDelayMs = 16
     )
     $samples = @()
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
     [CodexHumanClientWin32]::SetCursorPos($StartX, $StartY) | Out-Null
     Start-Sleep -Milliseconds 120
     [CodexHumanClientWin32]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero)
@@ -898,16 +978,24 @@ function Drag-FromToWithGeometrySamples {
         $y = [int]($StartY + (($EndY - $StartY) * $i / $Steps))
         [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
         Start-Sleep -Milliseconds $StepDelayMs
-        $currentElement = Get-DashboardWindow
-        if ($currentElement) {
-            $rect = $currentElement.Current.BoundingRectangle
-        } else {
-            $rect = $Element.Current.BoundingRectangle
+        $rect = if ($WindowHandle -ne 0) { Get-NativeWindowRectByHandle -WindowHandle $WindowHandle } else { $null }
+        if (-not $rect) {
+            $currentElement = Get-DashboardWindow
+            if ($currentElement) {
+                $rect = $currentElement.Current.BoundingRectangle
+            } else {
+                $rect = $Element.Current.BoundingRectangle
+            }
         }
         $samples += [pscustomobject]@{
             Step = $i
             X = $x
             Y = $y
+            ElapsedMs = [Math]::Round($stopwatch.Elapsed.TotalMilliseconds, 1)
+            Left = [int]$rect.Left
+            Top = [int]$rect.Top
+            Right = [int]$rect.Right
+            Bottom = [int]$rect.Bottom
             Width = [int]$rect.Width
             Height = [int]$rect.Height
         }
@@ -917,10 +1005,162 @@ function Drag-FromToWithGeometrySamples {
     return $samples
 }
 
+function Measure-ResizeTracking {
+    param(
+        [object[]]$Samples,
+        [double]$BaseWidth,
+        [double]$BaseHeight,
+        [double]$StartX,
+        [double]$StartY,
+        [string]$Mode
+    )
+    $lagSamples = @()
+    $maxLag = 0.0
+    $sumLag = 0.0
+    $count = 0
+    $maxInterval = 0.0
+    $previousElapsed = $null
+    foreach ($sample in @($Samples)) {
+        $expectedWidth = $BaseWidth
+        $expectedHeight = $BaseHeight
+        if ($Mode -eq "right" -or $Mode -eq "corner") {
+            $expectedWidth = $BaseWidth + ([double]$sample.X - $StartX)
+        }
+        if ($Mode -eq "bottom" -or $Mode -eq "corner") {
+            $expectedHeight = $BaseHeight + ([double]$sample.Y - $StartY)
+        }
+        $widthLag = if ($Mode -eq "right" -or $Mode -eq "corner") { [Math]::Abs(([double]$sample.Width) - $expectedWidth) } else { 0.0 }
+        $heightLag = if ($Mode -eq "bottom" -or $Mode -eq "corner") { [Math]::Abs(([double]$sample.Height) - $expectedHeight) } else { 0.0 }
+        $lag = [Math]::Max($widthLag, $heightLag)
+        $maxLag = [Math]::Max($maxLag, $lag)
+        $sumLag += $lag
+        $count += 1
+        if ($null -ne $previousElapsed -and $null -ne $sample.ElapsedMs) {
+            $maxInterval = [Math]::Max($maxInterval, [Math]::Abs(([double]$sample.ElapsedMs) - $previousElapsed))
+        }
+        if ($null -ne $sample.ElapsedMs) {
+            $previousElapsed = [double]$sample.ElapsedMs
+        }
+        $lagSamples += [pscustomobject]@{
+            Step = $sample.Step
+            ElapsedMs = $sample.ElapsedMs
+            X = $sample.X
+            Y = $sample.Y
+            Width = $sample.Width
+            Height = $sample.Height
+            ExpectedWidth = [Math]::Round($expectedWidth, 1)
+            ExpectedHeight = [Math]::Round($expectedHeight, 1)
+            LagPx = [Math]::Round($lag, 1)
+        }
+    }
+    $averageLag = if ($count -gt 0) { $sumLag / $count } else { 999.0 }
+    $pass = $count -ge 36 -and $maxLag -le 16.0 -and $averageLag -le 8.0 -and $maxInterval -le 34.0
+    return [pscustomobject]@{
+        Mode = $Mode
+        Pass = [bool]$pass
+        SampleCount = $count
+        MaxLagPx = [Math]::Round($maxLag, 1)
+        AverageLagPx = [Math]::Round($averageLag, 1)
+        MaxSampleIntervalMs = [Math]::Round($maxInterval, 1)
+        MaxAllowedLagPx = 16
+        MaxAllowedAverageLagPx = 8
+        MaxAllowedSampleIntervalMs = 34
+        Samples = $lagSamples
+    }
+}
+
+function Measure-MoveTracking {
+    param(
+        [object[]]$Samples,
+        [double]$BaseLeft,
+        [double]$BaseTop,
+        [double]$StartX,
+        [double]$StartY
+    )
+    $lagSamples = @()
+    $maxLag = 0.0
+    $sumLag = 0.0
+    $count = 0
+    $maxInterval = 0.0
+    $previousElapsed = $null
+    foreach ($sample in @($Samples)) {
+        $expectedLeft = $BaseLeft + ([double]$sample.X - $StartX)
+        $expectedTop = $BaseTop + ([double]$sample.Y - $StartY)
+        $leftLag = [Math]::Abs(([double]$sample.Left) - $expectedLeft)
+        $topLag = [Math]::Abs(([double]$sample.Top) - $expectedTop)
+        $lag = [Math]::Max($leftLag, $topLag)
+        $maxLag = [Math]::Max($maxLag, $lag)
+        $sumLag += $lag
+        $count += 1
+        if ($null -ne $previousElapsed -and $null -ne $sample.ElapsedMs) {
+            $maxInterval = [Math]::Max($maxInterval, [Math]::Abs(([double]$sample.ElapsedMs) - $previousElapsed))
+        }
+        if ($null -ne $sample.ElapsedMs) {
+            $previousElapsed = [double]$sample.ElapsedMs
+        }
+        $lagSamples += [pscustomobject]@{
+            Step = $sample.Step
+            ElapsedMs = $sample.ElapsedMs
+            X = $sample.X
+            Y = $sample.Y
+            Left = $sample.Left
+            Top = $sample.Top
+            ExpectedLeft = [Math]::Round($expectedLeft, 1)
+            ExpectedTop = [Math]::Round($expectedTop, 1)
+            LagPx = [Math]::Round($lag, 1)
+        }
+    }
+    $averageLag = if ($count -gt 0) { $sumLag / $count } else { 999.0 }
+    $pass = $count -ge 42 -and $maxLag -le 24.0 -and $averageLag -le 12.0 -and $maxInterval -le 34.0
+    return [pscustomobject]@{
+        Pass = [bool]$pass
+        SampleCount = $count
+        MaxLagPx = [Math]::Round($maxLag, 1)
+        AverageLagPx = [Math]::Round($averageLag, 1)
+        MaxSampleIntervalMs = [Math]::Round($maxInterval, 1)
+        MaxAllowedLagPx = 24
+        MaxAllowedAverageLagPx = 12
+        MaxAllowedSampleIntervalMs = 34
+        Samples = $lagSamples
+    }
+}
+
+function Move-DashboardAwayFromTrayMenuIfNeeded {
+    param([object]$Dashboard)
+    if (-not $Dashboard) { return }
+    $rect = $Dashboard.Current.BoundingRectangle
+    $virtual = [System.Windows.Forms.SystemInformation]::VirtualScreen
+    $trayZoneLeft = [double]($virtual.Right - 380)
+    $trayZoneTop = [double]($virtual.Bottom - 220)
+    $overlapsTrayZone = ([double]$rect.Right -gt $trayZoneLeft) -and ([double]$rect.Bottom -gt $trayZoneTop)
+    if (-not $overlapsTrayZone) {
+        Add-Step -Id "dashboard_clear_of_tray_menu_before_cleanup" -Title "Dashboard does not cover the tray menu cleanup zone" -Status "PASS" -Detail "Dashboard rect=($([int]$rect.Left),$([int]$rect.Top),$([int]$rect.Right),$([int]$rect.Bottom)); trayZone=($([int]$trayZoneLeft),$([int]$trayZoneTop),$($virtual.Right),$($virtual.Bottom))." -Evidence @{ dashboardRect = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]$rect.Bottom); trayZone = @([int]$trayZoneLeft, [int]$trayZoneTop, [int]$virtual.Right, [int]$virtual.Bottom) }
+        return
+    }
+    $targetLeft = [Math]::Max([double]($virtual.Left + 40), [double]$rect.Left - [Math]::Min(900.0, [Math]::Max(420.0, [double]$rect.Width * 0.75)))
+    $deltaX = [int]($targetLeft - [double]$rect.Left)
+    $startX = [int]($rect.Left + ($rect.Width / 2))
+    $startY = [int]($rect.Top + 48)
+    $handle = [long]$Dashboard.Current.NativeWindowHandle
+    $samples = Drag-FromToWithGeometrySamples -Element $Dashboard -WindowHandle $handle -StartX $startX -StartY $startY -EndX ([int]($startX + $deltaX)) -EndY $startY -Label "Dashboard move away from tray menu cleanup zone" -Steps 42 -StepDelayMs 8
+    Start-Sleep -Milliseconds 350
+    $afterDashboard = Get-DashboardWindow
+    $shot = Capture-VirtualScreenshot "05d_after_dashboard_repositioned_clear_of_tray_menu"
+    if (-not $afterDashboard) {
+        Add-Step -Id "dashboard_repositioned_clear_of_tray_menu_for_cleanup" -Title "Dashboard is repositioned away from tray menu before cleanup actions" -Status "FAIL" -Detail "Dashboard disappeared while repositioning away from tray menu cleanup zone." -Evidence @{ screenshot = $shot; moveSamples = $samples }
+        throw "Dashboard disappeared while repositioning away from tray menu cleanup zone"
+    }
+    $afterRect = $afterDashboard.Current.BoundingRectangle
+    $clear = ([double]$afterRect.Right -le $trayZoneLeft) -or ([double]$afterRect.Bottom -le $trayZoneTop)
+    Add-Step -Id "dashboard_repositioned_clear_of_tray_menu_for_cleanup" -Title "Dashboard is repositioned away from tray menu before cleanup actions" -Status ($(if ($clear) { "PASS" } else { "FAIL" })) -Detail "before=($([int]$rect.Left),$([int]$rect.Top),$([int]$rect.Right),$([int]$rect.Bottom)); after=($([int]$afterRect.Left),$([int]$afterRect.Top),$([int]$afterRect.Right),$([int]$afterRect.Bottom)); trayZone=($([int]$trayZoneLeft),$([int]$trayZoneTop),$($virtual.Right),$($virtual.Bottom))." -Evidence @{ screenshot = $shot; before = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]$rect.Bottom); after = @([int]$afterRect.Left, [int]$afterRect.Top, [int]$afterRect.Right, [int]$afterRect.Bottom); moveSamples = $samples }
+    if (-not $clear) { throw "Dashboard still covers the tray menu cleanup zone after repositioning" }
+}
+
 function Get-CursorKindAtPoint {
     param([int]$X, [int]$Y)
     [CodexHumanClientWin32]::SetCursorPos($X, $Y) | Out-Null
-    Start-Sleep -Milliseconds 90
+    [CodexHumanClientWin32]::mouse_event(0x0001, 0, 0, 0, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 120
     return [CodexHumanClientWin32]::GetCursorKind()
 }
 
@@ -981,6 +1221,272 @@ function Test-ResizeCursorKind {
 function Test-NonResizeCursorKind {
     param([string]$Kind)
     return $Kind -ne "unknown" -and $Kind -notlike "size-*"
+}
+
+function Click-ScreenPoint {
+    param([int]$X, [int]$Y, [string]$Label)
+    $before = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($X, $Y)
+    [CodexHumanClientWin32]::SetCursorPos($X, $Y) | Out-Null
+    Start-Sleep -Milliseconds 120
+    [CodexHumanClientWin32]::SendAbsoluteLeftClick($X, $Y)
+    Start-Sleep -Milliseconds 480
+    $after = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($X, $Y)
+    return [ordered]@{
+        label = $Label
+        clicked = @($X, $Y)
+        windowAtPointBeforeClick = $before
+        windowAtPointAfterClick = $after
+        method = "SetCursorPos + SendInput absolute left click"
+    }
+}
+
+function DoubleClick-ScreenPoint {
+    param([int]$X, [int]$Y, [string]$Label)
+    $before = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($X, $Y)
+    [CodexHumanClientWin32]::SetCursorPos($X, $Y) | Out-Null
+    Start-Sleep -Milliseconds 120
+    [CodexHumanClientWin32]::SendAbsoluteLeftClick($X, $Y)
+    Start-Sleep -Milliseconds 120
+    [CodexHumanClientWin32]::SendAbsoluteLeftClick($X, $Y)
+    Start-Sleep -Milliseconds 520
+    $after = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($X, $Y)
+    return [ordered]@{
+        label = $Label
+        clicked = @($X, $Y)
+        windowAtPointBeforeClick = $before
+        windowAtPointAfterClick = $after
+        method = "SetCursorPos + two SendInput absolute left clicks"
+    }
+}
+
+function Convert-RuntimeMarkerLineToMap {
+    param([string]$Line)
+    $result = @{}
+    foreach ($part in ($Line -split "\|")) {
+        $index = $part.IndexOf("=")
+        if ($index -le 0) { continue }
+        $key = $part.Substring(0, $index).Trim()
+        $value = $part.Substring($index + 1).Trim()
+        if ($key) { $result[$key] = $value }
+    }
+    return $result
+}
+
+function Get-LatestSettingsWindowRectFromRuntimeLog {
+    $lines = @(Read-RuntimeLines)
+    for ($i = $lines.Count - 1; $i -ge 0; $i--) {
+        $line = [string]$lines[$i]
+        if ($line -notmatch "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY") { continue }
+        if ($line -notmatch "dashboard_settings_open=true") { continue }
+        if ($line -notmatch "settings_window_present=true") { continue }
+        $map = Convert-RuntimeMarkerLineToMap -Line $line
+        try {
+            $left = [int]$map["settings_window_left"]
+            $top = [int]$map["settings_window_top"]
+            $right = [int]$map["settings_window_right"]
+            $bottom = [int]$map["settings_window_bottom"]
+            if ($right -le $left -or $bottom -le $top) { return $null }
+            return [pscustomobject]@{
+                Left = $left
+                Top = $top
+                Right = $right
+                Bottom = $bottom
+                Width = [int]($right - $left)
+                Height = [int]($bottom - $top)
+                sourceLine = $line
+            }
+        } catch {
+            return $null
+        }
+    }
+    return $null
+}
+
+function Get-DashboardTopChromeControlPoints {
+    param([object]$Dashboard)
+    if (-not $Dashboard) { throw "Dashboard is missing while calculating Dashboard control points" }
+    $rect = $Dashboard.Current.BoundingRectangle
+    $headerHeight = [Math]::Min(170, [int]$rect.Height)
+    $actionsWidth = [Math]::Min(360, [Math]::Max(154, [int]($rect.Width / 3)))
+    $actionsLeft = [int]$rect.Left + 43
+    $actionsTop = [int]$rect.Top + 132
+    $closeLeft = [int]$rect.Right - 14 - 82
+    $closeTop = [int]$rect.Top + 12
+    return [ordered]@{
+        headerRect = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]($rect.Top + $headerHeight))
+        actionsRect = @($actionsLeft, $actionsTop, [int]($actionsLeft + $actionsWidth), [int]($actionsTop + 44))
+        closePoint = @([int]($closeLeft + 41), [int]($closeTop + 21))
+        settingsPoint = @([int]($actionsLeft + [Math]::Min(77, $actionsWidth / 2)), [int]($actionsTop + 22))
+    }
+}
+
+function Get-SettingsChildWindowControlPoints {
+    param([object]$Dashboard)
+    if (-not $Dashboard) { throw "Dashboard is missing while calculating settings child-window control points" }
+    $runtimeRect = Get-LatestSettingsWindowRectFromRuntimeLog
+    if ($runtimeRect) {
+        return [ordered]@{
+            estimatedRect = @($runtimeRect.Left, $runtimeRect.Top, $runtimeRect.Right, $runtimeRect.Bottom)
+            closePoint = @([int]($runtimeRect.Right - 42), [int]($runtimeRect.Top + 30))
+            donePoint = @([int]($runtimeRect.Left + 42), [int]($runtimeRect.Bottom - 32))
+            source = "runtime-child-window-marker"
+            sourceLine = $runtimeRect.sourceLine
+        }
+    }
+    $rect = $Dashboard.Current.BoundingRectangle
+    $childWidth = [Math]::Min(520, [Math]::Max(320, [int]$rect.Width - 44))
+    $childHeight = [Math]::Min(620, [Math]::Max(360, [int]$rect.Height - 44))
+    $left = [int]($rect.Left + (($rect.Width - $childWidth) / 2))
+    $top = [int]($rect.Top + (($rect.Height - $childHeight) / 2))
+    return [ordered]@{
+        estimatedRect = @($left, $top, [int]($left + $childWidth), [int]($top + $childHeight))
+        closePoint = @([int]($left + $childWidth - 42), [int]($top + 30))
+        donePoint = @([int]($left + 42), [int]($top + $childHeight - 32))
+    }
+}
+
+function Capture-DashboardTimedSequence {
+    param(
+        [string]$LabelPrefix,
+        [int]$FrameCount = 8,
+        [int]$IntervalMs = 140
+    )
+    $frames = @()
+    for ($i = 0; $i -lt $FrameCount; $i++) {
+        $dashboard = Get-DashboardWindow
+        $rectPayload = $null
+        if ($dashboard) {
+            $rect = $dashboard.Current.BoundingRectangle
+            $rectPayload = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]$rect.Bottom)
+        }
+        $shot = Capture-VirtualScreenshot ("{0}_{1:00}" -f $LabelPrefix, $i)
+        $frames += [ordered]@{
+            index = $i
+            elapsedMs = $i * $IntervalMs
+            dashboardVisible = [bool]$dashboard
+            dashboardRect = $rectPayload
+            screenshot = $shot
+        }
+        Start-Sleep -Milliseconds $IntervalMs
+    }
+    return $frames
+}
+
+function Test-DashboardSequenceGeometryStable {
+    param([object[]]$Frames, [int]$MaxDeltaPx = 10)
+    $visibleFrames = @($Frames | Where-Object { $_.dashboardVisible -and $_.dashboardRect -and $_.dashboardRect.Count -eq 4 })
+    if ($visibleFrames.Count -ne $Frames.Count) { return $false }
+    $lefts = @($visibleFrames | ForEach-Object { [int]$_.dashboardRect[0] })
+    $tops = @($visibleFrames | ForEach-Object { [int]$_.dashboardRect[1] })
+    $widths = @($visibleFrames | ForEach-Object { [int]$_.dashboardRect[2] - [int]$_.dashboardRect[0] })
+    $heights = @($visibleFrames | ForEach-Object { [int]$_.dashboardRect[3] - [int]$_.dashboardRect[1] })
+    $maxDelta = @(
+        (($lefts | Measure-Object -Maximum).Maximum - ($lefts | Measure-Object -Minimum).Minimum),
+        (($tops | Measure-Object -Maximum).Maximum - ($tops | Measure-Object -Minimum).Minimum),
+        (($widths | Measure-Object -Maximum).Maximum - ($widths | Measure-Object -Minimum).Minimum),
+        (($heights | Measure-Object -Maximum).Maximum - ($heights | Measure-Object -Minimum).Minimum)
+    ) | Measure-Object -Maximum | Select-Object -ExpandProperty Maximum
+    return [int]$maxDelta -le $MaxDeltaPx
+}
+
+function Get-DashboardFrameSignature {
+    param([object]$Frame, [object]$ReferenceRect, [int]$GridSize = 18)
+    if (-not $Frame -or -not $Frame.screenshot -or -not (Test-Path -LiteralPath $Frame.screenshot)) {
+        return $null
+    }
+    if (-not $ReferenceRect -or $ReferenceRect.Count -ne 4) {
+        return $null
+    }
+    $bitmap = [System.Drawing.Bitmap]::FromFile([string]$Frame.screenshot)
+    try {
+        $left = [Math]::Max(0, [int]$ReferenceRect[0])
+        $top = [Math]::Max(0, [int]$ReferenceRect[1])
+        $right = [Math]::Min($bitmap.Width - 1, [int]$ReferenceRect[2])
+        $bottom = [Math]::Min($bitmap.Height - 1, [int]$ReferenceRect[3])
+        if ($right -le $left -or $bottom -le $top) { return $null }
+        $marginX = [Math]::Max(8, [int](($right - $left) * 0.04))
+        $marginY = [Math]::Max(8, [int](($bottom - $top) * 0.04))
+        $sampleLeft = [Math]::Min($right, $left + $marginX)
+        $sampleTop = [Math]::Min($bottom, $top + $marginY)
+        $sampleRight = [Math]::Max($sampleLeft, $right - $marginX)
+        $sampleBottom = [Math]::Max($sampleTop, $bottom - $marginY)
+        $samples = New-Object System.Collections.Generic.List[double]
+        for ($gy = 0; $gy -lt $GridSize; $gy++) {
+            for ($gx = 0; $gx -lt $GridSize; $gx++) {
+                $x = [int]($sampleLeft + (($sampleRight - $sampleLeft) * (($gx + 0.5) / $GridSize)))
+                $y = [int]($sampleTop + (($sampleBottom - $sampleTop) * (($gy + 0.5) / $GridSize)))
+                $color = $bitmap.GetPixel($x, $y)
+                $samples.Add(([double]$color.R + [double]$color.G + [double]$color.B) / 3.0)
+            }
+        }
+        return [pscustomobject]@{
+            index = [int]$Frame.index
+            screenshot = [string]$Frame.screenshot
+            samples = $samples.ToArray()
+        }
+    }
+    finally {
+        $bitmap.Dispose()
+    }
+}
+
+function Test-DashboardSequenceVisualContinuity {
+    param(
+        [object[]]$Frames,
+        [double]$LargeTransitionThreshold = 24.0,
+        [double]$SettledDeltaThreshold = 15.0
+    )
+    $visibleFrames = @($Frames | Where-Object { $_.dashboardVisible -and $_.dashboardRect -and $_.dashboardRect.Count -eq 4 })
+    if ($visibleFrames.Count -lt 4) {
+        return [pscustomobject]@{
+            Pass = $false
+            Reason = "fewer than four visible dashboard frames"
+            LargeTransitionCount = 0
+            MaxMeanDelta = 0
+            Deltas = @()
+        }
+    }
+    $referenceRect = $visibleFrames[-1].dashboardRect
+    $signatures = @($visibleFrames | ForEach-Object { Get-DashboardFrameSignature -Frame $_ -ReferenceRect $referenceRect })
+    $signatures = @($signatures | Where-Object { $_ -and $_.samples -and $_.samples.Count -gt 0 })
+    if ($signatures.Count -lt 4) {
+        return [pscustomobject]@{
+            Pass = $false
+            Reason = "screenshot signatures unavailable"
+            LargeTransitionCount = 0
+            MaxMeanDelta = 0
+            Deltas = @()
+        }
+    }
+    $deltas = @()
+    for ($i = 1; $i -lt $signatures.Count; $i++) {
+        $previous = $signatures[$i - 1].samples
+        $current = $signatures[$i].samples
+        $count = [Math]::Min($previous.Count, $current.Count)
+        $total = 0.0
+        for ($j = 0; $j -lt $count; $j++) {
+            $total += [Math]::Abs([double]$current[$j] - [double]$previous[$j])
+        }
+        $mean = if ($count -gt 0) { $total / $count } else { 999.0 }
+        $deltas += [pscustomobject]@{
+            from = [int]$signatures[$i - 1].index
+            to = [int]$signatures[$i].index
+            meanLumaDelta = [Math]::Round($mean, 2)
+        }
+    }
+    $largeTransitions = @($deltas | Where-Object { [double]$_.meanLumaDelta -gt $LargeTransitionThreshold })
+    $settledDeltas = if ($deltas.Count -gt 2) { @($deltas | Select-Object -Last ([Math]::Min(3, $deltas.Count))) } else { @($deltas) }
+    $maxMeanDelta = if ($deltas.Count -gt 0) { ($deltas | Measure-Object -Property meanLumaDelta -Maximum).Maximum } else { 0 }
+    $maxSettledDelta = if ($settledDeltas.Count -gt 0) { ($settledDeltas | Measure-Object -Property meanLumaDelta -Maximum).Maximum } else { 0 }
+    $pass = $largeTransitions.Count -le 1 -and [double]$maxSettledDelta -le $SettledDeltaThreshold
+    return [pscustomobject]@{
+        Pass = [bool]$pass
+        Reason = if ($pass) { "no repeated visible flicker transitions after initial appearance" } else { "visible dashboard frames changed too much after first appearance" }
+        LargeTransitionCount = [int]$largeTransitions.Count
+        MaxMeanDelta = [Math]::Round([double]$maxMeanDelta, 2)
+        MaxSettledDelta = [Math]::Round([double]$maxSettledDelta, 2)
+        Deltas = $deltas
+    }
 }
 
 function Read-RuntimeLines {
@@ -1087,6 +1593,58 @@ function Open-HiddenTrayOnNexus {
 
     $runtimeProcesses = Find-ProcessesForLogRoot
     throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', ')"
+}
+
+function Click-NexusTrayIcon {
+    param([string]$Label = "Nexus tray icon")
+
+    $deadline = (Get-Date).AddSeconds(8)
+    while ((Get-Date) -lt $deadline) {
+        $runtimeProcesses = Find-ProcessesForLogRoot
+        foreach ($process in $runtimeProcesses) {
+            $rect = [CodexHumanClientWin32]::GetNotifyIconRectForProcess([int]$process.ProcessId)
+            if ($rect -and $rect.Length -eq 4) {
+                $x = [int](($rect[0] + $rect[2]) / 2)
+                $y = [int](($rect[1] + $rect[3]) / 2)
+                [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
+                Start-Sleep -Milliseconds 220
+                [CodexHumanClientWin32]::SendLeftClick()
+                Start-Sleep -Milliseconds 350
+                return @{
+                    label = $Label
+                    processId = [int]$process.ProcessId
+                    notifyIconRect = @([int]$rect[0], [int]$rect[1], [int]$rect[2], [int]$rect[3])
+                    clicked = @($x, $y)
+                    clickMethod = "Shell_NotifyIconGetRect + SetCursorPos + left click"
+                }
+            }
+        }
+        Start-Sleep -Milliseconds 300
+    }
+
+    $runtimeProcesses = Find-ProcessesForLogRoot
+    throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', ')"
+}
+
+function Invoke-TrayIconActivation {
+    param([string]$ExpectedMarker = "", [int]$TimeoutSeconds = 8, [string]$Label = "Nexus tray icon activation")
+
+    $beforeCount = 0
+    if ($ExpectedMarker) {
+        $beforeCount = ((Read-RuntimeLines) | Select-String -Pattern ([regex]::Escape($ExpectedMarker))).Count
+    }
+    $clickEvidence = Click-NexusTrayIcon -Label $Label
+    if ($ExpectedMarker) {
+        $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+        while ((Get-Date) -lt $deadline) {
+            $count = ((Read-RuntimeLines) | Select-String -Pattern ([regex]::Escape($ExpectedMarker))).Count
+            if ($count -gt $beforeCount) { return $clickEvidence }
+            Start-Sleep -Milliseconds 250
+        }
+        $afterTimeoutShot = Capture-VirtualScreenshot ("tray_icon_after_timeout_{0}" -f ($Label -replace "[^A-Za-z0-9_-]", "_"))
+        throw "Tray icon activation '$Label' did not emit expected marker '$ExpectedMarker'; clicked=($($clickEvidence.clicked -join ',')); after_timeout_screenshot=$afterTimeoutShot"
+    }
+    return $clickEvidence
 }
 
 function Get-VisibleTrayMenuRect {
@@ -1260,7 +1818,7 @@ function Click-VisibleTrayMenuAction {
         }
     }
     $coordinateFallback = $coordinateOnlyMenu
-    if ($itemRect) {
+    if ($itemRect -and -not $target) {
         $coordinateFallback = $true
     }
     if (-not $target -and -not $itemRect) {
@@ -1286,7 +1844,7 @@ function Click-VisibleTrayMenuAction {
             $nativeY = [int]($menuRect.Y + 39)
         } elseif ($ActionName -eq "HUD Overlay Deferred") {
             $nativeY = [int]($menuRect.Y + 61)
-        } elseif ($ActionName -eq "Open Command Overlay") {
+        } elseif ($ActionName -in @("Open Command Overlay", "Close Command Overlay")) {
             $nativeY = [int]($menuRect.Y + 89)
         } elseif ($ActionName -eq "Create Custom Task") {
             $nativeY = [int]($menuRect.Y + 111)
@@ -1315,7 +1873,7 @@ function Click-VisibleTrayMenuAction {
     }
 
     if ($coordinateFallback) {
-        $x = [int]($menuRect.X + [Math]::Min(115, [Math]::Max(70, $menuRect.Width / 2)))
+        $x = [int]($itemRect.X + [Math]::Min(72, [Math]::Max(28, $itemRect.Width / 3)))
     } elseif ($targetControlType -eq "ControlType.Button") {
         $x = [int]($itemRect.X + ($itemRect.Width / 2))
     } else {
@@ -1325,12 +1883,12 @@ function Click-VisibleTrayMenuAction {
 
     $menuShot = Capture-VirtualScreenshot ("tray_menu_before_{0}" -f ($ActionName -replace "[^A-Za-z0-9_-]", "_"))
     [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
-    Start-Sleep -Milliseconds 1800
+    Start-Sleep -Milliseconds 450
     $windowAtPointBeforeClick = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($x, $y)
-    [CodexHumanClientWin32]::SendAbsoluteLeftClick($x, $y)
+    [CodexHumanClientWin32]::SendLeftClick()
     Start-Sleep -Milliseconds 120
     $windowAtPointAfterClick = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($x, $y)
-    $activationMethod = "desktop-shortcut + real-tray-popup + SetCursorPos + SendInput mouse button click on visible tray command control"
+    $activationMethod = "desktop-shortcut + real-tray-popup + SetCursorPos + left mouse button click on visible tray command control"
     Start-Sleep -Milliseconds 650
 
     return @{
@@ -1401,6 +1959,27 @@ function Get-DashboardWindow {
     }
 
     return $null
+}
+
+function Close-CommandOverlayBeforeDashboardResize {
+    $indicatorBefore = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 1
+    $beforeLines = (Read-RuntimeLines).Count
+    $closeMarker = $false
+    $trayCloseEvidence = $null
+    if ($indicatorBefore) {
+        $trayCloseEvidence = Invoke-TrayIconActivation -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" -TimeoutSeconds 5 -Label "NCP tray icon left-click close before Dashboard resize"
+        $closeMarker = $true
+    }
+    Start-Sleep -Milliseconds 500
+    $indicatorAfter = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 1
+    $dashboard = Get-DashboardWindow
+    $shot = Capture-VirtualScreenshot "04e_after_command_overlay_closed_before_dashboard_resize"
+    $pass = (-not $indicatorAfter) -and [bool]$dashboard
+    Add-Step -Id "ncp_tray_icon_left_click_closes" -Title "NCP tray icon left-click closes the Command Overlay" -Status ($(if ($pass) { "PASS" } else { "FAIL" })) -Detail "overlay_visible_before=$([bool]$indicatorBefore); close_marker=$closeMarker; overlay_visible_after=$([bool]$indicatorAfter); dashboard_visible=$([bool]$dashboard)." -Evidence @{ screenshot = $shot; trayIconClick = $trayCloseEvidence; expectedClosedMarker = "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" }
+    Add-Step -Id "ncp_closed_before_dashboard_resize" -Title "Command Overlay is closed before Dashboard resize proof" -Status ($(if ($pass) { "PASS" } else { "FAIL" })) -Detail "overlay_visible_before=$([bool]$indicatorBefore); close_marker=$closeMarker; overlay_visible_after=$([bool]$indicatorAfter); dashboard_visible=$([bool]$dashboard)." -Evidence @{ screenshot = $shot; expectedClosedMarker = "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED"; trayIconClick = $trayCloseEvidence }
+    if (-not $pass) {
+        throw "Command Overlay remained visible or Dashboard disappeared before resize proof"
+    }
 }
 
 function Wait-ForVisibleRuntimeWindowByTitle {
@@ -1502,6 +2081,65 @@ function Click-VisibleRuntimeDialogButton {
                 }
             }
         }
+        if ($lastDialogRect.Count -eq 4) {
+            $runtimeButtons = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
+                [System.Windows.Automation.TreeScope]::Descendants,
+                (New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button))
+            )
+            $bestButton = $null
+            $bestButtonRect = $null
+            $bestCenterY = -2147483648
+            for ($j = 0; $j -lt $runtimeButtons.Count; $j++) {
+                $button = $runtimeButtons.Item($j)
+                try {
+                    if (
+                        $button.Current.Name -ne $ButtonName -or
+                        -not $button.Current.IsEnabled -or
+                        $runtimeIds -notcontains [int]$button.Current.ProcessId
+                    ) {
+                        continue
+                    }
+                    $rect = $button.Current.BoundingRectangle
+                    if ($rect.IsEmpty -or $rect.Width -le 0 -or $rect.Height -le 0 -or $button.Current.IsOffscreen) {
+                        continue
+                    }
+                    $centerX = [int]($rect.X + ($rect.Width / 2))
+                    $centerY = [int]($rect.Y + ($rect.Height / 2))
+                    if (
+                        $centerX -lt $lastDialogRect[0] -or
+                        $centerX -gt $lastDialogRect[2] -or
+                        $centerY -lt $lastDialogRect[1] -or
+                        $centerY -gt ($lastDialogRect[1] + 1100)
+                    ) {
+                        continue
+                    }
+                    if (-not $bestButton -or $centerY -gt $bestCenterY) {
+                        $bestButton = $button
+                        $bestButtonRect = $rect
+                        $bestCenterY = $centerY
+                    }
+                } catch {}
+            }
+            if ($bestButton) {
+                $x = [int]($bestButtonRect.X + ($bestButtonRect.Width / 2))
+                $y = [int]($bestButtonRect.Y + ($bestButtonRect.Height / 2))
+                [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
+                Start-Sleep -Milliseconds 150
+                [CodexHumanClientWin32]::SendLeftClick()
+                return @{
+                    button = $ButtonName
+                    clicked = @($x, $y)
+                    buttonRect = @(
+                        [int]$bestButtonRect.X,
+                        [int]$bestButtonRect.Y,
+                        [int]($bestButtonRect.X + $bestButtonRect.Width),
+                        [int]($bestButtonRect.Y + $bestButtonRect.Height)
+                    )
+                    fallback = "runtime-wide-dialog-button"
+                    dialogRect = $lastDialogRect
+                }
+            }
+        }
         Start-Sleep -Milliseconds 120
     }
 
@@ -1528,6 +2166,41 @@ function Dismiss-VisibleRuntimeDialog {
 
     $before = Wait-ForVisibleRuntimeWindowByTitle -Title $Title -TimeoutSeconds 1
     $beforeLineCount = (Read-RuntimeLines).Count
+    $preferredButtons = @()
+    if ($Title -in @("Create Custom Task", "Create Custom Group")) {
+        $preferredButtons = @("Cancel")
+    } elseif ($Title -in @("Manage Custom Tasks", "Manage Custom Groups")) {
+        $preferredButtons = @("Close", "Cancel")
+    }
+    foreach ($preferredButton in $preferredButtons) {
+        try {
+            $clickEvidence = Click-VisibleRuntimeDialogButton -Title $Title -ButtonName $preferredButton -TimeoutSeconds 2
+            $buttonDeadline = (Get-Date).AddSeconds($TimeoutSeconds)
+            while ((Get-Date) -lt $buttonDeadline) {
+                if ($ExpectedDismissMarker -and (Wait-ForRuntimeMarkerAfterLine -Marker $ExpectedDismissMarker -AfterLine $beforeLineCount -TimeoutSeconds 1)) {
+                    return @{
+                        method = "visible-runtime-button-runtime-marker"
+                        beforeRect = $before
+                        clicked = $clickEvidence.clicked
+                        button = $preferredButton
+                        dismissed = $true
+                        marker = $ExpectedDismissMarker
+                    }
+                }
+                $afterButton = Wait-ForVisibleRuntimeWindowByTitle -Title $Title -TimeoutSeconds 1
+                if (-not $afterButton -or $afterButton.Count -ne 4) {
+                    return @{
+                        method = "visible-runtime-button"
+                        beforeRect = $before
+                        clicked = $clickEvidence.clicked
+                        button = $preferredButton
+                        dismissed = $true
+                    }
+                }
+                Start-Sleep -Milliseconds 120
+            }
+        } catch {}
+    }
     if ($before -and $before.Count -eq 4 -and $Title -in @("Create Custom Task", "Create Custom Group", "Manage Custom Tasks", "Manage Custom Groups")) {
         $x = [int]($before[2] - 205)
         $y = [int]($before[1] + 342)
@@ -1772,15 +2445,105 @@ try {
     Add-Step -Id "close_dashboard_from_tray_before_move" -Title "Tray Close HUD Dashboard hides visible Dashboard before movement/resize" -Status ($(if (-not $dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after close before move: $([bool]$dashboard)" -Evidence @{ screenshot = $earlyCloseShot; trayClick = $earlyCloseEvidence }
     if ($dashboard) { throw "Close HUD Dashboard did not hide the visible Dashboard before movement/resize" }
 
+    $firstOpenStartLine = (Read-RuntimeLines).Count
     $earlyOpenEvidence = Invoke-TrayAction -ActionName "Open HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=true" -TimeoutSeconds $ActionTimeoutSeconds
-    Start-Sleep -Milliseconds 1000
+    $firstOpenFrames = @(Capture-DashboardTimedSequence -LabelPrefix "03c_first_open_stability" -FrameCount 11 -IntervalMs 110)
+    $firstOpenShowGuardReleased = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_VISIBLE_SHOW_GUARD_RELEASED" -AfterLine $firstOpenStartLine -TimeoutSeconds 2
+    $firstOpenStable = Test-DashboardSequenceGeometryStable -Frames $firstOpenFrames -MaxDeltaPx 10
+    $firstOpenVisual = Test-DashboardSequenceVisualContinuity -Frames $firstOpenFrames
+    $firstOpenPass = $firstOpenStable -and $firstOpenShowGuardReleased -and $firstOpenVisual.Pass
+    Add-Step -Id "dashboard_first_open_stability_sequence" -Title "Dashboard first-open shortcut path stays visually and geometrically stable" -Status ($(if ($firstOpenPass) { "PASS" } else { "FAIL" })) -Detail "Captured $($firstOpenFrames.Count) full-desktop frames at 110ms cadence after real tray Open HUD Dashboard; show_guard_released=$firstOpenShowGuardReleased; geometry_stable=$firstOpenStable; visual_continuity=$($firstOpenVisual.Pass); large_visual_transitions=$($firstOpenVisual.LargeTransitionCount); max_visual_delta=$($firstOpenVisual.MaxMeanDelta); max_settled_delta=$($firstOpenVisual.MaxSettledDelta)." -Evidence @{ frames = $firstOpenFrames; visualContinuity = $firstOpenVisual; maxAllowedGeometryDeltaPx = 10; expectedMarker = "MONITORING_HUD_VISIBLE_SHOW_GUARD_RELEASED"; visualContinuityPolicy = "initial appearance may transition once; repeated visible flicker or late settled-frame shifts fail" }
+    if (-not $firstOpenPass) { throw "Dashboard first-open sequence did not meet visual and geometry stability proof through the real shortcut/tray path" }
     $earlyOpenShot = Capture-VirtualScreenshot "03c_after_open_hud_dashboard_before_move"
     $dashboard = Get-DashboardWindow
     Add-Step -Id "open_dashboard_from_tray_before_move" -Title "Tray Open HUD Dashboard shows visible Dashboard before movement/resize" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after open before move: $([bool]$dashboard)" -Evidence @{ screenshot = $earlyOpenShot; trayClick = $earlyOpenEvidence }
     if (-not $dashboard) { throw "Open HUD Dashboard did not show the visible Dashboard before movement/resize" }
 
+    $dashboardHandleForControls = [long]$dashboard.Current.NativeWindowHandle
+    $chromePoints = Get-DashboardTopChromeControlPoints -Dashboard $dashboard
+    $settingsPoint = @($chromePoints.settingsPoint)
+    $settingsHit = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandleForControls -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1])
+    $settingsBeforeLine = (Read-RuntimeLines).Count
+    $settingsClickEvidence = Click-ScreenPoint -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1]) -Label "Dashboard Settings IA-card button"
+    $settingsNativeMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY" -AfterLine $settingsBeforeLine -TimeoutSeconds 4
+    $settingsChildMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY" -AfterLine $settingsBeforeLine -TimeoutSeconds 4
+    $settingsShot = Capture-VirtualScreenshot "03d_after_dashboard_settings_real_mouse_click"
+    $dashboardAfterSettings = Get-DashboardWindow
+    $settingsPass = $settingsNativeMarker -and $settingsChildMarker -and $dashboardAfterSettings -and ($settingsHit -eq "htclient")
+    Add-Step -Id "dashboard_settings_opens_with_real_mouse" -Title "Dashboard Settings opens through real mouse control hit-test path" -Status ($(if ($settingsPass) { "PASS" } else { "FAIL" })) -Detail "settingsPoint=($($settingsPoint -join ',')); hitTest=$settingsHit; native_marker=$settingsNativeMarker; child_window_marker=$settingsChildMarker; dashboard_visible_after_click=$([bool]$dashboardAfterSettings)." -Evidence @{ screenshot = $settingsShot; click = $settingsClickEvidence; controlPoints = $chromePoints; hitTest = $settingsHit; expectedMarkers = @("MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY", "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY") }
+    if (-not $settingsPass) { throw "Dashboard Settings did not open through the real mouse IA-card path" }
+
+    $rectBeforeDoubleClick = $dashboardAfterSettings.Current.BoundingRectangle
+    $doubleClickBeforeLine = (Read-RuntimeLines).Count
+    $doubleClickEvidence = DoubleClick-ScreenPoint -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1]) -Label "Dashboard Settings double-click protection"
+    $doubleClickSuppressed = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_NATIVE_HEADER_DOUBLE_CLICK_SUPPRESSED" -AfterLine $doubleClickBeforeLine -TimeoutSeconds 2
+    $dashboardAfterDoubleClick = Get-DashboardWindow
+    $rectAfterDoubleClick = if ($dashboardAfterDoubleClick) { $dashboardAfterDoubleClick.Current.BoundingRectangle } else { $null }
+    $doubleClickGeometryOk = $dashboardAfterDoubleClick -and [Math]::Abs($rectAfterDoubleClick.Width - $rectBeforeDoubleClick.Width) -le 10 -and [Math]::Abs($rectAfterDoubleClick.Height - $rectBeforeDoubleClick.Height) -le 10
+    $doubleClickShot = Capture-VirtualScreenshot "03e_after_dashboard_settings_double_click"
+    Add-Step -Id "dashboard_settings_double_click_does_not_maximize" -Title "Settings click area does not turn into a native header maximize gesture" -Status ($(if ($doubleClickGeometryOk) { "PASS" } else { "FAIL" })) -Detail "suppressed_marker_seen=$doubleClickSuppressed; width_before=$($rectBeforeDoubleClick.Width); height_before=$($rectBeforeDoubleClick.Height); width_after=$($rectAfterDoubleClick.Width); height_after=$($rectAfterDoubleClick.Height)." -Evidence @{ screenshot = $doubleClickShot; click = $doubleClickEvidence; geometryTolerancePx = 10 }
+    if (-not $doubleClickGeometryOk) { throw "Dashboard Settings double-click changed the native Dashboard geometry" }
+
+    $settingsDone = Find-VisibleRuntimeElementByName -Name "Done" -ControlTypeName "ControlType.Button" -TimeoutSeconds 4
+    $settingsCloseBeforeLine = (Read-RuntimeLines).Count
+    $settingsCloseEvidence = $null
+    if ($settingsDone) {
+        Click-ElementCenter -Element $settingsDone -Label "Dashboard Settings Done"
+        Start-Sleep -Milliseconds 650
+        $settingsCloseEvidence = @{ method = "uia-visible-done-button" }
+    } else {
+        $settingsChildPoints = Get-SettingsChildWindowControlPoints -Dashboard $dashboardAfterDoubleClick
+        $donePoint = @($settingsChildPoints.donePoint)
+        $settingsCloseEvidence = Click-ScreenPoint -X ([int]$donePoint[0]) -Y ([int]$donePoint[1]) -Label "Dashboard Settings estimated Done button"
+    }
+    $settingsClosedMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY" -AfterLine $settingsCloseBeforeLine -TimeoutSeconds 4
+    if (-not $settingsClosedMarker) {
+        $settingsChildPoints = Get-SettingsChildWindowControlPoints -Dashboard $dashboardAfterDoubleClick
+        $settingsClosePoint = @($settingsChildPoints.closePoint)
+        $settingsCloseBeforeLine = (Read-RuntimeLines).Count
+        $settingsCloseEvidence = Click-ScreenPoint -X ([int]$settingsClosePoint[0]) -Y ([int]$settingsClosePoint[1]) -Label "Dashboard Settings estimated Close button"
+        $settingsClosedMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY" -AfterLine $settingsCloseBeforeLine -TimeoutSeconds 4
+    }
+    $settingsClosedShot = Capture-VirtualScreenshot "03f_after_dashboard_settings_done"
+    Add-Step -Id "dashboard_settings_done_closes_with_real_mouse" -Title "Dashboard Settings panel closes through visible user control" -Status ($(if ($settingsClosedMarker) { "PASS" } else { "FAIL" })) -Detail "Done button found by UIA=$([bool]$settingsDone); child_window_close_marker=$settingsClosedMarker." -Evidence @{ screenshot = $settingsClosedShot; marker = "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY"; closeEvidence = $settingsCloseEvidence }
+    if (-not $settingsClosedMarker) { throw "Dashboard Settings panel did not close through a visible Done or Close control" }
+
+    $dashboard = Get-DashboardWindow
+    if (-not $dashboard) { throw "Dashboard disappeared before window-level Close proof" }
+    $chromePoints = Get-DashboardTopChromeControlPoints -Dashboard $dashboard
+    $closePoint = @($chromePoints.closePoint)
+    $closeHit = Get-NativeHitTestKindAtPoint -WindowHandle ([long]$dashboard.Current.NativeWindowHandle) -X ([int]$closePoint[0]) -Y ([int]$closePoint[1])
+    $topCloseBeforeLine = (Read-RuntimeLines).Count
+    $topCloseClick = Click-ScreenPoint -X ([int]$closePoint[0]) -Y ([int]$closePoint[1]) -Label "Dashboard window-level Close button"
+    $topCloseMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY" -AfterLine $topCloseBeforeLine -TimeoutSeconds 4
+    $topCloseShot = Capture-VirtualScreenshot "03g_after_dashboard_top_chrome_close"
+    $dashboardAfterTopClose = Get-DashboardWindow
+    $topClosePass = $topCloseMarker -and (-not $dashboardAfterTopClose) -and ($closeHit -eq "htclient")
+    Add-Step -Id "dashboard_top_chrome_close_hides_dashboard" -Title "Dashboard window-level Close hides Dashboard without disabling HUD Feature" -Status ($(if ($topClosePass) { "PASS" } else { "FAIL" })) -Detail "closePoint=($($closePoint -join ',')); hitTest=$closeHit; native_marker=$topCloseMarker; dashboard_visible_after_close=$([bool]$dashboardAfterTopClose)." -Evidence @{ screenshot = $topCloseShot; click = $topCloseClick; controlPoints = $chromePoints; hitTest = $closeHit; expectedMarker = "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY"; expectedLayout = "window-level top-right Close pill, outside the Dashboard IA card controls" }
+    if (-not $topClosePass) { throw "Dashboard window-level Close did not hide the Dashboard through the real mouse path" }
+
+    $reopenAfterX = Invoke-TrayAction -ActionName "Open HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=true" -TimeoutSeconds $ActionTimeoutSeconds
+    Start-Sleep -Milliseconds 900
+    $reopenAfterXShot = Capture-VirtualScreenshot "03h_after_reopen_dashboard_after_top_chrome_close"
+    $dashboard = Get-DashboardWindow
+    Add-Step -Id "dashboard_reopens_after_top_chrome_close" -Title "Tray reopens Dashboard after window-level Close" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after tray reopen from window-level Close: $([bool]$dashboard)" -Evidence @{ screenshot = $reopenAfterXShot; trayClick = $reopenAfterX }
+    if (-not $dashboard) { throw "Dashboard did not reopen after window-level Close" }
+
+    $roundedMaskMarker = Wait-ForRuntimeMarker -Marker "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY" -TimeoutSeconds 2
+    $roundedMaskProof = Invoke-DashboardRoundedCornerMaskProbe -Dashboard $dashboard -WindowHandle ([long]$dashboard.Current.NativeWindowHandle)
+    $cornerText = (@($roundedMaskProof.CornerSamples) | ForEach-Object { Format-ColorSample $_ }) -join "; "
+    $visibleText = (@($roundedMaskProof.VisibleSamples) | ForEach-Object { Format-ColorSample $_ }) -join "; "
+    $roundedMaskPass = $roundedMaskMarker -and $roundedMaskProof.Pass
+    Add-Step -Id "dashboard_rounded_corner_mask_light_backdrop" -Title "Dashboard rounded native window mask prevents black corner bleed over a white backdrop" -Status ($(if ($roundedMaskPass) { "PASS" } else { "FAIL" })) -Detail "mask_marker=$roundedMaskMarker; corner_exterior_white=$($roundedMaskProof.CornerPass); visible_dashboard_interior=$($roundedMaskProof.VisibleDashboardPass); corner_samples=$cornerText; interior_samples=$visibleText." -Evidence @{ screenshot = $roundedMaskProof.Screenshot; windowRect = $roundedMaskProof.WindowRect; backdropRect = $roundedMaskProof.BackdropRect; cornerSamples = $roundedMaskProof.CornerSamples; visibleSamples = $roundedMaskProof.VisibleSamples; expectedMarker = "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY"; policy = $roundedMaskProof.Policy }
+    if (-not $roundedMaskPass) { throw "Dashboard rounded corner native mask did not prove white-backdrop transparency at exterior corner samples" }
+
     $rectBeforeMove = $dashboard.Current.BoundingRectangle
-    Drag-FromTo -StartX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2))) -StartY ([int]($rectBeforeMove.Top + 48)) -EndX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2) + 90)) -EndY ([int]($rectBeforeMove.Top + 88)) -Label "Dashboard header move"
+    $moveHandle = [long]$dashboard.Current.NativeWindowHandle
+    $moveStartX = [int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2))
+    $moveStartY = [int]($rectBeforeMove.Top + 48)
+    $moveEndX = [int]($moveStartX + 220)
+    $moveEndY = [int]($moveStartY + 116)
+    $moveSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $moveHandle -StartX $moveStartX -StartY $moveStartY -EndX $moveEndX -EndY $moveEndY -Label "Dashboard header normal-speed move fluidity" -Steps 48 -StepDelayMs 8
     $dashboard = Get-DashboardWindow
     $moveShot = Capture-VirtualScreenshot "04_after_dashboard_mouse_drag"
     if (-not $dashboard) {
@@ -1789,13 +2552,32 @@ try {
     }
     $rectAfterMove = $dashboard.Current.BoundingRectangle
     $moved = ([Math]::Abs($rectAfterMove.Left - $rectBeforeMove.Left) -ge 12) -or ([Math]::Abs($rectAfterMove.Top - $rectBeforeMove.Top) -ge 12)
-    Add-Step -Id "dashboard_mouse_move" -Title "Dashboard moves through mouse drag" -Status ($(if ($moved) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeMove.Left),$($rectBeforeMove.Top)); after=($($rectAfterMove.Left),$($rectAfterMove.Top))" -Evidence @{ screenshot = $moveShot }
+    $moveUniquePositions = @($moveSamples | ForEach-Object { "$($_.Left),$($_.Top)" } | Sort-Object -Unique).Count
+    $moveTracking = Measure-MoveTracking -Samples $moveSamples -BaseLeft $rectBeforeMove.Left -BaseTop $rectBeforeMove.Top -StartX $moveStartX -StartY $moveStartY
+    $moveFluidityPass = $moved -and $moveUniquePositions -ge 24 -and $moveTracking.Pass
+    Add-Step -Id "dashboard_mouse_move" -Title "Dashboard moves through mouse drag" -Status ($(if ($moved) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeMove.Left),$($rectBeforeMove.Top)); after=($($rectAfterMove.Left),$($rectAfterMove.Top)); uniquePositionSamples=$moveUniquePositions" -Evidence @{ screenshot = $moveShot; geometrySamples = $moveSamples }
     if (-not $moved) { throw "Dashboard did not move through human-like mouse drag" }
+    Add-Step -Id "dashboard_move_fluidity" -Title "Dashboard movement tracks the cursor at normal USER speed" -Status ($(if ($moveFluidityPass) { "PASS" } else { "FAIL" })) -Detail "uniquePositionSamples=$moveUniquePositions; maxLag=$($moveTracking.MaxLagPx)px/avg=$($moveTracking.AverageLagPx)px; maxSampleInterval=$($moveTracking.MaxSampleIntervalMs)ms; sampled at 48 steps with 8ms delay while the left button was held." -Evidence @{ screenshot = $moveShot; geometrySamples = $moveSamples; moveTracking = $moveTracking; minimumUniquePositionSamples = 24; expectation = "returned USER validation says normal-speed movement skips, so LV1 requires high-cadence intermediate geometry plus cursor-to-window tracking-lag proof" }
+    if (-not $moveFluidityPass) { throw "Dashboard movement did not track cursor movement smoothly enough during normal-speed drag proof" }
 
-    $ncpOpenEvidence = Invoke-TrayAction -ActionName "Open Command Overlay" -ExpectedMarker "RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY|source=menu" -TimeoutSeconds $ActionTimeoutSeconds
+    $ncpTrayIconOpenEvidence = Invoke-TrayIconActivation -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_READY|phase=entry" -TimeoutSeconds $ActionTimeoutSeconds -Label "NCP tray icon left-click open"
+    Start-Sleep -Milliseconds 900
+    $ncpTrayIconOpenShot = Capture-VirtualScreenshot "04a_after_tray_icon_open_ncp"
+    $ncpVisibleAfterTrayIconOpen = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 2
+    Add-Step -Id "ncp_tray_icon_left_click_opens" -Title "NCP tray icon left-click opens the Command Overlay" -Status ($(if ($ncpVisibleAfterTrayIconOpen) { "PASS" } else { "FAIL" })) -Detail "Command Overlay visible after tray icon left-click open: $([bool]$ncpVisibleAfterTrayIconOpen)." -Evidence @{ screenshot = $ncpTrayIconOpenShot; trayIconClick = $ncpTrayIconOpenEvidence; expectedMarker = "RENDERER_MAIN|COMMAND_OVERLAY_READY|phase=entry" }
+    if (-not $ncpVisibleAfterTrayIconOpen) { throw "Tray icon left-click did not open the Command Overlay" }
+
+    $ncpMenuCloseEvidence = Invoke-TrayAction -ActionName "Close Command Overlay" -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" -TimeoutSeconds $ActionTimeoutSeconds
+    Start-Sleep -Milliseconds 650
+    $ncpMenuCloseShot = Capture-VirtualScreenshot "04a_after_tray_menu_close_ncp"
+    $ncpVisibleAfterMenuClose = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 1
+    Add-Step -Id "ncp_tray_menu_state_changes_to_close" -Title "Tray menu changes Command Overlay action from Open to Close while NCP is open" -Status ($(if (-not $ncpVisibleAfterMenuClose) { "PASS" } else { "FAIL" })) -Detail "Close Command Overlay was exposed by the tray menu and closed the NCP; overlay_visible_after=$([bool]$ncpVisibleAfterMenuClose)." -Evidence @{ screenshot = $ncpMenuCloseShot; trayClick = $ncpMenuCloseEvidence; expectedMarker = "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" }
+    if ($ncpVisibleAfterMenuClose) { throw "Tray menu Close Command Overlay did not close the Command Overlay" }
+
+    $ncpOpenEvidence = Invoke-TrayAction -ActionName "Open Command Overlay" -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_READY|phase=entry" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 900
     $ncpOpenShot = Capture-VirtualScreenshot "04b_after_open_ncp_with_dashboard_visible"
-    Add-Step -Id "ncp_opens_with_dashboard_visible" -Title "Tray opens NCP while HUD Dashboard remains visible" -Status "PASS" -Detail "Open Command Overlay route completed while the Dashboard was visible and moved." -Evidence @{ screenshot = $ncpOpenShot; trayClick = $ncpOpenEvidence }
+    Add-Step -Id "ncp_opens_with_dashboard_visible" -Title "Tray opens NCP while HUD Dashboard remains visible" -Status "PASS" -Detail "Open Command Overlay emitted ready state while the Dashboard was visible and moved." -Evidence @{ screenshot = $ncpOpenShot; trayClick = $ncpOpenEvidence }
 
     Click-RuntimeButtonAndWaitForDialog -ButtonName "Create Custom Task" -DialogTitle "Create Custom Task" -StepId "ncp_create_custom_task_clickable_with_dashboard_open" -StepTitle "NCP Create Custom Task remains clickable with Dashboard open" -ExpectedOpenMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_START|action=create_custom_task" -DismissMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=create_custom_task"
     Click-RuntimeButtonAndWaitForDialog -ButtonName "Create Custom Group" -DialogTitle "Create Custom Group" -StepId "ncp_create_custom_group_clickable_with_dashboard_open" -StepTitle "NCP Create Custom Group remains clickable with Dashboard open" -ExpectedOpenMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_START|action=create_custom_group" -DismissMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=create_custom_group"
@@ -1821,6 +2603,7 @@ try {
     }
     Start-Sleep -Milliseconds 600
 
+    Close-CommandOverlayBeforeDashboardResize
     $dashboard = Get-DashboardWindow
     if (-not $dashboard) { throw "Dashboard disappeared before resize proof after NCP interaction checks" }
     $rectBeforeResize = $dashboard.Current.BoundingRectangle
@@ -1840,6 +2623,10 @@ try {
     $cornerOutsideY = [int]($rectBeforeResize.Bottom + 24)
     $cornerEdgeX = [int]($rectBeforeResize.Right - 10)
     $cornerEdgeY = [int]($rectBeforeResize.Bottom - 10)
+    $cornerArcRightX = [int]($rectBeforeResize.Right - 5)
+    $cornerArcRightY = [int]($rectBeforeResize.Bottom - 17)
+    $cornerArcBottomX = [int]($rectBeforeResize.Right - 17)
+    $cornerArcBottomY = [int]($rectBeforeResize.Bottom - 5)
     $cursorRightOutside = Get-CursorKindAtPoint -X $rightOutsideX -Y $rightSampleY
     $hitRightOutside = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $rightOutsideX -Y $rightSampleY
     $cursorRight = Get-CursorKindAtPoint -X $rightEdgeX -Y $rightSampleY
@@ -1852,6 +2639,10 @@ try {
     $hitCornerOutside = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $cornerOutsideX -Y $cornerOutsideY
     $cursorCorner = Get-CursorKindAtPoint -X $cornerEdgeX -Y $cornerEdgeY
     $hitCorner = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $cornerEdgeX -Y $cornerEdgeY
+    $cursorCornerArcRight = Get-CursorKindAtPoint -X $cornerArcRightX -Y $cornerArcRightY
+    $hitCornerArcRight = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $cornerArcRightX -Y $cornerArcRightY
+    $cursorCornerArcBottom = Get-CursorKindAtPoint -X $cornerArcBottomX -Y $cornerArcBottomY
+    $hitCornerArcBottom = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $cornerArcBottomX -Y $cornerArcBottomY
     $cursorRightInterior = Get-CursorKindAtPoint -X $rightInteriorX -Y $rightSampleY
     $hitRightInterior = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $rightInteriorX -Y $rightSampleY
     $cursorBottomInterior = Get-CursorKindAtPoint -X $bottomSampleX -Y $bottomInteriorY
@@ -1862,6 +2653,8 @@ try {
         $hitRight -eq "htright" -and
         $hitBottom -eq "htbottom" -and
         $hitCorner -eq "htbottomright" -and
+        $hitCornerArcRight -eq "htbottomright" -and
+        $hitCornerArcBottom -eq "htbottomright" -and
         $hitRightOutside -ne "htright" -and
         $hitBottomOutside -ne "htbottom" -and
         $hitCornerOutside -ne "htbottomright" -and
@@ -1874,6 +2667,8 @@ try {
         $cursorBottom -ne $cursorBottomOutside -and
         $cursorBottom -ne $cursorBottomInterior -and
         $cursorCorner -ne $cursorCornerOutside -and
+        (Test-ResizeCursorKind $cursorCornerArcRight) -and
+        (Test-ResizeCursorKind $cursorCornerArcBottom) -and
         (Test-NonResizeCursorKind $cursorRightOutside) -and
         (Test-NonResizeCursorKind $cursorBottomOutside) -and
         (Test-NonResizeCursorKind $cursorCornerOutside) -and
@@ -1883,6 +2678,15 @@ try {
     )
     Add-Step -Id "dashboard_resize_cursor_alignment" -Title "Dashboard exposes Windows resize hit-tests only near the visible edge" -Status ($(if ($cursorAlignmentPass) { "PASS" } else { "FAIL" })) -Detail "cursor: rightOutside24px=$cursorRightOutside; rightEdge10px=$cursorRight; bottomOutside24px=$cursorBottomOutside; bottomEdge10px=$cursorBottom; cornerOutside24px=$cursorCornerOutside; corner10px=$cursorCorner; right28pxInside=$cursorRightInterior; bottom28pxInside=$cursorBottomInterior; rightOutsideAfter=$cursorRightOutsideAfter | hitTest: rightOutside24px=$hitRightOutside; rightEdge10px=$hitRight; bottomOutside24px=$hitBottomOutside; bottomEdge10px=$hitBottom; cornerOutside24px=$hitCornerOutside; corner10px=$hitCorner; right28pxInside=$hitRightInterior; bottom28pxInside=$hitBottomInterior; rightOutsideAfter=$hitRightOutsideAfter" -Evidence @{ rightEdgeOffsetPx = 10; bottomEdgeOffsetPx = 10; cornerOffsetPx = 10; interiorOffsetPx = 28; outsideOffsetPx = 24; expectedEdgeHitTests = "htright,htbottom,htbottomright"; expectedOutsideAndInteriorHitTests = "not edge"; cursorHandlePolicy = "edge cursor state must differ from outside/interior; WebEngine may report opaque cursor handles" }
     if (-not $cursorAlignmentPass) { throw "Dashboard resize cursor was not aligned to the visible edge/corner rail" }
+
+    $cornerArcExpansionPass = (
+        $hitCornerArcRight -eq "htbottomright" -and
+        $hitCornerArcBottom -eq "htbottomright" -and
+        (Test-ResizeCursorKind $cursorCornerArcRight) -and
+        (Test-ResizeCursorKind $cursorCornerArcBottom)
+    )
+    Add-Step -Id "dashboard_resize_corner_arc_diagonal_zone" -Title "Dashboard rounded corner exposes a larger diagonal resize zone" -Status ($(if ($cornerArcExpansionPass) { "PASS" } else { "FAIL" })) -Detail "central 50% rounded-corner arc policy; right-side arc point offset=(5,17) cursor=$cursorCornerArcRight hitTest=$hitCornerArcRight; bottom-side arc point offset=(17,5) cursor=$cursorCornerArcBottom hitTest=$hitCornerArcBottom." -Evidence @{ rightSideArcPoint = @($cornerArcRightX, $cornerArcRightY); bottomSideArcPoint = @($cornerArcBottomX, $cornerArcBottomY); rightSideArcOffsetPx = @(5,17); bottomSideArcOffsetPx = @(17,5); expectedHitTest = "htbottomright"; expectedCursor = "size-*"; diagonalResizeArcPolicy = "central-50-percent-of-rounded-corner-arc" }
+    if (-not $cornerArcExpansionPass) { throw "Dashboard rounded-corner diagonal resize zone did not cover the central 50 percent arc samples" }
 
     $cornerTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeResize.Right + 24)) -StartY ([int]($rectBeforeResize.Bottom + 24)) -EndX ([int]($rectBeforeResize.Right - 16)) -EndY ([int]($rectBeforeResize.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner outside-to-edge transition"
     $rightTransitionFromOutside = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX $rightOutsideX -StartY $rightSampleY -EndX ([int]($rectBeforeResize.Right - 16)) -EndY $rightSampleY -ExpectedHit "htright" -Label "right outside-to-edge transition"
@@ -1904,7 +2708,7 @@ try {
     Add-Step -Id "dashboard_resize_cursor_transition_discovery" -Title "Dashboard resize cursor appears before click from outside and inside approaches" -Status ($(if ($transitionPass) { "PASS" } else { "FAIL" })) -Detail "preclick hover delay=90ms; corner=$($cornerTransition.Found)/$($cornerTransition.HitTest)/$($cornerTransition.Cursor)/offset=$cornerOffset; rightOutside=$($rightTransitionFromOutside.Found)/$($rightTransitionFromOutside.HitTest)/$($rightTransitionFromOutside.Cursor)/offset=$rightOutsideOffset; rightInside=$($rightTransitionFromInside.Found)/$($rightTransitionFromInside.HitTest)/$($rightTransitionFromInside.Cursor)/offset=$rightInsideOffset; bottomOutside=$($bottomTransitionFromOutside.Found)/$($bottomTransitionFromOutside.HitTest)/$($bottomTransitionFromOutside.Cursor)/offset=$bottomOutsideOffset; bottomInside=$($bottomTransitionFromInside.Found)/$($bottomTransitionFromInside.HitTest)/$($bottomTransitionFromInside.Cursor)/offset=$bottomInsideOffset" -Evidence @{ corner = $cornerTransition; rightOutside = $rightTransitionFromOutside; rightInside = $rightTransitionFromInside; bottomOutside = $bottomTransitionFromOutside; bottomInside = $bottomTransitionFromInside; maxExpectedVisibleEdgeOffsetPx = 14; hoverDelayMs = 90; mouseButtonState = "not pressed before transition detection" }
     if (-not $transitionPass) { throw "Dashboard resize cursor transition was not discoverable near the visible edge from outside/inside approaches" }
 
-    $cornerSamples = Drag-FromToWithGeometrySamples -Element $dashboard -StartX ([int]$cornerTransition.X) -StartY ([int]$cornerTransition.Y) -EndX ([int]($cornerTransition.X + 80)) -EndY ([int]($cornerTransition.Y + 70)) -Label "Dashboard discovered bottom-right resize cursor transition"
+    $cornerSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$cornerTransition.X) -StartY ([int]$cornerTransition.Y) -EndX ([int]($cornerTransition.X + 80)) -EndY ([int]($cornerTransition.Y + 70)) -Label "Dashboard discovered bottom-right resize cursor transition" -Steps 42 -StepDelayMs 8
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
     $resizeShot = Capture-VirtualScreenshot "05a_after_dashboard_corner_resize"
@@ -1924,7 +2728,7 @@ try {
     if (-not $rightResizeTransition.Found -or $rightResizeTransitionOffset -gt 14) {
         throw "Dashboard right-edge resize cursor was not discoverable near the visible edge before resize action"
     }
-    $rightSamples = Drag-FromToWithGeometrySamples -Element $dashboard -StartX ([int]$rightResizeTransition.X) -StartY ([int]$rightResizeTransition.Y) -EndX ([int]($rightResizeTransition.X + 76)) -EndY ([int]$rightResizeTransition.Y) -Label "Dashboard discovered right-edge resize cursor transition"
+    $rightSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$rightResizeTransition.X) -StartY ([int]$rightResizeTransition.Y) -EndX ([int]($rightResizeTransition.X + 76)) -EndY ([int]$rightResizeTransition.Y) -Label "Dashboard discovered right-edge resize cursor transition" -Steps 42 -StepDelayMs 8
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
     $rightResizeShot = Capture-VirtualScreenshot "05b_after_dashboard_right_edge_resize"
@@ -1945,7 +2749,7 @@ try {
     if (-not $bottomResizeTransition.Found -or $bottomResizeTransitionOffset -gt 14) {
         throw "Dashboard bottom-edge resize cursor was not discoverable near the visible edge before resize action"
     }
-    $bottomSamples = Drag-FromToWithGeometrySamples -Element $dashboard -StartX ([int]$bottomResizeTransition.X) -StartY ([int]$bottomResizeTransition.Y) -EndX ([int]$bottomResizeTransition.X) -EndY ([int]($bottomResizeTransition.Y + 76)) -Label "Dashboard discovered bottom-edge resize cursor transition"
+    $bottomSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$bottomResizeTransition.X) -StartY ([int]$bottomResizeTransition.Y) -EndX ([int]$bottomResizeTransition.X) -EndY ([int]($bottomResizeTransition.Y + 76)) -Label "Dashboard discovered bottom-edge resize cursor transition" -Steps 42 -StepDelayMs 8
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
     $bottomResizeShot = Capture-VirtualScreenshot "05c_after_dashboard_bottom_edge_resize"
@@ -1961,10 +2765,23 @@ try {
 
     $resizeShot = Capture-VirtualScreenshot "05_after_dashboard_mouse_resize"
     $cornerUniqueSizes = @($cornerSamples | ForEach-Object { "$($_.Width)x$($_.Height)" } | Sort-Object -Unique).Count
-    $resizeFluidityPass = $cornerUniqueSizes -ge 4 -and $rightUniqueWidths -ge 4 -and $bottomUniqueHeights -ge 4
-    Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize grows through multiple geometry samples during drag" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; sampled at 28 steps with 16ms delay while the left button was held." -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; minimumUniqueSamples = 4 }
-    if (-not $resizeFluidityPass) { throw "Dashboard resize did not produce enough intermediate geometry samples during drag" }
-    Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through pre-click Windows resize cursor transitions" -Status "PASS" -Detail "Corner, right-edge, and bottom-edge resize actions changed real Dashboard geometry after the helper discovered the same standard Windows resize cursor transition a USER would look for before clicking." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior; cornerTransition = $cornerTransition; rightTransition = $rightResizeTransition; bottomTransition = $bottomResizeTransition; resizeFluidity = @{ cornerUniqueSizes = $cornerUniqueSizes; rightUniqueWidths = $rightUniqueWidths; bottomUniqueHeights = $bottomUniqueHeights } }
+    $cornerTracking = Measure-ResizeTracking -Samples $cornerSamples -BaseWidth $rectBeforeResize.Width -BaseHeight $rectBeforeResize.Height -StartX $cornerTransition.X -StartY $cornerTransition.Y -Mode "corner"
+    $rightTracking = Measure-ResizeTracking -Samples $rightSamples -BaseWidth $rectBeforeRightResize.Width -BaseHeight $rectBeforeRightResize.Height -StartX $rightResizeTransition.X -StartY $rightResizeTransition.Y -Mode "right"
+    $bottomTracking = Measure-ResizeTracking -Samples $bottomSamples -BaseWidth $rectBeforeBottomResize.Width -BaseHeight $rectBeforeBottomResize.Height -StartX $bottomResizeTransition.X -StartY $bottomResizeTransition.Y -Mode "bottom"
+    $resizeFluidityPass = (
+        $cornerUniqueSizes -ge 12 -and
+        $rightUniqueWidths -ge 12 -and
+        $bottomUniqueHeights -ge 12 -and
+        $cornerTracking.Pass -and
+        $rightTracking.Pass -and
+        $bottomTracking.Pass
+    )
+    Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize tracks the cursor at a high-refresh cadence" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; cornerMaxLag=$($cornerTracking.MaxLagPx)px/avg=$($cornerTracking.AverageLagPx)px; rightMaxLag=$($rightTracking.MaxLagPx)px/avg=$($rightTracking.AverageLagPx)px; bottomMaxLag=$($bottomTracking.MaxLagPx)px/avg=$($bottomTracking.AverageLagPx)px; sampled at 42 steps with 8ms delay while the left button was held." -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking; minimumUniqueSamples = 12; expectation = "returned UTS said #127 is improved but still needs smoother tracking, so LV1 now requires high-cadence intermediate geometry plus cursor-to-window tracking-lag proof" }
+    if (-not $resizeFluidityPass) { throw "Dashboard resize did not track cursor movement smoothly enough during high-cadence drag proof" }
+    Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through pre-click Windows resize cursor transitions" -Status "PASS" -Detail "Corner, right-edge, and bottom-edge resize actions changed real Dashboard geometry after the helper discovered the same standard Windows resize cursor transition a USER would look for before clicking." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior; cornerTransition = $cornerTransition; rightTransition = $rightResizeTransition; bottomTransition = $bottomResizeTransition; resizeFluidity = @{ cornerUniqueSizes = $cornerUniqueSizes; rightUniqueWidths = $rightUniqueWidths; bottomUniqueHeights = $bottomUniqueHeights; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking } }
+
+    $dashboard = Get-DashboardWindow
+    Move-DashboardAwayFromTrayMenuIfNeeded -Dashboard $dashboard
 
     $closeEvidence = Invoke-TrayAction -ActionName "Close HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=false" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 1000
