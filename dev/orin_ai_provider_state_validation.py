@@ -447,7 +447,7 @@ def validate() -> list[str]:
         "Current Live Validation Seam: `Live Validation LV1 - FAM-007 Provider Boundary And No-Provider Shell Applicability And No-Provider Surface Proof`",
         "User Test Summary Results: `WAIVED`",
         "Codex Live Client Self-QA: `WAIVED`",
-        "PR Readiness Stage 1 USER Approval Missing",
+        "PR Readiness Execution User Approval Missing",
         "model downloads",
         "real provider SDK integration",
         "AI Product Contract v0.6.2",

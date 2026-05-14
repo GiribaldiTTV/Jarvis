@@ -19,7 +19,7 @@ This active record preserves the planning, selected-next reconciliation, PR #134
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
@@ -30,12 +30,12 @@ This active record preserves the planning, selected-next reconciliation, PR #134
 - GitHub Desktop Alias Target: `FAM-007 is bound to C:\Nexus Worktrees\FAM-007`
 - Carrier Separation: `C:\Nexus Desktop AI remains the separate FAM-006 release-support lane and must not be touched by this branch`
 - Active Branch: `feature/fam-007-provider-boundary-no-provider-shell`
-- Branch Authority Marker: `Active Branch`
+- Branch Authority Marker: `Historical Branch`
 - Selected-Next Decision: `Granted for this thread/worktree - FAM-007 provider-boundary / no-provider shell is selected; PR #129 release-support remains separate unless USER later selects it`
 - Branch Authority State: `Active Runtime Carrier` - PR #135 repaired merged-main closure, and USER directed the current FAM-007 branch back into runtime-branch planning instead of a repair/governance loop
 - Current Runtime Branch: `feature/fam-007-provider-boundary-no-provider-shell` - USER-approved FAM-007 Workstream carrier preserved as PR #134 merged-unreleased proof and selected again as the active branch-local carrier for the next bounded FAM-007 runtime seam
 - Post-Merge Successor Selection: `Same-branch current carrier selected by USER; no additional successor branch is selected by this reconcile`
-- PR #134 Live State: `Merged - PR #134 merged repaired head c1b47a6b53f4286c2f60ebf5d74d9afe38dadb52 into main at 2c0b2ce6f602651cf85682e0fbfce3c3367cb509`
+- PR #134 Historical Merge Proof: `Merged - PR #134 merged repaired head c1b47a6b53f4286c2f60ebf5d74d9afe38dadb52 into main at 2c0b2ce6f602651cf85682e0fbfce3c3367cb509`
 - Branch Readiness / Planning Approval: `Granted - USER approved Branch Readiness and planning on C:\Nexus Worktrees\FAM-007 for the next same-branch SLC-017/SLC-018 provider-selection and consent-boundary seam; runtime implementation remains pending separate USER approval`
 - Workstream USER Approval: `Granted - USER approved bounded same-branch Workstream execution through all remaining admitted branch-material seams needed before Hardening, while preserving local-only planning/visibility/validation limits and all blocked provider/model/memory/voice/installer/release/PR lanes`
 - Branch Readiness Rebaseline USER Approval: `Granted - USER approved reverting the lane to Branch Readiness Phase 1/Stage 2 rebaseline, consolidating all FAM-007 branch material on this branch where legal, and avoiding a large spread of small FAM-007 branches`
@@ -53,6 +53,10 @@ This active record preserves the planning, selected-next reconciliation, PR #134
 - Live Validation LV1 USER Approval: `Granted - USER approved Live Validation LV1 limited to repo-truth alignment, visible no-provider/provider-privacy surface applicability, User Test Summary applicability or waiver classification, and validation rerun for the completed local-only scaffolds`
 - Current Live Validation Seam: `Live Validation LV1 - FAM-007 Provider Boundary And No-Provider Shell Applicability And No-Provider Surface Proof`
 - Current Live Validation Seam Status: `Green - LV1 classifies formal UTS, screenshot, shortcut, and live-client self-QA as waived for this disabled/status-only scaffold; static source-truth, provider-state validation, and compile proof remain the required evidence`
+- Current PR Readiness Stage: `Stage 1 - Analysis Gate`
+- PR Readiness Stage 1 USER Approval: `Granted - USER approved PR Readiness Stage 1 analysis for feature/fam-007-provider-boundary-no-provider-shell, including merge-target projection, changed-file and scope validation, validation evidence review, FAM-006 / PR #129/#132 separation review, and exact Stage 2 PR-creation decision text`
+- PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2 - current branch scope and validation are clean after bounded Stage 1 repair; PR creation remains blocked until explicit PR Readiness Stage 2 USER approval`
+- Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing; PR #134 is historical merge proof only and must not be treated as live PR validation state for the next PR`
 - Runtime Implementation Approval: `Granted only for local-only scaffolds on this branch: no-provider/provider-privacy, provider-selection/consent, Assisted Desktop disabled/no-provider interaction, local provider registry/configuration, hardware/GPU/CPU capability planning without probing/model execution, capability-pack lifecycle planning without downloads, data classification/memory-off/consent/audit/secrets planning without indexing or secrets storage, Windows resilience/platform posture planning without shortcut/installer/startup/process-owner changes, persona/Core/voice planning boundary without voice runtime, and validation/eval/abuse/release proof-gate planning; real provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, and merge remain blocked`
 - AI Product Contract v0.6.2: `External USER planning evidence only; not repo source truth and not imported`
 
@@ -80,9 +84,9 @@ Backlog-Split Reason: None
 
 ## Blockers
 
-Current / Pending Decision Context: This branch record is active after PR #135 repair merge and branch-local reconciliation; Hardening H1 is green, Live Validation LV1 is green with explicit waiver evidence, and blockers below apply to PR Readiness, future release, PR creation, merge, or runtime expansion decisions.
+Current / Pending Decision Context: This branch record is active after PR #135 repair merge and branch-local reconciliation; Hardening H1 is green, Live Validation LV1 is green with explicit waiver evidence, PR Readiness Stage 1 is approved and complete after bounded repair, and blockers below apply to Stage 2 PR creation, future release, merge, or runtime expansion decisions.
 
-- `PR Readiness Stage 1 USER Approval Missing`: active until USER approves PR Readiness Stage 1 analysis for this FAM-007 branch.
+- `PR Readiness Execution User Approval Missing`: active until USER approves PR Readiness Stage 2 / PR creation for this FAM-007 branch.
 - `Bounded State Waiver Expired`: the USER waiver for executing all remaining same-branch local-only scaffolds expired at Workstream green; Hardening H1 ran only under explicit H1 approval, and any additional implementation outside Live Validation proof/applicability review requires a new explicit USER decision.
 - `Package Completion Not Claimed`: active because Workstream green and Hardening H1 green do not claim package completion, PR readiness, merge readiness, release readiness, or release completion.
 - `Future Runtime Expansion Approval Missing`: active for work outside the bounded scaffold, including provider-failure behavior, real provider SDK, model, memory, voice/Core, shortcut/installer, release, PR, or contract-import work.
@@ -132,21 +136,51 @@ Current / Pending Decision Context: This branch record is active after PR #135 r
 
 Rollback Path: stop this active runtime carrier before additional implementation if validation finds FAM-007 source-truth drift, then repair inside this same legal FAM-007 carrier unless USER selects another route. Do not mutate main directly, touch PR #129/#132 release-support, install providers/models, import private contract material, create shortcuts, create GitHub issues, create tags, publish releases, or generate artifacts without separate USER approval.
 
+## Governance Drift Audit
+
+Governance Drift Found: `Yes - PR Readiness Stage 1 found stale Stage 1 approval blocker wording and historical PR #134 merge proof being treated as live/current PR validation state for the next PR; this bounded same-branch repair records Stage 1 green, keeps PR #134 historical, and leaves PR creation blocked until Stage 2 USER approval.`
+
+Governance Drift Disposition: `Repaired on the current FAM-007 branch under USER-approved PR Readiness Stage 1 repair; no runtime implementation, provider SDK, model, memory, voice/Core, shortcut/installer, release, AI Product Contract import, private Dev ORIN import, GitHub issue, PR creation, merge, or PR #129/#132 release-support execution is admitted by this repair.`
+
+FAM-006 Overlap Disposition: `Deferred to the separate FAM-006 worktree/lane; FAM-006 overlap is not a FAM-007 PR-readiness blocker and must be solved by the FAM-006 carrier if that lane needs it.`
+
+## Post-Merge State
+
+Post-Merge Branch Authority: `No Active Branch`
+
+Selected Next Workstream: `None - no successor workstream is selected by this PR Readiness Stage 1 repair`
+
+Selected Next Implementation Branch: `Not created`
+
+Successor Handling: `No successor branch is selected by this repair; further FAM-007 runtime expansion requires a later explicit USER-approved Branch Readiness or Workstream decision after this branch reaches main.`
+
+Historical PR Handling: `PR #134 remains merged-unreleased historical FAM-007 scope and is not live PR validation state for the next PR.`
+
+## Release Window Audit
+
+Release Window Audit: PASS
+
+Remaining Known Release Blockers: None
+
+Another Pre-Release Repair PR Required: NO
+
+Release Window Split Waiver: None
+
 ## Next Legal Phase
 
 - `PR Readiness`
 
-Next Legal Phase Gate: Hardening H1 is green for the admitted same-branch SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 branch-material scaffolds, and Live Validation LV1 is green with UTS, shortcut, and Codex live-client self-QA waivers recorded for the disabled/status-only scaffold. The next legal phase is PR Readiness Stage 1 analysis for the FAM-007 provider-boundary / no-provider shell branch. Exact USER decision needed: approve PR Readiness Stage 1 for `feature/fam-007-provider-boundary-no-provider-shell`, limited to PR-readiness analysis, merge-target projection, changed-file/scope validation, FAM-006 / PR #129/#132 separation review, and exact Stage 2 PR-creation decision text; PR creation, merge, provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain separate pending USER decisions.
+Next Legal Phase Gate: Hardening H1 is green for the admitted same-branch SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 branch-material scaffolds, Live Validation LV1 is green with UTS, shortcut, and Codex live-client self-QA waivers recorded for the disabled/status-only scaffold, and PR Readiness Stage 1 is complete after bounded repair. The next legal phase is PR Readiness Stage 2 / PR creation for the FAM-007 provider-boundary / no-provider shell branch. Exact USER decision needed: approve PR Readiness Stage 2 for `feature/fam-007-provider-boundary-no-provider-shell`, limited to final live PR-readiness verification, PR creation targeting `main`, PR body creation, watcher/reporting setup, and live PR state reporting; merge, provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution remain separate pending USER decisions.
 
 ## Bounded State Lock
 
-Bounded State: `Complete - Live Validation LV1 / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / all admitted branch-material seams SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 green, H1 proof reviewed, UTS applicability waived, and static validation rerun / next legal phase PR Readiness Stage 1 only`
+Bounded State: `Complete - PR Readiness Stage 1 / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / all admitted branch-material seams SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 green, H1 proof reviewed, UTS applicability waived, LV1 green, PR-readiness scope validated, and next legal phase PR Readiness Stage 2 only`
 
 Bounded State User Waiver: Granted
 
-Bounded State Waiver Scope: `USER explicitly approved executing all relevant same-branch bounded Workstream tasks for all remaining admitted branch-material seams before Hardening; scope was limited to local-only planning, visible state, provider/privacy/hardware/capability/memory/resilience/persona/validation scaffolds and direct validation, and it did not admit provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, or PR #129/#132 release-support execution. The waiver expired at Workstream green; Hardening H1 and Live Validation LV1 were separately USER-approved and are now green, and no new implementation is authorized beyond PR Readiness Stage 1 analysis if USER later approves it.`
+Bounded State Waiver Scope: `USER explicitly approved executing all relevant same-branch bounded Workstream tasks for all remaining admitted branch-material seams before Hardening; scope was limited to local-only planning, visible state, provider/privacy/hardware/capability/memory/resilience/persona/validation scaffolds and direct validation, and it did not admit provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, or PR #129/#132 release-support execution. The waiver expired at Workstream green; Hardening H1, Live Validation LV1, and PR Readiness Stage 1 were separately USER-approved and are now green, and no new implementation is authorized.`
 
-Broad Work Request Handling: `Broad requests remain non-executable by default. This branch has one explicit branch-local exception: USER approved completing the remaining admitted same-branch branch-material seams SLC-031 through SLC-036 in bounded Workstream order, with blocked areas preserved. After this Live Validation LV1-green point, any new broad work request must stop unless it resolves to an exact PR Readiness Stage 1 approval, PR Readiness Stage 2 approval, or another named bounded seam with explicit USER approval.`
+Broad Work Request Handling: `Broad requests remain non-executable by default. This branch has one explicit branch-local exception: USER approved completing the remaining admitted same-branch branch-material seams SLC-031 through SLC-036 in bounded Workstream order, with blocked areas preserved. After this PR Readiness Stage 1-green point, any new broad work request must stop unless it resolves to exact PR Readiness Stage 2 approval or another named bounded seam with explicit USER approval.`
 
 Bounded State Missing Stop: `If phase/stage, workspace, branch, write target, authority record, package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, or next legal phase cannot be proven before mutation, stop on Bounded State Missing.`
 
@@ -165,7 +199,7 @@ Keep FAM-007 implementation on one real provider-boundary branch instead of crea
 - The no-provider shell contract exists as local runtime scaffolding.
 - The desktop shell exposes visible disabled/unavailable/no-provider provider/privacy state plus provider-selection, provider registry/configuration, and consent-required status.
 - Validation proves the no-provider, provider-selection, provider-registry, hardware/capability, capability-pack, memory/context, Windows resilience, persona/Core/voice, and proof-gate snapshots are local-only, send no provider data, require consent before provider configuration/capability setup, and do not imply model/provider availability.
-- Later FAM-007 work now requires PR Readiness Stage 1 approval, PR Readiness Stage 2 approval, or another explicit USER-approved phase/seam decision.
+- Later FAM-007 work now requires PR Readiness Stage 2 approval or another explicit USER-approved phase/seam decision.
 
 ## Admitted Implementation Slice
 
@@ -186,9 +220,9 @@ Completion Status: Green
 
 Remaining Implementable Work: None
 
-Remaining Work Note: SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 are green as local-only scaffolds; Hardening H1 proof review is green, Live Validation LV1 is green, and the branch is ready for PR Readiness Stage 1 once USER approves that analysis phase.
+Remaining Work Note: SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 are green as local-only scaffolds; Hardening H1 proof review is green, Live Validation LV1 is green, PR Readiness Stage 1 is green after bounded repair, and the branch is ready for PR Readiness Stage 2 once USER approves PR creation.
 
-Future-Dependent Blockers: `PR Readiness Stage 1 approval, PR creation, merge, model downloads, real provider SDK integration, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution.`
+Future-Dependent Blockers: `PR Readiness Stage 2 / PR creation approval, merge, model downloads, real provider SDK integration, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution.`
 
 Visible User-Facing Proof Required: No for this first disabled/no-provider scaffold; static visible-surface validation and compile proof are sufficient before any prompt/action flow exists.
 
@@ -196,7 +230,7 @@ Visible User-Facing Proof: WAIVED - no formal UTS or screenshot is required for 
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Use this active runtime branch as the consolidated FAM-007 foundation carrier, preserve completed local-only scaffold evidence, complete all admitted PKG-007 branch-material seams in bounded Workstream order, complete Hardening H1 proof review, complete Live Validation LV1 waiver/proof applicability, and stop at PR Readiness Stage 1 approval once LV1 is green.`
+Branch Completion Goal: `Use this active runtime branch as the consolidated FAM-007 foundation carrier, preserve completed local-only scaffold evidence, complete all admitted PKG-007 branch-material seams in bounded Workstream order, complete Hardening H1 proof review, complete Live Validation LV1 waiver/proof applicability, complete PR Readiness Stage 1 validation, and stop at PR Readiness Stage 2 approval.`
 
 Known Future-Dependent Blockers: `Model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and PR #129/#132 release-support execution require later USER approval.`
 
@@ -357,7 +391,7 @@ Seam Status: Green
 
 Slice Status: Green
 
-Scope Note: The same-branch SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 branch-material scaffolds are green, Hardening H1 proof review is green, Live Validation LV1 is green, and the branch now stops at the PR Readiness Stage 1 approval gate.
+Scope Note: The same-branch SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 branch-material scaffolds are green, Hardening H1 proof review is green, Live Validation LV1 is green, PR Readiness Stage 1 is green after bounded repair, and the branch now stops at the PR Readiness Stage 2 approval gate.
 
 Completion Status: Green
 
@@ -365,15 +399,15 @@ Waiver Status: None
 
 Continue Decision: Stop
 
-Continuation Execution Latch: Inactive - Live Validation LV1 is Green; phase-boundary stop is required before USER may admit PR Readiness Stage 1.
+Continuation Execution Latch: Inactive - PR Readiness Stage 1 is Green; phase-boundary stop is required before USER may admit PR Readiness Stage 2 / PR creation.
 
 Stop Basis: Live Validation LV1 Green
 
-Next Active Seam: PR Readiness Stage 1 FAM-007 Provider Boundary And No-Provider Shell Analysis
+Next Active Seam: PR Readiness Stage 2 FAM-007 Provider Boundary And No-Provider Shell PR Creation
 
-Stop Condition: `PR Readiness Stage 1 USER Approval Missing`
+Stop Condition: `PR Readiness Execution User Approval Missing`
 
-Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stage 1; USER must approve PR Readiness Stage 1 before PR-readiness analysis, merge-target projection, Stage 2 eligibility review, or exact PR creation approval text is prepared. This does not authorize PR creation, merge, release execution, provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, AI Product Contract import, private Dev ORIN import, GitHub issue creation, or PR #129/#132 release-support execution.`
+Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stage 2; USER must approve PR creation before Codex creates a PR, provisions a watcher, reports live PR state, or begins bot-review closeout. This does not authorize merge, release execution, provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, AI Product Contract import, private Dev ORIN import, GitHub issue creation, or PR #129/#132 release-support execution.`
 
 Single-Seam Workstream Waiver: None
 
@@ -385,7 +419,7 @@ Bounded Seam Default: One active seam at a time, not one-seam Workstream authori
 
 ## Later-Phase Expectations
 
-After PR #134 and commit 439979fc preserved the first local-only scaffolds, PR #135 repaired merged-main source truth, the disabled Assisted Desktop no-provider interaction surface was completed, the local provider registry/configuration seam was completed, the USER approved completing all remaining admitted same-branch scaffolds before Hardening, Hardening H1 completed green, and Live Validation LV1 completed green with UTS/live-client waivers, this branch is ready for PR Readiness Stage 1 admission. Any new FAM-007 work requires USER approval for PR Readiness or another exact phase/seam; real provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and PR #129/#132 release-support execution remain separate pending USER decisions.
+After PR #134 and commit 439979fc preserved the first local-only scaffolds, PR #135 repaired merged-main source truth, the disabled Assisted Desktop no-provider interaction surface was completed, the local provider registry/configuration seam was completed, the USER approved completing all remaining admitted same-branch scaffolds before Hardening, Hardening H1 completed green, Live Validation LV1 completed green with UTS/live-client waivers, and PR Readiness Stage 1 completed green after bounded repair, this branch is ready for PR Readiness Stage 2 admission. Any new FAM-007 work requires USER approval for PR Readiness Stage 2 or another exact phase/seam; real provider SDK integration, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, merge, and PR #129/#132 release-support execution remain separate pending USER decisions.
 
 ## Initial Workstream Seam Sequence
 
@@ -471,7 +505,7 @@ Non-Includes: `release execution`; `tag creation`; `GitHub Release creation`; `r
 
 ## Active Seam
 
-Active seam: `Phase boundary - Live Validation LV1 green; PR Readiness Stage 1 pending USER approval`
+Active seam: `Phase boundary - PR Readiness Stage 1 green; PR Readiness Stage 2 pending USER approval`
 
 Seam status: `Green / SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 local-only scaffolds complete and H1 proof review green`
 

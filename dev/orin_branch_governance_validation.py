@@ -1935,7 +1935,7 @@ MANDATORY_BOUNDED_STATE_REQUIRED_PHRASES = {
 
 FAM007_BOUNDED_STATE_RECORD_REQUIRED_PHRASES = (
     "## Bounded State Lock",
-    "Bounded State: `Complete - Live Validation LV1 / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / all admitted branch-material seams SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 green, H1 proof reviewed, UTS applicability waived, and static validation rerun / next legal phase PR Readiness Stage 1 only`",
+    "Bounded State: `Complete - PR Readiness Stage 1 / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / all admitted branch-material seams SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 green, H1 proof reviewed, UTS applicability waived, LV1 green, PR-readiness scope validated, and next legal phase PR Readiness Stage 2 only`",
     "Bounded State User Waiver: Granted",
     "Bounded State Waiver Scope: `USER explicitly approved executing all relevant same-branch bounded Workstream tasks for all remaining admitted branch-material seams before Hardening",
     "Hardening H1 USER Approval: `Granted - USER approved Hardening H1 proof review",
@@ -1946,7 +1946,8 @@ FAM007_BOUNDED_STATE_RECORD_REQUIRED_PHRASES = (
     "Current Live Validation Seam Status: `Green - LV1 classifies formal UTS, screenshot, shortcut, and live-client self-QA as waived",
     "User Test Summary Results: `WAIVED`",
     "Codex Live Client Self-QA: `WAIVED`",
-    "PR Readiness Stage 1 USER Approval Missing",
+    "PR Readiness Stage 1 USER Approval: `Granted",
+    "PR Readiness Execution User Approval Missing",
     "Broad Work Request Handling:",
     "Bounded State Missing Stop:",
     "Bounded State Waiver Missing Stop:",
@@ -13626,6 +13627,15 @@ def _run_pr_live_state_gate(
     fallback_local_state = bool(pr_info.get("fallbackLocalState"))
     fallback_bot_approval = bool(pr_info.get("botApproval"))
     fallback_bot_comment_count = int(pr_info.get("botCommentCount") or 0)
+    if (
+        pr_state != "OPEN"
+        and _pre_pr_stage1_state_allows_missing_live_pr(
+            active_branch_record_text,
+            "no open pull request",
+        )
+        and "historical merge proof" in active_branch_record_text.casefold()
+    ):
+        return
     if (
         repository_full_name
         and not fallback_local_state
