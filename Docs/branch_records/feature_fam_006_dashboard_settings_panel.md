@@ -58,7 +58,7 @@ Backlog-Split Reason: `None`
 ## Blockers
 
 - `Runtime Implementation Approval`: cleared for the bounded Dashboard settings cog/settings panel runtime surface.
-- `Real USER-Facing Shortcut Validation`: cleared for the latest repaired Live Validation Stage 1 handoff. The canonical red user-facing desktop shortcut is `C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk`, and the legacy Settings Panel red shortcut also resolves to the active worktree. The strengthened human-client validation passed at `dev/logs/fam_006_human_client_validation/20260514_072025_226/human_client_manifest.json` after the resize cursor/fluidity repair.
+- `Real USER-Facing Shortcut Validation`: cleared for the latest repaired Live Validation Stage 1 handoff. The canonical red user-facing desktop shortcut is `C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk`; the redundant legacy Settings Panel red shortcut was archived so USER testing and helpers share one FAM-006 launcher path. The strengthened human-client validation passed at `dev/logs/fam_006_human_client_validation/20260514_072025_226/human_client_manifest.json` after the resize cursor/fluidity repair.
 - `User Test Summary Results Pending`: active for Live Validation Stage 1. The prior returned UTS was digested as REPAIR. The compact formal UTS handoff was refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` from proof root `dev/logs/fam_006_monitoring_hud_live_validation/20260514_075122_528` after the latest Quick Access shadow-clearance and resize cursor/fluidity repair. Returned USER results still need to be returned and digested as PASS, or explicitly waived with a reason.
 - `PR Readiness Blocked By Live Validation`: active until returned UTS results are PASS or explicitly WAIVED and digested into source truth.
 - `PR Readiness / PR Creation Approval Missing`: active after Live Validation blockers clear until USER approves PR Readiness and any later PR creation.
@@ -404,7 +404,7 @@ Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_
 
 USER-Inspectable Screenshot Folder: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260513_195556_260`
 
-Real USER-Facing Shortcut Validation Status: `PASS - validator now defaults to the canonical red FAM-006 desktop shortcut, C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk; the legacy Settings Panel red shortcut also resolves to the same active worktree. shortcut_targets_active_worktree=PASS and the strengthened human-client manifest passed after the returned UTS repair.`
+Real USER-Facing Shortcut Validation Status: `PASS - validator now defaults to the canonical red FAM-006 desktop shortcut, C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk. The redundant Settings Panel red shortcut has been archived to keep USER testing and helper validation aligned to one launcher. shortcut_targets_active_worktree=PASS and the strengthened human-client manifest passed after the returned UTS repair.`
 
 Human-Client Manifest: `dev/logs/fam_006_human_client_validation/20260514_072025_226/human_client_manifest.json`
 
