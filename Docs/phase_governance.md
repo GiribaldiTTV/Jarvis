@@ -818,6 +818,8 @@ Hard blockers:
   PR Readiness cannot be green if branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, or release-debt routing is incomplete or being deferred to Release Readiness, updated `main`, or a later governance-only branch
 - `Release Window Audit Incomplete`:
   PR Readiness cannot be green inside an unreleased release window until the active branch has audited that window, listed the currently known blocker set, and either clears those blockers on the same branch or records an explicit split waiver with user approval. Do not merge one blocker-clearing PR while already knowing that another blocker-clearing PR is queued behind it in the same unreleased window by default.
+- `Release Readiness Health Pass Incomplete`:
+  PR Readiness must prove post-merge source truth before PR creation or merge readiness. PR Readiness cannot be green until the active PR branch has run and recorded the `Release Readiness Health Pass`, using `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`, so projected merged `main` would enter Release Readiness without stale source-truth cleanup.
 - `Between-Branch Canon Repair Attempt`:
   PR Readiness cannot rely on any canon repair that is planned between branches rather than committed on the active branch before merge
 - `Next Branch Created Too Early`:
@@ -843,6 +845,30 @@ Live PR creation and validation facts are required for operator output and PR va
 Merge-target post-merge-stable authority projection is mandatory before PR green and is a PR Readiness Stage 1 repair responsibility when Stage 1 finds it. If post-merge truth will be `No Active Branch`, the PR branch must not merge an active branch authority record into `main`; the active authority record must be moved to historical/no-active posture or otherwise made merge-stable during Stage 1 before Stage 2 can execute, and that `No Active Branch` projection must be backed by explicit USER waiver/defer when a next branch/workstream should otherwise be selected. Historical branch records must not retain active PR Readiness phase, active seam ownership, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`. Operational PR/watcher facts may live in operator output or explicit historical PR sections, but merged current-state owners and historical authority records must already describe the post-merge truth that will remain valid after merge.
 
 `Merge-Target Authority Projection Unproven` blocks PR green whenever that post-merge-stable authority projection is missing or would leave active branch-authority truth in merged `main`.
+
+### Release Readiness Health Pass
+
+The `Release Readiness Health Pass` is a PR Readiness pre-merge gate. It must run during PR Readiness Stage 1, after any Stage 2 or bot-review repair that changes source truth, and again before merge approval if the branch source truth changed after the prior run. The command is:
+
+```powershell
+python dev\orin_branch_governance_validation.py --release-readiness-health-gate
+```
+
+The health pass proves post-merge source truth before PR creation or merge readiness. It must fail if projected merged `main` would force Release Readiness to repair source truth instead of validating release posture.
+
+The owning branch/workstream authority record must include:
+
+- `Post-Merge Branch Authority Projection:`
+- `Stale Active Branch Wording Scan:`
+- `Stale PR Creation / PR Readiness Pending Wording Scan:`
+- `Merged-Unreleased Scope Posture:`
+- `Release Execution Gate:`
+- `Watcher / Live PR State Projection:`
+- `Branch Cleanup Plan:`
+- `FAM Overlap Routing:`
+- `Projected Post-Merge Validation:`
+
+Passing posture means exact post-merge branch-authority projection is recorded, no stale active branch wording lands on `main`, no stale PR creation / PR Readiness Stage 2 pending wording lands on `main`, merged scope is recorded as merged-unreleased when release execution is not being performed, release execution/tag/GitHub Release/artifact work remains gated, watcher/live PR state stays out of merged-main source truth, branch cleanup plan is known, FAM overlap is either non-blocking or routed to the owning lane, selected-next or successor truth is not stale, release-window/release-floor posture is resolved, and projected post-merge main would pass validation without a later source-truth repair.
 
 `PR Readiness GREEN` requires all `PR package ready` conditions plus:
 
@@ -889,6 +915,7 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Expected Files To Change:
 - Stage 1 Repairs Made:
 - Stage 1 Repair Validation:
+- Release Readiness Health Pass:
 - Governance Ledger Fallback:
 - Branch Readiness Fallback:
 - Stage 1 Outcome:

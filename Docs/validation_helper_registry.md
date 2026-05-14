@@ -84,7 +84,7 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 
 | Path | Helper Status | Family | Reuse / Consolidation |
 | --- | --- | --- | --- |
-| `dev/orin_branch_governance_validation.py` | Helper Status: Reusable | governance validator | Extend when repo-wide source-of-truth, phase, branch, release, helper registry, prompt-contract, Source-Truth Placement Preflight, Element Validation Ledger placement, or element-ledger drift rules become machine-checkable. |
+| `dev/orin_branch_governance_validation.py` | Helper Status: Reusable | governance validator | Extend when repo-wide source-of-truth, phase, branch, release, helper registry, prompt-contract, Source-Truth Placement Preflight, Element Validation Ledger placement, Element Validation Ledger drift, PR Readiness post-merge source truth, or Release Readiness Health Pass rules become machine-checkable. |
 | `dev/orin_release_body_validation.py` | Helper Status: Reusable | release body validator | Reuse for GitHub Release body format checks before creating another release-note validator. It validates the latest public pre-Beta release body has rich user-facing `Release Summary` / highlight-style sections before generated `What's Changed` and `Full Changelog` content, and reports older release-body mismatches as historical drift unless repo governance later admits historical release cleanup. |
 
 ### Desktop Runtime And Launcher
@@ -182,3 +182,4 @@ Before a branch reports PR Readiness green:
 - temporary probes must be deleted or promoted
 - any helper that is kept after merge must have a clear status and reuse/consolidation story
 - release notes or closeout text must reference reusable helper families by capability, not by ad hoc seam-only names, unless the seam helper is intentionally preserved as workstream-scoped evidence
+- `dev/orin_branch_governance_validation.py --release-readiness-health-gate` must prove post-merge source truth through the `Release Readiness Health Pass` before PR creation or merge approval; the owning record must include `Post-Merge Branch Authority Projection:`, `Stale Active Branch Wording Scan:`, `Stale PR Creation / PR Readiness Pending Wording Scan:`, `Merged-Unreleased Scope Posture:`, `Release Execution Gate:`, `Watcher / Live PR State Projection:`, `Branch Cleanup Plan:`, `FAM Overlap Routing:`, and `Projected Post-Merge Validation:` after any Stage 2 or bot-review source-truth repair

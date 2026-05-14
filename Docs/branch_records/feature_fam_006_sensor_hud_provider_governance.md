@@ -15,7 +15,9 @@ This branch is the USER-approved Branch Readiness Stage 2 carrier for bounded FA
 
 It exists because FAM-006 Dashboard runtime work is already historical/released, the active FAM-006 worktree must not be dirtied for this planning cleanup, `main` is protected against direct Codex mutation, and the existing future Sensor HUD provider contract needs explicit optional-provider, no-Libre baseline, user-provider-choice, Libre update, and MPL / third-party notice requirements before any later provider implementation branch begins.
 
-This branch does not admit runtime provider implementation, LibreHardwareMonitor bundling, LibreHardwareMonitor installation, hardware polling expansion, Dashboard/Overlay runtime edits, FAM-006 worktree mutation, FAM-007 work, AI Product Contract import, GitHub issue closeout, PR merge, release/tag/artifact work, or third-party evidence upload.
+After FAM-007 PR #138 merged and Release Readiness Stage 1 exposed stale post-merge source-truth wording, USER also admitted this held carrier for bounded repo-wide PR Readiness governance and validator repair so future PRs prove post-merge source truth before merge. This is governance repair only, not FAM-007 runtime work.
+
+This branch does not admit runtime provider implementation, LibreHardwareMonitor bundling, LibreHardwareMonitor installation, hardware polling expansion, Dashboard/Overlay runtime edits, FAM-006 worktree mutation, FAM-007 runtime/worktree mutation, AI Product Contract import, GitHub issue closeout, PR merge, release/tag/artifact work, or third-party evidence upload.
 
 ## Current Phase
 
@@ -32,6 +34,7 @@ This branch does not admit runtime provider implementation, LibreHardwareMonitor
 - Runtime Implementation: `Blocked`
 - FAM-006 Worktree Mutation: `Blocked`
 - Provider Install / Bundle: `Blocked`
+- Release Readiness Health Pass Governance: `Admitted - USER directed this held carrier to add a pre-merge PR Readiness health pass after FAM-007 PR #138 post-merge stale source-truth findings`
 - PR Readiness Stage 2: `Denied by USER - hold this branch out of PR creation while FAM-007 proceeds toward PR/merge`
 - PR / Release Work: `Blocked pending later explicit USER approval after FAM-007 reconciliation`
 
@@ -52,7 +55,7 @@ Waiver Basis: USER explicitly approved conducting Branch Readiness for a governa
 - `PR Readiness Stage 2 Denied`: `Active - USER denied PR Readiness Phase 2 and directed this branch to hold until FAM-007 PR/merge reconciliation`
 - `FAM-007 PR/Merge Reconciliation Hold`: `Active - keep this branch available to reconcile conflicts or source-truth issues that may surface from FAM-007 before any PR creation`
 - `Release Execution Approval Missing`: `Active`
-- `FAM-007 Admission Missing`: `Active`
+- `FAM-007 Runtime / Worktree Mutation Approval Missing`: `Active`
 - `AI Product Contract Import Approval Missing`: `Active`
 
 ## Entry Basis
@@ -170,9 +173,20 @@ Validation: `git diff --check`; `python dev\orin_branch_governance_validation.py
 
 ## Active Seam
 
-Active seam: `Provider Governance Source-Truth Repair`
+Active seam: `Release Readiness Health Pass Governance Repair`
 
-The active seam is the Branch Readiness Stage 2 docs/governance repair that updates existing source-truth owners for optional provider behavior, no-Libre baseline usability, provider choice, update governance, and MPL / third-party notice requirements.
+The active seam is the Branch Readiness Stage 2 docs/governance and validator repair that adds a PR Readiness pre-merge Release Readiness Health Pass without reopening runtime implementation, PR creation, release execution, or FAM-007 worktree mutation.
+
+## Release Readiness Health Pass Governance Repair
+
+- Admission Basis: `USER directed this held governance carrier to repair PR Readiness governance after FAM-007 PR #138 merged cleanly but Release Readiness Stage 1 found stale post-merge source-truth wording`
+- Scope Classification: `Governance/validator only - no main repair, release execution, runtime/provider/model/memory/voice/Core/shortcut/installer implementation, AI Product Contract import, private Dev ORIN import, GitHub issue creation, or FAM-007 worktree mutation`
+- Required Rule: `PR Readiness must prove post-merge source truth before PR creation or merge readiness`
+- Validator Target: `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`
+- Health-Pass Required Markers: `Post-Merge Branch Authority Projection:`, `Stale Active Branch Wording Scan:`, `Stale PR Creation / PR Readiness Pending Wording Scan:`, `Merged-Unreleased Scope Posture:`, `Release Execution Gate:`, `Watcher / Live PR State Projection:`, `Branch Cleanup Plan:`, `FAM Overlap Routing:`, `Projected Post-Merge Validation:`
+- Release Execution Boundary: `PASS - tag, GitHub Release, artifact, release-note mutation, and release publication work remain separately gated`
+- FAM Overlap Routing: `PASS - FAM-007 incident informs repo-wide PR governance only; any FAM-specific runtime or source-truth ownership remains routed to the owning lane`
+- PR Readiness Hold Impact: `No PR creation or PR Readiness Stage 2 execution is admitted by this repair`
 
 ## Hardening H1 Record
 
@@ -199,6 +213,17 @@ The active seam is the Branch Readiness Stage 2 docs/governance repair that upda
 - Runtime/dev/visual scope scan: `PASS - no runtime/dev/visual implementation files changed`
 - Provider wording scan: `PASS after H1 wording hardening - prohibited mandatory-Libre/provider wording absent`
 - User Test Summary Applicability: `Not applicable - source-truth/governance only, no user-facing runtime behavior changed`
+
+## Validation V2 Record
+
+- Scope: `Release Readiness Health Pass governance/validator repair`
+- `git diff --check origin/main...HEAD`: `PASS`
+- `python dev\orin_branch_governance_validation.py`: `PASS - branch governance validation passed 4668 checks`
+- `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`: `PASS - branch governance validation passed 4669 checks; gate is not applicable outside PR Readiness on this held Branch Readiness carrier`
+- `python dev\orin_release_body_validation.py`: `PASS - latest release body matches the standard; historical prior-release body drift was reported as historical only`
+- `python -m compileall -q dev desktop Audio main.py`: `PASS`
+- Runtime Boundary: `PASS - no runtime/provider/model/memory/voice/Core/shortcut/installer implementation files changed`
+- Release Boundary: `PASS - no tag, GitHub Release, artifact, release-note, or release publication work performed`
 
 ## PR Readiness Status
 

@@ -655,6 +655,7 @@ If the phase is `PR Readiness`, the final response must include:
 - Expected Files To Change:
 - Stage 1 Repairs Made:
 - Stage 1 Repair Validation:
+- Release Readiness Health Pass:
 - Governance Ledger Fallback:
 - Branch Readiness Fallback:
 - Stage 1 Outcome:
@@ -667,6 +668,8 @@ If the phase is `PR Readiness`, the final response must include:
 ```
 
 If the current stage is `PR Readiness Stage 1 - Analysis Gate`, the final response must also report Stage 1 repair findings, Stage 1 repairs made, validation results, files changed or none, whether `PR Readiness Stage 1 Repair Pending` is clear, and one explicit readiness-lock outcome: `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required`. It must state `PR Readiness Execution User Approval Missing` and stop for USER approval to enter Stage 2 unless Stage 1 is ready and USER approval already exists.
+
+PR Readiness must prove post-merge source truth before PR creation, after any Stage 2 or bot-review source-truth repair, and before merge approval with the `Release Readiness Health Pass` by running `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`. The packet must report `Post-Merge Branch Authority Projection:`, `Stale Active Branch Wording Scan:`, `Stale PR Creation / PR Readiness Pending Wording Scan:`, `Merged-Unreleased Scope Posture:`, `Release Execution Gate:`, `Watcher / Live PR State Projection:`, `Branch Cleanup Plan:`, `FAM Overlap Routing:`, and `Projected Post-Merge Validation:` so projected merged main can enter Release Readiness as validation, not cleanup.
 
 If the phase is `Branch Readiness` and the current stage is `Branch Readiness Stage 1 - Analysis Gate`, the final response must include:
 
