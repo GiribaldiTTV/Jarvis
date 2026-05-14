@@ -2303,6 +2303,7 @@ Allowed:
 - one cycle ID format: `RRI-YYYYMMDD-NNN`
 - `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
 - `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
+- `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest
 - source-truth/governance/validator drift repair named by the intake digest
 - a post-merge `Return Digest` to the originating worktree/thread
 

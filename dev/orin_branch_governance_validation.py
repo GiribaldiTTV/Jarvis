@@ -1846,6 +1846,7 @@ STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS = (
     "Active RRI Cycle",
     "One Active Cycle",
     "Sync Rule",
+    "Bootstrap Exception Limit",
     "Return Digest",
     "Originating Lane Pause",
 )
@@ -14495,11 +14496,24 @@ def _run_standing_governance_intake_gate(require) -> None:
     )
 
     active_cycle = active_cycles[-1] if active_cycles else ""
-    bootstrap_active = (
+    bootstrap_setup_recorded = (
         "Bootstrap Setup:" in record_text
         and "RRI-20260514-001" in record_text
         and "one-time USER-approved exception" in record_text
     )
+    bootstrap_base_match = re.search(
+        r"Branch created from `origin/main` at `([0-9a-f]{40})`",
+        record_text,
+    )
+    bootstrap_base_sha = bootstrap_base_match.group(1) if bootstrap_base_match else ""
+    if bootstrap_setup_recorded:
+        require(
+            bool(bootstrap_base_sha),
+            (
+                f"{expected_record_path}: Bootstrap Exception Limit requires the "
+                "branch creation base SHA to be recorded"
+            ),
+        )
     if active_cycle:
         require(
             "Release Readiness digest only" in intake_source,
@@ -14510,6 +14524,12 @@ def _run_standing_governance_intake_gate(require) -> None:
     origin_main_sha = _git_ref_sha("refs/remotes/origin/main")
     require(bool(head_sha), "Standing Governance Intake gate could not resolve HEAD")
     require(bool(origin_main_sha), "Standing Governance Intake gate could not resolve origin/main")
+    bootstrap_active = bool(
+        bootstrap_setup_recorded
+        and bootstrap_base_sha
+        and origin_main_sha
+        and origin_main_sha == bootstrap_base_sha
+    )
     if head_sha and origin_main_sha:
         changed_files, changed_error = _git_changed_files(origin_main_sha, head_sha)
         require(
@@ -14778,11 +14798,15 @@ def _run_pr_origin_main_freshness_gate(
         return
 
     freshness = _section(active_branch_record_text, "Origin/Main Freshness Check")
+    if not freshness:
+        stage1_packet = _section(active_branch_record_text, "PR Readiness Stage 1 Analysis Packet")
+        if "Origin/Main Freshness Check:" in stage1_packet:
+            freshness = stage1_packet
     require(
         bool(freshness),
         (
             f"{active_branch_record_path}: PR Readiness Stage 1 requires "
-            "## Origin/Main Freshness Check before Stage 2 or PR creation"
+            "Origin/Main Freshness Check fields in the Stage 1 packet before Stage 2 or PR creation"
         ),
     )
     if not freshness:

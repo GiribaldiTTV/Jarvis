@@ -22,6 +22,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority State: `standing governance intake lane`
 - Intake State: `Idle - no active Release Readiness intake cycle is recorded in merged source truth`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record is written in merge-stable idle posture so the branch must sync to origin/main after the setup PR merges before accepting any Release Readiness digest`
+- Bootstrap Exception Limit: `Active only while origin/main still equals the branch creation base 926c7c90880419830be99611d741c6bac51252de; after setup PR merge or any origin/main movement, ahead-of-main work requires an active RRI cycle sourced from a Release Readiness digest`
 - Active RRI Cycle: `None`
 
 ## Branch Class
@@ -53,6 +54,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Active RRI Cycle: `None`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
+- Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
 - Return Digest: Required after governance PR merge and branch sync.
 - Originating Lane Pause: Required - the originating thread/worktree enters `Waiting For Governance Intake` or `Waiting For Updated Main` and must not mutate until return digest and rebaseline.
 
