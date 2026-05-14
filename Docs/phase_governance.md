@@ -2259,7 +2259,7 @@ Stale parked branches, old worktrees, fallback folders, AI Lab context, deleted/
 
 ## Repo-Level State: No Active Branch
 
-`No Active Branch` is the repo-level state when no implementation lane is currently selected.
+`No Active Branch` is the repo-level state when no runtime, implementation, release packaging, or repair lane is currently selected for normal product work. It does not deactivate the single `Standing Governance Intake Branch`; `feature/release-readiness-source-truth-intake` may remain the only active authority record while merged-main product state is still `No Active Branch`.
 
 Use it when:
 
@@ -2288,6 +2288,7 @@ When `No Active Branch` is steady-state:
 - it is valid for `Next Safe Move` to say explicitly that no branch should open yet
 - a release packaging branch may still enter `Branch Readiness` if its branch-class admission rules pass
 - governance-only branches are not used; governance or canon repair must ride on the next legitimate runtime-focused backlog branch's `Branch Readiness`, except for the single `Standing Governance Intake Branch` defined below
+- `Docs/branch_records/index.md` must contain no active runtime, implementation, release packaging, or repair authority records; the only active-authority exception is `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
 ## Standing Governance Intake Branch
 
@@ -2299,6 +2300,7 @@ Allowed:
 
 - one standing worktree: `C:\Nexus Worktrees\Governance`
 - one standing branch: `feature/release-readiness-source-truth-intake`
+- one standing active authority record: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 - one intake source: `Release Readiness digest`
 - one cycle ID format: `RRI-YYYYMMDD-NNN`
 - `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue

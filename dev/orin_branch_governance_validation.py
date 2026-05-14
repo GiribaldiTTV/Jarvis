@@ -1814,6 +1814,7 @@ STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS = "standing governance intake"
 STANDING_GOVERNANCE_INTAKE_RECORD = Path(
     "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
 )
+STANDING_GOVERNANCE_INTAKE_RECORD_PATH = STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
 STANDING_GOVERNANCE_INTAKE_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -15670,13 +15671,30 @@ def main() -> int:
         "Repo State: No Active Branch" in backlog_text or "Repo State: No Active Branch" in roadmap_text
     )
     if _is_merged_main_snapshot() and merged_no_active_branch_truth:
+        active_non_standing_branch_record_paths = [
+            path
+            for path in active_branch_record_paths
+            if path != STANDING_GOVERNANCE_INTAKE_RECORD_PATH
+        ]
         require(
-            not active_branch_record_paths,
+            not active_non_standing_branch_record_paths,
             (
                 "Docs/branch_records/index.md: merged current-state canon declares `No Active Branch`, "
-                "so `Active Branch Authority Records` must be empty on main"
+                "so `Active Branch Authority Records` may contain only the standing governance "
+                f"intake exception `{STANDING_GOVERNANCE_INTAKE_RECORD_PATH}`"
             ),
         )
+        if STANDING_GOVERNANCE_INTAKE_RECORD_PATH in active_branch_record_paths:
+            standing_record_text = _read_text(STANDING_GOVERNANCE_INTAKE_RECORD)
+            standing_record_info = _parse_workstream_doc(standing_record_text)
+            require(
+                str(standing_record_info["branch_class"]) == STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS,
+                (
+                    f"{STANDING_GOVERNANCE_INTAKE_RECORD_PATH}: the only active authority "
+                    "allowed under merged-main `No Active Branch` must have Branch Class "
+                    f"`{STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS}`"
+                ),
+            )
         pr101_closeout_record_text = _read_text(PR101_CLOSEOUT_CANON_REPAIR_BRANCH_RECORD)
         pr101_closeout_phase = _extract_marker_value(
             _section(pr101_closeout_record_text, "Current Phase"),

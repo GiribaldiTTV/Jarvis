@@ -28,6 +28,7 @@ Do not use this layer to replace:
 - active-branch-first remains the default during `pre-Beta`
 - new governance-only branches are not used for Nexus work
 - Exception: exactly one `Standing Governance Intake Branch` is allowed: `feature/release-readiness-source-truth-intake` at `C:\Nexus Worktrees\Governance`. It accepts a `Release Readiness digest` only, uses cycle IDs shaped `RRI-YYYYMMDD-NNN`, enforces `One Active Cycle`, requires a clean `Sync Rule` match to `origin/main` before each new intake, and must emit a `Return Digest` after merge/sync before the originating lane leaves `Waiting For Governance Intake` or `Waiting For Updated Main`.
+- `No Active Branch` means no active runtime, implementation, release packaging, or repair carrier is selected for normal product work. It does not disable the single standing governance intake authority record; that record is the only active-authority exception allowed on merged main while it is idle or carrying an admitted `RRI-*` cycle.
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
 - USER-approved workspace-resilience or dev-tooling governance foundation carriers may exist only to clear a recorded multi-worktree/thread-safety blocker before future branch work; they do not authorize runtime implementation, package admission, release work, issue work, AI Product Contract import, or future standalone governance branches.
@@ -42,8 +43,8 @@ Do not use this layer to replace:
 - The one-time `codex/one-time-backlog-governance-repair` branch is USER-admitted as `repair/dev-tooling-governance` to repair the blocker rule that allowed FB-027/PR #109 drift; it does not reopen governance-only branch creation as a default path.
 - between-branch canon repair is blocked
 - missed PR Readiness canon work must be carried by the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation begins
-- the `Active Branch Authority Records` list is only for branches that are still the current execution base
-- when merged-main truth is `No Active Branch`, merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership; that transient repair execution truth belongs only in the active branch authority record until merge
+- the `Active Branch Authority Records` list is only for branches that are still the current execution base, plus the single standing governance intake authority record
+- when merged-main truth is `No Active Branch`, merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership; that rule includes runtime, implementation, release packaging, and repair carriers. The single standing governance intake authority may remain active only for Release Readiness digest intake and must not be treated as an active runtime carrier.
 - before PR merge, any branch that still relies on an active branch authority record must either move that record into `Historical Branch Authority Records` or remove it entirely so merged truth does not leave a stale active branch owner behind
 - Merge-target post-merge-stable authority projection is mandatory before PR Readiness can report green: merge-target files must already describe the branch-authority state that will remain true after merge, and any active branch authority record that would otherwise land in `main` must be moved to historical/no-active posture or otherwise made merge-stable before PR green.
 - Operational PR/watcher state may live in operator output or explicit historical PR sections, but merged current-state owners and historical branch records must not retain active branch truth, active PR Readiness phase, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`.
@@ -99,11 +100,10 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-None.
+- `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
 ## Historical Branch Authority Records
 
-- `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 - `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md`
 - `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md`
 - `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md`
