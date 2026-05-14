@@ -1044,7 +1044,7 @@ Required PR operator copy blocks:
 
 ## Branch Evidence
 
-<implemented work, source-truth changes, behavior/capability changes, historical context, and branch-specific evidence only>
+<concrete implemented work, source-truth changes, behavior/capability changes, historical context, branch-specific boundaries when useful, and evidence only; do not repeat the Summary>
 
 ## Validation
 
@@ -1054,18 +1054,21 @@ Required PR operator copy blocks:
 
 Each PR operator field must be its own copy-ready block and must be usable independently.
 The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.
+`## Summary` must be one concise outcome paragraph, not a duplicated changelog.
+`## Branch Evidence` must not repeat the Summary verbatim or keep nested `### Summary`, `### Purpose`, or `### Overview` sections that only restate the Summary; use concrete subheads such as `### Changes`, `### Context`, `### Source Truth`, or `### Boundaries` only when they improve scanability.
+Branch-specific boundaries are allowed inside `## Branch Evidence` when they clarify reliable branch truth, but generic exclusion dumps, `Not Included` sections, and defensive scope language remain prohibited.
+`## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only; branch boundaries and phase handoff fields do not belong there.
 The PR summary must describe implemented work, validation evidence, governance/canon state, post-merge truth, and next-branch handling only when those items are part of the implemented branch truth.
-The PR summary must not include exclusion lists, `Not Included` sections, or defensive scope language.
 GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.
 If `May Create Now` is `NO`, the `Next Branch` subsection must explain the blocking gate rather than implying branch creation is allowed.
 
 ### Operator Output Content Rule
 
-Operator-facing PR summaries and GitHub release notes are inclusion-only.
+Operator-facing PR summaries are evidence-first, and GitHub release notes are inclusion-only.
 They must report what exists, what was implemented, what capabilities are available, how the system behaves, and which validation or release facts support the package.
-They must not report what was not done, include exclusion lists, use `Not Included` sections, or use defensive scope framing.
+PR summaries must not report generic defensive scope dumps; branch-specific boundaries may be recorded only inside `## Branch Evidence` when they clarify the branch truth.
 Operator-facing PR summaries must stay evidence-only and must not carry phase-digest handoff fields; a surrounding Codex closeout may include governed phase markers, but the GitHub PR body may not.
-Historical PR normalization must preserve available historical evidence inside the same three-section PR body shape and must state `Validation was not recorded in the original PR body.` when no validation evidence existed in the old body.
+Historical PR normalization must preserve available historical evidence inside the same three-section PR body shape, remove redundant Summary/Purpose repetition from Branch Evidence, and state `Validation was not recorded in the original PR body.` when no validation evidence existed in the old body.
 GitHub release notes must also use the standard Markdown release body shape used by the current pre-Beta releases: the body starts with `## Release Summary` or `## Release Overview`, continues with `## Release Highlights` or release-specific rich sections, then includes GitHub-generated `## What's Changed` and the generated `**Full Changelog**:` compare link to the previous release. The live release body must not start with or repeat the release title as `# <release title>`; the release title belongs in GitHub release metadata and in the separate `Release Title` operator block only.
 This rule governs operator output packages; it does not remove normal canon requirements for branch scope, non-goals, stop conditions, or blockers in source-of-truth records.
 

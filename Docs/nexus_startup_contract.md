@@ -578,7 +578,7 @@ Return:
 ```
 
 PR Creation Details are GitHub operator copy, not phase-digest output. GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in the surrounding governed Codex/source-truth response.
-The standardized GitHub PR body shape is exactly `## Summary`, `## Branch Evidence`, and `## Validation`; historical PR normalization preserves available branch evidence inside that shape and uses `Validation was not recorded in the original PR body.` only when the old body lacked validation evidence.
+The standardized GitHub PR body shape is exactly `## Summary`, `## Branch Evidence`, and `## Validation`; `## Summary` is a concise outcome paragraph, `## Branch Evidence` must not repeat it through nested Summary/Purpose/Overview sections, concise branch-specific boundaries are allowed only when they clarify reliable branch truth, and `## Validation` is proof-only. Historical PR normalization preserves available branch evidence inside that shape, removes redundant Summary/Purpose repetition, and uses `Validation was not recorded in the original PR body.` only when the old body lacked validation evidence.
 
 Release-window audit notes for ChatGPT preflight also stay outside the prompt body and come from owning canon after load:
 - Release Window Audit

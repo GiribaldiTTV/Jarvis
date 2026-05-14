@@ -458,14 +458,16 @@ That means:
   - `Release Branch: No` is limited to preserved historical records
   - the non-release waiver is not available to `implementation` or `release packaging` branches
   - the waiver does not clear `Release Debt`, weaken post-merge truth rules, weaken validation, or permit premature successor branch creation
-- operator output is inclusion-only:
+- operator output is evidence-first for PR summaries and inclusion-only for release notes:
   - PR Readiness PR creation details must use separate copy-ready blocks for `PR Title`, `Base Branch`, `Head Branch`, and `PR Summary`
   - Release Readiness release package details must use separate copy-ready blocks for `Release Title`, `Release Tag`, `Target Commit`, and `Release Notes`
   - PR summaries and release notes must report implemented or released work only
+  - PR summaries use exactly `## Summary`, `## Branch Evidence`, and `## Validation`; `## Summary` is one concise outcome paragraph, `## Branch Evidence` must not repeat it through nested Summary/Purpose/Overview sections, and `## Validation` must contain proof only
+  - concise branch-specific boundaries are allowed inside `## Branch Evidence` when they clarify reliable branch truth
   - GitHub release notes must use the standard Markdown release body shape used by the current pre-Beta releases: start with `## Release Summary` or `## Release Overview`, continue with `## Release Highlights` or release-specific rich sections, then include GitHub-generated `## What's Changed` and the generated `**Full Changelog**:` compare link to the previous release
   - the live GitHub release body must not start with or repeat the release title as `# <release title>`; the release title belongs in GitHub release metadata and the separate `Release Title` operator block only
   - Release Execution must use GitHub-generated release notes, through the GitHub release notes button or generated-release-notes API, so the `## What's Changed` section and previous-release compare link are populated from GitHub instead of hand-written or omitted
-  - do not include `Not Included` sections, exclusion lists, negative scope framing, or defensive wording in operator summaries or release notes
+  - do not include generic `Not Included` sections, exclusion-list dumps, negative scope framing, or defensive wording in operator summaries or release notes
   - keep normal source-of-truth scope, non-goals, stop conditions, and blockers in canon records; the inclusion-only rule applies to operator-facing PR and release packages
 - post-release canon closure is standard lifecycle follow-through:
   - prepare closure during PR Readiness when possible, or record bounded release-dependent drift and repair it during the next approved Branch Readiness Stage 2 carrier when publication truth cannot exist before release

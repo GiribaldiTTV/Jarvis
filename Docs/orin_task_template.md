@@ -750,7 +750,7 @@ If `PR Readiness` is package-ready, green, or `PR READY: YES`, the final respons
 
 ## Branch Evidence
 
-<implemented work, source-truth changes, behavior/capability changes, historical context, and branch-specific evidence only>
+<concrete implemented work, source-truth changes, behavior/capability changes, historical context, branch-specific boundaries when useful, and evidence only; do not repeat the Summary>
 
 ## Validation
 
@@ -761,7 +761,10 @@ If `PR Readiness` is package-ready, green, or `PR READY: YES`, the final respons
 The `Next Branch` block must separate the next legal branch from the selected next implementation branch.
 If the next implementation branch is deferred by release debt, updated-`main` revalidation, or another branch-admission gate, set `May Create Now: NO` and state the reason.
 The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.
-The PR summary must report included implementation and validation truth only. Do not include exclusion lists, `Not Included` sections, or defensive scope language.
+`## Summary` must be one concise outcome paragraph, and `## Branch Evidence` must not repeat the Summary through nested `### Summary`, `### Purpose`, or `### Overview` sections.
+Use concrete Branch Evidence subheads such as `### Changes`, `### Context`, `### Source Truth`, or `### Boundaries` only when they improve scanability.
+The PR summary must report implemented branch and validation truth only. Generic exclusion dumps, `Not Included` sections, and defensive scope language remain prohibited; concise branch-specific boundaries are allowed inside `## Branch Evidence` when they clarify reliable branch truth.
+`## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only.
 GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.
 
 If `Release Readiness` is green for release execution, the final response must include these inclusion-only copy-ready operator blocks:
