@@ -343,7 +343,7 @@ Return:
 - What Was Written or Found
 - Validation Results
 - Ready-To-Commit Decision
-- If `Continue Decision: Stop`: Next Legal Phase
+- Next Legal Phase
 - If `Continue Decision: Stop`: Next Safe Move
 ```
 
@@ -408,7 +408,7 @@ That prompt should tell the new chat to read `Docs/nexus_startup_contract.md` fi
 Keep the prompt body thin and neutral.
 Do not add behavior-management lists, protective wording, or freehand `Do not ...` instruction blocks to control Codex behavior.
 
-Every generated prompt should include only the task structure needed to anchor work: Mode, Phase, Workstream, Branch, Branch Class when relevant, active seam when relevant, task context, task, and an output format containing Source-of-Truth, Record State, Branch Truth, Canonical Workstream, Reuse Baseline, the governed state markers, and Validation Results. Include `Next Legal Phase` and `Next Safe Move` only for lawful-stop output. When Workstream continuation or phase exit matters, include `Backlog Completion State`, `Remaining Implementable Work`, and `Future-Dependent Blockers` from owning canon instead of implying `Hardening` by inertia.
+Every generated prompt should include only the task structure needed to anchor work: Mode, Phase, Workstream, Branch, Branch Class when relevant, active seam when relevant, task context, task, and an output format containing Source-of-Truth, Record State, Branch Truth, Canonical Workstream, Reuse Baseline, the governed state markers, Validation Results, and `Next Legal Phase`. Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation. When Workstream continuation or phase exit matters, include `Backlog Completion State`, `Remaining Implementable Work`, and `Future-Dependent Blockers` from owning canon instead of implying `Hardening` by inertia.
 ```
 
 ## Standard Prompt Templates
@@ -486,7 +486,7 @@ Return:
 - What Was Written
 - Validation Results
 - Ready-To-Commit Decision
-- If `Continue Decision: Stop`: Next Legal Phase
+- Next Legal Phase
 - If `Continue Decision: Stop`: Next Safe Move
 ```
 
@@ -532,7 +532,7 @@ Return:
 - What Was Written
 - Validation Results
 - Ready-To-Commit Decision
-- If `Continue Decision: Stop`: Next Legal Phase
+- Next Legal Phase
 - If `Continue Decision: Stop`: Next Safe Move
 ```
 
@@ -576,6 +576,9 @@ Return:
 - Next Legal Phase
 - Next Safe Move
 ```
+
+PR Creation Details are GitHub operator copy, not phase-digest output. GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in the surrounding governed Codex/source-truth response.
+The standardized GitHub PR body shape is exactly `## Summary`, `## Branch Evidence`, and `## Validation`; `## Summary` is a concise outcome paragraph, `## Branch Evidence` must not repeat it through nested Summary/Purpose/Overview sections, concise branch-specific boundaries are allowed only when they clarify reliable branch truth, and `## Validation` is proof-only. Historical PR normalization preserves available branch evidence inside that shape, removes redundant Summary/Purpose repetition, and uses `Validation was not recorded in the original PR body.` only when the old body lacked validation evidence.
 
 Release-window audit notes for ChatGPT preflight also stay outside the prompt body and come from owning canon after load:
 - Release Window Audit

@@ -632,15 +632,18 @@ C. Files changed or to be changed
 D. Risks, conflicts, or notable design choices
 E. Verification summary
 F. Any doc updates made or why none were needed
+G. Next Legal Phase digest
+
+Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.
 
 If relevant, also include:
 
-G. Commit summary
-H. Commit description
-I. PR title
-J. PR description
+H. Commit summary
+I. Commit description
+J. PR title
+K. PR description
 
-K. `## User Test Summary` manual checklist when manual validation is relevant
+L. `## User Test Summary` manual checklist when manual validation is relevant
 
 If the phase is `PR Readiness`, the final response must include:
 
@@ -669,6 +672,7 @@ If the phase is `PR Readiness`, the final response must include:
 - Expected Files To Change:
 - Stage 1 Repairs Made:
 - Stage 1 Repair Validation:
+- Release Readiness Health Pass:
 - Governance Ledger Fallback:
 - Branch Readiness Fallback:
 - Stage 1 Outcome:
@@ -677,10 +681,13 @@ If the phase is `PR Readiness`, the final response must include:
 - Blockers And Waivers Needed:
 - Release Window Audit Posture:
 - Rollback Plan:
+- Next Legal Phase:
 - Stage 2 Green-Light Decision Needed:
 ```
 
 If the current stage is `PR Readiness Stage 1 - Analysis Gate`, the final response must also report Stage 1 repair findings, Stage 1 repairs made, validation results, files changed or none, whether `PR Readiness Stage 1 Repair Pending` is clear, and one explicit readiness-lock outcome: `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required`. It must state `PR Readiness Execution User Approval Missing` and stop for USER approval to enter Stage 2 unless Stage 1 is ready and USER approval already exists.
+
+PR Readiness must prove post-merge source truth before PR creation, after any Stage 2 or bot-review source-truth repair, and before merge approval with the `Release Readiness Health Pass` by running `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`. The packet must report `Post-Merge Branch Authority Projection:`, `Stale Active Branch Wording Scan:`, `Stale PR Creation / PR Readiness Pending Wording Scan:`, `Merged-Unreleased Scope Posture:`, `Release Execution Gate:`, `Watcher / Live PR State Projection:`, `Branch Cleanup Plan:`, `FAM Overlap Routing:`, and `Projected Post-Merge Validation:` so projected merged main can enter Release Readiness as validation, not cleanup.
 
 If the phase is `Branch Readiness` and the current stage is `Branch Readiness Stage 1 - Analysis Gate`, the final response must include:
 
@@ -697,6 +704,7 @@ If the phase is `Branch Readiness` and the current stage is `Branch Readiness St
 - Expected Docs Sync:
 - Blockers And Waivers Needed:
 - Rollback Plan:
+- Next Legal Phase:
 - Stage 2 Green-Light Decision Needed:
 ```
 
@@ -736,13 +744,28 @@ If `PR Readiness` is package-ready, green, or `PR READY: YES`, the final respons
 
 ### PR Summary
 ```markdown
-<implemented work only>
+## Summary
+
+<concise branch outcome and purpose>
+
+## Branch Evidence
+
+<concrete implemented work, source-truth changes, behavior/capability changes, historical context, branch-specific boundaries when useful, and evidence only; do not repeat the Summary>
+
+## Validation
+
+<validation commands, evidence paths, or "Validation was not recorded in the original PR body.">
 ```
 ````
 
 The `Next Branch` block must separate the next legal branch from the selected next implementation branch.
 If the next implementation branch is deferred by release debt, updated-`main` revalidation, or another branch-admission gate, set `May Create Now: NO` and state the reason.
-The PR summary must report included implementation and validation truth only. Do not include exclusion lists, `Not Included` sections, or defensive scope language.
+The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.
+`## Summary` must be one concise outcome paragraph, and `## Branch Evidence` must not repeat the Summary through nested `### Summary`, `### Purpose`, or `### Overview` sections.
+Use concrete Branch Evidence subheads such as `### Changes`, `### Context`, `### Source Truth`, or `### Boundaries` only when they improve scanability.
+The PR summary must report implemented branch and validation truth only. Generic exclusion dumps, `Not Included` sections, and defensive scope language remain prohibited; concise branch-specific boundaries are allowed inside `## Branch Evidence` when they clarify reliable branch truth.
+`## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only.
+GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.
 
 If `Release Readiness` is green for release execution, the final response must include these inclusion-only copy-ready operator blocks:
 
