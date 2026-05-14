@@ -287,6 +287,7 @@ class CoreVisualizationWindow(QWidget):
             f"|provider_selection={payload.get('providerSelectionState', '')}"
             f"|provider_configuration={payload.get('providerConfigurationState', '')}"
             f"|provider_registry={payload.get('providerRegistryState', '')}"
+            f"|provider_interaction={payload.get('providerInteractionState', '')}"
             f"|configured_provider_count={payload.get('configuredProviderCount', 0)}"
             f"|available_provider_count={payload.get('availableProviderCount', 0)}"
             f"|hardware_capability={payload.get('hardwareCapabilityState', '')}"
@@ -298,6 +299,7 @@ class CoreVisualizationWindow(QWidget):
             f"|consent_state={payload.get('consentState', '')}"
             f"|interaction_affordance={payload.get('interactionAffordance', '')}"
             f"|provider_visible_data={payload.get('providerVisibleData', '')}"
+            f"|provider_next_action={payload.get('providerNextActionLabel', '')}"
             f"|requires_consent={str(payload.get('requiresConsent', False)).lower()}"
             f"|sent_to_provider={str(payload.get('sentToProvider', False)).lower()}"
         )

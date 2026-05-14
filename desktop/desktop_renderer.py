@@ -12132,6 +12132,7 @@ class DesktopRuntimeWindow(QWidget):
             provider_selection=payload.get("providerSelectionState", ""),
             provider_configuration=payload.get("providerConfigurationState", ""),
             provider_registry=payload.get("providerRegistryState", ""),
+            provider_interaction=payload.get("providerInteractionState", ""),
             configured_provider_count=payload.get("configuredProviderCount", 0),
             available_provider_count=payload.get("availableProviderCount", 0),
             hardware_capability=payload.get("hardwareCapabilityState", ""),
@@ -12144,6 +12145,7 @@ class DesktopRuntimeWindow(QWidget):
             interaction_affordance=payload.get("interactionAffordance", ""),
             requires_consent=payload.get("requiresConsent", False),
             provider_visible_data=payload.get("providerVisibleData", ""),
+            provider_next_action=payload.get("providerNextActionLabel", ""),
             sent_to_provider=payload.get("sentToProvider", False),
         )
 

@@ -49,6 +49,7 @@
       data-provider-selection="fallback-no-provider"
       data-provider-configuration="unconfigured"
       data-provider-registry="local-only-registry"
+      data-provider-interaction="provider-boundary-interaction-plan"
       data-configured-provider-count="0"
       data-available-provider-count="0"
       data-hardware-capability="local-planning-only"
@@ -76,6 +77,8 @@
       <div id="ai-provider-status-validation" class="ai-provider-status__validation">Validation gates: static proof active</div>
       <div id="ai-provider-status-consent" class="ai-provider-status__consent">Consent required before provider setup</div>
       <div id="ai-provider-status-disclosure" class="ai-provider-status__disclosure">Provider-visible data: none</div>
+      <div id="ai-provider-status-visible-data-detail" class="ai-provider-status__visible-data-detail">No prompt, file, screen, memory, or telemetry is sent</div>
+      <div id="ai-provider-status-consent-boundary" class="ai-provider-status__consent-boundary">Consent boundary: provider setup required before prompts</div>
       <button
         id="ai-provider-status-action"
         class="ai-provider-status__action"
@@ -84,6 +87,7 @@
         aria-disabled="true"
       >Assisted Desktop unavailable</button>
       <div id="ai-provider-status-fallback" class="ai-provider-status__fallback">No-provider fallback active</div>
+      <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Next: provider setup is disabled until a later approved seam</div>
       <div id="ai-provider-status-privacy" class="ai-provider-status__privacy">Local shell only; nothing is sent</div>
     </div>
   </div>

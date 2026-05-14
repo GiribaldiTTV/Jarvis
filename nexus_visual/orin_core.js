@@ -28,8 +28,11 @@ const aiProviderStatusPersona = document.getElementById("ai-provider-status-pers
 const aiProviderStatusValidation = document.getElementById("ai-provider-status-validation");
 const aiProviderStatusConsent = document.getElementById("ai-provider-status-consent");
 const aiProviderStatusDisclosure = document.getElementById("ai-provider-status-disclosure");
+const aiProviderStatusVisibleDataDetail = document.getElementById("ai-provider-status-visible-data-detail");
+const aiProviderStatusConsentBoundary = document.getElementById("ai-provider-status-consent-boundary");
 const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
 const aiProviderStatusFallback = document.getElementById("ai-provider-status-fallback");
+const aiProviderStatusNextAction = document.getElementById("ai-provider-status-next-action");
 const aiProviderStatusPrivacy = document.getElementById("ai-provider-status-privacy");
 
 let w = 0;
@@ -68,6 +71,9 @@ let aiProviderState = {
   providerConfigurationLabel: "Provider configuration: none",
   providerRegistryState: "local-only-registry",
   providerRegistryLabel: "Local provider registry: no configured providers",
+  providerInteractionState: "provider-boundary-interaction-plan",
+  providerInteractionLabel: "Provider boundary plan: no-provider fallback",
+  providerInteractionDetail: "Choose and approve a provider before AI prompts can run",
   configuredProviderCount: 0,
   availableProviderCount: 0,
   hardwareCapabilityState: "local-planning-only",
@@ -88,6 +94,9 @@ let aiProviderState = {
   consentLabel: "Consent required before provider setup",
   providerVisibleData: "none",
   providerVisibleDataLabel: "Provider-visible data: none",
+  providerVisibleDataDetail: "No prompt, file, screen, memory, or telemetry is sent",
+  providerConsentBoundaryLabel: "Consent boundary: provider setup required before prompts",
+  providerNextActionLabel: "Next: provider setup is disabled until a later approved seam",
   interactionAffordance: "disabled-no-provider-interaction",
   interactionLabel: "Assisted Desktop unavailable",
   interactionDisabledReason: "Consent and provider configuration are required before prompts can run",
@@ -1195,6 +1204,7 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.providerSelection = state.providerSelectionState || "unknown";
   aiProviderStatus.dataset.providerConfiguration = state.providerConfigurationState || "unknown";
   aiProviderStatus.dataset.providerRegistry = state.providerRegistryState || "unknown";
+  aiProviderStatus.dataset.providerInteraction = state.providerInteractionState || "unknown";
   aiProviderStatus.dataset.configuredProviderCount = String(state.configuredProviderCount || 0);
   aiProviderStatus.dataset.availableProviderCount = String(state.availableProviderCount || 0);
   aiProviderStatus.dataset.hardwareCapability = state.hardwareCapabilityState || "unknown";
@@ -1250,6 +1260,14 @@ function renderAIProviderState() {
   if (aiProviderStatusDisclosure) {
     aiProviderStatusDisclosure.textContent = state.providerVisibleDataLabel || "Provider-visible data: none";
   }
+  if (aiProviderStatusVisibleDataDetail) {
+    aiProviderStatusVisibleDataDetail.textContent =
+      state.providerVisibleDataDetail || "No prompt, file, screen, memory, or telemetry is sent";
+  }
+  if (aiProviderStatusConsentBoundary) {
+    aiProviderStatusConsentBoundary.textContent =
+      state.providerConsentBoundaryLabel || "Consent boundary: provider setup required before prompts";
+  }
   if (aiProviderStatusAction) {
     aiProviderStatusAction.textContent = state.interactionLabel || "Assisted Desktop unavailable";
     aiProviderStatusAction.title =
@@ -1259,6 +1277,10 @@ function renderAIProviderState() {
   }
   if (aiProviderStatusFallback) {
     aiProviderStatusFallback.textContent = state.noProviderFallbackLabel || "No-provider fallback active";
+  }
+  if (aiProviderStatusNextAction) {
+    aiProviderStatusNextAction.textContent =
+      state.providerNextActionLabel || "Next: provider setup is disabled until a later approved seam";
   }
   if (aiProviderStatusPrivacy) {
     aiProviderStatusPrivacy.textContent = state.privacyLabel || "Local shell only; nothing is sent";
