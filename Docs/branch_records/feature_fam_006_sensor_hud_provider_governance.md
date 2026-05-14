@@ -296,6 +296,16 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Runtime Boundary: `PASS - no runtime/provider/model/memory/voice/Core/shortcut/installer implementation files changed`
 - Release Boundary: `PASS - no tag, GitHub Release, artifact, release-note, or release publication work performed`
 
+## Validation V8 Record
+
+- Scope: `PR Readiness Stage 2 live PR admission, watcher provisioning, and selected-next successor lock repair`
+- PR #139 Ready State: `PASS - PR #139 is open, non-draft, mergeable, and targets main from feature/fam-006-sensor-hud-provider-governance`
+- Same-Thread Watcher: `Provisioned - native Codex heartbeat automation pr-139-same-thread-watcher is active on the current thread`
+- Successor Lock Repair: `PASS - roadmap and backlog now record FAM-007 as selected next runtime direction with Branch: Not created after PR #138 merge`
+- PR Readiness Gate Remaining Blocker: `Bot Review Signal Pending`
+- Runtime Boundary: `PASS - no runtime/provider/model/memory/voice/Core/shortcut/installer implementation files changed`
+- Release Boundary: `PASS - no merge, tag, GitHub Release, artifact, release-note, or release execution performed`
+
 ## PR Readiness Stage 1 Projection Record
 
 - Current PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`

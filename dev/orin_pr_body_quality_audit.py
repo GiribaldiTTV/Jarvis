@@ -36,6 +36,18 @@ BOUNDARY_HEADINGS = {
     "boundaries",
     "boundaries:",
 }
+CANONICAL_SECTIONS = {"Summary", "Branch Evidence", "Validation"}
+VALIDATION_SECTION_ALIASES = {
+    "check",
+    "checks",
+    "qa",
+    "test",
+    "test plan",
+    "testing",
+    "tests",
+    "validation",
+    "verification",
+}
 
 
 @dataclass
@@ -330,6 +342,41 @@ def normalize_validation(raw_validation: str) -> tuple[str, str, list[str]]:
     return validation, boundaries, reasons
 
 
+def section_alias(title: str) -> str:
+    alias = title.strip().casefold()
+    alias = re.sub(r"[^a-z0-9]+", " ", alias)
+    return " ".join(alias.split())
+
+
+def demoted_section(title: str, content: str) -> str:
+    safe_title = title.strip() or "Historical Section"
+    return f"### {safe_title}\n\n{content.strip()}"
+
+
+def remap_noncanonical_sections(sections: dict[str, str]) -> tuple[str, str, list[str]]:
+    extra_evidence: list[str] = []
+    extra_validation: list[str] = []
+    reasons: list[str] = []
+    for title, content in sections.items():
+        if title in CANONICAL_SECTIONS:
+            continue
+        body = collapse_blank_lines(content)
+        if not body:
+            continue
+        alias = section_alias(title)
+        if alias in VALIDATION_SECTION_ALIASES or "test" in alias or "validation" in alias:
+            extra_validation.append(demoted_section(title, body))
+            reasons.append(f"preserved nonstandard validation section '{title}'")
+        else:
+            extra_evidence.append(demoted_section(title, body))
+            reasons.append(f"preserved nonstandard evidence section '{title}'")
+    return (
+        collapse_blank_lines("\n\n".join(extra_evidence)),
+        collapse_blank_lines("\n\n".join(extra_validation)),
+        reasons,
+    )
+
+
 def normalize_evidence(
     pr: PullRequest,
     raw_evidence: str,
@@ -387,6 +434,15 @@ def normalize_body(pr: PullRequest) -> NormalizedBody:
     raw_validation = sections.get("Validation", "")
     if not sections:
         raw_evidence = strip_bom(pr.body)
+    extra_evidence, extra_validation, remap_reasons = remap_noncanonical_sections(sections)
+    if extra_evidence:
+        raw_evidence = collapse_blank_lines(
+            f"{raw_evidence}\n\n{extra_evidence}" if raw_evidence else extra_evidence
+        )
+    if extra_validation:
+        raw_validation = collapse_blank_lines(
+            f"{raw_validation}\n\n{extra_validation}" if raw_validation else extra_validation
+        )
     summary, summary_reasons = normalize_summary(pr, raw_summary, raw_evidence)
     validation, validation_boundaries, validation_reasons = normalize_validation(raw_validation)
     evidence, evidence_reasons, evidence_warnings = normalize_evidence(
@@ -397,7 +453,7 @@ def normalize_body(pr: PullRequest) -> NormalizedBody:
         validation_boundaries,
     )
     body = build_body(summary, evidence, validation)
-    reasons = summary_reasons + evidence_reasons + validation_reasons
+    reasons = summary_reasons + evidence_reasons + validation_reasons + remap_reasons
 
     if list(sections.keys()) != ["Summary", "Branch Evidence", "Validation"]:
         reasons.append("enforced three top-level sections")
