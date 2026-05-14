@@ -920,7 +920,8 @@ function Drag-FromToWithGeometrySamples {
 function Get-CursorKindAtPoint {
     param([int]$X, [int]$Y)
     [CodexHumanClientWin32]::SetCursorPos($X, $Y) | Out-Null
-    Start-Sleep -Milliseconds 90
+    [CodexHumanClientWin32]::mouse_event(0x0001, 0, 0, 0, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 120
     return [CodexHumanClientWin32]::GetCursorKind()
 }
 

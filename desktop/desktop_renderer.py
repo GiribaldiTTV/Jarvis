@@ -5792,7 +5792,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_resize_cursor_key = None
         self._monitoring_hud_resize_override_cursor_active = False
         self._monitoring_hud_resize_hover_timer = QTimer(self)
-        self._monitoring_hud_resize_hover_timer.setInterval(20)
+        self._monitoring_hud_resize_hover_timer.setInterval(8)
         self._monitoring_hud_resize_hover_timer.timeout.connect(self._poll_monitoring_hud_resize_hover_cursor)
         self._monitoring_hud_native_move_finalize_timer = QTimer(self)
         self._monitoring_hud_native_move_finalize_timer.setSingleShot(True)
@@ -7507,7 +7507,9 @@ class DesktopRuntimeWindow(QWidget):
     def _set_monitoring_hud_resize_cursor(self, edges):
         key = self._monitoring_hud_resize_edge_key(edges) if edges else None
         if key == self._monitoring_hud_resize_cursor_key:
-            if key is not None:
+            if os.name == "nt":
+                self._apply_monitoring_hud_windows_resize_cursor(edges if key is not None else Qt.Edges())
+            elif key is not None:
                 self._apply_monitoring_hud_windows_resize_cursor(edges)
             return
         self._monitoring_hud_resize_cursor_key = key
@@ -7519,11 +7521,8 @@ class DesktopRuntimeWindow(QWidget):
             pass
         if os.name == "nt":
             for target in targets:
-                if cursor is None:
-                    target.unsetCursor()
-                else:
-                    target.setCursor(QCursor(cursor))
-            self._set_monitoring_hud_override_resize_cursor(cursor)
+                target.unsetCursor()
+            self._set_monitoring_hud_override_resize_cursor(None)
             self._apply_monitoring_hud_windows_resize_cursor(edges)
             return
         for target in targets:
@@ -7561,10 +7560,10 @@ class DesktopRuntimeWindow(QWidget):
             resize_model="preclick-hover-cursor-owned-fluid-geometry-resize",
             resize_edge_scope="all-edges-and-corners",
             resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
-            resize_poll_interval_ms=8,
+            resize_poll_interval_ms=4,
             edges=str(edges),
         )
-        QTimer.singleShot(8, self._poll_monitoring_hud_fallback_window_resize)
+        QTimer.singleShot(4, self._poll_monitoring_hud_fallback_window_resize)
 
     def _poll_monitoring_hud_fallback_window_resize(self):
         if not self._monitoring_hud_native_window_resize_active:
@@ -7574,7 +7573,7 @@ class DesktopRuntimeWindow(QWidget):
         if not screen_point.isNull():
             self._update_monitoring_hud_fallback_window_resize(screen_point)
         if self._monitoring_hud_left_mouse_button_down():
-            QTimer.singleShot(8, self._poll_monitoring_hud_fallback_window_resize)
+            QTimer.singleShot(4, self._poll_monitoring_hud_fallback_window_resize)
             return
         self._finish_monitoring_hud_fallback_window_resize(screen_point)
 
@@ -7614,7 +7613,7 @@ class DesktopRuntimeWindow(QWidget):
         if self.surface_role != "hud" or self._is_shutting_down:
             return
         now = time.monotonic()
-        if not force and now - self._monitoring_hud_resize_frame_sync_last < 0.006:
+        if not force and now - self._monitoring_hud_resize_frame_sync_last < 0.003:
             return
         self._monitoring_hud_resize_frame_sync_last = now
         self.webview.setGeometry(self.rect())
