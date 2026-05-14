@@ -7,7 +7,7 @@
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
 - Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; not a governance-only branch`
-- Current Delta Status: `Live Validation Stage 1 incomplete after active-client precheck PASS; real USER-facing shortcut validation and User Test Summary results remain pending`
+- Current Delta Status: `Live Validation Stage 1 incomplete after active-client precheck PASS and red user-facing shortcut/worktree PASS; human-client validation failed before UTS handoff, so User Test Summary results remain pending`
 - Backlog Record State: `Registry-only runtime continuation under historical FAM-006 / PKG-006`
 - Package ID: `PKG-006`
 - Package Name: `Monitoring HUD Dashboard Product Surface`
@@ -30,7 +30,7 @@ It exists because the Dashboard settings cog/settings panel remained a deferred 
 - Runtime Implementation: `USER-approved and implemented for the bounded Dashboard settings cog/settings panel surface`
 - Hardening H1 Admission: `Granted - USER approved Hardening H1 for the FAM-006 Dashboard settings-panel runtime seam`
 - Hardening H1 Status: `PASS - settings affordance, settings child-window panel, warning toggle, hit-test controls, Dashboard Close, Create Monitor, Edit Monitor, tray reopen, resize/scroll/first-open regressions, truthful provider/overlay copy, and validator coverage were pressure-tested without requiring repair`
-- Live Validation Status: `INCOMPLETE - active-client precheck proof passed at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260, but real USER-facing shortcut validation and User Test Summary results remain pending unless USER explicitly waives either gate`
+- Live Validation Status: `INCOMPLETE - active-client precheck proof passed at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260, and the red user-facing shortcut proved shortcut_targets_active_worktree=PASS at dev/logs/fam_006_human_client_validation/20260513_214857_029/human_client_manifest.json; the full human-client validation failed at ncp_create_custom_task_clickable_with_dashboard_open, so formal User Test Summary export remains blocked unless the failure is repaired or USER explicitly waives the gate with a reason`
 - GitHub Issue Closeout: `Pending USER approval for #123, #124, #125, #126, and #127`
 - Release Execution: `Pending USER approval`
 - Branch Authority State: `Active`
@@ -58,9 +58,9 @@ Backlog-Split Reason: `None`
 ## Blockers
 
 - `Runtime Implementation Approval`: cleared for the bounded Dashboard settings cog/settings panel runtime surface.
-- `Real USER-Facing Shortcut Validation Pending`: active for Live Validation Stage 1 until the governed shortcut path or approved shortcut override proves `shortcut_targets_active_worktree=PASS`, or USER explicitly waives this gate with a reason.
-- `User Test Summary Results Pending`: active for Live Validation Stage 1 until formal UTS results are returned and digested as PASS, or USER explicitly waives this gate with a reason.
-- `PR Readiness Blocked By Live Validation`: active until real USER-facing shortcut validation and UTS are PASS or WAIVED and digested into source truth.
+- `Real USER-Facing Shortcut Validation Failed`: active for Live Validation Stage 1. The red user-facing shortcut proved `shortcut_targets_active_worktree=PASS`, but the full human-client validation failed at `ncp_create_custom_task_clickable_with_dashboard_open`; repair or a USER waiver with reason is required before final Live Validation green.
+- `User Test Summary Results Pending`: active for Live Validation Stage 1. Formal UTS export is blocked while the latest human-client manifest is `FAIL`; returned UTS results cannot be digested as PASS until export/handoff occurs, or USER explicitly waives this gate with a reason.
+- `PR Readiness Blocked By Live Validation`: active until human-client shortcut validation and UTS are PASS or WAIVED and digested into source truth.
 - `PR Readiness / PR Creation Approval Missing`: active after Live Validation blockers clear until USER approves PR Readiness and any later PR creation.
 - `GitHub Issue Closeout Approval Missing`: active for comments or state changes on #123, #124, #125, #126, and #127.
 - `Release Execution Approval Missing`: active.
@@ -102,7 +102,7 @@ Rollback Path: if this setup fails validation, current authorization covers boun
 
 - `Live Validation`
 
-Next Legal Phase Gate: Hardening H1 is complete and green, but Live Validation Stage 1 is incomplete. The next legal action stays inside `Live Validation`: run real USER-facing shortcut validation through the governed shortcut path or approved shortcut override, generate/refresh the formal Live Validation Stage 1 User Test Summary, and digest returned PASS results; or record explicit USER waiver and waiver reason for either gate. PR Readiness and PR creation remain blocked until those Live Validation blockers clear and source truth is reevaluated.
+Next Legal Phase Gate: Hardening H1 is complete and green, but Live Validation Stage 1 is incomplete. The next legal action stays inside `Live Validation`: repair or explicitly waive the human-client `ncp_create_custom_task_clickable_with_dashboard_open` failure, rerun the red user-facing shortcut validation to PASS, then generate/refresh the formal Live Validation Stage 1 User Test Summary and digest returned PASS results; or record explicit USER waiver and waiver reason for either gate. PR Readiness and PR creation remain blocked until those Live Validation blockers clear and source truth is reevaluated.
 
 ## Branch Objective
 
@@ -149,7 +149,7 @@ Acceptance Criteria: `Dashboard exposes a clear settings affordance; settings pa
 
 Validation Proof Requirements: `Runtime proof requires static HUD validator, internal sandbox validator, branch governance validation, release body validation, compileall, and live-client self-QA when USER-facing H1/PR readiness is requested.`
 
-Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation added active-client self-QA hooks for the settings panel. Hardening H1 pressure-tested the visible Settings button, settings panel open/close, warning toggle, and regression boundaries. The separate Live Validation Phase has active-client precheck PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260, but final Live Validation green still requires real USER-facing shortcut validation and formal UTS PASS or explicit USER waiver/digestion.`
+Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation added active-client self-QA hooks for the settings panel. Hardening H1 pressure-tested the visible Settings button, settings panel open/close, warning toggle, and regression boundaries. The separate Live Validation Phase has active-client precheck PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260 and red shortcut_targets_active_worktree PASS at dev/logs/fam_006_human_client_validation/20260513_214857_029/human_client_manifest.json, but final Live Validation green still requires full human-client validation PASS and formal UTS PASS or explicit USER waiver/digestion.`
 
 Implementation Sequence Proposal: `Implemented settings entry/panel, updated validators, recorded source truth, and stop after validation/commit/push for a Hardening decision. Live Validation and PR Readiness remain separate later phases.`
 
@@ -212,7 +212,7 @@ Completion Status: Green
 Remaining Implementable Work: None
 Future-Dependent Blockers: PR creation, GitHub issue closeout/comments, raw evidence upload/import/linking, release execution, FAM-007 runtime/admission, AI Product Contract import, Private Dev ORIN import, Overlay/display acceptance, external telemetry parity, and runtime/provider/model/memory/shortcut/installer work all require later USER approval.
 Visible User-Facing Proof Required: Yes for Dashboard settings-panel confidence - active-client precheck, real USER-facing shortcut validation, and formal UTS result digestion are required before PR Readiness unless USER grants a specific waiver for a gate.
-Visible User-Facing Proof: PARTIAL - active-client precheck PASS captured at `dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260`; real USER-facing shortcut validation and User Test Summary results remain pending.
+Visible User-Facing Proof: PARTIAL - active-client precheck PASS captured at `dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260`; red shortcut/worktree proof PASS but human-client validation FAIL captured at `dev/logs/fam_006_human_client_validation/20260513_214857_029/human_client_manifest.json`; User Test Summary results remain pending because formal UTS export is blocked by the failed human-client manifest.
 
 ## Release Debt And Issue Closeout
 
@@ -264,7 +264,7 @@ No User Test Summary is generated, refreshed, imported, uploaded, linked, or dig
 
 ## Later-Phase Expectations
 
-- Live Validation is admitted but incomplete. PR Readiness remains a separate later phase decision after real USER-facing shortcut validation and UTS are PASS or explicitly WAIVED and digested into source truth.
+- Live Validation is admitted but incomplete. PR Readiness remains a separate later phase decision after the human-client failure is repaired or waived and real USER-facing shortcut validation plus UTS are PASS or explicitly WAIVED and digested into source truth.
 - PR creation remains a later USER decision after implementation/validation.
 - GitHub issue closeout/comments for #123 through #127 remain pending USER approval.
 - Release execution, tags, GitHub Releases, artifacts, and raw evidence handling remain pending USER approval.
@@ -284,9 +284,9 @@ Non-Includes: `GitHub issue closeout/comments, release execution, tags, GitHub R
 
 Active seam: `Live Validation for FAM-006 Dashboard settings panel`
 
-Active Seam Status: `Incomplete after active-client precheck PASS; real USER-facing shortcut validation and User Test Summary results remain pending`
+Active Seam Status: `Incomplete after active-client precheck PASS; red shortcut_targets_active_worktree PASS; human-client validation FAIL at ncp_create_custom_task_clickable_with_dashboard_open; User Test Summary results remain pending`
 
-Next active seam: `Live Validation Stage 1 shortcut validation and UTS handoff or explicit USER waiver`
+Next active seam: `Live Validation Stage 1 human-client failure repair/waiver, red shortcut validation rerun, and UTS handoff or explicit USER waiver`
 
 Single-Seam Workstream Waiver: None
 Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice authority from branch size, branch name, or a narrow implementation pass.
@@ -295,15 +295,15 @@ Bounded Seam Default: Bounded means one active seam at a time, not one-seam Work
 
 ## Seam Continuation Decision
 
-Seam Status: Red - Live Validation blockers active
+Seam Status: Red - Live Validation blockers active after human-client validation failure
 Slice Status: Green
-Completion Status: Red - Live Validation Stage 1 incomplete
+Completion Status: Red - Live Validation Stage 1 incomplete; formal UTS export blocked by failed human-client manifest
 Waiver Status: None
 Continue Decision: Stop
-Continuation Execution Latch: Inactive - runtime implementation and Hardening H1 are green, but Live Validation remains blocked by real USER-facing shortcut validation and User Test Summary results pending.
+Continuation Execution Latch: Inactive - runtime implementation and Hardening H1 are green, but Live Validation remains blocked by the failed human-client `ncp_create_custom_task_clickable_with_dashboard_open` step and User Test Summary results pending.
 Stop Basis: Live Validation Stage 1 incomplete
-Next Active Seam: Live Validation Stage 1 shortcut validation plus formal UTS handoff, or explicit USER waiver for one or both gates.
-Stop Condition: Stop after source-truth repair, validation, commit, and push; continue only if USER approves the real shortcut/UTS path or grants explicit waiver. PR Readiness, PR creation, issue closeout, release, artifacts, raw evidence handling, FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate later USER decisions.
+Next Active Seam: Live Validation Stage 1 human-client failure repair/waiver, red shortcut validation rerun, and formal UTS handoff, or explicit USER waiver for one or both gates.
+Stop Condition: Stop after source-truth repair, validation, commit, and push; continue only if USER approves a bounded repair/waiver path for the human-client failure and the real shortcut/UTS gates. PR Readiness, PR creation, issue closeout, release, artifacts, raw evidence handling, FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate later USER decisions.
 Continuation Action: Stop inside Live Validation until the shortcut and UTS blockers clear or are explicitly waived.
 
 ## Recorded Seam
@@ -318,7 +318,7 @@ Recorded seam: Runtime implementation for the FAM-006 Dashboard settings-panel c
 - Deferred Truth Copy: `Overlay/display acceptance, provider setup, external telemetry parity, provider/model work, and installer/runtime scope remain pending USER decisions and are not represented as ready.`
 - Hit-Testing Coverage: `Settings button and settings warning toggle are included in native control hit-testing so they are treated as controls instead of drag gestures.`
 - Validator Coverage: `HUD surface and internal sandbox validators assert settings affordance, settings panel markup/CSS/JS state, live-client geometry hooks, and active-client self-QA step labels.`
-- Live Proof Posture: `PARTIAL - active-client precheck proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260 proves Settings open/close, truthful panel copy, settings hit-target behavior, Dashboard close behavior, standalone travel, clipping boundaries, Create/Edit regression behavior, and control decoupling. This proof launched the runtime directly and does not satisfy the real USER-facing shortcut gate or UTS result gate.`
+- Live Proof Posture: `PARTIAL - active-client precheck proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260 proves Settings open/close, truthful panel copy, settings hit-target behavior, Dashboard close behavior, standalone travel, clipping boundaries, Create/Edit regression behavior, and control decoupling. Red user-facing shortcut proof at dev/logs/fam_006_human_client_validation/20260513_214857_029/human_client_manifest.json proves shortcut_targets_active_worktree=PASS, but the full human-client manifest is FAIL at ncp_create_custom_task_clickable_with_dashboard_open and does not satisfy final Live Validation green or UTS handoff readiness.`
 
 ## Hardening H1 Validation Result
 
@@ -367,7 +367,7 @@ Next Legal Seam: `Live Validation Stage 1 real USER-facing shortcut validation p
 
 Live Validation Admission: `PASS - USER approved the Live Validation Phase for the FAM-006 Dashboard settings-panel runtime seam after Hardening H1 completed.`
 
-Live Validation Result: `INCOMPLETE - active-client precheck proof passed, but real USER-facing shortcut validation and formal UTS results remain pending.`
+Live Validation Result: `INCOMPLETE - active-client precheck proof passed, red shortcut/worktree proof passed, but the full human-client manifest failed at ncp_create_custom_task_clickable_with_dashboard_open and formal UTS export remains blocked.`
 
 Live Validation Scope: `Dashboard Settings affordance visibility/reachability; settings child-window open/close; warning-notification toggle state; Dashboard usability while Settings is used; Settings and Close control hit-testing; Create Monitor, Edit Monitor, Dashboard Close, tray reopen, resize, scroll gutter, first-open, and truthful provider/overlay/deferred-state copy regression boundaries.`
 
@@ -389,16 +389,23 @@ Interaction Manifest: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_
 
 USER-Inspectable Screenshot Folder: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260513_195556_260`
 
-Real USER-Facing Shortcut Validation Status: `PENDING - the active-client helper launched the runtime directly. Live Validation still requires the governed shortcut path or approved shortcut override to prove shortcut_targets_active_worktree=PASS, unless USER explicitly waives this gate with a reason.`
+Real USER-Facing Shortcut Validation Status: `FAIL - validator used the same red desktop shortcut intended for Live Validation, C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Settings Panel Launcher.lnk; shortcut_targets_active_worktree=PASS, but the human-client manifest failed at ncp_create_custom_task_clickable_with_dashboard_open.`
 
-Formal User Test Summary Status: `PENDING - not generated/refreshed/digested by this active-client proof command. Live Validation Stage 1 still requires formal UTS generation/handoff and returned PASS results digestion, unless USER explicitly waives this gate with a reason.`
+Human-Client Manifest: `dev/logs/fam_006_human_client_validation/20260513_214857_029/human_client_manifest.json`
+
+Shortcut Targets Active Worktree: `PASS - target and working directory resolved to C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel from the red desktop shortcut`
+
+Human-Client Failure Step: `ncp_create_custom_task_clickable_with_dashboard_open - Open Command Overlay route completed while the Dashboard was visible and moved, but the visible runtime button "Create Custom Task" was not found before timeout.`
+
+Formal User Test Summary Status: `BLOCKED - not generated/refreshed/digested because the latest human-client precheck manifest is FAIL. Live Validation Stage 1 still requires full human-client PASS plus formal UTS generation/handoff and returned PASS results digestion, unless USER explicitly waives a gate with a reason.`
 
 Live Validation Blockers:
 
-- `Real USER-Facing Shortcut Validation Pending`
+- `Real USER-Facing Shortcut Validation Failed`
 - `User Test Summary Results Pending`
 - `PR Readiness Blocked By Live Validation`
 
 Live Validation Commands:
 
 - `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Dashboard settings panel Live Validation" -MarkerTimeoutSeconds 240 -NoProgressTimeoutSeconds 240 -FinalClientHoldSeconds 0`
+- `FAIL - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_human_client_validation.ps1 with NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH=C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Settings Panel Launcher.lnk; shortcut_targets_active_worktree=PASS, ncp_create_custom_task_clickable_with_dashboard_open=FAIL, manifest dev/logs/fam_006_human_client_validation/20260513_214857_029/human_client_manifest.json`
