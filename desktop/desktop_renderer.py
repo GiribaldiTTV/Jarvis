@@ -7539,7 +7539,7 @@ class DesktopRuntimeWindow(QWidget):
         if self.surface_role != "hud" or self._is_shutting_down:
             return
         now = time.monotonic()
-        if not force and now - self._monitoring_hud_resize_frame_sync_last < 0.032:
+        if not force and now - self._monitoring_hud_resize_frame_sync_last < 0.012:
             return
         self._monitoring_hud_resize_frame_sync_last = now
         self.webview.updateGeometry()
@@ -9707,15 +9707,14 @@ class DesktopRuntimeWindow(QWidget):
         if not GetWindowRect(hwnd, ctypes.byref(rect)):
             return False
 
-        parent = GetParentW(hwnd)
         width = max(0, rect.right - rect.left)
         height = max(0, rect.bottom - rect.top)
 
-        return bool(parent) and (
-            rect.left == target_geometry.x()
-            and rect.top == target_geometry.y()
-            and width == target_geometry.width()
-            and height == target_geometry.height()
+        return (
+            abs(rect.left - target_geometry.x()) <= 1
+            and abs(rect.top - target_geometry.y()) <= 1
+            and abs(width - target_geometry.width()) <= 1
+            and abs(height - target_geometry.height()) <= 1
         )
 
     def _apply_pending_visual_state(self):
@@ -11493,7 +11492,7 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(1600, lambda: self._capture_startup_snapshot("after_1600ms"))
             QTimer.singleShot(2200, lambda: self._capture_startup_snapshot("after_2200ms"))
 
-        self._release_initial_visibility_guard()
+        QTimer.singleShot(80, self._release_initial_visibility_guard)
         self._publish_monitoring_hud_telemetry_boundary()
         self._publish_monitoring_hud_placement_ownership()
         self._publish_monitoring_hud_controls_visibility()

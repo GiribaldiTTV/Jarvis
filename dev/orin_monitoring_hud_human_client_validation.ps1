@@ -1792,10 +1792,10 @@ try {
     Add-Step -Id "dashboard_mouse_move" -Title "Dashboard moves through mouse drag" -Status ($(if ($moved) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeMove.Left),$($rectBeforeMove.Top)); after=($($rectAfterMove.Left),$($rectAfterMove.Top))" -Evidence @{ screenshot = $moveShot }
     if (-not $moved) { throw "Dashboard did not move through human-like mouse drag" }
 
-    $ncpOpenEvidence = Invoke-TrayAction -ActionName "Open Command Overlay" -ExpectedMarker "RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY|source=menu" -TimeoutSeconds $ActionTimeoutSeconds
+    $ncpOpenEvidence = Invoke-TrayAction -ActionName "Open Command Overlay" -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_READY|phase=entry" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 900
     $ncpOpenShot = Capture-VirtualScreenshot "04b_after_open_ncp_with_dashboard_visible"
-    Add-Step -Id "ncp_opens_with_dashboard_visible" -Title "Tray opens NCP while HUD Dashboard remains visible" -Status "PASS" -Detail "Open Command Overlay route completed while the Dashboard was visible and moved." -Evidence @{ screenshot = $ncpOpenShot; trayClick = $ncpOpenEvidence }
+    Add-Step -Id "ncp_opens_with_dashboard_visible" -Title "Tray opens NCP while HUD Dashboard remains visible" -Status "PASS" -Detail "Open Command Overlay emitted ready state while the Dashboard was visible and moved." -Evidence @{ screenshot = $ncpOpenShot; trayClick = $ncpOpenEvidence }
 
     Click-RuntimeButtonAndWaitForDialog -ButtonName "Create Custom Task" -DialogTitle "Create Custom Task" -StepId "ncp_create_custom_task_clickable_with_dashboard_open" -StepTitle "NCP Create Custom Task remains clickable with Dashboard open" -ExpectedOpenMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_START|action=create_custom_task" -DismissMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=create_custom_task"
     Click-RuntimeButtonAndWaitForDialog -ButtonName "Create Custom Group" -DialogTitle "Create Custom Group" -StepId "ncp_create_custom_group_clickable_with_dashboard_open" -StepTitle "NCP Create Custom Group remains clickable with Dashboard open" -ExpectedOpenMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_START|action=create_custom_group" -DismissMarker "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=create_custom_group"

@@ -445,7 +445,11 @@ class DesktopTrayEntry:
 
     def request_overlay_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_ACTIVATION_REQUESTED|source={source}")
-        self.window.toggle_command_overlay()
+        open_overlay = getattr(self.window, "open_command_overlay", None)
+        if callable(open_overlay):
+            open_overlay()
+        else:
+            self.window.toggle_command_overlay()
         self._emit(f"RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY|source={source}")
 
     def request_create_custom_task_from_tray(self, source):
