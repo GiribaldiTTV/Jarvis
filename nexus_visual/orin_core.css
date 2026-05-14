@@ -459,11 +459,24 @@ body {
 .ai-provider-status__configuration,
 .ai-provider-status__registry,
 .ai-provider-status__hardware,
+.ai-provider-status__gpu,
+.ai-provider-status__cpu,
+.ai-provider-status__power,
+.ai-provider-status__thermal,
+.ai-provider-status__model-workload,
 .ai-provider-status__capability-pack,
+.ai-provider-status__capability-download,
+.ai-provider-status__capability-recommendation,
+.ai-provider-status__data-classification,
 .ai-provider-status__memory,
+.ai-provider-status__audit-secrets,
 .ai-provider-status__windows,
+.ai-provider-status__offline,
 .ai-provider-status__persona,
+.ai-provider-status__voice,
 .ai-provider-status__validation,
+.ai-provider-status__abuse,
+.ai-provider-status__release-proof,
 .ai-provider-status__consent,
 .ai-provider-status__disclosure,
 .ai-provider-status__visible-data-detail,
@@ -488,17 +501,30 @@ body {
 }
 
 .ai-provider-status__hardware,
-.ai-provider-status__capability-pack {
+.ai-provider-status__gpu,
+.ai-provider-status__cpu,
+.ai-provider-status__power,
+.ai-provider-status__thermal,
+.ai-provider-status__model-workload,
+.ai-provider-status__capability-pack,
+.ai-provider-status__capability-download,
+.ai-provider-status__capability-recommendation {
   color: rgba(196, 224, 246, 0.9);
 }
 
 .ai-provider-status__memory,
-.ai-provider-status__windows {
+.ai-provider-status__data-classification,
+.ai-provider-status__audit-secrets,
+.ai-provider-status__windows,
+.ai-provider-status__offline {
   color: rgba(196, 231, 224, 0.9);
 }
 
 .ai-provider-status__persona,
-.ai-provider-status__validation {
+.ai-provider-status__voice,
+.ai-provider-status__validation,
+.ai-provider-status__abuse,
+.ai-provider-status__release-proof {
   color: rgba(222, 218, 246, 0.9);
 }
 

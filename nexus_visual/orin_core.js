@@ -21,11 +21,24 @@ const aiProviderStatusSelection = document.getElementById("ai-provider-status-se
 const aiProviderStatusConfiguration = document.getElementById("ai-provider-status-configuration");
 const aiProviderStatusRegistry = document.getElementById("ai-provider-status-registry");
 const aiProviderStatusHardware = document.getElementById("ai-provider-status-hardware");
+const aiProviderStatusGpu = document.getElementById("ai-provider-status-gpu");
+const aiProviderStatusCpu = document.getElementById("ai-provider-status-cpu");
+const aiProviderStatusPower = document.getElementById("ai-provider-status-power");
+const aiProviderStatusThermal = document.getElementById("ai-provider-status-thermal");
+const aiProviderStatusModelWorkload = document.getElementById("ai-provider-status-model-workload");
 const aiProviderStatusCapabilityPack = document.getElementById("ai-provider-status-capability-pack");
+const aiProviderStatusCapabilityDownload = document.getElementById("ai-provider-status-capability-download");
+const aiProviderStatusCapabilityRecommendation = document.getElementById("ai-provider-status-capability-recommendation");
+const aiProviderStatusDataClassification = document.getElementById("ai-provider-status-data-classification");
 const aiProviderStatusMemory = document.getElementById("ai-provider-status-memory");
+const aiProviderStatusAuditSecrets = document.getElementById("ai-provider-status-audit-secrets");
 const aiProviderStatusWindows = document.getElementById("ai-provider-status-windows");
+const aiProviderStatusOffline = document.getElementById("ai-provider-status-offline");
 const aiProviderStatusPersona = document.getElementById("ai-provider-status-persona");
+const aiProviderStatusVoice = document.getElementById("ai-provider-status-voice");
 const aiProviderStatusValidation = document.getElementById("ai-provider-status-validation");
+const aiProviderStatusAbuse = document.getElementById("ai-provider-status-abuse");
+const aiProviderStatusReleaseProof = document.getElementById("ai-provider-status-release-proof");
 const aiProviderStatusConsent = document.getElementById("ai-provider-status-consent");
 const aiProviderStatusDisclosure = document.getElementById("ai-provider-status-disclosure");
 const aiProviderStatusVisibleDataDetail = document.getElementById("ai-provider-status-visible-data-detail");
@@ -78,16 +91,42 @@ let aiProviderState = {
   availableProviderCount: 0,
   hardwareCapabilityState: "local-planning-only",
   hardwareCapabilityLabel: "Hardware capability: local planning only",
+  gpuCapabilityState: "gpu-unprobed",
+  gpuCapabilityLabel: "GPU acceleration: unprobed; no model workload active",
+  cpuFallbackState: "cpu-fallback-preserved",
+  cpuFallbackLabel: "CPU fallback: preserved",
+  powerState: "power-state-not-evaluated",
+  powerStateLabel: "Power state: not evaluated",
+  thermalGuardrailState: "thermal-guardrails-required",
+  thermalGuardrailLabel: "Thermal guardrails required before model workloads",
+  modelWorkloadState: "model-workload-disabled",
+  modelWorkloadLabel: "Model workloads: disabled",
+  capabilityRecommendationState: "recommendation-pending",
+  capabilityRecommendationLabel: "Capability recommendation pending hardware proof",
   capabilityPackLifecycleState: "capability-pack-lifecycle-planned",
   capabilityPackLifecycleLabel: "Capability packs: lifecycle planned",
+  capabilityPackDownloadState: "capability-pack-downloads-blocked",
+  capabilityPackDownloadLabel: "Capability pack downloads: blocked",
+  dataClassificationState: "data-classification-local-only",
+  dataClassificationLabel: "Data classification: local-only planning",
   memoryContextState: "memory-context-disabled",
   memoryContextLabel: "Memory/context: disabled; no indexing",
+  auditSecretsState: "audit-secrets-planned",
+  auditSecretsLabel: "Audit/secrets: planned; no secrets stored",
   windowsResilienceState: "windows-resilience-planned",
   windowsResilienceLabel: "Windows resilience: planning only",
+  offlineDegradedState: "offline-degraded-planned",
+  offlineDegradedLabel: "Offline/degraded mode: planned",
   personaCoreVoiceState: "persona-core-voice-boundary-planned",
   personaCoreVoiceLabel: "Persona/Core/voice: planning boundary",
+  voiceRuntimeState: "voice-runtime-disabled",
+  voiceRuntimeLabel: "Voice runtime: disabled",
   validationProofGateState: "validation-proof-gates-planned",
   validationProofGateLabel: "Validation gates: static proof active",
+  abuseEvalState: "abuse-eval-pending",
+  abuseEvalLabel: "Abuse/eval: pending future approval",
+  releaseProofGateState: "release-proof-pending",
+  releaseProofGateLabel: "Release proof: pending future approval",
   privacyScope: "local-only",
   privacyLabel: "Local shell only; nothing is sent",
   consentState: "required-before-provider",
@@ -1208,11 +1247,24 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.configuredProviderCount = String(state.configuredProviderCount || 0);
   aiProviderStatus.dataset.availableProviderCount = String(state.availableProviderCount || 0);
   aiProviderStatus.dataset.hardwareCapability = state.hardwareCapabilityState || "unknown";
+  aiProviderStatus.dataset.gpuCapability = state.gpuCapabilityState || "unknown";
+  aiProviderStatus.dataset.cpuFallback = state.cpuFallbackState || "unknown";
+  aiProviderStatus.dataset.powerState = state.powerState || "unknown";
+  aiProviderStatus.dataset.thermalGuardrail = state.thermalGuardrailState || "unknown";
+  aiProviderStatus.dataset.modelWorkload = state.modelWorkloadState || "unknown";
+  aiProviderStatus.dataset.capabilityRecommendation = state.capabilityRecommendationState || "unknown";
   aiProviderStatus.dataset.capabilityPackLifecycle = state.capabilityPackLifecycleState || "unknown";
+  aiProviderStatus.dataset.capabilityPackDownload = state.capabilityPackDownloadState || "unknown";
+  aiProviderStatus.dataset.dataClassification = state.dataClassificationState || "unknown";
   aiProviderStatus.dataset.memoryContext = state.memoryContextState || "unknown";
+  aiProviderStatus.dataset.auditSecrets = state.auditSecretsState || "unknown";
   aiProviderStatus.dataset.windowsResilience = state.windowsResilienceState || "unknown";
+  aiProviderStatus.dataset.offlineDegraded = state.offlineDegradedState || "unknown";
   aiProviderStatus.dataset.personaVoiceBoundary = state.personaCoreVoiceState || "unknown";
+  aiProviderStatus.dataset.voiceRuntime = state.voiceRuntimeState || "unknown";
   aiProviderStatus.dataset.validationGates = state.validationProofGateState || "unknown";
+  aiProviderStatus.dataset.abuseEval = state.abuseEvalState || "unknown";
+  aiProviderStatus.dataset.releaseProof = state.releaseProofGateState || "unknown";
   aiProviderStatus.dataset.selectedProvider = state.selectedProviderId || "unknown";
   aiProviderStatus.dataset.consentState = state.consentState || "unknown";
   aiProviderStatus.dataset.interactionAffordance = state.interactionAffordance || "unknown";
@@ -1239,20 +1291,62 @@ function renderAIProviderState() {
   if (aiProviderStatusHardware) {
     aiProviderStatusHardware.textContent = state.hardwareCapabilityLabel || "Hardware capability: local planning only";
   }
+  if (aiProviderStatusGpu) {
+    aiProviderStatusGpu.textContent = state.gpuCapabilityLabel || "GPU acceleration: unprobed; no model workload active";
+  }
+  if (aiProviderStatusCpu) {
+    aiProviderStatusCpu.textContent = state.cpuFallbackLabel || "CPU fallback: preserved";
+  }
+  if (aiProviderStatusPower) {
+    aiProviderStatusPower.textContent = state.powerStateLabel || "Power state: not evaluated";
+  }
+  if (aiProviderStatusThermal) {
+    aiProviderStatusThermal.textContent = state.thermalGuardrailLabel || "Thermal guardrails required before model workloads";
+  }
+  if (aiProviderStatusModelWorkload) {
+    aiProviderStatusModelWorkload.textContent = state.modelWorkloadLabel || "Model workloads: disabled";
+  }
   if (aiProviderStatusCapabilityPack) {
     aiProviderStatusCapabilityPack.textContent = state.capabilityPackLifecycleLabel || "Capability packs: lifecycle planned";
+  }
+  if (aiProviderStatusCapabilityDownload) {
+    aiProviderStatusCapabilityDownload.textContent =
+      state.capabilityPackDownloadLabel || "Capability pack downloads: blocked";
+  }
+  if (aiProviderStatusCapabilityRecommendation) {
+    aiProviderStatusCapabilityRecommendation.textContent =
+      state.capabilityRecommendationLabel || "Capability recommendation pending hardware proof";
+  }
+  if (aiProviderStatusDataClassification) {
+    aiProviderStatusDataClassification.textContent =
+      state.dataClassificationLabel || "Data classification: local-only planning";
   }
   if (aiProviderStatusMemory) {
     aiProviderStatusMemory.textContent = state.memoryContextLabel || "Memory/context: disabled; no indexing";
   }
+  if (aiProviderStatusAuditSecrets) {
+    aiProviderStatusAuditSecrets.textContent = state.auditSecretsLabel || "Audit/secrets: planned; no secrets stored";
+  }
   if (aiProviderStatusWindows) {
     aiProviderStatusWindows.textContent = state.windowsResilienceLabel || "Windows resilience: planning only";
+  }
+  if (aiProviderStatusOffline) {
+    aiProviderStatusOffline.textContent = state.offlineDegradedLabel || "Offline/degraded mode: planned";
   }
   if (aiProviderStatusPersona) {
     aiProviderStatusPersona.textContent = state.personaCoreVoiceLabel || "Persona/Core/voice: planning boundary";
   }
+  if (aiProviderStatusVoice) {
+    aiProviderStatusVoice.textContent = state.voiceRuntimeLabel || "Voice runtime: disabled";
+  }
   if (aiProviderStatusValidation) {
     aiProviderStatusValidation.textContent = state.validationProofGateLabel || "Validation gates: static proof active";
+  }
+  if (aiProviderStatusAbuse) {
+    aiProviderStatusAbuse.textContent = state.abuseEvalLabel || "Abuse/eval: pending future approval";
+  }
+  if (aiProviderStatusReleaseProof) {
+    aiProviderStatusReleaseProof.textContent = state.releaseProofGateLabel || "Release proof: pending future approval";
   }
   if (aiProviderStatusConsent) {
     aiProviderStatusConsent.textContent = state.consentLabel || "Consent required before provider setup";
