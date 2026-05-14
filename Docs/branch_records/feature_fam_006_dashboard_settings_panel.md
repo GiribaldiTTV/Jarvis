@@ -160,7 +160,7 @@ Backlog-Split Reason: `None`
 - Source truth records PR #133 as merged/historical and no longer treats release-support as the active FAM-006 carrier.
 - Source truth projects this branch as historical / merge-stable after PR merge while preserving it as the FAM-006 settings-panel runtime carrier evidence.
 - PR #129, PR #132, and PR #142 remain merged-unreleased FAM-006 Dashboard release debt.
-- #123, #127, #137, and #140 remain open / In Work and eligible for USER-approved closeout after PR #142; #124, #125, and #126 remain closed / fixed and must preserve that posture.
+- #123, #124, #125, #126, #127, #137, and #140 are closed / fixed or completed with release traceability preserved after USER-approved GitHub issue cleanup.
 - FAM-007, provider/model/memory/shortcut/installer work, release execution, artifacts, raw evidence handling, AI Product Contract import, and Private Dev ORIN import remain pending USER decisions.
 - Validation passes.
 - Branch is committed and pushed.
@@ -187,7 +187,7 @@ Create the FAM-006 Dashboard settings-panel runtime-focused carrier from updated
 - Branch authority is historical / merge-stable for merged `main` after PR #142.
 - Release-support source truth is historical after PR #133 merge.
 - PR #129, PR #132, and PR #142 remain merged-unreleased release debt.
-- Issues #123, #127, #137, and #140 remain open / In Work and eligible for USER-approved closeout after PR #142; #124, #125, and #126 remain closed / fixed and should be preserved.
+- Issues #123, #124, #125, #126, #127, #137, and #140 are closed / fixed or completed with release traceability preserved.
 - Runtime implementation is bounded to the Dashboard settings cog/settings panel surface and remains separate from FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, issue closeout, release execution, raw evidence handling, and PR creation. After merge, the implementation is merged-unreleased release debt until USER approves release execution.
 
 ## Product Definition Plan
@@ -228,7 +228,7 @@ Implementation Sequence Proposal: `Implemented settings entry/panel, updated val
 
 Planning Blockers: `GitHub Issue Closeout Approval Missing`; `Release Execution Approval Missing`; `Raw Evidence Import Decision Pending`; `FAM-007 / Local AI Authority Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
 
-USER Decisions Needed: `Approve Hardening next, approve Live Validation only as a later separate phase if needed, approve PR Readiness/PR creation later, approve GitHub issue closeout/comments, approve release execution/tags/releases/artifacts, approve raw evidence handling, and approve any FAM-007/provider/model/memory/shortcut/installer work separately.`
+USER Decisions Needed: `Approve any future branch/worktree cleanup, approve release execution/tags/releases/artifacts beyond v1.7.1-prebeta if needed, approve raw evidence handling, and approve any FAM-007/provider/model/memory/shortcut/installer work separately.`
 
 Planning Packet Status: Complete
 
@@ -295,9 +295,9 @@ Release Target: `v1.7.1-prebeta`
 
 Release Floor: `patch prerelease`
 
-Issue Closeout Plan: `#123`, `#127`, `#137`, and `#140` remain open / In Work and are eligible for USER-approved closeout after PR #142; `#124`, `#125`, and `#126` are already closed / fixed and should preserve that posture. Summary-only GitHub comments and issue closure require later USER approval.
+Issue Closeout Plan: `#123`, `#124`, `#125`, `#126`, `#127`, `#137`, and `#140` are closed / fixed or completed with release traceability preserved after USER-approved GitHub issue cleanup.
 
-Release Readiness Issue Thread Cleanup Gate: `Required during Release Readiness after USER approval - GitHub issue threads #123, #127, #137, and #140 must receive appropriate closeout/traceability updates before release execution can be treated as complete, while #124, #125, and #126 preserve their closed / fixed posture. Each issue update should summarize what solved the issue, name the solving PR/branch/proof path, preserve any known limitations or waivers, and link the release-support/source-truth evidence. This gate records the requirement only; posting comments, changing issue state, or closing issues remains a future USER approval checkpoint.`
+Release Readiness Issue Thread Cleanup Gate: `Complete for the v1.7.1-prebeta FAM-006 issue set. GitHub issue threads #123, #124, #125, #126, #127, #137, and #140 preserve solving PR/branch/proof traceability and closed/fixed or completed posture.`
 
 Raw Evidence Policy: raw screenshots, videos, and UTS exports remain local/external unless USER later approves upload, import, or linking.
 
@@ -341,7 +341,7 @@ Runtime implementation and Hardening did not generate or digest UTS. In the sepa
 
 - Live Validation is admitted and has repaired red user-facing shortcut PASS plus refreshed formal UTS handoff generated. Refreshed returned UTS results are digested as PASS; PR Readiness remains a separate later USER decision.
 - PR creation remains a later USER decision after implementation/validation.
-- GitHub issue closeout/comments for #123, #127, #137, and #140 remain pending USER approval; #124, #125, and #126 remain closed / fixed.
+- GitHub issue closeout/comments for #123, #124, #125, #126, #127, #137, and #140 are complete for the v1.7.1-prebeta FAM-006 issue set.
 - Release execution, tags, GitHub Releases, artifacts, and raw evidence handling remain pending USER approval.
 - FAM-007 local AI/provider work remains in its own lane and worktree.
 

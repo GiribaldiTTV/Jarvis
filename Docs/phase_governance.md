@@ -529,6 +529,10 @@ Silent phase skipping is prohibited.
 
 Branch admission is class-sensitive.
 
+### Family-Scoped Branch Readiness Candidate Rule
+
+When Branch Readiness is scoped to a specific feature family or assigned lane, candidate selection must stay inside that family or lane unless USER explicitly approves cross-family routing. Codex may inspect other families only for same-file overlap, dependency, conflict, pending-decision, or sequencing context. If no legal in-family carrier is selected or admissible, Codex must return `STOP / USER DECISION REQUIRED` with the exact in-family decision needed instead of selecting another family's branch.
+
 `implementation`
 
 - the full repo-level admission gate must pass before the branch may enter `Branch Readiness`

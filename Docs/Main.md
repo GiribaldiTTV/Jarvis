@@ -150,6 +150,7 @@ ChatGPT-authored prompt additions are analysis/review input only: they may add e
 If repo truth resolves to blocked `No Active Branch`, `Next Safe Move` must report the blocking repair path instead of inventing a later phase.
 If repo truth resolves to steady-state `No Active Branch`, `Next Safe Move` may truthfully say that no branch should open yet or may name a release-packaging branch whose admission rules pass.
 Governance-only branches are not used for new Nexus work.
+Family-scoped Branch Readiness candidate selection must stay inside the assigned family/lane unless USER explicitly approves cross-family routing; other families may be inspected only for overlap, dependency, conflict, or pending-decision context.
 Loader/source-truth continuity must preserve the broad FAM model, PR evidence-only handling, legacy global FB historical-only handling, single-slice and package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval while branch creation and runtime package admission remain separately blocked, separate release-execution approval, and the Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback.
 
 ## Routing Layers
