@@ -3129,6 +3129,21 @@ STALE_BRANCH_CLEANUP_PHRASES = (
     "Branch Readiness Stage 2 - Execution Gate",
 )
 
+STABLE_WORKTREE_PATH_PRESERVATION_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+STABLE_WORKTREE_PATH_PRESERVATION_PHRASES = (
+    "Stable Worktree Path Preservation Gate:",
+    "Stable Worktree Path:",
+    "Replacement Binding Path:",
+    "Stable Worktree Path At Risk",
+)
+
 BRANCH_READINESS_CARRIER_LIFECYCLE_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -15449,6 +15464,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: stale branch cleanup governance is missing '{required_phrase}'",
+            )
+
+    for relative_path in STABLE_WORKTREE_PATH_PRESERVATION_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in STABLE_WORKTREE_PATH_PRESERVATION_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: stable worktree path preservation governance is missing '{required_phrase}'",
             )
 
     for relative_path in BRANCH_READINESS_CARRIER_LIFECYCLE_DOCS:
