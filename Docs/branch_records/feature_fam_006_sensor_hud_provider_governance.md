@@ -233,6 +233,18 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Runtime Boundary: `PASS - origin/main FAM-007 runtime/provider files were merged for branch currency only; this branch did not author new runtime/provider/model/memory/voice/Core/shortcut/installer implementation`
 - Release Boundary: `PASS - no tag, GitHub Release, artifact, release-note, or release publication work performed`
 
+## Validation V4 Record
+
+- Scope: `Next Legal Phase digest output contract repair`
+- `git diff --check origin/main...HEAD`: `PASS`
+- `python dev\orin_branch_governance_validation.py`: `PASS - branch governance validation passed 4754 checks`
+- `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`: `PASS - branch governance validation passed 4800 checks`
+- `python dev\orin_release_body_validation.py`: `PASS - latest release body matches the standard; historical prior-release body drift was reported as historical only`
+- `python -m py_compile dev\orin_branch_governance_validation.py`: `PASS`
+- `python -m compileall -q dev desktop Audio main.py`: `PASS`
+- Runtime Boundary: `PASS - no runtime/provider/model/memory/voice/Core/shortcut/installer implementation files changed`
+- Release Boundary: `PASS - no tag, GitHub Release, artifact, release-note, or release publication work performed`
+
 ## PR Readiness Stage 1 Projection Record
 
 - Current PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
@@ -256,7 +268,7 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Planned Watcher Provisioning: `Stage 2 only if USER later approves PR execution`
 - Planned Validation Commands: `git diff --check origin/main...HEAD`; `python dev\orin_branch_governance_validation.py`; `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`; `python dev\orin_release_body_validation.py`; `python -m compileall -q dev desktop Audio main.py`
 - Expected Files To Change: `Branch authority, governance docs, validator, helper registry, and origin/main reconciliation files already merged into this branch`
-- Stage 1 Repairs Made: `Merged origin/main through PR #138; resolved branch-record index projection; recorded Governance Drift Audit, Post-Merge State, Release Window Audit, and Release Readiness Health Pass`
+- Stage 1 Repairs Made: `Merged origin/main through PR #138; resolved branch-record index projection; recorded Governance Drift Audit, Post-Merge State, Release Window Audit, Release Readiness Health Pass, and required Next Legal Phase digest output`
 - Stage 1 Repair Validation: `PASS - governance validator and Release Readiness Health Pass gate passed after origin/main PR #138 reconciliation`
 - Release Readiness Health Pass: `PASS`
 - Governance Ledger Fallback: `Not required - current branch is the legal carrier for this bounded PR Stage 1 source-truth repair`
@@ -267,6 +279,7 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Blockers And Waivers Needed: `USER approval to enter PR Readiness Stage 2 remains an operator decision, not merged-main current-state truth`
 - Release Window Audit Posture: `PASS`
 - Rollback Plan: `Abandon branch before PR merge; do not mutate direct main`
+- Next Legal Phase: `PR Readiness Stage 2 only after explicit USER approval; otherwise hold this carrier without PR creation`
 - Stage 2 Green-Light Decision Needed: `USER approval to enter PR Readiness Stage 2 and create the PR`
 
 ## Next Workstream
@@ -305,6 +318,15 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Repair Surface: `Current branch PR Readiness Stage 1 source-truth repair`
 - Repair Result: `PASS - Release Readiness Health Pass governance and validator support now exist, and this branch projects historical/no-active truth before PR creation`
 - Remaining Governance Drift: `None known for this branch`
+
+## Next Legal Phase Digest Output Repair
+
+- Admission Basis: `USER requested Next Legal Phase digest output in all phase digests for clarity`
+- Scope Classification: `Governance/output-contract and validator repair only`
+- Required Rule: `Every phase digest must include Next Legal Phase as its own output field, even when Continue Decision is Continue`
+- Next Safe Move Boundary: `Next Safe Move may remain lawful-stop or route-specific and must not replace the required Next Legal Phase digest`
+- Validator Coverage: `Updated governed output contract and Stage 1 packet phrase coverage in dev/orin_branch_governance_validation.py`
+- Runtime / PR / Release Boundary: `No runtime implementation, PR creation, watcher provisioning, merge, tag, GitHub Release, artifact, or release execution is admitted by this repair`
 
 ## Release Window Audit
 

@@ -632,15 +632,18 @@ C. Files changed or to be changed
 D. Risks, conflicts, or notable design choices
 E. Verification summary
 F. Any doc updates made or why none were needed
+G. Next Legal Phase digest
+
+Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.
 
 If relevant, also include:
 
-G. Commit summary
-H. Commit description
-I. PR title
-J. PR description
+H. Commit summary
+I. Commit description
+J. PR title
+K. PR description
 
-K. `## User Test Summary` manual checklist when manual validation is relevant
+L. `## User Test Summary` manual checklist when manual validation is relevant
 
 If the phase is `PR Readiness`, the final response must include:
 
@@ -678,6 +681,7 @@ If the phase is `PR Readiness`, the final response must include:
 - Blockers And Waivers Needed:
 - Release Window Audit Posture:
 - Rollback Plan:
+- Next Legal Phase:
 - Stage 2 Green-Light Decision Needed:
 ```
 
@@ -700,6 +704,7 @@ If the phase is `Branch Readiness` and the current stage is `Branch Readiness St
 - Expected Docs Sync:
 - Blockers And Waivers Needed:
 - Rollback Plan:
+- Next Legal Phase:
 - Stage 2 Green-Light Decision Needed:
 ```
 

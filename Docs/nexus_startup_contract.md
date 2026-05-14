@@ -343,7 +343,7 @@ Return:
 - What Was Written or Found
 - Validation Results
 - Ready-To-Commit Decision
-- If `Continue Decision: Stop`: Next Legal Phase
+- Next Legal Phase
 - If `Continue Decision: Stop`: Next Safe Move
 ```
 
@@ -408,7 +408,7 @@ That prompt should tell the new chat to read `Docs/nexus_startup_contract.md` fi
 Keep the prompt body thin and neutral.
 Do not add behavior-management lists, protective wording, or freehand `Do not ...` instruction blocks to control Codex behavior.
 
-Every generated prompt should include only the task structure needed to anchor work: Mode, Phase, Workstream, Branch, Branch Class when relevant, active seam when relevant, task context, task, and an output format containing Source-of-Truth, Record State, Branch Truth, Canonical Workstream, Reuse Baseline, the governed state markers, and Validation Results. Include `Next Legal Phase` and `Next Safe Move` only for lawful-stop output. When Workstream continuation or phase exit matters, include `Backlog Completion State`, `Remaining Implementable Work`, and `Future-Dependent Blockers` from owning canon instead of implying `Hardening` by inertia.
+Every generated prompt should include only the task structure needed to anchor work: Mode, Phase, Workstream, Branch, Branch Class when relevant, active seam when relevant, task context, task, and an output format containing Source-of-Truth, Record State, Branch Truth, Canonical Workstream, Reuse Baseline, the governed state markers, Validation Results, and `Next Legal Phase`. Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation. When Workstream continuation or phase exit matters, include `Backlog Completion State`, `Remaining Implementable Work`, and `Future-Dependent Blockers` from owning canon instead of implying `Hardening` by inertia.
 ```
 
 ## Standard Prompt Templates
@@ -486,7 +486,7 @@ Return:
 - What Was Written
 - Validation Results
 - Ready-To-Commit Decision
-- If `Continue Decision: Stop`: Next Legal Phase
+- Next Legal Phase
 - If `Continue Decision: Stop`: Next Safe Move
 ```
 
@@ -532,7 +532,7 @@ Return:
 - What Was Written
 - Validation Results
 - Ready-To-Commit Decision
-- If `Continue Decision: Stop`: Next Legal Phase
+- Next Legal Phase
 - If `Continue Decision: Stop`: Next Safe Move
 ```
 
