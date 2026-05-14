@@ -84,6 +84,7 @@
     data-dashboard-settings-panel="settings-panel-child-window"
     data-dashboard-settings-panel-state="closed"
     data-dashboard-settings-proof="visible-open-close-control-hit-target"
+    data-dashboard-close-layout="top-most-right-close-pill-with-control-gutter"
     data-overlay-acceptance-policy="deferred-non-gating"
     data-interface-bundle-approval="not-granted"
     data-core-repair-classification="dependency-repair-only"
@@ -99,13 +100,13 @@
             <div class="monitoring-hud__subtitle">Configure HUD access, monitor groups, data sources, warning notifications, and future display behavior.</div>
           </div>
           <div class="monitoring-hud__chrome-actions" aria-label="HUD Dashboard window controls">
-            <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">HUD Overlay deferred</div>
+            <button type="button" id="monitoring-hud-dashboard-close-action" class="monitoring-hud__chrome-button monitoring-hud__chrome-button--close" data-control="close-dashboard" aria-label="Close HUD Dashboard" title="Close HUD Dashboard">
+              Close
+            </button>
             <button type="button" id="monitoring-hud-settings-action" class="monitoring-hud__chrome-button monitoring-hud__chrome-button--settings" data-control="open-dashboard-settings" data-child-window-target="dashboard-settings" aria-label="Open HUD Dashboard settings" aria-haspopup="dialog" aria-expanded="false" title="Open HUD Dashboard settings">
               Settings
             </button>
-            <button type="button" id="monitoring-hud-dashboard-close-action" class="monitoring-hud__chrome-button monitoring-hud__chrome-button--close" data-control="close-dashboard" aria-label="Close HUD Dashboard" title="Close HUD Dashboard">
-              X
-            </button>
+            <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">HUD Overlay deferred</div>
           </div>
         </div>
         <div class="monitoring-hud__surface-role" data-dashboard-role="configuration-settings-surface">

@@ -408,6 +408,7 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
     monitoringHud.dataset.dashboardCloseAffordance = "top-chrome-close-button";
+    monitoringHud.dataset.dashboardCloseLayout = "top-most-right-close-pill-with-control-gutter";
     monitoringHud.dataset.dashboardOpenBadge = "removed";
     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
     monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
@@ -565,6 +566,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardChildWindowScope = "branch2-create-edit-monitor-windows";
     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
     monitoringHud.dataset.dashboardCloseAffordance = "top-chrome-close-button";
+    monitoringHud.dataset.dashboardCloseLayout = "top-most-right-close-pill-with-control-gutter";
     monitoringHud.dataset.dashboardOpenBadge = "removed";
     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
     monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";

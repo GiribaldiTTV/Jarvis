@@ -5786,6 +5786,9 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_move_source = ""
         self._monitoring_hud_resize_frame_sync_last = 0.0
         self._monitoring_hud_show_guard_active = False
+        self._monitoring_hud_show_guard_generation = 0
+        self._monitoring_hud_show_guard_release_delay_ms = 360
+        self._monitoring_hud_deferred_initial_visibility_release = False
         self._monitoring_hud_resize_cursor_key = None
         self._monitoring_hud_resize_override_cursor_active = False
         self._monitoring_hud_resize_hover_timer = QTimer(self)
@@ -6366,9 +6369,9 @@ class DesktopRuntimeWindow(QWidget):
             return QRect()
         return QRect(
             actions_rect.x(),
-            actions_rect.y() + 90,
+            actions_rect.y(),
             actions_rect.width(),
-            46,
+            42,
         )
 
     def _monitoring_hud_settings_action_fallback_screen_rect(self) -> QRect:
@@ -7608,9 +7611,10 @@ class DesktopRuntimeWindow(QWidget):
         if self.surface_role != "hud" or self._is_shutting_down:
             return
         now = time.monotonic()
-        if not force and now - self._monitoring_hud_resize_frame_sync_last < 0.012:
+        if not force and now - self._monitoring_hud_resize_frame_sync_last < 0.006:
             return
         self._monitoring_hud_resize_frame_sync_last = now
+        self.webview.setGeometry(self.rect())
         self.webview.updateGeometry()
         self.webview.update()
         self.update()
@@ -8088,6 +8092,8 @@ class DesktopRuntimeWindow(QWidget):
     def _arm_monitoring_hud_visible_show_guard(self, source: str = "runtime") -> None:
         if self.surface_role != "hud" or self._is_shutting_down:
             return
+        self._monitoring_hud_show_guard_generation += 1
+        generation = self._monitoring_hud_show_guard_generation
         self._monitoring_hud_show_guard_active = True
         self.setWindowOpacity(0.0)
         self._emit_runtime_signal(
@@ -8096,16 +8102,35 @@ class DesktopRuntimeWindow(QWidget):
             slice="SLC-029",
             seam="LV1",
             source=source,
+            release_delay_ms=self._monitoring_hud_show_guard_release_delay_ms,
+            visual_release_model="dashboard_geometry_settled_before_opacity",
         )
-        QTimer.singleShot(160, lambda source=source: self._release_monitoring_hud_visible_show_guard(source))
+        QTimer.singleShot(
+            self._monitoring_hud_show_guard_release_delay_ms,
+            lambda source=source, generation=generation: self._release_monitoring_hud_visible_show_guard(
+                source,
+                generation,
+            ),
+        )
 
-    def _release_monitoring_hud_visible_show_guard(self, source: str = "runtime") -> None:
+    def _release_monitoring_hud_visible_show_guard(self, source: str = "runtime", generation: int | None = None) -> None:
         if self.surface_role != "hud" or self._is_shutting_down:
             return
         if not self._monitoring_hud_show_guard_active:
             return
+        if generation is not None and generation != self._monitoring_hud_show_guard_generation:
+            return
         if not (self._monitoring_hud_feature_enabled and self._monitoring_hud_visible and self.isVisible()):
             return
+        if (
+            not self._monitoring_hud_user_geometry_override_active
+            and not self._monitoring_hud_native_window_resize_active
+            and not self._monitoring_hud_native_move_user_active
+        ):
+            target_geometry = self.compute_compact_geometry()
+            if not self._native_window_matches_target(int(self.winId()), target_geometry):
+                self.setGeometry(target_geometry)
+            self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
         self._monitoring_hud_show_guard_active = False
         self.setWindowOpacity(1.0)
         self._emit_runtime_signal(
@@ -8114,7 +8139,15 @@ class DesktopRuntimeWindow(QWidget):
             slice="SLC-029",
             seam="LV1",
             source=source,
+            release_delay_ms=self._monitoring_hud_show_guard_release_delay_ms,
         )
+        if self._monitoring_hud_deferred_initial_visibility_release:
+            self._monitoring_hud_deferred_initial_visibility_release = False
+            self._log_event(
+                "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE"
+                "|source=monitoring_hud_visible_show_guard"
+            )
+            self.core_visualization_visible.emit()
 
     def _set_monitoring_hud_control_state(
         self,
@@ -10249,6 +10282,13 @@ class DesktopRuntimeWindow(QWidget):
             return
 
         self._startup_visibility_guard_active = False
+        if self.surface_role == "hud" and self._monitoring_hud_show_guard_active:
+            self._monitoring_hud_deferred_initial_visibility_release = True
+            self._log_event(
+                "RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE_DEFERRED"
+                "|reason=monitoring_hud_visible_show_guard"
+            )
+            return
         self.setWindowOpacity(1.0)
         self._log_event("RENDERER_MAIN|CORE_VISUALIZATION_FIRST_VISIBLE")
         self.core_visualization_visible.emit()

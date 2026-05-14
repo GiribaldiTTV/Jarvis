@@ -1030,8 +1030,8 @@ function Get-DashboardTopChromeControlPoints {
     return [ordered]@{
         headerRect = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]($rect.Top + $headerHeight))
         actionsRect = @($actionsLeft, $actionsTop, [int]($actionsLeft + $actionsWidth), [int]($actionsTop + [Math]::Min(146, [Math]::Max(112, $headerHeight - 20))))
-        settingsPoint = @([int]($actionsLeft + ($actionsWidth / 2)), [int]($actionsTop + 46 + 22))
-        closePoint = @([int]($actionsLeft + ($actionsWidth / 2)), [int]($actionsTop + 90 + 23))
+        closePoint = @([int]($actionsLeft + ($actionsWidth / 2)), [int]($actionsTop + 18))
+        settingsPoint = @([int]($actionsLeft + ($actionsWidth / 2)), [int]($actionsTop + 64))
     }
 }
 
@@ -1092,6 +1092,106 @@ function Test-DashboardSequenceGeometryStable {
         (($heights | Measure-Object -Maximum).Maximum - ($heights | Measure-Object -Minimum).Minimum)
     ) | Measure-Object -Maximum | Select-Object -ExpandProperty Maximum
     return [int]$maxDelta -le $MaxDeltaPx
+}
+
+function Get-DashboardFrameSignature {
+    param([object]$Frame, [object]$ReferenceRect, [int]$GridSize = 18)
+    if (-not $Frame -or -not $Frame.screenshot -or -not (Test-Path -LiteralPath $Frame.screenshot)) {
+        return $null
+    }
+    if (-not $ReferenceRect -or $ReferenceRect.Count -ne 4) {
+        return $null
+    }
+    $bitmap = [System.Drawing.Bitmap]::FromFile([string]$Frame.screenshot)
+    try {
+        $left = [Math]::Max(0, [int]$ReferenceRect[0])
+        $top = [Math]::Max(0, [int]$ReferenceRect[1])
+        $right = [Math]::Min($bitmap.Width - 1, [int]$ReferenceRect[2])
+        $bottom = [Math]::Min($bitmap.Height - 1, [int]$ReferenceRect[3])
+        if ($right -le $left -or $bottom -le $top) { return $null }
+        $marginX = [Math]::Max(8, [int](($right - $left) * 0.04))
+        $marginY = [Math]::Max(8, [int](($bottom - $top) * 0.04))
+        $sampleLeft = [Math]::Min($right, $left + $marginX)
+        $sampleTop = [Math]::Min($bottom, $top + $marginY)
+        $sampleRight = [Math]::Max($sampleLeft, $right - $marginX)
+        $sampleBottom = [Math]::Max($sampleTop, $bottom - $marginY)
+        $samples = New-Object System.Collections.Generic.List[double]
+        for ($gy = 0; $gy -lt $GridSize; $gy++) {
+            for ($gx = 0; $gx -lt $GridSize; $gx++) {
+                $x = [int]($sampleLeft + (($sampleRight - $sampleLeft) * (($gx + 0.5) / $GridSize)))
+                $y = [int]($sampleTop + (($sampleBottom - $sampleTop) * (($gy + 0.5) / $GridSize)))
+                $color = $bitmap.GetPixel($x, $y)
+                $samples.Add(([double]$color.R + [double]$color.G + [double]$color.B) / 3.0)
+            }
+        }
+        return [pscustomobject]@{
+            index = [int]$Frame.index
+            screenshot = [string]$Frame.screenshot
+            samples = $samples.ToArray()
+        }
+    }
+    finally {
+        $bitmap.Dispose()
+    }
+}
+
+function Test-DashboardSequenceVisualContinuity {
+    param(
+        [object[]]$Frames,
+        [double]$LargeTransitionThreshold = 24.0,
+        [double]$SettledDeltaThreshold = 15.0
+    )
+    $visibleFrames = @($Frames | Where-Object { $_.dashboardVisible -and $_.dashboardRect -and $_.dashboardRect.Count -eq 4 })
+    if ($visibleFrames.Count -lt 4) {
+        return [pscustomobject]@{
+            Pass = $false
+            Reason = "fewer than four visible dashboard frames"
+            LargeTransitionCount = 0
+            MaxMeanDelta = 0
+            Deltas = @()
+        }
+    }
+    $referenceRect = $visibleFrames[-1].dashboardRect
+    $signatures = @($visibleFrames | ForEach-Object { Get-DashboardFrameSignature -Frame $_ -ReferenceRect $referenceRect })
+    $signatures = @($signatures | Where-Object { $_ -and $_.samples -and $_.samples.Count -gt 0 })
+    if ($signatures.Count -lt 4) {
+        return [pscustomobject]@{
+            Pass = $false
+            Reason = "screenshot signatures unavailable"
+            LargeTransitionCount = 0
+            MaxMeanDelta = 0
+            Deltas = @()
+        }
+    }
+    $deltas = @()
+    for ($i = 1; $i -lt $signatures.Count; $i++) {
+        $previous = $signatures[$i - 1].samples
+        $current = $signatures[$i].samples
+        $count = [Math]::Min($previous.Count, $current.Count)
+        $total = 0.0
+        for ($j = 0; $j -lt $count; $j++) {
+            $total += [Math]::Abs([double]$current[$j] - [double]$previous[$j])
+        }
+        $mean = if ($count -gt 0) { $total / $count } else { 999.0 }
+        $deltas += [pscustomobject]@{
+            from = [int]$signatures[$i - 1].index
+            to = [int]$signatures[$i].index
+            meanLumaDelta = [Math]::Round($mean, 2)
+        }
+    }
+    $largeTransitions = @($deltas | Where-Object { [double]$_.meanLumaDelta -gt $LargeTransitionThreshold })
+    $settledDeltas = if ($deltas.Count -gt 2) { @($deltas | Select-Object -Last ([Math]::Min(3, $deltas.Count))) } else { @($deltas) }
+    $maxMeanDelta = if ($deltas.Count -gt 0) { ($deltas | Measure-Object -Property meanLumaDelta -Maximum).Maximum } else { 0 }
+    $maxSettledDelta = if ($settledDeltas.Count -gt 0) { ($settledDeltas | Measure-Object -Property meanLumaDelta -Maximum).Maximum } else { 0 }
+    $pass = $largeTransitions.Count -le 1 -and [double]$maxSettledDelta -le $SettledDeltaThreshold
+    return [pscustomobject]@{
+        Pass = [bool]$pass
+        Reason = if ($pass) { "no repeated visible flicker transitions after initial appearance" } else { "visible dashboard frames changed too much after first appearance" }
+        LargeTransitionCount = [int]$largeTransitions.Count
+        MaxMeanDelta = [Math]::Round([double]$maxMeanDelta, 2)
+        MaxSettledDelta = [Math]::Round([double]$maxSettledDelta, 2)
+        Deltas = $deltas
+    }
 }
 
 function Read-RuntimeLines {
@@ -1885,11 +1985,13 @@ try {
 
     $firstOpenStartLine = (Read-RuntimeLines).Count
     $earlyOpenEvidence = Invoke-TrayAction -ActionName "Open HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=true" -TimeoutSeconds $ActionTimeoutSeconds
-    $firstOpenFrames = @(Capture-DashboardTimedSequence -LabelPrefix "03c_first_open_stability" -FrameCount 8 -IntervalMs 140)
+    $firstOpenFrames = @(Capture-DashboardTimedSequence -LabelPrefix "03c_first_open_stability" -FrameCount 11 -IntervalMs 110)
     $firstOpenShowGuardReleased = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_VISIBLE_SHOW_GUARD_RELEASED" -AfterLine $firstOpenStartLine -TimeoutSeconds 2
     $firstOpenStable = Test-DashboardSequenceGeometryStable -Frames $firstOpenFrames -MaxDeltaPx 10
-    Add-Step -Id "dashboard_first_open_stability_sequence" -Title "Dashboard first-open shortcut path stays visually and geometrically stable" -Status ($(if ($firstOpenStable -and $firstOpenShowGuardReleased) { "PASS" } else { "FAIL" })) -Detail "Captured $($firstOpenFrames.Count) full-desktop frames at 140ms cadence after real tray Open HUD Dashboard; show_guard_released=$firstOpenShowGuardReleased; geometry_stable=$firstOpenStable." -Evidence @{ frames = $firstOpenFrames; maxAllowedGeometryDeltaPx = 10; expectedMarker = "MONITORING_HUD_VISIBLE_SHOW_GUARD_RELEASED" }
-    if (-not ($firstOpenStable -and $firstOpenShowGuardReleased)) { throw "Dashboard first-open sequence did not meet stability proof through the real shortcut/tray path" }
+    $firstOpenVisual = Test-DashboardSequenceVisualContinuity -Frames $firstOpenFrames
+    $firstOpenPass = $firstOpenStable -and $firstOpenShowGuardReleased -and $firstOpenVisual.Pass
+    Add-Step -Id "dashboard_first_open_stability_sequence" -Title "Dashboard first-open shortcut path stays visually and geometrically stable" -Status ($(if ($firstOpenPass) { "PASS" } else { "FAIL" })) -Detail "Captured $($firstOpenFrames.Count) full-desktop frames at 110ms cadence after real tray Open HUD Dashboard; show_guard_released=$firstOpenShowGuardReleased; geometry_stable=$firstOpenStable; visual_continuity=$($firstOpenVisual.Pass); large_visual_transitions=$($firstOpenVisual.LargeTransitionCount); max_visual_delta=$($firstOpenVisual.MaxMeanDelta); max_settled_delta=$($firstOpenVisual.MaxSettledDelta)." -Evidence @{ frames = $firstOpenFrames; visualContinuity = $firstOpenVisual; maxAllowedGeometryDeltaPx = 10; expectedMarker = "MONITORING_HUD_VISIBLE_SHOW_GUARD_RELEASED"; visualContinuityPolicy = "initial appearance may transition once; repeated visible flicker or late settled-frame shifts fail" }
+    if (-not $firstOpenPass) { throw "Dashboard first-open sequence did not meet visual and geometry stability proof through the real shortcut/tray path" }
     $earlyOpenShot = Capture-VirtualScreenshot "03c_after_open_hud_dashboard_before_move"
     $dashboard = Get-DashboardWindow
     Add-Step -Id "open_dashboard_from_tray_before_move" -Title "Tray Open HUD Dashboard shows visible Dashboard before movement/resize" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after open before move: $([bool]$dashboard)" -Evidence @{ screenshot = $earlyOpenShot; trayClick = $earlyOpenEvidence }
@@ -1938,25 +2040,25 @@ try {
     if (-not $settingsClosedMarker) { throw "Dashboard Settings panel did not close through the visible Done control" }
 
     $dashboard = Get-DashboardWindow
-    if (-not $dashboard) { throw "Dashboard disappeared before top-chrome X proof" }
+    if (-not $dashboard) { throw "Dashboard disappeared before top-chrome Close proof" }
     $chromePoints = Get-DashboardTopChromeControlPoints -Dashboard $dashboard
     $closePoint = @($chromePoints.closePoint)
     $closeHit = Get-NativeHitTestKindAtPoint -WindowHandle ([long]$dashboard.Current.NativeWindowHandle) -X ([int]$closePoint[0]) -Y ([int]$closePoint[1])
     $topCloseBeforeLine = (Read-RuntimeLines).Count
-    $topCloseClick = Click-ScreenPoint -X ([int]$closePoint[0]) -Y ([int]$closePoint[1]) -Label "Dashboard top-chrome X button"
+    $topCloseClick = Click-ScreenPoint -X ([int]$closePoint[0]) -Y ([int]$closePoint[1]) -Label "Dashboard top-chrome Close button"
     $topCloseMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY" -AfterLine $topCloseBeforeLine -TimeoutSeconds 4
-    $topCloseShot = Capture-VirtualScreenshot "03g_after_dashboard_top_chrome_x"
+    $topCloseShot = Capture-VirtualScreenshot "03g_after_dashboard_top_chrome_close"
     $dashboardAfterTopClose = Get-DashboardWindow
     $topClosePass = $topCloseMarker -and (-not $dashboardAfterTopClose) -and ($closeHit -eq "htclient")
-    Add-Step -Id "dashboard_top_chrome_x_hides_dashboard" -Title "Dashboard top-chrome X hides Dashboard without disabling HUD Feature" -Status ($(if ($topClosePass) { "PASS" } else { "FAIL" })) -Detail "closePoint=($($closePoint -join ',')); hitTest=$closeHit; native_marker=$topCloseMarker; dashboard_visible_after_x=$([bool]$dashboardAfterTopClose)." -Evidence @{ screenshot = $topCloseShot; click = $topCloseClick; controlPoints = $chromePoints; hitTest = $closeHit; expectedMarker = "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY" }
-    if (-not $topClosePass) { throw "Dashboard top-chrome X did not hide the Dashboard through the real mouse path" }
+    Add-Step -Id "dashboard_top_chrome_close_hides_dashboard" -Title "Dashboard top-chrome Close hides Dashboard without disabling HUD Feature" -Status ($(if ($topClosePass) { "PASS" } else { "FAIL" })) -Detail "closePoint=($($closePoint -join ',')); hitTest=$closeHit; native_marker=$topCloseMarker; dashboard_visible_after_close=$([bool]$dashboardAfterTopClose)." -Evidence @{ screenshot = $topCloseShot; click = $topCloseClick; controlPoints = $chromePoints; hitTest = $closeHit; expectedMarker = "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY"; expectedLayout = "top-most right Close pill, separated from Settings by a visible gutter" }
+    if (-not $topClosePass) { throw "Dashboard top-chrome Close did not hide the Dashboard through the real mouse path" }
 
     $reopenAfterX = Invoke-TrayAction -ActionName "Open HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=true" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 900
-    $reopenAfterXShot = Capture-VirtualScreenshot "03h_after_reopen_dashboard_after_top_chrome_x"
+    $reopenAfterXShot = Capture-VirtualScreenshot "03h_after_reopen_dashboard_after_top_chrome_close"
     $dashboard = Get-DashboardWindow
-    Add-Step -Id "dashboard_reopens_after_top_chrome_x" -Title "Tray reopens Dashboard after top-chrome X close" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after tray reopen from top-chrome X close: $([bool]$dashboard)" -Evidence @{ screenshot = $reopenAfterXShot; trayClick = $reopenAfterX }
-    if (-not $dashboard) { throw "Dashboard did not reopen after top-chrome X close" }
+    Add-Step -Id "dashboard_reopens_after_top_chrome_close" -Title "Tray reopens Dashboard after top-chrome Close" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after tray reopen from top-chrome Close: $([bool]$dashboard)" -Evidence @{ screenshot = $reopenAfterXShot; trayClick = $reopenAfterX }
+    if (-not $dashboard) { throw "Dashboard did not reopen after top-chrome Close" }
 
     $rectBeforeMove = $dashboard.Current.BoundingRectangle
     Drag-FromTo -StartX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2))) -StartY ([int]($rectBeforeMove.Top + 48)) -EndX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2) + 90)) -EndY ([int]($rectBeforeMove.Top + 88)) -Label "Dashboard header move"
@@ -2140,8 +2242,8 @@ try {
 
     $resizeShot = Capture-VirtualScreenshot "05_after_dashboard_mouse_resize"
     $cornerUniqueSizes = @($cornerSamples | ForEach-Object { "$($_.Width)x$($_.Height)" } | Sort-Object -Unique).Count
-    $resizeFluidityPass = $cornerUniqueSizes -ge 4 -and $rightUniqueWidths -ge 4 -and $bottomUniqueHeights -ge 4
-    Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize grows through multiple geometry samples during drag" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; sampled at 28 steps with 16ms delay while the left button was held." -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; minimumUniqueSamples = 4 }
+    $resizeFluidityPass = $cornerUniqueSizes -ge 6 -and $rightUniqueWidths -ge 6 -and $bottomUniqueHeights -ge 6
+    Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize grows through multiple geometry samples during drag" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; sampled at 28 steps with 16ms delay while the left button was held." -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; minimumUniqueSamples = 6; expectation = "returned UTS said #127 is improved but still needs smoother tracking, so LV1 now requires denser intermediate geometry proof" }
     if (-not $resizeFluidityPass) { throw "Dashboard resize did not produce enough intermediate geometry samples during drag" }
     Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through pre-click Windows resize cursor transitions" -Status "PASS" -Detail "Corner, right-edge, and bottom-edge resize actions changed real Dashboard geometry after the helper discovered the same standard Windows resize cursor transition a USER would look for before clicking." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior; cornerTransition = $cornerTransition; rightTransition = $rightResizeTransition; bottomTransition = $bottomResizeTransition; resizeFluidity = @{ cornerUniqueSizes = $cornerUniqueSizes; rightUniqueWidths = $rightUniqueWidths; bottomUniqueHeights = $bottomUniqueHeights } }
 

@@ -446,9 +446,9 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $precheckResizeDiscoverability = Format-ShortcutPrecheckLine @("dashboard_resize_cursor_alignment", "dashboard_resize_cursor_transition_discovery", "dashboard_mouse_resize_corner", "dashboard_mouse_resize_right_edge", "dashboard_mouse_resize_bottom_edge", "dashboard_resize_fluidity", "dashboard_mouse_resize") "LV1 cannot claim unrestricted green handoff for Dashboard resize discoverability/fluidity without USER waiver."
     $precheckFirstOpenStability = Format-ShortcutPrecheckLine @("dashboard_first_open_stability_sequence") "LV1 cannot claim unrestricted green handoff for #123 first-open stability without real shortcut screenshot-sequence proof or USER waiver."
     $precheckSettingsPanel = Format-ShortcutPrecheckLine @("dashboard_settings_opens_with_real_mouse", "dashboard_settings_double_click_does_not_maximize", "dashboard_settings_done_closes_with_real_mouse") "LV1 cannot claim unrestricted green handoff for Dashboard Settings unless the real mouse/top-chrome path opens and closes the panel without native maximize drift or USER waiver."
-    $precheckTopChromeX = Format-ShortcutPrecheckLine @("dashboard_top_chrome_x_hides_dashboard", "dashboard_reopens_after_top_chrome_x") "LV1 cannot claim unrestricted green handoff for Dashboard top-chrome close unless the visible X hides only the Dashboard and tray reopen works or USER waiver."
+    $precheckTopChromeClose = Format-ShortcutPrecheckLine @("dashboard_top_chrome_close_hides_dashboard", "dashboard_reopens_after_top_chrome_close") "LV1 cannot claim unrestricted green handoff for Dashboard top-chrome close unless the visible Close control hides only the Dashboard and tray reopen works or USER waiver."
     $precheckHudPersistence = Format-ShortcutPrecheckLine @("hud_feature_enabled_state_persisted") "LV1 cannot claim unrestricted green handoff for HUD Feature state persistence without USER waiver."
-    $precheckHumanClientRun = Format-ShortcutPrecheckLine @("launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "dashboard_first_open_stability_sequence", "dashboard_settings_opens_with_real_mouse", "dashboard_top_chrome_x_hides_dashboard", "ncp_create_custom_task_clickable_with_dashboard_open", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff without real-human client precheck coverage or USER waiver."
+    $precheckHumanClientRun = Format-ShortcutPrecheckLine @("launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "dashboard_first_open_stability_sequence", "dashboard_settings_opens_with_real_mouse", "dashboard_top_chrome_close_hides_dashboard", "ncp_create_custom_task_clickable_with_dashboard_open", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff without real-human client precheck coverage or USER waiver."
     $activeClientPrecheck = "Codex Precheck: PASS through proven equivalent active-client live helper path - equivalence evidence: same active branch runtime, active foreground desktop client, PASS manifest, PASS interaction self-QA, and before/after full-desktop screenshots at $($Paths.Root)."
     $visualScreenshotPrecheck = "Codex Precheck: PASS through proven equivalent active-client screenshot/manifest path - equivalence evidence: PASS live helper manifest, USER-inspectable screenshot folder, and interaction manifest at $($Paths.Root). USER visual confirmation is still required."
     $deferredBoundaryPrecheck = "Codex Precheck: PASS through source-truth, static validation, sandbox validation, and active-client manifest boundary proof - USER is not being asked to accept deferred/future scope."
@@ -526,7 +526,10 @@ Returned USER Issue Register Retest Focus
 - FAM006-RUI-058 USER-reported #123 recurrence after prior active-client proof: covered by Focus Item A and the real shortcut first-open screenshot sequence. $precheckFirstOpenStability
 - FAM006-RUI-059 USER-reported #127 recurrence after prior active-client proof: covered by Focus Item B and Step 8 real mouse resize-fluidity proof. $precheckResizeDiscoverability
 - FAM006-RUI-060 Dashboard Settings visible but not opening / double-click maximizes Dashboard: covered by Focus Item C. $precheckSettingsPanel
-- FAM006-RUI-061 Dashboard close affordance should be an X and work from top chrome: covered by Focus Item D. $precheckTopChromeX
+- FAM006-RUI-061 Dashboard close affordance should use the Settings-window-style Close pill at the top-right and work from top chrome: covered by Focus Item D. $precheckTopChromeClose
+- FAM006-RUI-062 returned UTS says #127 is almost gone but still needs smoother resize: covered by Focus Item B and stricter Step 8 dense geometry-sample proof. $precheckResizeDiscoverability
+- FAM006-RUI-063 returned UTS says top-chrome Close should match the Settings-window Close and sit at the top-most right with a clear gutter: covered by Focus Item D. $precheckTopChromeClose
+- FAM006-RUI-064 returned UTS says #123 first-open flicker is still present: covered by Focus Item A and the visual-continuity screenshot sequence. $precheckFirstOpenStability
 
 Focused FAM-006 Dashboard Settings Panel Retest
 Answer each focused item as PASS, FAIL, or WAIVED. Add exact notes for any FAIL or WAIVED result.
@@ -543,8 +546,8 @@ Focus Item C - Dashboard Settings panel
 Click the visible Settings button once. Expected: the Settings Panel opens. Double-clicking the Settings area must not maximize/fullscreen the Dashboard. Use Done/Close inside the panel. Expected: the panel closes and the Dashboard remains open and usable. $precheckSettingsPanel
 USER Result / Notes:
 
-Focus Item D - Dashboard top-chrome X
-Click the top-chrome X. Expected: the Dashboard hides without disabling the HUD Feature, and tray Open HUD Dashboard brings it back. $precheckTopChromeX
+Focus Item D - Dashboard top-chrome Close
+Click the top-chrome Close control. Expected: the Dashboard hides without disabling the HUD Feature, and tray Open HUD Dashboard brings it back. The Close control should look like the Settings-window Close pill, sit at the top-most right of the Dashboard UI, and keep a clear but restrained gutter from Settings. $precheckTopChromeClose
 USER Result / Notes:
 
 Focus Item E - Dashboard regression sweep
@@ -776,7 +779,7 @@ USER Result / Notes:
 What This Test Is Checking
 - The HUD Dashboard is the current branch's primary user-facing interface release surface.
 - The Dashboard is a Nexus/NDAI settings and control hub for HUD Overlay posture, monitor groups, warning notifications, data-source/readiness truth, and future Overlay/display behavior.
-- This rerun specifically checks the returned-feedback repair set: tray enable/disable, Dashboard tray open/close, disable-HUD recovery, Dashboard frame/scrollbar ownership, resize cursor alignment, pre-click resize cursor timing, resize fluidity, deadzone removal, sticky-header masking, action cleanup, HUD Overlay terminology, and deferred/broken button handling.
+- This rerun specifically checks the returned-feedback repair set: first-open flicker recurrence, resize cursor alignment, pre-click resize cursor timing, denser resize fluidity proof, Dashboard top-right Close styling/placement, Dashboard Settings open/close behavior, tray enable/disable, Dashboard tray open/close, disable-HUD recovery, Dashboard frame/scrollbar ownership, deadzone removal, sticky-header masking, action cleanup, HUD Overlay terminology, and deferred/broken button handling.
 - Overlay/display release acceptance is deferred and non-gating for this branch's Dashboard acceptance path. Do not fail this Dashboard handoff because Overlay/display release acceptance is not being requested.
 - ORIN/Core is dependency-only proof for desktop safety. It should remain independent from the Dashboard and should not be judged as a released FAM-006 interface in this handoff.
 - Dev Toolkit Interface Review Mode and full standalone child-window implementation are deferred/future. Do not fail this Dashboard handoff because those future branches are not implemented here.
