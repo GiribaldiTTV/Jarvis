@@ -7,7 +7,7 @@
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
 - Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; not a governance-only branch`
-- Current Delta Status: `Branch Readiness Stage 2 source-truth setup only; runtime code implementation begins only after later USER approval`
+- Current Delta Status: `Runtime settings-panel implementation in progress after USER approval; branch remains the FAM-006 Dashboard settings-panel runtime carrier`
 - Backlog Record State: `Registry-only runtime continuation under historical FAM-006 / PKG-006`
 - Package ID: `PKG-006`
 - Package Name: `Monitoring HUD Dashboard Product Surface`
@@ -16,18 +16,18 @@
 
 This branch is the USER-approved Branch Readiness Stage 2 carrier for the next FAM-006 runtime-focused Dashboard surface after PR #133 merged the release-support source truth into main.
 
-It exists because the Dashboard settings cog/settings panel remained a deferred FAM-006 Dashboard controls/settings surface after the Dashboard product-surface release and the later issue-resolution PRs. This is not a governance-only branch: the accepted carrier is the FAM-006 Dashboard settings-panel runtime branch. The current Stage 2 commit is source-truth setup only because runtime implementation remains a future USER approval checkpoint. The branch also carries the bounded post-PR #133 source-truth drift repair that must land on the next legitimate runtime-focused FAM-006 carrier before implementation begins.
+It exists because the Dashboard settings cog/settings panel remained a deferred FAM-006 Dashboard controls/settings surface after the Dashboard product-surface release and the later issue-resolution PRs. This is not a governance-only branch: the accepted carrier is the FAM-006 Dashboard settings-panel runtime branch. Runtime implementation is now USER-approved for the bounded Dashboard settings cog/settings panel seam, while the branch also preserves the bounded post-PR #133 source-truth drift repair that landed before implementation began.
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
 - `Active Branch`: `feature/fam-006-dashboard-settings-panel`
 - Branch Readiness Stage 1: `Complete - USER selected the FAM-006 Dashboard settings panel as the next runtime-focused carrier after PR #133 merge`
 - Branch Readiness Stage 2: `Complete - USER approved worktree creation from updated origin/main, branch creation, PR #133 post-merge source-truth drift repair, branch authority setup, validation, commit, and push`
-- Runtime Implementation: `Pending USER approval after Branch Readiness Stage 2 completes`
+- Runtime Implementation: `USER-approved and implemented for the bounded Dashboard settings cog/settings panel surface`
 - GitHub Issue Closeout: `Pending USER approval for #123, #124, #125, #126, and #127`
 - Release Execution: `Pending USER approval`
 - Branch Authority State: `Active`
@@ -36,15 +36,15 @@ It exists because the Dashboard settings cog/settings panel remained a deferred 
 
 - `implementation`
 
-Implementation Delta Class: `docs-only`
+Implementation Delta Class: `runtime/user-facing`
 
 ## Planning-Loop Guardrail
 
-Implementation Delta Class: `docs-only`
-Docs-Only Workstream: `Yes`
-Planning-Loop Bypass User Approval: `APPROVED`
-Planning-Loop Bypass Reason: `USER approved Branch Readiness Stage 2 setup and bounded post-PR #133 source-truth drift repair on the runtime-focused settings-panel branch; runtime implementation remains blocked until later USER approval.`
-Runtime Carrier Marker: `Yes - this is the FAM-006 Dashboard settings-panel runtime carrier; the docs-only delta applies only to Branch Readiness setup before USER-approved runtime implementation.`
+Implementation Delta Class: `runtime/user-facing`
+Docs-Only Workstream: `No`
+Planning-Loop Bypass User Approval: None
+Planning-Loop Bypass Reason: None
+Runtime Carrier Marker: `Yes - this is the FAM-006 Dashboard settings-panel runtime carrier; the current delta includes runtime UI, hit-testing, validator, and source-truth work.`
 
 ## Slice Continuation Policy
 
@@ -54,7 +54,7 @@ Backlog-Split Reason: `None`
 
 ## Blockers
 
-- `Runtime Implementation Approval Missing`: active until USER approves settings-panel runtime implementation on this branch.
+- `Runtime Implementation Approval`: cleared for the bounded Dashboard settings cog/settings panel runtime surface.
 - `PR Creation Approval Missing`: active after Branch Readiness setup until USER approves PR Readiness / PR creation.
 - `GitHub Issue Closeout Approval Missing`: active for comments or state changes on #123, #124, #125, #126, and #127.
 - `Release Execution Approval Missing`: active.
@@ -94,13 +94,13 @@ Rollback Path: if this setup fails validation, current authorization covers boun
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
-Next Legal Phase Gate: after Branch Readiness Stage 2 setup validates, commits, and pushes, the next legal step is USER decision on runtime implementation for the FAM-006 Dashboard settings panel. PR creation, merge, issue closeout/comments, release execution, raw evidence handling, FAM-007/runtime provider work, AI Product Contract import, and Private Dev ORIN import remain separate USER approval checkpoints.
+Next Legal Phase Gate: after runtime implementation validation, commit, and push, the next legal phase is `Hardening` for H1/live validation by USER decision. PR Readiness and PR creation remain later phase decisions after Hardening/LV posture is established; merge, issue closeout/comments, release execution, raw evidence handling, FAM-007/runtime provider work, AI Product Contract import, and Private Dev ORIN import remain separate USER approval checkpoints.
 
 ## Branch Objective
 
-Create the FAM-006 Dashboard settings-panel runtime-focused carrier from updated main, repair PR #133 post-merge source-truth drift, and preserve a clear stop before runtime implementation. The branch is runtime-focused even though the Branch Readiness setup commit is docs/source-truth only.
+Create the FAM-006 Dashboard settings-panel runtime-focused carrier from updated main, repair PR #133 post-merge source-truth drift, and implement the bounded Dashboard settings cog/settings panel surface after USER approval.
 
 ## Target End-State
 
@@ -109,7 +109,7 @@ Create the FAM-006 Dashboard settings-panel runtime-focused carrier from updated
 - Release-support source truth is historical after PR #133 merge.
 - PR #129 and PR #132 remain merged-unreleased release debt.
 - Issues #123 through #127 remain completed in source truth and pending USER-approved GitHub closeout.
-- Runtime implementation remains blocked until USER approves Workstream entry.
+- Runtime implementation is bounded to the Dashboard settings cog/settings panel surface and remains separate from FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, issue closeout, release execution, raw evidence handling, and PR creation.
 
 ## Product Definition Plan
 
@@ -117,19 +117,19 @@ Product Vision: `Finish the deferred Dashboard settings/control surface by givin
 
 User-Facing Goal: `The Dashboard should expose a deliberate settings panel for user-adjustable Dashboard behavior instead of leaving settings/control visibility as a deferred placeholder.`
 
-USER Vision Questions: `None open for Branch Readiness Stage 2; USER selected the FAM-006 Dashboard settings panel as the next runtime-focused carrier and confirmed the separate-worktree waiver. Runtime implementation details remain pending USER approval.`
+USER Vision Questions: `None open for this bounded runtime seam; USER selected the FAM-006 Dashboard settings panel as the next runtime-focused carrier, confirmed the separate-worktree waiver, and approved runtime implementation for the settings cog/settings panel surface.`
 
-Codex Product Interpretation: `This branch should first create durable branch authority and clean post-PR #133 drift, then stop. Later implementation should focus only on the Dashboard settings cog/settings panel and should not reopen #123 through #127 or FAM-007.`
+Codex Product Interpretation: `This branch now carries the Dashboard settings cog/settings panel runtime seam and should not reopen #123 through #127 or FAM-007.`
 
-Codex Implementation Recommendation: `Use this branch for Branch Readiness setup now; after USER approval, implement the settings-panel surface in the Dashboard/HUD runtime files with matching validators and user-facing proof.`
+Codex Implementation Recommendation: `Keep the implementation bounded to the Dashboard settings affordance, settings panel, truthful supported-state copy, hit-testing, validators, and source-truth record.`
 
-USER/ChatGPT Review Checkpoint: `USER approved Stage 2 setup and must separately approve runtime implementation before code changes begin.`
+USER/ChatGPT Review Checkpoint: `USER approved Stage 2 setup and later approved runtime implementation before code changes began.`
 
 Full Feature Element Breakdown: `Settings cog or entry affordance; settings-panel container; Dashboard control/settings content; visibility/open/close behavior; persistence or state hooks only if USER approves; validation markers and active-client proof for any user-facing runtime changes.`
 
-Current Branch vs Future Package Boundaries: `Current branch may record Branch Readiness setup, PR #133 drift repair, and branch authority. Future Workstream may implement Dashboard settings-panel behavior after USER approval. Future/out-of-scope work includes issue closeout/comments, release execution, raw evidence import/linking, FAM-007 local AI/provider work, provider/model/memory/shortcut/installer work, Workspace Runtime Isolation Stage 2, AI Product Contract import, Private Dev ORIN import, and runtime expansion beyond the Dashboard settings-panel carrier.`
+Current Branch vs Future Package Boundaries: `Current branch carries Branch Readiness setup, PR #133 drift repair, branch authority, and the USER-approved Dashboard settings cog/settings panel runtime surface. Future/out-of-scope work includes issue closeout/comments, release execution, raw evidence import/linking, FAM-007 local AI/provider work, provider/model/memory/shortcut/installer work, Workspace Runtime Isolation Stage 2, Overlay/display acceptance, external telemetry parity, AI Product Contract import, Private Dev ORIN import, and runtime expansion beyond the Dashboard settings-panel carrier.`
 
-Affected Surfaces: `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; `Docs/branch_records/index.md`; `Docs/branch_records/feature_fam_006_dashboard_release_support.md`; this branch record; future runtime implementation may affect `nexus_visual/monitoring_hud.html`, `nexus_visual/monitoring_hud.css`, `nexus_visual/monitoring_hud.js`, `desktop/desktop_renderer.py`, and HUD validators.
+Affected Surfaces: `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`; `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; this branch record.
 
 Data/Control Model: `Dashboard remains the user-facing control surface. Settings-panel state should be explicit and local to the Dashboard unless USER approves persistent settings or provider/runtime wiring. Existing release debt and issue-closeout state remain source-truth metadata, not runtime data.`
 
@@ -139,23 +139,23 @@ Why Branch Is Large Enough: `The branch has a concrete runtime surface, expected
 
 Why Not Split Into Tiny Branches: `Splitting setup, settings entry, panel UI, and validation into separate branches would recreate source-truth churn and same-file conflict risk across the Dashboard surface.`
 
-Acceptance Criteria: `Branch Readiness acceptance requires clean worktree/branch creation from updated main, active authority setup, PR #133 drift repaired, release debt preserved, issue closeout pending, validation green, commit, and push. Runtime acceptance criteria must be recorded after USER approves implementation.`
+Acceptance Criteria: `Dashboard exposes a clear settings affordance; settings panel opens and closes without disabling the HUD feature; existing Create Monitor, Edit Monitor, Close, tray open/close, scroll gutter, resize, and first-open behavior are preserved; settings controls are treated as controls by hit-testing; panel copy avoids fake provider telemetry, fake Overlay/display readiness, and unsupported runtime claims; validators prove behavior beyond marker presence.`
 
-Validation Proof Requirements: `Branch Readiness proof requires git identity/status checks, diff checks, branch governance validation, release body validation, and compileall. Runtime proof later must include static/sandbox HUD validators and live/user-facing Dashboard proof if the settings panel changes visible behavior.`
+Validation Proof Requirements: `Runtime proof requires static HUD validator, internal sandbox validator, branch governance validation, release body validation, compileall, and live-client self-QA when USER-facing H1/PR readiness is requested.`
 
-Screenshot / Live / User Test Summary Proof Requirements: `No screenshot/live/UTS proof is required for Branch Readiness source-truth setup. Later settings-panel runtime implementation must define active-client screenshot/live proof and USER visual/UTS expectations or an explicit waiver.`
+Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation adds active-client self-QA hooks for the settings panel; H1/live validation should exercise the visible Settings button, settings panel open/close, and warning toggle before PR Readiness unless USER grants a specific waiver.`
 
-Implementation Sequence Proposal: `After USER approves Workstream/runtime implementation: inspect current Dashboard settings affordance state; implement the settings entry/panel; add or update validators; run active-client proof; record H1/validation evidence; stop for PR Readiness.`
+Implementation Sequence Proposal: `Implemented settings entry/panel, updated validators, recorded source truth, and stop after validation/commit/push for H1/live validation or PR Readiness decision.`
 
-Planning Blockers: `Runtime Implementation Approval Missing`; `GitHub Issue Closeout Approval Missing`; `Release Execution Approval Missing`; `Raw Evidence Import Decision Pending`; `FAM-007 / Local AI Authority Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
+Planning Blockers: `GitHub Issue Closeout Approval Missing`; `Release Execution Approval Missing`; `Raw Evidence Import Decision Pending`; `FAM-007 / Local AI Authority Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
 
-USER Decisions Needed: `Approve runtime implementation for the settings panel, approve PR creation later, approve GitHub issue closeout/comments, approve release execution/tags/releases/artifacts, approve raw evidence handling, and approve any FAM-007/provider/model/memory/shortcut/installer work separately.`
+USER Decisions Needed: `Approve H1/live validation or PR Readiness next, approve PR creation later, approve GitHub issue closeout/comments, approve release execution/tags/releases/artifacts, approve raw evidence handling, and approve any FAM-007/provider/model/memory/shortcut/installer work separately.`
 
 Planning Packet Status: Complete
 
 Planning Revalidation Status: PASS
 
-User Test Summary Strategy: `No UTS is generated, refreshed, imported, uploaded, linked, or digested by this Branch Readiness pass. Runtime-visible settings-panel implementation must define UTS/live proof expectations before user-facing closeout.`
+User Test Summary Strategy: `No UTS is generated, refreshed, imported, uploaded, linked, or digested by this runtime implementation pass. USER-facing H1 instructions are provided for Settings open/close, truthful panel copy, warning toggle, and Dashboard regression behavior.`
 
 Planning Completion Waiver: `Not required - this record supplies the Branch Readiness planning packet for the runtime-focused settings-panel carrier.`
 
@@ -169,17 +169,17 @@ Interface Bundle User Approval: `Not granted - this branch has one primary Dashb
 
 Fallback Point: `If settings-panel runtime scope proves larger than the Dashboard surface, stop and request USER decision before expanding into provider/runtime/installer/FAM-007 work.`
 
-Interface Acceptance Path: `Later runtime implementation must define active-client proof and optional USER visual/UTS acceptance for the settings-panel surface.`
+Interface Acceptance Path: `The settings-panel implementation is ready for H1/live validation; optional USER visual/UTS acceptance remains a later governed step.`
 
 ## Admitted Implementation Slice
 
 - Slice ID: `SLC-027`
-- Goal: `Continue settings and user controls visibility under the already admitted PKG-006 Dashboard package by implementing the Dashboard settings panel after USER approves runtime work.`
+- Goal: `Continue settings and user controls visibility under the already admitted PKG-006 Dashboard package by implementing the Dashboard settings panel after USER approval.`
 - Runtime/User-Facing Delta: `Dashboard settings cog/settings panel visibility and interaction.`
-- Exact Affected Paths: `nexus_visual/monitoring_hud.*`; `desktop/desktop_renderer.py` if native visibility routing is needed; HUD Dashboard validators if implementation changes behavior.
+- Exact Affected Paths: `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`; `desktop/desktop_renderer.py`; HUD Dashboard validators.
 - Carried Issues: `None newly created or closed by Branch Readiness setup`; settings-panel runtime work remains a deferred FAM-006 Dashboard control-surface item.
 - Non-Includes: `#123`; `#124`; `#125`; `#126`; `#127`; GitHub issue closeout/comments; release execution; raw evidence import/linking; FAM-007/local AI; provider/model/memory/shortcut/installer work; AI Product Contract import; Private Dev ORIN import.
-- Implementation Admission Status: `Pending USER approval after Branch Readiness Stage 2.`
+- Implementation Admission Status: `USER-approved for the bounded Dashboard settings cog/settings panel surface.`
 
 ## Expected Runtime Surfaces
 
@@ -189,15 +189,24 @@ Interface Acceptance Path: `Later runtime implementation must define active-clie
 - `desktop/desktop_renderer.py`
 - HUD/dashboard validators if implementation changes require proof hardening.
 
-No runtime source is changed by Branch Readiness Stage 2.
+Runtime source is changed by the USER-approved Workstream implementation on this branch.
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Complete Branch Readiness setup for the FAM-006 Dashboard settings-panel runtime carrier, then await USER decision on runtime implementation.`
+Branch Completion Goal: `Complete the bounded FAM-006 Dashboard settings cog/settings panel runtime surface, validate, commit, push, and then await USER decision on H1/live validation or PR Readiness.`
 
-Known Future-Dependent Blockers: `Runtime implementation, PR creation, GitHub issue closeout/comments, raw evidence upload/import/linking, release execution, tags, GitHub Releases, artifacts, FAM-007 runtime/admission, AI Product Contract import, Private Dev ORIN import, and runtime/provider/model/memory/shortcut/installer work all require later USER approval.`
+Known Future-Dependent Blockers: `PR creation, GitHub issue closeout/comments, raw evidence upload/import/linking, release execution, tags, GitHub Releases, artifacts, FAM-007 runtime/admission, AI Product Contract import, Private Dev ORIN import, Overlay/display acceptance, external telemetry parity, and runtime/provider/model/memory/shortcut/installer work all require later USER approval.`
 
-Branch Closure Rule: `Stop after validation, commit, and push; do not begin runtime implementation, create a PR, close/comment GitHub issues, release, tag, create artifacts, import/link raw evidence, mutate FAM-007, or perform provider/model/memory/shortcut/installer work without later USER approval.`
+Branch Closure Rule: `Stop after validation, commit, and push; PR creation, GitHub issue comments/state changes, release execution, tags, artifacts, raw evidence import/linking, FAM-007 changes, provider/model/memory/shortcut/installer work, Overlay/display acceptance, and external telemetry parity remain pending USER decisions.`
+
+## Backlog Completion Status
+
+Backlog Completion State: Implemented Complete Except Future Dependency
+Completion Status: Green
+Remaining Implementable Work: None
+Future-Dependent Blockers: PR creation, GitHub issue closeout/comments, raw evidence upload/import/linking, release execution, FAM-007 runtime/admission, AI Product Contract import, Private Dev ORIN import, Overlay/display acceptance, external telemetry parity, and runtime/provider/model/memory/shortcut/installer work all require later USER approval.
+Visible User-Facing Proof Required: Yes for Dashboard settings-panel confidence - active-client live proof is required before PR Readiness unless USER grants a specific waiver.
+Visible User-Facing Proof: PASS - active-client live proof captured at `dev/logs/fam_006_monitoring_hud_live_validation/20260513_190929_547`.
 
 ## Release Debt And Issue Closeout
 
@@ -239,17 +248,17 @@ Same-File Overlap Result: overlap exists in repo-wide source-truth owners such a
 
 ## Expected Seam Families And Risk Classes
 
-Seam Families: `Dashboard settings-panel branch readiness`; `PR #133 post-merge source-truth drift repair`; `FAM-006 release-debt preservation`; `multi-worktree coordination`; `future Dashboard settings runtime implementation`.
+Seam Families: `Dashboard settings-panel runtime implementation`; `Dashboard settings-panel branch readiness`; `PR #133 post-merge source-truth drift repair`; `FAM-006 release-debt preservation`; `multi-worktree coordination`.
 
-Risk Classes: `stale active release-support truth`; `runtime implementation before USER approval`; `FAM-007 boundary bleed`; `same-file source-truth overlap`; `release-debt accidental normalization`; `issue-closeout overreach`; `raw evidence over-import`; `provider/model/installer scope creep`.
+Risk Classes: `settings controls swallowed by native drag/hit-testing`; `fake provider telemetry or Overlay/display readiness copy`; `Dashboard close/tray regression`; `FAM-007 boundary bleed`; `same-file source-truth overlap`; `release-debt accidental normalization`; `issue-closeout overreach`; `raw evidence over-import`; `provider/model/installer scope creep`.
 
 ## User Test Summary Strategy
 
-No User Test Summary is required for this Branch Readiness setup. Later runtime settings-panel implementation must define active-client proof, screenshot/live validation, and USER visual or UTS expectations before closeout, unless USER grants a specific waiver.
+No User Test Summary is generated, refreshed, imported, uploaded, linked, or digested by this runtime implementation pass. H1/user-facing validation should test the Settings affordance, settings panel open/close, truthful supported-state copy, warning toggle, and Dashboard regression behavior.
 
 ## Later-Phase Expectations
 
-- USER may approve runtime implementation for the FAM-006 Dashboard settings panel after this setup is pushed.
+- USER may approve H1/live validation or PR Readiness after this implementation is pushed.
 - PR creation remains a later USER decision after implementation/validation.
 - GitHub issue closeout/comments for #123 through #127 remain pending USER approval.
 - Release execution, tags, GitHub Releases, artifacts, and raw evidence handling remain pending USER approval.
@@ -259,7 +268,7 @@ No User Test Summary is required for this Branch Readiness setup. Later runtime 
 
 Seam 1: `Dashboard settings-panel inspection and bounded implementation`
 
-Goal: `Implement a deliberate Dashboard settings panel after USER approves runtime Workstream entry.`
+Goal: `Implement a deliberate Dashboard settings panel after USER approval for runtime Workstream entry.`
 
 Scope: `Dashboard settings entry/panel UI, Dashboard visibility/control routing required for that panel, and supporting HUD validators/proof.`
 
@@ -267,12 +276,40 @@ Non-Includes: `GitHub issue closeout/comments, release execution, tags, GitHub R
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 setup for FAM-006 Dashboard settings panel`
+Active seam: `Runtime implementation for FAM-006 Dashboard settings panel`
 
-Active Seam Status: `Complete when validation, commit, and push succeed`
+Active Seam Status: `Green after runtime validation and active-client proof; commit and push complete this authorized run`
 
-Next active seam: `Runtime implementation only after USER approval`
+Next active seam: `Hardening H1/live validation by USER decision`
+
+Single-Seam Workstream Waiver: None
+Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice authority from branch size, branch name, or a narrow implementation pass.
+Single-Seam Or Single-Slice Workstream Blocker: Blocker active if only one seam or one slice is planned or visible without explicit USER waiver; this branch remains governed by the admitted FAM-006 Dashboard settings-panel runtime carrier plus later bounded seams for validation and PR readiness.
+Bounded Seam Default: Bounded means one active seam at a time, not one-seam Workstream authority.
+
+## Seam Continuation Decision
+
+Seam Status: Green
+Slice Status: Green
+Completion Status: Green
+Waiver Status: None
+Continue Decision: Stop
+Continuation Execution Latch: Inactive - runtime implementation and active-client proof are green; final response is allowed after validation, commit, and push, and the next seam requires a USER phase decision.
+Stop Basis: Workstream Green
+Next Active Seam: Hardening H1/live validation by USER decision.
+Stop Condition: Stop after validation, commit, and push; continue only if USER admits H1/live validation, PR Readiness, PR creation, issue closeout, release, artifacts, raw evidence handling, FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, AI Product Contract import, or Private Dev ORIN import.
+Continuation Action: Stop at phase boundary until USER admits Hardening; report the proof packet and surface before continuing into the next phase.
 
 ## Recorded Seam
 
-Recorded seam: Branch Readiness Stage 2 setup for the FAM-006 Dashboard settings-panel runtime carrier, including PR #133 post-merge source-truth drift repair and active branch authority setup.
+Recorded seam: Runtime implementation for the FAM-006 Dashboard settings-panel carrier, including top-chrome Settings affordance, settings child-window panel, truthful supported/deferred-state copy, settings hit-target coverage, HUD validators, active-client self-QA hooks, and source-truth update.
+
+## Runtime Implementation Record
+
+- Runtime Affordance: `Top-chrome Settings button opens the Dashboard settings panel.`
+- Runtime Panel: `Dashboard settings child-window opens/closes independently and does not disable the HUD feature.`
+- Supported Control: `Warning notifications toggle mirrors the existing Dashboard warning-notification state.`
+- Deferred Truth Copy: `Overlay/display acceptance, provider setup, external telemetry parity, provider/model work, and installer/runtime scope remain pending USER decisions and are not represented as ready.`
+- Hit-Testing Coverage: `Settings button and settings warning toggle are included in native control hit-testing so they are treated as controls instead of drag gestures.`
+- Validator Coverage: `HUD surface and internal sandbox validators assert settings affordance, settings panel markup/CSS/JS state, live-client geometry hooks, and active-client self-QA step labels.`
+- Live Proof Posture: `PASS - active-client self-QA proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_190929_547 proves Settings open/close, truthful panel copy, settings hit-target behavior, Dashboard close behavior, standalone travel, clipping boundaries, and control decoupling.`

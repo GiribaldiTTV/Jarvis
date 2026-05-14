@@ -80,6 +80,10 @@
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
     data-dashboard-card-order="hud-overlay-monitor-groups-data-sources-readiness"
+    data-dashboard-settings-affordance="top-chrome-settings-button"
+    data-dashboard-settings-panel="settings-panel-child-window"
+    data-dashboard-settings-panel-state="closed"
+    data-dashboard-settings-proof="visible-open-close-control-hit-target"
     data-overlay-acceptance-policy="deferred-non-gating"
     data-interface-bundle-approval="not-granted"
     data-core-repair-classification="dependency-repair-only"
@@ -96,6 +100,9 @@
           </div>
           <div class="monitoring-hud__chrome-actions" aria-label="HUD Dashboard window controls">
             <div class="monitoring-hud__mode-pill monitoring-hud__mode-pill--quiet" id="monitoring-hud-anchor-status">HUD Overlay deferred</div>
+            <button type="button" id="monitoring-hud-settings-action" class="monitoring-hud__chrome-button monitoring-hud__chrome-button--settings" data-control="open-dashboard-settings" data-child-window-target="dashboard-settings" aria-label="Open HUD Dashboard settings" aria-haspopup="dialog" aria-expanded="false" title="Open HUD Dashboard settings">
+              Settings
+            </button>
             <button type="button" id="monitoring-hud-dashboard-close-action" class="monitoring-hud__chrome-button" data-control="close-dashboard" aria-label="Close HUD Dashboard" title="Close HUD Dashboard">
               Close
             </button>
@@ -202,11 +209,62 @@
       <div
         class="monitoring-hud__child-window-layer"
         id="monitoring-hud-child-window-layer"
-        data-child-window-layer="monitor-groups"
+        data-child-window-layer="dashboard-settings-monitor-groups"
         data-child-window-state="closed"
         aria-hidden="true"
         hidden
       >
+        <div
+          class="monitoring-hud__child-window monitoring-hud__child-window--settings"
+          id="monitoring-hud-settings-window"
+          data-child-window="dashboard-settings"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="monitoring-hud-settings-title"
+          hidden
+        >
+          <header class="monitoring-hud__child-window-header">
+            <div>
+              <span>Dashboard Settings</span>
+              <strong id="monitoring-hud-settings-title">Settings Panel</strong>
+            </div>
+            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="dashboard-settings" aria-label="Close Dashboard Settings">Close</button>
+          </header>
+          <div class="monitoring-hud__settings-grid" aria-label="Dashboard settings status">
+            <div class="monitoring-hud__setting-row">
+              <span>Feature control</span>
+              <strong id="monitoring-hud-settings-feature-control">Tray owns HUD feature enablement; Dashboard close hides this window only</strong>
+            </div>
+            <div class="monitoring-hud__setting-row">
+              <span>Warning mode</span>
+              <strong id="monitoring-hud-settings-warning-state">Visual notifications enabled</strong>
+            </div>
+            <div class="monitoring-hud__setting-row">
+              <span>Persistence</span>
+              <strong id="monitoring-hud-settings-persistence">Monitor group and Dashboard layout posture are stored locally</strong>
+            </div>
+            <div class="monitoring-hud__setting-row">
+              <span>Overlay display</span>
+              <strong id="monitoring-hud-settings-overlay-state">Deferred; no Overlay/display acceptance in this branch</strong>
+            </div>
+            <div class="monitoring-hud__setting-row">
+              <span>Provider data</span>
+              <strong id="monitoring-hud-settings-provider-state">Provider setup required; no fake telemetry values</strong>
+            </div>
+          </div>
+          <label class="monitoring-hud__child-check monitoring-hud__setting-toggle">
+            <input id="monitoring-hud-settings-warning-toggle" type="checkbox" data-control="settings-warning-notifications" checked />
+            Warning notifications
+          </label>
+          <div class="monitoring-hud__hub-actions" aria-label="Deferred Dashboard settings">
+            <button type="button" class="monitoring-hud__hub-action monitoring-hud__hub-action--deferred" data-control="settings-overlay-display" aria-disabled="true" disabled>Overlay Display Deferred</button>
+            <button type="button" class="monitoring-hud__hub-action monitoring-hud__hub-action--deferred" data-control="settings-provider-setup" aria-disabled="true" disabled>Provider Setup Required</button>
+          </div>
+          <p class="monitoring-hud__child-note">This panel owns supported Dashboard settings only. Provider/model, external telemetry parity, and Overlay/display acceptance remain future USER decisions.</p>
+          <div class="monitoring-hud__child-actions">
+            <button type="button" class="monitoring-hud__hub-action" data-child-window-close="dashboard-settings">Done</button>
+          </div>
+        </div>
         <div
           class="monitoring-hud__child-window"
           id="monitoring-hud-create-monitor-window"

@@ -287,6 +287,11 @@ body.desktop-mode #monitoring-hud > * {
   background: linear-gradient(145deg, rgba(7, 57, 63, 0.86), rgba(5, 30, 48, 0.82));
 }
 
+.monitoring-hud__chrome-button--settings {
+  border-color: rgba(112, 216, 255, 0.42);
+  background: linear-gradient(145deg, rgba(9, 55, 88, 0.88), rgba(5, 31, 54, 0.82));
+}
+
 .monitoring-hud__summary {
   margin-top: 14px;
   display: flex;
@@ -754,6 +759,46 @@ body.desktop-mode #monitoring-hud > * {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.monitoring-hud__child-window--settings {
+  width: min(520px, calc(100% - 24px));
+}
+
+.monitoring-hud__settings-grid {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.monitoring-hud__setting-row {
+  display: grid;
+  grid-template-columns: minmax(112px, 0.34fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 8px 0;
+  border-top: 1px solid rgba(119, 221, 255, 0.08);
+}
+
+.monitoring-hud__setting-row span {
+  color: rgba(145, 202, 218, 0.82);
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__setting-row strong {
+  min-width: 0;
+  color: rgba(157, 246, 218, 0.9);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+
+.monitoring-hud__setting-toggle {
+  justify-content: flex-start;
 }
 
 .monitoring-hud__grid,

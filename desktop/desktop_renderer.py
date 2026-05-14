@@ -5802,6 +5802,8 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_card_drag_base: dict[str, int] = {}
         self._monitoring_hud_live_screen_rects: dict[str, QRect] = {}
         self._monitoring_hud_live_page_state: dict[str, object] = {}
+        self._monitoring_hud_dashboard_close_last_screen_rect = QRect()
+        self._monitoring_hud_settings_action_last_screen_rect = QRect()
         self._monitoring_hud_native_anchor_click_pending = False
         self._monitoring_hud_native_anchor_click_expected = True
         self._monitoring_hud_tray_menu_guard_active = False
@@ -6347,17 +6349,23 @@ class DesktopRuntimeWindow(QWidget):
                     if screen_rect.isValid() and not screen_rect.isNull():
                         screen_rects[str(name)] = screen_rect
         self._monitoring_hud_live_screen_rects = screen_rects
+        dashboard_close_rect = screen_rects.get("dashboardClose", QRect())
+        if dashboard_close_rect.isValid() and not dashboard_close_rect.isNull():
+            self._monitoring_hud_dashboard_close_last_screen_rect = QRect(dashboard_close_rect)
+        settings_action_rect = screen_rects.get("settingsAction", QRect())
+        if settings_action_rect.isValid() and not settings_action_rect.isNull():
+            self._monitoring_hud_settings_action_last_screen_rect = QRect(settings_action_rect)
 
     def _monitoring_hud_dashboard_close_fallback_screen_rect(self) -> QRect:
         header_rect = self._monitoring_hud_header_rect()
         if not header_rect.isValid() or header_rect.isNull():
             return QRect()
-        width = min(220, max(120, header_rect.width() // 3))
-        height = min(116, max(64, header_rect.height() - 24))
-        left = max(header_rect.x(), header_rect.right() - width + 1 - 18)
+        width = min(112, max(84, header_rect.width() // 7))
+        height = min(72, max(48, header_rect.height() - 32))
+        left = max(header_rect.x(), header_rect.right() - width + 1 - 14)
         return QRect(
             left,
-            header_rect.y() + 18,
+            header_rect.y() + 20,
             width,
             height,
         )
@@ -7004,11 +7012,13 @@ class DesktopRuntimeWindow(QWidget):
         control_rect_names = (
             "anchorToggle",
             "visibilityToggle",
+            "settingsAction",
             "dashboardClose",
             "createMonitor",
             "snapToggle",
             "pollingRate",
             "warningModeControl",
+            "settingsWarningToggle",
             "monitorSelector",
             "monitorEnabled",
             "monitorPollingRate",
@@ -7018,14 +7028,42 @@ class DesktopRuntimeWindow(QWidget):
             if rect.isValid() and not rect.isNull() and rect.contains(point):
                 return True
             if name == "dashboardClose":
+                if (
+                    self._monitoring_hud_dashboard_close_last_screen_rect.isValid()
+                    and not self._monitoring_hud_dashboard_close_last_screen_rect.isNull()
+                    and self._monitoring_hud_dashboard_close_last_screen_rect.contains(point)
+                ):
+                    return True
                 fallback_rect = self._monitoring_hud_dashboard_close_fallback_screen_rect()
                 if fallback_rect.isValid() and not fallback_rect.isNull() and fallback_rect.contains(point):
+                    return True
+            if name == "settingsAction":
+                if (
+                    self._monitoring_hud_settings_action_last_screen_rect.isValid()
+                    and not self._monitoring_hud_settings_action_last_screen_rect.isNull()
+                    and self._monitoring_hud_settings_action_last_screen_rect.contains(point)
+                ):
                     return True
         return False
 
     def _monitoring_hud_dashboard_close_control_rect_contains(self, point: QPoint) -> bool:
         rect = self._monitoring_hud_live_screen_rects.get("dashboardClose", QRect())
         if rect.isValid() and not rect.isNull() and rect.contains(point):
+            return True
+        settings_rect = self._monitoring_hud_live_screen_rects.get("settingsAction", QRect())
+        if settings_rect.isValid() and not settings_rect.isNull() and settings_rect.contains(point):
+            return False
+        if (
+            self._monitoring_hud_settings_action_last_screen_rect.isValid()
+            and not self._monitoring_hud_settings_action_last_screen_rect.isNull()
+            and self._monitoring_hud_settings_action_last_screen_rect.contains(point)
+        ):
+            return False
+        if (
+            self._monitoring_hud_dashboard_close_last_screen_rect.isValid()
+            and not self._monitoring_hud_dashboard_close_last_screen_rect.isNull()
+            and self._monitoring_hud_dashboard_close_last_screen_rect.contains(point)
+        ):
             return True
         fallback_rect = self._monitoring_hud_dashboard_close_fallback_screen_rect()
         return bool(fallback_rect.isValid() and not fallback_rect.isNull() and fallback_rect.contains(point))
@@ -8630,6 +8668,7 @@ class DesktopRuntimeWindow(QWidget):
             geometry = result.get("geometry") or {}
             controls = {
                 "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
+                "settingsAction": geometry.get("settingsAction") if isinstance(geometry, dict) else None,
                 "createMonitor": geometry.get("createMonitor") if isinstance(geometry, dict) else None,
                 "editMonitor": geometry.get("editMonitor") if isinstance(geometry, dict) else None,
                 "dashboardClose": geometry.get("dashboardClose") if isinstance(geometry, dict) else None,
@@ -8691,6 +8730,9 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",
                 "dashboard_monitor_selection_in_child_window": dataset.get("dashboardMonitorSelectionPlacement") == "edit-child-window-only",
                 "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-overlay-monitor-groups-provider-warning",
+                "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "top-chrome-settings-button",
+                "dashboard_settings_panel": dataset.get("dashboardSettingsPanel") == "settings-panel-child-window",
+                "dashboard_settings_proof": dataset.get("dashboardSettingsProof") == "visible-open-close-control-hit-target",
                 "monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
                 "dashboard_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
                 "dashboard_provider_truth": dataset.get("dashboardProviderTruth") == "provider-contract-first",
@@ -8960,8 +9002,36 @@ class DesktopRuntimeWindow(QWidget):
                     and overlay_proof.get("dashboardCoupled") is False,
                 "fake_telemetry_policy_blocked": dataset.get("dashboardFakeTelemetryPolicy") == "blocked",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
+                "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "top-chrome-settings-button",
+                "dashboard_settings_panel_closed": dataset.get("dashboardSettingsPanelState") == "closed",
             }
             checks.update(monitor_groups_visual_checks(result))
+            return all(checks.values()), checks
+
+        def assert_settings_panel_open(result):
+            text = str(result.get("text") or "").casefold()
+            dataset = result.get("dataset") or {}
+            state = result.get("state") or {}
+            geometry = result.get("geometry") or {}
+            settings_window = geometry.get("settingsWindow") if isinstance(geometry, dict) else {}
+            settings_toggle = geometry.get("settingsWarningToggle") if isinstance(geometry, dict) else {}
+            checks = {
+                "active_child_window": state.get("activeChildWindow") == "dashboard-settings",
+                "settings_panel_state_open": dataset.get("dashboardSettingsPanelState") == "open",
+                "settings_affordance": dataset.get("dashboardSettingsAffordance") == "top-chrome-settings-button",
+                "settings_panel_model": dataset.get("dashboardSettingsPanel") == "settings-panel-child-window",
+                "settings_proof_marker": dataset.get("dashboardSettingsProof") == "visible-open-close-control-hit-target",
+                "settings_window_present": isinstance(settings_window, dict)
+                    and float(settings_window.get("width") or 0) >= 320
+                    and float(settings_window.get("height") or 0) >= 240,
+                "settings_toggle_present": isinstance(settings_toggle, dict)
+                    and float(settings_toggle.get("width") or 0) >= 16
+                    and float(settings_toggle.get("height") or 0) >= 16,
+                "truthful_copy": "settings panel" in text
+                    and "provider setup required" in text
+                    and "no fake telemetry values" in text
+                    and "overlay display deferred" in text,
+            }
             return all(checks.values()), checks
 
         def assert_dashboard_close_ready(result):
@@ -9103,7 +9173,28 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(250), step_hit_targets)
 
         def step_hit_targets():
-            query("real mouse hit targets are visible and large enough", assert_user_hit_targets, step_surface_travel)
+            query("real mouse hit targets are visible and large enough", assert_user_hit_targets, step_settings_panel)
+
+        def step_settings_panel():
+            clicked = self._monitoring_hud_send_mouse_click(rect_center("settingsAction"))
+            add_step(
+                "active live-client Dashboard settings affordance opens settings panel",
+                clicked,
+                {"target": "monitoring-hud-settings-action", "screenPoint": rect_center("settingsAction")},
+            )
+            if not clicked:
+                finish("FAIL", "active live-client Dashboard settings affordance click failed before state assertion")
+                return
+            QTimer.singleShot(delay(600), lambda: query("Dashboard settings panel exposes truthful supported settings", assert_settings_panel_open, step_settings_panel_close))
+
+        def step_settings_panel_close():
+            self._run_javascript(
+                """
+                const closeSettings = document.querySelector('[data-child-window-close="dashboard-settings"]');
+                if (closeSettings) closeSettings.click();
+                """
+            )
+            QTimer.singleShot(delay(400), lambda: query("Dashboard settings panel closes without disabling Dashboard", assert_dashboard_restored, step_surface_travel))
 
         def step_user_unanchor_click():
             clicked = self._monitoring_hud_send_mouse_click(rect_center("anchorToggle"))
@@ -9789,6 +9880,10 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardOpenBadge = "removed";
                     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
                     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
+                    monitoringHud.dataset.dashboardSettingsAffordance = "top-chrome-settings-button";
+                    monitoringHud.dataset.dashboardSettingsPanel = "settings-panel-child-window";
+                    monitoringHud.dataset.dashboardSettingsPanelState = "closed";
+                    monitoringHud.dataset.dashboardSettingsProof = "visible-open-close-control-hit-target";
                     monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
                     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
                     monitoringHud.dataset.dashboardProviderTruth = "provider-contract-first";

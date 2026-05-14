@@ -30,6 +30,7 @@ const monitoringHudDragHandle = document.getElementById("monitoring-hud-drag-han
 const monitoringHudToggle = document.getElementById("monitoring-hud-toggle");
 const monitoringHudAnchorToggle = document.getElementById("monitoring-hud-anchor-toggle");
 const monitoringHudDashboardClose = document.getElementById("monitoring-hud-dashboard-close-action");
+const monitoringHudSettingsAction = document.getElementById("monitoring-hud-settings-action");
 const monitoringHudCreateMonitor = document.getElementById("monitoring-hud-create-monitor-action");
 const monitoringHudEditMonitor = document.getElementById("monitoring-hud-edit-monitor-action");
 const monitoringHudSnapToggle = document.getElementById("monitoring-hud-snap-toggle");
@@ -46,6 +47,13 @@ const monitoringHudMonitorEnabled = document.getElementById("monitoring-hud-moni
 const monitoringHudMonitorPollingRate = document.getElementById("monitoring-hud-monitor-polling-rate");
 const monitoringHudMonitorEditorScope = document.getElementById("monitoring-hud-monitor-editor-scope");
 const monitoringHudChildWindowLayer = document.getElementById("monitoring-hud-child-window-layer");
+const monitoringHudSettingsWindow = document.getElementById("monitoring-hud-settings-window");
+const monitoringHudSettingsWarningToggle = document.getElementById("monitoring-hud-settings-warning-toggle");
+const monitoringHudSettingsFeatureControl = document.getElementById("monitoring-hud-settings-feature-control");
+const monitoringHudSettingsWarningState = document.getElementById("monitoring-hud-settings-warning-state");
+const monitoringHudSettingsPersistence = document.getElementById("monitoring-hud-settings-persistence");
+const monitoringHudSettingsOverlayState = document.getElementById("monitoring-hud-settings-overlay-state");
+const monitoringHudSettingsProviderState = document.getElementById("monitoring-hud-settings-provider-state");
 const monitoringHudCreateMonitorWindow = document.getElementById("monitoring-hud-create-monitor-window");
 const monitoringHudEditMonitorWindow = document.getElementById("monitoring-hud-edit-monitor-window");
 const monitoringHudCreateMonitorName = document.getElementById("monitoring-hud-create-monitor-name");
@@ -234,7 +242,7 @@ function monitoringHudSetChildWindowVisibility(kind) {
   monitoringHudChildWindowLayer.hidden = !open;
   monitoringHudChildWindowLayer.setAttribute("aria-hidden", open ? "false" : "true");
   monitoringHudChildWindowLayer.dataset.childWindowState = open ? monitoringHudActiveChildWindow : "closed";
-  [monitoringHudCreateMonitorWindow, monitoringHudEditMonitorWindow].forEach((windowNode) => {
+  [monitoringHudSettingsWindow, monitoringHudCreateMonitorWindow, monitoringHudEditMonitorWindow].forEach((windowNode) => {
     if (!windowNode) return;
     const isActive = windowNode.dataset.childWindow === monitoringHudActiveChildWindow;
     windowNode.hidden = !isActive;
@@ -242,6 +250,37 @@ function monitoringHudSetChildWindowVisibility(kind) {
   });
   if (monitoringHud) {
     monitoringHud.dataset.activeChildWindow = open ? monitoringHudActiveChildWindow : "none";
+    monitoringHud.dataset.dashboardSettingsPanelState = monitoringHudActiveChildWindow === "dashboard-settings" ? "open" : "closed";
+  }
+  if (monitoringHudSettingsAction) {
+    const settingsOpen = monitoringHudActiveChildWindow === "dashboard-settings";
+    monitoringHudSettingsAction.setAttribute("aria-expanded", settingsOpen ? "true" : "false");
+  }
+}
+
+function monitoringHudRenderDashboardSettingsPanel() {
+  const warningEnabled = !monitoringHudControlState.warningNotificationsMuted;
+  if (monitoringHudSettingsWarningToggle) {
+    monitoringHudSettingsWarningToggle.checked = warningEnabled;
+  }
+  if (monitoringHudSettingsFeatureControl) {
+    monitoringHudSettingsFeatureControl.textContent = monitoringHudControlState.featureEnabled
+      ? "Tray owns HUD feature enablement; Dashboard close hides this window only"
+      : "HUD feature disabled from tray path; Dashboard opens only when feature is enabled";
+  }
+  if (monitoringHudSettingsWarningState) {
+    monitoringHudSettingsWarningState.textContent = warningEnabled
+      ? "Visual notifications enabled"
+      : "Warning notifications muted; monitor group settings preserved";
+  }
+  if (monitoringHudSettingsPersistence) {
+    monitoringHudSettingsPersistence.textContent = "Monitor group and Dashboard layout posture are stored locally";
+  }
+  if (monitoringHudSettingsOverlayState) {
+    monitoringHudSettingsOverlayState.textContent = "Deferred; no Overlay/display acceptance in this branch";
+  }
+  if (monitoringHudSettingsProviderState) {
+    monitoringHudSettingsProviderState.textContent = "Provider setup required; no fake telemetry values";
   }
 }
 
@@ -249,6 +288,7 @@ function monitoringHudRenderChildWindows() {
   const cards = monitoringHudControlState.cards || {};
   const selected = monitoringHudSelectedMonitor();
   const count = Object.keys(cards).length;
+  monitoringHudRenderDashboardSettingsPanel();
   if (monitoringHudCreateMonitorName && !monitoringHudCreateMonitorName.value.trim()) {
     monitoringHudCreateMonitorName.value = monitoringHudSuggestedMonitorName();
   }
@@ -289,9 +329,11 @@ function monitoringHudOpenChildWindow(kind) {
   }
   monitoringHudRenderChildWindows();
   monitoringHudSetChildWindowVisibility(kind);
-  const focusTarget = kind === "monitor-group-create"
-    ? monitoringHudCreateMonitorName
-    : monitoringHudEditMonitorName;
+  const focusTarget = kind === "dashboard-settings"
+    ? monitoringHudSettingsWarningToggle
+    : kind === "monitor-group-create"
+      ? monitoringHudCreateMonitorName
+      : monitoringHudEditMonitorName;
   if (focusTarget && typeof focusTarget.focus === "function") {
     setTimeout(() => focusTarget.focus(), 0);
   }
@@ -372,6 +414,10 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned";
     monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable";
     monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness";
+    monitoringHud.dataset.dashboardSettingsAffordance = "top-chrome-settings-button";
+    monitoringHud.dataset.dashboardSettingsPanel = "settings-panel-child-window";
+    monitoringHud.dataset.dashboardSettingsProof = "visible-open-close-control-hit-target";
+    monitoringHud.dataset.dashboardSettingsPanelState = monitoringHudActiveChildWindow === "dashboard-settings" ? "open" : "closed";
     monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
@@ -634,6 +680,7 @@ function monitoringHudRenderControls() {
   if (monitoringHudWarningModeControl) {
     monitoringHudWarningModeControl.value = monitoringHudControlState.warningMode || "badge-text-color";
   }
+  monitoringHudRenderDashboardSettingsPanel();
   if (monitoringHudWarningPosture) {
     monitoringHudWarningPosture.textContent = monitoringHudControlState.warningNotificationsMuted
       ? "Globally muted; Monitor Group settings preserved"
@@ -825,6 +872,11 @@ function monitoringHudWireControls() {
       monitoringHudMarkChanged();
     });
   }
+  if (monitoringHudSettingsAction) {
+    monitoringHudSettingsAction.addEventListener("click", () => {
+      monitoringHudOpenChildWindow("dashboard-settings");
+    });
+  }
   if (monitoringHudCreateMonitor) {
     monitoringHudCreateMonitor.addEventListener("click", () => {
       monitoringHudOpenChildWindow("monitor-group-create");
@@ -886,6 +938,13 @@ function monitoringHudWireControls() {
       monitoringHudMarkChanged();
     });
   });
+  if (monitoringHudSettingsWarningToggle) {
+    monitoringHudSettingsWarningToggle.addEventListener("change", () => {
+      monitoringHudControlState.warningNotificationsMuted = !monitoringHudSettingsWarningToggle.checked;
+      monitoringHudRenderControls();
+      monitoringHudMarkChanged();
+    });
+  }
   if (monitoringHudMonitorEnabled) {
     monitoringHudMonitorEnabled.addEventListener("change", () => {
       const selected = monitoringHudSelectedMonitor();
@@ -965,9 +1024,12 @@ window.getMonitoringHudLiveClientGeometry = function() {
     overlayCanvas: rectFor("#monitoring-hud-overlay-canvas"),
     coreWrap: null,
     anchorToggle: null,
+    settingsAction: rectFor("#monitoring-hud-settings-action"),
     createMonitor: rectFor("#monitoring-hud-create-monitor-action"),
     editMonitor: rectFor("#monitoring-hud-edit-monitor-action"),
     dashboardClose: rectFor("#monitoring-hud-dashboard-close-action"),
+    settingsWindow: rectFor("#monitoring-hud-settings-window"),
+    settingsWarningToggle: rectFor("#monitoring-hud-settings-warning-toggle"),
     createMonitorWindow: rectFor("#monitoring-hud-create-monitor-window"),
     editMonitorWindow: rectFor("#monitoring-hud-edit-monitor-window"),
     childWindowLayer: rectFor("#monitoring-hud-child-window-layer"),
@@ -1035,6 +1097,10 @@ window.getMonitoringHudSurfaceSplitState = function() {
     dashboardStateModel: monitoringHud ? monitoringHud.dataset.dashboardStateModel || "" : "",
     dashboardWarningControls: monitoringHud ? monitoringHud.dataset.dashboardWarningControls || "" : "",
     dashboardFakeTelemetryPolicy: monitoringHud ? monitoringHud.dataset.dashboardFakeTelemetryPolicy || "" : "",
+    dashboardSettingsAffordance: monitoringHud ? monitoringHud.dataset.dashboardSettingsAffordance || "" : "",
+    dashboardSettingsPanel: monitoringHud ? monitoringHud.dataset.dashboardSettingsPanel || "" : "",
+    dashboardSettingsPanelState: monitoringHud ? monitoringHud.dataset.dashboardSettingsPanelState || "" : "",
+    dashboardSettingsProof: monitoringHud ? monitoringHud.dataset.dashboardSettingsProof || "" : "",
     warningControlPosture: monitoringHud ? monitoringHud.dataset.warningControlPosture || "" : "",
     interfaceAcceptancePolicy: monitoringHud ? monitoringHud.dataset.interfaceAcceptancePolicy || "" : "",
     overlayAcceptancePolicy: monitoringHud ? monitoringHud.dataset.overlayAcceptancePolicy || "" : "",
@@ -1080,6 +1146,9 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
     dashboardSettingsContentReady: Boolean(
       split.dashboardContentPolish === "branch2-monitor-groups-no-dead-space"
       && split.dashboardSettingsModel === "hud-overlay-monitor-groups-provider-warning"
+      && split.dashboardSettingsAffordance === "top-chrome-settings-button"
+      && split.dashboardSettingsPanel === "settings-panel-child-window"
+      && split.dashboardSettingsProof === "visible-open-close-control-hit-target"
       && split.monitorGroupModel === "organizational-groups-settings-only"
       && split.dashboardMonitorCardPolicy === "overlay-display-owns-monitor-cards"
     ),
