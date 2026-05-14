@@ -1854,6 +1854,8 @@ STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS = (
 STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
     "Originating Branch",
     "Originating Worktree",
+    "Operating Workspace",
+    "Expected Branch",
     "RRI Cycle ID",
     "Governance PR",
     "Merge Commit",
@@ -1864,6 +1866,14 @@ STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
     "Validations",
     "Rebaseline Instructions",
     "Next Legal Phase",
+)
+STANDING_GOVERNANCE_RETURN_DIGEST_IDENTITY_GUARD_MARKERS = (
+    "Originating Branch Source",
+    "Originating Worktree Source",
+    "Operating Workspace Requirement",
+    "Default Workspace Ban",
+    "Return Digest Origin Identity Missing",
+    "Thread / Worktree Identity Mismatch",
 )
 
 ASSIGNED_WORKTREE_CONFINEMENT_DOCS = (
@@ -14445,6 +14455,7 @@ def _run_standing_governance_intake_gate(require) -> None:
 
     contract = _section(record_text, "Standing Governance Intake Contract")
     return_digest = _section(record_text, "Return Digest Contract")
+    return_digest_identity_guard = _section(record_text, "Return Digest Identity Guard")
     require(
         bool(contract),
         f"{expected_record_path}: missing ## Standing Governance Intake Contract",
@@ -14452,6 +14463,10 @@ def _run_standing_governance_intake_gate(require) -> None:
     require(
         bool(return_digest),
         f"{expected_record_path}: missing ## Return Digest Contract",
+    )
+    require(
+        bool(return_digest_identity_guard),
+        f"{expected_record_path}: missing ## Return Digest Identity Guard",
     )
     for marker in STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS:
         value = _extract_marker_value(contract, marker)
@@ -14464,6 +14479,19 @@ def _run_standing_governance_intake_gate(require) -> None:
             marker in return_digest,
             f"{expected_record_path}: Return Digest Contract is missing '{marker}:'",
         )
+    for marker in STANDING_GOVERNANCE_RETURN_DIGEST_IDENTITY_GUARD_MARKERS:
+        require(
+            marker in return_digest_identity_guard,
+            f"{expected_record_path}: Return Digest Identity Guard is missing '{marker}:'",
+        )
+    require(
+        "C:\\Nexus Desktop AI" in return_digest_identity_guard
+        and "C:\\Nexus Worktrees\\Governance" in return_digest_identity_guard,
+        (
+            f"{expected_record_path}: Return Digest Identity Guard must explicitly ban "
+            "defaulting to the neutral/main folder or governance worktree"
+        ),
+    )
 
     intake_source = _extract_marker_value(contract, "Intake Source")
     require(
@@ -14497,6 +14525,27 @@ def _run_standing_governance_intake_gate(require) -> None:
     )
 
     active_cycle = active_cycles[-1] if active_cycles else ""
+    latest_closed_cycle_values = re.findall(
+        r"^\s*(?:-\s*)?Latest Closed RRI Cycle:\s*`?([^`\n]+)`?\s*$",
+        record_text,
+        flags=re.M,
+    )
+    latest_closed_cycles = [
+        value.strip()
+        for value in latest_closed_cycle_values
+        if re.fullmatch(r"RRI-\d{8}-\d{3}", value.strip())
+    ]
+    require(
+        len(set(latest_closed_cycles)) <= 1,
+        f"{expected_record_path}: only one latest closed `RRI-*` cycle may be recorded",
+    )
+    latest_closed_cycle = latest_closed_cycles[-1] if latest_closed_cycles else ""
+    closeout_cycle_recorded = bool(
+        latest_closed_cycle
+        and "Return Digest Status:" in record_text
+        and "Complete" in record_text
+        and "Active RRI Cycle: `None`" in record_text
+    )
     bootstrap_setup_recorded = (
         "Bootstrap Setup:" in record_text
         and "RRI-20260514-001" in record_text
@@ -14555,10 +14604,10 @@ def _run_standing_governance_intake_gate(require) -> None:
                     ),
                 )
             require(
-                bool(active_cycle or bootstrap_active),
+                bool(active_cycle or bootstrap_active or closeout_cycle_recorded),
                 (
                     "Standing Governance Intake branch is ahead of origin/main without an "
-                    "active RRI cycle or the recorded bootstrap setup exception"
+                    "active RRI cycle, recorded bootstrap setup exception, or return-digest closeout"
                 ),
             )
         else:

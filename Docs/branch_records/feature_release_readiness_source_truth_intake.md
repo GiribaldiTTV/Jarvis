@@ -21,11 +21,13 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / idle or single-cycle Release Readiness intake only`
-- Intake State: `Active - RRI-20260514-002 repairs the No Active Branch versus standing governance intake validator/source-truth mismatch discovered after PR #142 merge`
+- Intake State: `Idle - no active Release Readiness intake cycle after RRI-20260514-002 merge/sync closeout`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest`
-- Active RRI Cycle: `RRI-20260514-002`
+- Active RRI Cycle: `None`
+- Latest Closed RRI Cycle: `RRI-20260514-002`
+- Return Digest Status: `Complete - RRI-20260514-002 return digest targets originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
 
 ## Branch Class
 
@@ -53,7 +55,9 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `RRI-20260514-002`
+- Active RRI Cycle: `None`
+- Latest Closed RRI Cycle: `RRI-20260514-002`
+- Return Digest Status: `Complete - RRI-20260514-002 return digest targets originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -100,6 +104,8 @@ After the governance PR merges and the standing branch syncs back to `origin/mai
 
 - Originating Branch:
 - Originating Worktree:
+- Operating Workspace:
+- Expected Branch:
 - RRI Cycle ID:
 - Governance PR:
 - Merge Commit:
@@ -112,6 +118,18 @@ After the governance PR merges and the standing branch syncs back to `origin/mai
 - Next Legal Phase:
 
 The originating lane remains paused in `Waiting For Governance Intake` or `Waiting For Updated Main` until this digest is received, `origin/main` is fetched, source truth is revalidated, and the phase resolver reports the next legal phase.
+
+## Return Digest Identity Guard
+
+The return digest must preserve the originating lane identity exactly as recorded by the accepted Release Readiness intake packet and the active `RRI-*` cycle ledger.
+
+- Originating Branch Source: `Copy exactly from the accepted Release Readiness intake digest / recorded cycle identity; do not infer from the governance worktree, neutral main folder, or current shell CWD`
+- Originating Worktree Source: `Copy exactly from the accepted Release Readiness intake digest / recorded cycle identity; do not infer from the governance worktree, neutral main folder, or GitHub Desktop's currently selected repository`
+- Operating Workspace Requirement: `The originating-lane prompt must name the exact originating assigned worktree as its operating workspace and must also name the expected branch`
+- Default Workspace Ban: `The governance lane must not default to C:\Nexus Desktop AI unless that exact path is the recorded originating worktree for the accepted intake`
+- Return Digest Origin Identity Missing: `Blocks return-digest handoff when the originating branch, originating worktree, operating workspace, or expected branch is absent, generic, contradictory, or inferred`
+- Thread / Worktree Identity Mismatch: `Blocks originating-lane continuation when the return digest points at a different worktree or branch than the accepted intake recorded`
+- Latest Closed Cycle Identity: `RRI-20260514-002 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
 
 ## PR Body Firewall
 
@@ -154,11 +172,11 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `RRI-20260514-002 - Standing governance intake No Active Branch authority exception repair`
+Active seam: `None - standing governance intake idle after RRI-20260514-002 merge/sync closeout`
 
-Seam Goal: `Repair the validator/source-truth mismatch that treated merged-main No Active Branch as incompatible with the single standing governance intake authority record.`
+Seam Goal: `Preserve the idle standing governance lane and prevent return digests from substituting the wrong originating worktree or branch.`
 
-Seam Scope: `Docs/branch_records/index.md`, this authority record, governance docs, helper registry text, and `dev/orin_branch_governance_validation.py`.
+Seam Scope: `This authority record, governance docs, helper registry text, and dev/orin_branch_governance_validation.py.`
 
 Seam Non-Includes: `runtime/provider/model/memory/voice/Core/shortcut/installer work, release execution, issue work, FAM-006 or FAM-007 mutation, broad docs churn, or direct-main mutation.`
 
@@ -175,13 +193,13 @@ Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/
 ## Historical Seam
 
 - Historical seam: `Standing Governance Intake Bootstrap`
-- Status: `Active standing authority - after setup PR merge, the standing lane remains the only allowed active governance intake authority while idling with no runtime carrier; RRI-20260514-002 now repairs the validator/source-truth mismatch that treated No Active Branch as requiring the standing authority record to be historical-only`
+- Status: `Active standing authority - after setup PR merge, the standing lane remains the only allowed active governance intake authority while idling with no runtime carrier; RRI-20260514-002 repaired the validator/source-truth mismatch that treated No Active Branch as requiring the standing authority record to be historical-only`
 
 ## Exit Criteria
 
 - `Docs/branch_records/index.md` lists this record under Active Branch Authority Records as the single standing governance intake exception while merged-main runtime/product truth may still report No Active Branch.
 - Governance docs describe the standing exception, allowed/forbidden scope, one-cycle limit, sync-to-main rule, originating-lane pause, and return digest.
-- `dev/orin_branch_governance_validation.py --standing-governance-intake-gate` validates the branch identity, clean tracked state, source-truth markers, cycle count, sync/base posture, and file scope.
+- `dev/orin_branch_governance_validation.py --standing-governance-intake-gate` validates the branch identity, clean tracked state, source-truth markers, cycle count, sync/base posture, file scope, and return-digest identity guard.
 - `dev/orin_pr_body_quality_audit.py` rejects PR body firewall markers.
 - The setup PR merged and future intake PRs remain USER-gated for creation and merge.
 
