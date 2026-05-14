@@ -7,7 +7,7 @@
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
 - Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; not a governance-only branch`
-- Current Delta Status: `Live Validation Stage 1 bounded repair continues after returned USER UTS failure and live USER visual feedback; latest red user-facing shortcut human-client validation proves #123 first-open visual continuity, #127 cursor alignment and high-refresh resize smoothness, Dashboard Settings open/close, Settings double-click non-maximize, Dashboard Close behavior, Quick Access warning-notification shadow clearance, #137 rounded-corner native-mask white-backdrop proof, and #140 NCP tray icon left-click / tray Open-Close state repair; Close is a window-level top-right control while Settings and HUD Overlay deferred remain Dashboard IA-card controls; formal UTS handoff has been refreshed from proof root dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298; returned USER UTS results remain pending or require explicit waiver before PR Readiness`
+- Current Delta Status: `Live Validation Stage 1 bounded repair continues after returned USER UTS failure and live USER visual feedback; latest red user-facing shortcut human-client validation proves #123 first-open visual continuity, #127 cursor alignment, central-50-percent rounded-corner diagonal resize affordance, and high-refresh resize smoothness, Dashboard Settings open/close, Settings double-click non-maximize, Dashboard Close behavior, Quick Access warning-notification shadow clearance, #137 rounded-corner native-mask white-backdrop proof, and #140 NCP tray icon left-click / tray Open-Close state repair; Close is a window-level top-right control while Settings and HUD Overlay deferred remain Dashboard IA-card controls; formal UTS handoff has been refreshed from proof root dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466; returned USER UTS results remain pending or require explicit waiver before PR Readiness`
 - Backlog Record State: `Registry-only runtime continuation under historical FAM-006 / PKG-006`
 - Package ID: `PKG-006`
 - Package Name: `Monitoring HUD Dashboard Product Surface`
@@ -30,7 +30,7 @@ It exists because the Dashboard settings cog/settings panel remained a deferred 
 - Runtime Implementation: `USER-approved and implemented for the bounded Dashboard settings cog/settings panel surface`
 - Hardening H1 Admission: `Granted - USER approved Hardening H1 for the FAM-006 Dashboard settings-panel runtime seam`
 - Hardening H1 Status: `PASS - settings affordance, settings child-window panel, warning toggle, hit-test controls, Dashboard Close, Create Monitor, Edit Monitor, tray reopen, resize/scroll/first-open regressions, truthful provider/overlay copy, and validator coverage were pressure-tested; no runtime product repair was required, and the human-client dialog cleanup helper was repaired so the proof can finish after visible NCP dialog checks`
-- Live Validation Status: `STAGE 1 REPAIRED / USER RESULTS PENDING - returned UTS was digested as REPAIR after #123 first-open flicker, #127 remaining resize jitter, and Dashboard Close styling/placement feedback; later live visual review found Quick Access warning-notification shadow bleed, remaining resize lag, #137 Dashboard rounded-corner native background bleed, and #140 NCP tray toggle/state regression. Active-client precheck remains supporting evidence at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260; latest red user-facing shortcut human-client validation passed at dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json with #137 white-backdrop corner-sampling proof, #140 NCP tray icon left-click open/close and tray menu Open/Close Command Overlay state proof, and corrected bottom/corner resize cursor proof; compact UTS handoff refreshed at dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298; returned USER UTS results remain pending unless USER explicitly waives that gate with a reason`
+- Live Validation Status: `STAGE 1 REPAIRED / USER RESULTS PENDING - returned UTS was digested as REPAIR after #123 first-open flicker, #127 remaining resize jitter, and Dashboard Close styling/placement feedback; later live visual review found Quick Access warning-notification shadow bleed, remaining resize lag, #137 Dashboard rounded-corner native background bleed, and #140 NCP tray toggle/state regression. Active-client precheck remains supporting evidence at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260; latest red user-facing shortcut human-client validation passed at dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json with #137 white-backdrop corner-sampling proof, #140 NCP tray icon left-click open/close and tray menu Open/Close Command Overlay state proof, corrected bottom/corner resize cursor proof, and central-50-percent rounded-corner diagonal resize-zone proof; compact UTS handoff refreshed at dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466; returned USER UTS results remain pending unless USER explicitly waives that gate with a reason`
 - GitHub Issue Closeout: `Pending USER approval for #123, #124, #125, #126, #127, #137, and #140`
 - Release Execution: `Pending USER approval`
 - Branch Authority State: `Active`
@@ -58,8 +58,8 @@ Backlog-Split Reason: `None`
 ## Blockers
 
 - `Runtime Implementation Approval`: cleared for the bounded Dashboard settings cog/settings panel runtime surface.
-- `Real USER-Facing Shortcut Validation`: cleared for issue #140 after USER reported NCP tray icon left-click no longer closes the NCP and tray state stays on Open. The canonical red user-facing desktop shortcut is `C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk`; the redundant legacy Settings Panel red shortcut was archived so USER testing and helpers share one FAM-006 launcher path. Latest human-client proof passed at `dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json` with `shortcut_targets_active_worktree=PASS`, the existing first-open/resize/settings/close regressions, white-backdrop rounded-corner mask proof, NCP tray icon left-click open/close proof, and tray menu Open/Close Command Overlay state proof.
-- `User Test Summary Results Pending`: active for Live Validation Stage 1. The prior returned UTS was digested as REPAIR. The compact formal UTS handoff was refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` from proof root `dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298` after the high-refresh resize smoothness repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair. Returned USER results still need to be returned and digested as PASS, or explicitly waived with a reason.
+- `Real USER-Facing Shortcut Validation`: cleared for issue #140 after USER reported NCP tray icon left-click no longer closes the NCP and tray state stays on Open. The canonical red user-facing desktop shortcut is `C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk`; the redundant legacy Settings Panel red shortcut was archived so USER testing and helpers share one FAM-006 launcher path. Latest human-client proof passed at `dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json` with `shortcut_targets_active_worktree=PASS`, the existing first-open/resize/settings/close regressions, white-backdrop rounded-corner mask proof, central-50-percent rounded-corner diagonal resize-zone proof, NCP tray icon left-click open/close proof, and tray menu Open/Close Command Overlay state proof.
+- `User Test Summary Results Pending`: active for Live Validation Stage 1. The prior returned UTS was digested as REPAIR. The compact formal UTS handoff was refreshed at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` from proof root `dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466` after the high-refresh resize smoothness repair, central-50-percent rounded-corner diagonal resize-zone repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair. Returned USER results still need to be returned and digested as PASS, or explicitly waived with a reason.
 - `PR Readiness Blocked By Live Validation`: active until returned UTS results are PASS or explicitly WAIVED and digested into source truth.
 - `PR Readiness / PR Creation Approval Missing`: active after Live Validation blockers clear until USER approves PR Readiness and any later PR creation.
 - `GitHub Issue Closeout Approval Missing`: active for comments or state changes on #123, #124, #125, #126, #127, #137, and #140.
@@ -102,7 +102,7 @@ Rollback Path: if this setup fails validation, current authorization covers boun
 
 - `Live Validation`
 
-Next Legal Phase Gate: Hardening H1 is complete and green. Live Validation Stage 1 has refreshed red-shortcut human-client PASS after the high-refresh resize smoothness repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair. PR Readiness and PR creation remain blocked until refreshed returned USER UTS results are PASS or WAIVED and digested into source truth.
+Next Legal Phase Gate: Hardening H1 is complete and green. Live Validation Stage 1 has refreshed red-shortcut human-client PASS after the high-refresh resize smoothness repair, central-50-percent rounded-corner diagonal resize-zone repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair. PR Readiness and PR creation remain blocked until refreshed returned USER UTS results are PASS or WAIVED and digested into source truth.
 
 ## Branch Objective
 
@@ -149,7 +149,7 @@ Acceptance Criteria: `Dashboard exposes a clear settings affordance; settings pa
 
 Validation Proof Requirements: `Runtime proof requires static HUD validator, internal sandbox validator, branch governance validation, release body validation, compileall, and live-client self-QA when USER-facing H1/PR readiness is requested.`
 
-Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation added active-client self-QA hooks for the settings panel. Hardening H1 pressure-tested the visible Settings button, settings panel open/close, warning toggle, and regression boundaries. The separate Live Validation Phase has active-client precheck PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260, latest strengthened red shortcut human-client PASS at dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json after the high-refresh resize smoothness repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair, and refreshed compact formal UTS handoff proof at dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298. Final Live Validation green still requires returned USER UTS PASS or explicit USER waiver/digestion.`
+Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation added active-client self-QA hooks for the settings panel. Hardening H1 pressure-tested the visible Settings button, settings panel open/close, warning toggle, and regression boundaries. The separate Live Validation Phase has active-client precheck PASS at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260, latest strengthened red shortcut human-client PASS at dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json after the high-refresh resize smoothness repair, central-50-percent rounded-corner diagonal resize-zone repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair, and refreshed compact formal UTS handoff proof at dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466. Final Live Validation green still requires returned USER UTS PASS or explicit USER waiver/digestion.`
 
 Implementation Sequence Proposal: `Implemented settings entry/panel, updated validators, recorded source truth, and stop after validation/commit/push for a Hardening decision. Live Validation and PR Readiness remain separate later phases.`
 
@@ -212,7 +212,7 @@ Completion Status: Green
 Remaining Implementable Work: None
 Future-Dependent Blockers: PR creation, GitHub issue closeout/comments, raw evidence upload/import/linking, release execution, FAM-007 runtime/admission, AI Product Contract import, Private Dev ORIN import, Overlay/display acceptance, external telemetry parity, and runtime/provider/model/memory/shortcut/installer work all require later USER approval.
 Visible User-Facing Proof Required: Yes for Dashboard settings-panel confidence - active-client precheck, real USER-facing shortcut validation, and formal UTS result digestion are required before PR Readiness unless USER grants a specific waiver for a gate.
-Visible User-Facing Proof: REPAIRED / USER RESULTS PENDING - active-client precheck PASS captured at `dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260`; latest strengthened red shortcut human-client PASS captured at `dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json`; compact formal UTS handoff refreshed at `dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298`; returned USER results remain pending unless USER waives that gate with a reason.
+Visible User-Facing Proof: REPAIRED / USER RESULTS PENDING - active-client precheck PASS captured at `dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260`; latest strengthened red shortcut human-client PASS captured at `dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json`; compact formal UTS handoff refreshed at `dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466`; returned USER results remain pending unless USER waives that gate with a reason.
 
 ## Release Debt And Issue Closeout
 
@@ -262,7 +262,7 @@ Risk Classes: `settings controls swallowed by native drag/hit-testing`; `fake pr
 
 ## User Test Summary Strategy
 
-Runtime implementation and Hardening did not generate or digest UTS. In the separate USER-approved Live Validation Stage 1 pass, the first returned UTS was digested as REPAIR, then bounded repairs refreshed formal UTS handoff at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`. The latest compact UTS handoff was refreshed from proof root `dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298` after the high-refresh resize smoothness repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair. Refreshed returned USER results remain pending and are not treated as PASS until USER returns them or explicitly waives the returned-results gate with a reason.
+Runtime implementation and Hardening did not generate or digest UTS. In the separate USER-approved Live Validation Stage 1 pass, the first returned UTS was digested as REPAIR, then bounded repairs refreshed formal UTS handoff at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`. The latest compact UTS handoff was refreshed from proof root `dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466` after the high-refresh resize smoothness repair, #137 rounded-corner proof, and #140 NCP tray toggle/state repair. Refreshed returned USER results remain pending and are not treated as PASS until USER returns them or explicitly waives the returned-results gate with a reason.
 
 ## Later-Phase Expectations
 
@@ -320,7 +320,7 @@ Recorded seam: Runtime implementation for the FAM-006 Dashboard settings-panel c
 - Deferred Truth Copy: `Overlay/display acceptance, provider setup, external telemetry parity, provider/model work, and installer/runtime scope remain pending USER decisions and are not represented as ready.`
 - Hit-Testing Coverage: `Settings button and settings warning toggle are included in native control hit-testing so they are treated as controls instead of drag gestures.`
 - Validator Coverage: `HUD surface and internal sandbox validators assert settings affordance, settings panel markup/CSS/JS state, live-client geometry hooks, and active-client self-QA step labels.`
-- Live Proof Posture: `REPAIRED / USER RESULTS PENDING - active-client precheck proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260 remains supporting evidence. Latest strengthened red user-facing shortcut proof at dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json proves shortcut_targets_active_worktree=PASS, #123 first-open visual-continuity stability, #127 resize cursor alignment and high-refresh resize smoothness, Settings real-mouse open/Done close, Settings double-click non-maximize, Dashboard Close hide/reopen, #137 rounded-corner native-mask white-backdrop proof, #140 NCP tray icon left-click open/close and tray menu Open/Close state, live-human tray/window proof, NCP interaction, and regression cleanup. Quick Access warning-notification shadow clearance is guarded by HUD static/internal validators. Compact formal UTS handoff was refreshed from proof root dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298; returned USER UTS results remain pending or require explicit waiver.`
+- Live Proof Posture: `REPAIRED / USER RESULTS PENDING - active-client precheck proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_195556_260 remains supporting evidence. Latest strengthened red user-facing shortcut proof at dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json proves shortcut_targets_active_worktree=PASS, #123 first-open visual-continuity stability, #127 resize cursor alignment, central-50-percent rounded-corner diagonal resize-zone coverage, and high-refresh resize smoothness, Settings real-mouse open/Done close, Settings double-click non-maximize, Dashboard Close hide/reopen, #137 rounded-corner native-mask white-backdrop proof, #140 NCP tray icon left-click open/close and tray menu Open/Close state, live-human tray/window proof, NCP interaction, and regression cleanup. Quick Access warning-notification shadow clearance is guarded by HUD static/internal validators. Compact formal UTS handoff was refreshed from proof root dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466; returned USER UTS results remain pending or require explicit waiver.`
 
 ## Deferred Monitor / Overlay Customization Planning Note
 
@@ -344,7 +344,7 @@ USER Idea: `The Dashboard window-level Close pill introduced during this FAM-006
 
 Overlay Exception: `Future Overlay/display work should give the unanchored Overlay matching Close and Anchor affordances. When the Overlay is anchored, both controls should disappear so the anchored Overlay preserves its edge-to-edge and immersive presentation.`
 
-Non-Physical Evidence: `Dashboard Close is implemented and validated on feature/fam-006-dashboard-settings-panel at commit 76b44afa420f59221f177d89ad0a8df73f9393ed. Source-truth proof remains in this branch record; latest red-shortcut human-client proof is dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json; latest compact UTS handoff root is dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298. No screenshot/upload/raw evidence import is required for this issue thread.`
+Non-Physical Evidence: `Dashboard Close is implemented and validated on feature/fam-006-dashboard-settings-panel at commit 76b44afa420f59221f177d89ad0a8df73f9393ed. Source-truth proof remains in this branch record; latest red-shortcut human-client proof is dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json; latest compact UTS handoff root is dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466. No screenshot/upload/raw evidence import is required for this issue thread.`
 
 Current Authorization: `Record the future standardization and GitHub issue traceability only; do not implement shared window chrome, NCP-adjacent child-window redesign, Overlay Close/Anchor controls, Overlay/display acceptance, or validator expansion on this branch without later USER admission.`
 
@@ -398,7 +398,7 @@ Next Legal Seam: `Digest refreshed returned USER UTS results as PASS or record e
 
 Live Validation Admission: `PASS - USER approved the Live Validation Phase for the FAM-006 Dashboard settings-panel runtime seam after Hardening H1 completed.`
 
-Live Validation Result: `REPAIRED HANDOFF READY / REFRESHED USER RESULTS PENDING - prior returned UTS failure was digested as REPAIR; active-client precheck proof passed as supporting evidence; strengthened red user-facing shortcut human-client validation passed after the high-refresh resize smoothness repair, #137 rounded-corner native-mask repair, and #140 NCP tray toggle/state repair; compact formal UTS handoff was regenerated at dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298; refreshed returned USER UTS results remain pending or require explicit waiver before final Live Validation green and PR Readiness eligibility.`
+Live Validation Result: `REPAIRED HANDOFF READY / REFRESHED USER RESULTS PENDING - prior returned UTS failure was digested as REPAIR; active-client precheck proof passed as supporting evidence; strengthened red user-facing shortcut human-client validation passed after the high-refresh resize smoothness repair, #137 rounded-corner native-mask repair, and #140 NCP tray toggle/state repair; compact formal UTS handoff was regenerated at dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466; refreshed returned USER UTS results remain pending or require explicit waiver before final Live Validation green and PR Readiness eligibility.`
 
 Live Validation Scope: `Dashboard Settings affordance visibility/reachability; settings child-window open/close; warning-notification toggle state; Dashboard usability while Settings is used; Settings and Close control hit-testing; Create Monitor, Edit Monitor, Dashboard Close, tray reopen, resize, scroll gutter, first-open, and truthful provider/overlay/deferred-state copy regression boundaries.`
 
@@ -422,13 +422,13 @@ USER-Inspectable Screenshot Folder: `C:\Users\anden\OneDrive\Pictures\Screenshot
 
 Real USER-Facing Shortcut Validation Status: `PASS - validator now defaults to the canonical red FAM-006 desktop shortcut, C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk. The redundant Settings Panel red shortcut has been archived to keep USER testing and helper validation aligned to one launcher. shortcut_targets_active_worktree=PASS and the strengthened human-client manifest passed after the returned UTS repair and #137 native-mask repair.`
 
-Human-Client Manifest: `dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json`
+Human-Client Manifest: `dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json`
 
 Shortcut Targets Active Worktree: `PASS - target and working directory resolve to C:\Nexus Worktrees\FAM-006 from the canonical red FAM-006 desktop shortcut`
 
 Human-Client Failure Step: `Resolved - prior failure at ncp_create_custom_task_clickable_with_dashboard_open was caused by the tray Open Command Overlay route toggling the overlay closed while the validator credited the route marker. Later issue #140 showed the opposite user-facing regression: tray icon left-click opened the NCP but no longer closed it and tray state stayed Open. The tray controller now uses live Command Overlay state so tray icon activation intentionally toggles open/close, tray labels change between Open and Close Command Overlay, and the validator proves both paths before PR Readiness.`
 
-Formal User Test Summary Status: `REFRESHED HANDOFF GENERATED / RETURNED RESULTS PENDING - compact formal UTS handoff was regenerated at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt from dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298 after the #137 rounded-corner native-mask repair, resize cursor correction, and #140 NCP tray toggle/state repair. USER identified UTS format drift where the handoff had grown into a work ledger/proof digest instead of a compact questionnaire. The helper now generates a short step-based USER questionnaire and keeps ledger/proof detail in manifests/source truth. Refreshed returned USER results have not been digested as PASS; USER may return the completed refreshed UTS or explicitly waive the returned-results gate with a reason.`
+Formal User Test Summary Status: `REFRESHED HANDOFF GENERATED / RETURNED RESULTS PENDING - compact formal UTS handoff was regenerated at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt from dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466 after the #137 rounded-corner native-mask repair, resize cursor correction, and #140 NCP tray toggle/state repair. USER identified UTS format drift where the handoff had grown into a work ledger/proof digest instead of a compact questionnaire. The helper now generates a short step-based USER questionnaire and keeps ledger/proof detail in manifests/source truth. Refreshed returned USER results have not been digested as PASS; USER may return the completed refreshed UTS or explicitly waive the returned-results gate with a reason.`
 
 Live Validation Blockers:
 
@@ -438,8 +438,8 @@ Live Validation Blockers:
 Live Validation Commands:
 
 - `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -ProofSeam "FAM-006 Dashboard settings panel Live Validation" -MarkerTimeoutSeconds 240 -NoProgressTimeoutSeconds 240 -FinalClientHoldSeconds 0`
-- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_human_client_validation.ps1 with canonical FAM-006 red shortcut C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk; shortcut_targets_active_worktree=PASS, #127 high-refresh resize tracking PASS, #137 rounded-corner white-backdrop proof PASS, #140 NCP tray toggle/state proof PASS, manifest dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json`
-- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -PrepareLiveValidationUserTestSummary; proof root dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298; compact formal UTS handoff C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_human_client_validation.ps1 with canonical FAM-006 red shortcut C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk; shortcut_targets_active_worktree=PASS, #127 high-refresh resize tracking PASS, #137 rounded-corner white-backdrop proof PASS, #140 NCP tray toggle/state proof PASS, manifest dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json`
+- `PASS - powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -PrepareLiveValidationUserTestSummary; proof root dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466; compact formal UTS handoff C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
 ## Bounded Live Validation Repair Record
 
@@ -548,7 +548,7 @@ Proof Detail:
 - `#127 resize fluidity: cornerUniqueSizes=42, rightUniqueWidths=42, bottomUniqueHeights=42`
 - `#127 tracking lag: corner max/avg lag 0px/0px with max interval 22 ms; right max/avg lag 0px/0px with max interval 16.7 ms; bottom max/avg lag 0px/0px with max interval 32 ms; validator limit max interval 34 ms`
 
-Formal UTS State: `Superseded by later #137 rounded-corner proof refresh and #140 NCP tray toggle/state proof refresh. This high-refresh repair generated the compact handoff at dev/logs/fam_006_monitoring_hud_live_validation/20260514_082639_463, but the current active handoff now points to dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298. PR Readiness and final Live Validation green remain blocked until the governed returned-UTS gate is cleared.`
+Formal UTS State: `Superseded by later #137 rounded-corner proof refresh and #140 NCP tray toggle/state proof refresh. This high-refresh repair generated the compact handoff at dev/logs/fam_006_monitoring_hud_live_validation/20260514_082639_463, but the current active handoff now points to dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466. PR Readiness and final Live Validation green remain blocked until the governed returned-UTS gate is cleared.`
 
 ## Dashboard Rounded Corner Background Bleed Repair - 2026-05-14
 
@@ -560,7 +560,7 @@ Runtime Repair Summary: `The Dashboard HUD window now applies a simple native Wi
 
 Validator / Helper Repair Summary: `Static HUD validators now require the native rounded-window region path, transparent native background posture, fallback setMask(region), rounded-mask-clipped resize hit-testing, and the rounded-window runtime marker. The human-client validator now places a white validation backdrop behind the real Dashboard, captures a full virtual-desktop screenshot, samples exterior pixels inside the native rectangular corner area, and fails if those corner samples are not light backdrop pixels while interior Dashboard chrome samples remain visible. The helper also closes the Command Overlay before resize proof so NCP regression checks cannot pollute Dashboard resize validation.`
 
-Live Validation / UTS State: `SUPERSEDED BY #140 REFRESH - red user-facing shortcut proof passed at dev/logs/fam_006_human_client_validation/20260514_100828_399/human_client_manifest.json with dashboard_rounded_corner_mask_light_backdrop=PASS and resize proof PASS after the rounded-mask hit-test correction. The current active proof now points to dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json and compact UTS handoff dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298. Returned USER UTS results remain pending or require explicit USER waiver with reason before PR Readiness can be reconsidered.`
+Live Validation / UTS State: `SUPERSEDED BY #140 REFRESH - red user-facing shortcut proof passed at dev/logs/fam_006_human_client_validation/20260514_100828_399/human_client_manifest.json with dashboard_rounded_corner_mask_light_backdrop=PASS and resize proof PASS after the rounded-mask hit-test correction. The current active proof now points to dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json and compact UTS handoff dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466. Returned USER UTS results remain pending or require explicit USER waiver with reason before PR Readiness can be reconsidered.`
 
 ## Normal-Speed Move/Resize Smoothness Repair After #137 - 2026-05-14
 
@@ -572,8 +572,8 @@ Validator / Helper Repair Summary: `The red-shortcut human-client validator now 
 
 Repaired Proof:
 - `Red shortcut human-client PASS after native region + movement/resize smoothness repair: dev/logs/fam_006_human_client_validation/20260514_100828_399/human_client_manifest.json`
-- `Current red shortcut human-client PASS after #140 tray toggle/state repair: dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json`
-- `Current compact formal UTS handoff proof root: dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298`
+- `Current red shortcut human-client PASS after #140 tray toggle/state repair: dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json`
+- `Current compact formal UTS handoff proof root: dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466`
 
 Proof Detail:
 - `#137 rounded-corner proof: dashboard_rounded_corner_mask_light_backdrop=PASS`
@@ -596,8 +596,8 @@ Validator / Helper Repair Summary: `The red-shortcut human-client validator now 
 Repaired Proof:
 - `GitHub issue: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/issues/140`
 - `Failed proof before resize-cursor repair: dev/logs/fam_006_human_client_validation/20260514_104252_542/human_client_manifest.json`
-- `Final red shortcut human-client PASS: dev/logs/fam_006_human_client_validation/20260514_105020_275/human_client_manifest.json`
-- `Compact formal UTS handoff proof root: dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298`
+- `Final red shortcut human-client PASS: dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json`
+- `Compact formal UTS handoff proof root: dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466`
 
 Proof Detail:
 - `ncp_tray_icon_left_click_opens=PASS`
@@ -606,4 +606,23 @@ Proof Detail:
 - `dashboard_resize_cursor_alignment=PASS with right edge size-west-east, bottom edge size-north-south, and corner size-northwest-southeast`
 - `dashboard_resize_fluidity=PASS with corner/right/bottom unique size samples=42 and cursor-to-window lag within gate`
 
-Formal UTS State: `Compact formal UTS handoff refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt from dev/logs/fam_006_monitoring_hud_live_validation/20260514_105352_298. Returned USER UTS results remain pending or require explicit USER waiver with reason before PR Readiness can be reconsidered.`
+Formal UTS State: `Compact formal UTS handoff refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt from dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466. Returned USER UTS results remain pending or require explicit USER waiver with reason before PR Readiness can be reconsidered.`
+
+## Rounded Corner Diagonal Resize Zone Repair - 2026-05-14
+
+Repair Admission: `PASS - USER accepted the current commit as the known-good resize smoothness baseline and requested a narrower follow-up: keep the smoothness solution, but make the rounded-corner diagonal resize affordance easier to trigger so roughly 50 percent of the rounded 90-degree corner arc returns the diagonal resize option instead of only the deepest corner portion.`
+
+Runtime Repair Summary: `The Dashboard resize hit-test path now preserves the rounded native mask and smooth refresh-rate-paced resize timers, then adds an explicit rounded-corner diagonal zone. Points near the visible rounded corner arc are measured against the corner radius; the central 50 percent of the 90-degree corner arc maps to the combined horizontal/vertical resize edges, while the outer quarters continue to behave as the adjacent single-axis edge. This keeps transparent clipped corners from becoming resize rails while making the visible curved corner easier to use.`
+
+Validator / Helper Repair Summary: `The red-shortcut human-client validator now samples two central-arc points that previously tended to fall into only right-edge or bottom-edge behavior: right-side arc offset=(5,17) and bottom-side arc offset=(17,5). Both must return htbottomright and a resize cursor. Static HUD validators require the central-half-of-rounded-corner-arc runtime marker and the rounded-corner diagonal resize helper.`
+
+Repaired Proof:
+- `Red shortcut human-client PASS: dev/logs/fam_006_human_client_validation/20260514_111852_225/human_client_manifest.json`
+- `Compact formal UTS handoff proof root: dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466`
+
+Proof Detail:
+- `dashboard_resize_corner_arc_diagonal_zone=PASS; right-side arc point offset=(5,17) cursor=size-northwest-southeast hitTest=htbottomright; bottom-side arc point offset=(17,5) cursor=size-northwest-southeast hitTest=htbottomright`
+- `dashboard_resize_fluidity=PASS; cornerUniqueSizes=41; rightUniqueWidths=42; bottomUniqueHeights=42; cornerMaxLag=4px/avg=0.2px; rightMaxLag=0px/avg=0px; bottomMaxLag=0px/avg=0px`
+- `dashboard_move_fluidity=PASS; uniquePositionSamples=48; maxLag=0px/avg=0px; maxSampleInterval=30.5ms`
+
+Formal UTS State: `Compact formal UTS handoff refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt from dev/logs/fam_006_monitoring_hud_live_validation/20260514_112213_466. Returned USER UTS results remain pending or require explicit USER waiver with reason before PR Readiness can be reconsidered.`

@@ -1,5 +1,6 @@
 import inspect
 import json
+import math
 import os
 import re
 import ctypes
@@ -7405,6 +7406,8 @@ class DesktopRuntimeWindow(QWidget):
             native_resize_hit_zone="preclick-hover-cursor-aligned-12px-app-owned-resize-action",
             resize_edge_scope="all-edges-and-corners",
             resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
+            corner_diagonal_resize_arc_percent=50,
+            corner_diagonal_resize_model="central-half-of-rounded-corner-arc",
             resize_hover_cursor_model="polls-real-cursor-before-click",
             resize_poll_interval_ms=8,
             deadzone_policy="auto-height-content-no-empty-hit-zones",
@@ -7457,6 +7460,19 @@ class DesktopRuntimeWindow(QWidget):
             return Qt.Edges()
         if not self._monitoring_hud_screen_point_inside_rounded_window_mask(point):
             return Qt.Edges()
+        radius = min(
+            int(self._monitoring_hud_window_corner_radius_px),
+            max(1, rect.width() // 2),
+            max(1, rect.height() // 2),
+        )
+        corner_edges = self._monitoring_hud_rounded_corner_diagonal_resize_edges_for_point(
+            point,
+            rect,
+            radius,
+            margin,
+        )
+        if corner_edges:
+            return corner_edges
         edges = Qt.Edges()
         if abs(point.x() - rect.left()) <= margin:
             edges |= Qt.LeftEdge
@@ -7470,6 +7486,52 @@ class DesktopRuntimeWindow(QWidget):
 
     def _monitoring_hud_resize_hit_zone_px(self) -> int:
         return 12
+
+    def _monitoring_hud_rounded_corner_diagonal_resize_edges_for_point(
+        self,
+        point: QPoint,
+        rect: QRect,
+        radius: int,
+        margin: int,
+    ):
+        if radius <= 0:
+            return Qt.Edges()
+        local_x = int(point.x() - rect.x())
+        local_y = int(point.y() - rect.y())
+        width = int(rect.width())
+        height = int(rect.height())
+
+        corner_center_x = None
+        corner_center_y = None
+        horizontal_edge = Qt.Edges()
+        vertical_edge = Qt.Edges()
+        if local_x < radius:
+            corner_center_x = radius
+            horizontal_edge = Qt.LeftEdge
+        elif local_x >= width - radius:
+            corner_center_x = width - radius
+            horizontal_edge = Qt.RightEdge
+        if local_y < radius:
+            corner_center_y = radius
+            vertical_edge = Qt.TopEdge
+        elif local_y >= height - radius:
+            corner_center_y = height - radius
+            vertical_edge = Qt.BottomEdge
+        if corner_center_x is None or corner_center_y is None:
+            return Qt.Edges()
+
+        dx = abs(local_x - corner_center_x)
+        dy = abs(local_y - corner_center_y)
+        distance = math.hypot(dx, dy)
+        # The rounded edge is a 90 degree arc. Treat the central 50 percent of
+        # that arc as diagonal resize, while the outer quarters still behave as
+        # the adjacent horizontal or vertical edge.
+        if not (max(0, radius - margin) <= distance <= radius):
+            return Qt.Edges()
+        angle = math.degrees(math.atan2(dy, dx)) if dx or dy else 45.0
+        if 22.5 <= angle <= 67.5:
+            return horizontal_edge | vertical_edge
+        return Qt.Edges()
 
     def _monitoring_hud_screen_point_inside_rounded_window_mask(self, point: QPoint) -> bool:
         if self.surface_role != "hud":

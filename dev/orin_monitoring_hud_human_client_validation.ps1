@@ -2623,6 +2623,10 @@ try {
     $cornerOutsideY = [int]($rectBeforeResize.Bottom + 24)
     $cornerEdgeX = [int]($rectBeforeResize.Right - 10)
     $cornerEdgeY = [int]($rectBeforeResize.Bottom - 10)
+    $cornerArcRightX = [int]($rectBeforeResize.Right - 5)
+    $cornerArcRightY = [int]($rectBeforeResize.Bottom - 17)
+    $cornerArcBottomX = [int]($rectBeforeResize.Right - 17)
+    $cornerArcBottomY = [int]($rectBeforeResize.Bottom - 5)
     $cursorRightOutside = Get-CursorKindAtPoint -X $rightOutsideX -Y $rightSampleY
     $hitRightOutside = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $rightOutsideX -Y $rightSampleY
     $cursorRight = Get-CursorKindAtPoint -X $rightEdgeX -Y $rightSampleY
@@ -2635,6 +2639,10 @@ try {
     $hitCornerOutside = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $cornerOutsideX -Y $cornerOutsideY
     $cursorCorner = Get-CursorKindAtPoint -X $cornerEdgeX -Y $cornerEdgeY
     $hitCorner = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $cornerEdgeX -Y $cornerEdgeY
+    $cursorCornerArcRight = Get-CursorKindAtPoint -X $cornerArcRightX -Y $cornerArcRightY
+    $hitCornerArcRight = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $cornerArcRightX -Y $cornerArcRightY
+    $cursorCornerArcBottom = Get-CursorKindAtPoint -X $cornerArcBottomX -Y $cornerArcBottomY
+    $hitCornerArcBottom = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $cornerArcBottomX -Y $cornerArcBottomY
     $cursorRightInterior = Get-CursorKindAtPoint -X $rightInteriorX -Y $rightSampleY
     $hitRightInterior = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandle -X $rightInteriorX -Y $rightSampleY
     $cursorBottomInterior = Get-CursorKindAtPoint -X $bottomSampleX -Y $bottomInteriorY
@@ -2645,6 +2653,8 @@ try {
         $hitRight -eq "htright" -and
         $hitBottom -eq "htbottom" -and
         $hitCorner -eq "htbottomright" -and
+        $hitCornerArcRight -eq "htbottomright" -and
+        $hitCornerArcBottom -eq "htbottomright" -and
         $hitRightOutside -ne "htright" -and
         $hitBottomOutside -ne "htbottom" -and
         $hitCornerOutside -ne "htbottomright" -and
@@ -2657,6 +2667,8 @@ try {
         $cursorBottom -ne $cursorBottomOutside -and
         $cursorBottom -ne $cursorBottomInterior -and
         $cursorCorner -ne $cursorCornerOutside -and
+        (Test-ResizeCursorKind $cursorCornerArcRight) -and
+        (Test-ResizeCursorKind $cursorCornerArcBottom) -and
         (Test-NonResizeCursorKind $cursorRightOutside) -and
         (Test-NonResizeCursorKind $cursorBottomOutside) -and
         (Test-NonResizeCursorKind $cursorCornerOutside) -and
@@ -2666,6 +2678,15 @@ try {
     )
     Add-Step -Id "dashboard_resize_cursor_alignment" -Title "Dashboard exposes Windows resize hit-tests only near the visible edge" -Status ($(if ($cursorAlignmentPass) { "PASS" } else { "FAIL" })) -Detail "cursor: rightOutside24px=$cursorRightOutside; rightEdge10px=$cursorRight; bottomOutside24px=$cursorBottomOutside; bottomEdge10px=$cursorBottom; cornerOutside24px=$cursorCornerOutside; corner10px=$cursorCorner; right28pxInside=$cursorRightInterior; bottom28pxInside=$cursorBottomInterior; rightOutsideAfter=$cursorRightOutsideAfter | hitTest: rightOutside24px=$hitRightOutside; rightEdge10px=$hitRight; bottomOutside24px=$hitBottomOutside; bottomEdge10px=$hitBottom; cornerOutside24px=$hitCornerOutside; corner10px=$hitCorner; right28pxInside=$hitRightInterior; bottom28pxInside=$hitBottomInterior; rightOutsideAfter=$hitRightOutsideAfter" -Evidence @{ rightEdgeOffsetPx = 10; bottomEdgeOffsetPx = 10; cornerOffsetPx = 10; interiorOffsetPx = 28; outsideOffsetPx = 24; expectedEdgeHitTests = "htright,htbottom,htbottomright"; expectedOutsideAndInteriorHitTests = "not edge"; cursorHandlePolicy = "edge cursor state must differ from outside/interior; WebEngine may report opaque cursor handles" }
     if (-not $cursorAlignmentPass) { throw "Dashboard resize cursor was not aligned to the visible edge/corner rail" }
+
+    $cornerArcExpansionPass = (
+        $hitCornerArcRight -eq "htbottomright" -and
+        $hitCornerArcBottom -eq "htbottomright" -and
+        (Test-ResizeCursorKind $cursorCornerArcRight) -and
+        (Test-ResizeCursorKind $cursorCornerArcBottom)
+    )
+    Add-Step -Id "dashboard_resize_corner_arc_diagonal_zone" -Title "Dashboard rounded corner exposes a larger diagonal resize zone" -Status ($(if ($cornerArcExpansionPass) { "PASS" } else { "FAIL" })) -Detail "central 50% rounded-corner arc policy; right-side arc point offset=(5,17) cursor=$cursorCornerArcRight hitTest=$hitCornerArcRight; bottom-side arc point offset=(17,5) cursor=$cursorCornerArcBottom hitTest=$hitCornerArcBottom." -Evidence @{ rightSideArcPoint = @($cornerArcRightX, $cornerArcRightY); bottomSideArcPoint = @($cornerArcBottomX, $cornerArcBottomY); rightSideArcOffsetPx = @(5,17); bottomSideArcOffsetPx = @(17,5); expectedHitTest = "htbottomright"; expectedCursor = "size-*"; diagonalResizeArcPolicy = "central-50-percent-of-rounded-corner-arc" }
+    if (-not $cornerArcExpansionPass) { throw "Dashboard rounded-corner diagonal resize zone did not cover the central 50 percent arc samples" }
 
     $cornerTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeResize.Right + 24)) -StartY ([int]($rectBeforeResize.Bottom + 24)) -EndX ([int]($rectBeforeResize.Right - 16)) -EndY ([int]($rectBeforeResize.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner outside-to-edge transition"
     $rightTransitionFromOutside = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX $rightOutsideX -StartY $rightSampleY -EndX ([int]($rectBeforeResize.Right - 16)) -EndY $rightSampleY -ExpectedHit "htright" -Label "right outside-to-edge transition"
