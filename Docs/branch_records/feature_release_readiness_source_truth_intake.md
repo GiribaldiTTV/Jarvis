@@ -21,14 +21,14 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / idle or single-cycle Release Readiness intake only`
-- Intake State: `Idle - RRI-20260514-004 merged by PR #147 at 47134640381909e9eec7127d4e826ee68b182ffb; return digest delivered to originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006; current governance hardening records the Branch Readiness Carrier Lifecycle Decision rule without opening a new RRI cycle`
+- Intake State: `Active - RRI-20260514-005 repairs PR #148 bot-review feedback by recording the Branch Readiness Carrier Lifecycle Decision hardening as its own governed active cycle instead of piggybacking on RRI-20260514-004 closeout`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
-- Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest`
-- Active RRI Cycle: `None`
+- Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest or a bot-review repair on an open standing-governance PR that already has USER approval`
+- Active RRI Cycle: `RRI-20260514-005`
 - Latest Closed RRI Cycle: `RRI-20260514-004`
-- Return Digest Status: `Complete - RRI-20260514-004 returned PR #147 merge commit 47134640381909e9eec7127d4e826ee68b182ffb and updated origin/main 47134640381909e9eec7127d4e826ee68b182ffb to originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
-- Active Cycle Identity: `None - latest closed RRI-20260514-004 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Return Digest Status: `Pending - RRI-20260514-005 return digest must target the governance thread/worktree after PR #148 repair push, merge, and sync; latest completed return digest remains RRI-20260514-004 for feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Active Cycle Identity: `RRI-20260514-005 originated from PR #148 bot-review feedback on feature/release-readiness-source-truth-intake at C:\Nexus Worktrees\Governance`
 
 ## Branch Class
 
@@ -54,12 +54,12 @@ This branch is the single standing governance lane for Release Readiness source-
 
 - Standing Branch: `feature/release-readiness-source-truth-intake`
 - Worktree: `C:\Nexus Worktrees\Governance`
-- Intake Source: Release Readiness digest only; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001.
+- Intake Source: Release Readiness digest only for new blocker intake; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `None`
+- Active RRI Cycle: `RRI-20260514-005`
 - Latest Closed RRI Cycle: `RRI-20260514-004`
-- Return Digest Status: `Complete - RRI-20260514-004 returned PR #147 merge commit 47134640381909e9eec7127d4e826ee68b182ffb and updated origin/main 47134640381909e9eec7127d4e826ee68b182ffb to originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
-- Active Cycle Identity: `None - latest closed RRI-20260514-004 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Return Digest Status: `Pending - RRI-20260514-005 return digest must target the governance thread/worktree after PR #148 repair push, merge, and sync; latest completed return digest remains RRI-20260514-004 for feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Active Cycle Identity: `RRI-20260514-005 originated from PR #148 bot-review feedback on feature/release-readiness-source-truth-intake at C:\Nexus Worktrees\Governance`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -177,9 +177,9 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `Governance hardening - Branch Readiness carrier lifecycle decision`
+Active seam: `RRI-20260514-005 - Branch Readiness carrier lifecycle bot-review repair`
 
-Seam Goal: `Close RRI-20260514-004 after PR #147 merge/sync/return digest and add the Branch Readiness Carrier Lifecycle Decision rule so stale empty local branches are recreated from current origin/main during Stage 2 instead of being silently reused.`
+Seam Goal: `Address PR #148 bot-review feedback by keeping the Branch Readiness Carrier Lifecycle Decision hardening inside an active RRI cycle, preserving RRI-20260514-004 as closed, and maintaining a return-digest path for the governance thread after PR #148 merge/sync.`
 
 Seam Scope: `This authority record, governance docs, helper registry text, and dev/orin_branch_governance_validation.py.`
 

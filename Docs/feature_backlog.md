@@ -69,6 +69,11 @@ Latest Public Prerelease: v1.7.0-prebeta.
 Latest Public Release Commit: 06edf8143dd862c94d26ff7d812105179a621206.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.0-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.7.0.
+Post-Release Canon Closure Drift: Recorded
+Published Release Pending Canon Closure: v1.7.1-prebeta
+Closure Repair Surface: Next Branch Readiness Stage 2
+Closure Drift Scope: release-dependent fields only
+Implementation Entry: Blocked until closure repair validates green
 Release-Debt Avoidance Status: Existing exception - PR #129 FAM-006 Dashboard render/layout hardening, PR #132 FAM-006 Dashboard IA/control follow-through, PR #138 FAM-007 provider-boundary / no-provider shell scope, and PR #142 FAM-006 Dashboard settings-panel runtime work are merged-unreleased implementation work after v1.7.0-prebeta until a later USER-approved release path publishes them; PR #133 merged release-support source truth, PR #139 merged sensor HUD provider governance / PR health gate truth, PR #141 merged standing release-readiness intake governance, and release execution remains pending USER approval.
 Merged-main Current Active Workstream: None - origin/main remains no-active-branch truth after PR #139 and PR #141.
 Current Active Workstream: None after PR #142 merge. FAM-006 Dashboard settings-panel runtime implementation is preserved as historical / merged-unreleased work under historical FAM-006 / PKG-006; FAM-007 provider-boundary/no-provider shell work remains merged historical/current-main evidence and does not make this worktree the active FAM-007 carrier.
