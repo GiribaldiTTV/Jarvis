@@ -410,7 +410,17 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 
 ### PR Summary
 ```markdown
-<implemented work only>
+## Summary
+
+<concise branch outcome and purpose>
+
+## Branch Evidence
+
+<implemented work, source-truth changes, behavior/capability changes, historical context, and branch-specific evidence only>
+
+## Validation
+
+<validation commands, evidence paths, or "Validation was not recorded in the original PR body.">
 ```
 ````
 
@@ -418,6 +428,7 @@ The `Next Branch` section must separate the next legal branch type/name from the
 If release debt, updated-`main` revalidation, or another admission gate blocks branch creation, `May Create Now: NO` is required with the reason.
 The `PR Creation Details` block is preparation material only; it must not imply PR creation, merge execution, release execution, next-branch creation, or PR Readiness GREEN has occurred.
 Each PR operator field must be its own copy-ready block and must be usable independently.
+The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.
 The PR summary must include implemented branch truth only. Do not include exclusion lists, `Not Included` sections, or defensive scope language.
 GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.
 PR Readiness GREEN requires the PR to exist, be open, be non-draft, have no conflicts, explicitly report a green merge status, match merge-target canon, clear `Merge-Target Authority Projection Unproven` by ensuring active branch authority will not survive into merged `main` when post-merge truth is `No Active Branch`, have no unresolved Codex comments/issues or requested changes, clear the live PR bot-review signal through either a thumbs-up reaction or a bot comment-resolution closeout, clear `PR Watcher Provisioning Unproven` whenever watcher-based PR monitoring is expected, clear `PR Watcher Routing Unverified` by proving the configured watcher route and delivery proof match the recorded reporting surface, clear `PR Merge Verification Pending` only after the watcher on that approved reporting surface has verified the PR is `merged`, and avoid `Automation Runtime Unproven`; no later thumbs-up is required after the comment-resolution path. This is the same-PR Codex bot-review repair loop: actionable bot comments must be fixed on the same PR, pushed, replied to, resolved, and recorded before green. Stage 2 final handoff cannot be green until bot-review closeout is verified. Standard operating procedure from now on is a watcher on an approved Codex reporting surface at minute cadence that reports only when a watched PR status changes, and PR Readiness continues into that merge-watch seam after PR creation and live validation. The current working thread is the default surface, but an explicitly recorded dedicated watcher-host thread is allowed when that is the validated user-visible route. Accepted watcher proof may come from native Codex heartbeat run evidence or from a bounded local watcher that posts the status-change updates through the official Codex thread-resume path into the approved transcript and records delivery proof through assistant-message transcript presence, Codex thread-state refresh, and automation run/inbox visibility. Manual rollout-file or transcript-file injection does not count as proof. Watcher output must be source-of-truth shaped with governed state markers, live PR truth, watcher proof, blockers, continue/stop decision, and, once `merged=true`, a copy/paste Codex prompt basis for the next legal Release Readiness validation without claiming Release Readiness legality itself. If final merge delivery proof is missing, the watcher must keep running and retry instead of retiring. A phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof. Watcher configuration is not runtime proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.

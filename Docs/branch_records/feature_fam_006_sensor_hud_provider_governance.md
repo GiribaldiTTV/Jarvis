@@ -258,6 +258,25 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Runtime Boundary: `PASS - no runtime/provider/model/memory/voice/Core/shortcut/installer implementation files changed`
 - Release Boundary: `PASS - no tag, GitHub Release, artifact, release-note, or release publication work performed`
 
+## Validation V6 Record
+
+- Scope: `Repo-wide PR body history standardization`
+- PR Body Audit: `PASS - audited 128 open/closed/merged PR bodies in GiribaldiTTV/Nexus-Desktop-AI`
+- Standard Selected: `Exactly three top-level sections: Summary, Branch Evidence, Validation`
+- PR Body Updates: `PASS - updated 128 PR bodies with zero GitHub edit failures`
+- Post-Update Audit: `PASS - all 128 PR bodies now contain exactly Summary, Branch Evidence, and Validation as top-level sections`
+- Validation Missing Handling: `PASS - historical PRs without validation evidence state Validation was not recorded in the original PR body`
+- `git diff --check origin/main...HEAD`: `PASS`
+- `python dev\orin_branch_governance_validation.py`: `PASS - branch governance validation passed 4766 checks`
+- `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`: `PASS - branch governance validation passed 4812 checks`
+- `python dev\orin_release_body_validation.py`: `PASS - latest release body matches the standard; historical prior-release body drift was reported as historical only`
+- `python -m py_compile dev\orin_branch_governance_validation.py`: `PASS`
+- `python -m compileall -q dev desktop Audio main.py`: `PASS`
+- Live GitHub PR body audit: `PASS - 128 of 128 PR bodies match the standardized top-level section shape`
+- Backup Snapshot: `Created outside repo under the local temp PR body audit directory before editing GitHub PR bodies`
+- Runtime Boundary: `PASS - no runtime/provider/model/memory/voice/Core/shortcut/installer implementation files changed`
+- Release Boundary: `PASS - no tag, GitHub Release, artifact, release-note, or release publication work performed`
+
 ## PR Readiness Stage 1 Projection Record
 
 - Current PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
@@ -348,6 +367,17 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Required Rule: `GitHub PR bodies and PR Summary copy must report branch evidence only and must not carry phase-digest handoff fields`
 - Live PR #139 Repair: `Complete - PR body now contains Summary, Why, and Validation only`
 - Validator Coverage: `Updated PR Readiness response contract phrase coverage in dev/orin_branch_governance_validation.py`
+- Runtime / Release Boundary: `No runtime implementation, merge, tag, GitHub Release, artifact, or release execution is admitted by this repair`
+
+## Repo-Wide PR Body Standardization Repair
+
+- Admission Basis: `USER directed an audit of all PRs, including closed PRs, to compare formatting, derive a better standard, update source truth, and normalize every PR body`
+- Scope Classification: `Governance/output-contract and GitHub PR body metadata repair only`
+- Audit Result: `128 PR bodies audited; common historical headings included Summary, Validation, Included Scope, Impact, Why, What Changed, Notes, Not Included, Scope, and Out Of Scope`
+- Selected Standard: `GitHub PR bodies use exactly three top-level sections: Summary, Branch Evidence, and Validation`
+- Historical Evidence Handling: `Original PR details are preserved under Branch Evidence with old headings demoted; unavailable validation is recorded explicitly instead of invented`
+- PR Body Updates: `Complete - 128 PR bodies updated successfully and post-update audit passed`
+- Source-Truth Repair: `Docs/phase_governance.md owns the standard, with loader/operator mirrors and validator coverage updated on this branch`
 - Runtime / Release Boundary: `No runtime implementation, merge, tag, GitHub Release, artifact, or release execution is admitted by this repair`
 
 ## Release Window Audit
