@@ -2307,7 +2307,7 @@ Allowed:
 - `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
 - `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest
 - source-truth/governance/validator drift repair named by the intake digest
-- a post-merge `Return Digest` to the originating worktree/thread
+- a post-merge `Return Digest` to the originating worktree/thread with concrete originating branch/worktree identity copied from the accepted intake
 
 Forbidden:
 
@@ -2321,7 +2321,15 @@ Originating-lane pause:
 - when a Release Readiness blocker is handed off, the originating thread/worktree enters `Waiting For Governance Intake` or `Waiting For Updated Main`
 - that lane must not mutate repository files until the governance PR merges, the standing branch syncs to `origin/main`, the `Return Digest` arrives, and the originating lane fetches/revalidates updated `origin/main`
 
-The `Return Digest` must include the originating branch/worktree, `RRI-*` cycle ID, governance PR, merge commit, updated `origin/main` commit, files changed, blockers cleared/remaining, validations, rebaseline instructions, and `Next Legal Phase`.
+The `Return Digest` must include the originating branch/worktree, operating workspace, expected branch, `RRI-*` cycle ID, governance PR, merge commit, updated `origin/main` commit, files changed, blockers cleared/remaining, validations, rebaseline instructions, and `Next Legal Phase`.
+
+Return-digest identity guard:
+
+- the originating branch and originating worktree must be copied exactly from the accepted Release Readiness intake digest or recorded `RRI-*` cycle identity
+- the originating-lane prompt must name that exact worktree as the operating workspace and must name the expected branch
+- the governance lane must not infer the originating workspace from `C:\Nexus Worktrees\Governance`, `C:\Nexus Desktop AI`, GitHub Desktop's selected repository, or the current shell CWD
+- `Return Digest Origin Identity Missing` blocks the handoff when the originating branch, originating worktree, operating workspace, or expected branch is absent, generic, contradictory, or inferred
+- `Thread / Worktree Identity Mismatch` blocks originating-lane continuation if the return digest points to a different branch/worktree than the accepted intake recorded
 
 ## Exception Path: Post-Release Canon Repair
 
