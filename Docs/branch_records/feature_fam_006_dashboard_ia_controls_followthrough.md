@@ -13,18 +13,18 @@
 
 This branch is the USER-approved Branch Readiness Stage 2 setup carrier and Workstream implementation carrier for the second FAM-006 Dashboard issue-resolution branch.
 
-It exists because PR #129 merged the first FAM-006 Dashboard issue-resolution branch for render/layout hardening, issues #125 and #126 remain open and held for Dashboard IA/control follow-through, and USER approved Branch Readiness Stage 2 setup for `feature/fam-006-dashboard-ia-controls-followthrough` from current `origin/main`.
+It existed because PR #129 merged the first FAM-006 Dashboard issue-resolution branch for render/layout hardening, issues #125 and #126 remained open and held for Dashboard IA/control follow-through, and USER approved Branch Readiness Stage 2 setup for `feature/fam-006-dashboard-ia-controls-followthrough` from current `origin/main`.
 
-Current authorization has covered Hardening/H1 validation, PR Readiness Stage 2, PR creation, and live PR metadata sync for issues #125 and #126 plus the USER-approved bounded governance/source-truth repairs recorded below. GitHub issue comments/state updates, raw evidence upload/import/linking, merge, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond the accepted PR package remain future USER approval checkpoints.
+Current authorization covered Hardening/H1 validation, PR Readiness Stage 2, PR creation, watcher/bot-review handling, merge, and post-merge historical recording for issues #125 and #126 plus the USER-approved bounded governance/source-truth repairs recorded below. GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and branch expansion beyond the accepted PR package remain future USER approval checkpoints.
 
 ## Record State
 
-- `PR #132 open / watch pending after H1 visual repair/validation complete for #125/#126 and PR Readiness Stage 2 execution`
-- `Merge-target No Active Branch projected for PR Readiness`
+- `PR #132 merged after H1 visual repair/validation, bot-review repair, and PR Readiness Stage 2 execution`
+- `Historical / No Active Branch after merge`
 
 ## Status
 
-- `Dashboard IA/control follow-through PR #132 is open for issues #125 and #126; GitHub issue closeout/comment updates, merge, release work, and raw evidence handling remain blocked pending USER approval`
+- `Dashboard IA/control follow-through PR #132 merged for issues #125 and #126; GitHub issue closeout/comment updates, release work, and raw evidence handling remain pending USER approval`
 
 ## Canonical Branch
 
@@ -44,9 +44,9 @@ Current authorization has covered Hardening/H1 validation, PR Readiness Stage 2,
 - Workstream Implementation: `Complete - Monitor Groups card flow now uses dedicated Create Monitor and Edit Monitor child-window flows, the Dashboard-home dropdown is removed, Monitor Groups layout is a measured no-overlap single-column card stack, the redundant HUD Dashboard Open badge is removed, and a top-chrome Dashboard close affordance hides the Dashboard without disabling the HUD Feature`
 - Hardening H1 Admission: `Granted - USER approved H1 validation/hardening for FAM-006 Branch 2 on 2026-05-13 from the isolated Branch 2 worktree`
 - Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on 2026-05-13 for #125 and #126 after bounded stale-selector cleanup and USER-screenshot visual layout repair; formal UTS export remains blocked unless a later governed Live Validation phase is admitted`
-- PR Readiness Repair: `Active - current-main sync reconciles PR #130 and PR #131 main changes, resolves Branch 1 historical-record conflicts, refreshes stale Branch 2 implementation/H1 wording, and preserves Branch 2 as the current #125/#126 PR-readiness carrier`
-- Branch Under PR Readiness Review: `feature/fam-006-dashboard-ia-controls-followthrough`
-- Branch Authority State: `Historical / No Active Branch projected for PR Readiness; PR #132 is open and merge remains blocked pending later USER approval`
+- PR Readiness Repair: `Complete - current-main sync reconciled PR #130 and PR #131 main changes, resolved Branch 1 historical-record conflicts, refreshed Branch 2 implementation/H1 wording, and preserved Branch 2 as the #125/#126 PR carrier through merge`
+- Branch Under PR Readiness Review: `Historical - PR #132 merged`
+- Branch Authority State: `Historical / No Active Branch after merge; PR #132 merged and this record is no longer an active execution carrier`
 - Source-Truth Owner: `This branch record owns Branch 2 setup and issue traceability; Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md owns historical FAM-006 RUI and issue-queue truth`
 - Carried Issues: `#125 FAM-006 Dashboard: Monitor Groups dead space and Create/Edit window split`; `#126 FAM-006 Dashboard: remove redundant open badge and add close affordance`
 - Completed-By-PR-129 Issues Pending GitHub Closeout: `#123`; `#124`; `#127`
@@ -62,10 +62,7 @@ Current authorization has covered Hardening/H1 validation, PR Readiness Stage 2,
 
 ## Blockers
 
-- `PR Readiness User Decision Pending`: active after Hardening H1 validation.
 - `GitHub Issue Closeout Approval Missing`: active for #123/#124/#127 and any comments/state changes on #125/#126.
-- `PR Bot Review Signal Pending`: active for PR #132 until the live PR receives bot review signal.
-- `PR Merge Approval Missing`: active.
 - `Raw Evidence Import Decision Pending`: active.
 - `Release Execution Approval Missing`: active.
 - `Branch Expansion Approval Missing`: active for any work outside #125/#126.
@@ -76,11 +73,12 @@ Current authorization has covered Hardening/H1 validation, PR Readiness Stage 2,
 ## Entry Basis
 
 - Branch creation base was `96ec36e7be751d444eda8dc220bc4a035d44fca1`, the merge commit for PR #129.
-- Current-main reconciliation has fetched and integrated `origin/main` at `36b66b4ee2926f6325d8c337af3c7df02e209802`, the merge commit for PR #131, after PR #130 and PR #131 both merged.
+- Current-main reconciliation fetched and integrated `origin/main` at `36b66b4ee2926f6325d8c337af3c7df02e209802`, the merge commit for PR #131, after PR #130 and PR #131 both merged.
 - PR #129 is merged and Branch 1 is historical traceability.
+- PR #132 merged on 2026-05-13 at merge commit `98b53fafd63abfe4876b718d5649b4a0df46f2a0` with final head `61f813e4609141bfa499f1515759548bcf914c33`.
 - PR #130 FAM-007 Stage 2 readiness/admission and PR #131 FAM-007 runtime provider-boundary readiness are current-main history only for this FAM-006 branch; neither admits FAM-007/local AI runtime work into Branch 2.
 - Issues #123, #124, and #127 were implemented by PR #129 and remain pending GitHub issue closeout only.
-- Issues #125 and #126 remain open GitHub issues and were held for Branch 2 in FAM-006 issue-readiness source truth.
+- Issues #125 and #126 were implemented by PR #132 and remain pending GitHub issue closeout only.
 - USER approved creating this Branch 2 carrier from current main and continuing Stage 2 in a new worktree to avoid mixing with uncommitted FAM-007 changes in `C:\Nexus Desktop AI`.
 - The prior FAM-007 work in `C:\Nexus Desktop AI` is merged through PR #131 and the main worktree is current on `main`; active Branch 2 work remains isolated in `C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough`.
 
@@ -89,8 +87,8 @@ Current authorization has covered Hardening/H1 validation, PR Readiness Stage 2,
 - Existing issue-readiness owner: `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md`.
 - Existing FAM-006 RUI owner: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`.
 - Branch 1 historical owner: `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md`.
-- Branch 2 active owner: this record.
-- Placement decision: create this active Branch 2 authority record and register it in `Docs/branch_records/index.md`; keep backlog and roadmap merge-stable unless later repo truth requires broader current-state sync.
+- Branch 2 historical owner: this record.
+- Placement decision: preserve this Branch 2 authority record under historical branch records; FAM-006 release-support source-truth repair now rides `feature/fam-006-dashboard-release-support`.
 
 ## Exit Criteria
 
@@ -101,7 +99,7 @@ Current authorization has covered Hardening/H1 validation, PR Readiness Stage 2,
 - Source truth records that GitHub issue comments/state updates are not approved in this Stage 2 pass.
 - Branch 2 non-goals remain explicit.
 - Docs/governance validation passes.
-- Workstream implementation changes for #125/#126 are committed and pushed after validation.
+- Workstream implementation changes for #125/#126 were committed, pushed, reviewed, and merged through PR #132 after validation.
 - Runtime implementation remains limited to #125/#126; any branch expansion requires separate USER approval.
 
 ## Rollback Target
@@ -112,9 +110,9 @@ Rollback Path: abandon or repair branch `feature/fam-006-dashboard-ia-controls-f
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Branch Readiness`
 
-Next Legal Phase Gate: PR #132 is open after USER-approved PR Readiness Stage 2. The next legal action is PR watch/bot-review handling and then a later USER merge decision if review/check state is green. GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain blocked.
+Next Legal Phase Gate: FAM-006 Dashboard release-support / issue-closeout planning is carried by `feature/fam-006-dashboard-release-support` after PR #132 merge. GitHub issue comments/state updates, raw evidence upload/import/linking, release/tag/artifact work, Workspace Runtime Isolation Stage 2, FAM-007/local AI work, AI Product Contract import, and any branch expansion remain blocked.
 
 ## Governance Drift Audit
 
@@ -133,18 +131,21 @@ Future Carrier Decision Rule: `Added to Docs/phase_governance.md and Docs/codex_
 PR Number: `#132`
 PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/132`
 PR Title: `FAM-006 Dashboard IA/control follow-through`
-PR State: `OPEN`
+PR State: `MERGED`
 PR Draft State: `false`
 PR Base: `main`
 PR Head: `feature/fam-006-dashboard-ia-controls-followthrough`
 PR Created: `2026-05-13T22:11:53Z`
 PR Latest Head At Creation: `ea0e94b4a82a52614502e72a83afdf06a3187925`
 PR Latest Head After Metadata Sync: `edbf65b7eb08e836807f22d80e318016b4f584b2`
+PR Final Head: `61f813e4609141bfa499f1515759548bcf914c33`
+PR Merged At: `2026-05-13T22:32:49Z`
+PR Merge Commit: `98b53fafd63abfe4876b718d5649b4a0df46f2a0`
 PR Mergeability At Creation: `MERGEABLE`
 PR Changed Files At Creation: `18`
-PR Readiness Gate After Creation: `Blocked only by Bot Review Signal Pending; source-truth metadata sync follows on the same branch.`
-Bot Review Signal Status: `Pending for current head edbf65b7eb08e836807f22d80e318016b4f584b2. A Codex bot review comment was observed for prior head ea0e94b4a82a52614502e72a83afdf06a3187925, but it does not clear current-head PR readiness.`
-Watcher Provisioning Status: `Provisioned after USER drift report - native Codex heartbeat watcher pr-132-fam-006-ia-controls-watch is ACTIVE on one-minute cadence.`
+PR Readiness Gate After Creation: `Historical - later bot-review repair and merge completed PR #132.`
+Bot Review Signal Status: `Resolved for merge - Codex P1 close-affordance review was repaired, replied to, and resolved before PR #132 merged.`
+Watcher Provisioning Status: `Historical complete - native Codex heartbeat watcher pr-132-fam-006-ia-controls-watch observed PR #132 through accepted bot repair and merge; future watcher changes require later approval if needed.`
 Watcher Kind: `heartbeat`
 Watcher ID: `pr-132-fam-006-ia-controls-watch`
 Watcher Name: `PR #132 FAM-006 IA Controls Watch`
@@ -153,9 +154,9 @@ Watcher Reporting Surface: `Current Codex thread`
 Watcher Reporting Thread ID: `019e2169-5c7a-7962-a2d7-4510002a7d76`
 Watcher Schedule: `FREQ=MINUTELY;INTERVAL=1`
 Watcher Runtime Proof Method: `Codex automation run/inbox evidence and current-thread heartbeat output; ACTIVE configuration alone is not runtime proof.`
-Watcher Runtime Proof Status: `Pending first scheduler run proof at provisioning time; automation observability classified the new watcher as REVIEW_INFO inside the initial grace window.`
-Watcher Fallback / Teardown: `If native heartbeat run proof does not appear, USER may approve a bounded local watcher fallback. Retire or update the watcher after PR #132 merges, closes, or is replaced.`
-Watcher / Bot-Review Posture: `Watch PR #132 for Codex/bot review comments, requested changes, status checks, mergeability, and merge state. Bounded repair may occur only on this PR branch if review feedback remains inside the accepted #125/#126 PR package or the accepted governance/source-truth repair scope; otherwise stop and surface a new USER decision.`
+Watcher Runtime Proof Status: `Historical - current-thread heartbeat output reported accepted and merged PR #132 states.`
+Watcher Fallback / Teardown: `Historical - no fallback required after PR #132 merge; any later cleanup of automation state is a separate USER decision.`
+Watcher / Bot-Review Posture: `Complete for PR #132. New watcher setup is only needed for a later live PR after USER approval.`
 
 ## PR #132 Bot Review Repair
 
@@ -180,7 +181,7 @@ Gate Drift Repair: `After GitHub thread resolution, the PR readiness gate still 
 Repo State: No Active Branch
 Merged-Main Repo State: No Active Branch
 Branch Authority Disposition: `Historical Branch Authority Records after this branch merges`
-Merged-Unreleased Release-Debt Owner: `FAM-006 Dashboard IA/control follow-through / this branch's future PR`
+Merged-Unreleased Release-Debt Owner: `FAM-006 Dashboard IA/control follow-through / PR #132`
 Release Target: `v1.7.1-prebeta`
 Release Floor: `patch prerelease`
 Version Rationale: `This branch is a bounded FAM-006 Dashboard issue-resolution and UX/control hardening package after v1.7.0-prebeta; patch prerelease is the correct floor because it fixes and hardens an existing released Dashboard surface without opening a new product lane.`
@@ -188,10 +189,10 @@ Release Scope: `FAM-006 Dashboard Monitor Groups layout/Create/Edit child-window
 Release Artifacts: `Pending - no tag, GitHub Release, release notes, or artifacts have been created or approved by this branch.`
 Post-Release Truth: `Pending release execution and post-release canon closure for v1.7.1-prebeta or a later USER-approved release target.`
 Selected Next Workstream: FAM-006 Dashboard release-support / issue-closeout follow-through.
-Selected Next Implementation Branch: Not created; candidate next-line branch is `feature/fam-006-dashboard-release-support`.
-Backlog Addition User Approval Missing: Cleared only for recording the USER-directed FAM-006 next-line branch candidate; active for package admission, branch creation, new backlog item, backlog split, promotion, GitHub issue closeout/comments, release work, or implementation outside this PR unless USER separately approves it.
-Next Workstream User Waiver: Granted for next-line identification only - USER directed Codex to ensure a FAM-006 branch is identified as next in line before PR Readiness Stage 2.
-Next-Branch Creation Gate: Blocked - `feature/fam-006-dashboard-release-support` is a recorded next-line candidate only. Workspace Runtime Isolation Stage 2, FAM-007/local AI, raw evidence import/linking, release work, GitHub issue closeout/comments, branch creation, and any successor branch remain separate future USER approval checkpoints.
+Selected Next Implementation Branch: Created under USER-approved Branch Readiness Stage 2 as `feature/fam-006-dashboard-release-support`.
+Backlog Addition User Approval Missing: Cleared only for USER-approved FAM-006 release-support source-truth repair on `feature/fam-006-dashboard-release-support`; active for package admission, new backlog item, backlog split, promotion, GitHub issue closeout/comments, release work, or implementation outside this PR unless USER separately approves it.
+Next Workstream User Waiver: Superseded by USER-approved Branch Readiness Stage 2 for `feature/fam-006-dashboard-release-support`.
+Next-Branch Creation Gate: Cleared for `feature/fam-006-dashboard-release-support` only. Workspace Runtime Isolation Stage 2, FAM-007/local AI, raw evidence import/linking, release work, GitHub issue closeout/comments, and any successor branch remain separate future USER approval checkpoints.
 Post-Merge Proof Handling: Branch 2 implementation, H1 repair, and active-client proof remain historical PR evidence after merge; raw screenshots/videos/UTS exports remain local/external unless USER later approves upload, import, or linking.
 Post-Merge Issue Handling: Issues #125 and #126 may be reviewed after merge for closure only after USER approval. Issues #123/#124/#127 remain completed by PR #129 and pending GitHub issue closeout.
 
@@ -203,7 +204,7 @@ Another Pre-Release Repair PR Required: `NO`
 Release Window Split Waiver: `None`
 Latest Public Prerelease: `v1.7.0-prebeta`
 Latest Public Release Commit: `06edf8143dd862c94d26ff7d812105179a621206`
-Current Merged-Unreleased Implementation Debt: `PR #129 FAM-006 Dashboard render/layout hardening plus this branch's future PR if merged before release execution`
+Current Merged-Unreleased Implementation Debt: `PR #129 FAM-006 Dashboard render/layout hardening plus PR #132 FAM-006 Dashboard IA/control follow-through`
 Release Execution State: `Blocked - no release/tag/artifact/GitHub Release work is approved`
 Release Window Decision: `Future USER approval required before publishing v1.7.1-prebeta or another release target`
 
@@ -217,7 +218,7 @@ Prepare the FAM-006 Dashboard IA/control follow-through branch to resolve the re
 ## Target End-State
 
 - The branch authority is established and pushed.
-- Runtime implementation and H1 hardening validation for #125/#126 are complete and ready for USER decision on PR Readiness Stage 1 or optional USER visual review.
+- Runtime implementation and H1 hardening validation for #125/#126 are complete and merged through PR #132.
 - The carried issue set remains limited to #125 and #126.
 - Branch 1 issues #123/#124/#127 stay completed-by-PR #129 and pending GitHub issue closeout.
 - Future/deferred Dashboard settings cog, Overlay/display acceptance, provider telemetry parity, Dev Toolkit/source-owner markers, Workspace Runtime Isolation, FAM-007/local AI, and AI Product Contract work remain out of scope.
@@ -419,7 +420,7 @@ PR #131 State: `MERGED - FAM-007 runtime provider boundary readiness merged at 3
 
 Branch 1 Record Reconciliation: `Resolved - PR #129 historical evidence, completed-by-PR #129 issue truth for #123/#124/#127, merged-unreleased release-debt truth, and Branch 2 routing for #125/#126 are preserved together.`
 
-Branch 2 Stale-Wording Repair: `Resolved - source truth now records #125/#126 Workstream implementation and H1 visual repair as complete, with PR creation and GitHub issue state/comment updates still blocked pending later USER approval.`
+Branch 2 Stale-Wording Repair: `Resolved - source truth now records #125/#126 Workstream implementation, H1 visual repair, PR creation, bot-review closeout, and merge as complete, with GitHub issue state/comment updates and release execution remaining pending later USER approval.`
 
 FAM-007 Boundary Preservation: `PR #130 and PR #131 are current-main history only for this FAM-006 carrier. They do not authorize FAM-007/local AI runtime work, AI Product Contract import, provider/model/runtime/memory/shortcut/installer work, or Workspace Runtime Isolation Stage 2 inside Branch 2.`
 
