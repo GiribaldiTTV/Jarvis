@@ -992,6 +992,10 @@ function Drag-FromToWithGeometrySamples {
             X = $x
             Y = $y
             ElapsedMs = [Math]::Round($stopwatch.Elapsed.TotalMilliseconds, 1)
+            Left = [int]$rect.Left
+            Top = [int]$rect.Top
+            Right = [int]$rect.Right
+            Bottom = [int]$rect.Bottom
             Width = [int]$rect.Width
             Height = [int]$rect.Height
         }
@@ -1063,6 +1067,93 @@ function Measure-ResizeTracking {
         MaxAllowedSampleIntervalMs = 34
         Samples = $lagSamples
     }
+}
+
+function Measure-MoveTracking {
+    param(
+        [object[]]$Samples,
+        [double]$BaseLeft,
+        [double]$BaseTop,
+        [double]$StartX,
+        [double]$StartY
+    )
+    $lagSamples = @()
+    $maxLag = 0.0
+    $sumLag = 0.0
+    $count = 0
+    $maxInterval = 0.0
+    $previousElapsed = $null
+    foreach ($sample in @($Samples)) {
+        $expectedLeft = $BaseLeft + ([double]$sample.X - $StartX)
+        $expectedTop = $BaseTop + ([double]$sample.Y - $StartY)
+        $leftLag = [Math]::Abs(([double]$sample.Left) - $expectedLeft)
+        $topLag = [Math]::Abs(([double]$sample.Top) - $expectedTop)
+        $lag = [Math]::Max($leftLag, $topLag)
+        $maxLag = [Math]::Max($maxLag, $lag)
+        $sumLag += $lag
+        $count += 1
+        if ($null -ne $previousElapsed -and $null -ne $sample.ElapsedMs) {
+            $maxInterval = [Math]::Max($maxInterval, [Math]::Abs(([double]$sample.ElapsedMs) - $previousElapsed))
+        }
+        if ($null -ne $sample.ElapsedMs) {
+            $previousElapsed = [double]$sample.ElapsedMs
+        }
+        $lagSamples += [pscustomobject]@{
+            Step = $sample.Step
+            ElapsedMs = $sample.ElapsedMs
+            X = $sample.X
+            Y = $sample.Y
+            Left = $sample.Left
+            Top = $sample.Top
+            ExpectedLeft = [Math]::Round($expectedLeft, 1)
+            ExpectedTop = [Math]::Round($expectedTop, 1)
+            LagPx = [Math]::Round($lag, 1)
+        }
+    }
+    $averageLag = if ($count -gt 0) { $sumLag / $count } else { 999.0 }
+    $pass = $count -ge 42 -and $maxLag -le 24.0 -and $averageLag -le 12.0 -and $maxInterval -le 34.0
+    return [pscustomobject]@{
+        Pass = [bool]$pass
+        SampleCount = $count
+        MaxLagPx = [Math]::Round($maxLag, 1)
+        AverageLagPx = [Math]::Round($averageLag, 1)
+        MaxSampleIntervalMs = [Math]::Round($maxInterval, 1)
+        MaxAllowedLagPx = 24
+        MaxAllowedAverageLagPx = 12
+        MaxAllowedSampleIntervalMs = 34
+        Samples = $lagSamples
+    }
+}
+
+function Move-DashboardAwayFromTrayMenuIfNeeded {
+    param([object]$Dashboard)
+    if (-not $Dashboard) { return }
+    $rect = $Dashboard.Current.BoundingRectangle
+    $virtual = [System.Windows.Forms.SystemInformation]::VirtualScreen
+    $trayZoneLeft = [double]($virtual.Right - 380)
+    $trayZoneTop = [double]($virtual.Bottom - 220)
+    $overlapsTrayZone = ([double]$rect.Right -gt $trayZoneLeft) -and ([double]$rect.Bottom -gt $trayZoneTop)
+    if (-not $overlapsTrayZone) {
+        Add-Step -Id "dashboard_clear_of_tray_menu_before_cleanup" -Title "Dashboard does not cover the tray menu cleanup zone" -Status "PASS" -Detail "Dashboard rect=($([int]$rect.Left),$([int]$rect.Top),$([int]$rect.Right),$([int]$rect.Bottom)); trayZone=($([int]$trayZoneLeft),$([int]$trayZoneTop),$($virtual.Right),$($virtual.Bottom))." -Evidence @{ dashboardRect = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]$rect.Bottom); trayZone = @([int]$trayZoneLeft, [int]$trayZoneTop, [int]$virtual.Right, [int]$virtual.Bottom) }
+        return
+    }
+    $targetLeft = [Math]::Max([double]($virtual.Left + 40), [double]$rect.Left - [Math]::Min(900.0, [Math]::Max(420.0, [double]$rect.Width * 0.75)))
+    $deltaX = [int]($targetLeft - [double]$rect.Left)
+    $startX = [int]($rect.Left + ($rect.Width / 2))
+    $startY = [int]($rect.Top + 48)
+    $handle = [long]$Dashboard.Current.NativeWindowHandle
+    $samples = Drag-FromToWithGeometrySamples -Element $Dashboard -WindowHandle $handle -StartX $startX -StartY $startY -EndX ([int]($startX + $deltaX)) -EndY $startY -Label "Dashboard move away from tray menu cleanup zone" -Steps 42 -StepDelayMs 8
+    Start-Sleep -Milliseconds 350
+    $afterDashboard = Get-DashboardWindow
+    $shot = Capture-VirtualScreenshot "05d_after_dashboard_repositioned_clear_of_tray_menu"
+    if (-not $afterDashboard) {
+        Add-Step -Id "dashboard_repositioned_clear_of_tray_menu_for_cleanup" -Title "Dashboard is repositioned away from tray menu before cleanup actions" -Status "FAIL" -Detail "Dashboard disappeared while repositioning away from tray menu cleanup zone." -Evidence @{ screenshot = $shot; moveSamples = $samples }
+        throw "Dashboard disappeared while repositioning away from tray menu cleanup zone"
+    }
+    $afterRect = $afterDashboard.Current.BoundingRectangle
+    $clear = ([double]$afterRect.Right -le $trayZoneLeft) -or ([double]$afterRect.Bottom -le $trayZoneTop)
+    Add-Step -Id "dashboard_repositioned_clear_of_tray_menu_for_cleanup" -Title "Dashboard is repositioned away from tray menu before cleanup actions" -Status ($(if ($clear) { "PASS" } else { "FAIL" })) -Detail "before=($([int]$rect.Left),$([int]$rect.Top),$([int]$rect.Right),$([int]$rect.Bottom)); after=($([int]$afterRect.Left),$([int]$afterRect.Top),$([int]$afterRect.Right),$([int]$afterRect.Bottom)); trayZone=($([int]$trayZoneLeft),$([int]$trayZoneTop),$($virtual.Right),$($virtual.Bottom))." -Evidence @{ screenshot = $shot; before = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]$rect.Bottom); after = @([int]$afterRect.Left, [int]$afterRect.Top, [int]$afterRect.Right, [int]$afterRect.Bottom); moveSamples = $samples }
+    if (-not $clear) { throw "Dashboard still covers the tray menu cleanup zone after repositioning" }
 }
 
 function Get-CursorKindAtPoint {
@@ -2396,7 +2487,12 @@ try {
     if (-not $roundedMaskPass) { throw "Dashboard rounded corner native mask did not prove white-backdrop transparency at exterior corner samples" }
 
     $rectBeforeMove = $dashboard.Current.BoundingRectangle
-    Drag-FromTo -StartX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2))) -StartY ([int]($rectBeforeMove.Top + 48)) -EndX ([int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2) + 90)) -EndY ([int]($rectBeforeMove.Top + 88)) -Label "Dashboard header move"
+    $moveHandle = [long]$dashboard.Current.NativeWindowHandle
+    $moveStartX = [int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2))
+    $moveStartY = [int]($rectBeforeMove.Top + 48)
+    $moveEndX = [int]($moveStartX + 220)
+    $moveEndY = [int]($moveStartY + 116)
+    $moveSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $moveHandle -StartX $moveStartX -StartY $moveStartY -EndX $moveEndX -EndY $moveEndY -Label "Dashboard header normal-speed move fluidity" -Steps 48 -StepDelayMs 8
     $dashboard = Get-DashboardWindow
     $moveShot = Capture-VirtualScreenshot "04_after_dashboard_mouse_drag"
     if (-not $dashboard) {
@@ -2405,8 +2501,13 @@ try {
     }
     $rectAfterMove = $dashboard.Current.BoundingRectangle
     $moved = ([Math]::Abs($rectAfterMove.Left - $rectBeforeMove.Left) -ge 12) -or ([Math]::Abs($rectAfterMove.Top - $rectBeforeMove.Top) -ge 12)
-    Add-Step -Id "dashboard_mouse_move" -Title "Dashboard moves through mouse drag" -Status ($(if ($moved) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeMove.Left),$($rectBeforeMove.Top)); after=($($rectAfterMove.Left),$($rectAfterMove.Top))" -Evidence @{ screenshot = $moveShot }
+    $moveUniquePositions = @($moveSamples | ForEach-Object { "$($_.Left),$($_.Top)" } | Sort-Object -Unique).Count
+    $moveTracking = Measure-MoveTracking -Samples $moveSamples -BaseLeft $rectBeforeMove.Left -BaseTop $rectBeforeMove.Top -StartX $moveStartX -StartY $moveStartY
+    $moveFluidityPass = $moved -and $moveUniquePositions -ge 24 -and $moveTracking.Pass
+    Add-Step -Id "dashboard_mouse_move" -Title "Dashboard moves through mouse drag" -Status ($(if ($moved) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeMove.Left),$($rectBeforeMove.Top)); after=($($rectAfterMove.Left),$($rectAfterMove.Top)); uniquePositionSamples=$moveUniquePositions" -Evidence @{ screenshot = $moveShot; geometrySamples = $moveSamples }
     if (-not $moved) { throw "Dashboard did not move through human-like mouse drag" }
+    Add-Step -Id "dashboard_move_fluidity" -Title "Dashboard movement tracks the cursor at normal USER speed" -Status ($(if ($moveFluidityPass) { "PASS" } else { "FAIL" })) -Detail "uniquePositionSamples=$moveUniquePositions; maxLag=$($moveTracking.MaxLagPx)px/avg=$($moveTracking.AverageLagPx)px; maxSampleInterval=$($moveTracking.MaxSampleIntervalMs)ms; sampled at 48 steps with 8ms delay while the left button was held." -Evidence @{ screenshot = $moveShot; geometrySamples = $moveSamples; moveTracking = $moveTracking; minimumUniquePositionSamples = 24; expectation = "returned USER validation says normal-speed movement skips, so LV1 requires high-cadence intermediate geometry plus cursor-to-window tracking-lag proof" }
+    if (-not $moveFluidityPass) { throw "Dashboard movement did not track cursor movement smoothly enough during normal-speed drag proof" }
 
     $ncpOpenEvidence = Invoke-TrayAction -ActionName "Open Command Overlay" -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_READY|phase=entry" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 900
@@ -2592,6 +2693,9 @@ try {
     Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize tracks the cursor at a high-refresh cadence" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; cornerMaxLag=$($cornerTracking.MaxLagPx)px/avg=$($cornerTracking.AverageLagPx)px; rightMaxLag=$($rightTracking.MaxLagPx)px/avg=$($rightTracking.AverageLagPx)px; bottomMaxLag=$($bottomTracking.MaxLagPx)px/avg=$($bottomTracking.AverageLagPx)px; sampled at 42 steps with 8ms delay while the left button was held." -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking; minimumUniqueSamples = 12; expectation = "returned UTS said #127 is improved but still needs smoother tracking, so LV1 now requires high-cadence intermediate geometry plus cursor-to-window tracking-lag proof" }
     if (-not $resizeFluidityPass) { throw "Dashboard resize did not track cursor movement smoothly enough during high-cadence drag proof" }
     Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through pre-click Windows resize cursor transitions" -Status "PASS" -Detail "Corner, right-edge, and bottom-edge resize actions changed real Dashboard geometry after the helper discovered the same standard Windows resize cursor transition a USER would look for before clicking." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior; cornerTransition = $cornerTransition; rightTransition = $rightResizeTransition; bottomTransition = $bottomResizeTransition; resizeFluidity = @{ cornerUniqueSizes = $cornerUniqueSizes; rightUniqueWidths = $rightUniqueWidths; bottomUniqueHeights = $bottomUniqueHeights; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking } }
+
+    $dashboard = Get-DashboardWindow
+    Move-DashboardAwayFromTrayMenuIfNeeded -Dashboard $dashboard
 
     $closeEvidence = Invoke-TrayAction -ActionName "Close HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=false" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 1000

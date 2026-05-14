@@ -101,6 +101,7 @@ IDC_SIZEWE = 32644
 IDC_SIZENS = 32645
 user32 = ctypes.windll.user32
 kernel32 = ctypes.windll.kernel32
+gdi32 = ctypes.windll.gdi32
 LoadCursorW = user32.LoadCursorW
 LoadCursorW.restype = ctypes.wintypes.HCURSOR
 SetCursor = user32.SetCursor
@@ -186,6 +187,24 @@ IsWindowVisible.restype = ctypes.c_bool
 GetParentW = user32.GetParent
 GetParentW.argtypes = [ctypes.wintypes.HWND]
 GetParentW.restype = ctypes.wintypes.HWND
+HRGN = getattr(ctypes.wintypes, "HRGN", ctypes.wintypes.HANDLE)
+HGDIOBJ = getattr(ctypes.wintypes, "HGDIOBJ", ctypes.wintypes.HANDLE)
+CreateRoundRectRgn = gdi32.CreateRoundRectRgn
+CreateRoundRectRgn.argtypes = [
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+]
+CreateRoundRectRgn.restype = HRGN
+SetWindowRgn = user32.SetWindowRgn
+SetWindowRgn.argtypes = [ctypes.wintypes.HWND, HRGN, ctypes.wintypes.BOOL]
+SetWindowRgn.restype = ctypes.c_int
+DeleteObject = gdi32.DeleteObject
+DeleteObject.argtypes = [HGDIOBJ]
+DeleteObject.restype = ctypes.wintypes.BOOL
 SW_HIDE = 0
 GWL_EXSTYLE = -20
 WS_EX_TRANSPARENT = 0x00000020
@@ -5972,31 +5991,85 @@ class DesktopRuntimeWindow(QWidget):
             max(1, rect.width() // 2),
             max(1, rect.height() // 2),
         )
+        signature = (rect.width(), rect.height(), radius, "win32-roundrect" if os.name == "nt" else "qt-region")
+        if signature == self._monitoring_hud_rounded_window_mask_signature:
+            return
+        if os.name == "nt":
+            try:
+                # Use a simple native rounded rectangle region instead of a polygonal
+                # Qt mask. The native region keeps the light-backdrop corner fix while
+                # avoiding complex shaped-window movement/resize jank.
+                region_handle = CreateRoundRectRgn(
+                    0,
+                    0,
+                    int(rect.width()) + 1,
+                    int(rect.height()) + 1,
+                    int(radius * 2),
+                    int(radius * 2),
+                )
+                if region_handle:
+                    applied = bool(SetWindowRgn(ctypes.wintypes.HWND(int(self.winId())), region_handle, True))
+                    if applied:
+                        self._monitoring_hud_rounded_window_mask_signature = signature
+                        self._emit_monitoring_hud_rounded_window_mask_ready(
+                            source=source,
+                            radius=radius,
+                            width=rect.width(),
+                            height=rect.height(),
+                            bounds_width=rect.width(),
+                            bounds_height=rect.height(),
+                            mask_model="simple-native-roundrect-region-matches-css-chrome",
+                        )
+                        return
+                    DeleteObject(HGDIOBJ(region_handle))
+            except Exception:
+                pass
+            signature = (rect.width(), rect.height(), radius, "qt-region")
+            if signature == self._monitoring_hud_rounded_window_mask_signature:
+                return
         path = QPainterPath()
         path.addRoundedRect(QRectF(rect), float(radius), float(radius))
         region = QRegion(path.toFillPolygon().toPolygon())
         if region.isEmpty():
             return
         self.setMask(region)
-        signature = (rect.width(), rect.height(), radius)
-        if signature == self._monitoring_hud_rounded_window_mask_signature:
-            return
         self._monitoring_hud_rounded_window_mask_signature = signature
         bounds = region.boundingRect()
+        self._emit_monitoring_hud_rounded_window_mask_ready(
+            source=source,
+            radius=radius,
+            width=rect.width(),
+            height=rect.height(),
+            bounds_width=bounds.width(),
+            bounds_height=bounds.height(),
+            mask_model="native-rounded-window-region-matches-css-chrome",
+        )
+
+    def _emit_monitoring_hud_rounded_window_mask_ready(
+        self,
+        *,
+        source: str,
+        radius: int,
+        width: int,
+        height: int,
+        bounds_width: int,
+        bounds_height: int,
+        mask_model: str,
+    ):
         self._emit_runtime_signal(
             "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY",
             package="PKG-006",
             slice="SLC-027",
             issue=137,
             source=source,
-            mask_model="native-rounded-window-region-matches-css-chrome",
+            mask_model=mask_model,
             corner_bleed_policy="no-opaque-rectangular-corners-over-light-backdrops",
             resize_hit_test_model="rounded-mask-clipped-visible-rail",
             radius_px=radius,
-            width=rect.width(),
-            height=rect.height(),
-            bounds_width=bounds.width(),
-            bounds_height=bounds.height(),
+            width=width,
+            height=height,
+            bounds_width=bounds_width,
+            bounds_height=bounds_height,
         )
 
     def _log_event(self, event):
@@ -7788,10 +7861,11 @@ class DesktopRuntimeWindow(QWidget):
             return
         self._monitoring_hud_resize_frame_sync_last = now
         self.webview.setGeometry(self.rect())
-        self.webview.updateGeometry()
-        self.webview.update()
-        self.update()
-        js_interval_s = frame_interval_s
+        if force:
+            self.webview.updateGeometry()
+            self.webview.update()
+            self.update()
+        js_interval_s = max(0.033, frame_interval_s * 2.0)
         if force or now - self._monitoring_hud_resize_js_sync_last >= js_interval_s:
             self._monitoring_hud_resize_js_sync_last = now
             self._run_javascript("window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));")
