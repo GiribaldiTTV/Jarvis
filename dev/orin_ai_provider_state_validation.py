@@ -442,6 +442,8 @@ def validate() -> list[str]:
         "SLC-034 Windows Resilience Platform Posture Planning Scaffold",
         "SLC-035 Persona Core Voice Planning Boundary",
         "SLC-036 Validation Eval Abuse Release Proof Gates",
+        "Hardening H1 - FAM-007 Provider Boundary And No-Provider Shell Local-Only Scaffold Chain",
+        "Live Validation LV1 USER Approval Missing",
         "model downloads",
         "real provider SDK integration",
         "AI Product Contract v0.6.2",

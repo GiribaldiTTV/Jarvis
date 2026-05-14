@@ -1935,9 +1935,13 @@ MANDATORY_BOUNDED_STATE_REQUIRED_PHRASES = {
 
 FAM007_BOUNDED_STATE_RECORD_REQUIRED_PHRASES = (
     "## Bounded State Lock",
-    "Bounded State: `Complete - Workstream / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / all admitted branch-material seams SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 green / next legal phase Hardening H1 only`",
+    "Bounded State: `Complete - Hardening H1 / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / all admitted branch-material seams SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 green and H1 proof reviewed / next legal phase Live Validation LV1 only`",
     "Bounded State User Waiver: Granted",
     "Bounded State Waiver Scope: `USER explicitly approved executing all relevant same-branch bounded Workstream tasks for all remaining admitted branch-material seams before Hardening",
+    "Hardening H1 USER Approval: `Granted - USER approved Hardening H1 proof review",
+    "Current Hardening Seam: `Hardening H1 - FAM-007 Provider Boundary And No-Provider Shell Local-Only Scaffold Chain`",
+    "Current Hardening Seam Status: `Green - H1 proof review found no runtime defect repair required`",
+    "Live Validation LV1 USER Approval Missing",
     "Broad Work Request Handling:",
     "Bounded State Missing Stop:",
     "Bounded State Waiver Missing Stop:",
