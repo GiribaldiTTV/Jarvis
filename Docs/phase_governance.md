@@ -1263,7 +1263,7 @@ Every release-bearing candidate must declare:
 Aggregation rule:
 
 - when multiple FAM/worktree branches merge before the next public prerelease, the selected release candidate must inventory every merged-unreleased contributor included in the target commit
-- merge order does not determine release ownership; the release owner is `Release Ownership Model: Aggregated release window` unless USER explicitly opens a release-packaging branch or selects a narrower historical/release-branch target
+- merge order does not determine release ownership; the release owner is `Release Ownership Model: Aggregated release window` unless USER explicitly opens a release packaging branch or selects a narrower historical/release-branch target
 - if current fetched `origin/main` contains both FAM-006 and FAM-007 merged-unreleased scope, both scopes are in the release candidate and both must have release-debt, validation, and issue/posture truth before Release Readiness can be green
 - if one merged contributor is not release-ready, Release Readiness must block or USER must explicitly select a release target that excludes it, such as a historical commit or release branch; Release Readiness must not silently pretend the contributor is outside the candidate
 - governance/source-truth-only PRs after runtime payload PRs are recorded under `Post-Runtime Governance Repairs:` and may be included without becoming user-facing feature claims

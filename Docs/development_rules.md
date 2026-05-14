@@ -460,7 +460,7 @@ That means:
   - `Release Candidate Anchor Missing` blocks Release Readiness when those fields are absent or ambiguous
   - `Release Window Contributor Inventory Missing` blocks Release Readiness when multi-FAM/worktree contributor inventory is absent or ambiguous
   - unless USER explicitly selects another release target, Release Readiness validates current fetched `origin/main`; historical PR merge commits are audit evidence only
-  - merge order does not decide release ownership; when multiple FAM/worktree branches merge before the next release, the release owner is `Release Ownership Model: Aggregated release window` unless USER explicitly opens a release-packaging branch or selects a narrower target
+  - merge order does not decide release ownership; when multiple FAM/worktree branches merge before the next release, the release owner is `Release Ownership Model: Aggregated release window` unless USER explicitly opens a release packaging branch or selects a narrower target
   - if current fetched `origin/main` contains FAM-006 and FAM-007 merged-unreleased scope, both scopes must be inventoried and release-ready before Release Readiness can be green, or USER must select a target that excludes the not-ready scope
   - governance/source-truth-only PRs merged after the last runtime PR may be included in the release candidate; they do not force the release candidate back to the last runtime merge commit
   - when later governance/source-truth repair PRs are included, `Candidate Includes Later Governance Repairs:` must be `YES`, and release notes may keep those repairs in internal validation/traceability instead of presenting them as user-facing product features
