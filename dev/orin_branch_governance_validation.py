@@ -2627,6 +2627,7 @@ PR_READINESS_BLOCKER_PHRASES = (
     "Release Window Audit Incomplete",
     "Between-Branch Canon Repair Attempt",
     "Next Branch Created Too Early",
+    "Origin Main Reconciliation Packet Required",
     "Next Branch Package Shape Unproven",
     "Single-Slice Branch Drift Risk Unresolved",
     "Family Organization Drift Risk Unresolved",
@@ -2786,6 +2787,17 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Selected-Next / No-Release-Debt Handling Status:",
     "Required Current-Branch Source-Truth Sync:",
     "Planned Merge-Target Canon Updates:",
+    "Origin/Main Freshness Check:",
+    "Branch Creation Base:",
+    "Current origin/main:",
+    "Origin/Main Advanced Since Branch Creation:",
+    "Origin/Main Changed Files:",
+    "Branch Changed Files:",
+    "Reconciliation Required:",
+    "Reconciliation File List:",
+    "Reconciliation Recommendation:",
+    "Reconciliation Mutation Status:",
+    "Origin Main Reconciliation Packet Required",
     "Planned Next Branch Block:",
     "Planned Watcher Provisioning:",
     "Expected Files To Change:",
@@ -2799,6 +2811,44 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Stage 2 Sync Plan:",
     "Next Legal Phase:",
     "Stage 2 Green-Light Decision Needed:",
+)
+
+PR_READINESS_ORIGIN_MAIN_FRESHNESS_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+
+PR_READINESS_ORIGIN_MAIN_FRESHNESS_PHRASES = (
+    "Origin/Main Freshness Check",
+    "Branch Creation Base:",
+    "Current origin/main:",
+    "Origin/Main Advanced Since Branch Creation:",
+    "Origin/Main Changed Files:",
+    "Branch Changed Files:",
+    "Reconciliation Required:",
+    "Reconciliation File List:",
+    "Reconciliation Recommendation:",
+    "Reconciliation Mutation Status:",
+    "Origin Main Reconciliation Packet Required",
+    "no file fixes during Stage 1",
+)
+
+PR_READINESS_ORIGIN_MAIN_FRESHNESS_MARKERS = (
+    "Branch Creation Base",
+    "Current origin/main",
+    "Origin/Main Advanced Since Branch Creation",
+    "Origin/Main Changed Files",
+    "Branch Changed Files",
+    "Reconciliation Required",
+    "Reconciliation File List",
+    "Reconciliation Recommendation",
+    "Reconciliation Mutation Status",
 )
 
 RELEASE_READINESS_HEALTH_GATE_DOCS = (
@@ -14714,6 +14764,75 @@ def _run_release_readiness_health_gate(
         )
 
 
+def _run_pr_origin_main_freshness_gate(
+    require,
+    *,
+    active_branch_record_path: str,
+    active_branch_record_text: str,
+) -> None:
+    if not active_branch_record_text:
+        return
+
+    info = _parse_workstream_doc(active_branch_record_text)
+    if str(info["current_phase"]) != "PR Readiness":
+        return
+
+    freshness = _section(active_branch_record_text, "Origin/Main Freshness Check")
+    require(
+        bool(freshness),
+        (
+            f"{active_branch_record_path}: PR Readiness Stage 1 requires "
+            "## Origin/Main Freshness Check before Stage 2 or PR creation"
+        ),
+    )
+    if not freshness:
+        return
+
+    for marker in PR_READINESS_ORIGIN_MAIN_FRESHNESS_MARKERS:
+        require(
+            bool(_extract_marker_value(freshness, marker)),
+            f"{active_branch_record_path}: Origin/Main Freshness Check is missing '{marker}:'",
+        )
+
+    mutation_status = _extract_marker_value(
+        freshness, "Reconciliation Mutation Status"
+    ).casefold()
+    require(
+        "no file fixes during stage 1" in mutation_status
+        or ("analysis-only" in mutation_status and "no file" in mutation_status),
+        (
+            f"{active_branch_record_path}: Origin/Main Freshness Check must make "
+            "reconciliation analysis-only with no file fixes during Stage 1"
+        ),
+    )
+
+    advanced = _normalized_gate_state(
+        _extract_marker_value(freshness, "Origin/Main Advanced Since Branch Creation")
+    )
+    reconciliation_required = _normalized_gate_state(
+        _extract_marker_value(freshness, "Reconciliation Required")
+    )
+    reconciliation_list = _extract_marker_value(freshness, "Reconciliation File List")
+    recommendation = _extract_marker_value(freshness, "Reconciliation Recommendation")
+    if _gate_state_matches(advanced, {"YES"}) and _gate_state_matches(
+        reconciliation_required, {"YES"}
+    ):
+        require(
+            bool(reconciliation_list) and reconciliation_list.upper() not in {"NONE", "N/A"},
+            (
+                f"{active_branch_record_path}: Origin Main Reconciliation Packet Required; "
+                "Reconciliation File List must enumerate every file/data owner needing review"
+            ),
+        )
+        require(
+            bool(recommendation) and recommendation.upper() not in {"NONE", "N/A"},
+            (
+                f"{active_branch_record_path}: Origin Main Reconciliation Packet Required; "
+                "Reconciliation Recommendation must explain the recommended reconcile route"
+            ),
+        )
+
+
 def _run_pr_readiness_gate(
     require,
     backlog_entries: list[dict[str, str]],
@@ -14766,6 +14885,11 @@ def _run_pr_readiness_gate(
             "PR readiness gate: Dirty Branch blocker is active; worktree must be clean "
             "and required branch truth must be durable in commit history before PR READY: YES"
         ),
+    )
+    _run_pr_origin_main_freshness_gate(
+        require,
+        active_branch_record_path=active_branch_record_path,
+        active_branch_record_text=active_branch_record_text,
     )
     _run_uts_results_pr_gate(require, backlog_entries)
     _run_next_workstream_gate(
@@ -15168,6 +15292,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness Stage 1 packet contract is missing '{required_phrase}'",
+            )
+
+    for relative_path in PR_READINESS_ORIGIN_MAIN_FRESHNESS_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_READINESS_ORIGIN_MAIN_FRESHNESS_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR Readiness origin/main freshness guidance is missing '{required_phrase}'",
             )
 
     for relative_path in RELEASE_READINESS_HEALTH_GATE_DOCS:

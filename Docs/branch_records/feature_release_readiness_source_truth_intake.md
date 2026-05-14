@@ -76,6 +76,7 @@ Allowed:
 - Validator support for standing intake, Release Readiness Health Pass, and PR body firewall behavior.
 - Helper registry updates tied directly to those validators.
 - Assigned Worktree Confinement governance/validator support for this standing worktree.
+- PR Readiness Stage 1 `Origin/Main Freshness Check` governance/validator support so Stage 1 reports branch-creation-base drift and reconciliation recommendations without fixing files by surprise.
 - One PR per active `RRI-*` cycle after validation.
 
 Forbidden:

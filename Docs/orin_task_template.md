@@ -73,6 +73,36 @@ PR Readiness Stage:
 PR Readiness Stage 2 Approval:
 [USER approval to enter Stage 2 recorded / PR Readiness Execution User Approval Missing / not applicable]
 
+Origin/Main Freshness Check:
+[PASS / Origin Main Reconciliation Packet Required / not applicable]
+
+Branch Creation Base:
+[fill in branch creation base commit or not applicable]
+
+Current origin/main:
+[fill in current origin/main commit]
+
+Origin/Main Advanced Since Branch Creation:
+[YES / NO / unknown]
+
+Origin/Main Changed Files:
+[complete file list from branch creation base to origin/main / None]
+
+Branch Changed Files:
+[complete file list from branch creation base to HEAD / None]
+
+Reconciliation Required:
+[YES / NO / unknown]
+
+Reconciliation File List:
+[complete list of files/data/source-truth owners needing reconciliation / None]
+
+Reconciliation Recommendation:
+[analysis-only recommendation for reconciling, or None]
+
+Reconciliation Mutation Status:
+[analysis-only; no file fixes during Stage 1]
+
 Branch Class:
 [implementation / release packaging / historical repair context only as canon allows]
 
