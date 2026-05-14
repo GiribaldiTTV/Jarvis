@@ -21,14 +21,14 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / idle or single-cycle Release Readiness intake only`
-- Intake State: `Active - RRI-20260514-004 repairs Release Readiness health-gate projection for FAM-006 merged-unreleased release-candidate markers and the standing governance intake No Active Branch exception`
+- Intake State: `Idle - RRI-20260514-004 merged by PR #147 at 47134640381909e9eec7127d4e826ee68b182ffb; return digest delivered to originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006; current governance hardening records the Branch Readiness Carrier Lifecycle Decision rule without opening a new RRI cycle`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest`
-- Active RRI Cycle: `RRI-20260514-004`
-- Latest Closed RRI Cycle: `RRI-20260514-003`
-- Return Digest Status: `Pending - RRI-20260514-004 return digest must target originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006 after merge/sync`
-- Active Cycle Identity: `RRI-20260514-004 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Active RRI Cycle: `None`
+- Latest Closed RRI Cycle: `RRI-20260514-004`
+- Return Digest Status: `Complete - RRI-20260514-004 returned PR #147 merge commit 47134640381909e9eec7127d4e826ee68b182ffb and updated origin/main 47134640381909e9eec7127d4e826ee68b182ffb to originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Active Cycle Identity: `None - latest closed RRI-20260514-004 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
 
 ## Branch Class
 
@@ -56,10 +56,10 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `RRI-20260514-004`
-- Latest Closed RRI Cycle: `RRI-20260514-003`
-- Return Digest Status: `Pending - RRI-20260514-004 return digest must target originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006 after merge/sync`
-- Active Cycle Identity: `RRI-20260514-004 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Active RRI Cycle: `None`
+- Latest Closed RRI Cycle: `RRI-20260514-004`
+- Return Digest Status: `Complete - RRI-20260514-004 returned PR #147 merge commit 47134640381909e9eec7127d4e826ee68b182ffb and updated origin/main 47134640381909e9eec7127d4e826ee68b182ffb to originating branch feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Active Cycle Identity: `None - latest closed RRI-20260514-004 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -85,6 +85,7 @@ Allowed:
 - Governance/source-truth wording that defines `Release Readiness Candidate Anchor` and keeps historical PR endpoints audit-only unless USER explicitly selects one as the release target.
 - Governance/source-truth wording that defines aggregated release-window ownership when multiple FAM/worktree PRs merge before the next release.
 - Governance/source-truth wording that routes stale/old branch cleanup to Branch Readiness branch/worktree setup instead of Release Readiness.
+- Governance/source-truth wording that makes Branch Readiness classify stale, empty, merged, wrong-worktree, and open-PR carrier states before Stage 2 branch/worktree creation or cleanup.
 - Validator support for standing intake, Release Readiness Health Pass, and PR body firewall behavior.
 - Helper registry updates tied directly to those validators.
 - Assigned Worktree Confinement governance/validator support for this standing worktree.
@@ -133,7 +134,7 @@ The return digest must preserve the originating lane identity exactly as recorde
 - Default Workspace Ban: `The governance lane must not default to C:\Nexus Desktop AI or C:\Nexus Worktrees\Governance unless that exact path is the recorded originating worktree for the accepted intake`
 - Return Digest Origin Identity Missing: `Blocks return-digest handoff when the originating branch, originating worktree, operating workspace, or expected branch is absent, generic, contradictory, or inferred`
 - Thread / Worktree Identity Mismatch: `Blocks originating-lane continuation when the return digest points at a different worktree or branch than the accepted intake recorded`
-- Latest Closed Cycle Identity: `RRI-20260514-002 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
+- Latest Closed Cycle Identity: `RRI-20260514-004 originated from feature/fam-006-dashboard-settings-panel at C:\Nexus Worktrees\FAM-006`
 
 ## PR Body Firewall
 
@@ -176,9 +177,9 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `RRI-20260514-004 - Release Readiness health-gate projection repair`
+Active seam: `Governance hardening - Branch Readiness carrier lifecycle decision`
 
-Seam Goal: `Add missing FAM-006 release-candidate anchor / release-window contributor health markers and align the health gate with the standing governance intake exception under No Active Branch.`
+Seam Goal: `Close RRI-20260514-004 after PR #147 merge/sync/return digest and add the Branch Readiness Carrier Lifecycle Decision rule so stale empty local branches are recreated from current origin/main during Stage 2 instead of being silently reused.`
 
 Seam Scope: `This authority record, governance docs, helper registry text, and dev/orin_branch_governance_validation.py.`
 
