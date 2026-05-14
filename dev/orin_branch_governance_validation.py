@@ -2633,6 +2633,7 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "### PR Summary",
     "inclusion-only",
     "defensive scope language",
+    "GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.",
 )
 
 PR_READINESS_STAGE_GATE_DOCS = (

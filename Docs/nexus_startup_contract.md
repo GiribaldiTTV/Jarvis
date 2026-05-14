@@ -577,6 +577,8 @@ Return:
 - Next Safe Move
 ```
 
+PR Creation Details are GitHub operator copy, not phase-digest output. GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in the surrounding governed Codex/source-truth response.
+
 Release-window audit notes for ChatGPT preflight also stay outside the prompt body and come from owning canon after load:
 - Release Window Audit
 - Release Window Audit Incomplete

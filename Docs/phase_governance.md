@@ -1045,6 +1045,7 @@ Required PR operator copy blocks:
 Each PR operator field must be its own copy-ready block and must be usable independently.
 The PR summary must describe implemented work, validation evidence, governance/canon state, post-merge truth, and next-branch handling only when those items are part of the implemented branch truth.
 The PR summary must not include exclusion lists, `Not Included` sections, or defensive scope language.
+GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.
 If `May Create Now` is `NO`, the `Next Branch` subsection must explain the blocking gate rather than implying branch creation is allowed.
 
 ### Operator Output Content Rule
@@ -1052,6 +1053,7 @@ If `May Create Now` is `NO`, the `Next Branch` subsection must explain the block
 Operator-facing PR summaries and GitHub release notes are inclusion-only.
 They must report what exists, what was implemented, what capabilities are available, how the system behaves, and which validation or release facts support the package.
 They must not report what was not done, include exclusion lists, use `Not Included` sections, or use defensive scope framing.
+Operator-facing PR summaries must stay evidence-only and must not carry phase-digest handoff fields; a surrounding Codex closeout may include governed phase markers, but the GitHub PR body may not.
 GitHub release notes must also use the standard Markdown release body shape used by the current pre-Beta releases: the body starts with `## Release Summary` or `## Release Overview`, continues with `## Release Highlights` or release-specific rich sections, then includes GitHub-generated `## What's Changed` and the generated `**Full Changelog**:` compare link to the previous release. The live release body must not start with or repeat the release title as `# <release title>`; the release title belongs in GitHub release metadata and in the separate `Release Title` operator block only.
 This rule governs operator output packages; it does not remove normal canon requirements for branch scope, non-goals, stop conditions, or blockers in source-of-truth records.
 

@@ -751,6 +751,7 @@ If `PR Readiness` is package-ready, green, or `PR READY: YES`, the final respons
 The `Next Branch` block must separate the next legal branch from the selected next implementation branch.
 If the next implementation branch is deferred by release debt, updated-`main` revalidation, or another branch-admission gate, set `May Create Now: NO` and state the reason.
 The PR summary must report included implementation and validation truth only. Do not include exclusion lists, `Not Included` sections, or defensive scope language.
+GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.
 
 If `Release Readiness` is green for release execution, the final response must include these inclusion-only copy-ready operator blocks:
 

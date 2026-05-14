@@ -704,6 +704,7 @@ The `Next Branch` block must state whether branch creation is legal now.
 When release debt or updated-`main` revalidation blocks the selected next implementation branch, use `May Create Now: NO` and record the gate.
 The PR operator blocks should be markdown-friendly and copy-ready, but they must not create the PR, merge the branch, run release work, or create the next branch by themselves.
 The PR summary must report implemented branch truth only and must not include exclusion lists, `Not Included` sections, or defensive scope language.
+GitHub PR bodies and PR Summary copy must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`; those belong in governed Codex/source-truth output, not branch evidence copy.
 
 ## Release Readiness Green Output
 

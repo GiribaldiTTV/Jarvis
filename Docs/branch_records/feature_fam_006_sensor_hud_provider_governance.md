@@ -245,6 +245,19 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Runtime Boundary: `PASS - no runtime/provider/model/memory/voice/Core/shortcut/installer implementation files changed`
 - Release Boundary: `PASS - no tag, GitHub Release, artifact, release-note, or release publication work performed`
 
+## Validation V5 Record
+
+- Scope: `PR body evidence-only format drift repair`
+- Live PR Body Repair: `PASS - PR #139 body was updated to remove phase-digest handoff output and retain only branch summary, rationale, and validation evidence`
+- `git diff --check origin/main...HEAD`: `PASS`
+- `python dev\orin_branch_governance_validation.py`: `PASS - branch governance validation passed 4758 checks`
+- `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`: `PASS - branch governance validation passed 4804 checks`
+- `python dev\orin_release_body_validation.py`: `PASS - latest release body matches the standard; historical prior-release body drift was reported as historical only`
+- `python -m py_compile dev\orin_branch_governance_validation.py`: `PASS`
+- `python -m compileall -q dev desktop Audio main.py`: `PASS`
+- Runtime Boundary: `PASS - no runtime/provider/model/memory/voice/Core/shortcut/installer implementation files changed`
+- Release Boundary: `PASS - no tag, GitHub Release, artifact, release-note, or release publication work performed`
+
 ## PR Readiness Stage 1 Projection Record
 
 - Current PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
@@ -327,6 +340,15 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Next Safe Move Boundary: `Next Safe Move may remain lawful-stop or route-specific and must not replace the required Next Legal Phase digest`
 - Validator Coverage: `Updated governed output contract and Stage 1 packet phrase coverage in dev/orin_branch_governance_validation.py`
 - Runtime / PR / Release Boundary: `No runtime implementation, PR creation, watcher provisioning, merge, tag, GitHub Release, artifact, or release execution is admitted by this repair`
+
+## PR Body Evidence-Only Format Repair
+
+- Admission Basis: `USER directed removal of phase-digest handoff content from PR #139 and requested the PR body stay relevant to branch evidence`
+- Scope Classification: `Governance/output-contract and live PR body repair only`
+- Required Rule: `GitHub PR bodies and PR Summary copy must report branch evidence only and must not carry phase-digest handoff fields`
+- Live PR #139 Repair: `Complete - PR body now contains Summary, Why, and Validation only`
+- Validator Coverage: `Updated PR Readiness response contract phrase coverage in dev/orin_branch_governance_validation.py`
+- Runtime / Release Boundary: `No runtime implementation, merge, tag, GitHub Release, artifact, or release execution is admitted by this repair`
 
 ## Release Window Audit
 
