@@ -91,6 +91,7 @@ Do not use this layer to replace:
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md`
 - `Docs/branch_records/feature_fam_006_dashboard_release_support.md`
 - `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`
 - `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md`

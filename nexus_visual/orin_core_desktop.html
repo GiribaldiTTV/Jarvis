@@ -40,6 +40,23 @@
       <div id="core"></div>
       <div id="core-dot"></div>
     </div>
+
+    <div
+      id="ai-provider-status"
+      class="ai-provider-status"
+      data-availability="disabled"
+      data-mode="no-provider"
+      data-privacy-scope="local-only"
+      data-surface-role="core-visualization"
+      aria-live="polite"
+    >
+      <div class="ai-provider-status__topline">
+        <span class="ai-provider-status__label">AI</span>
+        <span id="ai-provider-status-state" class="ai-provider-status__state">AI unavailable</span>
+      </div>
+      <div id="ai-provider-status-provider" class="ai-provider-status__provider">No AI provider</div>
+      <div id="ai-provider-status-privacy" class="ai-provider-status__privacy">Local shell only; nothing is sent</div>
+    </div>
   </div>
 
   <div id="command-overlay" class="command-overlay" aria-hidden="true">

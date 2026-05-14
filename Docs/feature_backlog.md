@@ -69,9 +69,9 @@ Latest Public Prerelease: v1.7.0-prebeta.
 Latest Public Release Commit: 06edf8143dd862c94d26ff7d812105179a621206.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.0-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.7.0.
-Release-Debt Avoidance Status: Existing exception - PR #129 FAM-006 Dashboard render/layout hardening and PR #132 FAM-006 Dashboard IA/control follow-through merged after v1.7.0-prebeta and remain unreleased implementation work until a later USER-approved release path publishes them; PR #133 merged release-support source truth, and release execution remains pending USER approval. The settings-panel branch carries bounded post-PR #133 drift repair plus Branch Readiness setup for the next FAM-006 runtime-focused Dashboard surface.
+Release-Debt Avoidance Status: Existing exception - PR #129 FAM-006 Dashboard render/layout hardening and PR #132 FAM-006 Dashboard IA/control follow-through merged after v1.7.0-prebeta and remain unreleased implementation work until a later USER-approved release path publishes them; PR #133 merged release-support source truth, and release execution remains pending USER approval. PR #134 merged FAM-007 provider-boundary / no-provider shell truth into main as separate historical FAM-007 evidence. The settings-panel branch carries bounded post-PR #133 drift repair plus Branch Readiness setup for the next FAM-006 runtime-focused Dashboard surface.
 Merged-main Current Active Workstream: None.
-Current Active Workstream: None promoted; FAM-006 Dashboard settings-panel Branch Readiness is active through the branch authority record as a runtime-focused continuation under historical FAM-006 / PKG-006; no FAM-007 runtime/provider/model/shortcut/installer Workstream implementation is active.
+Current Active Workstream: None promoted; FAM-006 Dashboard settings-panel Branch Readiness is active through the branch authority record as a runtime-focused continuation under historical FAM-006 / PKG-006; PR #134 FAM-007 provider-boundary/no-provider shell is merged historical truth and does not make this worktree the active FAM-007 carrier.
 Current Active Workstream Before Reform: None.
 Current Execution Branch: `feature/fam-006-dashboard-settings-panel`.
 Current Active Branch Authority Record: `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md`.
@@ -84,7 +84,7 @@ Selected Next Workstream: FAM-006 Dashboard settings panel is the USER-approved 
 Selected Next Record State: Registry-only runtime continuation under historical FAM-006 / PKG-006.
 Selected Next Runtime Package Candidate: Dashboard settings cog/settings panel under historical FAM-006 / PKG-006; this is not a new backlog family or package admission.
 Selected Next Implementation Branch: Created under USER-approved Branch Readiness Stage 2 as `feature/fam-006-dashboard-settings-panel`. `feature/fam-007-runtime-provider-boundary` is historical PR #131 governance/readiness evidence only.
-Selected Next Status: FAM-006 Dashboard settings-panel Branch Readiness Stage 2 is active for post-PR #133 source-truth drift repair and runtime-carrier setup. Runtime implementation remains pending later USER approval. PR #130, PR #131, and PR #133 remain historical current-main evidence; FAM-007 Workstream/runtime implementation remains pending later USER approval and may wait read-only in a separate assigned worktree.
+Selected Next Status: FAM-006 Dashboard settings-panel Branch Readiness Stage 2 is active for post-PR #133 source-truth drift repair and runtime-carrier setup. Runtime implementation remains pending later USER approval. PR #130, PR #131, PR #133, and PR #134 remain historical current-main evidence; FAM-007 Workstream/runtime implementation beyond the merged PR #134 scaffold remains pending later USER approval and may wait read-only in a separate assigned worktree.
 Runtime Package Admission: Historical - PKG-006 was admitted on the FAM-006 branch and merged through PR #118.
 Next Legal Runtime Step: USER decision on runtime implementation for `feature/fam-006-dashboard-settings-panel` after Branch Readiness Stage 2 validates, commits, and pushes.
 Next Legal Analysis Candidate: Runtime implementation approval for `feature/fam-006-dashboard-settings-panel` after Branch Readiness Stage 2; GitHub issue closeout/comments, release execution, FAM-007 runtime Workstream entry, Repo-Wide High-Risk Source Owner Marker Adoption, GitHub issue creation outside the existing five FAM-006 issues, or another legal carrier remain separate USER approval gates.
@@ -110,8 +110,8 @@ Release Floor: minor prerelease.
 Version Rationale: `v1.7.0-prebeta` is the next minor prerelease because PR #118 merged the user-facing FAM-006 Monitoring HUD Dashboard Product Surface after `v1.6.13-prebeta`; the release window also includes post-`v1.6.13-prebeta` source-truth closeout and launcher/orphan-tray recovery history already merged to main.
 Release Scope: PR #114 `docs: close v1.6.13 post-release canon`, PR #116 `Fix launcher orphan tray recovery`, and PR #118 `FAM-006 Monitoring HUD Dashboard Product Surface`, including the USER WAIVED/PASSABLE Dashboard-first acceptance state, deferred Overlay/display boundary, Core dependency-only boundary, actual shortcut proof, and saved/deferred issue traceability.
 Release Artifacts: Published - tag `v1.7.0-prebeta` and GitHub Release `Pre-Beta v1.7.0` exist at `06edf8143dd862c94d26ff7d812105179a621206`; the live release body has been corrected with detailed summary, highlights, validation/governance, generated `What's Changed`, and `Full Changelog` sections as the approved release-artifact correction in this Stage 2 carrier.
-Post-Release Truth: `v1.7.0-prebeta` remains the latest public prerelease; PR #129 and PR #132 are existing unreleased FAM-006 Dashboard issue-resolution implementation work after that release; PR #133 merged release-support source truth; FAM-007 readiness/admission is historical source-truth and runtime/provider/model/shortcut/installer implementation remains blocked.
-Next-Branch Creation Gate: `feature/fam-006-dashboard-settings-panel` was created under USER-approved Branch Readiness Stage 2 for FAM-006 settings-panel runtime-carrier setup and PR #133 drift repair only; runtime implementation, release packaging branch, FAM-007 branch/work, or successor branch remains pending later USER approval and updated-main revalidation.
+Post-Release Truth: `v1.7.0-prebeta` remains the latest public prerelease; PR #129 and PR #132 are existing unreleased FAM-006 Dashboard issue-resolution implementation work after that release; PR #133 merged release-support source truth; PR #134 merged FAM-007 provider-boundary / no-provider shell source and runtime scaffold truth as historical current-main evidence; FAM-007 work beyond PR #134 remains pending USER approval.
+Next-Branch Creation Gate: `feature/fam-006-dashboard-settings-panel` was created under USER-approved Branch Readiness Stage 2 for FAM-006 settings-panel runtime-carrier setup and PR #133 drift repair only; runtime implementation, release packaging branch, FAM-007 successor work, or other successor branch remains pending later USER approval and updated-main revalidation.
 Next Legal Phase: USER decision on runtime implementation for `feature/fam-006-dashboard-settings-panel` after Branch Readiness Stage 2 validates, commits, and pushes; GitHub issue comments/closeout, FAM-007 runtime implementation, release work, and AI Product Contract import remain pending separate USER approval.
 
 ## Backlog Governance Sync
@@ -390,44 +390,45 @@ Summary: Monitoring and HUD scaffold/boundary/runtime work remains credited as p
 
 ### [ID: FAM-007] Local AI and Capability Packs
 
-Status: Package admitted / PR-readiness projected / implementation blocked
+Status: Package admitted / first bounded implementation seam merged by PR #134 / future work USER-gated
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
-Next Workstream: Selected
-Minimal Scope: runtime provider-boundary and no-provider shell Branch Readiness for `PKG-007`; no provider/model/runtime/memory/shortcut/installer implementation.
-Selected Next Implementation Branch: Deferred to Branch Readiness
-Repair-Only Branch Handling: `feature/fam-007-provider-boundary-no-provider-shell` is a repair-only waiting/read-only branch context; its existence does not imply Branch Readiness admission or active branch truth for the FAM-006 settings-panel carrier.
-Successor Selection User Approval: Granted - USER selected FAM-007 exclusively within its assigned thread/worktree; FAM-006 settings-panel remains a separate lane unless USER later routes overlap.
+Next Workstream: Pending USER decision after PR #134
+Minimal Scope: runtime slices SLC-017 and SLC-018 for provider/no-provider shell state, visible disabled/unavailable/no-provider status, visible provider/privacy state scaffolding, and direct validation scaffolds merged through PR #134; no new model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release work, or contract import is active in this FAM-006 branch.
+Selected Next Implementation Branch: Historical PR #134 carrier `feature/fam-007-provider-boundary-no-provider-shell`; no new FAM-007 successor selected by this FAM-006 branch
+Current Carrier Branch: `feature/fam-007-provider-boundary-no-provider-shell` - merged by PR #134 as current-main historical truth for this FAM-006 reconciliation; new FAM-007 work requires later USER approval.
+Post-Merge Successor Selection: Pending USER decision; this FAM-006 reconciliation does not select an additional FAM-007 successor branch or workstream beyond preserving PR #134 historical truth.
+Successor Selection User Approval: Granted - USER selected FAM-007 for its separate worktree and approved the first bounded provider-boundary / no-provider shell seam that merged through PR #134; FAM-006 settings-panel remains the active lane in this worktree.
 Family Scope: Local AI execution posture, capability-pack boundaries, model/tool capability distribution, local-vs-external runtime choices, and capability governance.
 Package Policy: Branchable local-AI work must package capability boundary, install/runtime, validation, and documentation slices by default.
-Known Pending Gaps: Local AI and capability-pack architecture is admitted for Branch Readiness Stage 2 source-truth finalization only; no local model/provider runtime, AI implementation, full AI Product Contract import, GitHub issue creation, release work, shortcut work, installer work, or old AI lab branch mutation is authorized.
+Known Pending Gaps: Local AI and capability-pack architecture remains in progress; this branch authorizes only no-provider/provider-privacy scaffolding. Local model/provider runtime beyond the no-provider shell, real provider SDKs, model downloads, full AI Product Contract import, GitHub issue creation, release work, shortcut work, installer work, memory/indexing, voice/Core sync, and old AI lab branch mutation remain blocked.
 Package Admission State: Admitted by USER during Branch Readiness Stage 2 on `feature/fam-007-stage-2-readiness-admission`
 Admitted Slice Count: 8
-Package Completion State: Branch Readiness governance repair merged by PR #131 / runtime implementation not started
+Package Completion State: In Progress - first bounded SLC-017/SLC-018 no-provider/provider-privacy scaffold complete; next provider-boundary seam USER-gated
 Single-Slice Package User Approval: Not required - `PKG-007` admits eight concrete slices and no single-slice waiver is granted.
-Historical Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md`; `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md`
 Historical Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md`; `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md`; `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md`
-Planning Branch Trace: `feature/fam-007-local-ai-foundation-readiness` historical planning carrier; `feature/fam-007-stage-2-readiness-admission` PR-readiness carrier projected to historical/no-active posture before PR creation; `feature/fam-007-runtime-provider-boundary` historical PR #131 governance/readiness carrier
-Planning Worktree Trace: historical D-drive planning worktree removed; FAM-007 may use its own USER-assigned worktree when active, separate from the FAM-006 settings-panel worktree.
+Historical Branch Authority Record: `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md`
+Planning Branch Trace: `feature/fam-007-local-ai-foundation-readiness` historical planning carrier; `feature/fam-007-stage-2-readiness-admission` historical admission carrier; `feature/fam-007-runtime-provider-boundary` historical PR #131 governance/readiness carrier; `feature/fam-007-provider-boundary-no-provider-shell` historical PR #134 implementation-bearing provider-boundary carrier
+Planning Worktree Trace: historical D-drive planning worktree removed; GitHub Desktop FAM-007 alias conflict found on `C:\Nexus Desktop AI`; PR #134 FAM-007 work was isolated in `C:\Nexus Worktrees\Nexus Desktop AI FAM-007 Provider Boundary No Provider Shell`; this FAM-006 reconciliation does not assign new FAM-007 work.
 AI Product Contract v0.6.2 Status: USER-provided planning evidence only; not repo source truth, not fully imported, and not implementation authority.
-Current Branch vs Future Package Boundary: PR #131 recorded selected-next/no-release-debt governance, public-safe planning, proof gates, blockers, acceptance criteria, and identity-lock governance only. Later approved phases may implement hardware profiling, provider routing, model/capability-pack install, memory/indexing, voice/Core sync, setup wizard, beta feedback, or Dev ORIN surfaces.
-Interface Release Boundary: Admitted planning boundary / no runtime interface implemented. Primary future surface is provider/privacy status plus Assisted Desktop Mode setup/status.
-Branch Readiness Planning Blockers: `FAM-007 Implementation Approval Missing`, `AI Product Contract Full Import Approval Missing`, `Runtime Workstream Entry Blocked`, `PR Creation Approval Missing`, and `Release Execution Approval Missing`. FAM-006 settings-panel work is separate from this lane and remains USER-gated unless USER later routes overlap.
+Current Branch vs Future Package Boundary: PR #134 implemented only the first no-provider/provider-privacy state scaffold. Later approved phases may implement hardware profiling, provider routing, model/capability-pack install, memory/indexing, voice/Core sync, setup wizard, beta feedback, or Dev ORIN surfaces.
+Interface Release Boundary: First visible runtime scaffold is provider/privacy status plus no-provider/unavailable state. It does not implement a real provider, local model, memory, or capability-pack interface.
+Branch Readiness Planning Blockers: Cleared for the PR #134 branch creation and first bounded SLC-017/SLC-018 seam. `Next Provider-Boundary Seam USER Approval Missing`, `AI Product Contract Full Import Approval Missing`, `PR Creation Approval Missing`, `Release Execution Approval Missing`, `Real Provider SDK Approval Missing`, `Model Download Approval Missing`, `Memory/Indexing Approval Missing`, `Voice/Core Sync Approval Missing`, and `Shortcut/Installer Approval Missing` remain active for future work. FAM-006 settings-panel work is separate from this lane and remains USER-gated unless USER later routes overlap.
 
 Package Trace:
 
 | Package ID | FAM ID | Package Name | Package Status | Package Completion State | Branch / Release Trace | Legacy FB / PR Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| `PKG-007` | `FAM-007` | Local AI foundation and capability-pack architecture package | Admitted / Branch Readiness Stage 2 | In Progress / Branch Readiness | `feature/fam-007-stage-2-readiness-admission`; `Docs/orin_vision.md`; historical branch authority record | No legacy FB; repo vision trace plus USER planning evidence only |
+| `PKG-007` | `FAM-007` | Local AI foundation and capability-pack architecture package | Admitted / Branch Readiness Stage 2 / first Workstream seam approved | In Progress / first SLC-017/SLC-018 seam | `feature/fam-007-stage-2-readiness-admission`; `feature/fam-007-provider-boundary-no-provider-shell`; `Docs/orin_vision.md`; historical and active branch authority records | No legacy FB; repo vision trace plus USER planning evidence only |
 
 Slice Trace:
 
 | Slice ID | Package ID | FAM ID | Slice Name | Admission State | Slice Status | Completion State | Seam Trace |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `SLC-017` | `PKG-007` | `FAM-007` | Local AI shell, Assisted Desktop Mode, and no-provider behavior | Admitted | Branch Readiness | Pending | `feature/fam-007-stage-2-readiness-admission`; no runtime implementation |
-| `SLC-018` | `PKG-007` | `FAM-007` | Provider boundary and visible privacy/provider state | Admitted | Branch Readiness | Pending | `feature/fam-007-stage-2-readiness-admission`; no provider implementation |
+| `SLC-017` | `PKG-007` | `FAM-007` | Local AI shell, Assisted Desktop Mode, and no-provider behavior | Admitted | Workstream | In Progress | `feature/fam-007-provider-boundary-no-provider-shell`; no-provider shell state scaffold complete |
+| `SLC-018` | `PKG-007` | `FAM-007` | Provider boundary and visible privacy/provider state | Admitted | Workstream | In Progress | `feature/fam-007-provider-boundary-no-provider-shell`; visible provider/privacy state scaffold complete |
 | `SLC-031` | `PKG-007` | `FAM-007` | Hardware safety, power state, and GPU/CPU capability routing | Admitted | Branch Readiness | Pending | `feature/fam-007-stage-2-readiness-admission`; no hardware profiler or model runtime |
 | `SLC-032` | `PKG-007` | `FAM-007` | Model and capability-pack lifecycle | Admitted | Branch Readiness | Pending | `feature/fam-007-stage-2-readiness-admission`; no download/install/update implementation |
 | `SLC-033` | `PKG-007` | `FAM-007` | Data classification, memory, context, consent, audit, and secrets | Admitted | Branch Readiness | Pending | `feature/fam-007-stage-2-readiness-admission`; no memory/indexing implementation |
@@ -436,8 +437,8 @@ Slice Trace:
 | `SLC-036` | `PKG-007` | `FAM-007` | Validation, evaluation, abuse testing, and release proof gates | Admitted | Branch Readiness | Pending | `feature/fam-007-stage-2-readiness-admission`; proof gates only |
 
 Element Coverage Review: user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD impact, validation, and release impact are planned coverage for the admitted package; Element Coverage remains non-identity and does not add slices beyond the admitted rows.
-Acceptance Criteria: current branch acceptance is source-truth readiness/admission only: public-safe FAM-007 direction, admitted package and multi-slice shape, blockers, proof gates, acceptance criteria, release-debt repair, identity-lock governance, and current-vs-future boundaries must validate green. Future runtime acceptance requires separate Workstream/Hardening/Live Validation proof.
-Summary: Local AI and Capability Packs starts fresh as a broad family without reusing old `FB` numbering. The current branch admits the foundation package and eight slices, but no local model runtime, provider implementation, memory/indexing, voice/Core sync, Dev ORIN, shortcut, installer, or capability-pack installation work is implemented or authorized.
+Acceptance Criteria: current branch acceptance requires branch authority and selected-next truth plus a visible no-provider/provider-privacy scaffold that validates local-only, disabled/unavailable, and no-provider semantics. Future runtime acceptance for real providers, models, memory, voice/Core, shortcuts, installers, and capability packs requires separate Workstream/Hardening/Live Validation proof.
+Summary: Local AI and Capability Packs starts fresh as a broad family without reusing old `FB` numbering. PKG-007 remains admitted and in progress; this branch starts the first SLC-017/SLC-018 implementation seam without local model runtime, real provider SDK integration, memory/indexing, voice/Core sync, Dev ORIN, shortcut, installer, release, or capability-pack installation work.
 
 ### [ID: FAM-008] Packaging and Install Experience
 
