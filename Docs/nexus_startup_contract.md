@@ -266,6 +266,7 @@ Generated prompts for startup-sensitive passes should request:
 Generic `Results` or `Validation` headings are not enough by themselves for governed execution output.
 A green seam does not authorize stop while `Slice Status` remains non-green.
 A green slice does not authorize stop while `Completion Status` remains non-green.
+A green seam or green slice is continuation proof, not Hardening authority, while any admitted same-branch seam or slice remains implementable; the next legal unit is the next named Workstream seam or the next admitted slice.
 If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.
 Use these governed state markers as execution control, not just reporting.
 If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.
@@ -354,6 +355,7 @@ Workstream prompt notes for ChatGPT preflight live outside the prompt body and c
 - same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green
 - when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 - `Workstream` reaches `Hardening` only when `Completion Status: Green`
+- `Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; one green seam or one green slice cannot move the branch to Hardening while admitted branch material remains.
 - `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 - continue decision must be acted on immediately by starting the next seam needed inside the current slice
 - `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item

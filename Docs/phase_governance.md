@@ -108,13 +108,14 @@ The response or status handoff must explicitly report:
 `Green` means complete for the level it names.
 A green seam does not authorize stop while `Slice Status` is not green.
 A green slice does not authorize stop while `Completion Status` is not green.
+A green seam or green slice is continuation proof, not Hardening authority, while any admitted same-branch seam or slice remains implementable; the next legal unit is the next named Workstream seam or the next admitted slice.
 
 `Completion Status` is the `Workstream`-level bounded gate:
 It is the exact `Phase: Workstream Status` field for stop authority.
 
 - `In Progress` = more same-branch `Workstream` work remains and continuation is required
 - `Red` = a named blocker or waiver currently stops bounded `Workstream` continuation
-- `Green` = `Workstream` backlog completion is proven complete and `Hardening` is the next legal phase
+- `Green` = every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; `Workstream` backlog completion is proven complete and `Hardening` is the next legal phase
 
 `Phase: Workstream` must remain bounded at all times.
 The only lawful `Workstream` stop conditions are:
@@ -1595,6 +1596,7 @@ Durability commit/push is not a lawful stop while `Continue Decision` remains `C
 The `Continuation Execution Latch` is active whenever `Continue Decision: Continue`, `Stop Basis: None`, and a same-phase `Next Active Seam` are recorded; Codex must execute the next seam in the same bounded Workstream run instead of returning a terminal report.
 when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`
 `Workstream` reaches `Hardening` only when `Completion Status: Green`
+`Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; one green seam or one green slice cannot move the branch to Hardening while admitted branch material remains.
 `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation
 If `Completion Status` is `Red`, report the blocker or waiver and the action needed to clear it before continuation can resume.
 
@@ -1817,7 +1819,7 @@ Readiness or user handoff again.
 ## Phase Transition Rule
 
 - `Branch Readiness` -> `Workstream` only after branch base, branch class, authority record, branch objective, target end-state, complete family-package product planning packet when applicable, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase expectations, and first Workstream seam or initial seam sequence are explicit, and no `Branch Readiness Planning Incomplete` blocker remains active unless explicitly USER-waived
-- `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
+- `Workstream` -> `Hardening` only after the current Workstream work reports `Completion Status: Green`, every admitted same-branch seam and slice for the current branch is complete, deferred, blocked, or explicitly waived in source truth, no remaining implementable work is still available on that backlog item, `Backlog Completion State` is `Implemented Complete` or `Implemented Complete Except Future Dependency`, direct validation is green, User Test Summary obligations are current for user-facing changes, and no same-slice correctness gap remains
 - `Hardening` -> `Live Validation` only after repo-side hardening proof is sufficient for interactive or manual closeout work
 - `Live Validation` -> `PR Readiness` only after branch-local proof is sufficient for closeout, returned evidence has been digested into the authority record, and `User Test Summary Results Pending` is absent or cleared by a documented waiver
 - `PR Readiness` -> `Release Readiness` only after merge-target canon completeness passes, the Governance Drift Audit passes, the USER-approved next-workstream selection gate passes or a USER-approved next-workstream waiver/defer is explicitly recorded, branch creation remains deferred to `Branch Readiness`, the watcher on the approved reporting surface has verified that the live PR is `merged`, and any release target/scope/artifact truth needed for release review is already available without file mutation
