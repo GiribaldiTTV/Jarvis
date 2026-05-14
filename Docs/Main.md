@@ -74,6 +74,14 @@ Thread Launch / Write-Target Identity Lock:
 - the routing packet must report expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected phase/seam, actual repo state, mismatch evidence, and safest next correction
 - no source-truth update, branch/worktree creation, commit, push, PR action, release action, shortcut mutation, runtime launch for validation, provider/model install, or GitHub Desktop handoff may proceed until the identity lock passes or USER explicitly routes the work to the corrected target
 
+Bounded State Lock:
+
+- before mutation or execution, Codex must also prove `Bounded State:` for the exact phase/stage, workspace, branch, write target, owning authority record, active package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase
+- if any bounded-state field is missing, stale, or ambiguous, stop on `Bounded State Missing`
+- broad work requests do not authorize implementation; `continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording may execute only when source truth resolves it to one exact active bounded seam
+- widening beyond that seam requires `Bounded State User Waiver: Granted`; without explicit waiver text naming the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions, stop on `Bounded State Waiver Missing`
+- clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver
+
 ## Protected Main Law
 
 `main` is a protected branch for Codex work.

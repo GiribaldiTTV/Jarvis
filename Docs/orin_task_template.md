@@ -76,6 +76,15 @@ PR Readiness Stage 2 Approval:
 Branch Class:
 [implementation / release packaging / historical repair context only as canon allows]
 
+Bounded State:
+[exact phase/stage, workspace, branch, write target, authority record, package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase]
+
+Bounded State User Waiver:
+[Granted with exact waiver fields / None]
+
+Bounded State Waiver Scope:
+[required when waiver is Granted; otherwise None]
+
 Implementation Delta Class:
 [runtime/user-facing / backend/runtime / developer-tooling / docs-only / comma-separated non-docs-only values]
 
@@ -164,6 +173,9 @@ Note: task mode defines the task type. Codex collaboration posture is defined se
 If the task is phase-sensitive and the exact `Phase` field is missing, stop and clarify before execution.
 If repo state is blocked `No Active Branch`, implementation is blocked and the task should resolve the blocking repair path instead of starting implementation.
 If repo state is steady-state `No Active Branch`, do not start implementation by inertia.
+If `Bounded State` is missing, stale, or ambiguous, stop on `Bounded State Missing` before mutation.
+Broad work requests do not authorize implementation. `Continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording may execute only when repo source truth resolves it to one exact active bounded seam.
+If execution needs wider scope than the bounded state allows, stop on `Bounded State Waiver Missing` unless `Bounded State User Waiver: Granted` names the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions.
 Do not open a governance-only branch or between-branch canon repair lane.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.

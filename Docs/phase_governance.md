@@ -49,6 +49,28 @@ If `Seam Sequence` is present, it is structure only.
 Prompt text may name the entry seam and downstream planned seams, but it does not define seam behavior, bypass phase rules, or authorize continuation by itself.
 The canonical seam workflow contract below controls whether Codex may continue, must stop, or may split a backlog item across branches only with explicit USER approval.
 
+## Mandatory Bounded State Gate
+
+Bounded State is mandatory for every execution pass that can mutate repo files, create or switch branches/worktrees, commit, push, create a PR, handle PR comments, run release actions, launch runtime validation, mutate shortcuts, install providers/models, or hand off GitHub Desktop state.
+
+Before mutation or execution, Codex must prove and report a `Bounded State:` with all of these fields:
+
+- exact phase and stage
+- active workspace, git root, branch, upstream, `HEAD`, `origin/main`, worktree role, and write target
+- owning workstream or branch authority record
+- active package, slice, and seam, or an explicit non-FAM repair carrier allowed by source truth
+- exact allowed scope, affected surfaces, and validation contract
+- explicit non-includes and pending USER decisions
+- stop/report conditions and the next legal phase
+
+If any required bounded-state field is missing, stale, contradictory, or cannot be resolved from source truth, Codex must stop on `Bounded State Missing` before mutation. Analysis may continue only far enough to report the missing field and the exact USER decision needed.
+
+Broad work requests do not authorize implementation. Phrases such as `continue`, `complete all`, `all remaining work`, `finish FAM-007`, `do whatever is next`, or similar broad wording must resolve to the next named bounded same-branch seam already recorded in source truth. If they do not resolve to exactly one active bounded seam, Codex must stop on `Bounded State Missing` or `Next Bounded Workstream Seam Approval Missing`.
+
+Widening beyond the current bounded state requires explicit USER waiver text recorded as `Bounded State User Waiver: Granted`. The waiver must name the branch/worktree, phase, slice/seam, the exact bound being relaxed, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions. If a task needs wider scope and that waiver is absent, stop on `Bounded State Waiver Missing`.
+
+Clean validation, a clean git tree, branch existence, prior broad approval, Codex discretion, ChatGPT wording, or prompt output shape cannot infer a bounded-state waiver. `Bounded State User Waiver: None` means execute only the single named bounded seam or stop.
+
 ## Branch Naming Prefix Rule
 
 Active Nexus branch names and active branch authority records must not use the `codex/` prefix.

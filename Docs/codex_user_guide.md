@@ -85,6 +85,8 @@ For governed closeout recovery, also include:
 
 For bounded multi-seam Workstream execution, also include:
 
+- `Bounded State: <exact phase/stage, workspace, branch, write target, authority record, package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase>`
+- `Bounded State User Waiver: <Granted with exact waiver fields / None>`
 - `Current active seam: <seam name>`
 - `Seam Sequence: <ordered seam list>` when the admitted sequence is already explicit in canon
 - `Validation Contract: <summary or authority reference>` when validation governance matters
@@ -110,6 +112,8 @@ Single-seam or single-slice Workstream authority is forbidden unless explicit US
 If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.
 Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.
 A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.
+
+If `Bounded State` is missing, stale, or ambiguous, Codex must stop on `Bounded State Missing` before mutation. Broad work requests do not authorize implementation: `continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording may execute only when source truth resolves it to one exact active bounded seam. Widening beyond that bounded state requires `Bounded State User Waiver: Granted`; without explicit USER waiver text naming the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions, Codex must stop on `Bounded State Waiver Missing`. Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver.
 
 A green seam does not authorize stop while `Slice Status` remains non-green.
 A green slice does not authorize stop while `Completion Status` remains non-green.

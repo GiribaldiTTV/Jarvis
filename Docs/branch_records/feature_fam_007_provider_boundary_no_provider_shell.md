@@ -44,6 +44,7 @@ This active record preserves the planning, selected-next reconciliation, PR #134
 - Current Workstream USER Approval: `Granted - USER approved the bounded SLC-018 Local Provider Registry And Configuration State Workstream on this branch`
 - Current Workstream Status: `Green - local-only provider registry/configuration state, configured/unconfigured provider posture, consent-gated configuration posture, provider-visible-data disclosure consistency, no-provider fallback compatibility, and direct validation coverage are implemented`
 - Governance Drift Repair USER Approval: `Granted - USER directed correction of the seam-to-seam governance drift that treated one green bounded seam as a Hardening handoff`
+- Mandatory Bounded State Governance Repair USER Approval: `Granted - USER directed strict governance that Codex MUST work in a bounded state unless USER grants an explicit bounded-state waiver`
 - Current Workstream Continuation Status: `Blocked on next bounded seam approval - the completed SLC-018 Local Provider Registry And Configuration State is a green seam, not whole-branch Workstream completion`
 - Current Proof Review Status: `Green - proof review confirms the local-only provider registry/configuration state, configured/unconfigured provider posture, consent-gated configuration posture, provider-visible-data disclosure consistency, no-provider fallback compatibility, renderer/Core visual rail publication, and direct validation coverage`
 - Runtime Implementation Approval: `Granted only for the first bounded SLC-017/SLC-018 no-provider/provider-privacy scaffold already merged by PR #134, the provider-selection/consent scaffold, the Assisted Desktop no-provider interaction/consent surface, and the current bounded SLC-018 local provider registry/configuration scaffold; real provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation remain blocked`
@@ -76,6 +77,7 @@ Backlog-Split Reason: None
 Current / Pending Decision Context: This branch record is active after PR #135 repair merge and branch-local reconciliation; blockers below apply to future release, next-seam, or runtime expansion decisions.
 
 - `Next Bounded Workstream Seam Approval Missing`: exact next blocker after the current green bounded seam; active until USER approves the next named same-branch FAM-007 Workstream seam, specifically SLC-031 Hardware/GPU/CPU Capability Planning Scaffold.
+- `Bounded State Waiver Missing`: active for any request to widen beyond the current named bounded seam; broad requests such as `complete all`, `continue all`, or `finish the branch` do not authorize implementation unless source truth resolves them to one exact active bounded seam or USER records `Bounded State User Waiver: Granted`.
 - `Backlog Completion Unproven`: active because admitted PKG-007 branch material remains in progress and one green seam does not complete the Workstream, slice chain, or package.
 - `Future Runtime Expansion Approval Missing`: active for work outside the bounded scaffold, including provider-failure behavior, real provider SDK, model, memory, voice/Core, shortcut/installer, release, PR, or contract-import work.
 - `Release Execution Approval Missing`: active.
@@ -123,6 +125,20 @@ Rollback Path: stop this active runtime carrier before additional implementation
 - `Workstream`
 
 Next Legal Phase Gate: the completed SLC-018 Local Provider Registry And Configuration State is a green bounded seam, not whole-branch Workstream completion and not a Hardening handoff. The next legal phase is Workstream, specifically the next bounded same-branch seam: SLC-031 Hardware/GPU/CPU Capability Planning Scaffold. Hardening is not legal until every admitted branch-material seam and slice for this FAM-007 carrier is complete, deferred, blocked, or explicitly waived in source truth, and `Completion Status: Green` is recorded for the whole Workstream. Exact USER decision needed: approve SLC-031 Hardware/GPU/CPU Capability Planning Scaffold as the next bounded Workstream seam, limited to local hardware/capability state planning without provider SDKs, model downloads, external provider calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, or PR #129/#132 release-support execution.
+
+## Bounded State Lock
+
+Bounded State: `Active - Workstream / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / next named seam SLC-031 Hardware/GPU/CPU Capability Planning Scaffold only`
+
+Bounded State User Waiver: None
+
+Bounded State Waiver Scope: None
+
+Broad Work Request Handling: `Broad requests such as complete all, continue all, finish the branch, or complete remaining FAM-007 work are not executable on this branch unless they resolve to one exact active bounded seam. Current source truth resolves the next executable candidate to SLC-031 Hardware/GPU/CPU Capability Planning Scaffold only, and implementation remains stopped until USER approves that named seam.`
+
+Bounded State Missing Stop: `If phase/stage, workspace, branch, write target, authority record, package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, or next legal phase cannot be proven before mutation, stop on Bounded State Missing.`
+
+Bounded State Waiver Missing Stop: `If Codex would need to widen beyond SLC-031 or execute multiple seams without a named seam-by-seam approval chain, stop on Bounded State Waiver Missing. Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver.`
 
 ## Branch Objective
 

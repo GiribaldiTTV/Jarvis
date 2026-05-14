@@ -1870,6 +1870,80 @@ MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "`Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation",
 )
 
+MANDATORY_BOUNDED_STATE_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Bounded State is mandatory",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+        "Clean validation, a clean git tree, branch existence, prior broad approval, Codex discretion, ChatGPT wording, or prompt output shape cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Bounded State is mandatory before execution",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+        "Clean validation, clean git state, branch existence, prior broad approval, prompt wording, Codex discretion, or ChatGPT review cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Workflow mode is legal only inside a proven `Bounded State:` unless USER grants an explicit bounded-state waiver",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+        "Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver",
+    ),
+    Path("Docs/Main.md"): (
+        "Bounded State Lock:",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "broad work requests do not authorize implementation",
+        "clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/branch_records/index.md"): (
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "broad work requests do not authorize implementation",
+        "clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a bounded-state waiver",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Bounded State:",
+        "Bounded State User Waiver:",
+        "Bounded State Missing",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Bounded State:",
+        "Bounded State User Waiver:",
+        "Bounded State Missing",
+        "Bounded State Waiver Missing",
+        "Broad work requests do not authorize implementation",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Bounded State:",
+        "Bounded State Missing",
+        "Bounded State User Waiver: Granted",
+        "Bounded State Waiver Missing",
+        "broad work requests do not authorize implementation",
+    ),
+}
+
+FAM007_BOUNDED_STATE_RECORD_REQUIRED_PHRASES = (
+    "## Bounded State Lock",
+    "Bounded State: `Active - Workstream / feature/fam-007-provider-boundary-no-provider-shell / PKG-007 / next named seam SLC-031 Hardware/GPU/CPU Capability Planning Scaffold only`",
+    "Bounded State User Waiver: None",
+    "Bounded State Waiver Scope: None",
+    "Broad Work Request Handling:",
+    "Bounded State Missing Stop:",
+    "Bounded State Waiver Missing Stop:",
+    "Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver",
+)
+
 INTERFACE_RELEASE_BOUNDARY_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -14196,6 +14270,25 @@ def main() -> int:
                 prohibited_phrase not in lower_text,
                 f"{relative_path}: bounded seam workflow must not recreate single-seam throttling authority via '{prohibited_phrase}'",
             )
+
+    for relative_path, required_phrases in MANDATORY_BOUNDED_STATE_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        lower_text = text.casefold()
+        for required_phrase in required_phrases:
+            require(
+                required_phrase.casefold() in lower_text,
+                f"{relative_path}: mandatory bounded-state governance is missing '{required_phrase}'",
+            )
+
+    fam007_record_path = Path(
+        "Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md"
+    )
+    fam007_record_text = _read_text(fam007_record_path)
+    for required_phrase in FAM007_BOUNDED_STATE_RECORD_REQUIRED_PHRASES:
+        require(
+            required_phrase in fam007_record_text,
+            f"{fam007_record_path}: FAM-007 bounded-state lock is missing '{required_phrase}'",
+        )
 
     for relative_path in INTERFACE_RELEASE_BOUNDARY_DOCS:
         text = _read_text(relative_path)

@@ -44,6 +44,16 @@ PR Readiness Stage 1 is the Stage 2 readiness-lock gate. It stays active until o
 Active branch names must not use the `codex/` prefix; use `feature/` or another USER-approved non-`codex/` prefix, and treat historical `codex/` branch names as traceability only.
 Prompt text may frame requested task scope, but it cannot redefine phase behavior, restrict required continuation, define seam continuation, weaken validation requirements, change durability, or change branch authority.
 
+## Mandatory Bounded State
+
+Workflow mode is legal only inside a proven `Bounded State:` unless USER grants an explicit bounded-state waiver.
+
+Before any file mutation, branch/worktree creation or switch, commit, push, PR action, release action, runtime validation, shortcut mutation, provider/model installation, or GitHub Desktop handoff, Codex must prove the exact phase/stage, workspace, git root, branch, upstream, `HEAD`, `origin/main`, worktree role, write target, owning authority record, active package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase.
+
+If that bounded state is absent or ambiguous, Codex must stop on `Bounded State Missing`. If the task needs wider scope than the bounded state allows, Codex must stop on `Bounded State Waiver Missing` unless `Bounded State User Waiver: Granted` names the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions.
+
+Broad work requests do not authorize implementation. `Continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording can execute only when source truth resolves it to one exact active bounded seam. Clean validation, branch existence, prompt wording, Codex discretion, or ChatGPT wording cannot infer a waiver.
+
 That startup assessment should explicitly answer:
 
 - `Source-of-Truth`
