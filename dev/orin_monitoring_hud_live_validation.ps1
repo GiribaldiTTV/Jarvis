@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$PythonPath = $env:NEXUS_VALIDATION_PYTHON,
     [string]$ArtifactRoot = "",
     [int]$MarkerTimeoutSeconds = 25,
@@ -453,444 +453,64 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $visualScreenshotPrecheck = "Codex Precheck: PASS through proven equivalent active-client screenshot/manifest path - equivalence evidence: PASS live helper manifest, USER-inspectable screenshot folder, and interaction manifest at $($Paths.Root). USER visual confirmation is still required."
     $deferredBoundaryPrecheck = "Codex Precheck: PASS through source-truth, static validation, sandbox validation, and active-client manifest boundary proof - USER is not being asked to accept deferred/future scope."
 
+    # Keep the desktop UTS as a short USER questionnaire; detailed ledger/proof
+    # evidence stays in manifests and source truth.
     $content = @"
 Nexus Desktop AI - User Test Summary
-Workstream: FAM-006 Monitoring and HUD Product Surface Package
+Workstream: FAM-006 Dashboard Settings Panel
 Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: $currentBranch
 Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
 Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
 
-Important Phase Note
-- User Test Summary is exclusive to Live Validation.
-- This file is generated only during Live Validation Stage 1 so USER can return PASS, FAIL, or WAIVED results.
-- Live Validation Stage 1 cannot enter Live Validation Stage 2 until USER returns this file or explicitly waives it, Codex digests the result into source truth, and blockers are reevaluated.
-- Workstream and Hardening may produce screenshots, manifests, active-client self-QA, and proof notes, but they must not refresh or digest this desktop User Test Summary artifact.
+How To Use This File
+- Launch and test from the red FAM-006 desktop shortcut.
+- For each step, write PASS, FAIL, or WAIVED plus a short note.
+- If a step FAILS, describe exactly what you saw and attach/screenshot separately if useful.
+- If a step is WAIVED, write the waiver reason.
+- Return this file to Codex when complete. Codex will digest the results into source truth.
 
-Fresh Evidence Root
-- $($Paths.Root)
-
-Key Evidence Files
-- Manifest: $($Paths.Manifest)
-- Runtime log: $($Paths.RuntimeLog)
-- Before-launch full-desktop screenshot: $($Paths.BeforeScreenshot)
-- After-launch full-desktop screenshot: $($Paths.Screenshot)
+Codex Precheck Summary
+- Red shortcut/worktree validation: PASS through the governed FAM-006 desktop shortcut.
+- Human-client proof: PASS at dev/logs/fam_006_human_client_validation/latest_manifest.json.
+- Live proof root for this handoff: $($Paths.Root)
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
-- USER-inspectable before screenshot: $($Paths.BeforeScreenshotEvidence)
-- USER-inspectable after screenshot: $($Paths.ScreenshotEvidence)
-- Interaction manifest: $($Paths.InteractionManifest)
-- Interaction screenshots: $($Paths.InteractionEvidenceRoot)
+- Overlay/display release acceptance is deferred and non-gating.
 
-Element Validation Ledger Alignment
-- Canonical ledger owner: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md
-- Canonical companion ledger: Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md
-- This refreshed UTS maps USER checks to completed ledger rows. USER results from an older, pre-ledger UTS should not be used for LV2 unless USER explicitly waives this refreshed handoff.
-- Shortcut/worktree proof path: actual desktop shortcut must target the active FAM-006 worktree, not the AI lab/planning worktree. $precheckShortcutAlignment
-- Overlay/display elements are checked only for non-gating boundary clarity. USER is not being asked to accept Overlay/display as the current branch release surface.
-- ORIN/Core elements are dependency checks for desktop safety and independence. USER is not being asked to accept ORIN/Core as a released FAM-006 interface.
-
-Codex Self-QA Before Live Validation Stage 1 Handoff
-- Automated validators and live helper evidence: $($script:ManifestStatus).
-- Active foreground user-facing client self-QA: $($script:InteractionManifestStatus).
-- $precheckManifestSummary
-- $precheckProofClassesSummary
-- Dashboard-specific proof refresh: PASS when this file points to fresh before/after full-desktop screenshots and a PASS manifest.
-- User Test Summary Results: PENDING.
-- Live Validation Stage 2 advancement is BLOCKED until USER returns this file or explicitly waives it and Codex digests the result.
-
-Returned USER Issue Register Retest Focus
-- FAM006-RUI-021 HUD enable rendering flash: covered by Step 2. $precheckStep2
-- FAM006-RUI-022 HUD enable/disable state: covered by Step 2. $precheckStep2
-- FAM006-RUI-023 Dashboard tray open/close visibility: covered by Step 2. $precheckStep2
-- FAM006-RUI-024 Disable HUD unusable state: covered by Step 2. $precheckStep2
-- FAM006-RUI-025 Exit NDAI delay/no confirmation: covered by Step 3. $precheckStep3
-- FAM006-RUI-039 Tray Exit NDAI real-client confirmation failure: covered by Step 3. $precheckStep3
-- FAM006-RUI-040 Tray Enable/Disable works partially but Dashboard does not open: covered by Step 2. $precheckStep2
-- FAM006-RUI-041 issue-register/proof-governance gap: covered by this handoff's per-step Codex Precheck lines and proof-class separation summary.
-- FAM006-RUI-042 denied LV1 handoff for missing real-human validation: covered by this LV1 precheck. $precheckHumanClientRun
-- FAM006-RUI-043 still-broken UI after LV1 handoff: covered by issue-grounded visual questions below and fresh screenshot proof. $visualScreenshotPrecheck
-- FAM006-RUI-044 tray action order: covered by Step 2 and real tray menu proof. $precheckStep2
-- FAM006-RUI-045 Dashboard blocks NCP buttons: covered by Step 4. $precheckNcpInteraction
-- FAM006-RUI-046 tray Create Custom Task duplicate/lock behavior: covered by Step 5. $precheckTrayAuthoring
-- FAM006-RUI-047 Exit prompt visual/session-preservation split: covered by Step 3 for function; visual restyling remains future polish unless USER marks it blocking. $precheckStep3
-- FAM006-RUI-048 resize hit-zone reliability: covered by Step 8. $precheckResizeDiscoverability
-- FAM006-RUI-049 scrollbar inset / out-of-range visual issue: covered by Step 9. $visualScreenshotPrecheck
-- FAM006-RUI-050 HUD Feature enabled state persistence: covered by Step 2 and Step 8. $precheckHudPersistence
-- FAM006-RUI-051 Dashboard no longer resizes: covered by Step 8. $precheckResizeDiscoverability
-- FAM006-RUI-052 Dashboard edge resize rail still difficult to find: covered by Step 8. $precheckResizeDiscoverability
-- FAM006-RUI-053 Dashboard resize cursor appears too far from the visible edge: covered by Step 8. $precheckResizeDiscoverability
-- FAM006-RUI-054 Dashboard resize action regressed after cursor alignment: covered by Step 8. $precheckResizeDiscoverability
-- FAM006-RUI-055 Windows resize cursor appears only after left-click hold: covered by Step 8. $precheckResizeDiscoverability
-- FAM006-RUI-056 Dashboard resize growth is choppy/laggy: covered by Step 8. $precheckResizeDiscoverability
-- FAM006-RUI-057 actual desktop shortcut targeted the wrong worktree before this LV1 run: covered by Step 1. $precheckShortcutAlignment
-- FAM006-RUI-058 USER-reported #123 recurrence after prior active-client proof: covered by Focus Item A and the real shortcut first-open screenshot sequence. $precheckFirstOpenStability
-- FAM006-RUI-059 USER-reported #127 recurrence after prior active-client proof: covered by Focus Item B and Step 8 real mouse resize-fluidity proof. $precheckResizeDiscoverability
-- FAM006-RUI-060 Dashboard Settings visible but not opening / double-click maximizes Dashboard: covered by Focus Item C. $precheckSettingsPanel
-- FAM006-RUI-061 Dashboard close affordance should use the Settings-window-style Close pill at the top-right and work from top chrome: covered by Focus Item D. $precheckTopChromeClose
-- FAM006-RUI-062 returned UTS says #127 is almost gone but still needs smoother resize: covered by Focus Item B and stricter Step 8 dense geometry-sample proof. $precheckResizeDiscoverability
-- FAM006-RUI-063 returned UTS says Dashboard Close should match the Settings-window Close and sit as a window-level top-most-right control: covered by Focus Item D. $precheckTopChromeClose
-- FAM006-RUI-064 returned UTS says #123 first-open flicker is still present: covered by Focus Item A and the visual-continuity screenshot sequence. $precheckFirstOpenStability
-
-Focused FAM-006 Dashboard Settings Panel Retest
-Answer each focused item as PASS, FAIL, or WAIVED. Add exact notes for any FAIL or WAIVED result.
-
-Focus Item A - #123 Dashboard initial open stability
-Launch through the governed red FAM-006 desktop shortcut, enable/open HUD Dashboard from the tray, and watch the first 1-2 seconds. Expected: the Dashboard appears stable without a full-window flicker, blank flash, or late compact-geometry snap. $precheckFirstOpenStability
+Step 1 - Launch From Red FAM-006 Shortcut
+Expected: The shortcut launches the FAM-006 worktree build and the app/tray settle normally.
 USER Result / Notes:
 
-Focus Item B - #127 Dashboard resize smoothness
-Resize the Dashboard slowly and quickly from the right edge, bottom edge, and bottom-right corner. Expected: the visible resize cursor appears near the chrome edge before click, the Dashboard tracks the cursor through multiple intermediate sizes, and there is no obvious catch-up lag. $precheckResizeDiscoverability
+Step 2 - Open HUD Dashboard From Tray
+Expected: Enable/Open HUD Dashboard makes the Dashboard visible and usable.
 USER Result / Notes:
 
-Focus Item C - Dashboard Settings panel
-Click the visible Settings button once. Expected: the Settings Panel opens. Double-clicking the Settings area must not maximize/fullscreen the Dashboard. Use Done/Close inside the panel. Expected: the panel closes and the Dashboard remains open and usable. $precheckSettingsPanel
+Step 3 - #123 First-Open Stability
+Expected: During the first 1-2 seconds, the Dashboard does not show a full-window flicker, blank flash, or late geometry snap.
 USER Result / Notes:
 
-Focus Item D - Dashboard window-level Close
-Click the window-level Close control. Expected: the Dashboard hides without disabling the HUD Feature, and tray Open HUD Dashboard brings it back. The Close control should look like the Settings-window Close pill and sit at the top-most right of the Dashboard window outside the Dashboard IA-card controls. $precheckTopChromeClose
+Step 4 - #127 Resize Cursor And Smoothness
+Expected: Resize cursors appear at the visible right edge, bottom edge, and bottom-right corner before click/drag, and resize tracks smoothly without obvious catch-up lag.
 USER Result / Notes:
 
-Focus Item E - Dashboard regression sweep
-With the Dashboard open, confirm Create Monitor, Edit Monitor, tray Open Command Overlay, scroll gutter, and tray enable/disable still work. Expected: existing Branch 1 and Branch 2 Dashboard behavior remains intact. $precheckNcpInteraction
+Step 5 - Dashboard Settings Panel
+Expected: Settings opens with one click, double-clicking Settings does not maximize the Dashboard, and Done/Close returns to the Dashboard while it stays usable.
 USER Result / Notes:
 
-Issue-Grounded USER Questions
-Answer each issue as PASS, FAIL, or WAIVED. Add notes/screenshots for any FAIL or WAIVED answer.
-
-FAM006-RUI-001 / USER #1 - Does the top title read as HUD Dashboard, not Monitoring Control Panel?
-$visualScreenshotPrecheck
+Step 6 - Dashboard Window-Level Close
+Expected: The Close pill sits at the top-right as a whole-window control, hides only the Dashboard, and tray Open HUD Dashboard brings it back.
 USER Result / Notes:
 
-FAM006-RUI-002 / USER #2 - Is the title description smaller, readable, and no longer visually over-dense?
-$visualScreenshotPrecheck
+Step 7 - Quick Access Warning Notifications
+Expected: The Warning Notifications button is readable, not shadowed or pinched from the top, and still works as a quick access control.
 USER Result / Notes:
 
-FAM006-RUI-003 / USER #3 - Is naming consistent enough for this branch: Dashboard means control hub, HUD Overlay means overlay/display, and Monitor Group remains understandable?
-$visualScreenshotPrecheck
+Step 8 - Regression Sweep
+Expected: Create Monitor, Edit Monitor, tray Open Command Overlay, scroll gutter, tray enable/disable, and tray Exit confirmation still behave normally.
 USER Result / Notes:
 
-FAM006-RUI-004 / USER #4 - Is the Dashboard/HUD Overlay relationship clear, with HUD capability/overlay status grouped in a way that explains they belong together without making Dashboard movement depend on Overlay anchor state?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-005 / USER #5 - Does the sticky title/status header remain visible while scrolling without feeling oversized or broken?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-006 / USER #6a - Is text wrapping/clipping fixed across the Dashboard, including long labels, cards, buttons, and status copy?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-007 / USER #6b - Are proof/debug-heavy groupings removed from the Dashboard home surface so it feels like a user-facing hub?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-008 / USER #6c/#26 - Does the scrollbar look owned by the Dashboard window/chrome, with no visible extra scroll layer or invisible-frame attachment?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-009 / USER #6d - Is the Dashboard information architecture clearer and less chaotic than the returned screenshots?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-010 / USER #6e - Is polling removed from the Dashboard home and treated as Create/Edit Monitor Group scope?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-011 / USER #6f - Is Dev Toolkit Interface Review Mode correctly deferred/future and absent from production Dashboard UI?
-$deferredBoundaryPrecheck
-USER Result / Notes:
-
-FAM006-RUI-012 / USER #7 - Does the Dashboard behave like a hub/home surface, with full child-window editors clearly deferred rather than half-implemented inline?
-$deferredBoundaryPrecheck
-USER Result / Notes:
-
-FAM006-RUI-013 / USER #7a - Is default 1s polling treated as Monitor Group create/edit behavior rather than a Dashboard-home control?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-014 / USER #8/#29 - Is the old native CPU/provider pending hero slab removed from the Dashboard home, with provider truth moved into appropriate Data Sources/Readiness context?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-015 / USER #9 - Is the old "Monitor group to edit" confusion resolved into clearer Monitor Group actions or deferred editor behavior?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-016 / USER #10/#35 - Does Data Sources/Provider Setup avoid appearing as a broken clickable action if the full editor is deferred?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-017 / USER #11 - Are button colors and hierarchy clear enough to distinguish primary, secondary, disabled/deferred, and warning notification actions?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-018 / USER #12/#37 - Does Warning Notifications make sense as a global quick toggle while per-monitor warning settings remain future Create/Edit Monitor Group scope?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-019 / USER #13/#28 - Can the Dashboard be resized acceptably and without the old fake corner-only affordance problem?
-$activeClientPrecheck
-USER Result / Notes:
-
-FAM006-RUI-020 / USER #20 - Is NCP placement/persistence acceptable as deferred future scope unless this FAM-006 path visibly blocks or worsens NCP behavior during this test?
-$deferredBoundaryPrecheck
-USER Result / Notes:
-
-FAM006-RUI-021 / USER #21 - When enabling HUD from tray, does the Dashboard open without ugly flashing or unstable render behavior?
-$precheckStep2
-USER Result / Notes:
-
-FAM006-RUI-022 / USER #22 - After enabling HUD from tray, can you disable it again and do the tray labels/runtime state stay truthful?
-$precheckStep2
-USER Result / Notes:
-
-FAM006-RUI-023 / USER #23 - Can you open and close the HUD Dashboard from the tray without disabling the whole feature?
-$precheckStep2
-USER Result / Notes:
-
-FAM006-RUI-024 / USER #24 - After disabling HUD, do Dashboard, tray, NCP, and the overall program remain usable without force-close?
-$precheckStep2
-USER Result / Notes:
-
-FAM006-RUI-025 / USER #25 - Does tray Exit NDAI show visible confirmation and avoid silent delayed shutdown behavior?
-$precheckStep3
-USER Result / Notes:
-
-FAM006-RUI-026 / USER #26 - Does the scrollbar still look attached to an outer/invisible frame, or is ownership visually fixed?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-027 / USER #27 - Is the haze/square opacity frame around the Dashboard gone or visually acceptable?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-028 / USER #28 - Can you resize the Dashboard in expected directions without broken behavior?
-$activeClientPrecheck
-USER Result / Notes:
-
-FAM006-RUI-029 / USER #29 - Is the unnecessary native CPU/provider banner removed from the Dashboard home?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-030 / USER #30 - Are the large empty dead zones removed or made visually/functionally meaningful?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-031 / USER #31 - Is the checkered/grid pattern limited to card/settings regions and removed from the quick/top shell where you marked it red?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-032 / USER #32 - While scrolling, does the sticky title/header mask content correctly so icons/text do not float behind or above it?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-033 / USER #33 - Is the quick access area clear, and is Warning Notifications placed as a high-priority action near the top order?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-034 / USER #34 - Is Create/Edit redundancy reduced so quick access and Monitor Group card actions do not compete confusingly?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-035 / USER #35 - If Open Data Sources is deferred, is it visibly disabled/deferred instead of looking broken?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-036 / USER #36 - Is card order acceptable for the current branch release surface: HUD Overlay, Monitor Groups, Warning Notifications, Data Sources, Readiness?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-037 / USER #37 - Is Warning Notifications simplified enough that the global toggle is in quick access and per-monitor warning settings remain future editor scope?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-038 / USER #38 - Is HUD Overlay terminology used for overlay-related items, and is whole-feature enable/disable kept out of the Dashboard home and owned by tray/global control?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-039 / New #1 - Does the real desktop shortcut -> tray Exit NDAI path show governed confirmation and avoid the prior delayed no-prompt close?
-$precheckStep3
-USER Result / Notes:
-
-FAM006-RUI-040 / New #2 - Does real tray Enable HUD Feature / Open HUD Dashboard make the real Dashboard visible, and do Close/Disable keep state recoverable?
-$precheckStep2
-USER Result / Notes:
-
-FAM006-RUI-041 / New #3 - Does this UTS itself provide enough issue-register traceability, per-step Codex prechecks, and proof-class separation to prevent the prior validation oversight?
-Codex Precheck: PASS through issue-grounded UTS template, branch Returned USER Issue Register, companion ledger mappings, and proof-class manifest separation. USER review of this handoff is still required.
-USER Result / Notes:
-
-FAM006-RUI-042 / LV1 denial - Did Codex complete the real-human client validation precheck before handing this UTS back to you?
-$precheckHumanClientRun
-USER Result / Notes:
-
-FAM006-RUI-043 / LV1 denial - Do the fresh screenshots and issue-grounded UI questions below give enough real visual coverage for you to judge the Dashboard without hidden broad claims?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-044 / WS49 comment - In the real tray menu, is Open/Close HUD Dashboard positioned directly below Enable/Disable HUD Feature?
-$precheckStep2
-USER Result / Notes:
-
-FAM006-RUI-045 / Bug 1 - With Dashboard open and moved left, can NCP Create Custom Task, Create Custom Group, Manage Custom Tasks, and Manage Custom Groups all receive clicks and open/dismiss normally?
-$precheckNcpInteraction
-USER Result / Notes:
-
-FAM006-RUI-046 / Bug 2 - From the tray, does Create Custom Task avoid spawning infinite duplicate/locked dialogs while an authoring dialog is already active?
-$precheckTrayAuthoring
-USER Result / Notes:
-
-FAM006-RUI-047 / Exit prompt polish - Functionally, does tray Exit NDAI show confirmation, preserve the session on cancel/timeout, and shut down promptly only when accepted? Note separately if you want the prompt visual style changed from Windows-standard to NDAI-styled.
-$precheckStep3
-USER Result / Notes:
-
-FAM006-RUI-048 / Resize hit-zone reliability - Can you reliably discover the resize rail without hunting for a tiny one-pixel edge?
-$precheckResizeDiscoverability
-USER Result / Notes:
-
-FAM006-RUI-049 / Scrollbar inset precision - Does the scrollbar look properly inset inside the rounded Dashboard chrome, without the vertical bar feeling out of range or too large for the window?
-$visualScreenshotPrecheck
-USER Result / Notes:
-
-FAM006-RUI-050 / HUD Feature state persistence - If HUD Feature is enabled and the app is relaunched, does the enabled state persist without surprise-opening the Dashboard?
-$precheckHudPersistence
-USER Result / Notes:
-
-FAM006-RUI-051 / Resize regression - Can the Dashboard still resize after the post-WS51/WS52 repair path?
-$precheckResizeDiscoverability
-USER Result / Notes:
-
-FAM006-RUI-052 / Edge resize discoverability - Are the right-edge, bottom-edge, and corner resize rails easy enough to find and use consistently?
-$precheckResizeDiscoverability
-USER Result / Notes:
-
-FAM006-RUI-053 / Resize cursor alignment - Does the standard Windows resize cursor appear only near the actual Dashboard edge/corner instead of far inside the window?
-FAM006-RUI-054 / Resize action recovery - When the standard Windows resize cursor appears, can you drag from that cursor transition point and reliably resize the Dashboard from the corner, right edge, and bottom edge?
-FAM006-RUI-055 / Pre-click resize cursor - Does the standard Windows resize cursor appear when the cursor reaches a valid Dashboard edge/corner before you click or hold?
-FAM006-RUI-056 / Resize fluidity - When increasing the Dashboard size from the right edge, bottom edge, or corner, does the window grow smoothly instead of choppy/laggy?
-$precheckResizeDiscoverability
-USER Result / Notes:
-
-FAM006-RUI-057 / Shortcut-worktree alignment - When you launch from the desktop shortcut, are you testing the FAM-006 worktree/branch rather than the AI lab/planning worktree?
-$precheckShortcutAlignment
-USER Result / Notes:
-
-What This Test Is Checking
-- The HUD Dashboard is the current branch's primary user-facing interface release surface.
-- The Dashboard is a Nexus/NDAI settings and control hub for HUD Overlay posture, monitor groups, warning notifications, data-source/readiness truth, and future Overlay/display behavior.
-- This rerun specifically checks the returned-feedback repair set: first-open flicker recurrence, resize cursor alignment, pre-click resize cursor timing, denser resize fluidity proof, Dashboard top-right Close styling/placement, Dashboard Settings open/close behavior, tray enable/disable, Dashboard tray open/close, disable-HUD recovery, Dashboard frame/scrollbar ownership, deadzone removal, sticky-header masking, action cleanup, HUD Overlay terminology, and deferred/broken button handling.
-- Overlay/display release acceptance is deferred and non-gating for this branch's Dashboard acceptance path. Do not fail this Dashboard handoff because Overlay/display release acceptance is not being requested.
-- ORIN/Core is dependency-only proof for desktop safety. It should remain independent from the Dashboard and should not be judged as a released FAM-006 interface in this handoff.
-- Dev Toolkit Interface Review Mode and full standalone child-window implementation are deferred/future. Do not fail this Dashboard handoff because those future branches are not implemented here.
-- NCP placement/persistence item #20 is deferred unless the current FAM-006 Dashboard/HUD path visibly causes or worsens it during this test.
-- Dashboard proof should show a visible, readable, polished, independently movable control hub with no clipping, no Core/Overlay coupling, no fake telemetry, provider-contract-first setup/no-data/degraded truth, and visual/non-invasive warning controls.
-- Each test step below lists the ledger rows it covers so LV2 can digest returned USER results at the element level instead of relying on broad "Dashboard green" claims.
-
-Expected Outcome
-- Dashboard reads as "HUD Dashboard" or equivalent settings/control hub copy, not as the final anchored HUD Overlay/display.
-- Dashboard controls are understandable for HUD Overlay posture, Monitor Groups, Warning Notifications, Data Sources/Readiness, and current deferred boundaries.
-- Tray controls can enable/disable the HUD feature and open/close the HUD Dashboard without locking the app.
-- Dashboard moves as a standalone window without dragging Core or Overlay/display surfaces.
-- Dashboard can be resized, owns its visible scrollbar/frame, has no obvious outer haze/square ghost frame, and does not leave large dead zones or floating content above the sticky header.
-- Provider/setup/no-data/degraded states are truthful and do not pretend unsupported hardware values are real.
-- Warning posture is visual/non-invasive only.
-- Data Sources and HUD Overlay controls do not appear as broken clickable current-scope actions when they are deferred.
-- No fake CPU/GPU/thermal values, unsupported provider claims, spoken/audio behavior, plugin-fed telemetry, PR work, release work, tags, or artifacts appear.
-- No retired product naming appears in repo-owned Dashboard/Core user-facing surfaces.
-
-Test Steps
-1. Launch Nexus Desktop AI from the normal desktop shortcut or documented equivalent Live Validation path.
-$precheckStep1
-Observed Results:
-
-2. Use the tray controls to enable/disable the HUD feature and open/close the HUD Dashboard. Confirm the app remains usable, the Dashboard can be reopened, and disabling HUD does not lock the Dashboard, tray, NCP, or the program.
-$precheckStep2
-Ledger rows: FAM006-HUD-FEATURE-TRAY-046; FAM006-HUD-TRAY-FLASH-051; FAM006-HUD-TRAY-STATE-LOCK-052; FAM006-DASH-TRAY-OPEN-CLOSE-053; FAM006-HUD-DISABLE-UNUSABLE-054.
-Observed Results:
-
-3. If you use tray Exit NDAI, confirm the governed confirmation/shutdown path is acceptable. Do not treat a separately desired shutdown redesign as Dashboard acceptance unless it blocks this FAM-006 path.
-$precheckStep3
-Ledger rows: FAM006-TRAY-SHUTDOWN-CONFIRM-055.
-Observed Results:
-
-4. With Dashboard open and moved to the left side of the middle monitor, open NCP from the tray and confirm Create Custom Task, Create Custom Group, Manage Custom Tasks, and Manage Custom Groups all receive clicks and open/dismiss normally.
-$precheckNcpInteraction
-Ledger rows: FAM006-DASH-NCP-MOUSE-068; FAM006-DASH-FOCUS-047; FAM006-NCP-REGRESSION-048; FAM006-DASH-CLIP-004.
-Observed Results:
-
-5. From the tray, click Create Custom Task while an authoring dialog is already active and confirm it does not spawn infinite duplicate or locked windows.
-$precheckTrayAuthoring
-Ledger rows: FAM006-TRAY-AUTHORING-DIALOG-GUARD-069; FAM006-NCP-REGRESSION-048; FAM006-GOV-HUMAN-CLIENT-065.
-Observed Results:
-
-6. Confirm the ORIN Core visualization remains independent and does not visibly attach to or move with the Dashboard.
-$activeClientPrecheck
-Ledger rows: FAM006-CORE-DEP-025; FAM006-CORE-PRESET-026; FAM006-CORE-NONMOVABLE-027; FAM006-CORE-WORKERW-028; FAM006-CORE-TRANSPARENCY-029; FAM006-CORE-ISOLATION-030.
-Observed Results:
-
-7. Confirm the HUD Dashboard is visible as a Dashboard/control hub, not the final Overlay/display. It should not show the old proof-heavy/native CPU hero slab as the main home content.
-$visualScreenshotPrecheck
-Ledger rows: FAM006-DASH-SURFACE-001; FAM006-DASH-CONTENT-008; FAM006-DASH-VISUAL-006; FAM006-DASH-PROVIDER-015.
-Observed Results:
-
-8. Move and resize the Dashboard. Confirm the corner, right-edge, and bottom-edge resize rails are discoverable and change real Dashboard geometry; also confirm the Dashboard behaves like a standalone normal window without clipping, disappearing, blocking NCP/other windows, stealing topmost focus, dragging the Core, or dragging the deferred Overlay/display.
-$precheckResizeDiscoverability
-Ledger rows: FAM006-DASH-WINDOW-002; FAM006-DASH-MOVE-003; FAM006-DASH-CLIP-004; FAM006-DASH-FOCUS-047; FAM006-DASH-RESIZE-057; FAM006-NCP-REGRESSION-048.
-Observed Results:
-
-9. Confirm the Dashboard frame, scrollbar, background texture, card spacing, and sticky title/header are visually coherent. The scrollbar should belong to the Dashboard chrome, the outer haze/square frame should not be visible, content should not float over the sticky title, and big empty dead zones should not dominate cards.
-$visualScreenshotPrecheck
-Ledger rows: FAM006-DASH-LAYOUT-005; FAM006-DASH-VISUAL-006; FAM006-DASH-SCROLL-007; FAM006-DASH-FRAME-HAZE-056; FAM006-DASH-DEADZONE-058; FAM006-DASH-STICKY-OCCLUSION-059.
-Observed Results:
-
-10. Confirm Dashboard controls are understandable and not redundant: Quick Access should prioritize Warning Notifications, Monitor Groups should own Create/Edit, Data Sources should be clearly deferred/disabled if not implemented, and HUD Overlay terminology should be used for Overlay-related items.
-$visualScreenshotPrecheck
-Ledger rows: FAM006-DASH-CONTENT-008; FAM006-DASH-MONITOR-GROUP-009; FAM006-DASH-MONITOR-ENABLE-010; FAM006-DASH-MONITOR-POLLING-011; FAM006-DASH-AFFORDANCE-COPY-012; FAM006-DASH-WARNING-017; FAM006-DASH-QUICK-ACCESS-060; FAM006-DASH-DEFERRED-BUTTON-061; FAM006-DASH-HUD-OVERLAY-COPY-062.
-Observed Results:
-
-11. Confirm monitor groups are organizational settings objects in the Dashboard, not display cards that imply Overlay/display acceptance.
-$deferredBoundaryPrecheck
-Ledger rows: FAM006-DASH-MONITOR-GROUP-009; FAM006-OVERLAY-MONITOR-CARDS-023; FAM006-OVERLAY-DEFER-018.
-Observed Results:
-
-12. Confirm provider/setup/no-data/degraded copy is truthful and no fake CPU/GPU/thermal values are presented as real.
-$visualScreenshotPrecheck
-Ledger rows: FAM006-DASH-PROVIDER-015; FAM006-DASH-NOFAKE-016; FAM006-FUTURE-PROVIDER-041; FAM006-FUTURE-EXTERNAL-042.
-Observed Results:
-
-13. Confirm warning controls remain visual/non-invasive and do not introduce audio/spoken alerts or screen flash behavior.
-$visualScreenshotPrecheck
-Ledger rows: FAM006-DASH-WARNING-017; FAM006-FUTURE-AUDIO-043.
-Observed Results:
-
-14. Confirm deferred/future boundaries are clear: Overlay/display acceptance, full child-window editors, Dev Toolkit Interface Review Mode, provider-platform parity, audio alerts, and NCP placement/persistence #20 are not being accepted in this branch unless they visibly break current Dashboard safety.
-$deferredBoundaryPrecheck
-Ledger rows: FAM006-OVERLAY-DEFER-018; FAM006-DASH-CHILD-WINDOW-049; FAM006-DEV-INTERFACE-REVIEW-050; FAM006-FUTURE-PROVIDER-041; FAM006-FUTURE-AUDIO-043; FAM006-NCP-REGRESSION-048.
-Observed Results:
-
-15. Note any readability, placement, clipping, scaling, motion, confusion, tray-state, deferred-button, NCP-blocking, or polish concern that should block Dashboard acceptance.
-$visualScreenshotPrecheck
-Ledger rows: all user-facing and hidden-user-facing Dashboard/Core/tray rows listed above.
-Observed Results:
-
-Failure Signs To Watch For
-- Dashboard is too small, text is clipped, cramped, or unclear.
-- Dashboard movement stutters badly, disappears, clips, or drags another surface with it.
-- Dashboard content looks like technical proof boxes instead of settings/control content.
-- Dashboard implies Overlay/display release acceptance is required in this branch.
-- UTS feedback cannot be mapped to the ledger rows listed in this handoff.
-- ORIN/Core moves with the Dashboard or appears rendered inside the Dashboard.
-- Provider copy claims live hardware values without a safe provider/proof path.
-- Fake hardware values or unsupported telemetry claims appear.
-- Warning behavior widens into audio/spoken or strong flash behavior without approval.
-- Retired product naming appears in repo-owned user-facing surfaces.
-
-New Ideas / Requests Raised During Testing:
-
-Questions / Confusions Raised During Testing:
-
-Regression Notes:
+Step 9 - Closing Additions
+Any remaining readability, placement, motion, clipping, confusion, or polish notes:
 
 Final USER Result
 - PASS / FAIL / WAIVED:
