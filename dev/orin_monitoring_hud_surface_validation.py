@@ -68,7 +68,7 @@ def validate() -> list[str]:
     js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
-    tray = _read("desktop/orin_desktop_main.py")
+    tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
     hud_state = _read("desktop/monitoring_hud_state.py")
     telemetry = _read("desktop/monitoring_hud_telemetry.py")
     placement = _read("desktop/monitoring_hud_placement.py")
@@ -780,7 +780,10 @@ def validate() -> list[str]:
         "MONITORING_HUD_DASHBOARD_SHELL_LAYOUT_READY",
         "MONITORING_HUD_DASHBOARD_VISUAL_SHELL_READY",
         "WM_NCHITTEST",
+        "WM_SETCURSOR",
+        "WM_NCMOUSEMOVE",
         "HTBOTTOMRIGHT",
+        "_monitoring_hud_native_resize_edges_for_hit_test(hit_test)",
         "ctypes.wintypes.MSG.from_address",
         "return 12",
         "save_monitoring_hud_state",
@@ -889,6 +892,11 @@ def validate() -> list[str]:
         "Dashboard rounded native window mask prevents black corner bleed over a white backdrop",
         "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY",
         "Close-CommandOverlayBeforeDashboardResize",
+        "Invoke-TrayIconActivation",
+        "Close Command Overlay",
+        "ncp_tray_icon_left_click_opens",
+        "ncp_tray_menu_state_changes_to_close",
+        "ncp_tray_icon_left_click_closes",
         "ncp_closed_before_dashboard_resize",
         "Measure-MoveTracking",
         "dashboard_move_fluidity",
@@ -924,6 +932,9 @@ def validate() -> list[str]:
         "MONITORING_HUD_STARTUP_STATE_READY",
         "monitoring_hud_feature_enabled_at_startup",
         "monitoring_hud_dashboard_visible_at_startup",
+        "command_overlay_state",
+        "Close Command Overlay",
+        "command_overlay_action",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
 

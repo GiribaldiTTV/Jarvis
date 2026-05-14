@@ -1595,6 +1595,58 @@ function Open-HiddenTrayOnNexus {
     throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', ')"
 }
 
+function Click-NexusTrayIcon {
+    param([string]$Label = "Nexus tray icon")
+
+    $deadline = (Get-Date).AddSeconds(8)
+    while ((Get-Date) -lt $deadline) {
+        $runtimeProcesses = Find-ProcessesForLogRoot
+        foreach ($process in $runtimeProcesses) {
+            $rect = [CodexHumanClientWin32]::GetNotifyIconRectForProcess([int]$process.ProcessId)
+            if ($rect -and $rect.Length -eq 4) {
+                $x = [int](($rect[0] + $rect[2]) / 2)
+                $y = [int](($rect[1] + $rect[3]) / 2)
+                [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
+                Start-Sleep -Milliseconds 220
+                [CodexHumanClientWin32]::SendLeftClick()
+                Start-Sleep -Milliseconds 350
+                return @{
+                    label = $Label
+                    processId = [int]$process.ProcessId
+                    notifyIconRect = @([int]$rect[0], [int]$rect[1], [int]$rect[2], [int]$rect[3])
+                    clicked = @($x, $y)
+                    clickMethod = "Shell_NotifyIconGetRect + SetCursorPos + left click"
+                }
+            }
+        }
+        Start-Sleep -Milliseconds 300
+    }
+
+    $runtimeProcesses = Find-ProcessesForLogRoot
+    throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', ')"
+}
+
+function Invoke-TrayIconActivation {
+    param([string]$ExpectedMarker = "", [int]$TimeoutSeconds = 8, [string]$Label = "Nexus tray icon activation")
+
+    $beforeCount = 0
+    if ($ExpectedMarker) {
+        $beforeCount = ((Read-RuntimeLines) | Select-String -Pattern ([regex]::Escape($ExpectedMarker))).Count
+    }
+    $clickEvidence = Click-NexusTrayIcon -Label $Label
+    if ($ExpectedMarker) {
+        $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+        while ((Get-Date) -lt $deadline) {
+            $count = ((Read-RuntimeLines) | Select-String -Pattern ([regex]::Escape($ExpectedMarker))).Count
+            if ($count -gt $beforeCount) { return $clickEvidence }
+            Start-Sleep -Milliseconds 250
+        }
+        $afterTimeoutShot = Capture-VirtualScreenshot ("tray_icon_after_timeout_{0}" -f ($Label -replace "[^A-Za-z0-9_-]", "_"))
+        throw "Tray icon activation '$Label' did not emit expected marker '$ExpectedMarker'; clicked=($($clickEvidence.clicked -join ',')); after_timeout_screenshot=$afterTimeoutShot"
+    }
+    return $clickEvidence
+}
+
 function Get-VisibleTrayMenuRect {
     param([int]$TimeoutSeconds = 5)
 
@@ -1792,7 +1844,7 @@ function Click-VisibleTrayMenuAction {
             $nativeY = [int]($menuRect.Y + 39)
         } elseif ($ActionName -eq "HUD Overlay Deferred") {
             $nativeY = [int]($menuRect.Y + 61)
-        } elseif ($ActionName -eq "Open Command Overlay") {
+        } elseif ($ActionName -in @("Open Command Overlay", "Close Command Overlay")) {
             $nativeY = [int]($menuRect.Y + 89)
         } elseif ($ActionName -eq "Create Custom Task") {
             $nativeY = [int]($menuRect.Y + 111)
@@ -1831,12 +1883,12 @@ function Click-VisibleTrayMenuAction {
 
     $menuShot = Capture-VirtualScreenshot ("tray_menu_before_{0}" -f ($ActionName -replace "[^A-Za-z0-9_-]", "_"))
     [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
-    Start-Sleep -Milliseconds 1800
+    Start-Sleep -Milliseconds 450
     $windowAtPointBeforeClick = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($x, $y)
-    [CodexHumanClientWin32]::SendAbsoluteLeftClick($x, $y)
+    [CodexHumanClientWin32]::SendLeftClick()
     Start-Sleep -Milliseconds 120
     $windowAtPointAfterClick = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($x, $y)
-    $activationMethod = "desktop-shortcut + real-tray-popup + SetCursorPos + SendInput mouse button click on visible tray command control"
+    $activationMethod = "desktop-shortcut + real-tray-popup + SetCursorPos + left mouse button click on visible tray command control"
     Start-Sleep -Milliseconds 650
 
     return @{
@@ -1913,19 +1965,18 @@ function Close-CommandOverlayBeforeDashboardResize {
     $indicatorBefore = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 1
     $beforeLines = (Read-RuntimeLines).Count
     $closeMarker = $false
+    $trayCloseEvidence = $null
     if ($indicatorBefore) {
-        try {
-            Click-ElementCenter -Element $indicatorBefore -Label "Command overlay prompt focus"
-        } catch {}
-        Send-Key 0x1B
-        $closeMarker = Wait-ForRuntimeMarkerAfterLine -Marker "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" -AfterLine $beforeLines -TimeoutSeconds 4
+        $trayCloseEvidence = Invoke-TrayIconActivation -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" -TimeoutSeconds 5 -Label "NCP tray icon left-click close before Dashboard resize"
+        $closeMarker = $true
     }
     Start-Sleep -Milliseconds 500
     $indicatorAfter = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 1
     $dashboard = Get-DashboardWindow
     $shot = Capture-VirtualScreenshot "04e_after_command_overlay_closed_before_dashboard_resize"
     $pass = (-not $indicatorAfter) -and [bool]$dashboard
-    Add-Step -Id "ncp_closed_before_dashboard_resize" -Title "Command Overlay is closed before Dashboard resize proof" -Status ($(if ($pass) { "PASS" } else { "FAIL" })) -Detail "overlay_visible_before=$([bool]$indicatorBefore); close_marker=$closeMarker; overlay_visible_after=$([bool]$indicatorAfter); dashboard_visible=$([bool]$dashboard)." -Evidence @{ screenshot = $shot; expectedClosedMarker = "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" }
+    Add-Step -Id "ncp_tray_icon_left_click_closes" -Title "NCP tray icon left-click closes the Command Overlay" -Status ($(if ($pass) { "PASS" } else { "FAIL" })) -Detail "overlay_visible_before=$([bool]$indicatorBefore); close_marker=$closeMarker; overlay_visible_after=$([bool]$indicatorAfter); dashboard_visible=$([bool]$dashboard)." -Evidence @{ screenshot = $shot; trayIconClick = $trayCloseEvidence; expectedClosedMarker = "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" }
+    Add-Step -Id "ncp_closed_before_dashboard_resize" -Title "Command Overlay is closed before Dashboard resize proof" -Status ($(if ($pass) { "PASS" } else { "FAIL" })) -Detail "overlay_visible_before=$([bool]$indicatorBefore); close_marker=$closeMarker; overlay_visible_after=$([bool]$indicatorAfter); dashboard_visible=$([bool]$dashboard)." -Evidence @{ screenshot = $shot; expectedClosedMarker = "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED"; trayIconClick = $trayCloseEvidence }
     if (-not $pass) {
         throw "Command Overlay remained visible or Dashboard disappeared before resize proof"
     }
@@ -2508,6 +2559,20 @@ try {
     if (-not $moved) { throw "Dashboard did not move through human-like mouse drag" }
     Add-Step -Id "dashboard_move_fluidity" -Title "Dashboard movement tracks the cursor at normal USER speed" -Status ($(if ($moveFluidityPass) { "PASS" } else { "FAIL" })) -Detail "uniquePositionSamples=$moveUniquePositions; maxLag=$($moveTracking.MaxLagPx)px/avg=$($moveTracking.AverageLagPx)px; maxSampleInterval=$($moveTracking.MaxSampleIntervalMs)ms; sampled at 48 steps with 8ms delay while the left button was held." -Evidence @{ screenshot = $moveShot; geometrySamples = $moveSamples; moveTracking = $moveTracking; minimumUniquePositionSamples = 24; expectation = "returned USER validation says normal-speed movement skips, so LV1 requires high-cadence intermediate geometry plus cursor-to-window tracking-lag proof" }
     if (-not $moveFluidityPass) { throw "Dashboard movement did not track cursor movement smoothly enough during normal-speed drag proof" }
+
+    $ncpTrayIconOpenEvidence = Invoke-TrayIconActivation -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_READY|phase=entry" -TimeoutSeconds $ActionTimeoutSeconds -Label "NCP tray icon left-click open"
+    Start-Sleep -Milliseconds 900
+    $ncpTrayIconOpenShot = Capture-VirtualScreenshot "04a_after_tray_icon_open_ncp"
+    $ncpVisibleAfterTrayIconOpen = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 2
+    Add-Step -Id "ncp_tray_icon_left_click_opens" -Title "NCP tray icon left-click opens the Command Overlay" -Status ($(if ($ncpVisibleAfterTrayIconOpen) { "PASS" } else { "FAIL" })) -Detail "Command Overlay visible after tray icon left-click open: $([bool]$ncpVisibleAfterTrayIconOpen)." -Evidence @{ screenshot = $ncpTrayIconOpenShot; trayIconClick = $ncpTrayIconOpenEvidence; expectedMarker = "RENDERER_MAIN|COMMAND_OVERLAY_READY|phase=entry" }
+    if (-not $ncpVisibleAfterTrayIconOpen) { throw "Tray icon left-click did not open the Command Overlay" }
+
+    $ncpMenuCloseEvidence = Invoke-TrayAction -ActionName "Close Command Overlay" -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" -TimeoutSeconds $ActionTimeoutSeconds
+    Start-Sleep -Milliseconds 650
+    $ncpMenuCloseShot = Capture-VirtualScreenshot "04a_after_tray_menu_close_ncp"
+    $ncpVisibleAfterMenuClose = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 1
+    Add-Step -Id "ncp_tray_menu_state_changes_to_close" -Title "Tray menu changes Command Overlay action from Open to Close while NCP is open" -Status ($(if (-not $ncpVisibleAfterMenuClose) { "PASS" } else { "FAIL" })) -Detail "Close Command Overlay was exposed by the tray menu and closed the NCP; overlay_visible_after=$([bool]$ncpVisibleAfterMenuClose)." -Evidence @{ screenshot = $ncpMenuCloseShot; trayClick = $ncpMenuCloseEvidence; expectedMarker = "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" }
+    if ($ncpVisibleAfterMenuClose) { throw "Tray menu Close Command Overlay did not close the Command Overlay" }
 
     $ncpOpenEvidence = Invoke-TrayAction -ActionName "Open Command Overlay" -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_READY|phase=entry" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 900

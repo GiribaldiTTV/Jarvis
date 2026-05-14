@@ -10636,6 +10636,12 @@ class DesktopRuntimeWindow(QWidget):
     def overlay_monitors_global_clicks(self):
         return self._command_model.visible and self._command_model.phase == "entry" and not self._overlay_local_input_engaged
 
+    def command_overlay_state(self):
+        return {
+            "visible": bool(self._command_model.visible),
+            "phase": self._command_model.phase,
+        }
+
     def close_command_overlay(self):
         if not self._command_model.visible:
             return
@@ -11876,13 +11882,23 @@ class DesktopRuntimeWindow(QWidget):
                             y=screen_point.y(),
                         )
                         return True, 0
-                if message_id in (WM_SETCURSOR, WM_MOUSEMOVE, WM_NCMOUSEMOVE) and not self._monitoring_hud_native_window_resize_active:
+                if message_id == WM_SETCURSOR and not self._monitoring_hud_native_window_resize_active:
+                    hit_test = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
+                    edges = self._monitoring_hud_native_resize_edges_for_hit_test(hit_test)
+                    if edges:
+                        self._set_monitoring_hud_resize_cursor(edges)
+                        return True, 1
+                    self._reset_monitoring_hud_resize_cursor()
+                if message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE) and not self._monitoring_hud_native_window_resize_active:
+                    if message_id == WM_NCMOUSEMOVE:
+                        edges = self._monitoring_hud_native_resize_edges_for_hit_test(int(msg.wParam))
+                        if edges:
+                            self._set_monitoring_hud_resize_cursor(edges)
+                            return True, 0
                     _, edges = self._monitoring_hud_resize_edges_under_cursor()
                     if edges:
                         self._set_monitoring_hud_resize_cursor(edges)
-                        if message_id == WM_SETCURSOR:
-                            return True, 1
-                    elif message_id == WM_SETCURSOR:
+                    elif message_id == WM_MOUSEMOVE:
                         self._reset_monitoring_hud_resize_cursor()
                 if message_id == WM_NCLBUTTONDOWN:
                     edges = self._monitoring_hud_native_resize_edges_for_hit_test(int(msg.wParam))
