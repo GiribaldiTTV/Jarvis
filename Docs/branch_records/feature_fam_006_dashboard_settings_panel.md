@@ -7,7 +7,7 @@
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
 - Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; not a governance-only branch`
-- Current Delta Status: `Runtime settings-panel implementation in progress after USER approval; branch remains the FAM-006 Dashboard settings-panel runtime carrier`
+- Current Delta Status: `Hardening H1 PASS after USER-approved settings-panel runtime implementation; branch remains the FAM-006 Dashboard settings-panel runtime carrier`
 - Backlog Record State: `Registry-only runtime continuation under historical FAM-006 / PKG-006`
 - Package ID: `PKG-006`
 - Package Name: `Monitoring HUD Dashboard Product Surface`
@@ -20,7 +20,7 @@ It exists because the Dashboard settings cog/settings panel remained a deferred 
 
 ## Current Phase
 
-- Phase: `Workstream`
+- Phase: `Hardening`
 
 ## Phase Status
 
@@ -28,6 +28,9 @@ It exists because the Dashboard settings cog/settings panel remained a deferred 
 - Branch Readiness Stage 1: `Complete - USER selected the FAM-006 Dashboard settings panel as the next runtime-focused carrier after PR #133 merge`
 - Branch Readiness Stage 2: `Complete - USER approved worktree creation from updated origin/main, branch creation, PR #133 post-merge source-truth drift repair, branch authority setup, validation, commit, and push`
 - Runtime Implementation: `USER-approved and implemented for the bounded Dashboard settings cog/settings panel surface`
+- Hardening H1 Admission: `Granted - USER approved Hardening H1 for the FAM-006 Dashboard settings-panel runtime seam`
+- Hardening H1 Status: `PASS - settings affordance, settings child-window panel, warning toggle, hit-test controls, Dashboard Close, Create Monitor, Edit Monitor, tray reopen, resize/scroll/first-open regressions, truthful provider/overlay copy, and validator coverage were pressure-tested without requiring repair`
+- Live Validation Status: `Pending separate USER phase admission or waiver; Live Validation was not bundled into this Hardening pass`
 - GitHub Issue Closeout: `Pending USER approval for #123, #124, #125, #126, and #127`
 - Release Execution: `Pending USER approval`
 - Branch Authority State: `Active`
@@ -94,9 +97,9 @@ Rollback Path: if this setup fails validation, current authorization covers boun
 
 ## Next Legal Phase
 
-- `Hardening`
+- `Live Validation`
 
-Next Legal Phase Gate: after runtime implementation validation, commit, and push, the next legal phase is `Hardening` by USER decision. Live Validation is a separate later phase and must not be bundled into Hardening. PR Readiness and PR creation remain later phase decisions after Hardening completes and any separate Live Validation posture is admitted or waived; merge, issue closeout/comments, release execution, raw evidence handling, FAM-007/runtime provider work, AI Product Contract import, and Private Dev ORIN import remain separate USER approval checkpoints.
+Next Legal Phase Gate: Hardening H1 is complete and green. The next legal phase is `Live Validation` only by separate USER admission or waiver. PR Readiness and PR creation remain later phase decisions after Live Validation posture is admitted, completed, or explicitly waived; merge, issue closeout/comments, release execution, raw evidence handling, FAM-007/runtime provider work, AI Product Contract import, and Private Dev ORIN import remain separate USER approval checkpoints.
 
 ## Branch Objective
 
@@ -169,7 +172,7 @@ Interface Bundle User Approval: `Not granted - this branch has one primary Dashb
 
 Fallback Point: `If settings-panel runtime scope proves larger than the Dashboard surface, stop and request USER decision before expanding into provider/runtime/installer/FAM-007 work.`
 
-Interface Acceptance Path: `The settings-panel implementation is ready for Hardening; optional Live Validation and USER visual/UTS acceptance remain later governed steps.`
+Interface Acceptance Path: `The settings-panel implementation has passed Hardening H1; Live Validation and USER visual/UTS acceptance remain later governed steps.`
 
 ## Admitted Implementation Slice
 
@@ -258,7 +261,7 @@ No User Test Summary is generated, refreshed, imported, uploaded, linked, or dig
 
 ## Later-Phase Expectations
 
-- USER may approve Hardening after this implementation is pushed. Live Validation and PR Readiness remain separate later phase decisions.
+- USER may approve Live Validation after Hardening H1. PR Readiness remains a separate later phase decision after Live Validation posture is admitted, completed, or explicitly waived.
 - PR creation remains a later USER decision after implementation/validation.
 - GitHub issue closeout/comments for #123 through #127 remain pending USER approval.
 - Release execution, tags, GitHub Releases, artifacts, and raw evidence handling remain pending USER approval.
@@ -313,3 +316,46 @@ Recorded seam: Runtime implementation for the FAM-006 Dashboard settings-panel c
 - Hit-Testing Coverage: `Settings button and settings warning toggle are included in native control hit-testing so they are treated as controls instead of drag gestures.`
 - Validator Coverage: `HUD surface and internal sandbox validators assert settings affordance, settings panel markup/CSS/JS state, live-client geometry hooks, and active-client self-QA step labels.`
 - Live Proof Posture: `PASS - active-client self-QA proof at dev/logs/fam_006_monitoring_hud_live_validation/20260513_190929_547 proves Settings open/close, truthful panel copy, settings hit-target behavior, Dashboard close behavior, standalone travel, clipping boundaries, and control decoupling.`
+
+## Hardening H1 Validation Result
+
+H1 Admission: `PASS - USER approved Hardening H1 for the FAM-006 Dashboard settings-panel runtime seam only.`
+
+H1 Result: `PASS - no bounded H1 runtime repair required.`
+
+H1 Scope: `Dashboard Settings affordance; settings child-window open/close path; warning-notification toggle; Settings and Close native hit-test control handling; Dashboard Close, Create Monitor, Edit Monitor, tray reopen, resize, scroll gutter, first-open behavior, truthful provider/setup/deferred overlay copy, and validator coverage.`
+
+Settings Affordance Result: `PASS - top-chrome Settings button is present, exported through live-client geometry as settingsAction, and covered by static, internal sandbox, renderer self-QA, and prior active-client proof.`
+
+Settings Panel Result: `PASS - Dashboard settings child-window opens and closes independently, exposes settingsWindow/settingsWarningToggle geometry, and preserves Dashboard/HUD Feature state.`
+
+Warning Toggle Result: `PASS - warning-notification toggle mirrors warningNotificationsMuted state and updates the settings copy without introducing provider, overlay, installer, or FAM-007 scope.`
+
+Hit-Testing Result: `PASS - settingsAction and settingsWarningToggle are Dashboard controls, Settings and Close last-known screen rects are preserved, and Settings/Close are protected from native drag/resize gesture capture.`
+
+Regression Result: `PASS - Dashboard Close still hides only the Dashboard, Create Monitor and Edit Monitor remain dedicated child-window flows, tray reopen remains separate from HUD Feature disablement, and resize/scroll/first-open proof boundaries remain guarded by the HUD validators.`
+
+Truthful Copy Result: `PASS - panel copy states provider setup required, no fake telemetry values, Overlay/display deferred, and supported Dashboard settings only.`
+
+Validator Coverage Result: `PASS - validation covers visible settings affordance/panel markup, CSS, JS state, exported geometry hooks, renderer self-QA labels, remembered native hit-test rects, static source truth, internal sandbox proof, branch governance, release body, and Python compile checks.`
+
+H1 Validation Commands:
+
+- `PASS - git status --short --branch`
+- `PASS - git fetch origin --prune`
+- `PASS - git rev-parse HEAD`
+- `PASS - git rev-parse origin/main`
+- `PASS - git worktree list`
+- `PASS - git diff --check`
+- `PASS - git diff --check origin/main...HEAD`
+- `PASS - python dev\orin_monitoring_hud_surface_validation.py`
+- `PASS - python dev\orin_monitoring_hud_internal_sandbox_validation.py; manifest C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260513_194746_manifest.json`
+- `PASS - python dev\orin_branch_governance_validation.py; 4688 checks`
+- `PASS - python dev\orin_release_body_validation.py`
+- `PASS - python -m compileall -q dev desktop Audio main.py`
+
+Live Validation Separation: `PASS - formal Live Validation was not run, no formal User Test Summary was generated/refreshed/digested, and Live Validation remains a separate later phase requiring USER admission or waiver.`
+
+Current-Main Reconciliation Gate: `PR #135 moved origin/main to 6f9a13d17a65a3385001b8e463113295f5463b01. H1 is not blocked because runtime seam validation remains green, but PR Readiness must reconcile current main and shared source-truth overlap before PR creation.`
+
+Next Legal Seam: `Live Validation LV1 by separate USER phase admission or waiver. PR Readiness remains later.`
