@@ -396,8 +396,10 @@ Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
 Next Workstream: Selected
-Minimal Scope: provider/no-provider shell state, visible disabled/unavailable/no-provider status, visible provider/privacy state scaffolding, and direct validation scaffolds for SLC-017/SLC-018; no model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release work, or contract import.
+Minimal Scope: runtime slices SLC-017 and SLC-018 for provider/no-provider shell state, visible disabled/unavailable/no-provider status, visible provider/privacy state scaffolding, and direct validation scaffolds; no model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release work, or contract import.
 Selected Next Implementation Branch: `feature/fam-007-provider-boundary-no-provider-shell`
+Current Carrier Branch: `feature/fam-007-provider-boundary-no-provider-shell` - already created by USER approval as the active FAM-007 carrier, not an uncreated successor branch.
+Post-Merge Successor Selection: Pending USER decision; this PR Readiness Phase 1 repair does not select an additional successor branch or workstream beyond the current FAM-007 carrier.
 Successor Selection User Approval: Granted - USER selected FAM-007 for this new separate worktree and approved the first bounded provider-boundary / no-provider shell seam; PR #129 release-support remains separate unless USER later selects it.
 Family Scope: Local AI execution posture, capability-pack boundaries, model/tool capability distribution, local-vs-external runtime choices, and capability governance.
 Package Policy: Branchable local-AI work must package capability boundary, install/runtime, validation, and documentation slices by default.

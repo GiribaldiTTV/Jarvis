@@ -11944,6 +11944,30 @@ def _branch_names_for_workstream(
     ]
 
 
+def _selected_next_is_current_carrier_branch(
+    *,
+    selected_next_branch: str,
+    current_branch: str,
+    selected_block: str,
+    roadmap_section: str,
+    active_branch_record_text: str,
+) -> bool:
+    selected_branch = _clean_release_value(selected_next_branch)
+    if not current_branch or selected_branch != current_branch:
+        return False
+
+    combined_source_truth = "\n".join(
+        [selected_block, roadmap_section, active_branch_record_text]
+    ).casefold()
+    current_carrier_marker = f"current carrier branch: `{current_branch}`".casefold()
+    return (
+        current_carrier_marker in combined_source_truth
+        and "not an uncreated" in combined_source_truth
+        and current_branch.casefold() in active_branch_record_text.casefold()
+        and "active branch" in active_branch_record_text.casefold()
+    )
+
+
 def _root_dev_helper_paths() -> list[str]:
     helper_dir = ROOT_DIR / "dev"
     if not helper_dir.is_dir():
@@ -12165,6 +12189,15 @@ def _run_next_workstream_gate(
     repair_only_handling, explicitly_handled_repair_branches = _selected_next_repair_only_branch_info(
         [selected_block, roadmap_section]
     )
+    current_branch = _git_current_branch()
+    selected_next_branch = _extract_colon_value(selected_block, "Selected Next Implementation Branch")
+    selected_next_is_current_carrier = _selected_next_is_current_carrier_branch(
+        selected_next_branch=selected_next_branch,
+        current_branch=current_branch,
+        selected_block=selected_block,
+        roadmap_section=roadmap_section,
+        active_branch_record_text=active_branch_record_text,
+    )
 
     require(
         selected_record_state in VALID_NEXT_WORKSTREAM_RECORD_STATES,
@@ -12225,7 +12258,7 @@ def _run_next_workstream_gate(
                 "Docs/prebeta_roadmap.md selected-next section must define Minimal Scope"
             ),
         )
-        if not repair_only_handling:
+        if not repair_only_handling and not selected_next_is_current_carrier:
             require(
                 any(phrase.casefold() in roadmap_section.casefold() for phrase in NEXT_WORKSTREAM_BRANCH_NOT_CREATED_PHRASES),
                 (
@@ -12240,8 +12273,6 @@ def _run_next_workstream_gate(
         f"PR readiness gate: could not inspect branch names for selected next workstream: {branch_error}",
     )
     matching_branches = _branch_names_for_workstream(branch_names, selected_id, ignored_branch_names)
-    current_branch = _git_current_branch()
-    selected_next_branch = _extract_colon_value(selected_block, "Selected Next Implementation Branch")
     current_branch_names = {current_branch, f"origin/{current_branch}"} if current_branch else set()
     same_family_successor_not_branched = (
         current_branch
@@ -12254,8 +12285,12 @@ def _run_next_workstream_gate(
         if branch_record_class_map.get(branch_name) != EMERGENCY_CANON_REPAIR_BRANCH_CLASS
         and branch_name not in explicitly_handled_repair_branches
         and not (same_family_successor_not_branched and branch_name in current_branch_names)
+        and not (selected_next_is_current_carrier and branch_name in current_branch_names)
     ]
-    if same_family_successor_not_branched and not non_repair_matching_branches:
+    if (
+        same_family_successor_not_branched
+        or selected_next_is_current_carrier
+    ) and not non_repair_matching_branches:
         matching_branches = []
     elif repair_only_handling and not non_repair_matching_branches:
         matching_branches = []
@@ -13417,6 +13452,24 @@ def _active_branch_watcher_fallback_pr_view_for_branch(
     }, ""
 
 
+def _pre_pr_stage1_state_allows_missing_live_pr(
+    active_branch_record_text: str,
+    pr_error: str,
+) -> bool:
+    normalized_record = active_branch_record_text.casefold()
+    normalized_error = pr_error.casefold()
+    return (
+        "pre-pr live state:" in normalized_record
+        and "no live pr" in normalized_record
+        and "pr readiness stage 2" in normalized_record
+        and "pr creation approval missing" in normalized_record
+        and (
+            "no pull requests found" in normalized_error
+            or "no open pull request" in normalized_error
+        )
+    )
+
+
 def _run_pr_live_state_gate(
     require,
     *,
@@ -13452,6 +13505,14 @@ def _run_pr_live_state_gate(
             branch_name,
             active_branch_record_text,
         )
+    if (
+        not pr_info
+        and _pre_pr_stage1_state_allows_missing_live_pr(
+            active_branch_record_text,
+            pr_error,
+        )
+    ):
+        return
     if not pr_info:
         pr_info, pr_error = _active_branch_watcher_fallback_pr_view_for_branch(
             branch_name,

@@ -29,6 +29,9 @@ This branch records the planning and selected-next reconciliation for `PKG-007`,
 - Carrier Separation: `C:\Nexus Desktop AI remains the separate FAM-006 release-support lane and must not be touched by this branch`
 - Selected-Next Decision: `Granted for this thread/worktree - FAM-007 provider-boundary / no-provider shell is selected; PR #129 release-support remains separate unless USER later selects it`
 - Branch Authority State: `Active Branch` - Workstream first seam complete, next bounded provider-boundary seam USER-gated
+- Current Carrier Branch: `feature/fam-007-provider-boundary-no-provider-shell` - already created by USER approval as the active FAM-007 Workstream carrier, not an uncreated selected-next successor branch
+- Post-Merge Successor Selection: `Pending USER decision; this PR Readiness Phase 1 repair does not select an additional successor branch or workstream beyond the current carrier`
+- Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval pending`
 - Runtime Implementation Approval: `Granted only for first bounded SLC-017/SLC-018 seam scaffolding; real provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcuts, installer work, release work, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, PR creation, and merge remain blocked`
 - AI Product Contract v0.6.2: `External USER planning evidence only; not repo source truth and not imported`
 

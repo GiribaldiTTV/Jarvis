@@ -143,8 +143,10 @@ Next Legal Phase: Workstream decision for `feature/fam-007-provider-boundary-no-
 
 Selected Next Workstream: FAM-007 provider-boundary / no-provider shell.
 Record State: Registry-only implementation continuation under admitted FAM-007 / PKG-007.
-Minimal Scope: first bounded SLC-017/SLC-018 Workstream seam for provider/no-provider shell state, visible disabled/unavailable/no-provider status, visible provider/privacy state scaffolding, and direct validation scaffolds; no model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, GitHub issue creation, or full AI Product Contract import is admitted by this marker.
+Minimal Scope: first bounded runtime slices SLC-017 and SLC-018 Workstream seam for provider/no-provider shell state, visible disabled/unavailable/no-provider status, visible provider/privacy state scaffolding, and direct validation scaffolds; no model downloads, real provider SDK integration, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, GitHub issue creation, or full AI Product Contract import is admitted by this marker.
 Branch: `feature/fam-007-provider-boundary-no-provider-shell`.
+Current Carrier Branch: `feature/fam-007-provider-boundary-no-provider-shell` - already created by USER approval as the active FAM-007 carrier, not an uncreated selected-next successor.
+Post-Merge Successor Selection: Pending USER decision; this PR Readiness Phase 1 repair keeps the current carrier explicit and does not select an additional successor branch.
 Selection Scope: USER approved FAM-007 as the selected active lane in the new separate FAM-007 worktree. FAM-006 / PR #129 release-support remains separate unless USER later selects it.
 PR #129 Boundary: release-support remains USER-gated unless USER later approves Branch Readiness / branch creation for `feature/fam-006-dashboard-release-support`.
 PR Creation: blocked until USER separately approves PR Readiness Stage 2.
