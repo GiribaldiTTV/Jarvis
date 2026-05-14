@@ -6,6 +6,8 @@
 - Worktree: `C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Settings Panel`
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
+- Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; not a governance-only branch`
+- Current Delta Status: `Branch Readiness Stage 2 source-truth setup only; runtime code implementation begins only after later USER approval`
 - Backlog Record State: `Registry-only runtime continuation under historical FAM-006 / PKG-006`
 - Package ID: `PKG-006`
 - Package Name: `Monitoring HUD Dashboard Product Surface`
@@ -14,7 +16,7 @@
 
 This branch is the USER-approved Branch Readiness Stage 2 carrier for the next FAM-006 runtime-focused Dashboard surface after PR #133 merged the release-support source truth into main.
 
-It exists because the Dashboard settings cog/settings panel remained a deferred FAM-006 Dashboard controls/settings surface after the Dashboard product-surface release and the later issue-resolution PRs. The branch also carries the bounded post-PR #133 source-truth drift repair that must land on the next legitimate runtime-focused FAM-006 carrier before implementation begins.
+It exists because the Dashboard settings cog/settings panel remained a deferred FAM-006 Dashboard controls/settings surface after the Dashboard product-surface release and the later issue-resolution PRs. This is not a governance-only branch: the accepted carrier is the FAM-006 Dashboard settings-panel runtime branch. The current Stage 2 commit is source-truth setup only because runtime implementation remains a future USER approval checkpoint. The branch also carries the bounded post-PR #133 source-truth drift repair that must land on the next legitimate runtime-focused FAM-006 carrier before implementation begins.
 
 ## Current Phase
 
@@ -42,6 +44,7 @@ Implementation Delta Class: `docs-only`
 Docs-Only Workstream: `Yes`
 Planning-Loop Bypass User Approval: `APPROVED`
 Planning-Loop Bypass Reason: `USER approved Branch Readiness Stage 2 setup and bounded post-PR #133 source-truth drift repair on the runtime-focused settings-panel branch; runtime implementation remains blocked until later USER approval.`
+Runtime Carrier Marker: `Yes - this is the FAM-006 Dashboard settings-panel runtime carrier; the docs-only delta applies only to Branch Readiness setup before USER-approved runtime implementation.`
 
 ## Slice Continuation Policy
 
@@ -97,7 +100,7 @@ Next Legal Phase Gate: after Branch Readiness Stage 2 setup validates, commits, 
 
 ## Branch Objective
 
-Create the FAM-006 Dashboard settings-panel runtime-focused carrier from updated main, repair PR #133 post-merge source-truth drift, and preserve a clear stop before runtime implementation.
+Create the FAM-006 Dashboard settings-panel runtime-focused carrier from updated main, repair PR #133 post-merge source-truth drift, and preserve a clear stop before runtime implementation. The branch is runtime-focused even though the Branch Readiness setup commit is docs/source-truth only.
 
 ## Target End-State
 

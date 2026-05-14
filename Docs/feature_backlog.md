@@ -80,7 +80,7 @@ Historical Active Workstream Before Release: Automation Implementation.
 Earlier Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth.
 Historical Active Branch Before Release: feature/automation-planning.
 Earlier Historical Active Branch Before Release: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth.
-Selected Next Workstream: FAM-006 Dashboard settings panel is the USER-approved runtime-focused carrier after PR #133 merge; Branch Readiness Stage 2 is active for worktree/branch setup, PR #133 drift repair, and branch authority. FAM-007 Local AI and Capability Packs remains a separate USER-gated waiting lane in its assigned worktree.
+Selected Next Workstream: FAM-006 Dashboard settings panel is the USER-approved runtime-focused carrier after PR #133 merge, not a governance-only branch; Branch Readiness Stage 2 is active for worktree/branch setup, PR #133 drift repair, and branch authority before later USER-approved runtime implementation. FAM-007 Local AI and Capability Packs remains a separate USER-gated waiting lane in its assigned worktree.
 Selected Next Record State: Registry-only runtime continuation under historical FAM-006 / PKG-006.
 Selected Next Runtime Package Candidate: Dashboard settings cog/settings panel under historical FAM-006 / PKG-006; this is not a new backlog family or package admission.
 Selected Next Implementation Branch: Created under USER-approved Branch Readiness Stage 2 as `feature/fam-006-dashboard-settings-panel`. `feature/fam-007-runtime-provider-boundary` is historical PR #131 governance/readiness evidence only.
