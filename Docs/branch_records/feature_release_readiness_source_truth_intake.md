@@ -21,7 +21,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active Branch`
 - Branch Authority State: `standing governance intake lane`
 - Intake State: `Idle - no active Release Readiness intake cycle is recorded in merged source truth`
-- Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; after the setup PR merges, the branch must sync to origin/main before accepting any Release Readiness digest`
+- Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record is written in merge-stable idle posture so the branch must sync to origin/main after the setup PR merges before accepting any Release Readiness digest`
 - Active RRI Cycle: `None`
 
 ## Branch Class
@@ -146,7 +146,7 @@ Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/
 ## Active Seam
 
 - Active seam: `Standing Governance Intake Bootstrap`
-- Status: `In Progress until validator, PR body audit, commit, push, and PR creation complete`
+- Status: `Merge-stable bootstrap posture - after setup PR merge, the standing lane idles with Active RRI Cycle: None until a Release Readiness digest is handed off`
 
 ## Exit Criteria
 
