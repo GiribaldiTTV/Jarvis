@@ -598,7 +598,13 @@ def validate() -> list[str]:
         "Current Hardening Seam Status: `Green - H1 proof review found no runtime defect repair required`",
         "Proof Review Status: `Green - Hardening H1 proof review completed for all admitted same-branch FAM-007 local-only scaffolds.`",
         "Live Validation LV1 - FAM-007 Local AI Foundation Runtime Continuation Applicability And No-Provider Surface Proof",
-        "Stop at phase boundary after Hardening H1 Green",
+        "Live Validation LV1 USER Approval: `Granted - USER approved Live Validation LV1 for the completed FAM-007 local-only scaffold chain through SLC-036 after Hardening H1 Green`",
+        "Current Live Validation Seam Status: `Green - LV1 classifies the disabled/status-only scaffold as static/source-truth/compile validated with User Test Summary, user-facing shortcut validation, and Codex live-client self-QA waived`",
+        "User Test Summary Results: `WAIVED`",
+        "User-Facing Shortcut Validation: `WAIVED`",
+        "Codex Live Client Self-QA: `WAIVED`",
+        "PR Readiness Stage 1 - FAM-007 Local AI Foundation Runtime Continuation Readiness Analysis",
+        "Stop at phase boundary after Live Validation LV1 Green",
         "Bounded means one active seam at a time, not one-seam Workstream authority",
     ):
         _require(
