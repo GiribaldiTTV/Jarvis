@@ -15,6 +15,24 @@ Use:
 Add material here only when the lesson has generalized beyond one lane.
 Branch-local "what worked" notes should stay in the canonical workstream doc first and only be distilled here once the pattern is broad enough to help future branches outside that lane.
 
+## Pattern: Automation CWD Worktree Mismatch Must Not Become Lane Truth
+
+- symptom:
+  a standing watcher or automation reports blockers from stale `C:\Nexus Desktop AI`, a parked worktree, a missing configured cwd, or the wrong FAM/Governance lane while the actual active worktree has different branch truth
+- layer:
+  Automation Observability, multi-worktree identity, and PR/Release Readiness reporting
+- root-cause pattern:
+  Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md` were treated as lane truth without first proving the automation's configured cwd, worktree role, branch, `HEAD`, and `origin/main`
+- fix pattern:
+  run `dev/automation_observability_report.py`, classify stale or wrong-lane automation reports as `Automation CWD Worktree Mismatch`, and let only `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED` findings enter a bounded repair seam. Lane-sensitive prompts for active branch, PR Readiness, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance must be rebound to the intended worktree or reported as stale evidence instead of mutating canon. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree automation safety repair under `RRI-YYYYMMDD-NNN`, `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, and `Return Digest`.
+- validation pattern:
+  run `python dev\automation_observability_report.py` and `python dev\orin_branch_governance_validation.py`; the report must surface missing/stale/wrong configured cwd as a blocker candidate and the governance validator must require the automation/worktree contract across the source-truth homes
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/Main.md`
+  - `dev/automation_observability_report.py`
+  - `dev/orin_branch_governance_validation.py`
+
 ## Pattern: PR Readiness Green Must Require Durable Process Truth
 
 - symptom:

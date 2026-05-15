@@ -42,6 +42,8 @@ NO_PROVIDER_INTERACTION_AFFORDANCE = "disabled-no-provider-interaction"
 PROVIDER_CONFIGURATION_UNCONFIGURED = "unconfigured"
 PROVIDER_CONFIGURATION_FALLBACK_ACTIVE = "fallback-active"
 LOCAL_PROVIDER_REGISTRY_STATE = "local-only-registry"
+PROVIDER_BOUNDARY_INTERACTION_PLAN_STATE = "provider-boundary-interaction-plan"
+PROVIDER_NEXT_ACTION_DISABLED = "provider-setup-disabled-until-consent"
 LOCAL_HARDWARE_CAPABILITY_STATE = "local-planning-only"
 GPU_CAPABILITY_UNPROBED = "gpu-unprobed"
 CPU_FALLBACK_PRESERVED = "cpu-fallback-preserved"
@@ -203,6 +205,12 @@ class AIProviderStateSnapshot:
     privacy_label: str
     provider_visible_data: str
     provider_visible_data_label: str
+    provider_visible_data_detail: str
+    provider_interaction_state: str
+    provider_interaction_label: str
+    provider_interaction_detail: str
+    provider_consent_boundary_label: str
+    provider_next_action_label: str
     local_storage: str
     consent_state: str
     consent_label: str
@@ -281,6 +289,12 @@ class AIProviderStateSnapshot:
             "privacy_label": self.privacy_label,
             "provider_visible_data": self.provider_visible_data,
             "provider_visible_data_label": self.provider_visible_data_label,
+            "provider_visible_data_detail": self.provider_visible_data_detail,
+            "provider_interaction_state": self.provider_interaction_state,
+            "provider_interaction_label": self.provider_interaction_label,
+            "provider_interaction_detail": self.provider_interaction_detail,
+            "provider_consent_boundary_label": self.provider_consent_boundary_label,
+            "provider_next_action_label": self.provider_next_action_label,
             "local_storage": self.local_storage,
             "consent_state": self.consent_state,
             "consent_label": self.consent_label,
@@ -360,6 +374,12 @@ class AIProviderStateSnapshot:
             "privacyLabel": self.privacy_label,
             "providerVisibleData": self.provider_visible_data,
             "providerVisibleDataLabel": self.provider_visible_data_label,
+            "providerVisibleDataDetail": self.provider_visible_data_detail,
+            "providerInteractionState": self.provider_interaction_state,
+            "providerInteractionLabel": self.provider_interaction_label,
+            "providerInteractionDetail": self.provider_interaction_detail,
+            "providerConsentBoundaryLabel": self.provider_consent_boundary_label,
+            "providerNextActionLabel": self.provider_next_action_label,
             "localStorage": self.local_storage,
             "consentState": self.consent_state,
             "consentLabel": self.consent_label,
@@ -482,6 +502,21 @@ def _foundation_readiness_fields() -> dict[str, object]:
     }
 
 
+def _provider_boundary_interaction_fields(
+    *,
+    interaction_label: str,
+    interaction_detail: str,
+) -> dict[str, str]:
+    return {
+        "provider_visible_data_detail": "No prompt, file, screen, memory, or telemetry is sent",
+        "provider_interaction_state": PROVIDER_BOUNDARY_INTERACTION_PLAN_STATE,
+        "provider_interaction_label": interaction_label,
+        "provider_interaction_detail": interaction_detail,
+        "provider_consent_boundary_label": "Consent boundary: provider setup required before prompts",
+        "provider_next_action_label": "Next: provider setup is disabled until a later approved seam",
+    }
+
+
 def _provider_selection_options() -> tuple[AIProviderChoiceSnapshot, ...]:
     return (
         AIProviderChoiceSnapshot(
@@ -571,6 +606,10 @@ def build_no_provider_ai_state(*, surface_role: str = "hud") -> AIProviderStateS
         privacy_label="Local shell only; nothing is sent",
         provider_visible_data="none",
         provider_visible_data_label="Provider-visible data: none",
+        **_provider_boundary_interaction_fields(
+            interaction_label="Provider boundary plan: no-provider fallback",
+            interaction_detail="Choose and approve a provider before AI prompts can run",
+        ),
         local_storage="none",
         consent_state="not required until a provider is configured",
         consent_label="No provider consent requested",
@@ -638,6 +677,10 @@ def build_provider_selection_consent_state(
         privacy_label="Local selection only; nothing is sent",
         provider_visible_data="none",
         provider_visible_data_label="Provider-visible data: none",
+        **_provider_boundary_interaction_fields(
+            interaction_label="Provider boundary plan: consent required",
+            interaction_detail="Provider selection remains local-only until consent and configuration are complete",
+        ),
         local_storage="none",
         consent_state=PROVIDER_CONSENT_REQUIRED,
         consent_label="Consent required before a provider can be configured",
@@ -697,6 +740,10 @@ def build_local_provider_registry_state(*, surface_role: str = "hud") -> AIProvi
         privacy_label="Local registry only; nothing is sent",
         provider_visible_data="none",
         provider_visible_data_label="Provider-visible data: none",
+        **_provider_boundary_interaction_fields(
+            interaction_label="Provider boundary plan: registry local-only",
+            interaction_detail="Provider configuration remains unconfigured and no-provider fallback stays active",
+        ),
         local_storage="none",
         consent_state=PROVIDER_CONSENT_REQUIRED,
         consent_label="Consent required before provider configuration",
@@ -760,6 +807,10 @@ def build_local_hardware_capability_state(*, surface_role: str = "hud") -> AIPro
         privacy_label="Local capability planning only; nothing is sent",
         provider_visible_data="none",
         provider_visible_data_label="Provider-visible data: none",
+        **_provider_boundary_interaction_fields(
+            interaction_label="Provider boundary plan: capability proof first",
+            interaction_detail="Hardware proof and consent are required before model workloads can run",
+        ),
         local_storage="none",
         consent_state=PROVIDER_CONSENT_REQUIRED,
         consent_label="Consent required before provider or capability setup",
@@ -828,6 +879,10 @@ def build_fam007_foundation_readiness_state(*, surface_role: str = "hud") -> AIP
         privacy_label="Local foundation planning only; nothing is sent",
         provider_visible_data="none",
         provider_visible_data_label="Provider-visible data: none",
+        **_provider_boundary_interaction_fields(
+            interaction_label="Provider boundary plan: local foundation only",
+            interaction_detail="Provider consent, capability proof, and future USER approval are required before AI prompts can run",
+        ),
         local_storage="none",
         consent_state=PROVIDER_CONSENT_REQUIRED,
         consent_label="Consent required before provider or capability setup",

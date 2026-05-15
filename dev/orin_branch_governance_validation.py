@@ -1829,6 +1829,7 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
     "Standing Governance Intake Branch",
     "feature/release-readiness-source-truth-intake",
     "Release Readiness digest",
+    "automation/worktree governance intake",
     "Waiting For Governance Intake",
     "Return Digest",
     "RRI-YYYYMMDD-NNN",
@@ -1837,6 +1838,8 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
 )
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
+    "dev/automation_observability_report.py",
+    "dev/orin_ai_provider_state_validation.py",
     "dev/orin_pr_body_quality_audit.py",
     "dev/orin_release_body_validation.py",
 }
@@ -1868,6 +1871,10 @@ STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
     "Rebaseline Instructions",
     "Next Legal Phase",
 )
+
+
+def _is_standing_governance_intake_branch(branch_name: str) -> bool:
+    return branch_name == STANDING_GOVERNANCE_INTAKE_BRANCH
 STANDING_GOVERNANCE_RETURN_DIGEST_IDENTITY_GUARD_MARKERS = (
     "Originating Branch Source",
     "Originating Worktree Source",
@@ -3458,6 +3465,7 @@ AUTOMATION_OBSERVABILITY_PHRASES = (
     "dev/automation_observability_report.py",
     "Codex automation run/inbox",
     "$CODEX_HOME/automations/*/memory.md",
+    "Automation CWD Worktree Mismatch",
     "BLOCKER_CANDIDATE",
     "REVIEW_REQUIRED",
 )
@@ -3466,6 +3474,8 @@ AUTOMATION_OBSERVABILITY_SOURCE_PHRASES = (
     "automation_runs",
     "inbox_items",
     "memory.md",
+    "configured cwd",
+    "Lane-sensitive automation runs from neutral main",
     "BLOCKER_CANDIDATE",
     "REVIEW_REQUIRED",
     "--strict",
@@ -3493,6 +3503,7 @@ UTS_RESULTS_BLOCKER_PHRASES = (
     "User Test Summary is exclusive to Live Validation Stage 1.",
     "Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`",
     "Live Validation green requires an exact `## User Test Summary` state before final green.",
+    "Every Live Validation digest must include an exact `## User Test Summary` section",
     "Final phase advancement is BLOCKED",
 )
 
@@ -5910,6 +5921,10 @@ def _validate_governed_output_state(
     normalized_latch = continuation_latch.strip().casefold()
     normalized_stop_basis = stop_basis.strip().casefold()
     normalized_next_active_seam = next_active_seam.strip().casefold()
+    next_bounded_seam_approval_blocker_active = any(
+        blocker.casefold() == "next bounded seam approval missing"
+        for blocker in blockers
+    )
     stop_authorizing_blockers = [
         blocker for blocker in blockers if blocker != BACKLOG_COMPLETION_UNPROVEN_BLOCKER
     ]
@@ -5962,6 +5977,14 @@ def _validate_governed_output_state(
         (
             f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} '{stop_basis}' must be one of "
             f"{', '.join(sorted(CONTINUATION_ALLOWED_STOP_BASES))}"
+        ),
+    )
+    require(
+        not next_bounded_seam_approval_blocker_active,
+        (
+            f"{source_path}: Next Bounded Seam Approval Missing is not a valid Workstream "
+            "stop condition after a bounded seam is green while same-branch admitted seams "
+            "remain and no USER single-seam/single-slice waiver is recorded"
         ),
     )
 
@@ -12557,6 +12580,13 @@ def _run_next_workstream_gate(
     branch_record_class_map: dict[str, str],
     active_branch_record_text: str,
 ) -> None:
+    current_branch = _git_current_branch()
+    if (
+        _is_standing_governance_intake_branch(current_branch)
+        and STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS in active_branch_record_text
+    ):
+        return
+
     def successor_selection_approval_exists() -> bool:
         normalized_record = active_branch_record_text.casefold()
         return any(
@@ -12662,7 +12692,6 @@ def _run_next_workstream_gate(
     repair_only_handling, explicitly_handled_repair_branches = _selected_next_repair_only_branch_info(
         [selected_block, roadmap_section]
     )
-    current_branch = _git_current_branch()
     selected_next_branch = _extract_colon_value(selected_block, "Selected Next Implementation Branch")
     selected_next_is_current_carrier = _selected_next_is_current_carrier_branch(
         selected_next_branch=selected_next_branch,
@@ -14593,10 +14622,17 @@ def _run_standing_governance_intake_gate(require) -> None:
 
     intake_source = _extract_marker_value(contract, "Intake Source")
     require(
-        "Release Readiness digest only" in intake_source,
+        "Release Readiness digest" in intake_source,
         (
-            f"{expected_record_path}: Intake Source must be limited to "
-            "`Release Readiness digest only`"
+            f"{expected_record_path}: Intake Source must preserve "
+            "`Release Readiness digest` routing"
+        ),
+    )
+    require(
+        "automation/worktree governance intake" in intake_source,
+        (
+            f"{expected_record_path}: Intake Source must name the USER-approved "
+            "automation/worktree governance intake exception"
         ),
     )
     require(
@@ -14664,8 +14700,14 @@ def _run_standing_governance_intake_gate(require) -> None:
         )
     if active_cycle:
         require(
-            "Release Readiness digest only" in intake_source,
-            f"{expected_record_path}: active {active_cycle} must originate from Release Readiness",
+            (
+                "Release Readiness digest" in intake_source
+                or "automation/worktree governance intake" in intake_source
+            ),
+            (
+                f"{expected_record_path}: active {active_cycle} must originate from "
+                "Release Readiness or USER-approved automation/worktree governance intake"
+            ),
         )
 
     head_sha = _git_head_sha()
@@ -17527,6 +17569,15 @@ def main() -> int:
                 ),
             )
             _validate_release_window_audit(require, branch_record_path, record_text)
+            if "No Active Branch" in post_merge_state:
+                _run_merge_target_authority_projection_gate(
+                    require,
+                    active_branch_record_paths=active_branch_record_paths,
+                    active_branch_record_path=branch_record_path,
+                    active_branch_record_text=record_text,
+                    merge_stable_branch_record_path="",
+                    merge_stable_branch_record_text="",
+                )
         if branch_record_path in active_branch_record_paths:
             require(
                 "`Active Branch`" in phase_status_section,

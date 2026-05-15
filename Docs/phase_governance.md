@@ -300,7 +300,7 @@ This path is for:
 `docs/governance` branch records may exist as historical records, but new governance-only branches are not used in the normal Nexus flow.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
-The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`, and it may accept only a `Release Readiness digest` with an `RRI-YYYYMMDD-NNN` cycle ID, `One Active Cycle`, the pre-intake `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main` pause semantics, and a post-merge `Return Digest`.
+The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`, and it may accept a `Release Readiness digest` or USER-approved `automation/worktree governance intake` with an `RRI-YYYYMMDD-NNN` cycle ID, `One Active Cycle`, the pre-intake `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main` pause semantics, and a post-merge `Return Digest`.
 If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 Tightly coupled governance and canon repair must ride on the active branch that owns the affected truth.
@@ -843,6 +843,7 @@ Hard blockers:
   phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
 - `Automation Observability Review Pending`:
   standing automations report into Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`; those reports become source-of-truth work only after `dev/automation_observability_report.py` or a live automation report classifies them as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`. Informational green or waiting reports remain `REVIEW_INFO` unless contradicted by repo truth. Any admitted automation finding must enter a bounded repair seam before repo canon changes.
+  Multi-worktree automation must also prove its configured cwd, git root, worktree role, branch, `HEAD`, and `origin/main` posture before a report may influence active-lane truth. `Automation CWD Worktree Mismatch` is the blocker when a standing automation runs from a missing, stale, neutral-main, parked, or wrong-lane worktree for the prompt it is carrying. Lane-sensitive prompts that mention active branch, PR Readiness, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance cannot run from stale neutral main as if it were an assigned FAM or Governance lane. Automation memory is evidence only; stale `$CODEX_HOME/automations/*/memory.md`, Codex automation run/inbox summaries, or historical prompt assumptions must report `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`, not mutate canon directly.
 - `PR Readiness Scope Missed`:
   PR Readiness cannot be green if branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, or release-debt routing is incomplete or being deferred to Release Readiness, updated `main`, or a later governance-only branch
 - `Release Window Audit Incomplete`:
@@ -975,6 +976,7 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 Allowed Stage 1 outcomes are exactly `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, and `Stage 1 USER Waiver Required`. `PR Readiness Stage 1 Repair Required` means bounded current-branch PR-readiness repair/sync remains in Stage 1 before Stage 2. `Current-Branch Branch Readiness Re-entry Required` means the current branch is still the legal carrier, but the fix is broader than PR-readiness sync and must re-enter Branch Readiness on the same branch. `New Carrier Branch Required` means the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required. Stage 2 may begin only after `Stage 1 Ready For Stage 2` is recorded and explicit USER approval to enter Stage 2 exists.
 Stage 2 begins only after `Stage 1 Ready For Stage 2` and explicit USER approval.
 The next-workstream/package hierarchy is reviewed in PR Readiness Stage 1, not selected in Branch Readiness by default.
+Selected-next truth and active branch authority are different states. PR Readiness Stage 1 must resolve the next-workstream path with approved selected-next truth or an explicit USER waiver/defer, but a branch that projects post-merge `No Active Branch` must not merge an implementation authority record as active. If no successor is approved before merge, merged `main` may be steady-state `No Active Branch` while carrying merged-unreleased release debt, and the next implementation carrier must be selected later through Branch Readiness from current `origin/main`. Default governance validation and `--pr-readiness-gate` both own this closeout so Release Readiness does not discover stale active-authority truth after merge.
 
 `Origin/Main Freshness Check` is required during PR Readiness Stage 1 before Stage 2 can begin. Stage 1 must compare `Branch Creation Base:` to `Current origin/main:` and report whether `Origin/Main Advanced Since Branch Creation:` is `YES` or `NO`. When `origin/main` advanced, Stage 1 must list `Origin/Main Changed Files:` from `git diff --name-only <branch-creation-base>..origin/main`, list `Branch Changed Files:` from `git diff --name-only <branch-creation-base>..HEAD`, decide `Reconciliation Required: YES / NO`, and, when reconciliation is needed, output a complete `Reconciliation File List:` plus `Reconciliation Recommendation:`. The `Reconciliation Mutation Status:` must be analysis-only with no file fixes during Stage 1. If changed upstream files/data need review and the packet is missing or incomplete, `Origin Main Reconciliation Packet Required` blocks Stage 2 and PR creation.
 
@@ -1194,6 +1196,7 @@ User Test Summary is exclusive to Live Validation Stage 1.
 Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
 PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
 Live Validation green requires an exact `## User Test Summary` state before final green.
+Every Live Validation digest must include an exact `## User Test Summary` section. If User Test Summary is waived, that digest section must still declare `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:`; validation summaries, blocker summaries, and source-truth references do not replace the digest section.
 This is a `Live Validation Stage 1` gate, not a Workstream, Hardening, or PR Readiness completion substitute.
 Workstream and Hardening may maintain UTS strategy or readiness notes, but they must not create/refresh the formal desktop UTS export, create a UTS results seam, digest UTS results, or stop on `User Test Summary Results Pending`.
 
@@ -2377,20 +2380,23 @@ Allowed:
 - one standing worktree: `C:\Nexus Worktrees\Governance`
 - one standing branch: `feature/release-readiness-source-truth-intake`
 - one standing active authority record: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
-- one intake source: `Release Readiness digest`
+- one intake source: `Release Readiness digest` for release-blocker repair, plus USER-approved `automation/worktree governance intake` only when the issue is non-runtime, multi-worktree safety related, and held to the same one-cycle, PR-gated contract
 - one cycle ID format: `RRI-YYYYMMDD-NNN`
 - `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
 - `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
-- `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest
+- `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, or same-PR bot-review repair on the standing governance PR
 - source-truth/governance/validator drift repair named by the intake digest
 - a post-merge `Return Digest` to the originating worktree/thread with concrete originating branch/worktree identity copied from the accepted intake
+- automation observability repair only for configured cwd/worktree identity, stale neutral-main detection, lane-sensitive prompt drift, and automation memory/reporting mismatch; `Automation CWD Worktree Mismatch` must be reported before an automation finding becomes source-truth work
+- PR Readiness Stage 1 for this standing branch may report `Pre-PR Live State: No live PR` while the previous governance PR remains historical merge proof; the reusable branch name must not cause a closed historical PR to be treated as the current live PR. Standing governance PRs do not select runtime successor workstreams, create runtime branches, or admit packages.
 
 Forbidden:
 
 - runtime/provider/model/memory/voice/Core/shortcut/installer implementation
 - release execution, tags, GitHub Releases, release artifacts, or release-note publication
 - GitHub issue creation, AI Product Contract import, private Dev ORIN import, direct-main mutation, broad docs churn, or next runtime branch creation
-- accepting a non-Release Readiness digest after the one-time bootstrap setup
+- accepting anything other than a Release Readiness digest, USER-approved automation/worktree governance intake, or same-PR standing-governance bot-review repair after the one-time bootstrap setup
+- widening an automation/worktree governance intake into runtime, implementation, release-execution, stale-branch deletion, worktree cleanup, or FAM-006/FAM-007 mutation
 
 Originating-lane pause:
 

@@ -43,6 +43,8 @@ Codex should still:
 4. report clearly
 5. narrow execution only after the user and ChatGPT choose scope
 
+Automation prompts are subject to the same lane identity discipline. `Automation Observability` through `dev/automation_observability_report.py` reviews Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`, but only `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED` findings can become repair work. If a watcher or recurring automation talks about active branch, PR Readiness, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance, it must name a configured cwd that resolves to the intended worktree and report branch/`HEAD`/`origin/main` proof; otherwise `Automation CWD Worktree Mismatch` blocks the finding. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree safety repair with `RRI-YYYYMMDD-NNN`, `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, and `Return Digest`.
+
 ## Default Prompt Posture
 
 The default prompt posture is:
@@ -602,6 +604,7 @@ If results have not been returned yet, the correct prompt/output posture is:
 - Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated
 - PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact
 - Live Validation green requires an exact `## User Test Summary` state before final green.
+- Every Live Validation digest must include an exact `## User Test Summary` section; if User Test Summary is waived, the digest must still include `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:`.
 - `User Test Summary Results: PENDING.`
 - `Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested.`
 - final phase advancement stays blocked until the filled User Test Summary is submitted or waived, digested into the active authority record, and blockers are reevaluated

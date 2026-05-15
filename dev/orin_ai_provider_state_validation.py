@@ -44,6 +44,8 @@ from desktop.ai_provider_state import (  # noqa: E402
     MEMORY_CONTEXT_DISABLED,
     WINDOWS_RESILIENCE_PLANNED,
     PERSONA_CORE_VOICE_BOUNDARY_PLANNED,
+    PROVIDER_BOUNDARY_INTERACTION_PLAN_STATE,
+    PROVIDER_NEXT_ACTION_DISABLED,
     build_fam007_foundation_readiness_state,
     build_local_provider_registry_state,
     build_no_provider_ai_state,
@@ -78,6 +80,9 @@ def validate() -> list[str]:
     css = _read("nexus_visual/orin_core.css")
     js = _read("nexus_visual/orin_core.js")
     branch_record = _read("Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md")
+    continuation_branch_record = _read(
+        "Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md"
+    )
 
     _require(snapshot.package_id == PACKAGE_ID, "snapshot must remain in PKG-007", failures)
     _require(snapshot.slice_ids == (SLC_017_ID, SLC_018_ID), "snapshot must carry SLC-017 and SLC-018", failures)
@@ -95,6 +100,26 @@ def validate() -> list[str]:
     _require(
         payload["providerVisibleDataLabel"] == "Provider-visible data: none",
         "no-provider state must disclose provider-visible data as none",
+        failures,
+    )
+    _require(
+        payload["providerVisibleDataDetail"] == "No prompt, file, screen, memory, or telemetry is sent",
+        "no-provider state must disclose that no prompt, file, screen, memory, or telemetry is sent",
+        failures,
+    )
+    _require(
+        payload["providerInteractionState"] == PROVIDER_BOUNDARY_INTERACTION_PLAN_STATE,
+        "no-provider state must publish the provider-boundary interaction plan",
+        failures,
+    )
+    _require(
+        payload["providerNextActionLabel"] == "Next: provider setup is disabled until a later approved seam",
+        "no-provider state must keep provider setup disabled until a later approved seam",
+        failures,
+    )
+    _require(
+        PROVIDER_NEXT_ACTION_DISABLED in _read("desktop/ai_provider_state.py"),
+        "provider next-action disabled constant must be preserved in the local-only scaffold",
         failures,
     )
     _require(payload["externalCalls"] == "blocked", "external calls must be blocked", failures)
@@ -128,6 +153,16 @@ def validate() -> list[str]:
     _require(selection_payload["canAcceptPrompts"] is False, "provider-selection scaffold must not accept prompts", failures)
     _require(selection_payload["externalCalls"] == "blocked", "provider-selection scaffold must block external calls", failures)
     _require(selection_payload["providerVisibleData"] == "none", "provider-selection scaffold must expose no provider-visible data", failures)
+    _require(
+        selection_payload["providerInteractionState"] == PROVIDER_BOUNDARY_INTERACTION_PLAN_STATE,
+        "provider-selection scaffold must expose provider-boundary interaction plan state",
+        failures,
+    )
+    _require(
+        selection_payload["providerConsentBoundaryLabel"] == "Consent boundary: provider setup required before prompts",
+        "provider-selection scaffold must expose the consent boundary label",
+        failures,
+    )
     _require(
         selection_payload["providerVisibleDataLabel"] == "Provider-visible data: none",
         "provider-selection scaffold must visibly disclose provider-visible data",
@@ -219,6 +254,11 @@ def validate() -> list[str]:
         failures,
     )
     _require(
+        registry_payload["providerInteractionState"] == PROVIDER_BOUNDARY_INTERACTION_PLAN_STATE,
+        "provider registry scaffold must expose provider-boundary interaction plan state",
+        failures,
+    )
+    _require(
         len(registry_payload["providerRegistry"]) >= 3,
         "provider registry scaffold must publish local provider registry metadata",
         failures,
@@ -289,6 +329,26 @@ def validate() -> list[str]:
         failures,
     )
     _require(
+        foundation_payload["gpuCapabilityLabel"] == "GPU acceleration: unprobed; no model workload active",
+        "foundation readiness scaffold must visibly disclose GPU unprobed/no-workload posture",
+        failures,
+    )
+    _require(
+        foundation_payload["cpuFallbackLabel"] == "CPU fallback: preserved",
+        "foundation readiness scaffold must visibly disclose CPU fallback posture",
+        failures,
+    )
+    _require(
+        foundation_payload["powerStateLabel"] == "Power state: not evaluated",
+        "foundation readiness scaffold must keep power state unclaimed",
+        failures,
+    )
+    _require(
+        foundation_payload["thermalGuardrailLabel"] == "Thermal guardrails required before model workloads",
+        "foundation readiness scaffold must visibly disclose thermal guardrails",
+        failures,
+    )
+    _require(
         foundation_payload["capabilityPackLifecycleState"] == CAPABILITY_PACK_LIFECYCLE_PLANNED,
         "foundation readiness scaffold must expose capability-pack lifecycle planning state",
         failures,
@@ -296,6 +356,11 @@ def validate() -> list[str]:
     _require(
         foundation_payload["capabilityPackDownloadState"] == CAPABILITY_PACK_DOWNLOADS_BLOCKED,
         "foundation readiness scaffold must block capability-pack downloads",
+        failures,
+    )
+    _require(
+        foundation_payload["capabilityPackDownloadLabel"] == "Capability pack downloads: blocked",
+        "foundation readiness scaffold must visibly disclose blocked capability-pack downloads",
         failures,
     )
     _require(
@@ -333,6 +398,11 @@ def validate() -> list[str]:
         failures,
     )
     _require(
+        foundation_payload["providerInteractionState"] == PROVIDER_BOUNDARY_INTERACTION_PLAN_STATE,
+        "foundation readiness scaffold must expose provider-boundary interaction plan state",
+        failures,
+    )
+    _require(
         len(foundation_payload["foundationReadiness"]) == len(expected_foundation_slices),
         "foundation readiness scaffold must publish one readiness item per admitted slice",
         failures,
@@ -350,6 +420,15 @@ def validate() -> list[str]:
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
+        "provider_interaction",
+        "provider_next_action",
+        "gpu_capability",
+        "cpu_fallback",
+        "model_workload",
+        "capability_pack_download",
+        "data_classification",
+        "voice_runtime",
+        "release_proof",
     ):
         _require(needle in renderer, f"desktop renderer is missing {needle!r}", failures)
         _require(needle in core_renderer, f"Core visualization renderer is missing {needle!r}", failures)
@@ -365,14 +444,41 @@ def validate() -> list[str]:
             'data-provider-selection="fallback-no-provider"',
             'data-provider-configuration="unconfigured"',
             'data-provider-registry="local-only-registry"',
+            'data-provider-interaction="provider-boundary-interaction-plan"',
             'data-configured-provider-count="0"',
             'data-available-provider-count="0"',
             'data-hardware-capability="local-planning-only"',
+            'id="ai-provider-status-gpu"',
+            "GPU acceleration: unprobed; no model workload active",
+            'id="ai-provider-status-cpu"',
+            "CPU fallback: preserved",
+            'id="ai-provider-status-power"',
+            "Power state: not evaluated",
+            'id="ai-provider-status-thermal"',
+            "Thermal guardrails required before model workloads",
+            'id="ai-provider-status-model-workload"',
+            "Model workloads: disabled",
             'data-capability-pack-lifecycle="capability-pack-lifecycle-planned"',
+            'id="ai-provider-status-capability-download"',
+            "Capability pack downloads: blocked",
+            'id="ai-provider-status-capability-recommendation"',
+            "Capability recommendation pending hardware proof",
+            'id="ai-provider-status-data-classification"',
+            "Data classification: local-only planning",
             'data-memory-context="memory-context-disabled"',
+            'id="ai-provider-status-audit-secrets"',
+            "Audit/secrets: planned; no secrets stored",
             'data-windows-resilience="windows-resilience-planned"',
+            'id="ai-provider-status-offline"',
+            "Offline/degraded mode: planned",
             'data-persona-voice-boundary="persona-core-voice-boundary-planned"',
+            'id="ai-provider-status-voice"',
+            "Voice runtime: disabled",
             'data-validation-gates="validation-proof-gates-planned"',
+            'id="ai-provider-status-abuse"',
+            "Abuse/eval: pending future approval",
+            'id="ai-provider-status-release-proof"',
+            "Release proof: pending future approval",
             'data-consent-state="required-before-provider"',
             "No AI provider",
             "No-provider fallback active",
@@ -386,8 +492,11 @@ def validate() -> list[str]:
             "Validation gates: static proof active",
             "Consent required before provider setup",
             "Provider-visible data: none",
+            "No prompt, file, screen, memory, or telemetry is sent",
+            "Consent boundary: provider setup required before prompts",
             'id="ai-provider-status-action"',
             "Assisted Desktop unavailable",
+            "Next: provider setup is disabled until a later approved seam",
             "Local shell only; nothing is sent",
         ):
             _require(needle in markup, f"{label} is missing {needle!r}", failures)
@@ -413,18 +522,35 @@ def validate() -> list[str]:
         "providerSelectionState",
         "providerConfigurationState",
         "providerRegistryState",
+        "providerInteractionState",
         "hardwareCapabilityState",
+        "gpuCapabilityState",
+        "cpuFallbackState",
+        "powerState",
+        "thermalGuardrailState",
+        "modelWorkloadState",
+        "capabilityRecommendationState",
         "capabilityPackLifecycleState",
+        "capabilityPackDownloadState",
+        "dataClassificationState",
         "memoryContextState",
+        "auditSecretsState",
         "windowsResilienceState",
+        "offlineDegradedState",
         "personaCoreVoiceState",
+        "voiceRuntimeState",
         "validationProofGateState",
+        "abuseEvalState",
+        "releaseProofGateState",
         "configuredProviderCount",
         "availableProviderCount",
         "requiresConsent",
         "consentState",
         "interactionAffordance",
         "providerVisibleDataLabel",
+        "providerVisibleDataDetail",
+        "providerConsentBoundaryLabel",
+        "providerNextActionLabel",
         "aiProviderStatusAction.disabled = true",
         "sentToProvider",
         "canAcceptPrompts",
@@ -453,6 +579,37 @@ def validate() -> list[str]:
         "AI Product Contract v0.6.2",
     ):
         _require(needle in branch_record, f"branch record is missing {needle!r}", failures)
+
+    for needle in (
+        "SLC-017/SLC-018 Local AI Foundation Runtime Continuation - Provider Boundary Interaction Plan",
+        "SLC-031/SLC-032 Local Capability-Readiness Continuation",
+        "SLC-033/SLC-036 Local Data Resilience Persona And Proof-Gate Continuation",
+        "SLC-017/SLC-018 provider-boundary interaction continuation",
+        "local capability-readiness continuation",
+        "local data/resilience/persona/proof-gate continuation",
+        "visible consent-boundary copy",
+        "provider-visible-data detail",
+        "disabled provider setup next action",
+        "Completion Status: `Green`",
+        "Continue Decision: `Stop`",
+        "Continuation Execution Latch:",
+        "Historical merge proof: `PR #152 merged feature/fam-007-local-ai-foundation-runtime-continuation into main",
+        "Branch Authority State: `Historical merged branch - not active, not selected-next, and not a live PR carrier`",
+        "Completed Hardening: `H1 proof review was green with no runtime defect repair required`",
+        "Proof Review Status: `Green - Hardening H1 proof review completed for all admitted same-branch FAM-007 local-only scaffolds.`",
+        "Completed Live Validation: `LV1 classified the disabled/status-only scaffold as static/source-truth/compile validated with User Test Summary, user-facing shortcut validation, and Codex live-client self-QA waived`",
+        "User Test Summary Results: `WAIVED`",
+        "User-Facing Shortcut Validation: `WAIVED`",
+        "Codex Live Client Self-QA: `WAIVED`",
+        "Active seam: `None - historical after PR #152 merge`",
+        "Future FAM-007 work must enter Branch Readiness on a valid carrier after current `origin/main` is reconciled",
+        "Bounded means one active seam at a time, not one-seam Workstream authority",
+    ):
+        _require(
+            needle in continuation_branch_record,
+            f"continuation branch record is missing {needle!r}",
+            failures,
+        )
 
     return failures
 
