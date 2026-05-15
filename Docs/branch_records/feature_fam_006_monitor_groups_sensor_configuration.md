@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active Branch Readiness Stage 2 setup`
-- Bounded State: `Branch Readiness Stage 2 setup only - source-truth authority, package/slice boundaries, validation planning, and bounded governance repair`
+- Branch Authority State: `Active Workstream implementation`
+- Bounded State: `Workstream implementation complete - FAM-006 Monitor Groups sensor configuration runtime, directly supporting validators, and source truth`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -27,15 +27,15 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 ## Current Phase
 
-Phase: `Branch Readiness`
+Phase: `Workstream`
 
-Stage: `Branch Readiness Stage 2 - Execution Gate`
+Stage: `Workstream implementation`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Stage 2 setup active. Runtime implementation has not started and requires a later USER decision after this setup validates, commits, and pushes.
+Workstream implementation complete for the USER-approved FAM-006 Monitor Groups sensor-configuration runtime seam. Next Active Seam: `Hardening H1`. Current Hardening Seam: `Pending USER approval`. Current Live Validation Seam: `Not started`. Current PR Readiness Seam: `Not started`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -54,15 +54,15 @@ This branch is a FAM-006 runtime carrier. It may carry the bounded source-truth 
 
 ## Branch Purpose
 
-Prepare the next FAM-006 runtime implementation carrier for Monitor Groups and sensor configuration. The branch exists so Monitor Groups can become real configurable groups with monitor list management, sensor/data-source assignment, per-sensor settings where the current runtime supports them, and a clear handoff to later HUD Overlay visual customization.
+Implement the FAM-006 runtime carrier for Monitor Groups and sensor configuration. The branch exists so Monitor Groups can become real configurable groups with monitor list management, sensor/data-source assignment, per-sensor settings where the current runtime supports them, and a clear handoff to later HUD Overlay visual customization.
 
 ## Branch Objective
 
-Admit the FAM-006 Monitor Groups sensor-configuration carrier as the next runtime-focused branch after `v1.7.1-prebeta` release closure, while keeping implementation blocked until USER explicitly approves the Workstream phase.
+Implement the FAM-006 Monitor Groups sensor-configuration runtime flow admitted during Branch Readiness, while preserving Overlay visual display, provider expansion, FAM-007, release, PR, and cleanup work as later USER-gated decisions.
 
 ## Target End-State
 
-Branch Readiness Stage 2 ends with a pushed branch that has source-truth authority, package/slice boundaries, validation planning, and the family-scoped Branch Readiness governance repair in place. The branch should then be ready for a USER decision on runtime implementation.
+Workstream implementation ends with a pushed branch containing the Monitor Groups manage/edit runtime flow, list/create/edit/delete behavior, delete confirmation, truthful supported source assignment, per-sensor settings where supported, directly supporting validators, and source truth ready for Hardening H1.
 
 ## Planning-Loop Guardrail
 
@@ -94,7 +94,7 @@ Codex Product Interpretation: `The Monitor Groups branch should focus on data/se
 
 Codex Implementation Recommendation: `Implement the Monitor Groups manage/edit flow first, backed by truthful available sensor/data-source capability state and validators. Keep Overlay visual customization deferred until monitor data structures and group membership are stable.`
 
-USER/ChatGPT Review Checkpoint: `Review this Stage 2 setup packet before approving runtime implementation. Implementation approval should name whether the first Workstream may build the manage/edit window, delete confirmation, in-window Create action, and sensor assignment together.`
+USER/ChatGPT Review Checkpoint: `Complete - USER approved Workstream implementation for the manage/edit window, delete confirmation, in-window Create action, and sensor assignment together. Hardening H1 is the next USER review checkpoint.`
 
 Full Feature Element Breakdown: `Monitor group list; created monitor rows; Create button inside manage/edit window; per-monitor Edit action; per-monitor Delete action; delete confirmation prompt; monitor-specific settings panel; sensor/data-source assignment; per-sensor settings where supported; empty/no-sensor truthful state; validation and UTS proof hooks.`
 
@@ -118,9 +118,9 @@ Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementatio
 
 Implementation Sequence Proposal: `Inspect current Create/Edit Monitor windows; design the manage/edit list and confirmation flow; wire truthful sensor/data-source capability state; update validators; run Workstream validation; then request Hardening.`
 
-Planning Blockers: `Runtime Implementation Approval Missing`; `Overlay Acceptance Approval Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `External Telemetry Parity Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
+Planning Blockers: `Hardening H1 Approval Missing`; `Live Validation Approval Missing`; `Overlay Acceptance Approval Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `External Telemetry Parity Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
 
-USER Decisions Needed: `Approve runtime implementation after Stage 2 setup; approve PR creation later; approve merge later; approve release/artifacts/raw evidence/branch cleanup separately; approve any Overlay, FAM-007, provider/model/memory/shortcut/installer, external telemetry, or AI Product work separately.`
+USER Decisions Needed: `Approve Hardening H1 next; approve Live Validation later; approve PR creation later; approve merge later; approve release/artifacts/raw evidence/branch cleanup separately; approve any Overlay, FAM-007, provider/model/memory/shortcut/installer, external telemetry, or AI Product work separately.`
 
 Planning Packet Status: `Complete`
 
@@ -161,7 +161,7 @@ Planning Completion Waiver: `Not required`
 - Exact Affected Paths: `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`; `desktop/desktop_renderer.py`; `desktop/monitoring_hud_controls.py`; FAM-006 HUD validators/helpers as needed by implementation.
 - Carried Issues: `None newly created by Stage 2 setup`; all released FAM-006 issue threads #123, #124, #125, #126, #127, #137, and #140 are closed / fixed or completed.
 - Non-Includes: `HUD Overlay visual display acceptance`; `Overlay customization`; `NDAI-wide Theme/Skins`; `FAM-007`; `provider/model/memory/shortcut/installer work`; `external telemetry parity`; `AI Product Contract import`; `raw evidence upload/import/linking`; `release execution`; `PR creation`; `merge`; `future branch/worktree cleanup after this branch closes`.
-- Implementation Admission Status: `Pending USER approval after Branch Readiness Stage 2 setup validates and pushes.`
+- Implementation Admission Status: `USER-approved Workstream implementation complete after this packet validates, commits, and pushes.`
 
 ## Backlog Completion Strategy
 
@@ -169,7 +169,7 @@ Branch Completion Goal: `Complete the FAM-006 Monitor Groups sensor-configuratio
 
 Known Future-Dependent Blockers: `Runtime implementation approval, PR creation, merge, release execution, artifacts, raw evidence handling, future branch/worktree cleanup after this branch closes, FAM-007 work, provider/model/memory/shortcut/installer work, Overlay acceptance, external telemetry parity, AI Product work, and app-wide Theme/Skins all require later USER approval.`
 
-Branch Closure Rule: `Stop after Stage 2 setup validation, commit, and push; continue only after USER approves runtime implementation on this branch.`
+Branch Closure Rule: `Stop after Workstream implementation validation, commit, and push; continue only after USER approves Hardening H1 on this branch.`
 
 ## Explicit Non-Includes
 
@@ -209,6 +209,22 @@ Repair Classification: `Bounded governance/source-truth repair directly caused b
 
 Runtime implementation should later add or update directly relevant FAM-006 Monitor Groups validators and user-facing proof steps. Static marker proof alone is not enough for runtime behavior closure.
 
+## Workstream Implementation Result
+
+Implementation Status: `Complete - pending final commit/push in this packet`
+
+Runtime Summary: `Monitor Groups now use a Manage Monitors child-window flow with created monitor rows, an in-window Create Monitor action, per-monitor Edit selection, per-monitor Delete with inline confirmation, selected-monitor settings, supported sensor/data-source assignment, and per-sensor display/warning settings where current Dashboard/runtime support exists. CPU Load, Provider Readiness, and Warning Notifications are truthful assignable sources; CPU thermal, GPU load, and GPU thermal remain provider-required/unavailable rather than fake-ready.`
+
+User-Facing Behavior Changed: `The Dashboard Monitor Groups card now opens Manage Monitors for list/create/edit/delete/source assignment. The existing Create Monitor action still creates a monitor group, and Manage Monitors lets the USER add more monitors without returning to the Dashboard. Delete requires confirmation before removing a group. Source assignment is explicit and labels provider-required sensors as unavailable.`
+
+Validator Support Added: `Static HUD validator and internal sandbox validator now assert the manage-list-create-edit-delete-sensor-assignment markers, UI controls, inline delete confirmation, supported sensor assignment, per-sensor settings, and updated runtime contract. Desktop renderer proof state now includes sensor assignments/settings in monitor-management signatures.`
+
+Package / Slice Adherence: `Primary package remains PKG-006. Primary slice remains SLC-027 for Monitor Groups controls. Supporting SLC-025 is limited to truthful sensor/source availability and does not add provider expansion. Supporting SLC-029 is limited to validators/proof hooks.`
+
+Implementation Non-Includes Preserved: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, artifacts, raw evidence handling, and future branch/worktree cleanup remain excluded.`
+
+Workstream Validation Evidence: `python dev\orin_monitoring_hud_surface_validation.py PASS; python dev\orin_monitoring_hud_internal_sandbox_validation.py PASS; node --check nexus_visual\monitoring_hud.js PASS; python -m compileall -q dev desktop Audio main.py PASS before source-truth final validation.`
+
 ## Expected Seam Families And Risk Classes
 
 Seam Families: `Monitor Groups management UI`; `Create/Edit/Delete monitor flow`; `sensor/data-source assignment`; `per-sensor settings truth`; `Dashboard regression protection`; `validator and proof hardening`; `source-truth governance`.
@@ -221,7 +237,6 @@ Stage 2 setup does not generate a UTS. Runtime implementation should prepare a c
 
 ## Later-Phase Expectations
 
-- Workstream implementation requires separate USER approval.
 - Hardening follows implementation and must pressure-test the list, Create/Edit/Delete, delete confirmation, sensor assignment truth, and Dashboard regressions.
 - Live Validation follows Hardening and must use the real USER-facing launcher/shortcut path unless USER grants a waiver.
 - PR Readiness, PR creation, merge, release execution, artifacts, raw evidence handling, branch cleanup, Overlay acceptance, FAM-007 work, provider/model/memory/shortcut/installer work, external telemetry parity, and AI Product work remain separate USER decisions.
@@ -238,62 +253,95 @@ Non-Includes: `HUD Overlay visual display acceptance, Overlay customization, app
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 setup for FAM-006 Monitor Groups sensor configuration`
+Active seam: `Workstream implementation for FAM-006 Monitor Groups sensor configuration`
 
-Active Seam Status: `Source-truth authority, package/slice boundaries, validation planning, and family-scoped Branch Readiness governance repair are being established before runtime implementation.`
+Active Seam Status: `Implementation complete after validation: Monitor Groups manage/edit flow, list rows, in-window Create, per-monitor Edit/Delete, delete confirmation, supported source assignment, per-sensor settings, validators, renderer proof hooks, and source truth are updated.`
+
+Next active seam: `Hardening H1`
+
+## Backlog Completion Status
+
+Backlog Completion State: `Implemented Complete Except Future Dependency`
+
+Remaining Implementable Work: `None`
+
+Future-Dependent Blockers: `Hardening H1; Live Validation; PR Readiness; PR creation; merge; release execution; artifacts; raw evidence handling; future branch/worktree cleanup; FAM-007 work; provider/model/memory/shortcut/installer work; Overlay acceptance; external telemetry parity; AI Product work`
+
+Completion Status: `Green`
+
+## Seam Continuation Decision
+
+Seam Status: `Green`
+
+Slice Status: `Green`
+
+Completion Status: `Green`
+
+Waiver Status: `None`
+
+Continue Decision: `Stop`
+
+Continuation Execution Latch: `Closed until USER approves Hardening H1`
+
+Stop Basis: `Workstream Green`
+
+Next Active Seam: `Hardening H1`
+
+Stop Condition: `Workstream implementation is green; Hardening H1 requires explicit USER approval`
+
+Continuation Action: `Stop at phase boundary until USER admits Hardening H1`
+
+Single-Seam Workstream Waiver: `None`
+
+Single-Seam Or Single-Slice Waiver Authority: `USER only; Codex cannot infer single-seam or single-slice Workstream authority`
+
+Single-Seam Or Single-Slice Workstream Blocker: `One seam or one slice visible in the Workstream plan is a blocker unless a USER waiver is recorded`
+
+Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Workstream authority; same-branch continuation is required until Workstream Completion Status is Green`
 
 ## Blockers
 
-- Runtime Implementation Approval Missing
-- PR Creation Approval Missing
-- Merge Approval Missing
-- Release Execution Approval Missing
-- Raw Evidence Handling Approval Missing
-- FAM-007 Scope Approval Missing
-- Provider/Model/Memory/Shortcut/Installer Approval Missing
-- Overlay Acceptance Approval Missing
-- External Telemetry Parity Approval Missing
-- AI Product Contract Import Approval Missing
+None active inside Workstream implementation. Hardening H1, Live Validation, PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
 
 ## Exit Criteria
 
-- Branch created from current `origin/main`.
-- Branch authority record added and indexed.
-- Backlog and roadmap identify this branch as the active FAM-006 runtime carrier.
+- Monitor Groups manage/edit flow is implemented.
+- Created monitor list, in-window Create, per-monitor Edit, per-monitor Delete with confirmation, source assignment, and per-sensor settings are present.
+- Existing Dashboard settings, close, warning notifications, tray-owned HUD control, resize/scroll/source-truth boundaries remain preserved.
 - FAM-006 v1.7.1-prebeta release closure remains green.
 - FAM-006 released issue closeout posture is preserved.
-- Family-scoped Branch Readiness governance repair is recorded.
+- Directly supporting validators pass.
 - Required validation passes.
-- Stage 2 setup commit is pushed.
+- Workstream implementation commit is pushed.
 
 ## Rollback Target
 
-`Branch Readiness`
+`Workstream`
 
-Delete the unmerged branch/worktree setup only if USER later decides to abandon this carrier and no runtime implementation has begun. Do not delete other FAM-006, FAM-007, Governance, or main worktrees as part of rollback.
+Rollback is the unmerged Workstream implementation on this branch only if USER later decides to abandon this carrier before PR/merge. Do not delete or mutate other FAM-006, FAM-007, Governance, or main worktrees as part of rollback.
 
 ## Next Legal Phase
 
-`Workstream`
+`Hardening`
 
-USER decision for FAM-006 Monitor Groups runtime implementation on `feature/fam-006-monitor-groups-sensor-configuration`.
+USER decision for FAM-006 Monitor Groups Hardening H1 on `feature/fam-006-monitor-groups-sensor-configuration`.
 
 ## Next Legal Phase Digest
 
-Current Phase: `Branch Readiness`
+Current Phase: `Workstream`
 
-Next Legal Phase: `Workstream`
+Next Legal Phase: `Hardening`
 
-Why This Phase Is Next: `Branch Readiness Stage 2 setup has created the FAM-006 Monitor Groups branch, restored the stable FAM-006 worktree path, established branch authority, recorded package/slice boundaries, added the family-scoped and stable-worktree governance repairs, validated, committed, and pushed. Runtime implementation is the next legal phase only after USER approval.`
+Why This Phase Is Next: `Workstream implementation has added the FAM-006 Monitor Groups manage/edit runtime flow, truthful sensor/data-source assignment, per-sensor settings, directly supporting validators, and source truth. Hardening H1 is the next legal phase to pressure-test the implemented behavior before Live Validation or PR Readiness.`
 
-Approval Required: `USER approval for FAM-006 Monitor Groups runtime implementation.`
+Approval Required: `USER approval for FAM-006 Monitor Groups Hardening H1.`
 
-Exact USER Approval Text: `Approve Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006. Scope is FAM-006 Monitor Groups sensor configuration only: configurable monitor groups, created monitor list in the manage/edit window, in-window Create, per-monitor Edit, per-monitor Delete with confirmation, supported sensor/data-source assignment, per-sensor settings where current runtime supports them, directly supporting validators/helpers/source truth, validation, commit, and push.`
+Exact USER Approval Text: `Approve Hardening H1 for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006. Scope is FAM-006 Monitor Groups sensor configuration only: pressure-test configurable Monitor Groups, created monitor list, in-window Create, per-monitor Edit, per-monitor Delete with confirmation, supported sensor/data-source assignment, per-sensor settings, Dashboard settings/close/warning regression boundaries, directly supporting validators/source truth, validation, commit, and push if bounded H1 repair is required.`
 
-Allowed Scope: `Dashboard Monitor Groups management UI, child-window flow, list state, Create/Edit/Delete controls, delete confirmation, sensor/data-source assignment truth, per-sensor settings where supported, and directly supporting FAM-006 HUD validators/helpers/source truth.`
+Allowed Scope: `Hardening analysis and bounded same-seam repair for Dashboard Monitor Groups management UI, child-window flow, list state, Create/Edit/Delete controls, delete confirmation, supported sensor/data-source assignment truth, per-sensor settings where supported, and directly supporting FAM-006 HUD validators/helpers/source truth.`
 
 Explicit Exclusions: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, tags, GitHub Releases, artifacts, raw evidence upload/import/linking, and future branch/worktree cleanup after this branch closes.`
 
-Validation Required: `git status --short --branch; git fetch origin --prune; git rev-parse HEAD; git rev-parse origin/main; git worktree list; git diff --check; git diff --check origin/main...HEAD; directly relevant FAM-006 HUD/Monitor Groups validators added or updated by implementation; python dev\orin_branch_governance_validation.py; python dev\orin_release_body_validation.py; python -m compileall -q dev desktop Audio main.py.`
+Validation Required: `git status --short --branch; git fetch origin --prune; git rev-parse HEAD; git rev-parse origin/main; git worktree list; git diff --check; git diff --check origin/main...HEAD; python dev\orin_monitoring_hud_surface_validation.py; python dev\orin_monitoring_hud_internal_sandbox_validation.py; python dev\orin_branch_governance_validation.py; python dev\orin_release_body_validation.py; python -m compileall -q dev desktop Audio main.py.`
 
 Stop Conditions: `Stop if branch/worktree identity mismatches C:\Nexus Worktrees\FAM-006 / feature/fam-006-monitor-groups-sensor-configuration, origin/main movement creates required reconciliation, implementation requires excluded Overlay/FAM-007/provider/model/installer/AI Product/release/PR/raw-evidence scope, validation cannot prove behavior beyond marker presence, or another USER decision is required.`

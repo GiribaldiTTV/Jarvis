@@ -9171,20 +9171,20 @@ class DesktopRuntimeWindow(QWidget):
                 "minimal_hud_present": minimal_dataset.get("productSurfaceRole") == "minimal-anchored-hud-overlay",
                 "minimal_nexus_identity": "nexus" in lower_minimal_text and "monitoring hud" in lower_minimal_text,
                 "dashboard_role": dataset.get("productSurfaceRole") == "dashboard-configuration-surface",
-                "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
+                "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-delete-sensor-assignment",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
                 "dashboard_settings_content_polished": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
                 "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
-                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",
+                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows",
                 "dashboard_monitor_selection_in_child_window": dataset.get("dashboardMonitorSelectionPlacement") == "edit-child-window-only",
                 "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-overlay-monitor-groups-provider-warning",
                 "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "dashboard-ia-card-settings-button",
                 "dashboard_settings_panel": dataset.get("dashboardSettingsPanel") == "settings-panel-child-window",
                 "dashboard_settings_proof": dataset.get("dashboardSettingsProof") == "visible-open-close-control-hit-target",
-                "monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
-                "dashboard_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
+                "monitor_group_model": dataset.get("monitorGroupModel") == "configurable-groups-sensor-assignment",
+                "dashboard_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-visual-rendering",
                 "dashboard_provider_truth": dataset.get("dashboardProviderTruth") == "provider-contract-first",
                 "dashboard_state_model": dataset.get("dashboardStateModel") == "setup-no-data-degraded-warning",
                 "dashboard_warning_controls": dataset.get("dashboardWarningControls") == "visual-non-invasive-only",
@@ -9509,20 +9509,27 @@ class DesktopRuntimeWindow(QWidget):
             cards = state.get("cards") if isinstance(state.get("cards"), dict) else {}
             selected_id = str(state.get("selectedMonitorId") or "")
             selected = cards.get(selected_id) if isinstance(cards.get(selected_id), dict) else {}
+            selected_sensors = selected.get("sensors") if isinstance(selected.get("sensors"), list) else []
             checks = {
-                "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-enable-polling",
+                "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-delete-sensor-assignment",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
                 "dashboard_settings_content_polish": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
                 "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
-                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "branch2-create-edit-monitor-windows",
-                "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "organizational-groups-settings-only",
-                "dashboard_monitor_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-monitor-cards",
+                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows",
+                "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "configurable-groups-sensor-assignment",
+                "dashboard_monitor_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-visual-rendering",
+                "dashboard_sensor_assignment": dataset.get("monitorSensorAssignment") == "available-runtime-sources",
                 "monitor_count_expanded": len(cards) >= 3,
                 "created_monitor_selected": selected_id.startswith("monitor-"),
                 "created_monitor_disabled": selected.get("enabled") is False,
                 "created_monitor_polling_5000": int(selected.get("pollingRateMs") or 0) == 5000,
+                "created_monitor_sensor_assignment": {"cpu-load", "provider-state", "warning-notifications"}.issubset(
+                    {str(sensor) for sensor in selected_sensors}
+                ),
+                "created_monitor_sensor_settings": isinstance(selected.get("sensorSettings"), dict)
+                    and "cpu-load" in selected.get("sensorSettings", {}),
                 "global_polling_preserved": int(state.get("pollingRateMs") or 0) == 1000,
                 "monitor_sequence_advanced": int(state.get("monitorSequence") or 0) >= 3,
             }
@@ -9773,7 +9780,11 @@ class DesktopRuntimeWindow(QWidget):
                         h: 280,
                         title: "Monitor Group " + String(next.monitorSequence),
                         enabled: true,
-                        pollingRateMs: 1000
+                        pollingRateMs: 1000,
+                        sensors: ["provider-state"],
+                        sensorSettings: {
+                            "provider-state": { displayMode: "text", warningEnabled: true }
+                        }
                     };
                     window.setMonitoringHudControlState(next);
                     const closeCreate = document.querySelector('[data-child-window-close="monitor-group-create"]');
@@ -9850,7 +9861,13 @@ class DesktopRuntimeWindow(QWidget):
                             if (selectedId && state.cards && state.cards[selectedId]) {
                                 state.cards[selectedId] = Object.assign({}, state.cards[selectedId], {
                                     enabled: false,
-                                    pollingRateMs: 5000
+                                    pollingRateMs: 5000,
+                                    sensors: ["cpu-load", "provider-state", "warning-notifications"],
+                                    sensorSettings: {
+                                        "cpu-load": { displayMode: "badge-text", warningEnabled: true },
+                                        "provider-state": { displayMode: "text", warningEnabled: true },
+                                        "warning-notifications": { displayMode: "badge", warningEnabled: true }
+                                    }
                                 });
                                 window.setMonitoringHudControlState(state);
                             }
@@ -9868,6 +9885,7 @@ class DesktopRuntimeWindow(QWidget):
                             pollingControlValue: polling ? String(polling.value || "") : "",
                             selectedEnabled: selectedCard ? selectedCard.enabled : null,
                             selectedPollingRateMs: selectedCard ? selectedCard.pollingRateMs : null,
+                            selectedSensors: selectedCard && Array.isArray(selectedCard.sensors) ? selectedCard.sensors : [],
                             monitorCount: after && after.cards ? Object.keys(after.cards).length : 0
                         });
                     } catch (err) {
@@ -9997,6 +10015,7 @@ class DesktopRuntimeWindow(QWidget):
                     window.localStorage.removeItem("nexusMonitoringHudLayoutV1");
                     window.localStorage.removeItem("nexusMonitoringHudLayoutV2");
                     window.localStorage.removeItem("nexusMonitoringHudLayoutV3");
+                    window.localStorage.removeItem("nexusMonitoringHudLayoutV4");
                 }
             } catch (_err) {}
             if (window.setMonitoringHudControlState) {
@@ -10011,8 +10030,33 @@ class DesktopRuntimeWindow(QWidget):
                     selectedMonitorId: "cpu",
                     monitorSequence: 2,
                     cards: {
-                        cpu: { x: 0, y: 0, w: 600, h: 280, title: "CPU Group", enabled: true, pollingRateMs: 1000 },
-                        gpu: { x: 0, y: 300, w: 600, h: 280, title: "GPU Group", enabled: true, pollingRateMs: 1000 }
+                        cpu: {
+                            x: 0,
+                            y: 0,
+                            w: 600,
+                            h: 280,
+                            title: "CPU Group",
+                            enabled: true,
+                            pollingRateMs: 1000,
+                            sensors: ["cpu-load", "provider-state"],
+                            sensorSettings: {
+                                "cpu-load": { displayMode: "badge-text", warningEnabled: true },
+                                "provider-state": { displayMode: "text", warningEnabled: true }
+                            }
+                        },
+                        gpu: {
+                            x: 0,
+                            y: 300,
+                            w: 600,
+                            h: 280,
+                            title: "GPU Group",
+                            enabled: true,
+                            pollingRateMs: 1000,
+                            sensors: ["provider-state"],
+                            sensorSettings: {
+                                "provider-state": { displayMode: "text", warningEnabled: true }
+                            }
+                        }
                     }
                 });
             }
@@ -10079,6 +10123,8 @@ class DesktopRuntimeWindow(QWidget):
                 enabled,
                 card_polling,
                 str(card.get("title", "")),
+                tuple(str(sensor) for sensor in card.get("sensors", []) if isinstance(card.get("sensors"), list)),
+                json.dumps(card.get("sensorSettings", {}), sort_keys=True) if isinstance(card.get("sensorSettings"), dict) else "",
                 int(card.get("x") or 0),
                 int(card.get("y") or 0),
                 int(card.get("w") or 0),
@@ -10137,6 +10183,11 @@ class DesktopRuntimeWindow(QWidget):
                 monitor_count=len(monitor_signature_parts),
                 enabled_count=enabled_count,
                 selected_monitor=str(state.get("selectedMonitorId", "")),
+                assigned_sensor_count=sum(
+                    len(card.get("sensors") or [])
+                    for card in cards.values()
+                    if isinstance(card, dict) and isinstance(card.get("sensors"), list)
+                ),
                 polling_floor_ms=1000,
             )
 
@@ -10362,8 +10413,8 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
                     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
                     monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
-                    monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-dedicated-child-window-actions";
-                    monitoringHud.dataset.dashboardChildWindowScope = "branch2-create-edit-monitor-windows";
+                    monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-monitor-management-child-windows";
+                    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows";
                     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
                     monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
                     monitoringHud.dataset.dashboardOpenBadge = "removed";
@@ -10373,8 +10424,9 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardSettingsPanel = "settings-panel-child-window";
                     monitoringHud.dataset.dashboardSettingsPanelState = "closed";
                     monitoringHud.dataset.dashboardSettingsProof = "visible-open-close-control-hit-target";
-                    monitoringHud.dataset.monitorGroupModel = "organizational-groups-settings-only";
-                    monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-monitor-cards";
+                    monitoringHud.dataset.monitorGroupModel = "configurable-groups-sensor-assignment";
+                    monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-visual-rendering";
+                    monitoringHud.dataset.monitorSensorAssignment = "available-runtime-sources";
                     monitoringHud.dataset.dashboardProviderTruth = "provider-contract-first";
                     monitoringHud.dataset.dashboardStateModel = "setup-no-data-degraded-warning";
                     monitoringHud.dataset.dashboardWarningControls = "visual-non-invasive-only";
