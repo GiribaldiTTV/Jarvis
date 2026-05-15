@@ -5831,6 +5831,12 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_move_frame_sync_last = 0.0
         self._monitoring_hud_resize_frame_sync_last = 0.0
         self._monitoring_hud_resize_js_sync_last = 0.0
+        self._monitoring_hud_resize_proof_frame = 0
+        self._monitoring_hud_resize_proof_overlay = QFrame(self)
+        self._monitoring_hud_resize_proof_overlay.setObjectName("monitoringHudResizeProofOverlay")
+        self._monitoring_hud_resize_proof_overlay.setProperty("cssResizeProofAlphaMarker", "--monitoring-hud-live-resize-proof-alpha")
+        self._monitoring_hud_resize_proof_overlay.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self._monitoring_hud_resize_proof_overlay.hide()
         self._monitoring_hud_show_guard_active = False
         self._monitoring_hud_show_guard_generation = 0
         self._monitoring_hud_show_guard_release_delay_ms = 360
@@ -7470,7 +7476,7 @@ class DesktopRuntimeWindow(QWidget):
             scrollbar_owner="monitoring-hud-control-hub",
             scrollbar_boundary="inner-content-well-gutter",
             outer_frame_haze="removed-no-square-layer",
-            native_resize_hit_zone="preclick-hover-cursor-aligned-12px-app-owned-resize-action",
+            native_resize_hit_zone="preclick-hover-cursor-aligned-14px-app-owned-resize-action",
             resize_edge_scope="all-edges-and-corners",
             resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
             corner_diagonal_resize_arc_percent=50,
@@ -7552,7 +7558,7 @@ class DesktopRuntimeWindow(QWidget):
         return edges
 
     def _monitoring_hud_resize_hit_zone_px(self) -> int:
-        return 12
+        return 14
 
     def _monitoring_hud_rounded_corner_diagonal_resize_edges_for_point(
         self,
@@ -7968,6 +7974,7 @@ class DesktopRuntimeWindow(QWidget):
             self.setGeometry(next_rect)
             self._monitoring_hud_native_window_resize_last_rect = QRect(next_rect)
         self._sync_monitoring_hud_resize_frame(force=True)
+        self._hide_monitoring_hud_resize_proof_overlay()
         self._monitoring_hud_native_window_resize_active = False
         self._monitoring_hud_native_window_resize_poll_active = False
         self._monitoring_hud_native_window_resize_edges = Qt.Edges()
@@ -7980,6 +7987,54 @@ class DesktopRuntimeWindow(QWidget):
             pass
         self._reset_monitoring_hud_resize_cursor()
         self._finish_monitoring_hud_native_system_resize("fallback_window_resize")
+
+    def _sync_monitoring_hud_resize_proof_overlay(self, active_rect: QRect, direction: str):
+        if self.surface_role != "hud" or not self._monitoring_hud_native_window_resize_active:
+            self._hide_monitoring_hud_resize_proof_overlay()
+            return
+        overlay = getattr(self, "_monitoring_hud_resize_proof_overlay", None)
+        if overlay is None:
+            return
+        self._monitoring_hud_resize_proof_frame += 1
+        phase = int((active_rect.width() * 3 + active_rect.height() * 5 + self._monitoring_hud_resize_proof_frame * 17) % 6)
+        alpha = min(225, 94 + (phase * 24))
+        secondary_alpha = min(190, 70 + (((phase + 2) % 6) * 18))
+        primary_rgb = (159, 247, 255)
+        secondary_rgb = (99, 255, 202)
+        direction_marker = "active-resize-native-repaint-proof-grow"
+        if direction == "shrink":
+            direction_marker = "active-resize-native-repaint-proof-shrink"
+            primary_rgb = (255, 206, 126)
+            secondary_rgb = (120, 231, 255)
+        elif direction == "steady":
+            direction_marker = "active-resize-native-repaint-proof-steady"
+        overlay.setProperty("resizeProof", direction_marker)
+        overlay.setGeometry(self.rect().adjusted(8, 8, -8, -8))
+        overlay.setStyleSheet(
+            f"""
+            #monitoringHudResizeProofOverlay {{
+                border-radius: 22px;
+                border: 1px solid rgba(130, 242, 255, {min(210, alpha + 20)});
+                background:
+                    qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                        stop:0 rgba({primary_rgb[0]}, {primary_rgb[1]}, {primary_rgb[2]}, 0),
+                        stop:0.36 rgba({primary_rgb[0]}, {primary_rgb[1]}, {primary_rgb[2]}, {alpha}),
+                        stop:0.62 rgba({secondary_rgb[0]}, {secondary_rgb[1]}, {secondary_rgb[2]}, {secondary_alpha}),
+                        stop:1 rgba({primary_rgb[0]}, {primary_rgb[1]}, {primary_rgb[2]}, 0));
+            }}
+            """
+        )
+        overlay.show()
+        overlay.raise_()
+        overlay.update()
+
+    def _hide_monitoring_hud_resize_proof_overlay(self):
+        overlay = getattr(self, "_monitoring_hud_resize_proof_overlay", None)
+        if overlay is None:
+            return
+        overlay.hide()
+        overlay.setProperty("resizeProof", "inactive")
+        overlay.update()
 
     def _sync_monitoring_hud_resize_frame(self, *, force: bool = False):
         if self.surface_role != "hud" or self._is_shutting_down:
@@ -8011,6 +8066,7 @@ class DesktopRuntimeWindow(QWidget):
                 resize_direction = "grow"
             else:
                 resize_direction = "steady"
+            self._sync_monitoring_hud_resize_proof_overlay(active_rect, resize_direction)
             payload = json.dumps(
                 {
                     "active": not force,

@@ -70,10 +70,11 @@ Latest Public Release Commit: 3d38630c63965702bb8839f5e0c5f3b4b008e8bb.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.2-prebeta.
 Latest Public Prerelease Title: Pre-Beta v1.7.2.
 Post-PR #159 Source-Truth Drift: Closed by standing Governance intake RRI-20260515-003 through PR #160 and PR #161 closeout; stale PR Readiness / PR creation wording for the already-merged FAM-007 branch is removed before Release Readiness reruns.
-Published Release Pending Canon Closure: None - v1.7.2-prebeta source truth is recorded; PR #159 is merged-unreleased release-window scope pending Release Readiness in its owning lane.
-Closure Repair Surface: None after PR #161 for this FAM-006 reconciliation; the standing Governance intake carrier `feature/release-readiness-source-truth-intake` is idle until USER-approved governance work resumes.
-Closure Drift Scope: Closed for FAM-006 after v1.7.2-prebeta closure; PR #152 is released historical FAM-007 local-only scaffold scope, and PR #159 remains FAM-007 merged-unreleased scope.
-Implementation Entry: Branch-local FAM-006 Monitor Groups returned UTS FAIL repair setup is admitted after current-main reconciliation validated, committed, and pushed; USER-approved Repair Workstream implementation and Hardening H1 are complete pending refreshed Live Validation/UTS.
+Post-Release Canon Closure Drift: Recorded - `v1.7.3-prebeta` exists in local/remote release truth while branch-local source truth still records `v1.7.2-prebeta`; this is release-dependent canon drift only and does not create release/tag/artifact authority in this FAM-006 H1 branch.
+Published Release Pending Canon Closure: v1.7.3-prebeta
+Closure Repair Surface: Next Branch Readiness Stage 2
+Closure Drift Scope: release-dependent fields only
+Implementation Entry: Blocked until closure repair validates green; current FAM-006 Monitor Groups H1 may finish only as bounded hardening/validation closeout already in progress and PR Readiness remains blocked until refreshed Live Validation/UTS.
 Release-Debt Avoidance Status: Clear for v1.7.2 publication; PR #159 is merged-unreleased FAM-007 scope in its owning lane, and FAM-006 Monitor Groups remains branch-local unmerged work. Issue comments/closeout, branch/worktree cleanup, provider/model/memory/shortcut/installer work, Overlay acceptance, external telemetry parity, raw evidence handling, and AI Product work remain USER-gated.
 Merged-main Current Active Workstream: None - origin/main remains no-active-branch truth after PR #161.
 Current Active Workstream: Branch-local FAM-006 Monitor Groups sensor configuration repair setup on `feature/fam-006-monitor-groups-sensor-configuration`; merged main itself remains No Active Branch after PR #161.

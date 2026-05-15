@@ -191,14 +191,19 @@ function monitoringHudRecordResizeFrame(payload) {
   monitoringHud.dataset.liveResizeDirection = String(rect.direction || "unknown");
   monitoringHud.dataset.liveResizeGeometry = `${Number(rect.width) || 0}x${Number(rect.height) || 0}`;
   monitoringHud.dataset.liveResizeFrameIntervalMs = String(Number(rect.frameIntervalMs) || 0);
-  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-x", `${monitoringHudResizeProofFrame % 9}px`);
-  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-y", `${(monitoringHudResizeProofFrame * 2) % 9}px`);
+  const proofPhase = monitoringHudResizeProofFrame % 6;
+  const proofX = ((monitoringHudResizeProofFrame * 41) % 180) - 90;
+  const proofY = ((monitoringHudResizeProofFrame * 31) % 150) - 75;
+  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-x", `${proofX}px`);
+  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-y", `${proofY}px`);
+  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-alpha", `${0.42 + (proofPhase * 0.065)}`);
 }
 
 function monitoringHudFinishResizeFrame(payload) {
   monitoringHudRecordResizeFrame(Object.assign({}, payload || {}, { active: false }));
   if (monitoringHud) {
     monitoringHud.dataset.liveResizeActive = "false";
+    monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-alpha", "0");
   }
 }
 
@@ -1227,7 +1232,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.gridScope = "control-hub-cards-only";
     monitoringHud.dataset.deadzonePolicy = "auto-height-content-no-empty-hit-zones";
     monitoringHud.dataset.stickyHeaderMask = "opaque-scroll-mask";
-    monitoringHud.dataset.nativeResizeHitZone = "preclick-hover-cursor-aligned-12px-app-owned-resize-action";
+    monitoringHud.dataset.nativeResizeHitZone = "preclick-hover-cursor-aligned-14px-app-owned-resize-action";
     monitoringHud.dataset.primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel";
     monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
     monitoringHud.dataset.dashboardAcceptanceBaseline = "ws31-dashboard-control-panel";

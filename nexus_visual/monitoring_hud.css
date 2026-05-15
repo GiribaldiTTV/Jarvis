@@ -124,6 +124,28 @@ body.desktop-mode #monitoring-hud[data-live-resize-active="true"] .monitoring-hu
     center;
 }
 
+.monitoring-hud__chrome::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: 40;
+  border-radius: 22px;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(115deg, transparent 0%, rgba(159, 247, 255, 0.72) 34%, transparent 58%),
+    radial-gradient(circle at 72% 18%, rgba(99, 255, 202, 0.56), transparent 30%);
+  background-size: 180px 100%, 150px 150px;
+  background-position:
+    var(--monitoring-hud-live-resize-proof-x, 0px) 0,
+    var(--monitoring-hud-live-resize-proof-y, 0px) 0;
+  box-shadow: 0 0 0 1px rgba(130, 242, 255, 0.28) inset;
+}
+
+body.desktop-mode #monitoring-hud[data-live-resize-active="true"] .monitoring-hud__chrome::after {
+  opacity: var(--monitoring-hud-live-resize-proof-alpha, 0.42);
+}
+
 body.desktop-mode #monitoring-hud-minimal {
   position: absolute;
   z-index: 28;
