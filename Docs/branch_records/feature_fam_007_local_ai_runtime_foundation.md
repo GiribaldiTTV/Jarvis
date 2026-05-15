@@ -14,7 +14,7 @@
 
 ## Purpose / Why It Exists
 
-This branch is the USER-approved FAM-007 carrier created from current `origin/main` after `v1.7.2-prebeta` was published. It repaired the post-release source-truth canon for PR #152, records the active FAM-007 runtime-foundation branch authority, and now admits the next bounded Workstream sequence without starting runtime implementation.
+This branch is the USER-approved FAM-007 carrier created from current `origin/main` after `v1.7.2-prebeta` was published. It repaired the post-release source-truth canon for PR #152, records the active FAM-007 runtime-foundation branch authority, and now carries the bounded Workstream sequence with continuation active.
 
 The branch exists to avoid reusing historical FAM-007 carriers after PR #152 and to keep FAM-007 work in the dedicated `C:\Nexus Worktrees\FAM-007` worktree. It does not create tags, publish releases, create artifacts, open a PR, merge, call providers, download models, implement memory/indexing, sync voice/Core runtime behavior, mutate shortcuts/installers, import AI Product Contract material, import private Dev ORIN material, create GitHub issues, or touch FAM-006 work.
 
@@ -31,9 +31,9 @@ The branch exists to avoid reusing historical FAM-007 carriers after PR #152 and
 - Worktree Authority: `C:\Nexus Worktrees\FAM-007`
 - Release Closure State: `v1.7.2-prebeta published at 3d38630c63965702bb8839f5e0c5f3b4b008e8bb; PR #152 is released historical FAM-007 local-only scaffold evidence`
 - Post-Release Canon Closure Drift: `Closed on this Branch Readiness carrier`
-- Current Workstream State: `Admitted / blocked before implementation - source-truth admission is recorded, and the first bounded implementation seam requires a specific USER decision before code changes`
+- Current Workstream State: `Admitted / active bounded continuation - source-truth admission is recorded, and same-branch Workstream seams continue one active seam at a time unless Workstream Green, a real named blocker, or USER waiver is recorded`
 - Active Seam: `SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary`
-- Next Active Seam: `SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary - blocker clearing / first bounded implementation seam approval`
+- Next Active Seam: `SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary`
 - Selected Next Workstream: `FAM-007 Local AI Runtime Foundation`
 - Selected Next Implementation Branch: `feature/fam-007-local-ai-runtime-foundation`
 - Package Posture: `PKG-007 admitted / not package-complete`
@@ -78,19 +78,19 @@ Slice Completion State: `Not complete - Branch Readiness Stage 2 plans the next 
 
 Bounded State: `Active - Workstream entry / feature/fam-007-local-ai-runtime-foundation / C:\Nexus Worktrees\FAM-007 / PKG-007 / source-truth admission for the bounded local AI runtime foundation only`
 
-Bounded State User Waiver: `Not required - this Workstream entry pass is bounded by explicit USER approval and does not execute runtime implementation`
+Bounded State User Waiver: `Not required - Workstream entry is approved, bounded same-branch continuation is active, and no USER waiver currently stops or splits the Workstream`
 
 Bounded State Scope:
 
 - Admit the FAM-007 Local AI Runtime Foundation Workstream on the current active branch.
 - Preserve the `v1.7.2-prebeta` post-release canon closure and PR #152 released historical posture.
 - Confirm the same-branch bounded Workstream shape across admitted FAM-007 slices.
-- Identify the first bounded implementation seam and its blocker-clearing decision text.
+- Identify the first bounded implementation seam and keep the continuation latch active.
 - Validate, commit, and push source-truth updates only.
 
 Bounded State Non-Includes:
 
-- Runtime implementation.
+- Runtime implementation beyond the admitted local-only bounded foundation seams.
 - Provider SDK integration, model downloads, model execution, or external provider calls.
 - Memory/indexing implementation.
 - Voice/Core runtime sync.
@@ -137,7 +137,7 @@ Merged-Main Repo State: `No Active Branch after v1.7.2-prebeta release closure; 
 
 ## Workstream Plan
 
-Workstream Entry Status: `Granted for source-truth admission; first bounded implementation seam approval remains pending`
+Workstream Entry Status: `Granted for source-truth admission and bounded same-branch continuation`
 
 Planned bounded Workstream: `FAM-007 Local AI Runtime Foundation`
 
@@ -152,7 +152,7 @@ Planned slices and seam order:
 7. `SLC-035` - persona/Core/voice planning boundary without voice runtime sync.
 8. `SLC-036` - validation/eval/abuse/release proof gates for the local AI foundation.
 
-Workstream Completion Rule: `Once USER approves Workstream entry, work must proceed in bounded same-branch seams until every admitted slice/seam for this Workstream is green or a named blocker/USER waiver stops the Workstream. A single green seam is not a Hardening handoff unless the whole bounded Workstream is green.`
+Workstream Completion Rule: `Once USER approves Workstream entry, work must proceed in bounded same-branch seams until every admitted slice/seam for this Workstream is green or a real named blocker/USER waiver stops the Workstream. A single green seam is not a Hardening handoff unless the whole bounded Workstream is green.`
 
 Initial Runtime Scope Candidate: `Local-only foundation state and user-visible posture; no provider calls, no model execution, no downloads, no memory indexing, and no external data movement.`
 
@@ -162,13 +162,13 @@ Product Vision: `FAM-007 should give Nexus a Windows-first local AI foundation w
 
 User-Facing Goal: `The next runtime foundation work should make the local AI posture clearer and more actionable while preserving provider-disabled, local-only, provider-visible-data none behavior until later USER approvals.`
 
-USER Vision Questions: `No new product-vision question blocks Workstream entry. First seam implementation details remain gated by the next explicit USER approval.`
+USER Vision Questions: `No new product-vision question blocks Workstream entry. First seam implementation details must remain within the admitted local-only bounded scope unless USER grants a waiver or a real blocker is found.`
 
 Codex Product Interpretation: `This branch is the single FAM-007 foundation/runtime carrier for the next admitted PKG-007 continuation so work can proceed seam-to-seam without creating a branch per slice.`
 
-Codex Implementation Recommendation: `Request one specific approval for the first bounded implementation seam: SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary. Do not start provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcuts, installer work, release work, issue creation, PR creation, merge work, or contract import from this source-truth admission pass.`
+Codex Implementation Recommendation: `Execute the first bounded implementation seam: SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary. Do not start provider SDKs, model downloads, memory/indexing, voice/Core sync, shortcuts, installer work, release work, issue creation, PR creation, merge work, or contract import from this bounded local-only Workstream.`
 
-USER/ChatGPT Review Checkpoint: `USER approved Workstream entry/source-truth admission only. ChatGPT may challenge the first implementation seam before code changes begin.`
+USER/ChatGPT Review Checkpoint: `USER approved Workstream entry and bounded same-branch continuation. ChatGPT may challenge evidence, but review commentary is not a stop condition unless it identifies a real named blocker or the USER records a waiver.`
 
 Full Feature Element Breakdown: `SLC-017 no-provider shell and Assisted Desktop Mode; SLC-018 provider boundary, provider selection, consent, privacy-visible state, and provider-visible-data disclosure; SLC-031 hardware/GPU/CPU capability posture and CPU fallback; SLC-032 model/capability-pack lifecycle posture and lean default; SLC-033 data classification, memory/context, consent, audit, and secrets posture; SLC-034 Windows resilience and degraded/offline posture; SLC-035 persona/Core/voice boundary; SLC-036 validation, eval, abuse, privacy, hardware, capability-pack, and release proof gates.`
 
@@ -184,7 +184,7 @@ Why Branch Is Large Enough: `The planned work forms one coherent local AI founda
 
 Why Not Split Into Tiny Branches: `Splitting each PKG-007 slice into separate branches would recreate source-truth churn, worktree confusion, stale-carrier risk, and repeated release-readiness blockers. The legal model is one carrier with bounded Workstream seams.`
 
-Acceptance Criteria: `Workstream entry/source-truth admission is recorded; v1.7.2-prebeta post-release canon remains closed; active branch authority remains recorded; PR #152 remains released historical FAM-007 evidence; FAM-006 remains separate; Workstream plan covers SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036; runtime implementation is not started; validation passes; branch is committed and pushed.`
+Acceptance Criteria: `Workstream entry/source-truth admission is recorded; v1.7.2-prebeta post-release canon remains closed; active branch authority remains recorded; PR #152 remains released historical FAM-007 evidence; FAM-006 remains separate; Workstream plan covers SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036; bounded same-branch Workstream continuation is active; validation passes; branch is committed and pushed.`
 
 Validation Proof Requirements: `git status --short --branch`; `git diff --check origin/main...HEAD`; `python dev\orin_branch_governance_validation.py`; `python dev\orin_ai_provider_state_validation.py`; `python dev\orin_release_body_validation.py`; `python -m compileall -q dev desktop Audio main.py`.
 
@@ -192,9 +192,9 @@ Screenshot / Live / User Test Summary Proof Requirements: `No UTS for Branch Rea
 
 Implementation Sequence Proposal: `After the first bounded implementation approval, proceed in same-branch bounded seams: SLC-017/SLC-018 local no-provider/provider-boundary foundation, SLC-031/SLC-032 local capability and capability-pack posture, SLC-033/SLC-034 data/resilience posture, SLC-035/SLC-036 persona/proof gates, then Hardening only after the whole bounded Workstream is green.`
 
-Planning Blockers: `First Bounded Implementation Seam Approval Missing; provider SDK/model/memory/voice/Core/shortcut/installer/release/contract/issue/PR/merge work remains separate.`
+Planning Blockers: `None for the admitted bounded local-only Workstream; provider SDK/model/memory/voice/Core/shortcut/installer/release/contract/issue/PR/merge work remains separate future USER-gated scope and is not a blocker for bounded same-branch local-only continuation.`
 
-USER Decisions Needed: `Approve implementing Seam 1: SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary on this branch, limited to local-only provider/no-provider foundation state, consent-visible provider posture, provider-visible-data none, no-provider fallback, and direct validation scaffolding.`
+USER Decisions Needed: `None before continuing the admitted bounded local-only Workstream seams. A USER waiver is required only to stop, split, defer, or skip same-branch bounded continuation without Workstream Green or a real named blocker.`
 
 Planning Packet Status: `Complete`
 
@@ -206,7 +206,7 @@ Planning Completion Waiver: `Not required - Branch Readiness Stage 2 is a planni
 
 ## Branch Objective
 
-Carry the FAM-007 Local AI Runtime Foundation from Branch Readiness into Workstream source-truth admission, keep `v1.7.2-prebeta` post-release source truth closed, preserve active branch authority, and define the first bounded implementation seam without starting implementation.
+Carry the FAM-007 Local AI Runtime Foundation from Branch Readiness into bounded Workstream execution, keep `v1.7.2-prebeta` post-release source truth closed, preserve active branch authority, and execute one active same-branch seam at a time until Workstream Green, a real named blocker, or an explicit USER waiver is recorded.
 
 ## Target End-State
 
@@ -215,21 +215,21 @@ Carry the FAM-007 Local AI Runtime Foundation from Branch Readiness into Workstr
 - PR #152 is released historical FAM-007 local-only scaffold evidence.
 - FAM-006 / PR #129 / PR #132 remains separate and USER-gated.
 - PKG-007 remains admitted and not package-complete.
-- Workstream entry is recorded; first bounded implementation seam approval is the next blocker-clearing decision.
+- Workstream entry is recorded; bounded same-branch continuation proceeds with Seam 1 under the admitted Workstream plan unless a real named blocker or USER waiver is recorded.
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Complete Workstream entry/source-truth admission, commit, and push so the first bounded implementation seam can be approved explicitly.`
+Branch Completion Goal: `Complete the admitted bounded same-branch FAM-007 local AI runtime foundation Workstream seams, one active seam at a time, until all planned seams are green or a real blocker/USER waiver is recorded.`
 
 Known Future-Dependent Blockers: `Provider SDK integration, model downloads/execution, external calls, memory/indexing, voice/Core sync, shortcut/installer work, release execution, AI Product Contract import, private Dev ORIN import, GitHub issue work, PR creation, and merge remain future USER approval gates.`
 
-Branch Closure Rule: `This Workstream carrier may not close Workstream until all admitted same-branch seams are green, explicitly waived, deferred, or blocked with named blocker source truth. This admission pass must not claim Workstream Green, Hardening readiness, PR readiness, merge readiness, release readiness, package completion, or approval for future runtime expansion.`
+Branch Closure Rule: `This Workstream carrier may not close Workstream until all admitted same-branch seams are green, explicitly waived/deferred by USER, or blocked with real named blocker source truth. This branch must not claim Workstream Green, Hardening readiness, PR readiness, merge readiness, release readiness, package completion, or approval for future runtime expansion until proof exists.`
 
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
 
-Completion Status: `Red`
+Completion Status: `In Progress`
 
 Remaining Implementable Work: `Multiple remaining bounded seams across admitted slices: SLC-017/SLC-018 provider-boundary foundation, SLC-031/SLC-032 local capability/capability-pack posture, SLC-033/SLC-034 data/resilience posture, and SLC-035/SLC-036 persona/proof gates.`
 
@@ -248,7 +248,7 @@ No User Test Summary is required in Branch Readiness. Future Live Validation mus
 
 ## Later-Phase Expectations
 
-- Workstream: implement only the USER-approved bounded local AI runtime foundation seams until every admitted seam in that Workstream is green or a named blocker/waiver stops it.
+- Workstream: implement bounded local AI runtime foundation seams until every admitted seam in that Workstream is green or a real named blocker/waiver stops it.
 - Hardening: begins only after Workstream Green for the whole bounded Workstream, not after one green seam.
 - Live Validation: classifies UTS as required or waived for Live Validation only.
 - PR Readiness: validates merge-target projection, release-readiness health, PR body firewall, and branch authority before PR creation.
@@ -294,25 +294,25 @@ Active seam: `SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary`
 
 ## Seam Continuation Decision
 
-Seam Status: `Blocked`
+Seam Status: `In Progress`
 
-Slice Status: `Blocked`
+Slice Status: `In Progress`
 
-Completion Status: `Red`
+Completion Status: `In Progress`
 
 Waiver Status: `None`
 
-Continue Decision: `Stop`
+Continue Decision: `Continue`
 
-Continuation Execution Latch: `Inactive - Workstream entry/source-truth admission is recorded, but implementation stops on a named blocker until USER approves the first bounded implementation seam`
+Continuation Execution Latch: `Active - final response is prohibited while same bounded Workstream run continuation remains available; execute the next admitted seam in the same bounded Workstream run unless Workstream Green, a real named blocker, or USER waiver is recorded`
 
-Stop Basis: `Named Blocker`
+Stop Basis: `None`
 
-Next Active Seam: `SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary - blocker clearing / first bounded implementation seam approval`
+Next Active Seam: `SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary`
 
-Stop Condition: `First Bounded Implementation Seam Approval Missing`
+Stop Condition: `None`
 
-Continuation Action: `Return the blocker-clearing decision text for USER approval of Seam 1 local-only implementation; do not perform runtime code changes in this admission-only pass`
+Continuation Action: `Execute the active SLC-017/SLC-018 local-only provider-boundary seam in a bounded Workstream run, validate that seam, then continue to the next admitted same-branch seam until Workstream Green, a real named blocker, or USER waiver is recorded`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -320,7 +320,7 @@ Single-Seam Or Single-Slice Waiver Authority: `USER only - Codex cannot infer si
 
 Single-Seam Or Single-Slice Workstream Blocker: `One seam or one slice visible for a Workstream is a blocker unless USER waiver is recorded; this plan names multiple admitted slices and later bounded seams`
 
-Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Workstream authority; a green seam continues to the next required same-branch seam until the whole Workstream is green or a named blocker/USER waiver stops it`
+Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Workstream authority; a green seam continues to the next required same-branch seam until the whole Workstream is green or a real named blocker/USER waiver stops it`
 
 ## Deferred Work
 
@@ -337,12 +337,11 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Blockers
 
-- `Backlog Completion Unproven`: active because admitted same-branch Workstream seams remain unimplemented.
-- `First Bounded Implementation Seam Approval Missing`: active until USER approves implementing the SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary seam on this branch.
+None. No stop-authorizing Workstream blocker is active. Backlog completion remains a progress latch because admitted same-branch Workstream seams remain unimplemented; it is not authority to stop bounded continuation.
 
 ## Pending USER Decisions
 
-- First bounded Workstream implementation seam: SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary.
+- USER waiver only if bounded same-branch Workstream continuation should stop, split, defer, or skip a seam before Workstream Green and without a real named blocker.
 - PR creation.
 - Merge.
 - Provider SDK/model work.
@@ -389,4 +388,4 @@ Rollback Path: abandon this unmerged Workstream admission carrier before impleme
 
 - `Workstream`
 
-Next Legal Phase Gate: Workstream remains active but blocked before implementation. The exact blocker-clearing decision is USER approval for Seam 1, SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary, limited to local-only provider/no-provider foundation state, consent-visible provider posture, provider-visible-data none, no-provider fallback, and direct validation scaffolding. Provider SDKs, model downloads, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer changes, release work, AI Product Contract import, private Dev ORIN import, PR creation, merge, and GitHub issue creation remain separate USER decisions.
+Next Legal Phase Gate: Workstream remains active and must continue in bounded same-branch seams. The next active seam is SLC-017/SLC-018 Local AI Runtime Foundation Provider Boundary, limited to local-only provider/no-provider foundation state, consent-visible provider posture, provider-visible-data none, no-provider fallback, and direct validation scaffolding. No additional per-seam approval blocker is active. Provider SDKs, model downloads, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer changes, release work, AI Product Contract import, private Dev ORIN import, PR creation, merge, and GitHub issue creation remain separate USER decisions.

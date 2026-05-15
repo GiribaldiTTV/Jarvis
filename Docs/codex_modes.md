@@ -266,6 +266,7 @@ A prompt `Return:` block is an output shape only; it cannot override governed co
 A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
 Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
 Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
+After Workstream entry is admitted, per-seam approval-missing wording such as `First Bounded Implementation Seam Approval Missing` is not a real blocker. Workflow mode must keep bounded Workstream execution moving one active seam at a time until Workstream Green, a real named blocker, or explicit USER waiver is recorded.
 If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.
 `Phase: Workstream` must remain bounded at all times; the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.

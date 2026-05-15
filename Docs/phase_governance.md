@@ -160,6 +160,8 @@ If `Completion Status` is `In Progress` and no named stop-authorizing blocker or
 `Await Next Instruction` is only legal in `Workstream` when `Completion Status: Green`, or when `Completion Status: Red` is justified by a named blocker or waiver.
 
 `Backlog Completion Unproven` keeps the branch in `Workstream`; by itself it is not authority to return `Await Next Instruction` while `Completion Status` remains `In Progress`.
+`Backlog Completion Unproven` is a completion latch, not a stop-authorizing Workstream blocker.
+After Workstream entry is admitted, `First Bounded Implementation Seam Approval Missing`, `Next Bounded Seam Approval Missing`, or equivalent per-seam approval-missing wording is not a real blocker. Bounded Workstream execution continues one active seam at a time until Workstream Green, a real named blocker, or an explicit USER waiver is recorded.
 Use these governed state markers as execution control, not as documentation-only summary fields.
 If `Continue Decision` is `Continue`, Codex must not end on a final seam-closeout response, rollback path, or next-seam recommendation; it must keep executing until a lawful `Stop` decision exists.
 A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.
@@ -1850,7 +1852,7 @@ A bounded stop condition blocks the workflow. It does not by itself authorize sp
 
 `Backlog-Split User Approval` may split an otherwise valid same-branch slice chain across branches only when an explicit USER approval is recorded in source-of-truth, the active authority record, or the operator prompt.
 If no explicit approval is raised and no bounded stop condition is recorded, keep later slices on the same branch by default and advance into them automatically while `Completion Status` remains `In Progress`.
-If a bounded stop condition is recorded but remaining implementable work still exists on the current backlog item, the branch remains in `Workstream` and carries blocker `Backlog Completion Unproven` until continuation can resume or the remaining work is proven future-dependent.
+If a bounded stop condition is recorded but remaining implementable work still exists on the current backlog item, the branch remains in `Workstream` and carries a backlog-completion latch until continuation can resume or the remaining work is proven future-dependent.
 When a backlog split is used, the output or authority record must name:
 
 - `Backlog-Split User Approval: APPROVED`
