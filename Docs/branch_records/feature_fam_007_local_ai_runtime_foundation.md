@@ -511,6 +511,6 @@ Rollback Path: abandon this unmerged Workstream admission carrier before impleme
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
 Next Legal Phase Gate: PR #159 is merged and this branch is historical merged-unreleased FAM-007 scope. After PR #160 closeout reaches updated main and Release Readiness Stage 1 reruns clean, the exact next USER decision is Release Readiness Stage 2 analysis/preparation or release execution. Provider SDKs, model downloads, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer changes, release work, AI Product Contract import, private Dev ORIN import, GitHub issue creation, FAM-006 work, and future FAM-007 successor selection remain separate USER decisions.
