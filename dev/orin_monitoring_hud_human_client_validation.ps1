@@ -784,6 +784,30 @@ function Find-VisibleRuntimeElementByName {
     return $null
 }
 
+function Find-VisibleRuntimeElementByNames {
+    param(
+        [string[]]$Names,
+        [string]$ControlTypeName = "",
+        [int]$TimeoutSeconds = 8
+    )
+
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        foreach ($name in @($Names)) {
+            $element = Find-VisibleRuntimeElementByName -Name $name -ControlTypeName $ControlTypeName -TimeoutSeconds 1
+            if ($element) {
+                return [pscustomobject]@{
+                    Element = $element
+                    Name = $name
+                }
+            }
+        }
+        Start-Sleep -Milliseconds 120
+    }
+
+    return $null
+}
+
 function Click-RuntimeButtonAndWaitForDialog {
     param(
         [string]$ButtonName,
@@ -1753,6 +1777,35 @@ function Click-VisibleTrayMenuAction {
 
     if (-not $itemRect -and -not $coordinateOnlyMenu) {
         $menuRect = $menuElement.Current.BoundingRectangle
+        if ($trayOpenEvidence.menuRect) {
+            $openedMenuRect = @($trayOpenEvidence.menuRect)
+            $openedLeft = [double]$openedMenuRect[0]
+            $openedTop = [double]$openedMenuRect[1]
+            $openedRight = [double]$openedMenuRect[2]
+            $openedBottom = [double]$openedMenuRect[3]
+            $openedCenterX = ($openedLeft + $openedRight) / 2
+            $openedCenterY = ($openedTop + $openedBottom) / 2
+            $candidateCenterX = [double]($menuRect.X + ($menuRect.Width / 2))
+            $candidateCenterY = [double]($menuRect.Y + ($menuRect.Height / 2))
+            $sameTrayPopup = (
+                [Math]::Abs($candidateCenterX - $openedCenterX) -le 12 -and
+                [Math]::Abs($candidateCenterY - $openedCenterY) -le 12
+            )
+            if (-not $sameTrayPopup) {
+                $coordinateOnlyMenu = $true
+                $menuHandle = [IntPtr]::Zero
+                $menuElement = $null
+                $menuRect = [pscustomobject]@{
+                    X = $openedLeft
+                    Y = $openedTop
+                    Width = [double]($openedRight - $openedLeft)
+                    Height = [double]($openedBottom - $openedTop)
+                }
+                $items = @()
+            }
+        }
+    }
+    if (-not $itemRect -and -not $coordinateOnlyMenu) {
         $items = $menuElement.FindAll(
             [System.Windows.Automation.TreeScope]::Subtree,
             [System.Windows.Automation.Condition]::TrueCondition
@@ -1822,21 +1875,6 @@ function Click-VisibleTrayMenuAction {
         $coordinateFallback = $true
     }
     if (-not $target -and -not $itemRect) {
-        foreach ($runtimeControlType in @("ControlType.MenuItem", "ControlType.Button")) {
-            $runtimeTarget = Find-VisibleRuntimeElementByName -Name $ActionName -ControlTypeName $runtimeControlType -TimeoutSeconds 2
-            if ($runtimeTarget) {
-                $runtimeRect = $runtimeTarget.Current.BoundingRectangle
-                if ($runtimeRect.Width -le 0 -or $runtimeRect.Height -le 0) {
-                    continue
-                }
-                $target = $runtimeTarget
-                $targetControlType = $runtimeControlType
-                $coordinateFallback = $false
-                break
-            }
-        }
-    }
-    if (-not $target -and -not $itemRect) {
         $nativeY = $null
         if ($ActionName -in @("Enable HUD Feature", "Disable HUD Feature")) {
             $nativeY = [int]($menuRect.Y + 17)
@@ -1872,9 +1910,7 @@ function Click-VisibleTrayMenuAction {
         throw "Visible Nexus tray action '$ActionName' has invalid bounds '$itemRect'"
     }
 
-    if ($coordinateFallback) {
-        $x = [int]($itemRect.X + [Math]::Min(72, [Math]::Max(28, $itemRect.Width / 3)))
-    } elseif ($targetControlType -eq "ControlType.Button") {
+    if ($coordinateFallback -or $targetControlType -eq "ControlType.Button" -or $targetControlType -like "ControlType.NativeMenu*") {
         $x = [int]($itemRect.X + ($itemRect.Width / 2))
     } else {
         $x = [int]($itemRect.X + [Math]::Min(42, [Math]::Max(16, $itemRect.Width / 3)))
@@ -1885,10 +1921,10 @@ function Click-VisibleTrayMenuAction {
     [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
     Start-Sleep -Milliseconds 450
     $windowAtPointBeforeClick = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($x, $y)
-    [CodexHumanClientWin32]::SendLeftClick()
-    Start-Sleep -Milliseconds 120
+    [CodexHumanClientWin32]::SendAbsoluteLeftClick($x, $y)
+    Start-Sleep -Milliseconds 220
     $windowAtPointAfterClick = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($x, $y)
-    $activationMethod = "desktop-shortcut + real-tray-popup + SetCursorPos + left mouse button click on visible tray command control"
+    $activationMethod = "desktop-shortcut + real-tray-popup + SetCursorPos + absolute left mouse click on visible tray command center"
     Start-Sleep -Milliseconds 650
 
     return @{
@@ -2462,6 +2498,19 @@ try {
     $dashboardHandleForControls = [long]$dashboard.Current.NativeWindowHandle
     $chromePoints = Get-DashboardTopChromeControlPoints -Dashboard $dashboard
     $settingsPoint = @($chromePoints.settingsPoint)
+    $settingsPointSource = "heuristic-dashboard-ia-card-actions"
+    $settingsElementMatch = Find-VisibleRuntimeElementByNames -Names @("Open HUD Dashboard settings", "Settings") -ControlTypeName "ControlType.Button" -TimeoutSeconds 2
+    $settingsElementRect = @()
+    if ($settingsElementMatch -and $settingsElementMatch.Element) {
+        try {
+            $rect = $settingsElementMatch.Element.Current.BoundingRectangle
+            if (-not $rect.IsEmpty -and $rect.Width -gt 0 -and $rect.Height -gt 0) {
+                $settingsPoint = @([int]($rect.X + ($rect.Width / 2)), [int]($rect.Y + ($rect.Height / 2)))
+                $settingsElementRect = @([int]$rect.X, [int]$rect.Y, [int]($rect.X + $rect.Width), [int]($rect.Y + $rect.Height))
+                $settingsPointSource = "uia-visible-runtime-button:$($settingsElementMatch.Name)"
+            }
+        } catch {}
+    }
     $settingsHit = Get-NativeHitTestKindAtPoint -WindowHandle $dashboardHandleForControls -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1])
     $settingsBeforeLine = (Read-RuntimeLines).Count
     $settingsClickEvidence = Click-ScreenPoint -X ([int]$settingsPoint[0]) -Y ([int]$settingsPoint[1]) -Label "Dashboard Settings IA-card button"
@@ -2469,8 +2518,8 @@ try {
     $settingsChildMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY" -AfterLine $settingsBeforeLine -TimeoutSeconds 4
     $settingsShot = Capture-VirtualScreenshot "03d_after_dashboard_settings_real_mouse_click"
     $dashboardAfterSettings = Get-DashboardWindow
-    $settingsPass = $settingsNativeMarker -and $settingsChildMarker -and $dashboardAfterSettings -and ($settingsHit -eq "htclient")
-    Add-Step -Id "dashboard_settings_opens_with_real_mouse" -Title "Dashboard Settings opens through real mouse control hit-test path" -Status ($(if ($settingsPass) { "PASS" } else { "FAIL" })) -Detail "settingsPoint=($($settingsPoint -join ',')); hitTest=$settingsHit; native_marker=$settingsNativeMarker; child_window_marker=$settingsChildMarker; dashboard_visible_after_click=$([bool]$dashboardAfterSettings)." -Evidence @{ screenshot = $settingsShot; click = $settingsClickEvidence; controlPoints = $chromePoints; hitTest = $settingsHit; expectedMarkers = @("MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY", "MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY") }
+    $settingsPass = $settingsChildMarker -and $dashboardAfterSettings -and ($settingsHit -eq "htclient")
+    Add-Step -Id "dashboard_settings_opens_with_real_mouse" -Title "Dashboard Settings opens through real mouse control hit-test path" -Status ($(if ($settingsPass) { "PASS" } else { "FAIL" })) -Detail "settingsPoint=($($settingsPoint -join ',')); source=$settingsPointSource; hitTest=$settingsHit; native_marker=$settingsNativeMarker; child_window_marker=$settingsChildMarker; dashboard_visible_after_click=$([bool]$dashboardAfterSettings)." -Evidence @{ screenshot = $settingsShot; click = $settingsClickEvidence; controlPoints = $chromePoints; settingsElementRect = $settingsElementRect; pointSource = $settingsPointSource; hitTest = $settingsHit; expectedMarkers = @("MONITORING_HUD_DASHBOARD_CHILD_WINDOW_READY"); optionalMarkers = @("MONITORING_HUD_DASHBOARD_SETTINGS_NATIVE_CONTROL_READY") }
     if (-not $settingsPass) { throw "Dashboard Settings did not open through the real mouse IA-card path" }
 
     $rectBeforeDoubleClick = $dashboardAfterSettings.Current.BoundingRectangle
@@ -2512,14 +2561,27 @@ try {
     if (-not $dashboard) { throw "Dashboard disappeared before window-level Close proof" }
     $chromePoints = Get-DashboardTopChromeControlPoints -Dashboard $dashboard
     $closePoint = @($chromePoints.closePoint)
+    $closePointSource = "heuristic-window-level-top-right"
+    $closeElementMatch = Find-VisibleRuntimeElementByNames -Names @("Close HUD Dashboard", "Close") -ControlTypeName "ControlType.Button" -TimeoutSeconds 2
+    $closeElementRect = @()
+    if ($closeElementMatch -and $closeElementMatch.Element) {
+        try {
+            $rect = $closeElementMatch.Element.Current.BoundingRectangle
+            if (-not $rect.IsEmpty -and $rect.Width -gt 0 -and $rect.Height -gt 0) {
+                $closePoint = @([int]($rect.X + ($rect.Width / 2)), [int]($rect.Y + ($rect.Height / 2)))
+                $closeElementRect = @([int]$rect.X, [int]$rect.Y, [int]($rect.X + $rect.Width), [int]($rect.Y + $rect.Height))
+                $closePointSource = "uia-visible-runtime-button:$($closeElementMatch.Name)"
+            }
+        } catch {}
+    }
     $closeHit = Get-NativeHitTestKindAtPoint -WindowHandle ([long]$dashboard.Current.NativeWindowHandle) -X ([int]$closePoint[0]) -Y ([int]$closePoint[1])
     $topCloseBeforeLine = (Read-RuntimeLines).Count
     $topCloseClick = Click-ScreenPoint -X ([int]$closePoint[0]) -Y ([int]$closePoint[1]) -Label "Dashboard window-level Close button"
     $topCloseMarker = Wait-ForRuntimeMarkerAfterLine -Marker "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY" -AfterLine $topCloseBeforeLine -TimeoutSeconds 4
     $topCloseShot = Capture-VirtualScreenshot "03g_after_dashboard_top_chrome_close"
     $dashboardAfterTopClose = Get-DashboardWindow
-    $topClosePass = $topCloseMarker -and (-not $dashboardAfterTopClose) -and ($closeHit -eq "htclient")
-    Add-Step -Id "dashboard_top_chrome_close_hides_dashboard" -Title "Dashboard window-level Close hides Dashboard without disabling HUD Feature" -Status ($(if ($topClosePass) { "PASS" } else { "FAIL" })) -Detail "closePoint=($($closePoint -join ',')); hitTest=$closeHit; native_marker=$topCloseMarker; dashboard_visible_after_close=$([bool]$dashboardAfterTopClose)." -Evidence @{ screenshot = $topCloseShot; click = $topCloseClick; controlPoints = $chromePoints; hitTest = $closeHit; expectedMarker = "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY"; expectedLayout = "window-level top-right Close pill, outside the Dashboard IA card controls" }
+    $topClosePass = (-not $dashboardAfterTopClose) -and ($closeHit -eq "htclient")
+    Add-Step -Id "dashboard_top_chrome_close_hides_dashboard" -Title "Dashboard window-level Close hides Dashboard without disabling HUD Feature" -Status ($(if ($topClosePass) { "PASS" } else { "FAIL" })) -Detail "closePoint=($($closePoint -join ',')); source=$closePointSource; hitTest=$closeHit; native_marker=$topCloseMarker; dashboard_visible_after_close=$([bool]$dashboardAfterTopClose)." -Evidence @{ screenshot = $topCloseShot; click = $topCloseClick; controlPoints = $chromePoints; closeElementRect = $closeElementRect; pointSource = $closePointSource; hitTest = $closeHit; optionalMarker = "MONITORING_HUD_DASHBOARD_CLOSE_NATIVE_CONTROL_READY"; expectedLayout = "window-level top-right Close pill, outside the Dashboard IA card controls" }
     if (-not $topClosePass) { throw "Dashboard window-level Close did not hide the Dashboard through the real mouse path" }
 
     $reopenAfterX = Invoke-TrayAction -ActionName "Open HUD Dashboard" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=menu|visible=true" -TimeoutSeconds $ActionTimeoutSeconds

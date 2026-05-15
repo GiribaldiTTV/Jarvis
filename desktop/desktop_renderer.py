@@ -81,6 +81,7 @@ WM_NCLBUTTONDOWN = 0x00A1
 WM_NCLBUTTONUP = 0x00A2
 WM_NCLBUTTONDBLCLK = 0x00A3
 WM_MOUSEMOVE = 0x0200
+WM_LBUTTONDOWN = 0x0201
 WM_LBUTTONUP = 0x0202
 WM_CAPTURECHANGED = 0x0215
 VK_LBUTTON = 0x01
@@ -12092,6 +12093,13 @@ class DesktopRuntimeWindow(QWidget):
                         self._set_monitoring_hud_resize_cursor(edges)
                     elif message_id == WM_MOUSEMOVE:
                         self._reset_monitoring_hud_resize_cursor()
+                if message_id == WM_LBUTTONDOWN:
+                    screen_point = self._monitoring_hud_cursor_screen_point()
+                    if not screen_point.isNull():
+                        if self._handle_monitoring_hud_dashboard_settings_native_control(screen_point):
+                            return True, 0
+                        if self._handle_monitoring_hud_dashboard_close_native_control(screen_point):
+                            return True, 0
                 if message_id == WM_NCLBUTTONDOWN:
                     edges = self._monitoring_hud_native_resize_edges_for_hit_test(int(msg.wParam))
                     screen_point = self._monitoring_hud_cursor_screen_point()

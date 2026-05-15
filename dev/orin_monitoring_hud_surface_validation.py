@@ -861,6 +861,8 @@ def validate() -> list[str]:
         "settings_window_right=settings_window_right",
         "settings_window_bottom=settings_window_bottom",
         "MONITORING_HUD_NATIVE_HEADER_DOUBLE_CLICK_SUPPRESSED",
+        "WM_LBUTTONDOWN",
+        "message_id == WM_LBUTTONDOWN",
         "MONITORING_HUD_VISIBLE_SHOW_GUARD_ARMED",
         "MONITORING_HUD_VISIBLE_SHOW_GUARD_RELEASED",
         "CORE_VISUALIZATION_FIRST_VISIBLE_DEFERRED",

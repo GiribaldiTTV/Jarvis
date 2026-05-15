@@ -457,7 +457,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     # evidence stays in manifests and source truth.
     $content = @"
 Nexus Desktop AI - User Test Summary
-Workstream: FAM-006 Dashboard Settings Panel
+Workstream: FAM-006 Monitor Groups Sensor Configuration
 Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: $currentBranch
 Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
@@ -481,36 +481,37 @@ Step 1 - Launch From Red FAM-006 Shortcut
 Expected: The shortcut launches the FAM-006 worktree build and the app/tray settle normally.
 USER Result / Notes:
 
-Step 2 - Open HUD Dashboard From Tray
-Expected: Enable/Open HUD Dashboard makes the Dashboard visible and usable.
+Step 2 - Open Dashboard And Monitor Groups
+Expected: Enable/Open HUD Dashboard makes the Dashboard visible, and Monitor Groups opens the real Manage Monitors flow.
 USER Result / Notes:
 
-Step 3 - #123 First-Open Stability
-Expected: During the first 1-2 seconds, the Dashboard does not show a full-window flicker, blank flash, or late geometry snap.
+Step 3 - Manage Monitors List And Create
+Expected: The Manage Monitors window shows a created monitor list and includes an in-window Create button so you do not need to return to the Dashboard card.
 USER Result / Notes:
 
-Step 4 - #127 Move / Resize Cursor And Smoothness
-Expected: Moving the Dashboard at normal USER speed does not skip or visibly lag. Resize cursors appear at the visible right edge, bottom edge, and bottom-right corner before click/drag, the rounded corner exposes an easy diagonal resize zone, and resize tracks smoothly without obvious catch-up lag.
+Step 4 - Edit Monitor Settings
+Expected: Selecting Edit opens that monitor's specific settings, including group name, enabled state, polling interval, supported sensor/data-source assignment, and per-sensor display settings where available.
 USER Result / Notes:
 
-Step 5 - Dashboard Settings Panel
-Expected: Settings opens with one click, double-clicking Settings does not maximize the Dashboard, and Done/Close returns to the Dashboard while it stays usable.
+Step 5 - Delete Confirmation And Cancel
+Expected: Delete opens a confirmation prompt. Cancel closes the prompt and preserves the monitor in the list.
 USER Result / Notes:
 
-Step 6 - Dashboard Window-Level Close
-Expected: The Close pill sits at the top-right as a whole-window control, hides only the Dashboard, and tray Open HUD Dashboard brings it back.
+Step 6 - Delete Confirmation And Remove
+Expected: Confirm removes only the selected monitor, closes the confirmation prompt, and leaves the Manage Monitors flow usable.
 USER Result / Notes:
 
-Step 7 - #137 Dashboard Rounded Corners On Light Background
-Expected: With a white or light window behind the Dashboard, the rounded corners show the backdrop cleanly and no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
+Step 7 - Truthful Sensor Availability
+Expected: Supported sources are selectable. Provider-required or future/deferred sources are clearly labeled and do not pretend to be active.
 USER Result / Notes:
 
-Step 8 - Quick Access Warning Notifications
-Expected: The Warning Notifications button is readable, not shadowed or pinched from the top, and still works as a quick access control.
+Step 8 - Dashboard Control Regressions
+Expected: Dashboard Settings, window-level Close, Warning Notifications, and tray Open/Close still behave normally while Monitor Groups is available.
 USER Result / Notes:
 
 Step 9 - Regression Sweep
-Expected: Create Monitor, Edit Monitor, NCP tray icon left-click open/close, tray menu Open/Close Command Overlay state, scroll gutter, tray enable/disable, and tray Exit confirmation still behave normally.
+Expected: First-open stability, move/resize smoothness, resize cursor discoverability, rounded corners, scroll gutter, Create/Edit Monitor legacy entry points, NCP tray open/close, and tray Exit confirmation still behave normally.
+Regression checkpoints include: Step 7 - #137 Dashboard Rounded Corners On Light Background; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 USER Result / Notes:
 
 Step 10 - Closing Additions
