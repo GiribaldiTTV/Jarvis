@@ -153,6 +153,16 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Recordings are saved locally by default",
         "enabled, visible, recorded, warning-enabled, or hidden independently",
         "no runtime recording, Overlay Profile UI, tray recording controls, export/share behavior",
+        "## Returned UTS FAIL Repair Setup Admission",
+        "Repair Setup Status: `ADMITTED - Branch Readiness Stage 2`",
+        "current-main reconciliation is complete",
+        "Dashboard resize/move live render smoothness",
+        "shrink and grow resize visual continuity",
+        "during-drag frame, pixel-signature, or video-style proof before mouse release",
+        "Manage Monitors scalable split layout",
+        "Nexus-styled scrollbars in child windows, monitor list, detail pane, sensor tree, sensor result list, and sensor preview/details pane",
+        "large-monitor and large-source fixtures",
+        "PR Readiness remains blocked pending repair implementation",
     ):
         _require_contains(
             monitor_groups_record,

@@ -27,15 +27,15 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 ## Current Phase
 
-Phase: `Live Validation`
+Phase: `Branch Readiness`
 
-Stage: `Live Validation Stage 1 - returned UTS FAIL repair planning`
+Stage: `Branch Readiness Stage 2 - returned UTS FAIL repair setup`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Workstream implementation is complete and Hardening H1 is green for the USER-approved FAM-006 Monitor Groups sensor-configuration runtime seam. Live Validation Stage 1 has USER approval and has real red-shortcut human-client proof PASS plus active-client UTS handoff proof PASS, but the returned USER UTS result is FAIL. Current Live Validation Seam: `Returned UTS FAIL repair planning - resize/render-freeze proof and Manage Monitors scalability repair required`. Current PR Readiness Seam: `Blocked until returned UTS FAIL path is repaired, revalidated, and digested`. Current Release Readiness Seam: `Not started`.
+Workstream implementation is complete and Hardening H1 is green for the USER-approved FAM-006 Monitor Groups sensor-configuration runtime seam. Live Validation Stage 1 has USER approval and has real red-shortcut human-client proof PASS plus active-client UTS handoff proof PASS, but the returned USER UTS result is FAIL. Current-main reconciliation is complete at `ee2435c5f99fd5951f09bb3481e45a77fb7d6173` with `origin/main` `09b44c1923c9e1b032f08a2c19ae0527ed185047` as an ancestor of the branch. Current Branch Readiness Seam: `Returned UTS FAIL repair setup - source truth and validator planning admitted before implementation`. Current PR Readiness Seam: `Blocked until returned UTS FAIL path is repaired, revalidated, and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -86,6 +86,10 @@ Backlog-Split Reason: `None`
 
 Product Vision: `Monitor Groups should become the USER-facing place to create and manage logical monitoring groups, choose the available sensor/data sources that belong in those groups, and configure supported per-sensor monitor settings before those groups are displayed elsewhere.`
 
+Project-Wide Vision Alignment: `Nexus Desktop AI should keep monitoring configuration truthful, local-first, and inspectable before expanding overlay display, recording, provider, or AI Product surfaces. This branch strengthens the monitoring configuration layer without implying unsupported provider telemetry, overlay acceptance, recording runtime, or external export behavior.`
+
+Branch-Specific Vision Alignment: `The Monitor Groups branch owns the USER-facing management path for configured monitors, monitor groups, supported source assignment, and direct proof of scalable management UI. It does not own overlay visibility, recording selection, provider expansion, external telemetry parity, or app-wide theming.`
+
 User-Facing Goal: `Give the USER a clear Monitor Groups management flow with created monitors listed, Create available from the manage/edit window, Edit opening monitor-specific settings, and Delete protected by confirmation.`
 
 USER Vision Questions: `No open questions for Stage 2 setup. Runtime implementation must stop for USER decision if sensor/data-source support is broader than current runtime truth, if Overlay display ownership is required, or if app-wide Theme/Skins scope becomes necessary.`
@@ -94,9 +98,25 @@ Codex Product Interpretation: `The Monitor Groups branch should focus on data/se
 
 Codex Implementation Recommendation: `Implement the Monitor Groups manage/edit flow first, backed by truthful available sensor/data-source capability state and validators. Keep Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, provider expansion, and Overlay visual customization deferred until monitor data structures, source discovery, and group membership are stable and separately admitted.`
 
+Codex Additional Recommendations: `For the returned UTS repair, prioritize perceived live smoothness proof over geometry-only proof, and redesign Manage Monitors around a scalable split layout with searchable/filterable source discovery. Add fixture-heavy validation that proves hundreds of monitors and thousands of source entries remain navigable without relying on every item being visible at once.`
+
 USER/ChatGPT Review Checkpoint: `In progress - USER returned compact UTS FAIL for resize/move smoothness and Manage Monitors scalability/scrollbar findings. Repair planning remains active before PR Readiness.`
 
+USER Critique Loop: `USER reported that Steps 1-8 passed, Step 9 still failed on resize/move smoothness with worst shrink freeze/catch-up behavior, and Step 10 failed because Manage Monitors had native-looking scrollbars and weak large-inventory scalability. This Stage 2 setup treats that critique as the active repair authority.`
+
+USER Decision Ledger: `USER approved Branch Readiness Stage 2 repair setup only. Runtime repair implementation, GitHub issue #127 mutation, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
+
 Full Feature Element Breakdown: `Monitor group list; created monitor rows; Create button inside manage/edit window; per-monitor Edit action; per-monitor Delete action; delete confirmation prompt; monitor-specific settings panel; searchable/filterable Sensor Library source discovery planning; sensor/data-source assignment; per-sensor settings where supported; empty/no-sensor truthful state; Overlay Profile planning; Recording Profile planning; validation and UTS proof hooks.`
+
+System Concept Model: `Sensor Library exposes available or planned data sources; monitors are configured tracked items; Monitor Groups organize monitor collections; Overlay Profiles later choose visible monitors and layout; Recording Profiles later choose monitors or sensors to log. This branch repairs the Monitor Groups management surface and proof gates while preserving other concepts as future-gated boundaries.`
+
+Entity / Profile Model: `Sensor Library = all available or planned data sources; Monitor = one configured tracked item; Monitor Group = organization/configuration collection; Overlay Profile = selected monitors plus layout visible on overlay; Recording Profile = selected monitors or sensors logged to file. A monitor may later be enabled, visible, recorded, warning-enabled, or hidden independently.`
+
+User Workflow Model: `USER opens Dashboard, opens Monitor Groups / Manage Monitors, scans or filters created monitors and source choices, creates a monitor, edits monitor-specific settings, assigns a supported source, reviews provider-required/deferred sources truthfully, and deletes only after a confirmation prompt. The returned repair also requires the Dashboard to remain visually smooth while moving or resizing.`
+
+Scale / Data Volume Model: `Manage Monitors must scale to hundreds of monitors and thousands of data sources using scannable panes, search/filter controls, Nexus-styled scrollbars, and fixture validation. The UI should not require all monitors or all source entries to render visibly at once to remain usable.`
+
+Configuration And State Model: `Monitor configuration includes group membership, enabled state, polling interval, supported source assignment, and supported per-sensor display/warning settings. Overlay visibility, recording inclusion, recording output, export/share, provider expansion, and app-wide theme state remain separate future models.`
 
 Current Branch vs Future Package Boundaries: `Current branch owns Monitor Groups membership, sensor configuration, searchable/filterable Sensor Library planning, and source-truth admission for profile-model boundaries. Monitor Groups remain organization/configuration only and do not own overlay visibility or recording selection. Future Overlay Profile runtime owns selected monitors plus Overlay layout/visibility. Future Recording Profile runtime owns selected monitors or sensors logged to local files. Future HUD Overlay customization owns visual display of groups/sensors, colors, borders, text presentation, presets, and Overlay-specific font/display choices. Future NDAI Theme/Skins owns app-wide uniform reskin behavior only after separate USER admission.`
 
@@ -112,11 +132,15 @@ Why Not Split Into Tiny Branches: `The USER-facing flow needs list management an
 
 Acceptance Criteria: `Monitor Groups manage/edit flow lists created monitors; Create is available inside the manage/edit window; Edit opens monitor-specific settings; Delete asks for confirmation; available sensor/data-source assignment is truthful; per-sensor settings appear only when supported; source truth distinguishes Sensor Library, Monitor, Monitor Group, Overlay Profile, and Recording Profile; existing Dashboard controls regressions are guarded; no Overlay Profile runtime, Recording Profile runtime, Overlay display acceptance, tray recording controls, export/share behavior, or app-wide theme work is implied.`
 
+Expected User-Facing Outcomes: `After repair implementation and revalidation, the USER should see smoother Dashboard movement and grow/shrink resize behavior during drag, plus a Manage Monitors window that feels Nexus-styled and usable with large monitor/source inventories. PR Readiness should remain unavailable until those outcomes are proven or explicitly waived.`
+
 Validation Proof Requirements: `Static HUD validator, internal sandbox validator, branch governance validation, release body validation, compileall, and later runtime-specific Monitor Groups proof beyond marker presence. Source-truth validation must distinguish Monitor Group, Overlay Profile, and Recording Profile concepts, and future validator planning must prove a monitor can be enabled, visible, recorded, warning-enabled, or hidden independently without requiring runtime recording controls before separate USER admission.`
 
 Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation should provide user-visible proof of list/create/edit/delete/confirm/sensor assignment behavior, then Hardening and Live Validation should use the real USER-facing launcher/shortcut path and a compact UTS handoff if USER-facing behavior is changed.`
 
 Implementation Sequence Proposal: `Inspect current Create/Edit Monitor windows; design the manage/edit list and confirmation flow; wire truthful sensor/data-source capability state; update validators; run Workstream validation; then request Hardening.`
+
+Deferred Ideas / Future Package Ledger: `Overlay Profile runtime, Recording Profile runtime, tray recording controls, local recording output, export/share actions, provider expansion, Overlay acceptance, external telemetry parity, FAM-007 runtime work, AI Product work, and NDAI-wide Theme/Skins are deferred future packages or separately gated work. They must not be implemented by this repair setup.`
 
 Planning Blockers: `Returned USER UTS Results FAIL`; `Resize/Move Render Freeze Repair Pending`; `Manage Monitors Scalability Repair Pending`; `Overlay Profile Runtime Approval Missing`; `Recording Profile Runtime Approval Missing`; `Tray Recording Controls Approval Missing`; `Export/Share Runtime Approval Missing`; `Overlay Acceptance Approval Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `External Telemetry Parity Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
 
@@ -126,7 +150,29 @@ Planning Packet Status: `Complete`
 
 Planning Revalidation Status: `PASS`
 
+Planning Completion Waiver: `Not required - required product/system/profile/workflow/scale/state planning fields are recorded for this branch-local Stage 2 repair setup.`
+
 User Test Summary Strategy: `No UTS is generated during Stage 2 setup. Runtime implementation should prepare a compact step-based UTS only when user-facing behavior is ready for Live Validation. The current compact UTS returned FAIL, so PR Readiness remains blocked until the resize/render-freeze and Manage Monitors scalability findings are repaired and revalidated or explicitly waived.`
+
+## Returned UTS FAIL Repair Setup Admission
+
+Repair Setup Status: `ADMITTED - Branch Readiness Stage 2`
+
+Current-Main Reconciliation Confirmation: `PASS - current-main reconciliation is complete, clean, pushed, validation-green, and origin/main 09b44c1923c9e1b032f08a2c19ae0527ed185047 is an ancestor of the FAM-006 branch.`
+
+Returned UTS Scope Admitted: `Returned UTS Steps 1-8 passed; Step 9 failed Dashboard resize/move smoothness, especially shrink behavior where rendering appears frozen until resize completes; Step 10 failed Manage Monitors design/scalability because the scrollbar appears native Windows styled and the flow does not scale to hundreds of monitors and thousands of data sources.`
+
+Resize/Move Repair Scope: `Dashboard resize/move live render smoothness; shrink and grow resize visual continuity; during-drag frame, pixel-signature, or video-style proof before mouse release; proof must show the Dashboard renders during drag rather than only after mouse release.`
+
+Manage Monitors Repair Scope: `Manage Monitors scalable split layout; Nexus-styled scrollbars in child windows, monitor list, detail pane, sensor tree, sensor result list, and sensor preview/details pane; large-monitor and large-source fixtures for hundreds of monitors and thousands of data sources; searchable/filterable Sensor Library scale requirements already admitted in source truth.`
+
+Profile Boundary Preservation: `Monitor Groups remain organization/configuration only. Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, provider expansion, Overlay acceptance, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
+
+Validator Planning Update: `Directly supporting validators must prove shrink and grow resize continuity, during-drag render evidence before mouse release, Nexus-styled scrollbar usage in Manage Monitors panes, and large fixture behavior beyond marker-only proof.`
+
+PR Readiness Blocker State: `PR Readiness remains blocked pending repair implementation, Hardening as needed, refreshed Live Validation, and returned USER UTS PASS or explicit waiver with reason digested into source truth.`
+
+Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to Dashboard resize/move live render smoothness, shrink/grow during-drag visual proof, Manage Monitors scalable split layout, Nexus-styled scrollbars, large monitor/source fixtures, directly supporting validators/source truth, validation, commit, and push.`
 
 ## Sensor Library And Profile Planning Admission
 

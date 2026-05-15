@@ -15388,6 +15388,16 @@ def main() -> int:
         "enabled, visible, recorded, warning-enabled, or hidden independently",
         "no runtime recording, Overlay Profile UI, tray recording controls, export/share behavior",
         "returned USER UTS FAIL",
+        "## Returned UTS FAIL Repair Setup Admission",
+        "Repair Setup Status: `ADMITTED - Branch Readiness Stage 2`",
+        "current-main reconciliation is complete",
+        "Dashboard resize/move live render smoothness",
+        "shrink and grow resize visual continuity",
+        "during-drag frame, pixel-signature, or video-style proof before mouse release",
+        "Manage Monitors scalable split layout",
+        "Nexus-styled scrollbars in child windows, monitor list, detail pane, sensor tree, sensor result list, and sensor preview/details pane",
+        "large-monitor and large-source fixtures",
+        "PR Readiness remains blocked pending repair implementation",
     ):
         require(
             required_phrase in fam006_monitor_groups_record_text,
