@@ -11926,10 +11926,25 @@ def _git_output_at(cwd: Path, args: tuple[str, ...]) -> tuple[str, str]:
     return completed.stdout.strip(), ""
 
 
+def _git_fetch_origin_at(cwd: Path) -> str:
+    completed = subprocess.run(
+        ("git", "fetch", "origin", "--prune"),
+        cwd=cwd,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return completed.stderr.strip() or completed.stdout.strip() or "git fetch failed"
+    return ""
+
+
 def _neutral_main_workspace_truth() -> dict[str, str]:
     if not NEUTRAL_MAIN_WORKSPACE.exists():
         return {"error": f"{NEUTRAL_MAIN_WORKSPACE} does not exist"}
 
+    fetch_error = _git_fetch_origin_at(NEUTRAL_MAIN_WORKSPACE)
     root, root_error = _git_output_at(NEUTRAL_MAIN_WORKSPACE, ("rev-parse", "--show-toplevel"))
     branch, branch_error = _git_output_at(NEUTRAL_MAIN_WORKSPACE, ("branch", "--show-current"))
     status, status_error = _git_output_at(
@@ -11943,7 +11958,14 @@ def _neutral_main_workspace_truth() -> dict[str, str]:
     )
     errors = [
         error
-        for error in (root_error, branch_error, status_error, head_error, origin_main_error)
+        for error in (
+            fetch_error,
+            root_error,
+            branch_error,
+            status_error,
+            head_error,
+            origin_main_error,
+        )
         if error
     ]
     return {
