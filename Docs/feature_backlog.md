@@ -64,7 +64,7 @@ FB-038 remains released and closed in `v1.4.1-prebeta`.
 
 Released Historical Scope: FAM-006 Monitoring HUD Dashboard Product Surface released in v1.7.0-prebeta through PR #118; FAM-006 Dashboard render/layout hardening PR #129, Dashboard IA/control follow-through PR #132, Dashboard settings-panel runtime PR #142, and FAM-007 PR #138 provider-boundary / no-provider shell scaffold support released in v1.7.1-prebeta; FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, merged governance/automation proof package, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta.
 Repo State: No Active Branch.
-Merged-Main Repo State: No Active Branch after PR #152; the standing release-readiness intake lane exists separately at `feature/release-readiness-source-truth-intake` / `C:\Nexus Worktrees\Governance` with Active RRI Cycle: RRI-20260514-007 during this repair.
+Merged-Main Repo State: No Active Branch after PR #152; the standing release-readiness intake lane exists separately at `feature/release-readiness-source-truth-intake` / `C:\Nexus Worktrees\Governance` with Active RRI Cycle: None after RRI-20260514-007 closeout.
 Latest Public Prerelease: v1.7.1-prebeta.
 Latest Public Release Commit: 47134640381909e9eec7127d4e826ee68b182ffb.
 Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.1-prebeta.
