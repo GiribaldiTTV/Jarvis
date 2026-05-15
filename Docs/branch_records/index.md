@@ -106,6 +106,7 @@ Do not use this layer to replace:
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md`
 - `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md`
 - `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md`

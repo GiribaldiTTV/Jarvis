@@ -6038,8 +6038,18 @@ def _validate_governed_output_state(
     normalized_latch = continuation_latch.strip().casefold()
     normalized_stop_basis = stop_basis.strip().casefold()
     normalized_next_active_seam = next_active_seam.strip().casefold()
-    next_bounded_seam_approval_blocker_active = any(
+    per_seam_approval_blocker_active = any(
         blocker.casefold() == "next bounded seam approval missing"
+        or blocker.casefold() == "first bounded implementation seam approval missing"
+        or (
+            "bounded" in blocker.casefold()
+            and "seam" in blocker.casefold()
+            and "approval missing" in blocker.casefold()
+        )
+        or (
+            "implementation seam" in blocker.casefold()
+            and "approval missing" in blocker.casefold()
+        )
         for blocker in blockers
     )
     stop_authorizing_blockers = [
@@ -6097,11 +6107,12 @@ def _validate_governed_output_state(
         ),
     )
     require(
-        not next_bounded_seam_approval_blocker_active,
+        not per_seam_approval_blocker_active,
         (
-            f"{source_path}: Next Bounded Seam Approval Missing is not a valid Workstream "
-            "stop condition after a bounded seam is green while same-branch admitted seams "
-            "remain and no USER single-seam/single-slice waiver is recorded"
+            f"{source_path}: per-seam approval-missing blockers are not valid Workstream "
+            "stop conditions after Workstream entry is admitted. Bounded Workstream execution "
+            "must continue seam-by-seam until Workstream Green, a real named blocker, or a "
+            "USER waiver is recorded."
         ),
     )
 
@@ -8415,13 +8426,9 @@ def _validate_backlog_completion_status(
                 f"'{REMAINING_IMPLEMENTABLE_WORK_LABEL}:' to name remaining same-branch work"
             ),
         )
-        require(
-            has_backlog_blocker,
-            (
-                f"{source_path}: {BACKLOG_COMPLETION_STATE_LABEL} In Progress requires blocker "
-                f"'{BACKLOG_COMPLETION_UNPROVEN_BLOCKER}'"
-            ),
-        )
+        # Backlog completion remaining unproven is a progress latch, not by itself a lawful
+        # Workstream stop condition. Active Workstream records may keep the latch in source
+        # truth, but validators must not force it into the stop-authorizing Blockers list.
         if current_phase == "Workstream":
             if continuation_waiver_status != "none" or stop_authorizing_blockers:
                 require(

@@ -6,7 +6,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from .ai_provider_state import build_fam007_foundation_readiness_state
+from .ai_provider_state import build_local_ai_runtime_foundation_provider_boundary_state
 from .workerw_utils import (
     attach_window_to_desktop,
     make_window_noninteractive,
@@ -33,7 +33,7 @@ class CoreVisualizationWindow(QWidget):
         self._is_shutting_down = False
         self._pending_visual_state = "dormant"
         self._pending_voice_level = None
-        self._ai_provider_state = build_fam007_foundation_readiness_state(surface_role="core")
+        self._ai_provider_state = build_local_ai_runtime_foundation_provider_boundary_state(surface_role="core")
         self._desktop_layer_attached = False
         self._desktop_layer_logged = False
         self._visible_logged = False

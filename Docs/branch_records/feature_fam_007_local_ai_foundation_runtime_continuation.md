@@ -16,7 +16,7 @@ This branch was the USER-approved FAM-007 Branch Readiness Stage 2 carrier creat
 
 It exists to restart FAM-007 on a clean, current carrier instead of silently reusing a stale empty local branch. Branch Readiness Stage 1 classified the existing `feature/fam-007-local-ai-foundation-runtime-continuation` checkout as `Stale empty local branch`: it was behind current `origin/main`, had no unique commits, had no remote branch, had no open PR, and was checked out only by the assigned FAM-007 worktree. USER approved Stage 2 to recreate the FAM-007 carrier from current `origin/main`, assign it as the active FAM-007 branch, record Branch Readiness planning, and keep FAM-006 and Governance worktrees untouched.
 
-PR #152 merged this branch to `main` at `7f950ed20f0a8c15b45d4b1d20ba4356599bde1e` on 2026-05-15. The record is now historical traceability for merged-unreleased FAM-007 local-only scaffold work; it is not an active branch authority, selected-next branch, live PR carrier, or release-execution carrier.
+PR #152 merged this branch to `main` at `7f950ed20f0a8c15b45d4b1d20ba4356599bde1e` on 2026-05-15. The record is now historical traceability for FAM-007 local-only scaffold work released in `v1.7.2-prebeta`; it is not an active branch authority, selected-next branch, live PR carrier, or release-execution carrier.
 
 ## Current Phase
 
@@ -28,7 +28,7 @@ PR #152 merged this branch to `main` at `7f950ed20f0a8c15b45d4b1d20ba4356599bde1
 - Branch Authority State: `Historical merged branch - not active, not selected-next, and not a live PR carrier`
 - Historical worktree note: `C:\Nexus Worktrees\FAM-007 may retain the merged branch until a later USER-approved cleanup/rebaseline path; checked-out branch existence is hygiene evidence only and does not create active authority`
 - Standing Governance Intake State: `feature/release-readiness-source-truth-intake remains the only active branch authority exception on merged main with Active RRI Cycle: RRI-20260514-007 for this repair`
-- Release Posture: `Merged-unreleased FAM-007 local-only implementation scope after v1.7.1-prebeta until the next USER-approved release readiness/release execution path includes PR #152`
+- Release Posture: `Released historical FAM-007 local-only implementation scope in v1.7.2-prebeta; future FAM-007 runtime expansion requires a separate USER-approved Branch Readiness and Workstream path`
 - Completed Branch Readiness: `FAM-007 stale empty local branch was recreated from current origin/main with no unique-commit loss before work began`
 - Completed Workstream: `SLC-017/SLC-018 provider-boundary interaction continuation, SLC-031/SLC-032 local capability-readiness continuation, and SLC-033/SLC-036 local data/resilience/persona/proof-gate continuation completed as local-only scaffolds`
 - Completed Hardening: `H1 proof review was green with no runtime defect repair required`
@@ -94,7 +94,7 @@ No Unique Commit Loss Proof: `PASS - zero local-only commits, empty branch diff,
 - GitHub issue creation.
 - PR creation.
 - Merge.
-- Release execution beyond already published `v1.7.1-prebeta`.
+- Release execution beyond already published `v1.7.2-prebeta`.
 
 ## Entry Basis
 
@@ -111,15 +111,15 @@ No Unique Commit Loss Proof: `PASS - zero local-only commits, empty branch diff,
 - Governance PR #149: merged RRI-20260514-005 closeout.
 - Governance PR #150: merged RRI-20260514-006 post-release closure precursor.
 - Governance PR #151: merged RRI-20260514-006 closeout and returned the standing intake lane to `Active RRI Cycle: None`.
-- Latest public prerelease: `v1.7.1-prebeta` at release candidate `47134640381909e9eec7127d4e826ee68b182ffb`.
-- Source truth before this branch: merged main had no active runtime branch; FAM-007 PR #138 was historical merged-unreleased evidence that is now included in `v1.7.1-prebeta`; PKG-007 remained admitted with prior local-only scaffold evidence and future work USER-gated.
+- Latest public prerelease after release closure: `v1.7.2-prebeta` at release candidate `3d38630c63965702bb8839f5e0c5f3b4b008e8bb`.
+- Source truth before this branch: merged main had no active runtime branch; FAM-007 PR #138 was historical evidence included in `v1.7.1-prebeta`; PR #152 is historical evidence included in `v1.7.2-prebeta`; PKG-007 remained admitted with prior local-only scaffold evidence and future work USER-gated.
 
 ## Exit Criteria
 
 - The historical branch authority record is listed in `Docs/branch_records/index.md`.
 - Backlog and roadmap identify `feature/fam-007-local-ai-foundation-runtime-continuation` as merged historical FAM-007 evidence from PR #152, not as active or selected-next current-state truth.
-- `v1.7.1-prebeta` is recorded as the latest public prerelease for current-state branch planning.
-- PR #129, PR #132, PR #138, and PR #142 are no longer described as unreleased relative to the active current release window; they are included in `v1.7.1-prebeta`.
+- `v1.7.2-prebeta` is recorded as the latest public prerelease for current-state branch planning.
+- PR #129, PR #132, PR #138, and PR #142 remain released in `v1.7.1-prebeta`; PR #152 and release-governance support through PR #154 are released in `v1.7.2-prebeta`.
 - PKG-007 remains admitted and not package-complete.
 - SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 prior local-only scaffold evidence remains preserved as historical release evidence.
 - The next FAM-007 work is sequenced as one named bounded Workstream seam at a time.
@@ -190,22 +190,22 @@ Planning Completion Waiver: `Not required; same-branch bounded Workstream execut
 
 ## Branch Objective
 
-Historical objective was completed by PR #152: recreate the stale empty FAM-007 local continuation branch from current `origin/main`, assign it as the FAM-007 carrier for that work, execute the admitted local-only Workstream scaffold chain through SLC-036, complete Hardening H1 proof review, complete Live Validation LV1 applicability/waiver review, and merge the carrier into main. The branch is now historical merged-unreleased evidence, not active authority.
+Historical objective was completed by PR #152: recreate the stale empty FAM-007 local continuation branch from current `origin/main`, assign it as the FAM-007 carrier for that work, execute the admitted local-only Workstream scaffold chain through SLC-036, complete Hardening H1 proof review, complete Live Validation LV1 applicability/waiver review, merge the carrier into main, and release it in `v1.7.2-prebeta`. The branch is now released historical evidence, not active authority.
 
 ## Target End-State
 
 - `feature/fam-007-local-ai-foundation-runtime-continuation` is the historical FAM-007 branch authority record after PR #152.
 - The branch is based on current `origin/main` at `74185039beb0fa0d8b8f06d5cb2c593c94608870`.
-- `v1.7.1-prebeta` is recorded as the latest public prerelease for this Branch Readiness entry.
-- PR #129, PR #132, PR #138, and PR #142 are no longer treated as unreleased relative to the current release window because they are included in `v1.7.1-prebeta`.
+- `v1.7.2-prebeta` is recorded as the latest public prerelease for this historical record after release closure.
+- PR #129, PR #132, PR #138, and PR #142 remain released in `v1.7.1-prebeta`; PR #152 and release-governance support through PR #154 are released in `v1.7.2-prebeta`.
 - `PKG-007` remains admitted and not package-complete.
 - SLC-017/SLC-018 provider-boundary interaction continuation, SLC-031/SLC-032 local capability-readiness continuation, and SLC-033/SLC-036 local data/resilience/persona/proof-gate continuation are executed as local-only bounded Workstream seams.
 
 ## Backlog Completion Strategy
 
-This branch does not complete `PKG-007`. It created the FAM-007 continuation carrier on top of the release/current-state closure already completed by RRI-20260514-006 / PR #151, completed the local-only scaffold chain for the admitted same-branch Workstream seams through SLC-036, and merged through PR #152 after v1.7.1-prebeta.
+This branch does not complete `PKG-007`. It created the FAM-007 continuation carrier on top of the release/current-state closure already completed by RRI-20260514-006 / PR #151, completed the local-only scaffold chain for the admitted same-branch Workstream seams through SLC-036, merged through PR #152 after v1.7.1-prebeta, and was released in `v1.7.2-prebeta`.
 
-Branch Completion Goal: `Historical goal complete - PR #152 merged the local-only scaffold proof through SLC-036 after Hardening H1 Green and Live Validation LV1 Green; the record now preserves merged-unreleased evidence without active branch authority.`
+Branch Completion Goal: `Historical goal complete - PR #152 merged the local-only scaffold proof through SLC-036 after Hardening H1 Green and Live Validation LV1 Green; the record now preserves released historical evidence without active branch authority.`
 Known Future-Dependent Blockers: `Provider SDK integration, model downloads, external provider calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, PR creation, merge, release execution, full AI Product Contract import, private Dev ORIN import, and GitHub issue creation remain future USER approval gates. These do not block Workstream Green or Hardening H1 Green for the completed local-only scaffold chain.`
 Branch Closure Rule: `This Workstream carrier may close only after source truth, static validation, and runtime scaffold proof are current and the branch is pushed; Workstream Green does not imply package completion, PR readiness, merge readiness, release readiness, or approval for future provider/model/runtime expansion.`
 
