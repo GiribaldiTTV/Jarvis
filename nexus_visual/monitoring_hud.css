@@ -75,8 +75,53 @@ body.desktop-mode .monitoring-hud__control-hub::-webkit-scrollbar-corner {
   background: transparent;
 }
 
+body.desktop-mode .monitoring-hud__nexus-scroll-pane,
+body.desktop-mode .monitoring-hud__child-window {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(108, 232, 255, 0.56) rgba(5, 18, 31, 0.14);
+}
+
+body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(5, 18, 31, 0.10);
+}
+
+body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar-thumb {
+  border: 1px solid rgba(4, 17, 32, 0.72);
+  border-radius: 999px;
+  background-clip: padding-box;
+  background: linear-gradient(180deg, rgba(121, 239, 255, 0.62), rgba(99, 255, 202, 0.42));
+  box-shadow: 0 0 6px rgba(88, 225, 255, 0.12);
+}
+
+body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(184, 250, 255, 0.88), rgba(112, 255, 210, 0.64));
+}
+
+body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"] {
   will-change: auto;
+}
+
+body.desktop-mode #monitoring-hud[data-live-resize-active="true"] .monitoring-hud__chrome {
+  background-position:
+    var(--monitoring-hud-live-resize-proof-x, 0px) 0,
+    0 var(--monitoring-hud-live-resize-proof-y, 0px),
+    center;
 }
 
 body.desktop-mode #monitoring-hud-minimal {
@@ -821,7 +866,10 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__child-window--monitor-management {
-  width: min(680px, calc(100% - 24px));
+  width: min(860px, calc(100% - 24px));
+  max-height: min(700px, calc(100% - 24px));
+  overflow: hidden;
+  grid-template-rows: auto auto minmax(0, 1fr);
 }
 
 .monitoring-hud__settings-grid {
@@ -872,12 +920,73 @@ body.desktop-mode #monitoring-hud > * {
   background: rgba(3, 14, 27, 0.42);
 }
 
+.monitoring-hud__child-toolbar--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
 .monitoring-hud__child-toolbar span {
   color: rgba(145, 202, 218, 0.86);
   font-size: 11px;
   font-weight: 760;
   letter-spacing: 0.10em;
   text-transform: uppercase;
+}
+
+.monitoring-hud__search-field,
+.monitoring-hud__filter-field {
+  display: grid;
+  gap: 5px;
+  min-width: min(220px, 100%);
+  color: rgba(139, 233, 255, 0.86);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__search-field input,
+.monitoring-hud__filter-field select {
+  min-height: 34px;
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(117, 228, 255, 0.20);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.76);
+  color: rgba(232, 250, 255, 0.94);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 8px 10px;
+}
+
+.monitoring-hud__monitor-management-shell {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.42fr) minmax(0, 1fr);
+  gap: 12px;
+  min-height: 0;
+}
+
+.monitoring-hud__monitor-list-pane,
+.monitoring-hud__monitor-detail-pane {
+  min-width: 0;
+  min-height: 0;
+  max-height: min(500px, calc(100vh - 230px));
+  overflow: auto;
+  border: 1px solid rgba(117, 228, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(3, 14, 27, 0.30);
+}
+
+.monitoring-hud__monitor-list-pane {
+  padding: 8px;
+}
+
+.monitoring-hud__monitor-detail-pane {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
 }
 
 .monitoring-hud__monitor-manage-list {
@@ -887,9 +996,9 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__monitor-manage-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
-  align-items: center;
+  align-items: stretch;
   padding: 10px;
   border: 1px solid rgba(117, 228, 255, 0.14);
   border-radius: 8px;
@@ -926,7 +1035,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__monitor-row-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 7px;
 }
 
@@ -969,9 +1078,30 @@ body.desktop-mode #monitoring-hud > * {
   display: none;
 }
 
+.monitoring-hud__empty-state {
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px dashed rgba(117, 228, 255, 0.22);
+  border-radius: 8px;
+  color: rgba(181, 218, 229, 0.86);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.monitoring-hud__empty-state[hidden] {
+  display: none;
+}
+
 .monitoring-hud__monitor-settings-panel {
   display: grid;
   gap: 11px;
+  min-width: 0;
+  padding: 0;
+}
+
+.monitoring-hud__sensor-library {
+  display: grid;
+  gap: 8px;
   min-width: 0;
   padding: 10px;
   border: 1px solid rgba(117, 228, 255, 0.12);
@@ -979,11 +1109,29 @@ body.desktop-mode #monitoring-hud > * {
   background: rgba(3, 14, 27, 0.36);
 }
 
+.monitoring-hud__sensor-library-toolbar {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(130px, 0.48fr);
+  gap: 8px;
+  align-items: end;
+}
+
+.monitoring-hud__sensor-result-summary {
+  grid-column: 1 / -1;
+  color: rgba(145, 202, 218, 0.86);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .monitoring-hud__sensor-assignment {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 8px;
   min-width: 0;
+  max-height: 260px;
+  overflow: auto;
   margin: 0;
   padding: 10px;
   border: 1px solid rgba(117, 228, 255, 0.12);
@@ -1032,9 +1180,24 @@ body.desktop-mode #monitoring-hud > * {
   background: rgba(12, 29, 42, 0.42);
 }
 
+.monitoring-hud__sensor-preview {
+  max-height: 94px;
+  overflow: auto;
+  padding: 9px;
+  border: 1px solid rgba(117, 228, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.46);
+  color: rgba(181, 218, 229, 0.86);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.36;
+}
+
 .monitoring-hud__sensor-settings {
   display: grid;
   gap: 8px;
+  max-height: 220px;
+  overflow: auto;
 }
 
 .monitoring-hud__sensor-settings-row,
@@ -1073,6 +1236,18 @@ body.desktop-mode #monitoring-hud > * {
   font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
   font-size: 12px;
   font-weight: 650;
+}
+
+@media (max-width: 760px) {
+  .monitoring-hud__monitor-management-shell,
+  .monitoring-hud__sensor-library-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .monitoring-hud__monitor-list-pane,
+  .monitoring-hud__monitor-detail-pane {
+    max-height: none;
+  }
 }
 
 .monitoring-hud__grid,

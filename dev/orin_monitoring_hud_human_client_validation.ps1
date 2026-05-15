@@ -1029,6 +1029,118 @@ function Drag-FromToWithGeometrySamples {
     return $samples
 }
 
+function Drag-FromToWithGeometryAndVisualSamples {
+    param(
+        [object]$Element,
+        [int]$StartX,
+        [int]$StartY,
+        [int]$EndX,
+        [int]$EndY,
+        [string]$Label,
+        [long]$WindowHandle = 0,
+        [int]$Steps = 42,
+        [int]$StepDelayMs = 8,
+        [int[]]$CaptureSteps = @(8, 16, 24, 32, 40)
+    )
+    $samples = @()
+    $frames = @()
+    $captureStepSet = @{}
+    foreach ($step in @($CaptureSteps)) { $captureStepSet[[int]$step] = $true }
+    $safeLabel = $Label -replace "[^A-Za-z0-9_-]", "_"
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    [CodexHumanClientWin32]::SetCursorPos($StartX, $StartY) | Out-Null
+    Start-Sleep -Milliseconds 120
+    [CodexHumanClientWin32]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero)
+    for ($i = 1; $i -le $Steps; $i++) {
+        $x = [int]($StartX + (($EndX - $StartX) * $i / $Steps))
+        $y = [int]($StartY + (($EndY - $StartY) * $i / $Steps))
+        [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
+        Start-Sleep -Milliseconds $StepDelayMs
+        $rect = if ($WindowHandle -ne 0) { Get-NativeWindowRectByHandle -WindowHandle $WindowHandle } else { $null }
+        if (-not $rect) {
+            $currentElement = Get-DashboardWindow
+            if ($currentElement) {
+                $rect = $currentElement.Current.BoundingRectangle
+            } else {
+                $rect = $Element.Current.BoundingRectangle
+            }
+        }
+        $sample = [pscustomobject]@{
+            Step = $i
+            X = $x
+            Y = $y
+            ElapsedMs = [Math]::Round($stopwatch.Elapsed.TotalMilliseconds, 1)
+            Left = [int]$rect.Left
+            Top = [int]$rect.Top
+            Right = [int]$rect.Right
+            Bottom = [int]$rect.Bottom
+            Width = [int]$rect.Width
+            Height = [int]$rect.Height
+        }
+        $samples += $sample
+        if ($captureStepSet.ContainsKey([int]$i)) {
+            $shot = Capture-VirtualScreenshot ("during_drag_{0}_{1:00}" -f $safeLabel, $i)
+            $frames += [ordered]@{
+                index = $i
+                elapsedMs = $sample.ElapsedMs
+                dashboardVisible = $true
+                dashboardRect = @($sample.Left, $sample.Top, $sample.Right, $sample.Bottom)
+                screenshot = $shot
+            }
+        }
+    }
+    [CodexHumanClientWin32]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 350
+    return [pscustomobject]@{
+        Samples = $samples
+        Frames = $frames
+        MouseHeldUntilFramesCaptured = $true
+        Method = "SetCursorPos plus mouse_event held left button with screenshot captures before release"
+    }
+}
+
+function Test-DashboardDuringDragVisualProof {
+    param(
+        [object[]]$Samples,
+        [object[]]$Frames,
+        [string]$Mode
+    )
+    $uniqueSizes = @($Samples | ForEach-Object { "$($_.Width)x$($_.Height)" } | Sort-Object -Unique).Count
+    $visibleFrames = @($Frames | Where-Object { $_.dashboardVisible -and $_.dashboardRect -and $_.dashboardRect.Count -eq 4 -and $_.screenshot })
+    $signatures = @()
+    if ($visibleFrames.Count -ge 3) {
+        $referenceRect = $visibleFrames[-1].dashboardRect
+        $signatures = @($visibleFrames | ForEach-Object { Get-DashboardFrameSignature -Frame $_ -ReferenceRect $referenceRect })
+        $signatures = @($signatures | Where-Object { $_ -and $_.samples -and $_.samples.Count -gt 0 })
+    }
+    $signatureDeltaCount = 0
+    $maxMeanDelta = 0.0
+    for ($i = 1; $i -lt $signatures.Count; $i++) {
+        $previous = $signatures[$i - 1].samples
+        $current = $signatures[$i].samples
+        $count = [Math]::Min($previous.Count, $current.Count)
+        $total = 0.0
+        for ($j = 0; $j -lt $count; $j++) {
+            $total += [Math]::Abs([double]$current[$j] - [double]$previous[$j])
+        }
+        $mean = if ($count -gt 0) { $total / $count } else { 0.0 }
+        $maxMeanDelta = [Math]::Max($maxMeanDelta, $mean)
+        if ($mean -gt 0.45) { $signatureDeltaCount += 1 }
+    }
+    $pass = $uniqueSizes -ge 8 -and $visibleFrames.Count -ge 4 -and $signatures.Count -ge 4 -and $signatureDeltaCount -ge 2
+    return [pscustomobject]@{
+        Mode = $Mode
+        Pass = [bool]$pass
+        UniqueGeometrySizes = [int]$uniqueSizes
+        VisibleFrameCount = [int]$visibleFrames.Count
+        SignatureCount = [int]$signatures.Count
+        SignatureDeltaCount = [int]$signatureDeltaCount
+        MaxMeanDelta = [Math]::Round($maxMeanDelta, 2)
+        MouseHeldUntilFramesCaptured = $true
+        Expectation = "during-drag visual/frame proof must show geometry and pixel-signature updates before mouse release for grow and shrink"
+    }
+}
+
 function Measure-ResizeTracking {
     param(
         [object[]]$Samples,
@@ -2825,6 +2937,24 @@ try {
     Add-Step -Id "dashboard_mouse_resize_bottom_edge" -Title "Dashboard bottom-edge resize cursor transition triggers geometry resize" -Status ($(if ($bottomResized) { "PASS" } else { "FAIL" })) -Detail "beforeHeight=$($rectBeforeBottomResize.Height); afterHeight=$($rectAfterBottomResize.Height); uniqueHeightSamples=$bottomUniqueHeights; start=($($bottomResizeTransition.X),$($bottomResizeTransition.Y)) discovered from outside-to-edge cursor transition; offset=$bottomResizeTransitionOffset" -Evidence @{ screenshot = $bottomResizeShot; transition = $bottomResizeTransition; geometrySamples = $bottomSamples }
     if (-not $bottomResized) { throw "Dashboard did not resize through the cursor-aligned bottom-edge rail" }
 
+    $rectBeforeGrowVisual = $dashboard.Current.BoundingRectangle
+    $growVisualTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeGrowVisual.Right + 24)) -StartY ([int]($rectBeforeGrowVisual.Bottom + 24)) -EndX ([int]($rectBeforeGrowVisual.Right - 16)) -EndY ([int]($rectBeforeGrowVisual.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner grow visual proof transition"
+    if (-not $growVisualTransition.Found) { throw "Dashboard corner resize cursor was not discoverable before grow visual proof" }
+    $growVisual = Drag-FromToWithGeometryAndVisualSamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$growVisualTransition.X) -StartY ([int]$growVisualTransition.Y) -EndX ([int]($growVisualTransition.X + 56)) -EndY ([int]($growVisualTransition.Y + 48)) -Label "Dashboard grow live visual resize proof" -Steps 42 -StepDelayMs 8
+    $growVisualProof = Test-DashboardDuringDragVisualProof -Samples $growVisual.Samples -Frames $growVisual.Frames -Mode "grow"
+    Add-Step -Id "dashboard_resize_grow_during_drag_visual_proof" -Title "Dashboard grow resize repaints while the mouse is held" -Status ($(if ($growVisualProof.Pass) { "PASS" } else { "FAIL" })) -Detail "uniqueSizes=$($growVisualProof.UniqueGeometrySizes); capturedFrames=$($growVisualProof.VisibleFrameCount); pixelSignatureDeltas=$($growVisualProof.SignatureDeltaCount); maxMeanDelta=$($growVisualProof.MaxMeanDelta); frames captured before mouse release." -Evidence @{ visualProof = $growVisualProof; samples = $growVisual.Samples; frames = $growVisual.Frames; transition = $growVisualTransition }
+    if (-not $growVisualProof.Pass) { throw "Dashboard grow resize did not produce during-drag visual/pixel-signature proof before mouse release" }
+
+    $dashboard = Get-DashboardWindow
+    $rectBeforeShrinkVisual = $dashboard.Current.BoundingRectangle
+    $shrinkVisualTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeShrinkVisual.Right + 24)) -StartY ([int]($rectBeforeShrinkVisual.Bottom + 24)) -EndX ([int]($rectBeforeShrinkVisual.Right - 16)) -EndY ([int]($rectBeforeShrinkVisual.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner shrink visual proof transition"
+    if (-not $shrinkVisualTransition.Found) { throw "Dashboard corner resize cursor was not discoverable before shrink visual proof" }
+    $shrinkVisual = Drag-FromToWithGeometryAndVisualSamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$shrinkVisualTransition.X) -StartY ([int]$shrinkVisualTransition.Y) -EndX ([int]($shrinkVisualTransition.X - 64)) -EndY ([int]($shrinkVisualTransition.Y - 56)) -Label "Dashboard shrink live visual resize proof" -Steps 42 -StepDelayMs 8
+    $shrinkTracking = Measure-ResizeTracking -Samples $shrinkVisual.Samples -BaseWidth $rectBeforeShrinkVisual.Width -BaseHeight $rectBeforeShrinkVisual.Height -StartX $shrinkVisualTransition.X -StartY $shrinkVisualTransition.Y -Mode "corner"
+    $shrinkVisualProof = Test-DashboardDuringDragVisualProof -Samples $shrinkVisual.Samples -Frames $shrinkVisual.Frames -Mode "shrink"
+    Add-Step -Id "dashboard_resize_shrink_during_drag_visual_proof" -Title "Dashboard shrink resize repaints while the mouse is held" -Status ($(if ($shrinkVisualProof.Pass -and $shrinkTracking.Pass) { "PASS" } else { "FAIL" })) -Detail "uniqueSizes=$($shrinkVisualProof.UniqueGeometrySizes); capturedFrames=$($shrinkVisualProof.VisibleFrameCount); pixelSignatureDeltas=$($shrinkVisualProof.SignatureDeltaCount); maxMeanDelta=$($shrinkVisualProof.MaxMeanDelta); shrinkMaxLag=$($shrinkTracking.MaxLagPx)px/avg=$($shrinkTracking.AverageLagPx)px; frames captured before mouse release." -Evidence @{ visualProof = $shrinkVisualProof; tracking = $shrinkTracking; samples = $shrinkVisual.Samples; frames = $shrinkVisual.Frames; transition = $shrinkVisualTransition }
+    if (-not ($shrinkVisualProof.Pass -and $shrinkTracking.Pass)) { throw "Dashboard shrink resize did not produce during-drag visual/pixel-signature proof before mouse release" }
+
     $resizeShot = Capture-VirtualScreenshot "05_after_dashboard_mouse_resize"
     $cornerUniqueSizes = @($cornerSamples | ForEach-Object { "$($_.Width)x$($_.Height)" } | Sort-Object -Unique).Count
     $cornerTracking = Measure-ResizeTracking -Samples $cornerSamples -BaseWidth $rectBeforeResize.Width -BaseHeight $rectBeforeResize.Height -StartX $cornerTransition.X -StartY $cornerTransition.Y -Mode "corner"
@@ -2836,11 +2966,14 @@ try {
         $bottomUniqueHeights -ge 12 -and
         $cornerTracking.Pass -and
         $rightTracking.Pass -and
-        $bottomTracking.Pass
+        $bottomTracking.Pass -and
+        $growVisualProof.Pass -and
+        $shrinkVisualProof.Pass -and
+        $shrinkTracking.Pass
     )
-    Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize tracks the cursor at a high-refresh cadence" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; cornerMaxLag=$($cornerTracking.MaxLagPx)px/avg=$($cornerTracking.AverageLagPx)px; rightMaxLag=$($rightTracking.MaxLagPx)px/avg=$($rightTracking.AverageLagPx)px; bottomMaxLag=$($bottomTracking.MaxLagPx)px/avg=$($bottomTracking.AverageLagPx)px; sampled at 42 steps with 8ms delay while the left button was held." -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking; minimumUniqueSamples = 12; expectation = "returned UTS said #127 is improved but still needs smoother tracking, so LV1 now requires high-cadence intermediate geometry plus cursor-to-window tracking-lag proof" }
+    Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize tracks and repaints at a high-refresh cadence" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; cornerMaxLag=$($cornerTracking.MaxLagPx)px/avg=$($cornerTracking.AverageLagPx)px; rightMaxLag=$($rightTracking.MaxLagPx)px/avg=$($rightTracking.AverageLagPx)px; bottomMaxLag=$($bottomTracking.MaxLagPx)px/avg=$($bottomTracking.AverageLagPx)px; growVisualDeltas=$($growVisualProof.SignatureDeltaCount); shrinkVisualDeltas=$($shrinkVisualProof.SignatureDeltaCount); sampled at 42 steps with 8ms delay while the left button was held." -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; growVisual = $growVisual; shrinkVisual = $shrinkVisual; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking; shrinkTracking = $shrinkTracking; growVisualProof = $growVisualProof; shrinkVisualProof = $shrinkVisualProof; minimumUniqueSamples = 12; expectation = "returned UTS said #127 shrink/grow smoothness still had frozen/catch-up behavior, so LV1 requires high-cadence geometry, cursor-to-window tracking-lag, and during-drag visual/pixel-signature proof before mouse release" }
     if (-not $resizeFluidityPass) { throw "Dashboard resize did not track cursor movement smoothly enough during high-cadence drag proof" }
-    Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through pre-click Windows resize cursor transitions" -Status "PASS" -Detail "Corner, right-edge, and bottom-edge resize actions changed real Dashboard geometry after the helper discovered the same standard Windows resize cursor transition a USER would look for before clicking." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior; cornerTransition = $cornerTransition; rightTransition = $rightResizeTransition; bottomTransition = $bottomResizeTransition; resizeFluidity = @{ cornerUniqueSizes = $cornerUniqueSizes; rightUniqueWidths = $rightUniqueWidths; bottomUniqueHeights = $bottomUniqueHeights; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking } }
+    Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through pre-click Windows resize cursor transitions" -Status "PASS" -Detail "Corner, right-edge, bottom-edge, grow, and shrink resize actions changed real Dashboard geometry after the helper discovered the same standard Windows resize cursor transition a USER would look for before clicking." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior; cornerTransition = $cornerTransition; rightTransition = $rightResizeTransition; bottomTransition = $bottomResizeTransition; resizeFluidity = @{ cornerUniqueSizes = $cornerUniqueSizes; rightUniqueWidths = $rightUniqueWidths; bottomUniqueHeights = $bottomUniqueHeights; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking; shrinkTracking = $shrinkTracking; growVisualProof = $growVisualProof; shrinkVisualProof = $shrinkVisualProof } }
 
     $dashboard = Get-DashboardWindow
     Move-DashboardAwayFromTrayMenuIfNeeded -Dashboard $dashboard

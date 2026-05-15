@@ -443,7 +443,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $precheckStep3 = Format-ShortcutPrecheckLine @("tray_exit_confirmation_visible", "tray_exit_cancel_preserves_session", "tray_exit_accept_prompt_visible", "tray_exit_accept_shuts_down_promptly") "LV1 cannot claim unrestricted green handoff for tray Exit confirmation without USER waiver."
     $precheckNcpInteraction = Format-ShortcutPrecheckLine @("dashboard_mouse_move", "ncp_tray_icon_left_click_opens", "ncp_tray_menu_state_changes_to_close", "ncp_opens_with_dashboard_visible", "ncp_tray_icon_left_click_closes", "ncp_create_custom_task_clickable_with_dashboard_open", "ncp_create_custom_group_clickable_with_dashboard_open", "ncp_manage_custom_tasks_clickable_with_dashboard_open", "ncp_manage_custom_groups_clickable_with_dashboard_open") "LV1 cannot claim unrestricted green handoff for Dashboard-visible NCP tray toggle/state interaction without USER waiver."
     $precheckTrayAuthoring = Format-ShortcutPrecheckLine @("tray_create_custom_task_duplicate_guard") "LV1 cannot claim unrestricted green handoff for tray authoring duplicate-dialog safety without USER waiver."
-    $precheckResizeDiscoverability = Format-ShortcutPrecheckLine @("dashboard_move_fluidity", "dashboard_resize_cursor_alignment", "dashboard_resize_corner_arc_diagonal_zone", "dashboard_resize_cursor_transition_discovery", "dashboard_mouse_resize_corner", "dashboard_mouse_resize_right_edge", "dashboard_mouse_resize_bottom_edge", "dashboard_resize_fluidity", "dashboard_mouse_resize") "LV1 cannot claim unrestricted green handoff for Dashboard movement/resize discoverability/fluidity without USER waiver."
+    $precheckResizeDiscoverability = Format-ShortcutPrecheckLine @("dashboard_move_fluidity", "dashboard_resize_cursor_alignment", "dashboard_resize_corner_arc_diagonal_zone", "dashboard_resize_cursor_transition_discovery", "dashboard_mouse_resize_corner", "dashboard_mouse_resize_right_edge", "dashboard_mouse_resize_bottom_edge", "dashboard_resize_grow_during_drag_visual_proof", "dashboard_resize_shrink_during_drag_visual_proof", "dashboard_resize_fluidity", "dashboard_mouse_resize") "LV1 cannot claim unrestricted green handoff for Dashboard movement/resize discoverability/fluidity without USER waiver."
     $precheckFirstOpenStability = Format-ShortcutPrecheckLine @("dashboard_first_open_stability_sequence") "LV1 cannot claim unrestricted green handoff for #123 first-open stability without real shortcut screenshot-sequence proof or USER waiver."
     $precheckSettingsPanel = Format-ShortcutPrecheckLine @("dashboard_settings_opens_with_real_mouse", "dashboard_settings_double_click_does_not_maximize", "dashboard_settings_done_closes_with_real_mouse") "LV1 cannot claim unrestricted green handoff for Dashboard Settings unless the real mouse Dashboard IA-card path opens and closes the panel without native maximize drift or USER waiver."
     $precheckTopChromeClose = Format-ShortcutPrecheckLine @("dashboard_top_chrome_close_hides_dashboard", "dashboard_reopens_after_top_chrome_close") "LV1 cannot claim unrestricted green handoff for Dashboard window-level Close unless the visible Close control hides only the Dashboard and tray reopen works or USER waiver."
@@ -505,16 +505,20 @@ Step 7 - Truthful Sensor Availability
 Expected: Supported sources are selectable. Provider-required or future/deferred sources are clearly labeled and do not pretend to be active.
 USER Result / Notes:
 
-Step 8 - Dashboard Control Regressions
-Expected: Dashboard Settings, window-level Close, Warning Notifications, and tray Open/Close still behave normally while Monitor Groups is available.
+Step 8 - Sensor Library Scale And Scrollbars
+Expected: Search and Filter narrow the Sensor Library clearly, source rows show stable identity breadcrumbs, large-source behavior does not feel like a raw dropdown, and Monitor/Sensor panes use Nexus-styled scrollbars.
 USER Result / Notes:
 
-Step 9 - Regression Sweep
-Expected: First-open stability, move/resize smoothness, resize cursor discoverability, rounded corners, scroll gutter, Create/Edit Monitor legacy entry points, NCP tray open/close, and tray Exit confirmation still behave normally.
+Step 9 - Dashboard Resize And Move Smoothness
+Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse is still held; the Dashboard should not freeze and catch up only after release.
+USER Result / Notes:
+
+Step 10 - Dashboard Control Regressions
+Expected: Dashboard Settings, window-level Close, Warning Notifications, Create/Edit Monitor legacy entry points, NCP tray open/close, and tray Exit confirmation still behave normally while Monitor Groups is available.
 Regression checkpoints include: Step 7 - #137 Dashboard Rounded Corners On Light Background; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 USER Result / Notes:
 
-Step 10 - Closing Additions
+Step 11 - Closing Additions
 Any remaining readability, placement, motion, clipping, confusion, or polish notes:
 
 Final USER Result

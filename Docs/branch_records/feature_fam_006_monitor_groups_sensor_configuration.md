@@ -174,6 +174,26 @@ PR Readiness Blocker State: `PR Readiness remains blocked pending repair impleme
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to Dashboard resize/move live render smoothness, shrink/grow during-drag visual proof, Manage Monitors scalable split layout, Nexus-styled scrollbars, large monitor/source fixtures, directly supporting validators/source truth, validation, commit, and push.`
 
+## Returned UTS FAIL Repair Workstream Implementation
+
+Repair Implementation Status: `IMPLEMENTED - validation-green locally; Hardening and refreshed Live Validation/UTS remain required before PR Readiness.`
+
+Resize/Move Runtime Repair: `The Dashboard fallback resize frame sync now updates the WebEngine geometry, requests repaint/update work each paced resize frame, dispatches resize on requestAnimationFrame, and publishes during-drag resize proof markers through monitoringHudRecordResizeFrame / monitoringHudFinishResizeFrame. The proof marker records grow, shrink, geometry, frame interval, and a subtle pixel-signature background-position pulse so validation can prove visible content changes while the mouse is still held instead of only after release.`
+
+During-Drag Proof Repair: `The governed human-client helper now has Drag-FromToWithGeometryAndVisualSamples and Test-DashboardDuringDragVisualProof. It captures intermediate screenshots before mouse release and requires both geometry changes and pixel-signature deltas for grow and shrink resize paths, including the returned UTS shrink-freeze failure path.`
+
+Manage Monitors Runtime Repair: `Manage Monitors is now a scalable split management surface with sticky header, monitor search, visible/total count, always-reachable in-window Create action, left monitor list pane, right detail pane, and existing create/edit/delete/cancel/confirm behavior preserved.`
+
+Sensor Library Runtime Repair: `The selected-monitor detail pane now uses a searchable/filterable Sensor Library instead of a basic assignment list. It supports supported/deferred filtering plus CPU, GPU, Memory, Disk, Network, Temperature, Load, Clock, Power, Fan, and Voltage categories; source rows expose provider, device, category, metric, and sensor instance breadcrumbs. Supported sources remain assignable and provider-required/deferred sources remain visible, disabled, and explained.`
+
+Large Fixture Repair: `Runtime support now includes a 125-monitor fixture path and 1,200-source Sensor Library fixture planning/proof path through window.setMonitoringHudLargeFixtureMode, monitoringHudLargeMonitorFixtureCount, and monitoringHudLargeSensorFixtureCount. The fixture path is validation/support only and does not imply bulk creation, recommended packs, provider expansion, historical sensor data, alert/rule engine, recording runtime, or Overlay Profile runtime approval.`
+
+Nexus Scrollbar Repair: `Nexus-styled scrollbar treatment is applied to child windows, the monitor list pane, selected-monitor detail pane, sensor result list, sensor settings pane, and sensor preview/details pane. Native-looking scrollbar regressions remain in scope for Hardening and Live Validation verification.`
+
+UTS Handoff Refresh: `The compact User Test Summary handoff now separates Sensor Library scale/scrollbar review, Dashboard resize/move smoothness, and Dashboard control regressions so returned USER results can distinguish the repaired Step 9 and Step 10 findings.`
+
+PR Readiness Blocker State: `PR Readiness remains blocked until this repair validates, commits, pushes, passes Hardening as required, and refreshed Live Validation/UTS returns PASS or an explicit USER waiver with reason is digested into source truth.`
+
 ## Sensor Library And Profile Planning Admission
 
 Planning Admission Status: `ADMITTED - source-truth planning only; no runtime recording, Overlay Profile UI, tray recording controls, export/share behavior, provider expansion, or Overlay acceptance authorized.`

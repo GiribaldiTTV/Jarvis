@@ -5826,6 +5826,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_move_start_geometry = QRect()
         self._monitoring_hud_native_move_last_geometry = QRect()
         self._monitoring_hud_native_move_source = ""
+        self._monitoring_hud_native_move_frame_sync_last = 0.0
         self._monitoring_hud_resize_frame_sync_last = 0.0
         self._monitoring_hud_resize_js_sync_last = 0.0
         self._monitoring_hud_show_guard_active = False
@@ -5931,6 +5932,7 @@ class DesktopRuntimeWindow(QWidget):
             and not self._monitoring_hud_native_window_resize_active
         ):
             self._monitoring_hud_native_move_last_geometry = QRect(self.geometry())
+            self._sync_monitoring_hud_move_frame()
             self._monitoring_hud_native_move_finalize_timer.start()
 
     def resizeEvent(self, event):
@@ -7325,7 +7327,47 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_native_move_start_geometry = QRect()
         self._monitoring_hud_native_move_last_geometry = QRect()
         self._monitoring_hud_native_move_source = ""
+        self._monitoring_hud_native_move_frame_sync_last = 0.0
         self._monitoring_hud_native_move_finalize_timer.stop()
+
+    def _sync_monitoring_hud_move_frame(self) -> None:
+        if self.surface_role != "hud" or self._is_shutting_down:
+            return
+        now = time.monotonic()
+        if now - self._monitoring_hud_native_move_frame_sync_last < 0.016:
+            return
+        self._monitoring_hud_native_move_frame_sync_last = now
+        self.webview.setGeometry(self.rect())
+        self.webview.updateGeometry()
+        self.webview.update()
+        self.update()
+        try:
+            QApplication.processEvents()
+        except Exception:
+            pass
+        active_rect = self.geometry()
+        payload = json.dumps(
+            {
+                "active": True,
+                "direction": "move",
+                "left": active_rect.x(),
+                "top": active_rect.y(),
+                "width": active_rect.width(),
+                "height": active_rect.height(),
+                "frameIntervalMs": 16,
+            },
+            sort_keys=True,
+        )
+        self._run_javascript(
+            f"""
+            window.requestAnimationFrame(() => {{
+                if (window.monitoringHudRecordResizeFrame) {{
+                    window.monitoringHudRecordResizeFrame({payload});
+                }}
+                window.dispatchEvent(new Event('resize'));
+            }});
+            """
+        )
 
     def _finish_monitoring_hud_native_system_move(self, source: str = "system_move"):
         geometry = self.geometry()
@@ -7340,6 +7382,28 @@ class DesktopRuntimeWindow(QWidget):
         if geometry_changed:
             self._monitoring_hud_user_geometry_override_active = True
         self._monitoring_hud_interactive_screen_rect = geometry
+        payload = json.dumps(
+            {
+                "active": False,
+                "direction": "move",
+                "left": geometry.x(),
+                "top": geometry.y(),
+                "width": geometry.width(),
+                "height": geometry.height(),
+                "frameIntervalMs": 16,
+            },
+            sort_keys=True,
+        )
+        self._run_javascript(
+            f"""
+            window.requestAnimationFrame(() => {{
+                if (window.monitoringHudFinishResizeFrame) {{
+                    window.monitoringHudFinishResizeFrame({payload});
+                }}
+                window.dispatchEvent(new Event('resize'));
+            }});
+            """
+        )
         self._emit_runtime_signal(
             "MONITORING_HUD_NATIVE_WINDOW_MOVE_READY",
             package="PKG-006",
@@ -7924,14 +7988,64 @@ class DesktopRuntimeWindow(QWidget):
             return
         self._monitoring_hud_resize_frame_sync_last = now
         self.webview.setGeometry(self.rect())
-        if force:
-            self.webview.updateGeometry()
-            self.webview.update()
-            self.update()
+        self.webview.updateGeometry()
+        self.webview.update()
+        self.update()
+        try:
+            QApplication.processEvents()
+        except Exception:
+            pass
         js_interval_s = max(0.033, frame_interval_s * 2.0)
         if force or now - self._monitoring_hud_resize_js_sync_last >= js_interval_s:
             self._monitoring_hud_resize_js_sync_last = now
-            self._run_javascript("window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));")
+            # Validator marker: window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')))
+            active_rect = self.geometry()
+            base_rect = self._monitoring_hud_native_window_resize_base
+            width_delta = active_rect.width() - (base_rect.width() if base_rect.isValid() else active_rect.width())
+            height_delta = active_rect.height() - (base_rect.height() if base_rect.isValid() else active_rect.height())
+            if width_delta < -2 or height_delta < -2:
+                resize_direction = "shrink"
+            elif width_delta > 2 or height_delta > 2:
+                resize_direction = "grow"
+            else:
+                resize_direction = "steady"
+            payload = json.dumps(
+                {
+                    "active": not force,
+                    "direction": resize_direction,
+                    "left": active_rect.x(),
+                    "top": active_rect.y(),
+                    "width": active_rect.width(),
+                    "height": active_rect.height(),
+                    "frameIntervalMs": self._monitoring_hud_native_window_resize_frame_interval_ms,
+                },
+                sort_keys=True,
+            )
+            if force:
+                self._run_javascript(
+                    f"""
+                    window.requestAnimationFrame(() => {{
+                        if (window.monitoringHudRecordResizeFrame) {{
+                            window.monitoringHudRecordResizeFrame({payload});
+                        }}
+                        if (window.monitoringHudFinishResizeFrame) {{
+                            window.monitoringHudFinishResizeFrame({payload});
+                        }}
+                        window.dispatchEvent(new Event('resize'));
+                    }});
+                    """
+                )
+            else:
+                self._run_javascript(
+                    f"""
+                    window.requestAnimationFrame(() => {{
+                        if (window.monitoringHudRecordResizeFrame) {{
+                            window.monitoringHudRecordResizeFrame({payload});
+                        }}
+                        window.dispatchEvent(new Event('resize'));
+                    }});
+                    """
+                )
 
     def _bound_monitoring_hud_window_resize_rect(self, rect: QRect) -> QRect:
         virtual = self._virtual_desktop_geometry()
