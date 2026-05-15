@@ -14,6 +14,13 @@ FORBIDDEN_PUBLIC_RELEASE_TOKENS = (
     re.compile(r"\[codex\]", flags=re.I),
     re.compile(r"\bcodex/", flags=re.I),
 )
+FORBIDDEN_PUBLIC_RELEASE_PHRASES = (
+    "release candidate anchor",
+    "source-truth governance",
+    "governance/source-truth",
+    "release-readiness governance",
+    "release readiness governance",
+)
 
 
 @dataclass(frozen=True)
@@ -96,6 +103,13 @@ def _release_body_failures(tag_name: str, name: str, body: str) -> tuple[str, ..
     for forbidden_token in FORBIDDEN_PUBLIC_RELEASE_TOKENS:
         if forbidden_token.search(body):
             failures.append("body includes internal automation/tooling branding")
+            break
+    lower_body = body.casefold()
+    for forbidden_phrase in FORBIDDEN_PUBLIC_RELEASE_PHRASES:
+        if forbidden_phrase in lower_body:
+            failures.append(
+                f"body includes internal release-note drift phrase {forbidden_phrase!r}"
+            )
             break
     return tuple(failures)
 
