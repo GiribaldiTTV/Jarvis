@@ -49,6 +49,7 @@
       data-provider-selection="fallback-no-provider"
       data-provider-configuration="unconfigured"
       data-provider-registry="local-only-registry"
+      data-provider-interaction="provider-boundary-interaction-plan"
       data-configured-provider-count="0"
       data-available-provider-count="0"
       data-hardware-capability="local-planning-only"
@@ -69,13 +70,28 @@
       <div id="ai-provider-status-configuration" class="ai-provider-status__configuration">Provider configuration: none</div>
       <div id="ai-provider-status-registry" class="ai-provider-status__registry">Local provider registry: no configured providers</div>
       <div id="ai-provider-status-hardware" class="ai-provider-status__hardware">Hardware capability: local planning only</div>
+      <div id="ai-provider-status-gpu" class="ai-provider-status__gpu">GPU acceleration: unprobed; no model workload active</div>
+      <div id="ai-provider-status-cpu" class="ai-provider-status__cpu">CPU fallback: preserved</div>
+      <div id="ai-provider-status-power" class="ai-provider-status__power">Power state: not evaluated</div>
+      <div id="ai-provider-status-thermal" class="ai-provider-status__thermal">Thermal guardrails required before model workloads</div>
+      <div id="ai-provider-status-model-workload" class="ai-provider-status__model-workload">Model workloads: disabled</div>
       <div id="ai-provider-status-capability-pack" class="ai-provider-status__capability-pack">Capability packs: lifecycle planned</div>
+      <div id="ai-provider-status-capability-download" class="ai-provider-status__capability-download">Capability pack downloads: blocked</div>
+      <div id="ai-provider-status-capability-recommendation" class="ai-provider-status__capability-recommendation">Capability recommendation pending hardware proof</div>
+      <div id="ai-provider-status-data-classification" class="ai-provider-status__data-classification">Data classification: local-only planning</div>
       <div id="ai-provider-status-memory" class="ai-provider-status__memory">Memory/context: disabled; no indexing</div>
+      <div id="ai-provider-status-audit-secrets" class="ai-provider-status__audit-secrets">Audit/secrets: planned; no secrets stored</div>
       <div id="ai-provider-status-windows" class="ai-provider-status__windows">Windows resilience: planning only</div>
+      <div id="ai-provider-status-offline" class="ai-provider-status__offline">Offline/degraded mode: planned</div>
       <div id="ai-provider-status-persona" class="ai-provider-status__persona">Persona/Core/voice: planning boundary</div>
+      <div id="ai-provider-status-voice" class="ai-provider-status__voice">Voice runtime: disabled</div>
       <div id="ai-provider-status-validation" class="ai-provider-status__validation">Validation gates: static proof active</div>
+      <div id="ai-provider-status-abuse" class="ai-provider-status__abuse">Abuse/eval: pending future approval</div>
+      <div id="ai-provider-status-release-proof" class="ai-provider-status__release-proof">Release proof: pending future approval</div>
       <div id="ai-provider-status-consent" class="ai-provider-status__consent">Consent required before provider setup</div>
       <div id="ai-provider-status-disclosure" class="ai-provider-status__disclosure">Provider-visible data: none</div>
+      <div id="ai-provider-status-visible-data-detail" class="ai-provider-status__visible-data-detail">No prompt, file, screen, memory, or telemetry is sent</div>
+      <div id="ai-provider-status-consent-boundary" class="ai-provider-status__consent-boundary">Consent boundary: provider setup required before prompts</div>
       <button
         id="ai-provider-status-action"
         class="ai-provider-status__action"
@@ -84,6 +100,7 @@
         aria-disabled="true"
       >Assisted Desktop unavailable</button>
       <div id="ai-provider-status-fallback" class="ai-provider-status__fallback">No-provider fallback active</div>
+      <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Next: provider setup is disabled until a later approved seam</div>
       <div id="ai-provider-status-privacy" class="ai-provider-status__privacy">Local shell only; nothing is sent</div>
     </div>
   </div>
