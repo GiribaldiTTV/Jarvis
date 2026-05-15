@@ -594,7 +594,11 @@ def validate() -> list[str]:
         "Continue Decision: `Stop`",
         "Continuation Execution Latch:",
         "Hardening H1 - FAM-007 Local AI Foundation Runtime Continuation Hardening",
-        "Stop at phase boundary after Workstream Green",
+        "Hardening H1 USER Approval: `Granted - USER approved Hardening H1 for the completed FAM-007 local-only scaffold chain through SLC-036`",
+        "Current Hardening Seam Status: `Green - H1 proof review found no runtime defect repair required`",
+        "Proof Review Status: `Green - Hardening H1 proof review completed for all admitted same-branch FAM-007 local-only scaffolds.`",
+        "Live Validation LV1 - FAM-007 Local AI Foundation Runtime Continuation Applicability And No-Provider Surface Proof",
+        "Stop at phase boundary after Hardening H1 Green",
         "Bounded means one active seam at a time, not one-seam Workstream authority",
     ):
         _require(
