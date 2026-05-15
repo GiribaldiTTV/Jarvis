@@ -3454,6 +3454,7 @@ UTS_RESULTS_BLOCKER_PHRASES = (
     "User Test Summary is exclusive to Live Validation Stage 1.",
     "Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`",
     "Live Validation green requires an exact `## User Test Summary` state before final green.",
+    "Every Live Validation digest must include an exact `## User Test Summary` section",
     "Final phase advancement is BLOCKED",
 )
 
@@ -5871,6 +5872,10 @@ def _validate_governed_output_state(
     normalized_latch = continuation_latch.strip().casefold()
     normalized_stop_basis = stop_basis.strip().casefold()
     normalized_next_active_seam = next_active_seam.strip().casefold()
+    next_bounded_seam_approval_blocker_active = any(
+        blocker.casefold() == "next bounded seam approval missing"
+        for blocker in blockers
+    )
     stop_authorizing_blockers = [
         blocker for blocker in blockers if blocker != BACKLOG_COMPLETION_UNPROVEN_BLOCKER
     ]
@@ -5923,6 +5928,14 @@ def _validate_governed_output_state(
         (
             f"{source_path}: {CONTINUATION_STOP_BASIS_LABEL} '{stop_basis}' must be one of "
             f"{', '.join(sorted(CONTINUATION_ALLOWED_STOP_BASES))}"
+        ),
+    )
+    require(
+        not next_bounded_seam_approval_blocker_active,
+        (
+            f"{source_path}: Next Bounded Seam Approval Missing is not a valid Workstream "
+            "stop condition after a bounded seam is green while same-branch admitted seams "
+            "remain and no USER single-seam/single-slice waiver is recorded"
         ),
     )
 

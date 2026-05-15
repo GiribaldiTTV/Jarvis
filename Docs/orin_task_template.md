@@ -604,6 +604,7 @@ User Test Summary is exclusive to Live Validation Stage 1.
 Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
 PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
 During Live Validation Stage 1, the output must include a formal `## User Test Summary` section as a concrete manual checklist unless the UTS gate is explicitly waived.
+Every Live Validation digest must include an exact `## User Test Summary` section. If the UTS gate is waived, the digest section must still declare `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:`.
 
 That checklist must include:
 

@@ -846,6 +846,7 @@ If `Codex Live Client Self-QA: FAIL`, keep an explicit blocker and route back to
 
 If a required User Test Summary handoff is outstanding in Live Validation or PR Readiness, the active authority record must carry the hard blocker `User Test Summary Results Pending`.
 Live Validation green requires an exact `## User Test Summary` state before final green.
+Every Live Validation digest must include an exact `## User Test Summary` section; if User Test Summary is waived, the digest must still include `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:`.
 Workstream must not list `User Test Summary Results Pending` as the reason to stop implementation; it must continue implementation, internal sandbox validation, or named Workstream repair while current-branch product work remains.
 
 Expected reporting model:
