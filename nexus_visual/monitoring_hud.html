@@ -42,7 +42,9 @@
     data-keybind-policy="none"
     data-drag-smoothing="native-os-window-move"
     data-native-resize-model="os-edge-corner-resize"
-    data-resize-live-proof="during-drag-frame-pixel-signature-grow-shrink"
+    data-resize-live-proof="invisible-real-ui-frame-pixel-signature-grow-shrink"
+    data-resize-proof-visibility="normal-ui-no-proof-artifacts"
+    data-resize-proof-visuals="none"
     data-scrollbar-style="nexus-thin-glow"
     data-frame-ownership="single-rounded-dashboard-chrome"
     data-scroll-owner="monitoring-hud-control-hub"
@@ -54,10 +56,11 @@
     data-native-resize-hit-zone="preclick-hover-cursor-aligned-14px-app-owned-resize-action"
     data-sandbox-state-matrix="setup,no-data,degraded,ready,warning"
     data-dashboard-control-panel="hud-overlay-monitor-management"
-    data-monitor-management="create-edit-delete-sensor-assignment"
+    data-monitor-management="sensor-command-center-list-detail-source-picker"
     data-monitor-management-scale="split-layout-search-filter-large-fixtures"
-    data-monitor-management-layout="sticky-header-left-list-right-detail"
-    data-sensor-library-scale="search-filter-thousand-source-fixture"
+    data-monitor-management-layout="compact-list-right-detail-command-center"
+    data-sensor-library-scale="search-facet-thousand-source-fixture"
+    data-source-classification="settings-readiness-outside-assignable-sensors"
     data-monitor-management-scrollbars="nexus-styled-child-list-detail-sensor-panes"
     data-overlay-mode-controls="overlay-deferred-tray-owned"
     data-primary-interface-release-surface="monitoring-hud-dashboard-control-panel"
@@ -155,7 +158,7 @@
             <strong id="monitoring-hud-resize-posture">Overlay settings are future branch scope</strong>
           </div>
         </article>
-        <article class="monitoring-hud__hub-card monitoring-hud__hub-card--monitor-groups" data-dashboard-hub-card="monitor-groups" data-slice="SLC-027" data-dashboard-issue="125" data-monitor-group-flow="manage-list-create-edit-delete-sensor-assignment">
+        <article class="monitoring-hud__hub-card monitoring-hud__hub-card--monitor-groups" data-dashboard-hub-card="monitor-groups" data-slice="SLC-027" data-dashboard-issue="125" data-monitor-group-flow="sensor-command-center-list-detail-source-picker">
           <div class="monitoring-hud__hub-card-topline">
             <span>02</span>
             <strong>Monitor Groups</strong>
@@ -322,27 +325,19 @@
             <button type="button" id="monitoring-hud-manage-monitor-create-action" class="monitoring-hud__hub-action" data-control="manage-create-monitor">Create Monitor</button>
             <span id="monitoring-hud-monitor-manage-summary">2 created monitors</span>
           </div>
-          <div class="monitoring-hud__monitor-management-shell" data-monitor-management-layout="split-list-detail">
+          <div class="monitoring-hud__monitor-management-shell" data-monitor-management-layout="compact-command-center-list-detail">
             <aside class="monitoring-hud__monitor-list-pane monitoring-hud__nexus-scroll-pane" data-scroll-pane="monitor-list">
               <div class="monitoring-hud__monitor-manage-list" id="monitoring-hud-edit-monitor-list" aria-label="Created monitors">
-                <div class="monitoring-hud__monitor-manage-row" data-monitor-row="cpu" aria-current="true">
+                <div class="monitoring-hud__monitor-manage-row" data-monitor-row="cpu" data-monitor-select="cpu" role="button" tabindex="0" aria-current="true">
                   <div>
                     <strong>CPU Group</strong>
                     <span>1 source assigned</span>
                   </div>
-                  <div class="monitoring-hud__monitor-row-actions">
-                    <button type="button" data-monitor-edit-select="cpu" aria-pressed="true">Edit</button>
-                    <button type="button" data-monitor-delete="cpu">Delete</button>
-                  </div>
                 </div>
-                <div class="monitoring-hud__monitor-manage-row" data-monitor-row="gpu" aria-current="false">
+                <div class="monitoring-hud__monitor-manage-row" data-monitor-row="gpu" data-monitor-select="gpu" role="button" tabindex="0" aria-current="false">
                   <div>
                     <strong>GPU Group</strong>
                     <span>Provider sources pending</span>
-                  </div>
-                  <div class="monitoring-hud__monitor-row-actions">
-                    <button type="button" data-monitor-edit-select="gpu" aria-pressed="false">Edit</button>
-                    <button type="button" data-monitor-delete="gpu">Delete</button>
                   </div>
                 </div>
               </div>
@@ -357,7 +352,22 @@
                   <button type="button" id="monitoring-hud-monitor-delete-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="cancel-delete-monitor">Cancel</button>
                 </div>
               </div>
+              <div class="monitoring-hud__unsaved-guard" id="monitoring-hud-monitor-unsaved-guard" data-unsaved-guard="closed" hidden>
+                <strong>Unsaved monitor changes</strong>
+                <span>Save, discard, or cancel before switching to another monitor.</span>
+                <div class="monitoring-hud__child-actions">
+                  <button type="button" id="monitoring-hud-monitor-unsaved-save" class="monitoring-hud__hub-action" data-control="unsaved-save-monitor">Save</button>
+                  <button type="button" id="monitoring-hud-monitor-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="unsaved-discard-monitor">Discard</button>
+                  <button type="button" id="monitoring-hud-monitor-unsaved-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="unsaved-cancel-monitor">Cancel</button>
+                </div>
+              </div>
+              <div class="monitoring-hud__empty-state monitoring-hud__monitor-detail-empty" id="monitoring-hud-monitor-detail-empty" data-monitor-detail-empty="hidden" hidden>
+                No monitors exist yet. Create Monitor stays available above so you can recover from an empty state.
+              </div>
               <section class="monitoring-hud__monitor-settings-panel" aria-label="Selected monitor settings">
+                <div class="monitoring-hud__detail-actions" data-detail-actions="selected-monitor">
+                  <button type="button" id="monitoring-hud-monitor-detail-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="detail-delete-monitor">Delete Selected Monitor</button>
+                </div>
                 <label class="monitoring-hud__child-field">
                   Group name
                   <input id="monitoring-hud-edit-monitor-name" type="text" value="CPU Group" autocomplete="off" />
@@ -366,6 +376,14 @@
                   <input id="monitoring-hud-monitor-enabled" type="checkbox" checked />
                   Enabled for future Overlay display
                 </label>
+                <label class="monitoring-hud__child-check">
+                  <input id="monitoring-hud-monitor-warning-notifications-setting" type="checkbox" data-monitor-setting="warning-notifications" checked />
+                  Warning Notifications for this monitor group
+                </label>
+                <div class="monitoring-hud__readiness-panel" id="monitoring-hud-provider-readiness-panel" data-readiness-panel="provider-readiness-status">
+                  <strong>Provider Readiness</strong>
+                  <span>Readiness/status and future capability only; not an assignable sensor.</span>
+                </div>
                 <label class="monitoring-hud__child-field">
                   Polling floor
                   <select id="monitoring-hud-monitor-polling-rate">
@@ -381,58 +399,49 @@
                       <span>Find Source</span>
                       <input id="monitoring-hud-sensor-search" type="search" placeholder="Search source, device, metric" autocomplete="off" />
                     </label>
-                    <label class="monitoring-hud__filter-field">
-                      <span>Filter</span>
-                      <select id="monitoring-hud-sensor-filter">
-                        <option value="all">All sources</option>
-                        <option value="supported">Supported</option>
-                        <option value="deferred">Deferred</option>
-                        <option value="cpu">CPU</option>
-                        <option value="gpu">GPU</option>
-                        <option value="memory">Memory</option>
-                        <option value="disk">Disk</option>
-                        <option value="network">Network</option>
-                        <option value="temperature">Temperature</option>
-                        <option value="load">Load</option>
-                        <option value="clock">Clock</option>
-                        <option value="power">Power</option>
-                        <option value="fan">Fan</option>
-                        <option value="voltage">Voltage</option>
-                      </select>
-                    </label>
+                    <div class="monitoring-hud__source-filter-chips" id="monitoring-hud-sensor-filter" data-source-filter-mode="faceted-chip-source-picker" role="toolbar" aria-label="Sensor Library filters" data-selected-filter="all">
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="all" aria-pressed="true">All</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="supported" aria-pressed="false">Supported</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="deferred" aria-pressed="false">Deferred</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="missing" aria-pressed="false">Missing</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="warning" aria-pressed="false">Warning</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="cpu" aria-pressed="false">CPU</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="gpu" aria-pressed="false">GPU</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="memory" aria-pressed="false">Memory</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="disk" aria-pressed="false">Disk</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="network" aria-pressed="false">Network</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="temperature" aria-pressed="false">Temperature</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="load" aria-pressed="false">Load</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="clock" aria-pressed="false">Clock</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="power" aria-pressed="false">Power</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="fan" aria-pressed="false">Fan</button>
+                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="voltage" aria-pressed="false">Voltage</button>
+                    </div>
                     <span id="monitoring-hud-sensor-result-summary" class="monitoring-hud__sensor-result-summary">Showing supported sources</span>
                   </div>
-                  <fieldset class="monitoring-hud__sensor-assignment monitoring-hud__nexus-scroll-pane" id="monitoring-hud-monitor-sensor-assignment" data-sensor-assignment="available-runtime-sources" data-scroll-pane="sensor-result-list">
-                    <legend>Sensor / data-source assignment</legend>
-                    <label class="monitoring-hud__sensor-option" data-monitor-sensor-option="cpu-load">
+                  <div class="monitoring-hud__sensor-assignment monitoring-hud__nexus-scroll-pane" id="monitoring-hud-monitor-sensor-assignment" data-sensor-assignment="sensor-library-source-picker" data-scroll-pane="sensor-result-list" role="listbox" aria-label="Sensor Library source picker">
+                    <div class="monitoring-hud__sensor-option" data-monitor-sensor-option="cpu-load" data-source-status="supported">
                       <input type="checkbox" value="cpu-load" checked />
                       <span>CPU Load</span>
-                      <small>Native runtime source</small>
-                    </label>
-                    <label class="monitoring-hud__sensor-option" data-monitor-sensor-option="provider-state">
-                      <input type="checkbox" value="provider-state" checked />
-                      <span>Provider Readiness</span>
-                      <small>Dashboard-supported source</small>
-                    </label>
-                    <label class="monitoring-hud__sensor-option monitoring-hud__sensor-option--disabled" data-monitor-sensor-option="gpu-load">
+                      <small>native &gt; CPU &gt; cpu &gt; Load &gt; primary</small>
+                    </div>
+                    <div class="monitoring-hud__sensor-option monitoring-hud__sensor-option--disabled" data-monitor-sensor-option="gpu-load" data-source-status="provider-required">
                       <input type="checkbox" value="gpu-load" disabled />
                       <span>GPU Load</span>
-                      <small>Provider required</small>
-                    </label>
-                  </fieldset>
+                      <small>provider-required &gt; GPU &gt; gpu &gt; Load &gt; primary</small>
+                    </div>
+                  </div>
                   <div class="monitoring-hud__sensor-preview monitoring-hud__nexus-scroll-pane" id="monitoring-hud-sensor-preview" data-scroll-pane="sensor-preview">Select supported sources for this Monitor Group. Deferred sources stay visible but disabled.</div>
                 </div>
                 <div class="monitoring-hud__sensor-settings monitoring-hud__nexus-scroll-pane" id="monitoring-hud-monitor-sensor-settings" data-sensor-settings="selected-monitor-sources" data-scroll-pane="sensor-settings" aria-label="Per-sensor settings">
                   <div class="monitoring-hud__sensor-settings-row" data-sensor-settings-row="cpu-load">
                     <strong>CPU Load</strong>
-                    <label>
-                      Display mode
-                      <select data-sensor-display-mode="cpu-load">
-                        <option value="badge-text" selected>Badge + text</option>
-                        <option value="text">Text only</option>
-                        <option value="badge">Badge only</option>
-                      </select>
-                    </label>
+                    <div class="monitoring-hud__mode-chip-group" data-sensor-display-mode="cpu-load" data-sensor-display-mode-selected="badge-text">
+                      <span>Display mode</span>
+                      <button type="button" class="monitoring-hud__mode-chip" data-sensor-display-mode-option="cpu-load" data-sensor-display-mode-value="badge-text" aria-pressed="true">Badge + text</button>
+                      <button type="button" class="monitoring-hud__mode-chip" data-sensor-display-mode-option="cpu-load" data-sensor-display-mode-value="text" aria-pressed="false">Text only</button>
+                      <button type="button" class="monitoring-hud__mode-chip" data-sensor-display-mode-option="cpu-load" data-sensor-display-mode-value="badge" aria-pressed="false">Badge only</button>
+                    </div>
                     <label>
                       <input type="checkbox" data-sensor-warning-enabled="cpu-load" checked />
                       Warning state uses visual Dashboard notifications

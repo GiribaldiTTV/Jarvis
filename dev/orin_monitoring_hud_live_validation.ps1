@@ -486,11 +486,11 @@ Expected: Enable/Open HUD Dashboard makes the Dashboard visible, and Monitor Gro
 USER Result / Notes:
 
 Step 3 - Manage Monitors List And Create
-Expected: The Manage Monitors window shows a created monitor list and includes an in-window Create button so you do not need to return to the Dashboard card.
+Expected: Manage Monitors appears as a compact Sensor Command Center: the left list is action-light, row/icon selection opens the right detail pane, and Create stays reachable from the command surface.
 USER Result / Notes:
 
 Step 4 - Edit Monitor Settings
-Expected: Selecting Edit opens that monitor's specific settings, including group name, enabled state, polling interval, supported sensor/data-source assignment, and per-sensor display settings where available.
+Expected: Selecting another monitor by row/icon either opens its details or shows Save / Discard / Cancel when the current monitor has unsaved changes.
 USER Result / Notes:
 
 Step 5 - Delete Confirmation And Cancel
@@ -498,19 +498,19 @@ Expected: Delete opens a confirmation prompt. Cancel closes the prompt and prese
 USER Result / Notes:
 
 Step 6 - Delete Confirmation And Remove
-Expected: Confirm removes only the selected monitor, closes the confirmation prompt, and leaves the Manage Monitors flow usable.
+Expected: Delete lives in the right detail pane. Confirm removes only the selected monitor, supports deleting the final monitor, shows a true empty state, and keeps Create reachable.
 USER Result / Notes:
 
 Step 7 - Truthful Sensor Availability
-Expected: Supported sources are selectable. Provider-required or future/deferred sources are clearly labeled and do not pretend to be active.
+Expected: Warning Notifications is a monitor/settings checkbox, Provider Readiness is readiness/status/future capability, and neither appears as an assignable sensor/source row.
 USER Result / Notes:
 
 Step 8 - Sensor Library Scale And Scrollbars
-Expected: Search and Filter narrow the Sensor Library clearly, source rows show stable identity breadcrumbs, large-source behavior does not feel like a raw dropdown, and Monitor/Sensor panes use Nexus-styled scrollbars.
+Expected: Sensor Library uses Nexus-styled search/facet chips instead of a raw dropdown/checklist, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars.
 USER Result / Notes:
 
 Step 9 - Dashboard Resize And Move Smoothness
-Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse is still held; the Dashboard should not freeze and catch up only after release.
+Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse is still held; no resize-proof stripes, overlays, debug markers, or other proof artifacts should appear in the normal user-facing Dashboard UI.
 USER Result / Notes:
 
 Step 10 - Dashboard Control Regressions

@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active Branch Readiness Stage 2 returned refreshed UTS repair setup complete / Repair Workstream implementation pending`
-- Bounded State: `Returned refreshed USER UTS FAIL is digested for setup; visible resize-proof contamination and Sensor Command Center repair scope are admitted; runtime implementation remains pending USER approval`
+- Branch Authority State: `Active Repair Workstream implementation complete / Hardening H1 pending`
+- Bounded State: `Returned refreshed USER UTS FAIL repair implementation is complete; visible resize-proof contamination is removed from normal UI, Sensor Command Center/source picker/final-delete repairs are implemented, and Hardening H1 is pending`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -29,13 +29,13 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 Phase: `Branch Readiness`
 
-Stage: `Branch Readiness Stage 2 returned refreshed UTS repair setup complete / Repair Workstream implementation pending`
+Stage: `Repair Workstream implementation complete / Hardening H1 pending`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Refreshed Live Validation Stage 1 returned FAIL after the H1 repair. Current-main reconciliation is complete at `b7a7114af30ff1d378fbdb06e4a86a1410c2cc06` with `origin/main` `cb620709acb95f4457f317b5369bade7d9564724` as an ancestor of the branch. Current Branch Readiness Seam: `Returned refreshed UTS FAIL Sensor Command Center repair setup admitted`. Current Repair Workstream Seam: `Pending USER approval for implementation`. Current PR Readiness Seam: `Blocked until Sensor Command Center repair implementation, Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
+Refreshed Live Validation Stage 1 returned FAIL after the prior H1 repair. Current-main reconciliation is complete at `b7a7114af30ff1d378fbdb06e4a86a1410c2cc06` with `origin/main` `cb620709acb95f4457f317b5369bade7d9564724` as an ancestor of the branch. Current Branch Readiness Seam: `Returned refreshed UTS FAIL Sensor Command Center repair setup admitted`. Current Repair Workstream Seam: `Implementation complete for visible proof contamination removal, compact Sensor Command Center, final-delete empty state, faceted Sensor Library source picker, and source classification cleanup`. Current PR Readiness Seam: `Blocked until Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -104,9 +104,9 @@ USER/ChatGPT Review Checkpoint: `Returned refreshed UTS FAIL - USER screenshots 
 
 USER Critique Loop: `USER critique/feedback returned the refreshed UTS as FAIL and can still approve, change, defer, or critique the next repair before Workstream implementation. Step 9 functionality improved, but the resize/move proof artifact visibly leaks into the normal Dashboard UI during drag/resize and disappears after release. Step 3/4 show Manage Monitors still has row-level Edit/Delete actions instead of row/icon selection plus detail-pane Delete. Step 6 shows final monitor deletion is blocked instead of allowing a true empty state. Step 8 shows native/basic dropdown behavior and weak Sensor Library scale presentation. USER also required Warning Notifications and Provider Readiness to be removed from assignable sensors and classified as settings/readiness status.`
 
-Historical Repair Trigger Marker: `returned USER UTS FAIL` - preserved for source-truth validator traceability; active state is returned refreshed USER UTS FAIL repair setup with implementation pending.
+Historical Repair Trigger Marker: `returned USER UTS FAIL` - preserved for source-truth validator traceability; active state is returned refreshed USER UTS FAIL repair implementation complete with Hardening pending.
 
-USER Decision Ledger: `USER approved Branch Readiness Stage 2 repair setup for the returned refreshed UTS FAIL only. Runtime repair implementation, GitHub issue #127 mutation, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
+USER Decision Ledger: `USER approved bounded Repair Workstream implementation for the returned refreshed UTS FAIL. GitHub issue #127 mutation, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
 
 Full Feature Element Breakdown: `Sensor Command Center shell; compact action-light monitor list; row/icon selection; right-side detail panel; detail-pane Delete action; Save / Discard / Cancel guard for unsaved changes; final-monitor delete; true empty state with Create reachable; Sensor Library / Source Picker replacing basic dropdown/checklist assignment; Warning Notifications as settings checkbox outside sensor assignment; Provider Readiness as readiness/status/future capability outside assignable sources; source breadcrumbs using provider > device > category > metric > instance; source status metadata; scalable search plus filter chips/facets; large fixture proof; Overlay Profile planning; Recording Profile planning; validation and UTS proof hooks.`
 
@@ -415,7 +415,7 @@ Active-Client UTS Handoff Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_va
 
 Formal UTS Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
-Formal UTS Handoff Status: `RETURNED USER RESULT - FAIL / repair setup admitted before runtime implementation`
+Formal UTS Handoff Status: `DRAFT HANDOFF REFRESH REQUIRED after Hardening H1 / prior returned USER result remains FAIL until refreshed USER UTS returns PASS or is explicitly waived`
 
 Live Validation Repair Files: `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_human_client_validation.ps1`; `dev/orin_monitoring_hud_live_validation.ps1`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`.
 
@@ -427,7 +427,7 @@ Risk Classes: `visible validation contamination in product UI`; `dead-end Monito
 
 ## User Test Summary Strategy
 
-Stage 2 setup does not generate a new UTS. The current compact UTS at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` was returned by USER as FAIL. Runtime Repair Workstream implementation must refresh the UTS handoff only after the visible resize-proof contamination, Sensor Command Center, final-delete empty-state, dropdown/source picker, and source-classification repairs are implemented and hardened.
+Repair Workstream implementation updates the compact UTS wording source. The current compact UTS at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` was previously returned by USER as FAIL. The UTS handoff must be refreshed after Hardening H1 so the USER can retest visible resize-proof contamination removal, Sensor Command Center behavior, final-delete empty state, Nexus source picker/dropdown behavior, and source-classification cleanup.
 
 ## Later-Phase Expectations
 
@@ -447,43 +447,43 @@ Non-Includes: `HUD Overlay visual display acceptance, Overlay customization, app
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 repair setup for FAM-006 Sensor Command Center returned refreshed UTS FAIL`
+Active seam: `Repair Workstream implementation for FAM-006 Sensor Command Center returned refreshed UTS FAIL`
 
-Active Seam Status: `Returned refreshed UTS FAIL digested into source-truth setup: visible resize-proof contamination, Sensor Command Center redesign, final-delete empty state, dropdown/source picker, and source classification repair scope admitted.`
+Active Seam Status: `Returned refreshed UTS FAIL runtime repair implemented: normal UI no longer shows resize proof artifacts, Sensor Command Center replaces row-button/checklist management, final-monitor delete reaches a true empty state, Source Picker uses Nexus search/facets, and Warning Notifications / Provider Readiness are classified outside assignable sensors.`
 
-Next active seam: `Repair Workstream implementation after USER approval`
+Next active seam: `Hardening H1 after repair implementation`
 
 ## Backlog Completion Status
 
-Backlog Completion State: `Repair Setup Complete / Implementation Pending`
+Backlog Completion State: `Repair Implementation Complete / Hardening Pending`
 
-Remaining Implementable Work: `Runtime Repair Workstream implementation for visible resize-proof contamination, Sensor Command Center, final delete/empty state, dropdown/source picker, and source classification cleanup.`
+Remaining Implementable Work: `No additional runtime work admitted before Hardening. Hardening H1 must pressure-test the implemented repair and may apply bounded same-seam fixes if defects are found.`
 
-Future-Dependent Blockers: `Repair Workstream implementation approval; refreshed Live Validation/UTS after repair; PR Readiness; PR creation; merge; release execution; artifacts; raw evidence handling; future branch/worktree cleanup; FAM-007 work; provider/model/memory/shortcut/installer work; Overlay acceptance; external telemetry parity; AI Product work`
+Future-Dependent Blockers: `Hardening H1; refreshed Live Validation/UTS after repair; PR Readiness; PR creation; merge; release execution; artifacts; raw evidence handling; future branch/worktree cleanup; FAM-007 work; provider/model/memory/shortcut/installer work; Overlay acceptance; external telemetry parity; AI Product work`
 
 Completion Status: `Blocked before PR Readiness`
 
 ## Seam Continuation Decision
 
-Seam Status: `Stage 2 setup green after validation; runtime repair pending`
+Seam Status: `Repair Workstream implementation complete; Hardening H1 pending`
 
-Slice Status: `Admitted repair scope; implementation pending`
+Slice Status: `Admitted repair scope implemented; pressure testing pending`
 
-Completion Status: `Blocked by returned refreshed UTS FAIL repair implementation`
+Completion Status: `Blocked by Hardening H1 and refreshed Live Validation / UTS recheck`
 
 Waiver Status: `None`
 
-Continue Decision: `Stop`
+Continue Decision: `Proceed only after USER approves Hardening H1`
 
-Continuation Execution Latch: `Closed until USER approves Repair Workstream implementation`
+Continuation Execution Latch: `Closed until USER approves Hardening H1`
 
-Stop Basis: `Returned refreshed UTS FAIL repair setup complete / implementation approval pending`
+Stop Basis: `Repair implementation complete / Hardening H1 approval pending`
 
-Next Active Seam: `Repair Workstream implementation`
+Next Active Seam: `Hardening H1`
 
-Stop Condition: `Returned refreshed UTS FAIL is admitted for repair; runtime implementation requires explicit USER approval before work resumes`
+Stop Condition: `Returned refreshed UTS FAIL repair is implemented; Hardening requires explicit USER approval before work resumes`
 
-Continuation Action: `Stop after Stage 2 setup until USER approves the bounded Repair Workstream implementation`
+Continuation Action: `Stop after Repair Workstream implementation until USER approves Hardening H1`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -495,19 +495,19 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Blockers
 
-Returned refreshed USER UTS is FAIL. Blockers are visible resize-proof contamination in normal user-facing validation, Manage Monitors still feeling like a compact row-button modal, final-monitor delete lacking true empty state, native/basic dropdown behavior, and Warning Notifications / Provider Readiness being misclassified as assignable source items. PR Readiness, PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
+Returned refreshed USER UTS was FAIL and the bounded runtime repair has been implemented. PR Readiness remains blocked until Hardening H1 and refreshed Live Validation / returned USER UTS recheck prove the repair or USER explicitly waives remaining gates with reason. PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
 
 ## Exit Criteria
 
-- Returned refreshed UTS FAIL repair setup is admitted.
-- Visible resize-proof contamination, invisible/test-gated resize proof, Sensor Command Center, final-delete empty state, dropdown/source picker, and source-classification repair scope is recorded.
+- Returned refreshed UTS FAIL repair implementation is complete.
+- Visible resize-proof contamination, invisible/test-gated resize proof, Sensor Command Center, final-delete empty state, dropdown/source picker, and source-classification repairs are implemented and ready for H1 pressure testing.
 - Existing Dashboard settings, close, warning notifications, tray-owned HUD control, resize/scroll/source-truth boundaries are preserved as regression requirements.
 - FAM-006 v1.7.1-prebeta release closure remains green.
 - FAM-006 released issue closeout posture is preserved.
 - Directly supporting validators pass.
-- PR Readiness remains blocked until runtime repair implementation, Hardening, refreshed Live Validation, and returned USER UTS PASS or explicit waiver with reason.
+- PR Readiness remains blocked until Hardening, refreshed Live Validation, and returned USER UTS PASS or explicit waiver with reason.
 - Required validation passes.
-- Branch Readiness Stage 2 repair setup commit is pushed.
+- Repair Workstream implementation commit is pushed.
 
 ## Rollback Target
 
@@ -519,21 +519,21 @@ Rollback is the unmerged Workstream implementation on this branch only if USER l
 
 `Workstream`
 
-USER decision to approve bounded Repair Workstream implementation for `feature/fam-006-monitor-groups-sensor-configuration`.
+USER decision to approve Hardening H1 for `feature/fam-006-monitor-groups-sensor-configuration`.
 
 ## Next Legal Phase Digest
 
-Current Phase: `Branch Readiness Stage 2 repair setup`
+Current Phase: `Repair Workstream implementation`
 
-Next Legal Phase: `Workstream`
+Next Legal Phase: `Hardening H1`
 
-Why This Phase Is Next: `Returned refreshed USER UTS FAIL identified repair scope beyond result digestion: visible proof contamination, Sensor Command Center structure, final-delete empty state, dropdown/source picker style/proof, and source classification cleanup. Runtime repair implementation is required before Hardening and refreshed Live Validation can be meaningful.`
+Why This Phase Is Next: `The bounded runtime repair is implemented. Hardening H1 must challenge the visible proof contamination removal, invisible/test-gated proof, Sensor Command Center behavior, final-delete empty state, source picker/dropdown behavior, and source classification cleanup before refreshed Live Validation / UTS recheck.`
 
-Approval Required: `USER approval for bounded Repair Workstream implementation.`
+Approval Required: `USER approval for Hardening H1.`
 
-Exact USER Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to removing visible resize-proof contamination, adding invisible/test-gated grow/shrink during-drag proof, implementing the Sensor Command Center compact monitor list/detail-pane repair, adding final-monitor delete and true empty state, replacing basic dropdown/checklist source assignment with Nexus Sensor Library / Source Picker search/facets, classifying Warning Notifications and Provider Readiness outside assignable sensors, adding breadcrumbs/status metadata, updating validators/helpers/UTS, validation, commit, and push.`
+Exact USER Approval Text: `Approve Hardening H1 for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006 after the returned UTS FAIL repair implementation, including pressure-testing visible resize-proof contamination removal, invisible/test-gated grow/shrink during-drag proof, Sensor Command Center compact monitor list/detail-pane behavior, final-monitor delete and true empty state, Nexus Sensor Library / Source Picker search/facets, Warning Notifications / Provider Readiness classification, directly supporting validator/helper/source-truth repair if H1 finds same-seam defects, validation, commit, and push if needed.`
 
-Allowed Scope: `Runtime repair implementation inside the admitted FAM-006 Monitor Groups / Sensor Command Center seam, directly supporting validators/helpers/source truth, compact UTS refresh if required, validation, commit, and push.`
+Allowed Scope: `Hardening H1 pressure testing inside the admitted FAM-006 Monitor Groups / Sensor Command Center seam, bounded same-seam repair if defects are found, directly supporting validators/helpers/source truth, compact UTS refresh if required, validation, commit, and push if needed.`
 
 Explicit Exclusions: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, tags, GitHub Releases, artifacts, raw evidence upload/import/linking, and future branch/worktree cleanup after this branch closes.`
 

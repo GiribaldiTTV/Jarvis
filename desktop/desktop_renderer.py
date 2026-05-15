@@ -7996,36 +7996,24 @@ class DesktopRuntimeWindow(QWidget):
         if overlay is None:
             return
         self._monitoring_hud_resize_proof_frame += 1
-        phase = int((active_rect.width() * 3 + active_rect.height() * 5 + self._monitoring_hud_resize_proof_frame * 17) % 6)
-        alpha = min(225, 94 + (phase * 24))
-        secondary_alpha = min(190, 70 + (((phase + 2) % 6) * 18))
-        primary_rgb = (159, 247, 255)
-        secondary_rgb = (99, 255, 202)
         direction_marker = "active-resize-native-repaint-proof-grow"
         if direction == "shrink":
             direction_marker = "active-resize-native-repaint-proof-shrink"
-            primary_rgb = (255, 206, 126)
-            secondary_rgb = (120, 231, 255)
         elif direction == "steady":
             direction_marker = "active-resize-native-repaint-proof-steady"
         overlay.setProperty("resizeProof", direction_marker)
+        overlay.setProperty("resizeProofVisibility", "invisible-test-gated-no-user-facing-artifacts")
         overlay.setGeometry(self.rect().adjusted(8, 8, -8, -8))
         overlay.setStyleSheet(
-            f"""
-            #monitoringHudResizeProofOverlay {{
+            """
+            #monitoringHudResizeProofOverlay {
                 border-radius: 22px;
-                border: 1px solid rgba(130, 242, 255, {min(210, alpha + 20)});
-                background:
-                    qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                        stop:0 rgba({primary_rgb[0]}, {primary_rgb[1]}, {primary_rgb[2]}, 0),
-                        stop:0.36 rgba({primary_rgb[0]}, {primary_rgb[1]}, {primary_rgb[2]}, {alpha}),
-                        stop:0.62 rgba({secondary_rgb[0]}, {secondary_rgb[1]}, {secondary_rgb[2]}, {secondary_alpha}),
-                        stop:1 rgba({primary_rgb[0]}, {primary_rgb[1]}, {primary_rgb[2]}, 0));
-            }}
+                border: 0;
+                background: transparent;
+            }
             """
         )
-        overlay.show()
-        overlay.raise_()
+        overlay.hide()
         overlay.update()
 
     def _hide_monitoring_hud_resize_proof_overlay(self):
@@ -8034,6 +8022,7 @@ class DesktopRuntimeWindow(QWidget):
             return
         overlay.hide()
         overlay.setProperty("resizeProof", "inactive")
+        overlay.setProperty("resizeProofVisibility", "hidden")
         overlay.update()
 
     def _sync_monitoring_hud_resize_frame(self, *, force: bool = False):
@@ -9169,8 +9158,8 @@ class DesktopRuntimeWindow(QWidget):
                 const geometry = window.getMonitoringHudLiveClientGeometry
                     ? window.getMonitoringHudLiveClientGeometry()
                     : {};
-                const cpuConfigOption = document.querySelector('[data-monitor-edit-select="cpu"]');
-                const gpuConfigOption = document.querySelector('[data-monitor-edit-select="gpu"]');
+                const cpuConfigOption = document.querySelector('[data-monitor-row="cpu"]');
+                const gpuConfigOption = document.querySelector('[data-monitor-row="gpu"]');
                 return JSON.stringify({
                     hasHud: Boolean(hud),
                     text,
@@ -9344,7 +9333,7 @@ class DesktopRuntimeWindow(QWidget):
                 "minimal_hud_present": minimal_dataset.get("productSurfaceRole") == "minimal-anchored-hud-overlay",
                 "minimal_nexus_identity": "nexus" in lower_minimal_text and "monitoring hud" in lower_minimal_text,
                 "dashboard_role": dataset.get("productSurfaceRole") == "dashboard-configuration-surface",
-                "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-delete-sensor-assignment",
+                "dashboard_monitor_management": dataset.get("monitorManagement") == "sensor-command-center-list-detail-source-picker",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
                 "dashboard_settings_content_polished": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
@@ -9685,7 +9674,7 @@ class DesktopRuntimeWindow(QWidget):
             selected_sensors = selected.get("sensors") if isinstance(selected.get("sensors"), list) else []
             h1_proof = state.get("hardeningH1MonitorManagementProof") if isinstance(state.get("hardeningH1MonitorManagementProof"), dict) else {}
             checks = {
-                "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-delete-sensor-assignment",
+                "dashboard_monitor_management": dataset.get("monitorManagement") == "sensor-command-center-list-detail-source-picker",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
                 "dashboard_settings_content_polish": dataset.get("dashboardContentPolish") == "branch2-monitor-groups-no-dead-space",
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
@@ -9694,14 +9683,14 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows",
                 "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "configurable-groups-sensor-assignment",
                 "dashboard_monitor_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-visual-rendering",
-                "dashboard_sensor_assignment": dataset.get("monitorSensorAssignment") == "available-runtime-sources",
+                "dashboard_sensor_assignment": dataset.get("monitorSensorAssignment") == "sensor-library-source-picker",
+                "source_classification": dataset.get("sourceClassification") == "settings-readiness-outside-assignable-sensors",
                 "monitor_count_expanded": len(cards) >= 3,
                 "created_monitor_selected": selected_id.startswith("monitor-"),
                 "created_monitor_disabled": selected.get("enabled") is False,
                 "created_monitor_polling_5000": int(selected.get("pollingRateMs") or 0) == 5000,
-                "created_monitor_sensor_assignment": {"cpu-load", "provider-state", "warning-notifications"}.issubset(
-                    {str(sensor) for sensor in selected_sensors}
-                ),
+                "created_monitor_sensor_assignment": set(selected_sensors) == {"cpu-load"},
+                "warning_notifications_setting": selected.get("warningNotificationsEnabled") is True,
                 "created_monitor_sensor_settings": isinstance(selected.get("sensorSettings"), dict)
                     and "cpu-load" in selected.get("sensorSettings", {}),
                 "global_polling_preserved": int(state.get("pollingRateMs") or 0) == 1000,
@@ -9960,9 +9949,10 @@ class DesktopRuntimeWindow(QWidget):
                         title: "Monitor Group " + String(next.monitorSequence),
                         enabled: true,
                         pollingRateMs: 1000,
-                        sensors: ["provider-state"],
+                        warningNotificationsEnabled: true,
+                        sensors: ["cpu-load"],
                         sensorSettings: {
-                            "provider-state": { displayMode: "text", warningEnabled: true }
+                            "cpu-load": { displayMode: "badge-text", warningEnabled: true }
                         }
                     };
                     window.setMonitoringHudControlState(next);
@@ -10036,7 +10026,7 @@ class DesktopRuntimeWindow(QWidget):
                                 && Object.keys(afterManageCards).length === beforeCount + 1
                             );
                             const afterManageCount = Object.keys(afterManageCards).length;
-                            const deleteButton = document.querySelector(`[data-monitor-delete="${manageCreatedId}"]`);
+                            const deleteButton = document.getElementById("monitoring-hud-monitor-detail-delete");
                             if (deleteButton) {
                                 deleteButton.click();
                                 const panel = document.getElementById("monitoring-hud-monitor-delete-confirmation");
@@ -10054,7 +10044,7 @@ class DesktopRuntimeWindow(QWidget):
                                     afterCancelCards[manageCreatedId]
                                     && Object.keys(afterCancelCards).length === afterManageCount
                                 );
-                                const deleteButtonAgain = document.querySelector(`[data-monitor-delete="${manageCreatedId}"]`);
+                                const deleteButtonAgain = document.getElementById("monitoring-hud-monitor-detail-delete");
                                 if (deleteButtonAgain) deleteButtonAgain.click();
                                 const confirm = document.getElementById("monitoring-hud-monitor-delete-confirm");
                                 if (confirm) confirm.click();
@@ -10099,11 +10089,10 @@ class DesktopRuntimeWindow(QWidget):
                                 state.cards[selectedId] = Object.assign({}, state.cards[selectedId], {
                                     enabled: false,
                                     pollingRateMs: 5000,
-                                    sensors: ["cpu-load", "provider-state", "warning-notifications"],
+                                    warningNotificationsEnabled: true,
+                                    sensors: ["cpu-load"],
                                     sensorSettings: {
-                                        "cpu-load": { displayMode: "badge-text", warningEnabled: true },
-                                        "provider-state": { displayMode: "text", warningEnabled: true },
-                                        "warning-notifications": { displayMode: "badge", warningEnabled: true }
+                                        "cpu-load": { displayMode: "badge-text", warningEnabled: true }
                                     }
                                 });
                                 state.hardeningH1MonitorManagementProof = {
@@ -10289,10 +10278,10 @@ class DesktopRuntimeWindow(QWidget):
                             title: "CPU Group",
                             enabled: true,
                             pollingRateMs: 1000,
-                            sensors: ["cpu-load", "provider-state"],
+                            warningNotificationsEnabled: true,
+                            sensors: ["cpu-load"],
                             sensorSettings: {
-                                "cpu-load": { displayMode: "badge-text", warningEnabled: true },
-                                "provider-state": { displayMode: "text", warningEnabled: true }
+                                "cpu-load": { displayMode: "badge-text", warningEnabled: true }
                             }
                         },
                         gpu: {
@@ -10303,10 +10292,9 @@ class DesktopRuntimeWindow(QWidget):
                             title: "GPU Group",
                             enabled: true,
                             pollingRateMs: 1000,
-                            sensors: ["provider-state"],
-                            sensorSettings: {
-                                "provider-state": { displayMode: "text", warningEnabled: true }
-                            }
+                            warningNotificationsEnabled: true,
+                            sensors: [],
+                            sensorSettings: {}
                         }
                     }
                 });
@@ -10677,7 +10665,9 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardSettingsProof = "visible-open-close-control-hit-target";
                     monitoringHud.dataset.monitorGroupModel = "configurable-groups-sensor-assignment";
                     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-visual-rendering";
-                    monitoringHud.dataset.monitorSensorAssignment = "available-runtime-sources";
+                    monitoringHud.dataset.monitorManagement = "sensor-command-center-list-detail-source-picker";
+                    monitoringHud.dataset.monitorSensorAssignment = "sensor-library-source-picker";
+                    monitoringHud.dataset.sourceClassification = "settings-readiness-outside-assignable-sensors";
                     monitoringHud.dataset.dashboardProviderTruth = "provider-contract-first";
                     monitoringHud.dataset.dashboardStateModel = "setup-no-data-degraded-warning";
                     monitoringHud.dataset.dashboardWarningControls = "visual-non-invasive-only";

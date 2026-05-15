@@ -71,6 +71,14 @@ const monitoringHudMonitorDeleteTitle = document.getElementById("monitoring-hud-
 const monitoringHudMonitorDeleteCopy = document.getElementById("monitoring-hud-monitor-delete-copy");
 const monitoringHudMonitorDeleteConfirm = document.getElementById("monitoring-hud-monitor-delete-confirm");
 const monitoringHudMonitorDeleteCancel = document.getElementById("monitoring-hud-monitor-delete-cancel");
+const monitoringHudMonitorDetailDelete = document.getElementById("monitoring-hud-monitor-detail-delete");
+const monitoringHudMonitorUnsavedGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+const monitoringHudMonitorUnsavedSave = document.getElementById("monitoring-hud-monitor-unsaved-save");
+const monitoringHudMonitorUnsavedDiscard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
+const monitoringHudMonitorUnsavedCancel = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
+const monitoringHudMonitorDetailEmpty = document.getElementById("monitoring-hud-monitor-detail-empty");
+const monitoringHudMonitorWarningSetting = document.getElementById("monitoring-hud-monitor-warning-notifications-setting");
+const monitoringHudProviderReadinessPanel = document.getElementById("monitoring-hud-provider-readiness-panel");
 const monitoringHudMonitorSensorAssignment = document.getElementById("monitoring-hud-monitor-sensor-assignment");
 const monitoringHudMonitorSensorSettings = document.getElementById("monitoring-hud-monitor-sensor-settings");
 const monitoringHudSensorSearch = document.getElementById("monitoring-hud-sensor-search");
@@ -135,10 +143,10 @@ let monitoringHudControlState = {
       title: "CPU Group",
       enabled: true,
       pollingRateMs: 1000,
-      sensors: ["cpu-load", "provider-state"],
+      warningNotificationsEnabled: true,
+      sensors: ["cpu-load"],
       sensorSettings: {
-        "cpu-load": { displayMode: "badge-text", warningEnabled: true },
-        "provider-state": { displayMode: "text", warningEnabled: true }
+        "cpu-load": { displayMode: "badge-text", warningEnabled: true }
       }
     },
     gpu: {
@@ -149,10 +157,9 @@ let monitoringHudControlState = {
       title: "GPU Group",
       enabled: true,
       pollingRateMs: 1000,
-      sensors: ["provider-state"],
-      sensorSettings: {
-        "provider-state": { displayMode: "text", warningEnabled: true }
-      }
+      warningNotificationsEnabled: true,
+      sensors: [],
+      sensorSettings: {}
     }
   },
   changedAt: Date.now()
@@ -171,6 +178,10 @@ let monitoringHudPendingDeleteMonitorId = "";
 let monitoringHudResizeProofFrame = 0;
 let monitoringHudLargeFixtureModeEnabled = false;
 let monitoringHudLargeSensorFixtureCache = null;
+let monitoringHudUnsavedMonitorDirty = false;
+let monitoringHudPendingSelectMonitorId = "";
+let monitoringHudDraftOriginalMonitorId = "";
+let monitoringHudDraftOriginalLayout = null;
 
 function monitoringHudSnap(value) {
   if (!monitoringHudControlState.snapEnabled) return Math.round(value);
@@ -185,18 +196,24 @@ function monitoringHudRecordResizeFrame(payload) {
   if (!monitoringHud) return;
   const rect = payload || {};
   monitoringHudResizeProofFrame += 1;
-  monitoringHud.dataset.liveResizeProof = "during-drag-frame-pixel-signature-grow-shrink";
+  monitoringHud.dataset.liveResizeProof = "invisible-real-ui-frame-pixel-signature-grow-shrink";
   monitoringHud.dataset.liveResizeActive = rect.active === false ? "false" : "true";
   monitoringHud.dataset.liveResizeFrame = String(monitoringHudResizeProofFrame);
   monitoringHud.dataset.liveResizeDirection = String(rect.direction || "unknown");
   monitoringHud.dataset.liveResizeGeometry = `${Number(rect.width) || 0}x${Number(rect.height) || 0}`;
   monitoringHud.dataset.liveResizeFrameIntervalMs = String(Number(rect.frameIntervalMs) || 0);
-  const proofPhase = monitoringHudResizeProofFrame % 6;
-  const proofX = ((monitoringHudResizeProofFrame * 41) % 180) - 90;
-  const proofY = ((monitoringHudResizeProofFrame * 31) % 150) - 75;
-  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-x", `${proofX}px`);
-  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-y", `${proofY}px`);
-  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-alpha", `${0.42 + (proofPhase * 0.065)}`);
+  monitoringHud.dataset.resizeProofVisibility = "normal-ui-no-proof-artifacts";
+  monitoringHud.dataset.resizeProofVisuals = "none";
+  monitoringHud.dataset.liveResizeVisualArtifact = "none";
+  monitoringHud.dataset.liveResizePixelSignature = [
+    monitoringHudResizeProofFrame,
+    Number(rect.width) || 0,
+    Number(rect.height) || 0,
+    String(rect.direction || "unknown")
+  ].join(":");
+  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-x", "0px");
+  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-y", "0px");
+  monitoringHud.style.setProperty("--monitoring-hud-live-resize-proof-alpha", "0");
 }
 
 function monitoringHudFinishResizeFrame(payload) {
@@ -255,6 +272,7 @@ function monitoringHudCardDefaults(cardId) {
     title: cardId === "cpu" ? "CPU Group" : cardId === "gpu" ? "GPU Group" : "Monitor Group",
     enabled: true,
     pollingRateMs: 1000,
+    warningNotificationsEnabled: true,
     sensors,
     sensorSettings
   };
@@ -349,34 +367,6 @@ function monitoringHudSensorDefinitions() {
       metric: "Load",
       instance: "primary"
     },
-    "provider-state": {
-      id: "provider-state",
-      label: "Provider Readiness",
-      source: "Dashboard readiness state",
-      state: "dashboard-supported",
-      value: monitoringHudTelemetry.providerLabel || "Provider setup required",
-      assignable: true,
-      reason: "Dashboard-supported source",
-      provider: "dashboard",
-      device: "Dashboard",
-      category: "supported",
-      metric: "Readiness",
-      instance: "primary"
-    },
-    "warning-notifications": {
-      id: "warning-notifications",
-      label: "Warning Notifications",
-      source: "Dashboard warning controls",
-      state: "dashboard-supported",
-      value: monitoringHudControlState.warningNotificationsMuted ? "Muted" : "Enabled",
-      assignable: true,
-      reason: "Dashboard-supported source",
-      provider: "dashboard",
-      device: "Dashboard",
-      category: "supported",
-      metric: "Warning",
-      instance: "primary"
-    },
     "cpu-thermal": {
       id: "cpu-thermal",
       label: "CPU Thermal",
@@ -418,23 +408,124 @@ function monitoringHudSensorDefinitions() {
       category: "temperature",
       metric: "Thermal",
       instance: "primary"
+    },
+    "memory-usage": {
+      id: "memory-usage",
+      label: "Memory Usage",
+      source: "Provider memory source pending",
+      state: "blocked-until-provider",
+      value: "Provider required",
+      assignable: false,
+      reason: "Provider required",
+      provider: "provider-required",
+      device: "Memory",
+      category: "memory",
+      metric: "Usage",
+      instance: "primary"
+    },
+    "disk-throughput": {
+      id: "disk-throughput",
+      label: "Disk Throughput",
+      source: "Provider disk source pending",
+      state: "missing",
+      value: "Missing source",
+      assignable: false,
+      reason: "Missing source",
+      provider: "provider-required",
+      device: "Disk",
+      category: "disk",
+      metric: "Throughput",
+      instance: "primary"
+    },
+    "network-throughput": {
+      id: "network-throughput",
+      label: "Network Throughput",
+      source: "Provider network source pending",
+      state: "warning",
+      value: "Provider warning",
+      assignable: false,
+      reason: "Warning state, provider required",
+      provider: "provider-required",
+      device: "Network",
+      category: "network",
+      metric: "Throughput",
+      instance: "primary"
+    },
+    "clock-frequency": {
+      id: "clock-frequency",
+      label: "Clock Frequency",
+      source: "Provider clock source pending",
+      state: "blocked-until-provider",
+      value: "Provider required",
+      assignable: false,
+      reason: "Provider required",
+      provider: "provider-required",
+      device: "Clock",
+      category: "clock",
+      metric: "Frequency",
+      instance: "primary"
+    },
+    "power-watts": {
+      id: "power-watts",
+      label: "Power Draw",
+      source: "Provider power source pending",
+      state: "blocked-until-provider",
+      value: "Provider required",
+      assignable: false,
+      reason: "Provider required",
+      provider: "provider-required",
+      device: "Power",
+      category: "power",
+      metric: "Watts",
+      instance: "primary"
+    },
+    "fan-rpm": {
+      id: "fan-rpm",
+      label: "Fan Speed",
+      source: "Provider fan source pending",
+      state: "blocked-until-provider",
+      value: "Provider required",
+      assignable: false,
+      reason: "Provider required",
+      provider: "provider-required",
+      device: "Fan",
+      category: "fan",
+      metric: "RPM",
+      instance: "primary"
+    },
+    "voltage-rail": {
+      id: "voltage-rail",
+      label: "Voltage Rail",
+      source: "Provider voltage source pending",
+      state: "blocked-until-provider",
+      value: "Provider required",
+      assignable: false,
+      reason: "Provider required",
+      provider: "provider-required",
+      device: "Voltage",
+      category: "voltage",
+      metric: "Volts",
+      instance: "primary"
     }
   };
   const telemetryCards = Array.isArray(monitoringHudTelemetry.sensorCards) ? monitoringHudTelemetry.sensorCards : [];
+  const nonAssignableProductConcepts = new Set(["provider-state", "warning-notifications"]);
   telemetryCards.forEach((card) => {
     const sensors = card && Array.isArray(card.sensors) ? card.sensors : [];
     sensors.forEach((sensor) => {
       if (!sensor || !sensor.id) return;
       const sensorId = String(sensor.id);
+      if (nonAssignableProductConcepts.has(sensorId)) return;
       const state = String(sensor.state || base[sensorId]?.state || "");
+      const telemetryAssignable = !["blocked-until-provider", "provider-required", "deferred", "missing", "warning"].includes(state);
       base[sensorId] = Object.assign({}, base[sensorId] || {}, {
         id: sensorId,
         label: String(sensor.label || base[sensorId]?.label || sensorId),
         source: String(sensor.source || base[sensorId]?.source || "runtime source"),
         state,
         value: String(sensor.value || base[sensorId]?.value || ""),
-        assignable: state !== "blocked-until-provider",
-        reason: state === "blocked-until-provider" ? "Provider required" : "Runtime source",
+        assignable: telemetryAssignable,
+        reason: telemetryAssignable ? "Runtime source" : "Provider required",
         provider: String(sensor.provider || base[sensorId]?.provider || "runtime"),
         device: String(sensor.device || base[sensorId]?.device || "Runtime"),
         category: String(sensor.category || base[sensorId]?.category || monitoringHudSensorCategoryForId(sensorId)),
@@ -452,8 +543,8 @@ function monitoringHudSensorDefinitionById(sensorId) {
 }
 
 function monitoringHudDefaultSensorIds(cardId) {
-  if (cardId === "cpu") return ["cpu-load", "provider-state"];
-  return ["provider-state"];
+  if (cardId === "cpu") return ["cpu-load"];
+  return [];
 }
 
 function monitoringHudDefaultSensorSetting(sensorId) {
@@ -493,9 +584,11 @@ function monitoringHudSelectedMonitor() {
   if (selectedId && cards[selectedId]) {
     return { id: selectedId, layout: monitoringHudNormalizeSensorAssignments(selectedId, cards[selectedId]) };
   }
-  const firstId = Object.keys(cards)[0] || "cpu";
+  const firstId = Object.keys(cards)[0] || "";
   monitoringHudControlState.selectedMonitorId = firstId;
-  return { id: firstId, layout: monitoringHudNormalizeSensorAssignments(firstId, cards[firstId] || monitoringHudCardDefaults(firstId)) };
+  return firstId
+    ? { id: firstId, layout: monitoringHudNormalizeSensorAssignments(firstId, cards[firstId] || monitoringHudCardDefaults(firstId)) }
+    : { id: "", layout: null };
 }
 
 function monitoringHudNormalizeMonitorGroupTitle(cardId, layout) {
@@ -629,7 +722,11 @@ function monitoringHudSensorSearchValue() {
 }
 
 function monitoringHudSensorFilterValue() {
-  return String(monitoringHudSensorFilter ? monitoringHudSensorFilter.value : "all").trim().toLowerCase() || "all";
+  return String(
+    monitoringHudSensorFilter
+      ? (monitoringHudSensorFilter.dataset.selectedFilter || monitoringHudSensorFilter.value || "all")
+      : "all"
+  ).trim().toLowerCase() || "all";
 }
 
 function monitoringHudSensorMatchesFilter(sensor, query, filterValue) {
@@ -638,9 +735,11 @@ function monitoringHudSensorMatchesFilter(sensor, query, filterValue) {
   const state = String(sensor.state || "").toLowerCase();
   const supported = sensor.assignable !== false;
   if (filterValue === "supported" && !supported) return false;
-  if (filterValue === "deferred" && supported) return false;
-  if (!["all", "supported", "deferred"].includes(filterValue)) {
-    const filterCandidates = [category, metric, sensor.id, sensor.label, sensor.source, sensor.provider, sensor.device, sensor.instance]
+  if (filterValue === "deferred" && (supported || !["blocked-until-provider", "provider-required", "deferred"].includes(state))) return false;
+  if (filterValue === "missing" && state !== "missing") return false;
+  if (filterValue === "warning" && state !== "warning") return false;
+  if (!["all", "supported", "deferred", "missing", "warning"].includes(filterValue)) {
+    const filterCandidates = [category, metric, state, sensor.id, sensor.label, sensor.source, sensor.provider, sensor.device, sensor.instance, sensor.reason]
       .map((value) => String(value || "").toLowerCase());
     if (!filterCandidates.some((value) => value === filterValue || value.includes(filterValue))) return false;
   }
@@ -678,8 +777,9 @@ function monitoringHudRenderSensorAssignment(selected) {
   if (!monitoringHudMonitorSensorAssignment) return;
   const layout = selected && selected.layout ? monitoringHudNormalizeSensorAssignments(selected.id, selected.layout) : null;
   const assigned = new Set(Array.isArray(layout && layout.sensors) ? layout.sensors : []);
-  monitoringHudMonitorSensorAssignment.innerHTML = "<legend>Sensor / data-source assignment</legend>";
-  monitoringHudMonitorSensorAssignment.dataset.sensorAssignment = "search-filterable-source-library";
+  monitoringHudMonitorSensorAssignment.innerHTML = "";
+  monitoringHudMonitorSensorAssignment.dataset.sensorAssignment = "sensor-library-source-picker";
+  monitoringHudMonitorSensorAssignment.dataset.sourcePickerVisual = "nexus-faceted-searchable-rows";
   monitoringHudMonitorSensorAssignment.dataset.largeSourceFixtureCount = String(monitoringHudLargeSensorFixtureCount);
   monitoringHudMonitorSensorAssignment.dataset.largeSourceFixtureMode = monitoringHudLargeFixtureModeEnabled ? "enabled-validation-support" : "available-validation-support";
   monitoringHudMonitorSensorAssignment.dataset.visibleSourceResultLimit = String(monitoringHudSensorRenderLimit);
@@ -691,18 +791,20 @@ function monitoringHudRenderSensorAssignment(selected) {
     monitoringHudSensorResultSummary.textContent = `${rendered.length} shown of ${filtered.length} matching sources (${supportedCount} supported, ${deferredCount} deferred)`;
   }
   rendered.forEach((sensor) => {
-    const label = document.createElement("label");
-    label.className = "monitoring-hud__sensor-option";
-    label.dataset.monitorSensorOption = sensor.id;
-    label.dataset.sensorSourceState = sensor.state || "unknown";
-    label.dataset.sensorAssignable = sensor.assignable === false ? "false" : "true";
-    label.dataset.sensorProvider = sensor.provider || "";
-    label.dataset.sensorDevice = sensor.device || "";
-    label.dataset.sensorCategory = sensor.category || "";
-    label.dataset.sensorMetric = sensor.metric || "";
-    label.dataset.sensorInstance = sensor.instance || "";
+    const row = document.createElement("div");
+    row.className = "monitoring-hud__sensor-option";
+    row.dataset.monitorSensorOption = sensor.id;
+    row.dataset.sourcePickerRow = sensor.id;
+    row.dataset.sensorSourceState = sensor.state || "unknown";
+    row.dataset.sensorAssignable = sensor.assignable === false ? "false" : "true";
+    row.dataset.sensorProvider = sensor.provider || "";
+    row.dataset.sensorDevice = sensor.device || "";
+    row.dataset.sensorCategory = sensor.category || "";
+    row.dataset.sensorMetric = sensor.metric || "";
+    row.dataset.sensorInstance = sensor.instance || "";
+    row.dataset.sourceBreadcrumb = [sensor.provider, sensor.device, sensor.category, sensor.metric, sensor.instance].filter(Boolean).join(" > ");
     if (sensor.assignable === false) {
-      label.classList.add("monitoring-hud__sensor-option--disabled");
+      row.classList.add("monitoring-hud__sensor-option--disabled");
     }
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -712,17 +814,36 @@ function monitoringHudRenderSensorAssignment(selected) {
     checkbox.dataset.monitorSensorInput = sensor.id;
     const name = document.createElement("span");
     name.textContent = sensor.label || sensor.id;
+    const status = document.createElement("b");
+    status.className = "monitoring-hud__source-status";
+    status.textContent = sensor.assignable === false ? String(sensor.state || "deferred").replace(/-/g, " ") : "supported";
     const detail = document.createElement("small");
     const breadcrumb = [sensor.provider, sensor.device, sensor.category, sensor.metric, sensor.instance]
       .filter(Boolean)
-      .join(" / ");
+      .join(" > ");
     detail.textContent = sensor.assignable === false
       ? `${sensor.reason || "Provider required"} - ${breadcrumb || sensor.source || ""}`.trim()
       : `${sensor.reason || "Runtime source"} - ${breadcrumb || sensor.value || sensor.source || ""}`.trim();
-    label.appendChild(checkbox);
-    label.appendChild(name);
-    label.appendChild(detail);
-    monitoringHudMonitorSensorAssignment.appendChild(label);
+    const meta = document.createElement("div");
+    meta.className = "monitoring-hud__source-meta";
+    [
+      sensor.provider || "provider",
+      sensor.device || "device",
+      sensor.category || "category",
+      sensor.metric || "metric",
+      sensor.instance || "instance",
+      sensor.value || sensor.reason || ""
+    ].filter(Boolean).forEach((part) => {
+      const item = document.createElement("span");
+      item.textContent = String(part);
+      meta.appendChild(item);
+    });
+    row.appendChild(checkbox);
+    row.appendChild(name);
+    row.appendChild(status);
+    row.appendChild(detail);
+    row.appendChild(meta);
+    monitoringHudMonitorSensorAssignment.appendChild(row);
   });
   if (!rendered.length) {
     const empty = document.createElement("div");
@@ -756,22 +877,27 @@ function monitoringHudRenderSensorSettings(selected) {
     row.dataset.sensorSettingsRow = sensorId;
     const title = document.createElement("strong");
     title.textContent = sensor.label || sensorId;
-    const modeLabel = document.createElement("label");
-    modeLabel.textContent = "Display mode";
-    const mode = document.createElement("select");
-    mode.dataset.sensorDisplayMode = sensorId;
+    const modeLabel = document.createElement("div");
+    modeLabel.className = "monitoring-hud__mode-chip-group";
+    modeLabel.dataset.sensorDisplayMode = sensorId;
+    modeLabel.dataset.sensorDisplayModeSelected = settings.displayMode || "badge-text";
+    const modeTitle = document.createElement("span");
+    modeTitle.textContent = "Display mode";
+    modeLabel.appendChild(modeTitle);
     [
       ["badge-text", "Badge + text"],
       ["text", "Text only"],
       ["badge", "Badge only"]
     ].forEach(([value, label]) => {
-      const option = document.createElement("option");
-      option.value = value;
-      option.textContent = label;
-      option.selected = settings.displayMode === value;
-      mode.appendChild(option);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "monitoring-hud__mode-chip";
+      button.dataset.sensorDisplayModeOption = sensorId;
+      button.dataset.sensorDisplayModeValue = value;
+      button.setAttribute("aria-pressed", settings.displayMode === value ? "true" : "false");
+      button.textContent = label;
+      modeLabel.appendChild(button);
     });
-    modeLabel.appendChild(mode);
     const warningLabel = document.createElement("label");
     const warning = document.createElement("input");
     warning.type = "checkbox";
@@ -789,22 +915,48 @@ function monitoringHudRenderSensorSettings(selected) {
 function monitoringHudRenderChildWindows() {
   const cards = monitoringHudControlState.cards || {};
   const selected = monitoringHudSelectedMonitor();
+  const hasSelectedMonitor = Boolean(selected.id && selected.layout);
   const count = Object.keys(cards).length;
   monitoringHudRenderDashboardSettingsPanel();
   if (monitoringHudCreateMonitorName && !monitoringHudCreateMonitorName.value.trim()) {
     monitoringHudCreateMonitorName.value = monitoringHudSuggestedMonitorName();
   }
   if (monitoringHudEditMonitorTitle) {
-    monitoringHudEditMonitorTitle.textContent = selected.layout.title || "Monitor Group";
+    monitoringHudEditMonitorTitle.textContent = hasSelectedMonitor ? (selected.layout.title || "Monitor Group") : "No Monitor Selected";
   }
   if (monitoringHudEditMonitorName) {
-    monitoringHudEditMonitorName.value = selected.layout.title || "Monitor Group";
+    monitoringHudEditMonitorName.value = hasSelectedMonitor ? (selected.layout.title || "Monitor Group") : "";
+    monitoringHudEditMonitorName.disabled = !hasSelectedMonitor;
   }
   if (monitoringHudMonitorEnabled) {
-    monitoringHudMonitorEnabled.checked = selected.layout.enabled !== false;
+    monitoringHudMonitorEnabled.checked = hasSelectedMonitor ? selected.layout.enabled !== false : false;
+    monitoringHudMonitorEnabled.disabled = !hasSelectedMonitor;
   }
   if (monitoringHudMonitorPollingRate) {
-    monitoringHudMonitorPollingRate.value = String(Math.max(1000, Number(selected.layout.pollingRateMs) || 1000));
+    monitoringHudMonitorPollingRate.value = hasSelectedMonitor ? String(Math.max(1000, Number(selected.layout.pollingRateMs) || 1000)) : "1000";
+    monitoringHudMonitorPollingRate.disabled = !hasSelectedMonitor;
+  }
+  if (monitoringHudMonitorWarningSetting) {
+    monitoringHudMonitorWarningSetting.checked = hasSelectedMonitor ? selected.layout.warningNotificationsEnabled !== false : false;
+    monitoringHudMonitorWarningSetting.disabled = !hasSelectedMonitor;
+  }
+  if (monitoringHudProviderReadinessPanel) {
+    monitoringHudProviderReadinessPanel.dataset.readinessClassification = "status-future-capability-not-assignable-source";
+  }
+  if (monitoringHudMonitorDetailDelete) {
+    monitoringHudMonitorDetailDelete.disabled = !hasSelectedMonitor;
+    monitoringHudMonitorDetailDelete.setAttribute("aria-disabled", hasSelectedMonitor ? "false" : "true");
+  }
+  if (monitoringHudMonitorDetailEmpty) {
+    monitoringHudMonitorDetailEmpty.hidden = count !== 0;
+    monitoringHudMonitorDetailEmpty.dataset.monitorDetailEmpty = count === 0 ? "true-empty-state-create-reachable" : "hidden";
+  }
+  const settingsPanel = monitoringHudEditMonitorWindow
+    ? monitoringHudEditMonitorWindow.querySelector(".monitoring-hud__monitor-settings-panel")
+    : null;
+  if (settingsPanel) {
+    settingsPanel.hidden = count === 0;
+    settingsPanel.dataset.monitorDetailState = count === 0 ? "empty" : "selected-monitor-detail";
   }
   if (monitoringHudEditMonitorList) {
     monitoringHudEditMonitorList.innerHTML = "";
@@ -817,6 +969,9 @@ function monitoringHudRenderChildWindows() {
       const row = document.createElement("div");
       row.className = "monitoring-hud__monitor-manage-row";
       row.dataset.monitorRow = cardId;
+      row.dataset.monitorSelect = cardId;
+      row.setAttribute("role", "button");
+      row.setAttribute("tabindex", "0");
       row.setAttribute("aria-current", cardId === selected.id ? "true" : "false");
       const copy = document.createElement("div");
       const title = document.createElement("strong");
@@ -825,23 +980,7 @@ function monitoringHudRenderChildWindows() {
       meta.textContent = monitoringHudSensorAssignmentSummary(layout);
       copy.appendChild(title);
       copy.appendChild(meta);
-      const actions = document.createElement("div");
-      actions.className = "monitoring-hud__monitor-row-actions";
-      const edit = document.createElement("button");
-      edit.type = "button";
-      edit.dataset.monitorEditSelect = cardId;
-      edit.setAttribute("aria-pressed", cardId === selected.id ? "true" : "false");
-      edit.textContent = "Edit";
-      const del = document.createElement("button");
-      del.type = "button";
-      del.dataset.monitorDelete = cardId;
-      del.disabled = count <= 1;
-      del.setAttribute("aria-disabled", count <= 1 ? "true" : "false");
-      del.textContent = "Delete";
-      actions.appendChild(edit);
-      actions.appendChild(del);
       row.appendChild(copy);
-      row.appendChild(actions);
       monitoringHudEditMonitorList.appendChild(row);
     });
     monitoringHudEditMonitorList.dataset.monitorListScale = "searchable-large-monitor-list";
@@ -905,10 +1044,9 @@ function monitoringHudCreateMonitorGroup(titleValue) {
     title,
     enabled: true,
     pollingRateMs: 1000,
+    warningNotificationsEnabled: true,
     sensors: monitoringHudDefaultSensorIds(cardId),
-    sensorSettings: {
-      "provider-state": monitoringHudDefaultSensorSetting("provider-state")
-    }
+    sensorSettings: {}
   };
   monitoringHudNormalizeSensorAssignments(cardId, monitoringHudControlState.cards[cardId]);
   monitoringHudControlState.selectedMonitorId = cardId;
@@ -939,8 +1077,8 @@ function monitoringHudBuildLargeMonitorFixture(count) {
   for (let index = 0; index < targetCount; index += 1) {
     const number = index + 1;
     const cardId = `fixture-monitor-${number}`;
-    const sensorA = index % 3 === 0 ? "cpu-load" : "provider-state";
-    const sensorB = index % 5 === 0 ? "warning-notifications" : "";
+    const sensorA = index % 3 === 0 ? "cpu-load" : "";
+    const sensorB = index % 5 === 0 ? "memory-usage" : "";
     const sensors = [sensorA, sensorB].filter(Boolean);
     const sensorSettings = {};
     sensors.forEach((sensorId) => {
@@ -954,6 +1092,7 @@ function monitoringHudBuildLargeMonitorFixture(count) {
       title: `Monitor Group Fixture ${number}`,
       enabled: index % 7 !== 0,
       pollingRateMs: [1000, 2000, 5000, 10000][index % 4],
+      warningNotificationsEnabled: index % 4 !== 0,
       sensors,
       sensorSettings
     };
@@ -995,7 +1134,7 @@ function monitoringHudReadSensorAssignmentsFromWindow(layout) {
       const mode = monitoringHudMonitorSensorSettings.querySelector(`[data-sensor-display-mode="${sensorId}"]`);
       const warning = monitoringHudMonitorSensorSettings.querySelector(`[data-sensor-warning-enabled="${sensorId}"]`);
       layout.sensorSettings[sensorId] = {
-        displayMode: mode ? String(mode.value || "text") : monitoringHudDefaultSensorSetting(sensorId).displayMode,
+        displayMode: mode ? String(mode.dataset.sensorDisplayModeSelected || "text") : monitoringHudDefaultSensorSetting(sensorId).displayMode,
         warningEnabled: warning ? Boolean(warning.checked) : true
       };
     });
@@ -1014,9 +1153,13 @@ function monitoringHudSaveEditMonitorWindow() {
   selected.layout.pollingRateMs = monitoringHudMonitorPollingRate
     ? Math.max(1000, Number(monitoringHudMonitorPollingRate.value) || 1000)
     : Math.max(1000, Number(selected.layout.pollingRateMs) || 1000);
+  selected.layout.warningNotificationsEnabled = monitoringHudMonitorWarningSetting
+    ? Boolean(monitoringHudMonitorWarningSetting.checked)
+    : selected.layout.warningNotificationsEnabled !== false;
   monitoringHudReadSensorAssignmentsFromWindow(selected.layout);
   monitoringHudControlState.cards[selected.id] = selected.layout;
   monitoringHudPendingDeleteMonitorId = "";
+  monitoringHudSetMonitorDraftDirty(false);
   monitoringHudApplyCardLayout();
   monitoringHudRenderControls();
   monitoringHudCloseChildWindow();
@@ -1025,7 +1168,6 @@ function monitoringHudSaveEditMonitorWindow() {
 
 function monitoringHudRequestDeleteMonitorGroup(cardId) {
   if (!cardId || !monitoringHudControlState.cards || !monitoringHudControlState.cards[cardId]) return;
-  if (Object.keys(monitoringHudControlState.cards).length <= 1) return;
   monitoringHudPendingDeleteMonitorId = cardId;
   monitoringHudControlState.selectedMonitorId = cardId;
   monitoringHudRenderMonitorManagement();
@@ -1034,15 +1176,11 @@ function monitoringHudRequestDeleteMonitorGroup(cardId) {
 function monitoringHudConfirmDeleteMonitorGroup() {
   const cardId = monitoringHudPendingDeleteMonitorId;
   if (!cardId || !monitoringHudControlState.cards || !monitoringHudControlState.cards[cardId]) return;
-  if (Object.keys(monitoringHudControlState.cards).length <= 1) {
-    monitoringHudPendingDeleteMonitorId = "";
-    monitoringHudRenderMonitorManagement();
-    return;
-  }
   delete monitoringHudControlState.cards[cardId];
   const nextId = Object.keys(monitoringHudControlState.cards)[0] || "";
   monitoringHudControlState.selectedMonitorId = nextId;
   monitoringHudPendingDeleteMonitorId = "";
+  monitoringHudSetMonitorDraftDirty(false);
   monitoringHudApplyCardLayout();
   monitoringHudRenderControls();
   monitoringHudMarkChanged();
@@ -1053,6 +1191,79 @@ function monitoringHudCancelDeleteMonitorGroup() {
   monitoringHudRenderMonitorManagement();
 }
 
+function monitoringHudSetMonitorDraftDirty(dirty) {
+  if (dirty && !monitoringHudUnsavedMonitorDirty) {
+    const selected = monitoringHudSelectedMonitor();
+    monitoringHudDraftOriginalMonitorId = selected.id || "";
+    monitoringHudDraftOriginalLayout = selected.layout ? JSON.parse(JSON.stringify(selected.layout)) : null;
+  }
+  monitoringHudUnsavedMonitorDirty = Boolean(dirty);
+  if (monitoringHud) {
+    monitoringHud.dataset.monitorUnsavedChanges = monitoringHudUnsavedMonitorDirty ? "pending" : "clean";
+  }
+  if (!monitoringHudUnsavedMonitorDirty) {
+    monitoringHudPendingSelectMonitorId = "";
+    monitoringHudDraftOriginalMonitorId = "";
+    monitoringHudDraftOriginalLayout = null;
+    if (monitoringHudMonitorUnsavedGuard) {
+      monitoringHudMonitorUnsavedGuard.hidden = true;
+      monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "closed";
+      monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = "";
+    }
+  }
+}
+
+function monitoringHudShowUnsavedGuard(cardId) {
+  monitoringHudPendingSelectMonitorId = cardId || "";
+  if (!monitoringHudMonitorUnsavedGuard) return;
+  monitoringHudMonitorUnsavedGuard.hidden = false;
+  monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "open-save-discard-cancel";
+  monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = monitoringHudPendingSelectMonitorId;
+}
+
+function monitoringHudSelectMonitorGroup(cardId, options = {}) {
+  if (!cardId || !monitoringHudControlState.cards || !monitoringHudControlState.cards[cardId]) return false;
+  if (!options.force && monitoringHudUnsavedMonitorDirty && cardId !== monitoringHudControlState.selectedMonitorId) {
+    monitoringHudShowUnsavedGuard(cardId);
+    return false;
+  }
+  monitoringHudControlState.selectedMonitorId = cardId;
+  monitoringHudPendingDeleteMonitorId = "";
+  monitoringHudSetMonitorDraftDirty(false);
+  monitoringHudRenderMonitorManagement();
+  return true;
+}
+
+function monitoringHudSaveAndSelectPendingMonitor() {
+  const pending = monitoringHudPendingSelectMonitorId;
+  monitoringHudSaveEditMonitorWindow();
+  if (pending) monitoringHudSelectMonitorGroup(pending, { force: true });
+  monitoringHudOpenChildWindow("monitor-group-edit");
+}
+
+function monitoringHudDiscardAndSelectPendingMonitor() {
+  const pending = monitoringHudPendingSelectMonitorId;
+  if (
+    monitoringHudDraftOriginalMonitorId
+    && monitoringHudDraftOriginalLayout
+    && monitoringHudControlState.cards
+    && monitoringHudControlState.cards[monitoringHudDraftOriginalMonitorId]
+  ) {
+    monitoringHudControlState.cards[monitoringHudDraftOriginalMonitorId] = JSON.parse(JSON.stringify(monitoringHudDraftOriginalLayout));
+  }
+  monitoringHudSetMonitorDraftDirty(false);
+  if (pending) monitoringHudSelectMonitorGroup(pending, { force: true });
+}
+
+function monitoringHudCancelPendingMonitorSelection() {
+  monitoringHudPendingSelectMonitorId = "";
+  if (monitoringHudMonitorUnsavedGuard) {
+    monitoringHudMonitorUnsavedGuard.hidden = true;
+    monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "closed";
+    monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = "";
+  }
+}
+
 function monitoringHudRenderMonitorManagement() {
   const selected = monitoringHudSelectedMonitor();
   const monitorCount = Object.keys(monitoringHudControlState.cards || {}).length;
@@ -1061,7 +1272,7 @@ function monitoringHudRenderMonitorManagement() {
   }, 0);
   if (monitoringHud) {
     monitoringHud.dataset.dashboardControlPanel = "hud-overlay-monitor-management";
-    monitoringHud.dataset.monitorManagement = "create-edit-delete-sensor-assignment";
+    monitoringHud.dataset.monitorManagement = "sensor-command-center-list-detail-source-picker";
     monitoringHud.dataset.overlayModeControls = "overlay-deferred-tray-owned";
     monitoringHud.dataset.primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel";
     monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
@@ -1092,14 +1303,17 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardSettingsPanelState = monitoringHudActiveChildWindow === "dashboard-settings" ? "open" : "closed";
     monitoringHud.dataset.monitorGroupModel = "configurable-groups-sensor-assignment";
     monitoringHud.dataset.monitorManagementScale = "split-layout-search-filter-large-fixtures";
-    monitoringHud.dataset.monitorManagementLayout = "sticky-header-left-list-right-detail";
-    monitoringHud.dataset.sensorLibraryScale = "search-filter-thousand-source-fixture";
+    monitoringHud.dataset.monitorManagementLayout = "compact-list-right-detail-command-center";
+    monitoringHud.dataset.sensorLibraryScale = "search-facet-thousand-source-fixture";
     monitoringHud.dataset.sensorLibraryFixtures = `monitors-${monitoringHudLargeMonitorFixtureCount}-sources-${monitoringHudLargeSensorFixtureCount}`;
     monitoringHud.dataset.sensorLibraryFixtureMode = monitoringHudLargeFixtureModeEnabled ? "enabled-validation-support" : "available-validation-support";
     monitoringHud.dataset.monitorManagementScrollbars = "nexus-styled-child-list-detail-sensor-panes";
-    monitoringHud.dataset.resizeLiveProof = "during-drag-frame-pixel-signature-grow-shrink";
+    monitoringHud.dataset.resizeLiveProof = "invisible-real-ui-frame-pixel-signature-grow-shrink";
+    monitoringHud.dataset.resizeProofVisibility = "normal-ui-no-proof-artifacts";
+    monitoringHud.dataset.resizeProofVisuals = "none";
     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-visual-rendering";
-    monitoringHud.dataset.monitorSensorAssignment = "available-runtime-sources";
+    monitoringHud.dataset.monitorSensorAssignment = "sensor-library-source-picker";
+    monitoringHud.dataset.sourceClassification = "settings-readiness-outside-assignable-sensors";
     monitoringHud.dataset.monitorDeleteConfirmation = monitoringHudPendingDeleteMonitorId ? "pending-confirmation" : "closed";
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
@@ -1112,7 +1326,7 @@ function monitoringHudRenderMonitorManagement() {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), monitoringHudControlState.cards[cardId] || {});
     monitoringHudNormalizeMonitorGroupTitle(cardId, layout);
     const cardNode = monitoringHudEditMonitorList
-      ? monitoringHudEditMonitorList.querySelector(`[data-monitor-edit-select="${cardId}"]`)
+      ? monitoringHudEditMonitorList.querySelector(`[data-monitor-row="${cardId}"]`)
       : null;
     if (!cardNode) return;
     cardNode.dataset.monitorEnabled = layout.enabled === false ? "false" : "true";
@@ -1129,13 +1343,13 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHudMonitorPollingSummary.textContent = `${assignedSensorCount} assigned source${assignedSensorCount === 1 ? "" : "s"}`;
   }
   if (monitoringHudMonitorEditorTitle) {
-    monitoringHudMonitorEditorTitle.textContent = selected.layout.title || "Monitor Group";
+    monitoringHudMonitorEditorTitle.textContent = selected.layout ? (selected.layout.title || "Monitor Group") : "No Monitor Selected";
   }
   if (monitoringHudMonitorEnabled) {
-    monitoringHudMonitorEnabled.checked = selected.layout.enabled !== false;
+    monitoringHudMonitorEnabled.checked = selected.layout ? selected.layout.enabled !== false : false;
   }
   if (monitoringHudMonitorPollingRate) {
-    monitoringHudMonitorPollingRate.value = String(Math.max(1000, Number(selected.layout.pollingRateMs) || 1000));
+    monitoringHudMonitorPollingRate.value = selected.layout ? String(Math.max(1000, Number(selected.layout.pollingRateMs) || 1000)) : "1000";
   }
   if (monitoringHudMonitorEditorScope) {
     monitoringHudMonitorEditorScope.textContent = "Monitor Groups assign available runtime sources and settings. HUD Overlay owns future visual display; fake values remain blocked.";
@@ -1256,7 +1470,8 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness";
     monitoringHud.dataset.monitorGroupModel = "configurable-groups-sensor-assignment";
     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-visual-rendering";
-    monitoringHud.dataset.monitorSensorAssignment = "available-runtime-sources";
+    monitoringHud.dataset.monitorSensorAssignment = "sensor-library-source-picker";
+    monitoringHud.dataset.sourceClassification = "settings-readiness-outside-assignable-sensors";
   }
   if (!monitoringHudMinimal) return;
   monitoringHudMinimal.dataset.visibilityState = monitoringHudControlState.overlayDeferred !== false ? "hidden-deferred" : (monitoringHudControlState.visible ? "visible" : "hidden");
@@ -1427,7 +1642,7 @@ function monitoringHudRenderSensorCards(cards) {
   cards.forEach((card) => {
     if (!card || !card.id) return;
     const cardNode = monitoringHudEditMonitorList
-      ? monitoringHudEditMonitorList.querySelector(`[data-monitor-edit-select="${card.id}"]`)
+      ? monitoringHudEditMonitorList.querySelector(`[data-monitor-row="${card.id}"]`)
       : null;
     if (cardNode) {
       if (card.state) cardNode.dataset.monitorProviderState = card.state;
@@ -1582,20 +1797,20 @@ function monitoringHudWireControls() {
   }
   if (monitoringHudEditMonitorList) {
     monitoringHudEditMonitorList.addEventListener("click", (event) => {
-      const deleteButton = event.target && event.target.closest ? event.target.closest("[data-monitor-delete]") : null;
-      if (deleteButton) {
-        monitoringHudRequestDeleteMonitorGroup(deleteButton.dataset.monitorDelete);
+      const row = event.target && event.target.closest ? event.target.closest("[data-monitor-select]") : null;
+      if (!row) return;
+      if (monitoringHudSelectMonitorGroup(row.dataset.monitorSelect)) {
         monitoringHudMarkChanged();
-        return;
       }
-      const button = event.target && event.target.closest ? event.target.closest("[data-monitor-edit-select]") : null;
-      if (!button) return;
-      const cardId = button.dataset.monitorEditSelect;
-      if (!cardId || !monitoringHudControlState.cards[cardId]) return;
-      monitoringHudControlState.selectedMonitorId = cardId;
-      monitoringHudPendingDeleteMonitorId = "";
-      monitoringHudRenderMonitorManagement();
-      monitoringHudMarkChanged();
+    });
+    monitoringHudEditMonitorList.addEventListener("keydown", (event) => {
+      if (!["Enter", " "].includes(event.key)) return;
+      const row = event.target && event.target.closest ? event.target.closest("[data-monitor-select]") : null;
+      if (!row) return;
+      event.preventDefault();
+      if (monitoringHudSelectMonitorGroup(row.dataset.monitorSelect)) {
+        monitoringHudMarkChanged();
+      }
     });
   }
   if (monitoringHudMonitorSearch) {
@@ -1609,10 +1824,28 @@ function monitoringHudWireControls() {
   if (monitoringHudMonitorDeleteCancel) {
     monitoringHudMonitorDeleteCancel.addEventListener("click", monitoringHudCancelDeleteMonitorGroup);
   }
+  if (monitoringHudMonitorDetailDelete) {
+    monitoringHudMonitorDetailDelete.addEventListener("click", () => {
+      const selected = monitoringHudSelectedMonitor();
+      if (!selected.id) return;
+      monitoringHudRequestDeleteMonitorGroup(selected.id);
+    });
+  }
+  if (monitoringHudMonitorUnsavedSave) {
+    monitoringHudMonitorUnsavedSave.addEventListener("click", monitoringHudSaveAndSelectPendingMonitor);
+  }
+  if (monitoringHudMonitorUnsavedDiscard) {
+    monitoringHudMonitorUnsavedDiscard.addEventListener("click", monitoringHudDiscardAndSelectPendingMonitor);
+  }
+  if (monitoringHudMonitorUnsavedCancel) {
+    monitoringHudMonitorUnsavedCancel.addEventListener("click", monitoringHudCancelPendingMonitorSelection);
+  }
   if (monitoringHudMonitorSensorAssignment) {
     monitoringHudMonitorSensorAssignment.addEventListener("change", (event) => {
       if (!event.target || !event.target.matches || !event.target.matches("[data-monitor-sensor-input]")) return;
       const selected = monitoringHudSelectedMonitor();
+      if (!selected.id || !selected.layout) return;
+      monitoringHudSetMonitorDraftDirty(true);
       monitoringHudReadSensorAssignmentsFromWindow(selected.layout);
       monitoringHudControlState.cards[selected.id] = selected.layout;
       monitoringHudRenderMonitorManagement();
@@ -1622,8 +1855,30 @@ function monitoringHudWireControls() {
   if (monitoringHudMonitorSensorSettings) {
     monitoringHudMonitorSensorSettings.addEventListener("change", (event) => {
       if (!event.target || !event.target.matches) return;
-      if (!event.target.matches("[data-sensor-display-mode], [data-sensor-warning-enabled]")) return;
+      if (!event.target.matches("[data-sensor-warning-enabled]")) return;
       const selected = monitoringHudSelectedMonitor();
+      if (!selected.id || !selected.layout) return;
+      monitoringHudSetMonitorDraftDirty(true);
+      monitoringHudReadSensorAssignmentsFromWindow(selected.layout);
+      monitoringHudControlState.cards[selected.id] = selected.layout;
+      monitoringHudRenderMonitorManagement();
+      monitoringHudMarkChanged();
+    });
+    monitoringHudMonitorSensorSettings.addEventListener("click", (event) => {
+      const button = event.target && event.target.closest ? event.target.closest("[data-sensor-display-mode-option]") : null;
+      if (!button) return;
+      const sensorId = button.dataset.sensorDisplayModeOption;
+      const value = button.dataset.sensorDisplayModeValue || "text";
+      const group = monitoringHudMonitorSensorSettings.querySelector(`[data-sensor-display-mode="${sensorId}"]`);
+      if (group) {
+        group.dataset.sensorDisplayModeSelected = value;
+        group.querySelectorAll("[data-sensor-display-mode-option]").forEach((item) => {
+          item.setAttribute("aria-pressed", item === button ? "true" : "false");
+        });
+      }
+      const selected = monitoringHudSelectedMonitor();
+      if (!selected.id || !selected.layout) return;
+      monitoringHudSetMonitorDraftDirty(true);
       monitoringHudReadSensorAssignmentsFromWindow(selected.layout);
       monitoringHudControlState.cards[selected.id] = selected.layout;
       monitoringHudRenderMonitorManagement();
@@ -1636,7 +1891,13 @@ function monitoringHudWireControls() {
     });
   }
   if (monitoringHudSensorFilter) {
-    monitoringHudSensorFilter.addEventListener("change", () => {
+    monitoringHudSensorFilter.addEventListener("click", (event) => {
+      const button = event.target && event.target.closest ? event.target.closest("[data-source-filter]") : null;
+      if (!button) return;
+      monitoringHudSensorFilter.dataset.selectedFilter = button.dataset.sourceFilter || "all";
+      monitoringHudSensorFilter.querySelectorAll("[data-source-filter]").forEach((item) => {
+        item.setAttribute("aria-pressed", item === button ? "true" : "false");
+      });
       monitoringHudRenderMonitorManagement();
     });
   }
@@ -1684,7 +1945,9 @@ function monitoringHudWireControls() {
   if (monitoringHudMonitorEnabled) {
     monitoringHudMonitorEnabled.addEventListener("change", () => {
       const selected = monitoringHudSelectedMonitor();
-      if (selected.layout) selected.layout.enabled = Boolean(monitoringHudMonitorEnabled.checked);
+      if (!selected.id || !selected.layout) return;
+      monitoringHudSetMonitorDraftDirty(true);
+      selected.layout.enabled = Boolean(monitoringHudMonitorEnabled.checked);
       monitoringHudRenderMonitorManagement();
       monitoringHudMarkChanged();
     });
@@ -1692,7 +1955,24 @@ function monitoringHudWireControls() {
   if (monitoringHudMonitorPollingRate) {
     monitoringHudMonitorPollingRate.addEventListener("change", () => {
       const selected = monitoringHudSelectedMonitor();
-      if (selected.layout) selected.layout.pollingRateMs = Math.max(1000, Number(monitoringHudMonitorPollingRate.value) || 1000);
+      if (!selected.id || !selected.layout) return;
+      monitoringHudSetMonitorDraftDirty(true);
+      selected.layout.pollingRateMs = Math.max(1000, Number(monitoringHudMonitorPollingRate.value) || 1000);
+      monitoringHudRenderMonitorManagement();
+      monitoringHudMarkChanged();
+    });
+  }
+  if (monitoringHudEditMonitorName) {
+    monitoringHudEditMonitorName.addEventListener("input", () => {
+      monitoringHudSetMonitorDraftDirty(true);
+    });
+  }
+  if (monitoringHudMonitorWarningSetting) {
+    monitoringHudMonitorWarningSetting.addEventListener("change", () => {
+      const selected = monitoringHudSelectedMonitor();
+      if (!selected.id || !selected.layout) return;
+      monitoringHudSetMonitorDraftDirty(true);
+      selected.layout.warningNotificationsEnabled = Boolean(monitoringHudMonitorWarningSetting.checked);
       monitoringHudRenderMonitorManagement();
       monitoringHudMarkChanged();
     });
@@ -1897,11 +2177,11 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
       && split.dashboardSettingsAffordance === "dashboard-ia-card-settings-button"
       && split.dashboardSettingsPanel === "settings-panel-child-window"
       && split.dashboardSettingsProof === "visible-open-close-control-hit-target"
-      && split.monitorManagement === "create-edit-delete-sensor-assignment"
+      && split.monitorManagement === "sensor-command-center-list-detail-source-picker"
       && split.dashboardChildWindowScope === "monitor-groups-manage-create-edit-delete-sensor-windows"
       && split.monitorGroupModel === "configurable-groups-sensor-assignment"
       && split.dashboardMonitorCardPolicy === "overlay-display-owns-visual-rendering"
-      && split.monitorSensorAssignment === "available-runtime-sources"
+      && split.monitorSensorAssignment === "sensor-library-source-picker"
     ),
     dashboardProviderTruthReady: Boolean(
       split.dashboardProviderTruth === "provider-contract-first"
@@ -1992,10 +2272,10 @@ window.setMonitoringHudControlState = function(state) {
       title: "CPU Group",
       enabled: true,
       pollingRateMs: 1000,
-      sensors: ["cpu-load", "provider-state"],
+      warningNotificationsEnabled: true,
+      sensors: ["cpu-load"],
       sensorSettings: {
-        "cpu-load": { displayMode: "badge-text", warningEnabled: true },
-        "provider-state": { displayMode: "text", warningEnabled: true }
+        "cpu-load": { displayMode: "badge-text", warningEnabled: true }
       }
     },
     gpu: {
@@ -2006,10 +2286,9 @@ window.setMonitoringHudControlState = function(state) {
       title: "GPU Group",
       enabled: true,
       pollingRateMs: 1000,
-      sensors: ["provider-state"],
-      sensorSettings: {
-        "provider-state": { displayMode: "text", warningEnabled: true }
-      }
+      warningNotificationsEnabled: true,
+      sensors: [],
+      sensorSettings: {}
     }
   }, monitoringHudControlState.cards || {});
   Object.keys(monitoringHudControlState.cards).forEach((cardId) => {
@@ -2020,7 +2299,7 @@ window.setMonitoringHudControlState = function(state) {
     monitoringHudNormalizeSensorAssignments(cardId, monitoringHudControlState.cards[cardId]);
   });
   if (!monitoringHudControlState.selectedMonitorId || !monitoringHudControlState.cards[monitoringHudControlState.selectedMonitorId]) {
-    monitoringHudControlState.selectedMonitorId = Object.keys(monitoringHudControlState.cards)[0] || "cpu";
+    monitoringHudControlState.selectedMonitorId = Object.keys(monitoringHudControlState.cards)[0] || "";
   }
   monitoringHudControlState.monitorSequence = Math.max(
     Number(monitoringHudControlState.monitorSequence || 2),
@@ -2128,7 +2407,7 @@ window.setMonitoringHudControlsVisibility = function(contract) {
       ? (monitoringHudControlState.visible ? "feature-enabled-dashboard-open" : "feature-enabled-dashboard-closed")
       : "feature-disabled-dashboard-closed";
     monitoringHud.dataset.keybindPolicy = "none";
-    monitoringHud.dataset.monitorManagement = "create-edit-delete-sensor-assignment";
+    monitoringHud.dataset.monitorManagement = "sensor-command-center-list-detail-source-picker";
     monitoringHud.dataset.overlayModeControls = "overlay-deferred-tray-owned";
   }
   if (monitoringHudControlsVisibility) {
