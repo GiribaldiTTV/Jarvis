@@ -14,13 +14,13 @@
 
 ## Purpose / Why It Exists
 
-This branch is the USER-approved FAM-007 carrier created from current `origin/main` after `v1.7.2-prebeta` was published. It repaired the post-release source-truth canon for PR #152, records the active FAM-007 runtime-foundation branch authority, and now carries Live Validation LV1 Green proof for the bounded local-only scaffold chain.
+This branch is the USER-approved FAM-007 carrier created from current `origin/main` after `v1.7.2-prebeta` was published. It repaired the post-release source-truth canon for PR #152, records the FAM-007 runtime-foundation branch authority, carries Live Validation LV1 Green proof for the bounded local-only scaffold chain, and now projects merge-stable historical/no-active truth before PR creation.
 
 The branch exists to avoid reusing historical FAM-007 carriers after PR #152 and to keep FAM-007 work in the dedicated `C:\Nexus Worktrees\FAM-007` worktree. It does not create tags, publish releases, create artifacts, open a PR, merge, call providers, download models, implement memory/indexing, sync voice/Core runtime behavior, mutate shortcuts/installers, import AI Product Contract material, import private Dev ORIN material, create GitHub issues, or touch FAM-006 work.
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
@@ -28,18 +28,18 @@ The branch exists to avoid reusing historical FAM-007 carriers after PR #152 and
 - Workstream Entry USER Approval: `Granted - USER approved Workstream entry for the FAM-007 Local AI Runtime Foundation on feature/fam-007-local-ai-runtime-foundation, using the same-branch Workstream seams recorded in source truth as starting authority, inspecting repo truth for bounded sequencing, and committing/pushing source-truth admission updates if supported`
 - Hardening H1 USER Approval: `Granted - USER approved Hardening H1 on feature/fam-007-local-ai-runtime-foundation for the completed local-only FAM-007 scaffold chain after reconciliation with current origin/main, including Workstream completion proof review, conflict-resolution review, Product Definition Plan field review, source-truth posture, provider-boundary behavior, visible Core/provider rail, validation coverage, and local-only approval-boundary repair if needed`
 - Live Validation LV1 USER Approval: `Granted - USER approved Live Validation LV1 for the completed and hardened local-only FAM-007 scaffold chain on feature/fam-007-local-ai-runtime-foundation, including visible provider/Core rail validation, local-only provider-boundary posture, disabled prompt/provider behavior, provider-visible data state, source-truth posture, required validators, and LV1-scoped repair if needed`
-- `Active Branch`: `feature/fam-007-local-ai-runtime-foundation`
-- Branch Authority State: `Active FAM-007 Live Validation carrier`
+- PR Readiness Stage 1 Repair USER Approval: `Granted - USER approved reconciling feature/fam-007-local-ai-runtime-foundation with current origin/main, preserving completed local-only FAM-007 LV1 scope, resolving only FAM-007 PR-readiness/source-truth/validator conflicts, recording post-merge selected-next or defer truth, validating, committing, and pushing; PR creation and merge remain separate decisions`
+- Historical Branch: `feature/fam-007-local-ai-runtime-foundation`
+- Branch Authority State: `Historical / projected no-active after PR merge`
 - Worktree Authority: `C:\Nexus Worktrees\FAM-007`
 - Release Closure State: `v1.7.2-prebeta published at 3d38630c63965702bb8839f5e0c5f3b4b008e8bb; PR #152 is released historical FAM-007 local-only scaffold evidence`
 - Post-Release Canon Closure Drift: `Closed on this Branch Readiness carrier`
 - Current Workstream State: `Green - local-only FAM-007 runtime foundation provider-boundary and scaffold chain proof is complete; provider SDK/model/memory/voice/Core/shortcut/installer/release work remains separate future-dependent scope`
 - Current Hardening State: `Green - H1 proof review confirmed source-truth posture, Product Definition Plan fields, provider-boundary behavior, visible Core/provider rail, validation coverage, and local-only approval boundaries after reconciliation with origin/main`
 - Current Live Validation State: `Green - LV1 confirmed the visible Core/provider rail, local-only provider-boundary posture, disabled prompt/provider behavior, provider-visible data none state, and validation coverage; User Test Summary, user-facing shortcut validation, and Codex live-client self-QA are waived only for this disabled/status-only Live Validation phase with source-truth reasons`
-- Active Seam: `None - Live Validation LV1 Green`
-- Next Active Seam: `PR Readiness Stage 1 - FAM-007 Local AI Runtime Foundation`
-- Selected Next Workstream: `FAM-007 Local AI Runtime Foundation`
-- Selected Next Implementation Branch: `feature/fam-007-local-ai-runtime-foundation`
+- Historical Seam: `FAM-007 Local AI Runtime Foundation local-only scaffold chain through LV1`
+- Selected Next Workstream: `None - USER-approved defer after this PR merge`
+- Selected Next Implementation Branch: `Not created`
 - Package Posture: `PKG-007 admitted / not package-complete`
 - PR #129 / PR #132 Boundary: `Separate FAM-006 release-support history; no FAM-006 execution is authorized here`
 - AI Product Contract v0.6.2: `External USER planning evidence only; not imported`
@@ -80,17 +80,17 @@ Slice Completion State: `Green for the local-only scaffold chain - SLC-017, SLC-
 
 ## Bounded State
 
-Bounded State: `Active - Live Validation LV1 / feature/fam-007-local-ai-runtime-foundation / C:\Nexus Worktrees\FAM-007 / PKG-007 / completed local-only FAM-007 scaffold chain applicability and proof only`
+Bounded State: `Active - PR Readiness Stage 1 repair/rebaseline / feature/fam-007-local-ai-runtime-foundation / C:\Nexus Worktrees\FAM-007 / PKG-007 / completed local-only FAM-007 scaffold chain merge-target proof only`
 
-Bounded State User Waiver: `Not required - USER approved Live Validation LV1 and no scope widening beyond the completed local-only scaffold chain is authorized`
+Bounded State User Waiver: `Granted for selected-next defer only - USER approved this PR Readiness Stage 1 repair to record post-merge selected-next or explicit defer/waiver truth; no scope widening beyond the completed local-only scaffold chain is authorized`
 
 Bounded State Scope:
 
-- Validate the completed FAM-007 Local AI Runtime Foundation local-only scaffold chain after Hardening H1 Green.
+- Reconcile the completed FAM-007 Local AI Runtime Foundation local-only scaffold chain with current `origin/main` before PR creation.
 - Preserve the `v1.7.2-prebeta` post-release canon closure and PR #152 released historical posture.
-- Confirm visible Core/provider rail applicability, local-only provider-boundary posture, disabled prompt/provider behavior, provider-visible data none state, source-truth posture, validation coverage, and approval boundaries.
-- Apply only bounded Live Validation LV1 repairs if evidence shows a gap.
-- Validate, commit, and push Live Validation LV1 source-truth or validation updates only.
+- Record merge-stable historical/no-active post-merge branch authority, selected-next defer truth, release-readiness health, and PR-body firewall posture.
+- Preserve visible Core/provider rail applicability, local-only provider-boundary posture, disabled prompt/provider behavior, provider-visible data none state, validation coverage, and approval boundaries.
+- Validate, commit, and push PR Readiness Stage 1 repair/source-truth updates only.
 
 Bounded State Non-Includes:
 
@@ -116,14 +116,14 @@ Bounded State Non-Includes:
 
 ## Carrier Lifecycle Decision
 
-Carrier Lifecycle Classification: `Fresh current FAM-007 runtime-foundation carrier`
-Remote Branch State: `Absent before Stage 2 push`
-Unique Branch Diff: `Branch Readiness Stage 2 source-truth only before runtime Workstream approval`
+Carrier Lifecycle Classification: `Current PR-readiness carrier projected historical/no-active after merge`
+Remote Branch State: `Present and tracking origin/feature/fam-007-local-ai-runtime-foundation`
+Unique Branch Diff: `Completed local-only FAM-007 scaffold chain plus PR Readiness Stage 1 repair/rebaseline`
 Origin/Main Ancestry: `Created directly from origin/main 3d38630c63965702bb8839f5e0c5f3b4b008e8bb, then reconciled with current origin/main 09b44c1923c9e1b032f08a2c19ae0527ed185047 before Hardening H1`
 Origin/Main Advanced Since Branch Creation: `YES - reconciled by USER-approved pre-Hardening merge of current origin/main into this branch`
-Open PR State: `None for feature/fam-007-local-ai-runtime-foundation before Stage 2 push`
+Open PR State: `None before PR Readiness Stage 2 / PR creation`
 Worktree Checkout State: `Checked out by C:\Nexus Worktrees\FAM-007`
-Recommended Stage 2 Carrier Action: `Complete - post-release canon closure and Workstream planning were committed and pushed; Workstream entry source-truth admission is now active`
+Recommended Stage 2 Carrier Action: `Complete for historical Branch Readiness; current next action is PR Readiness Stage 2 / PR creation after USER approval`
 Stale Branch Cleanup Plan: `Historical FAM-007 branches remain cleanup candidates only; no old branch or worktree deletion is authorized by this Stage 2 pass`
 Branch Cleanup Execution Gate: `Blocked until USER approves a cleanup-specific Branch Readiness execution path with no unique-commit loss proof`
 Recreate From Current origin/main: `YES - created from 3d38630c63965702bb8839f5e0c5f3b4b008e8bb`
@@ -174,17 +174,29 @@ Entity / Profile Model: `Provider, hardware, capability-pack, data-classificatio
 
 User Workflow Model: `The user sees that AI/provider capability is local-only and unavailable for prompts, sees provider-visible data as none, and can trust that setup, provider calls, memory, voice/Core sync, and downloads remain disabled until later approvals.`
 
-Scale / Data Volume Model: `The completed Workstream handles static local state and validation-readable scaffold metadata only; it introduces no indexing volume, model cache, telemetry stream, uploaded data, or long-lived memory store.`
+Scale / Data Volume Model: `The completed Workstream handles eight admitted slices, multiple local-only provider/capability/data/resilience/persona/proof states, two visible Core/provider rail surfaces, and validation-readable scaffold metadata only; it introduces no indexing volume, model cache, telemetry stream, uploaded files, provider records, user profiles, or long-lived memory store.`
 
 Configuration And State Model: `Configuration remains local provider-boundary posture only: disabled, unavailable, unconfigured, consent-required, and no-provider fallback states are visible, while secrets, SDK credentials, provider routing, model paths, and memory stores are absent.`
 
 Expected User-Facing Outcomes: `Core/provider surfaces make the no-provider local runtime foundation legible, disclose provider-visible data as none, keep prompts disabled, and communicate that nothing is sent through Workstream, Hardening H1, and Live Validation LV1 proof.`
 
-Codex Additional Recommendations: `Keep Live Validation LV1 focused on applicability and proof for the completed local-only scaffold chain; do not widen into provider SDKs, model downloads, memory/indexing, voice/Core runtime sync, shortcuts, installers, PR creation, merge, release work, issue work, or contract import.`
+Codex Additional Recommendations: `Keep PR Readiness limited to merge-target projection, release-readiness health, post-merge no-active branch authority, and PR-body firewall. Recommended options are: carry this local-only LV1 scope to PR, defer all provider/model/memory/voice/Core/shortcut/installer expansion to a later Branch Readiness carrier, and avoid a new runtime branch until USER explicitly selects the next FAM-007 package shape.`
 
-USER Critique Loop: `USER corrected governance toward bounded seam-to-seam Workstream execution, a specific Hardening handoff only after Workstream Green, and a Live Validation UTS digest or waiver requirement. This branch records that correction, completed Hardening H1 after USER approval, completed LV1 after USER approval, and stops at the PR Readiness Stage 1 admission gate.`
+USER Critique Loop: `USER can approve PR Readiness Stage 2, change the post-merge successor/defer posture, defer the next FAM-007 branch, critique the PR body/scope, or send the branch back to Branch Readiness before PR creation. USER already corrected governance toward bounded seam-to-seam Workstream execution, a specific Hardening handoff only after Workstream Green, and a Live Validation UTS digest or waiver requirement; this branch records those corrections and the current Stage 1 repair.`
 
-USER Decision Ledger: `Granted decisions cover Branch Readiness Stage 2, Workstream entry, bounded local-only Workstream completion, evidence repair, pre-Hardening rebaseline, Hardening H1 proof review, and Live Validation LV1. The exact next decision is PR Readiness Stage 1 admission.`
+USER Decision Ledger: `Approved: Branch Readiness Stage 2, Workstream entry, bounded local-only Workstream completion, evidence repair, pre-Hardening rebaseline, Hardening H1 proof review, Live Validation LV1, and PR Readiness Stage 1 repair/rebaseline. Pending: PR Readiness Stage 2 / PR creation, merge, release execution, provider SDK/model work, downloads, external calls, memory/indexing, voice/Core sync, shortcut/installer work, AI Product Contract import, private Dev ORIN import, GitHub issue work, and future FAM-007 successor selection. Deferred: selected-next successor branch after this PR merge until a later USER-approved Branch Readiness decision.`
+
+Planning Adequacy Review: `PASS - planning covers a whole local AI runtime foundation package rather than a single label: it names eight SLCs, Core/provider visible surfaces, local-only provider/capability/data/resilience/persona/proof states, future dependency boundaries, validation proof, and merge-stable PR Readiness closure.`
+
+Rejected Shallow Plan: `Rejected - a shallow plan that only says "show no provider" or "simple local AI status" would miss provider-visible data, consent posture, no-provider fallback, hardware/capability posture, capability-pack lifecycle posture, data/memory/secrets posture, Windows resilience, persona/Core/voice boundaries, proof gates, and release-readiness health.`
+
+Alternatives And Tradeoffs Reviewed: `Reviewed - option A was one tiny branch per SLC, rejected for source-truth churn and release-readiness blockers; option B was a broad real provider/model branch, rejected because provider SDKs/downloads/external calls remain USER-gated; option C is the chosen single FAM-007 local-only foundation carrier with bounded seams and later Branch Readiness for runtime expansion.`
+
+Whole-System Interaction Map: `Core/provider rail displays local-only AI posture; desktop renderers publish the state; provider configuration remains unavailable/unconfigured/consent-required; capability and capability-pack states remain planning-only; data/memory/secrets stay disabled; Windows resilience and persona/Core/voice states remain visible boundaries; validators prove the state without provider SDKs, model execution, external calls, memory indexing, shortcuts, installers, releases, or GitHub issues.`
+
+Minimum Viable vs Full System Boundary: `Minimum viable scope is the completed local-only LV1-green scaffold chain with provider-visible data none, prompts disabled, no-provider fallback, and proof gates. Full system scope is future USER-gated provider SDK integration, model downloads/execution, memory/indexing, voice/Core runtime sync, shortcuts/installers, capability-pack execution, release work, and issue workflows.`
+
+Open Questions / USER Decision Points: `Before any future runtime expansion USER must decide the next FAM-007 successor branch/package shape, provider SDK policy, model download/install policy, external-call consent model, memory/indexing scope, voice/Core sync scope, shortcut/installer admission, release timing, AI Product Contract import posture, GitHub issue posture, and whether FAM-006 overlap requires ordering constraints.`
 
 Deferred Ideas / Future Package Ledger: `Future USER-gated package work includes provider SDK integration, model downloads/execution, external calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, AI Product Contract import, private Dev ORIN import, GitHub issue work, PR creation, and merge.`
 
@@ -200,7 +212,7 @@ USER/ChatGPT Review Checkpoint: `USER approved Workstream entry and bounded same
 
 Full Feature Element Breakdown: `SLC-017 no-provider shell and Assisted Desktop Mode; SLC-018 provider boundary, provider selection, consent, privacy-visible state, and provider-visible-data disclosure; SLC-031 hardware/GPU/CPU capability posture and CPU fallback; SLC-032 model/capability-pack lifecycle posture and lean default; SLC-033 data classification, memory/context, consent, audit, and secrets posture; SLC-034 Windows resilience and degraded/offline posture; SLC-035 persona/Core/voice boundary; SLC-036 validation, eval, abuse, privacy, hardware, capability-pack, and release proof gates.`
 
-Current Branch vs Future Package Boundaries: `Current Live Validation LV1 completion records local-only runtime-foundation provider-boundary state and validation scaffolds through Live Validation Green. Provider SDKs, model downloads, external provider calls, memory/indexing implementation, voice/Core sync, shortcut/installer work, release work, contract import, issue creation, PR creation, and merge remain future decisions.`
+Current Branch vs Future Package Boundaries: `Current Live Validation LV1 completion records local-only runtime-foundation provider-boundary state and validation scaffolds through Live Validation Green. After this PR merges, the branch becomes historical merged-unreleased FAM-007 scope and no successor branch is selected. Provider SDKs, model downloads, external provider calls, memory/indexing implementation, voice/Core sync, shortcut/installer work, release work, contract import, issue creation, and future successor branches remain future decisions.`
 
 Affected Surfaces: `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md`; `Docs/branch_records/index.md`; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; future Workstream candidates may affect provider-state, renderer/Core visual rail, and validation-helper surfaces only after explicit USER implementation approval.
 
@@ -212,7 +224,7 @@ Why Branch Is Large Enough: `The planned work forms one coherent local AI founda
 
 Why Not Split Into Tiny Branches: `Splitting each PKG-007 slice into separate branches would recreate source-truth churn, worktree confusion, stale-carrier risk, and repeated release-readiness blockers. The legal model is one carrier with bounded Workstream seams.`
 
-Acceptance Criteria: `Workstream entry/source-truth admission is recorded; v1.7.2-prebeta post-release canon remains closed; active branch authority remains recorded; PR #152 remains released historical FAM-007 evidence; FAM-006 remains separate; Workstream plan covers SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036; local-only runtime foundation provider-boundary state is implemented; Workstream is Green; Hardening H1 proof review is Green; Live Validation LV1 is Green with the phase-specific User Test Summary waiver recorded; validation passes; branch is committed and pushed.`
+Acceptance Criteria: `Workstream entry/source-truth admission is recorded; v1.7.2-prebeta post-release canon remains closed; branch authority is merge-stable under Historical Branch Authority Records; PR #152 remains released historical FAM-007 evidence; FAM-006 remains separate; Workstream plan covers SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036; local-only runtime foundation provider-boundary state is implemented; Workstream is Green; Hardening H1 proof review is Green; Live Validation LV1 is Green with the phase-specific User Test Summary waiver recorded; validation passes; branch is committed and pushed.`
 
 Validation Proof Requirements: `git status --short --branch`; `git diff --check origin/main...HEAD`; `python dev\orin_branch_governance_validation.py`; `python dev\orin_ai_provider_state_validation.py`; `python dev\orin_release_body_validation.py`; `python -m compileall -q dev desktop Audio main.py`.
 
@@ -222,7 +234,7 @@ Implementation Sequence Proposal: `After the first bounded implementation approv
 
 Planning Blockers: `None for the admitted bounded local-only Workstream; provider SDK/model/memory/voice/Core/shortcut/installer/release/contract/issue/PR/merge work remains separate future USER-gated scope and is not a blocker for bounded same-branch local-only continuation.`
 
-USER Decisions Needed: `Approve PR Readiness Stage 1 analysis for the completed, hardened, and LV1-green FAM-007 Local AI Runtime Foundation local-only scaffold chain.`
+USER Decisions Needed: `Approve PR Readiness Stage 2 / PR creation after this Stage 1 repair is committed and validated. Merge, release execution, provider/model expansion, memory/indexing, voice/Core sync, shortcut/installer work, AI Product Contract import, private Dev ORIN import, GitHub issue work, FAM-006 work, and future FAM-007 successor branch selection remain separate decisions.`
 
 Planning Packet Status: `Complete`
 
@@ -234,16 +246,16 @@ Planning Completion Waiver: `Not required - Branch Readiness Stage 2 is a planni
 
 ## Branch Objective
 
-Carry the FAM-007 Local AI Runtime Foundation from Branch Readiness through bounded Workstream execution, Hardening H1 proof review, and Live Validation LV1, keep `v1.7.2-prebeta` post-release source truth closed, preserve active branch authority, and stop at the Live Validation LV1 Green phase boundary for USER-admitted PR Readiness Stage 1.
+Carry the FAM-007 Local AI Runtime Foundation from Branch Readiness through bounded Workstream execution, Hardening H1 proof review, Live Validation LV1, and PR Readiness Stage 1 repair; keep `v1.7.2-prebeta` post-release source truth closed; project this branch as historical/no-active after merge; and stop at the PR Readiness Stage 2 / PR creation approval boundary.
 
 ## Target End-State
 
-- `feature/fam-007-local-ai-runtime-foundation` is the active FAM-007 Workstream authority.
+- `feature/fam-007-local-ai-runtime-foundation` is historical FAM-007 merged-unreleased scope after this PR merges.
 - `v1.7.2-prebeta` is the latest public prerelease in backlog and roadmap.
 - PR #152 is released historical FAM-007 local-only scaffold evidence.
 - FAM-006 / PR #129 / PR #132 remains separate and USER-gated.
 - PKG-007 remains admitted and not package-complete.
-- Workstream is Green for the admitted local-only scaffold chain; Hardening H1 is Green; Live Validation LV1 is Green; PR Readiness Stage 1 is the next phase after USER admission.
+- Workstream is Green for the admitted local-only scaffold chain; Hardening H1 is Green; Live Validation LV1 is Green; PR Readiness Stage 1 repair is complete after this commit; PR Readiness Stage 2 / PR creation is the next USER decision.
 
 ## Backlog Completion Strategy
 
@@ -358,7 +370,7 @@ Non-Includes: `Voice/Core runtime sync, voice execution, provider/model integrat
 
 ## Active Seam
 
-Active seam: `None - Live Validation LV1 Green`
+Active seam: `None - PR Readiness Stage 1 repair projected historical/no-active merge target`
 
 ## Seam Continuation Decision
 
@@ -372,15 +384,15 @@ Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Inactive - Live Validation LV1 is Green; phase-boundary stop is required before USER may admit PR Readiness Stage 1.`
+Continuation Execution Latch: `Inactive - PR Readiness Stage 1 repair records merge-stable historical/no-active branch authority; phase-boundary stop is required before USER may admit PR Readiness Stage 2 / PR creation.`
 
-Stop Basis: `Live Validation LV1 Green`
+Stop Basis: `Stage 1 Ready For Stage 2 after this repair commit validates`
 
-Next Active Seam: `PR Readiness Stage 1 - FAM-007 Local AI Runtime Foundation`
+Next Active Seam: `None - PR creation is an operator Stage 2 action after USER approval`
 
 Stop Condition: `None`
 
-Continuation Action: `Stop at phase boundary and report Live Validation LV1 Green; USER must admit PR Readiness Stage 1 before PR-readiness analysis.`
+Continuation Action: `Stop at phase boundary and report Stage 1 repair complete; USER must admit PR Readiness Stage 2 before Codex creates a PR, provisions a watcher, or reports live PR state.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -409,9 +421,8 @@ None. Live Validation LV1 is Green for the local-only scaffold chain; remaining 
 
 ## Pending USER Decisions
 
-- PR Readiness Stage 1 admission for the completed, hardened, and LV1-green local-only FAM-007 Workstream.
-- PR creation.
-- Merge.
+- PR Readiness Stage 2 / PR creation.
+- Merge after live PR review/readiness.
 - Provider SDK/model work.
 - Model downloads and model execution.
 - External provider calls.
@@ -435,14 +446,56 @@ None. Live Validation LV1 is Green for the local-only scaffold chain; remaining 
 
 ## Exit Criteria
 
-- `Docs/branch_records/index.md` lists this record under Active Branch Authority Records.
+- `Docs/branch_records/index.md` lists this record under Historical Branch Authority Records for merge-stable no-active branch authority.
 - `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` record `v1.7.2-prebeta` as latest public prerelease.
 - PR #152 is recorded as released historical FAM-007 local-only scaffold scope, not merged-unreleased release debt.
-- This branch is recorded as the active FAM-007 Live Validation carrier.
+- This branch is recorded as historical merged-unreleased FAM-007 local-only scaffold scope after PR merge.
 - The bounded Workstream completed local-only proof for SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036 without claiming provider SDK/model/memory/voice/Core/shortcut/installer/release implementation.
 - FAM-006 / PR #129 / PR #132 remains separate and USER-gated.
 - Validation passes.
-- Workstream Green, Hardening H1 Green, and Live Validation LV1 Green changes are committed and pushed to `origin/feature/fam-007-local-ai-runtime-foundation`.
+- Workstream Green, Hardening H1 Green, Live Validation LV1 Green, and PR Readiness Stage 1 repair/rebaseline changes are committed and pushed to `origin/feature/fam-007-local-ai-runtime-foundation`.
+
+## Post-Merge State
+
+Post-Merge Branch Authority: `No Active Branch`
+
+Selected Next Workstream: `None`
+
+Selected Next Implementation Branch: `Not created`
+
+Selected-next Defer User Waiver: `Granted - USER approved this PR Readiness Stage 1 repair to record post-merge selected-next or explicit defer/waiver truth. After this PR merges, the FAM-007 Local AI Runtime Foundation branch is historical merged-unreleased evidence and no successor branch/workstream is selected until a later USER-approved Branch Readiness decision.`
+
+Backlog Addition User Approval Missing: `Handled by USER-approved selected-next defer; this PR does not create, split, promote, or select a new backlog identity before merge.`
+
+Successor Handling: `Deferred - future FAM-007 provider/model/runtime expansion requires a later USER-approved Branch Readiness Stage 1/Stage 2 path and must not be inferred from this branch or leftover refs.`
+
+Merged-Unreleased Scope: `FAM-007 Local AI Runtime Foundation local-only scaffold chain through SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036; release execution is not performed by this PR.`
+
+Branch Cleanup Execution Gate: `Blocked - stale branch cleanup, worktree removal, branch deletion, GitHub Desktop cleanup, and old-ref cleanup require a later USER-approved Branch Readiness execution path with no unique-commit loss proof.`
+
+## Release Readiness Health Pass
+
+Post-Merge Branch Authority Projection: `PASS - this branch record is under Historical Branch Authority Records and merged main projects No Active Branch except the standing Governance intake authority exception.`
+
+Stale Active Branch Wording Scan: `PASS - Phase Status uses historical/no-active wording and does not retain the Active Branch marker.`
+
+Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - operational PR creation, watcher, live PR state, bot-review, and merge-watch details remain outside merged current-state source truth.`
+
+Merged-Unreleased Scope Posture: `PASS - merged-unreleased FAM-007 local-only runtime foundation scope is recorded for the next Release Readiness inventory while release execution remains separate.`
+
+Release Execution Gate: `PASS - tag creation, GitHub Release publication, artifacts, and release execution remain separate USER decisions.`
+
+Watcher / Live PR State Projection: `PASS - no watcher or live PR state is projected into merged source truth before Stage 2 creates the PR.`
+
+Branch Cleanup Plan: `PASS - cleanup is deferred to a future Branch Readiness execution gate and is not performed by this PR.`
+
+FAM Overlap Routing: `PASS - FAM-006 overlap belongs to the FAM-006 lane unless it directly blocks this PR; this repair does not mutate FAM-006.`
+
+Release Candidate Anchor Projection: `PASS - the future release candidate anchor will be selected during Release Readiness after merge; this PR does not select a release candidate or execute a release.`
+
+Release Window Contributor Inventory: `PASS - FAM-007 merged-unreleased scope must be inventoried with any other merged-unreleased release-window contributors during Release Readiness.`
+
+Projected Post-Merge Validation: `PASS - post-merge validation must rerun branch governance, release body, provider-state, and compile checks from updated main before any release execution.`
 
 ## Rollback Target
 
@@ -456,4 +509,4 @@ Rollback Path: abandon this unmerged Workstream admission carrier before impleme
 
 - `PR Readiness`
 
-Next Legal Phase Gate: Live Validation LV1 is Green for the bounded local-only FAM-007 scaffold chain. The exact next USER decision is PR Readiness Stage 1 admission for `feature/fam-007-local-ai-runtime-foundation`. Provider SDKs, model downloads, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer changes, release work, AI Product Contract import, private Dev ORIN import, PR creation, merge, and GitHub issue creation remain separate USER decisions.
+Next Legal Phase Gate: PR Readiness Stage 1 repair/rebaseline is complete after this commit validates and pushes. The exact next USER decision is PR Readiness Stage 2 / PR creation for `feature/fam-007-local-ai-runtime-foundation`. Merge, provider SDKs, model downloads, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer changes, release work, AI Product Contract import, private Dev ORIN import, GitHub issue creation, FAM-006 work, and future FAM-007 successor selection remain separate USER decisions.
