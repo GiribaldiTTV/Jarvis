@@ -96,7 +96,7 @@ Post-Release Canon Closure Drift: Closed by `feature/fam-007-local-ai-runtime-fo
 Published Release Pending Canon Closure: None - v1.7.2-prebeta source truth is recorded on the current FAM-007 Branch Readiness carrier.
 Closure Repair Surface: Current approved FAM-007 Branch Readiness Stage 2 carrier `feature/fam-007-local-ai-runtime-foundation`.
 Closure Drift Scope: Closed - PR #152 is released historical FAM-007 local-only scaffold scope in v1.7.2-prebeta.
-Implementation Entry: Workstream entry/source-truth admission is recorded; bounded same-branch Workstream continuation is active and must proceed one active seam at a time unless Workstream Green, a real named blocker, or USER waiver is recorded.
+Implementation Entry: Workstream Green is recorded for the bounded local-only FAM-007 runtime foundation scaffold chain; Hardening H1 requires USER admission.
 Release-Debt Avoidance Status: Clear for PR #152 after v1.7.2-prebeta publication; FAM-007 runtime expansion, provider/model/memory/shortcut/installer work, Overlay acceptance, and AI Product work remain separate USER-gated decisions.
 Merged-main current active workstream: None
 Current active workstream: FAM-007 Local AI Runtime Foundation Workstream on `feature/fam-007-local-ai-runtime-foundation` is Green for the bounded local-only scaffold chain; Hardening H1 is pending USER admission.
@@ -152,7 +152,7 @@ Next Legal Phase: Hardening. Workstream is Green for the bounded local-only FAM-
 
 Selected Next Workstream: FAM-007 Local AI Runtime Foundation.
 Record State: Workstream entry admitted; FAM-007 / PKG-007 remains admitted but not package-complete.
-Minimal Scope: Workstream entry records source-truth admission for a bounded same-branch Workstream plan covering SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036. This admission pass does not perform runtime implementation.
+Minimal Scope: Workstream Green records the bounded local-only runtime-foundation provider-boundary/scaffold chain covering SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036. This pass does not perform provider SDK/model/memory/voice/Core/shortcut/installer/release implementation.
 Branch: `feature/fam-007-local-ai-runtime-foundation`.
 Selection Scope: Selected by USER-approved Branch Readiness Stage 2 from current origin/main and admitted into Workstream source truth. PR #138 remains released historical scaffold evidence in v1.7.1-prebeta, and PR #152 is released historical scaffold continuation in v1.7.2-prebeta.
 PR #129 / PR #132 Boundary: released in v1.7.1-prebeta; future FAM-006 issue closeout or release support remains separate and USER-gated.
