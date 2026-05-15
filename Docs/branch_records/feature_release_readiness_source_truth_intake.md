@@ -27,7 +27,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
 - Active RRI Cycle: `RRI-20260515-002`
 - Latest Closed RRI Cycle: `RRI-20260515-001`
-- Return Digest Status: `Pending - RRI-20260515-002 must merge, sync the standing branch, prove C:\Nexus Desktop AI is clean on main at origin/main, report Branch Readiness planning adequacy hardening, and return the neutral-main rebaseline proof digest`
+- Return Digest Status: `Pending - RRI-20260515-002 must merge, sync the standing branch, prove C:\Nexus Desktop AI is clean on main at origin/main, report Branch Readiness planning adequacy hardening with fixture proof, and return the neutral-main rebaseline proof digest`
 - Active Cycle Identity: `RRI-20260515-002 / originating lane Governance closeout / neutral main workspace rebaseline proof plus Branch Readiness planning adequacy hardening / no FAM-006 or FAM-007 mutation`
 
 ## PR Readiness Stage 1 Analysis Packet
@@ -66,7 +66,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
 - Active RRI Cycle: `RRI-20260515-002`
 - Latest Closed RRI Cycle: `RRI-20260515-001`
-- Return Digest Status: `Pending - RRI-20260515-002 must merge, sync the standing branch, prove C:\Nexus Desktop AI is clean on main at origin/main, report Branch Readiness planning adequacy hardening, and return the neutral-main rebaseline proof digest`
+- Return Digest Status: `Pending - RRI-20260515-002 must merge, sync the standing branch, prove C:\Nexus Desktop AI is clean on main at origin/main, report Branch Readiness planning adequacy hardening with fixture proof, and return the neutral-main rebaseline proof digest`
 - Active Cycle Identity: `RRI-20260515-002 / originating lane Governance closeout / neutral main workspace rebaseline proof plus Branch Readiness planning adequacy hardening / no FAM-006 or FAM-007 mutation`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
@@ -103,6 +103,7 @@ Allowed:
 - Neutral Main Workspace Rebaseline governance/validator support proving `C:\Nexus Desktop AI` is clean on `main` and equals `origin/main` after standing-governance PR merge/closeout, or reporting the blocker that prevents the fast-forward.
 - PR Readiness Stage 1 `Origin/Main Freshness Check` governance/validator support so Stage 1 reports branch-creation-base drift and reconciliation recommendations without fixing files by surprise.
 - Branch Readiness product-system planning gate governance/validator support so broad implementation branches must prove project-wide vision alignment, branch-specific vision alignment, concept/entity/profile modeling, user workflow planning, scale/state planning, expected outcomes, Codex extra recommendations, USER critique/decision loop, planning adequacy review, rejected shallow plan, alternatives/tradeoffs, whole-system interaction map, minimum viable vs full-system boundary, and open USER decision points before Workstream, Hardening, Live Validation, or PR Readiness can continue.
+- Formal Branch Readiness planning fixture support through `dev/orin_branch_readiness_planning_fixture_validation.py` and `dev/fixtures/branch_readiness_planning/`, proving shallow later-phase planning fails and concrete whole-system planning passes.
 - One PR per active `RRI-*` cycle after validation.
 
 Forbidden:
@@ -196,7 +197,7 @@ Active seam: `RRI-20260515-002 - Neutral Main Workspace Rebaseline Proof And Bra
 
 Seam Goal: `Ensure every standing Governance PR merge/closeout either fast-forwards C:\Nexus Desktop AI main to origin/main or reports an explicit blocker before returning idle, and ensure broad Branch Readiness plans cannot pass through marker-only or self-assessed shallow planning.`
 
-Seam Scope: `Standing intake authority record, governance docs, helper registry text, and dev/orin_branch_governance_validation.py neutral-main rebaseline proof plus Branch Readiness planning adequacy/substance validation. The immediate C:\Nexus Desktop AI fast-forward was performed before this cycle; this cycle makes that duty durable and closes the simple-plan self-assessment gap.`
+Seam Scope: `Standing intake authority record, governance docs, helper registry text, dev/orin_branch_governance_validation.py neutral-main rebaseline proof plus Branch Readiness planning adequacy/substance validation, and formal planning fixtures under dev/fixtures/branch_readiness_planning/. The immediate C:\Nexus Desktop AI fast-forward was performed before this cycle; this cycle makes that duty durable and closes the simple-plan self-assessment gap.`
 
 Seam Non-Includes: `runtime/provider/model/memory/voice/Core/shortcut/installer work, release execution, issue work, FAM-006 or FAM-007 mutation, broad docs churn, branch deletion, worktree cleanup, or direct-main source mutation.`
 
@@ -220,6 +221,7 @@ Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/
 - `Docs/branch_records/index.md` lists this record under Active Branch Authority Records as the single standing governance intake exception while merged-main runtime/product truth may still report No Active Branch.
 - Governance docs describe the standing exception, allowed/forbidden scope, one-cycle limit, sync-to-main rule, originating-lane pause, and return digest.
 - `dev/orin_branch_governance_validation.py --standing-governance-intake-gate` validates the branch identity, clean tracked state, source-truth markers, cycle count, sync/base posture, file scope, and return-digest identity guard.
+- `dev/orin_branch_readiness_planning_fixture_validation.py` validates the formal Branch Readiness planning fixtures so shallow later-phase planning fails and concrete whole-system planning passes.
 - `dev/orin_pr_body_quality_audit.py` rejects PR body firewall markers.
 - The setup PR merged and future intake PRs remain USER-gated for creation and merge.
 

@@ -1980,6 +1980,7 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
 )
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
+    "dev/orin_branch_readiness_planning_fixture_validation.py",
     "dev/automation_observability_report.py",
     "dev/orin_ai_provider_state_validation.py",
     "dev/orin_pr_body_quality_audit.py",
@@ -14836,7 +14837,11 @@ def _gate_state_matches(marker_state: str, allowed_states: set[str]) -> bool:
 
 def _standing_governance_intake_file_allowed(path: str) -> bool:
     normalized = path.replace("\\", "/")
-    return normalized.startswith("Docs/") or normalized in STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES
+    return (
+        normalized.startswith("Docs/")
+        or normalized.startswith("dev/fixtures/branch_readiness_planning/")
+        or normalized in STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES
+    )
 
 
 def _run_standing_governance_intake_gate(require) -> None:
