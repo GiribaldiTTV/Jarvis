@@ -85,6 +85,11 @@ def _validate_naming_sterilization(failures: list[str]) -> None:
 
 def _validate_static_surface(failures: list[str]) -> None:
     branch_record = _read("Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md")
+    monitor_groups_record = _read(
+        "Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md"
+    )
+    feature_backlog = _read("Docs/feature_backlog.md")
+    prebeta_roadmap = _read("Docs/prebeta_roadmap.md")
     helper_registry = _read("Docs/validation_helper_registry.md")
     phase_governance = _read("Docs/phase_governance.md")
     core_html = _read("nexus_visual/orin_core.html")
@@ -125,6 +130,48 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Next Active Seam: Hardening H1 - Monitoring HUD Product Surface Hardening Rerun",
     ):
         _require_contains(branch_record, needle, "FAM-006 Dashboard-first branch source truth", failures)
+    for needle in (
+        "## Sensor Library And Profile Planning Admission",
+        "Sensor Library = all available or planned data sources",
+        "Monitor = one configured tracked item",
+        "Monitor Group = organization/configuration collection",
+        "Overlay Profile = selected monitors plus layout visible on overlay",
+        "Recording Profile = selected monitors or sensors logged to file",
+        "Monitor Groups do not own overlay visibility, recording selection, or recording output behavior",
+        "Sensor Library must support searchable and filterable source discovery",
+        "Manage Monitors must scale to hundreds of monitors and thousands of data sources",
+        "Active Overlay Only",
+        "Active Monitor Group",
+        "All Enabled Monitors",
+        "Custom Recording Profile",
+        "Selected Sensors",
+        "Start Recording",
+        "Stop Recording",
+        "Open Recordings Folder",
+        "Recording Settings",
+        "CSV data plus JSON metadata and sensor manifest",
+        "Recordings are saved locally by default",
+        "enabled, visible, recorded, warning-enabled, or hidden independently",
+        "no runtime recording, Overlay Profile UI, tray recording controls, export/share behavior",
+    ):
+        _require_contains(
+            monitor_groups_record,
+            needle,
+            "FAM-006 Monitor Groups profile planning source truth",
+            failures,
+        )
+    for label, text in (
+        ("FAM-006 feature backlog profile planning sync", feature_backlog),
+        ("FAM-006 pre-Beta roadmap profile planning sync", prebeta_roadmap),
+    ):
+        for needle in (
+            "Sensor Library",
+            "Overlay Profile",
+            "Recording Profile",
+            "returned USER UTS FAIL",
+            "PR Readiness remains blocked",
+        ):
+            _require_contains(text, needle, label, failures)
     for needle in (
         "Interface Release Boundary",
         "Primary Interface Release Surface:",

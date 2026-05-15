@@ -15255,6 +15255,66 @@ def main() -> int:
             f"{fam007_record_path}: FAM-007 bounded-state lock is missing '{required_phrase}'",
         )
 
+    fam006_monitor_groups_record_path = Path(
+        "Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md"
+    )
+    fam006_monitor_groups_record_text = _read_text(fam006_monitor_groups_record_path)
+    for required_phrase in (
+        "## Sensor Library And Profile Planning Admission",
+        "Sensor Library = all available or planned data sources",
+        "Monitor = one configured tracked item",
+        "Monitor Group = organization/configuration collection",
+        "Overlay Profile = selected monitors plus layout visible on overlay",
+        "Recording Profile = selected monitors or sensors logged to file",
+        "Monitor Groups do not own overlay visibility, recording selection, or recording output behavior",
+        "Sensor Library must support searchable and filterable source discovery",
+        "Manage Monitors must scale to hundreds of monitors and thousands of data sources",
+        "Active Overlay Only",
+        "Active Monitor Group",
+        "All Enabled Monitors",
+        "Custom Recording Profile",
+        "Selected Sensors",
+        "Start Recording",
+        "Stop Recording",
+        "Open Recordings Folder",
+        "Recording Settings",
+        "CSV data plus JSON metadata and sensor manifest",
+        "profile name",
+        "hardware snapshot",
+        "event markers during recording",
+        "auto-record triggers",
+        "Save Last 5 Minutes",
+        "Recordings are saved locally by default",
+        "enabled, visible, recorded, warning-enabled, or hidden independently",
+        "no runtime recording, Overlay Profile UI, tray recording controls, export/share behavior",
+        "returned USER UTS FAIL",
+    ):
+        require(
+            required_phrase in fam006_monitor_groups_record_text,
+            (
+                f"{fam006_monitor_groups_record_path}: FAM-006 Monitor Groups "
+                f"profile planning admission is missing '{required_phrase}'"
+            ),
+        )
+    for current_state_path, current_state_text in (
+        (Path("Docs/feature_backlog.md"), backlog_text),
+        (Path("Docs/prebeta_roadmap.md"), roadmap_text),
+    ):
+        for required_phrase in (
+            "Sensor Library",
+            "Overlay Profile",
+            "Recording Profile",
+            "returned USER UTS FAIL",
+            "PR Readiness remains blocked",
+        ):
+            require(
+                required_phrase in current_state_text,
+                (
+                    f"{current_state_path}: FAM-006 Monitor Groups profile planning "
+                    f"sync is missing '{required_phrase}'"
+                ),
+            )
+
     for relative_path in INTERFACE_RELEASE_BOUNDARY_DOCS:
         text = _read_text(relative_path)
         lower_text = text.casefold()
