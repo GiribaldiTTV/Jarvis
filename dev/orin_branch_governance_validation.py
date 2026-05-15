@@ -137,6 +137,20 @@ PRODUCT_DEFINITION_PLAN_HEADING = "Product Definition Plan"
 USER_VISION_QUESTION_PACKET_HEADING = "USER Vision Question Packet"
 USER_VISION_INPUT_HANDOFF_HEADING = "USER Vision Input Handoff"
 USER_VISION_INPUT_ARTIFACT_PATH = Path(r"C:\Users\anden\OneDrive\Desktop\User Vision Input.txt")
+REQUIRED_PRODUCT_SYSTEM_PLANNING_MARKERS = (
+    "Project-Wide Vision Alignment:",
+    "Branch-Specific Vision Alignment:",
+    "System Concept Model:",
+    "Entity / Profile Model:",
+    "User Workflow Model:",
+    "Scale / Data Volume Model:",
+    "Configuration And State Model:",
+    "Expected User-Facing Outcomes:",
+    "Codex Additional Recommendations:",
+    "USER Critique Loop:",
+    "USER Decision Ledger:",
+    "Deferred Ideas / Future Package Ledger:",
+)
 REQUIRED_PRODUCT_DEFINITION_MARKERS = (
     "Product Vision:",
     "User-Facing Goal:",
@@ -148,6 +162,7 @@ REQUIRED_PRODUCT_DEFINITION_MARKERS = (
     "Current Branch vs Future Package Boundaries:",
     "Affected Surfaces:",
     "Data/Control Model:",
+    *REQUIRED_PRODUCT_SYSTEM_PLANNING_MARKERS,
     "Branch Reach / Package-Size Review:",
     "Why Branch Is Large Enough:",
     "Why Not Split Into Tiny Branches:",
@@ -1486,6 +1501,18 @@ PRODUCT_PLANNING_BLOCKERS = (
     USER_VISION_INPUT_ANSWERS_PENDING_BLOCKER,
     USER_VISION_INPUT_DIGEST_PENDING_BLOCKER,
     LEGACY_PRODUCT_NAME_DRIFT_BLOCKER,
+    "Project-Wide Vision Alignment Missing",
+    "Branch-Specific Vision Alignment Missing",
+    "System Concept Model Missing",
+    "Entity / Profile Model Missing",
+    "User Workflow Model Missing",
+    "Scale / Data Volume Model Missing",
+    "Configuration And State Model Missing",
+    "Expected User-Facing Outcomes Missing",
+    "Codex Additional Recommendations Missing",
+    "USER Critique Loop Missing",
+    "USER Decision Ledger Missing",
+    "Deferred Ideas / Future Package Ledger Missing",
     HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
     POLLING_FLOOR_UNDECIDED_BLOCKER,
     WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
@@ -1830,6 +1857,7 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
     "feature/release-readiness-source-truth-intake",
     "Release Readiness digest",
     "automation/worktree governance intake",
+    "phase-gate governance intake",
     "Waiting For Governance Intake",
     "Return Digest",
     "RRI-YYYYMMDD-NNN",
@@ -3098,6 +3126,18 @@ BRANCH_READINESS_STAGE_PACKET_PHRASES = (
     "Codex product interpretation",
     "Codex implementation recommendation",
     "USER/ChatGPT review checkpoint",
+    "Project-Wide Vision Alignment:",
+    "Branch-Specific Vision Alignment:",
+    "System Concept Model:",
+    "Entity / Profile Model:",
+    "User Workflow Model:",
+    "Scale / Data Volume Model:",
+    "Configuration And State Model:",
+    "Expected User-Facing Outcomes:",
+    "Codex Additional Recommendations:",
+    "USER Critique Loop:",
+    "USER Decision Ledger:",
+    "Deferred Ideas / Future Package Ledger:",
     "USER Vision Question Packet",
     "full feature element breakdown",
     "current branch vs future package boundaries",
@@ -6448,6 +6488,15 @@ def _validate_product_definition_plan(
         require(
             marker in plan_section,
             f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} is missing '{marker}'",
+        )
+    for marker in REQUIRED_PRODUCT_SYSTEM_PLANNING_MARKERS:
+        value = _extract_marker_value(plan_section, marker)
+        require(
+            bool(value),
+            (
+                f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} must give a real "
+                f"planning value for '{marker}'"
+            ),
         )
 
     planning_status = _extract_marker_value(plan_section, "Planning Packet Status:")
@@ -14604,6 +14653,13 @@ def _run_standing_governance_intake_gate(require) -> None:
         ),
     )
     require(
+        "phase-gate governance intake" in intake_source,
+        (
+            f"{expected_record_path}: Intake Source must name the USER-approved "
+            "phase-gate governance intake exception"
+        ),
+    )
+    require(
         "Waiting For Governance Intake" in record_text and "Waiting For Updated Main" in record_text,
         (
             f"{expected_record_path}: originating-lane pause semantics must include "
@@ -14671,10 +14727,12 @@ def _run_standing_governance_intake_gate(require) -> None:
             (
                 "Release Readiness digest" in intake_source
                 or "automation/worktree governance intake" in intake_source
+                or "phase-gate governance intake" in intake_source
             ),
             (
                 f"{expected_record_path}: active {active_cycle} must originate from "
-                "Release Readiness or USER-approved automation/worktree governance intake"
+                "Release Readiness, USER-approved automation/worktree governance intake, "
+                "or USER-approved phase-gate governance intake"
             ),
         )
 

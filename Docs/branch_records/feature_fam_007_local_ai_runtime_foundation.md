@@ -10,7 +10,7 @@
 - Package ID: `PKG-007`
 - Package Name: `Local AI Foundation and Capability Packs`
 - Branch Creation Base: `3d38630c63965702bb8839f5e0c5f3b4b008e8bb`
-- Current origin/main: `3d38630c63965702bb8839f5e0c5f3b4b008e8bb`
+- Current origin/main: `09b44c1923c9e1b032f08a2c19ae0527ed185047`
 
 ## Purpose / Why It Exists
 
@@ -115,8 +115,8 @@ Bounded State Non-Includes:
 Carrier Lifecycle Classification: `Fresh current FAM-007 runtime-foundation carrier`
 Remote Branch State: `Absent before Stage 2 push`
 Unique Branch Diff: `Branch Readiness Stage 2 source-truth only before runtime Workstream approval`
-Origin/Main Ancestry: `Created directly from current origin/main 3d38630c63965702bb8839f5e0c5f3b4b008e8bb`
-Origin/Main Advanced Since Branch Creation: `NO`
+Origin/Main Ancestry: `Created directly from origin/main 3d38630c63965702bb8839f5e0c5f3b4b008e8bb, then reconciled with current origin/main 09b44c1923c9e1b032f08a2c19ae0527ed185047 before Hardening H1`
+Origin/Main Advanced Since Branch Creation: `YES - reconciled by USER-approved pre-Hardening merge of current origin/main into this branch`
 Open PR State: `None for feature/fam-007-local-ai-runtime-foundation before Stage 2 push`
 Worktree Checkout State: `Checked out by C:\Nexus Worktrees\FAM-007`
 Recommended Stage 2 Carrier Action: `Complete - post-release canon closure and Workstream planning were committed and pushed; Workstream entry source-truth admission is now active`
@@ -159,6 +159,30 @@ Initial Runtime Scope Candidate: `Local-only foundation state and user-visible p
 ## Product Definition Plan
 
 Product Vision: `FAM-007 should give Nexus a Windows-first local AI foundation with explicit no-provider/provider state, consent-visible data boundaries, local capability planning, lean defaults, and no hidden provider calls.`
+
+Project-Wide Vision Alignment: `Aligns Nexus Desktop AI with a Windows-first local AI foundation that is explicit about local-only execution, provider absence, consent posture, and future capability-pack boundaries without hiding provider or model behavior.`
+
+Branch-Specific Vision Alignment: `This branch limits the current FAM-007 runtime foundation to local-only provider-boundary state, visible no-provider posture, capability planning scaffolds, and validation proof through SLC-036 while leaving real provider/model/runtime expansion for future USER decisions.`
+
+System Concept Model: `A local provider-boundary state model publishes disabled, unavailable, unconfigured, consent-required, provider-visible-data none, and no-provider fallback truth into the existing Core/provider rail without external calls or model execution.`
+
+Entity / Profile Model: `Provider, hardware, capability-pack, data-classification, resilience, persona, and validation entities are local scaffold/state descriptors only; no provider accounts, model profiles, user memories, secrets, or external identities are created.`
+
+User Workflow Model: `The user sees that AI/provider capability is local-only and unavailable for prompts, sees provider-visible data as none, and can trust that setup, provider calls, memory, voice/Core sync, and downloads remain disabled until later approvals.`
+
+Scale / Data Volume Model: `The completed Workstream handles static local state and validation-readable scaffold metadata only; it introduces no indexing volume, model cache, telemetry stream, uploaded data, or long-lived memory store.`
+
+Configuration And State Model: `Configuration remains local provider-boundary posture only: disabled, unavailable, unconfigured, consent-required, and no-provider fallback states are visible, while secrets, SDK credentials, provider routing, model paths, and memory stores are absent.`
+
+Expected User-Facing Outcomes: `Core/provider surfaces make the no-provider local runtime foundation legible, disclose provider-visible data as none, keep prompts disabled, and communicate that nothing is sent while Hardening H1 reviews the completed scaffold chain.`
+
+Codex Additional Recommendations: `Keep Hardening H1 focused on proof review for the completed local-only scaffold chain; do not widen into provider SDKs, model downloads, memory/indexing, voice/Core runtime sync, shortcuts, installers, PR creation, merge, release work, issue work, or contract import.`
+
+USER Critique Loop: `USER corrected governance toward bounded seam-to-seam Workstream execution and a specific Hardening handoff only after Workstream Green; this branch records that correction and stops at the Hardening H1 admission gate.`
+
+USER Decision Ledger: `Granted decisions cover Branch Readiness Stage 2, Workstream entry, bounded local-only Workstream completion, evidence repair, and this pre-Hardening rebaseline; the exact next decision is Hardening H1 admission.`
+
+Deferred Ideas / Future Package Ledger: `Future USER-gated package work includes provider SDK integration, model downloads/execution, external calls, memory/indexing, voice/Core sync, shortcut/installer work, release/tag/artifact work, AI Product Contract import, private Dev ORIN import, GitHub issue work, PR creation, and merge.`
 
 User-Facing Goal: `The next runtime foundation work should make the local AI posture clearer and more actionable while preserving provider-disabled, local-only, provider-visible-data none behavior until later USER approvals.`
 
