@@ -407,12 +407,14 @@ Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
+Next Workstream: Selected
 Next Workstream: FAM-007 Local AI Runtime Contracts and Capability Foundation - Workstream Green after validation through SLC-036, Hardening H1 Green after proof review, and Live Validation LV1 Green with phase-specific User Test Summary waiver proof; PR Readiness Stage 1 is next after explicit USER approval.
 Next Workstream Carrier State: Workstream Green, Hardening H1 Green, and Live Validation LV1 Green on `feature/fam-007-local-ai-runtime-expansion` after v1.7.3-prebeta release canon closure.
 Recommended Next Workstream: FAM-007 Local AI Runtime Contracts and Capability Foundation. Provider SDKs, model downloads, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, AI Product Contract import, issue work, PR creation, merge, and release work remain gated.
 Minimal Scope: Workstream Green records the bounded local-only runtime-foundation provider-boundary/scaffold chain covering SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036. This pass does not perform provider SDK/model/memory/voice/Core/shortcut/installer/release implementation.
 Selected Next Implementation Branch: `feature/fam-007-local-ai-runtime-expansion`
 Current Carrier Branch: `feature/fam-007-local-ai-runtime-expansion`
+Selected Next Current-Carrier Note: `feature/fam-007-local-ai-runtime-expansion` is the current carrier branch, not an uncreated successor branch, and not authority for any future successor after this PR-readiness lane closes.
 Current Carrier Branch Note: Branch Readiness Stage 2 created a fresh FAM-007 runtime carrier from current `origin/main`; this branch now carries bounded Workstream execution and preserves older FAM-007 branches as historical hygiene evidence only until a later USER-approved cleanup/rebaseline gate proves no worktree, open PR, or unique commit depends on them.
 Runtime Branch Evidence: `feature/fam-007-provider-boundary-no-provider-shell` - PR #138 merged the completed local-only scaffold chain and now serves as released historical branch evidence in v1.7.1-prebeta.
 Post-Merge Successor Selection: Selected through this active Workstream carrier as `feature/fam-007-local-ai-runtime-expansion`; future successor truth beyond this branch remains blocked.

@@ -42,6 +42,7 @@ The branch exists because `feature/fam-007-local-ai-runtime-foundation` is histo
 - Historical Predecessor: `feature/fam-007-local-ai-runtime-foundation / PR #159 / released in v1.7.3-prebeta`
 - Selected Next Workstream: `FAM-007 Local AI Runtime Contracts and Capability Foundation`
 - Selected Next Implementation Branch: `feature/fam-007-local-ai-runtime-expansion`
+- Selected Next Current-Carrier Note: `feature/fam-007-local-ai-runtime-expansion` is the current carrier branch, not an uncreated successor branch, and not authority for any future successor after this PR-readiness lane closes`
 - Package Posture: `PKG-007 admitted / not package-complete`
 - PR #129 / PR #132 Boundary: `Separate FAM-006 release-support history; no FAM-006 execution is authorized here`
 - AI Product Contract v0.6.2: `External USER planning evidence only; not imported`

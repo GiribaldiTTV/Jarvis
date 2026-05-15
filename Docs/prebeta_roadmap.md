@@ -152,9 +152,12 @@ Next Legal Phase: PR Readiness Stage 1 for the completed, hardened, and LV1-gree
 ## Selected Next Workstream
 
 Selected Next Workstream: FAM-007 Local AI Runtime Contracts and Capability Foundation.
+Backlog Record State: Registry-only.
 Record State: Workstream Green, Hardening H1 Green, and Live Validation LV1 Green on `feature/fam-007-local-ai-runtime-expansion`; SLC-017/SLC-018, SLC-031/SLC-032, SLC-033/SLC-034, and SLC-035/SLC-036 are green after validation; FAM-007 / PKG-007 remains admitted but not package-complete.
 Minimal Scope: Workstream Green records the bounded local-only runtime-foundation provider-boundary/scaffold chain covering SLC-017, SLC-018, SLC-031, SLC-032, SLC-033, SLC-034, SLC-035, and SLC-036. This pass does not perform provider SDK/model/memory/voice/Core/shortcut/installer/release implementation.
 Branch: `feature/fam-007-local-ai-runtime-expansion` is the active bounded Workstream runtime carrier.
+Current Carrier Branch: `feature/fam-007-local-ai-runtime-expansion`
+Selected Next Current-Carrier Note: `feature/fam-007-local-ai-runtime-expansion` is the current carrier branch, not an uncreated successor branch, and not authority for any future successor after this PR-readiness lane closes.
 Selection Scope: This branch carries the next FAM-007 runtime carrier and completed local-only Workstream through SLC-036. PR #138 remains released historical scaffold evidence in v1.7.1-prebeta, PR #152 is released historical scaffold continuation in v1.7.2-prebeta, and PR #159 is released historical runtime-foundation evidence in v1.7.3-prebeta.
 PR #129 / PR #132 Boundary: released in v1.7.1-prebeta; future FAM-006 issue closeout or release support remains separate and USER-gated.
 Runtime Implementation: Local-only scaffold chain is Workstream Green, Hardening H1 Green, and Live Validation LV1 Green through SLC-036. Provider SDKs, model downloads/execution, external calls, memory/indexing implementation, voice/Core sync, shortcut/installer work, release work, AI Product Contract import, private Dev ORIN import, and GitHub issue work remain blocked.
