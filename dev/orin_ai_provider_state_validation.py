@@ -13,8 +13,23 @@ if str(ROOT) not in sys.path:
 from desktop.ai_provider_state import (  # noqa: E402
     CAPABILITY_PACK_DOWNLOADS_BLOCKED,
     CAPABILITY_PACK_LIFECYCLE_PLANNED,
+    CAPABILITY_PACK_CHECKSUM_REQUIRED,
+    CAPABILITY_PACK_COMPATIBILITY_UNPROVEN,
+    CAPABILITY_PACK_INSTALL_BLOCKED,
+    CAPABILITY_PACK_MANIFEST_PLANNED,
+    CAPABILITY_PACK_MANIFEST_SCHEMA_VERSION,
+    CAPABILITY_PACK_SIGNATURE_REQUIRED,
+    CAPABILITY_PACK_SOURCE_LOCAL_ONLY,
+    CAPABILITY_PACK_UNINSTALL_BLOCKED,
+    CAPABILITY_PACK_UPDATE_BLOCKED,
+    CONTRACT_READY_MARKER,
+    CORE_DESKTOP_COPY_CONTRACT_VERSION,
+    CORE_DESKTOP_RUNTIME_STATE_CONTRACT,
+    DATA_CLASSIFICATION_SCHEMA_VERSION,
+    DISABLED_PROMPT_BEHAVIOR_CONTRACT,
     FAM007_FOUNDATION_READINESS_MODE,
     FAM007_FOUNDATION_READINESS_STATE_ID,
+    HARDWARE_DETECTION_LEVEL_1,
     LOCAL_AI_RUNTIME_FOUNDATION_AVAILABILITY,
     LOCAL_AI_RUNTIME_FOUNDATION_MODE,
     LOCAL_AI_RUNTIME_FOUNDATION_STATE_ID,
@@ -32,6 +47,9 @@ from desktop.ai_provider_state import (  # noqa: E402
     PACKAGE_ID,
     PROVIDER_CONFIGURATION_UNCONFIGURED,
     PROVIDER_CONSENT_REQUIRED,
+    RAM_READINESS_UNPROBED,
+    DISK_READINESS_UNPROBED,
+    MODEL_WORKLOAD_METADATA_PLANNED,
     PROVIDER_SELECTION_AVAILABILITY,
     PROVIDER_SELECTION_MODE,
     PROVIDER_SELECTION_STATE_ID,
@@ -45,14 +63,53 @@ from desktop.ai_provider_state import (  # noqa: E402
     SLC_036_ID,
     VALIDATION_PROOF_GATES_PLANNED,
     MEMORY_CONTEXT_DISABLED,
+    MEMORY_INDEXING_DISABLED,
+    NETWORK_EGRESS_BLOCKED,
+    PERSISTENCE_DISABLED,
+    PROVIDER_VISIBLE_DATA_GUARANTEE_NONE,
+    RETRIEVAL_DISABLED,
+    LEARNING_DISABLED,
+    SECRET_BOUNDARY_NO_SECRETS,
+    CONSENT_ENVELOPE_REQUIRED,
+    AUDIT_ENVELOPE_PLANNED,
+    GOLDEN_PROVIDER_STATE_FIXTURES,
+    VALIDATOR_EXPANSION_ACTIVE,
+    UI_READY_MARKER,
+    VALIDATOR_READY_MARKER,
+    FUTURE_IMPLEMENTATION_GATED_MARKER,
     WINDOWS_RESILIENCE_PLANNED,
     PERSONA_CORE_VOICE_BOUNDARY_PLANNED,
     PROVIDER_BOUNDARY_INTERACTION_PLAN_STATE,
+    PROVIDER_RUNTIME_CATEGORY_CAPABILITY_MISSING,
+    PROVIDER_RUNTIME_CATEGORY_CONSENT_MISSING,
+    PROVIDER_RUNTIME_CATEGORY_ERROR_DEGRADED,
+    PROVIDER_RUNTIME_CATEGORY_NO_PROVIDER,
+    PROVIDER_RUNTIME_CATEGORY_READY_FUTURE_GATED,
+    PROVIDER_RUNTIME_CATEGORY_SETUP_DISABLED,
+    PROVIDER_RUNTIME_CATEGORY_UNCONFIGURED,
+    PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION,
+    PROVIDER_RUNTIME_CONFIG_STATE_INVALID,
+    PROVIDER_RUNTIME_CONFIG_STATE_MISSING,
+    PROVIDER_RUNTIME_CONFIG_STATE_DEFAULT,
+    PROVIDER_RUNTIME_PROVENANCE_DEFAULT_CONFIG,
+    PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG,
+    PROVIDER_RUNTIME_REASON_CAPABILITY_MISSING,
+    PROVIDER_RUNTIME_REASON_CONSENT_REQUIRED,
+    PROVIDER_RUNTIME_REASON_INVALID_CONFIG_FAIL_CLOSED,
+    PROVIDER_RUNTIME_REASON_MISSING_CONFIG_FAIL_CLOSED,
+    PROVIDER_RUNTIME_REASON_NO_PROVIDER_CONFIGURED,
+    PROVIDER_RUNTIME_REASON_PROVIDER_UNCONFIGURED,
+    PROVIDER_RUNTIME_REASON_READY_FUTURE_GATED,
+    PROVIDER_RUNTIME_REASON_SETUP_DISABLED_LOCAL_ONLY,
+    PROVIDER_RUNTIME_STATE_CATEGORIES,
+    PROVIDER_RUNTIME_STATE_SCHEMA_VERSION,
     PROVIDER_NEXT_ACTION_DISABLED,
     build_fam007_foundation_readiness_state,
+    build_default_provider_runtime_config,
     build_local_ai_runtime_foundation_provider_boundary_state,
     build_local_provider_registry_state,
     build_no_provider_ai_state,
+    build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
 )
 
@@ -74,11 +131,53 @@ def validate() -> list[str]:
     registry_snapshot = build_local_provider_registry_state(surface_role="core")
     runtime_foundation_snapshot = build_local_ai_runtime_foundation_provider_boundary_state(surface_role="core")
     foundation_snapshot = build_fam007_foundation_readiness_state(surface_role="core")
+    default_runtime_snapshot = build_provider_runtime_contract_state(
+        build_default_provider_runtime_config(),
+        surface_role="core",
+    )
+    missing_config_snapshot = build_provider_runtime_contract_state(None, surface_role="core")
+    invalid_config_snapshot = build_provider_runtime_contract_state(
+        {
+            "schema_version": "provider-runtime-config.v0",
+            "selected_provider_id": "external-provider",
+            "provenance": PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG,
+        },
+        surface_role="core",
+    )
+    unconfigured_runtime_snapshot = build_provider_runtime_contract_state(
+        {
+            "schema_version": PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION,
+            "selected_provider_id": "local-capability-pack",
+            "provider_configured": False,
+            "provider_available": False,
+            "consent_granted": False,
+            "capability_ready": False,
+            "provenance": PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG,
+        },
+        surface_role="core",
+    )
+    capability_missing_snapshot = build_provider_runtime_contract_state(
+        {
+            "schema_version": PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION,
+            "selected_provider_id": "local-capability-pack",
+            "provider_configured": True,
+            "provider_available": True,
+            "consent_granted": True,
+            "capability_ready": False,
+            "provenance": PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG,
+        },
+        surface_role="core",
+    )
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
     runtime_foundation_payload = runtime_foundation_snapshot.as_renderer_payload()
     foundation_payload = foundation_snapshot.as_renderer_payload()
+    default_runtime_payload = default_runtime_snapshot.as_renderer_payload()
+    missing_config_payload = missing_config_snapshot.as_renderer_payload()
+    invalid_config_payload = invalid_config_snapshot.as_renderer_payload()
+    unconfigured_runtime_payload = unconfigured_runtime_snapshot.as_renderer_payload()
+    capability_missing_payload = capability_missing_snapshot.as_renderer_payload()
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     html = _read("nexus_visual/orin_core.html")
@@ -340,6 +439,128 @@ def validate() -> list[str]:
         "runtime foundation boundary must keep prompts disabled",
         failures,
     )
+    _require(
+        runtime_foundation_payload["runtimeStateSchemaVersion"] == PROVIDER_RUNTIME_STATE_SCHEMA_VERSION,
+        "runtime foundation boundary must expose the provider runtime state schema version",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["runtimeConfigSchemaVersion"] == PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION,
+        "runtime foundation boundary must expose the provider runtime config schema version",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["runtimeStateCategory"] == PROVIDER_RUNTIME_CATEGORY_SETUP_DISABLED,
+        "runtime foundation boundary must publish provider_setup_disabled runtime category",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["runtimeReasonCode"] == PROVIDER_RUNTIME_REASON_SETUP_DISABLED_LOCAL_ONLY,
+        "runtime foundation boundary must publish a setup-disabled reason code",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["runtimeProvenance"] == PROVIDER_RUNTIME_PROVENANCE_DEFAULT_CONFIG,
+        "runtime foundation boundary must publish default-config provenance",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["runtimeConfigState"] == PROVIDER_RUNTIME_CONFIG_STATE_DEFAULT,
+        "runtime foundation boundary must publish safe default config state",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["runtimeFailClosed"] is True,
+        "runtime foundation boundary must fail closed while provider execution is disabled",
+        failures,
+    )
+    _require(
+        default_runtime_payload["runtimeStateCategory"] == PROVIDER_RUNTIME_CATEGORY_SETUP_DISABLED,
+        "default provider runtime config must resolve to setup-disabled local-only posture",
+        failures,
+    )
+    _require(
+        missing_config_payload["runtimeStateCategory"] == PROVIDER_RUNTIME_CATEGORY_NO_PROVIDER,
+        "missing provider runtime config must resolve to no-provider posture",
+        failures,
+    )
+    _require(
+        missing_config_payload["runtimeReasonCode"] == PROVIDER_RUNTIME_REASON_MISSING_CONFIG_FAIL_CLOSED,
+        "missing provider runtime config must publish missing-config fail-closed reason",
+        failures,
+    )
+    _require(
+        missing_config_payload["runtimeConfigState"] == PROVIDER_RUNTIME_CONFIG_STATE_MISSING,
+        "missing provider runtime config must publish missing-config state",
+        failures,
+    )
+    _require(
+        invalid_config_payload["runtimeStateCategory"] == PROVIDER_RUNTIME_CATEGORY_ERROR_DEGRADED,
+        "invalid provider runtime config must resolve to degraded fail-closed posture",
+        failures,
+    )
+    _require(
+        invalid_config_payload["runtimeReasonCode"] == PROVIDER_RUNTIME_REASON_INVALID_CONFIG_FAIL_CLOSED,
+        "invalid provider runtime config must publish invalid-config fail-closed reason",
+        failures,
+    )
+    _require(
+        invalid_config_payload["runtimeConfigState"] == PROVIDER_RUNTIME_CONFIG_STATE_INVALID,
+        "invalid provider runtime config must publish invalid-config state",
+        failures,
+    )
+    _require(
+        invalid_config_payload["runtimeFailClosed"] is True
+        and invalid_config_payload["sentToProvider"] is False
+        and invalid_config_payload["canAcceptPrompts"] is False,
+        "invalid provider runtime config must fail closed without provider sends or prompt acceptance",
+        failures,
+    )
+    _require(
+        unconfigured_runtime_payload["runtimeStateCategory"] == PROVIDER_RUNTIME_CATEGORY_UNCONFIGURED,
+        "local provider config without configured provider must resolve to provider_unconfigured",
+        failures,
+    )
+    _require(
+        unconfigured_runtime_payload["runtimeReasonCode"] == PROVIDER_RUNTIME_REASON_PROVIDER_UNCONFIGURED,
+        "local provider config without configured provider must publish provider-unconfigured reason",
+        failures,
+    )
+    _require(
+        capability_missing_payload["runtimeStateCategory"] == PROVIDER_RUNTIME_CATEGORY_CAPABILITY_MISSING,
+        "configured provider without capability proof must resolve to capability-missing",
+        failures,
+    )
+    _require(
+        capability_missing_payload["runtimeReasonCode"] == PROVIDER_RUNTIME_REASON_CAPABILITY_MISSING,
+        "configured provider without capability proof must publish capability-missing reason",
+        failures,
+    )
+    _require(
+        "provider_unavailable" in PROVIDER_RUNTIME_STATE_CATEGORIES,
+        "runtime categories must reserve provider_unavailable state",
+        failures,
+    )
+    _require(
+        "provider_consent_missing" in PROVIDER_RUNTIME_STATE_CATEGORIES,
+        "runtime categories must reserve provider_consent_missing state",
+        failures,
+    )
+    _require(
+        default_runtime_payload["runtimeStateLabel"] == "Runtime state: provider setup disabled",
+        "runtime state must publish visible runtime-state label",
+        failures,
+    )
+    _require(
+        default_runtime_payload["runtimeReasonLabel"] == "Reason: setup disabled in local-only seam",
+        "runtime state must publish visible runtime reason-code label",
+        failures,
+    )
+    _require(
+        default_runtime_payload["runtimeProvenanceLabel"] == "Provenance: default config",
+        "runtime state must publish visible runtime provenance label",
+        failures,
+    )
 
     expected_foundation_slices = (
         SLC_017_ID,
@@ -402,6 +623,31 @@ def validate() -> list[str]:
         failures,
     )
     _require(
+        foundation_payload["hardwareDetectionLevel"] == HARDWARE_DETECTION_LEVEL_1,
+        "foundation readiness scaffold must expose Level 1 safe local static snapshot",
+        failures,
+    )
+    _require(
+        foundation_payload["capabilitySnapshotPolicy"] == "local-static-no-heavy-probe",
+        "foundation readiness scaffold must prohibit heavy capability probes",
+        failures,
+    )
+    _require(
+        foundation_payload["ramReadinessState"] == RAM_READINESS_UNPROBED,
+        "foundation readiness scaffold must keep RAM readiness unprobed",
+        failures,
+    )
+    _require(
+        foundation_payload["diskReadinessState"] == DISK_READINESS_UNPROBED,
+        "foundation readiness scaffold must keep disk readiness unprobed",
+        failures,
+    )
+    _require(
+        foundation_payload["modelWorkloadMetadataState"] == MODEL_WORKLOAD_METADATA_PLANNED,
+        "foundation readiness scaffold must plan model workload metadata without execution",
+        failures,
+    )
+    _require(
         foundation_payload["gpuCapabilityLabel"] == "GPU acceleration: unprobed; no model workload active",
         "foundation readiness scaffold must visibly disclose GPU unprobed/no-workload posture",
         failures,
@@ -432,6 +678,43 @@ def validate() -> list[str]:
         failures,
     )
     _require(
+        foundation_payload["capabilityPackManifestSchemaVersion"] == CAPABILITY_PACK_MANIFEST_SCHEMA_VERSION,
+        "foundation readiness scaffold must expose capability-pack manifest schema version",
+        failures,
+    )
+    _require(
+        foundation_payload["capabilityPackManifestState"] == CAPABILITY_PACK_MANIFEST_PLANNED,
+        "foundation readiness scaffold must keep manifest state planning-only",
+        failures,
+    )
+    _require(
+        foundation_payload["capabilityPackSourceType"] == CAPABILITY_PACK_SOURCE_LOCAL_ONLY,
+        "foundation readiness scaffold must keep capability-pack source local/future-gated",
+        failures,
+    )
+    _require(
+        foundation_payload["capabilityPackChecksumState"] == CAPABILITY_PACK_CHECKSUM_REQUIRED,
+        "foundation readiness scaffold must require checksums before install",
+        failures,
+    )
+    _require(
+        foundation_payload["capabilityPackSignatureState"] == CAPABILITY_PACK_SIGNATURE_REQUIRED,
+        "foundation readiness scaffold must require signatures before install",
+        failures,
+    )
+    _require(
+        foundation_payload["capabilityPackCompatibilityState"] == CAPABILITY_PACK_COMPATIBILITY_UNPROVEN,
+        "foundation readiness scaffold must keep compatibility unproven",
+        failures,
+    )
+    _require(
+        foundation_payload["capabilityPackInstallState"] == CAPABILITY_PACK_INSTALL_BLOCKED
+        and foundation_payload["capabilityPackUpdateState"] == CAPABILITY_PACK_UPDATE_BLOCKED
+        and foundation_payload["capabilityPackUninstallState"] == CAPABILITY_PACK_UNINSTALL_BLOCKED,
+        "foundation readiness scaffold must block install/update/uninstall execution",
+        failures,
+    )
+    _require(
         foundation_payload["capabilityPackDownloadLabel"] == "Capability pack downloads: blocked",
         "foundation readiness scaffold must visibly disclose blocked capability-pack downloads",
         failures,
@@ -439,6 +722,40 @@ def validate() -> list[str]:
     _require(
         foundation_payload["memoryContextState"] == MEMORY_CONTEXT_DISABLED,
         "foundation readiness scaffold must keep memory/context disabled",
+        failures,
+    )
+    _require(
+        foundation_payload["dataClassificationSchemaVersion"] == DATA_CLASSIFICATION_SCHEMA_VERSION,
+        "foundation readiness scaffold must expose data classification schema version",
+        failures,
+    )
+    _require(
+        foundation_payload["providerVisibleDataGuarantee"] == PROVIDER_VISIBLE_DATA_GUARANTEE_NONE,
+        "foundation readiness scaffold must guarantee no provider-visible data",
+        failures,
+    )
+    _require(
+        foundation_payload["memoryIndexingState"] == MEMORY_INDEXING_DISABLED
+        and foundation_payload["retrievalState"] == RETRIEVAL_DISABLED
+        and foundation_payload["learningState"] == LEARNING_DISABLED
+        and foundation_payload["persistenceState"] == PERSISTENCE_DISABLED,
+        "foundation readiness scaffold must keep memory indexing, retrieval, learning, and persistence disabled",
+        failures,
+    )
+    _require(
+        foundation_payload["consentEnvelopeState"] == CONSENT_ENVELOPE_REQUIRED
+        and foundation_payload["auditEnvelopeState"] == AUDIT_ENVELOPE_PLANNED,
+        "foundation readiness scaffold must expose consent and audit envelope posture",
+        failures,
+    )
+    _require(
+        foundation_payload["secretBoundaryState"] == SECRET_BOUNDARY_NO_SECRETS,
+        "foundation readiness scaffold must keep secret boundary at no stored secrets",
+        failures,
+    )
+    _require(
+        foundation_payload["networkEgressState"] == NETWORK_EGRESS_BLOCKED,
+        "foundation readiness scaffold must block network egress",
         failures,
     )
     _require(
@@ -459,6 +776,35 @@ def validate() -> list[str]:
     _require(
         foundation_payload["validationProofGateState"] == VALIDATION_PROOF_GATES_PLANNED,
         "foundation readiness scaffold must expose validation proof gates",
+        failures,
+    )
+    _require(
+        foundation_payload["coreDesktopCopyContractVersion"] == CORE_DESKTOP_COPY_CONTRACT_VERSION,
+        "foundation readiness scaffold must expose Core/Desktop copy contract version",
+        failures,
+    )
+    _require(
+        foundation_payload["coreDesktopRuntimeStateContract"] == CORE_DESKTOP_RUNTIME_STATE_CONTRACT,
+        "foundation readiness scaffold must expose Core/Desktop runtime-state contract",
+        failures,
+    )
+    _require(
+        foundation_payload["disabledPromptBehaviorContract"] == DISABLED_PROMPT_BEHAVIOR_CONTRACT,
+        "foundation readiness scaffold must expose disabled prompt/provider behavior contract",
+        failures,
+    )
+    _require(
+        foundation_payload["goldenProviderStateFixtures"] == GOLDEN_PROVIDER_STATE_FIXTURES
+        and foundation_payload["validatorExpansionState"] == VALIDATOR_EXPANSION_ACTIVE,
+        "foundation readiness scaffold must expose golden fixtures and validator expansion state",
+        failures,
+    )
+    _require(
+        foundation_payload["contractReadyMarker"] == CONTRACT_READY_MARKER
+        and foundation_payload["uiReadyMarker"] == UI_READY_MARKER
+        and foundation_payload["validatorReadyMarker"] == VALIDATOR_READY_MARKER
+        and foundation_payload["futureImplementationGatedMarker"] == FUTURE_IMPLEMENTATION_GATED_MARKER,
+        "foundation readiness scaffold must expose contract/UI/validator-ready and future-gated markers",
         failures,
     )
     _require(foundation_payload["sentToProvider"] is False, "foundation readiness scaffold must send nothing to providers", failures)
@@ -495,12 +841,29 @@ def validate() -> list[str]:
         "window.setAIProviderState",
         "provider_interaction",
         "provider_next_action",
+        "runtime_category",
+        "runtime_reason",
+        "runtime_provenance",
+        "runtime_schema",
+        "runtime_config",
+        "runtime_fail_closed",
         "gpu_capability",
         "cpu_fallback",
+        "hardware_detection_level",
+        "ram_readiness",
+        "disk_readiness",
         "model_workload",
+        "model_workload_metadata",
         "capability_pack_download",
+        "capability_pack_manifest",
+        "capability_pack_compatibility",
         "data_classification",
+        "provider_visible_data_guarantee",
         "voice_runtime",
+        "memory_indexing",
+        "network_egress",
+        "copy_contract",
+        "contract_ready",
         "release_proof",
     ):
         _require(needle in renderer, f"desktop renderer is missing {needle!r}", failures)
@@ -518,9 +881,19 @@ def validate() -> list[str]:
             'data-provider-configuration="unconfigured"',
             'data-provider-registry="local-only-registry"',
             'data-provider-interaction="provider-boundary-interaction-plan"',
+            'data-runtime-category="provider_setup_disabled"',
+            'data-runtime-reason="provider_setup_disabled_local_only"',
+            'data-runtime-provenance="default_config"',
+            'data-runtime-schema="provider-runtime-state.v1"',
+            'data-runtime-config="default_config"',
+            'data-runtime-fail-closed="true"',
             'data-configured-provider-count="0"',
             'data-available-provider-count="0"',
             'data-hardware-capability="local-planning-only"',
+            'data-hardware-detection-level="level-1-safe-local-static-snapshot"',
+            'data-ram-readiness="ram-unprobed"',
+            'data-disk-readiness="disk-unprobed"',
+            'data-model-workload-metadata="model-workload-metadata-planned"',
             'id="ai-provider-status-gpu"',
             "GPU acceleration: unprobed; no model workload active",
             'id="ai-provider-status-cpu"',
@@ -531,14 +904,30 @@ def validate() -> list[str]:
             "Thermal guardrails required before model workloads",
             'id="ai-provider-status-model-workload"',
             "Model workloads: disabled",
+            'id="ai-provider-status-hardware-detection"',
+            "Hardware detection: Level 1 safe local static snapshot",
+            'id="ai-provider-status-ram"',
+            "RAM readiness: unprobed",
+            'id="ai-provider-status-disk"',
+            "Disk readiness: unprobed",
+            'id="ai-provider-status-model-metadata"',
+            "Model workload metadata: planned; no execution",
             'data-capability-pack-lifecycle="capability-pack-lifecycle-planned"',
+            'data-capability-pack-manifest="manifest-planned"',
+            'data-capability-pack-compatibility="compatibility-unproven"',
             'id="ai-provider-status-capability-download"',
             "Capability pack downloads: blocked",
             'id="ai-provider-status-capability-recommendation"',
             "Capability recommendation pending hardware proof",
+            'id="ai-provider-status-capability-manifest"',
+            "capability-pack-manifest.v1; manifest-planned",
+            'id="ai-provider-status-capability-integrity"',
+            "checksum-required-before-install; signature-required-before-install; compatibility-unproven",
             'id="ai-provider-status-data-classification"',
             "Data classification: local-only planning",
             'data-memory-context="memory-context-disabled"',
+            'data-memory-indexing="memory-indexing-disabled"',
+            'data-network-egress="network-egress-blocked"',
             'id="ai-provider-status-audit-secrets"',
             "Audit/secrets: planned; no secrets stored",
             'data-windows-resilience="windows-resilience-planned"',
@@ -548,6 +937,8 @@ def validate() -> list[str]:
             'id="ai-provider-status-voice"',
             "Voice runtime: disabled",
             'data-validation-gates="validation-proof-gates-planned"',
+            'data-copy-contract="core-desktop-runtime-state-contract"',
+            'data-contract-ready="contract-ready"',
             'id="ai-provider-status-abuse"',
             "Abuse/eval: pending future approval",
             'id="ai-provider-status-release-proof"',
@@ -560,13 +951,29 @@ def validate() -> list[str]:
             "Hardware capability: local planning only",
             "Capability packs: lifecycle planned",
             "Memory/context: disabled; no indexing",
+            'id="ai-provider-status-memory-contract"',
+            "memory-indexing-disabled; retrieval-disabled; learning-disabled; persistence-disabled",
+            'id="ai-provider-status-egress"',
+            "network-egress-blocked",
             "Windows resilience: planning only",
             "Persona/Core/voice: planning boundary",
             "Validation gates: static proof active",
+            'id="ai-provider-status-copy-contract"',
+            "core-desktop-provider-state-copy.v1; core-desktop-runtime-state-contract",
+            'id="ai-provider-status-fixtures"',
+            "golden-provider-state-fixtures; validator-expansion-active",
             "Consent required before provider setup",
             "Provider-visible data: none",
             "No prompt, file, screen, memory, or telemetry is sent",
             "Consent boundary: provider setup required before prompts",
+            'id="ai-provider-status-runtime"',
+            "Runtime state: provider setup disabled",
+            'id="ai-provider-status-runtime-reason"',
+            "Reason: setup disabled in local-only seam",
+            'id="ai-provider-status-runtime-provenance"',
+            "Provenance: default config",
+            'id="ai-provider-status-runtime-schema"',
+            "provider-runtime-state.v1; provider-runtime-config.v1; Config: safe default local-only",
             'id="ai-provider-status-action"',
             "Assisted Desktop unavailable",
             "Next: provider setup is disabled in this local-only foundation seam",
@@ -583,6 +990,11 @@ def validate() -> list[str]:
 
     for needle in (
         ".ai-provider-status",
+        ".ai-provider-status__runtime",
+        ".ai-provider-status__hardware-detection",
+        ".ai-provider-status__capability-manifest",
+        ".ai-provider-status__memory-contract",
+        ".ai-provider-status__copy-contract",
         'data-availability="ready"',
         "overflow-wrap: anywhere",
     ):
@@ -599,14 +1011,30 @@ def validate() -> list[str]:
         "hardwareCapabilityState",
         "gpuCapabilityState",
         "cpuFallbackState",
+        "hardwareDetectionLevel",
+        "ramReadinessState",
+        "diskReadinessState",
         "powerState",
         "thermalGuardrailState",
         "modelWorkloadState",
+        "modelWorkloadMetadataState",
         "capabilityRecommendationState",
         "capabilityPackLifecycleState",
         "capabilityPackDownloadState",
+        "capabilityPackManifestSchemaVersion",
+        "capabilityPackManifestState",
+        "capabilityPackChecksumState",
+        "capabilityPackSignatureState",
+        "capabilityPackCompatibilityState",
         "dataClassificationState",
+        "dataClassificationSchemaVersion",
+        "providerVisibleDataGuarantee",
         "memoryContextState",
+        "memoryIndexingState",
+        "retrievalState",
+        "learningState",
+        "persistenceState",
+        "networkEgressState",
         "auditSecretsState",
         "windowsResilienceState",
         "offlineDegradedState",
@@ -615,6 +1043,15 @@ def validate() -> list[str]:
         "validationProofGateState",
         "abuseEvalState",
         "releaseProofGateState",
+        "coreDesktopCopyContractVersion",
+        "coreDesktopRuntimeStateContract",
+        "disabledPromptBehaviorContract",
+        "goldenProviderStateFixtures",
+        "validatorExpansionState",
+        "contractReadyMarker",
+        "uiReadyMarker",
+        "validatorReadyMarker",
+        "futureImplementationGatedMarker",
         "configuredProviderCount",
         "availableProviderCount",
         "requiresConsent",
@@ -624,6 +1061,16 @@ def validate() -> list[str]:
         "providerVisibleDataDetail",
         "providerConsentBoundaryLabel",
         "providerNextActionLabel",
+        "runtimeStateSchemaVersion",
+        "runtimeStateCategory",
+        "runtimeReasonCode",
+        "runtimeProvenance",
+        "runtimeConfigState",
+        "runtimeFailClosed",
+        "aiProviderStatusRuntime",
+        "aiProviderStatusRuntimeReason",
+        "aiProviderStatusRuntimeProvenance",
+        "aiProviderStatusRuntimeSchema",
         "aiProviderStatusAction.disabled = true",
         "sentToProvider",
         "canAcceptPrompts",

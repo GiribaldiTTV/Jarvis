@@ -26,11 +26,19 @@ const aiProviderStatusCpu = document.getElementById("ai-provider-status-cpu");
 const aiProviderStatusPower = document.getElementById("ai-provider-status-power");
 const aiProviderStatusThermal = document.getElementById("ai-provider-status-thermal");
 const aiProviderStatusModelWorkload = document.getElementById("ai-provider-status-model-workload");
+const aiProviderStatusHardwareDetection = document.getElementById("ai-provider-status-hardware-detection");
+const aiProviderStatusRam = document.getElementById("ai-provider-status-ram");
+const aiProviderStatusDisk = document.getElementById("ai-provider-status-disk");
+const aiProviderStatusModelMetadata = document.getElementById("ai-provider-status-model-metadata");
 const aiProviderStatusCapabilityPack = document.getElementById("ai-provider-status-capability-pack");
 const aiProviderStatusCapabilityDownload = document.getElementById("ai-provider-status-capability-download");
 const aiProviderStatusCapabilityRecommendation = document.getElementById("ai-provider-status-capability-recommendation");
+const aiProviderStatusCapabilityManifest = document.getElementById("ai-provider-status-capability-manifest");
+const aiProviderStatusCapabilityIntegrity = document.getElementById("ai-provider-status-capability-integrity");
 const aiProviderStatusDataClassification = document.getElementById("ai-provider-status-data-classification");
 const aiProviderStatusMemory = document.getElementById("ai-provider-status-memory");
+const aiProviderStatusMemoryContract = document.getElementById("ai-provider-status-memory-contract");
+const aiProviderStatusEgress = document.getElementById("ai-provider-status-egress");
 const aiProviderStatusAuditSecrets = document.getElementById("ai-provider-status-audit-secrets");
 const aiProviderStatusWindows = document.getElementById("ai-provider-status-windows");
 const aiProviderStatusOffline = document.getElementById("ai-provider-status-offline");
@@ -39,10 +47,16 @@ const aiProviderStatusVoice = document.getElementById("ai-provider-status-voice"
 const aiProviderStatusValidation = document.getElementById("ai-provider-status-validation");
 const aiProviderStatusAbuse = document.getElementById("ai-provider-status-abuse");
 const aiProviderStatusReleaseProof = document.getElementById("ai-provider-status-release-proof");
+const aiProviderStatusCopyContract = document.getElementById("ai-provider-status-copy-contract");
+const aiProviderStatusFixtures = document.getElementById("ai-provider-status-fixtures");
 const aiProviderStatusConsent = document.getElementById("ai-provider-status-consent");
 const aiProviderStatusDisclosure = document.getElementById("ai-provider-status-disclosure");
 const aiProviderStatusVisibleDataDetail = document.getElementById("ai-provider-status-visible-data-detail");
 const aiProviderStatusConsentBoundary = document.getElementById("ai-provider-status-consent-boundary");
+const aiProviderStatusRuntime = document.getElementById("ai-provider-status-runtime");
+const aiProviderStatusRuntimeReason = document.getElementById("ai-provider-status-runtime-reason");
+const aiProviderStatusRuntimeProvenance = document.getElementById("ai-provider-status-runtime-provenance");
+const aiProviderStatusRuntimeSchema = document.getElementById("ai-provider-status-runtime-schema");
 const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
 const aiProviderStatusFallback = document.getElementById("ai-provider-status-fallback");
 const aiProviderStatusNextAction = document.getElementById("ai-provider-status-next-action");
@@ -101,16 +115,50 @@ let aiProviderState = {
   thermalGuardrailLabel: "Thermal guardrails required before model workloads",
   modelWorkloadState: "model-workload-disabled",
   modelWorkloadLabel: "Model workloads: disabled",
+  hardwareDetectionLevel: "level-1-safe-local-static-snapshot",
+  hardwareDetectionLabel: "Hardware detection: Level 1 safe local static snapshot",
+  capabilitySnapshotPolicy: "local-static-no-heavy-probe",
+  capabilitySnapshotSource: "default-static-snapshot",
+  capabilitySnapshotBudgetLabel: "Capability snapshot budget: static only; no heavy probe",
+  ramReadinessState: "ram-unprobed",
+  ramReadinessLabel: "RAM readiness: unprobed",
+  diskReadinessState: "disk-unprobed",
+  diskReadinessLabel: "Disk readiness: unprobed",
+  modelWorkloadMetadataState: "model-workload-metadata-planned",
+  modelWorkloadMetadataLabel: "Model workload metadata: planned; no execution",
   capabilityRecommendationState: "recommendation-pending",
   capabilityRecommendationLabel: "Capability recommendation pending hardware proof",
   capabilityPackLifecycleState: "capability-pack-lifecycle-planned",
   capabilityPackLifecycleLabel: "Capability packs: lifecycle planned",
   capabilityPackDownloadState: "capability-pack-downloads-blocked",
   capabilityPackDownloadLabel: "Capability pack downloads: blocked",
+  capabilityPackManifestSchemaVersion: "capability-pack-manifest.v1",
+  capabilityPackManifestState: "manifest-planned",
+  capabilityPackSourceType: "local-source-future-gated",
+  capabilityPackChecksumState: "checksum-required-before-install",
+  capabilityPackSignatureState: "signature-required-before-install",
+  capabilityPackCompatibilityState: "compatibility-unproven",
+  capabilityPackDiskRequirement: "disk requirement: future manifest required",
+  capabilityPackRamRequirement: "ram requirement: future manifest required",
+  capabilityPackGpuRequirement: "gpu requirement: future manifest required",
+  capabilityPackInstallState: "install-blocked",
+  capabilityPackUpdateState: "update-blocked",
+  capabilityPackUninstallState: "uninstall-blocked",
   dataClassificationState: "data-classification-local-only",
   dataClassificationLabel: "Data classification: local-only planning",
+  dataClassificationSchemaVersion: "data-classification.v1",
+  providerVisibleDataGuarantee: "provider-visible-data-none-guaranteed",
   memoryContextState: "memory-context-disabled",
   memoryContextLabel: "Memory/context: disabled; no indexing",
+  memoryIndexingState: "memory-indexing-disabled",
+  retrievalState: "retrieval-disabled",
+  learningState: "learning-disabled",
+  persistenceState: "persistence-disabled",
+  futureMemoryEligibilityMarker: "future-memory-eligibility-gated",
+  consentEnvelopeState: "consent-envelope-required",
+  auditEnvelopeState: "audit-envelope-planned",
+  secretBoundaryState: "secret-boundary-no-secrets-stored",
+  networkEgressState: "network-egress-blocked",
   auditSecretsState: "audit-secrets-planned",
   auditSecretsLabel: "Audit/secrets: planned; no secrets stored",
   windowsResilienceState: "windows-resilience-planned",
@@ -127,6 +175,15 @@ let aiProviderState = {
   abuseEvalLabel: "Abuse/eval: pending future approval",
   releaseProofGateState: "release-proof-pending",
   releaseProofGateLabel: "Release proof: pending future approval",
+  coreDesktopCopyContractVersion: "core-desktop-provider-state-copy.v1",
+  coreDesktopRuntimeStateContract: "core-desktop-runtime-state-contract",
+  disabledPromptBehaviorContract: "disabled-prompt-provider-behavior",
+  goldenProviderStateFixtures: "golden-provider-state-fixtures",
+  validatorExpansionState: "validator-expansion-active",
+  contractReadyMarker: "contract-ready",
+  uiReadyMarker: "ui-ready",
+  validatorReadyMarker: "validator-ready",
+  futureImplementationGatedMarker: "future-implementation-gated",
   privacyScope: "local-only",
   privacyLabel: "Local shell only; nothing is sent",
   consentState: "required-before-provider",
@@ -136,6 +193,19 @@ let aiProviderState = {
   providerVisibleDataDetail: "No prompt, file, screen, memory, or telemetry is sent",
   providerConsentBoundaryLabel: "Consent boundary: provider setup required before prompts",
   providerNextActionLabel: "Next: provider setup is disabled in this local-only foundation seam",
+  runtimeStateSchemaVersion: "provider-runtime-state.v1",
+  runtimeStateCategory: "provider_setup_disabled",
+  runtimeStateLabel: "Runtime state: provider setup disabled",
+  runtimeReasonCode: "provider_setup_disabled_local_only",
+  runtimeReasonLabel: "Reason: setup disabled in local-only seam",
+  runtimeConfigSchemaVersion: "provider-runtime-config.v1",
+  runtimeConfigState: "default_config",
+  runtimeConfigLabel: "Config: safe default local-only",
+  runtimeConfigMigration: "no-runtime-migration-required",
+  runtimeConfigValid: true,
+  runtimeFailClosed: true,
+  runtimeProvenance: "default_config",
+  runtimeProvenanceLabel: "Provenance: default config",
   interactionAffordance: "disabled-no-provider-interaction",
   interactionLabel: "Assisted Desktop unavailable",
   interactionDisabledReason: "Consent and provider configuration are required before prompts can run",
@@ -1244,6 +1314,12 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.providerConfiguration = state.providerConfigurationState || "unknown";
   aiProviderStatus.dataset.providerRegistry = state.providerRegistryState || "unknown";
   aiProviderStatus.dataset.providerInteraction = state.providerInteractionState || "unknown";
+  aiProviderStatus.dataset.runtimeCategory = state.runtimeStateCategory || "unknown";
+  aiProviderStatus.dataset.runtimeReason = state.runtimeReasonCode || "unknown";
+  aiProviderStatus.dataset.runtimeProvenance = state.runtimeProvenance || "unknown";
+  aiProviderStatus.dataset.runtimeSchema = state.runtimeStateSchemaVersion || "unknown";
+  aiProviderStatus.dataset.runtimeConfig = state.runtimeConfigState || "unknown";
+  aiProviderStatus.dataset.runtimeFailClosed = state.runtimeFailClosed ? "true" : "false";
   aiProviderStatus.dataset.configuredProviderCount = String(state.configuredProviderCount || 0);
   aiProviderStatus.dataset.availableProviderCount = String(state.availableProviderCount || 0);
   aiProviderStatus.dataset.hardwareCapability = state.hardwareCapabilityState || "unknown";
@@ -1252,11 +1328,19 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.powerState = state.powerState || "unknown";
   aiProviderStatus.dataset.thermalGuardrail = state.thermalGuardrailState || "unknown";
   aiProviderStatus.dataset.modelWorkload = state.modelWorkloadState || "unknown";
+  aiProviderStatus.dataset.hardwareDetectionLevel = state.hardwareDetectionLevel || "unknown";
+  aiProviderStatus.dataset.ramReadiness = state.ramReadinessState || "unknown";
+  aiProviderStatus.dataset.diskReadiness = state.diskReadinessState || "unknown";
+  aiProviderStatus.dataset.modelWorkloadMetadata = state.modelWorkloadMetadataState || "unknown";
   aiProviderStatus.dataset.capabilityRecommendation = state.capabilityRecommendationState || "unknown";
   aiProviderStatus.dataset.capabilityPackLifecycle = state.capabilityPackLifecycleState || "unknown";
   aiProviderStatus.dataset.capabilityPackDownload = state.capabilityPackDownloadState || "unknown";
+  aiProviderStatus.dataset.capabilityPackManifest = state.capabilityPackManifestState || "unknown";
+  aiProviderStatus.dataset.capabilityPackCompatibility = state.capabilityPackCompatibilityState || "unknown";
   aiProviderStatus.dataset.dataClassification = state.dataClassificationState || "unknown";
   aiProviderStatus.dataset.memoryContext = state.memoryContextState || "unknown";
+  aiProviderStatus.dataset.memoryIndexing = state.memoryIndexingState || "unknown";
+  aiProviderStatus.dataset.networkEgress = state.networkEgressState || "unknown";
   aiProviderStatus.dataset.auditSecrets = state.auditSecretsState || "unknown";
   aiProviderStatus.dataset.windowsResilience = state.windowsResilienceState || "unknown";
   aiProviderStatus.dataset.offlineDegraded = state.offlineDegradedState || "unknown";
@@ -1265,6 +1349,8 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.validationGates = state.validationProofGateState || "unknown";
   aiProviderStatus.dataset.abuseEval = state.abuseEvalState || "unknown";
   aiProviderStatus.dataset.releaseProof = state.releaseProofGateState || "unknown";
+  aiProviderStatus.dataset.copyContract = state.coreDesktopRuntimeStateContract || "unknown";
+  aiProviderStatus.dataset.contractReady = state.contractReadyMarker || "unknown";
   aiProviderStatus.dataset.selectedProvider = state.selectedProviderId || "unknown";
   aiProviderStatus.dataset.consentState = state.consentState || "unknown";
   aiProviderStatus.dataset.interactionAffordance = state.interactionAffordance || "unknown";
@@ -1306,6 +1392,20 @@ function renderAIProviderState() {
   if (aiProviderStatusModelWorkload) {
     aiProviderStatusModelWorkload.textContent = state.modelWorkloadLabel || "Model workloads: disabled";
   }
+  if (aiProviderStatusHardwareDetection) {
+    aiProviderStatusHardwareDetection.textContent =
+      state.hardwareDetectionLabel || "Hardware detection: Level 1 safe local static snapshot";
+  }
+  if (aiProviderStatusRam) {
+    aiProviderStatusRam.textContent = state.ramReadinessLabel || "RAM readiness: unprobed";
+  }
+  if (aiProviderStatusDisk) {
+    aiProviderStatusDisk.textContent = state.diskReadinessLabel || "Disk readiness: unprobed";
+  }
+  if (aiProviderStatusModelMetadata) {
+    aiProviderStatusModelMetadata.textContent =
+      state.modelWorkloadMetadataLabel || "Model workload metadata: planned; no execution";
+  }
   if (aiProviderStatusCapabilityPack) {
     aiProviderStatusCapabilityPack.textContent = state.capabilityPackLifecycleLabel || "Capability packs: lifecycle planned";
   }
@@ -1317,12 +1417,27 @@ function renderAIProviderState() {
     aiProviderStatusCapabilityRecommendation.textContent =
       state.capabilityRecommendationLabel || "Capability recommendation pending hardware proof";
   }
+  if (aiProviderStatusCapabilityManifest) {
+    aiProviderStatusCapabilityManifest.textContent =
+      `${state.capabilityPackManifestSchemaVersion || "capability-pack-manifest.v1"}; ${state.capabilityPackManifestState || "manifest-planned"}`;
+  }
+  if (aiProviderStatusCapabilityIntegrity) {
+    aiProviderStatusCapabilityIntegrity.textContent =
+      `${state.capabilityPackChecksumState || "checksum-required-before-install"}; ${state.capabilityPackSignatureState || "signature-required-before-install"}; ${state.capabilityPackCompatibilityState || "compatibility-unproven"}`;
+  }
   if (aiProviderStatusDataClassification) {
     aiProviderStatusDataClassification.textContent =
       state.dataClassificationLabel || "Data classification: local-only planning";
   }
   if (aiProviderStatusMemory) {
     aiProviderStatusMemory.textContent = state.memoryContextLabel || "Memory/context: disabled; no indexing";
+  }
+  if (aiProviderStatusMemoryContract) {
+    aiProviderStatusMemoryContract.textContent =
+      `${state.memoryIndexingState || "memory-indexing-disabled"}; ${state.retrievalState || "retrieval-disabled"}; ${state.learningState || "learning-disabled"}; ${state.persistenceState || "persistence-disabled"}`;
+  }
+  if (aiProviderStatusEgress) {
+    aiProviderStatusEgress.textContent = state.networkEgressState || "network-egress-blocked";
   }
   if (aiProviderStatusAuditSecrets) {
     aiProviderStatusAuditSecrets.textContent = state.auditSecretsLabel || "Audit/secrets: planned; no secrets stored";
@@ -1348,6 +1463,14 @@ function renderAIProviderState() {
   if (aiProviderStatusReleaseProof) {
     aiProviderStatusReleaseProof.textContent = state.releaseProofGateLabel || "Release proof: pending future approval";
   }
+  if (aiProviderStatusCopyContract) {
+    aiProviderStatusCopyContract.textContent =
+      `${state.coreDesktopCopyContractVersion || "core-desktop-provider-state-copy.v1"}; ${state.coreDesktopRuntimeStateContract || "core-desktop-runtime-state-contract"}`;
+  }
+  if (aiProviderStatusFixtures) {
+    aiProviderStatusFixtures.textContent =
+      `${state.goldenProviderStateFixtures || "golden-provider-state-fixtures"}; ${state.validatorExpansionState || "validator-expansion-active"}`;
+  }
   if (aiProviderStatusConsent) {
     aiProviderStatusConsent.textContent = state.consentLabel || "Consent required before provider setup";
   }
@@ -1361,6 +1484,22 @@ function renderAIProviderState() {
   if (aiProviderStatusConsentBoundary) {
     aiProviderStatusConsentBoundary.textContent =
       state.providerConsentBoundaryLabel || "Consent boundary: provider setup required before prompts";
+  }
+  if (aiProviderStatusRuntime) {
+    aiProviderStatusRuntime.textContent = state.runtimeStateLabel || "Runtime state: provider setup disabled";
+  }
+  if (aiProviderStatusRuntimeReason) {
+    aiProviderStatusRuntimeReason.textContent =
+      state.runtimeReasonLabel || "Reason: setup disabled in local-only seam";
+  }
+  if (aiProviderStatusRuntimeProvenance) {
+    aiProviderStatusRuntimeProvenance.textContent = state.runtimeProvenanceLabel || "Provenance: default config";
+  }
+  if (aiProviderStatusRuntimeSchema) {
+    const schemaVersion = state.runtimeStateSchemaVersion || "provider-runtime-state.v1";
+    const configVersion = state.runtimeConfigSchemaVersion || "provider-runtime-config.v1";
+    const configLabel = state.runtimeConfigLabel || "Config: safe default local-only";
+    aiProviderStatusRuntimeSchema.textContent = `${schemaVersion}; ${configVersion}; ${configLabel}`;
   }
   if (aiProviderStatusAction) {
     aiProviderStatusAction.textContent = state.interactionLabel || "Assisted Desktop unavailable";
