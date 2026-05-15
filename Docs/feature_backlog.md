@@ -406,12 +406,13 @@ Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
-Next Workstream: Selected / successor branch created
+Next Workstream: Selected
+Next Workstream Carrier State: Current successor branch created
 Recommended Next Workstream: FAM-007 Local AI Foundation Runtime Continuation on `feature/fam-007-local-ai-foundation-runtime-continuation`; Workstream is Green, Hardening H1 is Green, and Live Validation LV1 is Green after the local-only scaffold chain through SLC-036. PR #138 preserves completed local-only scaffold evidence released in v1.7.1-prebeta, and this branch is the current USER-approved continuation carrier.
 Minimal Scope: executed SLC-017/SLC-018 local-only provider/no-provider UX, provider-boundary interaction plan, consent-boundary copy, provider-visible-data detail, disabled provider setup next action, no-provider fallback behavior, SLC-031/SLC-032 local capability-readiness, and SLC-033/SLC-036 data/resilience/persona/proof-gate planning state with direct validation. No model downloads, real provider SDK integration, external provider calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, release work, or contract import.
 Selected Next Implementation Branch: `feature/fam-007-local-ai-foundation-runtime-continuation`
 Current Carrier Branch: `feature/fam-007-local-ai-foundation-runtime-continuation`
-Current Carrier Branch Note: Branch Readiness Stage 2 recreated the stale empty FAM-007 branch and this Workstream pass rebaselined it to current origin/main 74185039beb0fa0d8b8f06d5cb2c593c94608870 before executing the SLC-017/SLC-018 bounded seam.
+Current Carrier Branch Note: Branch Readiness Stage 2 recreated the stale empty FAM-007 branch and this Workstream pass rebaselined it to current origin/main 74185039beb0fa0d8b8f06d5cb2c593c94608870 before executing the SLC-017/SLC-018 bounded seam; this is the current carrier branch, not an uncreated successor branch.
 Runtime Branch Evidence: `feature/fam-007-provider-boundary-no-provider-shell` - PR #138 merged the completed local-only scaffold chain and now serves as released historical branch evidence in v1.7.1-prebeta.
 Post-Merge Successor Selection: FAM-007 is selected again for branch-local continuation on the recreated current carrier; merge-target successor truth must be handled during later PR Readiness if this branch reaches PR creation.
 Successor Selection User Approval: Granted - USER selected FAM-007 for its separate worktree and approved Branch Readiness Stage 2 recreation/planning on this branch. FAM-006 and Governance worktrees remain separate and untouched.
