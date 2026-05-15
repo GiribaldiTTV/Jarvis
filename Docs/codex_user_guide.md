@@ -43,6 +43,8 @@ Codex should still:
 4. report clearly
 5. narrow execution only after the user and ChatGPT choose scope
 
+Automation prompts are subject to the same lane identity discipline. `Automation Observability` through `dev/automation_observability_report.py` reviews Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`, but only `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED` findings can become repair work. If a watcher or recurring automation talks about active branch, PR Readiness, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance, it must name a configured cwd that resolves to the intended worktree and report branch/`HEAD`/`origin/main` proof; otherwise `Automation CWD Worktree Mismatch` blocks the finding. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree safety repair with `RRI-YYYYMMDD-NNN`, `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, and `Return Digest`.
+
 ## Default Prompt Posture
 
 The default prompt posture is:

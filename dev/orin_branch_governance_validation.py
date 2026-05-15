@@ -1829,6 +1829,7 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
     "Standing Governance Intake Branch",
     "feature/release-readiness-source-truth-intake",
     "Release Readiness digest",
+    "automation/worktree governance intake",
     "Waiting For Governance Intake",
     "Return Digest",
     "RRI-YYYYMMDD-NNN",
@@ -1837,6 +1838,7 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
 )
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
+    "dev/automation_observability_report.py",
     "dev/orin_pr_body_quality_audit.py",
     "dev/orin_release_body_validation.py",
 }
@@ -3419,6 +3421,7 @@ AUTOMATION_OBSERVABILITY_PHRASES = (
     "dev/automation_observability_report.py",
     "Codex automation run/inbox",
     "$CODEX_HOME/automations/*/memory.md",
+    "Automation CWD Worktree Mismatch",
     "BLOCKER_CANDIDATE",
     "REVIEW_REQUIRED",
 )
@@ -3427,6 +3430,8 @@ AUTOMATION_OBSERVABILITY_SOURCE_PHRASES = (
     "automation_runs",
     "inbox_items",
     "memory.md",
+    "configured cwd",
+    "Lane-sensitive automation runs from neutral main",
     "BLOCKER_CANDIDATE",
     "REVIEW_REQUIRED",
     "--strict",
@@ -14554,10 +14559,17 @@ def _run_standing_governance_intake_gate(require) -> None:
 
     intake_source = _extract_marker_value(contract, "Intake Source")
     require(
-        "Release Readiness digest only" in intake_source,
+        "Release Readiness digest" in intake_source,
         (
-            f"{expected_record_path}: Intake Source must be limited to "
-            "`Release Readiness digest only`"
+            f"{expected_record_path}: Intake Source must preserve "
+            "`Release Readiness digest` routing"
+        ),
+    )
+    require(
+        "automation/worktree governance intake" in intake_source,
+        (
+            f"{expected_record_path}: Intake Source must name the USER-approved "
+            "automation/worktree governance intake exception"
         ),
     )
     require(
@@ -14625,8 +14637,14 @@ def _run_standing_governance_intake_gate(require) -> None:
         )
     if active_cycle:
         require(
-            "Release Readiness digest only" in intake_source,
-            f"{expected_record_path}: active {active_cycle} must originate from Release Readiness",
+            (
+                "Release Readiness digest" in intake_source
+                or "automation/worktree governance intake" in intake_source
+            ),
+            (
+                f"{expected_record_path}: active {active_cycle} must originate from "
+                "Release Readiness or USER-approved automation/worktree governance intake"
+            ),
         )
 
     head_sha = _git_head_sha()

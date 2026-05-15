@@ -70,6 +70,12 @@ If prompt framing is stale, report the real state first and plan from that state
 If repo truth resolves to blocked `No Active Branch`, report the blocking repair path instead of inventing a later phase.
 If repo truth resolves to steady-state `No Active Branch`, say so explicitly and do not invent a next implementation branch by inertia.
 
+## Multi-Worktree Automation Contract
+
+Standing automation is not lane truth by itself. `Automation Observability` must treat Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md` as evidence inputs until `dev/automation_observability_report.py` classifies a finding as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`.
+
+Every active automation that can affect branch, PR, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance truth must carry a configured cwd that resolves to a known worktree. The report must prove cwd, git root, worktree role, branch, `HEAD`, `origin/main`, and stale-neutral-main posture. `Automation CWD Worktree Mismatch` blocks the finding when the automation is pointed at stale `C:\Nexus Desktop AI`, a missing folder, a parked worktree, the wrong FAM lane, or a Governance worktree that is not the recorded lane. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree automation safety repair and must preserve `RRI-YYYYMMDD-NNN`, `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, and `Return Digest`.
+
 ## Source-Of-Truth Ownership Model
 
 Use this layered ownership model:
