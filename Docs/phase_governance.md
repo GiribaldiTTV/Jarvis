@@ -2381,6 +2381,7 @@ Allowed:
 - source-truth/governance/validator drift repair named by the intake digest
 - a post-merge `Return Digest` to the originating worktree/thread with concrete originating branch/worktree identity copied from the accepted intake
 - automation observability repair only for configured cwd/worktree identity, stale neutral-main detection, lane-sensitive prompt drift, and automation memory/reporting mismatch; `Automation CWD Worktree Mismatch` must be reported before an automation finding becomes source-truth work
+- PR Readiness Stage 1 for this standing branch may report `Pre-PR Live State: No live PR` while the previous governance PR remains historical merge proof; the reusable branch name must not cause a closed historical PR to be treated as the current live PR. Standing governance PRs do not select runtime successor workstreams, create runtime branches, or admit packages.
 
 Forbidden:
 

@@ -1870,6 +1870,10 @@ STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
     "Rebaseline Instructions",
     "Next Legal Phase",
 )
+
+
+def _is_standing_governance_intake_branch(branch_name: str) -> bool:
+    return branch_name == STANDING_GOVERNANCE_INTAKE_BRANCH
 STANDING_GOVERNANCE_RETURN_DIGEST_IDENTITY_GUARD_MARKERS = (
     "Originating Branch Source",
     "Originating Worktree Source",
@@ -12523,6 +12527,13 @@ def _run_next_workstream_gate(
     branch_record_class_map: dict[str, str],
     active_branch_record_text: str,
 ) -> None:
+    current_branch = _git_current_branch()
+    if (
+        _is_standing_governance_intake_branch(current_branch)
+        and STANDING_GOVERNANCE_INTAKE_BRANCH_CLASS in active_branch_record_text
+    ):
+        return
+
     def successor_selection_approval_exists() -> bool:
         normalized_record = active_branch_record_text.casefold()
         return any(
@@ -12628,7 +12639,6 @@ def _run_next_workstream_gate(
     repair_only_handling, explicitly_handled_repair_branches = _selected_next_repair_only_branch_info(
         [selected_block, roadmap_section]
     )
-    current_branch = _git_current_branch()
     selected_next_branch = _extract_colon_value(selected_block, "Selected Next Implementation Branch")
     selected_next_is_current_carrier = _selected_next_is_current_carrier_branch(
         selected_next_branch=selected_next_branch,
