@@ -11,7 +11,7 @@
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
 - Branch Authority State: `Active Hardening H1 complete / refreshed Live Validation recheck pending`
-- Bounded State: `Returned USER UTS FAIL repair implementation is hardened with bounded fixture-truth repair; refreshed Live Validation / UTS recheck remains pending`
+- Bounded State: `Returned USER UTS FAIL repair implementation is hardened; refreshed Live Validation precheck and compact UTS handoff are complete; returned USER result remains pending`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -29,13 +29,13 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 Phase: `Live Validation`
 
-Stage: `Live Validation Stage 1 refreshed UTS recheck pending after Hardening H1`
+Stage: `Live Validation Stage 1 refreshed UTS return pending after precheck PASS`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Workstream implementation is complete and Hardening H1 is green for the USER-approved FAM-006 Monitor Groups sensor-configuration runtime seam. Live Validation Stage 1 has USER approval and has real red-shortcut human-client proof PASS plus active-client UTS handoff proof PASS, but the returned USER UTS result remains unresolved until the repaired H1 path is refreshed and returned/digested. Current-main reconciliation is complete at `b7a7114af30ff1d378fbdb06e4a86a1410c2cc06` with `origin/main` `cb620709acb95f4457f317b5369bade7d9564724` as an ancestor of the branch. Current Hardening Seam: `Returned UTS FAIL repair implementation hardened with fixture-truth, Sensor Library filter proof, resize hit-zone, native repaint overlay, and focused during-drag proof repair`. Current PR Readiness Seam: `Blocked until refreshed Live Validation / UTS recheck is PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
+Workstream implementation is complete and Hardening H1 is green for the USER-approved FAM-006 Monitor Groups sensor-configuration runtime seam. Refreshed Live Validation Stage 1 precheck is PASS through the real red-shortcut human-client path plus active-client compact UTS handoff refresh, but the returned USER UTS result remains pending. Current-main reconciliation is complete at `b7a7114af30ff1d378fbdb06e4a86a1410c2cc06` with `origin/main` `cb620709acb95f4457f317b5369bade7d9564724` as an ancestor of the branch. Current Hardening Seam: `Returned UTS FAIL repair implementation hardened with fixture-truth, Sensor Library filter proof, resize hit-zone, native repaint overlay, and focused during-drag proof repair`. Current PR Readiness Seam: `Blocked until refreshed USER UTS results are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -100,9 +100,11 @@ Codex Implementation Recommendation: `Implement the Monitor Groups manage/edit f
 
 Codex Additional Recommendations: `Codex recommends keeping the current option of a scalable split management surface instead of returning to a long single-pane list, and also recommends proof that combines geometry, during-drag screenshots, and pixel-signature changes. An alternative is a virtualized table later, but that should wait until bulk creation, recommended packs, or historical sensor data are admitted.`
 
-USER/ChatGPT Review Checkpoint: `In progress - USER returned compact UTS FAIL for resize/move smoothness and Manage Monitors scalability/scrollbar findings. Repair planning remains active before PR Readiness.`
+USER/ChatGPT Review Checkpoint: `In progress - USER returned compact UTS FAIL for resize/move smoothness and Manage Monitors scalability/scrollbar findings; repair implementation and H1 are complete, refreshed LV1 precheck/UTS handoff is PASS, and returned USER result is pending before PR Readiness.`
 
 USER Critique Loop: `USER reported that Steps 1-8 passed, Step 9 still failed on resize/move smoothness with worst shrink freeze/catch-up behavior, and Step 10 failed because Manage Monitors had native-looking scrollbars and weak large-inventory scalability. This Stage 2 setup treats that critique as the active repair authority.`
+
+Historical Repair Trigger Marker: `returned USER UTS FAIL` - preserved for source-truth validator traceability; active state is refreshed LV1 precheck PASS with returned USER result pending.
 
 USER Decision Ledger: `USER approved Branch Readiness Stage 2 repair setup only. Runtime repair implementation, GitHub issue #127 mutation, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
 
@@ -156,7 +158,7 @@ Deferred Ideas / Future Package Ledger: `Overlay Profile runtime, Recording Prof
 
 Planning Blockers: `Returned USER UTS Results Refresh Pending`; `Refreshed Resize/Move Smoothness UTS Recheck Pending`; `Refreshed Manage Monitors Scalability UTS Recheck Pending`; `Overlay Profile Runtime Approval Missing`; `Recording Profile Runtime Approval Missing`; `Tray Recording Controls Approval Missing`; `Export/Share Runtime Approval Missing`; `Overlay Acceptance Approval Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `External Telemetry Parity Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
 
-USER Decisions Needed: `Approve runtime repair implementation for returned UTS FAIL findings; approve refreshed UTS return or explicit waiver with reason after repair; approve PR creation later; approve merge later; approve release/artifacts/raw evidence/branch cleanup separately; approve any Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, FAM-007, provider/model/memory/shortcut/installer, external telemetry, or AI Product work separately.`
+USER Decisions Needed: `Return completed refreshed UTS results or explicit waiver with reason; approve PR creation later; approve merge later; approve release/artifacts/raw evidence/branch cleanup separately; approve any Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, FAM-007, provider/model/memory/shortcut/installer, external telemetry, or AI Product work separately.`
 
 Planning Packet Status: `Complete`
 
@@ -297,7 +299,7 @@ Branch Completion Goal: `Complete the FAM-006 Monitor Groups sensor-configuratio
 
 Known Future-Dependent Blockers: `Runtime implementation approval, PR creation, merge, release execution, artifacts, raw evidence handling, future branch/worktree cleanup after this branch closes, FAM-007 work, provider/model/memory/shortcut/installer work, Overlay acceptance, external telemetry parity, AI Product work, and app-wide Theme/Skins all require later USER approval.`
 
-Branch Closure Rule: `Stop after Live Validation Stage 1 precheck validation, commit, and push; continue only after returned USER UTS FAIL findings are repaired and revalidated, or explicitly waived with reason, and the result is digested into source truth.`
+Branch Closure Rule: `Stop after refreshed Live Validation Stage 1 precheck validation, UTS handoff refresh, commit, and push; continue only after returned USER UTS results are PASS, FAIL, or explicitly waived with reason and digested into source truth.`
 
 ## Explicit Non-Includes
 
@@ -367,15 +369,15 @@ Hardening Repair Files: `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_
 
 ## Live Validation Stage 1 Result
 
-Live Validation Status: `Precheck PASS / returned USER UTS FAIL`
+Live Validation Status: `Precheck PASS / refreshed UTS handoff pending returned USER result`
 
-Live Validation Summary: `Live Validation Stage 1 found bounded validation-path defects before USER handoff: the human-client helper used a heuristic Settings point instead of the visible runtime button, allowed tray actions to fall back to in-app controls, and real client-area mouse clicks on the window-level Dashboard Close did not reliably hit the native close handler. The bounded repair makes Settings and Close proof use visible runtime button rectangles, restricts tray proof to native tray popup/native menu-coordinate evidence, and handles client-area left-clicks for Dashboard Settings and Close in the desktop renderer. After repair, the real red-shortcut human-client proof passed and the active-client helper refreshed a compact Monitor Groups UTS handoff. USER returned UTS FAIL for Dashboard resize/move smoothness, especially shrink freeze/catch-up behavior, and Manage Monitors scalability/native scrollbar issues, so PR Readiness is still blocked.`
+Live Validation Summary: `Refreshed Live Validation Stage 1 passed the real red-shortcut human-client path and active-client compact UTS handoff after the returned UTS resize/scalability repair. The unrestricted human-client run proved shortcut/worktree alignment, Dashboard movement, grow/shrink resize during-drag evidence before mouse release, resize fluidity, Dashboard Settings/Close/Warning boundaries, NCP tray open/close, rounded-corner and resize-zone protections, and tray exit confirmation. The active-client helper refreshed the compact User Test Summary handoff. Returned USER results are not present yet, so PR Readiness remains blocked until the refreshed UTS result is returned/digested or explicitly waived with reason.`
 
-Real USER-Facing Shortcut Proof: `PASS - dev/logs/fam_006_human_client_validation/20260514_214332_702/human_client_manifest.json`
+Real USER-Facing Shortcut Proof: `PASS - dev/logs/fam_006_human_client_validation/20260515_114143_928/human_client_manifest.json`
 
 Shortcut Alignment: `PASS - the canonical red FAM-006 desktop shortcut targets C:\Nexus Worktrees\FAM-006\launch_orin_desktop.vbs with working directory C:\Nexus Worktrees\FAM-006`
 
-Active-Client UTS Handoff Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260514_215201_061`
+Active-Client UTS Handoff Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260515_114505_431`
 
 Formal UTS Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
@@ -391,12 +393,12 @@ Risk Classes: `dead-end Monitor Groups controls`; `fake sensor/data-source avail
 
 ## User Test Summary Strategy
 
-Stage 2 setup does not generate a UTS. Runtime implementation and Hardening do not generate returned UTS results. Live Validation Stage 1 refreshed a compact, step-based Monitor Groups UTS handoff at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`; USER returned FAIL for resize/move smoothness and Manage Monitors scalability/scrollbar findings, so repair and revalidation are required before PR Readiness.
+Stage 2 setup does not generate a UTS. Runtime implementation and Hardening do not generate returned UTS results. Refreshed Live Validation Stage 1 generated a compact, step-based Monitor Groups UTS handoff at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` after the returned UTS repair path passed human-client and active-client precheck. Returned USER results are pending before PR Readiness can proceed.
 
 ## Later-Phase Expectations
 
 - Hardening H1 is complete and green for list, Create/Edit/Delete, delete confirmation, sensor assignment truth, and Dashboard regressions.
-- Live Validation Stage 1 has real USER-facing launcher/shortcut proof PASS and active-client UTS handoff proof PASS; returned USER UTS FAIL remains active.
+- Refreshed Live Validation Stage 1 has real USER-facing launcher/shortcut proof PASS and active-client UTS handoff proof PASS; returned USER UTS result is pending.
 - PR Readiness, PR creation, merge, release execution, artifacts, raw evidence handling, branch cleanup, Overlay acceptance, FAM-007 work, provider/model/memory/shortcut/installer work, external telemetry parity, and AI Product work remain separate USER decisions.
 
 ## Initial Workstream Seam Sequence
@@ -413,7 +415,7 @@ Non-Includes: `HUD Overlay visual display acceptance, Overlay customization, app
 
 Active seam: `Live Validation Stage 1 for FAM-006 Monitor Groups sensor configuration`
 
-Active Seam Status: `Live Validation Stage 1 precheck green after bounded client-control repair: red-shortcut human-client proof PASS, active-client proof PASS, compact Monitor Groups UTS handoff refreshed, and returned USER UTS FAIL active.`
+Active Seam Status: `Refreshed Live Validation Stage 1 precheck green after returned UTS repair: red-shortcut human-client proof PASS, active-client proof PASS, compact Monitor Groups UTS handoff refreshed, and returned USER result pending.`
 
 Next active seam: `Returned USER UTS digestion or explicit waiver`
 
@@ -423,7 +425,7 @@ Backlog Completion State: `Implemented Complete Except Future Dependency`
 
 Remaining Implementable Work: `None`
 
-Future-Dependent Blockers: `Returned USER UTS FAIL repair and revalidation; PR Readiness; PR creation; merge; release execution; artifacts; raw evidence handling; future branch/worktree cleanup; FAM-007 work; provider/model/memory/shortcut/installer work; Overlay acceptance; external telemetry parity; AI Product work`
+Future-Dependent Blockers: `Returned USER UTS result digestion or explicit waiver; PR Readiness; PR creation; merge; release execution; artifacts; raw evidence handling; future branch/worktree cleanup; FAM-007 work; provider/model/memory/shortcut/installer work; Overlay acceptance; external telemetry parity; AI Product work`
 
 Completion Status: `Green`
 
@@ -439,15 +441,15 @@ Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Closed until USER approves returned UTS FAIL repair implementation or explicitly waives the FAIL findings with reason`
+Continuation Execution Latch: `Closed until USER returns refreshed UTS results or explicitly waives the refreshed UTS return with reason`
 
 Stop Basis: `Live Validation UTS Handoff Pending`
 
 Next Active Seam: `Returned USER UTS digestion or explicit waiver`
 
-Stop Condition: `Live Validation Stage 1 precheck is green; returned USER UTS FAIL repair/revalidation or explicit waiver is required before PR Readiness`
+Stop Condition: `Refreshed Live Validation Stage 1 precheck and UTS handoff are green; returned USER UTS result or explicit waiver is required before PR Readiness`
 
-Continuation Action: `Stop inside Live Validation Stage 1 until USER approves UTS FAIL repair implementation, receives a repaired PASS result, or explicitly waives the FAIL findings with reason`
+Continuation Action: `Stop inside Live Validation Stage 1 until USER returns the refreshed UTS result or explicitly waives the refreshed UTS return with reason`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -459,7 +461,7 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Blockers
 
-Returned USER UTS results are FAIL for Dashboard resize/move smoothness and Manage Monitors scalability/native scrollbar findings. PR Readiness, PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
+Returned USER UTS results are pending after refreshed precheck PASS and compact UTS handoff refresh for Dashboard resize/move smoothness, Manage Monitors scalability, Sensor Library behavior, Nexus scrollbars, and regression boundaries. PR Readiness, PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
 
 ## Exit Criteria
 
@@ -484,21 +486,21 @@ Rollback is the unmerged Workstream implementation on this branch only if USER l
 
 `Live Validation`
 
-USER decision to approve refreshed Live Validation / UTS recheck for `feature/fam-006-monitor-groups-sensor-configuration`, or explicitly waive the returned UTS FAIL findings with reason.
+USER decision to return completed refreshed UTS results for `feature/fam-006-monitor-groups-sensor-configuration`, or explicitly waive the refreshed UTS return with reason.
 
 ## Next Legal Phase Digest
 
 Current Phase: `Live Validation`
 
-Next Legal Phase: `Live Validation Stage 1 refreshed UTS recheck`
+Next Legal Phase: `Live Validation Stage 1 returned UTS digestion`
 
-Why This Phase Is Next: `Returned UTS FAIL repair implementation and Hardening H1 are complete. The next legal step is refreshed real USER-facing Live Validation / UTS recheck for Dashboard resize/move smoothness and Manage Monitors scalability/scrollbar findings.`
+Why This Phase Is Next: `Returned UTS FAIL repair implementation, Hardening H1, real USER-facing human-client proof, active-client proof, and compact UTS handoff refresh are complete. The next legal step is returned USER UTS digestion or explicit USER waiver with reason.`
 
-Approval Required: `USER approval for refreshed Live Validation / UTS recheck, or explicit waiver of the returned UTS FAIL findings with reason.`
+Approval Required: `USER return of completed refreshed UTS results, or explicit waiver of returned UTS digestion with reason.`
 
-Exact USER Approval Text: `Approve refreshed Live Validation Stage 1 / UTS recheck for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to the repaired Dashboard resize/move smoothness path, Manage Monitors scalability/Sensor Library/Nexus scrollbar behavior, real USER-facing shortcut proof, compact UTS refresh/digestion, required validation, commit, and push if source truth requires a result update.`
+Exact USER Approval Text: `I returned the refreshed User Test Summary for feature/fam-006-monitor-groups-sensor-configuration. Digest the returned UTS results into source truth, keep PR Readiness blocked if any FAIL remains, or report PR Readiness Stage 1 eligibility if all required USER results are PASS or explicitly WAIVED with reason.`
 
-Allowed Scope: `Real USER-facing Live Validation recheck, compact UTS refresh/digestion, source-truth update if needed, validation, commit, and push.`
+Allowed Scope: `Returned UTS digestion, source-truth update if needed, validation, commit, and push.`
 
 Explicit Exclusions: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, tags, GitHub Releases, artifacts, raw evidence upload/import/linking, and future branch/worktree cleanup after this branch closes.`
 

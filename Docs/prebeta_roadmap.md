@@ -97,7 +97,7 @@ Post-Release Canon Closure Drift: Recorded - `v1.7.3-prebeta` exists in local/re
 Published Release Pending Canon Closure: v1.7.3-prebeta
 Closure Repair Surface: Next Branch Readiness Stage 2
 Closure Drift Scope: release-dependent fields only
-Implementation Entry: Blocked until closure repair validates green; current FAM-006 Monitor Groups H1 may finish only as bounded hardening/validation closeout already in progress and PR Readiness remains blocked until refreshed Live Validation/UTS.
+Implementation Entry: Blocked until closure repair validates green; current FAM-006 Monitor Groups H1 and refreshed LV1 precheck/UTS handoff closeout may finish only as bounded validation already in progress, and PR Readiness remains blocked until returned USER UTS results are PASS or explicitly waived with reason and digested.
 Release-Debt Avoidance Status: Clear for v1.7.2 publication; PR #159 is merged-unreleased FAM-007 scope in its owning lane, and FAM-006 Monitor Groups remains branch-local unmerged work. Issue comments/closeout, branch/worktree cleanup, provider/model/memory/shortcut/installer work, Overlay acceptance, external telemetry parity, raw evidence handling, and AI Product work remain USER-gated.
 Merged-main current active workstream: None
 Current active workstream: Branch-local FAM-006 Monitor Groups sensor configuration repair setup on `feature/fam-006-monitor-groups-sensor-configuration`; merged main itself remains No Active Branch after PR #161.
@@ -131,7 +131,8 @@ Historical Branch Readiness State: Complete on `feature/fb-048-active-session-re
 Current Branch Readiness State: Complete for `feature/fam-006-monitor-groups-sensor-configuration`; current-main reconciliation is complete and Branch Readiness Stage 2 returned UTS FAIL repair setup is admitted.
 Current Workstream State: Returned USER UTS FAIL repair implementation is complete; resize/move live render smoothness, shrink/grow during-drag proof, scalable Manage Monitors split layout, searchable/filterable Sensor Library scale, Nexus-styled scrollbars, and large monitor/source fixtures are implemented on the branch.
 Current Hardening State: Complete and green for this Monitor Groups branch after returned UTS FAIL repair H1; H1 preserved resize/move proof, scalable Manage Monitors, Sensor Library scale, Nexus scrollbars, and added a bounded fixture-truth repair so 1,200-source fixtures only appear in explicit validation/support mode while normal user-facing sources stay truthful.
-Current Live Validation State: Stage 1 precheck PASS / returned USER UTS FAIL active - real USER-facing shortcut proof and active-client proof remain supporting evidence, but USER returned UTS Step 9 FAIL for Dashboard resize/move smoothness during shrink/grow and Step 10 FAIL for Manage Monitors scalability/native scrollbar findings. PR Readiness remains blocked until refreshed returned UTS FAIL revalidation or explicit waiver with reason is digested.
+Historical Repair Trigger Marker: `returned USER UTS FAIL` - preserved for validator traceability; active state is refreshed LV1 precheck PASS with returned USER result pending.
+Current Live Validation State: Refreshed Stage 1 precheck PASS / returned USER result pending - real USER-facing shortcut proof and active-client proof passed after the returned UTS Step 9 and Step 10 repair path. PR Readiness remains blocked until refreshed returned UTS results are PASS or explicitly WAIVED with reason and digested.
 Current PR Surface Owner: PR #118 `FAM-006 Monitoring HUD Dashboard Product Surface`; PR #109 merge/bot-review/watcher proof remains historical in `Docs/workstreams/FB-027_interaction_system_baseline.md`.
 Current Branch Class: implementation
 Current Implementation Delta Class: runtime/user-facing, backend/runtime, validator, developer-tooling, and source-truth Live Validation repair
@@ -158,7 +159,7 @@ Minimal Scope: Dashboard resize/move live render smoothness repair, shrink and g
 Branch: `feature/fam-006-monitor-groups-sensor-configuration`.
 Selection Scope: FAM-006 family only. PR #159 remains merged-unreleased FAM-007 historical evidence in its owning lane and does not own this branch-local FAM-006 repair path.
 PR #129 / PR #132 Boundary: released in v1.7.1-prebeta; future FAM-006 issue closeout or release support remains separate and USER-gated.
-Runtime Implementation: Monitor Groups sensor/data-source configuration is implemented and H1-hardened; returned USER UTS FAIL remains active until refreshed Live Validation / UTS recheck returns PASS or explicit waiver with reason is digested. PR Readiness remains blocked until revalidation or waiver.
+Runtime Implementation: Monitor Groups sensor/data-source configuration is implemented and H1-hardened; refreshed Live Validation / UTS recheck precheck is PASS and returned USER result is pending. PR Readiness remains blocked until returned results are PASS or explicit waiver with reason is digested.
 
 ## Released Historical Scope
 
