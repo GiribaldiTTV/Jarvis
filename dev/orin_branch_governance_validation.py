@@ -138,6 +138,16 @@ PRODUCT_DEFINITION_PLAN_HEADING = "Product Definition Plan"
 USER_VISION_QUESTION_PACKET_HEADING = "USER Vision Question Packet"
 USER_VISION_INPUT_HANDOFF_HEADING = "USER Vision Input Handoff"
 USER_VISION_INPUT_ARTIFACT_PATH = Path(r"C:\Users\anden\OneDrive\Desktop\User Vision Input.txt")
+PRODUCT_PLANNING_ENFORCED_PHASES = {
+    "Branch Readiness",
+    "Workstream",
+    "Hardening",
+    "Live Validation",
+    "PR Readiness",
+}
+PRODUCT_PLANNING_EXECUTION_PHASES = PRODUCT_PLANNING_ENFORCED_PHASES - {
+    "Branch Readiness",
+}
 REQUIRED_PRODUCT_SYSTEM_PLANNING_MARKERS = (
     "Project-Wide Vision Alignment:",
     "Branch-Specific Vision Alignment:",
@@ -151,6 +161,102 @@ REQUIRED_PRODUCT_SYSTEM_PLANNING_MARKERS = (
     "USER Critique Loop:",
     "USER Decision Ledger:",
     "Deferred Ideas / Future Package Ledger:",
+    "Planning Adequacy Review:",
+    "Rejected Shallow Plan:",
+    "Alternatives And Tradeoffs Reviewed:",
+    "Whole-System Interaction Map:",
+    "Minimum Viable vs Full System Boundary:",
+    "Open Questions / USER Decision Points:",
+)
+PRODUCT_SYSTEM_PLANNING_MIN_WORDS = 8
+PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES = {
+    "tbd",
+    "todo",
+    "pending",
+    "none",
+    "n/a",
+    "na",
+    "not applicable",
+    "same as above",
+    "see above",
+    "simple",
+    "basic",
+    "minimal",
+    "placeholder",
+}
+PRODUCT_SYSTEM_SCALE_TERMS = (
+    "scale",
+    "multiple",
+    "many",
+    "several",
+    "hundred",
+    "thousand",
+    "items",
+    "records",
+    "sources",
+    "profiles",
+    "states",
+    "windows",
+    "users",
+    "files",
+    "monitors",
+)
+PRODUCT_SYSTEM_RECOMMENDATION_TERMS = (
+    "recommend",
+    "consider",
+    "option",
+    "alternative",
+    "additional",
+    "also",
+    "should",
+)
+PRODUCT_SYSTEM_USER_CRITIQUE_TERMS = (
+    "approve",
+    "change",
+    "defer",
+    "critique",
+    "feedback",
+    "review",
+)
+PRODUCT_SYSTEM_USER_DECISION_TERMS = (
+    "approved",
+    "pending",
+    "deferred",
+    "changed",
+    "waived",
+    "accepted",
+    "rejected",
+)
+PRODUCT_SYSTEM_ADEQUACY_TERMS = (
+    "not shallow",
+    "whole system",
+    "full system",
+    "end-to-end",
+    "because",
+    "covers",
+)
+PRODUCT_SYSTEM_REJECTED_SHALLOW_TERMS = (
+    "rejected",
+    "not enough",
+    "insufficient",
+    "too shallow",
+    "simple",
+    "minimal",
+)
+PRODUCT_SYSTEM_TRADEOFF_TERMS = (
+    "alternative",
+    "tradeoff",
+    "risk",
+    "option",
+    "instead",
+)
+PRODUCT_SYSTEM_BOUNDARY_TERMS = (
+    "minimum",
+    "viable",
+    "full",
+    "future",
+    "boundary",
+    "deferred",
 )
 REQUIRED_PRODUCT_DEFINITION_MARKERS = (
     "Product Vision:",
@@ -1514,6 +1620,12 @@ PRODUCT_PLANNING_BLOCKERS = (
     "USER Critique Loop Missing",
     "USER Decision Ledger Missing",
     "Deferred Ideas / Future Package Ledger Missing",
+    "Planning Adequacy Review Missing",
+    "Rejected Shallow Plan Missing",
+    "Alternatives And Tradeoffs Missing",
+    "Whole-System Interaction Map Missing",
+    "Minimum Viable vs Full System Boundary Missing",
+    "Open Questions / USER Decision Points Missing",
     HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
     POLLING_FLOOR_UNDECIDED_BLOCKER,
     WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
@@ -6453,6 +6565,144 @@ def _validate_backlog_completion_strategy(
     )
 
 
+def _planning_word_count(value: str) -> int:
+    return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9/_-]*", value))
+
+
+def _normalized_planning_value(value: str) -> str:
+    return re.sub(r"\s+", " ", value.strip().strip("`").strip()).casefold()
+
+
+def _validate_product_system_planning_substance(
+    require,
+    source_path: str,
+    marker: str,
+    value: str,
+) -> None:
+    normalized_value = _normalized_planning_value(value)
+    require(
+        normalized_value not in PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES,
+        (
+            f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} value for '{marker}' "
+            "is placeholder/self-assessed wording, not concrete planning proof"
+        ),
+    )
+    require(
+        _planning_word_count(value) >= PRODUCT_SYSTEM_PLANNING_MIN_WORDS,
+        (
+            f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} value for '{marker}' "
+            "is too shallow; record concrete product/system planning detail"
+        ),
+    )
+    if marker == "Scale / Data Volume Model:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_SCALE_TERMS)
+            or any(char.isdigit() for char in value),
+            (
+                f"{source_path}: Scale / Data Volume Model must name concrete scale "
+                "pressure such as item counts, multiple states, profiles, records, "
+                "users, windows, files, sources, or monitors"
+            ),
+        )
+    if marker == "Codex Additional Recommendations:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_RECOMMENDATION_TERMS),
+            (
+                f"{source_path}: Codex Additional Recommendations must contain real "
+                "recommendations/options, not just a statement that the plan is complete"
+            ),
+        )
+    if marker == "USER Critique Loop:":
+        require(
+            "user" in normalized_value
+            and any(term in normalized_value for term in PRODUCT_SYSTEM_USER_CRITIQUE_TERMS),
+            (
+                f"{source_path}: USER Critique Loop must describe how USER review can "
+                "approve, change, defer, critique, or give feedback before Workstream"
+            ),
+        )
+    if marker == "USER Decision Ledger:":
+        require(
+            "user" in normalized_value
+            and any(term in normalized_value for term in PRODUCT_SYSTEM_USER_DECISION_TERMS),
+            (
+                f"{source_path}: USER Decision Ledger must record USER decision state "
+                "such as approved, pending, changed, deferred, waived, accepted, or rejected"
+            ),
+        )
+    if marker == "Deferred Ideas / Future Package Ledger:":
+        require(
+            "future" in normalized_value
+            or "defer" in normalized_value
+            or "separate package" in normalized_value,
+            (
+                f"{source_path}: Deferred Ideas / Future Package Ledger must identify "
+                "deferred/future work or explicitly route it to a separate package"
+            ),
+        )
+    if marker == "Planning Adequacy Review:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_ADEQUACY_TERMS),
+            (
+                f"{source_path}: Planning Adequacy Review must explain why the plan is "
+                "not shallow and how it covers the whole/end-to-end system"
+            ),
+        )
+    if marker == "Rejected Shallow Plan:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_REJECTED_SHALLOW_TERMS),
+            (
+                f"{source_path}: Rejected Shallow Plan must name the simple/minimal plan "
+                "that was rejected or explain why it was insufficient"
+            ),
+        )
+    if marker == "Alternatives And Tradeoffs Reviewed:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_TRADEOFF_TERMS),
+            (
+                f"{source_path}: Alternatives And Tradeoffs Reviewed must include "
+                "alternatives/options plus tradeoffs or risks"
+            ),
+        )
+    if marker == "Whole-System Interaction Map:":
+        require(
+            _planning_word_count(value) >= PRODUCT_SYSTEM_PLANNING_MIN_WORDS + 4
+            and (
+                "->" in value
+                or ";" in value
+                or "," in value
+                or "between" in normalized_value
+                or "through" in normalized_value
+            ),
+            (
+                f"{source_path}: Whole-System Interaction Map must describe multiple "
+                "interacting pieces, flows, or relationships"
+            ),
+        )
+    if marker == "Minimum Viable vs Full System Boundary:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_BOUNDARY_TERMS),
+            (
+                f"{source_path}: Minimum Viable vs Full System Boundary must separate "
+                "minimum current-branch scope from full/future/deferred system scope"
+            ),
+        )
+    if marker == "Open Questions / USER Decision Points:":
+        require(
+            "user" in normalized_value
+            and (
+                "question" in normalized_value
+                or "decision" in normalized_value
+                or "approve" in normalized_value
+                or "pending" in normalized_value
+            ),
+            (
+                f"{source_path}: Open Questions / USER Decision Points must name USER "
+                "questions, decisions, approvals, or pending decisions"
+            ),
+        )
+
+
 def _validate_product_definition_plan(
     require,
     source_path: str,
@@ -6465,7 +6715,7 @@ def _validate_product_definition_plan(
 ) -> None:
     if branch_class != "implementation":
         return
-    if current_phase not in {"Branch Readiness", "Workstream"}:
+    if current_phase not in PRODUCT_PLANNING_ENFORCED_PHASES:
         return
 
     require(
@@ -6490,6 +6740,13 @@ def _validate_product_definition_plan(
                 f"planning value for '{marker}'"
             ),
         )
+        if value:
+            _validate_product_system_planning_substance(
+                require,
+                source_path,
+                marker,
+                value,
+            )
 
     planning_status = _extract_marker_value(plan_section, "Planning Packet Status:")
     revalidation_status = _extract_marker_value(plan_section, "Planning Revalidation Status:")
@@ -6597,12 +6854,12 @@ def _validate_product_definition_plan(
             ),
         )
 
-    if current_phase == "Workstream":
+    if current_phase in PRODUCT_PLANNING_EXECUTION_PHASES:
         require(
             normalized_status in PRODUCT_PLANNING_COMPLETE_VALUES,
             (
-                f"{source_path}: Workstream implementation requires complete or "
-                "USER-waived family-package planning"
+                f"{source_path}: {current_phase} implementation requires complete or "
+                "USER-waived family-package planning before leaving Branch Readiness"
             ),
         )
 

@@ -21,14 +21,14 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Intake State: `Active - RRI-20260515-002 repairs standing-governance closeout neutral-main rebaseline proof after the main workspace stayed behind origin/main following PR #155/#156`
+- Intake State: `Active - RRI-20260515-002 repairs standing-governance closeout neutral-main rebaseline proof after the main workspace stayed behind origin/main following PR #155/#156, and hardens Branch Readiness product-system planning adequacy so shallow self-assessed plans cannot enter Workstream`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
 - Active RRI Cycle: `RRI-20260515-002`
 - Latest Closed RRI Cycle: `RRI-20260515-001`
-- Return Digest Status: `Pending - RRI-20260515-002 must merge, sync the standing branch, prove C:\Nexus Desktop AI is clean on main at origin/main, and return the neutral-main rebaseline proof digest`
-- Active Cycle Identity: `RRI-20260515-002 / originating lane Governance closeout / neutral main workspace rebaseline proof / no FAM-006 or FAM-007 mutation`
+- Return Digest Status: `Pending - RRI-20260515-002 must merge, sync the standing branch, prove C:\Nexus Desktop AI is clean on main at origin/main, report Branch Readiness planning adequacy hardening, and return the neutral-main rebaseline proof digest`
+- Active Cycle Identity: `RRI-20260515-002 / originating lane Governance closeout / neutral main workspace rebaseline proof plus Branch Readiness planning adequacy hardening / no FAM-006 or FAM-007 mutation`
 
 ## PR Readiness Stage 1 Analysis Packet
 
@@ -36,7 +36,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Pre-PR Live State: `No live PR yet for active RRI-20260515-002`
 - Historical Merge Proof: `PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
 - Next Workstream User Waiver: `Not applicable - standing governance intake PRs do not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 1 Outcome: `Active - RRI-20260515-002 repairs standing closeout neutral-main rebaseline proof before PR readiness`
+- Stage 1 Outcome: `Active - RRI-20260515-002 repairs standing closeout neutral-main rebaseline proof and Branch Readiness planning adequacy self-assessment prevention before PR readiness`
 
 ## Branch Class
 
@@ -66,8 +66,8 @@ This branch is the single standing governance lane for Release Readiness source-
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
 - Active RRI Cycle: `RRI-20260515-002`
 - Latest Closed RRI Cycle: `RRI-20260515-001`
-- Return Digest Status: `Pending - RRI-20260515-002 must merge, sync the standing branch, prove C:\Nexus Desktop AI is clean on main at origin/main, and return the neutral-main rebaseline proof digest`
-- Active Cycle Identity: `RRI-20260515-002 / originating lane Governance closeout / neutral main workspace rebaseline proof / no FAM-006 or FAM-007 mutation`
+- Return Digest Status: `Pending - RRI-20260515-002 must merge, sync the standing branch, prove C:\Nexus Desktop AI is clean on main at origin/main, report Branch Readiness planning adequacy hardening, and return the neutral-main rebaseline proof digest`
+- Active Cycle Identity: `RRI-20260515-002 / originating lane Governance closeout / neutral main workspace rebaseline proof plus Branch Readiness planning adequacy hardening / no FAM-006 or FAM-007 mutation`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -102,7 +102,7 @@ Allowed:
 - Assigned Worktree Confinement governance/validator support for this standing worktree.
 - Neutral Main Workspace Rebaseline governance/validator support proving `C:\Nexus Desktop AI` is clean on `main` and equals `origin/main` after standing-governance PR merge/closeout, or reporting the blocker that prevents the fast-forward.
 - PR Readiness Stage 1 `Origin/Main Freshness Check` governance/validator support so Stage 1 reports branch-creation-base drift and reconciliation recommendations without fixing files by surprise.
-- Branch Readiness product-system planning gate governance/validator support so broad implementation branches must prove project-wide vision alignment, branch-specific vision alignment, concept/entity/profile modeling, user workflow planning, scale/state planning, expected outcomes, Codex extra recommendations, and the USER critique/decision loop before Workstream.
+- Branch Readiness product-system planning gate governance/validator support so broad implementation branches must prove project-wide vision alignment, branch-specific vision alignment, concept/entity/profile modeling, user workflow planning, scale/state planning, expected outcomes, Codex extra recommendations, USER critique/decision loop, planning adequacy review, rejected shallow plan, alternatives/tradeoffs, whole-system interaction map, minimum viable vs full-system boundary, and open USER decision points before Workstream, Hardening, Live Validation, or PR Readiness can continue.
 - One PR per active `RRI-*` cycle after validation.
 
 Forbidden:
@@ -192,11 +192,11 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `RRI-20260515-002 - Neutral Main Workspace Rebaseline Proof`
+Active seam: `RRI-20260515-002 - Neutral Main Workspace Rebaseline Proof And Branch Readiness Planning Adequacy`
 
-Seam Goal: `Ensure every standing Governance PR merge/closeout either fast-forwards C:\Nexus Desktop AI main to origin/main or reports an explicit blocker before returning idle.`
+Seam Goal: `Ensure every standing Governance PR merge/closeout either fast-forwards C:\Nexus Desktop AI main to origin/main or reports an explicit blocker before returning idle, and ensure broad Branch Readiness plans cannot pass through marker-only or self-assessed shallow planning.`
 
-Seam Scope: `Standing intake authority record, governance docs, helper registry text, and dev/orin_branch_governance_validation.py neutral-main rebaseline proof. The immediate C:\Nexus Desktop AI fast-forward was performed before this cycle; this cycle makes that duty durable.`
+Seam Scope: `Standing intake authority record, governance docs, helper registry text, and dev/orin_branch_governance_validation.py neutral-main rebaseline proof plus Branch Readiness planning adequacy/substance validation. The immediate C:\Nexus Desktop AI fast-forward was performed before this cycle; this cycle makes that duty durable and closes the simple-plan self-assessment gap.`
 
 Seam Non-Includes: `runtime/provider/model/memory/voice/Core/shortcut/installer work, release execution, issue work, FAM-006 or FAM-007 mutation, broad docs churn, branch deletion, worktree cleanup, or direct-main source mutation.`
 
