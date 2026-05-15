@@ -169,6 +169,7 @@ let monitoringHudQueuedPanelPosition = null;
 let monitoringHudActiveChildWindow = "";
 let monitoringHudPendingDeleteMonitorId = "";
 let monitoringHudResizeProofFrame = 0;
+let monitoringHudLargeFixtureModeEnabled = false;
 let monitoringHudLargeSensorFixtureCache = null;
 
 function monitoringHudSnap(value) {
@@ -437,7 +438,8 @@ function monitoringHudSensorDefinitions() {
       });
     });
   });
-  return Object.values(base).concat(monitoringHudLargeSensorFixtures());
+  const sourceDefinitions = Object.values(base);
+  return monitoringHudLargeFixtureModeEnabled ? sourceDefinitions.concat(monitoringHudLargeSensorFixtures()) : sourceDefinitions;
 }
 
 function monitoringHudSensorDefinitionById(sensorId) {
@@ -627,11 +629,16 @@ function monitoringHudSensorFilterValue() {
 
 function monitoringHudSensorMatchesFilter(sensor, query, filterValue) {
   const category = String(sensor.category || monitoringHudSensorCategoryForId(sensor.id)).toLowerCase();
+  const metric = String(sensor.metric || "").toLowerCase();
   const state = String(sensor.state || "").toLowerCase();
   const supported = sensor.assignable !== false;
   if (filterValue === "supported" && !supported) return false;
   if (filterValue === "deferred" && supported) return false;
-  if (!["all", "supported", "deferred"].includes(filterValue) && category !== filterValue) return false;
+  if (!["all", "supported", "deferred"].includes(filterValue)) {
+    const filterCandidates = [category, metric, sensor.id, sensor.label, sensor.source, sensor.provider, sensor.device, sensor.instance]
+      .map((value) => String(value || "").toLowerCase());
+    if (!filterCandidates.some((value) => value === filterValue || value.includes(filterValue))) return false;
+  }
   if (!query) return true;
   return [
     sensor.id,
@@ -656,7 +663,10 @@ function monitoringHudFilteredSensorDefinitions() {
 function monitoringHudRenderSensorPreview(totalCount, renderedCount, selectedCount, supportedCount, deferredCount) {
   if (!monitoringHudSensorPreview) return;
   monitoringHudSensorPreview.dataset.sensorPreview = "source-identity-breadcrumbs";
-  monitoringHudSensorPreview.textContent = `${selectedCount} selected for this Monitor Group. Showing ${renderedCount} of ${totalCount} filtered sources from ${monitoringHudLargeSensorFixtureCount}+ fixture-backed sources; ${supportedCount} supported and ${deferredCount} provider-required/deferred in the current filter. Source rows expose provider, device, category, metric, and sensor instance breadcrumbs.`;
+  const fixtureCopy = monitoringHudLargeFixtureModeEnabled
+    ? ` Large-source fixture proof mode is active with ${monitoringHudLargeSensorFixtureCount} scale sources.`
+    : "";
+  monitoringHudSensorPreview.textContent = `${selectedCount} selected for this Monitor Group. Showing ${renderedCount} of ${totalCount} filtered sources; ${supportedCount} supported and ${deferredCount} provider-required/deferred in the current filter. Source rows expose provider, device, category, metric, and sensor instance breadcrumbs.${fixtureCopy}`;
 }
 
 function monitoringHudRenderSensorAssignment(selected) {
@@ -666,6 +676,7 @@ function monitoringHudRenderSensorAssignment(selected) {
   monitoringHudMonitorSensorAssignment.innerHTML = "<legend>Sensor / data-source assignment</legend>";
   monitoringHudMonitorSensorAssignment.dataset.sensorAssignment = "search-filterable-source-library";
   monitoringHudMonitorSensorAssignment.dataset.largeSourceFixtureCount = String(monitoringHudLargeSensorFixtureCount);
+  monitoringHudMonitorSensorAssignment.dataset.largeSourceFixtureMode = monitoringHudLargeFixtureModeEnabled ? "enabled-validation-support" : "available-validation-support";
   monitoringHudMonitorSensorAssignment.dataset.visibleSourceResultLimit = String(monitoringHudSensorRenderLimit);
   const filtered = monitoringHudFilteredSensorDefinitions();
   const rendered = filtered.slice(0, monitoringHudSensorRenderLimit);
@@ -917,6 +928,7 @@ function monitoringHudCreateMonitorGroupFromManageWindow() {
 }
 
 function monitoringHudBuildLargeMonitorFixture(count) {
+  monitoringHudLargeFixtureModeEnabled = true;
   const targetCount = Math.max(1, Number(count) || monitoringHudLargeMonitorFixtureCount);
   const cards = {};
   for (let index = 0; index < targetCount; index += 1) {
@@ -956,6 +968,12 @@ function monitoringHudBuildLargeMonitorFixture(count) {
 }
 
 window.setMonitoringHudLargeFixtureMode = monitoringHudBuildLargeMonitorFixture;
+window.clearMonitoringHudLargeFixtureMode = function() {
+  monitoringHudLargeFixtureModeEnabled = false;
+  monitoringHudApplyCardLayout();
+  monitoringHudRenderControls();
+  monitoringHudRenderMonitorManagement();
+};
 
 function monitoringHudReadSensorAssignmentsFromWindow(layout) {
   if (!layout) return;
@@ -1072,6 +1090,7 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.monitorManagementLayout = "sticky-header-left-list-right-detail";
     monitoringHud.dataset.sensorLibraryScale = "search-filter-thousand-source-fixture";
     monitoringHud.dataset.sensorLibraryFixtures = `monitors-${monitoringHudLargeMonitorFixtureCount}-sources-${monitoringHudLargeSensorFixtureCount}`;
+    monitoringHud.dataset.sensorLibraryFixtureMode = monitoringHudLargeFixtureModeEnabled ? "enabled-validation-support" : "available-validation-support";
     monitoringHud.dataset.monitorManagementScrollbars = "nexus-styled-child-list-detail-sensor-panes";
     monitoringHud.dataset.resizeLiveProof = "during-drag-frame-pixel-signature-grow-shrink";
     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-visual-rendering";

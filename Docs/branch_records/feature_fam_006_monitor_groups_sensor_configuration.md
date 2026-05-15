@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active Live Validation Stage 1`
-- Bounded State: `Live Validation Stage 1 precheck PASS with bounded client-control repair; compact USER UTS handoff returned FAIL and repair planning remains active`
+- Branch Authority State: `Active Hardening H1 complete / refreshed Live Validation recheck pending`
+- Bounded State: `Returned USER UTS FAIL repair implementation is hardened with bounded fixture-truth repair; refreshed Live Validation / UTS recheck remains pending`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -27,15 +27,15 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 ## Current Phase
 
-Phase: `Branch Readiness`
+Phase: `Live Validation`
 
-Stage: `Branch Readiness Stage 2 - returned UTS FAIL repair setup`
+Stage: `Live Validation Stage 1 refreshed UTS recheck pending after Hardening H1`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Workstream implementation is complete and Hardening H1 is green for the USER-approved FAM-006 Monitor Groups sensor-configuration runtime seam. Live Validation Stage 1 has USER approval and has real red-shortcut human-client proof PASS plus active-client UTS handoff proof PASS, but the returned USER UTS result is FAIL. Current-main reconciliation is complete at `ee2435c5f99fd5951f09bb3481e45a77fb7d6173` with `origin/main` `09b44c1923c9e1b032f08a2c19ae0527ed185047` as an ancestor of the branch. Current Branch Readiness Seam: `Returned UTS FAIL repair setup - source truth and validator planning admitted before implementation`. Current PR Readiness Seam: `Blocked until returned UTS FAIL path is repaired, revalidated, and digested`. Current Release Readiness Seam: `Not started`.
+Workstream implementation is complete and Hardening H1 is green for the USER-approved FAM-006 Monitor Groups sensor-configuration runtime seam. Live Validation Stage 1 has USER approval and has real red-shortcut human-client proof PASS plus active-client UTS handoff proof PASS, but the returned USER UTS result is FAIL until the repaired H1 path is refreshed and returned/digested. Current-main reconciliation is complete at `84b3780080e0473f1d8ada61c820951f81b9072d` with `origin/main` `9b61858130dac45ab088c1b7f973503c132cce6f` as an ancestor of the branch. Current Hardening Seam: `Returned UTS FAIL repair implementation hardened with fixture-truth and Sensor Library filter proof repair`. Current PR Readiness Seam: `Blocked until refreshed Live Validation / UTS recheck is PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -205,6 +205,24 @@ Nexus Scrollbar Repair: `Nexus-styled scrollbar treatment is applied to child wi
 UTS Handoff Refresh: `The compact User Test Summary handoff now separates Sensor Library scale/scrollbar review, Dashboard resize/move smoothness, and Dashboard control regressions so returned USER results can distinguish the repaired Step 9 and Step 10 findings.`
 
 PR Readiness Blocker State: `PR Readiness remains blocked until this repair validates, commits, pushes, passes Hardening as required, and refreshed Live Validation/UTS returns PASS or an explicit USER waiver with reason is digested into source truth.`
+
+## Returned UTS FAIL Repair Hardening H1
+
+Hardening Status: `Green - bounded H1 fixture-truth and Sensor Library filter repair applied`
+
+Resize/Render Proof Result: `Grow and shrink during-drag proof hooks remain present through monitoringHudRecordResizeFrame / monitoringHudFinishResizeFrame, desktop resize frame synchronization, and human-client frame/pixel-signature proof steps. The proof path continues to require visible content changes before mouse release rather than geometry-only proof.`
+
+Manage Monitors / Sensor Library Result: `The scalable split Manage Monitors layout, monitor search, visible count, Create/Edit/Delete/Cancel/Confirm behavior, Nexus-styled scrollbars, and large monitor/source fixture support remain present. H1 found one bounded truth defect: the 1,200-source fixture path was validation/support-only in source truth but was always included in the normal user-facing Sensor Library.`
+
+Bounded H1 Repair: `The large-source fixture path is now disabled during normal user-facing Sensor Library use and only enters the source list when window.setMonitoringHudLargeFixtureMode enables validation/support mode. The Sensor Library preview no longer advertises fixture-backed sources during normal use, while the explicit large-fixture proof path remains available. Sensor filter matching now checks category, metric, id, source, provider, device, and instance so filters such as Load still work when a source is categorized under CPU/GPU but has a Load metric.`
+
+Nexus Scrollbar Result: `Nexus-styled scrollbar coverage remains required for child windows, monitor list, selected-monitor detail, sensor result list, sensor settings, and sensor preview/details panes.`
+
+Planning Adequacy Preservation: `PR #157/#158 planning adequacy fields remain present: Planning Adequacy Review, Rejected Shallow Plan, Alternatives And Tradeoffs Reviewed, Whole-System Interaction Map, Minimum Viable vs Full System Boundary, and Open Questions / USER Decision Points.`
+
+Hardening Validation Evidence: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -RunInteractionSelfQA -ProofSeam "FAM-006 Monitor Groups Hardening H1" PASS; proof root C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260515_092243_892; UTS export skipped because UTS belongs to refreshed Live Validation Stage 1.`
+
+PR Readiness Blocker State: `PR Readiness remains blocked until refreshed Live Validation / UTS recheck returns PASS or an explicit USER waiver with reason is digested into source truth.`
 
 ## Sensor Library And Profile Planning Admission
 
@@ -466,21 +484,21 @@ Rollback is the unmerged Workstream implementation on this branch only if USER l
 
 `Live Validation`
 
-USER decision to approve returned UTS FAIL repair implementation or explicitly waive the FAIL findings with reason for `feature/fam-006-monitor-groups-sensor-configuration`.
+USER decision to approve refreshed Live Validation / UTS recheck for `feature/fam-006-monitor-groups-sensor-configuration`, or explicitly waive the returned UTS FAIL findings with reason.
 
 ## Next Legal Phase Digest
 
 Current Phase: `Live Validation`
 
-Next Legal Phase: `Branch Readiness Stage 2 repair setup`
+Next Legal Phase: `Live Validation Stage 1 refreshed UTS recheck`
 
-Why This Phase Is Next: `Live Validation Stage 1 has proven the red FAM-006 shortcut/client path and refreshed the compact Monitor Groups UTS handoff, but USER returned UTS FAIL for resize/move smoothness and Manage Monitors scalability/scrollbar findings. The next legal step is a bounded repair setup before implementation and revalidation.`
+Why This Phase Is Next: `Returned UTS FAIL repair implementation and Hardening H1 are complete. The next legal step is refreshed real USER-facing Live Validation / UTS recheck for Dashboard resize/move smoothness and Manage Monitors scalability/scrollbar findings.`
 
-Approval Required: `USER approval for bounded returned UTS FAIL repair setup and implementation, or explicit waiver of the FAIL findings with reason.`
+Approval Required: `USER approval for refreshed Live Validation / UTS recheck, or explicit waiver of the returned UTS FAIL findings with reason.`
 
-Exact USER Approval Text: `Approve bounded returned UTS FAIL repair setup and implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to Dashboard resize/move live render smoothness proof, Manage Monitors scalability/Nexus scrollbar repair, directly supporting validators/source truth, validation, commit, and push.`
+Exact USER Approval Text: `Approve refreshed Live Validation Stage 1 / UTS recheck for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to the repaired Dashboard resize/move smoothness path, Manage Monitors scalability/Sensor Library/Nexus scrollbar behavior, real USER-facing shortcut proof, compact UTS refresh/digestion, required validation, commit, and push if source truth requires a result update.`
 
-Allowed Scope: `Returned USER UTS FAIL repair setup, bounded same-seam implementation, source-truth update if needed, validation, commit, and push.`
+Allowed Scope: `Real USER-facing Live Validation recheck, compact UTS refresh/digestion, source-truth update if needed, validation, commit, and push.`
 
 Explicit Exclusions: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, tags, GitHub Releases, artifacts, raw evidence upload/import/linking, and future branch/worktree cleanup after this branch closes.`
 
