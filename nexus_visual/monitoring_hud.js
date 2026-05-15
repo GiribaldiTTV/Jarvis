@@ -332,10 +332,14 @@ function monitoringHudLargeSensorFixtures() {
     const [category, deviceLabel, metricLabel] = categories[index % categories.length];
     const deviceIndex = Math.floor(index / categories.length) + 1;
     const supported = index % 6 === 0 || category === "cpu" || category === "memory";
+    const duplicateName = index % 47 === 0 ? "Duplicate Thermal Sensor" : "";
+    const longName = index % 59 === 0
+      ? `${deviceLabel} ${deviceIndex} ${metricLabel} Extended Descriptor For Long Source Name Validation`
+      : "";
     sensors.push({
       id: `fixture-${category}-${deviceIndex}-${index}`,
-      label: `${deviceLabel} ${deviceIndex} ${metricLabel}`,
-      source: `${supported ? "Local fixture" : "Provider-required fixture"} / ${deviceLabel} ${deviceIndex} / ${metricLabel} / sensor ${index}`,
+      label: duplicateName || longName || `${deviceLabel} ${deviceIndex} ${metricLabel}`,
+      source: `${supported ? "Local fixture" : "Provider-required fixture"} / ${deviceLabel} ${deviceIndex} / ${metricLabel} / sensor ${index}${longName ? " / extended descriptor long source path" : ""}`,
       state: supported ? "fixture-supported" : "blocked-until-provider",
       value: supported ? "Fixture source available for scale proof" : "Provider required",
       assignable: supported,

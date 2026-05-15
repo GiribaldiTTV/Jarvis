@@ -9700,6 +9700,28 @@ class DesktopRuntimeWindow(QWidget):
                 "delete_cancel_preserved_monitor": h1_proof.get("deleteCancelPreservedMonitor") is True,
                 "delete_confirm_removed_monitor": h1_proof.get("deleteConfirmRemovedMonitor") is True,
                 "delete_confirmation_closed": h1_proof.get("deleteConfirmationClosed") is True,
+                "command_center_layout": h1_proof.get("commandCenterLayout") is True,
+                "row_actions_removed": h1_proof.get("rowActionsRemoved") is True,
+                "row_selection_opens_detail": h1_proof.get("rowSelectionOpensDetail") is True,
+                "detail_pane_delete": h1_proof.get("detailPaneDelete") is True,
+                "unsaved_guard_opened": h1_proof.get("unsavedGuardOpened") is True,
+                "unsaved_guard_buttons": h1_proof.get("unsavedGuardButtons") is True,
+                "unsaved_cancel_preserved_selection": h1_proof.get("unsavedCancelPreservedSelection") is True,
+                "unsaved_discard_switched_selection": h1_proof.get("unsavedDiscardSwitchedSelection") is True,
+                "unsaved_save_switched_selection": h1_proof.get("unsavedSaveSwitchedSelection") is True,
+                "final_monitor_delete_empty_state": h1_proof.get("finalMonitorDeleteEmptyState") is True,
+                "final_monitor_create_reachable": h1_proof.get("finalMonitorCreateReachable") is True,
+                "source_picker_browser": h1_proof.get("sourcePickerBrowser") is True,
+                "source_filter_facets": h1_proof.get("sourceFilterFacets") is True,
+                "source_filter_reopen": h1_proof.get("sourceFilterReopen") is True,
+                "source_breadcrumb_metadata": h1_proof.get("sourceBreadcrumbMetadata") is True,
+                "supported_sources_assignable": h1_proof.get("supportedSourcesAssignable") is True,
+                "deferred_sources_disabled_explained": h1_proof.get("deferredSourcesDisabledExplained") is True,
+                "warning_notifications_setting_only": h1_proof.get("warningNotificationsSettingOnly") is True,
+                "provider_readiness_not_assignable": h1_proof.get("providerReadinessNotAssignable") is True,
+                "large_monitor_fixture": h1_proof.get("largeMonitorFixture") is True,
+                "large_source_fixture": h1_proof.get("largeSourceFixture") is True,
+                "duplicate_long_source_fixture": h1_proof.get("duplicateLongSourceFixture") is True,
             }
             return all(checks.values()), checks
 
@@ -10014,6 +10036,237 @@ class DesktopRuntimeWindow(QWidget):
                         let deleteCancelPreservedMonitor = false;
                         let deleteConfirmRemovedMonitor = false;
                         let deleteConfirmationClosed = false;
+                        let commandCenterLayout = false;
+                        let rowActionsRemoved = false;
+                        let rowSelectionOpensDetail = false;
+                        let detailPaneDelete = false;
+                        let unsavedGuardOpened = false;
+                        let unsavedGuardButtons = false;
+                        let unsavedCancelPreservedSelection = false;
+                        let unsavedDiscardSwitchedSelection = false;
+                        let unsavedSaveSwitchedSelection = false;
+                        let finalMonitorDeleteEmptyState = false;
+                        let finalMonitorCreateReachable = false;
+                        let sourcePickerBrowser = false;
+                        let sourceFilterFacets = false;
+                        let sourceFilterReopen = false;
+                        let sourceBreadcrumbMetadata = false;
+                        let supportedSourcesAssignable = false;
+                        let deferredSourcesDisabledExplained = false;
+                        let warningNotificationsSettingOnly = false;
+                        let providerReadinessNotAssignable = false;
+                        let largeMonitorFixture = false;
+                        let largeSourceFixture = false;
+                        let duplicateLongSourceFixture = false;
+                        const rowActionSelector = '.monitoring-hud__monitor-row-actions,[data-monitor-edit-select],[data-monitor-delete]';
+                        const requiredFilters = [
+                            "cpu", "gpu", "memory", "disk", "network", "temperature", "load",
+                            "clock", "power", "fan", "voltage", "supported", "deferred", "missing", "warning"
+                        ];
+                        const sourceAssignment = document.getElementById("monitoring-hud-monitor-sensor-assignment");
+                        const sourceFilter = document.getElementById("monitoring-hud-sensor-filter");
+                        const sourceSearch = document.getElementById("monitoring-hud-sensor-search");
+                        const readinessPanel = document.getElementById("monitoring-hud-provider-readiness-panel");
+                        const warningSetting = document.getElementById("monitoring-hud-monitor-warning-notifications-setting");
+                        const detailDelete = document.getElementById("monitoring-hud-monitor-detail-delete");
+                        const monitorShell = document.querySelector('[data-monitor-management-layout="compact-command-center-list-detail"]');
+                        commandCenterLayout = Boolean(
+                            monitorShell
+                            && document.getElementById("monitoring-hud-edit-monitor-list")
+                            && document.querySelector(".monitoring-hud__monitor-detail-pane")
+                            && document.getElementById("monitoring-hud-manage-monitor-create-action")
+                        );
+                        rowActionsRemoved = !Boolean(document.querySelector(rowActionSelector));
+                        detailPaneDelete = Boolean(detailDelete && !detailDelete.closest(".monitoring-hud__monitor-manage-row"));
+                        sourcePickerBrowser = Boolean(
+                            sourceAssignment
+                            && sourceAssignment.dataset.sensorAssignment === "sensor-library-source-picker"
+                            && sourceAssignment.getAttribute("role") === "listbox"
+                            && sourceFilter
+                            && sourceFilter.dataset.sourceFilterMode === "faceted-chip-source-picker"
+                            && sourceSearch
+                        );
+                        sourceFilterFacets = Boolean(sourceFilter) && requiredFilters.every((filter) => {
+                            return Boolean(sourceFilter.querySelector(`[data-source-filter="${filter}"]`));
+                        });
+                        warningNotificationsSettingOnly = Boolean(warningSetting)
+                            && !Boolean(document.querySelector('[data-monitor-sensor-option="warning-notifications"]'));
+                        providerReadinessNotAssignable = Boolean(
+                            readinessPanel
+                            && readinessPanel.dataset.readinessClassification === "status-future-capability-not-assignable-source"
+                            && !document.querySelector('[data-monitor-sensor-option="provider-state"]')
+                        );
+                        const supportedInputInitial = document.querySelector('[data-monitor-sensor-input="cpu-load"]');
+                        const deferredInputInitial = document.querySelector('[data-monitor-sensor-input="gpu-load"]');
+                        supportedSourcesAssignable = Boolean(supportedInputInitial && !supportedInputInitial.disabled);
+                        deferredSourcesDisabledExplained = Boolean(
+                            deferredInputInitial
+                            && deferredInputInitial.disabled
+                            && deferredInputInitial.closest("[data-source-picker-row]")
+                            && deferredInputInitial.closest("[data-source-picker-row]").dataset.sensorAssignable === "false"
+                            && String(deferredInputInitial.closest("[data-source-picker-row]").innerText || "").toLowerCase().includes("provider")
+                        );
+                        const firstMonitorRow = document.querySelector('[data-monitor-select="cpu"]');
+                        if (firstMonitorRow) {
+                            firstMonitorRow.click();
+                            const afterRowSelect = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                            const title = document.getElementById("monitoring-hud-edit-monitor-title");
+                            rowSelectionOpensDetail = Boolean(
+                                afterRowSelect
+                                && afterRowSelect.selectedMonitorId === "cpu"
+                                && title
+                                && title.textContent.indexOf("CPU") >= 0
+                            );
+                        }
+                        if (sourceFilter && sourceAssignment) {
+                            const supportedButton = sourceFilter.querySelector('[data-source-filter="supported"]');
+                            const deferredButton = sourceFilter.querySelector('[data-source-filter="deferred"]');
+                            const cpuButton = sourceFilter.querySelector('[data-source-filter="cpu"]');
+                            if (supportedButton) supportedButton.click();
+                            const supportedRows = Array.from(sourceAssignment.querySelectorAll("[data-source-picker-row]"));
+                            const supportedOk = supportedRows.length > 0 && supportedRows.every((row) => row.dataset.sensorAssignable === "true");
+                            if (deferredButton) deferredButton.click();
+                            const deferredRows = Array.from(sourceAssignment.querySelectorAll("[data-source-picker-row]"));
+                            const deferredOk = deferredRows.length > 0 && deferredRows.every((row) => row.dataset.sensorAssignable === "false");
+                            if (cpuButton) cpuButton.click();
+                            const cpuRows = Array.from(sourceAssignment.querySelectorAll("[data-source-picker-row]"));
+                            sourceFilterReopen = Boolean(
+                                supportedButton
+                                && deferredButton
+                                && cpuButton
+                                && supportedOk
+                                && deferredOk
+                                && cpuRows.length > 0
+                                && sourceFilter.dataset.selectedFilter === "cpu"
+                            );
+                        }
+                        const renderedRows = Array.from(document.querySelectorAll("[data-source-picker-row]"));
+                        sourceBreadcrumbMetadata = renderedRows.some((row) => {
+                            return Boolean(
+                                row.dataset.sourceBreadcrumb
+                                && row.dataset.sensorProvider
+                                && row.dataset.sensorDevice
+                                && row.dataset.sensorCategory
+                                && row.dataset.sensorMetric
+                                && row.dataset.sensorInstance
+                                && row.querySelector(".monitoring-hud__source-status")
+                                && row.querySelector(".monitoring-hud__source-meta")
+                            );
+                        });
+                        const stateBackup = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
+                        if (window.setMonitoringHudLargeFixtureMode && window.setMonitoringHudControlState) {
+                            const largeResult = window.setMonitoringHudLargeFixtureMode(125) || {};
+                            const largeState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                            const largeRows = document.querySelectorAll("[data-monitor-select]").length;
+                            const largeSourceCount = sourceAssignment ? Number(sourceAssignment.dataset.largeSourceFixtureCount || 0) : 0;
+                            largeMonitorFixture = Boolean(
+                                largeResult.monitorCount >= 100
+                                && largeState.cards
+                                && Object.keys(largeState.cards).length >= 100
+                                && largeRows >= 100
+                            );
+                            largeSourceFixture = Boolean(largeSourceCount >= 1000);
+                            if (sourceSearch) {
+                                const allButton = sourceFilter ? sourceFilter.querySelector('[data-source-filter="all"]') : null;
+                                if (allButton) allButton.click();
+                                sourceSearch.value = "duplicate";
+                                sourceSearch.dispatchEvent(new Event("input", { bubbles: true }));
+                                const duplicateRows = Array.from(document.querySelectorAll("[data-source-picker-row]"));
+                                sourceSearch.value = "extended descriptor";
+                                sourceSearch.dispatchEvent(new Event("input", { bubbles: true }));
+                                const longRows = Array.from(document.querySelectorAll("[data-source-picker-row]"));
+                                duplicateLongSourceFixture = duplicateRows.length > 1 && longRows.length > 0;
+                            }
+                            if (stateBackup) window.setMonitoringHudControlState(stateBackup);
+                        }
+                        const unsavedBackup = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
+                        if (window.setMonitoringHudControlState && unsavedBackup && unsavedBackup.cards && unsavedBackup.cards.cpu && unsavedBackup.cards.gpu) {
+                            let cpuRow = document.querySelector('[data-monitor-select="cpu"]');
+                            if (cpuRow) cpuRow.click();
+                            let nameInput = document.getElementById("monitoring-hud-edit-monitor-name");
+                            let gpuRow = document.querySelector('[data-monitor-select="gpu"]');
+                            if (nameInput && gpuRow) {
+                                nameInput.value = "CPU Group Dirty";
+                                nameInput.dispatchEvent(new Event("input", { bubbles: true }));
+                                gpuRow = document.querySelector('[data-monitor-select="gpu"]');
+                                gpuRow.click();
+                                const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                                unsavedGuardOpened = Boolean(guard && !guard.hidden && guard.dataset.unsavedGuard === "open-save-discard-cancel");
+                                unsavedGuardButtons = Boolean(
+                                    document.getElementById("monitoring-hud-monitor-unsaved-save")
+                                    && document.getElementById("monitoring-hud-monitor-unsaved-discard")
+                                    && document.getElementById("monitoring-hud-monitor-unsaved-cancel")
+                                );
+                                const cancel = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
+                                if (cancel) cancel.click();
+                                let cancelState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                unsavedCancelPreservedSelection = Boolean(cancelState.selectedMonitorId === "cpu");
+                                gpuRow = document.querySelector('[data-monitor-select="gpu"]');
+                                gpuRow.click();
+                                const discard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
+                                if (discard) discard.click();
+                                let discardState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                unsavedDiscardSwitchedSelection = Boolean(
+                                    discardState.selectedMonitorId === "gpu"
+                                    && discardState.cards
+                                    && discardState.cards.cpu
+                                    && discardState.cards.cpu.title === unsavedBackup.cards.cpu.title
+                                );
+                                cpuRow = document.querySelector('[data-monitor-select="cpu"]');
+                                if (cpuRow) cpuRow.click();
+                                const gpuRowAgain = document.querySelector('[data-monitor-select="gpu"]');
+                                if (gpuRowAgain) gpuRowAgain.click();
+                                const gpuName = document.getElementById("monitoring-hud-edit-monitor-name");
+                                if (gpuName) {
+                                    gpuName.value = "GPU Group Saved";
+                                    gpuName.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                                cpuRow = document.querySelector('[data-monitor-select="cpu"]');
+                                if (cpuRow) cpuRow.click();
+                                const save = document.getElementById("monitoring-hud-monitor-unsaved-save");
+                                if (save) save.click();
+                                let saveState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                unsavedSaveSwitchedSelection = Boolean(
+                                    saveState.selectedMonitorId === "cpu"
+                                    && saveState.cards
+                                    && saveState.cards.gpu
+                                    && saveState.cards.gpu.title === "GPU Group Saved"
+                                );
+                            }
+                            window.setMonitoringHudControlState(unsavedBackup);
+                        }
+                        const finalDeleteBackup = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
+                        if (window.setMonitoringHudControlState && finalDeleteBackup) {
+                            let deleteGuard = 0;
+                            while (deleteGuard < 12) {
+                                const deleteState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                const deleteCards = deleteState && deleteState.cards ? deleteState.cards : {};
+                                const ids = Object.keys(deleteCards);
+                                if (!ids.length) break;
+                                const targetId = deleteState.selectedMonitorId && deleteCards[deleteState.selectedMonitorId]
+                                    ? deleteState.selectedMonitorId
+                                    : ids[0];
+                                const targetRow = document.querySelector(`[data-monitor-select="${targetId}"]`);
+                                if (targetRow) targetRow.click();
+                                const deleteButton = document.getElementById("monitoring-hud-monitor-detail-delete");
+                                if (deleteButton) deleteButton.click();
+                                const confirmButton = document.getElementById("monitoring-hud-monitor-delete-confirm");
+                                if (confirmButton) confirmButton.click();
+                                deleteGuard += 1;
+                            }
+                            const emptyState = document.getElementById("monitoring-hud-monitor-detail-empty");
+                            const createAction = document.getElementById("monitoring-hud-manage-monitor-create-action");
+                            const afterSoloDelete = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                            finalMonitorDeleteEmptyState = Boolean(
+                                afterSoloDelete.cards
+                                && Object.keys(afterSoloDelete.cards).length === 0
+                                && emptyState
+                                && !emptyState.hidden
+                                && emptyState.dataset.monitorDetailEmpty === "true-empty-state-create-reachable"
+                            );
+                            finalMonitorCreateReachable = Boolean(createAction && !createAction.disabled);
+                            window.setMonitoringHudControlState(finalDeleteBackup);
+                        }
                         const manageCreate = document.getElementById("monitoring-hud-manage-monitor-create-action");
                         if (manageCreate) {
                             manageCreate.click();
@@ -10101,7 +10354,29 @@ class DesktopRuntimeWindow(QWidget):
                                     deleteConfirmationOpened,
                                     deleteCancelPreservedMonitor,
                                     deleteConfirmRemovedMonitor,
-                                    deleteConfirmationClosed
+                                    deleteConfirmationClosed,
+                                    commandCenterLayout,
+                                    rowActionsRemoved,
+                                    rowSelectionOpensDetail,
+                                    detailPaneDelete,
+                                    unsavedGuardOpened,
+                                    unsavedGuardButtons,
+                                    unsavedCancelPreservedSelection,
+                                    unsavedDiscardSwitchedSelection,
+                                    unsavedSaveSwitchedSelection,
+                                    finalMonitorDeleteEmptyState,
+                                    finalMonitorCreateReachable,
+                                    sourcePickerBrowser,
+                                    sourceFilterFacets,
+                                    sourceFilterReopen,
+                                    sourceBreadcrumbMetadata,
+                                    supportedSourcesAssignable,
+                                    deferredSourcesDisabledExplained,
+                                    warningNotificationsSettingOnly,
+                                    providerReadinessNotAssignable,
+                                    largeMonitorFixture,
+                                    largeSourceFixture,
+                                    duplicateLongSourceFixture
                                 };
                                 window.setMonitoringHudControlState(state);
                             }
@@ -10126,7 +10401,29 @@ class DesktopRuntimeWindow(QWidget):
                             deleteConfirmationOpened,
                             deleteCancelPreservedMonitor,
                             deleteConfirmRemovedMonitor,
-                            deleteConfirmationClosed
+                            deleteConfirmationClosed,
+                            commandCenterLayout,
+                            rowActionsRemoved,
+                            rowSelectionOpensDetail,
+                            detailPaneDelete,
+                            unsavedGuardOpened,
+                            unsavedGuardButtons,
+                            unsavedCancelPreservedSelection,
+                            unsavedDiscardSwitchedSelection,
+                            unsavedSaveSwitchedSelection,
+                            finalMonitorDeleteEmptyState,
+                            finalMonitorCreateReachable,
+                            sourcePickerBrowser,
+                            sourceFilterFacets,
+                            sourceFilterReopen,
+                            sourceBreadcrumbMetadata,
+                            supportedSourcesAssignable,
+                            deferredSourcesDisabledExplained,
+                            warningNotificationsSettingOnly,
+                            providerReadinessNotAssignable,
+                            largeMonitorFixture,
+                            largeSourceFixture,
+                            duplicateLongSourceFixture
                         });
                     } catch (err) {
                         return JSON.stringify({
