@@ -9510,6 +9510,7 @@ class DesktopRuntimeWindow(QWidget):
             selected_id = str(state.get("selectedMonitorId") or "")
             selected = cards.get(selected_id) if isinstance(cards.get(selected_id), dict) else {}
             selected_sensors = selected.get("sensors") if isinstance(selected.get("sensors"), list) else []
+            h1_proof = state.get("hardeningH1MonitorManagementProof") if isinstance(state.get("hardeningH1MonitorManagementProof"), dict) else {}
             checks = {
                 "dashboard_monitor_management": dataset.get("monitorManagement") == "create-edit-delete-sensor-assignment",
                 "dashboard_overlay_mode_controls": dataset.get("overlayModeControls") == "overlay-deferred-tray-owned",
@@ -9532,6 +9533,11 @@ class DesktopRuntimeWindow(QWidget):
                     and "cpu-load" in selected.get("sensorSettings", {}),
                 "global_polling_preserved": int(state.get("pollingRateMs") or 0) == 1000,
                 "monitor_sequence_advanced": int(state.get("monitorSequence") or 0) >= 3,
+                "manage_window_create_added_monitor": h1_proof.get("manageWindowCreateAddedMonitor") is True,
+                "delete_confirmation_opened": h1_proof.get("deleteConfirmationOpened") is True,
+                "delete_cancel_preserved_monitor": h1_proof.get("deleteCancelPreservedMonitor") is True,
+                "delete_confirm_removed_monitor": h1_proof.get("deleteConfirmRemovedMonitor") is True,
+                "delete_confirmation_closed": h1_proof.get("deleteConfirmationClosed") is True,
             }
             return all(checks.values()), checks
 
@@ -9838,6 +9844,61 @@ class DesktopRuntimeWindow(QWidget):
                     try {
                         const before = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
                         const selectedBefore = before && before.selectedMonitorId;
+                        const beforeCount = before && before.cards ? Object.keys(before.cards).length : 0;
+                        let manageWindowCreateAddedMonitor = false;
+                        let manageCreatedId = "";
+                        let deleteConfirmationOpened = false;
+                        let deleteCancelPreservedMonitor = false;
+                        let deleteConfirmRemovedMonitor = false;
+                        let deleteConfirmationClosed = false;
+                        const manageCreate = document.getElementById("monitoring-hud-manage-monitor-create-action");
+                        if (manageCreate) {
+                            manageCreate.click();
+                            const afterManageCreate = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                            const afterManageCards = afterManageCreate && afterManageCreate.cards ? afterManageCreate.cards : {};
+                            manageCreatedId = String(afterManageCreate && afterManageCreate.selectedMonitorId || "");
+                            manageWindowCreateAddedMonitor = Boolean(
+                                manageCreatedId.indexOf("monitor-") === 0
+                                && afterManageCards[manageCreatedId]
+                                && Object.keys(afterManageCards).length === beforeCount + 1
+                            );
+                            const afterManageCount = Object.keys(afterManageCards).length;
+                            const deleteButton = document.querySelector(`[data-monitor-delete="${manageCreatedId}"]`);
+                            if (deleteButton) {
+                                deleteButton.click();
+                                const panel = document.getElementById("monitoring-hud-monitor-delete-confirmation");
+                                deleteConfirmationOpened = Boolean(
+                                    panel
+                                    && !panel.hidden
+                                    && panel.dataset.deleteConfirmationState === "open"
+                                    && panel.dataset.deleteMonitorId === manageCreatedId
+                                );
+                                const cancel = document.getElementById("monitoring-hud-monitor-delete-cancel");
+                                if (cancel) cancel.click();
+                                const afterCancel = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                const afterCancelCards = afterCancel && afterCancel.cards ? afterCancel.cards : {};
+                                deleteCancelPreservedMonitor = Boolean(
+                                    afterCancelCards[manageCreatedId]
+                                    && Object.keys(afterCancelCards).length === afterManageCount
+                                );
+                                const deleteButtonAgain = document.querySelector(`[data-monitor-delete="${manageCreatedId}"]`);
+                                if (deleteButtonAgain) deleteButtonAgain.click();
+                                const confirm = document.getElementById("monitoring-hud-monitor-delete-confirm");
+                                if (confirm) confirm.click();
+                                const afterConfirm = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                const afterConfirmCards = afterConfirm && afterConfirm.cards ? afterConfirm.cards : {};
+                                const panelAfterConfirm = document.getElementById("monitoring-hud-monitor-delete-confirmation");
+                                deleteConfirmRemovedMonitor = Boolean(
+                                    !afterConfirmCards[manageCreatedId]
+                                    && Object.keys(afterConfirmCards).length === afterManageCount - 1
+                                );
+                                deleteConfirmationClosed = Boolean(
+                                    panelAfterConfirm
+                                    && panelAfterConfirm.hidden
+                                    && panelAfterConfirm.dataset.deleteConfirmationState === "closed"
+                                );
+                            }
+                        }
                         const enabled = document.getElementById("monitoring-hud-monitor-enabled");
                         const polling = document.getElementById("monitoring-hud-monitor-polling-rate");
                         if (enabled) {
@@ -9857,6 +9918,9 @@ class DesktopRuntimeWindow(QWidget):
                         }
                         if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
                             const state = window.getMonitoringHudControlState();
+                            if (selectedBefore && state.cards && state.cards[selectedBefore]) {
+                                state.selectedMonitorId = selectedBefore;
+                            }
                             const selectedId = state && state.selectedMonitorId;
                             if (selectedId && state.cards && state.cards[selectedId]) {
                                 state.cards[selectedId] = Object.assign({}, state.cards[selectedId], {
@@ -9869,6 +9933,14 @@ class DesktopRuntimeWindow(QWidget):
                                         "warning-notifications": { displayMode: "badge", warningEnabled: true }
                                     }
                                 });
+                                state.hardeningH1MonitorManagementProof = {
+                                    manageWindowCreateAddedMonitor,
+                                    manageCreatedId,
+                                    deleteConfirmationOpened,
+                                    deleteCancelPreservedMonitor,
+                                    deleteConfirmRemovedMonitor,
+                                    deleteConfirmationClosed
+                                };
                                 window.setMonitoringHudControlState(state);
                             }
                         }
@@ -9886,7 +9958,13 @@ class DesktopRuntimeWindow(QWidget):
                             selectedEnabled: selectedCard ? selectedCard.enabled : null,
                             selectedPollingRateMs: selectedCard ? selectedCard.pollingRateMs : null,
                             selectedSensors: selectedCard && Array.isArray(selectedCard.sensors) ? selectedCard.sensors : [],
-                            monitorCount: after && after.cards ? Object.keys(after.cards).length : 0
+                            monitorCount: after && after.cards ? Object.keys(after.cards).length : 0,
+                            manageWindowCreateAddedMonitor,
+                            manageCreatedId,
+                            deleteConfirmationOpened,
+                            deleteCancelPreservedMonitor,
+                            deleteConfirmRemovedMonitor,
+                            deleteConfirmationClosed
                         });
                     } catch (err) {
                         return JSON.stringify({
