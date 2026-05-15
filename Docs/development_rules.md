@@ -70,6 +70,12 @@ If prompt framing is stale, report the real state first and plan from that state
 If repo truth resolves to blocked `No Active Branch`, report the blocking repair path instead of inventing a later phase.
 If repo truth resolves to steady-state `No Active Branch`, say so explicitly and do not invent a next implementation branch by inertia.
 
+## Multi-Worktree Automation Contract
+
+Standing automation is not lane truth by itself. `Automation Observability` must treat Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md` as evidence inputs until `dev/automation_observability_report.py` classifies a finding as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`.
+
+Every active automation that can affect branch, PR, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance truth must carry a configured cwd that resolves to a known worktree. The report must prove cwd, git root, worktree role, branch, `HEAD`, `origin/main`, and stale-neutral-main posture. `Automation CWD Worktree Mismatch` blocks the finding when the automation is pointed at stale `C:\Nexus Desktop AI`, a missing folder, a parked worktree, the wrong FAM lane, or a Governance worktree that is not the recorded lane. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree automation safety repair and must preserve `RRI-YYYYMMDD-NNN`, `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, and `Return Digest`.
+
 ## Source-Of-Truth Ownership Model
 
 Use this layered ownership model:
@@ -348,7 +354,7 @@ That means:
   - a branch is not PR-ready if merging it would leave `main` canon-stale
 - no PR-ready with stale canon:
   - current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
-  - Merge-target post-merge-stable authority projection is mandatory before PR green and is a PR Readiness Stage 1 repair responsibility when Stage 1 finds it: `Merge-Target Authority Projection Unproven` blocks Stage 2 and PR green when post-merge truth will be `No Active Branch` but the PR branch would merge an active branch authority record into `main`; the active authority record must be moved to historical/no-active posture or otherwise made merge-stable during Stage 1 before Stage 2 can execute, and historical branch records must not retain active PR Readiness phase, active seam ownership, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`
+  - Merge-target post-merge-stable authority projection is mandatory before PR green and is a PR Readiness Stage 1 repair responsibility when Stage 1 finds it: `Merge-Target Authority Projection Unproven` blocks Stage 2 and PR green when post-merge truth will be `No Active Branch` but the PR branch would merge an active branch authority record into `main`; default governance validation and `--pr-readiness-gate` must both catch this state before merge; the active authority record must be moved to historical/no-active posture or otherwise made merge-stable during Stage 1 before Stage 2 can execute, and historical branch records must not retain active PR Readiness phase, active seam ownership, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`
 - when a branch closes a workstream, changes released milestone posture, changes the current rebaseline, changes closeout-index routing, changes backlog or roadmap release posture, changes workstream-index release posture, or changes `Docs/Main.md` baseline routing, the required release-facing canon updates must already be on that branch before PR creation is allowed
 - no PR-ready with `Next Workstream Undefined`:
   - If post-merge truth would otherwise resolve to `No Active Branch` because release handling or another repo-level admission blocker remains open, Stage 1 treats that as an explicit USER waiver/defer question, not the default; successor branch creation remains deferred only when that waiver/defer is recorded, otherwise Stage 1 stops on the selected-next or backlog-approval blocker.

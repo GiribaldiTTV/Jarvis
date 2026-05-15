@@ -5,6 +5,7 @@ import datetime as dt
 import json
 import re
 import sqlite3
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -13,6 +14,25 @@ CODEX_HOME = Path.home() / ".codex"
 AUTOMATION_DB = CODEX_HOME / "sqlite" / "codex-dev.db"
 AUTOMATION_DIR = CODEX_HOME / "automations"
 REPO_ROOT = Path(__file__).resolve().parents[1]
+NEUTRAL_MAIN_ROOT = "C:/Nexus Desktop AI"
+GOVERNANCE_ROOT = "C:/Nexus Worktrees/Governance"
+FAM_006_ROOT = "C:/Nexus Worktrees/FAM-006"
+FAM_007_ROOT = "C:/Nexus Worktrees/FAM-007"
+LANE_SENSITIVE_PROMPT_MARKERS = (
+    "active branch",
+    "current phase",
+    "release readiness",
+    "pr readiness",
+    "post-merge",
+    "release-window",
+    "selected-next",
+    "toolchain",
+    "branch governance",
+)
+HISTORICAL_OR_STALE_AUTOMATION_PROMPT_MARKERS = {
+    "main-revalidation-gate-watch": ("FB-049",),
+    "selected-next-lock-audit": ("FB-049",),
+}
 BLOCKER_WORDS = (
     "block",
     "blocked",
@@ -107,7 +127,7 @@ def freshness_limit_seconds(rrule: str) -> int:
 def load_active_automations(connection: sqlite3.Connection) -> list[sqlite3.Row]:
     return connection.execute(
         """
-        SELECT id, name, status, rrule, last_run_at, next_run_at, cwds
+        SELECT id, name, status, rrule, last_run_at, next_run_at, cwds, prompt
         FROM automations
         ORDER BY id
         """
@@ -145,6 +165,111 @@ def read_repo_text(relative_path: str) -> str:
     if not path.is_file():
         return ""
     return path.read_text(encoding="utf-8", errors="replace")
+
+
+def normalize_path(value: str) -> str:
+    return value.replace("\\", "/").rstrip("/")
+
+
+def parse_cwds(value: str) -> list[str]:
+    stripped = (value or "").strip()
+    if not stripped:
+        return []
+    try:
+        parsed = json.loads(stripped)
+    except json.JSONDecodeError:
+        return [match for match in re.findall(r'"([^"]+)"', stripped) if match]
+    if isinstance(parsed, list):
+        return [str(item) for item in parsed if str(item).strip()]
+    if isinstance(parsed, str) and parsed.strip():
+        return [parsed]
+    return []
+
+
+def run_git(cwd: Path, args: tuple[str, ...]) -> tuple[str, str]:
+    completed = subprocess.run(
+        ("git", *args),
+        cwd=str(cwd),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    output = completed.stdout.strip()
+    error = completed.stderr.strip()
+    if completed.returncode != 0:
+        return "", error or output or f"git {' '.join(args)} failed"
+    return output, ""
+
+
+def known_worktree_roots() -> set[str]:
+    output, error = run_git(REPO_ROOT, ("worktree", "list", "--porcelain"))
+    if error:
+        return set()
+    roots: set[str] = set()
+    for line in output.splitlines():
+        if line.startswith("worktree "):
+            roots.add(normalize_path(line.removeprefix("worktree ").strip()).casefold())
+    return roots
+
+
+def worktree_role(git_root: str) -> str:
+    normalized = normalize_path(git_root).casefold()
+    if normalized == normalize_path(NEUTRAL_MAIN_ROOT).casefold():
+        return "neutral-main"
+    if normalized == normalize_path(GOVERNANCE_ROOT).casefold():
+        return "governance"
+    if normalized == normalize_path(FAM_006_ROOT).casefold():
+        return "fam-006"
+    if normalized == normalize_path(FAM_007_ROOT).casefold():
+        return "fam-007"
+    return "unknown"
+
+
+def inspect_cwd(cwd_value: str, known_roots: set[str]) -> dict[str, str]:
+    cwd = Path(cwd_value)
+    if not cwd.exists():
+        return {
+            "cwd": cwd_value,
+            "git_root": "",
+            "role": "missing",
+            "branch": "",
+            "head": "",
+            "origin_main": "",
+            "known_worktree": "NO",
+            "error": "configured cwd does not exist",
+        }
+    root, root_error = run_git(cwd, ("rev-parse", "--show-toplevel"))
+    if root_error:
+        return {
+            "cwd": cwd_value,
+            "git_root": "",
+            "role": "missing",
+            "branch": "",
+            "head": "",
+            "origin_main": "",
+            "known_worktree": "NO",
+            "error": root_error,
+        }
+    branch, branch_error = run_git(cwd, ("branch", "--show-current"))
+    head, head_error = run_git(cwd, ("rev-parse", "HEAD"))
+    origin_main, origin_error = run_git(cwd, ("rev-parse", "origin/main"))
+    normalized_root = normalize_path(root)
+    return {
+        "cwd": cwd_value,
+        "git_root": normalized_root,
+        "role": worktree_role(normalized_root),
+        "branch": branch,
+        "head": head,
+        "origin_main": origin_main,
+        "known_worktree": "YES" if normalized_root.casefold() in known_roots else "NO",
+        "error": branch_error or head_error or origin_error,
+    }
+
+
+def lane_sensitive_prompt(prompt: str) -> bool:
+    text = prompt.casefold()
+    return any(marker in text for marker in LANE_SENSITIVE_PROMPT_MARKERS)
 
 
 def pr99_heartbeat_missing_is_historical() -> bool:
@@ -478,6 +603,7 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
         }, findings
 
     tomls = automation_toml_map()
+    known_roots = known_worktree_roots()
     rows: list[dict[str, object]] = []
     with sqlite3.connect(AUTOMATION_DB) as connection:
         connection.row_factory = sqlite3.Row
@@ -503,6 +629,12 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
             latest_summary = str(run["inbox_summary"] or "") if run else ""
             latest_status = str(run["status"] or "") if run else ""
             next_run_at = int(row["next_run_at"]) if row["next_run_at"] else None
+            prompt = str(row["prompt"] or "")
+            configured_cwds = parse_cwds(str(row["cwds"] or ""))
+            cwd_evidence = [
+                inspect_cwd(configured_cwd, known_roots)
+                for configured_cwd in configured_cwds
+            ]
 
             if status == "ACTIVE" and not toml_path:
                 findings.append(
@@ -513,6 +645,81 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
                         "Codex DB reports ACTIVE but no automation.toml exists under $CODEX_HOME/automations.",
                     )
                 )
+            if status == "ACTIVE" and not configured_cwds:
+                findings.append(
+                    Finding(
+                        "BLOCKER_CANDIDATE",
+                        automation_id,
+                        "Automation CWD Worktree Mismatch - no configured cwd",
+                        "Multi-worktree automation contract requires an explicit configured cwd/worktree.",
+                    )
+                )
+            for evidence in cwd_evidence:
+                evidence_error = evidence.get("error") or ""
+                role = evidence.get("role") or ""
+                branch = evidence.get("branch") or ""
+                head = evidence.get("head") or ""
+                origin_main = evidence.get("origin_main") or ""
+                if evidence_error:
+                    findings.append(
+                        Finding(
+                            "BLOCKER_CANDIDATE",
+                            automation_id,
+                            "Automation CWD Worktree Mismatch - cwd cannot be inspected",
+                            f"{evidence.get('cwd')}: {evidence_error}",
+                        )
+                    )
+                if evidence.get("known_worktree") == "NO":
+                    findings.append(
+                        Finding(
+                            "REVIEW_REQUIRED",
+                            automation_id,
+                            "Automation CWD Worktree Mismatch - cwd is not a registered worktree",
+                            (
+                                f"{evidence.get('cwd')} resolves to {evidence.get('git_root') or 'no git root'}; "
+                                "multi-worktree automations must target a known assigned worktree."
+                            ),
+                        )
+                    )
+                if branch == "main" and head and origin_main and head != origin_main:
+                    findings.append(
+                        Finding(
+                            "BLOCKER_CANDIDATE",
+                            automation_id,
+                            "Automation CWD Worktree Mismatch - neutral main is stale",
+                            (
+                                f"{evidence.get('cwd')} is on main at {head[:8]} while origin/main is "
+                                f"{origin_main[:8]}; standing automation output may be stale."
+                            ),
+                        )
+                    )
+                if role == "neutral-main" and lane_sensitive_prompt(prompt):
+                    findings.append(
+                        Finding(
+                            "REVIEW_REQUIRED",
+                            automation_id,
+                            "Lane-sensitive automation runs from neutral main",
+                            (
+                                "Prompt references active phase/branch/readiness/toolchain state, but cwd is "
+                                f"{evidence.get('cwd')}; choose an explicit Governance, FAM-006, or FAM-007 lane "
+                                "or require fresh main equality before reporting blockers."
+                            ),
+                        )
+                    )
+            stale_prompt_markers = HISTORICAL_OR_STALE_AUTOMATION_PROMPT_MARKERS.get(automation_id, ())
+            for stale_marker in stale_prompt_markers:
+                if stale_marker in prompt:
+                    findings.append(
+                        Finding(
+                            "REVIEW_REQUIRED",
+                            automation_id,
+                            "Automation prompt references historical lane truth",
+                            (
+                                f"Prompt still references {stale_marker}; reframe this automation around the "
+                                "current multi-worktree contract or retire it."
+                            ),
+                        )
+                    )
             if status == "ACTIVE" and not newest_proof_ms:
                 first_run_grace_active = (
                     next_run_at is not None
@@ -574,6 +781,8 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
                     "latest_updated_at": ms_to_iso(run_updated_at),
                     "latest_inbox_item_title": str(inbox_item["title"] or "") if inbox_item else "",
                     "latest_inbox_item_description": str(inbox_item["description"] or "") if inbox_item else "",
+                    "cwds": configured_cwds,
+                    "cwd_evidence": cwd_evidence,
                     "memory_tail": memory_tail(automation_id),
                 }
             )
@@ -594,6 +803,8 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
                         "latest_summary": "",
                         "latest_thread_id": "",
                         "latest_updated_at": "",
+                        "cwds": [],
+                        "cwd_evidence": [],
                         "memory_tail": memory_tail(automation_id),
                     }
                 )
@@ -629,10 +840,22 @@ def render_text(report: dict[str, object], findings: list[Finding]) -> str:
 
     lines.extend(["", "Automation Rows:"])
     for row in report["automations"]:  # type: ignore[index]
+        cwd_summary = ""
+        cwd_evidence = row.get("cwd_evidence") or []
+        if cwd_evidence:
+            cwd_summary = " | cwd=" + "; ".join(
+                (
+                    f"{evidence.get('cwd')} role={evidence.get('role')} "
+                    f"branch={evidence.get('branch') or 'unknown'} "
+                    f"head={(evidence.get('head') or '')[:8] or 'unknown'}"
+                )
+                for evidence in cwd_evidence
+            )
         lines.append(
             (
                 f"- {row['id']} | status={row['status']} | latest={row['latest_run_status'] or 'none'} "
                 f"| title={row['latest_inbox_title'] or 'none'} | updated={row['latest_updated_at'] or 'none'}"
+                f"{cwd_summary}"
             )
         )
     return "\n".join(lines)
