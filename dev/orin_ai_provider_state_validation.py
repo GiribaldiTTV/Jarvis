@@ -15,6 +15,9 @@ from desktop.ai_provider_state import (  # noqa: E402
     CAPABILITY_PACK_LIFECYCLE_PLANNED,
     FAM007_FOUNDATION_READINESS_MODE,
     FAM007_FOUNDATION_READINESS_STATE_ID,
+    LOCAL_AI_RUNTIME_FOUNDATION_AVAILABILITY,
+    LOCAL_AI_RUNTIME_FOUNDATION_MODE,
+    LOCAL_AI_RUNTIME_FOUNDATION_STATE_ID,
     LOCAL_HARDWARE_CAPABILITY_STATE,
     LOCAL_PROVIDER_REGISTRY_AVAILABILITY,
     LOCAL_PROVIDER_REGISTRY_MODE,
@@ -47,6 +50,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     PROVIDER_BOUNDARY_INTERACTION_PLAN_STATE,
     PROVIDER_NEXT_ACTION_DISABLED,
     build_fam007_foundation_readiness_state,
+    build_local_ai_runtime_foundation_provider_boundary_state,
     build_local_provider_registry_state,
     build_no_provider_ai_state,
     build_provider_selection_consent_state,
@@ -68,10 +72,12 @@ def validate() -> list[str]:
     snapshot = build_no_provider_ai_state(surface_role="core")
     selection_snapshot = build_provider_selection_consent_state(surface_role="core")
     registry_snapshot = build_local_provider_registry_state(surface_role="core")
+    runtime_foundation_snapshot = build_local_ai_runtime_foundation_provider_boundary_state(surface_role="core")
     foundation_snapshot = build_fam007_foundation_readiness_state(surface_role="core")
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
+    runtime_foundation_payload = runtime_foundation_snapshot.as_renderer_payload()
     foundation_payload = foundation_snapshot.as_renderer_payload()
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -113,8 +119,8 @@ def validate() -> list[str]:
         failures,
     )
     _require(
-        payload["providerNextActionLabel"] == "Next: provider setup is disabled until a later approved seam",
-        "no-provider state must keep provider setup disabled until a later approved seam",
+        payload["providerNextActionLabel"] == "Next: provider setup is disabled in this local-only foundation seam",
+        "no-provider state must keep provider setup disabled inside the local-only foundation seam",
         failures,
     )
     _require(
@@ -268,6 +274,73 @@ def validate() -> list[str]:
         _require(entry["providerVisibleData"] == "none", "provider registry entries must not expose provider-visible data", failures)
         _require(entry["externalCalls"] == "blocked", "provider registry entries must block external calls", failures)
 
+    _require(
+        runtime_foundation_snapshot.state_id == LOCAL_AI_RUNTIME_FOUNDATION_STATE_ID,
+        "runtime foundation boundary must use the current FAM-007 state id",
+        failures,
+    )
+    _require(
+        runtime_foundation_snapshot.mode == LOCAL_AI_RUNTIME_FOUNDATION_MODE,
+        "runtime foundation boundary must use runtime-foundation provider-boundary mode",
+        failures,
+    )
+    _require(
+        runtime_foundation_snapshot.availability == LOCAL_AI_RUNTIME_FOUNDATION_AVAILABILITY,
+        "runtime foundation boundary must remain disabled/local-only",
+        failures,
+    )
+    _require(
+        runtime_foundation_snapshot.slice_ids == (SLC_017_ID, SLC_018_ID),
+        "runtime foundation boundary must stay bounded to SLC-017/SLC-018",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["providerLabel"] == "No AI provider",
+        "runtime foundation boundary must keep visible no-provider posture",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["statusLabel"] == "Local AI foundation: no provider",
+        "runtime foundation boundary must expose the current local foundation status",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["providerInteractionLabel"] == "Provider boundary: local foundation active",
+        "runtime foundation boundary must expose an active local provider-boundary label",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["providerNextActionLabel"]
+        == "Next: provider setup is disabled in this local-only foundation seam",
+        "runtime foundation boundary must not gate the seam behind a later approval-missing blocker",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["privacyLabel"] == "Local runtime foundation only; nothing is sent",
+        "runtime foundation boundary must visibly disclose local-only runtime posture",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["providerVisibleData"] == "none",
+        "runtime foundation boundary must expose no provider-visible data",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["sentToProvider"] is False,
+        "runtime foundation boundary must send nothing to providers",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["storedLocally"] is False,
+        "runtime foundation boundary must not persist local memory",
+        failures,
+    )
+    _require(
+        runtime_foundation_payload["canAcceptPrompts"] is False,
+        "runtime foundation boundary must keep prompts disabled",
+        failures,
+    )
+
     expected_foundation_slices = (
         SLC_017_ID,
         SLC_018_ID,
@@ -416,7 +489,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "build_fam007_foundation_readiness_state",
+        "build_local_ai_runtime_foundation_provider_boundary_state",
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
@@ -496,7 +569,7 @@ def validate() -> list[str]:
             "Consent boundary: provider setup required before prompts",
             'id="ai-provider-status-action"',
             "Assisted Desktop unavailable",
-            "Next: provider setup is disabled until a later approved seam",
+            "Next: provider setup is disabled in this local-only foundation seam",
             "Local shell only; nothing is sent",
         ):
             _require(needle in markup, f"{label} is missing {needle!r}", failures)

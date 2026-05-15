@@ -135,7 +135,7 @@ let aiProviderState = {
   providerVisibleDataLabel: "Provider-visible data: none",
   providerVisibleDataDetail: "No prompt, file, screen, memory, or telemetry is sent",
   providerConsentBoundaryLabel: "Consent boundary: provider setup required before prompts",
-  providerNextActionLabel: "Next: provider setup is disabled until a later approved seam",
+  providerNextActionLabel: "Next: provider setup is disabled in this local-only foundation seam",
   interactionAffordance: "disabled-no-provider-interaction",
   interactionLabel: "Assisted Desktop unavailable",
   interactionDisabledReason: "Consent and provider configuration are required before prompts can run",
@@ -1374,7 +1374,7 @@ function renderAIProviderState() {
   }
   if (aiProviderStatusNextAction) {
     aiProviderStatusNextAction.textContent =
-      state.providerNextActionLabel || "Next: provider setup is disabled until a later approved seam";
+      state.providerNextActionLabel || "Next: provider setup is disabled in this local-only foundation seam";
   }
   if (aiProviderStatusPrivacy) {
     aiProviderStatusPrivacy.textContent = state.privacyLabel || "Local shell only; nothing is sent";

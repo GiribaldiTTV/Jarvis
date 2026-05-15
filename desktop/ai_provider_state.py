@@ -23,6 +23,7 @@ PROVIDER_SELECTION_STATE_ID = "provider-selection-consent-boundary"
 LOCAL_PROVIDER_REGISTRY_STATE_ID = "local-provider-registry-configuration-state"
 LOCAL_HARDWARE_CAPABILITY_STATE_ID = "hardware-gpu-cpu-capability-planning"
 FAM007_FOUNDATION_READINESS_STATE_ID = "fam007-foundation-readiness-scaffold"
+LOCAL_AI_RUNTIME_FOUNDATION_STATE_ID = "local-ai-runtime-foundation-provider-boundary"
 
 NO_PROVIDER_MODE = "no-provider"
 NO_PROVIDER_AVAILABILITY = "disabled"
@@ -35,6 +36,8 @@ LOCAL_HARDWARE_CAPABILITY_MODE = "hardware-capability-planning"
 LOCAL_HARDWARE_CAPABILITY_AVAILABILITY = "planning-only"
 FAM007_FOUNDATION_READINESS_MODE = "foundation-readiness"
 FAM007_FOUNDATION_READINESS_AVAILABILITY = "planning-only"
+LOCAL_AI_RUNTIME_FOUNDATION_MODE = "runtime-foundation-provider-boundary"
+LOCAL_AI_RUNTIME_FOUNDATION_AVAILABILITY = "disabled"
 NO_PROVIDER_ID = "no-provider"
 NO_PROVIDER_FALLBACK_SELECTION = "fallback-no-provider"
 PROVIDER_CONSENT_REQUIRED = "required-before-provider"
@@ -513,7 +516,7 @@ def _provider_boundary_interaction_fields(
         "provider_interaction_label": interaction_label,
         "provider_interaction_detail": interaction_detail,
         "provider_consent_boundary_label": "Consent boundary: provider setup required before prompts",
-        "provider_next_action_label": "Next: provider setup is disabled until a later approved seam",
+        "provider_next_action_label": "Next: provider setup is disabled in this local-only foundation seam",
     }
 
 
@@ -622,6 +625,72 @@ def build_no_provider_ai_state(*, surface_role: str = "hud") -> AIProviderStateS
         model_state="not installed",
         capability_pack_state="not installed",
         source_truth="renderer-local no-provider shell",
+        surface_role=normalized_surface,
+        provider_options=_provider_selection_options(),
+    )
+
+
+def build_local_ai_runtime_foundation_provider_boundary_state(
+    *,
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Build the active local-only FAM-007 runtime-foundation provider boundary."""
+
+    normalized_surface = surface_role if surface_role in {"core", "hud", "combined"} else "hud"
+    return AIProviderStateSnapshot(
+        package_id=PACKAGE_ID,
+        slice_ids=(SLC_017_ID, SLC_018_ID),
+        state_id=LOCAL_AI_RUNTIME_FOUNDATION_STATE_ID,
+        mode=LOCAL_AI_RUNTIME_FOUNDATION_MODE,
+        availability=LOCAL_AI_RUNTIME_FOUNDATION_AVAILABILITY,
+        provider_label="No AI provider",
+        provider_kind="local-runtime-foundation-scaffold",
+        status_label="Local AI foundation: no provider",
+        disabled_reason="Local AI runtime foundation is active, but provider execution is disabled",
+        selected_provider_id=NO_PROVIDER_ID,
+        provider_selection_state=NO_PROVIDER_FALLBACK_SELECTION,
+        provider_selection_label="No-provider fallback active",
+        provider_configuration_state=PROVIDER_CONFIGURATION_UNCONFIGURED,
+        provider_configuration_label="Provider configuration: none",
+        provider_registry_state=LOCAL_PROVIDER_REGISTRY_STATE,
+        provider_registry_label="Local provider registry: no configured providers",
+        configured_provider_count=0,
+        available_provider_count=0,
+        hardware_capability_state=LOCAL_HARDWARE_CAPABILITY_STATE,
+        hardware_capability_label="Hardware capability: local planning only",
+        gpu_capability_state=GPU_CAPABILITY_UNPROBED,
+        gpu_capability_label="GPU acceleration: unprobed; no model workload active",
+        cpu_fallback_state=CPU_FALLBACK_PRESERVED,
+        cpu_fallback_label="CPU fallback: preserved",
+        power_state=POWER_STATE_NOT_EVALUATED,
+        power_state_label="Power state: not evaluated",
+        thermal_guardrail_state=THERMAL_GUARDRAILS_REQUIRED,
+        thermal_guardrail_label="Thermal guardrails required before model workloads",
+        model_workload_state=MODEL_WORKLOAD_DISABLED,
+        model_workload_label="Model workloads: disabled",
+        capability_recommendation_state=CAPABILITY_RECOMMENDATION_PENDING,
+        capability_recommendation_label="Capability recommendation pending hardware proof",
+        **_foundation_readiness_fields(),
+        privacy_scope=NO_PROVIDER_PRIVACY_SCOPE,
+        privacy_label="Local runtime foundation only; nothing is sent",
+        provider_visible_data="none",
+        provider_visible_data_label="Provider-visible data: none",
+        **_provider_boundary_interaction_fields(
+            interaction_label="Provider boundary: local foundation active",
+            interaction_detail="Local runtime foundation is visible while provider calls and prompts stay disabled",
+        ),
+        local_storage="none",
+        consent_state=PROVIDER_CONSENT_REQUIRED,
+        consent_label="Consent required before any provider setup",
+        interaction_affordance=NO_PROVIDER_INTERACTION_AFFORDANCE,
+        interaction_label="Assisted Desktop unavailable",
+        interaction_disabled_reason="Local AI foundation is provider-disabled; consent and configuration are required before prompts can run",
+        no_provider_fallback_label="No-provider fallback active",
+        prompt_acceptance="disabled",
+        external_calls="blocked",
+        model_state="not installed",
+        capability_pack_state="not installed",
+        source_truth="renderer-local FAM-007 runtime foundation provider boundary",
         surface_role=normalized_surface,
         provider_options=_provider_selection_options(),
     )
