@@ -20,22 +20,25 @@ The branch exists because `feature/fam-007-local-ai-runtime-foundation` is histo
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Live Validation`
 
 ## Phase Status
 
 - Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-runtime-expansion from current origin/main cb620709acb95f4457f317b5369bade7d9564724 in C:\Nexus Worktrees\FAM-007, carrying v1.7.3-prebeta post-release canon closure into Stage 2 setup, recording active FAM-007 branch authority and bounded Workstream planning, validating, committing, and pushing`
 - Workstream Entry USER Approval: `Granted - USER approved Workstream entry for feature/fam-007-local-ai-runtime-expansion under the FAM-007 Local AI Runtime Contracts and Capability Foundation plan, beginning with SLC-017/SLC-018 Provider Runtime Contract and Consent State, with local-only runtime contract/provider-state source-truth, runtime scaffold, Core/Desktop state, and validator updates directly required for the approved local-only Workstream path`
 - Hardening H1 USER Approval: `Granted - USER approved Hardening H1 for feature/fam-007-local-ai-runtime-expansion, covering the completed local-only FAM-007 Local AI Runtime Contracts and Capability Foundation Workstream through SLC-036, with inspection of source truth, provider/runtime state, Core/Desktop visible state, validators, approval boundaries, and FAM-006 overlap risk; Hardening-scope repairs, validation, commit, and push are authorized if needed`
+- Live Validation LV1 USER Approval: `Granted - USER approved Live Validation LV1 for feature/fam-007-local-ai-runtime-expansion, covering the completed and hardened local-only FAM-007 Local AI Runtime Contracts and Capability Foundation through SLC-036, with visible Core/Desktop provider rail, provider/runtime state model, fail-closed behavior, provider-visible data posture, disabled prompt/provider behavior, blocked capability-pack download posture, memory-disabled posture, network-egress-blocked posture, source-truth posture, validators, FAM-006 overlap risk, LV1-scoped repairs, validation, commit, and push authorized if needed`
 - Branch Authority State: `Active Branch`
 - Active Branch: `feature/fam-007-local-ai-runtime-expansion`
 - Worktree Authority: `C:\Nexus Worktrees\FAM-007`
-- Current Stage: `Hardening H1 - FAM-007 Local AI Runtime Contracts and Capability Foundation`
+- Current Stage: `Live Validation LV1 - FAM-007 Local AI Runtime Contracts and Capability Foundation`
 - Release Closure State: `v1.7.3-prebeta published at cb620709acb95f4457f317b5369bade7d9564724; PR #155 through PR #161 are released in v1.7.3-prebeta`
 - Post-Release Canon Closure Drift: `Closed on this Branch Readiness carrier`
 - Current Workstream State: `Green - SLC-017/SLC-018, SLC-031/SLC-032, SLC-033/SLC-034, and SLC-035/SLC-036 are implemented as local-only runtime-contract, capability, data/privacy, Core/Desktop state, and validation scaffolds`
 - Current Hardening State: `Green - H1 pressure-tested source truth, provider/runtime state categories, reason codes, provenance, schema/fail-closed config behavior, Core/Desktop visible state, validator coverage, approval boundaries, and FAM-006 overlap risk for the completed local-only Workstream through SLC-036`
-- Current Live Validation State: `Not started - LV1 requires separate USER approval`
+- Current Live Validation State: `Green - LV1 confirmed the visible Core/Desktop provider rail, provider/runtime state model, fail-closed behavior, provider-visible data none posture, disabled prompt/provider behavior, blocked capability-pack download posture, memory-disabled posture, network-egress-blocked posture, source-truth posture, validators, and FAM-006 overlap risk; User Test Summary, user-facing shortcut validation, and Codex live-client self-QA are waived only for this disabled/status-only Live Validation phase with source-truth reasons`
+- Current Live Validation Seam: `Live Validation LV1 - FAM-007 Local AI Runtime Contracts and Capability Foundation`
+- Current Live Validation Seam Status: `Green - static source-truth, provider-state validation, release-body validation, planning-fixture validation, compile proof, and phase-specific UTS/shortcut/live-client waivers cover this disabled/status-only local scaffold`
 - Historical Predecessor: `feature/fam-007-local-ai-runtime-foundation / PR #159 / released in v1.7.3-prebeta`
 - Selected Next Workstream: `FAM-007 Local AI Runtime Contracts and Capability Foundation`
 - Selected Next Implementation Branch: `feature/fam-007-local-ai-runtime-expansion`
@@ -75,7 +78,7 @@ Package ID: `PKG-007`
 
 Admission State: `Admitted`
 
-Slice Completion State: `Green - SLC-017/SLC-018, SLC-031/SLC-032, SLC-033/SLC-034, and SLC-035/SLC-036 are complete inside this bounded local-only Workstream; Hardening H1 is the next phase after explicit USER approval`
+Slice Completion State: `Green - SLC-017/SLC-018, SLC-031/SLC-032, SLC-033/SLC-034, and SLC-035/SLC-036 are complete inside this bounded local-only Workstream; Hardening H1 is green; Live Validation LV1 is green with phase-specific User Test Summary waiver proof`
 
 ## Bounded State
 
@@ -199,15 +202,15 @@ Expected User-Facing Outcomes: `After later Workstream implementation, Core/Desk
 
 Codex Product Interpretation: `This branch should turn the released local-only scaffold proof into the next runtime-contract foundation, not a real AI execution branch yet; the useful product move is to make every disabled, unavailable, consent, capability, and privacy state explicit before enabling provider behavior.`
 
-Codex Implementation Recommendation: `Completed the bounded local-only Workstream through SLC-036 because provider readiness, config provenance, consent, fail-closed behavior, capability/model-pack posture, data/privacy/memory disabled state, Core/Desktop copy contracts, and validator proof gates must exist before capability packs, provider SDKs, model execution, memory, voice/Core sync, or any external execution path can be admitted. Hardening H1 is green after proof review; recommended next phase is Live Validation LV1 after explicit USER approval.`
+Codex Implementation Recommendation: `Completed the bounded local-only Workstream through SLC-036 because provider readiness, config provenance, consent, fail-closed behavior, capability/model-pack posture, data/privacy/memory disabled state, Core/Desktop copy contracts, and validator proof gates must exist before capability packs, provider SDKs, model execution, memory, voice/Core sync, or any external execution path can be admitted. Hardening H1 is green after proof review and Live Validation LV1 is green with phase-specific UTS waiver proof; recommended next phase is PR Readiness Stage 1 after explicit USER approval.`
 
-Codex Additional Recommendations: `Recommendation: move to Live Validation LV1 after USER approval and validate the user-visible Core/provider rail and local-only provider boundary posture; do not merge provider SDK/model execution, memory/indexing implementation, voice/Core sync, shortcut/installer, release, issue, or AI Product Contract work into Live Validation.`
+Codex Additional Recommendations: `Recommendation: move to PR Readiness Stage 1 after USER approval and validate merge-target projection, branch scope, release-readiness health, and PR body/readiness posture; do not merge provider SDK/model execution, memory/indexing implementation, voice/Core sync, shortcut/installer, release, issue, or AI Product Contract work into PR Readiness.`
 
-USER/ChatGPT Review Checkpoint: `USER may approve, reject, change, or defer Live Validation LV1 after this Hardening H1 evidence; ChatGPT review may challenge hardening evidence, missing boundaries, validation posture, or approval-boundary claims before USER authorizes LV1.`
+USER/ChatGPT Review Checkpoint: `USER may approve, reject, change, or defer PR Readiness Stage 1 after this Live Validation LV1 evidence; ChatGPT review may challenge LV1 waiver proof, visible-state proof, validation posture, or approval-boundary claims before USER authorizes PR Readiness.`
 
-USER Critique Loop: `USER review can approve Live Validation LV1, defer LV1, critique the Hardening H1 evidence, or give feedback before the next phase; Codex must stop instead of widening scope when USER changes the boundary.`
+USER Critique Loop: `USER review can approve PR Readiness Stage 1, defer PR Readiness, critique the Live Validation LV1 evidence, or give feedback before the next phase; Codex must stop instead of widening scope when USER changes the boundary.`
 
-USER Decision Ledger: `USER approved Branch Readiness Stage 2 setup, v1.7.3-prebeta canon closure, active branch authority, Workstream planning, bounded Workstream execution on the FAM-007 Local AI Runtime Contracts and Capability Foundation, and Hardening H1 for the completed local-only Workstream through SLC-036. USER decisions pending include Live Validation LV1, PR creation, merge, provider SDK/model work, model downloads/execution, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, release/tag/artifact work, issue creation/closeout, AI Product Contract import, private Dev ORIN import, FAM-006 mutation, FAM-007 successor selection beyond this branch, and branch cleanup.`
+USER Decision Ledger: `USER approved Branch Readiness Stage 2 setup, v1.7.3-prebeta canon closure, active branch authority, Workstream planning, bounded Workstream execution on the FAM-007 Local AI Runtime Contracts and Capability Foundation, Hardening H1 for the completed local-only Workstream through SLC-036, and Live Validation LV1 for the completed and hardened local-only Workstream. USER decisions pending include PR Readiness Stage 1, PR creation, merge, provider SDK/model work, model downloads/execution, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, release/tag/artifact work, issue creation/closeout, AI Product Contract import, private Dev ORIN import, FAM-006 mutation, FAM-007 successor selection beyond this branch, and branch cleanup.`
 
 Planning Adequacy Review: `PASS - planning covers a full PKG-007 runtime-contract continuation across provider, capability, data/privacy, resilience, persona/Core, and validation proof seams rather than a single one-off branch.`
 
@@ -237,19 +240,19 @@ Why Branch Is Large Enough: `The planned work forms one coherent local AI runtim
 
 Why Not Split Into Tiny Branches: `Splitting each runtime-contract seam into its own branch would recreate stale source-truth, worktree, and release-readiness churn; a single branch with bounded seams gives traceability without branch sprawl.`
 
-Acceptance Criteria: `Branch authority is active and worktree-confined; v1.7.3-prebeta release canon is closed; PR #155 through PR #161 are released historical scope; old FAM-007 branches remain historical evidence; Workstream Green covers SLC-017/SLC-018 and SLC-031 through SLC-036 as local-only scaffolds; pending USER decisions are preserved; validation passes; branch is committed and pushed.`
+Acceptance Criteria: `Branch authority is active and worktree-confined; v1.7.3-prebeta release canon is closed; PR #155 through PR #161 are released historical scope; old FAM-007 branches remain historical evidence; Workstream Green covers SLC-017/SLC-018 and SLC-031 through SLC-036 as local-only scaffolds; Hardening H1 is green; Live Validation LV1 is green with phase-specific User Test Summary waiver proof; pending USER decisions are preserved; validation passes; branch is committed and pushed.`
 
 Validation Proof Requirements: `git status --short --branch`; `git diff --check origin/main...HEAD`; `python dev\orin_branch_governance_validation.py`; `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`; `python dev\orin_release_body_validation.py`; `python dev\orin_ai_provider_state_validation.py`; `python dev\orin_branch_readiness_planning_fixture_validation.py`; `python -m compileall -q dev desktop Audio main.py`.
 
-Screenshot / Live / User Test Summary Proof Requirements: `Not applicable to Branch Readiness Stage 2 setup. UTS cannot be waived here because UTS applies during Live Validation only; any later Live Validation must record a User Test Summary result or a phase-specific waiver.`
+Screenshot / Live / User Test Summary Proof Requirements: `Live Validation LV1 records User Test Summary Results as WAIVED with a source-truth reason because the branch is a disabled/status-only local scaffold with no prompt/action flow, provider call, model execution, memory/indexing implementation, shortcut/installer mutation, capability-pack lifecycle execution, or release behavior. Shortcut validation and Codex live-client self-QA are waived for this LV1 phase only; later interactive runtime work must provide its own UTS/live proof or explicit USER waiver.`
 
-User Test Summary Strategy: `Branch Readiness Stage 2 does not run UTS. Later Live Validation must record User Test Summary results or a phase-specific waiver; this planning pass does not waive UTS for future interactive runtime work.`
+User Test Summary Strategy: `No UTS for Branch Readiness or Hardening. Live Validation LV1 records an exact User Test Summary section with WAIVED results and a source-truth waiver reason for this disabled/status-only scaffold only. PR Readiness cannot reuse the Live Validation-only waiver for unrelated future work.`
 
-Implementation Sequence Proposal: `Complete - SLC-017/SLC-018 provider runtime contract and consent state, SLC-031/SLC-032 capability/model-pack readiness foundation, SLC-033/SLC-034 data/privacy/memory/secrets/safety gates, and SLC-035/SLC-036 Core/Desktop runtime state and validation coverage are green as local-only scaffolds; Hardening H1 is green after proof review; Live Validation LV1 begins only after explicit USER approval.`
+Implementation Sequence Proposal: `Complete - SLC-017/SLC-018 provider runtime contract and consent state, SLC-031/SLC-032 capability/model-pack readiness foundation, SLC-033/SLC-034 data/privacy/memory/secrets/safety gates, and SLC-035/SLC-036 Core/Desktop runtime state and validation coverage are green as local-only scaffolds; Hardening H1 is green after proof review; Live Validation LV1 is green with phase-specific waiver proof; PR Readiness Stage 1 begins only after explicit USER approval.`
 
-Planning Blockers: `None after Hardening H1 validation. Live Validation LV1 is a separate phase and requires explicit USER approval.`
+Planning Blockers: `None after Live Validation LV1 validation. PR Readiness Stage 1 is a separate phase and requires explicit USER approval.`
 
-USER Decisions Needed: `Approve Live Validation LV1 for the completed and hardened local-only FAM-007 Local AI Runtime Contracts and Capability Foundation Workstream, or return feedback for a bounded Hardening repair.`
+USER Decisions Needed: `Approve PR Readiness Stage 1 analysis for feature/fam-007-local-ai-runtime-expansion, or return feedback for a bounded Live Validation repair.`
 
 Planning Packet Status: `Complete`
 
@@ -259,13 +262,43 @@ Planning Completion Waiver: `Not required - Branch Readiness Stage 2 setup does 
 
 ## User Test Summary Strategy
 
-User Test Summary Strategy: `No UTS is required or waived during Branch Readiness Stage 2. UTS applies only during Live Validation; any later LV1 must include a User Test Summary result or a phase-specific waiver with source-truth reason.`
+User Test Summary Strategy: `No UTS is required or waived during Branch Readiness Stage 2 or Hardening H1. Live Validation LV1 records the exact phase-specific waiver below because this branch is a disabled/status-only local scaffold with no prompt/action flow, provider call, model execution, memory/indexing, shortcut/installer mutation, capability-pack lifecycle execution, or release behavior. The waiver is not reusable for PR Readiness, future interactive surfaces, runtime expansion, merge, release, or any other phase.`
+
+## User Test Summary
+
+User Test Summary Results: `WAIVED`
+
+User Test Summary Waiver Reason: `Live Validation LV1 is limited to a disabled/status-only local scaffold. The branch exposes visible provider/runtime contract, capability/model-pack readiness, data/privacy/memory-disabled, network-egress-blocked, and Core/Desktop rail state, but it implements no prompt/action flow, provider SDK, model execution, external provider call, memory/indexing implementation, shortcut mutation, installer mutation, capability-pack install/update/uninstall execution, release behavior, PR creation, or merge behavior; static source-truth validation, provider-state validation, release-body validation, branch-readiness planning validation, and compile proof are the applicable evidence. This waiver is for this Live Validation phase only and does not waive PR Readiness, merge, release, provider/model, memory, voice/Core, shortcut, installer, issue, or FAM-006 gates.`
+
+User-Facing Shortcut Validation: `WAIVED`
+
+User-Facing Shortcut Waiver Reason: `No FAM-007 desktop shortcut, launcher mutation, taskbar/tray entrypoint, startup path, installer path, or user action flow is implemented by this branch. The visible provider/runtime rail is status-only inside existing desktop/Core surfaces, so shortcut proof is not applicable until a later USER-approved shortcut, installer, launch-surface, or interactive provider seam exists.`
+
+## Codex Live Client Self-QA
+
+Codex Live Client Self-QA Gate: `WAIVED - LV1 reviewed applicability and determined that a live launched-client self-QA handoff is not applicable for this disabled/status-only local scaffold.`
+
+Codex Live Client Self-QA: `WAIVED`
+
+Codex Live Client Self-QA Waiver Reason: `The FAM-007 branch has no interactive prompt/action flow, provider call, model execution, memory/indexing implementation, shortcut/installer mutation, voice/Core runtime sync, capability-pack lifecycle execution, or release behavior to inspect live. Static validation proves the visible provider/runtime rail state and blocked behavior, and live self-QA remains required for a later USER-approved interactive surface.`
+
+Visual Quality: `WAIVED - no new interactive visual state beyond the validated provider/runtime status rail requires live visual QA in LV1.`
+
+Live Interaction Evidence: `WAIVED - no live interaction exists to test.`
+
+Usability Check: `WAIVED - no user action flow exists; status copy remains validated by source-truth and provider-state validation.`
+
+Interaction Check: `WAIVED - prompts and provider actions remain disabled.`
+
+Platform Uniformity Check: `WAIVED - no shortcut, installer, startup, or platform-entry mutation is implemented.`
+
+Cleanup Check: `PASS - LV1 did not launch runtime processes, install providers/models, create shortcuts, create artifacts, create PRs, merge, or touch the separate FAM-006 lane.`
 
 ## Later-Phase Expectations
 
 - Workstream: requires explicit USER approval and must execute one bounded seam at a time until every admitted seam for the selected Workstream is green or a real named blocker/USER waiver stops it.
 - Hardening: begins only after the whole bounded Workstream is green.
-- Live Validation: must classify User Test Summary as required, waived with source-truth reason, or blocked.
+- Live Validation: complete for LV1; User Test Summary, user-facing shortcut validation, and Codex live-client self-QA are waived with source-truth reasons for this disabled/status-only phase only.
 - PR Readiness: must prove release-readiness health, merge-target projection, branch authority cleanup, and no stale PR/readiness wording before PR creation.
 - Release Readiness: release execution, tags, GitHub Release, and artifacts remain separate USER decisions.
 
@@ -316,15 +349,15 @@ Create the fresh FAM-007 runtime branch from current main, close the v1.7.3 post
 - PR #155 through PR #161 are released in `v1.7.3-prebeta`.
 - Historical FAM-007 branches remain evidence only.
 - PKG-007 remains admitted and not package-complete.
-- The completed local-only FAM-007 Workstream is green through SLC-036; Hardening H1 is green after proof review; Live Validation LV1 is the next phase after explicit USER approval.
+- The completed local-only FAM-007 Workstream is green through SLC-036; Hardening H1 is green after proof review; Live Validation LV1 is green with User Test Summary waiver proof; PR Readiness Stage 1 is the next phase after explicit USER approval.
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Hardening H1 complete - SLC-017/SLC-018, SLC-031/SLC-032, SLC-033/SLC-034, and SLC-035/SLC-036 are green as local-only scaffolds and H1 pressure-tested; Live Validation LV1 remains a separate USER-approved phase`
+Branch Completion Goal: `Live Validation LV1 complete - SLC-017/SLC-018, SLC-031/SLC-032, SLC-033/SLC-034, and SLC-035/SLC-036 are green as local-only scaffolds, H1 pressure-tested, and LV1 validated with phase-specific User Test Summary waiver proof; PR Readiness Stage 1 remains a separate USER-approved phase`
 
 Known Future-Dependent Blockers: `Provider SDK integration, provider/model execution, model downloads, external calls, memory/indexing, voice/Core sync, shortcut/installer work, release execution, issue work, AI Product Contract import, private Dev ORIN import, FAM-006 work, PR creation, and merge remain future USER approval gates.`
 
-Branch Closure Rule: `This branch stops at the Hardening H1 phase boundary. Live Validation LV1 follows only after explicit USER approval, and PR Readiness remains later.`
+Branch Closure Rule: `This branch stops at the Live Validation LV1 phase boundary. PR Readiness Stage 1 follows only after explicit USER approval, and PR creation/merge remain later.`
 
 ## Backlog Completion Status
 
@@ -345,7 +378,7 @@ Future-Dependent Blockers: `Provider SDK integration, provider/model execution, 
 
 ## Active Seam
 
-Active seam: `Hardening H1 - FAM-007 Local AI Runtime Contracts and Capability Foundation through SLC-036`
+Active seam: `Live Validation LV1 - FAM-007 Local AI Runtime Contracts and Capability Foundation`
 
 ## Seam Continuation Decision
 
@@ -359,15 +392,15 @@ Waiver Status: `None`
 
 Continue Decision: `stop`
 
-Continuation Execution Latch: `Inactive - Hardening H1 Green; stop at phase boundary until USER admits Live Validation LV1`
+Continuation Execution Latch: `Inactive - Live Validation LV1 Green; stop at phase boundary until USER admits PR Readiness Stage 1`
 
-Stop Basis: `Hardening H1 Green`
+Stop Basis: `Live Validation LV1 Green`
 
-Next Active Seam: `Live Validation LV1 - FAM-007 Local AI Runtime Contracts and Capability Foundation`
+Next Active Seam: `PR Readiness Stage 1 - FAM-007 Local AI Runtime Contracts and Capability Foundation`
 
-Stop Condition: `Hardening H1 Green`
+Stop Condition: `Live Validation LV1 Green`
 
-Continuation Action: `Stop at phase boundary until USER admits Live Validation LV1`
+Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stage 1`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -396,11 +429,11 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Blockers
 
-None. Hardening H1 is green for the completed local-only FAM-007 Workstream through SLC-036; Live Validation LV1 requires separate USER approval and is not an active blocker.
+None. Live Validation LV1 is green for the completed and hardened local-only FAM-007 Workstream through SLC-036; PR Readiness Stage 1 requires separate USER approval and is not an active blocker.
 
 ## Pending USER Decisions
 
-- Live Validation LV1.
+- PR Readiness Stage 1.
 - PR creation.
 - Merge.
 - Provider SDK integration.
@@ -435,7 +468,7 @@ None. Hardening H1 is green for the completed local-only FAM-007 Workstream thro
 - `v1.7.3-prebeta` candidate posture is cleared.
 - Historical FAM-007 branch records remain historical evidence only.
 - FAM-006 remains separate and USER-gated.
-- Workstream Green and Hardening H1 Green are recorded, and runtime implementation beyond the completed local-only scaffold chain remains blocked.
+- Workstream Green, Hardening H1 Green, and Live Validation LV1 Green are recorded, and runtime implementation beyond the completed local-only scaffold chain remains blocked.
 - Validation passes.
 - Branch is committed and pushed.
 
@@ -447,4 +480,4 @@ Rollback Commit: `cb620709acb95f4457f317b5369bade7d9564724`
 
 ## Next Legal Phase
 
-- `Live Validation` for the completed and hardened FAM-007 Local AI Runtime Contracts and Capability Foundation Workstream after explicit USER approval. The first live-validation pass is LV1.
+- `PR Readiness` for the completed, hardened, and LV1-green FAM-007 Local AI Runtime Contracts and Capability Foundation Workstream after explicit USER approval. The first PR-readiness pass is Stage 1 analysis.
