@@ -238,7 +238,7 @@ Implementation Sequence Proposal: `After the first bounded implementation approv
 
 Planning Blockers: `None for the admitted bounded local-only Workstream; provider SDK/model/memory/voice/Core/shortcut/installer/release/contract/issue/PR/merge work remains separate future USER-gated scope and is not a blocker for bounded same-branch local-only continuation.`
 
-USER Decisions Needed: `Approve Release Readiness Stage 2 analysis/preparation or release execution after the post-PR #159 source-truth repair reaches main and Release Readiness Stage 1 reruns clean. Provider/model expansion, memory/indexing, voice/Core sync, shortcut/installer work, AI Product Contract import, private Dev ORIN import, GitHub issue work, FAM-006 work, and future FAM-007 successor branch selection remain separate decisions.`
+USER Decisions Needed: `Approve Release Readiness Stage 2 analysis/preparation or release execution after PR #160 closeout reaches updated main and Release Readiness Stage 1 reruns clean. Provider/model expansion, memory/indexing, voice/Core sync, shortcut/installer work, AI Product Contract import, private Dev ORIN import, GitHub issue work, FAM-006 work, and future FAM-007 successor branch selection remain separate decisions.`
 
 Planning Packet Status: `Complete`
 
@@ -390,13 +390,13 @@ Continue Decision: `Stop`
 
 Continuation Execution Latch: `Inactive - PR #159 merged and this branch is historical merged-unreleased FAM-007 scope; phase-boundary stop is required before USER may admit Release Readiness Stage 2 or release execution.`
 
-Stop Basis: `PR #159 merged; standing Governance repair must reach main before Release Readiness reruns clean`
+Stop Basis: `PR #159 merged; PR #160 standing Governance repair closeout reached updated main before Release Readiness reruns clean`
 
-Next Active Seam: `None - Release Readiness is the next legal phase after the post-PR #159 source-truth repair reaches main`
+Next Active Seam: `None - Release Readiness is the next legal phase after PR #160 closeout reaches updated main`
 
 Stop Condition: `None`
 
-Continuation Action: `Stop at the Release Readiness boundary; USER must separately approve Release Readiness Stage 2/preparation or release execution after the repair reaches main and Stage 1 reruns clean.`
+Continuation Action: `Stop at the Release Readiness boundary; USER must separately approve Release Readiness Stage 2/preparation or release execution after PR #160 closeout reaches updated main and Stage 1 reruns clean.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -513,4 +513,4 @@ Rollback Path: abandon this unmerged Workstream admission carrier before impleme
 
 - `PR Readiness`
 
-Next Legal Phase Gate: PR #159 is merged and this branch is historical merged-unreleased FAM-007 scope. After the standing Governance post-PR #159 source-truth repair reaches main and Release Readiness Stage 1 reruns clean, the exact next USER decision is Release Readiness Stage 2 analysis/preparation or release execution. Provider SDKs, model downloads, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer changes, release work, AI Product Contract import, private Dev ORIN import, GitHub issue creation, FAM-006 work, and future FAM-007 successor selection remain separate USER decisions.
+Next Legal Phase Gate: PR #159 is merged and this branch is historical merged-unreleased FAM-007 scope. After PR #160 closeout reaches updated main and Release Readiness Stage 1 reruns clean, the exact next USER decision is Release Readiness Stage 2 analysis/preparation or release execution. Provider SDKs, model downloads, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer changes, release work, AI Product Contract import, private Dev ORIN import, GitHub issue creation, FAM-006 work, and future FAM-007 successor selection remain separate USER decisions.
