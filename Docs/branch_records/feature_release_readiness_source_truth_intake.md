@@ -20,23 +20,23 @@ This branch is the single standing governance lane for Release Readiness source-
 
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
-- Branch Authority State: `Active standing authority / idle or single-cycle Release Readiness digest or automation/worktree governance intake only`
-- Intake State: `Idle - latest cycle RRI-20260514-007 merged through PR #153, returned digest, and synced the standing branch`
-- Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake or USER-approved automation/worktree governance intake only`
+- Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
+- Intake State: `Active - RRI-20260515-001 repairs Branch Readiness product-system planning gate drift reported from the FAM-006 Monitor Groups / Sensor Library planning miss`
+- Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
-- Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
-- Active RRI Cycle: `None`
+- Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
+- Active RRI Cycle: `RRI-20260515-001`
 - Latest Closed RRI Cycle: `RRI-20260514-007`
-- Return Digest Status: `Complete - RRI-20260514-007 repaired post-PR #152 active-authority closeout, selected-next/no-active distinction, and validator hardening; return digest is reported in this governance thread`
-- Active Cycle Identity: `None - idle after PR #153 merge and standing branch sync`
+- Return Digest Status: `Pending - RRI-20260515-001 must merge, sync the standing branch, and return the Branch Readiness planning-gate repair digest before the originating FAM-006 lane treats the governance blocker as resolved`
+- Active Cycle Identity: `RRI-20260515-001 / originating lane C:\Nexus Worktrees\FAM-006 / Branch Readiness product-system planning gate drift / no FAM-006 mutation by this governance lane`
 
 ## PR Readiness Stage 1 Analysis Packet
 
 - PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
-- Pre-PR Live State: `No live PR for an active RRI cycle; RRI-20260514-007 is closed historical proof after PR #153`
+- Pre-PR Live State: `No live PR yet for active RRI-20260515-001`
 - Historical Merge Proof: `PR #153 is closed/merged historical proof for RRI-20260514-007 and PR #151 is closed/merged historical proof for RRI-20260514-006; neither is a live PR for a new cycle`
 - Next Workstream User Waiver: `Not applicable - standing governance intake PRs do not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 1 Outcome: `Closed - RRI-20260514-007 merged and returned to idle`
+- Stage 1 Outcome: `Active - RRI-20260515-001 repairs governance/validator drift before PR readiness`
 
 ## Branch Class
 
@@ -62,12 +62,12 @@ This branch is the single standing governance lane for Release Readiness source-
 
 - Standing Branch: `feature/release-readiness-source-truth-intake`
 - Worktree: `C:\Nexus Worktrees\Governance`
-- Intake Source: Release Readiness digest only for release-blocker intake; USER-approved automation/worktree governance intake may also use this standing lane when the repair is non-runtime, multi-worktree safety related, and held to the same one-cycle/PR-gated contract; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
+- Intake Source: Release Readiness digest only for release-blocker intake; USER-approved automation/worktree governance intake may also use this standing lane when the repair is non-runtime, multi-worktree safety related, and held to the same one-cycle/PR-gated contract; USER-approved phase-gate governance intake may also use this standing lane when a live branch exposes a repeatable Branch Readiness, PR Readiness, Release Readiness, or Workstream gate miss and the repair is limited to governance/source-truth/validator/helper prevention; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `None`
+- Active RRI Cycle: `RRI-20260515-001`
 - Latest Closed RRI Cycle: `RRI-20260514-007`
-- Return Digest Status: `Complete - RRI-20260514-007 repaired post-PR #152 active-authority closeout, selected-next/no-active distinction, and validator hardening; return digest is reported in this governance thread`
-- Active Cycle Identity: `None - idle after PR #153 merge and standing branch sync`
+- Return Digest Status: `Pending - RRI-20260515-001 must merge, sync the standing branch, and return the Branch Readiness planning-gate repair digest before the originating FAM-006 lane treats the governance blocker as resolved`
+- Active Cycle Identity: `RRI-20260515-001 / originating lane C:\Nexus Worktrees\FAM-006 / Branch Readiness product-system planning gate drift / no FAM-006 mutation by this governance lane`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -90,6 +90,7 @@ Allowed:
 
 - Release Readiness digest source-truth drift repair only.
 - USER-approved automation/worktree governance repair when the issue is non-runtime, multi-worktree safety related, and limited to source-truth/governance/validator/helper support.
+- USER-approved phase-gate governance repair when a live branch exposes a repeatable Branch Readiness, PR Readiness, Release Readiness, or Workstream gate miss and the fix is limited to governance/source-truth/validator/helper prevention.
 - Governance/source-truth wording that prevents Release Readiness from becoming a cleanup phase.
 - Governance/source-truth wording that defines `Release Readiness Candidate Anchor` and keeps historical PR endpoints audit-only unless USER explicitly selects one as the release target.
 - Governance/source-truth wording that defines aggregated release-window ownership when multiple FAM/worktree PRs merge before the next release.
@@ -100,6 +101,7 @@ Allowed:
 - Automation observability helper support for configured cwd/worktree identity, stale neutral-main detection, lane-sensitive prompt drift, automation memory/reporting mismatch, and `Automation CWD Worktree Mismatch` blocker reporting from Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`.
 - Assigned Worktree Confinement governance/validator support for this standing worktree.
 - PR Readiness Stage 1 `Origin/Main Freshness Check` governance/validator support so Stage 1 reports branch-creation-base drift and reconciliation recommendations without fixing files by surprise.
+- Branch Readiness product-system planning gate governance/validator support so broad implementation branches must prove project-wide vision alignment, branch-specific vision alignment, concept/entity/profile modeling, user workflow planning, scale/state planning, expected outcomes, Codex extra recommendations, and the USER critique/decision loop before Workstream.
 - One PR per active `RRI-*` cycle after validation.
 
 Forbidden:
@@ -110,7 +112,7 @@ Forbidden:
 - GitHub issue creation or issue-resolution branch work.
 - AI Product Contract import or private Dev ORIN import.
 - Direct-main mutation, broad docs churn, implementation branch planning, or selected-next runtime branch creation.
-- Accepting anything other than a Release Readiness digest, USER-approved automation/worktree governance intake, or same-PR standing-governance bot-review repair after the bootstrap setup cycle.
+- Accepting anything other than a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR standing-governance bot-review repair after the bootstrap setup cycle.
 - Accepting runtime, implementation, release-execution, or branch-cleanup work through an automation/worktree governance intake.
 - Cross-worktree mutation outside `C:\Nexus Worktrees\Governance` without `Worktree Escape User Waiver: Granted`.
 
