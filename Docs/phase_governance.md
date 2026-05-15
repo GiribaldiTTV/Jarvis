@@ -300,7 +300,7 @@ This path is for:
 `docs/governance` branch records may exist as historical records, but new governance-only branches are not used in the normal Nexus flow.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
-The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`, and it may accept a `Release Readiness digest`, USER-approved `automation/worktree governance intake`, or USER-approved `phase-gate governance intake` with an `RRI-YYYYMMDD-NNN` cycle ID, `One Active Cycle`, the pre-intake `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main` pause semantics, and a post-merge `Return Digest`.
+The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`, and it may accept a `Release Readiness digest`, USER-approved `automation/worktree governance intake`, or USER-approved `phase-gate governance intake` with an `RRI-YYYYMMDD-NNN` cycle ID, `One Active Cycle`, the pre-intake `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main` pause semantics, and a post-merge `Return Digest` with `Neutral Main Workspace Rebaseline:` proof.
 If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
 Tightly coupled governance and canon repair must ride on the active branch that owns the affected truth.
@@ -2383,7 +2383,7 @@ Allowed:
 - `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
 - `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR bot-review repair on the standing governance PR
 - source-truth/governance/validator drift repair named by the intake digest
-- a post-merge `Return Digest` to the originating worktree/thread with concrete originating branch/worktree identity copied from the accepted intake
+- a post-merge `Return Digest` to the originating worktree/thread with concrete originating branch/worktree identity copied from the accepted intake and `Neutral Main Workspace Rebaseline:` proof for `C:\Nexus Desktop AI`
 - automation observability repair only for configured cwd/worktree identity, stale neutral-main detection, lane-sensitive prompt drift, and automation memory/reporting mismatch; `Automation CWD Worktree Mismatch` must be reported before an automation finding becomes source-truth work
 - PR Readiness Stage 1 for this standing branch may report `Pre-PR Live State: No live PR` while the previous governance PR remains historical merge proof; the reusable branch name must not cause a closed historical PR to be treated as the current live PR. Standing governance PRs do not select runtime successor workstreams, create runtime branches, or admit packages.
 
@@ -2400,7 +2400,7 @@ Originating-lane pause:
 - when a Release Readiness blocker is handed off, the originating thread/worktree enters `Waiting For Governance Intake` or `Waiting For Updated Main`
 - that lane must not mutate repository files until the governance PR merges, the standing branch syncs to `origin/main`, the `Return Digest` arrives, and the originating lane fetches/revalidates updated `origin/main`
 
-The `Return Digest` must include the originating branch/worktree, operating workspace, expected branch, `RRI-*` cycle ID, governance PR, merge commit, updated `origin/main` commit, files changed, blockers cleared/remaining, validations, rebaseline instructions, and `Next Legal Phase`.
+The `Return Digest` must include the originating branch/worktree, operating workspace, expected branch, `RRI-*` cycle ID, governance PR, merge commit, updated `origin/main` commit, `Neutral Main Workspace Rebaseline:`, files changed, blockers cleared/remaining, validations, rebaseline instructions, and `Next Legal Phase`. After any standing-governance PR merge, Codex must either fast-forward `C:\Nexus Desktop AI` on `main` to the updated `origin/main` commit and record the proof, or report the blocker that prevents that rebaseline before claiming the governance lane is idle.
 
 Return-digest identity guard:
 

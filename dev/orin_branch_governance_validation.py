@@ -12,6 +12,7 @@ from urllib import request as urllib_request
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+NEUTRAL_MAIN_WORKSPACE = Path(r"C:\Nexus Desktop AI")
 GITHUB_API_HEADERS = {
     "Accept": "application/vnd.github+json",
     "User-Agent": "orin-branch-governance-validation",
@@ -1860,6 +1861,7 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
     "phase-gate governance intake",
     "Waiting For Governance Intake",
     "Return Digest",
+    "Neutral Main Workspace Rebaseline",
     "RRI-YYYYMMDD-NNN",
     "One Active Cycle",
     "Sync Rule",
@@ -1892,6 +1894,7 @@ STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
     "Governance PR",
     "Merge Commit",
     "Updated origin/main",
+    "Neutral Main Workspace Rebaseline",
     "Files Changed",
     "Blockers Cleared",
     "Blockers Remaining",
@@ -11651,6 +11654,50 @@ def _git_status_porcelain(*, tracked_only: bool = False) -> str:
     return completed.stdout.strip()
 
 
+def _git_output_at(cwd: Path, args: tuple[str, ...]) -> tuple[str, str]:
+    completed = subprocess.run(
+        ("git", *args),
+        cwd=cwd,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return "", completed.stderr.strip() or completed.stdout.strip() or "git command failed"
+    return completed.stdout.strip(), ""
+
+
+def _neutral_main_workspace_truth() -> dict[str, str]:
+    if not NEUTRAL_MAIN_WORKSPACE.exists():
+        return {"error": f"{NEUTRAL_MAIN_WORKSPACE} does not exist"}
+
+    root, root_error = _git_output_at(NEUTRAL_MAIN_WORKSPACE, ("rev-parse", "--show-toplevel"))
+    branch, branch_error = _git_output_at(NEUTRAL_MAIN_WORKSPACE, ("branch", "--show-current"))
+    status, status_error = _git_output_at(
+        NEUTRAL_MAIN_WORKSPACE,
+        ("status", "--porcelain", "--untracked-files=no"),
+    )
+    head, head_error = _git_output_at(NEUTRAL_MAIN_WORKSPACE, ("rev-parse", "HEAD"))
+    origin_main, origin_main_error = _git_output_at(
+        NEUTRAL_MAIN_WORKSPACE,
+        ("rev-parse", "refs/remotes/origin/main"),
+    )
+    errors = [
+        error
+        for error in (root_error, branch_error, status_error, head_error, origin_main_error)
+        if error
+    ]
+    return {
+        "error": "; ".join(errors),
+        "root": root,
+        "branch": branch,
+        "status": status,
+        "head": head,
+        "origin_main": origin_main,
+    }
+
+
 def _git_current_branch() -> str:
     completed = subprocess.run(
         ("git", "branch", "--show-current"),
@@ -14726,6 +14773,48 @@ def _run_standing_governance_intake_gate(require) -> None:
                 f"{expected_record_path}: active {active_cycle} must originate from "
                 "Release Readiness, USER-approved automation/worktree governance intake, "
                 "or USER-approved phase-gate governance intake"
+            ),
+        )
+
+    neutral_main_truth = _neutral_main_workspace_truth()
+    require(
+        not neutral_main_truth.get("error"),
+        (
+            "Standing Governance Intake neutral-main rebaseline proof could not inspect "
+            f"`{NEUTRAL_MAIN_WORKSPACE}`: {neutral_main_truth.get('error')}"
+        ),
+    )
+    if not neutral_main_truth.get("error"):
+        require(
+            _normalized_local_path(neutral_main_truth.get("root", ""))
+            == _normalized_local_path(str(NEUTRAL_MAIN_WORKSPACE)),
+            (
+                "Standing Governance Intake neutral-main rebaseline proof resolved the wrong "
+                f"git root: {neutral_main_truth.get('root') or 'unknown'}"
+            ),
+        )
+        require(
+            neutral_main_truth.get("branch") == "main",
+            (
+                "Standing Governance Intake neutral-main rebaseline proof requires "
+                f"`{NEUTRAL_MAIN_WORKSPACE}` to be on `main`, found "
+                f"`{neutral_main_truth.get('branch') or 'detached HEAD'}`"
+            ),
+        )
+        require(
+            not neutral_main_truth.get("status"),
+            (
+                "Standing Governance Intake neutral-main rebaseline proof requires a clean "
+                f"tracked main workspace; dirty tracked status: {neutral_main_truth.get('status')}"
+            ),
+        )
+        require(
+            neutral_main_truth.get("head") == neutral_main_truth.get("origin_main"),
+            (
+                "Standing Governance Intake neutral-main rebaseline proof requires "
+                f"`{NEUTRAL_MAIN_WORKSPACE}` HEAD to match origin/main; HEAD "
+                f"{neutral_main_truth.get('head') or 'unknown'} != origin/main "
+                f"{neutral_main_truth.get('origin_main') or 'unknown'}"
             ),
         )
 
