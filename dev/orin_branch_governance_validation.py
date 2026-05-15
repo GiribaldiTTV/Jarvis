@@ -12,6 +12,7 @@ from urllib import request as urllib_request
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+NEUTRAL_MAIN_WORKSPACE = Path(r"C:\Nexus Desktop AI")
 GITHUB_API_HEADERS = {
     "Accept": "application/vnd.github+json",
     "User-Agent": "orin-branch-governance-validation",
@@ -137,6 +138,16 @@ PRODUCT_DEFINITION_PLAN_HEADING = "Product Definition Plan"
 USER_VISION_QUESTION_PACKET_HEADING = "USER Vision Question Packet"
 USER_VISION_INPUT_HANDOFF_HEADING = "USER Vision Input Handoff"
 USER_VISION_INPUT_ARTIFACT_PATH = Path(r"C:\Users\anden\OneDrive\Desktop\User Vision Input.txt")
+PRODUCT_PLANNING_ENFORCED_PHASES = {
+    "Branch Readiness",
+    "Workstream",
+    "Hardening",
+    "Live Validation",
+    "PR Readiness",
+}
+PRODUCT_PLANNING_EXECUTION_PHASES = PRODUCT_PLANNING_ENFORCED_PHASES - {
+    "Branch Readiness",
+}
 REQUIRED_PRODUCT_SYSTEM_PLANNING_MARKERS = (
     "Project-Wide Vision Alignment:",
     "Branch-Specific Vision Alignment:",
@@ -150,6 +161,102 @@ REQUIRED_PRODUCT_SYSTEM_PLANNING_MARKERS = (
     "USER Critique Loop:",
     "USER Decision Ledger:",
     "Deferred Ideas / Future Package Ledger:",
+    "Planning Adequacy Review:",
+    "Rejected Shallow Plan:",
+    "Alternatives And Tradeoffs Reviewed:",
+    "Whole-System Interaction Map:",
+    "Minimum Viable vs Full System Boundary:",
+    "Open Questions / USER Decision Points:",
+)
+PRODUCT_SYSTEM_PLANNING_MIN_WORDS = 8
+PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES = {
+    "tbd",
+    "todo",
+    "pending",
+    "none",
+    "n/a",
+    "na",
+    "not applicable",
+    "same as above",
+    "see above",
+    "simple",
+    "basic",
+    "minimal",
+    "placeholder",
+}
+PRODUCT_SYSTEM_SCALE_TERMS = (
+    "scale",
+    "multiple",
+    "many",
+    "several",
+    "hundred",
+    "thousand",
+    "items",
+    "records",
+    "sources",
+    "profiles",
+    "states",
+    "windows",
+    "users",
+    "files",
+    "monitors",
+)
+PRODUCT_SYSTEM_RECOMMENDATION_TERMS = (
+    "recommend",
+    "consider",
+    "option",
+    "alternative",
+    "additional",
+    "also",
+    "should",
+)
+PRODUCT_SYSTEM_USER_CRITIQUE_TERMS = (
+    "approve",
+    "change",
+    "defer",
+    "critique",
+    "feedback",
+    "review",
+)
+PRODUCT_SYSTEM_USER_DECISION_TERMS = (
+    "approved",
+    "pending",
+    "deferred",
+    "changed",
+    "waived",
+    "accepted",
+    "rejected",
+)
+PRODUCT_SYSTEM_ADEQUACY_TERMS = (
+    "not shallow",
+    "whole system",
+    "full system",
+    "end-to-end",
+    "because",
+    "covers",
+)
+PRODUCT_SYSTEM_REJECTED_SHALLOW_TERMS = (
+    "rejected",
+    "not enough",
+    "insufficient",
+    "too shallow",
+    "simple",
+    "minimal",
+)
+PRODUCT_SYSTEM_TRADEOFF_TERMS = (
+    "alternative",
+    "tradeoff",
+    "risk",
+    "option",
+    "instead",
+)
+PRODUCT_SYSTEM_BOUNDARY_TERMS = (
+    "minimum",
+    "viable",
+    "full",
+    "future",
+    "boundary",
+    "deferred",
 )
 REQUIRED_PRODUCT_DEFINITION_MARKERS = (
     "Product Vision:",
@@ -1513,6 +1620,12 @@ PRODUCT_PLANNING_BLOCKERS = (
     "USER Critique Loop Missing",
     "USER Decision Ledger Missing",
     "Deferred Ideas / Future Package Ledger Missing",
+    "Planning Adequacy Review Missing",
+    "Rejected Shallow Plan Missing",
+    "Alternatives And Tradeoffs Missing",
+    "Whole-System Interaction Map Missing",
+    "Minimum Viable vs Full System Boundary Missing",
+    "Open Questions / USER Decision Points Missing",
     HARDWARE_TELEMETRY_PROVIDER_PENDING_BLOCKER,
     POLLING_FLOOR_UNDECIDED_BLOCKER,
     WARNING_DELIVERY_MODALITY_PENDING_BLOCKER,
@@ -1860,12 +1973,14 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
     "phase-gate governance intake",
     "Waiting For Governance Intake",
     "Return Digest",
+    "Neutral Main Workspace Rebaseline",
     "RRI-YYYYMMDD-NNN",
     "One Active Cycle",
     "Sync Rule",
 )
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
+    "dev/orin_branch_readiness_planning_fixture_validation.py",
     "dev/automation_observability_report.py",
     "dev/orin_ai_provider_state_validation.py",
     "dev/orin_pr_body_quality_audit.py",
@@ -1892,6 +2007,7 @@ STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
     "Governance PR",
     "Merge Commit",
     "Updated origin/main",
+    "Neutral Main Workspace Rebaseline",
     "Files Changed",
     "Blockers Cleared",
     "Blockers Remaining",
@@ -6489,6 +6605,144 @@ def _validate_backlog_completion_strategy(
     )
 
 
+def _planning_word_count(value: str) -> int:
+    return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9/_-]*", value))
+
+
+def _normalized_planning_value(value: str) -> str:
+    return re.sub(r"\s+", " ", value.strip().strip("`").strip()).casefold()
+
+
+def _validate_product_system_planning_substance(
+    require,
+    source_path: str,
+    marker: str,
+    value: str,
+) -> None:
+    normalized_value = _normalized_planning_value(value)
+    require(
+        normalized_value not in PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES,
+        (
+            f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} value for '{marker}' "
+            "is placeholder/self-assessed wording, not concrete planning proof"
+        ),
+    )
+    require(
+        _planning_word_count(value) >= PRODUCT_SYSTEM_PLANNING_MIN_WORDS,
+        (
+            f"{source_path}: {PRODUCT_DEFINITION_PLAN_HEADING} value for '{marker}' "
+            "is too shallow; record concrete product/system planning detail"
+        ),
+    )
+    if marker == "Scale / Data Volume Model:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_SCALE_TERMS)
+            or any(char.isdigit() for char in value),
+            (
+                f"{source_path}: Scale / Data Volume Model must name concrete scale "
+                "pressure such as item counts, multiple states, profiles, records, "
+                "users, windows, files, sources, or monitors"
+            ),
+        )
+    if marker == "Codex Additional Recommendations:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_RECOMMENDATION_TERMS),
+            (
+                f"{source_path}: Codex Additional Recommendations must contain real "
+                "recommendations/options, not just a statement that the plan is complete"
+            ),
+        )
+    if marker == "USER Critique Loop:":
+        require(
+            "user" in normalized_value
+            and any(term in normalized_value for term in PRODUCT_SYSTEM_USER_CRITIQUE_TERMS),
+            (
+                f"{source_path}: USER Critique Loop must describe how USER review can "
+                "approve, change, defer, critique, or give feedback before Workstream"
+            ),
+        )
+    if marker == "USER Decision Ledger:":
+        require(
+            "user" in normalized_value
+            and any(term in normalized_value for term in PRODUCT_SYSTEM_USER_DECISION_TERMS),
+            (
+                f"{source_path}: USER Decision Ledger must record USER decision state "
+                "such as approved, pending, changed, deferred, waived, accepted, or rejected"
+            ),
+        )
+    if marker == "Deferred Ideas / Future Package Ledger:":
+        require(
+            "future" in normalized_value
+            or "defer" in normalized_value
+            or "separate package" in normalized_value,
+            (
+                f"{source_path}: Deferred Ideas / Future Package Ledger must identify "
+                "deferred/future work or explicitly route it to a separate package"
+            ),
+        )
+    if marker == "Planning Adequacy Review:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_ADEQUACY_TERMS),
+            (
+                f"{source_path}: Planning Adequacy Review must explain why the plan is "
+                "not shallow and how it covers the whole/end-to-end system"
+            ),
+        )
+    if marker == "Rejected Shallow Plan:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_REJECTED_SHALLOW_TERMS),
+            (
+                f"{source_path}: Rejected Shallow Plan must name the simple/minimal plan "
+                "that was rejected or explain why it was insufficient"
+            ),
+        )
+    if marker == "Alternatives And Tradeoffs Reviewed:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_TRADEOFF_TERMS),
+            (
+                f"{source_path}: Alternatives And Tradeoffs Reviewed must include "
+                "alternatives/options plus tradeoffs or risks"
+            ),
+        )
+    if marker == "Whole-System Interaction Map:":
+        require(
+            _planning_word_count(value) >= PRODUCT_SYSTEM_PLANNING_MIN_WORDS + 4
+            and (
+                "->" in value
+                or ";" in value
+                or "," in value
+                or "between" in normalized_value
+                or "through" in normalized_value
+            ),
+            (
+                f"{source_path}: Whole-System Interaction Map must describe multiple "
+                "interacting pieces, flows, or relationships"
+            ),
+        )
+    if marker == "Minimum Viable vs Full System Boundary:":
+        require(
+            any(term in normalized_value for term in PRODUCT_SYSTEM_BOUNDARY_TERMS),
+            (
+                f"{source_path}: Minimum Viable vs Full System Boundary must separate "
+                "minimum current-branch scope from full/future/deferred system scope"
+            ),
+        )
+    if marker == "Open Questions / USER Decision Points:":
+        require(
+            "user" in normalized_value
+            and (
+                "question" in normalized_value
+                or "decision" in normalized_value
+                or "approve" in normalized_value
+                or "pending" in normalized_value
+            ),
+            (
+                f"{source_path}: Open Questions / USER Decision Points must name USER "
+                "questions, decisions, approvals, or pending decisions"
+            ),
+        )
+
+
 def _validate_product_definition_plan(
     require,
     source_path: str,
@@ -6501,7 +6755,7 @@ def _validate_product_definition_plan(
 ) -> None:
     if branch_class != "implementation":
         return
-    if current_phase not in {"Branch Readiness", "Workstream"}:
+    if current_phase not in PRODUCT_PLANNING_ENFORCED_PHASES:
         return
 
     require(
@@ -6526,6 +6780,13 @@ def _validate_product_definition_plan(
                 f"planning value for '{marker}'"
             ),
         )
+        if value:
+            _validate_product_system_planning_substance(
+                require,
+                source_path,
+                marker,
+                value,
+            )
 
     planning_status = _extract_marker_value(plan_section, "Planning Packet Status:")
     revalidation_status = _extract_marker_value(plan_section, "Planning Revalidation Status:")
@@ -6633,12 +6894,12 @@ def _validate_product_definition_plan(
             ),
         )
 
-    if current_phase == "Workstream":
+    if current_phase in PRODUCT_PLANNING_EXECUTION_PHASES:
         require(
             normalized_status in PRODUCT_PLANNING_COMPLETE_VALUES,
             (
-                f"{source_path}: Workstream implementation requires complete or "
-                "USER-waived family-package planning"
+                f"{source_path}: {current_phase} implementation requires complete or "
+                "USER-waived family-package planning before leaving Branch Readiness"
             ),
         )
 
@@ -11690,6 +11951,72 @@ def _git_status_porcelain(*, tracked_only: bool = False) -> str:
     return completed.stdout.strip()
 
 
+def _git_output_at(cwd: Path, args: tuple[str, ...]) -> tuple[str, str]:
+    completed = subprocess.run(
+        ("git", *args),
+        cwd=cwd,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return "", completed.stderr.strip() or completed.stdout.strip() or "git command failed"
+    return completed.stdout.strip(), ""
+
+
+def _git_fetch_origin_at(cwd: Path) -> str:
+    completed = subprocess.run(
+        ("git", "fetch", "origin", "--prune"),
+        cwd=cwd,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return completed.stderr.strip() or completed.stdout.strip() or "git fetch failed"
+    return ""
+
+
+def _neutral_main_workspace_truth() -> dict[str, str]:
+    if not NEUTRAL_MAIN_WORKSPACE.exists():
+        return {"error": f"{NEUTRAL_MAIN_WORKSPACE} does not exist"}
+
+    fetch_error = _git_fetch_origin_at(NEUTRAL_MAIN_WORKSPACE)
+    root, root_error = _git_output_at(NEUTRAL_MAIN_WORKSPACE, ("rev-parse", "--show-toplevel"))
+    branch, branch_error = _git_output_at(NEUTRAL_MAIN_WORKSPACE, ("branch", "--show-current"))
+    status, status_error = _git_output_at(
+        NEUTRAL_MAIN_WORKSPACE,
+        ("status", "--porcelain", "--untracked-files=no"),
+    )
+    head, head_error = _git_output_at(NEUTRAL_MAIN_WORKSPACE, ("rev-parse", "HEAD"))
+    origin_main, origin_main_error = _git_output_at(
+        NEUTRAL_MAIN_WORKSPACE,
+        ("rev-parse", "refs/remotes/origin/main"),
+    )
+    errors = [
+        error
+        for error in (
+            fetch_error,
+            root_error,
+            branch_error,
+            status_error,
+            head_error,
+            origin_main_error,
+        )
+        if error
+    ]
+    return {
+        "error": "; ".join(errors),
+        "root": root,
+        "branch": branch,
+        "status": status,
+        "head": head,
+        "origin_main": origin_main,
+    }
+
+
 def _git_current_branch() -> str:
     completed = subprocess.run(
         ("git", "branch", "--show-current"),
@@ -14571,7 +14898,11 @@ def _gate_state_matches(marker_state: str, allowed_states: set[str]) -> bool:
 
 def _standing_governance_intake_file_allowed(path: str) -> bool:
     normalized = path.replace("\\", "/")
-    return normalized.startswith("Docs/") or normalized in STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES
+    return (
+        normalized.startswith("Docs/")
+        or normalized.startswith("dev/fixtures/branch_readiness_planning/")
+        or normalized in STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES
+    )
 
 
 def _run_standing_governance_intake_gate(require) -> None:
@@ -14765,6 +15096,48 @@ def _run_standing_governance_intake_gate(require) -> None:
                 f"{expected_record_path}: active {active_cycle} must originate from "
                 "Release Readiness, USER-approved automation/worktree governance intake, "
                 "or USER-approved phase-gate governance intake"
+            ),
+        )
+
+    neutral_main_truth = _neutral_main_workspace_truth()
+    require(
+        not neutral_main_truth.get("error"),
+        (
+            "Standing Governance Intake neutral-main rebaseline proof could not inspect "
+            f"`{NEUTRAL_MAIN_WORKSPACE}`: {neutral_main_truth.get('error')}"
+        ),
+    )
+    if not neutral_main_truth.get("error"):
+        require(
+            _normalized_local_path(neutral_main_truth.get("root", ""))
+            == _normalized_local_path(str(NEUTRAL_MAIN_WORKSPACE)),
+            (
+                "Standing Governance Intake neutral-main rebaseline proof resolved the wrong "
+                f"git root: {neutral_main_truth.get('root') or 'unknown'}"
+            ),
+        )
+        require(
+            neutral_main_truth.get("branch") == "main",
+            (
+                "Standing Governance Intake neutral-main rebaseline proof requires "
+                f"`{NEUTRAL_MAIN_WORKSPACE}` to be on `main`, found "
+                f"`{neutral_main_truth.get('branch') or 'detached HEAD'}`"
+            ),
+        )
+        require(
+            not neutral_main_truth.get("status"),
+            (
+                "Standing Governance Intake neutral-main rebaseline proof requires a clean "
+                f"tracked main workspace; dirty tracked status: {neutral_main_truth.get('status')}"
+            ),
+        )
+        require(
+            neutral_main_truth.get("head") == neutral_main_truth.get("origin_main"),
+            (
+                "Standing Governance Intake neutral-main rebaseline proof requires "
+                f"`{NEUTRAL_MAIN_WORKSPACE}` HEAD to match origin/main; HEAD "
+                f"{neutral_main_truth.get('head') or 'unknown'} != origin/main "
+                f"{neutral_main_truth.get('origin_main') or 'unknown'}"
             ),
         )
 
