@@ -95,7 +95,7 @@ Allowed:
 - Governance/source-truth wording that defines aggregated release-window ownership when multiple FAM/worktree PRs merge before the next release.
 - Governance/source-truth wording that routes stale/old branch cleanup to Branch Readiness branch/worktree setup instead of Release Readiness.
 - Governance/source-truth wording that makes Branch Readiness classify stale, empty, merged, wrong-worktree, and open-PR carrier states before Stage 2 branch/worktree creation or cleanup.
-- Validator support for standing intake, Release Readiness Health Pass, and PR body firewall behavior.
+- Validator support for standing intake, Release Readiness Health Pass, PR body firewall behavior, and registered source-truth validators when the intake repair changes the expected historical/current branch-record posture those validators enforce.
 - Helper registry updates tied directly to those validators.
 - Automation observability helper support for configured cwd/worktree identity, stale neutral-main detection, lane-sensitive prompt drift, automation memory/reporting mismatch, and `Automation CWD Worktree Mismatch` blocker reporting from Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`.
 - Assigned Worktree Confinement governance/validator support for this standing worktree.
