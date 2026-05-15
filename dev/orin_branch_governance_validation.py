@@ -3454,6 +3454,7 @@ UTS_RESULTS_BLOCKER_PHRASES = (
     "User Test Summary is exclusive to Live Validation Stage 1.",
     "Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`",
     "Live Validation green requires an exact `## User Test Summary` state before final green.",
+    "Every Live Validation digest must include an exact `## User Test Summary` section",
     "Final phase advancement is BLOCKED",
 )
 

@@ -174,6 +174,7 @@ Definition:
 
 - Live Validation Stage 1 must not enter Live Validation Stage 2 while a relevant user-facing workstream has a required `UTS` handoff outstanding and returned results have not been submitted and digested.
 - Live Validation green requires an exact `## User Test Summary` state before final green.
+- Every Live Validation digest must include an exact `## User Test Summary` section. If User Test Summary is waived, the digest section must still declare `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:`.
 - Workstream must not use `User Test Summary Results Pending` as its completion blocker; it must continue implementation, internal sandbox validation, or named implementation repair until Workstream completion is otherwise green or legally blocked.
 - PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
 

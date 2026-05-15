@@ -401,6 +401,14 @@ User-Facing Shortcut Applicability: `WAIVED - no shortcut, launcher, taskbar/tra
 
 Codex Live Client Self-QA Applicability: `WAIVED - no live interaction exists to test; static source-truth, provider-state, release-body, and compile validation are the applicable LV1 proof.`
 
+## Live Validation Digest Governance Repair
+
+Repair Trigger: `USER identified governance drift: the LV1 return digest omitted an explicit User Test Summary waiver digest even though source truth waived UTS.`
+
+Repair Result: `PASS - repo governance now requires every Live Validation digest to include an exact ## User Test Summary section; when User Test Summary is waived, the digest must still declare User Test Summary Results: WAIVED and User Test Summary Waiver Reason:.`
+
+Scope Boundary: `Governance/source-truth/validator repair only; no provider SDK, model download, external call, memory/indexing, voice/Core sync, shortcut/installer, release, PR creation, merge, GitHub issue, AI Product Contract import, private Dev ORIN import, or FAM-006 work.`
+
 LV1 Validation Commands:
 
 - `PASS - git status --short --branch`
