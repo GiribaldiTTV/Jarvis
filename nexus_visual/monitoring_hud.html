@@ -384,9 +384,9 @@
                   <strong>Provider Readiness</strong>
                   <span>Readiness/status and future capability only; not an assignable sensor.</span>
                 </div>
-                <label class="monitoring-hud__child-field">
-                  Polling floor
-                  <select id="monitoring-hud-monitor-polling-rate">
+                <label class="monitoring-hud__child-field monitoring-hud__child-field--inline" data-control-row="polling-floor-inline">
+                  <span>Polling floor</span>
+                  <select id="monitoring-hud-monitor-polling-rate" data-bounded-control="polling-floor">
                     <option value="1000">1s</option>
                     <option value="2000">2s</option>
                     <option value="5000">5s</option>
@@ -394,7 +394,7 @@
                   </select>
                 </label>
                 <div class="monitoring-hud__sensor-library" data-sensor-library="search-filter-scalable">
-                  <div class="monitoring-hud__sensor-library-toolbar">
+                  <div class="monitoring-hud__sensor-library-toolbar monitoring-hud__sensor-library-toolbar--inline" data-source-controls-layout="search-filter-inline">
                     <label class="monitoring-hud__search-field">
                       <span>Find Source</span>
                       <input id="monitoring-hud-sensor-search" type="search" placeholder="Search source, device, metric" autocomplete="off" />

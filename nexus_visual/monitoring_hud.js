@@ -180,8 +180,10 @@ let monitoringHudLargeFixtureModeEnabled = false;
 let monitoringHudLargeSensorFixtureCache = null;
 let monitoringHudUnsavedMonitorDirty = false;
 let monitoringHudPendingSelectMonitorId = "";
+let monitoringHudPendingGuardAction = null;
 let monitoringHudDraftOriginalMonitorId = "";
 let monitoringHudDraftOriginalLayout = null;
+let monitoringHudDraftWorkingLayout = null;
 
 function monitoringHudSnap(value) {
   if (!monitoringHudControlState.snapEnabled) return Math.round(value);
@@ -920,28 +922,29 @@ function monitoringHudRenderChildWindows() {
   const cards = monitoringHudControlState.cards || {};
   const selected = monitoringHudSelectedMonitor();
   const hasSelectedMonitor = Boolean(selected.id && selected.layout);
+  const selectedLayout = hasSelectedMonitor ? monitoringHudSelectedMonitorDetailLayout(selected) : null;
   const count = Object.keys(cards).length;
   monitoringHudRenderDashboardSettingsPanel();
   if (monitoringHudCreateMonitorName && !monitoringHudCreateMonitorName.value.trim()) {
     monitoringHudCreateMonitorName.value = monitoringHudSuggestedMonitorName();
   }
   if (monitoringHudEditMonitorTitle) {
-    monitoringHudEditMonitorTitle.textContent = hasSelectedMonitor ? (selected.layout.title || "Monitor Group") : "No Monitor Selected";
+    monitoringHudEditMonitorTitle.textContent = selectedLayout ? (selectedLayout.title || "Monitor Group") : "No Monitor Selected";
   }
   if (monitoringHudEditMonitorName) {
-    monitoringHudEditMonitorName.value = hasSelectedMonitor ? (selected.layout.title || "Monitor Group") : "";
+    monitoringHudEditMonitorName.value = selectedLayout ? (selectedLayout.title || "Monitor Group") : "";
     monitoringHudEditMonitorName.disabled = !hasSelectedMonitor;
   }
   if (monitoringHudMonitorEnabled) {
-    monitoringHudMonitorEnabled.checked = hasSelectedMonitor ? selected.layout.enabled !== false : false;
+    monitoringHudMonitorEnabled.checked = selectedLayout ? selectedLayout.enabled !== false : false;
     monitoringHudMonitorEnabled.disabled = !hasSelectedMonitor;
   }
   if (monitoringHudMonitorPollingRate) {
-    monitoringHudMonitorPollingRate.value = hasSelectedMonitor ? String(Math.max(1000, Number(selected.layout.pollingRateMs) || 1000)) : "1000";
+    monitoringHudMonitorPollingRate.value = selectedLayout ? String(Math.max(1000, Number(selectedLayout.pollingRateMs) || 1000)) : "1000";
     monitoringHudMonitorPollingRate.disabled = !hasSelectedMonitor;
   }
   if (monitoringHudMonitorWarningSetting) {
-    monitoringHudMonitorWarningSetting.checked = hasSelectedMonitor ? selected.layout.warningNotificationsEnabled !== false : false;
+    monitoringHudMonitorWarningSetting.checked = selectedLayout ? selectedLayout.warningNotificationsEnabled !== false : false;
     monitoringHudMonitorWarningSetting.disabled = !hasSelectedMonitor;
   }
   if (monitoringHudProviderReadinessPanel) {
@@ -1004,8 +1007,8 @@ function monitoringHudRenderChildWindows() {
     monitoringHudMonitorManageSummary.textContent = `${visibleCount} shown / ${count} created monitor${count === 1 ? "" : "s"}`;
   }
   monitoringHudRenderDeleteConfirmation();
-  monitoringHudRenderSensorAssignment(selected);
-  monitoringHudRenderSensorSettings(selected);
+  monitoringHudRenderSensorAssignment({ id: selected.id, layout: selectedLayout });
+  monitoringHudRenderSensorSettings({ id: selected.id, layout: selectedLayout });
   if (monitoringHudEditMonitor) {
     monitoringHudEditMonitor.disabled = count === 0;
     monitoringHudEditMonitor.setAttribute("aria-disabled", count === 0 ? "true" : "false");
@@ -1028,8 +1031,13 @@ function monitoringHudOpenChildWindow(kind) {
   }
 }
 
-function monitoringHudCloseChildWindow() {
+function monitoringHudCloseChildWindow(options = {}) {
+  if (!options.force && monitoringHudActiveChildWindow === "monitor-group-edit" && monitoringHudUnsavedMonitorDirty) {
+    monitoringHudShowUnsavedGuard({ type: "close" });
+    return false;
+  }
   monitoringHudSetChildWindowVisibility("");
+  return true;
 }
 
 function monitoringHudCreateMonitorGroup(titleValue) {
@@ -1066,7 +1074,11 @@ function monitoringHudCreateMonitorGroupFromWindow() {
   monitoringHudMarkChanged();
 }
 
-function monitoringHudCreateMonitorGroupFromManageWindow() {
+function monitoringHudCreateMonitorGroupFromManageWindow(options = {}) {
+  if (!options.force && monitoringHudUnsavedMonitorDirty) {
+    monitoringHudShowUnsavedGuard({ type: "create" });
+    return;
+  }
   monitoringHudCreateMonitorGroup(monitoringHudSuggestedMonitorName());
   monitoringHudApplyCardLayout();
   monitoringHudRenderControls();
@@ -1146,32 +1158,86 @@ function monitoringHudReadSensorAssignmentsFromWindow(layout) {
   monitoringHudNormalizeSensorAssignments(monitoringHudControlState.selectedMonitorId, layout);
 }
 
-function monitoringHudSaveEditMonitorWindow() {
+function monitoringHudCloneMonitorLayout(layout) {
+  return JSON.parse(JSON.stringify(layout || {}));
+}
+
+function monitoringHudSelectedMonitorDetailLayout(selected = monitoringHudSelectedMonitor()) {
+  if (
+    monitoringHudUnsavedMonitorDirty
+    && selected.id
+    && selected.id === monitoringHudDraftOriginalMonitorId
+    && monitoringHudDraftWorkingLayout
+  ) {
+    return monitoringHudNormalizeSensorAssignments(selected.id, monitoringHudDraftWorkingLayout);
+  }
+  return selected.layout;
+}
+
+function monitoringHudEnsureMonitorDraft() {
+  const selected = monitoringHudSelectedMonitor();
+  if (!selected.id || !selected.layout) return null;
+  if (!monitoringHudUnsavedMonitorDirty) {
+    monitoringHudDraftOriginalMonitorId = selected.id;
+    monitoringHudDraftOriginalLayout = monitoringHudCloneMonitorLayout(selected.layout);
+    monitoringHudDraftWorkingLayout = monitoringHudCloneMonitorLayout(selected.layout);
+  } else if (!monitoringHudDraftWorkingLayout) {
+    monitoringHudDraftWorkingLayout = monitoringHudCloneMonitorLayout(selected.layout);
+  }
+  monitoringHudUnsavedMonitorDirty = true;
+  if (monitoringHud) {
+    monitoringHud.dataset.monitorUnsavedChanges = "pending";
+  }
+  return {
+    id: monitoringHudDraftOriginalMonitorId || selected.id,
+    layout: monitoringHudDraftWorkingLayout
+  };
+}
+
+function monitoringHudUpdateMonitorDraftFromWindow() {
+  const draft = monitoringHudEnsureMonitorDraft();
+  if (!draft || !draft.layout) return null;
+  draft.layout.title = monitoringHudCleanMonitorTitle(
+    monitoringHudEditMonitorName ? monitoringHudEditMonitorName.value : "",
+    draft.layout.title || "Monitor Group"
+  );
+  draft.layout.enabled = monitoringHudMonitorEnabled ? Boolean(monitoringHudMonitorEnabled.checked) : draft.layout.enabled !== false;
+  draft.layout.pollingRateMs = monitoringHudMonitorPollingRate
+    ? Math.max(1000, Number(monitoringHudMonitorPollingRate.value) || 1000)
+    : Math.max(1000, Number(draft.layout.pollingRateMs) || 1000);
+  draft.layout.warningNotificationsEnabled = monitoringHudMonitorWarningSetting
+    ? Boolean(monitoringHudMonitorWarningSetting.checked)
+    : draft.layout.warningNotificationsEnabled !== false;
+  monitoringHudReadSensorAssignmentsFromWindow(draft.layout);
+  monitoringHudDraftWorkingLayout = monitoringHudCloneMonitorLayout(draft.layout);
+  return {
+    id: draft.id,
+    layout: monitoringHudDraftWorkingLayout
+  };
+}
+
+function monitoringHudSaveEditMonitorWindow(options = {}) {
   const selected = monitoringHudSelectedMonitor();
   if (!selected.id || !selected.layout) return;
-  selected.layout.title = monitoringHudCleanMonitorTitle(
-    monitoringHudEditMonitorName ? monitoringHudEditMonitorName.value : "",
-    selected.layout.title || "Monitor Group"
-  );
-  selected.layout.enabled = monitoringHudMonitorEnabled ? Boolean(monitoringHudMonitorEnabled.checked) : selected.layout.enabled !== false;
-  selected.layout.pollingRateMs = monitoringHudMonitorPollingRate
-    ? Math.max(1000, Number(monitoringHudMonitorPollingRate.value) || 1000)
-    : Math.max(1000, Number(selected.layout.pollingRateMs) || 1000);
-  selected.layout.warningNotificationsEnabled = monitoringHudMonitorWarningSetting
-    ? Boolean(monitoringHudMonitorWarningSetting.checked)
-    : selected.layout.warningNotificationsEnabled !== false;
-  monitoringHudReadSensorAssignmentsFromWindow(selected.layout);
-  monitoringHudControlState.cards[selected.id] = selected.layout;
+  const draft = monitoringHudUpdateMonitorDraftFromWindow();
+  const targetId = draft && draft.id ? draft.id : selected.id;
+  const targetLayout = draft && draft.layout ? monitoringHudCloneMonitorLayout(draft.layout) : monitoringHudCloneMonitorLayout(selected.layout);
+  monitoringHudNormalizeSensorAssignments(targetId, targetLayout);
+  monitoringHudControlState.cards[targetId] = targetLayout;
   monitoringHudPendingDeleteMonitorId = "";
   monitoringHudSetMonitorDraftDirty(false);
   monitoringHudApplyCardLayout();
   monitoringHudRenderControls();
-  monitoringHudCloseChildWindow();
+  if (!options.keepOpen) monitoringHudCloseChildWindow({ force: true });
   monitoringHudMarkChanged();
 }
 
-function monitoringHudRequestDeleteMonitorGroup(cardId) {
+function monitoringHudRequestDeleteMonitorGroup(cardId, options = {}) {
   if (!cardId || !monitoringHudControlState.cards || !monitoringHudControlState.cards[cardId]) return;
+  if (!options.force && monitoringHudUnsavedMonitorDirty && cardId === monitoringHudControlState.selectedMonitorId) {
+    monitoringHudShowUnsavedGuard({ type: "delete", cardId });
+    return;
+  }
   monitoringHudPendingDeleteMonitorId = cardId;
   monitoringHudControlState.selectedMonitorId = cardId;
   monitoringHudRenderMonitorManagement();
@@ -1207,28 +1273,34 @@ function monitoringHudSetMonitorDraftDirty(dirty) {
   }
   if (!monitoringHudUnsavedMonitorDirty) {
     monitoringHudPendingSelectMonitorId = "";
+    monitoringHudPendingGuardAction = null;
     monitoringHudDraftOriginalMonitorId = "";
     monitoringHudDraftOriginalLayout = null;
+    monitoringHudDraftWorkingLayout = null;
     if (monitoringHudMonitorUnsavedGuard) {
       monitoringHudMonitorUnsavedGuard.hidden = true;
       monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "closed";
       monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = "";
+      monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorAction = "";
     }
   }
 }
 
-function monitoringHudShowUnsavedGuard(cardId) {
-  monitoringHudPendingSelectMonitorId = cardId || "";
+function monitoringHudShowUnsavedGuard(action) {
+  const pendingAction = typeof action === "string" ? { type: "select", cardId: action } : Object.assign({}, action || {});
+  monitoringHudPendingGuardAction = pendingAction;
+  monitoringHudPendingSelectMonitorId = pendingAction.type === "select" ? (pendingAction.cardId || "") : "";
   if (!monitoringHudMonitorUnsavedGuard) return;
   monitoringHudMonitorUnsavedGuard.hidden = false;
   monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "open-save-discard-cancel";
   monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = monitoringHudPendingSelectMonitorId;
+  monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorAction = pendingAction.type || "unknown";
 }
 
 function monitoringHudSelectMonitorGroup(cardId, options = {}) {
   if (!cardId || !monitoringHudControlState.cards || !monitoringHudControlState.cards[cardId]) return false;
   if (!options.force && monitoringHudUnsavedMonitorDirty && cardId !== monitoringHudControlState.selectedMonitorId) {
-    monitoringHudShowUnsavedGuard(cardId);
+    monitoringHudShowUnsavedGuard({ type: "select", cardId });
     return false;
   }
   monitoringHudControlState.selectedMonitorId = cardId;
@@ -1238,15 +1310,28 @@ function monitoringHudSelectMonitorGroup(cardId, options = {}) {
   return true;
 }
 
+function monitoringHudRunPendingGuardAction(action) {
+  const pendingAction = action || monitoringHudPendingGuardAction;
+  if (!pendingAction || !pendingAction.type) return;
+  if (pendingAction.type === "select") {
+    monitoringHudSelectMonitorGroup(pendingAction.cardId, { force: true });
+  } else if (pendingAction.type === "create") {
+    monitoringHudCreateMonitorGroupFromManageWindow({ force: true });
+  } else if (pendingAction.type === "delete") {
+    monitoringHudRequestDeleteMonitorGroup(pendingAction.cardId, { force: true });
+  } else if (pendingAction.type === "close") {
+    monitoringHudCloseChildWindow({ force: true });
+  }
+}
+
 function monitoringHudSaveAndSelectPendingMonitor() {
-  const pending = monitoringHudPendingSelectMonitorId;
-  monitoringHudSaveEditMonitorWindow();
-  if (pending) monitoringHudSelectMonitorGroup(pending, { force: true });
-  monitoringHudOpenChildWindow("monitor-group-edit");
+  const pendingAction = Object.assign({}, monitoringHudPendingGuardAction || {});
+  monitoringHudSaveEditMonitorWindow({ keepOpen: true });
+  monitoringHudRunPendingGuardAction(pendingAction);
 }
 
 function monitoringHudDiscardAndSelectPendingMonitor() {
-  const pending = monitoringHudPendingSelectMonitorId;
+  const pendingAction = Object.assign({}, monitoringHudPendingGuardAction || {});
   if (
     monitoringHudDraftOriginalMonitorId
     && monitoringHudDraftOriginalLayout
@@ -1256,20 +1341,24 @@ function monitoringHudDiscardAndSelectPendingMonitor() {
     monitoringHudControlState.cards[monitoringHudDraftOriginalMonitorId] = JSON.parse(JSON.stringify(monitoringHudDraftOriginalLayout));
   }
   monitoringHudSetMonitorDraftDirty(false);
-  if (pending) monitoringHudSelectMonitorGroup(pending, { force: true });
+  monitoringHudRunPendingGuardAction(pendingAction);
 }
 
 function monitoringHudCancelPendingMonitorSelection() {
   monitoringHudPendingSelectMonitorId = "";
+  monitoringHudPendingGuardAction = null;
   if (monitoringHudMonitorUnsavedGuard) {
     monitoringHudMonitorUnsavedGuard.hidden = true;
     monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "closed";
     monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = "";
+    monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorAction = "";
   }
+  monitoringHudRenderMonitorManagement();
 }
 
 function monitoringHudRenderMonitorManagement() {
   const selected = monitoringHudSelectedMonitor();
+  const selectedLayout = selected.id ? monitoringHudSelectedMonitorDetailLayout(selected) : null;
   const monitorCount = Object.keys(monitoringHudControlState.cards || {}).length;
   const assignedSensorCount = Object.values(monitoringHudControlState.cards || {}).reduce((total, layout) => {
     return total + (Array.isArray(layout && layout.sensors) ? layout.sensors.length : 0);
@@ -1347,13 +1436,13 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHudMonitorPollingSummary.textContent = `${assignedSensorCount} assigned source${assignedSensorCount === 1 ? "" : "s"}`;
   }
   if (monitoringHudMonitorEditorTitle) {
-    monitoringHudMonitorEditorTitle.textContent = selected.layout ? (selected.layout.title || "Monitor Group") : "No Monitor Selected";
+    monitoringHudMonitorEditorTitle.textContent = selectedLayout ? (selectedLayout.title || "Monitor Group") : "No Monitor Selected";
   }
   if (monitoringHudMonitorEnabled) {
-    monitoringHudMonitorEnabled.checked = selected.layout ? selected.layout.enabled !== false : false;
+    monitoringHudMonitorEnabled.checked = selectedLayout ? selectedLayout.enabled !== false : false;
   }
   if (monitoringHudMonitorPollingRate) {
-    monitoringHudMonitorPollingRate.value = selected.layout ? String(Math.max(1000, Number(selected.layout.pollingRateMs) || 1000)) : "1000";
+    monitoringHudMonitorPollingRate.value = selectedLayout ? String(Math.max(1000, Number(selectedLayout.pollingRateMs) || 1000)) : "1000";
   }
   if (monitoringHudMonitorEditorScope) {
     monitoringHudMonitorEditorScope.textContent = "Monitor Groups assign available runtime sources and settings. HUD Overlay owns future visual display; fake values remain blocked.";
@@ -1769,7 +1858,7 @@ function monitoringHudWireControls() {
   }
   if (monitoringHudDashboardClose) {
     monitoringHudDashboardClose.addEventListener("click", () => {
-      monitoringHudCloseChildWindow();
+      if (!monitoringHudCloseChildWindow()) return;
       monitoringHudControlState.visible = false;
       monitoringHudRenderControls();
       monitoringHudMarkChanged();
@@ -1782,6 +1871,10 @@ function monitoringHudWireControls() {
   }
   if (monitoringHudCreateMonitor) {
     monitoringHudCreateMonitor.addEventListener("click", () => {
+      if (monitoringHudActiveChildWindow === "monitor-group-edit" && monitoringHudUnsavedMonitorDirty) {
+        monitoringHudShowUnsavedGuard({ type: "create" });
+        return;
+      }
       monitoringHudOpenChildWindow("monitor-group-create");
     });
   }
@@ -1847,26 +1940,16 @@ function monitoringHudWireControls() {
   if (monitoringHudMonitorSensorAssignment) {
     monitoringHudMonitorSensorAssignment.addEventListener("change", (event) => {
       if (!event.target || !event.target.matches || !event.target.matches("[data-monitor-sensor-input]")) return;
-      const selected = monitoringHudSelectedMonitor();
-      if (!selected.id || !selected.layout) return;
-      monitoringHudSetMonitorDraftDirty(true);
-      monitoringHudReadSensorAssignmentsFromWindow(selected.layout);
-      monitoringHudControlState.cards[selected.id] = selected.layout;
+      if (!monitoringHudUpdateMonitorDraftFromWindow()) return;
       monitoringHudRenderMonitorManagement();
-      monitoringHudMarkChanged();
     });
   }
   if (monitoringHudMonitorSensorSettings) {
     monitoringHudMonitorSensorSettings.addEventListener("change", (event) => {
       if (!event.target || !event.target.matches) return;
       if (!event.target.matches("[data-sensor-warning-enabled]")) return;
-      const selected = monitoringHudSelectedMonitor();
-      if (!selected.id || !selected.layout) return;
-      monitoringHudSetMonitorDraftDirty(true);
-      monitoringHudReadSensorAssignmentsFromWindow(selected.layout);
-      monitoringHudControlState.cards[selected.id] = selected.layout;
+      if (!monitoringHudUpdateMonitorDraftFromWindow()) return;
       monitoringHudRenderMonitorManagement();
-      monitoringHudMarkChanged();
     });
     monitoringHudMonitorSensorSettings.addEventListener("click", (event) => {
       const button = event.target && event.target.closest ? event.target.closest("[data-sensor-display-mode-option]") : null;
@@ -1880,13 +1963,8 @@ function monitoringHudWireControls() {
           item.setAttribute("aria-pressed", item === button ? "true" : "false");
         });
       }
-      const selected = monitoringHudSelectedMonitor();
-      if (!selected.id || !selected.layout) return;
-      monitoringHudSetMonitorDraftDirty(true);
-      monitoringHudReadSensorAssignmentsFromWindow(selected.layout);
-      monitoringHudControlState.cards[selected.id] = selected.layout;
+      if (!monitoringHudUpdateMonitorDraftFromWindow()) return;
       monitoringHudRenderMonitorManagement();
-      monitoringHudMarkChanged();
     });
   }
   if (monitoringHudSensorSearch) {
@@ -1948,37 +2026,25 @@ function monitoringHudWireControls() {
   }
   if (monitoringHudMonitorEnabled) {
     monitoringHudMonitorEnabled.addEventListener("change", () => {
-      const selected = monitoringHudSelectedMonitor();
-      if (!selected.id || !selected.layout) return;
-      monitoringHudSetMonitorDraftDirty(true);
-      selected.layout.enabled = Boolean(monitoringHudMonitorEnabled.checked);
+      if (!monitoringHudUpdateMonitorDraftFromWindow()) return;
       monitoringHudRenderMonitorManagement();
-      monitoringHudMarkChanged();
     });
   }
   if (monitoringHudMonitorPollingRate) {
     monitoringHudMonitorPollingRate.addEventListener("change", () => {
-      const selected = monitoringHudSelectedMonitor();
-      if (!selected.id || !selected.layout) return;
-      monitoringHudSetMonitorDraftDirty(true);
-      selected.layout.pollingRateMs = Math.max(1000, Number(monitoringHudMonitorPollingRate.value) || 1000);
+      if (!monitoringHudUpdateMonitorDraftFromWindow()) return;
       monitoringHudRenderMonitorManagement();
-      monitoringHudMarkChanged();
     });
   }
   if (monitoringHudEditMonitorName) {
     monitoringHudEditMonitorName.addEventListener("input", () => {
-      monitoringHudSetMonitorDraftDirty(true);
+      monitoringHudUpdateMonitorDraftFromWindow();
     });
   }
   if (monitoringHudMonitorWarningSetting) {
     monitoringHudMonitorWarningSetting.addEventListener("change", () => {
-      const selected = monitoringHudSelectedMonitor();
-      if (!selected.id || !selected.layout) return;
-      monitoringHudSetMonitorDraftDirty(true);
-      selected.layout.warningNotificationsEnabled = Boolean(monitoringHudMonitorWarningSetting.checked);
+      if (!monitoringHudUpdateMonitorDraftFromWindow()) return;
       monitoringHudRenderMonitorManagement();
-      monitoringHudMarkChanged();
     });
   }
 }

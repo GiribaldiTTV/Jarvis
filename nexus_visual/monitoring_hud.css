@@ -1111,6 +1111,18 @@ body.desktop-mode #monitoring-hud > * {
   padding: 0;
 }
 
+.monitoring-hud__child-field--inline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(112px, auto);
+  gap: 10px;
+  align-items: center;
+}
+
+.monitoring-hud__child-field--inline select {
+  justify-self: end;
+  width: min(132px, 100%);
+}
+
 .monitoring-hud__detail-actions {
   display: flex;
   justify-content: flex-end;
@@ -1154,6 +1166,10 @@ body.desktop-mode #monitoring-hud > * {
   grid-template-columns: minmax(180px, 0.72fr) minmax(0, 1fr);
   gap: 8px;
   align-items: end;
+}
+
+.monitoring-hud__sensor-library-toolbar--inline {
+  grid-template-columns: minmax(190px, 0.42fr) minmax(0, 1fr);
 }
 
 .monitoring-hud__source-filter-chips {

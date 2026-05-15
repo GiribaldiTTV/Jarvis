@@ -387,6 +387,9 @@ def validate() -> list[str]:
         'id="monitoring-hud-monitor-detail-delete"',
         'id="monitoring-hud-monitor-unsaved-guard"',
         'id="monitoring-hud-monitor-detail-empty"',
+        'data-control-row="polling-floor-inline"',
+        'data-bounded-control="polling-floor"',
+        'data-source-controls-layout="search-filter-inline"',
         'data-monitor-select="cpu"',
         'data-monitor-setting="warning-notifications"',
         'data-readiness-panel="provider-readiness-status"',
@@ -454,6 +457,24 @@ def validate() -> list[str]:
         "HUD CSS must not show resize proof artifacts in normal user-facing validation",
         failures,
     )
+    _require(
+        ".monitoring-hud__child-field--inline" in css
+        and ".monitoring-hud__sensor-library-toolbar--inline" in css,
+        "HUD CSS must keep bounded Sensor Command Center controls compact and inline where practical",
+        failures,
+    )
+    for guard_proof in (
+        "monitoringHudPendingGuardAction",
+        "pendingMonitorAction",
+        "monitoringHudUpdateMonitorDraftFromWindow",
+        "unsavedSavePersistedDraft",
+        "unsavedDiscardDroppedDraft",
+        "unsavedCancelPreservedDraft",
+        "unsavedCreateQueuedAction",
+        "unsavedDeleteQueuedAction",
+        "unsavedCloseQueuedAction",
+    ):
+        _require_contains(js + renderer, guard_proof, "HUD unsaved draft guard proof", failures)
     _require(
         '[data-resize-proof-visuals="test-visible"] .monitoring-hud__chrome::after' in css,
         "HUD CSS must gate visible resize proof artifacts behind an explicit test-visible marker",

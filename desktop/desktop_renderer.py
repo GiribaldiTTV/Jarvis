@@ -9707,8 +9707,14 @@ class DesktopRuntimeWindow(QWidget):
                 "unsaved_guard_opened": h1_proof.get("unsavedGuardOpened") is True,
                 "unsaved_guard_buttons": h1_proof.get("unsavedGuardButtons") is True,
                 "unsaved_cancel_preserved_selection": h1_proof.get("unsavedCancelPreservedSelection") is True,
+                "unsaved_cancel_preserved_draft": h1_proof.get("unsavedCancelPreservedDraft") is True,
                 "unsaved_discard_switched_selection": h1_proof.get("unsavedDiscardSwitchedSelection") is True,
+                "unsaved_discard_dropped_draft": h1_proof.get("unsavedDiscardDroppedDraft") is True,
                 "unsaved_save_switched_selection": h1_proof.get("unsavedSaveSwitchedSelection") is True,
+                "unsaved_save_persisted_draft": h1_proof.get("unsavedSavePersistedDraft") is True,
+                "unsaved_create_queued_action": h1_proof.get("unsavedCreateQueuedAction") is True,
+                "unsaved_delete_queued_action": h1_proof.get("unsavedDeleteQueuedAction") is True,
+                "unsaved_close_queued_action": h1_proof.get("unsavedCloseQueuedAction") is True,
                 "final_monitor_delete_empty_state": h1_proof.get("finalMonitorDeleteEmptyState") is True,
                 "final_monitor_create_reachable": h1_proof.get("finalMonitorCreateReachable") is True,
                 "source_picker_browser": h1_proof.get("sourcePickerBrowser") is True,
@@ -10043,8 +10049,14 @@ class DesktopRuntimeWindow(QWidget):
                         let unsavedGuardOpened = false;
                         let unsavedGuardButtons = false;
                         let unsavedCancelPreservedSelection = false;
+                        let unsavedCancelPreservedDraft = false;
                         let unsavedDiscardSwitchedSelection = false;
+                        let unsavedDiscardDroppedDraft = false;
                         let unsavedSaveSwitchedSelection = false;
+                        let unsavedSavePersistedDraft = false;
+                        let unsavedCreateQueuedAction = false;
+                        let unsavedDeleteQueuedAction = false;
+                        let unsavedCloseQueuedAction = false;
                         let finalMonitorDeleteEmptyState = false;
                         let finalMonitorCreateReachable = false;
                         let sourcePickerBrowser = false;
@@ -10200,7 +10212,9 @@ class DesktopRuntimeWindow(QWidget):
                                 const cancel = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
                                 if (cancel) cancel.click();
                                 let cancelState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                const cancelName = document.getElementById("monitoring-hud-edit-monitor-name");
                                 unsavedCancelPreservedSelection = Boolean(cancelState.selectedMonitorId === "cpu");
+                                unsavedCancelPreservedDraft = Boolean(cancelName && cancelName.value === "CPU Group Dirty");
                                 gpuRow = document.querySelector('[data-monitor-select="gpu"]');
                                 gpuRow.click();
                                 const discard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
@@ -10211,6 +10225,11 @@ class DesktopRuntimeWindow(QWidget):
                                     && discardState.cards
                                     && discardState.cards.cpu
                                     && discardState.cards.cpu.title === unsavedBackup.cards.cpu.title
+                                );
+                                unsavedDiscardDroppedDraft = Boolean(
+                                    discardState.cards
+                                    && discardState.cards.cpu
+                                    && discardState.cards.cpu.title !== "CPU Group Dirty"
                                 );
                                 cpuRow = document.querySelector('[data-monitor-select="cpu"]');
                                 if (cpuRow) cpuRow.click();
@@ -10232,6 +10251,34 @@ class DesktopRuntimeWindow(QWidget):
                                     && saveState.cards.gpu
                                     && saveState.cards.gpu.title === "GPU Group Saved"
                                 );
+                                unsavedSavePersistedDraft = Boolean(
+                                    saveState.cards
+                                    && saveState.cards.gpu
+                                    && saveState.cards.gpu.title === "GPU Group Saved"
+                                );
+                                const queuedName = document.getElementById("monitoring-hud-edit-monitor-name");
+                                if (queuedName) {
+                                    queuedName.value = "CPU Group Queued Action Draft";
+                                    queuedName.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                                const createButton = document.getElementById("monitoring-hud-manage-monitor-create-action");
+                                if (createButton) createButton.click();
+                                const createGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                                unsavedCreateQueuedAction = Boolean(createGuard && createGuard.dataset.pendingMonitorAction === "create");
+                                const cancelCreate = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
+                                if (cancelCreate) cancelCreate.click();
+                                const deleteButtonQueued = document.getElementById("monitoring-hud-monitor-detail-delete");
+                                if (deleteButtonQueued) deleteButtonQueued.click();
+                                const deleteGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                                unsavedDeleteQueuedAction = Boolean(deleteGuard && deleteGuard.dataset.pendingMonitorAction === "delete");
+                                const cancelDelete = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
+                                if (cancelDelete) cancelDelete.click();
+                                const childClose = document.querySelector('[data-child-window-close]');
+                                if (childClose) childClose.click();
+                                const closeGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                                unsavedCloseQueuedAction = Boolean(closeGuard && closeGuard.dataset.pendingMonitorAction === "close");
+                                const cancelClose = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
+                                if (cancelClose) cancelClose.click();
                             }
                             window.setMonitoringHudControlState(unsavedBackup);
                         }
@@ -10362,8 +10409,14 @@ class DesktopRuntimeWindow(QWidget):
                                     unsavedGuardOpened,
                                     unsavedGuardButtons,
                                     unsavedCancelPreservedSelection,
+                                    unsavedCancelPreservedDraft,
                                     unsavedDiscardSwitchedSelection,
+                                    unsavedDiscardDroppedDraft,
                                     unsavedSaveSwitchedSelection,
+                                    unsavedSavePersistedDraft,
+                                    unsavedCreateQueuedAction,
+                                    unsavedDeleteQueuedAction,
+                                    unsavedCloseQueuedAction,
                                     finalMonitorDeleteEmptyState,
                                     finalMonitorCreateReachable,
                                     sourcePickerBrowser,
@@ -10409,8 +10462,14 @@ class DesktopRuntimeWindow(QWidget):
                             unsavedGuardOpened,
                             unsavedGuardButtons,
                             unsavedCancelPreservedSelection,
+                            unsavedCancelPreservedDraft,
                             unsavedDiscardSwitchedSelection,
+                            unsavedDiscardDroppedDraft,
                             unsavedSaveSwitchedSelection,
+                            unsavedSavePersistedDraft,
+                            unsavedCreateQueuedAction,
+                            unsavedDeleteQueuedAction,
+                            unsavedCloseQueuedAction,
                             finalMonitorDeleteEmptyState,
                             finalMonitorCreateReachable,
                             sourcePickerBrowser,
