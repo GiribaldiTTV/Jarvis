@@ -50,14 +50,30 @@
       data-provider-configuration="unconfigured"
       data-provider-registry="local-only-registry"
       data-provider-interaction="provider-boundary-interaction-plan"
+      data-runtime-category="provider_setup_disabled"
+      data-runtime-reason="provider_setup_disabled_local_only"
+      data-runtime-provenance="default_config"
+      data-runtime-schema="provider-runtime-state.v1"
+      data-runtime-config="default_config"
+      data-runtime-fail-closed="true"
       data-configured-provider-count="0"
       data-available-provider-count="0"
       data-hardware-capability="local-planning-only"
+      data-hardware-detection-level="level-1-safe-local-static-snapshot"
+      data-ram-readiness="ram-unprobed"
+      data-disk-readiness="disk-unprobed"
+      data-model-workload-metadata="model-workload-metadata-planned"
       data-capability-pack-lifecycle="capability-pack-lifecycle-planned"
+      data-capability-pack-manifest="manifest-planned"
+      data-capability-pack-compatibility="compatibility-unproven"
       data-memory-context="memory-context-disabled"
+      data-memory-indexing="memory-indexing-disabled"
+      data-network-egress="network-egress-blocked"
       data-windows-resilience="windows-resilience-planned"
       data-persona-voice-boundary="persona-core-voice-boundary-planned"
       data-validation-gates="validation-proof-gates-planned"
+      data-copy-contract="core-desktop-runtime-state-contract"
+      data-contract-ready="contract-ready"
       data-consent-state="required-before-provider"
       aria-live="polite"
     >
@@ -75,11 +91,19 @@
       <div id="ai-provider-status-power" class="ai-provider-status__power">Power state: not evaluated</div>
       <div id="ai-provider-status-thermal" class="ai-provider-status__thermal">Thermal guardrails required before model workloads</div>
       <div id="ai-provider-status-model-workload" class="ai-provider-status__model-workload">Model workloads: disabled</div>
+      <div id="ai-provider-status-hardware-detection" class="ai-provider-status__hardware-detection">Hardware detection: Level 1 safe local static snapshot</div>
+      <div id="ai-provider-status-ram" class="ai-provider-status__ram">RAM readiness: unprobed</div>
+      <div id="ai-provider-status-disk" class="ai-provider-status__disk">Disk readiness: unprobed</div>
+      <div id="ai-provider-status-model-metadata" class="ai-provider-status__model-metadata">Model workload metadata: planned; no execution</div>
       <div id="ai-provider-status-capability-pack" class="ai-provider-status__capability-pack">Capability packs: lifecycle planned</div>
       <div id="ai-provider-status-capability-download" class="ai-provider-status__capability-download">Capability pack downloads: blocked</div>
       <div id="ai-provider-status-capability-recommendation" class="ai-provider-status__capability-recommendation">Capability recommendation pending hardware proof</div>
+      <div id="ai-provider-status-capability-manifest" class="ai-provider-status__capability-manifest">capability-pack-manifest.v1; manifest-planned</div>
+      <div id="ai-provider-status-capability-integrity" class="ai-provider-status__capability-integrity">checksum-required-before-install; signature-required-before-install; compatibility-unproven</div>
       <div id="ai-provider-status-data-classification" class="ai-provider-status__data-classification">Data classification: local-only planning</div>
       <div id="ai-provider-status-memory" class="ai-provider-status__memory">Memory/context: disabled; no indexing</div>
+      <div id="ai-provider-status-memory-contract" class="ai-provider-status__memory-contract">memory-indexing-disabled; retrieval-disabled; learning-disabled; persistence-disabled</div>
+      <div id="ai-provider-status-egress" class="ai-provider-status__egress">network-egress-blocked</div>
       <div id="ai-provider-status-audit-secrets" class="ai-provider-status__audit-secrets">Audit/secrets: planned; no secrets stored</div>
       <div id="ai-provider-status-windows" class="ai-provider-status__windows">Windows resilience: planning only</div>
       <div id="ai-provider-status-offline" class="ai-provider-status__offline">Offline/degraded mode: planned</div>
@@ -88,10 +112,16 @@
       <div id="ai-provider-status-validation" class="ai-provider-status__validation">Validation gates: static proof active</div>
       <div id="ai-provider-status-abuse" class="ai-provider-status__abuse">Abuse/eval: pending future approval</div>
       <div id="ai-provider-status-release-proof" class="ai-provider-status__release-proof">Release proof: pending future approval</div>
+      <div id="ai-provider-status-copy-contract" class="ai-provider-status__copy-contract">core-desktop-provider-state-copy.v1; core-desktop-runtime-state-contract</div>
+      <div id="ai-provider-status-fixtures" class="ai-provider-status__fixtures">golden-provider-state-fixtures; validator-expansion-active</div>
       <div id="ai-provider-status-consent" class="ai-provider-status__consent">Consent required before provider setup</div>
       <div id="ai-provider-status-disclosure" class="ai-provider-status__disclosure">Provider-visible data: none</div>
       <div id="ai-provider-status-visible-data-detail" class="ai-provider-status__visible-data-detail">No prompt, file, screen, memory, or telemetry is sent</div>
       <div id="ai-provider-status-consent-boundary" class="ai-provider-status__consent-boundary">Consent boundary: provider setup required before prompts</div>
+      <div id="ai-provider-status-runtime" class="ai-provider-status__runtime">Runtime state: provider setup disabled</div>
+      <div id="ai-provider-status-runtime-reason" class="ai-provider-status__runtime-reason">Reason: setup disabled in local-only seam</div>
+      <div id="ai-provider-status-runtime-provenance" class="ai-provider-status__runtime-provenance">Provenance: default config</div>
+      <div id="ai-provider-status-runtime-schema" class="ai-provider-status__runtime-schema">provider-runtime-state.v1; provider-runtime-config.v1; Config: safe default local-only</div>
       <button
         id="ai-provider-status-action"
         class="ai-provider-status__action"

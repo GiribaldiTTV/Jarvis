@@ -6,7 +6,7 @@ provider SDKs, persist memory, probe hardware, or infer a configured provider.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 
 PACKAGE_ID = "PKG-007"
@@ -56,9 +56,38 @@ MODEL_WORKLOAD_DISABLED = "model-workload-disabled"
 CAPABILITY_RECOMMENDATION_PENDING = "recommendation-pending"
 CAPABILITY_PACK_LIFECYCLE_PLANNED = "capability-pack-lifecycle-planned"
 CAPABILITY_PACK_DOWNLOADS_BLOCKED = "capability-pack-downloads-blocked"
+HARDWARE_DETECTION_LEVEL_0 = "level-0-unknown-unprobed"
+HARDWARE_DETECTION_LEVEL_1 = "level-1-safe-local-static-snapshot"
+HARDWARE_DETECTION_LEVEL_2 = "level-2-lightweight-capability-check-future-gated"
+HARDWARE_DETECTION_LEVEL_3 = "level-3-heavy-runtime-validation-blocked"
+CAPABILITY_SNAPSHOT_POLICY_LOCAL_STATIC = "local-static-no-heavy-probe"
+CAPABILITY_SNAPSHOT_SOURCE_DEFAULT = "default-static-snapshot"
+RAM_READINESS_UNPROBED = "ram-unprobed"
+DISK_READINESS_UNPROBED = "disk-unprobed"
+CAPABILITY_PACK_MANIFEST_SCHEMA_VERSION = "capability-pack-manifest.v1"
+CAPABILITY_PACK_MANIFEST_PLANNED = "manifest-planned"
+CAPABILITY_PACK_SOURCE_LOCAL_ONLY = "local-source-future-gated"
+CAPABILITY_PACK_CHECKSUM_REQUIRED = "checksum-required-before-install"
+CAPABILITY_PACK_SIGNATURE_REQUIRED = "signature-required-before-install"
+CAPABILITY_PACK_COMPATIBILITY_UNPROVEN = "compatibility-unproven"
+CAPABILITY_PACK_INSTALL_BLOCKED = "install-blocked"
+CAPABILITY_PACK_UPDATE_BLOCKED = "update-blocked"
+CAPABILITY_PACK_UNINSTALL_BLOCKED = "uninstall-blocked"
+MODEL_WORKLOAD_METADATA_PLANNED = "model-workload-metadata-planned"
 DATA_CLASSIFICATION_LOCAL_ONLY = "data-classification-local-only"
+DATA_CLASSIFICATION_SCHEMA_VERSION = "data-classification.v1"
+PROVIDER_VISIBLE_DATA_GUARANTEE_NONE = "provider-visible-data-none-guaranteed"
 MEMORY_CONTEXT_DISABLED = "memory-context-disabled"
+MEMORY_INDEXING_DISABLED = "memory-indexing-disabled"
+RETRIEVAL_DISABLED = "retrieval-disabled"
+LEARNING_DISABLED = "learning-disabled"
+PERSISTENCE_DISABLED = "persistence-disabled"
+CONSENT_ENVELOPE_REQUIRED = "consent-envelope-required"
+AUDIT_ENVELOPE_PLANNED = "audit-envelope-planned"
 AUDIT_SECRETS_PLANNED = "audit-secrets-planned"
+SECRET_BOUNDARY_NO_SECRETS = "secret-boundary-no-secrets-stored"
+NETWORK_EGRESS_BLOCKED = "network-egress-blocked"
+FUTURE_MEMORY_ELIGIBILITY_GATED = "future-memory-eligibility-gated"
 WINDOWS_RESILIENCE_PLANNED = "windows-resilience-planned"
 OFFLINE_DEGRADED_PLANNED = "offline-degraded-planned"
 PERSONA_CORE_VOICE_BOUNDARY_PLANNED = "persona-core-voice-boundary-planned"
@@ -66,6 +95,87 @@ VOICE_RUNTIME_DISABLED = "voice-runtime-disabled"
 VALIDATION_PROOF_GATES_PLANNED = "validation-proof-gates-planned"
 ABUSE_EVAL_PENDING = "abuse-eval-pending"
 RELEASE_PROOF_PENDING = "release-proof-pending"
+CORE_DESKTOP_COPY_CONTRACT_VERSION = "core-desktop-provider-state-copy.v1"
+CORE_DESKTOP_RUNTIME_STATE_CONTRACT = "core-desktop-runtime-state-contract"
+DISABLED_PROMPT_BEHAVIOR_CONTRACT = "disabled-prompt-provider-behavior"
+GOLDEN_PROVIDER_STATE_FIXTURES = "golden-provider-state-fixtures"
+VALIDATOR_EXPANSION_ACTIVE = "validator-expansion-active"
+CONTRACT_READY_MARKER = "contract-ready"
+UI_READY_MARKER = "ui-ready"
+VALIDATOR_READY_MARKER = "validator-ready"
+FUTURE_IMPLEMENTATION_GATED_MARKER = "future-implementation-gated"
+PROVIDER_RUNTIME_STATE_SCHEMA_VERSION = "provider-runtime-state.v1"
+PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION = "provider-runtime-config.v1"
+PROVIDER_RUNTIME_CONFIG_MIGRATION_POSTURE = "no-runtime-migration-required"
+PROVIDER_RUNTIME_CATEGORY_NO_PROVIDER = "no_provider"
+PROVIDER_RUNTIME_CATEGORY_SETUP_DISABLED = "provider_setup_disabled"
+PROVIDER_RUNTIME_CATEGORY_UNCONFIGURED = "provider_unconfigured"
+PROVIDER_RUNTIME_CATEGORY_UNAVAILABLE = "provider_unavailable"
+PROVIDER_RUNTIME_CATEGORY_CONSENT_MISSING = "provider_consent_missing"
+PROVIDER_RUNTIME_CATEGORY_CAPABILITY_MISSING = "provider_capability_missing"
+PROVIDER_RUNTIME_CATEGORY_READY_FUTURE_GATED = "provider_ready_future_gated"
+PROVIDER_RUNTIME_CATEGORY_ERROR_DEGRADED = "provider_error_degraded"
+PROVIDER_RUNTIME_REASON_NO_PROVIDER_CONFIGURED = "no_provider_configured"
+PROVIDER_RUNTIME_REASON_SETUP_DISABLED_LOCAL_ONLY = "provider_setup_disabled_local_only"
+PROVIDER_RUNTIME_REASON_PROVIDER_UNCONFIGURED = "provider_unconfigured"
+PROVIDER_RUNTIME_REASON_PROVIDER_UNAVAILABLE = "provider_unavailable"
+PROVIDER_RUNTIME_REASON_CONSENT_REQUIRED = "provider_consent_required"
+PROVIDER_RUNTIME_REASON_CAPABILITY_MISSING = "provider_capability_missing"
+PROVIDER_RUNTIME_REASON_READY_FUTURE_GATED = "provider_ready_future_gated"
+PROVIDER_RUNTIME_REASON_INVALID_CONFIG_FAIL_CLOSED = "invalid_config_fail_closed"
+PROVIDER_RUNTIME_REASON_MISSING_CONFIG_FAIL_CLOSED = "missing_config_fail_closed"
+PROVIDER_RUNTIME_PROVENANCE_DEFAULT_CONFIG = "default_config"
+PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG = "local_config"
+PROVIDER_RUNTIME_PROVENANCE_HARDWARE_SNAPSHOT = "hardware_snapshot"
+PROVIDER_RUNTIME_PROVENANCE_MANIFEST_STATE = "manifest_state"
+PROVIDER_RUNTIME_PROVENANCE_VALIDATOR_FIXTURE = "validator_fixture"
+PROVIDER_RUNTIME_PROVENANCE_FUTURE_RUNTIME_CHECK = "future_runtime_check"
+PROVIDER_RUNTIME_CONFIG_STATE_DEFAULT = "default_config"
+PROVIDER_RUNTIME_CONFIG_STATE_MISSING = "missing_config"
+PROVIDER_RUNTIME_CONFIG_STATE_INVALID = "invalid_config"
+PROVIDER_RUNTIME_CONFIG_STATE_LOCAL = "local_config"
+PROVIDER_RUNTIME_STATE_CATEGORIES = (
+    PROVIDER_RUNTIME_CATEGORY_NO_PROVIDER,
+    PROVIDER_RUNTIME_CATEGORY_SETUP_DISABLED,
+    PROVIDER_RUNTIME_CATEGORY_UNCONFIGURED,
+    PROVIDER_RUNTIME_CATEGORY_UNAVAILABLE,
+    PROVIDER_RUNTIME_CATEGORY_CONSENT_MISSING,
+    PROVIDER_RUNTIME_CATEGORY_CAPABILITY_MISSING,
+    PROVIDER_RUNTIME_CATEGORY_READY_FUTURE_GATED,
+    PROVIDER_RUNTIME_CATEGORY_ERROR_DEGRADED,
+)
+PROVIDER_RUNTIME_REASON_CODES = (
+    PROVIDER_RUNTIME_REASON_NO_PROVIDER_CONFIGURED,
+    PROVIDER_RUNTIME_REASON_SETUP_DISABLED_LOCAL_ONLY,
+    PROVIDER_RUNTIME_REASON_PROVIDER_UNCONFIGURED,
+    PROVIDER_RUNTIME_REASON_PROVIDER_UNAVAILABLE,
+    PROVIDER_RUNTIME_REASON_CONSENT_REQUIRED,
+    PROVIDER_RUNTIME_REASON_CAPABILITY_MISSING,
+    PROVIDER_RUNTIME_REASON_READY_FUTURE_GATED,
+    PROVIDER_RUNTIME_REASON_INVALID_CONFIG_FAIL_CLOSED,
+    PROVIDER_RUNTIME_REASON_MISSING_CONFIG_FAIL_CLOSED,
+)
+PROVIDER_RUNTIME_PROVENANCE_SOURCES = (
+    PROVIDER_RUNTIME_PROVENANCE_DEFAULT_CONFIG,
+    PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG,
+    PROVIDER_RUNTIME_PROVENANCE_HARDWARE_SNAPSHOT,
+    PROVIDER_RUNTIME_PROVENANCE_MANIFEST_STATE,
+    PROVIDER_RUNTIME_PROVENANCE_VALIDATOR_FIXTURE,
+    PROVIDER_RUNTIME_PROVENANCE_FUTURE_RUNTIME_CHECK,
+)
+
+
+@dataclass(frozen=True)
+class AIProviderRuntimeConfigSnapshot:
+    schema_version: str
+    config_state: str
+    selected_provider_id: str
+    provider_configured: bool
+    provider_available: bool
+    consent_granted: bool
+    capability_ready: bool
+    config_valid: bool
+    provenance: str
 
 
 @dataclass(frozen=True)
@@ -180,14 +290,48 @@ class AIProviderStateSnapshot:
     model_workload_label: str
     capability_recommendation_state: str
     capability_recommendation_label: str
+    hardware_detection_level: str
+    hardware_detection_label: str
+    capability_snapshot_policy: str
+    capability_snapshot_source: str
+    capability_snapshot_budget_label: str
+    ram_readiness_state: str
+    ram_readiness_label: str
+    disk_readiness_state: str
+    disk_readiness_label: str
+    model_workload_metadata_state: str
+    model_workload_metadata_label: str
     capability_pack_lifecycle_state: str
     capability_pack_lifecycle_label: str
     capability_pack_download_state: str
     capability_pack_download_label: str
+    capability_pack_manifest_schema_version: str
+    capability_pack_manifest_state: str
+    capability_pack_source_type: str
+    capability_pack_checksum_state: str
+    capability_pack_signature_state: str
+    capability_pack_compatibility_state: str
+    capability_pack_disk_requirement: str
+    capability_pack_ram_requirement: str
+    capability_pack_gpu_requirement: str
+    capability_pack_install_state: str
+    capability_pack_update_state: str
+    capability_pack_uninstall_state: str
     data_classification_state: str
     data_classification_label: str
+    data_classification_schema_version: str
+    provider_visible_data_guarantee: str
     memory_context_state: str
     memory_context_label: str
+    memory_indexing_state: str
+    retrieval_state: str
+    learning_state: str
+    persistence_state: str
+    future_memory_eligibility_marker: str
+    consent_envelope_state: str
+    audit_envelope_state: str
+    secret_boundary_state: str
+    network_egress_state: str
     audit_secrets_state: str
     audit_secrets_label: str
     windows_resilience_state: str
@@ -204,6 +348,15 @@ class AIProviderStateSnapshot:
     abuse_eval_label: str
     release_proof_gate_state: str
     release_proof_gate_label: str
+    core_desktop_copy_contract_version: str
+    core_desktop_runtime_state_contract: str
+    disabled_prompt_behavior_contract: str
+    golden_provider_state_fixtures: str
+    validator_expansion_state: str
+    contract_ready_marker: str
+    ui_ready_marker: str
+    validator_ready_marker: str
+    future_implementation_gated_marker: str
     privacy_scope: str
     privacy_label: str
     provider_visible_data: str
@@ -226,6 +379,19 @@ class AIProviderStateSnapshot:
     model_state: str
     capability_pack_state: str
     source_truth: str
+    runtime_state_schema_version: str
+    runtime_state_category: str
+    runtime_state_label: str
+    runtime_reason_code: str
+    runtime_reason_label: str
+    runtime_config_schema_version: str
+    runtime_config_state: str
+    runtime_config_label: str
+    runtime_config_migration: str
+    runtime_config_valid: bool
+    runtime_fail_closed: bool
+    runtime_provenance: str
+    runtime_provenance_label: str
     surface_role: str
     provider_options: tuple[AIProviderChoiceSnapshot, ...]
     foundation_readiness_items: tuple[AIFoundationReadinessSnapshot, ...]
@@ -264,14 +430,48 @@ class AIProviderStateSnapshot:
             "model_workload_label": self.model_workload_label,
             "capability_recommendation_state": self.capability_recommendation_state,
             "capability_recommendation_label": self.capability_recommendation_label,
+            "hardware_detection_level": self.hardware_detection_level,
+            "hardware_detection_label": self.hardware_detection_label,
+            "capability_snapshot_policy": self.capability_snapshot_policy,
+            "capability_snapshot_source": self.capability_snapshot_source,
+            "capability_snapshot_budget_label": self.capability_snapshot_budget_label,
+            "ram_readiness_state": self.ram_readiness_state,
+            "ram_readiness_label": self.ram_readiness_label,
+            "disk_readiness_state": self.disk_readiness_state,
+            "disk_readiness_label": self.disk_readiness_label,
+            "model_workload_metadata_state": self.model_workload_metadata_state,
+            "model_workload_metadata_label": self.model_workload_metadata_label,
             "capability_pack_lifecycle_state": self.capability_pack_lifecycle_state,
             "capability_pack_lifecycle_label": self.capability_pack_lifecycle_label,
             "capability_pack_download_state": self.capability_pack_download_state,
             "capability_pack_download_label": self.capability_pack_download_label,
+            "capability_pack_manifest_schema_version": self.capability_pack_manifest_schema_version,
+            "capability_pack_manifest_state": self.capability_pack_manifest_state,
+            "capability_pack_source_type": self.capability_pack_source_type,
+            "capability_pack_checksum_state": self.capability_pack_checksum_state,
+            "capability_pack_signature_state": self.capability_pack_signature_state,
+            "capability_pack_compatibility_state": self.capability_pack_compatibility_state,
+            "capability_pack_disk_requirement": self.capability_pack_disk_requirement,
+            "capability_pack_ram_requirement": self.capability_pack_ram_requirement,
+            "capability_pack_gpu_requirement": self.capability_pack_gpu_requirement,
+            "capability_pack_install_state": self.capability_pack_install_state,
+            "capability_pack_update_state": self.capability_pack_update_state,
+            "capability_pack_uninstall_state": self.capability_pack_uninstall_state,
             "data_classification_state": self.data_classification_state,
             "data_classification_label": self.data_classification_label,
+            "data_classification_schema_version": self.data_classification_schema_version,
+            "provider_visible_data_guarantee": self.provider_visible_data_guarantee,
             "memory_context_state": self.memory_context_state,
             "memory_context_label": self.memory_context_label,
+            "memory_indexing_state": self.memory_indexing_state,
+            "retrieval_state": self.retrieval_state,
+            "learning_state": self.learning_state,
+            "persistence_state": self.persistence_state,
+            "future_memory_eligibility_marker": self.future_memory_eligibility_marker,
+            "consent_envelope_state": self.consent_envelope_state,
+            "audit_envelope_state": self.audit_envelope_state,
+            "secret_boundary_state": self.secret_boundary_state,
+            "network_egress_state": self.network_egress_state,
             "audit_secrets_state": self.audit_secrets_state,
             "audit_secrets_label": self.audit_secrets_label,
             "windows_resilience_state": self.windows_resilience_state,
@@ -288,6 +488,15 @@ class AIProviderStateSnapshot:
             "abuse_eval_label": self.abuse_eval_label,
             "release_proof_gate_state": self.release_proof_gate_state,
             "release_proof_gate_label": self.release_proof_gate_label,
+            "core_desktop_copy_contract_version": self.core_desktop_copy_contract_version,
+            "core_desktop_runtime_state_contract": self.core_desktop_runtime_state_contract,
+            "disabled_prompt_behavior_contract": self.disabled_prompt_behavior_contract,
+            "golden_provider_state_fixtures": self.golden_provider_state_fixtures,
+            "validator_expansion_state": self.validator_expansion_state,
+            "contract_ready_marker": self.contract_ready_marker,
+            "ui_ready_marker": self.ui_ready_marker,
+            "validator_ready_marker": self.validator_ready_marker,
+            "future_implementation_gated_marker": self.future_implementation_gated_marker,
             "privacy_scope": self.privacy_scope,
             "privacy_label": self.privacy_label,
             "provider_visible_data": self.provider_visible_data,
@@ -310,6 +519,19 @@ class AIProviderStateSnapshot:
             "model_state": self.model_state,
             "capability_pack_state": self.capability_pack_state,
             "source_truth": self.source_truth,
+            "runtime_state_schema_version": self.runtime_state_schema_version,
+            "runtime_state_category": self.runtime_state_category,
+            "runtime_state_label": self.runtime_state_label,
+            "runtime_reason_code": self.runtime_reason_code,
+            "runtime_reason_label": self.runtime_reason_label,
+            "runtime_config_schema_version": self.runtime_config_schema_version,
+            "runtime_config_state": self.runtime_config_state,
+            "runtime_config_label": self.runtime_config_label,
+            "runtime_config_migration": self.runtime_config_migration,
+            "runtime_config_valid": self.runtime_config_valid,
+            "runtime_fail_closed": self.runtime_fail_closed,
+            "runtime_provenance": self.runtime_provenance,
+            "runtime_provenance_label": self.runtime_provenance_label,
             "surface_role": self.surface_role,
             "provider_options": tuple(option.as_dict() for option in self.provider_options),
             "foundation_readiness_items": tuple(item.as_dict() for item in self.foundation_readiness_items),
@@ -349,14 +571,48 @@ class AIProviderStateSnapshot:
             "modelWorkloadLabel": self.model_workload_label,
             "capabilityRecommendationState": self.capability_recommendation_state,
             "capabilityRecommendationLabel": self.capability_recommendation_label,
+            "hardwareDetectionLevel": self.hardware_detection_level,
+            "hardwareDetectionLabel": self.hardware_detection_label,
+            "capabilitySnapshotPolicy": self.capability_snapshot_policy,
+            "capabilitySnapshotSource": self.capability_snapshot_source,
+            "capabilitySnapshotBudgetLabel": self.capability_snapshot_budget_label,
+            "ramReadinessState": self.ram_readiness_state,
+            "ramReadinessLabel": self.ram_readiness_label,
+            "diskReadinessState": self.disk_readiness_state,
+            "diskReadinessLabel": self.disk_readiness_label,
+            "modelWorkloadMetadataState": self.model_workload_metadata_state,
+            "modelWorkloadMetadataLabel": self.model_workload_metadata_label,
             "capabilityPackLifecycleState": self.capability_pack_lifecycle_state,
             "capabilityPackLifecycleLabel": self.capability_pack_lifecycle_label,
             "capabilityPackDownloadState": self.capability_pack_download_state,
             "capabilityPackDownloadLabel": self.capability_pack_download_label,
+            "capabilityPackManifestSchemaVersion": self.capability_pack_manifest_schema_version,
+            "capabilityPackManifestState": self.capability_pack_manifest_state,
+            "capabilityPackSourceType": self.capability_pack_source_type,
+            "capabilityPackChecksumState": self.capability_pack_checksum_state,
+            "capabilityPackSignatureState": self.capability_pack_signature_state,
+            "capabilityPackCompatibilityState": self.capability_pack_compatibility_state,
+            "capabilityPackDiskRequirement": self.capability_pack_disk_requirement,
+            "capabilityPackRamRequirement": self.capability_pack_ram_requirement,
+            "capabilityPackGpuRequirement": self.capability_pack_gpu_requirement,
+            "capabilityPackInstallState": self.capability_pack_install_state,
+            "capabilityPackUpdateState": self.capability_pack_update_state,
+            "capabilityPackUninstallState": self.capability_pack_uninstall_state,
             "dataClassificationState": self.data_classification_state,
             "dataClassificationLabel": self.data_classification_label,
+            "dataClassificationSchemaVersion": self.data_classification_schema_version,
+            "providerVisibleDataGuarantee": self.provider_visible_data_guarantee,
             "memoryContextState": self.memory_context_state,
             "memoryContextLabel": self.memory_context_label,
+            "memoryIndexingState": self.memory_indexing_state,
+            "retrievalState": self.retrieval_state,
+            "learningState": self.learning_state,
+            "persistenceState": self.persistence_state,
+            "futureMemoryEligibilityMarker": self.future_memory_eligibility_marker,
+            "consentEnvelopeState": self.consent_envelope_state,
+            "auditEnvelopeState": self.audit_envelope_state,
+            "secretBoundaryState": self.secret_boundary_state,
+            "networkEgressState": self.network_egress_state,
             "auditSecretsState": self.audit_secrets_state,
             "auditSecretsLabel": self.audit_secrets_label,
             "windowsResilienceState": self.windows_resilience_state,
@@ -373,6 +629,15 @@ class AIProviderStateSnapshot:
             "abuseEvalLabel": self.abuse_eval_label,
             "releaseProofGateState": self.release_proof_gate_state,
             "releaseProofGateLabel": self.release_proof_gate_label,
+            "coreDesktopCopyContractVersion": self.core_desktop_copy_contract_version,
+            "coreDesktopRuntimeStateContract": self.core_desktop_runtime_state_contract,
+            "disabledPromptBehaviorContract": self.disabled_prompt_behavior_contract,
+            "goldenProviderStateFixtures": self.golden_provider_state_fixtures,
+            "validatorExpansionState": self.validator_expansion_state,
+            "contractReadyMarker": self.contract_ready_marker,
+            "uiReadyMarker": self.ui_ready_marker,
+            "validatorReadyMarker": self.validator_ready_marker,
+            "futureImplementationGatedMarker": self.future_implementation_gated_marker,
             "privacyScope": self.privacy_scope,
             "privacyLabel": self.privacy_label,
             "providerVisibleData": self.provider_visible_data,
@@ -395,6 +660,19 @@ class AIProviderStateSnapshot:
             "modelState": self.model_state,
             "capabilityPackState": self.capability_pack_state,
             "sourceTruth": self.source_truth,
+            "runtimeStateSchemaVersion": self.runtime_state_schema_version,
+            "runtimeStateCategory": self.runtime_state_category,
+            "runtimeStateLabel": self.runtime_state_label,
+            "runtimeReasonCode": self.runtime_reason_code,
+            "runtimeReasonLabel": self.runtime_reason_label,
+            "runtimeConfigSchemaVersion": self.runtime_config_schema_version,
+            "runtimeConfigState": self.runtime_config_state,
+            "runtimeConfigLabel": self.runtime_config_label,
+            "runtimeConfigMigration": self.runtime_config_migration,
+            "runtimeConfigValid": self.runtime_config_valid,
+            "runtimeFailClosed": self.runtime_fail_closed,
+            "runtimeProvenance": self.runtime_provenance,
+            "runtimeProvenanceLabel": self.runtime_provenance_label,
             "surfaceRole": self.surface_role,
             "providerOptions": [option.as_renderer_payload() for option in self.provider_options],
             "providerRegistry": [option.as_renderer_payload() for option in self.provider_options],
@@ -501,6 +779,49 @@ def _foundation_readiness_fields() -> dict[str, object]:
         "abuse_eval_label": "Abuse/eval: pending future approval",
         "release_proof_gate_state": RELEASE_PROOF_PENDING,
         "release_proof_gate_label": "Release proof: pending future approval",
+        "hardware_detection_level": HARDWARE_DETECTION_LEVEL_1,
+        "hardware_detection_label": "Hardware detection: Level 1 safe local static snapshot",
+        "capability_snapshot_policy": CAPABILITY_SNAPSHOT_POLICY_LOCAL_STATIC,
+        "capability_snapshot_source": CAPABILITY_SNAPSHOT_SOURCE_DEFAULT,
+        "capability_snapshot_budget_label": "Capability snapshot budget: static only; no heavy probe",
+        "ram_readiness_state": RAM_READINESS_UNPROBED,
+        "ram_readiness_label": "RAM readiness: unprobed",
+        "disk_readiness_state": DISK_READINESS_UNPROBED,
+        "disk_readiness_label": "Disk readiness: unprobed",
+        "model_workload_metadata_state": MODEL_WORKLOAD_METADATA_PLANNED,
+        "model_workload_metadata_label": "Model workload metadata: planned; no execution",
+        "capability_pack_manifest_schema_version": CAPABILITY_PACK_MANIFEST_SCHEMA_VERSION,
+        "capability_pack_manifest_state": CAPABILITY_PACK_MANIFEST_PLANNED,
+        "capability_pack_source_type": CAPABILITY_PACK_SOURCE_LOCAL_ONLY,
+        "capability_pack_checksum_state": CAPABILITY_PACK_CHECKSUM_REQUIRED,
+        "capability_pack_signature_state": CAPABILITY_PACK_SIGNATURE_REQUIRED,
+        "capability_pack_compatibility_state": CAPABILITY_PACK_COMPATIBILITY_UNPROVEN,
+        "capability_pack_disk_requirement": "disk requirement: future manifest required",
+        "capability_pack_ram_requirement": "ram requirement: future manifest required",
+        "capability_pack_gpu_requirement": "gpu requirement: future manifest required",
+        "capability_pack_install_state": CAPABILITY_PACK_INSTALL_BLOCKED,
+        "capability_pack_update_state": CAPABILITY_PACK_UPDATE_BLOCKED,
+        "capability_pack_uninstall_state": CAPABILITY_PACK_UNINSTALL_BLOCKED,
+        "data_classification_schema_version": DATA_CLASSIFICATION_SCHEMA_VERSION,
+        "provider_visible_data_guarantee": PROVIDER_VISIBLE_DATA_GUARANTEE_NONE,
+        "memory_indexing_state": MEMORY_INDEXING_DISABLED,
+        "retrieval_state": RETRIEVAL_DISABLED,
+        "learning_state": LEARNING_DISABLED,
+        "persistence_state": PERSISTENCE_DISABLED,
+        "future_memory_eligibility_marker": FUTURE_MEMORY_ELIGIBILITY_GATED,
+        "consent_envelope_state": CONSENT_ENVELOPE_REQUIRED,
+        "audit_envelope_state": AUDIT_ENVELOPE_PLANNED,
+        "secret_boundary_state": SECRET_BOUNDARY_NO_SECRETS,
+        "network_egress_state": NETWORK_EGRESS_BLOCKED,
+        "core_desktop_copy_contract_version": CORE_DESKTOP_COPY_CONTRACT_VERSION,
+        "core_desktop_runtime_state_contract": CORE_DESKTOP_RUNTIME_STATE_CONTRACT,
+        "disabled_prompt_behavior_contract": DISABLED_PROMPT_BEHAVIOR_CONTRACT,
+        "golden_provider_state_fixtures": GOLDEN_PROVIDER_STATE_FIXTURES,
+        "validator_expansion_state": VALIDATOR_EXPANSION_ACTIVE,
+        "contract_ready_marker": CONTRACT_READY_MARKER,
+        "ui_ready_marker": UI_READY_MARKER,
+        "validator_ready_marker": VALIDATOR_READY_MARKER,
+        "future_implementation_gated_marker": FUTURE_IMPLEMENTATION_GATED_MARKER,
         "foundation_readiness_items": _foundation_readiness_items(),
     }
 
@@ -517,6 +838,78 @@ def _provider_boundary_interaction_fields(
         "provider_interaction_detail": interaction_detail,
         "provider_consent_boundary_label": "Consent boundary: provider setup required before prompts",
         "provider_next_action_label": "Next: provider setup is disabled in this local-only foundation seam",
+    }
+
+
+def _runtime_contract_fields(
+    *,
+    category: str,
+    reason_code: str,
+    provenance: str = PROVIDER_RUNTIME_PROVENANCE_DEFAULT_CONFIG,
+    config_state: str = PROVIDER_RUNTIME_CONFIG_STATE_DEFAULT,
+    config_valid: bool = True,
+    fail_closed: bool = True,
+) -> dict[str, object]:
+    category_labels = {
+        PROVIDER_RUNTIME_CATEGORY_NO_PROVIDER: "Runtime state: no provider",
+        PROVIDER_RUNTIME_CATEGORY_SETUP_DISABLED: "Runtime state: provider setup disabled",
+        PROVIDER_RUNTIME_CATEGORY_UNCONFIGURED: "Runtime state: provider unconfigured",
+        PROVIDER_RUNTIME_CATEGORY_UNAVAILABLE: "Runtime state: provider unavailable",
+        PROVIDER_RUNTIME_CATEGORY_CONSENT_MISSING: "Runtime state: consent required",
+        PROVIDER_RUNTIME_CATEGORY_CAPABILITY_MISSING: "Runtime state: capability missing",
+        PROVIDER_RUNTIME_CATEGORY_READY_FUTURE_GATED: "Runtime state: ready but future-gated",
+        PROVIDER_RUNTIME_CATEGORY_ERROR_DEGRADED: "Runtime state: degraded and fail-closed",
+    }
+    reason_labels = {
+        PROVIDER_RUNTIME_REASON_NO_PROVIDER_CONFIGURED: "Reason: no provider configured",
+        PROVIDER_RUNTIME_REASON_SETUP_DISABLED_LOCAL_ONLY: "Reason: setup disabled in local-only seam",
+        PROVIDER_RUNTIME_REASON_PROVIDER_UNCONFIGURED: "Reason: provider configuration missing",
+        PROVIDER_RUNTIME_REASON_PROVIDER_UNAVAILABLE: "Reason: provider unavailable",
+        PROVIDER_RUNTIME_REASON_CONSENT_REQUIRED: "Reason: consent required before provider use",
+        PROVIDER_RUNTIME_REASON_CAPABILITY_MISSING: "Reason: capability proof missing",
+        PROVIDER_RUNTIME_REASON_READY_FUTURE_GATED: "Reason: future USER approval required",
+        PROVIDER_RUNTIME_REASON_INVALID_CONFIG_FAIL_CLOSED: "Reason: invalid config failed closed",
+        PROVIDER_RUNTIME_REASON_MISSING_CONFIG_FAIL_CLOSED: "Reason: missing config failed closed",
+    }
+    config_labels = {
+        PROVIDER_RUNTIME_CONFIG_STATE_DEFAULT: "Config: safe default local-only",
+        PROVIDER_RUNTIME_CONFIG_STATE_MISSING: "Config: missing; safe fallback active",
+        PROVIDER_RUNTIME_CONFIG_STATE_INVALID: "Config: invalid; safe fallback active",
+        PROVIDER_RUNTIME_CONFIG_STATE_LOCAL: "Config: local-only",
+    }
+    provenance_labels = {
+        PROVIDER_RUNTIME_PROVENANCE_DEFAULT_CONFIG: "Provenance: default config",
+        PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG: "Provenance: local config",
+        PROVIDER_RUNTIME_PROVENANCE_HARDWARE_SNAPSHOT: "Provenance: hardware snapshot",
+        PROVIDER_RUNTIME_PROVENANCE_MANIFEST_STATE: "Provenance: manifest state",
+        PROVIDER_RUNTIME_PROVENANCE_VALIDATOR_FIXTURE: "Provenance: validator fixture",
+        PROVIDER_RUNTIME_PROVENANCE_FUTURE_RUNTIME_CHECK: "Provenance: future runtime check",
+    }
+    normalized_category = category if category in PROVIDER_RUNTIME_STATE_CATEGORIES else PROVIDER_RUNTIME_CATEGORY_ERROR_DEGRADED
+    normalized_reason = reason_code if reason_code in PROVIDER_RUNTIME_REASON_CODES else PROVIDER_RUNTIME_REASON_INVALID_CONFIG_FAIL_CLOSED
+    normalized_config = config_state if config_state in {
+        PROVIDER_RUNTIME_CONFIG_STATE_DEFAULT,
+        PROVIDER_RUNTIME_CONFIG_STATE_MISSING,
+        PROVIDER_RUNTIME_CONFIG_STATE_INVALID,
+        PROVIDER_RUNTIME_CONFIG_STATE_LOCAL,
+    } else PROVIDER_RUNTIME_CONFIG_STATE_INVALID
+    normalized_provenance = (
+        provenance if provenance in PROVIDER_RUNTIME_PROVENANCE_SOURCES else PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG
+    )
+    return {
+        "runtime_state_schema_version": PROVIDER_RUNTIME_STATE_SCHEMA_VERSION,
+        "runtime_state_category": normalized_category,
+        "runtime_state_label": category_labels[normalized_category],
+        "runtime_reason_code": normalized_reason,
+        "runtime_reason_label": reason_labels[normalized_reason],
+        "runtime_config_schema_version": PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION,
+        "runtime_config_state": normalized_config,
+        "runtime_config_label": config_labels[normalized_config],
+        "runtime_config_migration": PROVIDER_RUNTIME_CONFIG_MIGRATION_POSTURE,
+        "runtime_config_valid": bool(config_valid),
+        "runtime_fail_closed": bool(fail_closed),
+        "runtime_provenance": normalized_provenance,
+        "runtime_provenance_label": provenance_labels[normalized_provenance],
     }
 
 
@@ -563,6 +956,204 @@ def _provider_selection_options() -> tuple[AIProviderChoiceSnapshot, ...]:
             requires_consent=True,
             provider_visible_data="none",
             external_calls="blocked",
+        ),
+    )
+
+
+def build_default_provider_runtime_config() -> AIProviderRuntimeConfigSnapshot:
+    """Return the safe local-only default provider runtime config."""
+
+    return AIProviderRuntimeConfigSnapshot(
+        schema_version=PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION,
+        config_state=PROVIDER_RUNTIME_CONFIG_STATE_DEFAULT,
+        selected_provider_id=NO_PROVIDER_ID,
+        provider_configured=False,
+        provider_available=False,
+        consent_granted=False,
+        capability_ready=False,
+        config_valid=True,
+        provenance=PROVIDER_RUNTIME_PROVENANCE_DEFAULT_CONFIG,
+    )
+
+
+def normalize_provider_runtime_config(
+    config: AIProviderRuntimeConfigSnapshot | dict[str, object] | None,
+) -> AIProviderRuntimeConfigSnapshot:
+    """Normalize local config into a fail-closed provider runtime contract input."""
+
+    if config is None:
+        return AIProviderRuntimeConfigSnapshot(
+            schema_version=PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION,
+            config_state=PROVIDER_RUNTIME_CONFIG_STATE_MISSING,
+            selected_provider_id=NO_PROVIDER_ID,
+            provider_configured=False,
+            provider_available=False,
+            consent_granted=False,
+            capability_ready=False,
+            config_valid=False,
+            provenance=PROVIDER_RUNTIME_PROVENANCE_DEFAULT_CONFIG,
+        )
+
+    if isinstance(config, AIProviderRuntimeConfigSnapshot):
+        if config.schema_version == PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION and config.config_valid:
+            return config
+        return replace(
+            build_default_provider_runtime_config(),
+            config_state=PROVIDER_RUNTIME_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=config.provenance
+            if config.provenance in PROVIDER_RUNTIME_PROVENANCE_SOURCES
+            else PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG,
+        )
+
+    if not isinstance(config, dict):
+        return replace(
+            build_default_provider_runtime_config(),
+            config_state=PROVIDER_RUNTIME_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG,
+        )
+
+    schema_version = str(config.get("schema_version") or "")
+    selected_provider_id = str(config.get("selected_provider_id") or NO_PROVIDER_ID)
+    provenance = str(config.get("provenance") or PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG)
+    valid_provider_ids = {option.provider_id for option in _provider_selection_options()}
+    config_valid = (
+        bool(config.get("config_valid", True))
+        and schema_version == PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION
+        and selected_provider_id in valid_provider_ids
+    )
+    if not config_valid:
+        return replace(
+            build_default_provider_runtime_config(),
+            config_state=PROVIDER_RUNTIME_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=provenance
+            if provenance in PROVIDER_RUNTIME_PROVENANCE_SOURCES
+            else PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG,
+        )
+
+    return AIProviderRuntimeConfigSnapshot(
+        schema_version=schema_version,
+        config_state=PROVIDER_RUNTIME_CONFIG_STATE_LOCAL,
+        selected_provider_id=selected_provider_id,
+        provider_configured=bool(config.get("provider_configured", False)),
+        provider_available=bool(config.get("provider_available", False)),
+        consent_granted=bool(config.get("consent_granted", False)),
+        capability_ready=bool(config.get("capability_ready", False)),
+        config_valid=True,
+        provenance=provenance if provenance in PROVIDER_RUNTIME_PROVENANCE_SOURCES else PROVIDER_RUNTIME_PROVENANCE_LOCAL_CONFIG,
+    )
+
+
+def build_provider_runtime_contract_state(
+    config: AIProviderRuntimeConfigSnapshot | dict[str, object] | None = None,
+    *,
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve local provider runtime config into a fail-closed visible state."""
+
+    normalized_config = normalize_provider_runtime_config(config)
+    if normalized_config.config_state == PROVIDER_RUNTIME_CONFIG_STATE_MISSING:
+        base_state = build_no_provider_ai_state(surface_role=surface_role)
+        return replace(
+            base_state,
+            **_runtime_contract_fields(
+                category=PROVIDER_RUNTIME_CATEGORY_NO_PROVIDER,
+                reason_code=PROVIDER_RUNTIME_REASON_MISSING_CONFIG_FAIL_CLOSED,
+                provenance=normalized_config.provenance,
+                config_state=normalized_config.config_state,
+                config_valid=False,
+                fail_closed=True,
+            ),
+        )
+    if normalized_config.config_state == PROVIDER_RUNTIME_CONFIG_STATE_INVALID:
+        base_state = build_no_provider_ai_state(surface_role=surface_role)
+        return replace(
+            base_state,
+            status_label="AI unavailable - config failed closed",
+            disabled_reason="Provider runtime config is invalid, so provider behavior is disabled",
+            interaction_disabled_reason="Invalid provider runtime config failed closed; prompts remain disabled",
+            **_runtime_contract_fields(
+                category=PROVIDER_RUNTIME_CATEGORY_ERROR_DEGRADED,
+                reason_code=PROVIDER_RUNTIME_REASON_INVALID_CONFIG_FAIL_CLOSED,
+                provenance=normalized_config.provenance,
+                config_state=normalized_config.config_state,
+                config_valid=False,
+                fail_closed=True,
+            ),
+        )
+    if normalized_config.selected_provider_id == NO_PROVIDER_ID:
+        return build_local_ai_runtime_foundation_provider_boundary_state(surface_role=surface_role)
+    if not normalized_config.provider_configured:
+        base_state = build_local_provider_registry_state(surface_role=surface_role)
+        return replace(
+            base_state,
+            **_runtime_contract_fields(
+                category=PROVIDER_RUNTIME_CATEGORY_UNCONFIGURED,
+                reason_code=PROVIDER_RUNTIME_REASON_PROVIDER_UNCONFIGURED,
+                provenance=normalized_config.provenance,
+                config_state=normalized_config.config_state,
+                config_valid=True,
+                fail_closed=True,
+            ),
+        )
+    if not normalized_config.provider_available:
+        base_state = build_provider_selection_consent_state(
+            selected_provider_id=normalized_config.selected_provider_id,
+            surface_role=surface_role,
+        )
+        return replace(
+            base_state,
+            **_runtime_contract_fields(
+                category=PROVIDER_RUNTIME_CATEGORY_UNAVAILABLE,
+                reason_code=PROVIDER_RUNTIME_REASON_PROVIDER_UNAVAILABLE,
+                provenance=normalized_config.provenance,
+                config_state=normalized_config.config_state,
+                config_valid=True,
+                fail_closed=True,
+            ),
+        )
+    if not normalized_config.consent_granted:
+        base_state = build_provider_selection_consent_state(
+            selected_provider_id=normalized_config.selected_provider_id,
+            surface_role=surface_role,
+        )
+        return replace(
+            base_state,
+            **_runtime_contract_fields(
+                category=PROVIDER_RUNTIME_CATEGORY_CONSENT_MISSING,
+                reason_code=PROVIDER_RUNTIME_REASON_CONSENT_REQUIRED,
+                provenance=normalized_config.provenance,
+                config_state=normalized_config.config_state,
+                config_valid=True,
+                fail_closed=True,
+            ),
+        )
+    if not normalized_config.capability_ready:
+        base_state = build_local_hardware_capability_state(surface_role=surface_role)
+        return replace(
+            base_state,
+            **_runtime_contract_fields(
+                category=PROVIDER_RUNTIME_CATEGORY_CAPABILITY_MISSING,
+                reason_code=PROVIDER_RUNTIME_REASON_CAPABILITY_MISSING,
+                provenance=normalized_config.provenance,
+                config_state=normalized_config.config_state,
+                config_valid=True,
+                fail_closed=True,
+            ),
+        )
+
+    base_state = build_local_ai_runtime_foundation_provider_boundary_state(surface_role=surface_role)
+    return replace(
+        base_state,
+        **_runtime_contract_fields(
+            category=PROVIDER_RUNTIME_CATEGORY_READY_FUTURE_GATED,
+            reason_code=PROVIDER_RUNTIME_REASON_READY_FUTURE_GATED,
+            provenance=normalized_config.provenance,
+            config_state=normalized_config.config_state,
+            config_valid=True,
+            fail_closed=True,
         ),
     )
 
@@ -625,6 +1216,10 @@ def build_no_provider_ai_state(*, surface_role: str = "hud") -> AIProviderStateS
         model_state="not installed",
         capability_pack_state="not installed",
         source_truth="renderer-local no-provider shell",
+        **_runtime_contract_fields(
+            category=PROVIDER_RUNTIME_CATEGORY_NO_PROVIDER,
+            reason_code=PROVIDER_RUNTIME_REASON_NO_PROVIDER_CONFIGURED,
+        ),
         surface_role=normalized_surface,
         provider_options=_provider_selection_options(),
     )
@@ -691,6 +1286,10 @@ def build_local_ai_runtime_foundation_provider_boundary_state(
         model_state="not installed",
         capability_pack_state="not installed",
         source_truth="renderer-local FAM-007 runtime foundation provider boundary",
+        **_runtime_contract_fields(
+            category=PROVIDER_RUNTIME_CATEGORY_SETUP_DISABLED,
+            reason_code=PROVIDER_RUNTIME_REASON_SETUP_DISABLED_LOCAL_ONLY,
+        ),
         surface_role=normalized_surface,
         provider_options=_provider_selection_options(),
     )
@@ -762,6 +1361,10 @@ def build_provider_selection_consent_state(
         model_state="not installed",
         capability_pack_state="not installed",
         source_truth="renderer-local provider-selection consent scaffold",
+        **_runtime_contract_fields(
+            category=PROVIDER_RUNTIME_CATEGORY_CONSENT_MISSING,
+            reason_code=PROVIDER_RUNTIME_REASON_CONSENT_REQUIRED,
+        ),
         surface_role=normalized_surface,
         provider_options=_provider_selection_options(),
     )
@@ -825,6 +1428,10 @@ def build_local_provider_registry_state(*, surface_role: str = "hud") -> AIProvi
         model_state="not installed",
         capability_pack_state="not installed",
         source_truth="renderer-local provider registry configuration scaffold",
+        **_runtime_contract_fields(
+            category=PROVIDER_RUNTIME_CATEGORY_UNCONFIGURED,
+            reason_code=PROVIDER_RUNTIME_REASON_PROVIDER_UNCONFIGURED,
+        ),
         surface_role=normalized_surface,
         provider_options=_provider_selection_options(),
     )
@@ -892,6 +1499,10 @@ def build_local_hardware_capability_state(*, surface_role: str = "hud") -> AIPro
         model_state="not installed",
         capability_pack_state="not installed",
         source_truth="renderer-local hardware capability planning scaffold",
+        **_runtime_contract_fields(
+            category=PROVIDER_RUNTIME_CATEGORY_CAPABILITY_MISSING,
+            reason_code=PROVIDER_RUNTIME_REASON_CAPABILITY_MISSING,
+        ),
         surface_role=normalized_surface,
         provider_options=_provider_selection_options(),
     )
@@ -964,6 +1575,10 @@ def build_fam007_foundation_readiness_state(*, surface_role: str = "hud") -> AIP
         model_state="not installed",
         capability_pack_state="not installed",
         source_truth="renderer-local FAM-007 foundation readiness scaffold",
+        **_runtime_contract_fields(
+            category=PROVIDER_RUNTIME_CATEGORY_READY_FUTURE_GATED,
+            reason_code=PROVIDER_RUNTIME_REASON_READY_FUTURE_GATED,
+        ),
         surface_role=normalized_surface,
         provider_options=_provider_selection_options(),
     )
