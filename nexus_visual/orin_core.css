@@ -464,11 +464,19 @@ body {
 .ai-provider-status__power,
 .ai-provider-status__thermal,
 .ai-provider-status__model-workload,
+.ai-provider-status__hardware-detection,
+.ai-provider-status__ram,
+.ai-provider-status__disk,
+.ai-provider-status__model-metadata,
 .ai-provider-status__capability-pack,
 .ai-provider-status__capability-download,
 .ai-provider-status__capability-recommendation,
+.ai-provider-status__capability-manifest,
+.ai-provider-status__capability-integrity,
 .ai-provider-status__data-classification,
 .ai-provider-status__memory,
+.ai-provider-status__memory-contract,
+.ai-provider-status__egress,
 .ai-provider-status__audit-secrets,
 .ai-provider-status__windows,
 .ai-provider-status__offline,
@@ -477,10 +485,16 @@ body {
 .ai-provider-status__validation,
 .ai-provider-status__abuse,
 .ai-provider-status__release-proof,
+.ai-provider-status__copy-contract,
+.ai-provider-status__fixtures,
 .ai-provider-status__consent,
 .ai-provider-status__disclosure,
 .ai-provider-status__visible-data-detail,
 .ai-provider-status__consent-boundary,
+.ai-provider-status__runtime,
+.ai-provider-status__runtime-reason,
+.ai-provider-status__runtime-provenance,
+.ai-provider-status__runtime-schema,
 .ai-provider-status__fallback,
 .ai-provider-status__next-action,
 .ai-provider-status__privacy {
@@ -506,14 +520,22 @@ body {
 .ai-provider-status__power,
 .ai-provider-status__thermal,
 .ai-provider-status__model-workload,
+.ai-provider-status__hardware-detection,
+.ai-provider-status__ram,
+.ai-provider-status__disk,
+.ai-provider-status__model-metadata,
 .ai-provider-status__capability-pack,
 .ai-provider-status__capability-download,
-.ai-provider-status__capability-recommendation {
+.ai-provider-status__capability-recommendation,
+.ai-provider-status__capability-manifest,
+.ai-provider-status__capability-integrity {
   color: rgba(196, 224, 246, 0.9);
 }
 
 .ai-provider-status__memory,
 .ai-provider-status__data-classification,
+.ai-provider-status__memory-contract,
+.ai-provider-status__egress,
 .ai-provider-status__audit-secrets,
 .ai-provider-status__windows,
 .ai-provider-status__offline {
@@ -524,7 +546,9 @@ body {
 .ai-provider-status__voice,
 .ai-provider-status__validation,
 .ai-provider-status__abuse,
-.ai-provider-status__release-proof {
+.ai-provider-status__release-proof,
+.ai-provider-status__copy-contract,
+.ai-provider-status__fixtures {
   color: rgba(222, 218, 246, 0.9);
 }
 
@@ -539,6 +563,10 @@ body {
 }
 
 .ai-provider-status__consent-boundary,
+.ai-provider-status__runtime,
+.ai-provider-status__runtime-reason,
+.ai-provider-status__runtime-provenance,
+.ai-provider-status__runtime-schema,
 .ai-provider-status__next-action {
   color: rgba(255, 218, 151, 0.9);
 }
