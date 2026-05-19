@@ -21,24 +21,24 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Intake State: `Active - RRI-20260519-003 is a USER-approved phase-gate governance intake for Governance Reform PR 1: source-truth ownership and worktree slot modeling; PR creation, merge, runtime work, release work, issue work, branch cleanup, FAM-006 mutation, and FAM-007 successor creation remain separate USER decisions`
+- Intake State: `Active - RRI-20260519-004 is a USER-approved phase-gate governance intake for PR watcher approval-default repair; PR creation, merge, runtime work, release work, issue work, branch cleanup, FAM-006 mutation, and FAM-007 successor creation remain separate USER decisions`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
-- Active RRI Cycle: `RRI-20260519-003`
-- Latest Closed RRI Cycle: `RRI-20260519-002`
-- Return Digest Status: `Pending - RRI-20260519-003 must validate, commit, push, and later complete the USER-approved PR/merge/return path before runtime lanes treat the worktree slot ownership model as merged-main truth`
-- Active Cycle Identity: `RRI-20260519-003 originates from USER-approved phase-gate governance intake to add Docs/worktree_slots.md, define derived live truth versus governance receipts, preserve Branch Runtime Engineering Plan relationships, and keep hard enforcement plus migration/shrink work deferred`
+- Active RRI Cycle: `RRI-20260519-004`
+- Latest Closed RRI Cycle: `RRI-20260519-003`
+- Return Digest Status: `Pending - RRI-20260519-004 must validate, commit, push, and later complete the USER-approved PR/merge/return path before runtime lanes treat the watcher approval-default repair as merged-main truth`
+- Active Cycle Identity: `RRI-20260519-004 originates from USER-approved phase-gate governance intake to clarify that PR Readiness Stage 2 approval includes watcher provisioning by default and no separate watcher-specific approval is required`
 
 ## PR Readiness Stage 2 Execution Packet
 
 - PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
-- Live PR State: `PR #174 is open, non-draft, base main, head feature/release-readiness-source-truth-intake, and mergeable at initial live inspection; branch head is tracked by live GitHub PR state rather than hard-coded here`
-- Governance PR: `#174 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/174`
-- Watcher Readiness Posture: `Ready for USER-approved watcher provisioning or manual live PR inspection; watcher automation creation remains separate unless USER explicitly approves it`
+- Live PR State: `PR #175 is open, non-draft, base main, head feature/release-readiness-source-truth-intake, and mergeable at initial live inspection; branch head is tracked by live GitHub PR state rather than hard-coded here`
+- Governance PR: `#175 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/175`
+- Watcher Readiness Posture: `Stage 2 default - watcher provisioning is included with USER approval for PR Readiness Stage 2 / PR creation; no separate watcher-specific approval is required unless USER explicitly waives watcher provisioning or a platform/runtime blocker is recorded`
 - Historical Merge Proof: `PR #162 is closed/merged implementation proof for FAM-007 runtime expansion; PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
-- Next Workstream User Waiver: `Not applicable - RRI-20260519-003 is a governance phase-gate repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 2 Outcome: `PR #174 created after final validation; merge remains USER-gated and runtime/release/issue/branch-cleanup work remains blocked`
+- Next Workstream User Waiver: `Not applicable - RRI-20260519-004 is a governance phase-gate repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
+- Stage 2 Outcome: `PR #175 created after final validation; merge remains USER-gated and runtime/release/issue/branch-cleanup work remains blocked; watcher provisioning is included in Stage 2 approval by default`
 
 ## Branch Class
 
@@ -66,10 +66,10 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only for release-blocker intake; USER-approved automation/worktree governance intake may also use this standing lane when the repair is non-runtime, multi-worktree safety related, and held to the same one-cycle/PR-gated contract; USER-approved phase-gate governance intake may also use this standing lane when a live branch exposes a repeatable Branch Readiness, PR Readiness, Release Readiness, or Workstream gate miss and the repair is limited to governance/source-truth/validator/helper prevention; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `RRI-20260519-003`
-- Latest Closed RRI Cycle: `RRI-20260519-002`
-- Return Digest Status: `Pending - RRI-20260519-003 must validate, commit, push, and later complete the USER-approved PR/merge/return path before runtime lanes treat the worktree slot ownership model as merged-main truth`
-- Active Cycle Identity: `RRI-20260519-003 originates from USER-approved phase-gate governance intake to add Docs/worktree_slots.md, define derived live truth versus governance receipts, preserve Branch Runtime Engineering Plan relationships, and keep hard enforcement plus migration/shrink work deferred`
+- Active RRI Cycle: `RRI-20260519-004`
+- Latest Closed RRI Cycle: `RRI-20260519-003`
+- Return Digest Status: `Pending - RRI-20260519-004 must validate, commit, push, and later complete the USER-approved PR/merge/return path before runtime lanes treat the watcher approval-default repair as merged-main truth`
+- Active Cycle Identity: `RRI-20260519-004 originates from USER-approved phase-gate governance intake to clarify that PR Readiness Stage 2 approval includes watcher provisioning by default and no separate watcher-specific approval is required`
 - One Active Cycle: Required operationally while a cycle is in flight. A second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main; the standing Governance branch is the only branch class where merged source truth does not require a separate closeout PR solely to clear or rewrite the cycle ledger.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Pre-Rebaseline Impact Audit: Required before the standing branch, neutral main workspace, or any originating worktree fast-forwards, merges, rebases, branch-switches, or otherwise baselines to newer `origin/main`; report `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before mutation.
@@ -116,6 +116,7 @@ Allowed:
 - Governance Intake Triage Packet and Digest Profile standardization may be repaired on this standing lane when USER approves the focused reform pass; the standard lives in `Docs/governance_intake_triage_and_digest_profiles.md` and keeps future reform packets narrow.
 - Worktree Rebaseline Audit Helper standardization may be repaired on this standing lane when USER approves the focused reform pass; the reusable helper is `dev/orin_worktree_rebaseline_audit.py`, is report-only, and emits `Current-Main Reconciliation Identity Guard`.
 - PR Watcher Mode Contract standardization may be repaired on this standing lane when USER approves the focused reform pass; the standard lives in `Docs/pr_watcher_mode_contract.md`, defines `Silent Monitor`, `Verify Once`, `Repair Mode`, and `Blocked Mode`, and requires `Watcher Health Proof:` before PR Readiness Stage 2 final handoff can be green.
+- PR watcher approval-default governance may be repaired on this standing lane when Stage 2 watcher handoff drift recurs; PR Readiness Stage 2 approval includes watcher provisioning by default, and skipping watcher provisioning requires explicit USER watcher waiver or documented platform/runtime blocker.
 - Validation Suite recommendation standardization may be repaired on this standing lane when USER approves the focused reform pass; the reusable helper is `dev/orin_validation_suite.py`, accepts `--phase` and `--changed-file`, emits `Recommended Validation Suite:`, is report-only, and does not execute commands.
 - Backlog/Roadmap Current Decision Surface standardization may be repaired on this standing lane when USER approves the focused reform pass; `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` must carry compact `## Current Decision Surface` blocks with `Latest Public Prerelease Recorded In Source Truth:`, branch, blocker, and next-phase facts.
 - One PR per active `RRI-*` cycle after validation.
@@ -208,13 +209,13 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `RRI-20260519-003 - Source-truth ownership and worktree slot model`
+Active seam: `RRI-20260519-004 - PR watcher approval-default repair`
 
-Seam Goal: `Define derived live truth versus governance receipts, create the reusable worktree slot registry, and clarify that slot assignment is not active branch authority by itself.`
+Seam Goal: `Clarify that PR Readiness Stage 2 approval includes watcher provisioning by default and Codex must not ask for separate watcher-specific approval after PR creation approval.`
 
-Seam Scope: `Docs/Main.md, Docs/worktree_slots.md, Docs/branch_records/index.md, and this standing governance branch authority record.`
+Seam Scope: `Docs/Main.md, Docs/pr_watcher_mode_contract.md, Docs/branch_records/index.md, and this standing governance branch authority record.`
 
-Seam Non-Includes: `hard validator enforcement, backlog/roadmap migration or shrink work, helper implementation, runtime/provider/model/memory/voice/Core/shortcut/installer work, release execution, issue work, FAM-006 or FAM-007 mutation, branch deletion, worktree cleanup, or direct-main source mutation.`
+Seam Non-Includes: `watcher implementation rewrite, automation scheduler repair, hard validator enforcement, runtime/provider/model/memory/voice/Core/shortcut/installer work, release execution, issue work, FAM-006 or FAM-007 mutation, branch deletion, worktree cleanup, or direct-main source mutation.`
 
 ## Initial Workstream Seam Sequence
 
@@ -239,6 +240,7 @@ Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/
 - `dev/orin_branch_readiness_planning_fixture_validation.py` validates the formal Branch Readiness planning fixtures so shallow later-phase planning fails and concrete whole-system planning passes.
 - Branch Runtime Engineering Plan source truth is documented, source-checked, and fixture-validated so detailed runtime branch planning lives in `Docs/branch_plans/<branch_slug>.md` while backlog and roadmap stay compact pointer/status surfaces.
 - `Docs/worktree_slots.md` defines the stable slot IDs, intended assignment receipt fields, derived live truth versus governance receipt boundary, and the Branch Runtime Engineering Plan relationship without storing volatile live Git/GitHub facts as source truth.
+- `Docs/pr_watcher_mode_contract.md` defines that PR Readiness Stage 2 approval includes watcher provisioning by default and that watcher skipping requires explicit waiver or blocker.
 - `dev/orin_pr_body_quality_audit.py` rejects PR body firewall markers.
 - The setup PR merged and future intake PRs remain USER-gated for creation and merge.
 
