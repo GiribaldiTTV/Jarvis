@@ -505,16 +505,16 @@ Step 7 - Truthful Sensor Availability
 Expected: Warning Notifications is a monitor/settings checkbox, Provider Readiness is readiness/status/future capability, and neither appears as an assignable sensor/source row.
 USER Result / Notes:
 
-Step 8 - Sensor Library Scale And Scrollbars
-Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter dropdown/facet control, clears stale hover highlights when moving between dropdown items or reopening it, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars.
+Step 8 - Sensor Library Scale, Source Filter, And Polling Rate
+Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter dropdown/facet control, clears stale hover highlights when moving between dropdown items or reopening it, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars. Polling Rate replaces Polling Floor and opens as a compact Nexus-styled bounded dropdown with clear hover/open/selected states.
 USER Result / Notes:
 
 Step 9 - Dashboard Resize And Move Smoothness
 Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse is still held; no resize-proof stripes, overlays, debug markers, or other proof artifacts should appear in the normal user-facing Dashboard UI.
 USER Result / Notes:
 
-Step 10 - Dashboard Control Regressions
-Expected: Dashboard Settings, window-level Close, Warning Notifications, Create/Edit Monitor legacy entry points, NCP tray open/close, and tray Exit confirmation still behave normally while Monitor Groups is available.
+Step 10 - Dashboard And Manage Monitors Control Reliability
+Expected: Dashboard Settings, window-level Close, Warning Notifications, Create/Edit Monitor legacy entry points, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, Create Monitor, Save Monitor, Cancel, Delete confirmation, dirty-guard actions, Source Filter, Polling Rate, and monitor rows visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, post-close/reopen, and post-render states.
 Regression checkpoints include: Step 7 - #137 Dashboard Rounded Corners On Light Background; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 USER Result / Notes:
 

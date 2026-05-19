@@ -9150,6 +9150,7 @@ class DesktopRuntimeWindow(QWidget):
                 (
                     "03_manage_monitors",
                     "04_source_filter",
+                    "04_polling_rate",
                     "05_unsaved",
                     "06_unsaved",
                     "07_unsaved",
@@ -9755,6 +9756,9 @@ class DesktopRuntimeWindow(QWidget):
                 "empty_state_actions_bounded": h1_proof.get("emptyStateActionsBounded") is True,
                 "empty_state_product_copy": h1_proof.get("emptyStateProductCopy") is True,
                 "interactive_control_visual_qa_gate": h1_proof.get("interactiveControlVisualQaGate") is True,
+                "interactive_control_first_click_stress": h1_proof.get("interactiveControlFirstClickStress") is True,
+                "interactive_control_no_interception": h1_proof.get("interactiveControlNoInterception") is True,
+                "polling_rate_dropdown_nexus_styled": h1_proof.get("pollingRateDropdownNexusStyled") is True,
                 "source_picker_browser": h1_proof.get("sourcePickerBrowser") is True,
                 "source_filter_dropdown": h1_proof.get("sourceFilterDropdown") is True,
                 "source_filter_facets": h1_proof.get("sourceFilterFacets") is True,
@@ -10343,7 +10347,34 @@ class DesktopRuntimeWindow(QWidget):
                             }
                         })();
                         """,
-                        lambda: (record_visual("04_source_filter_dropdown_open_hover_reset"), visual_dirty_close_guard()),
+                        lambda: (record_visual("04_source_filter_dropdown_open_hover_reset"), visual_polling_rate()),
+                    )
+
+                def visual_polling_rate() -> None:
+                    run_visual(
+                        """
+                        (function() {
+                            try {
+                                const control = document.getElementById("monitoring-hud-monitor-polling-rate-control");
+                                const toggle = document.getElementById("monitoring-hud-monitor-polling-rate-toggle");
+                                if (toggle && control && control.dataset.dropdownOpen !== "true") toggle.click();
+                                const option2 = control ? control.querySelector('[data-polling-rate-option="2000"]') : null;
+                                const option5 = control ? control.querySelector('[data-polling-rate-option="5000"]') : null;
+                                if (option2) option2.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+                                if (option5) option5.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+                                if (control) control.dataset.liveVisualProofState = "polling-rate-open-hover-reset";
+                                return JSON.stringify({
+                                    ok: Boolean(control && control.dataset.dropdownOpen === "true"),
+                                    label: document.getElementById("monitoring-hud-monitor-polling-rate-label")
+                                        ? document.getElementById("monitoring-hud-monitor-polling-rate-label").textContent
+                                        : ""
+                                });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("04_polling_rate_dropdown_open_hover_reset"), visual_dirty_close_guard()),
                     )
 
                 def visual_manage_open() -> None:
@@ -10436,6 +10467,10 @@ class DesktopRuntimeWindow(QWidget):
                         let emptyStateActionsBounded = false;
                         let emptyStateProductCopy = false;
                         let interactiveControlVisualQaGate = false;
+                        let interactiveControlReliabilityProof = {};
+                        let interactiveControlFirstClickStress = false;
+                        let interactiveControlNoInterception = false;
+                        let pollingRateDropdownNexusStyled = false;
                         let sourcePickerBrowser = false;
                         let sourceFilterDropdown = false;
                         let sourceFilterFacets = false;
@@ -10498,6 +10533,8 @@ class DesktopRuntimeWindow(QWidget):
                         const sourceAssignment = document.getElementById("monitoring-hud-monitor-sensor-assignment");
                         const sourceFilter = document.getElementById("monitoring-hud-sensor-filter");
                         const sourceSearch = document.getElementById("monitoring-hud-sensor-search");
+                        const pollingRateControl = document.getElementById("monitoring-hud-monitor-polling-rate-control");
+                        const pollingRateToggle = document.getElementById("monitoring-hud-monitor-polling-rate-toggle");
                         const readinessPanel = document.getElementById("monitoring-hud-provider-readiness-panel");
                         const warningSetting = document.getElementById("monitoring-hud-monitor-warning-notifications-setting");
                         const detailDelete = document.getElementById("monitoring-hud-monitor-detail-delete");
@@ -10712,6 +10749,16 @@ class DesktopRuntimeWindow(QWidget):
                                 unsavedDeleteQueuedAction = Boolean(deleteGuard && deleteGuard.dataset.pendingMonitorAction === "delete");
                                 const cancelDelete = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
                                 if (cancelDelete) cancelDelete.click();
+                                if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
+                                    const closeReadyState = window.getMonitoringHudControlState() || {};
+                                    if (closeReadyState.cards && closeReadyState.cards.cpu) {
+                                        closeReadyState.selectedMonitorId = "cpu";
+                                        window.setMonitoringHudControlState(closeReadyState);
+                                    }
+                                }
+                                if (typeof monitoringHudOpenChildWindow === "function") {
+                                    monitoringHudOpenChildWindow("monitor-group-edit");
+                                }
                                 const closeDraftValue = "CPU Group Close Draft";
                                 const closeName = document.getElementById("monitoring-hud-edit-monitor-name");
                                 if (closeName) {
@@ -10908,6 +10955,24 @@ class DesktopRuntimeWindow(QWidget):
                             pollingEvent.initEvent("change", true, false);
                             polling.dispatchEvent(pollingEvent);
                         }
+                        if (window.runMonitoringHudInteractiveControlStressProof) {
+                            interactiveControlReliabilityProof = window.runMonitoringHudInteractiveControlStressProof() || {};
+                            interactiveControlFirstClickStress = interactiveControlReliabilityProof.passed === true;
+                            interactiveControlNoInterception = Boolean(
+                                interactiveControlReliabilityProof
+                                && interactiveControlReliabilityProof.stateCount >= 10
+                                && Array.isArray(interactiveControlReliabilityProof.failures)
+                                && interactiveControlReliabilityProof.failures.length === 0
+                            );
+                        }
+                        pollingRateDropdownNexusStyled = Boolean(
+                            pollingRateControl
+                            && pollingRateControl.dataset.boundedDropdown === "polling-rate"
+                            && pollingRateControl.dataset.selectedValue
+                            && pollingRateToggle
+                            && pollingRateToggle.getAttribute("aria-haspopup") === "listbox"
+                            && !pollingRateToggle.disabled
+                        );
                         if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
                             const visualContract = monitorListVisualContract();
                             monitorListRowsCompact = visualContract.compactRows;
@@ -10926,6 +10991,9 @@ class DesktopRuntimeWindow(QWidget):
                                 && emptyStateCreatePrimary
                                 && emptyStateActionsBounded
                                 && emptyStateProductCopy
+                                && interactiveControlFirstClickStress
+                                && interactiveControlNoInterception
+                                && pollingRateDropdownNexusStyled
                             );
                             const state = window.getMonitoringHudControlState();
                             if (selectedBefore && state.cards && state.cards[selectedBefore]) {
@@ -10980,6 +11048,10 @@ class DesktopRuntimeWindow(QWidget):
                                     emptyStateActionsBounded,
                                     emptyStateProductCopy,
                                     interactiveControlVisualQaGate,
+                                    interactiveControlReliabilityProof,
+                                    interactiveControlFirstClickStress,
+                                    interactiveControlNoInterception,
+                                    pollingRateDropdownNexusStyled,
                                     sourcePickerBrowser,
                                     sourceFilterDropdown,
                                     sourceFilterFacets,
@@ -11058,6 +11130,10 @@ class DesktopRuntimeWindow(QWidget):
                             emptyStateActionsBounded,
                             emptyStateProductCopy,
                             interactiveControlVisualQaGate,
+                            interactiveControlReliabilityProof,
+                            interactiveControlFirstClickStress,
+                            interactiveControlNoInterception,
+                            pollingRateDropdownNexusStyled,
                             sourcePickerBrowser,
                             sourceFilterDropdown,
                             sourceFilterFacets,
@@ -11375,7 +11451,7 @@ class DesktopRuntimeWindow(QWidget):
                     for card in cards.values()
                     if isinstance(card, dict) and isinstance(card.get("sensors"), list)
                 ),
-                polling_floor_ms=1000,
+                polling_rate_min_ms=1000,
             )
 
         signature = (feature_enabled, visible, anchored, snap_enabled, polling_rate_ms)

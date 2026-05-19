@@ -400,8 +400,14 @@ def _validate_static_surface(failures: list[str]) -> None:
         'id="monitoring-hud-monitor-unsaved-guard"',
         'id="monitoring-hud-monitor-detail-empty"',
         "Create a monitor to assign sources and settings.",
-        'data-control-row="polling-floor-inline"',
-        'data-bounded-control="polling-floor"',
+        'data-control-row="polling-rate-inline"',
+        'data-bounded-control="polling-rate"',
+        'id="monitoring-hud-monitor-polling-rate-control"',
+        'data-bounded-dropdown="polling-rate"',
+        'id="monitoring-hud-monitor-polling-rate-toggle"',
+        'class="monitoring-hud__bounded-dropdown-menu',
+        'data-polling-rate-option="5000"',
+        "Polling Rate",
         'data-source-controls-layout="search-filter-inline"',
         'data-monitor-select="cpu"',
         'data-monitor-setting="warning-notifications"',
@@ -477,6 +483,42 @@ def _validate_static_surface(failures: list[str]) -> None:
         "HUD CSS must render Source Filter as a Nexus-styled dropdown with explicit hover reset styling",
         failures,
     )
+    _require(
+        ".monitoring-hud__bounded-dropdown" in css
+        and ".monitoring-hud__bounded-dropdown-menu" in css
+        and ".monitoring-hud__bounded-dropdown-option.is-hovered" in css
+        and "data-polling-rate-option" in html
+        and "monitoringHudSetPollingRateDropdownOpen" in js
+        and "monitoringHudSetPollingRateValue" in js,
+        "HUD must render Polling Rate as a Nexus-styled bounded dropdown with hover/open/select behavior",
+        failures,
+    )
+    _require(
+        "Polling floor" not in html
+        and "Polling Floor" not in html
+        and 'data-bounded-control="polling-floor"' not in html,
+        "HUD user-facing copy must rename Polling Floor to Polling Rate and remove polling-floor control markers",
+        failures,
+    )
+    for interactive_runtime in (
+        "normal-hover-active-focus-visible-disabled-open-selected",
+        "first-click-stress-proof-required",
+        "z-index-pointer-events-disabled-aria-dom-focus-timing",
+        "monitoringHudWireReliableControl",
+        "monitoringHudWireReliableDelegatedControl",
+        "monitoringHudControlInterceptionSnapshot",
+        "runMonitoringHudInteractiveControlStressProof",
+        "interactiveControlFirstClickStress",
+        "interactiveControlNoInterception",
+        "pollingRateDropdownNexusStyled",
+        "04_polling_rate_dropdown_open_hover_reset",
+    ):
+        _require_contains(
+            html + css + js + renderer,
+            interactive_runtime,
+            "FAM-006 interactive-control reliability runtime/proof",
+            failures,
+        )
     _require(
         ".monitoring-hud__source-filter-chips" not in html,
         "HUD HTML must not expose Source Filter as bulky always-visible chips",

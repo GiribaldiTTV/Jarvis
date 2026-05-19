@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active Branch Readiness Stage 2 repair setup for returned LV1 interactive-control reliability and visual-affordance failure`
-- Bounded State: `Current-main reconciliation through origin/main 6e2e743fd1d8d688c8046eb0a788b1a7109e66c2 is complete on this FAM-006 branch; origin/main PR #169 governance/source-truth changes are context, not identity; right-edge rediscovery repair and Hardening H1 are green with Dashboard product edge math preserved; refreshed LV1 returned a user-facing interactive-control reliability and visual-affordance failure. The admitted setup covers missing hover/active/focus/click affordance proof, intermittent first-click reliability for Dashboard and Manage Monitors controls, close/monitor-switch/create/delete/dirty-guard/dropdown/post-render click stress, Polling Floor copy repair to Polling Rate, and Polling Rate dropdown visual repair as a Nexus-styled bounded control. PR Readiness remains blocked until this setup is implemented, hardened, refreshed LV1/UTS passes or is waived with reason, and blockers are reevaluated.`
+- Branch Authority State: `Active Repair Workstream implementation for returned LV1 interactive-control reliability and visual-affordance failure`
+- Bounded State: `Current-main reconciliation through origin/main 6e2e743fd1d8d688c8046eb0a788b1a7109e66c2 is complete on this FAM-006 branch; origin/main PR #169 governance/source-truth changes are context, not identity; right-edge rediscovery repair and Hardening H1 are green with Dashboard product edge math preserved; the returned LV1 interactive-control reliability and visual-affordance repair is implemented. Runtime now adds visible Nexus hover/active/focus-visible/disabled/open/selected states across current Dashboard and Manage Monitors interactables, a reliable activation layer with first-click and click-interception proof data, Polling Floor renamed to Polling Rate, and a Nexus-styled Polling Rate bounded dropdown. PR Readiness remains blocked until Hardening H1 and refreshed LV1/UTS pass or are waived with reason, and blockers are reevaluated.`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -27,15 +27,15 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 ## Current Phase
 
-Phase: `Branch Readiness`
+Phase: `Workstream`
 
-Stage: `Stage 2 repair setup - returned LV1 interactive-control reliability and visual-affordance failure`
+Stage: `Repair Workstream implementation - returned LV1 interactive-control reliability and visual-affordance failure`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Refreshed Live Validation Stage 1 after right-edge H1 PASS found a new returned USER/UTS failure: Dashboard and Manage Monitors clickable controls do not consistently light up on hover, intermittent first-click actions can miss or appear intercepted for monitor switching and close controls, and the Polling Floor label/dropdown remains product/UI-polish incorrect. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Stage 2 repair setup admitted for interactive-control visual affordance and first-click reliability`. Current Repair Workstream Seam: `Pending USER approval after this setup`. Current Hardening Seam: `Pending after repair implementation`. Current Live Validation Seam: `Returned LV1/UTS failure recorded; previous automated helper evidence is superseded by returned USER findings`. Current PR gate: `Blocked until interactive-control reliability/visual-affordance repair implementation, H1, refreshed LV1/UTS, and returned USER result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
+Refreshed Live Validation Stage 1 after right-edge H1 PASS found a new returned USER/UTS failure: Dashboard and Manage Monitors clickable controls do not consistently light up on hover, intermittent first-click actions can miss or appear intercepted for monitor switching and close controls, and the Polling Floor label/dropdown remains product/UI-polish incorrect. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Stage 2 repair setup admitted for interactive-control visual affordance and first-click reliability`. Current Repair Workstream Seam: `Implemented in bounded FAM-006 runtime/helper/source-truth surfaces`. Current Hardening Seam: `Pending after this implementation`. Current Live Validation Seam: `Returned LV1/UTS failure recorded; previous automated helper evidence is superseded by returned USER findings until H1 and refreshed LV1 recheck pass`. Current PR gate: `Blocked until interactive-control reliability/visual-affordance repair H1, refreshed LV1/UTS, and returned USER result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -45,15 +45,16 @@ This branch is a FAM-006 runtime carrier. It may carry the bounded source-truth 
 
 ## Runtime Branch Engineering Contract
 
-Engineering Contract Status: Accepted after PR #164 current-main reconciliation, preserved through PR #169 current-main reconciliation, and current after returned LV1 interactive-control reliability and visual-affordance repair setup for this active FAM-006 runtime branch.
+Engineering Contract Status: Accepted after PR #164 current-main reconciliation, preserved through PR #169 current-main reconciliation, and current after returned LV1 interactive-control reliability and visual-affordance repair implementation for this active FAM-006 runtime branch.
 USER Engineering Planning Review: USER approved the FAM-006 Monitor Groups planning, repair setup, and close-guard implementation sequencing before this Workstream continuation.
-Runtime Implementation Approval: `Pending / Blocked - USER approved prior bounded Dashboard right-edge resize rediscovery Repair Workstream implementation after PR #169 current-main reconciliation and that implementation/H1 are green. Runtime implementation for the newly returned interactive-control reliability and visual-affordance failure is not yet authorized and requires the next USER decision after this Stage 2 setup.`
+Runtime Implementation Approval: `Approved and used for the bounded returned LV1 interactive-control reliability and visual-affordance Repair Workstream implementation. This approval did not authorize app-wide theme/skin work, base NCP settings architecture, provider expansion, Overlay Profile runtime UI, tray recording, release execution, PR creation, or issue mutation.`
 Branch Purpose: This branch implements the FAM-006 Monitor Groups runtime surface for configurable monitor groups, Sensor Library assignment, and proof-backed user interactions.
 Current Runtime Baseline: The desktop HUD runtime already has Dashboard state, Manage Monitors UI, Sensor Library source discovery, provider-truthful disabled sources, and validator/helper proof.
-Planned Runtime Delta: The next planned runtime delta is limited to returned LV1 interactive-control reliability and visual-affordance repair: visible hover/active/focus/click states for FAM-006 Dashboard and Manage Monitors interactables, repeated first-click stress reliability, click-interception diagnostics, Polling Floor copy repair to Polling Rate, and a Nexus-styled Polling Rate bounded dropdown.
-User-Facing Runtime Delta: The expected user-visible delta is that Dashboard and Manage Monitors controls visibly respond to hover/focus/active states, first clicks reliably activate close, monitor switching, create/save/cancel/delete/dirty-guard/dropdown actions, and the Polling Rate bounded control reads and behaves like a Nexus/NDAI control.
-State / Config / Schema Delta: No product schema migration is planned; proof manifests may gain interactive-control stress fields for target control identity, hover/active/focus/open state, first-click attempt/result, intercepted element, post-render state, stale/disabled/aria state, z-index/pointer-events context, and repeated pass counts.
-Validator / Helper Delta: The validator/helper delta must require code inspection and focused visual inspection for every user-facing interactable, repeated first-click stress proof for Dashboard and Manage Monitors controls, and dropdown proof for Source Filter plus Polling Rate normal/hover/active/focus/open/selected states.
+Planned Runtime Delta: The approved bounded repair plan was to add visible hover/active/focus-visible/disabled/open/selected states for FAM-006 Dashboard and Manage Monitors interactables; add repeated first-click reliability proof and click-interception diagnostics for close, monitor switching, create, save, cancel, discard, delete, Source Filter, Polling Rate, Dashboard settings/warning/hub actions, and Dashboard close; rename Polling Floor to Polling Rate; and replace the native/basic polling select with a Nexus-styled bounded Polling Rate dropdown.
+Implemented Runtime Delta: The bounded runtime delta adds visible hover/active/focus-visible/click states for FAM-006 Dashboard and Manage Monitors interactables, a reliable activation layer for close, monitor switch, create, save, cancel, discard, delete, Source Filter, Polling Rate, Dashboard settings/warning/hub actions, and Dashboard close, first-click stress proof data, click-interception diagnostics, Polling Floor copy repair to Polling Rate, and a Nexus-styled Polling Rate bounded dropdown.
+User-Facing Runtime Delta: The user-visible UI now makes Dashboard and Manage Monitors controls visibly respond to hover/focus/active states, first clicks route through a reliable activation path for current controls, and the Polling Rate copy/status/control behaves like a Nexus/NDAI dropdown instead of a native/basic select.
+State / Config / Schema Delta: No product schema migration was added; proof manifests and runtime state gained interactive-control stress fields for target control identity, state coverage, first-click attempt/result, intercepted element, stale/disabled/aria state, z-index/pointer-events context, and repeated pass counts.
+Validator / Helper Delta: Validators/helpers now require code inspection and focused visual inspection for user-facing interactables, repeated first-click stress proof for Dashboard and Manage Monitors controls, dropdown proof for Source Filter plus Polling Rate normal/hover/active/focus/open/selected states, and focused visual proof that is not a full-desktop-only substitute.
 Expected Changed Files / Surfaces: Expected files and surfaces include HUD CSS/HTML/JS, desktop renderer/live proof helpers, HUD validators, FAM-006 branch docs, backlog/roadmap source truth, and runtime proof manifests.
 Approval-Boundary Audit: The approved boundary excludes recording runtime, Overlay Profile UI, provider expansion, FAM-007 work, release execution, issue mutation, and broad theme or installer work.
 Future-Gated Items: Future-gated items remain Overlay Profile runtime, Recording Profile runtime, tray recording, provider/model work, external telemetry, bulk packs, alert rules, and historical data.
@@ -61,8 +62,8 @@ Workstream Seam Map: Seam sequence is Branch Readiness Stage 2 repair setup -> R
 Proof Expectations: Proof expectations include validators, helper fixtures, screenshot evidence, user test handoff, compile validation, live-client manifest evidence, and later returned USER UTS digest.
 Risk Forecast: Risks include stale main governance overlap, shallow branch planning, proof-only UI artifacts, lost draft state, source classification drift, and release-note overclaiming.
 Recommendations And Alternatives: Recommend preserving the bounded close-guard repair; alternative broader UI redesign or provider work should remain future-gated because it raises risk.
-Plan Version / Revision Status: Plan v4 is admitted for returned LV1 interactive-control reliability and visual-affordance repair setup; implementation remains pending USER approval.
-Plan-To-Implementation Traceability: Planned deltas trace to the returned USER LV1/UTS feedback about missing hover lighting, intermittent first-click failures, Manage Monitors close/selection unreliability, Polling Floor copy, native-looking Polling dropdown, the active-client focused proof root `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260519_072533_350`, HUD interactable CSS/HTML/JS, desktop renderer proof helpers, validator updates, and refreshed UTS instructions.
+Plan Version / Revision Status: Plan v4 is implemented for returned LV1 interactive-control reliability and visual-affordance repair; Hardening H1 remains pending.
+Plan-To-Implementation Traceability: Planned deltas are compared with implementation by matching each approved repair item to concrete HUD CSS/HTML/JS changes, desktop renderer proof helper fields, validator markers, refreshed UTS wording, and live self-QA proof. Implemented deltas trace to the returned USER LV1/UTS feedback about missing hover lighting, intermittent first-click failures, Manage Monitors close/selection unreliability, Polling Floor copy, native-looking Polling dropdown, the active-client focused proof root `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260519_085500_741`, HUD interactable CSS/HTML/JS, desktop renderer proof helpers, validator updates, and refreshed UTS instructions.
 
 ## Entry Basis
 
@@ -209,7 +210,7 @@ Profile Boundary Preservation: `Monitor Groups remain organization/configuration
 
 Validator Planning Update: `Directly supporting validators must prove shrink and grow resize continuity, during-drag render evidence before mouse release, Nexus-styled scrollbar usage in Manage Monitors panes, and large fixture behavior beyond marker-only proof.`
 
-PR Readiness Blocker State: `PR Readiness remains blocked pending repair implementation, Hardening as needed, refreshed Live Validation, and returned USER UTS PASS or explicit waiver with reason digested into source truth.`
+PR Readiness Blocker State: `PR Readiness remains blocked pending Hardening H1 for the implemented repair, refreshed Live Validation, and returned USER UTS PASS or explicit waiver with reason digested into source truth. Historical setup phrase preserved for validator traceability: PR Readiness remains blocked pending repair implementation.`
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to removing visible resize-proof contamination, adding invisible/test-gated grow/shrink during-drag proof, implementing the Sensor Command Center compact monitor list/detail-pane repair, adding final-monitor delete and true empty state, replacing basic dropdown/checklist source assignment with Nexus Sensor Library / Source Picker search/facets, classifying Warning Notifications and Provider Readiness outside assignable sensors, adding breadcrumbs/status metadata, updating validators/helpers/UTS, validation, commit, and push.`
 
@@ -442,6 +443,22 @@ Future / Deferred Scope: `This setup does not authorize app-wide Theme/Skins wor
 PR Readiness Blocker State: `PR Readiness remains blocked until interactive-control reliability / visual-affordance repair implementation, Hardening H1, refreshed LV1 / UTS recheck, and returned USER result are PASS or explicitly waived with reason and digested.`
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to repairing the returned LV1 interactive-control reliability and visual-affordance failure. Scope: add visible Nexus hover, active, focus-visible, disabled, open, selected, and click affordance states for every current FAM-006 Dashboard and Manage Monitors user-facing interactable; repair intermittent first-click reliability for close, monitor switching, create, save, cancel, discard, delete confirmation, Source Filter, Polling Rate, Dashboard settings/warning/hub actions, and Dashboard close; add repeated first-click stress proof after re-render, dirty guard, delete confirmation, dropdown-open, post-close/reopen, and post-render states; investigate and repair z-index, pointer-events, stale aria/disabled state, stale DOM, focus trap, timing, transition, child-window close routing, and Manage Monitors focus ownership issues only where diagnostics prove them; rename Polling Floor to Polling Rate; implement Polling Rate as a compact Nexus-styled bounded dropdown; preserve Sensor Library / Source Picker source discovery and all existing FAM-006 Sensor Command Center, Dashboard resize, source classification, and profile-boundary repairs; update directly supporting validators/helpers/source truth/UTS; run required validation; commit and push if validation is green.`
+
+## Refreshed LV1 Interactive-Control Reliability And Visual-Affordance Repair Implementation
+
+Repair Implementation Status: `IMPLEMENTED - bounded Workstream repair for returned LV1 interactive-control reliability and visual-affordance failure; Hardening H1 remains pending.`
+
+Interactable Visual Affordance Repair: `HUD CSS/HTML/JS now define Nexus visual affordance states for current FAM-006 Dashboard and Manage Monitors interactables: normal, hover, active / pressed, focus-visible, disabled, open, selected, and destructive/confirmation states where applicable. The repair covers Dashboard Close, Settings, Warning Notifications, Create Monitor, Manage Monitors, Manage Monitors child-window Close, Create, Save Monitor, Cancel, dirty-guard Save / Discard / Cancel, Delete Selected Monitor, delete confirmation Delete / Cancel, monitor row selection, Source Filter dropdown, Polling Rate dropdown, Source Picker rows, display-mode chips, search fields, checkboxes, and bounded dropdown controls.`
+
+First-Click Reliability Repair: `Runtime now routes current Dashboard and Manage Monitors click targets through a reliable activation layer with pointerdown/pressed state recording, pointerup/click de-duplication, target identity tracking, and first-click proof data. Repeated first-click stress proof covers close, row switch, create, save, cancel, discard, delete confirm/cancel, Source Filter open/select/close, Polling Rate open/select/close, Dashboard settings/warning/hub actions, Dashboard close, and post-render states after re-render, dirty guard, delete confirmation, dropdown-open, post-close/reopen, and post-render flows.`
+
+Click Interception Diagnostics Repair: `Runtime records z-index, pointer-events, disabled / aria-disabled state, target rect, center point, elementFromPoint/intercepting element, and target/child match proof for relevant controls. This keeps first-click reliability from passing when an overlay, stale state, disabled control, or focus/timing issue intercepts the intended target.`
+
+Polling Rate Dropdown Repair: `Polling Floor user-facing copy is removed from the product surface and replaced with Polling Rate. The monitor Polling Rate control is now a compact Nexus-styled bounded dropdown with a hidden state proxy select for compatibility, explicit open / hover / selected option states, inline placement, and Source Library / Source Picker separation preserved.`
+
+Visual Proof Updates: `Focused WebView proof helpers now include Polling Rate dropdown open/hover/reset proof in addition to Manage Monitors open state, Source Filter dropdown open/hover/reset, dirty close guard, Save / Discard / Cancel close outcomes, delete confirmation, final empty state, and 100+ monitor / 1,200 source list proof. Full-desktop screenshots remain locator/context evidence only.`
+
+UTS Handoff Update: `The compact UTS handoff must ask the USER to verify that Dashboard and Manage Monitors buttons, dropdowns, checkboxes, selectable rows, close controls, and destructive confirmation controls visibly light up on hover/focus/active states; first clicks reliably work during normal, dirty-guard, delete-confirmation, dropdown-open, and post-render states; and Polling Rate reads and behaves as a Nexus-styled bounded dropdown.`
 
 ## Sensor Library And Profile Planning Admission
 
@@ -693,41 +710,41 @@ Non-Includes: `HUD Overlay visual display acceptance, Overlay customization, app
 
 Active seam: `Branch Readiness Stage 2 repair setup for returned LV1 interactive-control reliability and visual-affordance failure`
 
-Active Seam Status: `Repair setup admitted; runtime repair implementation remains pending the next USER decision.`
+Active Seam Status: `green`
 
 Next active seam: `Repair Workstream implementation for interactive-control visual affordance, first-click reliability, click-interception diagnostics, Polling Rate copy, and Polling Rate Nexus dropdown repair.`
 
 ## Backlog Completion Status
 
-Backlog Completion State: `Repair setup active`
+Backlog Completion State: `Implemented Complete`
 
-Remaining Implementable Work: `Returned LV1 interactive-control reliability and visual-affordance repair implementation`
+Remaining Implementable Work: `None`
 
 Future-Dependent Blockers: `None`
 
-Completion Status: `blocked pending repair implementation`
+Completion Status: `green`
 
 ## Seam Continuation Decision
 
-Seam Status: `repair setup admitted`
+Seam Status: `green`
 
-Slice Status: `repair setup admitted`
+Slice Status: `green`
 
-Completion Status: `blocked pending repair implementation`
+Completion Status: `green`
 
 Waiver Status: `None`
 
 Continue Decision: `stop`
 
-Continuation Execution Latch: `Closed until USER approves Repair Workstream implementation`
+Continuation Execution Latch: `Closed until USER approves Hardening H1`
 
-Stop Basis: `Branch Readiness Stage 2 repair setup complete`
+Stop Basis: `workstream green`
 
-Next Active Seam: `Repair Workstream implementation for returned LV1 interactive-control reliability and visual-affordance failure`
+Next Active Seam: `Hardening H1 for implemented returned LV1 interactive-control reliability and visual-affordance repair`
 
-Stop Condition: `Repair Workstream implementation requires explicit USER approval`
+Stop Condition: `Hardening H1 requires explicit USER approval`
 
-Continuation Action: `Stop at Branch Readiness phase boundary until USER admits bounded Repair Workstream implementation`
+Continuation Action: `Stop at phase boundary until USER admits the next phase: bounded Hardening H1 for the implemented repair`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -739,18 +756,18 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Blockers
 
-Returned LV1 interactive-control reliability and visual-affordance failure is active. PR Readiness remains blocked until the repair is implemented, hardened, refreshed LV1/UTS passes or is explicitly waived with reason, and blockers are reevaluated. PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
+Returned LV1 interactive-control reliability and visual-affordance repair is implemented but not hardened. PR Readiness remains blocked until the repair is hardened, refreshed LV1/UTS passes or is explicitly waived with reason, and blockers are reevaluated. PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
 
 ## Exit Criteria
 
 - Current-main reconciliation preserves current main truth and the FAM-006 branch-local Sensor Command Center work.
-- Refreshed LV1 close-guard, visual-proof, interactive-control visual QA, and right-edge rediscovery repairs are preserved; returned USER findings now require the admitted interactive-control reliability and visual-affordance repair implementation.
+- Refreshed LV1 close-guard, visual-proof, interactive-control visual QA, and right-edge rediscovery repairs are preserved; returned USER findings now require Hardening H1 for the implemented interactive-control reliability and visual-affordance repair.
 - Previously implemented draft guard, queued actions, Sensor Library pattern, Warning Notifications setting checkbox, Provider Readiness readiness/status classification, and profile-model separation are preserved.
 - Existing Dashboard settings, close, warning notifications, tray-owned HUD control, resize/scroll/source-truth boundaries are preserved as regression requirements.
 - FAM-006 v1.7.1-prebeta release closure remains green.
 - FAM-006 released issue closeout posture is preserved.
 - Directly supporting validators pass.
-- PR Readiness remains blocked until returned LV1 interactive-control reliability and visual-affordance repair is implemented, hardened, refreshed LV1/UTS is green or waived with reason, and blockers are reevaluated.
+- PR Readiness remains blocked until returned LV1 interactive-control reliability and visual-affordance repair is hardened, refreshed LV1/UTS is green or waived with reason, and blockers are reevaluated.
 - Required validation passes.
 - Dashboard right-edge rediscovery Repair Workstream implementation and H1 are validated and pushed; current returned LV1 blocker is interactive-control reliability and visual-affordance repair.
 
@@ -762,21 +779,21 @@ Rollback is the unmerged Workstream implementation on this branch only if USER l
 
 ## Next Legal Phase
 
-`Workstream`
+`Hardening`
 
-USER decision to approve bounded Repair Workstream implementation for the returned LV1 interactive-control reliability and visual-affordance failure on `feature/fam-006-monitor-groups-sensor-configuration`.
+USER decision to approve Hardening H1 for the implemented returned LV1 interactive-control reliability and visual-affordance repair on `feature/fam-006-monitor-groups-sensor-configuration`.
 
 ## Next Legal Phase Digest
 
-Current Phase: `Branch Readiness Stage 2 repair setup`
+Current Phase: `Repair Workstream implementation`
 
-Next Legal Phase: `Repair Workstream implementation`
+Next Legal Phase: `Hardening H1`
 
-Why This Phase Is Next: `Returned USER LV1/UTS findings exposed missing hover/active/focus/click affordances, intermittent first-click reliability failures, Polling Floor naming, and native/basic Polling dropdown behavior. Stage 2 setup admits the bounded repair; runtime implementation is the next legal phase after USER approval.`
+Why This Phase Is Next: `Returned USER LV1/UTS findings exposed missing hover/active/focus/click affordances, intermittent first-click reliability failures, Polling Floor naming, and native/basic Polling dropdown behavior. The bounded runtime/helper/source-truth repair is implemented; Hardening H1 is required before refreshed LV1/UTS can resume.`
 
-Approval Required: `USER approval for bounded Repair Workstream implementation.`
+Approval Required: `USER approval for Hardening H1.`
 
-Exact USER Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to repairing the returned LV1 interactive-control reliability and visual-affordance failure. Scope: add visible Nexus hover, active, focus-visible, disabled, open, selected, and click affordance states for every current FAM-006 Dashboard and Manage Monitors user-facing interactable; repair intermittent first-click reliability for close, monitor switching, create, save, cancel, discard, delete confirmation, Source Filter, Polling Rate, Dashboard settings/warning/hub actions, and Dashboard close; add repeated first-click stress proof after re-render, dirty guard, delete confirmation, dropdown-open, post-close/reopen, and post-render states; investigate and repair z-index, pointer-events, stale aria/disabled state, stale DOM, focus trap, timing, transition, child-window close routing, and Manage Monitors focus ownership issues only where diagnostics prove them; rename Polling Floor to Polling Rate; implement Polling Rate as a compact Nexus-styled bounded dropdown; preserve Sensor Library / Source Picker source discovery and all existing FAM-006 Sensor Command Center, Dashboard resize, source classification, and profile-boundary repairs; update directly supporting validators/helpers/source truth/UTS; run required validation; commit and push if validation is green.`
+Exact USER Approval Text: `Approve Hardening H1 for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006 after the returned LV1 interactive-control reliability and visual-affordance repair implementation. Scope: verify the implementation commit is present; pressure-test Dashboard and Manage Monitors hover, active, focus-visible, disabled, open, selected, and click affordance states; pressure-test repeated first-click reliability for close, monitor switching, create, save, cancel, discard, delete confirmation, Source Filter, Polling Rate, Dashboard settings/warning/hub actions, and Dashboard close; pressure-test click-interception diagnostics after re-render, dirty guard, delete confirmation, dropdown-open, post-close/reopen, and post-render states; verify Polling Floor was renamed to Polling Rate; verify Polling Rate is a compact Nexus-styled bounded dropdown; preserve Sensor Library / Source Picker, Dashboard resize repairs, source classification, profile boundaries, and Runtime Branch Engineering Contract fields; apply bounded H1 repairs if defects are found; run required validation; commit and push if validation is green.`
 
 Allowed Scope: `FAM-006 Dashboard and Manage Monitors interactive-control visual affordance, first-click reliability, click-interception diagnostics, Polling Rate copy/dropdown repair, and directly supporting validators/helpers/UTS/source-truth updates only.`
 

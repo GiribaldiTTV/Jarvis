@@ -79,6 +79,10 @@
     data-dashboard-state-model="setup-no-data-degraded-warning"
     data-dashboard-warning-controls="visual-non-invasive-only"
     data-dashboard-fake-telemetry-policy="blocked"
+    data-interactive-control-affordance="normal-hover-active-focus-visible-disabled-open-selected"
+    data-interactive-control-reliability="first-click-stress-proof-required"
+    data-click-interception-diagnostics="z-index-pointer-events-disabled-aria-dom-focus-timing"
+    data-polling-rate-dropdown="nexus-styled-bounded-control"
     data-dashboard-ia-model="branch2-ia-controls-followthrough"
     data-dashboard-home-model="control-hub-cards-monitor-management-child-windows"
     data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows"
@@ -378,9 +382,21 @@
                   <strong>Provider Readiness</strong>
                   <span>Readiness/status and future capability only; not an assignable sensor.</span>
                 </div>
-                <label class="monitoring-hud__child-field monitoring-hud__child-field--inline" data-control-row="polling-floor-inline">
-                  <span>Polling floor</span>
-                  <select id="monitoring-hud-monitor-polling-rate" data-bounded-control="polling-floor">
+                <label class="monitoring-hud__child-field monitoring-hud__child-field--inline" data-control-row="polling-rate-inline">
+                  <span>Polling Rate</span>
+                  <div class="monitoring-hud__bounded-dropdown" id="monitoring-hud-monitor-polling-rate-control" data-bounded-dropdown="polling-rate" data-selected-value="1000" data-dropdown-open="false" data-hovered-value="">
+                    <button type="button" class="monitoring-hud__bounded-dropdown-toggle" id="monitoring-hud-monitor-polling-rate-toggle" aria-haspopup="listbox" aria-expanded="false" aria-controls="monitoring-hud-monitor-polling-rate-menu">
+                      <span>Rate</span>
+                      <strong id="monitoring-hud-monitor-polling-rate-label">1s</strong>
+                    </button>
+                    <div class="monitoring-hud__bounded-dropdown-menu monitoring-hud__nexus-scroll-pane" id="monitoring-hud-monitor-polling-rate-menu" role="listbox" aria-label="Polling Rate options" hidden>
+                      <button type="button" class="monitoring-hud__bounded-dropdown-option" data-polling-rate-option="1000" role="option" aria-selected="true">1s</button>
+                      <button type="button" class="monitoring-hud__bounded-dropdown-option" data-polling-rate-option="2000" role="option" aria-selected="false">2s</button>
+                      <button type="button" class="monitoring-hud__bounded-dropdown-option" data-polling-rate-option="5000" role="option" aria-selected="false">5s</button>
+                      <button type="button" class="monitoring-hud__bounded-dropdown-option" data-polling-rate-option="10000" role="option" aria-selected="false">10s</button>
+                    </div>
+                  </div>
+                  <select id="monitoring-hud-monitor-polling-rate" class="monitoring-hud__native-select-proxy" data-bounded-control="polling-rate" tabindex="-1" aria-hidden="true">
                     <option value="1000">1s</option>
                     <option value="2000">2s</option>
                     <option value="5000">5s</option>

@@ -347,6 +347,12 @@ body.desktop-mode #monitoring-hud > * {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
 .monitoring-hud__chrome-button {
@@ -379,6 +385,63 @@ body.desktop-mode #monitoring-hud > * {
   box-shadow:
     0 0 0 1px rgba(230, 251, 255, 0.05) inset,
     0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.monitoring-hud button:not(:disabled):not([aria-disabled="true"]),
+.monitoring-hud [role="button"]:not([aria-disabled="true"]),
+.monitoring-hud input:not(:disabled),
+.monitoring-hud select:not(:disabled) {
+  pointer-events: auto;
+}
+
+.monitoring-hud button:not(:disabled):not([aria-disabled="true"]):hover,
+.monitoring-hud [role="button"]:not([aria-disabled="true"]):hover,
+.monitoring-hud input[type="checkbox"]:not(:disabled):hover,
+.monitoring-hud input[type="search"]:not(:disabled):hover,
+.monitoring-hud input[type="text"]:not(:disabled):hover,
+.monitoring-hud select:not(:disabled):hover {
+  border-color: rgba(126, 248, 218, 0.56);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.20), transparent 58%),
+    linear-gradient(145deg, rgba(12, 67, 84, 0.92), rgba(4, 30, 49, 0.88));
+  color: rgba(241, 255, 252, 0.99);
+  box-shadow:
+    0 0 0 1px rgba(233, 255, 251, 0.08) inset,
+    0 0 18px rgba(86, 236, 255, 0.18),
+    0 0 10px rgba(103, 255, 210, 0.12);
+}
+
+.monitoring-hud button:not(:disabled):not([aria-disabled="true"]):active,
+.monitoring-hud button:not(:disabled):not([aria-disabled="true"]).is-pressed,
+.monitoring-hud [role="button"]:not([aria-disabled="true"]):active,
+.monitoring-hud [role="button"]:not([aria-disabled="true"]).is-pressed {
+  transform: translateY(1px);
+  border-color: rgba(163, 255, 228, 0.72);
+  background:
+    radial-gradient(circle at 50% 100%, rgba(126, 248, 218, 0.22), transparent 60%),
+    linear-gradient(145deg, rgba(8, 54, 64, 0.98), rgba(3, 20, 36, 0.94));
+  box-shadow:
+    0 0 0 1px rgba(233, 255, 251, 0.10) inset,
+    0 0 10px rgba(103, 255, 210, 0.16);
+}
+
+.monitoring-hud button:focus-visible,
+.monitoring-hud [role="button"]:focus-visible,
+.monitoring-hud input:focus-visible,
+.monitoring-hud select:focus-visible {
+  outline: 2px solid rgba(126, 248, 218, 0.78);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 1px rgba(233, 255, 251, 0.10) inset,
+    0 0 0 4px rgba(90, 255, 214, 0.14),
+    0 0 18px rgba(86, 236, 255, 0.16);
+}
+
+.monitoring-hud button:disabled,
+.monitoring-hud button[aria-disabled="true"],
+.monitoring-hud input:disabled,
+.monitoring-hud select:disabled {
+  opacity: 0.72;
 }
 
 .monitoring-hud__summary {
@@ -489,6 +552,13 @@ body.desktop-mode #monitoring-hud > * {
   font-weight: 720;
   letter-spacing: 0.09em;
   text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
 .monitoring-hud__control-button {
@@ -1001,6 +1071,19 @@ body.desktop-mode #monitoring-hud > * {
   padding: 8px 10px;
 }
 
+.monitoring-hud__native-select-proxy {
+  position: absolute;
+  width: 1px !important;
+  height: 1px !important;
+  min-height: 1px !important;
+  margin: 0;
+  padding: 0 !important;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
 .monitoring-hud__monitor-management-shell {
   display: grid;
   grid-template-columns: minmax(178px, 0.30fr) minmax(0, 1fr);
@@ -1079,6 +1162,15 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__monitor-manage-row:hover {
   border-color: rgba(117, 228, 255, 0.34);
   background: rgba(10, 44, 67, 0.68);
+}
+
+.monitoring-hud__monitor-manage-row:active,
+.monitoring-hud__monitor-manage-row.is-pressed {
+  transform: translateY(1px);
+  border-color: rgba(126, 248, 218, 0.58);
+  background:
+    linear-gradient(145deg, rgba(7, 57, 63, 0.82), rgba(5, 30, 48, 0.76)),
+    rgba(6, 28, 48, 0.54);
 }
 
 .monitoring-hud__monitor-manage-row[aria-current="true"] {
@@ -1198,6 +1290,11 @@ body.desktop-mode #monitoring-hud > * {
   width: min(132px, 100%);
 }
 
+.monitoring-hud__child-field--inline .monitoring-hud__native-select-proxy {
+  justify-self: end;
+  width: 1px !important;
+}
+
 .monitoring-hud__detail-actions {
   display: flex;
   justify-content: flex-end;
@@ -1282,8 +1379,17 @@ body.desktop-mode #monitoring-hud > * {
   width: min(164px, 100%);
 }
 
+.monitoring-hud__bounded-dropdown {
+  position: relative;
+  justify-self: end;
+  min-width: 126px;
+  width: min(146px, 100%);
+}
+
 .monitoring-hud__source-filter-toggle,
 .monitoring-hud__source-filter-option,
+.monitoring-hud__bounded-dropdown-toggle,
+.monitoring-hud__bounded-dropdown-option,
 .monitoring-hud__mode-chip {
   min-height: 30px;
   border: 1px solid rgba(117, 228, 255, 0.18);
@@ -1296,9 +1402,16 @@ body.desktop-mode #monitoring-hud > * {
   letter-spacing: 0.07em;
   text-transform: uppercase;
   cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
-.monitoring-hud__source-filter-toggle {
+.monitoring-hud__source-filter-toggle,
+.monitoring-hud__bounded-dropdown-toggle {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
@@ -1309,12 +1422,14 @@ body.desktop-mode #monitoring-hud > * {
   text-align: left;
 }
 
-.monitoring-hud__source-filter-toggle span {
+.monitoring-hud__source-filter-toggle span,
+.monitoring-hud__bounded-dropdown-toggle span {
   color: rgba(139, 233, 255, 0.80);
   font-size: 10px;
 }
 
-.monitoring-hud__source-filter-toggle strong {
+.monitoring-hud__source-filter-toggle strong,
+.monitoring-hud__bounded-dropdown-toggle strong {
   min-width: 0;
   color: rgba(232, 250, 255, 0.96);
   font-size: 11px;
@@ -1324,7 +1439,8 @@ body.desktop-mode #monitoring-hud > * {
   white-space: nowrap;
 }
 
-.monitoring-hud__source-filter-menu {
+.monitoring-hud__source-filter-menu,
+.monitoring-hud__bounded-dropdown-menu {
   position: absolute;
   z-index: 8;
   top: calc(100% + 5px);
@@ -1344,11 +1460,13 @@ body.desktop-mode #monitoring-hud > * {
     0 0 0 1px rgba(230, 251, 255, 0.05) inset;
 }
 
-.monitoring-hud__source-filter-menu[hidden] {
+.monitoring-hud__source-filter-menu[hidden],
+.monitoring-hud__bounded-dropdown-menu[hidden] {
   display: none;
 }
 
-.monitoring-hud__source-filter-option {
+.monitoring-hud__source-filter-option,
+.monitoring-hud__bounded-dropdown-option {
   width: 100%;
   border-radius: 7px;
   padding: 7px 9px;
@@ -1356,16 +1474,35 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__source-filter-option:hover,
-.monitoring-hud__source-filter-option.is-hovered {
+.monitoring-hud__source-filter-option.is-hovered,
+.monitoring-hud__bounded-dropdown-option:hover,
+.monitoring-hud__bounded-dropdown-option.is-hovered {
   border-color: rgba(126, 248, 218, 0.42);
   background: rgba(10, 57, 66, 0.86);
   color: rgba(238, 255, 249, 0.98);
 }
 
 .monitoring-hud__source-filter-option[aria-selected="true"],
+.monitoring-hud__bounded-dropdown-option[aria-selected="true"],
 .monitoring-hud__mode-chip[aria-pressed="true"] {
   border-color: rgba(126, 248, 218, 0.46);
   background: linear-gradient(145deg, rgba(7, 57, 63, 0.88), rgba(5, 30, 48, 0.82));
+}
+
+.monitoring-hud__source-filter-dropdown[data-filter-open="true"] .monitoring-hud__source-filter-toggle,
+.monitoring-hud__bounded-dropdown[data-dropdown-open="true"] .monitoring-hud__bounded-dropdown-toggle {
+  border-color: rgba(126, 248, 218, 0.56);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.20), transparent 58%),
+    linear-gradient(145deg, rgba(12, 67, 84, 0.92), rgba(4, 30, 49, 0.88));
+  box-shadow:
+    0 0 0 1px rgba(233, 255, 251, 0.08) inset,
+    0 0 18px rgba(86, 236, 255, 0.18);
+}
+
+.monitoring-hud__bounded-dropdown[data-control-disabled="true"] {
+  opacity: 0.72;
+  pointer-events: none;
 }
 
 .monitoring-hud__sensor-result-summary {
@@ -1411,6 +1548,18 @@ body.desktop-mode #monitoring-hud > * {
   color: rgba(229, 249, 255, 0.92);
   font-size: 12px;
   font-weight: 700;
+}
+
+.monitoring-hud__sensor-option:hover {
+  border-color: rgba(126, 248, 218, 0.32);
+  background:
+    linear-gradient(145deg, rgba(7, 42, 62, 0.70), rgba(3, 18, 32, 0.66)),
+    rgba(6, 28, 48, 0.58);
+}
+
+.monitoring-hud__sensor-option:focus-within {
+  outline: 2px solid rgba(126, 248, 218, 0.54);
+  outline-offset: 2px;
 }
 
 .monitoring-hud__sensor-option input {
