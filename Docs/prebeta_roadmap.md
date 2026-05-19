@@ -63,6 +63,19 @@ Use these release-state values when relevant:
 
 ## Current Release Posture
 
+## Current Decision Surface
+
+Latest Public Prerelease Recorded In Source Truth: `v1.7.4-prebeta`
+Published Release Pending Canon Closure: `v1.7.5-prebeta`
+Merged-Unreleased PRs: PR #165 FAM-007 provider-readiness/setup-eligibility remains merged-unreleased in current source truth until the next Branch Readiness canon-closure path validates.
+Active Runtime Branch: None.
+Active Governance Branch: `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`.
+Selected-Next Posture: None - successor selection is deferred and USER-gated.
+Release Blockers: `v1.7.5-prebeta` post-release canon closure carry-forward plus originating FAM-007 Release Readiness rerun after Governance merge/rebaseline.
+Next Legal Phase: Governance PR Readiness after focused reform cycles validate; runtime branch creation, release execution, issue work, branch cleanup, and successor selection remain separate USER decisions.
+
+### Detailed Current Release Posture
+
 Current merged truth indicates:
 
 - latest public prerelease: `v1.7.4-prebeta`
@@ -85,7 +98,7 @@ That means the released FB-027 interaction and shared-action family anchor remai
 ## Current Branch Execution Posture
 
 Released Historical Scope: FAM-006 Monitoring HUD Dashboard Product Surface released in v1.7.0-prebeta through PR #118; FAM-006 Dashboard render/layout hardening PR #129, Dashboard IA/control follow-through PR #132, Dashboard settings-panel runtime PR #142, and FAM-007 PR #138 provider-boundary / no-provider shell scaffold support released in v1.7.1-prebeta; FAM-007 PR #152 local AI foundation continuation plus governance/readiness support PRs #148, #149, #150, #151, #153, and #154 released in v1.7.2-prebeta; PR #155 through PR #161 released in v1.7.3-prebeta; PR #162 FAM-007 runtime-expansion foundation and PR #163 post-PR162 closeout released in v1.7.4-prebeta; PR #165 FAM-007 provider-readiness/setup-eligibility is merged-unreleased after v1.7.4-prebeta; PR #166 through PR #168 are governance/source-truth support after PR #165; FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, merged governance/automation proof package, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta.
-Repo State: Branch-local FAM-006 Monitor Groups / Sensor Command Center reconciliation on `feature/fam-006-monitor-groups-sensor-configuration`; `origin/main` through PR #168 records No Active Branch / governance context and PR #165 FAM-007 merged-unreleased evidence, but those selected-next/current-workstream blocks are context only and do not replace this worktree's FAM-006 branch identity.
+Repo State: Branch-local FAM-006 Monitor Groups / Sensor Command Center reconciliation on `feature/fam-006-monitor-groups-sensor-configuration`; `origin/main` through PR #169 records No Active Branch / governance context, PR #165 FAM-007 merged-unreleased evidence, validation-suite/rebaseline-audit helper changes, and v1.7.5 carry-forward canon-closure posture, but those selected-next/current-workstream blocks are context only and do not replace this worktree's FAM-006 branch identity.
 Merged-Main Repo State Before Branch: No Active Branch after v1.7.4-prebeta release publication; PR #162 is released historical FAM-007 runtime-expansion scope, PR #165 is FAM-007 merged-unreleased evidence, and this branch remains the USER-approved FAM-006 runtime carrier.
 
 Latest Public Prerelease: v1.7.4-prebeta
@@ -94,10 +107,6 @@ Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desk
 Latest Public Prerelease Title: Pre-Beta v1.7.4
 Post-PR #159 Source-Truth Drift: Closed by standing Governance intake RRI-20260515-003 through PR #160; stale PR Readiness / PR creation wording for the already-merged FAM-007 branch is removed before Release Readiness reruns.
 Post-PR #162 Source-Truth Drift: Closed by PR #163 and the v1.7.4-prebeta release. PR #162 is released historical FAM-007 runtime-expansion scope.
-Published Release Pending Canon Closure: None - v1.7.4-prebeta source truth is closed.
-Closure Repair Surface: Closed historically by USER-approved Branch Readiness Stage 2 for `feature/fam-007-local-ai-provider-runtime-readiness`.
-Closure Drift Scope: Closed - PR #162 and PR #163 are released historical scope in v1.7.4-prebeta.
-Implementation Entry: PR #162 merged the FAM-007 Local AI Runtime Contracts and Capability Foundation Workstream; SLC-017/SLC-018, SLC-031/SLC-032, SLC-033/SLC-034, and SLC-035/SLC-036 are implemented as local-only runtime-contract, capability, data/privacy, Core/Desktop state, and validation scaffolds.
 Post-Release Canon Closure Drift: Recorded
 Published Release Pending Canon Closure: v1.7.5-prebeta
 Closure Repair Surface: Next Branch Readiness Stage 2
@@ -106,7 +115,7 @@ Implementation Entry: Blocked until closure repair validates green
 Release-Debt Avoidance Status: Clear for v1.7.4-prebeta. Future FAM-007 runtime expansion, provider/model/memory/shortcut/installer work, Overlay acceptance, AI Product work, and issue work remain separate USER-gated decisions.
 Merged-main current active workstream: None - source truth records `feature/fam-007-local-ai-provider-runtime-readiness` as merged-unreleased FAM-007 evidence, not an active runtime carrier.
 Current active workstream: Branch-local FAM-006 Monitor Groups / Sensor Command Center repair lane on `feature/fam-006-monitor-groups-sensor-configuration`; returned USER UTS FAIL remains the governing blocker; refreshed LV1 real-client validation now blocks on Dashboard post-corner right-edge resize cursor rediscovery after initial right-edge proof and corner resize proof passed; PR Readiness remains blocked pending right-edge rediscovery repair implementation, Hardening H1, refreshed Live Validation / UTS, and returned USER PASS or explicit waiver with reason.
-Branch-local FAM-006 reconciliation note: `feature/fam-006-monitor-groups-sensor-configuration` in `C:\Nexus Worktrees\FAM-006` treats `origin/main` through PR #168 as context, not identity. The branch-local authority remains FAM-006 Monitor Groups / Sensor Command Center. Implemented repair blockers are first-launch Dashboard flicker guard; Source Filter as Nexus-styled dropdown rather than exposed chips; dropdown open/hover reset; 20+ monitor-group left-list stress proof with NDAI scrollbar styling; lower-right/bottom Delete Selected Monitor and bottom confirmation placement; reduced top toolbar/search/create headspace; taller default and somewhat resizable Manage Monitors window; copy cleanup; visible resize-proof contamination regression prevention; invisible/test-gated grow/shrink proof preservation; Sensor Library source discovery; Warning Notifications as a setting checkbox; Provider Readiness as readiness/status/future capability; Sensor Library / Monitor / Monitor Group / Overlay Profile / Recording Profile separation; and interactive-control visual QA for empty-state Create, Save Monitor, Cancel, Delete, Source Filter dropdown, and close controls.
+Branch-local FAM-006 reconciliation note: `feature/fam-006-monitor-groups-sensor-configuration` in `C:\Nexus Worktrees\FAM-006` treats `origin/main` through PR #169 as context, not identity. The branch-local authority remains FAM-006 Monitor Groups / Sensor Command Center. Implemented repair blockers are first-launch Dashboard flicker guard; Source Filter as Nexus-styled dropdown rather than exposed chips; dropdown open/hover reset; 20+ monitor-group left-list stress proof with NDAI scrollbar styling; lower-right/bottom Delete Selected Monitor and bottom confirmation placement; reduced top toolbar/search/create headspace; taller default and somewhat resizable Manage Monitors window; copy cleanup; visible resize-proof contamination regression prevention; invisible/test-gated grow/shrink proof preservation; Sensor Library source discovery; Warning Notifications as a setting checkbox; Provider Readiness as readiness/status/future capability; Sensor Library / Monitor / Monitor Group / Overlay Profile / Recording Profile separation; and interactive-control visual QA for empty-state Create, Save Monitor, Cancel, Delete, Source Filter dropdown, and close controls.
 Current Active Workstream Before Reform: None
 Current Execution Branch: `feature/fam-006-monitor-groups-sensor-configuration`
 Active Branch Authority Record: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
@@ -122,7 +131,7 @@ Historical Active Branch Before Release: `feature/automation-planning`
 Earlier Historical Active Workstream Before Release: FB-048 Active-session relaunch signal-failure and wait-timeout truth
 Earlier Historical Active Branch Before Release: `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`
 Selected Next Workstream: FAM-006 Monitor Groups / Sensor Command Center refreshed LV1 Dashboard right-edge resize rediscovery repair.
-Selected Next Record State: Branch-local refreshed LV1 close-guard, visual-proof, and interactive-control visual QA repairs are preserved; the active setup admits post-corner right-edge rediscovery diagnostics and validator planning only; PR #165 through PR #168 main truth remains context only.
+Selected Next Record State: Branch-local refreshed LV1 close-guard, visual-proof, and interactive-control visual QA repairs are preserved; the active setup admits post-corner right-edge rediscovery diagnostics and validator planning only; PR #165 through PR #169 main truth remains context only.
 Selected Next Runtime Package Candidate: PKG-006 continuation for Monitor Groups / Sensor Command Center only.
 Selected Next Implementation Branch: `feature/fam-006-monitor-groups-sensor-configuration`.
 Selected Next Status: FAM-006 PR Readiness is blocked pending Hardening H1, refreshed Live Validation / UTS recheck, and returned USER PASS or explicit USER waiver with reason.
@@ -162,7 +171,7 @@ Next Legal Phase: Branch-local FAM-006 Repair Workstream implementation for the 
 
 Selected Next Workstream: FAM-006 Monitor Groups / Sensor Command Center refreshed LV1 Dashboard right-edge resize rediscovery repair.
 Backlog Record State: Registry-only.
-Record State: Current-main reconciliation preserves `origin/main` through PR #168 as context, while refreshed LV1 close-guard, visual-proof, and interactive-control visual QA repair implementations remain preserved on `feature/fam-006-monitor-groups-sensor-configuration`; the active setup is the refreshed LV1 Dashboard post-corner right-edge resize rediscovery blocker.
+Record State: Current-main reconciliation preserves `origin/main` through PR #169 as context, while refreshed LV1 close-guard, visual-proof, and interactive-control visual QA repair implementations remain preserved on `feature/fam-006-monitor-groups-sensor-configuration`; the active setup is the refreshed LV1 Dashboard post-corner right-edge resize rediscovery blocker.
 Minimal Scope: Repair Workstream implementation for refreshed LV1 Dashboard right-edge rediscovery only: reacquire Dashboard element/handle/rect/DPI/visible-edge state after resize, add diagnostic sweep evidence, add post-resize settle checks, and preserve the 14px visible rail unless diagnostics justify a bounded edge-math repair.
 Branch: `feature/fam-006-monitor-groups-sensor-configuration` is the active bounded FAM-006 runtime carrier in `C:\Nexus Worktrees\FAM-006`.
 Current Carrier Branch: `feature/fam-006-monitor-groups-sensor-configuration`

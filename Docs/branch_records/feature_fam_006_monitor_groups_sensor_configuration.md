@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active Branch Readiness Stage 2 repair setup after refreshed LV1 Dashboard right-edge resize rediscovery failure`
-- Bounded State: `Current-main reconciliation through origin/main 81701d4b351ae7bb4c146daf88a8d884f6bc7981 is complete on this FAM-006 branch; origin/main is context, not identity; refreshed LV1 real-client validation passed initial right-edge hit-test and cursor transition proof plus corner resize proof, then stopped on post-corner right-edge resize cursor rediscovery before dashboard_mouse_resize_right_edge. This Stage 2 setup admits only the right-edge rediscovery diagnostics and validator planning needed before runtime repair implementation, while preserving all existing Sensor Command Center repairs and pending Manage Monitors LV1 proof states.`
+- Branch Authority State: `Active current-main reconciliation before refreshed LV1 Dashboard right-edge resize rediscovery Repair Workstream`
+- Bounded State: `Current-main reconciliation through origin/main 6e2e743fd1d8d688c8046eb0a788b1a7109e66c2 is complete on this FAM-006 branch; origin/main PR #169 governance/source-truth changes are context, not identity; refreshed LV1 real-client validation passed initial right-edge hit-test and cursor transition proof plus corner resize proof, then stopped on post-corner right-edge resize cursor rediscovery before dashboard_mouse_resize_right_edge. The admitted repair path remains limited to right-edge rediscovery diagnostics and validator planning before runtime repair implementation, while preserving all existing Sensor Command Center repairs and pending Manage Monitors LV1 proof states.`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -29,13 +29,13 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 Phase: `Branch Readiness`
 
-Stage: `Branch Readiness Stage 2 repair setup - Dashboard right-edge resize rediscovery`
+Stage: `Current-main reconciliation after PR #169 before Dashboard right-edge resize rediscovery Repair Workstream`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Refreshed Live Validation Stage 1 returned REPAIR after H1 repair commit `52e81478268be30b17fc72f67af05cacd980ee1a` because the real USER-facing shortcut/client path stopped on `Dashboard right-edge resize cursor was not discoverable near the visible edge before resize action`. Initial right-edge proof had already passed with `rightEdge10px=htright` and `rightOutside=True / htright / size-west-east / offset=1`; corner resize then passed by changing the Dashboard from `780x1060` to `860x1130`; the failure occurred during post-corner right-edge rediscovery before `dashboard_mouse_resize_right_edge`. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md must reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Refreshed LV1 Dashboard right-edge resize rediscovery setup admitted`. Current Repair Workstream Seam: `Pending USER approval`. Current Hardening Seam: `Pending after repair implementation`. Current PR gate: `Blocked until repair implementation, Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
+Refreshed Live Validation Stage 1 returned REPAIR after H1 repair commit `52e81478268be30b17fc72f67af05cacd980ee1a` because the real USER-facing shortcut/client path stopped on `Dashboard right-edge resize cursor was not discoverable near the visible edge before resize action`. Initial right-edge proof had already passed with `rightEdge10px=htright` and `rightOutside=True / htright / size-west-east / offset=1`; corner resize then passed by changing the Dashboard from `780x1060` to `860x1130`; the failure occurred during post-corner right-edge rediscovery before `dashboard_mouse_resize_right_edge`. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Refreshed LV1 Dashboard right-edge resize rediscovery setup admitted and reconciled through PR #169`. Current Repair Workstream Seam: `Pending USER approval after reconciliation`. Current Hardening Seam: `Pending after repair implementation`. Current PR gate: `Blocked until repair implementation, Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -45,7 +45,7 @@ This branch is a FAM-006 runtime carrier. It may carry the bounded source-truth 
 
 ## Runtime Branch Engineering Contract
 
-Engineering Contract Status: Accepted after PR #164 current-main reconciliation for this active FAM-006 runtime branch.
+Engineering Contract Status: Accepted after PR #164 current-main reconciliation and preserved through PR #169 current-main reconciliation for this active FAM-006 runtime branch.
 USER Engineering Planning Review: USER approved the FAM-006 Monitor Groups planning, repair setup, and close-guard implementation sequencing before this Workstream continuation.
 Runtime Implementation Approval: Pending for the Dashboard right-edge resize rediscovery repair; USER approval currently covers Branch Readiness Stage 2 repair setup only. Prior close-guard, visual-proof, and interactive-control repair implementation approvals remain historical for already-implemented repairs.
 Branch Purpose: This branch implements the FAM-006 Monitor Groups runtime surface for configurable monitor groups, Sensor Library assignment, and proof-backed user interactions.
@@ -197,7 +197,7 @@ User Test Summary Strategy: `No UTS is generated during Branch Readiness Stage 2
 
 Repair Setup Status: `ADMITTED - Branch Readiness Stage 2`
 
-Current-Main Reconciliation Confirmation: `current-main reconciliation is complete for Branch Readiness setup - PR #163 / origin/main 0cd1b0430f5634048613bffec411d35d657058bf is reconciled into this FAM-006 branch with the Current-Main Reconciliation Identity Guard; final commit/push evidence belongs to the reconciliation packet.`
+Current-Main Reconciliation Confirmation: `current-main reconciliation is complete through PR #169 / origin/main 6e2e743fd1d8d688c8046eb0a788b1a7109e66c2; incoming governance, validation-suite, and worktree-rebaseline-audit helper truth is preserved as context while FAM-006 Monitor Groups / Sensor Command Center remains this worktree's branch-local identity. Final commit/push evidence belongs to the reconciliation packet.`
 
 Returned UTS Scope Admitted: `Returned UTS Steps 1-8 passed; Step 9 failed Dashboard resize/move smoothness, especially shrink behavior where rendering appears frozen until resize completes; Step 10 failed Manage Monitors design/scalability because the scrollbar appears native Windows styled and the flow does not scale to hundreds of monitors and thousands of data sources.`
 
@@ -648,7 +648,7 @@ Refreshed LV1 remains in REPAIR posture until the Dashboard right-edge resize re
 - Directly supporting validators pass.
 - PR Readiness remains blocked until refreshed Live Validation and returned USER UTS PASS or explicit waiver with reason.
 - Required validation passes.
-- Branch Readiness Stage 2 right-edge resize rediscovery repair setup commit is pushed.
+- Branch Readiness Stage 2 right-edge resize rediscovery repair setup is preserved and current-main reconciliation through PR #169 is pushed.
 
 ## Rollback Target
 
