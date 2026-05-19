@@ -16303,6 +16303,16 @@ def main() -> int:
         "missing sources",
         "source classification",
         "Future Workflow Preservation",
+        "## Refreshed LV1 Interactive Control Visual QA Repair Setup Admission",
+        "Interactive Control Visual QA Gate",
+        "All user-facing interactable controls must pass code inspection and focused visual inspection",
+        "buttons, user-facing dropdowns, checkboxes, selectable rows, search fields, filter controls, scrollbars, close controls, delete confirmations, empty-state actions, source-picker controls",
+        "Code Inspection Requirement",
+        "Focused Visual Inspection Requirement",
+        "Empty-State Repair Scope",
+        "Save Monitor and Cancel must not appear as valid actions",
+        "Create Monitor must be the primary recovery action",
+        "reject manifest-only or DOM-only PASS when focused screenshots show invalid interactive controls",
     ):
         require(
             required_phrase in fam006_monitor_groups_record_text,
@@ -16325,6 +16335,7 @@ def main() -> int:
             "Overlay Profile",
             "Recording Profile",
             "returned USER UTS FAIL",
+            "interactive-control visual QA",
             "PR Readiness remains blocked",
         ):
             require(

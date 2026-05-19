@@ -536,6 +536,25 @@ def validate() -> list[str]:
             failures,
         )
 
+    for interactive_visual_setup in (
+        "## Refreshed LV1 Interactive Control Visual QA Repair Setup Admission",
+        "Interactive Control Visual QA Gate",
+        "All user-facing interactable controls must pass code inspection and focused visual inspection",
+        "buttons, user-facing dropdowns, checkboxes, selectable rows, search fields, filter controls, scrollbars, close controls, delete confirmations, empty-state actions, source-picker controls",
+        "Code Inspection Requirement",
+        "Focused Visual Inspection Requirement",
+        "Empty-State Repair Scope",
+        "Save Monitor and Cancel must not appear as valid actions",
+        "Create Monitor must be the primary recovery action",
+        "reject manifest-only or DOM-only PASS when focused screenshots show invalid interactive controls",
+    ):
+        _require_contains(
+            monitor_groups_record,
+            interactive_visual_setup,
+            "FAM-006 interactive-control visual QA setup source truth",
+            failures,
+        )
+
     for close_guard_runtime in (
         'document.querySelector(\'[data-child-window-close="monitor-group-edit"]\')',
         "webview_focused_visual_proof",
