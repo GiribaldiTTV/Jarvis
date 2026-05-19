@@ -23,6 +23,7 @@ This plan is not an implementation branch by itself. It is a reform inventory fo
 - Prefer small reform passes. Each category below should become a focused planning packet or branch pass instead of one broad rewrite.
 - Keep canonical names stable until aliases are proven. User-facing aliases can reduce confusion, but validators should keep the current canonical phase enum until a deliberate rename migration is approved.
 - Let validators enforce markers and let docs explain intent. Long policy paragraphs should shrink into canonical rule IDs, packet templates, and validator-backed marker sets.
+- Separate derived live truth from governance receipts. Git/GitHub and approved helpers should derive volatile facts such as `HEAD`, PR state, tags, releases, dirty state, and merge base; docs should record intent, USER decisions, receipts, and historical interpretation.
 
 ## Category 1: Governance Doc Compaction
 
@@ -136,6 +137,32 @@ Implementation record:
 - Bot-review hardening requires incoming changed files to compare `merge_base..target_ref`, branch changed files to compare `merge_base..HEAD`, and active authority matching to use the exact `- Branch:` field instead of substring matching.
 - Registry owner: `Docs/validation_helper_registry.md`.
 - Validator source-check owner: `dev/orin_branch_governance_validation.py`.
+
+## Category 5A: Source-Truth Ownership And Worktree Slot Model
+
+Current finding:
+- The repo has moved from one neutral folder to a multi-worktree workflow, but old language can make current FAM worktrees look like permanent structural lanes.
+- Backlog and roadmap carry too many current-state mirrors, while Git/GitHub already own many volatile operational facts.
+- Without a stable slot model, branch identity, GitHub Desktop binding, and originating-lane prompts can drift between current family labels and actual worktree roles.
+
+Recommendation:
+- Adopt `Docs/worktree_slots.md` as the slot registry and intended assignment layer.
+- Use stable slot IDs: `neutral-main`, `governance-standing`, `runtime-active-1`, `runtime-active-2`, `runtime-active-3`, and `archived-historical`.
+- Make the slot registry own intended assignment receipts, not raw live Git facts.
+- Keep branch authority records as the legal source for active, historical, blocked, waiting, and next-phase posture.
+- Keep Branch Runtime Engineering Plans canonical while runtime branches are active, then fold down or promote them during PR Readiness.
+
+Focused planning pass:
+- `Source-Truth Ownership And Worktree Slot Model Pass`.
+
+Priority:
+- High.
+
+Implementation record:
+- Focused pass admitted `Docs/worktree_slots.md` as the stable worktree slot registry.
+- `Docs/Main.md` now distinguishes derived live truth from governance receipts and routes worktree slot ownership through `Docs/worktree_slots.md`.
+- `Docs/branch_records/index.md` records that slot assignment does not equal active branch authority.
+- Hard validator enforcement, helper implementation, backlog/roadmap migration or shrink work, duplicate-live-state detection, and shared-surface ownership enforcement remain deferred to later USER-approved reform passes.
 
 ## Category 6: Standing Governance Intake Simplification
 
@@ -360,18 +387,19 @@ Priority:
 1. `Governance Intake Triage Template Pass`.
 2. `Digest Profile Standardization Pass`.
 3. `Worktree Rebaseline Audit Helper Pass`.
-4. `Watcher Reliability And Repair-Mode Pass`.
-5. `Governance Doc Compaction Pass`.
-6. `Branch Planning UX And Template Pass`.
-7. `Source-Truth Archive And Current-State Split Pass`.
-8. `Governance Validator Modularization Pass`.
-9. `Backlog/Roadmap Current Decision Surface Pass`.
-10. `Release Ownership UX Pass`.
-11. `Validation Runner And Registry Query Pass`.
-12. `Phase Alias UX Pass`.
-13. `Standing Governance Ledger Compaction Pass`.
-14. `Public Language Mapping Pass`.
-15. `Tracked Naming Drift Scan Pass`.
+4. `Source-Truth Ownership And Worktree Slot Model Pass`.
+5. `Watcher Reliability And Repair-Mode Pass`.
+6. `Governance Doc Compaction Pass`.
+7. `Branch Planning UX And Template Pass`.
+8. `Source-Truth Archive And Current-State Split Pass`.
+9. `Governance Validator Modularization Pass`.
+10. `Backlog/Roadmap Current Decision Surface Pass`.
+11. `Release Ownership UX Pass`.
+12. `Validation Runner And Registry Query Pass`.
+13. `Phase Alias UX Pass`.
+14. `Standing Governance Ledger Compaction Pass`.
+15. `Public Language Mapping Pass`.
+16. `Tracked Naming Drift Scan Pass`.
 
 ## Highest-Value First Pass
 

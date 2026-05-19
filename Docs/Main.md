@@ -32,9 +32,21 @@ Use these rules before trusting any planning or governance claim:
 - local unmerged branches, stashes, and docs overlays are reference material only until revalidated against updated `origin/main`
 - if code, logs, and merged docs disagree, validate the live repo truth first and then repair the docs
 
+## Derived Live Truth And Governance Receipts
+
+Git and GitHub own volatile operational facts such as `HEAD`, worktree clean/dirty state, ahead/behind state, merge base, local/remote ref existence, live PR state, latest tag, latest GitHub Release, and issue state.
+
+Repo docs own governance intent, USER decisions, branch authority, phase approvals, planning contracts, release interpretation, and historical receipts after live truth has been checked.
+
+Do not make backlog, roadmap, branch records, or worktree-slot records manually own volatile Git/GitHub facts unless a historical receipt explicitly says the fact was validated and recorded as interpretation. Current operational truth must be derived from Git, GitHub, or an approved helper before mutation.
+
 ## Workspace And Thread Identity Baseline
 
 Nexus may use multiple local folders for the same GitHub repository, but `origin/main` remains the canonical remote source truth.
+
+`Docs/worktree_slots.md` owns the stable slot registry and intended lane assignment model. It defines reusable slots such as `neutral-main`, `governance-standing`, `runtime-active-1`, `runtime-active-2`, `runtime-active-3`, and `archived-historical`.
+
+Slot assignment is not active branch authority by itself. The branch authority record still owns legal active, historical, waiting, blocked, and next-phase posture. A slot says where work is intended to happen; Git/GitHub and identity preflight prove what is actually checked out and mutable.
 
 Current local workspace roles:
 
@@ -122,6 +134,7 @@ Use this ownership split unless a validated source conflict requires a temporary
 - phase governance = repo-wide execution, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit contract
 - validation helper registry = repo-wide helper naming, ownership, reuse, workstream-scoped exception, and consolidation contract
 - branch authority records = repo-owned phase owners for selected `Registry-only` backlog branches in `Branch Readiness`, approved `release packaging` branches, active runtime-focused branches that must carry bounded governance/source-of-truth repairs before PR green, the single standing Release Readiness source-truth intake lane, and preserved historical repair records; standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work
+- worktree slots = stable slot registry and intended lane assignment model in `Docs/worktree_slots.md`; it records slot roles and assignment receipts but does not own volatile live Git/GitHub facts or active branch authority
 - Branch Runtime Engineering Plan = branch/worktree-specific detailed runtime execution blueprint for runtime-focused branches under `Docs/branch_plans/<branch_slug>.md`; the branch authority record remains the control surface, backlog and roadmap remain compact pointer/status surfaces, and PR Readiness fold-down decides what becomes historical branch receipt or promoted workstream/family-dossier truth
 - Element Validation Ledger = row-level created/touched/affected/deferred/future element proof tracking owned by the existing workstream doc or branch authority record; it is not a new standalone active source-truth layer by default
 - `Docs/nexus_startup_contract.md` = ChatGPT/new-chat loader map and prompt-generation guardrail owner, including the Nexus Prompt Gate final scrub rule; it is not Codex execution authority unless prompt generation, bootstrap continuity, or loader/source-truth drift review is in scope
@@ -172,6 +185,7 @@ Use these for workflow posture, prompt framing, lifecycle rules, and execution s
 - `Docs/codex_modes.md`
 - `Docs/orin_task_template.md`
 - `Docs/codex_user_guide.md`
+- `Docs/worktree_slots.md`
 - `Docs/governance_process_efficiency_reform_plan.md`
 - `Docs/governance_intake_triage_and_digest_profiles.md`
 
