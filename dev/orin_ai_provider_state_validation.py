@@ -150,6 +150,83 @@ from desktop.ai_provider_state import (  # noqa: E402
     PROVIDER_SETUP_ELIGIBILITY_FUTURE_GATED,
     PROVIDER_FUTURE_GATE_STATUS_EXECUTION_REQUIRED,
     PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+    PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION,
+    PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+    PROVIDER_ACTIVATION_CONFIG_STATE_INVALID,
+    PROVIDER_ACTIVATION_CONFIG_STATE_LOCAL,
+    PROVIDER_ACTIVATION_CONFIG_STATE_MISSING,
+    PROVIDER_ACTIVATION_PROVENANCE_ADAPTER_CONTRACT,
+    PROVIDER_ACTIVATION_PROVENANCE_CAPABILITY_MANIFEST,
+    PROVIDER_ACTIVATION_PROVENANCE_CONSENT_STATE,
+    PROVIDER_ACTIVATION_PROVENANCE_DEFAULT_CONFIG,
+    PROVIDER_ACTIVATION_PROVENANCE_FUTURE_RUNTIME_CHECK,
+    PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE,
+    PROVIDER_ACTIVATION_PROVENANCE_RELEASE_SOURCE_TRUTH,
+    PROVIDER_ACTIVATION_REASON_ADAPTER_UNAVAILABLE,
+    PROVIDER_ACTIVATION_REASON_CAPABILITY_REQUIRED,
+    PROVIDER_ACTIVATION_REASON_CONFIG_INVALID_FAIL_CLOSED,
+    PROVIDER_ACTIVATION_REASON_CONFIG_MISSING_FAIL_CLOSED,
+    PROVIDER_ACTIVATION_REASON_CONSENT_REQUIRED,
+    PROVIDER_ACTIVATION_REASON_DEFAULT_UNAVAILABLE,
+    PROVIDER_ACTIVATION_REASON_EXECUTION_GATED,
+    PROVIDER_ACTIVATION_REASON_FUTURE_GATED,
+    PROVIDER_ACTIVATION_REASON_FUNCTIONAL_AI_FUTURE_VERSION,
+    PROVIDER_ACTIVATION_REASON_MANIFEST_REQUIRED,
+    PROVIDER_ACTIVATION_REASON_POLICY_BLOCKED,
+    PROVIDER_ACTIVATION_REASON_READINESS_BLOCKED,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_ADAPTER,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CAPABILITY,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CONSENT,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_MANIFEST,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_POLICY,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_READINESS,
+    PROVIDER_ACTIVATION_STATE_DEGRADED,
+    PROVIDER_ACTIVATION_STATE_DISABLED,
+    PROVIDER_ACTIVATION_STATE_ELIGIBLE_FUTURE_GATED,
+    PROVIDER_ACTIVATION_STATE_FUNCTIONAL_AI_READY_FUTURE_VERSION,
+    PROVIDER_ACTIVATION_STATE_READY_EXECUTION_GATED,
+    PROVIDER_ACTIVATION_STATE_SCHEMA_VERSION,
+    PROVIDER_ACTIVATION_STATE_UNAVAILABLE,
+    PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+    PROVIDER_ACTIVATION_ELIGIBILITY_DISABLED,
+    PROVIDER_ACTIVATION_ELIGIBILITY_EXECUTION_GATED,
+    PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_GATED,
+    PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_VERSION,
+    PROVIDER_ACTIVATION_ELIGIBILITY_UNAVAILABLE,
+    PROVIDER_ACTIVATION_BLOCKER_ADAPTER_UNAVAILABLE,
+    PROVIDER_ACTIVATION_BLOCKER_CAPABILITY_REQUIRED,
+    PROVIDER_ACTIVATION_BLOCKER_CONFIG_INVALID,
+    PROVIDER_ACTIVATION_BLOCKER_CONSENT_REQUIRED,
+    PROVIDER_ACTIVATION_BLOCKER_EXECUTION_GATE,
+    PROVIDER_ACTIVATION_BLOCKER_FUTURE_ACTIVATION_GATE,
+    PROVIDER_ACTIVATION_BLOCKER_MANIFEST_REQUIRED,
+    PROVIDER_ACTIVATION_BLOCKER_POLICY_BLOCKED,
+    PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED,
+    PROVIDER_ACTIVATION_BLOCKER_VERSION_JUMP_REQUIRED,
+    PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_EXECUTION_REQUIRED,
+    PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+    PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_VERSION_JUMP_REQUIRED,
+    PROVIDER_ADAPTER_POSTURE_NULL_LOCAL,
+    PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+    PROVIDER_ADAPTER_AVAILABILITY_READY_FUTURE_GATED,
+    PROVIDER_ADAPTER_EXECUTION_POSTURE_DISABLED,
+    PROVIDER_METADATA_CONTRACT_VERSION,
+    PROVIDER_CONFIG_ENVELOPE_VERSION,
+    PROVIDER_ACTIVATION_HANDOFF_STATE_FUTURE_GATED,
+    PROVIDER_SDK_INTEGRATION_BOUNDARY_FUTURE_APPROVAL,
+    PROMPT_EXECUTION_GATE_DISABLED,
+    MODEL_EXECUTION_GATE_DISABLED,
+    PROVIDER_EXECUTION_GATE_DISABLED,
+    FUNCTIONAL_AI_CRITERIA_PENDING,
+    FUNCTIONAL_AI_CRITERIA_READY_FUTURE_VERSION,
+    V18_PREBETA_READINESS_PENDING,
+    V18_PREBETA_READINESS_READY,
+    READINESS_GATE_READY,
+    CONSENT_GATE_READY,
+    CAPABILITY_GATE_READY,
+    MANIFEST_GATE_READY,
+    ADAPTER_GATE_READY_FUTURE_GATED,
+    SAFETY_EVAL_GATE_READY,
     CAPABILITY_PACK_ELIGIBILITY_BLOCKED,
     CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED,
     CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
@@ -161,6 +238,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     READINESS_ACTION_ALLOWED_LOCAL_READ_ONLY,
     READINESS_ACTION_FUTURE_USER_APPROVAL_REQUIRED,
     PROVIDER_NEXT_ACTION_DISABLED,
+    build_default_provider_activation_config,
     build_fam007_foundation_readiness_state,
     build_default_provider_runtime_config,
     build_default_provider_readiness_config,
@@ -168,6 +246,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_local_provider_registry_state,
     build_no_provider_ai_state,
     build_provider_readiness_contract_state,
+    build_provider_activation_foundation_state,
     build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
 )
@@ -344,6 +423,165 @@ def validate() -> list[str]:
         },
         surface_role="core",
     )
+    default_activation_config_snapshot = build_default_provider_activation_config()
+    default_activation_snapshot = build_provider_activation_foundation_state(
+        build_default_provider_readiness_config(),
+        surface_role="core",
+    )
+    missing_activation_config_snapshot = build_provider_activation_foundation_state(
+        build_default_provider_readiness_config(),
+        activation_config=None,
+        surface_role="core",
+    )
+    invalid_activation_config_snapshot = build_provider_activation_foundation_state(
+        build_default_provider_readiness_config(),
+        activation_config={
+            "schema_version": "provider-activation-config.v0",
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    readiness_blocked_activation_snapshot = build_provider_activation_foundation_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": False,
+            "consent_granted": False,
+            "capability_ready": False,
+            "manifest_available": False,
+            "manifest_valid": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    consent_blocked_activation_snapshot = build_provider_activation_foundation_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": False,
+            "capability_ready": False,
+            "manifest_available": False,
+            "manifest_valid": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    capability_blocked_activation_snapshot = build_provider_activation_foundation_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": False,
+            "manifest_available": False,
+            "manifest_valid": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    manifest_blocked_activation_snapshot = build_provider_activation_foundation_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": False,
+            "manifest_valid": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    policy_blocked_activation_snapshot = build_provider_activation_foundation_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": True,
+            "policy_allows_setup": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    future_gated_activation_snapshot = build_provider_activation_foundation_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": True,
+            "future_provider_setup_approved": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    adapter_unavailable_activation_snapshot = build_provider_activation_foundation_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": True,
+            "future_provider_setup_approved": True,
+            "provider_ready": True,
+            "provenance": "local_config",
+        },
+        activation_config={
+            "schema_version": PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION,
+            "future_activation_approved": True,
+            "adapter_available": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    execution_gated_activation_snapshot = build_provider_activation_foundation_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": True,
+            "future_provider_setup_approved": True,
+            "provider_ready": True,
+            "provenance": "local_config",
+        },
+        activation_config={
+            "schema_version": PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION,
+            "future_activation_approved": True,
+            "adapter_available": True,
+            "safety_eval_complete": True,
+            "prompt_execution_approved": False,
+            "model_execution_approved": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    functional_future_version_activation_snapshot = build_provider_activation_foundation_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": True,
+            "future_provider_setup_approved": True,
+            "provider_ready": True,
+            "provenance": "local_config",
+        },
+        activation_config={
+            "schema_version": PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION,
+            "future_activation_approved": True,
+            "adapter_available": True,
+            "safety_eval_complete": True,
+            "prompt_execution_approved": True,
+            "model_execution_approved": True,
+            "functional_ai_ready": True,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
@@ -367,6 +605,20 @@ def validate() -> list[str]:
         "provider_not_ready": provider_not_ready_readiness_snapshot.as_renderer_payload(),
         "execution_gated": execution_gated_readiness_snapshot.as_renderer_payload(),
     }
+    activation_payloads = {
+        "default": default_activation_snapshot.as_renderer_payload(),
+        "missing_config": missing_activation_config_snapshot.as_renderer_payload(),
+        "invalid_config": invalid_activation_config_snapshot.as_renderer_payload(),
+        "readiness_blocked": readiness_blocked_activation_snapshot.as_renderer_payload(),
+        "consent_blocked": consent_blocked_activation_snapshot.as_renderer_payload(),
+        "capability_blocked": capability_blocked_activation_snapshot.as_renderer_payload(),
+        "manifest_blocked": manifest_blocked_activation_snapshot.as_renderer_payload(),
+        "policy_blocked": policy_blocked_activation_snapshot.as_renderer_payload(),
+        "future_gated": future_gated_activation_snapshot.as_renderer_payload(),
+        "adapter_unavailable": adapter_unavailable_activation_snapshot.as_renderer_payload(),
+        "execution_gated": execution_gated_activation_snapshot.as_renderer_payload(),
+        "functional_future_version": functional_future_version_activation_snapshot.as_renderer_payload(),
+    }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     html = _read("nexus_visual/orin_core.html")
@@ -374,6 +626,9 @@ def validate() -> list[str]:
     css = _read("nexus_visual/orin_core.css")
     js = _read("nexus_visual/orin_core.js")
     branch_record = _read("Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md")
+    active_activation_branch_record = _read(
+        "Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md"
+    )
     active_readiness_branch_record = _read(
         "Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md"
     )
@@ -979,6 +1234,314 @@ def validate() -> list[str]:
             failures,
         )
 
+    _require(
+        default_activation_config_snapshot.schema_version == PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION,
+        "default activation config must expose provider activation config schema",
+        failures,
+    )
+    _require(
+        default_activation_config_snapshot.config_state == PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+        "default activation config must stay safe default local-only",
+        failures,
+    )
+
+    activation_expectations = {
+        "default": (
+            PROVIDER_ACTIVATION_STATE_UNAVAILABLE,
+            PROVIDER_ACTIVATION_ELIGIBILITY_UNAVAILABLE,
+            PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED,
+            PROVIDER_ACTIVATION_REASON_DEFAULT_UNAVAILABLE,
+            PROVIDER_ACTIVATION_PROVENANCE_DEFAULT_CONFIG,
+            PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "missing_config": (
+            PROVIDER_ACTIVATION_STATE_DISABLED,
+            PROVIDER_ACTIVATION_ELIGIBILITY_DISABLED,
+            PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED,
+            PROVIDER_ACTIVATION_REASON_CONFIG_MISSING_FAIL_CLOSED,
+            PROVIDER_ACTIVATION_PROVENANCE_DEFAULT_CONFIG,
+            PROVIDER_ACTIVATION_CONFIG_STATE_MISSING,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "invalid_config": (
+            PROVIDER_ACTIVATION_STATE_DEGRADED,
+            PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+            PROVIDER_ACTIVATION_BLOCKER_CONFIG_INVALID,
+            PROVIDER_ACTIVATION_REASON_CONFIG_INVALID_FAIL_CLOSED,
+            "local_config",
+            PROVIDER_ACTIVATION_CONFIG_STATE_INVALID,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "readiness_blocked": (
+            PROVIDER_ACTIVATION_STATE_BLOCKED_BY_READINESS,
+            PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+            PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED,
+            PROVIDER_ACTIVATION_REASON_READINESS_BLOCKED,
+            PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE,
+            PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "consent_blocked": (
+            PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CONSENT,
+            PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+            PROVIDER_ACTIVATION_BLOCKER_CONSENT_REQUIRED,
+            PROVIDER_ACTIVATION_REASON_CONSENT_REQUIRED,
+            PROVIDER_ACTIVATION_PROVENANCE_CONSENT_STATE,
+            PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "capability_blocked": (
+            PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CAPABILITY,
+            PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+            PROVIDER_ACTIVATION_BLOCKER_CAPABILITY_REQUIRED,
+            PROVIDER_ACTIVATION_REASON_CAPABILITY_REQUIRED,
+            PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE,
+            PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "manifest_blocked": (
+            PROVIDER_ACTIVATION_STATE_BLOCKED_BY_MANIFEST,
+            PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+            PROVIDER_ACTIVATION_BLOCKER_MANIFEST_REQUIRED,
+            PROVIDER_ACTIVATION_REASON_MANIFEST_REQUIRED,
+            PROVIDER_ACTIVATION_PROVENANCE_CAPABILITY_MANIFEST,
+            PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "policy_blocked": (
+            PROVIDER_ACTIVATION_STATE_BLOCKED_BY_POLICY,
+            PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+            PROVIDER_ACTIVATION_BLOCKER_POLICY_BLOCKED,
+            PROVIDER_ACTIVATION_REASON_POLICY_BLOCKED,
+            PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE,
+            PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "future_gated": (
+            PROVIDER_ACTIVATION_STATE_ELIGIBLE_FUTURE_GATED,
+            PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_GATED,
+            PROVIDER_ACTIVATION_BLOCKER_FUTURE_ACTIVATION_GATE,
+            PROVIDER_ACTIVATION_REASON_FUTURE_GATED,
+            PROVIDER_ACTIVATION_PROVENANCE_RELEASE_SOURCE_TRUTH,
+            PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "adapter_unavailable": (
+            PROVIDER_ACTIVATION_STATE_BLOCKED_BY_ADAPTER,
+            PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+            PROVIDER_ACTIVATION_BLOCKER_ADAPTER_UNAVAILABLE,
+            PROVIDER_ACTIVATION_REASON_ADAPTER_UNAVAILABLE,
+            PROVIDER_ACTIVATION_PROVENANCE_ADAPTER_CONTRACT,
+            PROVIDER_ACTIVATION_CONFIG_STATE_LOCAL,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_EXECUTION_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "execution_gated": (
+            PROVIDER_ACTIVATION_STATE_READY_EXECUTION_GATED,
+            PROVIDER_ACTIVATION_ELIGIBILITY_EXECUTION_GATED,
+            PROVIDER_ACTIVATION_BLOCKER_EXECUTION_GATE,
+            PROVIDER_ACTIVATION_REASON_EXECUTION_GATED,
+            PROVIDER_ACTIVATION_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            PROVIDER_ACTIVATION_CONFIG_STATE_LOCAL,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_EXECUTION_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_READY_FUTURE_GATED,
+            FUNCTIONAL_AI_CRITERIA_PENDING,
+            V18_PREBETA_READINESS_PENDING,
+        ),
+        "functional_future_version": (
+            PROVIDER_ACTIVATION_STATE_FUNCTIONAL_AI_READY_FUTURE_VERSION,
+            PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_VERSION,
+            PROVIDER_ACTIVATION_BLOCKER_VERSION_JUMP_REQUIRED,
+            PROVIDER_ACTIVATION_REASON_FUNCTIONAL_AI_FUTURE_VERSION,
+            PROVIDER_ACTIVATION_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            PROVIDER_ACTIVATION_CONFIG_STATE_LOCAL,
+            PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_VERSION_JUMP_REQUIRED,
+            PROVIDER_ADAPTER_AVAILABILITY_READY_FUTURE_GATED,
+            FUNCTIONAL_AI_CRITERIA_READY_FUTURE_VERSION,
+            V18_PREBETA_READINESS_READY,
+        ),
+    }
+    for label, expectation in activation_expectations.items():
+        activation_payload = activation_payloads[label]
+        (
+            expected_state,
+            expected_eligibility,
+            expected_blocker,
+            expected_reason,
+            expected_provenance,
+            expected_config,
+            expected_future_gate,
+            expected_adapter_availability,
+            expected_functional_ai,
+            expected_v18_readiness,
+        ) = expectation
+        _require(
+            activation_payload["activationStateSchemaVersion"] == PROVIDER_ACTIVATION_STATE_SCHEMA_VERSION,
+            f"{label} activation fixture must publish provider activation state schema",
+            failures,
+        )
+        _require(
+            activation_payload["activationConfigSchemaVersion"] == PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION,
+            f"{label} activation fixture must publish provider activation config schema",
+            failures,
+        )
+        _require(
+            activation_payload["providerActivationState"] == expected_state,
+            f"{label} activation fixture must publish {expected_state}",
+            failures,
+        )
+        _require(
+            activation_payload["activationEligibilityState"] == expected_eligibility,
+            f"{label} activation fixture must publish activation eligibility {expected_eligibility}",
+            failures,
+        )
+        _require(
+            activation_payload["activationBlockerState"] == expected_blocker,
+            f"{label} activation fixture must publish activation blocker {expected_blocker}",
+            failures,
+        )
+        _require(
+            activation_payload["activationReasonCode"] == expected_reason,
+            f"{label} activation fixture must publish activation reason {expected_reason}",
+            failures,
+        )
+        _require(
+            activation_payload["activationProvenance"] == expected_provenance,
+            f"{label} activation fixture must publish activation provenance {expected_provenance}",
+            failures,
+        )
+        _require(
+            activation_payload["activationConfigState"] == expected_config,
+            f"{label} activation fixture must publish activation config {expected_config}",
+            failures,
+        )
+        _require(
+            activation_payload["futureActivationGateStatus"] == expected_future_gate,
+            f"{label} activation fixture must publish future activation gate {expected_future_gate}",
+            failures,
+        )
+        _require(
+            activation_payload["providerAdapterPosture"] == PROVIDER_ADAPTER_POSTURE_NULL_LOCAL,
+            f"{label} activation fixture must keep null/local adapter posture",
+            failures,
+        )
+        _require(
+            activation_payload["providerAdapterAvailabilityState"] == expected_adapter_availability,
+            f"{label} activation fixture must publish adapter availability {expected_adapter_availability}",
+            failures,
+        )
+        _require(
+            activation_payload["providerAdapterExecutionPosture"] == PROVIDER_ADAPTER_EXECUTION_POSTURE_DISABLED,
+            f"{label} activation fixture must keep adapter execution disabled",
+            failures,
+        )
+        _require(
+            activation_payload["providerMetadataContractVersion"] == PROVIDER_METADATA_CONTRACT_VERSION,
+            f"{label} activation fixture must publish provider metadata contract",
+            failures,
+        )
+        _require(
+            activation_payload["providerConfigEnvelopeVersion"] == PROVIDER_CONFIG_ENVELOPE_VERSION,
+            f"{label} activation fixture must publish provider config envelope",
+            failures,
+        )
+        _require(
+            activation_payload["providerActivationHandoffState"] == PROVIDER_ACTIVATION_HANDOFF_STATE_FUTURE_GATED,
+            f"{label} activation fixture must keep provider activation handoff future-gated",
+            failures,
+        )
+        _require(
+            activation_payload["futureSdkIntegrationBoundary"] == PROVIDER_SDK_INTEGRATION_BOUNDARY_FUTURE_APPROVAL,
+            f"{label} activation fixture must keep SDK integration future-approved",
+            failures,
+        )
+        _require(
+            activation_payload["promptExecutionGateState"] == PROMPT_EXECUTION_GATE_DISABLED
+            and activation_payload["modelExecutionGateState"] == MODEL_EXECUTION_GATE_DISABLED
+            and activation_payload["providerExecutionGateState"] == PROVIDER_EXECUTION_GATE_DISABLED,
+            f"{label} activation fixture must keep prompt/model/provider execution gates disabled",
+            failures,
+        )
+        _require(
+            activation_payload["functionalAiCriteriaState"] == expected_functional_ai,
+            f"{label} activation fixture must publish functional-AI criteria {expected_functional_ai}",
+            failures,
+        )
+        _require(
+            activation_payload["v18PrebetaReadinessState"] == expected_v18_readiness,
+            f"{label} activation fixture must publish v1.8.0 readiness {expected_v18_readiness}",
+            failures,
+        )
+        if expected_adapter_availability == PROVIDER_ADAPTER_AVAILABILITY_READY_FUTURE_GATED:
+            _require(
+                activation_payload["readinessGateState"] == READINESS_GATE_READY
+                and activation_payload["consentGateState"] == CONSENT_GATE_READY
+                and activation_payload["capabilityGateState"] == CAPABILITY_GATE_READY
+                and activation_payload["manifestGateState"] == MANIFEST_GATE_READY
+                and activation_payload["adapterGateState"] == ADAPTER_GATE_READY_FUTURE_GATED
+                and activation_payload["safetyEvalGateState"] == SAFETY_EVAL_GATE_READY,
+                f"{label} activation fixture must show future-gated readiness/adapter/safety gates when eligible",
+                failures,
+            )
+        _require(activation_payload["sentToProvider"] is False, f"{label} activation fixture must send nothing", failures)
+        _require(
+            activation_payload["canAcceptPrompts"] is False,
+            f"{label} activation fixture must keep prompts disabled",
+            failures,
+        )
+        _require(
+            activation_payload["providerVisibleData"] == "none",
+            f"{label} activation fixture must keep provider-visible data as none",
+            failures,
+        )
+        _require(
+            activation_payload["externalCalls"] == "blocked",
+            f"{label} activation fixture must keep external calls blocked",
+            failures,
+        )
+        _require(
+            activation_payload["capabilityPackDownloadState"] == CAPABILITY_PACK_DOWNLOADS_BLOCKED
+            and activation_payload["capabilityPackInstallState"] == CAPABILITY_PACK_INSTALL_BLOCKED,
+            f"{label} activation fixture must keep capability-pack download/install blocked",
+            failures,
+        )
+        _require(
+            activation_payload["memoryIndexingState"] == MEMORY_INDEXING_DISABLED
+            and activation_payload["networkEgressState"] == NETWORK_EGRESS_BLOCKED,
+            f"{label} activation fixture must keep memory indexing and network egress blocked",
+            failures,
+        )
+
     default_permissions = readiness_payloads["default"]["actionPermissionMatrix"]
     _require(
         len(default_permissions) == 9,
@@ -1269,7 +1832,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "build_provider_readiness_contract_state",
+        "build_provider_activation_foundation_state",
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
@@ -1288,6 +1851,19 @@ def validate() -> list[str]:
         "readiness_provenance",
         "readiness_schema",
         "future_provider_gate",
+        "provider_activation",
+        "activation_eligibility",
+        "activation_blocker",
+        "activation_reason",
+        "activation_provenance",
+        "activation_schema",
+        "future_activation_gate",
+        "provider_adapter",
+        "prompt_execution_gate",
+        "model_execution_gate",
+        "provider_execution_gate",
+        "functional_ai_criteria",
+        "v18_prebeta_readiness",
         "gpu_capability",
         "cpu_fallback",
         "hardware_detection_level",
@@ -1337,6 +1913,19 @@ def validate() -> list[str]:
             'data-readiness-provenance="default_config"',
             'data-readiness-schema="provider-readiness-state.v1"',
             'data-future-provider-gate="provider-setup-future-user-approval-required"',
+            'data-provider-activation="activation_unavailable"',
+            'data-activation-eligibility="activation_eligibility_unavailable"',
+            'data-activation-blocker="readiness_required"',
+            'data-activation-reason="activation_default_unavailable"',
+            'data-activation-provenance="default_config"',
+            'data-activation-schema="provider-activation-state.v1"',
+            'data-future-activation-gate="activation-future-user-approval-required"',
+            'data-provider-adapter="null-local-adapter"',
+            'data-prompt-execution-gate="prompt-execution-disabled"',
+            'data-model-execution-gate="model-execution-disabled"',
+            'data-provider-execution-gate="provider-execution-disabled"',
+            'data-functional-ai-criteria="functional-ai-criteria-pending"',
+            'data-v18-prebeta-readiness="v1.8.0-prebeta-readiness-pending"',
             'data-configured-provider-count="0"',
             'data-available-provider-count="0"',
             'data-hardware-capability="local-planning-only"',
@@ -1440,6 +2029,26 @@ def validate() -> list[str]:
             "provider-readiness-state.v1; provider-readiness-config.v1; Readiness config: safe default local-only",
             'id="ai-provider-status-future-gate"',
             "Future provider gate: USER approval required before setup",
+            'id="ai-provider-status-activation"',
+            "Provider activation: unavailable",
+            'id="ai-provider-status-activation-eligibility"',
+            "Activation eligibility: unavailable",
+            'id="ai-provider-status-activation-blocker"',
+            "Activation blocker: readiness required",
+            'id="ai-provider-status-activation-reason"',
+            "Activation reason: activation foundation only",
+            'id="ai-provider-status-activation-provenance"',
+            "Activation provenance: default config",
+            'id="ai-provider-status-activation-schema"',
+            "provider-activation-state.v1; provider-activation-config.v1; Activation config: safe default local-only",
+            'id="ai-provider-status-future-activation-gate"',
+            "Future activation gate: USER approval required before activation",
+            'id="ai-provider-status-adapter"',
+            "Provider adapter: null local adapter",
+            'id="ai-provider-status-execution-gates"',
+            "Prompt/model/provider execution: disabled",
+            'id="ai-provider-status-functional-ai"',
+            "Functional AI: criteria pending for v1.8.0-prebeta",
             'id="ai-provider-status-capability-eligibility"',
             "Capability-pack eligibility: blocked",
             'id="ai-provider-status-install-intent"',
@@ -1462,6 +2071,10 @@ def validate() -> list[str]:
         ".ai-provider-status",
         ".ai-provider-status__runtime",
         ".ai-provider-status__readiness",
+        ".ai-provider-status__activation",
+        ".ai-provider-status__adapter",
+        ".ai-provider-status__execution-gates",
+        ".ai-provider-status__functional-ai",
         ".ai-provider-status__hardware-detection",
         ".ai-provider-status__capability-manifest",
         ".ai-provider-status__capability-eligibility",
@@ -1546,6 +2159,23 @@ def validate() -> list[str]:
         "readinessProvenance",
         "readinessStateSchemaVersion",
         "futureProviderGateStatus",
+        "providerActivationState",
+        "activationEligibilityState",
+        "activationBlockerState",
+        "activationReasonCode",
+        "activationProvenance",
+        "activationStateSchemaVersion",
+        "futureActivationGateStatus",
+        "providerAdapterPosture",
+        "providerAdapterAvailabilityState",
+        "providerAdapterExecutionPosture",
+        "providerMetadataContractVersion",
+        "providerConfigEnvelopeVersion",
+        "promptExecutionGateState",
+        "modelExecutionGateState",
+        "providerExecutionGateState",
+        "functionalAiCriteriaState",
+        "v18PrebetaReadinessState",
         "capabilityPackEligibilityState",
         "installIntentState",
         "aiProviderStatusReadiness",
@@ -1553,6 +2183,16 @@ def validate() -> list[str]:
         "aiProviderStatusSetupBlocker",
         "aiProviderStatusReadinessReason",
         "aiProviderStatusFutureGate",
+        "aiProviderStatusActivation",
+        "aiProviderStatusActivationEligibility",
+        "aiProviderStatusActivationBlocker",
+        "aiProviderStatusActivationReason",
+        "aiProviderStatusActivationProvenance",
+        "aiProviderStatusActivationSchema",
+        "aiProviderStatusFutureActivationGate",
+        "aiProviderStatusAdapter",
+        "aiProviderStatusExecutionGates",
+        "aiProviderStatusFunctionalAi",
         "aiProviderStatusCapabilityEligibility",
         "aiProviderStatusInstallIntent",
         "aiProviderStatusRuntime",
@@ -1564,6 +2204,37 @@ def validate() -> list[str]:
         "canAcceptPrompts",
     ):
         _require(needle in js, f"core JS is missing {needle!r}", failures)
+
+    for needle in (
+        "FAM-007 Local AI Provider Activation Foundation",
+        "Provider Activation Contract and Gate Model: `Green`",
+        "Provider Adapter Boundary and Null Activation Surface: `Green`",
+        "Prompt/Execution Gate and Functional-AI Criteria: `Green`",
+        "Capability Pack, Consent, and Safety Gate Alignment: `Green`",
+        "Core/Desktop Activation Posture and Validator Planning: `Green`",
+        "Workstream Completion State: `Green - ready for Hardening H1 after USER approval`",
+        "provider-activation-state.v1",
+        "provider-activation-config.v1",
+        "activation_unavailable",
+        "activation_blocked_by_readiness",
+        "activation_blocked_by_consent",
+        "activation_blocked_by_capability",
+        "activation_blocked_by_manifest",
+        "activation_blocked_by_adapter",
+        "activation_eligible_future_gated",
+        "activation_ready_but_execution_gated",
+        "functional_ai_ready_future_version",
+        "null-local-adapter",
+        "prompt-execution-disabled",
+        "model-execution-disabled",
+        "provider-execution-disabled",
+        "functional-ai-criteria-pending",
+        "v1.8.0-prebeta-readiness-pending",
+        "Provider SDK integration remains a pending USER decision",
+        "Provider/model execution remains a pending USER decision",
+        "Memory indexing, retrieval, learning, persistence, personalization, or long-term adaptation remains a pending USER decision",
+    ):
+        _require(needle in active_activation_branch_record, f"active FAM-007 activation record is missing {needle!r}", failures)
 
     for needle in (
         "FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility",
