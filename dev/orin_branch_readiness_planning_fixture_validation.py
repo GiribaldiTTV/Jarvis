@@ -37,6 +37,9 @@ EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
 EXPECTED_NEGATIVE_APPROVAL_FAILURE_SNIPPET = (
     "requires Runtime Implementation Approval to be approved, granted, or waived"
 )
+EXPECTED_MISSING_PLAN_PATH_FAILURE_SNIPPET = (
+    "Branch Runtime Engineering Plan Path: points to missing file"
+)
 EXPECTED_BRANCH_RUNTIME_PLAN_FAILURE_SNIPPETS = (
     "Branch Runtime Engineering Plan value for 'Current Runtime Baseline:'",
     "Branch Runtime Engineering Plan marker 'Planned Runtime Delta:'",
@@ -104,6 +107,23 @@ def _validate_compact_backlog_text(text: str) -> list[str]:
         require,
         "<backlog-compactness-fixture>",
         text,
+    )
+    return failures
+
+
+def _validate_missing_plan_pointer_text() -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_branch_runtime_engineering_plan_pointer(
+        require,
+        "<missing-plan-pointer-fixture>",
+        (
+            "Branch Runtime Engineering Plan: Accepted\n"
+            "Branch Runtime Engineering Plan Path: "
+            "Docs/branch_plans/missing_runtime_plan_fixture.md\n"
+            "Engineering Plan Status: Accepted\n"
+        ),
+        branch_class="implementation",
+        current_phase="Workstream",
     )
     return failures
 
@@ -224,6 +244,15 @@ def validate() -> list[str]:
         failures.append(
             "Valid PR fold-down Branch Runtime Engineering Plan fixture unexpectedly failed: "
             + "; ".join(fold_down_failures[:5])
+        )
+
+    missing_plan_failures = _validate_missing_plan_pointer_text()
+    if EXPECTED_MISSING_PLAN_PATH_FAILURE_SNIPPET not in "\n".join(
+        missing_plan_failures
+    ):
+        failures.append(
+            "Missing Branch Runtime Engineering Plan path fixture did not reject "
+            "an accepted plan pointer to a nonexistent file"
         )
 
     return failures

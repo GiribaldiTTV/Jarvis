@@ -7752,21 +7752,33 @@ def _validate_branch_runtime_engineering_plan_pointer(
         bool(plan_path),
         f"{source_path}: accepted/present runtime plan pointer is missing '{BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL}'",
     )
+    plan_path_valid = normalized_path.startswith(
+        BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY
+    ) and normalized_path.endswith(".md")
     require(
-        normalized_path.startswith(BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY)
-        and normalized_path.endswith(".md"),
+        plan_path_valid,
         (
             f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL} must point "
             f"under {BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY}<branch_slug>.md"
         ),
     )
+    if not (plan_path and plan_path_valid):
+        return
     plan_file = ROOT_DIR / normalized_path
-    if plan_path and plan_file.is_file():
-        _validate_branch_runtime_engineering_plan(
-            require,
-            normalized_path,
-            plan_file.read_text(encoding="utf-8"),
-        )
+    require(
+        plan_file.is_file(),
+        (
+            f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL} points "
+            f"to missing file '{normalized_path}'"
+        ),
+    )
+    if not plan_file.is_file():
+        return
+    _validate_branch_runtime_engineering_plan(
+        require,
+        normalized_path,
+        plan_file.read_text(encoding="utf-8"),
+    )
 
 
 def _validate_branch_runtime_backlog_compactness(
