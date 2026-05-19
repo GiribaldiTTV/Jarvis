@@ -1285,6 +1285,15 @@ body.desktop-mode #monitoring-hud > * {
   align-items: center;
 }
 
+.monitoring-hud__child-field--inline[data-polling-rate-hitbox="toggle-only"] {
+  pointer-events: none;
+}
+
+.monitoring-hud__child-field--inline[data-polling-rate-hitbox="toggle-only"] .monitoring-hud__bounded-dropdown,
+.monitoring-hud__child-field--inline[data-polling-rate-hitbox="toggle-only"] .monitoring-hud__bounded-dropdown * {
+  pointer-events: auto;
+}
+
 .monitoring-hud__child-field--inline select {
   justify-self: end;
   width: min(132px, 100%);

@@ -506,7 +506,7 @@ Expected: Warning Notifications is a monitor/settings checkbox, Provider Readine
 USER Result / Notes:
 
 Step 8 - Sensor Library Scale, Source Filter, And Polling Rate
-Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter dropdown/facet control, clears stale hover highlights when moving between dropdown items or reopening it, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars. Supported source rows and their checkmarks respond immediately from row click, checkbox click, and keyboard activation without sluggish missed toggles. Polling Rate replaces Polling Floor and opens as a compact Nexus-styled bounded dropdown with clear hover/open/selected states.
+Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter dropdown/facet control, clears stale hover highlights when moving between dropdown items or reopening it, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars. Supported source rows and their checkmarks visibly check/uncheck immediately from row click, checkbox click, and keyboard activation without perceptible half-second lag; source settings may update just after the row/checkmark state but must not delay that visible response. Polling Rate replaces Polling Floor and opens as a compact Nexus-styled bounded dropdown with clear hover/open/selected states; only the visible Polling Rate toggle/menu/options should open or change the dropdown, not blank label-side row space.
 USER Result / Notes:
 
 Step 9 - Dashboard Resize And Move Smoothness

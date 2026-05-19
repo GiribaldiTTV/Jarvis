@@ -9761,6 +9761,7 @@ class DesktopRuntimeWindow(QWidget):
                 "interactive_control_no_interception": h1_proof.get("interactiveControlNoInterception") is True,
                 "source_picker_checkmark_stress": h1_proof.get("sourcePickerCheckmarkStress") is True,
                 "polling_rate_dropdown_nexus_styled": h1_proof.get("pollingRateDropdownNexusStyled") is True,
+                "polling_rate_hitbox_toggle_only": h1_proof.get("pollingRateHitboxToggleOnly") is True,
                 "source_picker_browser": h1_proof.get("sourcePickerBrowser") is True,
                 "source_filter_dropdown": h1_proof.get("sourceFilterDropdown") is True,
                 "source_filter_facets": h1_proof.get("sourceFilterFacets") is True,
@@ -10551,6 +10552,8 @@ class DesktopRuntimeWindow(QWidget):
                         let sourcePickerCheckmarkProof = {};
                         let sourcePickerCheckmarkStress = false;
                         let pollingRateDropdownNexusStyled = false;
+                        let pollingRateHitboxProof = {};
+                        let pollingRateHitboxToggleOnly = false;
                         let sourcePickerBrowser = false;
                         let sourceFilterDropdown = false;
                         let sourceFilterFacets = false;
@@ -11064,6 +11067,11 @@ class DesktopRuntimeWindow(QWidget):
                                 && sourcePickerCheckmarkProof.passed === true
                                 && Number(sourcePickerCheckmarkProof.rowsTested || 0) >= 8
                             );
+                            pollingRateHitboxProof = interactiveControlReliabilityProof.pollingRateHitboxProof || {};
+                            pollingRateHitboxToggleOnly = Boolean(
+                                interactiveControlReliabilityProof.pollingRateHitboxToggleOnly === true
+                                && pollingRateHitboxProof.passed === true
+                            );
                             interactiveControlNoInterception = Boolean(
                                 interactiveControlReliabilityProof
                                 && interactiveControlReliabilityProof.stateCount >= 10
@@ -11102,6 +11110,7 @@ class DesktopRuntimeWindow(QWidget):
                                 && sourcePickerCheckmarkStress
                                 && interactiveControlNoInterception
                                 && pollingRateDropdownNexusStyled
+                                && pollingRateHitboxToggleOnly
                             );
                             const state = window.getMonitoringHudControlState();
                             if (selectedBefore && state.cards && state.cards[selectedBefore]) {
@@ -11163,6 +11172,8 @@ class DesktopRuntimeWindow(QWidget):
                                     sourcePickerCheckmarkProof,
                                     sourcePickerCheckmarkStress,
                                     pollingRateDropdownNexusStyled,
+                                    pollingRateHitboxProof,
+                                    pollingRateHitboxToggleOnly,
                                     sourcePickerBrowser,
                                     sourceFilterDropdown,
                                     sourceFilterFacets,
@@ -11248,6 +11259,8 @@ class DesktopRuntimeWindow(QWidget):
                             sourcePickerCheckmarkProof,
                             sourcePickerCheckmarkStress,
                             pollingRateDropdownNexusStyled,
+                            pollingRateHitboxProof,
+                            pollingRateHitboxToggleOnly,
                             sourcePickerBrowser,
                             sourceFilterDropdown,
                             sourceFilterFacets,

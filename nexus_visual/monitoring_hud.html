@@ -382,10 +382,10 @@
                   <strong>Provider Readiness</strong>
                   <span>Readiness/status and future capability only; not an assignable sensor.</span>
                 </div>
-                <label class="monitoring-hud__child-field monitoring-hud__child-field--inline" data-control-row="polling-rate-inline">
+                <div class="monitoring-hud__child-field monitoring-hud__child-field--inline" data-control-row="polling-rate-inline" data-polling-rate-hitbox="toggle-only">
                   <span>Polling Rate</span>
                   <div class="monitoring-hud__bounded-dropdown" id="monitoring-hud-monitor-polling-rate-control" data-bounded-dropdown="polling-rate" data-selected-value="1000" data-dropdown-open="false" data-hovered-value="">
-                    <button type="button" class="monitoring-hud__bounded-dropdown-toggle" id="monitoring-hud-monitor-polling-rate-toggle" aria-haspopup="listbox" aria-expanded="false" aria-controls="monitoring-hud-monitor-polling-rate-menu">
+                    <button type="button" class="monitoring-hud__bounded-dropdown-toggle" id="monitoring-hud-monitor-polling-rate-toggle" aria-label="Polling Rate" aria-haspopup="listbox" aria-expanded="false" aria-controls="monitoring-hud-monitor-polling-rate-menu">
                       <span>Rate</span>
                       <strong id="monitoring-hud-monitor-polling-rate-label">1s</strong>
                     </button>
@@ -402,7 +402,7 @@
                     <option value="5000">5s</option>
                     <option value="10000">10s</option>
                   </select>
-                </label>
+                </div>
                 <div class="monitoring-hud__sensor-library" data-sensor-library="search-filter-scalable">
                   <div class="monitoring-hud__sensor-library-toolbar monitoring-hud__sensor-library-toolbar--inline" data-source-controls-layout="search-filter-inline">
                     <label class="monitoring-hud__search-field monitoring-hud__search-field--compact">
