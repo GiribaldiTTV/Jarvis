@@ -42,6 +42,10 @@ PHASE_COMMANDS: dict[str, tuple[ValidationCommand, ...]] = {
             r"python dev\orin_branch_readiness_planning_fixture_validation.py",
             "proves Branch Readiness planning-quality fixtures still catch shallow plans",
         ),
+        ValidationCommand(
+            r"python dev\orin_governance_efficiency_validation.py",
+            "proves governance efficiency ownership, compact-pointer, and backlog/roadmap compactness rules",
+        ),
     ),
     "branch-readiness": (
         ValidationCommand(
@@ -109,15 +113,28 @@ ALWAYS_USEFUL_COMMANDS = (
 
 
 def _run_git_diff_names() -> tuple[str, ...]:
-    result = subprocess.run(
+    commands = (
         ["git", "diff", "--name-only", "origin/main...HEAD"],
-        cwd=ROOT,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        check=False,
+        ["git", "diff", "--name-only"],
+        ["git", "diff", "--name-only", "--cached"],
+        ["git", "ls-files", "--others", "--exclude-standard"],
     )
-    return tuple(line.strip().replace("/", "\\") for line in result.stdout.splitlines() if line.strip())
+    names: list[str] = []
+    for command in commands:
+        result = subprocess.run(
+            command,
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        names.extend(
+            line.strip().replace("/", "\\")
+            for line in result.stdout.splitlines()
+            if line.strip()
+        )
+    return tuple(dict.fromkeys(names))
 
 
 def _dedupe(commands: list[ValidationCommand]) -> list[ValidationCommand]:

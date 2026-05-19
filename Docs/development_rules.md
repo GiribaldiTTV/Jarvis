@@ -88,6 +88,10 @@ Every active automation that can affect branch, PR, Release Readiness, post-merg
 
 Broad governance/source-truth/process reform must use `Docs/governance_intake_triage_and_digest_profiles.md`. Before mutation, return a `Governance Intake Triage Packet` unless the approved intake already names exact blockers, carrier, files, and approval boundaries. During output, use the smallest legal `Digest Profile`: `Decision Packet`, `Return Digest`, `Validation Digest`, `Full Audit Packet`, or `Delta Digest`.
 
+## Governance Efficiency Operating Model
+
+Broad governance reform must also use `Docs/governance_efficiency_operating_model.md` before adding another live-state surface, policy mirror, helper family, release ownership rule, alias, or public-output rule. New durable governance rules should name a `Rule ID`, one `Owner File`, compact mirrors, validator/helper owner, and `Do Not Duplicate In:` boundary.
+
 ## Source-Of-Truth Ownership Model
 
 Use this layered ownership model:
