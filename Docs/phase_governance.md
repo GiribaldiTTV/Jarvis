@@ -71,6 +71,29 @@ Widening beyond the current bounded state requires explicit USER waiver text rec
 
 Clean validation, a clean git tree, branch existence, prior broad approval, Codex discretion, ChatGPT wording, or prompt output shape cannot infer a bounded-state waiver. `Bounded State User Waiver: None` means execute only the single named bounded seam or stop.
 
+## Pre-Rebaseline Impact Audit
+
+`Pre-Rebaseline Impact Audit` is mandatory before any branch, worktree, neutral-main folder, or standing governance lane merges, rebases, fast-forwards, conflict-resolves, branch-switches, or otherwise baselines itself against a newer `origin/main`.
+
+No Baseline By Inertia: Codex must never treat "behind origin/main", "clean worktree", "already merged", "just housekeeping", or "fast-forward only" as approval to rebaseline without first reporting the audit and receiving USER approval for the recommended mutation path.
+
+The audit packet must include:
+
+- `Pre-Rebaseline Impact Audit:`
+- `Incoming Main Change Set:`
+- `Incoming Changed Files:`
+- `Current Worktree Changed Files:`
+- `Incoming Runtime / Source-Truth Risk:`
+- `Shared Surface / Worktree Overlap Forecast:`
+- `Validation Before Rebaseline:`
+- `Recommendation Only:`
+- `Rebaseline Mutation Approval:`
+- `Rebaseline Mutation Status:`
+
+`Recommendation Only:` must state that the pass reports findings and does not mutate the branch/worktree. `Rebaseline Mutation Approval:` must be `Pending` until the USER approves the exact worktree, branch, target commit, and operation type. `Rebaseline Mutation Status:` must remain `Not started` or `Blocked` until approval exists. If the worktree is dirty, if incoming files touch runtime/provider/UI/source-truth/validator surfaces, if sibling worktrees share files, or if validation fails, the next legal lane is a reported reconciliation decision rather than automatic baseline.
+
+When the USER approves the recommendation, the rebaseline operation must still be constrained to the approved operation type, usually `git merge --ff-only origin/main` for neutral/main or standing-governance sync and an explicit merge/rebase/recreate strategy for active implementation branches. After the operation, `Current-Main Reconciliation Identity Guard` must prove origin/main stayed context, not identity, before validation, commit, push, PR Readiness, Release Readiness, or handoff.
+
 ## Branch Naming Prefix Rule
 
 Active Nexus branch names and active branch authority records must not use the `codex/` prefix.
@@ -988,6 +1011,8 @@ The next-workstream/package hierarchy is reviewed in PR Readiness Stage 1, not s
 Selected-next truth and active branch authority are different states. PR Readiness Stage 1 must resolve the next-workstream path with approved selected-next truth or an explicit USER waiver/defer, but a branch that projects post-merge `No Active Branch` must not merge an implementation authority record as active. If no successor is approved before merge, merged `main` may be steady-state `No Active Branch` while carrying merged-unreleased release debt, and the next implementation carrier must be selected later through Branch Readiness from current `origin/main`. Default governance validation and `--pr-readiness-gate` both own this closeout so Release Readiness does not discover stale active-authority truth after merge.
 
 `Origin/Main Freshness Check` is required during PR Readiness Stage 1 before Stage 2 can begin. Stage 1 must compare `Branch Creation Base:` to `Current origin/main:` and report whether `Origin/Main Advanced Since Branch Creation:` is `YES` or `NO`. When `origin/main` advanced, Stage 1 must list `Origin/Main Changed Files:` from `git diff --name-only <branch-creation-base>..origin/main`, list `Branch Changed Files:` from `git diff --name-only <branch-creation-base>..HEAD`, decide `Reconciliation Required: YES / NO`, and, when reconciliation is needed, output a complete `Reconciliation File List:` plus `Reconciliation Recommendation:`. The `Reconciliation Mutation Status:` must be analysis-only with no file fixes during Stage 1. If changed upstream files/data need review and the packet is missing or incomplete, `Origin Main Reconciliation Packet Required` blocks Stage 2 and PR creation.
+
+`Pre-Rebaseline Impact Audit` is required before any same-branch current-main reconciliation operation actually mutates local branch state. `Origin/Main Freshness Check` identifies whether upstream advanced before PR Stage 2; `Pre-Rebaseline Impact Audit` is the operation-level proof that reports `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before Codex may run a fast-forward, merge, rebase, conflict resolution, or branch switch.
 
 `Current-Main Reconciliation Identity Guard` is required whenever a multi-worktree branch rebases, fast-forwards, or merges current `origin/main`. origin/main is context, not identity. The assigned worktree must preserve and reassert its own branch-local authority before validation, commit, push, PR readiness, release readiness, or handoff. The reconciliation digest must include `Assigned Worktree Branch Identity:`, `Branch-Local Authority Reassertion:`, `Incoming Main Active-Branch Blocks Accepted: NO`, and `Sibling Worktree Identity Preservation:`. Passing posture means the active worktree's expected branch, actual branch, authority record, current-state owner files, and GitHub Desktop-bound worktree are named explicitly; incoming `origin/main` branch/current-workstream/selected-next blocks are treated as context unless they are the assigned branch's own authority; `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` reassert the active worktree's branch-local authority after conflict resolution; sibling worktrees such as FAM-006, FAM-007, Governance, or neutral `main` are not switched, deleted, or mutated; and no reconciliation commit lands with another worktree's active branch/current workstream identity copied into the assigned lane. If this guard fails during Branch Readiness, PR Readiness, or a same-branch rebaseline, stop on `Worktree Branch Identity Drift` and repair source truth inside the assigned worktree before committing. If Release Readiness discovers the failure after merge, the output digest must say `Governance Intake Routing: send this to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake`.
 
@@ -2396,6 +2421,7 @@ Allowed:
 - one cycle ID format: `RRI-YYYYMMDD-NNN`
 - `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
 - `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
+- `Pre-Rebaseline Impact Audit`: before the standing branch or neutral main workspace fast-forwards to updated `origin/main`, report the incoming change set, changed files, runtime/source-truth risk, validation before rebaseline, recommendation only posture, approval status, and mutation status
 - `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR bot-review repair on the standing governance PR
 - source-truth/governance/validator drift repair named by the intake digest
 - a post-merge `Return Digest` to the originating worktree/thread with concrete originating branch/worktree identity copied from the accepted intake and `Neutral Main Workspace Rebaseline:` proof for `C:\Nexus Desktop AI`
@@ -2416,7 +2442,7 @@ Originating-lane pause:
 - when a Release Readiness blocker is handed off, the originating thread/worktree enters `Waiting For Governance Intake` or `Waiting For Updated Main`
 - that lane must not mutate repository files until the governance PR merges, the standing branch syncs to `origin/main`, the `Return Digest` arrives, and the originating lane fetches/revalidates updated `origin/main`
 
-The `Return Digest` must include the originating branch/worktree, operating workspace, expected branch, `RRI-*` cycle ID, governance PR, merge commit, updated `origin/main` commit, `Neutral Main Workspace Rebaseline:`, files changed, blockers cleared/remaining, validations, rebaseline instructions, and `Next Legal Phase`. After any standing-governance PR merge, Codex must either fast-forward `C:\Nexus Desktop AI` on `main` to the updated `origin/main` commit and record the proof, or report the blocker that prevents that rebaseline before claiming the governance lane is idle.
+The `Return Digest` must include the originating branch/worktree, operating workspace, expected branch, `RRI-*` cycle ID, governance PR, merge commit, updated `origin/main` commit, `Neutral Main Workspace Rebaseline:`, `Pre-Rebaseline Impact Audit:`, files changed, blockers cleared/remaining, validations, rebaseline instructions, and `Next Legal Phase`. After any standing-governance PR merge, Codex must first run and report the `Pre-Rebaseline Impact Audit`, then either fast-forward `C:\Nexus Desktop AI` on `main` to the updated `origin/main` commit after approval and record the proof, or report the blocker that prevents that rebaseline before claiming the governance lane is idle.
 
 Return-digest identity guard:
 
