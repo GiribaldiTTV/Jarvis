@@ -23,6 +23,11 @@ EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "Scale / Data Volume Model must name concrete scale pressure",
     "Planning Adequacy Review must explain why the plan is not shallow",
     "Whole-System Interaction Map must describe multiple interacting pieces",
+    "Runtime Branch Engineering Contract value for 'Planned Runtime Delta:'",
+    "Workstream Seam Map must map multiple seams",
+)
+EXPECTED_NEGATIVE_APPROVAL_FAILURE_SNIPPET = (
+    "requires Runtime Implementation Approval to be approved, granted, or waived"
 )
 
 
@@ -47,6 +52,25 @@ def _validate_fixture(path: Path) -> list[str]:
         current_phase="Live Validation",
         blockers=[],
         next_legal_phase="Live Validation",
+    )
+    governance._validate_runtime_engineering_contract(
+        require,
+        path.as_posix(),
+        text,
+        branch_class="implementation",
+        current_phase="Live Validation",
+    )
+    return failures
+
+
+def _validate_runtime_contract_text(text: str, *, phase: str) -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_runtime_engineering_contract(
+        require,
+        "<runtime-contract-fixture>",
+        text,
+        branch_class="implementation",
+        current_phase=phase,
     )
     return failures
 
@@ -79,6 +103,47 @@ def validate() -> list[str]:
         failures.append(
             "Concrete Live Validation fixture unexpectedly failed planning validation: "
             + "; ".join(concrete_failures[:5])
+        )
+
+    concrete_text = CONCRETE_FIXTURE.read_text(encoding="utf-8")
+    negative_approval_text = concrete_text.replace(
+        (
+            "Runtime Implementation Approval: USER approved implementation before "
+            "this Live Validation fixture; runtime approval is not inferred from planning."
+        ),
+        "Runtime Implementation Approval: Not approved by USER.",
+    )
+    negative_approval_failures = _validate_runtime_contract_text(
+        negative_approval_text,
+        phase="Workstream",
+    )
+    if EXPECTED_NEGATIVE_APPROVAL_FAILURE_SNIPPET not in "\n".join(
+        negative_approval_failures
+    ):
+        failures.append(
+            "Negative runtime approval fixture did not reject "
+            "`Runtime Implementation Approval: Not approved by USER`"
+        )
+
+    shallow_release_failures = _validate_runtime_contract_text(
+        SHALLOW_FIXTURE.read_text(encoding="utf-8"),
+        phase="Release Readiness",
+    )
+    if "Runtime Branch Engineering Contract value for 'Planned Runtime Delta:'" not in "\n".join(
+        shallow_release_failures
+    ):
+        failures.append(
+            "Shallow Release Readiness fixture did not prove runtime contract enforcement"
+        )
+
+    concrete_release_failures = _validate_runtime_contract_text(
+        concrete_text,
+        phase="Release Readiness",
+    )
+    if concrete_release_failures:
+        failures.append(
+            "Concrete Release Readiness runtime contract fixture unexpectedly failed: "
+            + "; ".join(concrete_release_failures[:5])
         )
 
     return failures

@@ -11,7 +11,7 @@
 - Package: `PKG-007` Local AI foundation and capability-pack architecture package
 - Workstream Label: `FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
 - Branch Creation Base: `0cd1b0430f5634048613bffec411d35d657058bf`
-- Current origin/main: `0cd1b0430f5634048613bffec411d35d657058bf`
+- Current origin/main: `89e82405350deda8997ddd3f0720f4e5e796fbfa`
 
 ## Purpose
 
@@ -119,7 +119,7 @@ Carrier Lifecycle Classification: `Fresh current branch`
 Remote Branch State: `Not present before Stage 2 setup; push creates origin/feature/fam-007-local-ai-provider-runtime-readiness`
 Unique Branch Diff: `Stage 2 source-truth setup plus USER-approved local-only readiness/setup eligibility runtime, UI, validator, and source-truth Workstream updates`
 Origin/Main Ancestry: `Created directly from origin/main 0cd1b0430f5634048613bffec411d35d657058bf after v1.7.4-prebeta release execution`
-Origin/Main Advanced Since Branch Creation: `No at Stage 2 setup time`
+Origin/Main Advanced Since Branch Creation: `Yes - reconciled with origin/main 89e82405350deda8997ddd3f0720f4e5e796fbfa before Hardening H1 while preserving the accepted local-only FAM-007 Workstream scope`
 Open PR State: `None`
 Worktree Checkout State: `C:\Nexus Worktrees\FAM-007 checked out to feature/fam-007-local-ai-provider-runtime-readiness`
 Recommended Stage 2 Carrier Action: `Historical - completed fresh branch setup from current origin/main, committed, pushed, then entered USER-approved bounded Workstream`
@@ -196,6 +196,27 @@ Readiness States: `readiness_unknown`, `setup_disabled`, `setup_available_future
 ### Provenance Planning
 
 Provenance Values: `default_config`, `local_config`, `release_source_truth`, `hardware_snapshot`, `capability_manifest`, `consent_state`, `validator_fixture`, `future_runtime_check`
+
+## Runtime Branch Engineering Contract
+
+Engineering Contract Status: Accepted - the USER-reviewed FAM-007 provider readiness/setup eligibility design is now reconciled with the PR #164 runtime contract governance and remains the active engineering intent for Hardening, Live Validation, PR Readiness, and Release Readiness proof.
+USER Engineering Planning Review: Approved - USER approved Workstream Entry analysis for the FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility plan, then approved bounded multi-seam Workstream implementation using that plan as the engineering authority.
+Runtime Implementation Approval: Granted - USER approved local-only Workstream implementation on this branch for provider readiness state, setup eligibility, setup blockers, consent/config transitions, capability-pack eligibility, install-intent posture, Core/Desktop readiness copy, validator fixtures, source truth, validation, commit, and push.
+Branch Purpose: Carry the FAM-007 local-only provider readiness/setup eligibility runtime layer on top of the released provider/runtime foundation, proving state, config, schema, UI copy, validator fixtures, and approval boundaries before any real provider execution or model work is admitted.
+Current Runtime Baseline: The baseline includes centralized local-only provider/runtime state, provider-visible data none, disabled prompt/provider sends, blocked external calls, blocked model workloads, blocked downloads, gated memory/indexing, blocked network egress, Core/Desktop provider rail rendering, and provider-state validator coverage from the released PR #162 foundation.
+Planned Runtime Delta: The planned and implemented delta adds provider readiness state, setup eligibility state, setup blocker state, readiness reason codes, readiness provenance, readiness schema fields, consent/config transition handling, capability-pack eligibility posture, install-intent posture, future provider gate status, UI mapping, and validator fixtures.
+User-Facing Runtime Delta: The user-facing delta is visible Core/Desktop readiness copy that explains setup disabled, setup eligibility, setup blocker, readiness reason, readiness provenance, capability-pack eligibility, install intent, future provider gate, provider-visible data none, disabled provider execution, model execution posture, and blocked network egress without implying an available AI provider.
+State / Config / Schema Delta: State, config, and schema deltas include `provider-readiness-state.v1`, `provider-readiness-config.v1`, safe default readiness config, fail-closed missing or invalid readiness config, readiness states, setup eligibility values, setup blocker values, reason code values, provenance values, capability manifest validity fields, source trust fields, compatibility fields, requirement posture fields, and blocked install/download/update/uninstall reason fields.
+Validator / Helper Delta: Validator and helper deltas extend `dev/orin_ai_provider_state_validation.py` and the registered governance validators to prove readiness fixtures, transition cases, visible UI markers, provider-visible-data none, prompt/provider sends disabled, external calls blocked, downloads blocked, model execution blocked, memory/indexing gated, network egress blocked, and voice/Core runtime sync still unimplemented.
+Expected Changed Files / Surfaces: Expected files and surfaces include this branch record, backlog, roadmap, validation helper registry, `desktop/ai_provider_state.py`, `desktop/core_visualization_renderer.py`, `desktop/desktop_renderer.py`, `nexus_visual/orin_core.css`, `nexus_visual/orin_core.html`, `nexus_visual/orin_core.js`, `nexus_visual/orin_core_desktop.html`, and `dev/orin_ai_provider_state_validation.py`.
+Approval-Boundary Audit: Approval boundaries keep provider SDK integration, provider/model execution, model downloads, external provider/API calls, memory indexing/retrieval/learning/persistence, voice/Core runtime sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, branch cleanup, PR creation, and merge outside this Workstream unless USER separately approves them.
+Future-Gated Items: Future-gated items include consent collection, setup wizard work, real provider setup, provider SDK wiring, provider/model execution, local model downloads, capability-pack download/install/update/uninstall execution, memory indexing, retrieval, learning, persistence, voice/Core sync, shortcut/installer packaging, release execution, issue closeout, AI Product Contract import, and Private Dev ORIN import.
+Workstream Seam Map: Seam 1 -> SLC-017/SLC-018 provider readiness contract; Seam 2 -> SLC-017/SLC-018 consent and configuration transition contract; Seam 3 -> SLC-031/SLC-032 capability-pack eligibility and install-intent posture; Seam 4 -> SLC-035/SLC-036 Core/Desktop readiness UI and validator fixtures; Hardening H1 follows only after Workstream Green and USER approval.
+Proof Expectations: Proof requires source-truth alignment, governance validation, release-readiness health validation, release body validation, provider-state fixture validation, branch-readiness planning fixture validation, compile checks, visible Core/Desktop readiness copy review, approval-boundary audit, FAM-006 overlap forecast, and later Live Validation UTS or phase-supported waiver evidence.
+Risk Forecast: Risks include stale main governance after PR #164, shared `desktop/desktop_renderer.py` overlap with FAM-006, misleading UI copy that could imply provider availability, undercovered readiness transitions, source-truth drift between backlog and roadmap, release body overclaiming, and accidental admission of provider/model/download/memory/voice work.
+Recommendations And Alternatives: Recommended path is to preserve the accepted local-only readiness/setup eligibility implementation and harden it against PR #164 governance; a safer narrower alternative would only keep source-truth readiness labels but would undercut UI/validator proof; a larger future option is real provider setup and model execution after separate USER approval.
+Plan Version / Revision Status: Plan v2 accepted for reconciliation - v1 was the Workstream Entry design and Workstream implementation plan, while v2 adds the PR #164 Runtime Branch Engineering Contract markers without widening runtime behavior.
+Plan-To-Implementation Traceability: Planned deltas trace to actual implementation in provider state, Core/Desktop renderer payloads, ORIN Core visual readiness copy, validator fixtures, source-truth Workstream Green markers, changed files, skipped provider/model/download/memory/voice execution, and future-gated USER decisions before Hardening and PR Readiness.
 
 ## Product Definition Plan
 

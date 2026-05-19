@@ -135,6 +135,7 @@ REQUIRED_BRANCH_READINESS_COMPLETION_MARKERS = (
 )
 
 PRODUCT_DEFINITION_PLAN_HEADING = "Product Definition Plan"
+RUNTIME_ENGINEERING_CONTRACT_HEADING = "Runtime Branch Engineering Contract"
 USER_VISION_QUESTION_PACKET_HEADING = "USER Vision Question Packet"
 USER_VISION_INPUT_HANDOFF_HEADING = "USER Vision Input Handoff"
 USER_VISION_INPUT_ARTIFACT_PATH = Path(r"C:\Users\anden\OneDrive\Desktop\User Vision Input.txt")
@@ -144,6 +145,9 @@ PRODUCT_PLANNING_ENFORCED_PHASES = {
     "Hardening",
     "Live Validation",
     "PR Readiness",
+}
+RUNTIME_ENGINEERING_CONTRACT_ENFORCED_PHASES = PRODUCT_PLANNING_ENFORCED_PHASES | {
+    "Release Readiness",
 }
 PRODUCT_PLANNING_EXECUTION_PHASES = PRODUCT_PLANNING_ENFORCED_PHASES - {
     "Branch Readiness",
@@ -169,6 +173,7 @@ REQUIRED_PRODUCT_SYSTEM_PLANNING_MARKERS = (
     "Open Questions / USER Decision Points:",
 )
 PRODUCT_SYSTEM_PLANNING_MIN_WORDS = 8
+RUNTIME_ENGINEERING_CONTRACT_MIN_WORDS = 8
 PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES = {
     "tbd",
     "todo",
@@ -183,6 +188,166 @@ PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES = {
     "basic",
     "minimal",
     "placeholder",
+}
+RUNTIME_ENGINEERING_NEGATIVE_APPROVAL_TERMS = (
+    "not approved",
+    "not accepted",
+    "not granted",
+    "not waived",
+    "not yet approved",
+    "approval missing",
+    "user approval missing",
+    "missing approval",
+    "approval pending",
+    "pending approval",
+    "unapproved",
+    "denied",
+    "rejected",
+)
+REQUIRED_RUNTIME_ENGINEERING_CONTRACT_MARKERS = (
+    "Engineering Contract Status:",
+    "USER Engineering Planning Review:",
+    "Runtime Implementation Approval:",
+    "Branch Purpose:",
+    "Current Runtime Baseline:",
+    "Planned Runtime Delta:",
+    "User-Facing Runtime Delta:",
+    "State / Config / Schema Delta:",
+    "Validator / Helper Delta:",
+    "Expected Changed Files / Surfaces:",
+    "Approval-Boundary Audit:",
+    "Future-Gated Items:",
+    "Workstream Seam Map:",
+    "Proof Expectations:",
+    "Risk Forecast:",
+    "Recommendations And Alternatives:",
+    "Plan Version / Revision Status:",
+    "Plan-To-Implementation Traceability:",
+)
+RUNTIME_ENGINEERING_CONTRACT_DETAIL_MARKERS = (
+    "Branch Purpose:",
+    "Current Runtime Baseline:",
+    "Planned Runtime Delta:",
+    "User-Facing Runtime Delta:",
+    "State / Config / Schema Delta:",
+    "Validator / Helper Delta:",
+    "Expected Changed Files / Surfaces:",
+    "Approval-Boundary Audit:",
+    "Future-Gated Items:",
+    "Workstream Seam Map:",
+    "Proof Expectations:",
+    "Risk Forecast:",
+    "Recommendations And Alternatives:",
+    "Plan-To-Implementation Traceability:",
+)
+RUNTIME_ENGINEERING_DETAIL_TERMS = {
+    "Current Runtime Baseline:": (
+        "state",
+        "config",
+        "schema",
+        "ui",
+        "desktop",
+        "provider",
+        "validator",
+        "helper",
+        "file",
+        "surface",
+        "runtime",
+    ),
+    "Planned Runtime Delta:": (
+        "state",
+        "config",
+        "schema",
+        "ui",
+        "copy",
+        "validator",
+        "helper",
+        "fixture",
+        "file",
+        "surface",
+        "runtime",
+        "delta",
+    ),
+    "User-Facing Runtime Delta:": (
+        "user",
+        "visible",
+        "ui",
+        "copy",
+        "status",
+        "label",
+        "interaction",
+        "workflow",
+        "disabled",
+        "future-gated",
+    ),
+    "State / Config / Schema Delta:": (
+        "state",
+        "config",
+        "schema",
+        "field",
+        "metadata",
+        "settings",
+        "persistence",
+        "manifest",
+        "provenance",
+    ),
+    "Validator / Helper Delta:": (
+        "validator",
+        "helper",
+        "fixture",
+        "proof",
+        "test",
+        "gate",
+        "audit",
+        "validation",
+    ),
+    "Expected Changed Files / Surfaces:": (
+        "file",
+        "surface",
+        "desktop",
+        "docs",
+        "dev",
+        "ui",
+        "runtime",
+        "validator",
+    ),
+    "Workstream Seam Map:": (
+        "seam",
+        "ws",
+        "slice",
+        "implementation",
+        "validation",
+        "hardening",
+        "live validation",
+    ),
+    "Proof Expectations:": (
+        "proof",
+        "validator",
+        "fixture",
+        "screenshot",
+        "user test",
+        "compile",
+        "validation",
+        "evidence",
+    ),
+    "Recommendations And Alternatives:": (
+        "recommend",
+        "alternative",
+        "option",
+        "safer",
+        "larger",
+        "risk",
+        "tradeoff",
+    ),
+    "Plan-To-Implementation Traceability:": (
+        "planned",
+        "implementation",
+        "trace",
+        "actual",
+        "seam",
+        "proof",
+        "validator",
+    ),
 }
 PRODUCT_SYSTEM_SCALE_TERMS = (
     "scale",
@@ -3342,6 +3507,32 @@ BRANCH_READINESS_CARRIER_LIFECYCLE_PHRASES = (
     "Historical merged branch",
     "Wrong carrier/worktree",
     "Active remote/open PR branch",
+)
+
+RUNTIME_ENGINEERING_CONTRACT_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/validation_helper_registry.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/workstreams/index.md"),
+)
+
+RUNTIME_ENGINEERING_CONTRACT_PHRASES = (
+    "Runtime Branch Engineering Contract",
+    "USER Engineering Planning Review:",
+    "Runtime Implementation Approval:",
+    "Current Runtime Baseline:",
+    "Planned Runtime Delta:",
+    "User-Facing Runtime Delta:",
+    "State / Config / Schema Delta:",
+    "Validator / Helper Delta:",
+    "Workstream Seam Map:",
+    "Proof Expectations:",
+    "Plan-To-Implementation Traceability:",
 )
 
 CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES = {
@@ -6741,6 +6932,199 @@ def _validate_product_system_planning_substance(
             (
                 f"{source_path}: Open Questions / USER Decision Points must name USER "
                 "questions, decisions, approvals, or pending decisions"
+            ),
+        )
+
+
+def _validate_runtime_engineering_contract_substance(
+    require,
+    source_path: str,
+    marker: str,
+    value: str,
+) -> None:
+    normalized_value = _normalized_planning_value(value)
+    require(
+        normalized_value not in PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES,
+        (
+            f"{source_path}: {RUNTIME_ENGINEERING_CONTRACT_HEADING} value for "
+            f"'{marker}' is placeholder/self-assessed wording, not concrete "
+            "engineering planning proof"
+        ),
+    )
+    require(
+        _planning_word_count(value) >= RUNTIME_ENGINEERING_CONTRACT_MIN_WORDS,
+        (
+            f"{source_path}: {RUNTIME_ENGINEERING_CONTRACT_HEADING} value for "
+            f"'{marker}' is too shallow; record concrete baseline, delta, "
+            "surface, proof, or traceability detail"
+        ),
+    )
+
+    required_terms = RUNTIME_ENGINEERING_DETAIL_TERMS.get(marker)
+    if required_terms:
+        require(
+            any(term in normalized_value for term in required_terms),
+            (
+                f"{source_path}: {RUNTIME_ENGINEERING_CONTRACT_HEADING} marker "
+                f"'{marker}' must name concrete engineering detail such as "
+                f"{', '.join(required_terms[:5])}"
+            ),
+        )
+    if marker == "Workstream Seam Map:":
+        require(
+            "seam" in normalized_value
+            and ("," in value or ";" in value or "->" in value or "\n" in value),
+            (
+                f"{source_path}: Workstream Seam Map must map multiple seams, "
+                "slices, proof gates, or continuation checkpoints"
+            ),
+        )
+    if marker == "Plan-To-Implementation Traceability:":
+        require(
+            "planned" in normalized_value
+            and (
+                "actual" in normalized_value
+                or "implementation" in normalized_value
+                or "trace" in normalized_value
+            ),
+            (
+                f"{source_path}: Plan-To-Implementation Traceability must show "
+                "how planned deltas will be compared with actual implementation"
+            ),
+        )
+
+
+def _has_negative_runtime_approval_wording(normalized_value: str) -> bool:
+    return any(
+        term in normalized_value
+        for term in RUNTIME_ENGINEERING_NEGATIVE_APPROVAL_TERMS
+    )
+
+
+def _has_positive_runtime_approval_wording(
+    normalized_value: str,
+    positive_terms: tuple[str, ...],
+) -> bool:
+    return (
+        not _has_negative_runtime_approval_wording(normalized_value)
+        and any(term in normalized_value for term in positive_terms)
+    )
+
+
+def _validate_runtime_engineering_contract(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    branch_class: str,
+    current_phase: str,
+) -> None:
+    if branch_class != "implementation":
+        return
+    if current_phase not in RUNTIME_ENGINEERING_CONTRACT_ENFORCED_PHASES:
+        return
+
+    require(
+        f"## {RUNTIME_ENGINEERING_CONTRACT_HEADING}" in text,
+        (
+            f"{source_path}: implementation runtime planning is missing "
+            f"'## {RUNTIME_ENGINEERING_CONTRACT_HEADING}'"
+        ),
+    )
+    contract_section = _section(text, RUNTIME_ENGINEERING_CONTRACT_HEADING)
+    for marker in REQUIRED_RUNTIME_ENGINEERING_CONTRACT_MARKERS:
+        require(
+            marker in contract_section,
+            f"{source_path}: {RUNTIME_ENGINEERING_CONTRACT_HEADING} is missing '{marker}'",
+        )
+        value = _extract_marker_value(contract_section, marker)
+        require(
+            bool(value),
+            (
+                f"{source_path}: {RUNTIME_ENGINEERING_CONTRACT_HEADING} must give "
+                f"a real value for '{marker}'"
+            ),
+        )
+        if value and marker in RUNTIME_ENGINEERING_CONTRACT_DETAIL_MARKERS:
+            _validate_runtime_engineering_contract_substance(
+                require,
+                source_path,
+                marker,
+                value,
+            )
+
+    status = _extract_marker_value(contract_section, "Engineering Contract Status:")
+    planning_review = _extract_marker_value(
+        contract_section,
+        "USER Engineering Planning Review:",
+    )
+    implementation_approval = _extract_marker_value(
+        contract_section,
+        "Runtime Implementation Approval:",
+    )
+    normalized_status = status.strip().casefold()
+    normalized_review = planning_review.strip().casefold()
+    normalized_approval = implementation_approval.strip().casefold()
+
+    require(
+        normalized_status
+        in {
+            "proposed",
+            "accepted",
+            "revised",
+            "waived",
+            "blocked",
+        }
+        or any(
+            token in normalized_status
+            for token in ("proposed", "accepted", "revised", "waived", "blocked")
+        ),
+        (
+            f"{source_path}: Engineering Contract Status must be Proposed, "
+            "Accepted, Revised, Waived, or Blocked"
+        ),
+    )
+
+    if current_phase == "Branch Readiness":
+        require(
+            any(
+                token in normalized_review
+                for token in ("required", "accepted", "approved", "revised", "waived")
+            ),
+            (
+                f"{source_path}: USER Engineering Planning Review must record "
+                "Required, Accepted/Approved, Revised, or Waived in Branch Readiness"
+            ),
+        )
+        require(
+            any(
+                token in normalized_approval
+                for token in ("pending", "blocked", "not approved", "separate approval")
+            ),
+            (
+                f"{source_path}: Runtime Implementation Approval must remain "
+                "Pending/Blocked in Branch Readiness until Workstream is separately admitted"
+            ),
+        )
+    else:
+        require(
+            _has_positive_runtime_approval_wording(
+                normalized_review,
+                ("accepted", "approved", "revised", "waived"),
+            ),
+            (
+                f"{source_path}: {current_phase} requires USER Engineering Planning "
+                "Review to be accepted, revised, approved, or waived before implementation proof"
+            ),
+        )
+        require(
+            _has_positive_runtime_approval_wording(
+                normalized_approval,
+                ("approved", "granted", "waived"),
+            ),
+            (
+                f"{source_path}: {current_phase} requires Runtime Implementation "
+                "Approval to be approved, granted, or waived"
             ),
         )
 
@@ -16086,6 +16470,17 @@ def main() -> int:
                 f"{relative_path}: Branch Readiness Stage 1 packet contract is missing '{required_phrase}'",
             )
 
+    for relative_path in RUNTIME_ENGINEERING_CONTRACT_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in RUNTIME_ENGINEERING_CONTRACT_PHRASES:
+            require(
+                required_phrase in text,
+                (
+                    f"{relative_path}: Runtime Branch Engineering Contract guidance "
+                    f"is missing '{required_phrase}'"
+                ),
+            )
+
     for relative_path, required_phrases in CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES.items():
         text = _read_text(relative_path)
         for required_phrase in required_phrases:
@@ -17052,6 +17447,13 @@ def main() -> int:
                 blockers=blockers,
                 next_legal_phase=str(workstream_info["next_legal_phase"]),
             )
+            _validate_runtime_engineering_contract(
+                require,
+                canonical_path,
+                workstream_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+            )
 
             initial_seam_sequence = _section(workstream_text, "Initial Workstream Seam Sequence")
             for marker in REQUIRED_BRANCH_READINESS_FIRST_SEAM_MARKERS:
@@ -17885,6 +18287,13 @@ def main() -> int:
                 current_phase=current_phase,
                 blockers=list(info["blockers"]),
                 next_legal_phase=str(info["next_legal_phase"]),
+            )
+            _validate_runtime_engineering_contract(
+                require,
+                branch_record_path,
+                record_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
             )
             _validate_fam006_stage2_r6_plan(
                 require,

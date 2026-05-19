@@ -47,3 +47,24 @@ Planning Packet Status: Complete
 Planning Revalidation Status: PASS
 User Test Summary Strategy: No runtime UTS is required for planning fixtures; future runtime branches must define UTS proof or waiver.
 Planning Completion Waiver: None required because USER-visible planning is concrete in this fixture.
+
+## Runtime Branch Engineering Contract
+
+Engineering Contract Status: Accepted - USER-reviewed planning intent is durable enough for later implementation proof.
+USER Engineering Planning Review: USER approved the engineering planning shape and preserved runtime implementation as separately gated.
+Runtime Implementation Approval: USER approved implementation before this Live Validation fixture; runtime approval is not inferred from planning.
+Branch Purpose: Prove a profile-aware monitoring configuration branch that connects sensor discovery, monitor organization, overlay visibility, recording scope, and validator evidence.
+Current Runtime Baseline: Existing runtime baseline has Dashboard monitoring concepts, source-truth planning, provider posture, and validator coverage but lacks profile-aware recording and overlay separation.
+Planned Runtime Delta: Planned delta adds state fields, config boundaries, visible UI labels, validator fixtures, and source-truth traceability for sensors, monitors, groups, overlay profiles, and recording profiles.
+User-Facing Runtime Delta: USER sees clearer status labels, visible profile choices, honest disabled or future-gated copy, and proof expectations for searchable sensor and monitor management workflows.
+State / Config / Schema Delta: State and config deltas separate enabled, visible, recorded, warning-enabled, hidden, paused, error, provider-unavailable, metadata, manifest, and persistence fields.
+Validator / Helper Delta: Validator and helper deltas add fixture proof, governance gates, branch readiness planning validation, and future runtime tests for visible-versus-recorded monitor subsets.
+Expected Changed Files / Surfaces: Expected files and surfaces include docs branch records, validation registry, dev validators, Dashboard runtime surfaces, tray controls, recording metadata, and future provider adapters.
+Approval-Boundary Audit: Approval boundaries keep planning admitted, runtime recording separate, provider expansion future-gated, export/share pending, release execution gated, and issue closeout separate.
+Future-Gated Items: Future-gated items include provider SDKs, model execution, recording runtime, overlay profile execution, export sharing, auto triggers, rolling buffers, and release packaging.
+Workstream Seam Map: Seam 1 -> source-truth and validator setup, Seam 2 -> UI/state runtime implementation, Seam 3 -> recording proof fixtures, Seam 4 -> hardening and Live Validation evidence.
+Proof Expectations: Proof requires governance validators, runtime fixture validation, visible UI evidence when implemented, User Test Summary or waiver, compile checks, and branch-to-release trace evidence.
+Risk Forecast: Risks include shallow monitor-only design, shared Dashboard file overlap, provider truth ambiguity, recording privacy confusion, validator undercoverage, and release body overclaiming.
+Recommendations And Alternatives: Recommend profile-aware planning now; safer alternative is monitor-only setup with lower risk but less product coherence; larger option is full recording runtime later.
+Plan Version / Revision Status: Plan v1 accepted for fixture coverage; later implementation discoveries require a revision packet before changing admitted runtime behavior.
+Plan-To-Implementation Traceability: Planned deltas trace to actual implementation seams, changed files, validator proof, user-facing evidence, skipped items, and future-gated decisions before PR Readiness.
