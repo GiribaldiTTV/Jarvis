@@ -10,11 +10,11 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md`
 
-Current Phase: `PR Readiness Stage 1 complete; ready for PR Readiness Stage 2 / PR creation after USER approval`
+Current Phase: `Historical released evidence after PR #172 merge and v1.7.7-prebeta release`
 
 Branch Runtime Engineering Plan: `Accepted and present for this runtime-focused FAM-007 branch. The plan owns detailed active-branch runtime execution planning while the branch authority record remains the phase, approval, blocker, and next-legal-phase control surface.`
 
-Engineering Plan Status: `Implemented, H1 Green, LV1 Green, and PR Readiness Stage 1 ready for Stage 2 - bounded Workstream implementation maps the accepted plan into local-only execution-readiness state, UI, validator fixtures, source-truth proof, hardening review, disabled/status-only LV1 waiver, and selected-next/pre-PR live-state repair; PR Readiness Stage 2 / PR creation remains pending USER approval.`
+Engineering Plan Status: `Historical - bounded Workstream implementation mapped the accepted plan into local-only execution-readiness state, UI, validator fixtures, source-truth proof, H1, LV1, PR Readiness, PR #172 merge, and v1.7.7-prebeta release evidence.`
 
 Current Runtime Baseline: `PR #170 released local-only provider activation foundation state, config, schema, UI, desktop status copy, provider adapter posture, provider-visible-data none posture, disabled prompt/model/provider execution gates, blocked downloads/install posture, deferred memory/learning/personalization posture, blocked network egress posture, gated voice/Core sync posture, and validator fixture proof.`
 
@@ -48,7 +48,7 @@ FAM / Shared-Surface Overlap Forecast: `FAM-006 has separate active work with sh
 
 Open Questions: `Open questions for Workstream Entry: which provider path should be selected first later; which prompt proof is acceptable before execution; what UI copy best separates execution readiness from functional AI; whether memory, learning, and personalization stay deferred to v1.8.0-prebeta; and what minimum live proof is required before version-jump readiness.`
 
-USER Planning Decisions: `USER approved reconciliation, Branch Runtime Engineering Plan adoption, Workstream Entry analysis, bounded Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 source-truth repair. USER has not approved PR Readiness Stage 2 / PR creation, provider SDK integration, provider/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, merge, release execution, issue work, FAM-006 mutation, Governance mutation outside this branch path, branch cleanup, AI Product import, Private Dev ORIN import, or v1.8.0-prebeta release execution.`
+USER Planning Decisions: `USER approved reconciliation, Branch Runtime Engineering Plan adoption, Workstream Entry analysis, bounded Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1 repair, PR Readiness Stage 2 / PR creation, merge, and v1.7.7-prebeta release execution for this branch. USER has not approved provider SDK integration, provider/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, issue work, FAM-006 mutation, Governance mutation outside this branch path, branch cleanup, AI Product import, Private Dev ORIN import, or v1.8.0-prebeta release execution.`
 
 Plan Revision History: `v1 created during reconciliation with origin/main 9e33dd1216bab661c9183b73891c074acd6f5099 after PR #171. It preserves the Stage 2 setup commit 5c8c6795863cfb97ddfdf9e8e04ebb43b5247782 and adds the current Branch Runtime Engineering Plan layer without runtime behavior changes.`
 
@@ -66,12 +66,18 @@ Live Validation LV1 Result: `Green - disabled/status-only local execution-readin
 
 PR Readiness Fold-Down / Retention Checklist: `PR Readiness must decide whether this plan stays as historical branch source truth, compacts into a branch receipt, or promotes durable execution-readiness lessons into a canonical workstream or family dossier. Fold-down must preserve provider/model execution gates, v1.8.0 criteria, release-public-scope translation, and pending USER decisions.`
 
-PR Readiness Stage 1 Result: `Ready for Stage 2 - selected-next defer/waiver truth, pre-PR live-state truth, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, and successor-selection deferral are recorded in the branch authority record; PR creation remains pending USER approval.`
+PR Readiness Stage 1 Result: `Historical complete - selected-next defer/waiver truth, pre-PR live-state truth, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, and successor-selection deferral were recorded before PR #172 creation and merge.`
 
 Release Readiness Public-Scope Translation Checklist: `Release Readiness must translate this plan into public release language by highlighting execution-readiness scaffolding only, listing excluded provider SDK/model execution/downloads/external calls/memory/learning/personalization/voice/Core/shortcut/installer work, preserving v1.8.0-prebeta as future functional-AI target, and avoiding internal governance jargon.`
 
 USER Planning Review: `Accepted for reconciliation - USER approved adopting PR #171 Branch Runtime Engineering Plan requirements and creating or admitting this plan file before Workstream Entry continues.`
 
-PR Fold-Down Packet: `Pending - no PR exists for this branch, no PR Readiness fold-down has occurred, and retention/promotion decisions remain future-gated.`
+PR Fold-Down Packet: `Historical retention - PR #172 merged and released in v1.7.7-prebeta; this plan remains historical branch source truth while provider path and consent readiness carries the next active FAM-007 planning layer.`
 
 Runtime Implementation Approval: `Granted - USER approved bounded Workstream implementation for this local-only execution-readiness gates branch; provider/model execution remains pending USER decision.`
+
+## Historical PR Readiness Validator Retention
+
+Historical Validator Retention Note: `The following markers preserve the exact pre-merge PR-readiness plan posture expected by provider-state validation for PR #172 evidence. They are historical snapshots only; current branch authority moved to feature/fam-007-local-ai-provider-path-and-consent-readiness after v1.7.7-prebeta.`
+Engineering Plan Status: `Implemented, H1 Green, LV1 Green, and PR Readiness Stage 1 ready for Stage 2 - bounded Workstream implementation maps the accepted plan into local-only execution-readiness state, UI, validator fixtures, source-truth proof, hardening review, disabled/status-only LV1 waiver, and selected-next/pre-PR live-state repair; PR Readiness Stage 2 / PR creation remains pending USER approval.`
+PR Readiness Stage 1 Result: `Ready for Stage 2 - selected-next defer/waiver truth, pre-PR live-state truth, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, and successor-selection deferral recorded.`

@@ -82,6 +82,20 @@ const aiProviderStatusExecutionProvenance = document.getElementById("ai-provider
 const aiProviderStatusExecutionSchema = document.getElementById("ai-provider-status-execution-schema");
 const aiProviderStatusExecutionApproval = document.getElementById("ai-provider-status-execution-approval");
 const aiProviderStatusProviderPath = document.getElementById("ai-provider-status-provider-path");
+const aiProviderStatusProviderPathReadiness = document.getElementById("ai-provider-status-provider-path-readiness");
+const aiProviderStatusProviderPathEligibility = document.getElementById("ai-provider-status-provider-path-eligibility");
+const aiProviderStatusProviderPathBlocker = document.getElementById("ai-provider-status-provider-path-blocker");
+const aiProviderStatusProviderPathReason = document.getElementById("ai-provider-status-provider-path-reason");
+const aiProviderStatusProviderPathSchema = document.getElementById("ai-provider-status-provider-path-schema");
+const aiProviderStatusProviderProfile = document.getElementById("ai-provider-status-provider-profile");
+const aiProviderStatusProviderConfigEnvelope = document.getElementById("ai-provider-status-provider-config-envelope");
+const aiProviderStatusProviderApprovals = document.getElementById("ai-provider-status-provider-approvals");
+const aiProviderStatusSetupConsent = document.getElementById("ai-provider-status-setup-consent");
+const aiProviderStatusExecutionConsent = document.getElementById("ai-provider-status-execution-consent");
+const aiProviderStatusConsentSchema = document.getElementById("ai-provider-status-consent-schema");
+const aiProviderStatusPathDataVisibility = document.getElementById("ai-provider-status-path-data-visibility");
+const aiProviderStatusPathAudit = document.getElementById("ai-provider-status-path-audit");
+const aiProviderStatusPathFutureGates = document.getElementById("ai-provider-status-path-future-gates");
 const aiProviderStatusAdapterSelection = document.getElementById("ai-provider-status-adapter-selection");
 const aiProviderStatusPromptGates = document.getElementById("ai-provider-status-prompt-gates");
 const aiProviderStatusModelExecution = document.getElementById("ai-provider-status-model-execution");
@@ -317,6 +331,71 @@ let aiProviderState = {
   executionApprovalLabel: "Execution approval: USER approval missing",
   providerPathStatus: "provider-path-not-selected",
   providerPathLabel: "Provider path: not selected",
+  providerPathReadinessState: "provider_path_unavailable",
+  providerPathReadinessLabel: "Provider path readiness: unavailable",
+  providerPathEligibilityState: "provider_path_eligibility_unavailable",
+  providerPathEligibilityLabel: "Provider path eligibility: unavailable",
+  providerPathBlockerState: "execution_readiness_required",
+  providerPathBlockerLabel: "Provider path blocker: execution readiness required",
+  providerPathReasonCode: "provider_path_default_unavailable",
+  providerPathReasonLabel: "Provider path reason: readiness only",
+  providerPathProvenance: "default_config",
+  providerPathStateSchemaVersion: "provider-path-readiness-state.v1",
+  providerPathConfigSchemaVersion: "provider-path-readiness-config.v1",
+  providerPathConfigState: "default_config",
+  providerPathConfigLabel: "Provider path config: safe default local-only",
+  providerPathApprovalStatus: "provider-path-approval-missing",
+  providerPathApprovalLabel: "Provider path approval: USER approval missing",
+  providerProfileId: "local-null-provider-profile",
+  providerProfileKind: "null-local-provider",
+  providerProfileDisplayName: "Local/null provider profile",
+  providerProfileSource: "local-readiness-scaffold",
+  providerProfileMetadataContractVersion: "provider-profile-metadata.v1",
+  providerSdkRequirementPosture: "sdk-integration-pending-user-approval",
+  providerNetworkRequirementPosture: "network-requirement-blocked",
+  providerConfigStatus: "provider-config-missing",
+  providerAvailabilityPosture: "provider-availability-unavailable",
+  providerSetupApprovalStatus: "provider-setup-approval-missing",
+  providerExecutionApprovalStatus: "provider-execution-approval-missing",
+  providerVisibleDataScope: "provider-visible-data-requirement-none",
+  localNullProviderFallbackStatus: "local-null-provider-fallback-active",
+  futureSdkHandoffMarker: "future-sdk-handoff-marker",
+  futureProviderSetupHandoffMarker: "future-provider-setup-handoff-marker",
+  consentReadinessState: "consent_required_for_provider_setup",
+  consentReadinessLabel: "Consent readiness: required before provider setup",
+  consentStateSchemaVersion: "provider-consent-readiness-state.v1",
+  consentConfigSchemaVersion: "provider-consent-readiness-config.v1",
+  consentConfigMigration: "safe-defaults-no-consent-collection-migration",
+  setupConsentState: "consent_required_for_provider_setup",
+  setupConsentLabel: "Setup consent: required before provider setup",
+  setupConsentBlockerState: "setup_consent_required",
+  setupConsentBlockerLabel: "Setup consent blocker: consent collection not approved",
+  setupConsentReasonCode: "consent_setup_required",
+  setupConsentHandoffState: "setup-consent-handoff-future-gated",
+  executionConsentState: "consent_required_for_provider_execution",
+  executionConsentLabel: "Execution consent: required before prompt/model execution",
+  executionConsentBlockerState: "execution_consent_required",
+  executionConsentBlockerLabel: "Execution consent blocker: consent collection not approved",
+  executionConsentReasonCode: "consent_execution_required",
+  executionConsentHandoffState: "execution-consent-handoff-future-gated",
+  providerVisibleDataRequirementState: "provider-visible-data-requirement-none",
+  providerVisibleDataRequirementLabel: "Provider-visible data requirement: none",
+  dataClassificationPostureState: "data-classification-posture-local-only",
+  dataClassificationPostureLabel: "Data classification posture: local-only",
+  auditEnvelopePostureState: "audit-envelope-posture-planned",
+  auditEnvelopePostureLabel: "Audit envelope posture: planned; no collection",
+  localOnlyStatusPosture: "local-only-status-posture-active",
+  localOnlyStatusLabel: "Local-only status: active",
+  providerSetupFutureGatedPosture: "provider-setup-future-gated",
+  providerSetupFutureGatedLabel: "Provider setup: future-gated",
+  providerExecutionFutureGatedPosture: "provider-execution-future-gated",
+  providerExecutionFutureGatedLabel: "Provider execution: disabled; future-gated",
+  providerPathGateState: "provider-path-gate-blocked",
+  providerConfigGateState: "provider-config-gate-blocked",
+  setupConsentGateState: "setup-consent-gate-required",
+  executionConsentGateState: "execution-consent-gate-required",
+  providerVisibleDataGateState: "provider-visible-data-gate-none",
+  auditGateState: "audit-gate-planned",
   providerSelectionPosture: "provider-selection-pending-user-approval",
   providerSelectionPostureLabel: "Provider selection: pending USER approval",
   adapterSelectionPosture: "adapter-selection-null-local",
@@ -1505,6 +1584,26 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.executionSchema = state.executionStateSchemaVersion || "unknown";
   aiProviderStatus.dataset.executionApproval = state.executionApprovalStatus || "unknown";
   aiProviderStatus.dataset.providerPath = state.providerPathStatus || "unknown";
+  aiProviderStatus.dataset.providerPathReadiness = state.providerPathReadinessState || "unknown";
+  aiProviderStatus.dataset.providerPathEligibility = state.providerPathEligibilityState || "unknown";
+  aiProviderStatus.dataset.providerPathBlocker = state.providerPathBlockerState || "unknown";
+  aiProviderStatus.dataset.providerPathReason = state.providerPathReasonCode || "unknown";
+  aiProviderStatus.dataset.providerPathSchema = state.providerPathStateSchemaVersion || "unknown";
+  aiProviderStatus.dataset.providerPathConfigSchema = state.providerPathConfigSchemaVersion || "unknown";
+  aiProviderStatus.dataset.providerProfileId = state.providerProfileId || "unknown";
+  aiProviderStatus.dataset.providerKind = state.providerKind || "unknown";
+  aiProviderStatus.dataset.providerSource = state.providerProfileSource || "unknown";
+  aiProviderStatus.dataset.providerConfigStatus = state.providerConfigStatus || "unknown";
+  aiProviderStatus.dataset.providerSetupApproval = state.providerSetupApprovalStatus || "unknown";
+  aiProviderStatus.dataset.providerExecutionApproval = state.providerExecutionApprovalStatus || "unknown";
+  aiProviderStatus.dataset.setupConsent = state.setupConsentState || "unknown";
+  aiProviderStatus.dataset.executionConsent = state.executionConsentState || "unknown";
+  aiProviderStatus.dataset.consentSchema = state.consentReadinessStateSchemaVersion || "unknown";
+  aiProviderStatus.dataset.providerVisibleDataRequirement =
+    state.providerVisibleDataRequirementState || "unknown";
+  aiProviderStatus.dataset.dataClassificationPosture = state.dataClassificationPostureState || "unknown";
+  aiProviderStatus.dataset.auditEnvelope = state.auditEnvelopePostureState || "unknown";
+  aiProviderStatus.dataset.localOnlyStatus = state.localOnlyStatusPosture || "unknown";
   aiProviderStatus.dataset.adapterSelection = state.adapterSelectionPosture || "unknown";
   aiProviderStatus.dataset.promptAcceptanceGate = state.promptAcceptanceGateState || "unknown";
   aiProviderStatus.dataset.promptRoutingGate = state.promptRoutingGateState || "unknown";
@@ -1800,6 +1899,74 @@ function renderAIProviderState() {
   }
   if (aiProviderStatusProviderPath) {
     aiProviderStatusProviderPath.textContent = state.providerPathLabel || "Provider path: not selected";
+  }
+  if (aiProviderStatusProviderPathReadiness) {
+    aiProviderStatusProviderPathReadiness.textContent =
+      state.providerPathReadinessLabel || "Provider path readiness: unavailable";
+  }
+  if (aiProviderStatusProviderPathEligibility) {
+    aiProviderStatusProviderPathEligibility.textContent =
+      state.providerPathEligibilityLabel || "Provider path eligibility: unavailable";
+  }
+  if (aiProviderStatusProviderPathBlocker) {
+    aiProviderStatusProviderPathBlocker.textContent =
+      state.providerPathBlockerLabel || "Provider path blocker: execution readiness required";
+  }
+  if (aiProviderStatusProviderPathReason) {
+    aiProviderStatusProviderPathReason.textContent =
+      state.providerPathReasonLabel || "Provider path reason: readiness only";
+  }
+  if (aiProviderStatusProviderPathSchema) {
+    const providerPathSchemaVersion =
+      state.providerPathStateSchemaVersion || "provider-path-readiness-state.v1";
+    const providerPathConfigVersion =
+      state.providerPathConfigSchemaVersion || "provider-path-readiness-config.v1";
+    const providerPathConfigLabel =
+      state.providerPathConfigLabel || "Provider path config: safe default local-only";
+    aiProviderStatusProviderPathSchema.textContent =
+      `${providerPathSchemaVersion}; ${providerPathConfigVersion}; ${providerPathConfigLabel}`;
+  }
+  if (aiProviderStatusProviderProfile) {
+    aiProviderStatusProviderProfile.textContent =
+      `${state.providerProfileLabel || "Provider profile: local-null-provider-profile"}; ${state.providerKindLabel || "Provider kind: null-local-provider"}; ${state.providerSourceLabel || "Provider source: local status scaffold"}`;
+  }
+  if (aiProviderStatusProviderConfigEnvelope) {
+    aiProviderStatusProviderConfigEnvelope.textContent =
+      `${state.providerConfigStatusLabel || "Provider config: missing"}; ${state.sdkRequirementLabel || "SDK integration: pending USER approval"}; ${state.networkRequirementLabel || "Network requirement: blocked"}`;
+  }
+  if (aiProviderStatusProviderApprovals) {
+    aiProviderStatusProviderApprovals.textContent =
+      `${state.providerSetupApprovalLabel || "Provider setup approval: missing"}; ${state.providerExecutionApprovalLabel || "Provider execution approval: missing"}`;
+  }
+  if (aiProviderStatusSetupConsent) {
+    aiProviderStatusSetupConsent.textContent =
+      state.setupConsentLabel || "Setup consent: required before provider setup";
+  }
+  if (aiProviderStatusExecutionConsent) {
+    aiProviderStatusExecutionConsent.textContent =
+      state.executionConsentLabel || "Execution consent: required before prompt/model execution";
+  }
+  if (aiProviderStatusConsentSchema) {
+    const consentSchemaVersion =
+      state.consentReadinessStateSchemaVersion || "provider-consent-readiness-state.v1";
+    const consentConfigVersion =
+      state.consentReadinessConfigSchemaVersion || "provider-consent-readiness-config.v1";
+    const consentConfigLabel =
+      state.consentConfigLabel || "Consent config: safe default local-only";
+    aiProviderStatusConsentSchema.textContent =
+      `${consentSchemaVersion}; ${consentConfigVersion}; ${consentConfigLabel}`;
+  }
+  if (aiProviderStatusPathDataVisibility) {
+    aiProviderStatusPathDataVisibility.textContent =
+      `${state.providerVisibleDataRequirementLabel || "Provider-visible data requirement: none"}; ${state.dataClassificationPostureLabel || "Data classification posture: local-only"}`;
+  }
+  if (aiProviderStatusPathAudit) {
+    aiProviderStatusPathAudit.textContent =
+      `${state.auditEnvelopePostureLabel || "Audit envelope posture: planned; no collection"}; ${state.localOnlyStatusLabel || "Local-only status: active"}`;
+  }
+  if (aiProviderStatusPathFutureGates) {
+    aiProviderStatusPathFutureGates.textContent =
+      `${state.providerSetupFutureGatedLabel || "Provider setup: future-gated"}; ${state.providerExecutionFutureGatedLabel || "Provider execution: disabled; future-gated"}`;
   }
   if (aiProviderStatusAdapterSelection) {
     aiProviderStatusAdapterSelection.textContent =

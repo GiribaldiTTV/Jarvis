@@ -118,6 +118,7 @@ Do not use this layer to replace:
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md`
