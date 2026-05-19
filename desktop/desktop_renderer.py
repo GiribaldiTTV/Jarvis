@@ -35,7 +35,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
-from .ai_provider_state import build_local_ai_runtime_foundation_provider_boundary_state
+from .ai_provider_state import build_default_provider_readiness_config, build_provider_readiness_contract_state
 from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
@@ -5752,8 +5752,9 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.create_custom_group_requested.connect(self.handle_create_custom_group_requested)
         self._command_panel.created_groups_requested.connect(self.handle_created_groups_requested)
         self._command_panel.edit_saved_action_requested.connect(self.handle_edit_saved_action_requested)
-        self._ai_provider_state = build_local_ai_runtime_foundation_provider_boundary_state(
-            surface_role=self.surface_role
+        self._ai_provider_state = build_provider_readiness_contract_state(
+            build_default_provider_readiness_config(),
+            surface_role=self.surface_role,
         )
         self._result_close_timer = QTimer(self)
         self._result_close_timer.setSingleShot(True)
@@ -12141,6 +12142,13 @@ class DesktopRuntimeWindow(QWidget):
             runtime_schema=payload.get("runtimeStateSchemaVersion", ""),
             runtime_config=payload.get("runtimeConfigState", ""),
             runtime_fail_closed=payload.get("runtimeFailClosed", True),
+            provider_readiness=payload.get("providerReadinessState", ""),
+            setup_eligibility=payload.get("setupEligibilityState", ""),
+            setup_blocker=payload.get("setupBlockerState", ""),
+            readiness_reason=payload.get("readinessReasonCode", ""),
+            readiness_provenance=payload.get("readinessProvenance", ""),
+            readiness_schema=payload.get("readinessStateSchemaVersion", ""),
+            future_provider_gate=payload.get("futureProviderGateStatus", ""),
             configured_provider_count=payload.get("configuredProviderCount", 0),
             available_provider_count=payload.get("availableProviderCount", 0),
             hardware_capability=payload.get("hardwareCapabilityState", ""),
@@ -12155,6 +12163,8 @@ class DesktopRuntimeWindow(QWidget):
             capability_pack_download=payload.get("capabilityPackDownloadState", ""),
             capability_pack_manifest=payload.get("capabilityPackManifestState", ""),
             capability_pack_compatibility=payload.get("capabilityPackCompatibilityState", ""),
+            capability_pack_eligibility=payload.get("capabilityPackEligibilityState", ""),
+            install_intent=payload.get("installIntentState", ""),
             data_classification=payload.get("dataClassificationState", ""),
             provider_visible_data_guarantee=payload.get("providerVisibleDataGuarantee", ""),
             memory_context=payload.get("memoryContextState", ""),

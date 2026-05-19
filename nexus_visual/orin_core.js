@@ -57,6 +57,15 @@ const aiProviderStatusRuntime = document.getElementById("ai-provider-status-runt
 const aiProviderStatusRuntimeReason = document.getElementById("ai-provider-status-runtime-reason");
 const aiProviderStatusRuntimeProvenance = document.getElementById("ai-provider-status-runtime-provenance");
 const aiProviderStatusRuntimeSchema = document.getElementById("ai-provider-status-runtime-schema");
+const aiProviderStatusReadiness = document.getElementById("ai-provider-status-readiness");
+const aiProviderStatusSetupEligibility = document.getElementById("ai-provider-status-setup-eligibility");
+const aiProviderStatusSetupBlocker = document.getElementById("ai-provider-status-setup-blocker");
+const aiProviderStatusReadinessReason = document.getElementById("ai-provider-status-readiness-reason");
+const aiProviderStatusReadinessProvenance = document.getElementById("ai-provider-status-readiness-provenance");
+const aiProviderStatusReadinessSchema = document.getElementById("ai-provider-status-readiness-schema");
+const aiProviderStatusFutureGate = document.getElementById("ai-provider-status-future-gate");
+const aiProviderStatusCapabilityEligibility = document.getElementById("ai-provider-status-capability-eligibility");
+const aiProviderStatusInstallIntent = document.getElementById("ai-provider-status-install-intent");
 const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
 const aiProviderStatusFallback = document.getElementById("ai-provider-status-fallback");
 const aiProviderStatusNextAction = document.getElementById("ai-provider-status-next-action");
@@ -206,6 +215,42 @@ let aiProviderState = {
   runtimeFailClosed: true,
   runtimeProvenance: "default_config",
   runtimeProvenanceLabel: "Provenance: default config",
+  providerReadinessState: "setup_disabled",
+  providerReadinessLabel: "Provider readiness: setup disabled",
+  setupEligibilityState: "setup_eligibility_disabled",
+  setupEligibilityLabel: "Setup eligibility: disabled",
+  setupBlockerState: "setup_disabled",
+  setupBlockerLabel: "Setup blocker: setup disabled",
+  readinessReasonCode: "readiness_default_local_only",
+  readinessReasonLabel: "Readiness reason: local-only default",
+  readinessProvenance: "default_config",
+  readinessProvenanceLabel: "Readiness provenance: default config",
+  readinessStateSchemaVersion: "provider-readiness-state.v1",
+  readinessConfigSchemaVersion: "provider-readiness-config.v1",
+  readinessConfigState: "default_config",
+  readinessConfigLabel: "Readiness config: safe default local-only",
+  readinessConfigMigration: "safe-defaults-no-runtime-migration",
+  readinessConfigValid: true,
+  futureProviderGateStatus: "provider-setup-future-user-approval-required",
+  futureProviderGateLabel: "Future provider gate: USER approval required before setup",
+  capabilityPackEligibilityState: "capability-pack-eligibility-blocked",
+  capabilityPackEligibilityLabel: "Capability-pack eligibility: blocked",
+  capabilityPackManifestValidityState: "manifest-missing",
+  capabilityPackManifestValidityLabel: "Capability manifest: missing",
+  capabilityPackSourceTrustState: "source-trust-unverified",
+  capabilityPackSourceTrustLabel: "Capability-pack source trust: unverified",
+  capabilityPackCompatibilityPostureState: "compatibility-blocked",
+  capabilityPackCompatibilityPostureLabel: "Capability-pack compatibility: blocked",
+  capabilityPackCpuRequirementPosture: "requirement-unprobed",
+  capabilityPackGpuRequirementPosture: "requirement-unprobed",
+  capabilityPackRamRequirementPosture: "requirement-unprobed",
+  capabilityPackDiskRequirementPosture: "requirement-unprobed",
+  installIntentState: "install-intent-blocked",
+  installIntentLabel: "Install intent: blocked",
+  capabilityPackDownloadBlockedReason: "download_blocked_user_approval_required",
+  capabilityPackInstallBlockedReason: "install_blocked_manifest_or_user_approval_required",
+  capabilityPackUpdateBlockedReason: "update_blocked_user_approval_required",
+  capabilityPackUninstallBlockedReason: "uninstall_blocked_no_installed_pack",
   interactionAffordance: "disabled-no-provider-interaction",
   interactionLabel: "Assisted Desktop unavailable",
   interactionDisabledReason: "Consent and provider configuration are required before prompts can run",
@@ -1320,6 +1365,13 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.runtimeSchema = state.runtimeStateSchemaVersion || "unknown";
   aiProviderStatus.dataset.runtimeConfig = state.runtimeConfigState || "unknown";
   aiProviderStatus.dataset.runtimeFailClosed = state.runtimeFailClosed ? "true" : "false";
+  aiProviderStatus.dataset.providerReadiness = state.providerReadinessState || "unknown";
+  aiProviderStatus.dataset.setupEligibility = state.setupEligibilityState || "unknown";
+  aiProviderStatus.dataset.setupBlocker = state.setupBlockerState || "unknown";
+  aiProviderStatus.dataset.readinessReason = state.readinessReasonCode || "unknown";
+  aiProviderStatus.dataset.readinessProvenance = state.readinessProvenance || "unknown";
+  aiProviderStatus.dataset.readinessSchema = state.readinessStateSchemaVersion || "unknown";
+  aiProviderStatus.dataset.futureProviderGate = state.futureProviderGateStatus || "unknown";
   aiProviderStatus.dataset.configuredProviderCount = String(state.configuredProviderCount || 0);
   aiProviderStatus.dataset.availableProviderCount = String(state.availableProviderCount || 0);
   aiProviderStatus.dataset.hardwareCapability = state.hardwareCapabilityState || "unknown";
@@ -1337,6 +1389,8 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.capabilityPackDownload = state.capabilityPackDownloadState || "unknown";
   aiProviderStatus.dataset.capabilityPackManifest = state.capabilityPackManifestState || "unknown";
   aiProviderStatus.dataset.capabilityPackCompatibility = state.capabilityPackCompatibilityState || "unknown";
+  aiProviderStatus.dataset.capabilityPackEligibility = state.capabilityPackEligibilityState || "unknown";
+  aiProviderStatus.dataset.installIntent = state.installIntentState || "unknown";
   aiProviderStatus.dataset.dataClassification = state.dataClassificationState || "unknown";
   aiProviderStatus.dataset.memoryContext = state.memoryContextState || "unknown";
   aiProviderStatus.dataset.memoryIndexing = state.memoryIndexingState || "unknown";
@@ -1500,6 +1554,41 @@ function renderAIProviderState() {
     const configVersion = state.runtimeConfigSchemaVersion || "provider-runtime-config.v1";
     const configLabel = state.runtimeConfigLabel || "Config: safe default local-only";
     aiProviderStatusRuntimeSchema.textContent = `${schemaVersion}; ${configVersion}; ${configLabel}`;
+  }
+  if (aiProviderStatusReadiness) {
+    aiProviderStatusReadiness.textContent = state.providerReadinessLabel || "Provider readiness: setup disabled";
+  }
+  if (aiProviderStatusSetupEligibility) {
+    aiProviderStatusSetupEligibility.textContent = state.setupEligibilityLabel || "Setup eligibility: disabled";
+  }
+  if (aiProviderStatusSetupBlocker) {
+    aiProviderStatusSetupBlocker.textContent = state.setupBlockerLabel || "Setup blocker: setup disabled";
+  }
+  if (aiProviderStatusReadinessReason) {
+    aiProviderStatusReadinessReason.textContent =
+      state.readinessReasonLabel || "Readiness reason: local-only default";
+  }
+  if (aiProviderStatusReadinessProvenance) {
+    aiProviderStatusReadinessProvenance.textContent =
+      state.readinessProvenanceLabel || "Readiness provenance: default config";
+  }
+  if (aiProviderStatusReadinessSchema) {
+    const readinessSchemaVersion = state.readinessStateSchemaVersion || "provider-readiness-state.v1";
+    const readinessConfigVersion = state.readinessConfigSchemaVersion || "provider-readiness-config.v1";
+    const readinessConfigLabel = state.readinessConfigLabel || "Readiness config: safe default local-only";
+    aiProviderStatusReadinessSchema.textContent =
+      `${readinessSchemaVersion}; ${readinessConfigVersion}; ${readinessConfigLabel}`;
+  }
+  if (aiProviderStatusFutureGate) {
+    aiProviderStatusFutureGate.textContent =
+      state.futureProviderGateLabel || "Future provider gate: USER approval required before setup";
+  }
+  if (aiProviderStatusCapabilityEligibility) {
+    aiProviderStatusCapabilityEligibility.textContent =
+      state.capabilityPackEligibilityLabel || "Capability-pack eligibility: blocked";
+  }
+  if (aiProviderStatusInstallIntent) {
+    aiProviderStatusInstallIntent.textContent = state.installIntentLabel || "Install intent: blocked";
   }
   if (aiProviderStatusAction) {
     aiProviderStatusAction.textContent = state.interactionLabel || "Assisted Desktop unavailable";
