@@ -6,7 +6,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from .ai_provider_state import build_default_provider_readiness_config, build_provider_activation_foundation_state
+from .ai_provider_state import build_default_provider_readiness_config, build_provider_execution_readiness_gates_state
 from .workerw_utils import (
     attach_window_to_desktop,
     make_window_noninteractive,
@@ -33,7 +33,7 @@ class CoreVisualizationWindow(QWidget):
         self._is_shutting_down = False
         self._pending_visual_state = "dormant"
         self._pending_voice_level = None
-        self._ai_provider_state = build_provider_activation_foundation_state(
+        self._ai_provider_state = build_provider_execution_readiness_gates_state(
             build_default_provider_readiness_config(),
             surface_role="core",
         )
@@ -317,6 +317,22 @@ class CoreVisualizationWindow(QWidget):
             f"|provider_execution_gate={payload.get('providerExecutionGateState', '')}"
             f"|functional_ai_criteria={payload.get('functionalAiCriteriaState', '')}"
             f"|v18_prebeta_readiness={payload.get('v18PrebetaReadinessState', '')}"
+            f"|execution_readiness={payload.get('providerExecutionReadinessState', '')}"
+            f"|execution_eligibility={payload.get('executionEligibilityState', '')}"
+            f"|execution_blocker={payload.get('executionBlockerState', '')}"
+            f"|execution_reason={payload.get('executionReasonCode', '')}"
+            f"|execution_provenance={payload.get('executionProvenance', '')}"
+            f"|execution_schema={payload.get('executionStateSchemaVersion', '')}"
+            f"|execution_approval={payload.get('executionApprovalStatus', '')}"
+            f"|provider_path={payload.get('providerPathStatus', '')}"
+            f"|adapter_selection={payload.get('adapterSelectionPosture', '')}"
+            f"|prompt_acceptance_gate={payload.get('promptAcceptanceGateState', '')}"
+            f"|prompt_routing_gate={payload.get('promptRoutingGateState', '')}"
+            f"|prompt_send={payload.get('promptSendPosture', '')}"
+            f"|model_execution_status={payload.get('modelExecutionStatus', '')}"
+            f"|provider_visible_data_execution={payload.get('providerVisibleDataExecutionPosture', '')}"
+            f"|functional_ai_release_gate={payload.get('functionalAiReleaseGateState', '')}"
+            f"|v18_release_gate={payload.get('v18ReleaseGateState', '')}"
             f"|configured_provider_count={payload.get('configuredProviderCount', 0)}"
             f"|available_provider_count={payload.get('availableProviderCount', 0)}"
             f"|hardware_capability={payload.get('hardwareCapabilityState', '')}"

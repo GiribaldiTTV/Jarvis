@@ -217,6 +217,101 @@ from desktop.ai_provider_state import (  # noqa: E402
     PROMPT_EXECUTION_GATE_DISABLED,
     MODEL_EXECUTION_GATE_DISABLED,
     PROVIDER_EXECUTION_GATE_DISABLED,
+    FAM007_EXECUTION_READINESS_MODE,
+    FAM007_EXECUTION_READINESS_STATE_ID,
+    PROVIDER_EXECUTION_READINESS_CONFIG_SCHEMA_VERSION,
+    PROVIDER_EXECUTION_READINESS_STATE_SCHEMA_VERSION,
+    PROVIDER_EXECUTION_CONFIG_STATE_DEFAULT,
+    PROVIDER_EXECUTION_CONFIG_STATE_INVALID,
+    PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+    PROVIDER_EXECUTION_CONFIG_STATE_MISSING,
+    PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_ACTIVATION,
+    PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_ADAPTER,
+    PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_CONSENT,
+    PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_MODEL_GATE,
+    PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_NETWORK,
+    PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_POLICY,
+    PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_PROMPT_GATE,
+    PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_PROVIDER_PATH,
+    PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_SAFETY,
+    PROVIDER_EXECUTION_READINESS_STATE_DEGRADED,
+    PROVIDER_EXECUTION_READINESS_STATE_DISABLED,
+    PROVIDER_EXECUTION_READINESS_STATE_FUNCTIONAL_AI_READY_FUTURE_VERSION,
+    PROVIDER_EXECUTION_READINESS_STATE_READY_BUT_NOT_APPROVED,
+    PROVIDER_EXECUTION_READINESS_STATE_READY_FUTURE_GATED,
+    PROVIDER_EXECUTION_READINESS_STATE_UNAVAILABLE,
+    PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+    PROVIDER_EXECUTION_ELIGIBILITY_DISABLED,
+    PROVIDER_EXECUTION_ELIGIBILITY_FUTURE_GATED,
+    PROVIDER_EXECUTION_ELIGIBILITY_FUTURE_VERSION,
+    PROVIDER_EXECUTION_ELIGIBILITY_READY_NOT_APPROVED,
+    PROVIDER_EXECUTION_ELIGIBILITY_UNAVAILABLE,
+    PROVIDER_EXECUTION_BLOCKER_ACTIVATION_REQUIRED,
+    PROVIDER_EXECUTION_BLOCKER_ADAPTER_REQUIRED,
+    PROVIDER_EXECUTION_BLOCKER_APPROVAL_REQUIRED,
+    PROVIDER_EXECUTION_BLOCKER_CONFIG_INVALID,
+    PROVIDER_EXECUTION_BLOCKER_CONSENT_REQUIRED,
+    PROVIDER_EXECUTION_BLOCKER_FUTURE_EXECUTION_GATE,
+    PROVIDER_EXECUTION_BLOCKER_MODEL_GATE,
+    PROVIDER_EXECUTION_BLOCKER_NETWORK_APPROVAL_REQUIRED,
+    PROVIDER_EXECUTION_BLOCKER_POLICY_BLOCKED,
+    PROVIDER_EXECUTION_BLOCKER_PROMPT_GATE,
+    PROVIDER_EXECUTION_BLOCKER_PROVIDER_PATH_REQUIRED,
+    PROVIDER_EXECUTION_BLOCKER_SAFETY_EVAL_REQUIRED,
+    PROVIDER_EXECUTION_BLOCKER_VERSION_JUMP_REQUIRED,
+    PROVIDER_EXECUTION_REASON_ACTIVATION_BLOCKED,
+    PROVIDER_EXECUTION_REASON_ADAPTER_UNAVAILABLE,
+    PROVIDER_EXECUTION_REASON_APPROVAL_MISSING,
+    PROVIDER_EXECUTION_REASON_CONFIG_INVALID_FAIL_CLOSED,
+    PROVIDER_EXECUTION_REASON_CONFIG_MISSING_FAIL_CLOSED,
+    PROVIDER_EXECUTION_REASON_CONSENT_REQUIRED,
+    PROVIDER_EXECUTION_REASON_DEFAULT_UNAVAILABLE,
+    PROVIDER_EXECUTION_REASON_FUNCTIONAL_AI_FUTURE_VERSION,
+    PROVIDER_EXECUTION_REASON_FUTURE_GATED,
+    PROVIDER_EXECUTION_REASON_MODEL_GATE_BLOCKED,
+    PROVIDER_EXECUTION_REASON_NETWORK_BLOCKED,
+    PROVIDER_EXECUTION_REASON_POLICY_BLOCKED,
+    PROVIDER_EXECUTION_REASON_PROMPT_GATE_BLOCKED,
+    PROVIDER_EXECUTION_REASON_PROVIDER_PATH_MISSING,
+    PROVIDER_EXECUTION_REASON_SAFETY_EVAL_REQUIRED,
+    PROVIDER_EXECUTION_PROVENANCE_ACTIVATION_STATE,
+    PROVIDER_EXECUTION_PROVENANCE_ADAPTER_CONTRACT,
+    PROVIDER_EXECUTION_PROVENANCE_CONSENT_STATE,
+    PROVIDER_EXECUTION_PROVENANCE_DEFAULT_CONFIG,
+    PROVIDER_EXECUTION_PROVENANCE_FUTURE_RUNTIME_CHECK,
+    PROVIDER_EXECUTION_PROVENANCE_LOCAL_CONFIG,
+    PROVIDER_EXECUTION_PROVENANCE_MODEL_GATE,
+    PROVIDER_EXECUTION_PROVENANCE_NETWORK_POLICY,
+    PROVIDER_EXECUTION_PROVENANCE_PROMPT_GATE,
+    PROVIDER_EXECUTION_PROVENANCE_PROVIDER_PATH_CONTRACT,
+    PROVIDER_EXECUTION_PROVENANCE_RELEASE_SOURCE_TRUTH,
+    PROVIDER_EXECUTION_PROVENANCE_SAFETY_EVAL,
+    PROVIDER_EXECUTION_APPROVAL_STATUS_GRANTED_FOR_PROOF,
+    PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+    PROVIDER_EXECUTION_APPROVAL_STATUS_FUTURE_GATED,
+    PROVIDER_PATH_STATUS_NOT_SELECTED,
+    PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED,
+    ADAPTER_SELECTION_POSTURE_NULL_LOCAL,
+    ADAPTER_SELECTION_POSTURE_READY_FUTURE_GATED,
+    PROMPT_ACCEPTANCE_GATE_DISABLED,
+    PROMPT_ACCEPTANCE_GATE_FUTURE_GATED,
+    PROMPT_ROUTING_GATE_DISABLED,
+    PROMPT_ROUTING_GATE_FUTURE_GATED,
+    PROMPT_SEND_POSTURE_DISABLED,
+    MODEL_EXECUTION_STATUS_DISABLED,
+    MODEL_EXECUTION_STATUS_FUTURE_GATED,
+    MODEL_WORKLOAD_READINESS_DISABLED,
+    MODEL_WORKLOAD_READINESS_FUTURE_GATED,
+    PROVIDER_VISIBLE_DATA_EXECUTION_NONE,
+    PROVIDER_VISIBLE_DATA_EXECUTION_FUTURE_GATED,
+    EXTERNAL_CALL_READINESS_BLOCKED,
+    EXTERNAL_CALL_READINESS_FUTURE_GATED,
+    SAFETY_EVAL_READINESS_PENDING,
+    SAFETY_EVAL_READINESS_READY,
+    FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+    FUNCTIONAL_AI_RELEASE_GATE_READY_FUTURE_VERSION,
+    V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+    V18_RELEASE_GATE_READY_FUTURE_VERSION,
     FUNCTIONAL_AI_CRITERIA_PENDING,
     FUNCTIONAL_AI_CRITERIA_READY_FUTURE_VERSION,
     V18_PREBETA_READINESS_PENDING,
@@ -239,6 +334,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     READINESS_ACTION_FUTURE_USER_APPROVAL_REQUIRED,
     PROVIDER_NEXT_ACTION_DISABLED,
     build_default_provider_activation_config,
+    build_default_provider_execution_readiness_config,
     build_fam007_foundation_readiness_state,
     build_default_provider_runtime_config,
     build_default_provider_readiness_config,
@@ -247,6 +343,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_no_provider_ai_state,
     build_provider_readiness_contract_state,
     build_provider_activation_foundation_state,
+    build_provider_execution_readiness_gates_state,
     build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
 )
@@ -582,6 +679,212 @@ def validate() -> list[str]:
         },
         surface_role="core",
     )
+
+    execution_ready_readiness_config = {
+        "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+        "provider_configured": True,
+        "consent_granted": True,
+        "capability_ready": True,
+        "manifest_available": True,
+        "manifest_valid": True,
+        "future_provider_setup_approved": True,
+        "provider_ready": True,
+        "provenance": "local_config",
+    }
+    execution_ready_activation_config = {
+        "schema_version": PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION,
+        "future_activation_approved": True,
+        "adapter_available": True,
+        "safety_eval_complete": True,
+        "prompt_execution_approved": False,
+        "model_execution_approved": False,
+        "provenance": "local_config",
+    }
+
+    def _execution_config(**overrides: object) -> dict[str, object]:
+        config: dict[str, object] = {
+            "schema_version": PROVIDER_EXECUTION_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_path_selected": False,
+            "provider_adapter_selected": False,
+            "prompt_acceptance_approved": False,
+            "prompt_routing_approved": False,
+            "model_execution_approved": False,
+            "provider_visible_data_approved": False,
+            "network_external_approved": False,
+            "consent_granted": False,
+            "safety_eval_complete": False,
+            "policy_allows_execution": True,
+            "execution_approved": False,
+            "functional_ai_release_ready": False,
+            "provenance": "local_config",
+        }
+        config.update(overrides)
+        return config
+
+    default_execution_config_snapshot = build_default_provider_execution_readiness_config()
+    default_execution_snapshot = build_provider_execution_readiness_gates_state(
+        build_default_provider_readiness_config(),
+        surface_role="core",
+    )
+    missing_execution_config_snapshot = build_provider_execution_readiness_gates_state(
+        build_default_provider_readiness_config(),
+        execution_config=None,
+        surface_role="core",
+    )
+    invalid_execution_config_snapshot = build_provider_execution_readiness_gates_state(
+        build_default_provider_readiness_config(),
+        execution_config={
+            "schema_version": "provider-execution-readiness-config.v0",
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    activation_blocked_execution_snapshot = build_provider_execution_readiness_gates_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": False,
+            "consent_granted": False,
+            "capability_ready": False,
+            "manifest_available": False,
+            "manifest_valid": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    future_gated_execution_snapshot = build_provider_execution_readiness_gates_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": True,
+            "future_provider_setup_approved": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    provider_path_missing_execution_snapshot = build_provider_execution_readiness_gates_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        execution_config=_execution_config(),
+        surface_role="core",
+    )
+    adapter_unavailable_execution_snapshot = build_provider_execution_readiness_gates_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        execution_config=_execution_config(provider_path_selected=True),
+        surface_role="core",
+    )
+    prompt_gate_blocked_execution_snapshot = build_provider_execution_readiness_gates_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        execution_config=_execution_config(
+            provider_path_selected=True,
+            provider_adapter_selected=True,
+        ),
+        surface_role="core",
+    )
+    model_gate_blocked_execution_snapshot = build_provider_execution_readiness_gates_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        execution_config=_execution_config(
+            provider_path_selected=True,
+            provider_adapter_selected=True,
+            prompt_acceptance_approved=True,
+            prompt_routing_approved=True,
+        ),
+        surface_role="core",
+    )
+    consent_blocked_execution_snapshot = build_provider_execution_readiness_gates_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        execution_config=_execution_config(
+            provider_path_selected=True,
+            provider_adapter_selected=True,
+            prompt_acceptance_approved=True,
+            prompt_routing_approved=True,
+            model_execution_approved=True,
+        ),
+        surface_role="core",
+    )
+    safety_blocked_execution_snapshot = build_provider_execution_readiness_gates_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        execution_config=_execution_config(
+            provider_path_selected=True,
+            provider_adapter_selected=True,
+            prompt_acceptance_approved=True,
+            prompt_routing_approved=True,
+            model_execution_approved=True,
+            consent_granted=True,
+        ),
+        surface_role="core",
+    )
+    network_blocked_execution_snapshot = build_provider_execution_readiness_gates_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        execution_config=_execution_config(
+            provider_path_selected=True,
+            provider_adapter_selected=True,
+            prompt_acceptance_approved=True,
+            prompt_routing_approved=True,
+            model_execution_approved=True,
+            consent_granted=True,
+            safety_eval_complete=True,
+        ),
+        surface_role="core",
+    )
+    policy_blocked_execution_snapshot = build_provider_execution_readiness_gates_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        execution_config=_execution_config(
+            provider_path_selected=True,
+            provider_adapter_selected=True,
+            prompt_acceptance_approved=True,
+            prompt_routing_approved=True,
+            model_execution_approved=True,
+            consent_granted=True,
+            safety_eval_complete=True,
+            network_external_approved=True,
+            policy_allows_execution=False,
+        ),
+        surface_role="core",
+    )
+    approval_missing_execution_snapshot = build_provider_execution_readiness_gates_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        execution_config=_execution_config(
+            provider_path_selected=True,
+            provider_adapter_selected=True,
+            prompt_acceptance_approved=True,
+            prompt_routing_approved=True,
+            model_execution_approved=True,
+            provider_visible_data_approved=True,
+            consent_granted=True,
+            safety_eval_complete=True,
+            network_external_approved=True,
+        ),
+        surface_role="core",
+    )
+    functional_future_version_execution_snapshot = build_provider_execution_readiness_gates_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        execution_config=_execution_config(
+            provider_path_selected=True,
+            provider_adapter_selected=True,
+            prompt_acceptance_approved=True,
+            prompt_routing_approved=True,
+            model_execution_approved=True,
+            provider_visible_data_approved=True,
+            consent_granted=True,
+            safety_eval_complete=True,
+            network_external_approved=True,
+            execution_approved=True,
+            functional_ai_release_ready=True,
+        ),
+        surface_role="core",
+    )
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
@@ -619,6 +922,23 @@ def validate() -> list[str]:
         "execution_gated": execution_gated_activation_snapshot.as_renderer_payload(),
         "functional_future_version": functional_future_version_activation_snapshot.as_renderer_payload(),
     }
+    execution_payloads = {
+        "default": default_execution_snapshot.as_renderer_payload(),
+        "missing_config": missing_execution_config_snapshot.as_renderer_payload(),
+        "invalid_config": invalid_execution_config_snapshot.as_renderer_payload(),
+        "activation_blocked": activation_blocked_execution_snapshot.as_renderer_payload(),
+        "future_gated": future_gated_execution_snapshot.as_renderer_payload(),
+        "provider_path_missing": provider_path_missing_execution_snapshot.as_renderer_payload(),
+        "adapter_unavailable": adapter_unavailable_execution_snapshot.as_renderer_payload(),
+        "prompt_gate_blocked": prompt_gate_blocked_execution_snapshot.as_renderer_payload(),
+        "model_gate_blocked": model_gate_blocked_execution_snapshot.as_renderer_payload(),
+        "consent_blocked": consent_blocked_execution_snapshot.as_renderer_payload(),
+        "safety_blocked": safety_blocked_execution_snapshot.as_renderer_payload(),
+        "network_blocked": network_blocked_execution_snapshot.as_renderer_payload(),
+        "policy_blocked": policy_blocked_execution_snapshot.as_renderer_payload(),
+        "approval_missing": approval_missing_execution_snapshot.as_renderer_payload(),
+        "functional_future_version": functional_future_version_execution_snapshot.as_renderer_payload(),
+    }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     html = _read("nexus_visual/orin_core.html")
@@ -628,6 +948,12 @@ def validate() -> list[str]:
     branch_record = _read("Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md")
     active_activation_branch_record = _read(
         "Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md"
+    )
+    active_execution_branch_record = _read(
+        "Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md"
+    )
+    execution_branch_plan = _read(
+        "Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md"
     )
     active_readiness_branch_record = _read(
         "Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md"
@@ -1542,6 +1868,442 @@ def validate() -> list[str]:
             failures,
         )
 
+    _require(
+        default_execution_config_snapshot.schema_version == PROVIDER_EXECUTION_READINESS_CONFIG_SCHEMA_VERSION,
+        "default execution-readiness config must expose provider execution-readiness config schema",
+        failures,
+    )
+    _require(
+        default_execution_config_snapshot.config_state == PROVIDER_EXECUTION_CONFIG_STATE_DEFAULT,
+        "default execution-readiness config must stay safe default local-only",
+        failures,
+    )
+    execution_expectations = {
+        "default": (
+            PROVIDER_EXECUTION_READINESS_STATE_UNAVAILABLE,
+            PROVIDER_EXECUTION_ELIGIBILITY_UNAVAILABLE,
+            PROVIDER_EXECUTION_BLOCKER_ACTIVATION_REQUIRED,
+            PROVIDER_EXECUTION_REASON_DEFAULT_UNAVAILABLE,
+            PROVIDER_EXECUTION_PROVENANCE_ACTIVATION_STATE,
+            PROVIDER_EXECUTION_CONFIG_STATE_DEFAULT,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_NOT_SELECTED,
+            ADAPTER_SELECTION_POSTURE_NULL_LOCAL,
+            PROMPT_ACCEPTANCE_GATE_DISABLED,
+            PROMPT_ROUTING_GATE_DISABLED,
+            MODEL_EXECUTION_STATUS_DISABLED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "missing_config": (
+            PROVIDER_EXECUTION_READINESS_STATE_DISABLED,
+            PROVIDER_EXECUTION_ELIGIBILITY_DISABLED,
+            PROVIDER_EXECUTION_BLOCKER_ACTIVATION_REQUIRED,
+            PROVIDER_EXECUTION_REASON_CONFIG_MISSING_FAIL_CLOSED,
+            PROVIDER_EXECUTION_PROVENANCE_DEFAULT_CONFIG,
+            PROVIDER_EXECUTION_CONFIG_STATE_MISSING,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_NOT_SELECTED,
+            ADAPTER_SELECTION_POSTURE_NULL_LOCAL,
+            PROMPT_ACCEPTANCE_GATE_DISABLED,
+            PROMPT_ROUTING_GATE_DISABLED,
+            MODEL_EXECUTION_STATUS_DISABLED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "invalid_config": (
+            PROVIDER_EXECUTION_READINESS_STATE_DEGRADED,
+            PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+            PROVIDER_EXECUTION_BLOCKER_CONFIG_INVALID,
+            PROVIDER_EXECUTION_REASON_CONFIG_INVALID_FAIL_CLOSED,
+            PROVIDER_EXECUTION_PROVENANCE_LOCAL_CONFIG,
+            PROVIDER_EXECUTION_CONFIG_STATE_INVALID,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_NOT_SELECTED,
+            ADAPTER_SELECTION_POSTURE_NULL_LOCAL,
+            PROMPT_ACCEPTANCE_GATE_DISABLED,
+            PROMPT_ROUTING_GATE_DISABLED,
+            MODEL_EXECUTION_STATUS_DISABLED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "activation_blocked": (
+            PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_ACTIVATION,
+            PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+            PROVIDER_EXECUTION_BLOCKER_ACTIVATION_REQUIRED,
+            PROVIDER_EXECUTION_REASON_ACTIVATION_BLOCKED,
+            PROVIDER_EXECUTION_PROVENANCE_ACTIVATION_STATE,
+            PROVIDER_EXECUTION_CONFIG_STATE_DEFAULT,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_NOT_SELECTED,
+            ADAPTER_SELECTION_POSTURE_NULL_LOCAL,
+            PROMPT_ACCEPTANCE_GATE_DISABLED,
+            PROMPT_ROUTING_GATE_DISABLED,
+            MODEL_EXECUTION_STATUS_DISABLED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "future_gated": (
+            PROVIDER_EXECUTION_READINESS_STATE_READY_FUTURE_GATED,
+            PROVIDER_EXECUTION_ELIGIBILITY_FUTURE_GATED,
+            PROVIDER_EXECUTION_BLOCKER_FUTURE_EXECUTION_GATE,
+            PROVIDER_EXECUTION_REASON_FUTURE_GATED,
+            PROVIDER_EXECUTION_PROVENANCE_ACTIVATION_STATE,
+            PROVIDER_EXECUTION_CONFIG_STATE_DEFAULT,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_FUTURE_GATED,
+            PROVIDER_PATH_STATUS_NOT_SELECTED,
+            ADAPTER_SELECTION_POSTURE_NULL_LOCAL,
+            PROMPT_ACCEPTANCE_GATE_DISABLED,
+            PROMPT_ROUTING_GATE_DISABLED,
+            MODEL_EXECUTION_STATUS_DISABLED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "provider_path_missing": (
+            PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_PROVIDER_PATH,
+            PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+            PROVIDER_EXECUTION_BLOCKER_PROVIDER_PATH_REQUIRED,
+            PROVIDER_EXECUTION_REASON_PROVIDER_PATH_MISSING,
+            PROVIDER_EXECUTION_PROVENANCE_PROVIDER_PATH_CONTRACT,
+            PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_NOT_SELECTED,
+            ADAPTER_SELECTION_POSTURE_NULL_LOCAL,
+            PROMPT_ACCEPTANCE_GATE_DISABLED,
+            PROMPT_ROUTING_GATE_DISABLED,
+            MODEL_EXECUTION_STATUS_DISABLED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "adapter_unavailable": (
+            PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_ADAPTER,
+            PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+            PROVIDER_EXECUTION_BLOCKER_ADAPTER_REQUIRED,
+            PROVIDER_EXECUTION_REASON_ADAPTER_UNAVAILABLE,
+            PROVIDER_EXECUTION_PROVENANCE_ADAPTER_CONTRACT,
+            PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED,
+            ADAPTER_SELECTION_POSTURE_NULL_LOCAL,
+            PROMPT_ACCEPTANCE_GATE_DISABLED,
+            PROMPT_ROUTING_GATE_DISABLED,
+            MODEL_EXECUTION_STATUS_DISABLED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "prompt_gate_blocked": (
+            PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_PROMPT_GATE,
+            PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+            PROVIDER_EXECUTION_BLOCKER_PROMPT_GATE,
+            PROVIDER_EXECUTION_REASON_PROMPT_GATE_BLOCKED,
+            PROVIDER_EXECUTION_PROVENANCE_PROMPT_GATE,
+            PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED,
+            ADAPTER_SELECTION_POSTURE_READY_FUTURE_GATED,
+            PROMPT_ACCEPTANCE_GATE_DISABLED,
+            PROMPT_ROUTING_GATE_DISABLED,
+            MODEL_EXECUTION_STATUS_DISABLED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "model_gate_blocked": (
+            PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_MODEL_GATE,
+            PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+            PROVIDER_EXECUTION_BLOCKER_MODEL_GATE,
+            PROVIDER_EXECUTION_REASON_MODEL_GATE_BLOCKED,
+            PROVIDER_EXECUTION_PROVENANCE_MODEL_GATE,
+            PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED,
+            ADAPTER_SELECTION_POSTURE_READY_FUTURE_GATED,
+            PROMPT_ACCEPTANCE_GATE_FUTURE_GATED,
+            PROMPT_ROUTING_GATE_FUTURE_GATED,
+            MODEL_EXECUTION_STATUS_DISABLED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "consent_blocked": (
+            PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_CONSENT,
+            PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+            PROVIDER_EXECUTION_BLOCKER_CONSENT_REQUIRED,
+            PROVIDER_EXECUTION_REASON_CONSENT_REQUIRED,
+            PROVIDER_EXECUTION_PROVENANCE_CONSENT_STATE,
+            PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED,
+            ADAPTER_SELECTION_POSTURE_READY_FUTURE_GATED,
+            PROMPT_ACCEPTANCE_GATE_FUTURE_GATED,
+            PROMPT_ROUTING_GATE_FUTURE_GATED,
+            MODEL_EXECUTION_STATUS_FUTURE_GATED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "safety_blocked": (
+            PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_SAFETY,
+            PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+            PROVIDER_EXECUTION_BLOCKER_SAFETY_EVAL_REQUIRED,
+            PROVIDER_EXECUTION_REASON_SAFETY_EVAL_REQUIRED,
+            PROVIDER_EXECUTION_PROVENANCE_SAFETY_EVAL,
+            PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED,
+            ADAPTER_SELECTION_POSTURE_READY_FUTURE_GATED,
+            PROMPT_ACCEPTANCE_GATE_FUTURE_GATED,
+            PROMPT_ROUTING_GATE_FUTURE_GATED,
+            MODEL_EXECUTION_STATUS_FUTURE_GATED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "network_blocked": (
+            PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_NETWORK,
+            PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+            PROVIDER_EXECUTION_BLOCKER_NETWORK_APPROVAL_REQUIRED,
+            PROVIDER_EXECUTION_REASON_NETWORK_BLOCKED,
+            PROVIDER_EXECUTION_PROVENANCE_NETWORK_POLICY,
+            PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED,
+            ADAPTER_SELECTION_POSTURE_READY_FUTURE_GATED,
+            PROMPT_ACCEPTANCE_GATE_FUTURE_GATED,
+            PROMPT_ROUTING_GATE_FUTURE_GATED,
+            MODEL_EXECUTION_STATUS_FUTURE_GATED,
+            EXTERNAL_CALL_READINESS_BLOCKED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "policy_blocked": (
+            PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_POLICY,
+            PROVIDER_EXECUTION_ELIGIBILITY_BLOCKED,
+            PROVIDER_EXECUTION_BLOCKER_POLICY_BLOCKED,
+            PROVIDER_EXECUTION_REASON_POLICY_BLOCKED,
+            PROVIDER_EXECUTION_PROVENANCE_RELEASE_SOURCE_TRUTH,
+            PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED,
+            ADAPTER_SELECTION_POSTURE_READY_FUTURE_GATED,
+            PROMPT_ACCEPTANCE_GATE_FUTURE_GATED,
+            PROMPT_ROUTING_GATE_FUTURE_GATED,
+            MODEL_EXECUTION_STATUS_FUTURE_GATED,
+            EXTERNAL_CALL_READINESS_FUTURE_GATED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "approval_missing": (
+            PROVIDER_EXECUTION_READINESS_STATE_READY_BUT_NOT_APPROVED,
+            PROVIDER_EXECUTION_ELIGIBILITY_READY_NOT_APPROVED,
+            PROVIDER_EXECUTION_BLOCKER_APPROVAL_REQUIRED,
+            PROVIDER_EXECUTION_REASON_APPROVAL_MISSING,
+            PROVIDER_EXECUTION_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED,
+            ADAPTER_SELECTION_POSTURE_READY_FUTURE_GATED,
+            PROMPT_ACCEPTANCE_GATE_FUTURE_GATED,
+            PROMPT_ROUTING_GATE_FUTURE_GATED,
+            MODEL_EXECUTION_STATUS_FUTURE_GATED,
+            EXTERNAL_CALL_READINESS_FUTURE_GATED,
+            FUNCTIONAL_AI_RELEASE_GATE_PENDING,
+            V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI,
+        ),
+        "functional_future_version": (
+            PROVIDER_EXECUTION_READINESS_STATE_FUNCTIONAL_AI_READY_FUTURE_VERSION,
+            PROVIDER_EXECUTION_ELIGIBILITY_FUTURE_VERSION,
+            PROVIDER_EXECUTION_BLOCKER_VERSION_JUMP_REQUIRED,
+            PROVIDER_EXECUTION_REASON_FUNCTIONAL_AI_FUTURE_VERSION,
+            PROVIDER_EXECUTION_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            PROVIDER_EXECUTION_CONFIG_STATE_LOCAL,
+            PROVIDER_EXECUTION_APPROVAL_STATUS_GRANTED_FOR_PROOF,
+            PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED,
+            ADAPTER_SELECTION_POSTURE_READY_FUTURE_GATED,
+            PROMPT_ACCEPTANCE_GATE_FUTURE_GATED,
+            PROMPT_ROUTING_GATE_FUTURE_GATED,
+            MODEL_EXECUTION_STATUS_FUTURE_GATED,
+            EXTERNAL_CALL_READINESS_FUTURE_GATED,
+            FUNCTIONAL_AI_RELEASE_GATE_READY_FUTURE_VERSION,
+            V18_RELEASE_GATE_READY_FUTURE_VERSION,
+        ),
+    }
+    for label, expectation in execution_expectations.items():
+        execution_payload = execution_payloads[label]
+        (
+            expected_state,
+            expected_eligibility,
+            expected_blocker,
+            expected_reason,
+            expected_provenance,
+            expected_config,
+            expected_approval,
+            expected_provider_path,
+            expected_adapter_selection,
+            expected_prompt_acceptance,
+            expected_prompt_routing,
+            expected_model_status,
+            expected_external_call_readiness,
+            expected_functional_release_gate,
+            expected_v18_release_gate,
+        ) = expectation
+        _require(
+            execution_payload["stateId"] == FAM007_EXECUTION_READINESS_STATE_ID,
+            f"{label} execution fixture must use execution-readiness state id",
+            failures,
+        )
+        _require(
+            execution_payload["mode"] == FAM007_EXECUTION_READINESS_MODE,
+            f"{label} execution fixture must use execution-readiness mode",
+            failures,
+        )
+        _require(
+            execution_payload["executionStateSchemaVersion"] == PROVIDER_EXECUTION_READINESS_STATE_SCHEMA_VERSION,
+            f"{label} execution fixture must publish execution-readiness state schema",
+            failures,
+        )
+        _require(
+            execution_payload["executionConfigSchemaVersion"] == PROVIDER_EXECUTION_READINESS_CONFIG_SCHEMA_VERSION,
+            f"{label} execution fixture must publish execution-readiness config schema",
+            failures,
+        )
+        _require(
+            execution_payload["providerExecutionReadinessState"] == expected_state,
+            f"{label} execution fixture must publish {expected_state}",
+            failures,
+        )
+        _require(
+            execution_payload["executionEligibilityState"] == expected_eligibility,
+            f"{label} execution fixture must publish execution eligibility {expected_eligibility}",
+            failures,
+        )
+        _require(
+            execution_payload["executionBlockerState"] == expected_blocker,
+            f"{label} execution fixture must publish execution blocker {expected_blocker}",
+            failures,
+        )
+        _require(
+            execution_payload["executionReasonCode"] == expected_reason,
+            f"{label} execution fixture must publish execution reason {expected_reason}",
+            failures,
+        )
+        _require(
+            execution_payload["executionProvenance"] == expected_provenance,
+            f"{label} execution fixture must publish execution provenance {expected_provenance}",
+            failures,
+        )
+        _require(
+            execution_payload["executionConfigState"] == expected_config,
+            f"{label} execution fixture must publish execution config {expected_config}",
+            failures,
+        )
+        _require(
+            execution_payload["executionApprovalStatus"] == expected_approval,
+            f"{label} execution fixture must publish execution approval {expected_approval}",
+            failures,
+        )
+        _require(
+            execution_payload["providerPathStatus"] == expected_provider_path,
+            f"{label} execution fixture must publish provider path {expected_provider_path}",
+            failures,
+        )
+        _require(
+            execution_payload["adapterSelectionPosture"] == expected_adapter_selection,
+            f"{label} execution fixture must publish adapter selection {expected_adapter_selection}",
+            failures,
+        )
+        _require(
+            execution_payload["promptAcceptanceGateState"] == expected_prompt_acceptance,
+            f"{label} execution fixture must publish prompt acceptance {expected_prompt_acceptance}",
+            failures,
+        )
+        _require(
+            execution_payload["promptRoutingGateState"] == expected_prompt_routing,
+            f"{label} execution fixture must publish prompt routing {expected_prompt_routing}",
+            failures,
+        )
+        _require(
+            execution_payload["promptSendPosture"] == PROMPT_SEND_POSTURE_DISABLED,
+            f"{label} execution fixture must keep prompt sends disabled",
+            failures,
+        )
+        _require(
+            execution_payload["modelExecutionStatus"] == expected_model_status,
+            f"{label} execution fixture must publish model execution status {expected_model_status}",
+            failures,
+        )
+        expected_model_workload = (
+            MODEL_WORKLOAD_READINESS_FUTURE_GATED
+            if expected_model_status == MODEL_EXECUTION_STATUS_FUTURE_GATED
+            else MODEL_WORKLOAD_READINESS_DISABLED
+        )
+        _require(
+            execution_payload["modelWorkloadReadinessPosture"] == expected_model_workload,
+            f"{label} execution fixture must publish model workload readiness {expected_model_workload}",
+            failures,
+        )
+        expected_visible_data = (
+            PROVIDER_VISIBLE_DATA_EXECUTION_FUTURE_GATED
+            if label in {"approval_missing", "functional_future_version"}
+            else PROVIDER_VISIBLE_DATA_EXECUTION_NONE
+        )
+        _require(
+            execution_payload["providerVisibleDataExecutionPosture"] == expected_visible_data,
+            f"{label} execution fixture must publish provider-visible execution data posture",
+            failures,
+        )
+        _require(
+            execution_payload["externalCallReadinessState"] == expected_external_call_readiness,
+            f"{label} execution fixture must publish external call readiness {expected_external_call_readiness}",
+            failures,
+        )
+        _require(
+            execution_payload["functionalAiReleaseGateState"] == expected_functional_release_gate,
+            f"{label} execution fixture must publish functional-AI release gate",
+            failures,
+        )
+        _require(
+            execution_payload["v18ReleaseGateState"] == expected_v18_release_gate,
+            f"{label} execution fixture must publish v1.8.0 release gate",
+            failures,
+        )
+        _require(execution_payload["sentToProvider"] is False, f"{label} execution fixture must send nothing", failures)
+        _require(
+            execution_payload["canAcceptPrompts"] is False,
+            f"{label} execution fixture must keep prompts disabled",
+            failures,
+        )
+        _require(
+            execution_payload["providerVisibleData"] == "none",
+            f"{label} execution fixture must keep provider-visible data as none",
+            failures,
+        )
+        _require(
+            execution_payload["promptExecutionGateState"] == PROMPT_EXECUTION_GATE_DISABLED
+            and execution_payload["modelExecutionGateState"] == MODEL_EXECUTION_GATE_DISABLED
+            and execution_payload["providerExecutionGateState"] == PROVIDER_EXECUTION_GATE_DISABLED,
+            f"{label} execution fixture must keep prompt/model/provider execution gates disabled",
+            failures,
+        )
+        _require(
+            execution_payload["externalCalls"] == "blocked",
+            f"{label} execution fixture must keep external calls blocked",
+            failures,
+        )
+        _require(
+            execution_payload["memoryIndexingState"] == MEMORY_INDEXING_DISABLED
+            and execution_payload["networkEgressState"] == NETWORK_EGRESS_BLOCKED,
+            f"{label} execution fixture must keep memory indexing and network egress blocked",
+            failures,
+        )
+
     default_permissions = readiness_payloads["default"]["actionPermissionMatrix"]
     _require(
         len(default_permissions) == 9,
@@ -1832,7 +2594,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "build_provider_activation_foundation_state",
+        "build_provider_execution_readiness_gates_state",
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
@@ -1864,6 +2626,22 @@ def validate() -> list[str]:
         "provider_execution_gate",
         "functional_ai_criteria",
         "v18_prebeta_readiness",
+        "execution_readiness",
+        "execution_eligibility",
+        "execution_blocker",
+        "execution_reason",
+        "execution_provenance",
+        "execution_schema",
+        "execution_approval",
+        "provider_path",
+        "adapter_selection",
+        "prompt_acceptance_gate",
+        "prompt_routing_gate",
+        "prompt_send",
+        "model_execution_status",
+        "provider_visible_data_execution",
+        "functional_ai_release_gate",
+        "v18_release_gate",
         "gpu_capability",
         "cpu_fallback",
         "hardware_detection_level",
@@ -1926,6 +2704,22 @@ def validate() -> list[str]:
             'data-provider-execution-gate="provider-execution-disabled"',
             'data-functional-ai-criteria="functional-ai-criteria-pending"',
             'data-v18-prebeta-readiness="v1.8.0-prebeta-readiness-pending"',
+            'data-execution-readiness="execution_unavailable"',
+            'data-execution-eligibility="execution_eligibility_unavailable"',
+            'data-execution-blocker="activation_required"',
+            'data-execution-reason="execution_default_unavailable"',
+            'data-execution-provenance="activation_state"',
+            'data-execution-schema="provider-execution-readiness-state.v1"',
+            'data-execution-approval="execution-approval-missing"',
+            'data-provider-path="provider-path-not-selected"',
+            'data-adapter-selection="adapter-selection-null-local"',
+            'data-prompt-acceptance-gate="prompt-acceptance-disabled"',
+            'data-prompt-routing-gate="prompt-routing-disabled"',
+            'data-prompt-send="prompt-send-disabled"',
+            'data-model-execution-status="model-execution-disabled"',
+            'data-provider-visible-data-execution="provider-visible-data-execution-none"',
+            'data-functional-ai-release-gate="functional-ai-release-gate-pending"',
+            'data-v18-release-gate="v1.8.0-prebeta-release-gate-pending-functional-ai"',
             'data-configured-provider-count="0"',
             'data-available-provider-count="0"',
             'data-hardware-capability="local-planning-only"',
@@ -2049,6 +2843,32 @@ def validate() -> list[str]:
             "Prompt/model/provider execution: disabled",
             'id="ai-provider-status-functional-ai"',
             "Functional AI: criteria pending for v1.8.0-prebeta",
+            'id="ai-provider-status-execution-readiness"',
+            "Execution readiness: unavailable",
+            'id="ai-provider-status-execution-eligibility"',
+            "Execution eligibility: unavailable",
+            'id="ai-provider-status-execution-blocker"',
+            "Execution blocker: activation required",
+            'id="ai-provider-status-execution-reason"',
+            "Execution reason: execution readiness gates only",
+            'id="ai-provider-status-execution-provenance"',
+            "Execution provenance: activation state",
+            'id="ai-provider-status-execution-schema"',
+            "provider-execution-readiness-state.v1; provider-execution-readiness-config.v1; Execution config: safe default local-only",
+            'id="ai-provider-status-execution-approval"',
+            "Execution approval: USER approval missing",
+            'id="ai-provider-status-provider-path"',
+            "Provider path: not selected",
+            'id="ai-provider-status-adapter-selection"',
+            "Adapter selection: null local fallback",
+            'id="ai-provider-status-prompt-gates"',
+            "Prompt acceptance gate: disabled; Prompt routing gate: disabled; Prompt send: disabled",
+            'id="ai-provider-status-model-execution"',
+            "Model execution status: disabled; Model workload readiness: disabled",
+            'id="ai-provider-status-execution-data"',
+            "Provider-visible execution data: none; External call readiness: blocked",
+            'id="ai-provider-status-functional-release"',
+            "Functional-AI release gate: pending; v1.8.0-prebeta release gate: pending functional AI proof",
             'id="ai-provider-status-capability-eligibility"',
             "Capability-pack eligibility: blocked",
             'id="ai-provider-status-install-intent"',
@@ -2075,6 +2895,18 @@ def validate() -> list[str]:
         ".ai-provider-status__adapter",
         ".ai-provider-status__execution-gates",
         ".ai-provider-status__functional-ai",
+        ".ai-provider-status__execution-readiness",
+        ".ai-provider-status__execution-eligibility",
+        ".ai-provider-status__execution-blocker",
+        ".ai-provider-status__execution-reason",
+        ".ai-provider-status__execution-schema",
+        ".ai-provider-status__execution-approval",
+        ".ai-provider-status__provider-path",
+        ".ai-provider-status__adapter-selection",
+        ".ai-provider-status__prompt-gates",
+        ".ai-provider-status__model-execution",
+        ".ai-provider-status__execution-data",
+        ".ai-provider-status__functional-release",
         ".ai-provider-status__hardware-detection",
         ".ai-provider-status__capability-manifest",
         ".ai-provider-status__capability-eligibility",
@@ -2176,6 +3008,26 @@ def validate() -> list[str]:
         "providerExecutionGateState",
         "functionalAiCriteriaState",
         "v18PrebetaReadinessState",
+        "providerExecutionReadinessState",
+        "executionEligibilityState",
+        "executionBlockerState",
+        "executionReasonCode",
+        "executionProvenance",
+        "executionStateSchemaVersion",
+        "executionConfigSchemaVersion",
+        "executionConfigState",
+        "executionApprovalStatus",
+        "providerPathStatus",
+        "adapterSelectionPosture",
+        "promptAcceptanceGateState",
+        "promptRoutingGateState",
+        "promptSendPosture",
+        "modelExecutionStatus",
+        "modelWorkloadReadinessPosture",
+        "providerVisibleDataExecutionPosture",
+        "externalCallReadinessState",
+        "functionalAiReleaseGateState",
+        "v18ReleaseGateState",
         "capabilityPackEligibilityState",
         "installIntentState",
         "aiProviderStatusReadiness",
@@ -2193,6 +3045,19 @@ def validate() -> list[str]:
         "aiProviderStatusAdapter",
         "aiProviderStatusExecutionGates",
         "aiProviderStatusFunctionalAi",
+        "aiProviderStatusExecutionReadiness",
+        "aiProviderStatusExecutionEligibility",
+        "aiProviderStatusExecutionBlocker",
+        "aiProviderStatusExecutionReason",
+        "aiProviderStatusExecutionProvenance",
+        "aiProviderStatusExecutionSchema",
+        "aiProviderStatusExecutionApproval",
+        "aiProviderStatusProviderPath",
+        "aiProviderStatusAdapterSelection",
+        "aiProviderStatusPromptGates",
+        "aiProviderStatusModelExecution",
+        "aiProviderStatusExecutionData",
+        "aiProviderStatusFunctionalRelease",
         "aiProviderStatusCapabilityEligibility",
         "aiProviderStatusInstallIntent",
         "aiProviderStatusRuntime",
@@ -2204,6 +3069,58 @@ def validate() -> list[str]:
         "canAcceptPrompts",
     ):
         _require(needle in js, f"core JS is missing {needle!r}", failures)
+
+    for needle in (
+        "FAM-007 Local AI Provider Execution Readiness Gates",
+        "Current Workstream State: `Green - bounded multi-seam execution-readiness implementation complete; ready for Hardening H1 after USER approval`",
+        "Workstream Completion State: `Green - ready for Hardening H1 after USER approval`",
+        "Seam Family 1 - Execution Readiness Gate Contract: `Green`",
+        "Seam Family 2 - Provider Path And Adapter Selection Contract: `Green`",
+        "Seam Family 3 - Prompt Path And Model Execution Proof Contract: `Green`",
+        "Seam Family 4 - Safety, Consent, Network, And Data Gate Alignment: `Green`",
+        "Seam Family 5 - Functional-AI Release Gate And v1.8.0 Criteria: `Green`",
+        "Seam Family 6 - Core/Desktop Execution Readiness UI And Validator Planning: `Green`",
+        "provider-execution-readiness-state.v1",
+        "provider-execution-readiness-config.v1",
+        "execution_unavailable",
+        "execution_blocked_by_activation",
+        "execution_blocked_by_provider_path",
+        "execution_blocked_by_adapter",
+        "execution_blocked_by_prompt_gate",
+        "execution_blocked_by_model_gate",
+        "execution_blocked_by_consent",
+        "execution_blocked_by_safety",
+        "execution_blocked_by_network",
+        "execution_blocked_by_policy",
+        "execution_ready_future_gated",
+        "execution_ready_but_not_approved",
+        "functional_ai_execution_ready_future_version",
+        "provider-path-not-selected",
+        "adapter-selection-null-local",
+        "prompt-send-disabled",
+        "model-execution-disabled",
+        "provider-visible-data-execution-none",
+        "functional-ai-release-gate-pending",
+        "v1.8.0-prebeta-release-gate-pending-functional-ai",
+        "Provider SDK integration remains a pending USER decision",
+        "Provider/model execution remains a pending USER decision",
+        "Memory indexing, retrieval, learning, persistence, personalization, or long-term adaptation remains a pending USER decision",
+    ):
+        _require(needle in active_execution_branch_record, f"active FAM-007 execution record is missing {needle!r}", failures)
+
+    for needle in (
+        "Branch Runtime Engineering Plan: FAM-007 Local AI Provider Execution Readiness Gates",
+        "Engineering Plan Status: `Implemented - bounded Workstream implementation maps the accepted plan into local-only execution-readiness state, UI, validator fixtures, and source-truth proof; Hardening H1 remains pending USER approval.`",
+        "Runtime Implementation Approval: `Granted - USER approved bounded Workstream implementation for this local-only execution-readiness gates branch; provider/model execution remains pending USER decision.`",
+        "Plan-To-Implementation Traceability Table: `Implemented - planned execution-readiness state maps to actual file desktop/ai_provider_state.py; planned provider path and adapter selection map to actual local config/schema fields; planned prompt/model gates map to actual disabled prompt/model/provider execution fields; planned UI copy maps to actual Core/Desktop/ORIN status surfaces; validator implementation traces no prompt send, no model execution, provider-visible data none, blocked network egress, deferred memory/learning/personalization, and v1.8.0 criteria pending.`",
+        "Workstream Completion Evidence: `Green - all admitted execution-readiness seam families implemented as local-only contracts, state, UI posture, validator fixtures, and source-truth proof.",
+        "provider-execution-readiness-state.v1",
+        "provider-execution-readiness-config.v1",
+        "provider-visible data none",
+        "prompt/provider sends disabled",
+        "v1.8.0-prebeta",
+    ):
+        _require(needle in execution_branch_plan, f"active FAM-007 execution branch plan is missing {needle!r}", failures)
 
     for needle in (
         "FAM-007 Local AI Provider Activation Foundation",

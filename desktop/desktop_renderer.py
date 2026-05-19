@@ -35,7 +35,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
-from .ai_provider_state import build_default_provider_readiness_config, build_provider_activation_foundation_state
+from .ai_provider_state import build_default_provider_readiness_config, build_provider_execution_readiness_gates_state
 from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
@@ -5752,7 +5752,7 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.create_custom_group_requested.connect(self.handle_create_custom_group_requested)
         self._command_panel.created_groups_requested.connect(self.handle_created_groups_requested)
         self._command_panel.edit_saved_action_requested.connect(self.handle_edit_saved_action_requested)
-        self._ai_provider_state = build_provider_activation_foundation_state(
+        self._ai_provider_state = build_provider_execution_readiness_gates_state(
             build_default_provider_readiness_config(),
             surface_role=self.surface_role,
         )
@@ -12162,6 +12162,22 @@ class DesktopRuntimeWindow(QWidget):
             provider_execution_gate=payload.get("providerExecutionGateState", ""),
             functional_ai_criteria=payload.get("functionalAiCriteriaState", ""),
             v18_prebeta_readiness=payload.get("v18PrebetaReadinessState", ""),
+            execution_readiness=payload.get("providerExecutionReadinessState", ""),
+            execution_eligibility=payload.get("executionEligibilityState", ""),
+            execution_blocker=payload.get("executionBlockerState", ""),
+            execution_reason=payload.get("executionReasonCode", ""),
+            execution_provenance=payload.get("executionProvenance", ""),
+            execution_schema=payload.get("executionStateSchemaVersion", ""),
+            execution_approval=payload.get("executionApprovalStatus", ""),
+            provider_path=payload.get("providerPathStatus", ""),
+            adapter_selection=payload.get("adapterSelectionPosture", ""),
+            prompt_acceptance_gate=payload.get("promptAcceptanceGateState", ""),
+            prompt_routing_gate=payload.get("promptRoutingGateState", ""),
+            prompt_send=payload.get("promptSendPosture", ""),
+            model_execution_status=payload.get("modelExecutionStatus", ""),
+            provider_visible_data_execution=payload.get("providerVisibleDataExecutionPosture", ""),
+            functional_ai_release_gate=payload.get("functionalAiReleaseGateState", ""),
+            v18_release_gate=payload.get("v18ReleaseGateState", ""),
             configured_provider_count=payload.get("configuredProviderCount", 0),
             available_provider_count=payload.get("availableProviderCount", 0),
             hardware_capability=payload.get("hardwareCapabilityState", ""),
