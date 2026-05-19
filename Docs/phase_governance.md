@@ -863,6 +863,7 @@ Hard blockers:
   Watcher configuration is not runtime proof. Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active.
   Watcher status-change output must be shaped as a source-of-truth handoff packet: governed state markers, live PR truth, watcher proof, blocker state, continue/stop decision, and, after `merged=true`, a copy/paste Codex prompt basis for the next legal Release Readiness validation. The watcher may clear `PR Merge Verification Pending`; it must not independently claim Release Readiness legality.
   The action contract is part of provisioning proof: thumbs-up reaction means report green for PR-entry validation; one or more actionable bot comments means trigger the bounded same-branch PR comment-repair worker, fix the issue, commit, push, reply, resolve the corresponding review thread, and then record `Comment addressed` for the current head. If the repair worker cannot complete safely, keep `PR Validation Pending` active and surface the exact blocking comment.
+  PR watcher mode must be explicit under the PR Watcher Mode Contract in `Docs/pr_watcher_mode_contract.md`: `Silent Monitor`, `Verify Once`, `Repair Mode`, or `Blocked Mode`. PR Readiness Stage 2 final handoff and every Verify Once post must include `Watcher Health Proof:` with `Watcher Mode:`, `Configured CWD:`, `Worktree / Branch:`, `PR:`, `Head SHA:`, `Mergeability:`, `Unresolved Review Threads:`, `Latest Bot Review:`, `Repair Authority:`, `Delivery Route Proof:`, `Runtime Proof:`, and `Next Watcher Posture:`.
 - `PR Watcher Routing Unverified`:
   even after watcher provisioning exists and run proof is present, PR Readiness cannot be green until the approved reporting surface is explicitly recorded and a validation pass confirms the configured thread/host target, state-file target, transcript target, and delivery proof all point to that recorded surface and that at least one watcher emission has landed there. If final merge delivery proof is missing, the watcher must keep running and retry instead of retiring.
 - `PR Merge Verification Pending`:
@@ -2451,6 +2452,14 @@ Return-digest identity guard:
 - the governance lane must not infer the originating workspace from `C:\Nexus Worktrees\Governance`, `C:\Nexus Desktop AI`, GitHub Desktop's selected repository, or the current shell CWD
 - `Return Digest Origin Identity Missing` blocks the handoff when the originating branch, originating worktree, operating workspace, or expected branch is absent, generic, contradictory, or inferred
 - `Thread / Worktree Identity Mismatch` blocks originating-lane continuation if the return digest points to a different branch/worktree than the accepted intake recorded
+
+## Governance Intake Triage And Digest Profiles
+
+Broad governance/source-truth/process reform must use `Docs/governance_intake_triage_and_digest_profiles.md` before it mutates source truth, unless a Release Readiness intake digest already names exact blockers, carrier, files, and approval boundaries. The canonical packet name is `Governance Intake Triage Packet`.
+
+The required governance intake triage packet fields are `Problem Class:`, `Source-Truth Support:`, `Current Approval Coverage:`, `Recommended Carrier:`, `Smallest Safe Repair:`, `Files Likely Affected:`, `Validator / Helper Impact:`, `Runtime / Product Risk:`, `Active Branch / Worktree Interaction:`, `PR / Merge Need:`, `Deferred Items:`, `Stop / Report Conditions:`, `Recommended Digest Profile:`, and `Exact USER Decision Needed:`.
+
+Codex must choose the smallest legal digest profile for the phase: `Decision Packet`, `Return Digest`, `Validation Digest`, `Full Audit Packet`, or `Delta Digest`. A `Full Audit Packet` is reserved for explicit broad audits, process reform, root-cause analysis, or repo-wide recommendations. Normal phase handoffs should not restate full governance when changed values, blockers, validation, and `Next Legal Phase` are enough.
 
 ## Exception Path: Post-Release Canon Repair
 

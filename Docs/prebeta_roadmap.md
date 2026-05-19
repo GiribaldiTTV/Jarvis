@@ -63,6 +63,19 @@ Use these release-state values when relevant:
 
 ## Current Release Posture
 
+## Current Decision Surface
+
+Latest Public Prerelease Recorded In Source Truth: `v1.7.4-prebeta`
+Published Release Pending Canon Closure: `v1.7.5-prebeta`
+Merged-Unreleased PRs: PR #165 FAM-007 provider-readiness/setup-eligibility remains merged-unreleased in current source truth until the next Branch Readiness canon-closure path validates.
+Active Runtime Branch: None.
+Active Governance Branch: `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`.
+Selected-Next Posture: None - successor selection is deferred and USER-gated.
+Release Blockers: `v1.7.5-prebeta` post-release canon closure carry-forward plus originating FAM-007 Release Readiness rerun after Governance merge/rebaseline.
+Next Legal Phase: Governance PR Readiness after focused reform cycles validate; runtime branch creation, release execution, issue work, branch cleanup, and successor selection remain separate USER decisions.
+
+### Detailed Current Release Posture
+
 Current merged truth indicates:
 
 - latest public prerelease: `v1.7.4-prebeta`
@@ -94,10 +107,11 @@ Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desk
 Latest Public Prerelease Title: Pre-Beta v1.7.4
 Post-PR #159 Source-Truth Drift: Closed by standing Governance intake RRI-20260515-003 through PR #160; stale PR Readiness / PR creation wording for the already-merged FAM-007 branch is removed before Release Readiness reruns.
 Post-PR #162 Source-Truth Drift: Closed by PR #163 and the v1.7.4-prebeta release. PR #162 is released historical FAM-007 runtime-expansion scope.
-Published Release Pending Canon Closure: None - v1.7.4-prebeta source truth is closed by this Branch Readiness Stage 2 setup.
-Closure Repair Surface: Closed inside USER-approved Branch Readiness Stage 2 for `feature/fam-007-local-ai-provider-runtime-readiness`.
-Closure Drift Scope: Closed - PR #162 and PR #163 are released historical scope in v1.7.4-prebeta.
-Implementation Entry: PR #162 merged the FAM-007 Local AI Runtime Contracts and Capability Foundation Workstream; SLC-017/SLC-018, SLC-031/SLC-032, SLC-033/SLC-034, and SLC-035/SLC-036 are implemented as local-only runtime-contract, capability, data/privacy, Core/Desktop state, and validation scaffolds.
+Post-Release Canon Closure Drift: Recorded
+Published Release Pending Canon Closure: v1.7.5-prebeta
+Closure Repair Surface: Next Branch Readiness Stage 2
+Closure Drift Scope: release-dependent fields only
+Implementation Entry: Blocked until closure repair validates green
 Release-Debt Avoidance Status: Clear for v1.7.4-prebeta. FAM-007 runtime provider/model/memory/shortcut/installer work, Overlay acceptance, and AI Product work remain separate USER-gated decisions.
 Merged-main current active workstream: None - source truth records `feature/fam-007-local-ai-provider-runtime-readiness` as merged-unreleased FAM-007 evidence, not an active runtime carrier.
 Current active workstream: None after PR #165 merge; FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility is historical merged-unreleased scope on `feature/fam-007-local-ai-provider-runtime-readiness`.

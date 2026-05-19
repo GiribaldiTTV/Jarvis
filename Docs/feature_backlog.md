@@ -55,6 +55,17 @@ Historical note:
 
 None.
 
+## Current Decision Surface
+
+Latest Public Prerelease Recorded In Source Truth: `v1.7.4-prebeta`
+Published Release Pending Canon Closure: `v1.7.5-prebeta`
+Merged-Unreleased PRs: PR #165 FAM-007 provider-readiness/setup-eligibility remains merged-unreleased in current source truth until the next Branch Readiness canon-closure path validates.
+Active Runtime Branch: None.
+Active Governance Branch: `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`.
+Selected-Next Posture: None - successor selection is deferred and USER-gated.
+Release Blockers: `v1.7.5-prebeta` post-release canon closure carry-forward plus originating FAM-007 Release Readiness rerun after Governance merge/rebaseline.
+Next Legal Phase: Governance PR Readiness after focused reform cycles validate; runtime branch creation, release execution, issue work, branch cleanup, and successor selection remain separate USER decisions.
+
 FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement are Released / Closed historical proof through `v1.6.9-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof is Released / Closed historical proof through `v1.6.10-prebeta`; FB-047 Active-session relaunch decline session-preservation proof is Released / Closed historical proof through `v1.6.11-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth is Released / Closed historical proof through `v1.6.12-prebeta`; latest public prerelease truth is `v1.7.4-prebeta`; FAM-006 Monitoring HUD Dashboard Product Surface is released historical traceability in `v1.7.0-prebeta`, the FAM-006 Dashboard issue-resolution/settings-panel release window plus FAM-007 provider-boundary/no-provider shell support note are released in `v1.7.1-prebeta`, the PR #152 FAM-007 local AI foundation continuation plus release-governance support through PR #154 are released in `v1.7.2-prebeta`, PR #155 through PR #161 are released in `v1.7.3-prebeta`, and PR #162 plus PR #163 are released in `v1.7.4-prebeta`; the backlog-family governance reform package, automation-catalog package, FAM-001 legacy FB-049 runtime proof, FAM-004 legacy FB-030 runtime diagnostics proof, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof remain released historical traceability; PR #108 is merged and released as FAM-004 historical proof after watcher-verified merge proof; PR #109 is merged historical FAM-003 legacy FB-027 family evidence for shutdown-hotkey availability/direct-shutdown validation, with visible confirmation owned by tray Exit only, and is not a standalone release-version driver.
 Released baseline truth is aligned: FB-040 is released and closed in `v1.6.0-prebeta`, FB-031 is released and closed in `v1.6.1-prebeta`, FB-032 is released and closed in `v1.6.2-prebeta`, FB-004 is released and closed in `v1.6.3-prebeta`, FB-015 plus FB-029 are released and closed in `v1.6.4-prebeta`, FB-030 is released and closed in `v1.6.5-prebeta`, FB-005 is released and closed in `v1.6.6-prebeta`, FB-042 is released and closed in `v1.6.7-prebeta`, FB-043 is released and closed in `v1.6.8-prebeta`, FB-044 plus FB-045 are released and closed in `v1.6.9-prebeta`, FB-046 is released and closed in `v1.6.10-prebeta`, FB-047 is released and closed in `v1.6.11-prebeta`, FB-048 is released and closed in `v1.6.12-prebeta`, and the FAM-001 legacy FB-049 runtime proof plus FAM-004 legacy FB-030 runtime diagnostics proof are released historical traceability in `v1.6.13-prebeta`.
 FB-039 is released and closed in `v1.5.0-prebeta`.
@@ -71,10 +82,11 @@ Latest Public Prerelease Publication: https://github.com/GiribaldiTTV/Nexus-Desk
 Latest Public Prerelease Title: Pre-Beta v1.7.4.
 Post-PR #159 Source-Truth Drift: Closed by standing Governance intake RRI-20260515-003 through PR #160; stale PR Readiness / PR creation wording for the already-merged FAM-007 branch is removed before Release Readiness reruns.
 Post-PR #162 Source-Truth Drift: Closed by PR #163 and the v1.7.4-prebeta release. PR #162 is released historical FAM-007 runtime-expansion scope.
-Published Release Pending Canon Closure: None - v1.7.4-prebeta source truth is closed by this Branch Readiness Stage 2 setup.
-Closure Repair Surface: Closed inside USER-approved Branch Readiness Stage 2 for `feature/fam-007-local-ai-provider-runtime-readiness`.
-Closure Drift Scope: Closed - PR #162 and PR #163 are released historical scope in v1.7.4-prebeta.
-Implementation Entry: PR #162 merged the FAM-007 Local AI Runtime Contracts and Capability Foundation Workstream; SLC-017/SLC-018, SLC-031/SLC-032, SLC-033/SLC-034, and SLC-035/SLC-036 are implemented as local-only runtime-contract, capability, data/privacy, Core/Desktop state, and validation scaffolds.
+Post-Release Canon Closure Drift: Recorded
+Published Release Pending Canon Closure: v1.7.5-prebeta
+Closure Repair Surface: Next Branch Readiness Stage 2
+Closure Drift Scope: release-dependent fields only
+Implementation Entry: Blocked until closure repair validates green
 Release-Debt Avoidance Status: Clear for v1.7.4-prebeta. Future FAM-007 runtime expansion, provider/model/memory/shortcut/installer work, Overlay acceptance, AI Product work, and issue work remain separate USER-gated decisions.
 Merged-main Current Active Workstream: None - source truth records `feature/fam-007-local-ai-provider-runtime-readiness` as merged-unreleased FAM-007 evidence, not an active runtime carrier.
 Current Active Workstream: None after PR #165 merge; FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility is historical merged-unreleased scope on `feature/fam-007-local-ai-provider-runtime-readiness`.

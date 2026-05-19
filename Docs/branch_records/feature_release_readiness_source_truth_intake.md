@@ -33,10 +33,10 @@ This branch is the single standing governance lane for Release Readiness source-
 ## PR Readiness Stage 1 Analysis Packet
 
 - PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
-- Pre-PR Live State: `None - RRI-20260519-001 merged through PR #166 and the standing lane is idle`
+- Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing for the current governance reform packet; prior standing-lane PRs are historical merge proof only`
 - Historical Merge Proof: `PR #162 is closed/merged implementation proof for FAM-007 runtime expansion; PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
 - Next Workstream User Waiver: `Not applicable - RRI-20260519-001 is a governance phase-gate repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 1 Outcome: `Closed - RRI-20260519-001 merged through PR #166, standardizes and validator-enforces Pre-Rebaseline Impact Audit, records PR #165 as merged-unreleased FAM-007 release-window evidence, and returns the originating FAM-007 lane to Release Readiness Stage 1 rerun`
+- Stage 1 Outcome: `Stage 1 Ready For Stage 2 after focused governance reform cycles validate; PR creation still requires USER approval`
 
 ## Branch Class
 
@@ -108,6 +108,12 @@ Allowed:
 - Formal Branch Readiness planning fixture support through `dev/orin_branch_readiness_planning_fixture_validation.py` and `dev/fixtures/branch_readiness_planning/`, proving shallow later-phase planning fails and concrete whole-system planning passes.
 - Pre-Rebaseline Impact Audit governance/validator support requiring `No Baseline By Inertia`, `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before fast-forward, merge, rebase, branch-switch, current-main reconciliation, or standing-governance neutral-main sync.
 - Post-PR #165 Release Readiness source-truth drift repair recording `feature/fam-007-local-ai-provider-runtime-readiness` as historical merged-unreleased evidence, preserving No Active Branch / selected-next defer posture, clearing stale PR Readiness Stage 2 / PR creation wording from current-state truth, and routing the originating FAM-007 lane back to Release Readiness Stage 1 after governance merge/rebaseline.
+- Governance process efficiency reform planning may record repo-wide audit inventories under `Docs/governance_process_efficiency_reform_plan.md` when USER requests governance/source-truth analysis and recommendations; implementing those reforms requires later focused planning and USER approval.
+- Governance Intake Triage Packet and Digest Profile standardization may be repaired on this standing lane when USER approves the focused reform pass; the standard lives in `Docs/governance_intake_triage_and_digest_profiles.md` and keeps future reform packets narrow.
+- Worktree Rebaseline Audit Helper standardization may be repaired on this standing lane when USER approves the focused reform pass; the reusable helper is `dev/orin_worktree_rebaseline_audit.py`, is report-only, and emits `Current-Main Reconciliation Identity Guard`.
+- PR Watcher Mode Contract standardization may be repaired on this standing lane when USER approves the focused reform pass; the standard lives in `Docs/pr_watcher_mode_contract.md`, defines `Silent Monitor`, `Verify Once`, `Repair Mode`, and `Blocked Mode`, and requires `Watcher Health Proof:` before PR Readiness Stage 2 final handoff can be green.
+- Validation Suite recommendation standardization may be repaired on this standing lane when USER approves the focused reform pass; the reusable helper is `dev/orin_validation_suite.py`, accepts `--phase` and `--changed-file`, emits `Recommended Validation Suite:`, is report-only, and does not execute commands.
+- Backlog/Roadmap Current Decision Surface standardization may be repaired on this standing lane when USER approves the focused reform pass; `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` must carry compact `## Current Decision Surface` blocks with `Latest Public Prerelease Recorded In Source Truth:`, branch, blocker, and next-phase facts.
 - One PR per active `RRI-*` cycle after validation.
 
 Forbidden:
