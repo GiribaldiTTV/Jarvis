@@ -38,6 +38,10 @@ Current Workstream State: `Not started - Workstream planning admitted by this St
 Current Hardening State: `Not started`
 Current Live Validation State: `Not started`
 Current PR Readiness State: `Not started`
+Branch Runtime Engineering Plan: `Accepted and present - PR #171 reconciliation adopted the detailed Branch Runtime Engineering Plan layer for this runtime-focused branch before Workstream Entry`
+Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`
+Engineering Plan Status: `Accepted - detailed execution-readiness runtime plan is admitted while runtime implementation remains pending USER approval`
+PR Fold-Down Packet: `Pending - PR Readiness must decide whether the branch plan remains historical branch source truth, compacts into a branch receipt, or promotes durable lessons after implementation and validation`
 Release Canon Closure State: `v1.7.6-prebeta published at 1daf4de21cb2a6185efdbdc04795dcf6bf0c619d; PR #169 and PR #170 are released in v1.7.6-prebeta`
 Selected Next Workstream: `FAM-007 Local AI Provider Execution Readiness Gates`
 Selected Next Implementation Branch: `feature/fam-007-local-ai-provider-execution-readiness-gates`

@@ -1,4 +1,4 @@
-# Nexus Feature Backlog
+﻿# Nexus Feature Backlog
 
 This file is the controlled registry for tracked work, deferred planning items, historical implemented items, and future promoted bug identities.
 

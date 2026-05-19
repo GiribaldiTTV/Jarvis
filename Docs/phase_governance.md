@@ -483,6 +483,14 @@ Runtime Branch Engineering Contract:
 - Workstream seam start/closeout, Workstream Green, Hardening, Live Validation, PR Readiness, and Release Readiness must compare actual deltas, visible behavior, validator/helper proof, skipped items, and public release scope against the admitted contract
 - if implementation discovers the contract is too narrow, stale, or wrong, Codex must stop with a plan revision packet that names the current approved plan, discovered repo truth, proposed revision, affected seams, approval-boundary impact, and exact USER decision needed
 
+Branch Runtime Engineering Plan:
+
+- new or re-entering runtime-focused branches must create or admit the detailed active-branch execution plan under `Docs/branch_plans/<branch_slug>.md` during Branch Readiness Stage 2 when repo truth supports runtime work
+- the branch authority record must remain the control surface and must include `Branch Runtime Engineering Plan:`, `Branch Runtime Engineering Plan Path:`, and `Engineering Plan Status:` when the plan is required, present, accepted, revised, folded, or historical
+- backlog and roadmap remain compact pointer/status surfaces; detailed runtime baseline, planned delta, per-seam checklist, validation checklist, user-facing proof checklist, future-gated ledger, approval-boundary audit, and plan-to-implementation traceability belong in the Branch Runtime Engineering Plan or folded historical record
+- Workstream Entry reads the plan, each seam updates traceability, Hardening compares actual implementation against it, Live Validation records proof or waiver posture, PR Readiness produces the `PR Fold-Down Packet:`, and Release Readiness translates the plan into public scope without internal governance jargon
+- a missing or shallow Branch Runtime Engineering Plan keeps runtime implementation blocked on Branch Readiness planning until USER accepts, revises, or explicitly waives the plan boundary
+
 Required active authority markers for implementation branches in `Branch Readiness`, `Workstream`, `Hardening`, `Live Validation`, `PR Readiness`, or merged-unreleased release-debt truth:
 
 - `## Admitted Implementation Slice`

@@ -17,6 +17,14 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_DIR = ROOT / "dev" / "fixtures" / "branch_readiness_planning"
 SHALLOW_FIXTURE = FIXTURE_DIR / "shallow_live_validation_product_plan.md"
 CONCRETE_FIXTURE = FIXTURE_DIR / "concrete_live_validation_product_plan.md"
+VALID_BRANCH_RUNTIME_PLAN_FIXTURE = (
+    FIXTURE_DIR / "valid_branch_runtime_engineering_plan.md"
+)
+SHALLOW_BRANCH_RUNTIME_PLAN_FIXTURE = (
+    FIXTURE_DIR / "shallow_branch_runtime_engineering_plan.md"
+)
+BACKLOG_SPRAWL_FIXTURE = FIXTURE_DIR / "invalid_backlog_planning_sprawl.md"
+FOLD_DOWN_FIXTURE = FIXTURE_DIR / "valid_pr_fold_down_packet.md"
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -28,6 +36,14 @@ EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
 )
 EXPECTED_NEGATIVE_APPROVAL_FAILURE_SNIPPET = (
     "requires Runtime Implementation Approval to be approved, granted, or waived"
+)
+EXPECTED_MISSING_PLAN_PATH_FAILURE_SNIPPET = (
+    "Branch Runtime Engineering Plan Path: points to missing file"
+)
+EXPECTED_BRANCH_RUNTIME_PLAN_FAILURE_SNIPPETS = (
+    "Branch Runtime Engineering Plan value for 'Current Runtime Baseline:'",
+    "Branch Runtime Engineering Plan marker 'Planned Runtime Delta:'",
+    "Branch Runtime Engineering Plan value for 'Per-Seam Implementation Checklist:'",
 )
 
 
@@ -75,9 +91,53 @@ def _validate_runtime_contract_text(text: str, *, phase: str) -> list[str]:
     return failures
 
 
+def _validate_branch_runtime_plan_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_branch_runtime_engineering_plan(
+        require,
+        "<branch-runtime-engineering-plan-fixture>",
+        text,
+    )
+    return failures
+
+
+def _validate_compact_backlog_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_branch_runtime_backlog_compactness(
+        require,
+        "<backlog-compactness-fixture>",
+        text,
+    )
+    return failures
+
+
+def _validate_missing_plan_pointer_text() -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_branch_runtime_engineering_plan_pointer(
+        require,
+        "<missing-plan-pointer-fixture>",
+        (
+            "Branch Runtime Engineering Plan: Accepted\n"
+            "Branch Runtime Engineering Plan Path: "
+            "Docs/branch_plans/missing_runtime_plan_fixture.md\n"
+            "Engineering Plan Status: Accepted\n"
+        ),
+        branch_class="implementation",
+        current_phase="Workstream",
+    )
+    return failures
+
+
 def validate() -> list[str]:
     failures: list[str] = []
-    for fixture in (SHALLOW_FIXTURE, CONCRETE_FIXTURE):
+    for fixture in (
+        SHALLOW_FIXTURE,
+        CONCRETE_FIXTURE,
+        VALID_BRANCH_RUNTIME_PLAN_FIXTURE,
+        SHALLOW_BRANCH_RUNTIME_PLAN_FIXTURE,
+        BACKLOG_SPRAWL_FIXTURE,
+        FOLD_DOWN_FIXTURE,
+    ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
 
@@ -144,6 +204,55 @@ def validate() -> list[str]:
         failures.append(
             "Concrete Release Readiness runtime contract fixture unexpectedly failed: "
             + "; ".join(concrete_release_failures[:5])
+        )
+
+    valid_plan_failures = _validate_branch_runtime_plan_text(
+        VALID_BRANCH_RUNTIME_PLAN_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_plan_failures:
+        failures.append(
+            "Valid Branch Runtime Engineering Plan fixture unexpectedly failed: "
+            + "; ".join(valid_plan_failures[:5])
+        )
+
+    shallow_plan_failures = _validate_branch_runtime_plan_text(
+        SHALLOW_BRANCH_RUNTIME_PLAN_FIXTURE.read_text(encoding="utf-8")
+    )
+    if not shallow_plan_failures:
+        failures.append(
+            "Shallow Branch Runtime Engineering Plan fixture unexpectedly passed"
+        )
+    else:
+        shallow_plan_text = "\n".join(shallow_plan_failures)
+        for snippet in EXPECTED_BRANCH_RUNTIME_PLAN_FAILURE_SNIPPETS:
+            if snippet not in shallow_plan_text:
+                failures.append(
+                    "Shallow Branch Runtime Engineering Plan fixture did not report "
+                    f"expected failure snippet: {snippet!r}"
+                )
+
+    backlog_sprawl_failures = _validate_compact_backlog_text(
+        BACKLOG_SPRAWL_FIXTURE.read_text(encoding="utf-8")
+    )
+    if not backlog_sprawl_failures:
+        failures.append("Backlog planning-sprawl fixture unexpectedly passed")
+
+    fold_down_failures = _validate_branch_runtime_plan_text(
+        FOLD_DOWN_FIXTURE.read_text(encoding="utf-8")
+    )
+    if fold_down_failures:
+        failures.append(
+            "Valid PR fold-down Branch Runtime Engineering Plan fixture unexpectedly failed: "
+            + "; ".join(fold_down_failures[:5])
+        )
+
+    missing_plan_failures = _validate_missing_plan_pointer_text()
+    if EXPECTED_MISSING_PLAN_PATH_FAILURE_SNIPPET not in "\n".join(
+        missing_plan_failures
+    ):
+        failures.append(
+            "Missing Branch Runtime Engineering Plan path fixture did not reject "
+            "an accepted plan pointer to a nonexistent file"
         )
 
     return failures
