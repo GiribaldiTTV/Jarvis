@@ -23,6 +23,8 @@ EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "Scale / Data Volume Model must name concrete scale pressure",
     "Planning Adequacy Review must explain why the plan is not shallow",
     "Whole-System Interaction Map must describe multiple interacting pieces",
+    "Runtime Branch Engineering Contract value for 'Planned Runtime Delta:'",
+    "Workstream Seam Map must map multiple seams",
 )
 
 
@@ -47,6 +49,13 @@ def _validate_fixture(path: Path) -> list[str]:
         current_phase="Live Validation",
         blockers=[],
         next_legal_phase="Live Validation",
+    )
+    governance._validate_runtime_engineering_contract(
+        require,
+        path.as_posix(),
+        text,
+        branch_class="implementation",
+        current_phase="Live Validation",
     )
     return failures
 
