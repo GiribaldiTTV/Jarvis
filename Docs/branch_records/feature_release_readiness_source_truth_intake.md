@@ -21,22 +21,22 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Intake State: `Idle - RRI-20260515-003 merged through PR #160 at 2779274a3bc4c8a8c8bc83032cbb813e89cc10f5, standing branch and neutral main workspace synced to origin/main, and post-PR #159 Release Readiness source-truth drift closed`
+- Intake State: `Projected idle after RRI-20260518-001 - this cycle repairs post-PR #162 Release Readiness source-truth drift, records the required Governance routing contract for similar digests, and leaves the standing lane idle after the repair PR merges`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
 - Active RRI Cycle: `None`
-- Latest Closed RRI Cycle: `RRI-20260515-003`
-- Return Digest Status: `Complete - RRI-20260515-003 merged through PR #160 at 2779274a3bc4c8a8c8bc83032cbb813e89cc10f5; standing Governance branch and C:\Nexus Desktop AI are synced to origin/main at 2779274a3bc4c8a8c8bc83032cbb813e89cc10f5; post-PR #159 Release Readiness source-truth drift is closed`
-- Active Cycle Identity: `None - latest closed RRI-20260515-003 / originating lane Release Readiness Stage 1 after PR #159 / originating worktree C:\Nexus Worktrees\FAM-007 / operating workspace C:\Nexus Worktrees\FAM-007 / expected branch feature/fam-007-local-ai-runtime-foundation / repair scope stale post-merge PR Readiness wording plus PR #159 merged-unreleased release-window scope / no runtime mutation`
+- Latest Closed RRI Cycle: `RRI-20260518-001`
+- Return Digest Status: `Projected Complete - RRI-20260518-001 repairs post-PR #162 source-truth closure drift through this standing-governance PR; after merge, standing Governance branch and C:\Nexus Desktop AI must sync to origin/main and return the FAM-007 digest before Release Readiness continues`
+- Active Cycle Identity: `None - latest closed RRI-20260518-001 / originating lane Release Readiness Stage 1 after PR #162 / originating worktree C:\Nexus Worktrees\FAM-007 / operating workspace C:\Nexus Worktrees\FAM-007 / expected branch feature/fam-007-local-ai-runtime-expansion / repair scope stale active Live Validation and PR Readiness wording plus PR #162 merged-unreleased release-window scope / no runtime mutation`
 
 ## PR Readiness Stage 1 Analysis Packet
 
 - PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
-- Pre-PR Live State: `No live PR - RRI-20260515-003 PR #160 is merged`
-- Historical Merge Proof: `PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
-- Next Workstream User Waiver: `Not applicable - RRI-20260515-003 is a Release Readiness source-truth repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 1 Outcome: `Complete - RRI-20260515-003 repaired stale post-PR #159 Release Readiness source truth through PR #160, synced the standing branch and neutral main workspace to origin/main, and returns Release Readiness as the next legal phase`
+- Pre-PR Live State: `No live PR yet for RRI-20260518-001 - PR creation remains USER-gated until validation is green`
+- Historical Merge Proof: `PR #162 is closed/merged implementation proof for FAM-007 runtime expansion; PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
+- Next Workstream User Waiver: `Not applicable - RRI-20260518-001 is a Release Readiness source-truth repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
+- Stage 1 Outcome: `Projected Complete - RRI-20260518-001 repairs stale post-PR #162 Release Readiness source truth, hardens validation/routing for this failure class, and returns Release Readiness as the next legal phase after merge and rebaseline`
 
 ## Branch Class
 
@@ -65,9 +65,9 @@ This branch is the single standing governance lane for Release Readiness source-
 - Intake Source: Release Readiness digest only for release-blocker intake; USER-approved automation/worktree governance intake may also use this standing lane when the repair is non-runtime, multi-worktree safety related, and held to the same one-cycle/PR-gated contract; USER-approved phase-gate governance intake may also use this standing lane when a live branch exposes a repeatable Branch Readiness, PR Readiness, Release Readiness, or Workstream gate miss and the repair is limited to governance/source-truth/validator/helper prevention; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
 - Active RRI Cycle: `None`
-- Latest Closed RRI Cycle: `RRI-20260515-003`
-- Return Digest Status: `Complete - RRI-20260515-003 merged through PR #160 at 2779274a3bc4c8a8c8bc83032cbb813e89cc10f5; standing Governance branch and C:\Nexus Desktop AI are synced to origin/main at 2779274a3bc4c8a8c8bc83032cbb813e89cc10f5; post-PR #159 Release Readiness source-truth drift is closed`
-- Active Cycle Identity: `None - latest closed RRI-20260515-003 / originating lane Release Readiness Stage 1 after PR #159 / originating worktree C:\Nexus Worktrees\FAM-007 / operating workspace C:\Nexus Worktrees\FAM-007 / expected branch feature/fam-007-local-ai-runtime-foundation / repair scope stale post-merge PR Readiness wording plus PR #159 merged-unreleased release-window scope / no runtime mutation`
+- Latest Closed RRI Cycle: `RRI-20260518-001`
+- Return Digest Status: `Projected Complete - RRI-20260518-001 repairs post-PR #162 source-truth closure drift through this standing-governance PR; after merge, standing Governance branch and C:\Nexus Desktop AI must sync to origin/main and return the FAM-007 digest before Release Readiness continues`
+- Active Cycle Identity: `None - latest closed RRI-20260518-001 / originating lane Release Readiness Stage 1 after PR #162 / originating worktree C:\Nexus Worktrees\FAM-007 / operating workspace C:\Nexus Worktrees\FAM-007 / expected branch feature/fam-007-local-ai-runtime-expansion / repair scope stale active Live Validation and PR Readiness wording plus PR #162 merged-unreleased release-window scope / no runtime mutation`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -96,7 +96,7 @@ Allowed:
 - Governance/source-truth wording that defines aggregated release-window ownership when multiple FAM/worktree PRs merge before the next release.
 - Governance/source-truth wording that routes stale/old branch cleanup to Branch Readiness branch/worktree setup instead of Release Readiness.
 - Governance/source-truth wording that makes Branch Readiness classify stale, empty, merged, wrong-worktree, and open-PR carrier states before Stage 2 branch/worktree creation or cleanup.
-- Validator support for standing intake, Release Readiness Health Pass, PR body firewall behavior, and registered source-truth validators when the intake repair changes the expected historical/current branch-record posture those validators enforce.
+- Validator support for standing intake, Release Readiness Health Pass, current-main reconciliation identity guard, PR body firewall behavior, and registered source-truth validators when the intake repair changes the expected historical/current branch-record posture those validators enforce.
 - Helper registry updates tied directly to those validators.
 - Automation observability helper support for configured cwd/worktree identity, stale neutral-main detection, lane-sensitive prompt drift, automation memory/reporting mismatch, and `Automation CWD Worktree Mismatch` blocker reporting from Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`.
 - Assigned Worktree Confinement governance/validator support for this standing worktree.
@@ -193,11 +193,11 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `None - standing Governance intake idle after RRI-20260515-003`
+Active seam: `None - projected standing Governance intake idle after RRI-20260518-001`
 
-Seam Goal: `Idle - RRI-20260515-003 closed stale merged-main source truth after PR #159 so backlog, roadmap, and the FAM-007 historical branch record no longer point to PR Readiness / PR creation for an already-merged branch, while preserving No Active Branch, selected-next defer truth, and release execution as a separate USER decision.`
+Seam Goal: `Projected idle - RRI-20260518-001 closes stale merged-main source truth after PR #162 so backlog, roadmap, and the FAM-007 historical branch record no longer point to active Live Validation or PR Readiness for an already-merged branch, while preserving No Active Branch, Governance routing truth, selected-next defer truth, and release execution as a separate USER decision.`
 
-Seam Scope: `Closed - standing intake authority record, Docs/feature_backlog.md, Docs/prebeta_roadmap.md, and Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md source-truth wording only; validation and PR #160 merge proof recorded.`
+Seam Scope: `Projected closed - standing intake authority record, Docs/feature_backlog.md, Docs/prebeta_roadmap.md, Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md, governance routing text, current-main reconciliation identity guard, and validator hardening only; validation and PR #162 merge proof recorded.`
 
 Seam Non-Includes: `runtime/provider/model/memory/voice/Core/shortcut/installer work, release execution, issue work, FAM-006 or FAM-007 mutation, broad docs churn, branch deletion, worktree cleanup, or direct-main source mutation.`
 

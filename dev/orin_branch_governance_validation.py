@@ -3015,6 +3015,24 @@ PR_READINESS_ORIGIN_MAIN_FRESHNESS_MARKERS = (
     "Reconciliation Mutation Status",
 )
 
+CURRENT_MAIN_RECONCILIATION_IDENTITY_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+
+CURRENT_MAIN_RECONCILIATION_IDENTITY_PHRASES = (
+    "Current-Main Reconciliation Identity Guard",
+    "origin/main is context, not identity",
+    "Assigned Worktree Branch Identity:",
+    "Branch-Local Authority Reassertion:",
+    "Incoming Main Active-Branch Blocks Accepted: NO",
+    "Sibling Worktree Identity Preservation:",
+    "Worktree Branch Identity Drift",
+)
+
 RELEASE_READINESS_HEALTH_GATE_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -3039,6 +3057,7 @@ RELEASE_READINESS_HEALTH_GATE_PHRASES = (
     "FAM Overlap Routing:",
     "Release Candidate Anchor Projection:",
     "Release Window Contributor Inventory:",
+    "Governance Intake Routing:",
     "Projected Post-Merge Validation:",
 )
 
@@ -3564,6 +3583,17 @@ HISTORICAL_BRANCH_ACTIVE_PR_MARKERS = (
     "Live PR State: `open",
     "PR Validation Pending",
     "PR Merge Verification Pending",
+)
+
+PR_LIFECYCLE_SOURCE_TRUTH_MARKERS = (
+    "Live PR:",
+    "PR Number:",
+    "PR Stage 2 Sync:",
+    "PR Readiness Stage 2 USER Approval:",
+    "PR Merge Verification Pending",
+    "Current PR Readiness Seam:",
+    "PR Validation Pending",
+    "Bot Review Signal Pending",
 )
 
 AUTOMATION_OBSERVABILITY_SOURCE = Path("dev/automation_observability_report.py")
@@ -15288,6 +15318,26 @@ def _run_release_readiness_health_gate(
         historical_branch_record_path and _section(record_text, "Post-Merge State")
     )
     if current_phase != "PR Readiness" and not is_projected_historical_pr_context:
+        lifecycle_markers = [
+            marker for marker in PR_LIFECYCLE_SOURCE_TRUTH_MARKERS if marker in record_text
+        ]
+        if (
+            str(info["branch_class"]) == "implementation"
+            and current_phase != HISTORICAL_TRACEABILITY_PHASE
+            and lifecycle_markers
+        ):
+            require(
+                False,
+                (
+                    f"{record_path}: Release Readiness Health Pass cannot be skipped after "
+                    f"PR-lifecycle source-truth marker(s) {', '.join(lifecycle_markers)} "
+                    f"exist while Phase is `{current_phase}`. Move the branch through PR "
+                    "Readiness and prove post-merge source truth before PR creation/merge; "
+                    "if this is discovered after merge, route the blocker digest to "
+                    f"`C:\\Nexus Worktrees\\Governance` / `{STANDING_GOVERNANCE_INTAKE_BRANCH}`."
+                ),
+            )
+            return
         require(True, "Release Readiness Health Pass: not applicable outside PR Readiness")
         return
 
@@ -15442,6 +15492,65 @@ def _run_pr_origin_main_freshness_gate(
             (
                 f"{active_branch_record_path}: Origin Main Reconciliation Packet Required; "
                 "Reconciliation Recommendation must explain the recommended reconcile route"
+            ),
+        )
+
+
+def _run_worktree_branch_identity_guard(
+    require,
+    *,
+    current_git_branch: str,
+    active_branch_record_path: str,
+    active_branch_record_text: str,
+    backlog_text: str,
+    roadmap_text: str,
+) -> None:
+    if (
+        not current_git_branch
+        or current_git_branch == "main"
+        or _is_standing_governance_intake_branch(current_git_branch)
+        or not active_branch_record_text
+    ):
+        return
+
+    info = _parse_workstream_doc(active_branch_record_text)
+    if str(info["branch_class"]) != "implementation":
+        return
+
+    expected_record_path = active_branch_record_path.replace("\\", "/")
+    for source_name, source_text in (
+        ("Docs/feature_backlog.md", backlog_text),
+        ("Docs/prebeta_roadmap.md", roadmap_text),
+    ):
+        posture = _section(source_text, "Current Branch Execution Posture")
+        if not posture:
+            continue
+
+        current_execution_branch = _extract_colon_value(
+            posture,
+            "Current Execution Branch",
+        ).strip().strip("`")
+        active_authority_record = _extract_colon_value(
+            posture,
+            "Active Branch Authority Record",
+        ).strip().strip("`").replace("\\", "/")
+
+        require(
+            current_execution_branch == current_git_branch,
+            (
+                f"{source_name}: Worktree Branch Identity Drift; Current Branch Execution "
+                f"Posture must reassert current branch `{current_git_branch}` after "
+                f"current-main reconciliation, found "
+                f"`{current_execution_branch or 'missing'}`"
+            ),
+        )
+        require(
+            active_authority_record == expected_record_path,
+            (
+                f"{source_name}: Worktree Branch Identity Drift; Current Branch Execution "
+                f"Posture must reassert active authority record `{expected_record_path}` "
+                f"after current-main reconciliation, found "
+                f"`{active_authority_record or 'missing'}`"
             ),
         )
 
@@ -15915,6 +16024,17 @@ def main() -> int:
                 f"{relative_path}: PR Readiness origin/main freshness guidance is missing '{required_phrase}'",
             )
 
+    for relative_path in CURRENT_MAIN_RECONCILIATION_IDENTITY_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in CURRENT_MAIN_RECONCILIATION_IDENTITY_PHRASES:
+            require(
+                required_phrase in text,
+                (
+                    f"{relative_path}: current-main reconciliation identity guidance "
+                    f"is missing '{required_phrase}'"
+                ),
+            )
+
     for relative_path in RELEASE_READINESS_HEALTH_GATE_DOCS:
         text = _read_text(relative_path)
         for required_phrase in RELEASE_READINESS_HEALTH_GATE_PHRASES:
@@ -16260,6 +16380,14 @@ def main() -> int:
     active_branch_record_path, active_branch_record_text = _active_branch_record_for_branch(
         active_branch_record_paths,
         current_git_branch,
+    )
+    _run_worktree_branch_identity_guard(
+        require,
+        current_git_branch=current_git_branch,
+        active_branch_record_path=active_branch_record_path,
+        active_branch_record_text=active_branch_record_text,
+        backlog_text=backlog_text,
+        roadmap_text=roadmap_text,
     )
     ignored_selected_next_branch_names = _selected_next_ignored_branch_names(
         current_git_branch,
