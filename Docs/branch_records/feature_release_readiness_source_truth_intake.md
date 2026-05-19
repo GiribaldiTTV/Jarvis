@@ -21,22 +21,22 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Intake State: `Projected idle after RRI-20260518-001 - this cycle repairs post-PR #162 Release Readiness source-truth drift, records the required Governance routing contract for similar digests, and leaves the standing lane idle after the repair PR merges`
+- Intake State: `Active RRI-20260518-002 - USER-approved phase-gate governance intake for runtime branch engineering planning quality, engineering intent traceability, and lifecycle proof standards; no runtime mutation, no FAM-006 mutation, no FAM-007 mutation, and no PR creation unless separately approved`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
-- Active RRI Cycle: `None`
+- Active RRI Cycle: `RRI-20260518-002`
 - Latest Closed RRI Cycle: `RRI-20260518-001`
-- Return Digest Status: `Projected Complete - RRI-20260518-001 repairs post-PR #162 source-truth closure drift through this standing-governance PR; after merge, standing Governance branch and C:\Nexus Desktop AI must sync to origin/main and return the FAM-007 digest before Release Readiness continues`
-- Active Cycle Identity: `None - latest closed RRI-20260518-001 / originating lane Release Readiness Stage 1 after PR #162 / originating worktree C:\Nexus Worktrees\FAM-007 / operating workspace C:\Nexus Worktrees\FAM-007 / expected branch feature/fam-007-local-ai-runtime-expansion / repair scope stale active Live Validation and PR Readiness wording plus PR #162 merged-unreleased release-window scope / no runtime mutation`
+- Return Digest Status: `Pending - RRI-20260518-002 must validate, commit, push, receive USER-approved PR creation/merge later, sync the standing branch and neutral main workspace to origin/main, and return a governance closeout digest before the lane returns to idle`
+- Active Cycle Identity: `RRI-20260518-002 / originating lane Governance phase-gate intake from USER prompt / originating worktree C:\Nexus Worktrees\Governance / operating workspace C:\Nexus Worktrees\Governance / expected branch feature/release-readiness-source-truth-intake / repair scope runtime branch engineering contract, planning quality validator, fixture proof, and lifecycle traceability standards / no runtime mutation`
 
 ## PR Readiness Stage 1 Analysis Packet
 
 - PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
-- Pre-PR Live State: `No live PR yet for RRI-20260518-001 - PR creation remains USER-gated until validation is green`
+- Pre-PR Live State: `No live PR yet for RRI-20260518-002 - PR creation remains USER-gated until validation is green and USER separately approves PR creation`
 - Historical Merge Proof: `PR #162 is closed/merged implementation proof for FAM-007 runtime expansion; PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
-- Next Workstream User Waiver: `Not applicable - RRI-20260518-001 is a Release Readiness source-truth repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 1 Outcome: `Projected Complete - RRI-20260518-001 repairs stale post-PR #162 Release Readiness source truth, hardens validation/routing for this failure class, and returns Release Readiness as the next legal phase after merge and rebaseline`
+- Next Workstream User Waiver: `Not applicable - RRI-20260518-002 is a governance phase-gate repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
+- Stage 1 Outcome: `Active - RRI-20260518-002 repairs runtime branch engineering planning quality gates, adds validator/fixture support, and remains PR-creation blocked until USER separately approves`
 
 ## Branch Class
 
@@ -64,10 +64,10 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only for release-blocker intake; USER-approved automation/worktree governance intake may also use this standing lane when the repair is non-runtime, multi-worktree safety related, and held to the same one-cycle/PR-gated contract; USER-approved phase-gate governance intake may also use this standing lane when a live branch exposes a repeatable Branch Readiness, PR Readiness, Release Readiness, or Workstream gate miss and the repair is limited to governance/source-truth/validator/helper prevention; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `None`
+- Active RRI Cycle: `RRI-20260518-002`
 - Latest Closed RRI Cycle: `RRI-20260518-001`
-- Return Digest Status: `Projected Complete - RRI-20260518-001 repairs post-PR #162 source-truth closure drift through this standing-governance PR; after merge, standing Governance branch and C:\Nexus Desktop AI must sync to origin/main and return the FAM-007 digest before Release Readiness continues`
-- Active Cycle Identity: `None - latest closed RRI-20260518-001 / originating lane Release Readiness Stage 1 after PR #162 / originating worktree C:\Nexus Worktrees\FAM-007 / operating workspace C:\Nexus Worktrees\FAM-007 / expected branch feature/fam-007-local-ai-runtime-expansion / repair scope stale active Live Validation and PR Readiness wording plus PR #162 merged-unreleased release-window scope / no runtime mutation`
+- Return Digest Status: `Pending - RRI-20260518-002 must validate, commit, push, receive USER-approved PR creation/merge later, sync the standing branch and neutral main workspace to origin/main, and return a governance closeout digest before the lane returns to idle`
+- Active Cycle Identity: `RRI-20260518-002 / originating lane Governance phase-gate intake from USER prompt / originating worktree C:\Nexus Worktrees\Governance / operating workspace C:\Nexus Worktrees\Governance / expected branch feature/release-readiness-source-truth-intake / repair scope runtime branch engineering contract, planning quality validator, fixture proof, and lifecycle traceability standards / no runtime mutation`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -103,6 +103,7 @@ Allowed:
 - Neutral Main Workspace Rebaseline governance/validator support proving `C:\Nexus Desktop AI` is clean on `main` and equals `origin/main` after standing-governance PR merge/closeout, or reporting the blocker that prevents the fast-forward.
 - PR Readiness Stage 1 `Origin/Main Freshness Check` governance/validator support so Stage 1 reports branch-creation-base drift and reconciliation recommendations without fixing files by surprise.
 - Branch Readiness product-system planning gate governance/validator support so broad implementation branches must prove project-wide vision alignment, branch-specific vision alignment, concept/entity/profile modeling, user workflow planning, scale/state planning, expected outcomes, Codex extra recommendations, USER critique/decision loop, planning adequacy review, rejected shallow plan, alternatives/tradeoffs, whole-system interaction map, minimum viable vs full-system boundary, and open USER decision points before Workstream, Hardening, Live Validation, or PR Readiness can continue.
+- Runtime Branch Engineering Contract governance/validator support requiring `USER Engineering Planning Review:`, `Runtime Implementation Approval:`, `Current Runtime Baseline:`, `Planned Runtime Delta:`, `User-Facing Runtime Delta:`, `State / Config / Schema Delta:`, `Validator / Helper Delta:`, `Expected Changed Files / Surfaces:`, `Approval-Boundary Audit:`, `Future-Gated Items:`, `Workstream Seam Map:`, `Proof Expectations:`, `Risk Forecast:`, `Recommendations And Alternatives:`, `Plan Version / Revision Status:`, and `Plan-To-Implementation Traceability:` for runtime-focused implementation branches before Workstream or later phase continuation.
 - Formal Branch Readiness planning fixture support through `dev/orin_branch_readiness_planning_fixture_validation.py` and `dev/fixtures/branch_readiness_planning/`, proving shallow later-phase planning fails and concrete whole-system planning passes.
 - One PR per active `RRI-*` cycle after validation.
 
@@ -193,11 +194,11 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `None - projected standing Governance intake idle after RRI-20260518-001`
+Active seam: `RRI-20260518-002 - Runtime Branch Engineering Contract governance and validator hardening`
 
-Seam Goal: `Projected idle - RRI-20260518-001 closes stale merged-main source truth after PR #162 so backlog, roadmap, and the FAM-007 historical branch record no longer point to active Live Validation or PR Readiness for an already-merged branch, while preserving No Active Branch, Governance routing truth, selected-next defer truth, and release execution as a separate USER decision.`
+Seam Goal: `Add a runtime branch engineering contract, validator checks, fixture proof, and lifecycle traceability guidance so future runtime branches cannot leave Branch Readiness with broad seam labels but missing runtime baseline, planned delta, UI/state/config/validator proof, approval boundaries, or plan-to-implementation traceability.`
 
-Seam Scope: `Projected closed - standing intake authority record, Docs/feature_backlog.md, Docs/prebeta_roadmap.md, Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md, governance routing text, current-main reconciliation identity guard, and validator hardening only; validation and PR #162 merge proof recorded.`
+Seam Scope: `Governance docs, standing intake record, validation helper registry, dev/orin_branch_governance_validation.py, dev/orin_branch_readiness_planning_fixture_validation.py, and Branch Readiness planning fixtures only.`
 
 Seam Non-Includes: `runtime/provider/model/memory/voice/Core/shortcut/installer work, release execution, issue work, FAM-006 or FAM-007 mutation, broad docs churn, branch deletion, worktree cleanup, or direct-main source mutation.`
 

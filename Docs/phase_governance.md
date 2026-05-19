@@ -452,6 +452,14 @@ Core rule:
 - branch existence, branch rename, backlog promotion, repair-only traceability, or release-bearing posture do not count as Workstream progress by themselves
 - repair-only branches are blocker-clearing surfaces, not normal implementation progress
 
+Runtime Branch Engineering Contract:
+
+- runtime-focused implementation branches must carry `## Runtime Branch Engineering Contract` beside the Product Definition Plan before Workstream begins or any later phase resumes
+- the contract must translate USER-reviewed product intent into engineering intent with `USER Engineering Planning Review:`, `Runtime Implementation Approval:`, `Current Runtime Baseline:`, `Planned Runtime Delta:`, `User-Facing Runtime Delta:`, `State / Config / Schema Delta:`, `Validator / Helper Delta:`, `Expected Changed Files / Surfaces:`, `Approval-Boundary Audit:`, `Future-Gated Items:`, `Workstream Seam Map:`, `Proof Expectations:`, `Risk Forecast:`, `Recommendations And Alternatives:`, `Plan Version / Revision Status:`, and `Plan-To-Implementation Traceability:`
+- Branch Readiness Stage 1 proposes the contract and stops for USER planning review; Branch Readiness Stage 2 may admit or revise it, but `Runtime Implementation Approval:` remains pending until Workstream is separately approved
+- Workstream seam start/closeout, Workstream Green, Hardening, Live Validation, PR Readiness, and Release Readiness must compare actual deltas, visible behavior, validator/helper proof, skipped items, and public release scope against the admitted contract
+- if implementation discovers the contract is too narrow, stale, or wrong, Codex must stop with a plan revision packet that names the current approved plan, discovered repo truth, proposed revision, affected seams, approval-boundary impact, and exact USER decision needed
+
 Required active authority markers for implementation branches in `Branch Readiness`, `Workstream`, `Hardening`, `Live Validation`, `PR Readiness`, or merged-unreleased release-debt truth:
 
 - `## Admitted Implementation Slice`

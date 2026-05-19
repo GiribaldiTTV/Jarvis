@@ -43,6 +43,27 @@ Refreshed Live Validation Stage 1 returned REPAIR after the prior H1 PASS becaus
 
 This branch is a FAM-006 runtime carrier. It may carry the bounded source-truth and governance setup needed before implementation, but it must not become a governance-only branch.
 
+## Runtime Branch Engineering Contract
+
+Engineering Contract Status: Accepted after PR #164 current-main reconciliation for this active FAM-006 runtime branch.
+USER Engineering Planning Review: USER approved the FAM-006 Monitor Groups planning, repair setup, and close-guard implementation sequencing before this Workstream continuation.
+Runtime Implementation Approval: USER approved the bounded close-guard and visual-proof runtime implementation for this branch before current-main reconciliation.
+Branch Purpose: This branch implements the FAM-006 Monitor Groups runtime surface for configurable monitor groups, Sensor Library assignment, and proof-backed user interactions.
+Current Runtime Baseline: The desktop HUD runtime already has Dashboard state, Manage Monitors UI, Sensor Library source discovery, provider-truthful disabled sources, and validator/helper proof.
+Planned Runtime Delta: The planned runtime delta adds close-while-dirty proof targeting, visible-draft Save/Discard/Cancel close outcomes, screenshot fixtures, and source-truth validator alignment.
+User-Facing Runtime Delta: The user-visible UI delta is limited to trustworthy Manage Monitors behavior, draft-preserving close interaction, and reviewable screenshots without changing future-gated overlay behavior.
+State / Config / Schema Delta: The state/config delta keeps monitor draft fields, pending close action metadata, proof manifest fields, and settings provenance aligned without schema migration.
+Validator / Helper Delta: The validator/helper delta requires targeted close proof, named screenshot evidence, dirty draft preconditions, and validation gates for Manage Monitors visual states.
+Expected Changed Files / Surfaces: Expected files and surfaces include desktop renderer proof helpers, HUD validators, FAM-006 branch docs, backlog/roadmap source truth, and runtime proof manifests.
+Approval-Boundary Audit: The approved boundary excludes recording runtime, Overlay Profile UI, provider expansion, FAM-007 work, release execution, issue mutation, and broad theme or installer work.
+Future-Gated Items: Future-gated items remain Overlay Profile runtime, Recording Profile runtime, tray recording, provider/model work, external telemetry, bulk packs, alert rules, and historical data.
+Workstream Seam Map: Seam sequence is Repair Workstream implementation -> Hardening H1 -> refreshed Live Validation / UTS -> PR Readiness, with validation checkpoints at each transition.
+Proof Expectations: Proof expectations include validators, helper fixtures, screenshot evidence, user test handoff, compile validation, live-client manifest evidence, and later returned USER UTS digest.
+Risk Forecast: Risks include stale main governance overlap, shallow branch planning, proof-only UI artifacts, lost draft state, source classification drift, and release-note overclaiming.
+Recommendations And Alternatives: Recommend preserving the bounded close-guard repair; alternative broader UI redesign or provider work should remain future-gated because it raises risk.
+Plan Version / Revision Status: Plan v2 is accepted after PR #164 reconciliation and supersedes earlier setup-only wording for this refreshed LV1 repair.
+Plan-To-Implementation Traceability: Planned deltas trace to actual desktop renderer changes, validator updates, source-truth updates, live proof paths, and future H1/LV1 evidence.
+
 ## Entry Basis
 
 - FAM-006 Release Readiness for `v1.7.1-prebeta` is closed green.
@@ -62,7 +83,7 @@ Implement the FAM-006 Monitor Groups sensor-configuration runtime flow admitted 
 
 ## Target End-State
 
-Live Validation Stage 1 ends only after returned USER UTS failures are repaired and revalidated, or explicitly WAIVED with reason, and that result is digested into source truth. The current branch contains the original Monitor Groups runtime flow plus admitted Sensor Command Center repairs for visible resize-proof contamination, compact monitor selection, right-side detail editing, final delete/empty state, Sensor Library / Source Picker scale, source classification cleanup, first-launch flicker, compact dropdown controls, and directly supporting validators. The remaining admitted setup requires close-while-dirty to queue `pendingMonitorAction="close"` through the real Manage Monitors close target and refreshed LV1 proof to capture Manage Monitors UI states rather than Dashboard-only screenshots.
+Live Validation Stage 1 ends only after returned USER UTS failures are repaired and revalidated, or explicitly WAIVED with reason, and that result is digested into source truth. The current branch contains the original Monitor Groups runtime flow plus admitted Sensor Command Center repairs for visible resize-proof contamination, compact monitor selection, right-side detail editing, final delete/empty state, Sensor Library / Source Picker scale, source classification cleanup, first-launch flicker, compact dropdown controls, close-while-dirty queued action proof through the real Manage Monitors close target, Manage Monitors screenshot-sequence proof, and directly supporting validators.
 
 ## Planning-Loop Guardrail
 
