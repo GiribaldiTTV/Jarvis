@@ -65,15 +65,18 @@ Use these release-state values when relevant:
 
 ## Current Decision Surface
 
-Latest Public Prerelease Recorded In Source Truth: `v1.7.6-prebeta`
-Post-Release Canon Closure Drift: Recorded - `v1.7.6-prebeta release-dependent fields were stale after release execution and are closed by USER-approved Branch Readiness Stage 2 setup on feature/fam-007-local-ai-provider-execution-readiness-gates`
-Published Release Pending Canon Closure: `None - closed by USER-approved Branch Readiness Stage 2 setup on feature/fam-007-local-ai-provider-execution-readiness-gates; Stage 1 pending marker was v1.7.6-prebeta`
-Merged-Unreleased PRs: None after `v1.7.6-prebeta`; PR #169 and PR #170 are released historical scope.
+Latest Public Prerelease Recorded In Source Truth: `v1.7.6-prebeta` - stale release-dependent field after `v1.7.7-prebeta` publication; closure is pending the next Branch Readiness Stage 2 canon repair.
+Post-Release Canon Closure Drift: Recorded
+Published Release Pending Canon Closure: v1.7.7-prebeta
+Closure Repair Surface: Next Branch Readiness Stage 2
+Closure Drift Scope: release-dependent fields only
+Implementation Entry: Blocked until closure repair validates green
+Merged-Unreleased PRs: None after `v1.7.7-prebeta` release execution; PR #172 is published release scope but release-dependent source truth still requires canon closure.
 Active Runtime Branch: `feature/fam-007-local-ai-provider-execution-readiness-gates` in `C:\Nexus Worktrees\FAM-007`.
 Active Governance Branch: `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`.
 Selected-Next Posture: Active FAM-007 Workstream Green / H1 Green / LV1 Green recorded for execution-readiness gates; successor selection beyond this carrier remains USER-gated.
-Release Blockers: None for `v1.7.6-prebeta` canon closure after this setup; execution-readiness Workstream, H1, LV1, and PR Readiness Stage 1 are Green while PR Readiness Stage 2 / PR creation plus provider SDK/model execution remain blocked until later USER approval.
-Next Legal Phase: PR Readiness Stage 2 / PR creation for `feature/fam-007-local-ai-provider-execution-readiness-gates`; runtime/provider SDK/model execution, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, release execution, issue work, merge, branch cleanup, and successor selection remain separate USER decisions.
+Release Blockers: `v1.7.7-prebeta` post-release canon closure drift is recorded; closure belongs to the next Branch Readiness Stage 2 canon repair before implementation entry continues.
+Next Legal Phase: Branch Readiness Stage 2 canon closure repair for `v1.7.7-prebeta`; runtime/provider SDK/model execution, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, release execution, issue work, merge, branch cleanup, and successor selection remain separate USER decisions.
 
 ### Detailed Current Release Posture
 
@@ -111,11 +114,11 @@ Post-PR #162 Source-Truth Drift: Closed by PR #163 and the v1.7.4-prebeta releas
 Post-PR #165 Source-Truth Drift: Closed by PR #166 through PR #168 and the v1.7.5-prebeta release. PR #165 is released historical FAM-007 provider-readiness/setup-eligibility scope.
 Post-PR #170 Source-Truth Drift: Closed by this Branch Readiness Stage 2 setup after the v1.7.6-prebeta release. PR #170 is released historical FAM-007 activation-foundation scope.
 Post-Release Canon Closure Drift: Recorded
-Published Release Pending Canon Closure: None - v1.7.6-prebeta source truth is closed by this Branch Readiness Stage 2 setup; Stage 1 pending marker was `Published Release Pending Canon Closure: v1.7.6-prebeta`.
+Published Release Pending Canon Closure: v1.7.7-prebeta
 Closure Repair Surface: Next Branch Readiness Stage 2
 Closure Drift Scope: release-dependent fields only
 Implementation Entry: Blocked until closure repair validates green
-Release-Debt Avoidance Status: Clear for v1.7.6-prebeta. FAM-007 runtime provider/model/memory/learning/personalization/shortcut/installer work, Overlay acceptance, AI Product work, and v1.8.0-prebeta release execution remain separate USER-gated decisions.
+Release-Debt Avoidance Status: `v1.7.7-prebeta` release execution is complete, but release-dependent source truth is not closed; FAM-007 runtime provider/model/memory/learning/personalization/shortcut/installer work, Overlay acceptance, AI Product work, and v1.8.0-prebeta release execution remain separate USER-gated decisions.
 Merged-main current active workstream: None before this branch - source truth records `feature/fam-007-local-ai-provider-activation-foundation` as released FAM-007 evidence, not an active runtime carrier.
 Current active workstream: FAM-007 Local AI Provider Execution Readiness Gates on `feature/fam-007-local-ai-provider-execution-readiness-gates` is Workstream Green / H1 Green / LV1 Green / PR Readiness Stage 1 ready for Stage 2 and ready for PR Readiness Stage 2 / PR creation after USER approval.
 Current Active Workstream Before Reform: None
