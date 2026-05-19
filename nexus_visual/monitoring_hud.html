@@ -357,7 +357,9 @@
                 </div>
               </div>
               <div class="monitoring-hud__empty-state monitoring-hud__monitor-detail-empty" id="monitoring-hud-monitor-detail-empty" data-monitor-detail-empty="hidden" hidden>
-                No monitors exist yet. Create stays available so you can recover from an empty state.
+                <strong>No monitors yet</strong>
+                <span>Create a monitor to assign sources and settings.</span>
+                <button type="button" id="monitoring-hud-monitor-empty-create-action" class="monitoring-hud__hub-action monitoring-hud__empty-state-action" data-control="empty-create-monitor" data-monitor-empty-state-action="primary-create">Create Monitor</button>
               </div>
               <section class="monitoring-hud__monitor-settings-panel" aria-label="Selected monitor settings">
                 <label class="monitoring-hud__child-field">
@@ -458,8 +460,8 @@
                   </div>
                 </div>
               </section>
-              <p class="monitoring-hud__child-note">Supported source settings only. Overlay visual display, external telemetry parity, and provider expansion remain future USER decisions.</p>
-              <div class="monitoring-hud__child-actions monitoring-hud__child-actions--footer">
+              <p class="monitoring-hud__child-note" id="monitoring-hud-monitor-detail-note">Supported source settings only. Overlay visual display, external telemetry parity, and provider expansion remain future USER decisions.</p>
+              <div class="monitoring-hud__child-actions monitoring-hud__child-actions--footer" id="monitoring-hud-monitor-detail-actions" data-monitor-detail-actions="selected-monitor-footer">
                 <button type="button" id="monitoring-hud-edit-monitor-confirm" class="monitoring-hud__hub-action" data-control="confirm-edit-monitor">Save Monitor</button>
                 <button type="button" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-child-window-close="monitor-group-edit">Cancel</button>
               </div>

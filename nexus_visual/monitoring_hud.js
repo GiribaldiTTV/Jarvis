@@ -66,6 +66,8 @@ const monitoringHudMonitorListEmpty = document.getElementById("monitoring-hud-mo
 const monitoringHudEditMonitorTitle = document.getElementById("monitoring-hud-edit-monitor-title");
 const monitoringHudEditMonitorName = document.getElementById("monitoring-hud-edit-monitor-name");
 const monitoringHudEditMonitorConfirm = document.getElementById("monitoring-hud-edit-monitor-confirm");
+const monitoringHudMonitorDetailActions = document.getElementById("monitoring-hud-monitor-detail-actions");
+const monitoringHudMonitorDetailNote = document.getElementById("monitoring-hud-monitor-detail-note");
 const monitoringHudMonitorDeleteConfirmation = document.getElementById("monitoring-hud-monitor-delete-confirmation");
 const monitoringHudMonitorDeleteTitle = document.getElementById("monitoring-hud-monitor-delete-title");
 const monitoringHudMonitorDeleteCopy = document.getElementById("monitoring-hud-monitor-delete-copy");
@@ -77,6 +79,7 @@ const monitoringHudMonitorUnsavedSave = document.getElementById("monitoring-hud-
 const monitoringHudMonitorUnsavedDiscard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
 const monitoringHudMonitorUnsavedCancel = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
 const monitoringHudMonitorDetailEmpty = document.getElementById("monitoring-hud-monitor-detail-empty");
+const monitoringHudMonitorEmptyCreate = document.getElementById("monitoring-hud-monitor-empty-create-action");
 const monitoringHudMonitorWarningSetting = document.getElementById("monitoring-hud-monitor-warning-notifications-setting");
 const monitoringHudProviderReadinessPanel = document.getElementById("monitoring-hud-provider-readiness-panel");
 const monitoringHudMonitorSensorAssignment = document.getElementById("monitoring-hud-monitor-sensor-assignment");
@@ -984,7 +987,7 @@ function monitoringHudRenderChildWindows() {
     monitoringHudCreateMonitorName.value = monitoringHudSuggestedMonitorName();
   }
   if (monitoringHudEditMonitorTitle) {
-    monitoringHudEditMonitorTitle.textContent = selectedLayout ? (selectedLayout.title || "Monitor Group") : "No Monitor Selected";
+    monitoringHudEditMonitorTitle.textContent = selectedLayout ? (selectedLayout.title || "Monitor Group") : (count === 0 ? "No Monitors Yet" : "No Monitor Selected");
   }
   if (monitoringHudEditMonitorName) {
     monitoringHudEditMonitorName.value = selectedLayout ? (selectedLayout.title || "Monitor Group") : "";
@@ -1015,6 +1018,13 @@ function monitoringHudRenderChildWindows() {
   if (monitoringHudMonitorDetailEmpty) {
     monitoringHudMonitorDetailEmpty.hidden = count !== 0;
     monitoringHudMonitorDetailEmpty.dataset.monitorDetailEmpty = count === 0 ? "true-empty-state-create-reachable" : "hidden";
+  }
+  if (monitoringHudMonitorDetailActions) {
+    monitoringHudMonitorDetailActions.hidden = !hasSelectedMonitor;
+    monitoringHudMonitorDetailActions.dataset.monitorDetailActions = hasSelectedMonitor ? "selected-monitor-footer" : "hidden-no-monitor";
+  }
+  if (monitoringHudMonitorDetailNote) {
+    monitoringHudMonitorDetailNote.hidden = !hasSelectedMonitor;
   }
   const settingsPanel = monitoringHudEditMonitorWindow
     ? monitoringHudEditMonitorWindow.querySelector(".monitoring-hud__monitor-settings-panel")
@@ -1056,7 +1066,7 @@ function monitoringHudRenderChildWindows() {
       const empty = visibleMonitorIds.length === 0;
       monitoringHudMonitorListEmpty.hidden = !empty;
       monitoringHudMonitorListEmpty.dataset.monitorListEmpty = empty ? "no-results" : "hidden";
-      monitoringHudMonitorListEmpty.textContent = count === 0 ? "No monitors created." : "No matching monitors.";
+      monitoringHudMonitorListEmpty.textContent = count === 0 ? "No monitors yet." : "No matching monitors.";
     }
   }
   if (monitoringHudMonitorManageSummary) {
@@ -1977,6 +1987,9 @@ function monitoringHudWireControls() {
   if (monitoringHudManageMonitorCreate) {
     monitoringHudManageMonitorCreate.addEventListener("click", monitoringHudCreateMonitorGroupFromManageWindow);
   }
+  if (monitoringHudMonitorEmptyCreate) {
+    monitoringHudMonitorEmptyCreate.addEventListener("click", monitoringHudCreateMonitorGroupFromManageWindow);
+  }
   if (monitoringHudEditMonitorConfirm) {
     monitoringHudEditMonitorConfirm.addEventListener("click", monitoringHudSaveEditMonitorWindow);
   }
@@ -2231,6 +2244,8 @@ window.getMonitoringHudLiveClientGeometry = function() {
     createMonitorWindow: rectFor("#monitoring-hud-create-monitor-window"),
     editMonitorWindow: rectFor("#monitoring-hud-edit-monitor-window"),
     manageMonitorCreate: rectFor("#monitoring-hud-manage-monitor-create-action"),
+    manageMonitorEmptyCreate: rectFor("#monitoring-hud-monitor-empty-create-action"),
+    monitorDetailActions: rectFor("#monitoring-hud-monitor-detail-actions"),
     monitorDeleteConfirmation: rectFor("#monitoring-hud-monitor-delete-confirmation"),
     monitorSensorAssignment: rectFor("#monitoring-hud-monitor-sensor-assignment"),
     monitorSensorSettings: rectFor("#monitoring-hud-monitor-sensor-settings"),

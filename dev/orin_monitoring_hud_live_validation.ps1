@@ -498,7 +498,7 @@ Expected: Delete opens a confirmation prompt. Cancel closes the prompt and prese
 USER Result / Notes:
 
 Step 6 - Delete Confirmation And Remove
-Expected: Delete lives in the right detail pane. Confirm removes only the selected monitor, supports deleting the final monitor, shows a true empty state, and keeps Create reachable.
+Expected: Delete lives in the right detail pane. Confirm removes only the selected monitor, supports deleting the final monitor, shows a true empty state with Create Monitor as the primary action, and does not show Save Monitor / Cancel or oversized action buttons when no monitor exists.
 USER Result / Notes:
 
 Step 7 - Truthful Sensor Availability

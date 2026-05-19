@@ -369,6 +369,8 @@ def validate() -> list[str]:
         "Create Monitor",
         "Manage Monitors",
         'id="monitoring-hud-manage-monitor-create-action"',
+        'id="monitoring-hud-monitor-empty-create-action"',
+        'data-monitor-empty-state-action="primary-create"',
         'id="monitoring-hud-monitor-delete-confirmation"',
         'id="monitoring-hud-monitor-sensor-assignment"',
         'id="monitoring-hud-monitor-sensor-settings"',
@@ -390,6 +392,7 @@ def validate() -> list[str]:
         'id="monitoring-hud-monitor-detail-delete"',
         'id="monitoring-hud-monitor-unsaved-guard"',
         'id="monitoring-hud-monitor-detail-empty"',
+        "Create a monitor to assign sources and settings.",
         'data-control-row="polling-floor-inline"',
         'data-bounded-control="polling-floor"',
         'data-source-controls-layout="search-filter-inline"',
@@ -416,6 +419,14 @@ def validate() -> list[str]:
         "Name reconnect/setup gap",
     ):
         _require_contains(hud_section, needle, "monitoring HUD HTML", failures)
+
+    for interactive_control_markup in (
+        'id="monitoring-hud-monitor-detail-note"',
+        'id="monitoring-hud-monitor-detail-actions"',
+        'data-monitor-detail-actions="selected-monitor-footer"',
+        ".monitoring-hud__child-note[hidden]",
+    ):
+        _require_contains(html + css, interactive_control_markup, "FAM-006 interactive-control visual QA HTML/CSS", failures)
 
     for forbidden_home_copy in (
         "Default polling",
@@ -562,6 +573,12 @@ def validate() -> list[str]:
         "monitorListRowsCompact",
         "monitorListCssPreventsStretch",
         "monitorListSmallSetHasSlack",
+        "emptyStateNoSaveCancel",
+        "emptyStateCreatePrimary",
+        "emptyStateActionsBounded",
+        "emptyStateProductCopy",
+        "interactiveControlVisualQaGate",
+        "hidden-no-monitor",
         "03_manage_monitors_open_state",
         "04_source_filter_dropdown_open_hover_reset",
         "05_unsaved_guard_close_queued",

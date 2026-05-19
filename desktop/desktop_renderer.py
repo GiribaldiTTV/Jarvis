@@ -9749,6 +9749,11 @@ class DesktopRuntimeWindow(QWidget):
                 "unsaved_close_discard_closed_window": h1_proof.get("unsavedCloseDiscardClosedWindow") is True,
                 "final_monitor_delete_empty_state": h1_proof.get("finalMonitorDeleteEmptyState") is True,
                 "final_monitor_create_reachable": h1_proof.get("finalMonitorCreateReachable") is True,
+                "empty_state_no_save_cancel": h1_proof.get("emptyStateNoSaveCancel") is True,
+                "empty_state_create_primary": h1_proof.get("emptyStateCreatePrimary") is True,
+                "empty_state_actions_bounded": h1_proof.get("emptyStateActionsBounded") is True,
+                "empty_state_product_copy": h1_proof.get("emptyStateProductCopy") is True,
+                "interactive_control_visual_qa_gate": h1_proof.get("interactiveControlVisualQaGate") is True,
                 "source_picker_browser": h1_proof.get("sourcePickerBrowser") is True,
                 "source_filter_dropdown": h1_proof.get("sourceFilterDropdown") is True,
                 "source_filter_facets": h1_proof.get("sourceFilterFacets") is True,
@@ -10078,12 +10083,19 @@ class DesktopRuntimeWindow(QWidget):
                 def finish_visual_sequence() -> None:
                     add_step(
                         "Manage Monitors visual proof screenshot sequence captured",
-                        len(visual_screenshots) >= 8 and parsed.get("visualProofQualityGate") is True,
+                        len(visual_screenshots) >= 8
+                        and parsed.get("visualProofQualityGate") is True
+                        and parsed.get("interactiveControlVisualQaGate") is True,
                         {
                             "screenshotLabels": [item["label"] for item in visual_screenshots],
                             "screenshotPaths": [item["path"] for item in visual_screenshots],
                             "screenshotCaptureMode": "webview_focused_visual_proof",
                             "visualProofQualityGate": parsed.get("visualProofQualityGate") is True,
+                            "interactiveControlVisualQaGate": parsed.get("interactiveControlVisualQaGate") is True,
+                            "emptyStateNoSaveCancel": parsed.get("emptyStateNoSaveCancel") is True,
+                            "emptyStateCreatePrimary": parsed.get("emptyStateCreatePrimary") is True,
+                            "emptyStateActionsBounded": parsed.get("emptyStateActionsBounded") is True,
+                            "emptyStateProductCopy": parsed.get("emptyStateProductCopy") is True,
                             "monitorListRowsCompact": parsed.get("monitorListRowsCompact") is True,
                             "monitorListCssPreventsStretch": parsed.get("monitorListCssPreventsStretch") is True,
                             "monitorListSmallSetHasSlack": parsed.get("monitorListSmallSetHasSlack") is True,
@@ -10388,6 +10400,11 @@ class DesktopRuntimeWindow(QWidget):
                         let unsavedCloseDiscardClosedWindow = false;
                         let finalMonitorDeleteEmptyState = false;
                         let finalMonitorCreateReachable = false;
+                        let emptyStateNoSaveCancel = false;
+                        let emptyStateCreatePrimary = false;
+                        let emptyStateActionsBounded = false;
+                        let emptyStateProductCopy = false;
+                        let interactiveControlVisualQaGate = false;
                         let sourcePickerBrowser = false;
                         let sourceFilterDropdown = false;
                         let sourceFilterFacets = false;
@@ -10434,6 +10451,18 @@ class DesktopRuntimeWindow(QWidget):
                                 preventsStretch,
                                 smallSetHasSlack
                             };
+                        }
+                        function hiddenOrZero(node) {
+                            if (!node) return true;
+                            const style = window.getComputedStyle(node);
+                            const rect = node.getBoundingClientRect();
+                            return Boolean(
+                                node.hidden
+                                || style.display === "none"
+                                || style.visibility === "hidden"
+                                || rect.width <= 0
+                                || rect.height <= 0
+                            );
                         }
                         const sourceAssignment = document.getElementById("monitoring-hud-monitor-sensor-assignment");
                         const sourceFilter = document.getElementById("monitoring-hud-sensor-filter");
@@ -10712,6 +10741,7 @@ class DesktopRuntimeWindow(QWidget):
                         }
                         const finalDeleteBackup = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
                         if (window.setMonitoringHudControlState && finalDeleteBackup) {
+                            if (typeof monitoringHudOpenChildWindow === "function") monitoringHudOpenChildWindow("monitor-group-edit");
                             let deleteGuard = 0;
                             while (deleteGuard < 12) {
                                 const deleteState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
@@ -10731,6 +10761,15 @@ class DesktopRuntimeWindow(QWidget):
                             }
                             const emptyState = document.getElementById("monitoring-hud-monitor-detail-empty");
                             const createAction = document.getElementById("monitoring-hud-manage-monitor-create-action");
+                            const emptyCreateAction = document.getElementById("monitoring-hud-monitor-empty-create-action");
+                            const detailActions = document.getElementById("monitoring-hud-monitor-detail-actions");
+                            const detailNote = document.getElementById("monitoring-hud-monitor-detail-note");
+                            const detailTitle = document.getElementById("monitoring-hud-edit-monitor-title");
+                            const saveAction = document.getElementById("monitoring-hud-edit-monitor-confirm");
+                            const footerCancel = detailActions ? detailActions.querySelector('[data-child-window-close="monitor-group-edit"]') : null;
+                            const emptyCreateRect = emptyCreateAction ? emptyCreateAction.getBoundingClientRect() : null;
+                            const saveRect = saveAction ? saveAction.getBoundingClientRect() : null;
+                            const cancelRect = footerCancel ? footerCancel.getBoundingClientRect() : null;
                             const afterSoloDelete = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
                             finalMonitorDeleteEmptyState = Boolean(
                                 afterSoloDelete.cards
@@ -10740,6 +10779,37 @@ class DesktopRuntimeWindow(QWidget):
                                 && emptyState.dataset.monitorDetailEmpty === "true-empty-state-create-reachable"
                             );
                             finalMonitorCreateReachable = Boolean(createAction && !createAction.disabled);
+                            emptyStateNoSaveCancel = Boolean(
+                                finalMonitorDeleteEmptyState
+                                && detailActions
+                                && detailActions.dataset.monitorDetailActions === "hidden-no-monitor"
+                                && hiddenOrZero(detailActions)
+                                && hiddenOrZero(saveAction)
+                                && hiddenOrZero(footerCancel)
+                            );
+                            emptyStateCreatePrimary = Boolean(
+                                emptyCreateAction
+                                && !emptyCreateAction.disabled
+                                && emptyCreateAction.dataset.monitorEmptyStateAction === "primary-create"
+                                && emptyCreateRect
+                                && emptyCreateRect.width >= 120
+                                && emptyCreateRect.height >= 28
+                                && emptyCreateRect.height <= 48
+                            );
+                            emptyStateActionsBounded = Boolean(
+                                emptyCreateRect
+                                && emptyCreateRect.height <= 48
+                                && (!saveRect || hiddenOrZero(saveAction) || saveRect.height <= 48)
+                                && (!cancelRect || hiddenOrZero(footerCancel) || cancelRect.height <= 48)
+                            );
+                            emptyStateProductCopy = Boolean(
+                                emptyState
+                                && /Create a monitor to assign sources and settings\\./.test(emptyState.textContent || "")
+                                && !/recover from an empty state|QA|debug/i.test(emptyState.textContent || "")
+                                && hiddenOrZero(detailNote)
+                                && detailTitle
+                                && detailTitle.textContent === "No Monitors Yet"
+                            );
                             window.setMonitoringHudControlState(finalDeleteBackup);
                         }
                         const manageCreate = document.getElementById("monitoring-hud-manage-monitor-create-action");
@@ -10819,6 +10889,13 @@ class DesktopRuntimeWindow(QWidget):
                                 && commandCenterLayout
                                 && rowActionsRemoved
                             );
+                            interactiveControlVisualQaGate = Boolean(
+                                visualProofQualityGate
+                                && emptyStateNoSaveCancel
+                                && emptyStateCreatePrimary
+                                && emptyStateActionsBounded
+                                && emptyStateProductCopy
+                            );
                             const state = window.getMonitoringHudControlState();
                             if (selectedBefore && state.cards && state.cards[selectedBefore]) {
                                 state.selectedMonitorId = selectedBefore;
@@ -10867,6 +10944,11 @@ class DesktopRuntimeWindow(QWidget):
                                     unsavedCloseDiscardClosedWindow,
                                     finalMonitorDeleteEmptyState,
                                     finalMonitorCreateReachable,
+                                    emptyStateNoSaveCancel,
+                                    emptyStateCreatePrimary,
+                                    emptyStateActionsBounded,
+                                    emptyStateProductCopy,
+                                    interactiveControlVisualQaGate,
                                     sourcePickerBrowser,
                                     sourceFilterDropdown,
                                     sourceFilterFacets,
@@ -10896,7 +10978,7 @@ class DesktopRuntimeWindow(QWidget):
                                 selectedAfter
                                 && after.cards
                                 && after.cards[selectedAfter]
-                                && visualProofQualityGate
+                                && interactiveControlVisualQaGate
                             ),
                             selectedBefore,
                             selectedAfter,
@@ -10940,6 +11022,11 @@ class DesktopRuntimeWindow(QWidget):
                             unsavedCloseDiscardClosedWindow,
                             finalMonitorDeleteEmptyState,
                             finalMonitorCreateReachable,
+                            emptyStateNoSaveCancel,
+                            emptyStateCreatePrimary,
+                            emptyStateActionsBounded,
+                            emptyStateProductCopy,
+                            interactiveControlVisualQaGate,
                             sourcePickerBrowser,
                             sourceFilterDropdown,
                             sourceFilterFacets,
