@@ -508,6 +508,22 @@ def _validate_static_surface(failures: list[str]) -> None:
     ):
         _require_contains(js + renderer + css + html, repair_proof, "FAM-006 returned blocker repair proof", failures)
 
+    for close_guard_setup in (
+        "unsaved_close_queued_action=false",
+        'pendingMonitorAction="close"',
+        'data-child-window-close="monitor-group-edit"',
+        "changed draft value before clicking close",
+        "screenshot-sequence or video-style evidence",
+        "Manage Monitors open state, Source Filter dropdown open/hover/reset",
+        "20+ / 100+ monitor-list scrollbar behavior",
+    ):
+        _require_contains(
+            monitor_groups_record,
+            close_guard_setup,
+            "FAM-006 refreshed LV1 close-guard repair setup source truth",
+            failures,
+        )
+
     for needle in (
         'body.desktop-mode #monitoring-hud[data-anchor-state="unanchored"]',
         "body.desktop-mode #monitoring-hud-minimal",

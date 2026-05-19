@@ -511,6 +511,22 @@ def validate() -> list[str]:
     ):
         _require_contains(js + renderer + css + html, repair_proof, "FAM-006 returned blocker repair proof", failures)
 
+    for close_guard_setup in (
+        "unsaved_close_queued_action=false",
+        'pendingMonitorAction="close"',
+        'data-child-window-close="monitor-group-edit"',
+        "changed draft value before clicking close",
+        "screenshot-sequence or video-style evidence",
+        "Manage Monitors open state, Source Filter dropdown open/hover/reset",
+        "20+ / 100+ monitor-list scrollbar behavior",
+    ):
+        _require_contains(
+            monitor_groups_record,
+            close_guard_setup,
+            "FAM-006 refreshed LV1 close-guard repair setup source truth",
+            failures,
+        )
+
     retired_product_name = "".join(chr(code) for code in (74, 97, 114, 118, 105, 115)).casefold()
     for forbidden in ("voice", "audio", "spoken", "microphone", retired_product_name):
         _require(
