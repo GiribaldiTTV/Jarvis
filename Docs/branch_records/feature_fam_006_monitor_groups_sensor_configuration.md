@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active current-main reconciliation before refreshed LV1 Dashboard right-edge resize rediscovery Repair Workstream`
-- Bounded State: `Current-main reconciliation through origin/main 6e2e743fd1d8d688c8046eb0a788b1a7109e66c2 is complete on this FAM-006 branch; origin/main PR #169 governance/source-truth changes are context, not identity; refreshed LV1 real-client validation passed initial right-edge hit-test and cursor transition proof plus corner resize proof, then stopped on post-corner right-edge resize cursor rediscovery before dashboard_mouse_resize_right_edge. The admitted repair path remains limited to right-edge rediscovery diagnostics and validator planning before runtime repair implementation, while preserving all existing Sensor Command Center repairs and pending Manage Monitors LV1 proof states.`
+- Branch Authority State: `Active Repair Workstream implementation for refreshed LV1 Dashboard right-edge resize rediscovery`
+- Bounded State: `Current-main reconciliation through origin/main 6e2e743fd1d8d688c8046eb0a788b1a7109e66c2 is complete on this FAM-006 branch; origin/main PR #169 governance/source-truth changes are context, not identity; refreshed LV1 real-client validation passed initial right-edge hit-test and cursor transition proof plus corner resize proof, then stopped on post-corner right-edge resize cursor rediscovery before dashboard_mouse_resize_right_edge. The bounded implementation repairs proof-path reacquisition, post-resize settle checks, and diagnostic sweep evidence without changing Dashboard product edge math, while preserving all existing Sensor Command Center repairs and pending Manage Monitors LV1 proof states.`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -27,15 +27,15 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 ## Current Phase
 
-Phase: `Branch Readiness`
+Phase: `Workstream`
 
-Stage: `Current-main reconciliation after PR #169 before Dashboard right-edge resize rediscovery Repair Workstream`
+Stage: `Repair Workstream implementation - Dashboard right-edge resize rediscovery`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Refreshed Live Validation Stage 1 returned REPAIR after H1 repair commit `52e81478268be30b17fc72f67af05cacd980ee1a` because the real USER-facing shortcut/client path stopped on `Dashboard right-edge resize cursor was not discoverable near the visible edge before resize action`. Initial right-edge proof had already passed with `rightEdge10px=htright` and `rightOutside=True / htright / size-west-east / offset=1`; corner resize then passed by changing the Dashboard from `780x1060` to `860x1130`; the failure occurred during post-corner right-edge rediscovery before `dashboard_mouse_resize_right_edge`. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Refreshed LV1 Dashboard right-edge resize rediscovery setup admitted and reconciled through PR #169`. Current Repair Workstream Seam: `Pending USER approval after reconciliation`. Current Hardening Seam: `Pending after repair implementation`. Current PR gate: `Blocked until repair implementation, Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
+Refreshed Live Validation Stage 1 returned REPAIR after H1 repair commit `52e81478268be30b17fc72f67af05cacd980ee1a` because the real USER-facing shortcut/client path stopped on `Dashboard right-edge resize cursor was not discoverable near the visible edge before resize action`. Initial right-edge proof had already passed with `rightEdge10px=htright` and `rightOutside=True / htright / size-west-east / offset=1`; corner resize then passed by changing the Dashboard from `780x1060` to `860x1130`; the failure occurred during post-corner right-edge rediscovery before `dashboard_mouse_resize_right_edge`. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Refreshed LV1 Dashboard right-edge resize rediscovery setup admitted and reconciled through PR #169`. Current Repair Workstream Seam: `Implemented and validation-green as proof-path reacquisition, post-resize settle, diagnostic sweep, and focused local right-edge proof hardening`. Current Hardening Seam: `Pending after repair implementation`. Current PR gate: `Blocked until repair implementation, Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -47,7 +47,7 @@ This branch is a FAM-006 runtime carrier. It may carry the bounded source-truth 
 
 Engineering Contract Status: Accepted after PR #164 current-main reconciliation and preserved through PR #169 current-main reconciliation for this active FAM-006 runtime branch.
 USER Engineering Planning Review: USER approved the FAM-006 Monitor Groups planning, repair setup, and close-guard implementation sequencing before this Workstream continuation.
-Runtime Implementation Approval: Pending for the Dashboard right-edge resize rediscovery repair; USER approval currently covers Branch Readiness Stage 2 repair setup only. Prior close-guard, visual-proof, and interactive-control repair implementation approvals remain historical for already-implemented repairs.
+Runtime Implementation Approval: USER approved the bounded Dashboard right-edge resize rediscovery Repair Workstream implementation after PR #169 current-main reconciliation. Prior close-guard, visual-proof, and interactive-control repair implementation approvals remain historical for already-implemented repairs.
 Branch Purpose: This branch implements the FAM-006 Monitor Groups runtime surface for configurable monitor groups, Sensor Library assignment, and proof-backed user interactions.
 Current Runtime Baseline: The desktop HUD runtime already has Dashboard state, Manage Monitors UI, Sensor Library source discovery, provider-truthful disabled sources, and validator/helper proof.
 Planned Runtime Delta: The next planned runtime delta is limited to Dashboard post-corner right-edge resize cursor rediscovery diagnostics and repair, including post-resize Dashboard reacquisition, visible-edge coordinate handling, hit-test/cursor sampling, timing/settle checks, and proof that right-edge resize remains discoverable near the visible edge after prior resize actions.
@@ -129,9 +129,9 @@ Interactive Control Visual QA Critique Loop: `USER review of the refreshed LV1 f
 
 Dashboard Right-Edge Rediscovery Critique Loop: `Refreshed LV1 real-client validation stopped after Dashboard initial right-edge proof and corner resize proof passed. The active blocker is post-corner right-edge resize cursor rediscovery near the visible edge before the right-edge resize action. Manage Monitors focused proof states remain pending recheck because the run stopped first on the Dashboard rediscovery blocker.`
 
-Historical Repair Trigger Marker: `returned USER UTS FAIL` - preserved for source-truth validator traceability; active state is refreshed LV1 Dashboard right-edge resize rediscovery repair setup with runtime implementation pending USER approval.
+Historical Repair Trigger Marker: `returned USER UTS FAIL` - preserved for source-truth validator traceability; active state is refreshed LV1 Dashboard right-edge resize rediscovery Repair Workstream implementation complete pending Hardening H1 approval.
 
-USER Decision Ledger: `USER approved Branch Readiness Stage 2 repair setup and bounded Repair Workstream implementation for the refreshed LV1 close-guard and visual-proof blocker after prior H1 PASS, approved the interactive-control visual QA repair path, and now approved Branch Readiness Stage 2 repair setup for the Dashboard right-edge resize rediscovery blocker. Runtime repair implementation for right-edge rediscovery, Hardening H1 after repair, GitHub issue #127 mutation, refreshed Live Validation / UTS recheck, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
+USER Decision Ledger: `USER approved Branch Readiness Stage 2 repair setup and bounded Repair Workstream implementation for the refreshed LV1 close-guard and visual-proof blocker after prior H1 PASS, approved the interactive-control visual QA repair path, approved Branch Readiness Stage 2 repair setup for the Dashboard right-edge resize rediscovery blocker, and approved the bounded Dashboard right-edge rediscovery Repair Workstream implementation after PR #169 reconciliation. Hardening H1 after repair, GitHub issue #127 mutation, refreshed Live Validation / UTS recheck, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
 
 Full Feature Element Breakdown: `Sensor Command Center shell; compact action-light monitor list; row/icon selection; right-side detail panel; detail-pane Delete action; Save / Discard / Cancel guard for unsaved changes; final-monitor delete; true empty state with Create reachable; Sensor Library / Source Picker replacing basic dropdown/checklist assignment; Warning Notifications as settings checkbox outside sensor assignment; Provider Readiness as readiness/status/future capability outside assignable sources; source breadcrumbs using provider > device > category > metric > instance; source status metadata; scalable search plus dropdown/facets; large fixture proof; Overlay Profile planning; Recording Profile planning; validation and UTS proof hooks.`
 
@@ -175,7 +175,7 @@ Expected User-Facing Outcomes: `After repair implementation and revalidation, th
 
 Validation Proof Requirements: `Static HUD validator, internal sandbox validator, branch governance validation, release body validation, compileall, and later runtime-specific Monitor Groups proof beyond marker presence. Validators must reject proof-only visible artifacts in normal user-facing resize/move validation; prove shrink/grow during-drag behavior before mouse release using invisible/test-gated real UI frame, screenshot, pixel-signature, or equivalent evidence; prove post-corner right-edge rediscovery after prior resize actions; prove 100+ monitors, 1,000+ sources, duplicate names, long names, deferred sources, missing sources, warning state classification, and non-assignable readiness/settings classification; distinguish Monitor Group, Overlay Profile, and Recording Profile concepts without requiring runtime recording controls before separate USER admission.`
 
-Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation should provide user-visible proof of list/create/edit/delete/confirm/sensor assignment behavior, then Hardening and Live Validation should use the real USER-facing launcher/shortcut path and a compact UTS handoff if USER-facing behavior is changed. Refreshed LV1 must first clear the Dashboard right-edge rediscovery blocker with real-client proof after corner resize; after that, proof must include screenshot-sequence or video-style evidence for Manage Monitors open state, Source Filter dropdown open/hover/reset, unsaved guard with close queued, Save / Discard / Cancel close outcomes, delete confirmation, final empty state, and 20+ / 100+ monitor-list scrollbar behavior. Dashboard-only screenshots are insufficient for Manage Monitors acceptance-critical states.`
+Screenshot / Live / User Test Summary Proof Requirements: `Runtime implementation should provide user-visible proof of list/create/edit/delete/confirm/sensor assignment behavior, then Hardening and Live Validation should use the real USER-facing launcher/shortcut path and a compact UTS handoff if USER-facing behavior is changed. Refreshed LV1 must first clear the Dashboard right-edge rediscovery blocker with real-client proof after corner resize; after that, proof must include screenshot-sequence or video-style evidence for Manage Monitors open state, Source Filter dropdown open/hover/reset, unsaved guard with close queued, Save / Discard / Cancel close outcomes, delete confirmation, final empty state, and 20+ / 100+ monitor-list scrollbar behavior. Full-desktop screenshots are locator/context evidence only; acceptance-critical UI states require focused local proof. Dashboard-only screenshots are insufficient for Manage Monitors acceptance-critical states.`
 
 Implementation Sequence Proposal: `Remove or test-gate visible resize proof artifacts; convert Manage Monitors to compact Sensor Command Center list/detail behavior; implement unsaved-change guard; allow final-delete empty state; replace source checklist/dropdown filtering with Nexus source picker/facets; remove Warning Notifications and Provider Readiness from assignable sensors; add breadcrumbs/status metadata; update validators/helpers/UTS; run Workstream validation; then request Hardening.`
 
@@ -374,6 +374,26 @@ Immediate Repair Scope: `Repair setup only. Runtime implementation is not author
 PR Readiness Blocker State: `PR Readiness remains blocked until right-edge rediscovery repair implementation, Hardening H1, refreshed Live Validation / UTS recheck, and returned USER result are PASS or explicitly waived with reason and digested.`
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to repairing the refreshed LV1 Dashboard right-edge resize cursor rediscovery failure. Scope: reacquire the Dashboard element, native/root handle, bounding rect, DPI/scale context, virtual desktop bounds, and visible-edge coordinates after each resize action; add diagnostic sweep evidence for x/y samples, offset from visible edge, cursor kind, native hit-test, root/window handle at point, expected Dashboard handle, bounding rect, virtual desktop bounds, timing, rounded-mask state, and settle state; add post-resize settle checks for stable geometry, applied rounded mask, visible WebView, cleared active resize state, and cursor reset; repair product hit-zone math or helper targeting/timing only if diagnostics prove the cause; preserve the 14px visible rail unless bounded evidence requires adjustment; preserve corner resize, bottom-edge resize, move fluidity, first-launch flicker guard, focused visual proof quality, and all existing Sensor Command Center repairs; update directly supporting validators/helpers/source truth/UTS; run validation; commit and push if green.`
+
+## Dashboard Right-Edge Rediscovery Repair Workstream Implementation
+
+Repair Implementation Status: `IMPLEMENTED - bounded Dashboard right-edge rediscovery proof-path repair pending Hardening H1`
+
+Reacquisition Repair: `The human-client helper now reacquires the Dashboard UI element, native/root handle, bounding rect, DPI/scale context, virtual desktop bounds, and visible-edge coordinates after resize actions before attempting post-resize cursor rediscovery. The post-corner right-edge proof no longer reuses the pre-corner native handle or stale edge coordinates.`
+
+Post-Resize Settle Criteria: `The helper requires post-resize geometry stability, rounded-mask continuity, visible Dashboard/WebView basis, cleared active resize state by stable geometry after mouse-up, and cursor reset before rediscovery. The post-corner right-edge check records dashboard_post_resize_settle_before_right_edge before dashboard_right_edge_rediscovery_after_corner_resize.`
+
+Diagnostic Sweep Evidence: `On rediscovery failure the helper records diagnosticSamples containing x/y sample coordinates, offsetFromVisibleEdgePx, cursorKind, nativeHitTest, rootWindowHandleAtPoint, expectedDashboardHandle, rootMatchesExpectedDashboard, elapsedMs, Dashboard context, virtualDesktopBounds, visibleEdgeCoordinates, DPI/scale, and postResizeSettle evidence. The right-edge rediscovery step now also records focusedDashboardScreenshot and focusedRightEdgeScreenshot so acceptance-critical resize proof is local and reviewable; full-desktop screenshots are locator/context only and cannot satisfy the proof gate by themselves.`
+
+Product Behavior vs Proof-Path Finding: `No Dashboard product edge-math or 14px visible-rail runtime behavior was changed in this implementation. The repair selection is proof-path handle/coordinate/timing reacquisition unless diagnostic evidence later proves product edge behavior needs a bounded adjustment. Interior cursor points remain disallowed as false-green proof because rediscovery still requires htright and offset within the visible rail.`
+
+Right-Edge Rediscovery Repair: `The post-corner right-edge rediscovery proof now fails with a classification of helper targeting/timing, coordinate/DPI mismatch, handle/root mismatch, timing/settle mismatch, or product cursor behavior, and passes only when the reacquired Dashboard handle and visible-edge coordinates produce a real htright resize cursor near the visible edge before mouse down.`
+
+Validation Preservation: `Corner resize, right-edge geometry resize, bottom-edge resize, grow/shrink during-drag visual proof, move fluidity, rounded-corner mask proof, first-launch flicker guard, focused visual proof quality, and Sensor Command Center repairs remain preserved. The human-client proof now passed through the real USER-facing shortcut path at dev\logs\fam_006_human_client_validation\20260519_065444_031 with post-corner right-edge rediscovery offset=1, cursor=size-west-east, hitTest=htright, matching reacquired Dashboard handle/root state, and focused local Dashboard/right-edge crops.`
+
+Manage Monitors Pending LV1 States: `Empty state, delete confirmation bottom placement, Source Filter dropdown/hover reset, monitor-list visual quality, unsaved close guard, and Sensor Command Center preservation remain pending refreshed LV1 recheck after the Dashboard right-edge blocker clears.`
+
+Next Legal Phase After Implementation: `Hardening H1 for the bounded Dashboard right-edge rediscovery repair after validation is green and the implementation commit is pushed.`
 
 ## Implemented vs Deferred Digest For Refreshed UTS
 
@@ -587,43 +607,43 @@ Non-Includes: `HUD Overlay visual display acceptance, Overlay customization, app
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 repair setup for refreshed LV1 Dashboard right-edge resize rediscovery failure`
+Active seam: `Repair Workstream implementation for refreshed LV1 Dashboard right-edge resize rediscovery failure`
 
-Active Seam Status: `Setup admitted pending Repair Workstream implementation approval: post-corner right-edge rediscovery requires Dashboard reacquisition, diagnostic sweep evidence, post-resize settle checks, and validator planning before runtime repair.`
+Active Seam Status: `Repair Workstream implementation complete pending Hardening H1: post-corner right-edge rediscovery now reacquires Dashboard context, records diagnostic sweep evidence, and applies post-resize settle checks before runtime proof continues.`
 
 Next active seam: `Repair Workstream implementation for refreshed LV1 Dashboard right-edge resize rediscovery repair`
 
 ## Backlog Completion Status
 
-Backlog Completion State: `Repair setup admitted`
+Backlog Completion State: `Implemented Complete`
 
-Remaining Implementable Work: `Dashboard right-edge resize rediscovery repair implementation after USER approval`
+Remaining Implementable Work: `None`
 
 Future-Dependent Blockers: `None`
 
-Completion Status: `blocked pending right-edge rediscovery repair`
+Completion Status: `green`
 
 ## Seam Continuation Decision
 
-Seam Status: `setup green`
+Seam Status: `green`
 
-Slice Status: `setup green`
+Slice Status: `green`
 
-Completion Status: `blocked pending right-edge rediscovery repair`
+Completion Status: `green`
 
 Waiver Status: `None`
 
-Continue Decision: `Stop at Stage 2 setup boundary`
+Continue Decision: `stop`
 
-Continuation Execution Latch: `Closed until USER approves Repair Workstream implementation`
+Continuation Execution Latch: `Closed until USER approves Hardening H1`
 
-Stop Basis: `Branch Readiness Stage 2 setup complete`
+Stop Basis: `workstream green`
 
-Next Active Seam: `Repair Workstream implementation for refreshed LV1 Dashboard right-edge resize rediscovery repair`
+Next Active Seam: `Hardening H1 for refreshed LV1 Dashboard right-edge resize rediscovery repair`
 
-Stop Condition: `Runtime repair implementation requires explicit USER approval`
+Stop Condition: `Hardening H1 requires explicit USER approval`
 
-Continuation Action: `Stop at phase boundary until USER admits Repair Workstream implementation`
+Continuation Action: `Stop at phase boundary until USER admits Hardening H1`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -635,12 +655,12 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Blockers
 
-Refreshed LV1 remains in REPAIR posture until the Dashboard right-edge resize rediscovery repair is implemented, hardened, and refreshed Live Validation / returned USER UTS recheck proves the repair or USER explicitly waives remaining gates with reason. PR Readiness remains blocked. PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
+Refreshed LV1 remains in REPAIR posture until the Dashboard right-edge resize rediscovery repair is hardened and refreshed Live Validation / returned USER UTS recheck proves the repair or USER explicitly waives remaining gates with reason. PR Readiness remains blocked. PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
 
 ## Exit Criteria
 
 - Current-main reconciliation preserves current main truth and the FAM-006 branch-local Sensor Command Center work.
-- Refreshed LV1 close-guard, visual-proof, and interactive-control visual QA repairs are preserved; refreshed LV1 now requires the Dashboard right-edge rediscovery repair before Manage Monitors proof states can rerun.
+- Refreshed LV1 close-guard, visual-proof, and interactive-control visual QA repairs are preserved; refreshed LV1 now requires Hardening H1 and refreshed LV1 rerun before Manage Monitors proof states can rerun.
 - Previously implemented draft guard, queued actions, Sensor Library pattern, Warning Notifications setting checkbox, Provider Readiness readiness/status classification, and profile-model separation are preserved.
 - Existing Dashboard settings, close, warning notifications, tray-owned HUD control, resize/scroll/source-truth boundaries are preserved as regression requirements.
 - FAM-006 v1.7.1-prebeta release closure remains green.
@@ -648,7 +668,7 @@ Refreshed LV1 remains in REPAIR posture until the Dashboard right-edge resize re
 - Directly supporting validators pass.
 - PR Readiness remains blocked until refreshed Live Validation and returned USER UTS PASS or explicit waiver with reason.
 - Required validation passes.
-- Branch Readiness Stage 2 right-edge resize rediscovery repair setup is preserved and current-main reconciliation through PR #169 is pushed.
+- Dashboard right-edge rediscovery Repair Workstream implementation is validated and pushed.
 
 ## Rollback Target
 
@@ -658,21 +678,21 @@ Rollback is the unmerged Workstream implementation on this branch only if USER l
 
 ## Next Legal Phase
 
-`Workstream`
+`Hardening`
 
-USER decision to approve Repair Workstream implementation for the refreshed LV1 Dashboard right-edge resize rediscovery repair on `feature/fam-006-monitor-groups-sensor-configuration`.
+USER decision to approve Hardening H1 for the refreshed LV1 Dashboard right-edge rediscovery repair on `feature/fam-006-monitor-groups-sensor-configuration`.
 
 ## Next Legal Phase Digest
 
-Current Phase: `Branch Readiness Stage 2 repair setup`
+Current Phase: `Repair Workstream implementation`
 
-Next Legal Phase: `Workstream`
+Next Legal Phase: `Hardening H1`
 
-Why This Phase Is Next: `The Branch Readiness Stage 2 setup admits the refreshed LV1 Dashboard right-edge rediscovery blocker as the active repair target. The next legal phase is bounded Repair Workstream implementation to add diagnostics, settle checks, and any proven product/helper fix before Hardening H1 and refreshed Live Validation can resume.`
+Why This Phase Is Next: `The bounded Repair Workstream implementation adds proof-path reacquisition, diagnostic sweep evidence, post-resize settle checks, and right-edge rediscovery validation without changing product edge math. The next legal phase is Hardening H1 to pressure-test the implementation before refreshed Live Validation can resume.`
 
-Approval Required: `USER approval for Repair Workstream implementation.`
+Approval Required: `USER approval for Hardening H1.`
 
-Exact USER Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to repairing the refreshed LV1 Dashboard right-edge resize cursor rediscovery failure. Scope: verify repo/worktree identity, branch, upstream, HEAD, origin/main, merge-base, cleanliness, and ancestry; verify this Stage 2 setup commit is present; reacquire the Dashboard element, native/root handle, bounding rect, DPI/scale context, virtual desktop bounds, and visible-edge coordinates after each resize action; add diagnostic sweep evidence for x/y samples, offset from visible edge, cursor kind, native hit-test, root/window handle at point, expected Dashboard handle, bounding rect, virtual desktop bounds, timing, rounded-mask state, and settle state; add post-resize settle checks for stable geometry, applied rounded mask, visible WebView, cleared active resize state, and cursor reset; repair product hit-zone math or helper targeting/timing only if diagnostics prove the cause; preserve the 14px visible rail unless bounded evidence requires adjustment; preserve corner resize, bottom-edge resize, move fluidity, first-launch flicker guard, focused visual proof quality, and all existing Sensor Command Center repairs; update directly supporting validators/helpers/source truth/UTS; run validation; commit and push if green.`
+Exact USER Approval Text: `Approve Hardening H1 for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006 after the bounded Dashboard right-edge rediscovery Repair Workstream implementation. Scope: verify repo/worktree identity, branch, upstream, HEAD, origin/main, merge-base, cleanliness, and ancestry; verify the right-edge rediscovery implementation commit is present; pressure-test post-corner Dashboard right-edge rediscovery, reacquired Dashboard handle/rect/DPI/visible-edge state, diagnostic sweep evidence, post-resize settle criteria, right-edge geometry resize, bottom-edge/corner/grow/shrink preservation, 14px visible-rail discipline, and Sensor Command Center preservation; apply bounded H1 repairs only inside the Dashboard right-edge rediscovery scope if defects are found; run required validation; commit and push if H1 repairs are required and validation is green.`
 
 Allowed Scope: `FAM-006 right-edge resize rediscovery repair implementation and directly supporting validators/helpers/UTS/source-truth updates only.`
 

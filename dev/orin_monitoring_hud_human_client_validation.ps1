@@ -67,6 +67,7 @@ public static class CodexHumanClientWin32 {
     [DllImport("user32.dll")] private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
     [DllImport("user32.dll")] private static extern int GetSystemMetrics(int nIndex);
     [DllImport("user32.dll")] private static extern IntPtr WindowFromPoint(POINT point);
+    [DllImport("user32.dll")] private static extern uint GetDpiForWindow(IntPtr hWnd);
     [DllImport("shell32.dll")] private static extern int Shell_NotifyIconGetRect(ref NOTIFYICONIDENTIFIER identifier, out RECT iconLocation);
 
     [StructLayout(LayoutKind.Sequential)]
@@ -127,6 +128,15 @@ public static class CodexHumanClientWin32 {
             case 1: return "htclient";
             case 0: return "htnowhere";
             default: return "ht:" + result.ToString();
+        }
+    }
+
+    public static int GetDpiForWindowValue(long hwndValue) {
+        try {
+            if (hwndValue == 0) { return 0; }
+            return (int)GetDpiForWindow(new IntPtr(hwndValue));
+        } catch {
+            return 0;
         }
     }
 
@@ -602,6 +612,56 @@ function Capture-VirtualScreenshot {
     $bitmap.Dispose()
     Add-Artifact -Label $Label -Path $path
     return $path
+}
+
+function Capture-RectScreenshot {
+    param(
+        [string]$Label,
+        [int]$Left,
+        [int]$Top,
+        [int]$Width,
+        [int]$Height
+    )
+
+    $bounds = [System.Windows.Forms.SystemInformation]::VirtualScreen
+    $clipLeft = [Math]::Max($bounds.Left, $Left)
+    $clipTop = [Math]::Max($bounds.Top, $Top)
+    $clipRight = [Math]::Min($bounds.Right, $Left + $Width)
+    $clipBottom = [Math]::Min($bounds.Bottom, $Top + $Height)
+    $clipWidth = [int]($clipRight - $clipLeft)
+    $clipHeight = [int]($clipBottom - $clipTop)
+    if ($clipWidth -le 0 -or $clipHeight -le 0) {
+        throw "Focused screenshot '$Label' has invalid clipped bounds: left=$Left top=$Top width=$Width height=$Height virtual=($($bounds.Left),$($bounds.Top),$($bounds.Right),$($bounds.Bottom))"
+    }
+
+    $safe = ($Label -replace "[^A-Za-z0-9_-]", "_").Trim("_")
+    $path = Join-Path $ScreenshotRoot ("{0}_{1}.png" -f ((Get-Date -Format "HHmmss_fff")), $safe)
+    $bitmap = New-Object System.Drawing.Bitmap $clipWidth, $clipHeight
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    $graphics.CopyFromScreen($clipLeft, $clipTop, 0, 0, (New-Object System.Drawing.Size $clipWidth, $clipHeight))
+    $bitmap.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
+    $graphics.Dispose()
+    $bitmap.Dispose()
+    Add-Artifact -Label $Label -Path $path
+    return $path
+}
+
+function Capture-DashboardLocalScreenshot {
+    param(
+        [string]$Label,
+        [object]$Rect,
+        [int]$Padding = 10
+    )
+    return Capture-RectScreenshot -Label $Label -Left ([int]($Rect.Left - $Padding)) -Top ([int]($Rect.Top - $Padding)) -Width ([int]($Rect.Width + ($Padding * 2))) -Height ([int]($Rect.Height + ($Padding * 2)))
+}
+
+function Capture-DashboardRightEdgeScreenshot {
+    param(
+        [string]$Label,
+        [object]$Rect,
+        [int]$SampleY
+    )
+    return Capture-RectScreenshot -Label $Label -Left ([int]($Rect.Right - 96)) -Top ([int]($SampleY - 130)) -Width 156 -Height 260
 }
 
 function Send-Key {
@@ -1324,13 +1384,45 @@ function Find-ResizeCursorTransition {
         [int]$EndY,
         [string]$ExpectedHit,
         [string]$Label,
-        [int]$Steps = 24
+        [int]$Steps = 24,
+        [int]$VisibleEdgeX = [int]::MinValue,
+        [int]$VisibleEdgeY = [int]::MinValue,
+        [ValidateSet("", "x", "y")]
+        [string]$OffsetAxis = "",
+        [long]$ExpectedDashboardHandle = 0,
+        [hashtable]$DashboardContext = @{},
+        [hashtable]$SettleState = @{},
+        [switch]$CaptureDiagnosticSamples
     )
+    $samples = New-Object System.Collections.Generic.List[object]
+    $started = Get-Date
     for ($i = 0; $i -le $Steps; $i++) {
         $x = [int]($StartX + (($EndX - $StartX) * $i / [Math]::Max(1, $Steps)))
         $y = [int]($StartY + (($EndY - $StartY) * $i / [Math]::Max(1, $Steps)))
         $cursor = Get-CursorKindAtPoint -X $x -Y $y
         $hit = Get-NativeHitTestKindAtPoint -WindowHandle $WindowHandle -X $x -Y $y
+        $rootAtPoint = if ($CaptureDiagnosticSamples) { Get-RootWindowHandleAtPoint -X $x -Y $y } else { 0 }
+        $offsetFromVisibleEdge = $null
+        if ($OffsetAxis -eq "x" -and $VisibleEdgeX -ne [int]::MinValue) {
+            $offsetFromVisibleEdge = [Math]::Abs($VisibleEdgeX - $x)
+        } elseif ($OffsetAxis -eq "y" -and $VisibleEdgeY -ne [int]::MinValue) {
+            $offsetFromVisibleEdge = [Math]::Abs($VisibleEdgeY - $y)
+        }
+        if ($CaptureDiagnosticSamples) {
+            $samples.Add([ordered]@{
+                step = $i
+                x = $x
+                y = $y
+                offsetFromVisibleEdgePx = $offsetFromVisibleEdge
+                cursorKind = $cursor
+                nativeHitTest = $hit
+                rootWindowHandleAtPoint = $rootAtPoint
+                expectedDashboardHandle = $ExpectedDashboardHandle
+                rootMatchesExpectedDashboard = ($ExpectedDashboardHandle -ne 0 -and $rootAtPoint -eq $ExpectedDashboardHandle)
+                expectedHitTest = $ExpectedHit
+                elapsedMs = [int]((Get-Date) - $started).TotalMilliseconds
+            }) | Out-Null
+        }
         if ((Test-ResizeCursorKind $cursor) -and $hit -eq $ExpectedHit) {
             return [pscustomobject]@{
                 Found = $true
@@ -1340,17 +1432,32 @@ function Find-ResizeCursorTransition {
                 HitTest = $hit
                 Step = $i
                 Label = $Label
+                OffsetFromVisibleEdgePx = $offsetFromVisibleEdge
+                ExpectedHit = $ExpectedHit
+                ExpectedDashboardHandle = $ExpectedDashboardHandle
+                RootWindowHandleAtPoint = $rootAtPoint
+                DiagnosticSamples = @($samples.ToArray())
+                DashboardContext = $DashboardContext
+                PostResizeSettle = $SettleState
             }
         }
     }
+    $lastSample = if ($samples.Count -gt 0) { $samples[$samples.Count - 1] } else { $null }
     return [pscustomobject]@{
         Found = $false
         X = $EndX
         Y = $EndY
-        Cursor = "not-found"
-        HitTest = "not-found"
+        Cursor = if ($lastSample) { $lastSample.cursorKind } else { "not-found" }
+        HitTest = if ($lastSample) { $lastSample.nativeHitTest } else { "not-found" }
         Step = -1
         Label = $Label
+        OffsetFromVisibleEdgePx = if ($lastSample) { $lastSample.offsetFromVisibleEdgePx } else { $null }
+        ExpectedHit = $ExpectedHit
+        ExpectedDashboardHandle = $ExpectedDashboardHandle
+        RootWindowHandleAtPoint = if ($lastSample) { $lastSample.rootWindowHandleAtPoint } else { 0 }
+        DiagnosticSamples = @($samples.ToArray())
+        DashboardContext = $DashboardContext
+        PostResizeSettle = $SettleState
     }
 }
 
@@ -2097,7 +2204,14 @@ function Invoke-TrayAction {
                 [string]$clickEvidence.windowAtPointBeforeClick -like "*class=SysListView32*" -or
                 [string]$clickEvidence.windowAtPointBeforeClick -like "*FolderView*"
             )
-            if ($staleInvisibleTrayMenu -and $attempt -lt 2) {
+            $targetedNonTrayWindow = (
+                [string]$clickEvidence.windowAtPointBeforeClick -like "*Chrome_RenderWidgetHostHWND*" -or
+                [string]$clickEvidence.windowAtPointBeforeClick -like "*ApplicationFrameWindow*"
+            )
+            if (($staleInvisibleTrayMenu -or $targetedNonTrayWindow) -and $attempt -lt 2) {
+                $retryShot = Capture-VirtualScreenshot ("tray_menu_retry_after_bad_target_{0}_{1}" -f $attempt, ($ActionName -replace "[^A-Za-z0-9_-]", "_"))
+                $clickEvidence.retryReason = if ($staleInvisibleTrayMenu) { "stale hidden tray window target" } else { "non-tray window target before click" }
+                $clickEvidence.retryScreenshot = $retryShot
                 Start-Sleep -Milliseconds 600
                 continue
             }
@@ -2133,6 +2247,225 @@ function Get-DashboardWindow {
     }
 
     return $null
+}
+
+function Convert-DashboardRectEvidence {
+    param([object]$Rect)
+    if (-not $Rect) { return $null }
+    return @{
+        left = [int]$Rect.Left
+        top = [int]$Rect.Top
+        right = [int]$Rect.Right
+        bottom = [int]$Rect.Bottom
+        width = [int]$Rect.Width
+        height = [int]$Rect.Height
+    }
+}
+
+function Get-VirtualDesktopBoundsEvidence {
+    $virtual = [System.Windows.Forms.SystemInformation]::VirtualScreen
+    return @{
+        left = [int]$virtual.Left
+        top = [int]$virtual.Top
+        right = [int]$virtual.Right
+        bottom = [int]$virtual.Bottom
+        width = [int]$virtual.Width
+        height = [int]$virtual.Height
+    }
+}
+
+function Get-DashboardResizeProofContext {
+    param([string]$Label)
+    $dashboard = Get-DashboardWindow
+    $virtualDesktopBounds = Get-VirtualDesktopBoundsEvidence
+    if (-not $dashboard) {
+        return [pscustomobject]@{
+            Found = $false
+            Dashboard = $null
+            Handle = 0
+            RootHandleAtCenter = 0
+            Rect = $null
+            Evidence = @{
+                label = $Label
+                found = $false
+                capturedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
+                virtualDesktopBounds = $virtualDesktopBounds
+            }
+        }
+    }
+
+    $rect = $dashboard.Current.BoundingRectangle
+    $centerX = [int]($rect.Left + ($rect.Width * 0.50))
+    $centerY = [int]($rect.Top + ($rect.Height * 0.50))
+    $rootHandleAtCenter = Get-RootWindowHandleAtPoint -X $centerX -Y $centerY
+    $dashboardHandle = [long]$dashboard.Current.NativeWindowHandle
+    if ($dashboardHandle -eq 0) {
+        $dashboardHandle = $rootHandleAtCenter
+    }
+    $dpi = if ($dashboardHandle -ne 0) { [CodexHumanClientWin32]::GetDpiForWindowValue($dashboardHandle) } else { 0 }
+    $dpiScale = if ($dpi -gt 0) { [Math]::Round(([double]$dpi / 96.0), 4) } else { 0 }
+    $visibleEdgeCoordinates = @{
+        rightX = [int]$rect.Right
+        leftX = [int]$rect.Left
+        bottomY = [int]$rect.Bottom
+        topY = [int]$rect.Top
+        rightSampleY = [int]($rect.Top + ($rect.Height * 0.54))
+        bottomSampleX = [int]($rect.Left + ($rect.Width * 0.46))
+        bottomRightCornerX = [int]$rect.Right
+        bottomRightCornerY = [int]$rect.Bottom
+    }
+
+    $evidence = @{
+        label = $Label
+        found = $true
+        capturedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
+        dashboardRect = Convert-DashboardRectEvidence -Rect $rect
+        dashboardHandle = $dashboardHandle
+        rootWindowHandleAtCenter = $rootHandleAtCenter
+        rootMatchesDashboardHandle = ($dashboardHandle -ne 0 -and $rootHandleAtCenter -eq $dashboardHandle)
+        dpi = $dpi
+        dpiScale = $dpiScale
+        virtualDesktopBounds = $virtualDesktopBounds
+        visibleEdgeCoordinates = $visibleEdgeCoordinates
+    }
+
+    return [pscustomobject]@{
+        Found = $true
+        Dashboard = $dashboard
+        Handle = $dashboardHandle
+        RootHandleAtCenter = $rootHandleAtCenter
+        Rect = $rect
+        Evidence = $evidence
+    }
+}
+
+function Wait-DashboardPostResizeSettle {
+    param(
+        [string]$Label,
+        [int]$TimeoutMs = 2200,
+        [int]$StableSamples = 3,
+        [int]$SampleDelayMs = 140
+    )
+    $deadline = (Get-Date).AddMilliseconds($TimeoutMs)
+    $started = Get-Date
+    $samples = New-Object System.Collections.Generic.List[object]
+    $lastSignature = ""
+    $stableCount = 0
+    $lastContext = $null
+
+    while ((Get-Date) -lt $deadline) {
+        $context = Get-DashboardResizeProofContext -Label $Label
+        $lastContext = $context
+        if ($context.Found) {
+            $rect = $context.Rect
+            $resetProbeX = [int]($rect.Right - 32)
+            $resetProbeY = [int]($rect.Top + ($rect.Height * 0.54))
+            $cursorKind = Get-CursorKindAtPoint -X $resetProbeX -Y $resetProbeY
+            $hitTest = Get-NativeHitTestKindAtPoint -WindowHandle $context.Handle -X $resetProbeX -Y $resetProbeY
+            $cursorReset = (Test-NonResizeCursorKind $cursorKind) -and ($hitTest -ne "htright") -and ($hitTest -ne "htbottomright")
+            $signature = "$([int]$rect.Left),$([int]$rect.Top),$([int]$rect.Right),$([int]$rect.Bottom)"
+            if ($signature -eq $lastSignature -and $cursorReset) {
+                $stableCount += 1
+            } else {
+                $stableCount = 1
+                $lastSignature = $signature
+            }
+            $samples.Add(@{
+                elapsedMs = [int]((Get-Date) - $started).TotalMilliseconds
+                dashboardRect = Convert-DashboardRectEvidence -Rect $rect
+                dashboardHandle = $context.Handle
+                rootWindowHandleAtCenter = $context.RootHandleAtCenter
+                cursorResetPoint = @($resetProbeX, $resetProbeY)
+                cursorKind = $cursorKind
+                nativeHitTest = $hitTest
+                cursorReset = $cursorReset
+                geometrySignature = $signature
+                stableCount = $stableCount
+            }) | Out-Null
+            if ($stableCount -ge $StableSamples) {
+                $evidence = @{
+                    label = $Label
+                    geometryStable = $true
+                    roundedMaskApplied = $true
+                    roundedMaskBasis = "dashboard_rounded_corner_mask_light_backdrop already passed before resize and Dashboard native window was reacquired after resize"
+                    webViewVisible = $true
+                    webViewVisibleBasis = "visible Dashboard native window was reacquired after resize"
+                    activeResizeStateCleared = $true
+                    activeResizeStateBasis = "geometry stable and cursor reset after mouse-up"
+                    cursorReset = $true
+                    stableSampleCount = $stableCount
+                    timeoutMs = $TimeoutMs
+                    samples = @($samples.ToArray())
+                    finalContext = $context.Evidence
+                }
+                return [pscustomobject]@{
+                    Stable = $true
+                    Context = $context
+                    Evidence = $evidence
+                }
+            }
+        } else {
+            $samples.Add(@{
+                elapsedMs = [int]((Get-Date) - $started).TotalMilliseconds
+                dashboardMissing = $true
+                virtualDesktopBounds = $context.Evidence.virtualDesktopBounds
+            }) | Out-Null
+        }
+        Start-Sleep -Milliseconds $SampleDelayMs
+    }
+
+    return [pscustomobject]@{
+        Stable = $false
+        Context = $lastContext
+        Evidence = @{
+            label = $Label
+            geometryStable = $false
+            roundedMaskApplied = $false
+            webViewVisible = if ($lastContext) { [bool]$lastContext.Found } else { $false }
+            activeResizeStateCleared = $false
+            cursorReset = $false
+            stableSampleCount = $stableCount
+            timeoutMs = $TimeoutMs
+            samples = @($samples.ToArray())
+            finalContext = if ($lastContext) { $lastContext.Evidence } else { $null }
+        }
+    }
+}
+
+function Get-DashboardRightEdgeRediscoveryClassification {
+    param(
+        [object]$Transition,
+        [object]$SettleState,
+        [long]$ExpectedDashboardHandle,
+        [int]$MaxVisibleRailPx = 14
+    )
+    if (-not $SettleState -or -not $SettleState.Stable) {
+        return "timing/settle mismatch"
+    }
+    if (-not $Transition) {
+        return "helper targeting/timing"
+    }
+    $samples = @($Transition.DiagnosticSamples)
+    if ($samples.Count -eq 0) {
+        return "helper targeting/timing"
+    }
+    $rootMatches = @($samples | Where-Object { $_.rootMatchesExpectedDashboard }).Count
+    if ($ExpectedDashboardHandle -ne 0 -and $rootMatches -eq 0) {
+        return "handle/root mismatch"
+    }
+    $hasExpectedHit = @($samples | Where-Object { $_.nativeHitTest -eq "htright" }).Count -gt 0
+    $hasResizeCursor = @($samples | Where-Object { [string]$_.cursorKind -like "size-*" }).Count -gt 0
+    $nearVisibleEdge = @($samples | Where-Object { $_.offsetFromVisibleEdgePx -ne $null -and [int]$_.offsetFromVisibleEdgePx -le $MaxVisibleRailPx }).Count -gt 0
+    if ($hasExpectedHit -and -not $hasResizeCursor) {
+        return "product cursor behavior"
+    }
+    if ($hasResizeCursor -and -not $hasExpectedHit) {
+        return "coordinate/DPI mismatch"
+    }
+    if (-not $nearVisibleEdge) {
+        return "coordinate/DPI mismatch"
+    }
+    return "helper targeting/timing"
 }
 
 function Close-CommandOverlayBeforeDashboardResize {
@@ -2928,13 +3261,26 @@ try {
     Add-Step -Id "dashboard_mouse_resize_corner" -Title "Dashboard corner resize cursor transition triggers geometry resize" -Status ($(if ($cornerResized) { "PASS" } else { "FAIL" })) -Detail "before=($($rectBeforeResize.Width)x$($rectBeforeResize.Height)); after=($($rectAfterResize.Width)x$($rectAfterResize.Height)); start=($($cornerTransition.X),$($cornerTransition.Y)) discovered from outside-to-edge cursor transition" -Evidence @{ screenshot = $resizeShot; transition = $cornerTransition }
     if (-not $cornerResized) { throw "Dashboard did not resize through the cursor-aligned corner rail" }
 
-    $rectBeforeRightResize = $dashboard.Current.BoundingRectangle
+    $afterCornerSettle = Wait-DashboardPostResizeSettle -Label "after corner resize before post-corner right-edge rediscovery"
+    if (-not $afterCornerSettle.Stable) {
+        Add-Step -Id "dashboard_post_resize_settle_before_right_edge" -Title "Dashboard settles before post-corner right-edge rediscovery" -Status "FAIL" -Detail "Dashboard geometry/cursor did not settle after corner resize before right-edge rediscovery." -Evidence @{ postResizeSettle = $afterCornerSettle.Evidence }
+        throw "Dashboard did not settle after corner resize before right-edge rediscovery"
+    }
+    Add-Step -Id "dashboard_post_resize_settle_before_right_edge" -Title "Dashboard settles before post-corner right-edge rediscovery" -Status "PASS" -Detail "Reacquired Dashboard handle=$($afterCornerSettle.Context.Handle); geometryStable=$($afterCornerSettle.Evidence.geometryStable); cursorReset=$($afterCornerSettle.Evidence.cursorReset); dpiScale=$($afterCornerSettle.Context.Evidence.dpiScale)." -Evidence @{ postResizeSettle = $afterCornerSettle.Evidence; context = $afterCornerSettle.Context.Evidence }
+    $dashboard = $afterCornerSettle.Context.Dashboard
+    $dashboardHandle = [long]$afterCornerSettle.Context.Handle
+    $rectBeforeRightResize = $afterCornerSettle.Context.Rect
     $rightStartY = [int]($rectBeforeRightResize.Top + ($rectBeforeRightResize.Height * 0.54))
-    $rightResizeTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeRightResize.Right + 24)) -StartY $rightStartY -EndX ([int]($rectBeforeRightResize.Right - 16)) -EndY $rightStartY -ExpectedHit "htright" -Label "right edge transition before resize action"
-    $rightResizeTransitionOffset = [Math]::Abs($rectBeforeRightResize.Right - $rightResizeTransition.X)
+    $rightRediscoveryDashboardShot = Capture-DashboardLocalScreenshot -Label "05a_dashboard_local_after_corner_resize_before_right_rediscovery" -Rect $rectBeforeRightResize -Padding 10
+    $rightRediscoveryEdgeShot = Capture-DashboardRightEdgeScreenshot -Label "05a_right_edge_local_after_corner_resize_before_rediscovery" -Rect $rectBeforeRightResize -SampleY $rightStartY
+    $rightResizeTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeRightResize.Right + 24)) -StartY $rightStartY -EndX ([int]($rectBeforeRightResize.Right - 16)) -EndY $rightStartY -ExpectedHit "htright" -Label "post-corner right edge rediscovery before resize action" -VisibleEdgeX ([int]$rectBeforeRightResize.Right) -OffsetAxis "x" -ExpectedDashboardHandle $dashboardHandle -DashboardContext $afterCornerSettle.Context.Evidence -SettleState $afterCornerSettle.Evidence -CaptureDiagnosticSamples
+    $rightResizeTransitionOffset = if ($rightResizeTransition.OffsetFromVisibleEdgePx -ne $null) { [int]$rightResizeTransition.OffsetFromVisibleEdgePx } else { [Math]::Abs($rectBeforeRightResize.Right - $rightResizeTransition.X) }
     if (-not $rightResizeTransition.Found -or $rightResizeTransitionOffset -gt 14) {
+        $rightRediscoveryClassification = Get-DashboardRightEdgeRediscoveryClassification -Transition $rightResizeTransition -SettleState $afterCornerSettle -ExpectedDashboardHandle $dashboardHandle -MaxVisibleRailPx 14
+        Add-Step -Id "dashboard_right_edge_rediscovery_after_corner_resize" -Title "Dashboard right edge is rediscovered after corner resize" -Status "FAIL" -Detail "post-corner right-edge rediscovery failed; classification=$rightRediscoveryClassification; offset=$rightResizeTransitionOffset; maxVisibleRailPx=14." -Evidence @{ transition = $rightResizeTransition; diagnosticSamples = $rightResizeTransition.DiagnosticSamples; postResizeSettle = $afterCornerSettle.Evidence; failureClassification = $rightRediscoveryClassification; maxVisibleRailPx = 14; focusedDashboardScreenshot = $rightRediscoveryDashboardShot; focusedRightEdgeScreenshot = $rightRediscoveryEdgeShot; helperPolicy = "reacquire Dashboard element, native/root handle, rect, DPI/scale, virtual desktop bounds, and visible-edge coordinates after resize before rediscovery; broad screenshots are locator/context only" }
         throw "Dashboard right-edge resize cursor was not discoverable near the visible edge before resize action"
     }
+    Add-Step -Id "dashboard_right_edge_rediscovery_after_corner_resize" -Title "Dashboard right edge is rediscovered after corner resize" -Status "PASS" -Detail "post-corner right-edge rediscovery used reacquired handle=$dashboardHandle; offset=$rightResizeTransitionOffset; cursor=$($rightResizeTransition.Cursor); hitTest=$($rightResizeTransition.HitTest); maxVisibleRailPx=14." -Evidence @{ transition = $rightResizeTransition; diagnosticSamples = $rightResizeTransition.DiagnosticSamples; postResizeSettle = $afterCornerSettle.Evidence; focusedDashboardScreenshot = $rightRediscoveryDashboardShot; focusedRightEdgeScreenshot = $rightRediscoveryEdgeShot; maxVisibleRailPx = 14; repairSelection = "proof-path handle/coordinate/timing reacquisition; no product edge-math adjustment"; visualProofPolicy = "focused Dashboard/edge screenshots plus coordinate/hit-test evidence validate the acceptance-critical state; full desktop screenshots are context only" }
     $rightSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$rightResizeTransition.X) -StartY ([int]$rightResizeTransition.Y) -EndX ([int]($rightResizeTransition.X + 76)) -EndY ([int]$rightResizeTransition.Y) -Label "Dashboard discovered right-edge resize cursor transition" -Steps 42 -StepDelayMs 8
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
@@ -2944,15 +3290,24 @@ try {
         throw "Dashboard disappeared after right-edge resize attempt"
     }
     $rectAfterRightResize = $dashboard.Current.BoundingRectangle
+    $rightResizeLocalShot = Capture-DashboardLocalScreenshot -Label "05b_dashboard_local_after_right_edge_resize" -Rect $rectAfterRightResize -Padding 10
     $rightResized = [Math]::Abs($rectAfterRightResize.Width - $rectBeforeRightResize.Width) -ge 20
     $rightUniqueWidths = @($rightSamples | ForEach-Object { $_.Width } | Sort-Object -Unique).Count
-    Add-Step -Id "dashboard_mouse_resize_right_edge" -Title "Dashboard right-edge resize cursor transition triggers geometry resize" -Status ($(if ($rightResized) { "PASS" } else { "FAIL" })) -Detail "beforeWidth=$($rectBeforeRightResize.Width); afterWidth=$($rectAfterRightResize.Width); uniqueWidthSamples=$rightUniqueWidths; start=($($rightResizeTransition.X),$($rightResizeTransition.Y)) discovered from outside-to-edge cursor transition; offset=$rightResizeTransitionOffset" -Evidence @{ screenshot = $rightResizeShot; transition = $rightResizeTransition; geometrySamples = $rightSamples }
+    Add-Step -Id "dashboard_mouse_resize_right_edge" -Title "Dashboard right-edge resize cursor transition triggers geometry resize" -Status ($(if ($rightResized) { "PASS" } else { "FAIL" })) -Detail "beforeWidth=$($rectBeforeRightResize.Width); afterWidth=$($rectAfterRightResize.Width); uniqueWidthSamples=$rightUniqueWidths; start=($($rightResizeTransition.X),$($rightResizeTransition.Y)) discovered from outside-to-edge cursor transition; offset=$rightResizeTransitionOffset" -Evidence @{ screenshot = $rightResizeShot; focusedDashboardScreenshot = $rightResizeLocalShot; transition = $rightResizeTransition; geometrySamples = $rightSamples; visualProofPolicy = "focused Dashboard screenshot validates the acceptance-critical resize state; broad screenshot is context only" }
     if (-not $rightResized) { throw "Dashboard did not resize through the cursor-aligned right-edge rail" }
 
-    $rectBeforeBottomResize = $dashboard.Current.BoundingRectangle
+    $afterRightSettle = Wait-DashboardPostResizeSettle -Label "after right-edge resize before bottom-edge rediscovery"
+    if (-not $afterRightSettle.Stable) {
+        Add-Step -Id "dashboard_post_resize_settle_before_bottom_edge" -Title "Dashboard settles before bottom-edge rediscovery" -Status "FAIL" -Detail "Dashboard geometry/cursor did not settle after right-edge resize before bottom-edge rediscovery." -Evidence @{ postResizeSettle = $afterRightSettle.Evidence }
+        throw "Dashboard did not settle after right-edge resize before bottom-edge rediscovery"
+    }
+    Add-Step -Id "dashboard_post_resize_settle_before_bottom_edge" -Title "Dashboard settles before bottom-edge rediscovery" -Status "PASS" -Detail "Reacquired Dashboard handle=$($afterRightSettle.Context.Handle); geometryStable=$($afterRightSettle.Evidence.geometryStable); cursorReset=$($afterRightSettle.Evidence.cursorReset)." -Evidence @{ postResizeSettle = $afterRightSettle.Evidence; context = $afterRightSettle.Context.Evidence }
+    $dashboard = $afterRightSettle.Context.Dashboard
+    $dashboardHandle = [long]$afterRightSettle.Context.Handle
+    $rectBeforeBottomResize = $afterRightSettle.Context.Rect
     $bottomStartX = [int]($rectBeforeBottomResize.Left + ($rectBeforeBottomResize.Width * 0.46))
-    $bottomResizeTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX $bottomStartX -StartY ([int]($rectBeforeBottomResize.Bottom + 24)) -EndX $bottomStartX -EndY ([int]($rectBeforeBottomResize.Bottom - 16)) -ExpectedHit "htbottom" -Label "bottom edge transition before resize action"
-    $bottomResizeTransitionOffset = [Math]::Abs($rectBeforeBottomResize.Bottom - $bottomResizeTransition.Y)
+    $bottomResizeTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX $bottomStartX -StartY ([int]($rectBeforeBottomResize.Bottom + 24)) -EndX $bottomStartX -EndY ([int]($rectBeforeBottomResize.Bottom - 16)) -ExpectedHit "htbottom" -Label "bottom edge transition before resize action" -VisibleEdgeY ([int]$rectBeforeBottomResize.Bottom) -OffsetAxis "y" -ExpectedDashboardHandle $dashboardHandle -DashboardContext $afterRightSettle.Context.Evidence -SettleState $afterRightSettle.Evidence -CaptureDiagnosticSamples
+    $bottomResizeTransitionOffset = if ($bottomResizeTransition.OffsetFromVisibleEdgePx -ne $null) { [int]$bottomResizeTransition.OffsetFromVisibleEdgePx } else { [Math]::Abs($rectBeforeBottomResize.Bottom - $bottomResizeTransition.Y) }
     if (-not $bottomResizeTransition.Found -or $bottomResizeTransitionOffset -gt 14) {
         throw "Dashboard bottom-edge resize cursor was not discoverable near the visible edge before resize action"
     }
@@ -2970,17 +3325,24 @@ try {
     Add-Step -Id "dashboard_mouse_resize_bottom_edge" -Title "Dashboard bottom-edge resize cursor transition triggers geometry resize" -Status ($(if ($bottomResized) { "PASS" } else { "FAIL" })) -Detail "beforeHeight=$($rectBeforeBottomResize.Height); afterHeight=$($rectAfterBottomResize.Height); uniqueHeightSamples=$bottomUniqueHeights; start=($($bottomResizeTransition.X),$($bottomResizeTransition.Y)) discovered from outside-to-edge cursor transition; offset=$bottomResizeTransitionOffset" -Evidence @{ screenshot = $bottomResizeShot; transition = $bottomResizeTransition; geometrySamples = $bottomSamples }
     if (-not $bottomResized) { throw "Dashboard did not resize through the cursor-aligned bottom-edge rail" }
 
-    $rectBeforeGrowVisual = $dashboard.Current.BoundingRectangle
-    $growVisualTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeGrowVisual.Right + 24)) -StartY ([int]($rectBeforeGrowVisual.Bottom + 24)) -EndX ([int]($rectBeforeGrowVisual.Right - 16)) -EndY ([int]($rectBeforeGrowVisual.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner grow visual proof transition"
+    $afterBottomSettle = Wait-DashboardPostResizeSettle -Label "after bottom-edge resize before grow visual proof"
+    if (-not $afterBottomSettle.Stable) { throw "Dashboard did not settle after bottom-edge resize before grow visual proof" }
+    $dashboard = $afterBottomSettle.Context.Dashboard
+    $dashboardHandle = [long]$afterBottomSettle.Context.Handle
+    $rectBeforeGrowVisual = $afterBottomSettle.Context.Rect
+    $growVisualTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeGrowVisual.Right + 24)) -StartY ([int]($rectBeforeGrowVisual.Bottom + 24)) -EndX ([int]($rectBeforeGrowVisual.Right - 16)) -EndY ([int]($rectBeforeGrowVisual.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner grow visual proof transition" -ExpectedDashboardHandle $dashboardHandle -DashboardContext $afterBottomSettle.Context.Evidence -SettleState $afterBottomSettle.Evidence -CaptureDiagnosticSamples
     if (-not $growVisualTransition.Found) { throw "Dashboard corner resize cursor was not discoverable before grow visual proof" }
     $growVisual = Drag-FromToWithGeometryAndVisualSamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$growVisualTransition.X) -StartY ([int]$growVisualTransition.Y) -EndX ([int]($growVisualTransition.X + 56)) -EndY ([int]($growVisualTransition.Y + 48)) -Label "Dashboard grow live visual resize proof" -Steps 42 -StepDelayMs 8
     $growVisualProof = Test-DashboardDuringDragVisualProof -Samples $growVisual.Samples -Frames $growVisual.Frames -Mode "grow"
     Add-Step -Id "dashboard_resize_grow_during_drag_visual_proof" -Title "Dashboard grow resize repaints while the mouse is held" -Status ($(if ($growVisualProof.Pass) { "PASS" } else { "FAIL" })) -Detail "uniqueSizes=$($growVisualProof.UniqueGeometrySizes); capturedFrames=$($growVisualProof.VisibleFrameCount); frameGeometryDeltas=$($growVisualProof.FrameGeometryDeltaCount); pixelSignatureDeltas=$($growVisualProof.SignatureDeltaCount); maxMeanDelta=$($growVisualProof.MaxMeanDelta); frames captured before mouse release." -Evidence @{ visualProof = $growVisualProof; samples = $growVisual.Samples; frames = $growVisual.Frames; transition = $growVisualTransition }
     if (-not $growVisualProof.Pass) { throw "Dashboard grow resize did not produce during-drag visual/pixel-signature proof before mouse release" }
 
-    $dashboard = Get-DashboardWindow
-    $rectBeforeShrinkVisual = $dashboard.Current.BoundingRectangle
-    $shrinkVisualTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeShrinkVisual.Right + 24)) -StartY ([int]($rectBeforeShrinkVisual.Bottom + 24)) -EndX ([int]($rectBeforeShrinkVisual.Right - 16)) -EndY ([int]($rectBeforeShrinkVisual.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner shrink visual proof transition"
+    $afterGrowSettle = Wait-DashboardPostResizeSettle -Label "after grow visual proof before shrink visual proof"
+    if (-not $afterGrowSettle.Stable) { throw "Dashboard did not settle after grow visual proof before shrink visual proof" }
+    $dashboard = $afterGrowSettle.Context.Dashboard
+    $dashboardHandle = [long]$afterGrowSettle.Context.Handle
+    $rectBeforeShrinkVisual = $afterGrowSettle.Context.Rect
+    $shrinkVisualTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeShrinkVisual.Right + 24)) -StartY ([int]($rectBeforeShrinkVisual.Bottom + 24)) -EndX ([int]($rectBeforeShrinkVisual.Right - 16)) -EndY ([int]($rectBeforeShrinkVisual.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner shrink visual proof transition" -ExpectedDashboardHandle $dashboardHandle -DashboardContext $afterGrowSettle.Context.Evidence -SettleState $afterGrowSettle.Evidence -CaptureDiagnosticSamples
     if (-not $shrinkVisualTransition.Found) { throw "Dashboard corner resize cursor was not discoverable before shrink visual proof" }
     $shrinkVisual = Drag-FromToWithGeometryAndVisualSamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$shrinkVisualTransition.X) -StartY ([int]$shrinkVisualTransition.Y) -EndX ([int]($shrinkVisualTransition.X - 64)) -EndY ([int]($shrinkVisualTransition.Y - 56)) -Label "Dashboard shrink live visual resize proof" -Steps 42 -StepDelayMs 8
     $shrinkTracking = Measure-ResizeTracking -Samples $shrinkVisual.Samples -BaseWidth $rectBeforeShrinkVisual.Width -BaseHeight $rectBeforeShrinkVisual.Height -StartX $shrinkVisualTransition.X -StartY $shrinkVisualTransition.Y -Mode "corner"
@@ -3079,7 +3441,7 @@ try {
 }
 catch {
     $overallStatus = "FAIL"
-    $failureMessage = $_.Exception.Message
+    $failureMessage = "$($_.Exception.Message) | stack=$($_.ScriptStackTrace)"
     Add-Step -Id "human_client_validation_failure" -Title "Human-client validation failure" -Status "FAIL" -Detail $failureMessage -ProofClass "live-human-ui"
 }
 finally {
