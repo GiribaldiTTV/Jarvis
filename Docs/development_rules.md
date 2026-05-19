@@ -84,6 +84,10 @@ Standing automation is not lane truth by itself. `Automation Observability` must
 
 Every active automation that can affect branch, PR, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance truth must carry a configured cwd that resolves to a known worktree. The report must prove cwd, git root, worktree role, branch, `HEAD`, `origin/main`, and stale-neutral-main posture. `Automation CWD Worktree Mismatch` blocks the finding when the automation is pointed at stale `C:\Nexus Desktop AI`, a missing folder, a parked worktree, the wrong FAM lane, or a Governance worktree that is not the recorded lane. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree automation safety repair, and USER-approved `phase-gate governance intake` may use it only for repeatable non-runtime phase-gate miss prevention; both must preserve `RRI-YYYYMMDD-NNN`, operational `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, `Return Digest`, and `Neutral Main Workspace Rebaseline`. The standing Governance branch must not require a dedicated post-merge closeout PR solely to clear cycle-ledger wording after merge/sync/return digest.
 
+## Governance Intake Triage And Digest Profiles
+
+Broad governance/source-truth/process reform must use `Docs/governance_intake_triage_and_digest_profiles.md`. Before mutation, return a `Governance Intake Triage Packet` unless the approved intake already names exact blockers, carrier, files, and approval boundaries. During output, use the smallest legal `Digest Profile`: `Decision Packet`, `Return Digest`, `Validation Digest`, `Full Audit Packet`, or `Delta Digest`.
+
 ## Source-Of-Truth Ownership Model
 
 Use this layered ownership model:

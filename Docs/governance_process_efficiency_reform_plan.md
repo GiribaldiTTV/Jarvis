@@ -366,6 +366,11 @@ Suggested acceptance criteria:
 - Future governance reform prompts can cite a category from this plan instead of restating all details.
 - No phase enum rename, validator split, source-truth archival, or runtime work is attempted in the first pass.
 
+Implementation record:
+- First focused pass admitted: `Docs/governance_intake_triage_and_digest_profiles.md`.
+- Governance source-truth pointers added to `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/codex_modes.md`, `Docs/orin_task_template.md`, `Docs/Main.md`, `Docs/branch_records/index.md`, and `Docs/validation_helper_registry.md`.
+- Validator source-check owner: `dev/orin_branch_governance_validation.py`.
+
 ## Deferred / Needs USER Decision
 
 - Whether to rename phases publicly or keep canonical-only phase names.

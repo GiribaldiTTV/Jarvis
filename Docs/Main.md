@@ -170,8 +170,10 @@ Use these for workflow posture, prompt framing, lifecycle rules, and execution s
 - `Docs/orin_task_template.md`
 - `Docs/codex_user_guide.md`
 - `Docs/governance_process_efficiency_reform_plan.md`
+- `Docs/governance_intake_triage_and_digest_profiles.md`
 
 Repo-wide validation-helper rules also live in this governance layer.
+Broad governance reform uses the `Governance Intake Triage Packet` and smallest legal `Digest Profile` standard from `Docs/governance_intake_triage_and_digest_profiles.md`.
 Use `Docs/nexus_startup_contract.md` as the compact ChatGPT/new-chat loader map only.
 Do not treat it as execution authority.
 Use `Docs/phase_governance.md` for the exact phase enum, blocker rules, branch classes, phase resolver, validation helper contract, proof hierarchy, default-budget closeout rule, and desktop UI audit rule instead of recreating those rules inside a workstream doc.

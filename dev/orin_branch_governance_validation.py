@@ -2144,6 +2144,39 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
     "One Active Cycle",
     "Sync Rule",
 )
+GOVERNANCE_INTAKE_DIGEST_STANDARD_DOC = Path(
+    "Docs/governance_intake_triage_and_digest_profiles.md"
+)
+GOVERNANCE_INTAKE_DIGEST_POINTER_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+    Path("Docs/governance_process_efficiency_reform_plan.md"),
+)
+GOVERNANCE_INTAKE_DIGEST_POINTER_PHRASES = (
+    "Governance Intake Triage Packet",
+    "Digest Profile",
+)
+GOVERNANCE_INTAKE_DIGEST_STANDARD_PHRASES = (
+    "Smallest Legal Packet Rule",
+    "Governance Intake Triage Packet",
+    "Problem Class:",
+    "Source-Truth Support:",
+    "Current Approval Coverage:",
+    "Recommended Carrier:",
+    "Smallest Safe Repair:",
+    "Validator / Helper Impact:",
+    "Recommended Digest Profile:",
+    "Decision Packet",
+    "Return Digest",
+    "Validation Digest",
+    "Full Audit Packet",
+    "Delta Digest",
+)
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
     "dev/orin_branch_readiness_planning_fixture_validation.py",
@@ -16157,6 +16190,24 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: Standing Governance Intake Branch guidance is missing '{required_phrase}'",
+            )
+
+    standard_text = _read_text(GOVERNANCE_INTAKE_DIGEST_STANDARD_DOC)
+    require(
+        bool(standard_text),
+        f"{GOVERNANCE_INTAKE_DIGEST_STANDARD_DOC}: governance intake triage / digest profile standard is missing",
+    )
+    for required_phrase in GOVERNANCE_INTAKE_DIGEST_STANDARD_PHRASES:
+        require(
+            required_phrase in standard_text,
+            f"{GOVERNANCE_INTAKE_DIGEST_STANDARD_DOC}: governance intake / digest standard is missing '{required_phrase}'",
+        )
+    for relative_path in GOVERNANCE_INTAKE_DIGEST_POINTER_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in GOVERNANCE_INTAKE_DIGEST_POINTER_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: governance intake triage / digest profile pointer is missing '{required_phrase}'",
             )
 
     for relative_path in ASSIGNED_WORKTREE_CONFINEMENT_DOCS:

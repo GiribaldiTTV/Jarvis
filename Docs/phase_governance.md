@@ -2452,6 +2452,14 @@ Return-digest identity guard:
 - `Return Digest Origin Identity Missing` blocks the handoff when the originating branch, originating worktree, operating workspace, or expected branch is absent, generic, contradictory, or inferred
 - `Thread / Worktree Identity Mismatch` blocks originating-lane continuation if the return digest points to a different branch/worktree than the accepted intake recorded
 
+## Governance Intake Triage And Digest Profiles
+
+Broad governance/source-truth/process reform must use `Docs/governance_intake_triage_and_digest_profiles.md` before it mutates source truth, unless a Release Readiness intake digest already names exact blockers, carrier, files, and approval boundaries. The canonical packet name is `Governance Intake Triage Packet`.
+
+The required governance intake triage packet fields are `Problem Class:`, `Source-Truth Support:`, `Current Approval Coverage:`, `Recommended Carrier:`, `Smallest Safe Repair:`, `Files Likely Affected:`, `Validator / Helper Impact:`, `Runtime / Product Risk:`, `Active Branch / Worktree Interaction:`, `PR / Merge Need:`, `Deferred Items:`, `Stop / Report Conditions:`, `Recommended Digest Profile:`, and `Exact USER Decision Needed:`.
+
+Codex must choose the smallest legal digest profile for the phase: `Decision Packet`, `Return Digest`, `Validation Digest`, `Full Audit Packet`, or `Delta Digest`. A `Full Audit Packet` is reserved for explicit broad audits, process reform, root-cause analysis, or repo-wide recommendations. Normal phase handoffs should not restate full governance when changed values, blockers, validation, and `Next Legal Phase` are enough.
+
 ## Exception Path: Post-Release Canon Repair
 
 Purpose:
