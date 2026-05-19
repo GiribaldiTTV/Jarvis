@@ -74,6 +74,19 @@ const aiProviderStatusFutureActivationGate = document.getElementById("ai-provide
 const aiProviderStatusAdapter = document.getElementById("ai-provider-status-adapter");
 const aiProviderStatusExecutionGates = document.getElementById("ai-provider-status-execution-gates");
 const aiProviderStatusFunctionalAi = document.getElementById("ai-provider-status-functional-ai");
+const aiProviderStatusExecutionReadiness = document.getElementById("ai-provider-status-execution-readiness");
+const aiProviderStatusExecutionEligibility = document.getElementById("ai-provider-status-execution-eligibility");
+const aiProviderStatusExecutionBlocker = document.getElementById("ai-provider-status-execution-blocker");
+const aiProviderStatusExecutionReason = document.getElementById("ai-provider-status-execution-reason");
+const aiProviderStatusExecutionProvenance = document.getElementById("ai-provider-status-execution-provenance");
+const aiProviderStatusExecutionSchema = document.getElementById("ai-provider-status-execution-schema");
+const aiProviderStatusExecutionApproval = document.getElementById("ai-provider-status-execution-approval");
+const aiProviderStatusProviderPath = document.getElementById("ai-provider-status-provider-path");
+const aiProviderStatusAdapterSelection = document.getElementById("ai-provider-status-adapter-selection");
+const aiProviderStatusPromptGates = document.getElementById("ai-provider-status-prompt-gates");
+const aiProviderStatusModelExecution = document.getElementById("ai-provider-status-model-execution");
+const aiProviderStatusExecutionData = document.getElementById("ai-provider-status-execution-data");
+const aiProviderStatusFunctionalRelease = document.getElementById("ai-provider-status-functional-release");
 const aiProviderStatusCapabilityEligibility = document.getElementById("ai-provider-status-capability-eligibility");
 const aiProviderStatusInstallIntent = document.getElementById("ai-provider-status-install-intent");
 const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
@@ -280,6 +293,58 @@ let aiProviderState = {
   functionalAiCriteriaLabel: "Functional AI: criteria pending for v1.8.0-prebeta",
   v18PrebetaReadinessState: "v1.8.0-prebeta-readiness-pending",
   v18PrebetaReadinessLabel: "v1.8.0-prebeta readiness: pending functional AI proof",
+  providerExecutionReadinessState: "execution_unavailable",
+  providerExecutionReadinessLabel: "Execution readiness: unavailable",
+  promptExecutionReadinessState: "execution_blocked_by_prompt_gate",
+  promptExecutionReadinessLabel: "Prompt execution readiness: disabled",
+  modelExecutionReadinessState: "execution_blocked_by_model_gate",
+  modelExecutionReadinessLabel: "Model execution readiness: disabled",
+  executionEligibilityState: "execution_eligibility_unavailable",
+  executionEligibilityLabel: "Execution eligibility: unavailable",
+  executionBlockerState: "activation_required",
+  executionBlockerLabel: "Execution blocker: activation required",
+  executionReasonCode: "execution_default_unavailable",
+  executionReasonLabel: "Execution reason: execution readiness gates only",
+  executionProvenance: "activation_state",
+  executionProvenanceLabel: "Execution provenance: activation state",
+  executionStateSchemaVersion: "provider-execution-readiness-state.v1",
+  executionConfigSchemaVersion: "provider-execution-readiness-config.v1",
+  executionConfigState: "default_config",
+  executionConfigLabel: "Execution config: safe default local-only",
+  executionConfigMigration: "safe-defaults-no-execution-migration",
+  executionConfigValid: true,
+  executionApprovalStatus: "execution-approval-missing",
+  executionApprovalLabel: "Execution approval: USER approval missing",
+  providerPathStatus: "provider-path-not-selected",
+  providerPathLabel: "Provider path: not selected",
+  providerSelectionPosture: "provider-selection-pending-user-approval",
+  providerSelectionPostureLabel: "Provider selection: pending USER approval",
+  adapterSelectionPosture: "adapter-selection-null-local",
+  adapterSelectionPostureLabel: "Adapter selection: null local fallback",
+  promptAcceptanceGateState: "prompt-acceptance-disabled",
+  promptAcceptanceGateLabel: "Prompt acceptance gate: disabled",
+  promptRoutingGateState: "prompt-routing-disabled",
+  promptRoutingGateLabel: "Prompt routing gate: disabled",
+  promptSendPosture: "prompt-send-disabled",
+  promptSendLabel: "Prompt send: disabled",
+  modelExecutionStatus: "model-execution-disabled",
+  modelExecutionStatusLabel: "Model execution status: disabled",
+  modelWorkloadReadinessPosture: "model-workload-readiness-disabled",
+  modelWorkloadReadinessLabel: "Model workload readiness: disabled",
+  providerVisibleDataExecutionPosture: "provider-visible-data-execution-none",
+  providerVisibleDataExecutionLabel: "Provider-visible execution data: none",
+  externalCallReadinessState: "external-calls-blocked",
+  externalCallReadinessLabel: "External call readiness: blocked",
+  safetyEvalReadinessState: "safety-eval-readiness-pending",
+  safetyEvalReadinessLabel: "Safety/eval readiness: pending",
+  dataClassificationGateState: "data-classification-gate-local-only",
+  dataClassificationGateLabel: "Data classification gate: local-only",
+  executionProofMarker: "execution-proof-pending",
+  futureExecutionValidationMarker: "future-execution-validation-marker",
+  functionalAiReleaseGateState: "functional-ai-release-gate-pending",
+  functionalAiReleaseGateLabel: "Functional-AI release gate: pending",
+  v18ReleaseGateState: "v1.8.0-prebeta-release-gate-pending-functional-ai",
+  v18ReleaseGateLabel: "v1.8.0-prebeta release gate: pending functional AI proof",
   capabilityPackEligibilityState: "capability-pack-eligibility-blocked",
   capabilityPackEligibilityLabel: "Capability-pack eligibility: blocked",
   capabilityPackManifestValidityState: "manifest-missing",
@@ -1432,6 +1497,23 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.providerExecutionGate = state.providerExecutionGateState || "unknown";
   aiProviderStatus.dataset.functionalAiCriteria = state.functionalAiCriteriaState || "unknown";
   aiProviderStatus.dataset.v18PrebetaReadiness = state.v18PrebetaReadinessState || "unknown";
+  aiProviderStatus.dataset.executionReadiness = state.providerExecutionReadinessState || "unknown";
+  aiProviderStatus.dataset.executionEligibility = state.executionEligibilityState || "unknown";
+  aiProviderStatus.dataset.executionBlocker = state.executionBlockerState || "unknown";
+  aiProviderStatus.dataset.executionReason = state.executionReasonCode || "unknown";
+  aiProviderStatus.dataset.executionProvenance = state.executionProvenance || "unknown";
+  aiProviderStatus.dataset.executionSchema = state.executionStateSchemaVersion || "unknown";
+  aiProviderStatus.dataset.executionApproval = state.executionApprovalStatus || "unknown";
+  aiProviderStatus.dataset.providerPath = state.providerPathStatus || "unknown";
+  aiProviderStatus.dataset.adapterSelection = state.adapterSelectionPosture || "unknown";
+  aiProviderStatus.dataset.promptAcceptanceGate = state.promptAcceptanceGateState || "unknown";
+  aiProviderStatus.dataset.promptRoutingGate = state.promptRoutingGateState || "unknown";
+  aiProviderStatus.dataset.promptSend = state.promptSendPosture || "unknown";
+  aiProviderStatus.dataset.modelExecutionStatus = state.modelExecutionStatus || "unknown";
+  aiProviderStatus.dataset.providerVisibleDataExecution =
+    state.providerVisibleDataExecutionPosture || "unknown";
+  aiProviderStatus.dataset.functionalAiReleaseGate = state.functionalAiReleaseGateState || "unknown";
+  aiProviderStatus.dataset.v18ReleaseGate = state.v18ReleaseGateState || "unknown";
   aiProviderStatus.dataset.configuredProviderCount = String(state.configuredProviderCount || 0);
   aiProviderStatus.dataset.availableProviderCount = String(state.availableProviderCount || 0);
   aiProviderStatus.dataset.hardwareCapability = state.hardwareCapabilityState || "unknown";
@@ -1683,6 +1765,61 @@ function renderAIProviderState() {
   if (aiProviderStatusFunctionalAi) {
     aiProviderStatusFunctionalAi.textContent =
       `${state.functionalAiCriteriaLabel || "Functional AI: criteria pending for v1.8.0-prebeta"}; ${state.v18PrebetaReadinessLabel || "v1.8.0-prebeta readiness: pending functional AI proof"}`;
+  }
+  if (aiProviderStatusExecutionReadiness) {
+    aiProviderStatusExecutionReadiness.textContent =
+      state.providerExecutionReadinessLabel || "Execution readiness: unavailable";
+  }
+  if (aiProviderStatusExecutionEligibility) {
+    aiProviderStatusExecutionEligibility.textContent =
+      state.executionEligibilityLabel || "Execution eligibility: unavailable";
+  }
+  if (aiProviderStatusExecutionBlocker) {
+    aiProviderStatusExecutionBlocker.textContent =
+      state.executionBlockerLabel || "Execution blocker: activation required";
+  }
+  if (aiProviderStatusExecutionReason) {
+    aiProviderStatusExecutionReason.textContent =
+      state.executionReasonLabel || "Execution reason: execution readiness gates only";
+  }
+  if (aiProviderStatusExecutionProvenance) {
+    aiProviderStatusExecutionProvenance.textContent =
+      state.executionProvenanceLabel || "Execution provenance: activation state";
+  }
+  if (aiProviderStatusExecutionSchema) {
+    const executionSchemaVersion = state.executionStateSchemaVersion || "provider-execution-readiness-state.v1";
+    const executionConfigVersion =
+      state.executionConfigSchemaVersion || "provider-execution-readiness-config.v1";
+    const executionConfigLabel = state.executionConfigLabel || "Execution config: safe default local-only";
+    aiProviderStatusExecutionSchema.textContent =
+      `${executionSchemaVersion}; ${executionConfigVersion}; ${executionConfigLabel}`;
+  }
+  if (aiProviderStatusExecutionApproval) {
+    aiProviderStatusExecutionApproval.textContent =
+      state.executionApprovalLabel || "Execution approval: USER approval missing";
+  }
+  if (aiProviderStatusProviderPath) {
+    aiProviderStatusProviderPath.textContent = state.providerPathLabel || "Provider path: not selected";
+  }
+  if (aiProviderStatusAdapterSelection) {
+    aiProviderStatusAdapterSelection.textContent =
+      state.adapterSelectionPostureLabel || "Adapter selection: null local fallback";
+  }
+  if (aiProviderStatusPromptGates) {
+    aiProviderStatusPromptGates.textContent =
+      `${state.promptAcceptanceGateLabel || "Prompt acceptance gate: disabled"}; ${state.promptRoutingGateLabel || "Prompt routing gate: disabled"}; ${state.promptSendLabel || "Prompt send: disabled"}`;
+  }
+  if (aiProviderStatusModelExecution) {
+    aiProviderStatusModelExecution.textContent =
+      `${state.modelExecutionStatusLabel || "Model execution status: disabled"}; ${state.modelWorkloadReadinessLabel || "Model workload readiness: disabled"}`;
+  }
+  if (aiProviderStatusExecutionData) {
+    aiProviderStatusExecutionData.textContent =
+      `${state.providerVisibleDataExecutionLabel || "Provider-visible execution data: none"}; ${state.externalCallReadinessLabel || "External call readiness: blocked"}`;
+  }
+  if (aiProviderStatusFunctionalRelease) {
+    aiProviderStatusFunctionalRelease.textContent =
+      `${state.functionalAiReleaseGateLabel || "Functional-AI release gate: pending"}; ${state.v18ReleaseGateLabel || "v1.8.0-prebeta release gate: pending functional AI proof"}`;
   }
   if (aiProviderStatusCapabilityEligibility) {
     aiProviderStatusCapabilityEligibility.textContent =
