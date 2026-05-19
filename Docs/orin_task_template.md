@@ -106,6 +106,24 @@ Reconciliation Recommendation:
 Reconciliation Mutation Status:
 [analysis-only; no file fixes during Stage 1]
 
+Current-Main Reconciliation Identity Guard:
+[PASS / Worktree Branch Identity Drift / not applicable]
+
+Identity Rule:
+[origin/main is context, not identity / not applicable]
+
+Assigned Worktree Branch Identity:
+[expected worktree, actual worktree, expected branch, actual branch, active authority record]
+
+Branch-Local Authority Reassertion:
+[PASS with current-state owner files updated for this branch / not applicable]
+
+Incoming Main Active-Branch Blocks Accepted: NO
+[NO / blocker with explanation]
+
+Sibling Worktree Identity Preservation:
+[PASS / blocker with sibling worktree affected]
+
 Branch Class:
 [implementation / release packaging / historical repair context only as canon allows]
 
@@ -758,7 +776,8 @@ If the phase is `PR Readiness`, the final response must include:
 
 If the current stage is `PR Readiness Stage 1 - Analysis Gate`, the final response must also report Stage 1 repair findings, Stage 1 repairs made, validation results, files changed or none, whether `PR Readiness Stage 1 Repair Pending` is clear, and one explicit readiness-lock outcome: `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required`. It must state `PR Readiness Execution User Approval Missing` and stop for USER approval to enter Stage 2 unless Stage 1 is ready and USER approval already exists.
 
-PR Readiness must prove post-merge source truth before PR creation, after any Stage 2 or bot-review source-truth repair, and before merge approval with the `Release Readiness Health Pass` by running `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`. The packet must report `Post-Merge Branch Authority Projection:`, `Stale Active Branch Wording Scan:`, `Stale PR Creation / PR Readiness Pending Wording Scan:`, `Merged-Unreleased Scope Posture:`, `Release Execution Gate:`, `Watcher / Live PR State Projection:`, `Branch Cleanup Plan:`, `Branch Cleanup Execution Gate:`, `FAM Overlap Routing:`, `Release Candidate Anchor Projection:`, `Release Window Contributor Inventory:`, and `Projected Post-Merge Validation:` so projected merged main can enter Release Readiness as validation, not cleanup.
+PR Readiness must prove post-merge source truth before PR creation, after any Stage 2 or bot-review source-truth repair, and before merge approval with the `Release Readiness Health Pass` by running `python dev\orin_branch_governance_validation.py --release-readiness-health-gate`. The packet must report `Post-Merge Branch Authority Projection:`, `Stale Active Branch Wording Scan:`, `Stale PR Creation / PR Readiness Pending Wording Scan:`, `Merged-Unreleased Scope Posture:`, `Release Execution Gate:`, `Watcher / Live PR State Projection:`, `Branch Cleanup Plan:`, `Branch Cleanup Execution Gate:`, `FAM Overlap Routing:`, `Release Candidate Anchor Projection:`, `Release Window Contributor Inventory:`, `Governance Intake Routing:`, and `Projected Post-Merge Validation:` so projected merged main can enter Release Readiness as validation, not cleanup.
+If Release Readiness discovers stale active branch authority, stale phase wording, stale PR Readiness wording, selected-next ambiguity, release-window contributor ambiguity, or `No Active Branch` conflict after merge, the digest must say `Governance Intake Routing: send this to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake` and include the originating worktree, branch, PR, merge commit, blockers, and next legal phase.
 
 Release Readiness must declare `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:`. Unless USER explicitly selects a historical commit as the release target, current fetched `origin/main` is the release candidate anchor and historical PR merge commits are audit evidence only. Missing or ambiguous anchor data is `Release Candidate Anchor Missing`; do not repair it inside Release Readiness.
 
