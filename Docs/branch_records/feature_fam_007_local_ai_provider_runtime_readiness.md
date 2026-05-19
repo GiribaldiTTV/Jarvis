@@ -6,12 +6,12 @@
 - Worktree: `C:\Nexus Worktrees\FAM-007`
 - Branch Class: `implementation`
 - Implementation Delta Class: `source-truth Branch Readiness setup and future local-only runtime readiness contract`
-- Backlog Record State: `Historical / merged-unreleased after PR #165`
+- Backlog Record State: `Historical / released in v1.7.5-prebeta after PR #165`
 - Family: `FAM-007` Local AI and Capability Packs
 - Package: `PKG-007` Local AI foundation and capability-pack architecture package
 - Workstream Label: `FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
 - Branch Creation Base: `0cd1b0430f5634048613bffec411d35d657058bf`
-- Current origin/main: `4d9e97347b884fd453e0675511dffcf13c37d155`
+- Current origin/main: `81701d4b351ae7bb4c146daf88a8d884f6bc7981`
 
 ## Purpose
 
@@ -20,7 +20,7 @@ This branch is the USER-approved fresh FAM-007 runtime carrier created from curr
 ## Current Phase
 
 - Phase: `Historical Traceability`
-Stage: `Merged-Unreleased Historical Evidence`
+Stage: `Released Historical Evidence`
 Active Branch Authority: `None - merge-stable post-merge projection`
 Active Worktree: `None - C:\Nexus Worktrees\FAM-007 may remain checked out to historical branch until USER-approved rebaseline or cleanup`
 Active Package: `PKG-007`
@@ -39,12 +39,12 @@ Current Live Validation State: `Green - LV1 classified this branch as a disabled
 PR Readiness Stage 1 Repair USER Approval: `Historical - USER approved selected-next defer/waiver truth and pre-PR live-state truth before PR #165; PR creation and merge were later completed through PR #165`
 Current PR Readiness State: `Closed by PR #165 merge - selected-next defer/waiver truth, post-merge No Active Branch projection, successor selection deferral, and pre-PR live-state truth are historical PR evidence only`
 Branch Under PR Readiness: `feature/fam-007-local-ai-provider-runtime-readiness`
-Branch Authority State: `Historical / merged-unreleased after PR #165; not an active branch owner on merged main`
-Release Canon Closure State: `v1.7.4-prebeta published at 0cd1b0430f5634048613bffec411d35d657058bf; PR #162 and PR #163 are released in v1.7.4-prebeta`
+Branch Authority State: `Historical / released in v1.7.5-prebeta after PR #165; not an active branch owner on merged main`
+Release Canon Closure State: `v1.7.5-prebeta published at 81701d4b351ae7bb4c146daf88a8d884f6bc7981; PR #165 is released in v1.7.5-prebeta`
 Selected Next Workstream: `None - USER-approved selected-next defer/waiver for this PR-readiness pass`
 Selected Next Implementation Branch: `Not created`
-Selected Next Current-Carrier Note: `This branch is historical merged-unreleased PR #165 evidence; Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness selected-next/defer repair are green, and the next legal phase is Release Readiness rerun after Governance drift repair merges`
-Package Completion State: `PKG-007 admitted but not complete - prior local-only scaffolds are released historical evidence through v1.7.4-prebeta; provider SDK/model execution, downloads, external calls, memory/indexing, voice/Core sync, shortcut/installer, release, issue, AI Product, and FAM-006 work remain separate USER decisions`
+Selected Next Current-Carrier Note: `This branch is historical released PR #165 evidence; Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness, merge, and v1.7.5-prebeta release are complete`
+Package Completion State: `PKG-007 admitted but not complete - prior local-only scaffolds are released historical evidence through v1.7.5-prebeta; provider SDK/model execution, downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer, release, issue, AI Product, and FAM-006 work remain separate USER decisions`
 
 ## Branch Class
 
@@ -104,7 +104,7 @@ USER approved Branch Readiness Stage 2 for the fresh FAM-007 runtime branch afte
 - Fresh FAM-007 branch authority is recorded for `feature/fam-007-local-ai-provider-runtime-readiness`.
 - Product Definition Plan fields are complete.
 - The bounded Workstream plan is admitted without authorizing runtime implementation.
-- PR #165 is recorded as merged-unreleased FAM-007 provider-readiness/setup-eligibility evidence.
+- PR #165 is recorded as released FAM-007 provider-readiness/setup-eligibility evidence in `v1.7.5-prebeta`.
 - Validation passes and merged-main source truth no longer describes this branch as PR creation pending.
 
 ## Rollback Target
@@ -127,7 +127,7 @@ Exact USER Decision Needed: `Approve rerunning FAM-007 Release Readiness Stage 1
 Origin/Main Freshness Check: `Historical PASS - branch creation base was 0cd1b0430f5634048613bffec411d35d657058bf, origin/main advanced during the branch and was reconciled by commit 9ee328d6967d7d9272f719836606f71acbd4d21f before H1, PR #165 later merged at 4d9e97347b884fd453e0675511dffcf13c37d155, and this section is audit evidence only.`
 Branch Creation Base: `0cd1b0430f5634048613bffec411d35d657058bf`
 Current origin/main: `4d9e97347b884fd453e0675511dffcf13c37d155`
-Origin/Main Advanced Since Branch Creation: `YES - reconciled before H1, PR #165 merged after PR Readiness, and the branch is historical merged-unreleased evidence`
+Origin/Main Advanced Since Branch Creation: `YES - reconciled before H1, PR #165 merged after PR Readiness, v1.7.5-prebeta released it, and the branch is historical released evidence`
 Origin/Main Changed Files: `PR #164 runtime-contract governance and validator surfaces were reconciled before H1; PR #165 is the merge commit that made this record historical`
 Branch Changed Files: `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md; Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md; Docs/branch_records/index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/validation_helper_registry.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/orin_ai_provider_state_validation.py; nexus_visual/orin_core.css; nexus_visual/orin_core.html; nexus_visual/orin_core.js; nexus_visual/orin_core_desktop.html`
 Reconciliation Required: `NO`
@@ -145,7 +145,7 @@ PR Readiness Stage 2 Green-Light Decision Needed: `Closed by PR #165 merge`
 Branch Authority: `No Active Branch`
 Repo State: No Active Branch
 Post-Merge Repo State: No Active Branch
-Post-Merge Branch Authority Projection: `PR #165 merged; feature/fam-007-local-ai-provider-runtime-readiness is historical merged-unreleased evidence for the FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility Workstream and must not remain active branch authority on main.`
+Post-Merge Branch Authority Projection: `PR #165 merged and v1.7.5-prebeta released it; feature/fam-007-local-ai-provider-runtime-readiness is historical released evidence for the FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility Workstream and must not remain active branch authority on main.`
 Backlog Addition User Approval Missing: Cleared historically for this PR-readiness pass by USER-approved selected-next defer/waiver; no new backlog identity, backlog split, runtime package admission, successor branch, branch cleanup, or selected-next successor is created by the PR #165 merge.
 Next Workstream User Waiver: Granted - USER approved selected-next defer/waiver for this PR-readiness pass.
 Selected Next Workstream: None - USER-approved selected-next defer/waiver for this PR-readiness pass.
@@ -161,7 +161,7 @@ Stale Active Branch Wording Scan: `PASS - current-state truth does not retain ac
 
 Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - pre-PR live-state and Stage 2 operator details are historical audit evidence only and are not projected as merged-main current-state truth.`
 
-Merged-Unreleased Scope Posture: `PASS - PR #165 is merged-unreleased FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility scope until later USER-approved release execution.`
+Merged-Unreleased Scope Posture: `PASS - PR #165 is released in v1.7.5-prebeta and no longer carries merged-unreleased release debt.`
 
 Release Execution Gate: `PASS - release execution, tags, GitHub Release publication, artifacts, and issue closeout remain pending USER approval.`
 
@@ -173,7 +173,7 @@ FAM Overlap Routing: `PASS - FAM-006 overlap belongs to the FAM-006 lane unless 
 
 Release Candidate Anchor Projection: `PASS - updated origin/main at PR #165 merge commit 4d9e97347b884fd453e0675511dffcf13c37d155 becomes the release-readiness inspection target unless USER selects another release candidate anchor; this record does not execute release work.`
 
-Release Window Contributor Inventory: `PASS - PR #165 is the FAM-007 implementation contributor for the next release window after v1.7.4-prebeta; FAM-006 active work remains a separate lane and must be inventoried only if merged into the same release window.`
+Release Window Contributor Inventory: `PASS - PR #165 was released in v1.7.5-prebeta with PR #164 and PR #166 through PR #168; FAM-006 active work remains a separate lane and must be inventoried only if merged into a later release window.`
 
 Projected Post-Merge Validation: `PASS - after Governance RRI-20260519-001 merges and worktrees rebaseline, rerun branch governance validation, release-readiness health gate, release body validation, provider-state validation, branch-readiness planning fixture validation, and compileall from updated main before any release execution.`
 
@@ -210,16 +210,16 @@ No Unique Commit Loss Proof: `PASS - target branch did not exist locally or remo
 
 ## Post-Release Canon Closure
 
-Latest Public Prerelease: `v1.7.4-prebeta`
-Latest Public Release Commit: `0cd1b0430f5634048613bffec411d35d657058bf`
-Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.4-prebeta`
-Latest Public Prerelease Title: `Pre-Beta v1.7.4`
-Released In v1.7.4-prebeta: `PR #162 FAM-007 local AI runtime expansion foundation; PR #163 post-PR162 release-window closeout`
-Published Release Pending Canon Closure: `None - this Branch Readiness Stage 2 closes the v1.7.4-prebeta release-dependent canon drift`
-Closure Repair Surface: `Closed inside this USER-approved Branch Readiness Stage 2 setup`
+Latest Public Prerelease: `v1.7.5-prebeta`
+Latest Public Release Commit: `81701d4b351ae7bb4c146daf88a8d884f6bc7981`
+Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.5-prebeta`
+Latest Public Prerelease Title: `Pre-Beta v1.7.5`
+Released In v1.7.5-prebeta: `PR #164 Runtime Branch Engineering Contract governance; PR #165 FAM-007 Local AI Provider Runtime Readiness; PR #166 Governance Intake RRI-20260519-001; PR #167 Governance Intake RRI-20260519-001 Closeout; PR #168 Governance Standing Branch Closeout Exemption`
+Published Release Pending Canon Closure: `None - v1.7.5-prebeta release truth is closed by the later Branch Readiness Stage 2 setup on feature/fam-007-local-ai-provider-activation-foundation`
+Closure Repair Surface: `Closed by USER-approved Branch Readiness Stage 2 setup for feature/fam-007-local-ai-provider-activation-foundation`
 Closure Drift Scope: `Closed - release-dependent fields only`
 Implementation Entry: `Complete for the bounded local-only readiness/setup eligibility Workstream; real provider/model/download/external/memory/voice/shortcut/installer work remains USER-gated`
-Release-Debt Avoidance Status: `Clear for v1.7.4-prebeta after this setup records public release truth; future release execution remains USER-gated`
+Release-Debt Avoidance Status: `Clear for v1.7.5-prebeta after release truth is recorded; future release execution remains USER-gated`
 
 ## Workstream Plan
 
