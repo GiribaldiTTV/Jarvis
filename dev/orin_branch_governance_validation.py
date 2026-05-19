@@ -2222,6 +2222,25 @@ VALIDATION_SUITE_SOURCE_PHRASES = (
     "git diff",
     "rationale",
 )
+CURRENT_DECISION_SURFACE_DOCS = (
+    Path("Docs/feature_backlog.md"),
+    Path("Docs/prebeta_roadmap.md"),
+)
+CURRENT_DECISION_SURFACE_PHRASES = (
+    "## Current Decision Surface",
+    "Latest Public Prerelease Recorded In Source Truth:",
+    "Published Release Pending Canon Closure:",
+    "Merged-Unreleased PRs:",
+    "Active Runtime Branch:",
+    "Active Governance Branch:",
+    "Selected-Next Posture:",
+    "Release Blockers:",
+    "Next Legal Phase:",
+)
+CURRENT_DECISION_SURFACE_POINTER_DOCS = (
+    Path("Docs/governance_process_efficiency_reform_plan.md"),
+    Path("Docs/branch_records/feature_release_readiness_source_truth_intake.md"),
+)
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
     "dev/orin_branch_readiness_planning_fixture_validation.py",
@@ -16323,6 +16342,21 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: validation suite helper guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in CURRENT_DECISION_SURFACE_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in CURRENT_DECISION_SURFACE_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Current Decision Surface is missing '{required_phrase}'",
+            )
+    for relative_path in CURRENT_DECISION_SURFACE_POINTER_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in ("Current Decision Surface", "Latest Public Prerelease Recorded In Source Truth:"):
+            require(
+                required_phrase in text,
+                f"{relative_path}: Current Decision Surface pointer is missing '{required_phrase}'",
             )
 
     for relative_path in ASSIGNED_WORKTREE_CONFINEMENT_DOCS:

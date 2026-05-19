@@ -289,6 +289,11 @@ Focused planning pass:
 Priority:
 - Medium-high.
 
+Implementation record:
+- Focused pass admitted compact `## Current Decision Surface` blocks in `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md`.
+- The blocks keep `Latest Public Prerelease Recorded In Source Truth:`, `Published Release Pending Canon Closure:`, `Merged-Unreleased PRs:`, `Active Runtime Branch:`, `Active Governance Branch:`, `Selected-Next Posture:`, `Release Blockers:`, and `Next Legal Phase:` near the top so routine phase loading can avoid scanning long historical prose.
+- Validator source-check owner: `dev/orin_branch_governance_validation.py`.
+
 ## Category 13: Naming And Product Identity Drift
 
 Current finding:

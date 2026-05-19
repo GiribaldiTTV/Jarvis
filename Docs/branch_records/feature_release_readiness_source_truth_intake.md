@@ -113,6 +113,7 @@ Allowed:
 - Worktree Rebaseline Audit Helper standardization may be repaired on this standing lane when USER approves the focused reform pass; the reusable helper is `dev/orin_worktree_rebaseline_audit.py`, is report-only, and emits `Current-Main Reconciliation Identity Guard`.
 - PR Watcher Mode Contract standardization may be repaired on this standing lane when USER approves the focused reform pass; the standard lives in `Docs/pr_watcher_mode_contract.md`, defines `Silent Monitor`, `Verify Once`, `Repair Mode`, and `Blocked Mode`, and requires `Watcher Health Proof:` before PR Readiness Stage 2 final handoff can be green.
 - Validation Suite recommendation standardization may be repaired on this standing lane when USER approves the focused reform pass; the reusable helper is `dev/orin_validation_suite.py`, accepts `--phase` and `--changed-file`, emits `Recommended Validation Suite:`, is report-only, and does not execute commands.
+- Backlog/Roadmap Current Decision Surface standardization may be repaired on this standing lane when USER approves the focused reform pass; `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` must carry compact `## Current Decision Surface` blocks with `Latest Public Prerelease Recorded In Source Truth:`, branch, blocker, and next-phase facts.
 - One PR per active `RRI-*` cycle after validation.
 
 Forbidden:

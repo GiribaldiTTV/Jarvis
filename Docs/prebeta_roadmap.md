@@ -63,6 +63,19 @@ Use these release-state values when relevant:
 
 ## Current Release Posture
 
+## Current Decision Surface
+
+Latest Public Prerelease Recorded In Source Truth: `v1.7.4-prebeta`
+Published Release Pending Canon Closure: `v1.7.5-prebeta`
+Merged-Unreleased PRs: PR #165 FAM-007 provider-readiness/setup-eligibility remains merged-unreleased in current source truth until the next Branch Readiness canon-closure path validates.
+Active Runtime Branch: None.
+Active Governance Branch: `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`.
+Selected-Next Posture: None - successor selection is deferred and USER-gated.
+Release Blockers: `v1.7.5-prebeta` post-release canon closure carry-forward plus originating FAM-007 Release Readiness rerun after Governance merge/rebaseline.
+Next Legal Phase: Governance PR Readiness after focused reform cycles validate; runtime branch creation, release execution, issue work, branch cleanup, and successor selection remain separate USER decisions.
+
+### Detailed Current Release Posture
+
 Current merged truth indicates:
 
 - latest public prerelease: `v1.7.4-prebeta`
