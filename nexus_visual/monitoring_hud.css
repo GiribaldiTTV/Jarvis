@@ -651,7 +651,7 @@ body.desktop-mode #monitoring-hud > * {
     0 10px 22px rgba(0, 0, 0, 0.26);
 }
 
-.monitoring-hud__detail-action-row [data-child-window-close="monitor-group-edit"] {
+.monitoring-hud__detail-action-row [data-control="discard-edit-monitor"][data-control-state="discardable"] {
   border-color: rgba(126, 248, 218, 0.38);
   background:
     radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.12), transparent 58%),
@@ -662,9 +662,9 @@ body.desktop-mode #monitoring-hud > * {
     0 0 14px rgba(87, 236, 214, 0.12);
 }
 
-.monitoring-hud__detail-action-row [data-child-window-close="monitor-group-edit"]:hover,
-.monitoring-hud__detail-action-row [data-child-window-close="monitor-group-edit"]:focus-visible,
-.monitoring-hud__detail-action-row [data-child-window-close="monitor-group-edit"].is-pressed {
+.monitoring-hud__detail-action-row [data-control="discard-edit-monitor"][data-control-state="discardable"]:hover,
+.monitoring-hud__detail-action-row [data-control="discard-edit-monitor"][data-control-state="discardable"]:focus-visible,
+.monitoring-hud__detail-action-row [data-control="discard-edit-monitor"][data-control-state="discardable"].is-pressed {
   border-color: rgba(156, 255, 232, 0.72);
   background:
     radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.24), transparent 60%),
@@ -673,6 +673,29 @@ body.desktop-mode #monitoring-hud > * {
   box-shadow:
     0 0 0 1px rgba(239, 255, 252, 0.12) inset,
     0 0 22px rgba(87, 236, 214, 0.24);
+}
+
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"] {
+  border-color: rgba(117, 228, 255, 0.50);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(117, 228, 255, 0.16), transparent 58%),
+    linear-gradient(145deg, rgba(12, 73, 105, 0.90), rgba(6, 40, 70, 0.82));
+  color: rgba(239, 253, 255, 0.98);
+  box-shadow:
+    0 0 0 1px rgba(239, 253, 255, 0.08) inset,
+    0 0 18px rgba(84, 218, 255, 0.14);
+}
+
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"]:hover,
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"]:focus-visible,
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"].is-pressed {
+  border-color: rgba(150, 242, 255, 0.72);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(117, 228, 255, 0.26), transparent 60%),
+    linear-gradient(145deg, rgba(14, 87, 119, 0.94), rgba(6, 48, 78, 0.88));
+  box-shadow:
+    0 0 0 1px rgba(239, 253, 255, 0.12) inset,
+    0 0 22px rgba(84, 218, 255, 0.22);
 }
 
 .monitoring-hud__control-button[data-control="warning-notifications"],

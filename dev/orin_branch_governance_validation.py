@@ -17038,7 +17038,7 @@ def main() -> int:
         "Code Inspection Requirement",
         "Focused Visual Inspection Requirement",
         "Empty-State Repair Scope",
-        "Save Monitor and Cancel must not appear as valid actions",
+        "Save Monitor and Discard must not appear as valid actions",
         "Create Monitor must be the primary recovery action",
         "reject manifest-only or DOM-only PASS when focused screenshots show invalid interactive controls",
         "## Refreshed LV1 Dashboard Right-Edge Rediscovery Repair Setup Admission",

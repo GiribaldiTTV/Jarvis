@@ -6004,7 +6004,14 @@ class DesktopRuntimeWindow(QWidget):
             max(1, rect.width() // 2),
             max(1, rect.height() // 2),
         )
-        signature = (rect.width(), rect.height(), radius, "win32-roundrect" if os.name == "nt" else "qt-region")
+        region_radius = self._monitoring_hud_window_region_corner_radius_px(radius)
+        signature = (
+            rect.width(),
+            rect.height(),
+            radius,
+            region_radius,
+            "win32-roundrect" if os.name == "nt" else "qt-region",
+        )
         if signature == self._monitoring_hud_rounded_window_mask_signature:
             return
         if os.name == "nt":
@@ -6017,8 +6024,8 @@ class DesktopRuntimeWindow(QWidget):
                     0,
                     int(rect.width()) + 1,
                     int(rect.height()) + 1,
-                    int(radius * 2),
-                    int(radius * 2),
+                    int(region_radius * 2),
+                    int(region_radius * 2),
                 )
                 if region_handle:
                     applied = bool(SetWindowRgn(ctypes.wintypes.HWND(int(self.winId())), region_handle, True))
@@ -6031,17 +6038,18 @@ class DesktopRuntimeWindow(QWidget):
                             height=rect.height(),
                             bounds_width=rect.width(),
                             bounds_height=rect.height(),
+                            region_radius=region_radius,
                             mask_model="simple-native-roundrect-region-matches-css-chrome",
                         )
                         return
                     DeleteObject(HGDIOBJ(region_handle))
             except Exception:
                 pass
-            signature = (rect.width(), rect.height(), radius, "qt-region")
+            signature = (rect.width(), rect.height(), radius, region_radius, "qt-region")
             if signature == self._monitoring_hud_rounded_window_mask_signature:
                 return
         path = QPainterPath()
-        path.addRoundedRect(QRectF(rect), float(radius), float(radius))
+        path.addRoundedRect(QRectF(rect), float(region_radius), float(region_radius))
         region = QRegion(path.toFillPolygon().toPolygon())
         if region.isEmpty():
             return
@@ -6055,6 +6063,7 @@ class DesktopRuntimeWindow(QWidget):
             height=rect.height(),
             bounds_width=bounds.width(),
             bounds_height=bounds.height(),
+            region_radius=region_radius,
             mask_model="native-rounded-window-region-matches-css-chrome",
         )
 
@@ -6063,6 +6072,7 @@ class DesktopRuntimeWindow(QWidget):
         *,
         source: str,
         radius: int,
+        region_radius: int,
         width: int,
         height: int,
         bounds_width: int,
@@ -6079,6 +6089,8 @@ class DesktopRuntimeWindow(QWidget):
             corner_bleed_policy="no-opaque-rectangular-corners-over-light-backdrops",
             resize_hit_test_model="rounded-mask-clipped-visible-rail",
             radius_px=radius,
+            visual_radius_px=radius,
+            region_radius_px=region_radius,
             width=width,
             height=height,
             bounds_width=bounds_width,
@@ -7521,6 +7533,60 @@ class DesktopRuntimeWindow(QWidget):
             self._clear_monitoring_hud_native_user_move()
         return started
 
+    def _start_monitoring_hud_fallback_panel_move(
+        self,
+        screen_point: QPoint,
+        source: str = "fallback_direct_header_move",
+    ) -> bool:
+        if self.surface_role != "hud":
+            return False
+        self._clear_monitoring_hud_native_user_move()
+        self._monitoring_hud_native_panel_drag_active = True
+        self._monitoring_hud_native_panel_drag_start = QPoint(screen_point)
+        self._monitoring_hud_native_panel_drag_base = self.pos()
+        self._monitoring_hud_user_geometry_override_active = True
+        self._emit_runtime_signal(
+            "MONITORING_HUD_NATIVE_PANEL_DRAG_STARTED",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="WS38",
+            source=source,
+            movement_model="fallback-direct-move-no-snap",
+            x=screen_point.x(),
+            y=screen_point.y(),
+        )
+        return True
+
+    def _update_monitoring_hud_fallback_panel_move(self, screen_point: QPoint) -> None:
+        if self.surface_role != "hud" or not self._monitoring_hud_native_panel_drag_active:
+            return
+        delta = screen_point - self._monitoring_hud_native_panel_drag_start
+        self._set_monitoring_hud_panel_position_from_native_drag(
+            self._monitoring_hud_native_panel_drag_base.x() + delta.x(),
+            self._monitoring_hud_native_panel_drag_base.y() + delta.y(),
+            emit_status=False,
+        )
+
+    def _finish_monitoring_hud_fallback_panel_move(self, screen_point: QPoint) -> None:
+        if self.surface_role != "hud" or not self._monitoring_hud_native_panel_drag_active:
+            return
+        if screen_point.isNull():
+            screen_point = QPoint(self._monitoring_hud_native_panel_drag_start)
+        delta = screen_point - self._monitoring_hud_native_panel_drag_start
+        self._set_monitoring_hud_panel_position_from_native_drag(
+            self._monitoring_hud_native_panel_drag_base.x() + delta.x(),
+            self._monitoring_hud_native_panel_drag_base.y() + delta.y(),
+        )
+        self._monitoring_hud_native_panel_drag_active = False
+        self._emit_runtime_signal(
+            "MONITORING_HUD_NATIVE_PANEL_DRAG_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            dx=delta.x(),
+            dy=delta.y(),
+            movement_model="fallback-direct-move-no-snap",
+        )
+
     def _monitoring_hud_native_resize_edges_for_point(self, point: QPoint):
         if self.surface_role != "hud":
             return Qt.Edges()
@@ -7560,6 +7626,14 @@ class DesktopRuntimeWindow(QWidget):
 
     def _monitoring_hud_resize_hit_zone_px(self) -> int:
         return 14
+
+    def _monitoring_hud_window_region_corner_radius_px(self, visual_radius: int | None = None) -> int:
+        radius = (
+            int(visual_radius)
+            if visual_radius is not None
+            else int(self._monitoring_hud_window_corner_radius_px)
+        )
+        return max(4, radius - self._monitoring_hud_resize_hit_zone_px())
 
     def _monitoring_hud_rounded_corner_diagonal_resize_edges_for_point(
         self,
@@ -7624,6 +7698,7 @@ class DesktopRuntimeWindow(QWidget):
             max(1, width // 2),
             max(1, height // 2),
         )
+        radius = self._monitoring_hud_window_region_corner_radius_px(radius)
         if radius <= 0:
             return True
         corner_center_x = None
@@ -7663,7 +7738,10 @@ class DesktopRuntimeWindow(QWidget):
                 hwnd = int(GetParentW(ctypes.wintypes.HWND(hwnd)))
         except Exception:
             return self.geometry().contains(point)
-        return False
+        return (
+            self.geometry().contains(point)
+            and self._monitoring_hud_screen_point_inside_rounded_window_mask(point)
+        )
 
     def _monitoring_hud_resize_edges_under_cursor(self) -> tuple[QPoint, Qt.Edges]:
         if not self._monitoring_hud_window_resize_interaction_available():
@@ -7732,6 +7810,15 @@ class DesktopRuntimeWindow(QWidget):
         if cursor_position is None:
             return QPoint()
         return QPoint(int(cursor_position[0]), int(cursor_position[1]))
+
+    def _monitoring_hud_live_drag_screen_point(self, event) -> QPoint:
+        cursor_point = self._monitoring_hud_cursor_screen_point()
+        if not cursor_point.isNull():
+            return cursor_point
+        try:
+            return event.globalPosition().toPoint()
+        except Exception:
+            return QPoint()
 
     def _monitoring_hud_left_mouse_button_down(self) -> bool:
         try:
@@ -7851,6 +7938,10 @@ class DesktopRuntimeWindow(QWidget):
         key = self._monitoring_hud_resize_edge_key(edges) if edges else None
         if key == self._monitoring_hud_resize_cursor_key:
             if os.name == "nt":
+                if key is not None:
+                    self._set_monitoring_hud_override_resize_cursor(
+                        self._monitoring_hud_resize_cursor_for_edges(edges)
+                    )
                 self._apply_monitoring_hud_windows_resize_cursor(edges if key is not None else Qt.Edges())
             elif key is not None:
                 self._apply_monitoring_hud_windows_resize_cursor(edges)
@@ -7865,7 +7956,7 @@ class DesktopRuntimeWindow(QWidget):
         if os.name == "nt":
             for target in targets:
                 target.unsetCursor()
-            self._set_monitoring_hud_override_resize_cursor(None)
+            self._set_monitoring_hud_override_resize_cursor(cursor)
             self._apply_monitoring_hud_windows_resize_cursor(edges)
             return
         for target in targets:
@@ -8417,7 +8508,7 @@ class DesktopRuntimeWindow(QWidget):
                 self._monitoring_hud_header_rect().contains(screen_point)
                 and not self._monitoring_hud_dashboard_control_rect_contains(screen_point)
             ):
-                if self._start_monitoring_hud_native_system_move(screen_point):
+                if self._start_monitoring_hud_fallback_panel_move(screen_point, source="fallback_direct_client_header_move"):
                     return True
                 self._monitoring_hud_native_panel_drag_active = True
                 self._monitoring_hud_native_panel_drag_start = screen_point
@@ -8441,11 +8532,11 @@ class DesktopRuntimeWindow(QWidget):
             self._set_monitoring_hud_card_layout_from_native_drag(self._monitoring_hud_native_card_drag_id, layout)
             return True
         if event_type == QEvent.MouseMove and self._monitoring_hud_native_window_resize_active:
-            screen_point = event.globalPosition().toPoint()
+            screen_point = self._monitoring_hud_live_drag_screen_point(event)
             self._update_monitoring_hud_fallback_window_resize(screen_point)
             return True
         if event_type == QEvent.MouseMove and self._monitoring_hud_native_panel_drag_active:
-            screen_point = event.globalPosition().toPoint()
+            screen_point = self._monitoring_hud_live_drag_screen_point(event)
             delta = screen_point - self._monitoring_hud_native_panel_drag_start
             self._set_monitoring_hud_panel_position_from_native_drag(
                 self._monitoring_hud_native_panel_drag_base.x() + delta.x(),
@@ -8486,11 +8577,11 @@ class DesktopRuntimeWindow(QWidget):
                 )
                 return True
             if self._monitoring_hud_native_window_resize_active:
-                screen_point = event.globalPosition().toPoint()
+                screen_point = self._monitoring_hud_live_drag_screen_point(event)
                 self._finish_monitoring_hud_fallback_window_resize(screen_point)
                 return True
             if self._monitoring_hud_native_panel_drag_active:
-                screen_point = event.globalPosition().toPoint()
+                screen_point = self._monitoring_hud_live_drag_screen_point(event)
                 delta = screen_point - self._monitoring_hud_native_panel_drag_start
                 self._set_monitoring_hud_panel_position_from_native_drag(
                     self._monitoring_hud_native_panel_drag_base.x() + delta.x(),
@@ -9306,7 +9397,6 @@ class DesktopRuntimeWindow(QWidget):
             controls = {
                 "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
                 "settingsAction": geometry.get("settingsAction") if isinstance(geometry, dict) else None,
-                "createMonitor": geometry.get("createMonitor") if isinstance(geometry, dict) else None,
                 "editMonitor": geometry.get("editMonitor") if isinstance(geometry, dict) else None,
                 "dashboardClose": geometry.get("dashboardClose") if isinstance(geometry, dict) else None,
                 "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
@@ -9317,6 +9407,7 @@ class DesktopRuntimeWindow(QWidget):
             checks = {}
             for key, rect in controls.items():
                 checks[f"{key}_present"] = isinstance(rect, dict) and float(rect.get("width") or 0) > 24 and float(rect.get("height") or 0) > 18
+            checks["dashboard_create_monitor_absent"] = not isinstance((geometry.get("createMonitor") if isinstance(geometry, dict) else None), dict)
             hud_rect = controls.get("hud") or {}
             checks["hud_readable_width"] = float(hud_rect.get("width") or 0) >= 620
             checks["hud_readable_height"] = float(hud_rect.get("height") or 0) >= 520
@@ -9326,7 +9417,7 @@ class DesktopRuntimeWindow(QWidget):
             checks["native_overlay_visible_height"] = int(overlay_proof.get("h") or 0) >= 220
             checks["native_overlay_card_targets"] = int(overlay_proof.get("overlayCardCount") or 0) >= 2
             checks["native_hud_control_zone"] = self._monitoring_hud_point_in_interactive_rect(
-                QPoint(*(rect_center("warningToggle") or rect_center("createMonitor") or (0, 0)))
+                QPoint(*(rect_center("warningToggle") or rect_center("editMonitor") or (0, 0)))
             )
             return all(checks.values()), checks
 
@@ -9748,6 +9839,7 @@ class DesktopRuntimeWindow(QWidget):
                 "unsaved_close_dirty_before_close": h1_proof.get("unsavedCloseDirtyBeforeClose") is True,
                 "unsaved_close_draft_before_close": h1_proof.get("unsavedCloseDraftBeforeClose") is True,
                 "unsaved_close_targeted_manage_close": h1_proof.get("unsavedCloseTargetedManageClose") is True,
+                "unsaved_guard_scrolled_to_prompt": h1_proof.get("unsavedGuardScrolledToPrompt") is True,
                 "unsaved_close_save_persisted_draft": h1_proof.get("unsavedCloseSavePersistedDraft") is True,
                 "unsaved_close_save_closed_window": h1_proof.get("unsavedCloseSaveClosedWindow") is True,
                 "unsaved_close_discard_dropped_draft": h1_proof.get("unsavedCloseDiscardDroppedDraft") is True,
@@ -9760,11 +9852,16 @@ class DesktopRuntimeWindow(QWidget):
                 "empty_state_actions_bounded": h1_proof.get("emptyStateActionsBounded") is True,
                 "empty_state_product_copy": h1_proof.get("emptyStateProductCopy") is True,
                 "detail_action_row_aligned": h1_proof.get("detailActionRowAligned") is True,
-                "footer_cancel_illuminated": h1_proof.get("footerCancelIlluminated") is True,
+                "footer_discard_illuminated": h1_proof.get("footerDiscardIlluminated") is True,
+                "footer_save_disabled_when_clean": h1_proof.get("footerSaveDisabledWhenClean") is True,
+                "footer_discard_disabled_when_clean": h1_proof.get("footerDiscardDisabledWhenClean") is True,
+                "footer_save_enabled_when_dirty": h1_proof.get("footerSaveEnabledWhenDirty") is True,
+                "footer_discard_enabled_when_dirty": h1_proof.get("footerDiscardEnabledWhenDirty") is True,
                 "interactive_control_visual_qa_gate": h1_proof.get("interactiveControlVisualQaGate") is True,
                 "interactive_control_first_click_stress": h1_proof.get("interactiveControlFirstClickStress") is True,
                 "interactive_control_no_interception": h1_proof.get("interactiveControlNoInterception") is True,
                 "source_picker_checkmark_stress": h1_proof.get("sourcePickerCheckmarkStress") is True,
+                "display_mode_chip_stress": h1_proof.get("displayModeChipStress") is True,
                 "polling_rate_dropdown_nexus_styled": h1_proof.get("pollingRateDropdownNexusStyled") is True,
                 "polling_rate_hitbox_toggle_only": h1_proof.get("pollingRateHitboxToggleOnly") is True,
                 "source_picker_browser": h1_proof.get("sourcePickerBrowser") is True,
@@ -10008,7 +10105,8 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(800), lambda: query("restore HUD and change polling control", assert_restored, step_create_monitor))
 
         def step_create_monitor():
-            clicked = self._monitoring_hud_send_mouse_click(rect_center("createMonitor"))
+            create_screen_point = rect_center("createMonitor")
+            dashboard_create_absent = create_screen_point is None
             self._run_javascript(
                 """
                 (function() {
@@ -10042,12 +10140,17 @@ class DesktopRuntimeWindow(QWidget):
                 """
             )
             add_step(
-                "active live-client create monitor control and fallback route sent",
-                clicked,
-                {"target": "monitoring-hud-create-monitor", "screenPoint": rect_center("createMonitor")},
+                "active live-client Dashboard Create Monitor absence and Manage Monitors seed route",
+                dashboard_create_absent,
+                {
+                    "target": "monitoring-hud-create-monitor-action",
+                    "screenPoint": create_screen_point,
+                    "dashboardCreateAbsent": dashboard_create_absent,
+                    "createRecoveryRoute": "manage-monitors-window-empty-state-or-header-create",
+                },
             )
-            if not clicked:
-                finish("FAIL", "active live-client create monitor click failed before state assertion")
+            if not dashboard_create_absent:
+                finish("FAIL", "Dashboard Create Monitor unexpectedly present after removal")
                 return
             QTimer.singleShot(delay(650), step_edit_created_monitor)
 
@@ -10563,12 +10666,17 @@ class DesktopRuntimeWindow(QWidget):
                         let unsavedCloseDirtyBeforeClose = false;
                         let unsavedCloseDraftBeforeClose = false;
                         let unsavedCloseTargetedManageClose = false;
+                        let unsavedGuardScrolledToPrompt = false;
                         let unsavedCloseSavePersistedDraft = false;
                         let unsavedCloseSaveClosedWindow = false;
                         let unsavedCloseDiscardDroppedDraft = false;
                         let unsavedCloseDiscardClosedWindow = false;
                         let deleteConfirmationCancelIlluminated = false;
-                        let footerCancelIlluminated = false;
+                        let footerDiscardIlluminated = false;
+                        let footerSaveDisabledWhenClean = false;
+                        let footerDiscardDisabledWhenClean = false;
+                        let footerSaveEnabledWhenDirty = false;
+                        let footerDiscardEnabledWhenDirty = false;
                         let finalMonitorDeleteEmptyState = false;
                         let finalMonitorCreateReachable = false;
                         let emptyStateNoSaveCancel = false;
@@ -10581,6 +10689,8 @@ class DesktopRuntimeWindow(QWidget):
                         let interactiveControlNoInterception = false;
                         let sourcePickerCheckmarkProof = {};
                         let sourcePickerCheckmarkStress = false;
+                        let displayModeChipProof = {};
+                        let displayModeChipStress = false;
                         let pollingRateDropdownNexusStyled = false;
                         let pollingRateHitboxProof = {};
                         let pollingRateHitboxToggleOnly = false;
@@ -10651,7 +10761,7 @@ class DesktopRuntimeWindow(QWidget):
                         const readinessPanel = document.getElementById("monitoring-hud-provider-readiness-panel");
                         const warningSetting = document.getElementById("monitoring-hud-monitor-warning-notifications-setting");
                         const detailDelete = document.getElementById("monitoring-hud-monitor-detail-delete");
-                        const detailActionRow = document.querySelector('[data-detail-action-row="save-cancel-left-delete-right"]');
+                        const detailActionRow = document.querySelector('[data-detail-action-row="save-discard-left-delete-right"]');
                         const monitorShell = document.querySelector('[data-monitor-management-layout="compact-command-center-list-detail"]');
                         commandCenterLayout = Boolean(
                             monitorShell
@@ -10663,36 +10773,71 @@ class DesktopRuntimeWindow(QWidget):
                         detailPaneDelete = Boolean(detailDelete && !detailDelete.closest(".monitoring-hud__monitor-manage-row"));
                         if (detailActionRow) {
                             const saveActionForRow = document.getElementById("monitoring-hud-edit-monitor-confirm");
-                            const cancelActionForRow = detailActionRow.querySelector('[data-child-window-close="monitor-group-edit"]');
+                            const discardActionForRow = document.getElementById("monitoring-hud-edit-monitor-discard");
                             const deleteActionForRow = document.getElementById("monitoring-hud-monitor-detail-delete");
                             const rowRect = detailActionRow.getBoundingClientRect();
                             const saveRectForRow = saveActionForRow ? saveActionForRow.getBoundingClientRect() : null;
-                            const cancelRectForRow = cancelActionForRow ? cancelActionForRow.getBoundingClientRect() : null;
+                            const discardRectForRow = discardActionForRow ? discardActionForRow.getBoundingClientRect() : null;
                             const deleteRectForRow = deleteActionForRow ? deleteActionForRow.getBoundingClientRect() : null;
-                            const cancelStyleForRow = cancelActionForRow && window.getComputedStyle ? window.getComputedStyle(cancelActionForRow) : null;
+                            const discardStyleForRow = discardActionForRow && window.getComputedStyle ? window.getComputedStyle(discardActionForRow) : null;
+                            const saveStyleForRow = saveActionForRow && window.getComputedStyle ? window.getComputedStyle(saveActionForRow) : null;
                             detailActionRowAligned = Boolean(
                                 saveRectForRow
-                                && cancelRectForRow
+                                && discardRectForRow
                                 && deleteRectForRow
                                 && rowRect
                                 && saveRectForRow.left <= rowRect.left + Math.max(24, rowRect.width * 0.18)
-                                && saveRectForRow.left < cancelRectForRow.left
-                                && cancelRectForRow.left < deleteRectForRow.left
-                                && cancelRectForRow.right <= deleteRectForRow.left - 8
+                                && saveRectForRow.left < discardRectForRow.left
+                                && discardRectForRow.left < deleteRectForRow.left
+                                && discardRectForRow.right <= deleteRectForRow.left - 8
                                 && deleteRectForRow.right >= rowRect.right - 24
                             );
-                            footerCancelIlluminated = Boolean(
-                                cancelActionForRow
-                                && cancelStyleForRow
-                                && cancelStyleForRow.cursor === "pointer"
-                                && cancelRectForRow
-                                && cancelRectForRow.width >= 64
-                                && cancelRectForRow.height >= 28
+                            footerSaveDisabledWhenClean = Boolean(
+                                saveActionForRow
+                                && saveActionForRow.disabled
+                                && saveActionForRow.dataset.controlState === "clean-disabled"
+                            );
+                            footerDiscardDisabledWhenClean = Boolean(
+                                discardActionForRow
+                                && discardActionForRow.disabled
+                                && discardActionForRow.dataset.controlState === "clean-disabled"
+                            );
+                            if (saveActionForRow) {
+                                const previousValue = document.getElementById("monitoring-hud-edit-monitor-name");
+                                if (previousValue) {
+                                    previousValue.value = "Footer Dirty State Proof";
+                                    previousValue.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                            }
+                            footerSaveEnabledWhenDirty = Boolean(
+                                saveActionForRow
+                                && !saveActionForRow.disabled
+                                && saveActionForRow.dataset.controlState === "saveable"
+                                && saveStyleForRow
+                                && saveStyleForRow.cursor === "pointer"
+                            );
+                            footerDiscardEnabledWhenDirty = Boolean(
+                                discardActionForRow
+                                && !discardActionForRow.disabled
+                                && discardActionForRow.dataset.controlState === "discardable"
+                                && discardStyleForRow
+                                && discardStyleForRow.cursor === "pointer"
+                            );
+                            footerDiscardIlluminated = Boolean(
+                                discardActionForRow
+                                && discardStyleForRow
+                                && discardStyleForRow.cursor === "pointer"
+                                && discardRectForRow
+                                && discardRectForRow.width >= 64
+                                && discardRectForRow.height >= 28
                                 && (
-                                    /gradient/i.test(String(cancelStyleForRow.backgroundImage || ""))
-                                    || /rgba?\\(/.test(String(cancelStyleForRow.backgroundColor || ""))
+                                    /gradient/i.test(String(discardStyleForRow.backgroundImage || ""))
+                                    || /rgba?\\(/.test(String(discardStyleForRow.backgroundColor || ""))
                                 )
                             );
+                            if (discardActionForRow && !discardActionForRow.disabled) {
+                                discardActionForRow.click();
+                            }
                         }
                         sourcePickerBrowser = Boolean(
                             sourceAssignment
@@ -10979,12 +11124,19 @@ class DesktopRuntimeWindow(QWidget):
                                 }
                                 const hud = document.getElementById("monitoring-hud");
                                 const childClose = document.querySelector('[data-child-window-close="monitor-group-edit"]');
+                                const closeDetailPane = document.querySelector(".monitoring-hud__monitor-detail-pane");
+                                if (closeDetailPane) closeDetailPane.scrollTop = closeDetailPane.scrollHeight;
                                 unsavedCloseDirtyBeforeClose = Boolean(hud && hud.dataset.monitorUnsavedChanges === "pending");
                                 unsavedCloseDraftBeforeClose = Boolean(closeName && closeName.value === closeDraftValue);
                                 unsavedCloseTargetedManageClose = Boolean(childClose);
                                 if (childClose) childClose.click();
                                 const closeGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
                                 unsavedCloseQueuedAction = Boolean(closeGuard && closeGuard.dataset.pendingMonitorAction === "close");
+                                unsavedGuardScrolledToPrompt = Boolean(
+                                    closeGuard
+                                    && closeGuard.dataset.unsavedGuardReveal === "scrolled-focused"
+                                    && (!closeDetailPane || closeDetailPane.scrollTop <= 4)
+                                );
                                 if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
                                     const saveReadyState = JSON.parse(JSON.stringify(unsavedBackup));
                                     if (saveReadyState.cards && saveReadyState.cards.cpu) {
@@ -11071,10 +11223,10 @@ class DesktopRuntimeWindow(QWidget):
                             const detailNote = document.getElementById("monitoring-hud-monitor-detail-note");
                             const detailTitle = document.getElementById("monitoring-hud-edit-monitor-title");
                             const saveAction = document.getElementById("monitoring-hud-edit-monitor-confirm");
-                            const footerCancel = detailActions ? detailActions.querySelector('[data-child-window-close="monitor-group-edit"]') : null;
+                            const footerDiscard = document.getElementById("monitoring-hud-edit-monitor-discard");
                             const emptyCreateRect = emptyCreateAction ? emptyCreateAction.getBoundingClientRect() : null;
                             const saveRect = saveAction ? saveAction.getBoundingClientRect() : null;
-                            const cancelRect = footerCancel ? footerCancel.getBoundingClientRect() : null;
+                            const discardRect = footerDiscard ? footerDiscard.getBoundingClientRect() : null;
                             const afterSoloDelete = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
                             finalMonitorDeleteEmptyState = Boolean(
                                 afterSoloDelete.cards
@@ -11090,7 +11242,7 @@ class DesktopRuntimeWindow(QWidget):
                                 && detailActions.dataset.monitorDetailActions === "hidden-no-monitor"
                                 && hiddenOrZero(detailActions)
                                 && hiddenOrZero(saveAction)
-                                && hiddenOrZero(footerCancel)
+                                && hiddenOrZero(footerDiscard)
                             );
                             emptyStateCreatePrimary = Boolean(
                                 emptyCreateAction
@@ -11105,7 +11257,7 @@ class DesktopRuntimeWindow(QWidget):
                                 emptyCreateRect
                                 && emptyCreateRect.height <= 48
                                 && (!saveRect || hiddenOrZero(saveAction) || saveRect.height <= 48)
-                                && (!cancelRect || hiddenOrZero(footerCancel) || cancelRect.height <= 48)
+                                && (!discardRect || hiddenOrZero(footerDiscard) || discardRect.height <= 48)
                             );
                             emptyStateProductCopy = Boolean(
                                 emptyState
@@ -11203,6 +11355,11 @@ class DesktopRuntimeWindow(QWidget):
                                 && sourcePickerCheckmarkProof.passed === true
                                 && Number(sourcePickerCheckmarkProof.rowsTested || 0) >= 8
                             );
+                            displayModeChipProof = interactiveControlReliabilityProof.displayModeChipProof || {};
+                            displayModeChipStress = Boolean(
+                                interactiveControlReliabilityProof.displayModeChipStress === true
+                                && displayModeChipProof.passed === true
+                            );
                             pollingRateHitboxProof = interactiveControlReliabilityProof.pollingRateHitboxProof || {};
                             pollingRateHitboxToggleOnly = Boolean(
                                 interactiveControlReliabilityProof.pollingRateHitboxToggleOnly === true
@@ -11242,7 +11399,11 @@ class DesktopRuntimeWindow(QWidget):
                                 && emptyStateActionsBounded
                                 && emptyStateProductCopy
                                 && detailActionRowAligned
-                                && footerCancelIlluminated
+                                && footerDiscardIlluminated
+                                && footerSaveDisabledWhenClean
+                                && footerDiscardDisabledWhenClean
+                                && footerSaveEnabledWhenDirty
+                                && footerDiscardEnabledWhenDirty
                                 && dirtyDeleteDiscardOpenedConfirmation
                                 && dirtyDeleteDiscardRevealed
                                 && dirtyDeleteDiscardCancelRecovered
@@ -11250,6 +11411,7 @@ class DesktopRuntimeWindow(QWidget):
                                 && dirtyDeleteSavePersistedDraft
                                 && interactiveControlFirstClickStress
                                 && sourcePickerCheckmarkStress
+                                && displayModeChipStress
                                 && interactiveControlNoInterception
                                 && pollingRateDropdownNexusStyled
                                 && pollingRateHitboxToggleOnly
@@ -11277,7 +11439,11 @@ class DesktopRuntimeWindow(QWidget):
                                     deleteConfirmRemovedMonitor,
                                     deleteConfirmationClosed,
                                     detailActionRowAligned,
-                                    footerCancelIlluminated,
+                                    footerDiscardIlluminated,
+                                    footerSaveDisabledWhenClean,
+                                    footerDiscardDisabledWhenClean,
+                                    footerSaveEnabledWhenDirty,
+                                    footerDiscardEnabledWhenDirty,
                                     commandCenterLayout,
                                     rowActionsRemoved,
                                     rowSelectionOpensDetail,
@@ -11301,6 +11467,7 @@ class DesktopRuntimeWindow(QWidget):
                                     unsavedCloseDirtyBeforeClose,
                                     unsavedCloseDraftBeforeClose,
                                     unsavedCloseTargetedManageClose,
+                                    unsavedGuardScrolledToPrompt,
                                     unsavedCloseSavePersistedDraft,
                                     unsavedCloseSaveClosedWindow,
                                     unsavedCloseDiscardDroppedDraft,
@@ -11318,6 +11485,8 @@ class DesktopRuntimeWindow(QWidget):
                                     interactiveControlNoInterception,
                                     sourcePickerCheckmarkProof,
                                     sourcePickerCheckmarkStress,
+                                    displayModeChipProof,
+                                    displayModeChipStress,
                                     pollingRateDropdownNexusStyled,
                                     pollingRateHitboxProof,
                                     pollingRateHitboxToggleOnly,
@@ -11369,7 +11538,11 @@ class DesktopRuntimeWindow(QWidget):
                             deleteConfirmRemovedMonitor,
                             deleteConfirmationClosed,
                             detailActionRowAligned,
-                            footerCancelIlluminated,
+                            footerDiscardIlluminated,
+                            footerSaveDisabledWhenClean,
+                            footerDiscardDisabledWhenClean,
+                            footerSaveEnabledWhenDirty,
+                            footerDiscardEnabledWhenDirty,
                             commandCenterLayout,
                             rowActionsRemoved,
                             rowSelectionOpensDetail,
@@ -11393,6 +11566,7 @@ class DesktopRuntimeWindow(QWidget):
                             unsavedCloseDirtyBeforeClose,
                             unsavedCloseDraftBeforeClose,
                             unsavedCloseTargetedManageClose,
+                            unsavedGuardScrolledToPrompt,
                             unsavedCloseSavePersistedDraft,
                             unsavedCloseSaveClosedWindow,
                             unsavedCloseDiscardDroppedDraft,
@@ -11410,6 +11584,8 @@ class DesktopRuntimeWindow(QWidget):
                             interactiveControlNoInterception,
                             sourcePickerCheckmarkProof,
                             sourcePickerCheckmarkStress,
+                            displayModeChipProof,
+                            displayModeChipStress,
                             pollingRateDropdownNexusStyled,
                             pollingRateHitboxProof,
                             pollingRateHitboxToggleOnly,
@@ -13587,7 +13763,24 @@ class DesktopRuntimeWindow(QWidget):
                         and self._monitoring_hud_header_rect().contains(screen_point)
                         and not self._monitoring_hud_dashboard_control_rect_contains(screen_point)
                     ):
-                        self._begin_monitoring_hud_native_user_move("native_caption_move")
+                        self._start_monitoring_hud_fallback_panel_move(screen_point, source="fallback_direct_native_caption_move")
+                        return True, 0
+                if self._monitoring_hud_native_panel_drag_active and message_id in (
+                    WM_MOUSEMOVE,
+                    WM_NCMOUSEMOVE,
+                ):
+                    screen_point = self._monitoring_hud_cursor_screen_point()
+                    if not screen_point.isNull():
+                        self._update_monitoring_hud_fallback_panel_move(screen_point)
+                    return True, 0
+                if self._monitoring_hud_native_panel_drag_active and message_id in (
+                    WM_LBUTTONUP,
+                    WM_NCLBUTTONUP,
+                    WM_CAPTURECHANGED,
+                    WM_CANCELMODE,
+                ):
+                    self._finish_monitoring_hud_fallback_panel_move(self._monitoring_hud_cursor_screen_point())
+                    return True, 0
                 if self._monitoring_hud_native_window_resize_active and message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE):
                     screen_point = self._monitoring_hud_cursor_screen_point()
                     if not screen_point.isNull():

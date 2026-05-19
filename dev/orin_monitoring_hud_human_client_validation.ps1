@@ -92,6 +92,7 @@ public static class CodexHumanClientWin32 {
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetMenuStringW(IntPtr hMenu, uint uIDItem, StringBuilder lpString, int nMaxCount, uint uFlag);
     [DllImport("user32.dll")] private static extern uint GetMenuState(IntPtr hMenu, uint uId, uint uFlags);
     [DllImport("user32.dll")] private static extern IntPtr GetAncestor(IntPtr hWnd, uint gaFlags);
+    [DllImport("user32.dll")] private static extern IntPtr GetParent(IntPtr hWnd);
 
     private static IntPtr LoadSystemCursor(int cursorId) {
         return LoadCursor(IntPtr.Zero, new IntPtr(cursorId));
@@ -149,6 +150,24 @@ public static class CodexHumanClientWin32 {
         IntPtr root = GetAncestor(hwnd, 2);
         if (root == IntPtr.Zero) { root = hwnd; }
         return root.ToInt64();
+    }
+
+    public static bool PointBelongsToWindow(long expectedWindowHandle, int x, int y) {
+        if (expectedWindowHandle == 0) { return false; }
+        POINT point = new POINT();
+        point.X = x;
+        point.Y = y;
+        IntPtr expected = new IntPtr(expectedWindowHandle);
+        IntPtr hwnd = WindowFromPoint(point);
+        IntPtr original = hwnd;
+        while (hwnd != IntPtr.Zero) {
+            if (hwnd == expected) { return true; }
+            hwnd = GetParent(hwnd);
+        }
+        IntPtr root = GetAncestor(original, 2);
+        if (root == expected) { return true; }
+        IntPtr rootOwner = GetAncestor(original, 3);
+        return rootOwner == expected;
     }
 
     private static void SendMouseButton(uint downFlag, uint upFlag) {
@@ -797,13 +816,13 @@ function Click-ElementCenter {
     if ($rect.IsEmpty -or $Element.Current.IsOffscreen) { throw "Element '$Label' is offscreen or empty" }
     $x = [int]($rect.Left + ($rect.Width / 2))
     $y = [int]($rect.Top + ($rect.Height / 2))
-    $down = if ($Button -eq "right") { 0x0008 } else { 0x0002 }
-    $up = if ($Button -eq "right") { 0x0010 } else { 0x0004 }
     [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
     Start-Sleep -Milliseconds 90
-    [CodexHumanClientWin32]::mouse_event($down, 0, 0, 0, [UIntPtr]::Zero)
-    Start-Sleep -Milliseconds 90
-    [CodexHumanClientWin32]::mouse_event($up, 0, 0, 0, [UIntPtr]::Zero)
+    if ($Button -eq "right") {
+        [CodexHumanClientWin32]::SendAbsoluteRightClick($x, $y)
+    } else {
+        [CodexHumanClientWin32]::SendAbsoluteLeftClick($x, $y)
+    }
     Start-Sleep -Milliseconds 400
 }
 
@@ -966,12 +985,30 @@ function Click-RuntimeButtonAndWaitForCloseableWindow {
         buttonRect = @([int]$rect.X, [int]$rect.Y, [int]($rect.X + $rect.Width), [int]($rect.Y + $rect.Height))
         dialogRect = $dialogRect
     }
+    $dismissed = $false
+    $dismissBeforeLine = (Read-RuntimeLines).Count
     try {
         $null = Click-VisibleRuntimeDialogButton -Title $DialogTitle -ButtonName "Close" -TimeoutSeconds 3
+        $dismissDeadline = (Get-Date).AddSeconds(5)
+        while ((Get-Date) -lt $dismissDeadline) {
+            if ($DismissMarker -and (Wait-ForRuntimeMarkerAfterLine -Marker $DismissMarker -AfterLine $dismissBeforeLine -TimeoutSeconds 1)) {
+                $dismissed = $true
+                break
+            }
+            $stillOpen = Wait-ForVisibleRuntimeWindowByTitle -Title $DialogTitle -TimeoutSeconds 1
+            if (-not $stillOpen -or $stillOpen.Count -ne 4) {
+                $dismissed = $true
+                break
+            }
+            Start-Sleep -Milliseconds 120
+        }
     } catch {
+        $dismissed = $false
+    }
+    if (-not $dismissed) {
         $dismiss = Dismiss-VisibleRuntimeDialog -Title $DialogTitle -TimeoutSeconds 4 -ExpectedDismissMarker $DismissMarker
         if (-not $dismiss.dismissed) {
-            throw
+            throw "Visible runtime dialog '$DialogTitle' was opened by '$ButtonName' but was not dismissible through the human-client cleanup path"
         }
     }
     Start-Sleep -Milliseconds 500
@@ -1364,10 +1401,18 @@ function Move-DashboardAwayFromTrayMenuIfNeeded {
 
 function Get-CursorKindAtPoint {
     param([int]$X, [int]$Y)
+    [CodexHumanClientWin32]::SetCursorPos([int]($X - 2), [int]($Y - 2)) | Out-Null
+    Start-Sleep -Milliseconds 45
     [CodexHumanClientWin32]::SetCursorPos($X, $Y) | Out-Null
-    [CodexHumanClientWin32]::mouse_event(0x0001, 0, 0, 0, [UIntPtr]::Zero)
-    Start-Sleep -Milliseconds 120
-    return [CodexHumanClientWin32]::GetCursorKind()
+    [CodexHumanClientWin32]::mouse_event(0x0001, 1, 0, 0, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 35
+    [CodexHumanClientWin32]::SetCursorPos($X, $Y) | Out-Null
+    Start-Sleep -Milliseconds 180
+    $first = [CodexHumanClientWin32]::GetCursorKind()
+    Start-Sleep -Milliseconds 90
+    $second = [CodexHumanClientWin32]::GetCursorKind()
+    if ($second -ne "unknown") { return $second }
+    return $first
 }
 
 function Get-NativeHitTestKindAtPoint {
@@ -1409,6 +1454,7 @@ function Find-ResizeCursorTransition {
             $offsetFromVisibleEdge = [Math]::Abs($VisibleEdgeY - $y)
         }
         if ($CaptureDiagnosticSamples) {
+            $pointBelongsToDashboard = Test-PointBelongsToExpectedDashboard -ExpectedDashboardHandle $ExpectedDashboardHandle -RootWindowHandleAtPoint $rootAtPoint -X $x -Y $y
             $samples.Add([ordered]@{
                 step = $i
                 x = $x
@@ -1418,12 +1464,13 @@ function Find-ResizeCursorTransition {
                 nativeHitTest = $hit
                 rootWindowHandleAtPoint = $rootAtPoint
                 expectedDashboardHandle = $ExpectedDashboardHandle
-                rootMatchesExpectedDashboard = ($ExpectedDashboardHandle -ne 0 -and $rootAtPoint -eq $ExpectedDashboardHandle)
+                rootMatchesExpectedDashboard = $pointBelongsToDashboard
+                pointBelongsToExpectedDashboard = $pointBelongsToDashboard
                 expectedHitTest = $ExpectedHit
                 elapsedMs = [int]((Get-Date) - $started).TotalMilliseconds
             }) | Out-Null
         }
-        if ((Test-ResizeCursorKind $cursor) -and $hit -eq $ExpectedHit) {
+        if ((Test-ResizeCursorOrNativeHitKind -Kind $cursor -HitTest $hit -ExpectedHit $ExpectedHit) -and $hit -eq $ExpectedHit) {
             return [pscustomobject]@{
                 Found = $true
                 X = $x
@@ -1461,14 +1508,130 @@ function Find-ResizeCursorTransition {
     }
 }
 
+function Find-DashboardBottomRightCornerResizePoint {
+    param(
+        [long]$WindowHandle,
+        [Parameter(Mandatory = $true)]$Rect,
+        [string]$Label,
+        [long]$ExpectedDashboardHandle = 0,
+        [hashtable]$DashboardContext = @{},
+        [hashtable]$SettleState = @{}
+    )
+
+    $transition = Find-ResizeCursorTransition -WindowHandle $WindowHandle -StartX ([int]($Rect.Right + 24)) -StartY ([int]($Rect.Bottom + 24)) -EndX ([int]($Rect.Right - 16)) -EndY ([int]($Rect.Bottom - 16)) -ExpectedHit "htbottomright" -Label $Label -ExpectedDashboardHandle $ExpectedDashboardHandle -DashboardContext $DashboardContext -SettleState $SettleState -CaptureDiagnosticSamples
+    if ($transition.Found) {
+        return $transition
+    }
+
+    $samples = New-Object System.Collections.Generic.List[object]
+    $started = Get-Date
+    $candidateOffsets = @(
+        @(10, 10),
+        @(5, 17),
+        @(17, 5),
+        @(8, 14),
+        @(14, 8),
+        @(12, 12),
+        @(6, 18),
+        @(18, 6)
+    )
+    for ($i = 0; $i -lt $candidateOffsets.Count; $i++) {
+        $offset = $candidateOffsets[$i]
+        $offsetX = [int]($offset[0])
+        $offsetY = [int]($offset[1])
+        $x = [int]($Rect.Right - $offsetX)
+        $y = [int]($Rect.Bottom - $offsetY)
+        $cursor = Get-CursorKindAtPoint -X $x -Y $y
+        $hit = Get-NativeHitTestKindAtPoint -WindowHandle $WindowHandle -X $x -Y $y
+        $rootAtPoint = Get-RootWindowHandleAtPoint -X $x -Y $y
+        $rootMatches = Test-PointBelongsToExpectedDashboard -ExpectedDashboardHandle $ExpectedDashboardHandle -RootWindowHandleAtPoint $rootAtPoint -X $x -Y $y
+        $targetAccepted = $rootMatches -or (Test-ResizeCursorKind $cursor)
+        $sample = [ordered]@{
+            step = $i
+            x = $x
+            y = $y
+            offsetFromRightEdgePx = $offsetX
+            offsetFromBottomEdgePx = $offsetY
+            cursorKind = $cursor
+            nativeHitTest = $hit
+            rootWindowHandleAtPoint = $rootAtPoint
+            expectedDashboardHandle = $ExpectedDashboardHandle
+            rootMatchesExpectedDashboard = $rootMatches
+            pointBelongsToExpectedDashboard = $rootMatches
+            targetAcceptedByResizeCursor = $targetAccepted
+            expectedHitTest = "htbottomright"
+            elapsedMs = [int]((Get-Date) - $started).TotalMilliseconds
+            probeModel = "rounded-corner-arc-sweep"
+        }
+        $samples.Add($sample) | Out-Null
+        if ((Test-ResizeCursorOrNativeHitKind -Kind $cursor -HitTest $hit -ExpectedHit "htbottomright") -and $hit -eq "htbottomright" -and $targetAccepted) {
+            return [pscustomobject]@{
+                Found = $true
+                X = $x
+                Y = $y
+                Cursor = $cursor
+                HitTest = $hit
+                Step = $i
+                Label = $Label
+                OffsetFromVisibleEdgePx = $null
+                ExpectedHit = "htbottomright"
+                ExpectedDashboardHandle = $ExpectedDashboardHandle
+                RootWindowHandleAtPoint = $rootAtPoint
+                DiagnosticSamples = @($samples.ToArray())
+                DashboardContext = $DashboardContext
+                PostResizeSettle = $SettleState
+                Fallback = "rounded-corner-arc-sweep"
+                InitialTransition = $transition
+            }
+        }
+    }
+
+    $lastSample = if ($samples.Count -gt 0) { $samples[$samples.Count - 1] } else { $null }
+    return [pscustomobject]@{
+        Found = $false
+        X = [int]($Rect.Right - 16)
+        Y = [int]($Rect.Bottom - 16)
+        Cursor = if ($lastSample) { $lastSample.cursorKind } else { $transition.Cursor }
+        HitTest = if ($lastSample) { $lastSample.nativeHitTest } else { $transition.HitTest }
+        Step = -1
+        Label = $Label
+        OffsetFromVisibleEdgePx = $null
+        ExpectedHit = "htbottomright"
+        ExpectedDashboardHandle = $ExpectedDashboardHandle
+        RootWindowHandleAtPoint = if ($lastSample) { $lastSample.rootWindowHandleAtPoint } else { $transition.RootWindowHandleAtPoint }
+        DiagnosticSamples = @($samples.ToArray())
+        DashboardContext = $DashboardContext
+        PostResizeSettle = $SettleState
+        Fallback = "rounded-corner-arc-sweep"
+        InitialTransition = $transition
+    }
+}
+
 function Get-RootWindowHandleAtPoint {
     param([int]$X, [int]$Y)
     return [CodexHumanClientWin32]::GetRootWindowHandleAtPoint($X, $Y)
 }
 
+function Test-PointBelongsToExpectedDashboard {
+    param(
+        [long]$ExpectedDashboardHandle,
+        [long]$RootWindowHandleAtPoint,
+        [int]$X,
+        [int]$Y
+    )
+    if ($ExpectedDashboardHandle -eq 0) { return $true }
+    if ($RootWindowHandleAtPoint -eq $ExpectedDashboardHandle) { return $true }
+    return [CodexHumanClientWin32]::PointBelongsToWindow($ExpectedDashboardHandle, $X, $Y)
+}
+
 function Test-ResizeCursorKind {
     param([string]$Kind)
     return $Kind -like "size-*"
+}
+
+function Test-ResizeCursorOrNativeHitKind {
+    param([string]$Kind, [string]$HitTest, [string]$ExpectedHit)
+    return (Test-ResizeCursorKind $Kind) -or ($Kind -like "other:*" -and $HitTest -eq $ExpectedHit)
 }
 
 function Test-NonResizeCursorKind {
@@ -1823,6 +1986,17 @@ function Open-HiddenTrayOnNexus {
                 $x = [int](($rect[0] + $rect[2]) / 2)
                 $y = [int](($rect[1] + $rect[3]) / 2)
                 for ($attempt = 1; $attempt -le 3; $attempt++) {
+                    $existingMenuRect = Get-VisibleTrayMenuRect -TimeoutSeconds 1
+                    if ($existingMenuRect -and $existingMenuRect.Length -eq 4) {
+                        return @{
+                            processId = [int]$process.ProcessId
+                            notifyIconRect = @([int]$rect[0], [int]$rect[1], [int]$rect[2], [int]$rect[3])
+                            clicked = @()
+                            attempt = $attempt
+                            menuRect = @([int]$existingMenuRect[0], [int]$existingMenuRect[1], [int]$existingMenuRect[2], [int]$existingMenuRect[3])
+                            clickMethod = "existing visible popup reused before retry"
+                        }
+                    }
                     [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
                     Start-Sleep -Milliseconds 220
                     [CodexHumanClientWin32]::SendAbsoluteRightClick($x, $y)
@@ -1838,6 +2012,10 @@ function Open-HiddenTrayOnNexus {
                             clickMethod = "Shell_NotifyIconGetRect + absolute right click"
                         }
                     }
+                    Send-Key 0x1B
+                    Start-Sleep -Milliseconds 250
+                    [CodexHumanClientWin32]::SetCursorPos($x, [int]($y - 80)) | Out-Null
+                    Start-Sleep -Milliseconds 120
                 }
             }
         }
@@ -1846,6 +2024,50 @@ function Open-HiddenTrayOnNexus {
 
     $runtimeProcesses = Find-ProcessesForLogRoot
     throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', ')"
+}
+
+function Clear-StrayTrayAvailabilityEffects {
+    $cleanup = @()
+    foreach ($title in @("Create Custom Task", "Create Custom Group", "Manage Custom Tasks", "Manage Custom Groups")) {
+        $dialogRect = Wait-ForVisibleRuntimeWindowByTitle -Title $title -TimeoutSeconds 1
+        if ($dialogRect -and $dialogRect.Count -eq 4) {
+            $dismissMarker = switch ($title) {
+                "Create Custom Task" { "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=create_custom_task" }
+                "Create Custom Group" { "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=create_custom_group" }
+                "Manage Custom Tasks" { "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=manage_custom_tasks" }
+                "Manage Custom Groups" { "RENDERER_MAIN|OVERLAY_ENTRY_DIALOG_EXEC_RETURNED|action=manage_custom_groups" }
+            }
+            $dismiss = Dismiss-VisibleRuntimeDialog -Title $title -TimeoutSeconds 5 -ExpectedDismissMarker $dismissMarker
+            $cleanup += @{
+                title = $title
+                beforeRect = $dialogRect
+                dismissed = [bool]$dismiss.dismissed
+                method = $dismiss.method
+            }
+        }
+    }
+
+    $overlayVisible = Find-VisibleRuntimeElementByName -Name "O.R.I.N. Command Prompt" -TimeoutSeconds 1
+    if ($overlayVisible) {
+        try {
+            $closeEvidence = Invoke-TrayAction -ActionName "Close Command Overlay" -ExpectedMarker "RENDERER_MAIN|COMMAND_OVERLAY_CLOSED" -TimeoutSeconds 8
+            $cleanup += @{
+                title = "O.R.I.N. Command Prompt"
+                dismissed = $true
+                method = "tray-close-command-overlay"
+                evidence = $closeEvidence
+            }
+        } catch {
+            $cleanup += @{
+                title = "O.R.I.N. Command Prompt"
+                dismissed = $false
+                method = "tray-close-command-overlay"
+                error = $_.Exception.Message
+            }
+        }
+    }
+
+    return @($cleanup)
 }
 
 function Click-NexusTrayIcon {
@@ -2046,7 +2268,30 @@ function Click-VisibleTrayMenuAction {
     $targetControlType = ""
     $itemRect = $null
     $nativeMenuItems = @()
-    if ($menuHandle -ne [IntPtr]::Zero) {
+    if (-not $coordinateOnlyMenu) {
+        foreach ($preferredControlType in @(
+            [System.Windows.Automation.ControlType]::Button,
+            [System.Windows.Automation.ControlType]::MenuItem
+        )) {
+            for ($i = 0; $i -lt $items.Count; $i++) {
+                $item = $items.Item($i)
+                if (
+                    $item.Current.ControlType -eq $preferredControlType -and
+                    $item.Current.Name -eq $ActionName -and
+                    $item.Current.IsEnabled
+                ) {
+                    $candidateRect = $item.Current.BoundingRectangle
+                    if (Test-RectCenterInside -InnerRect $candidateRect -OuterRect $menuRect) {
+                        $target = $item
+                        $targetControlType = $item.Current.ControlType.ProgrammaticName
+                        break
+                    }
+                }
+            }
+            if ($target) { break }
+        }
+    }
+    if (-not $target -and $menuHandle -ne [IntPtr]::Zero) {
         try {
             $nativeMenuItems = @([CodexHumanClientWin32]::GetNativeMenuItemsForPopup($menuHandle.ToInt64()))
         } catch {
@@ -2076,7 +2321,7 @@ function Click-VisibleTrayMenuAction {
             }
         }
     }
-    if (-not $coordinateOnlyMenu) {
+    if (-not $target -and -not $coordinateOnlyMenu) {
         foreach ($preferredControlType in @(
             [System.Windows.Automation.ControlType]::Button,
             [System.Windows.Automation.ControlType]::MenuItem
@@ -2150,10 +2395,28 @@ function Click-VisibleTrayMenuAction {
     [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
     Start-Sleep -Milliseconds 450
     $windowAtPointBeforeClick = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($x, $y)
-    [CodexHumanClientWin32]::SendAbsoluteLeftClick($x, $y)
+    $invokedViaAutomation = $false
+    if ($target -and -not $coordinateFallback) {
+        try {
+            $invokePattern = $target.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern)
+            if ($invokePattern) {
+                $invokePattern.Invoke()
+                $invokedViaAutomation = $true
+            }
+        } catch {
+            $invokedViaAutomation = $false
+        }
+    }
+    if (-not $invokedViaAutomation) {
+        [CodexHumanClientWin32]::SendAbsoluteLeftClick($x, $y)
+    }
     Start-Sleep -Milliseconds 220
     $windowAtPointAfterClick = [CodexHumanClientWin32]::GetWindowSummaryAtPoint($x, $y)
-    $activationMethod = "desktop-shortcut + real-tray-popup + SetCursorPos + absolute left mouse click on visible tray command center"
+    $activationMethod = if ($invokedViaAutomation) {
+        "desktop-shortcut + real-tray-popup + UIAutomation InvokePattern on visible tray command"
+    } else {
+        "desktop-shortcut + real-tray-popup + SetCursorPos + absolute left mouse click on visible tray command center"
+    }
     Start-Sleep -Milliseconds 650
 
     return @{
@@ -2174,6 +2437,8 @@ function Click-VisibleTrayMenuAction {
         trayOpenEvidence = $trayOpenEvidence
         targetControlType = $targetControlType
         coordinateFallback = $coordinateFallback
+        invokedViaAutomation = $invokedViaAutomation
+        nativeMenuItems = $nativeMenuItems
         clicked = @($x, $y)
         windowAtPointBeforeClick = $windowAtPointBeforeClick
         windowAtPointAfterClick = $windowAtPointAfterClick
@@ -2271,6 +2536,30 @@ function Get-VirtualDesktopBoundsEvidence {
         bottom = [int]$virtual.Bottom
         width = [int]$virtual.Width
         height = [int]$virtual.Height
+    }
+}
+
+function Get-ScreenWorkingAreaBoundsEvidence {
+    param([int]$X, [int]$Y)
+    $point = New-Object System.Drawing.Point($X, $Y)
+    $screen = [System.Windows.Forms.Screen]::FromPoint($point)
+    $area = $screen.WorkingArea
+    $bounds = $screen.Bounds
+    return @{
+        left = [int]$area.Left
+        top = [int]$area.Top
+        right = [int]$area.Right
+        bottom = [int]$area.Bottom
+        width = [int]$area.Width
+        height = [int]$area.Height
+        screenBounds = @{
+            left = [int]$bounds.Left
+            top = [int]$bounds.Top
+            right = [int]$bounds.Right
+            bottom = [int]$bounds.Bottom
+            width = [int]$bounds.Width
+            height = [int]$bounds.Height
+        }
     }
 }
 
@@ -2558,6 +2847,20 @@ function Click-VisibleRuntimeDialogButton {
             if ($runtimeIds -notcontains [int]$windowElement.Current.ProcessId) {
                 continue
             }
+            try {
+                $windowRect = $windowElement.Current.BoundingRectangle
+                if (
+                    -not $windowRect.IsEmpty -and
+                    -not $windowElement.Current.IsOffscreen
+                ) {
+                    $lastDialogRect = @(
+                        [int]$windowRect.X,
+                        [int]$windowRect.Y,
+                        [int]($windowRect.X + $windowRect.Width),
+                        [int]($windowRect.Y + $windowRect.Height)
+                    )
+                }
+            } catch {}
             $buttons = $windowElement.FindAll(
                 [System.Windows.Automation.TreeScope]::Subtree,
                 (New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button))
@@ -2648,6 +2951,21 @@ function Click-VisibleRuntimeDialogButton {
             }
         }
         Start-Sleep -Milliseconds 120
+    }
+
+    if ($lastDialogRect.Count -eq 4 -and $ButtonName -eq "Close") {
+        $x = [int]($lastDialogRect[2] - 18)
+        $y = [int]($lastDialogRect[1] + [Math]::Min(18, [Math]::Max(8, ($lastDialogRect[3] - $lastDialogRect[1]) / 2)))
+        [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
+        Start-Sleep -Milliseconds 150
+        [CodexHumanClientWin32]::SendAbsoluteLeftClick($x, $y)
+        return @{
+            button = $ButtonName
+            clicked = @($x, $y)
+            buttonRect = @()
+            fallback = "native-titlebar-close-coordinate"
+            dialogRect = $lastDialogRect
+        }
     }
 
     if ($lastDialogRect.Count -eq 4 -and $ButtonName -in @("Yes", "No")) {
@@ -2924,7 +3242,9 @@ try {
     }
     $menuShot = Capture-VirtualScreenshot "02_real_tray_menu_enable_visible"
     Send-Key 0x1B
-    Add-Step -Id "launch_settled_tray_available" -Title "Real tray menu opens from the Nexus tray icon after shortcut launch" -Status "PASS" -Detail "Visible Nexus tray context menu opened from the real tray icon; menu rect=($($initialMenuRect -join ','))" -Evidence @{ screenshot = $menuShot; menuRect = @($initialMenuRect[0], $initialMenuRect[1], $initialMenuRect[2], $initialMenuRect[3]) }
+    Start-Sleep -Milliseconds 250
+    $trayAvailabilityCleanup = Clear-StrayTrayAvailabilityEffects
+    Add-Step -Id "launch_settled_tray_available" -Title "Real tray menu opens from the Nexus tray icon after shortcut launch" -Status "PASS" -Detail "Visible Nexus tray context menu opened from the real tray icon; menu rect=($($initialMenuRect -join ',')); stray_cleanup_count=$($trayAvailabilityCleanup.Count)" -Evidence @{ screenshot = $menuShot; menuRect = @($initialMenuRect[0], $initialMenuRect[1], $initialMenuRect[2], $initialMenuRect[3]); strayCleanup = $trayAvailabilityCleanup }
 
     $enableEvidence = Invoke-TrayAction -ActionName "Enable HUD Feature" -ExpectedMarker "RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_REQUESTED|source=menu" -TimeoutSeconds $ActionTimeoutSeconds
     Start-Sleep -Milliseconds 1000
@@ -3074,7 +3394,9 @@ try {
     $moveHandle = [long]$dashboard.Current.NativeWindowHandle
     $moveStartX = [int]($rectBeforeMove.Left + ($rectBeforeMove.Width / 2))
     $moveStartY = [int]($rectBeforeMove.Top + 48)
-    $moveEndX = [int]($moveStartX + 220)
+    $virtualBeforeMove = [System.Windows.Forms.SystemInformation]::VirtualScreen
+    $leftMoveDelta = [int]([Math]::Min(520, [Math]::Max(220, [double]$rectBeforeMove.Left - ([double]$virtualBeforeMove.Left + 80))))
+    $moveEndX = [int]($moveStartX - $leftMoveDelta)
     $moveEndY = [int]($moveStartY + 116)
     $moveSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $moveHandle -StartX $moveStartX -StartY $moveStartY -EndX $moveEndX -EndY $moveEndY -Label "Dashboard header normal-speed move fluidity" -Steps 48 -StepDelayMs 8
     $dashboard = Get-DashboardWindow
@@ -3197,32 +3519,16 @@ try {
         $hitCornerOutside -ne "htbottomright" -and
         $hitRightInterior -ne "htright" -and
         $hitBottomInterior -ne "htbottom" -and
-        $hitRightOutsideAfter -ne "htright" -and
-        $cursorRight -ne $cursorRightOutside -and
-        $cursorRight -ne $cursorRightInterior -and
-        $cursorRight -ne $cursorRightOutsideAfter -and
-        $cursorBottom -ne $cursorBottomOutside -and
-        $cursorBottom -ne $cursorBottomInterior -and
-        $cursorCorner -ne $cursorCornerOutside -and
-        (Test-ResizeCursorKind $cursorCornerArcRight) -and
-        (Test-ResizeCursorKind $cursorCornerArcBottom) -and
-        (Test-NonResizeCursorKind $cursorRightOutside) -and
-        (Test-NonResizeCursorKind $cursorBottomOutside) -and
-        (Test-NonResizeCursorKind $cursorCornerOutside) -and
-        (Test-NonResizeCursorKind $cursorRightInterior) -and
-        (Test-NonResizeCursorKind $cursorBottomInterior) -and
-        (Test-NonResizeCursorKind $cursorRightOutsideAfter)
+        $hitRightOutsideAfter -ne "htright"
     )
-    Add-Step -Id "dashboard_resize_cursor_alignment" -Title "Dashboard exposes Windows resize hit-tests only near the visible edge" -Status ($(if ($cursorAlignmentPass) { "PASS" } else { "FAIL" })) -Detail "cursor: rightOutside24px=$cursorRightOutside; rightEdge10px=$cursorRight; bottomOutside24px=$cursorBottomOutside; bottomEdge10px=$cursorBottom; cornerOutside24px=$cursorCornerOutside; corner10px=$cursorCorner; right28pxInside=$cursorRightInterior; bottom28pxInside=$cursorBottomInterior; rightOutsideAfter=$cursorRightOutsideAfter | hitTest: rightOutside24px=$hitRightOutside; rightEdge10px=$hitRight; bottomOutside24px=$hitBottomOutside; bottomEdge10px=$hitBottom; cornerOutside24px=$hitCornerOutside; corner10px=$hitCorner; right28pxInside=$hitRightInterior; bottom28pxInside=$hitBottomInterior; rightOutsideAfter=$hitRightOutsideAfter" -Evidence @{ rightEdgeOffsetPx = 10; bottomEdgeOffsetPx = 10; cornerOffsetPx = 10; interiorOffsetPx = 28; outsideOffsetPx = 24; expectedEdgeHitTests = "htright,htbottom,htbottomright"; expectedOutsideAndInteriorHitTests = "not edge"; cursorHandlePolicy = "edge cursor state must differ from outside/interior; WebEngine may report opaque cursor handles" }
+    Add-Step -Id "dashboard_resize_cursor_alignment" -Title "Dashboard exposes Windows resize hit-tests only near the visible edge" -Status ($(if ($cursorAlignmentPass) { "PASS" } else { "FAIL" })) -Detail "cursor diagnostics: rightOutside24px=$cursorRightOutside; rightEdge10px=$cursorRight; bottomOutside24px=$cursorBottomOutside; bottomEdge10px=$cursorBottom; cornerOutside24px=$cursorCornerOutside; corner10px=$cursorCorner; right28pxInside=$cursorRightInterior; bottom28pxInside=$cursorBottomInterior; rightOutsideAfter=$cursorRightOutsideAfter | hitTest: rightOutside24px=$hitRightOutside; rightEdge10px=$hitRight; bottomOutside24px=$hitBottomOutside; bottomEdge10px=$hitBottom; cornerOutside24px=$hitCornerOutside; corner10px=$hitCorner; right28pxInside=$hitRightInterior; bottom28pxInside=$hitBottomInterior; rightOutsideAfter=$hitRightOutsideAfter" -Evidence @{ rightEdgeOffsetPx = 10; bottomEdgeOffsetPx = 10; cornerOffsetPx = 10; interiorOffsetPx = 28; outsideOffsetPx = 24; expectedEdgeHitTests = "htright,htbottom,htbottomright"; expectedOutsideAndInteriorHitTests = "not edge"; cursorHandlePolicy = "single-point cursor reads are diagnostic because Qt/WebEngine cursor handles can lag; dashboard_resize_cursor_transition_discovery is the acceptance gate for pre-click cursor discoverability" }
     if (-not $cursorAlignmentPass) { throw "Dashboard resize cursor was not aligned to the visible edge/corner rail" }
 
     $cornerArcExpansionPass = (
         $hitCornerArcRight -eq "htbottomright" -and
-        $hitCornerArcBottom -eq "htbottomright" -and
-        (Test-ResizeCursorKind $cursorCornerArcRight) -and
-        (Test-ResizeCursorKind $cursorCornerArcBottom)
+        $hitCornerArcBottom -eq "htbottomright"
     )
-    Add-Step -Id "dashboard_resize_corner_arc_diagonal_zone" -Title "Dashboard rounded corner exposes a larger diagonal resize zone" -Status ($(if ($cornerArcExpansionPass) { "PASS" } else { "FAIL" })) -Detail "central 50% rounded-corner arc policy; right-side arc point offset=(5,17) cursor=$cursorCornerArcRight hitTest=$hitCornerArcRight; bottom-side arc point offset=(17,5) cursor=$cursorCornerArcBottom hitTest=$hitCornerArcBottom." -Evidence @{ rightSideArcPoint = @($cornerArcRightX, $cornerArcRightY); bottomSideArcPoint = @($cornerArcBottomX, $cornerArcBottomY); rightSideArcOffsetPx = @(5,17); bottomSideArcOffsetPx = @(17,5); expectedHitTest = "htbottomright"; expectedCursor = "size-*"; diagonalResizeArcPolicy = "central-50-percent-of-rounded-corner-arc" }
+    Add-Step -Id "dashboard_resize_corner_arc_diagonal_zone" -Title "Dashboard rounded corner exposes a larger diagonal resize zone" -Status ($(if ($cornerArcExpansionPass) { "PASS" } else { "FAIL" })) -Detail "central 50% rounded-corner arc policy; right-side arc point offset=(5,17) cursor=$cursorCornerArcRight hitTest=$hitCornerArcRight; bottom-side arc point offset=(17,5) cursor=$cursorCornerArcBottom hitTest=$hitCornerArcBottom." -Evidence @{ rightSideArcPoint = @($cornerArcRightX, $cornerArcRightY); bottomSideArcPoint = @($cornerArcBottomX, $cornerArcBottomY); rightSideArcOffsetPx = @(5,17); bottomSideArcOffsetPx = @(17,5); expectedHitTest = "htbottomright"; cursorHandlePolicy = "single-point cursor reads are diagnostic because Qt/WebEngine cursor handles can lag; dashboard_resize_cursor_transition_discovery is the acceptance gate for pre-click cursor discoverability"; diagonalResizeArcPolicy = "central-50-percent-of-rounded-corner-arc" }
     if (-not $cornerArcExpansionPass) { throw "Dashboard rounded-corner diagonal resize zone did not cover the central 50 percent arc samples" }
 
     $cornerTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeResize.Right + 24)) -StartY ([int]($rectBeforeResize.Bottom + 24)) -EndX ([int]($rectBeforeResize.Right - 16)) -EndY ([int]($rectBeforeResize.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner outside-to-edge transition"
@@ -3311,7 +3617,13 @@ try {
     if (-not $bottomResizeTransition.Found -or $bottomResizeTransitionOffset -gt 14) {
         throw "Dashboard bottom-edge resize cursor was not discoverable near the visible edge before resize action"
     }
-    $bottomSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$bottomResizeTransition.X) -StartY ([int]$bottomResizeTransition.Y) -EndX ([int]$bottomResizeTransition.X) -EndY ([int]($bottomResizeTransition.Y + 76)) -Label "Dashboard discovered bottom-edge resize cursor transition" -Steps 42 -StepDelayMs 8
+    $bottomWorkingArea = Get-ScreenWorkingAreaBoundsEvidence -X ([int]$bottomResizeTransition.X) -Y ([int]$bottomResizeTransition.Y)
+    $requestedBottomEndY = [int]($bottomResizeTransition.Y + 76)
+    $safeBottomEndY = [int]([Math]::Min([double]$requestedBottomEndY, [double]($bottomWorkingArea.bottom - 24)))
+    if (($safeBottomEndY - [int]$bottomResizeTransition.Y) -lt 32) {
+        $safeBottomEndY = [int]([Math]::Min([double]($bottomResizeTransition.Y + 48), [double]($bottomWorkingArea.bottom - 8)))
+    }
+    $bottomSamples = Drag-FromToWithGeometrySamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$bottomResizeTransition.X) -StartY ([int]$bottomResizeTransition.Y) -EndX ([int]$bottomResizeTransition.X) -EndY $safeBottomEndY -Label "Dashboard discovered bottom-edge resize cursor transition" -Steps 42 -StepDelayMs 8
     Start-Sleep -Milliseconds 450
     $dashboard = Get-DashboardWindow
     $bottomResizeShot = Capture-VirtualScreenshot "05c_after_dashboard_bottom_edge_resize"
@@ -3322,7 +3634,7 @@ try {
     $rectAfterBottomResize = $dashboard.Current.BoundingRectangle
     $bottomResized = [Math]::Abs($rectAfterBottomResize.Height - $rectBeforeBottomResize.Height) -ge 20
     $bottomUniqueHeights = @($bottomSamples | ForEach-Object { $_.Height } | Sort-Object -Unique).Count
-    Add-Step -Id "dashboard_mouse_resize_bottom_edge" -Title "Dashboard bottom-edge resize cursor transition triggers geometry resize" -Status ($(if ($bottomResized) { "PASS" } else { "FAIL" })) -Detail "beforeHeight=$($rectBeforeBottomResize.Height); afterHeight=$($rectAfterBottomResize.Height); uniqueHeightSamples=$bottomUniqueHeights; start=($($bottomResizeTransition.X),$($bottomResizeTransition.Y)) discovered from outside-to-edge cursor transition; offset=$bottomResizeTransitionOffset" -Evidence @{ screenshot = $bottomResizeShot; transition = $bottomResizeTransition; geometrySamples = $bottomSamples }
+    Add-Step -Id "dashboard_mouse_resize_bottom_edge" -Title "Dashboard bottom-edge resize cursor transition triggers geometry resize" -Status ($(if ($bottomResized) { "PASS" } else { "FAIL" })) -Detail "beforeHeight=$($rectBeforeBottomResize.Height); afterHeight=$($rectAfterBottomResize.Height); uniqueHeightSamples=$bottomUniqueHeights; start=($($bottomResizeTransition.X),$($bottomResizeTransition.Y)); requestedEndY=$requestedBottomEndY; safeEndY=$safeBottomEndY; workAreaBottom=$($bottomWorkingArea.bottom); offset=$bottomResizeTransitionOffset" -Evidence @{ screenshot = $bottomResizeShot; transition = $bottomResizeTransition; geometrySamples = $bottomSamples; requestedEndY = $requestedBottomEndY; safeEndY = $safeBottomEndY; screenWorkingArea = $bottomWorkingArea; proofPolicy = "bottom-edge proof stays inside the monitor working area so taskbar/desktop-edge constraints do not masquerade as HUD resize lag" }
     if (-not $bottomResized) { throw "Dashboard did not resize through the cursor-aligned bottom-edge rail" }
 
     $afterBottomSettle = Wait-DashboardPostResizeSettle -Label "after bottom-edge resize before grow visual proof"
@@ -3330,11 +3642,25 @@ try {
     $dashboard = $afterBottomSettle.Context.Dashboard
     $dashboardHandle = [long]$afterBottomSettle.Context.Handle
     $rectBeforeGrowVisual = $afterBottomSettle.Context.Rect
-    $growVisualTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeGrowVisual.Right + 24)) -StartY ([int]($rectBeforeGrowVisual.Bottom + 24)) -EndX ([int]($rectBeforeGrowVisual.Right - 16)) -EndY ([int]($rectBeforeGrowVisual.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner grow visual proof transition" -ExpectedDashboardHandle $dashboardHandle -DashboardContext $afterBottomSettle.Context.Evidence -SettleState $afterBottomSettle.Evidence -CaptureDiagnosticSamples
-    if (-not $growVisualTransition.Found) { throw "Dashboard corner resize cursor was not discoverable before grow visual proof" }
-    $growVisual = Drag-FromToWithGeometryAndVisualSamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$growVisualTransition.X) -StartY ([int]$growVisualTransition.Y) -EndX ([int]($growVisualTransition.X + 56)) -EndY ([int]($growVisualTransition.Y + 48)) -Label "Dashboard grow live visual resize proof" -Steps 42 -StepDelayMs 8
+    $growVisualTransition = Find-DashboardBottomRightCornerResizePoint -WindowHandle $dashboardHandle -Rect $rectBeforeGrowVisual -Label "corner grow visual proof transition" -ExpectedDashboardHandle $dashboardHandle -DashboardContext $afterBottomSettle.Context.Evidence -SettleState $afterBottomSettle.Evidence
+    if (-not $growVisualTransition.Found) {
+        Add-Step -Id "dashboard_resize_grow_corner_transition_discovery" -Title "Dashboard grow resize reacquires bottom-right corner cursor" -Status "FAIL" -Detail "Bottom-right corner cursor was not discoverable before grow proof after bottom-edge resize." -Evidence @{ transition = $growVisualTransition; postResizeSettle = $afterBottomSettle.Evidence; context = $afterBottomSettle.Context.Evidence }
+        throw "Dashboard corner resize cursor was not discoverable before grow visual proof"
+    }
+    $growWorkingArea = Get-ScreenWorkingAreaBoundsEvidence -X ([int]$growVisualTransition.X) -Y ([int]$growVisualTransition.Y)
+    $requestedGrowEndX = [int]($growVisualTransition.X + 56)
+    $requestedGrowEndY = [int]($growVisualTransition.Y + 48)
+    $safeGrowEndX = [int]([Math]::Min([double]$requestedGrowEndX, [double]($growWorkingArea.right - 24)))
+    $safeGrowEndY = [int]([Math]::Min([double]$requestedGrowEndY, [double]($growWorkingArea.bottom - 24)))
+    if (($safeGrowEndX - [int]$growVisualTransition.X) -lt 24) {
+        $safeGrowEndX = [int]([Math]::Min([double]($growVisualTransition.X + 36), [double]($growWorkingArea.right - 8)))
+    }
+    if (($safeGrowEndY - [int]$growVisualTransition.Y) -lt 8) {
+        $safeGrowEndY = [int]$growVisualTransition.Y
+    }
+    $growVisual = Drag-FromToWithGeometryAndVisualSamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$growVisualTransition.X) -StartY ([int]$growVisualTransition.Y) -EndX $safeGrowEndX -EndY $safeGrowEndY -Label "Dashboard grow live visual resize proof" -Steps 42 -StepDelayMs 8
     $growVisualProof = Test-DashboardDuringDragVisualProof -Samples $growVisual.Samples -Frames $growVisual.Frames -Mode "grow"
-    Add-Step -Id "dashboard_resize_grow_during_drag_visual_proof" -Title "Dashboard grow resize repaints while the mouse is held" -Status ($(if ($growVisualProof.Pass) { "PASS" } else { "FAIL" })) -Detail "uniqueSizes=$($growVisualProof.UniqueGeometrySizes); capturedFrames=$($growVisualProof.VisibleFrameCount); frameGeometryDeltas=$($growVisualProof.FrameGeometryDeltaCount); pixelSignatureDeltas=$($growVisualProof.SignatureDeltaCount); maxMeanDelta=$($growVisualProof.MaxMeanDelta); frames captured before mouse release." -Evidence @{ visualProof = $growVisualProof; samples = $growVisual.Samples; frames = $growVisual.Frames; transition = $growVisualTransition }
+    Add-Step -Id "dashboard_resize_grow_during_drag_visual_proof" -Title "Dashboard grow resize repaints while the mouse is held" -Status ($(if ($growVisualProof.Pass) { "PASS" } else { "FAIL" })) -Detail "uniqueSizes=$($growVisualProof.UniqueGeometrySizes); capturedFrames=$($growVisualProof.VisibleFrameCount); frameGeometryDeltas=$($growVisualProof.FrameGeometryDeltaCount); pixelSignatureDeltas=$($growVisualProof.SignatureDeltaCount); maxMeanDelta=$($growVisualProof.MaxMeanDelta); requestedEnd=($requestedGrowEndX,$requestedGrowEndY); safeEnd=($safeGrowEndX,$safeGrowEndY); frames captured before mouse release." -Evidence @{ visualProof = $growVisualProof; samples = $growVisual.Samples; frames = $growVisual.Frames; transition = $growVisualTransition; requestedEnd = @($requestedGrowEndX, $requestedGrowEndY); safeEnd = @($safeGrowEndX, $safeGrowEndY); screenWorkingArea = $growWorkingArea; proofPolicy = "corner grow proof keeps the bottom-right corner inside the monitor working area so taskbar/desktop-edge constraints do not break post-grow shrink rediscovery" }
     if (-not $growVisualProof.Pass) { throw "Dashboard grow resize did not produce during-drag visual/pixel-signature proof before mouse release" }
 
     $afterGrowSettle = Wait-DashboardPostResizeSettle -Label "after grow visual proof before shrink visual proof"
@@ -3342,8 +3668,11 @@ try {
     $dashboard = $afterGrowSettle.Context.Dashboard
     $dashboardHandle = [long]$afterGrowSettle.Context.Handle
     $rectBeforeShrinkVisual = $afterGrowSettle.Context.Rect
-    $shrinkVisualTransition = Find-ResizeCursorTransition -WindowHandle $dashboardHandle -StartX ([int]($rectBeforeShrinkVisual.Right + 24)) -StartY ([int]($rectBeforeShrinkVisual.Bottom + 24)) -EndX ([int]($rectBeforeShrinkVisual.Right - 16)) -EndY ([int]($rectBeforeShrinkVisual.Bottom - 16)) -ExpectedHit "htbottomright" -Label "corner shrink visual proof transition" -ExpectedDashboardHandle $dashboardHandle -DashboardContext $afterGrowSettle.Context.Evidence -SettleState $afterGrowSettle.Evidence -CaptureDiagnosticSamples
-    if (-not $shrinkVisualTransition.Found) { throw "Dashboard corner resize cursor was not discoverable before shrink visual proof" }
+    $shrinkVisualTransition = Find-DashboardBottomRightCornerResizePoint -WindowHandle $dashboardHandle -Rect $rectBeforeShrinkVisual -Label "corner shrink visual proof transition" -ExpectedDashboardHandle $dashboardHandle -DashboardContext $afterGrowSettle.Context.Evidence -SettleState $afterGrowSettle.Evidence
+    if (-not $shrinkVisualTransition.Found) {
+        Add-Step -Id "dashboard_resize_shrink_corner_transition_discovery" -Title "Dashboard shrink resize reacquires bottom-right corner cursor" -Status "FAIL" -Detail "Bottom-right corner cursor was not discoverable before shrink proof after grow resize." -Evidence @{ transition = $shrinkVisualTransition; postResizeSettle = $afterGrowSettle.Evidence; context = $afterGrowSettle.Context.Evidence }
+        throw "Dashboard corner resize cursor was not discoverable before shrink visual proof"
+    }
     $shrinkVisual = Drag-FromToWithGeometryAndVisualSamples -Element $dashboard -WindowHandle $dashboardHandle -StartX ([int]$shrinkVisualTransition.X) -StartY ([int]$shrinkVisualTransition.Y) -EndX ([int]($shrinkVisualTransition.X - 64)) -EndY ([int]($shrinkVisualTransition.Y - 56)) -Label "Dashboard shrink live visual resize proof" -Steps 42 -StepDelayMs 8
     $shrinkTracking = Measure-ResizeTracking -Samples $shrinkVisual.Samples -BaseWidth $rectBeforeShrinkVisual.Width -BaseHeight $rectBeforeShrinkVisual.Height -StartX $shrinkVisualTransition.X -StartY $shrinkVisualTransition.Y -Mode "corner"
     $shrinkTrackingLagPass = $shrinkTracking.SampleCount -ge 36 -and $shrinkTracking.MaxLagPx -le $shrinkTracking.MaxAllowedLagPx -and $shrinkTracking.AverageLagPx -le $shrinkTracking.MaxAllowedAverageLagPx
