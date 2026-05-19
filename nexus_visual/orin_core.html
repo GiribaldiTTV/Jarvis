@@ -84,6 +84,25 @@
       data-execution-schema="provider-execution-readiness-state.v1"
       data-execution-approval="execution-approval-missing"
       data-provider-path="provider-path-not-selected"
+      data-provider-path-readiness="provider_path_unavailable"
+      data-provider-path-eligibility="provider_path_eligibility_unavailable"
+      data-provider-path-blocker="execution_readiness_required"
+      data-provider-path-reason="provider_path_default_unavailable"
+      data-provider-path-schema="provider-path-readiness-state.v1"
+      data-provider-path-config-schema="provider-path-readiness-config.v1"
+      data-provider-profile-id="local-null-provider-profile"
+      data-provider-kind="null-local-provider"
+      data-provider-source="local-status-scaffold"
+      data-provider-config-status="provider-config-missing"
+      data-provider-setup-approval="provider-setup-approval-missing"
+      data-provider-execution-approval="provider-execution-approval-missing"
+      data-setup-consent="consent_required_for_provider_setup"
+      data-execution-consent="consent_required_for_provider_execution"
+      data-consent-schema="provider-consent-readiness-state.v1"
+      data-provider-visible-data-requirement="provider-visible-data-requirement-none"
+      data-data-classification-posture="data-classification-local-only"
+      data-audit-envelope="audit-envelope-planned-no-collection"
+      data-local-only-status="local-only-status-active"
       data-adapter-selection="adapter-selection-null-local"
       data-prompt-acceptance-gate="prompt-acceptance-disabled"
       data-prompt-routing-gate="prompt-routing-disabled"
@@ -185,6 +204,20 @@
       <div id="ai-provider-status-execution-schema" class="ai-provider-status__execution-schema">provider-execution-readiness-state.v1; provider-execution-readiness-config.v1; Execution config: safe default local-only</div>
       <div id="ai-provider-status-execution-approval" class="ai-provider-status__execution-approval">Execution approval: USER approval missing</div>
       <div id="ai-provider-status-provider-path" class="ai-provider-status__provider-path">Provider path: not selected</div>
+      <div id="ai-provider-status-provider-path-readiness" class="ai-provider-status__provider-path-readiness">Provider path readiness: unavailable</div>
+      <div id="ai-provider-status-provider-path-eligibility" class="ai-provider-status__provider-path-eligibility">Provider path eligibility: unavailable</div>
+      <div id="ai-provider-status-provider-path-blocker" class="ai-provider-status__provider-path-blocker">Provider path blocker: execution readiness required</div>
+      <div id="ai-provider-status-provider-path-reason" class="ai-provider-status__provider-path-reason">Provider path reason: readiness only</div>
+      <div id="ai-provider-status-provider-path-schema" class="ai-provider-status__provider-path-schema">provider-path-readiness-state.v1; provider-path-readiness-config.v1; Provider path config: safe default local-only</div>
+      <div id="ai-provider-status-provider-profile" class="ai-provider-status__provider-profile">Provider profile: local-null-provider-profile; Provider kind: null-local-provider; Provider source: local status scaffold</div>
+      <div id="ai-provider-status-provider-config-envelope" class="ai-provider-status__provider-config-envelope">Provider config: missing; SDK integration: pending USER approval; Network requirement: blocked</div>
+      <div id="ai-provider-status-provider-approvals" class="ai-provider-status__provider-approvals">Provider setup approval: missing; Provider execution approval: missing</div>
+      <div id="ai-provider-status-setup-consent" class="ai-provider-status__setup-consent">Setup consent: required before provider setup</div>
+      <div id="ai-provider-status-execution-consent" class="ai-provider-status__execution-consent">Execution consent: required before prompt/model execution</div>
+      <div id="ai-provider-status-consent-schema" class="ai-provider-status__consent-schema">provider-consent-readiness-state.v1; provider-consent-readiness-config.v1; Consent config: safe default local-only</div>
+      <div id="ai-provider-status-path-data-visibility" class="ai-provider-status__path-data-visibility">Provider-visible data requirement: none; Data classification posture: local-only</div>
+      <div id="ai-provider-status-path-audit" class="ai-provider-status__path-audit">Audit envelope posture: planned; no collection; Local-only status: active</div>
+      <div id="ai-provider-status-path-future-gates" class="ai-provider-status__path-future-gates">Provider setup: future-gated; Provider execution: disabled; future-gated</div>
       <div id="ai-provider-status-adapter-selection" class="ai-provider-status__adapter-selection">Adapter selection: null local fallback</div>
       <div id="ai-provider-status-prompt-gates" class="ai-provider-status__prompt-gates">Prompt acceptance gate: disabled; Prompt routing gate: disabled; Prompt send: disabled</div>
       <div id="ai-provider-status-model-execution" class="ai-provider-status__model-execution">Model execution status: disabled; Model workload readiness: disabled</div>
@@ -200,7 +233,7 @@
         aria-disabled="true"
       >Assisted Desktop unavailable</button>
       <div id="ai-provider-status-fallback" class="ai-provider-status__fallback">No-provider fallback active</div>
-      <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Next: provider setup is disabled in this local-only foundation seam</div>
+      <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Next: provider path and consent readiness remain local-only</div>
       <div id="ai-provider-status-privacy" class="ai-provider-status__privacy">Local shell only; nothing is sent</div>
     </div>
   </div>

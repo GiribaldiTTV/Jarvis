@@ -6,7 +6,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from .ai_provider_state import build_default_provider_readiness_config, build_provider_execution_readiness_gates_state
+from .ai_provider_state import build_default_provider_readiness_config, build_provider_path_consent_readiness_state
 from .workerw_utils import (
     attach_window_to_desktop,
     make_window_noninteractive,
@@ -33,7 +33,7 @@ class CoreVisualizationWindow(QWidget):
         self._is_shutting_down = False
         self._pending_visual_state = "dormant"
         self._pending_voice_level = None
-        self._ai_provider_state = build_provider_execution_readiness_gates_state(
+        self._ai_provider_state = build_provider_path_consent_readiness_state(
             build_default_provider_readiness_config(),
             surface_role="core",
         )
@@ -325,6 +325,14 @@ class CoreVisualizationWindow(QWidget):
             f"|execution_schema={payload.get('executionStateSchemaVersion', '')}"
             f"|execution_approval={payload.get('executionApprovalStatus', '')}"
             f"|provider_path={payload.get('providerPathStatus', '')}"
+            f"|provider_path_readiness={payload.get('providerPathReadinessState', '')}"
+            f"|provider_path_eligibility={payload.get('providerPathEligibilityState', '')}"
+            f"|provider_path_blocker={payload.get('providerPathBlockerState', '')}"
+            f"|provider_path_reason={payload.get('providerPathReasonCode', '')}"
+            f"|provider_path_schema={payload.get('providerPathStateSchemaVersion', '')}"
+            f"|setup_consent={payload.get('setupConsentState', '')}"
+            f"|execution_consent={payload.get('executionConsentState', '')}"
+            f"|provider_config_status={payload.get('providerConfigStatus', '')}"
             f"|adapter_selection={payload.get('adapterSelectionPosture', '')}"
             f"|prompt_acceptance_gate={payload.get('promptAcceptanceGateState', '')}"
             f"|prompt_routing_gate={payload.get('promptRoutingGateState', '')}"
