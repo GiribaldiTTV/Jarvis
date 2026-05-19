@@ -108,6 +108,7 @@ Allowed:
 - Formal Branch Readiness planning fixture support through `dev/orin_branch_readiness_planning_fixture_validation.py` and `dev/fixtures/branch_readiness_planning/`, proving shallow later-phase planning fails and concrete whole-system planning passes.
 - Pre-Rebaseline Impact Audit governance/validator support requiring `No Baseline By Inertia`, `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before fast-forward, merge, rebase, branch-switch, current-main reconciliation, or standing-governance neutral-main sync.
 - Post-PR #165 Release Readiness source-truth drift repair recording `feature/fam-007-local-ai-provider-runtime-readiness` as historical merged-unreleased evidence, preserving No Active Branch / selected-next defer posture, clearing stale PR Readiness Stage 2 / PR creation wording from current-state truth, and routing the originating FAM-007 lane back to Release Readiness Stage 1 after governance merge/rebaseline.
+- Governance process efficiency reform planning may record repo-wide audit inventories under `Docs/governance_process_efficiency_reform_plan.md` when USER requests governance/source-truth analysis and recommendations; implementing those reforms requires later focused planning and USER approval.
 - One PR per active `RRI-*` cycle after validation.
 
 Forbidden:

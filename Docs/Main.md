@@ -169,6 +169,7 @@ Use these for workflow posture, prompt framing, lifecycle rules, and execution s
 - `Docs/codex_modes.md`
 - `Docs/orin_task_template.md`
 - `Docs/codex_user_guide.md`
+- `Docs/governance_process_efficiency_reform_plan.md`
 
 Repo-wide validation-helper rules also live in this governance layer.
 Use `Docs/nexus_startup_contract.md` as the compact ChatGPT/new-chat loader map only.
