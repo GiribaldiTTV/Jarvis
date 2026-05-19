@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -172,9 +173,14 @@ def _active_authority_record(root: Path, branch: str) -> str:
         if not record_path.is_file():
             continue
         record_text = record_path.read_text(encoding="utf-8", errors="replace")
-        if branch in record_text:
+        branch_match = re.search(r"(?m)^\s*-\s*Branch:\s*`?([^`\r\n]+)`?\s*$", record_text)
+        if branch_match and branch_match.group(1).strip() == branch:
             return candidate
     return "None matched current branch"
+
+
+def _valid_ref(value: str) -> bool:
+    return bool(value and value != "Unknown")
 
 
 def _recommendation(
@@ -235,8 +241,12 @@ def build_report(cwd: Path, target_ref: str) -> str:
     ]
     incoming_commits = _git_lines(["log", "--oneline", f"HEAD..{target_ref}"], root)
     ahead_commits = _git_lines(["log", "--oneline", f"{target_ref}..HEAD"], root)
-    incoming_files = _git_lines(["diff", "--name-only", f"HEAD..{target_ref}"], root)
-    branch_files = _git_lines(["diff", "--name-only", f"{target_ref}..HEAD"], root)
+    if _valid_ref(merge_base):
+        incoming_files = _git_lines(["diff", "--name-only", f"{merge_base}..{target_ref}"], root)
+        branch_files = _git_lines(["diff", "--name-only", f"{merge_base}..HEAD"], root)
+    else:
+        incoming_files = _git_lines(["diff", "--name-only", f"HEAD..{target_ref}"], root)
+        branch_files = _git_lines(["diff", "--name-only", f"{target_ref}..HEAD"], root)
     source_truth_files, runtime_files, high_risk_files = _classify_files(incoming_files)
     target_is_descendant = _is_ancestor(root, head, target_sha)
     head_is_descendant = _is_ancestor(root, target_sha, head)

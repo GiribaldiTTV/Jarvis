@@ -2199,6 +2199,8 @@ WORKTREE_REBASELINE_AUDIT_SOURCE_PHRASES = (
     "Rebaseline Mutation Approval:",
     "Rebaseline Mutation Status:",
     "no fetch, merge, rebase, checkout, reset, or file mutation",
+    'f"{merge_base}..{target_ref}"',
+    'branch_match.group(1).strip() == branch',
 )
 VALIDATION_SUITE_HELPER = Path("dev/orin_validation_suite.py")
 VALIDATION_SUITE_DOCS = (

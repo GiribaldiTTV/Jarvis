@@ -133,6 +133,7 @@ Implementation record:
 - Focused pass admitted `dev/orin_worktree_rebaseline_audit.py` as a reusable report-only helper.
 - The helper emits the required `Pre-Rebaseline Impact Audit:` and `Current-Main Reconciliation Identity Guard:` markers without fetching, merging, rebasing, checking out, resetting, or mutating files.
 - The helper emits `Rebaseline Mutation Approval:` and `Rebaseline Mutation Status:` so every baseline request remains report-only until USER approves mutation.
+- Bot-review hardening requires incoming changed files to compare `merge_base..target_ref`, branch changed files to compare `merge_base..HEAD`, and active authority matching to use the exact `- Branch:` field instead of substring matching.
 - Registry owner: `Docs/validation_helper_registry.md`.
 - Validator source-check owner: `dev/orin_branch_governance_validation.py`.
 
