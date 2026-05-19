@@ -27,7 +27,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
 - Active RRI Cycle: `None`
 - Latest Closed RRI Cycle: `RRI-20260519-001`
-- Return Digest Status: `Complete - RRI-20260519-001 validated, committed, pushed, merged through PR #166, synced the standing branch and neutral main workspace to origin/main using Pre-Rebaseline Impact Audit proof, and returned FAM-007 rebaseline instructions for Release Readiness Stage 1 rerun`
+- Return Digest Status: `Complete - RRI-20260519-001 validated, committed, pushed, merged through PR #166, synced the standing branch and neutral main workspace to origin/main using Pre-Rebaseline Impact Audit proof, and returned FAM-007 rebaseline instructions for Release Readiness Stage 1 rerun; future standing-governance cycles do not require a dedicated closeout PR solely to set Active RRI Cycle to None`
 - Active Cycle Identity: `None - latest closed cycle RRI-20260519-001 originated from Governance phase-gate intake plus FAM-007 Release Readiness intake and repaired Pre-Rebaseline Impact Audit enforcement plus post-PR #165 merged-unreleased FAM-007 release-readiness source-truth drift`
 
 ## PR Readiness Stage 1 Analysis Packet
@@ -66,9 +66,9 @@ This branch is the single standing governance lane for Release Readiness source-
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
 - Active RRI Cycle: `None`
 - Latest Closed RRI Cycle: `RRI-20260519-001`
-- Return Digest Status: `Complete - RRI-20260519-001 validated, committed, pushed, merged through PR #166, synced the standing branch and neutral main workspace to origin/main using Pre-Rebaseline Impact Audit proof, and returned a governance closeout digest before the lane returned to idle`
+- Return Digest Status: `Complete - RRI-20260519-001 validated, committed, pushed, merged through PR #166, synced the standing branch and neutral main workspace to origin/main using Pre-Rebaseline Impact Audit proof, and returned a governance digest before the lane returned to idle; future standing-governance cycles do not require a dedicated closeout PR solely for cycle-ledger cleanup`
 - Active Cycle Identity: `None - latest closed cycle RRI-20260519-001 originated from Governance phase-gate intake plus FAM-007 Release Readiness intake and repaired Pre-Rebaseline Impact Audit enforcement plus post-PR #165 merged-unreleased FAM-007 release-readiness source-truth drift`
-- One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
+- One Active Cycle: Required operationally while a cycle is in flight. A second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main; the standing Governance branch is the only branch class where merged source truth does not require a separate closeout PR solely to clear or rewrite the cycle ledger.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Pre-Rebaseline Impact Audit: Required before the standing branch, neutral main workspace, or any originating worktree fast-forwards, merges, rebases, branch-switches, or otherwise baselines to newer `origin/main`; report `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before mutation.
 - Bootstrap Exception Limit: Required - the RRI-20260514-001 setup exception cannot authorize future ahead-of-main work after origin/main moves beyond the recorded branch creation base.
@@ -167,15 +167,15 @@ Bootstrap and preserve the one legal standing governance intake lane so Release 
 
 ## Target End-State
 
-The setup PR merges, the standing branch is synced to current `origin/main`, no active `RRI-*` cycle remains recorded, GitHub Desktop can open `C:\Nexus Worktrees\Governance`, the branch authority record sits in historical / idle traceability on merged main, and the lane waits cleanly for the next USER-approved Release Readiness digest or automation/worktree governance intake.
+The setup PR merges, the standing branch is synced to current `origin/main`, GitHub Desktop can open `C:\Nexus Worktrees\Governance`, the branch authority record remains the durable standing authority, and the lane waits cleanly for the next USER-approved Release Readiness digest or automation/worktree governance intake. The `Active RRI Cycle` ledger may be cleared in the same repair PR, overwritten by the next accepted intake, or left as latest-cycle traceability after merge; a dedicated closeout PR is not required only to set it to `None`.
 
 ## Backlog Completion Strategy
 
 Branch Completion Goal: `Standing intake lane bootstrapped and validated`
 
-Known Future-Dependent Blockers: `Future RRI cycles require a Release Readiness digest or USER-approved automation/worktree governance intake, clean sync to origin/main, USER-gated PR merge, and return digest before originating-lane continuation`
+Known Future-Dependent Blockers: `Future RRI cycles require a Release Readiness digest or USER-approved automation/worktree governance intake, clean sync to origin/main, USER-gated PR merge, and return digest before originating-lane continuation; no dedicated standing-governance closeout PR is required solely for cycle-ledger cleanup`
 
-Branch Closure Rule: `The standing branch name and active standing authority persist after merge; merged main may still report No Active Branch for runtime/product work because the standing governance intake record is the only active-authority exception. Each intake cycle closes by PR merge, sync to origin/main, return digest, and Active RRI Cycle returning to None after the return-digest closeout is recorded by the next admitted intake or governance closeout path.`
+Branch Closure Rule: `The standing branch name and active standing authority persist after merge; merged main may still report No Active Branch for runtime/product work because the standing governance intake record is the only active-authority exception. Each intake cycle closes operationally by PR merge, sync to origin/main, and return digest. Active RRI Cycle may return to None only when included in the same repair PR or a broader future admitted governance repair; the standing Governance branch must not create a dedicated closeout PR solely to clear cycle-ledger wording.`
 
 ## Expected Seam Families And Risk Classes
 

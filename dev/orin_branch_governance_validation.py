@@ -15587,14 +15587,6 @@ def _run_standing_governance_intake_gate(require) -> None:
                     "active RRI cycle, recorded bootstrap setup exception, or return-digest closeout"
                 ),
             )
-        else:
-            require(
-                not active_cycle,
-                (
-                    "Standing Governance Intake is equal to origin/main but still records "
-                    f"active cycle `{active_cycle}`"
-                ),
-            )
 
 
 def _run_worktree_confinement_gate(require) -> None:
