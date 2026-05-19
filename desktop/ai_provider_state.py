@@ -163,6 +163,7 @@ PROVIDER_SETUP_BLOCKER_POLICY_BLOCKED = "policy_blocked"
 PROVIDER_SETUP_BLOCKER_CONFIG_REQUIRED = "config_required"
 PROVIDER_SETUP_BLOCKER_CONFIG_INVALID = "config_invalid"
 PROVIDER_SETUP_BLOCKER_FUTURE_GATE = "future_gate"
+PROVIDER_SETUP_BLOCKER_PROVIDER_NOT_READY = "provider_not_ready"
 PROVIDER_READINESS_REASON_DEFAULT_LOCAL_ONLY = "readiness_default_local_only"
 PROVIDER_READINESS_REASON_CONFIG_MISSING_FAIL_CLOSED = "readiness_config_missing_fail_closed"
 PROVIDER_READINESS_REASON_CONFIG_INVALID_FAIL_CLOSED = "readiness_config_invalid_fail_closed"
@@ -173,6 +174,7 @@ PROVIDER_READINESS_REASON_MANIFEST_MISSING = "readiness_manifest_missing"
 PROVIDER_READINESS_REASON_MANIFEST_INVALID_INSTALL_BLOCKED = "readiness_manifest_invalid_install_blocked"
 PROVIDER_READINESS_REASON_POLICY_BLOCKED = "readiness_policy_blocked"
 PROVIDER_READINESS_REASON_FUTURE_PROVIDER_GATED = "readiness_future_provider_gated"
+PROVIDER_READINESS_REASON_PROVIDER_NOT_READY = "readiness_provider_not_ready"
 PROVIDER_READINESS_REASON_PROVIDER_READY_EXECUTION_GATED = "readiness_provider_ready_execution_gated"
 PROVIDER_READINESS_PROVENANCE_DEFAULT_CONFIG = "default_config"
 PROVIDER_READINESS_PROVENANCE_LOCAL_CONFIG = "local_config"
@@ -265,6 +267,7 @@ PROVIDER_READINESS_REASON_CODES = (
     PROVIDER_READINESS_REASON_MANIFEST_INVALID_INSTALL_BLOCKED,
     PROVIDER_READINESS_REASON_POLICY_BLOCKED,
     PROVIDER_READINESS_REASON_FUTURE_PROVIDER_GATED,
+    PROVIDER_READINESS_REASON_PROVIDER_NOT_READY,
     PROVIDER_READINESS_REASON_PROVIDER_READY_EXECUTION_GATED,
 )
 PROVIDER_READINESS_PROVENANCE_SOURCES = (
@@ -1274,6 +1277,7 @@ def _readiness_contract_fields(
         PROVIDER_SETUP_BLOCKER_CONFIG_REQUIRED: "Setup blocker: provider config required",
         PROVIDER_SETUP_BLOCKER_CONFIG_INVALID: "Setup blocker: invalid config",
         PROVIDER_SETUP_BLOCKER_FUTURE_GATE: "Setup blocker: future USER approval required",
+        PROVIDER_SETUP_BLOCKER_PROVIDER_NOT_READY: "Setup blocker: provider not ready",
     }
     reason_labels = {
         PROVIDER_READINESS_REASON_DEFAULT_LOCAL_ONLY: "Readiness reason: local-only default",
@@ -1286,6 +1290,7 @@ def _readiness_contract_fields(
         PROVIDER_READINESS_REASON_MANIFEST_INVALID_INSTALL_BLOCKED: "Readiness reason: manifest invalid; install blocked",
         PROVIDER_READINESS_REASON_POLICY_BLOCKED: "Readiness reason: policy blocked",
         PROVIDER_READINESS_REASON_FUTURE_PROVIDER_GATED: "Readiness reason: provider setup future-gated",
+        PROVIDER_READINESS_REASON_PROVIDER_NOT_READY: "Readiness reason: provider not ready",
         PROVIDER_READINESS_REASON_PROVIDER_READY_EXECUTION_GATED: "Readiness reason: provider execution future-gated",
     }
     provenance_labels = {
@@ -1910,6 +1915,29 @@ def build_provider_readiness_contract_state(
                 install_intent=CAPABILITY_PACK_INSTALL_INTENT_FUTURE_GATED
                 if normalized_config.install_intent_requested
                 else CAPABILITY_PACK_INSTALL_INTENT_NONE,
+            ),
+        )
+    if not normalized_config.provider_ready:
+        base_state = build_fam007_foundation_readiness_state(surface_role=surface_role)
+        return replace(
+            base_state,
+            status_label="Provider readiness degraded",
+            disabled_reason="Provider readiness check is not ready, so setup and provider behavior are disabled",
+            interaction_disabled_reason="Provider readiness check failed closed; prompts remain disabled",
+            **_readiness_contract_fields(
+                state=PROVIDER_READINESS_STATE_DEGRADED,
+                reason_code=PROVIDER_READINESS_REASON_PROVIDER_NOT_READY,
+                setup_eligibility=PROVIDER_SETUP_ELIGIBILITY_BLOCKED,
+                setup_blocker=PROVIDER_SETUP_BLOCKER_PROVIDER_NOT_READY,
+                provenance=PROVIDER_READINESS_PROVENANCE_FUTURE_RUNTIME_CHECK,
+                config_state=normalized_config.config_state,
+                future_gate_status=PROVIDER_FUTURE_GATE_STATUS_EXECUTION_REQUIRED,
+                capability_pack_eligibility=CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED,
+                manifest_validity=CAPABILITY_PACK_MANIFEST_VALID_FUTURE_GATED,
+                source_trust=CAPABILITY_PACK_SOURCE_TRUST_LOCAL_ONLY,
+                compatibility_posture=CAPABILITY_PACK_COMPATIBILITY_BLOCKED,
+                requirement_posture=CAPABILITY_PACK_REQUIREMENT_FUTURE_GATED,
+                install_intent=CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
             ),
         )
 

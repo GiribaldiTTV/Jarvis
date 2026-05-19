@@ -122,6 +122,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     PROVIDER_READINESS_REASON_FUTURE_PROVIDER_GATED,
     PROVIDER_READINESS_REASON_MANIFEST_INVALID_INSTALL_BLOCKED,
     PROVIDER_READINESS_REASON_MANIFEST_MISSING,
+    PROVIDER_READINESS_REASON_PROVIDER_NOT_READY,
     PROVIDER_READINESS_REASON_PROVIDER_READY_EXECUTION_GATED,
     PROVIDER_READINESS_REASON_PROVIDER_UNCONFIGURED,
     PROVIDER_READINESS_STATE_PROVIDER_READY_EXECUTION_GATED,
@@ -140,6 +141,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     PROVIDER_SETUP_BLOCKER_FUTURE_GATE,
     PROVIDER_SETUP_BLOCKER_MANIFEST_REQUIRED,
     PROVIDER_SETUP_BLOCKER_NONE,
+    PROVIDER_SETUP_BLOCKER_PROVIDER_NOT_READY,
     PROVIDER_SETUP_BLOCKER_SETUP_DISABLED,
     PROVIDER_SETUP_ELIGIBILITY_BLOCKED,
     PROVIDER_SETUP_ELIGIBILITY_CONFIG_REQUIRED,
@@ -313,6 +315,21 @@ def validate() -> list[str]:
         },
         surface_role="core",
     )
+    provider_not_ready_readiness_snapshot = build_provider_readiness_contract_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": True,
+            "future_provider_setup_approved": True,
+            "provider_ready": False,
+            "install_intent_requested": True,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
     execution_gated_readiness_snapshot = build_provider_readiness_contract_state(
         {
             "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
@@ -347,6 +364,7 @@ def validate() -> list[str]:
         "manifest_missing": manifest_missing_readiness_snapshot.as_renderer_payload(),
         "manifest_invalid": manifest_invalid_readiness_snapshot.as_renderer_payload(),
         "future_gated": future_gated_readiness_snapshot.as_renderer_payload(),
+        "provider_not_ready": provider_not_ready_readiness_snapshot.as_renderer_payload(),
         "execution_gated": execution_gated_readiness_snapshot.as_renderer_payload(),
     }
     renderer = _read("desktop/desktop_renderer.py")
@@ -844,6 +862,18 @@ def validate() -> list[str]:
             CAPABILITY_PACK_MANIFEST_VALID_FUTURE_GATED,
             CAPABILITY_PACK_INSTALL_INTENT_FUTURE_GATED,
             PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        ),
+        "provider_not_ready": (
+            PROVIDER_READINESS_STATE_DEGRADED,
+            PROVIDER_SETUP_ELIGIBILITY_BLOCKED,
+            PROVIDER_SETUP_BLOCKER_PROVIDER_NOT_READY,
+            PROVIDER_READINESS_REASON_PROVIDER_NOT_READY,
+            PROVIDER_READINESS_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            PROVIDER_READINESS_CONFIG_STATE_LOCAL,
+            CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED,
+            CAPABILITY_PACK_MANIFEST_VALID_FUTURE_GATED,
+            CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            PROVIDER_FUTURE_GATE_STATUS_EXECUTION_REQUIRED,
         ),
         "execution_gated": (
             PROVIDER_READINESS_STATE_PROVIDER_READY_EXECUTION_GATED,
