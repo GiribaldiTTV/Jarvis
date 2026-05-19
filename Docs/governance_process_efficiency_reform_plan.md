@@ -261,6 +261,12 @@ Focused planning pass:
 Priority:
 - Medium.
 
+Implementation record:
+- Focused pass admitted `dev/orin_validation_suite.py` as a reusable report-only validation suite recommendation helper.
+- The helper emits `Recommended Validation Suite:` packets from `--phase` and `--changed-file` inputs, recommends commands with rationale, and does not execute commands or mutate files.
+- Registry owner: `Docs/validation_helper_registry.md`.
+- Validator source-check owner: `dev/orin_branch_governance_validation.py`.
+
 ## Category 12: Backlog And Roadmap Current-State Clarity
 
 Current finding:
