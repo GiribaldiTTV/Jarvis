@@ -16329,6 +16329,17 @@ def main() -> int:
         "Save Monitor and Cancel must not appear as valid actions",
         "Create Monitor must be the primary recovery action",
         "reject manifest-only or DOM-only PASS when focused screenshots show invalid interactive controls",
+        "## Refreshed LV1 Dashboard Right-Edge Rediscovery Repair Setup Admission",
+        "post-corner right-edge resize cursor rediscovery",
+        "Initial right-edge hit-test passed with rightEdge10px=htright",
+        "rightOutside=True / htright / size-west-east / offset=1",
+        "corner resize passed and changed the Dashboard from 780x1060 to 860x1130",
+        "Dashboard element, native/root handle, bounding rect, DPI/scale context, virtual desktop bounds, and visible-edge coordinates",
+        "Diagnostic Sweep Planning",
+        "x/y sample coordinates, offset from visible edge, cursor kind, native hit-test result, root/window handle at point, expected Dashboard handle, bounding rect, virtual desktop bounds, timing, and settle state",
+        "Post-Resize Settle Planning",
+        "geometry stable, rounded mask applied, WebView visible, active resize state cleared, and cursor reset",
+        "Manage Monitors focused LV1 states remain pending recheck",
     ):
         require(
             required_phrase in fam006_monitor_groups_record_text,
@@ -16352,6 +16363,7 @@ def main() -> int:
             "Recording Profile",
             "returned USER UTS FAIL",
             "interactive-control visual QA",
+            "right-edge resize rediscovery",
             "PR Readiness remains blocked",
         ):
             require(

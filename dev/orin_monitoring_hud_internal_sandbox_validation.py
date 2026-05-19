@@ -559,6 +559,27 @@ def _validate_static_surface(failures: list[str]) -> None:
             failures,
         )
 
+    for right_edge_rediscovery_setup in (
+        "## Refreshed LV1 Dashboard Right-Edge Rediscovery Repair Setup Admission",
+        "post-corner right-edge resize cursor rediscovery",
+        "Initial right-edge hit-test passed with rightEdge10px=htright",
+        "rightOutside=True / htright / size-west-east / offset=1",
+        "corner resize passed and changed the Dashboard from 780x1060 to 860x1130",
+        "Dashboard element, native/root handle, bounding rect, DPI/scale context, virtual desktop bounds, and visible-edge coordinates",
+        "Diagnostic Sweep Planning",
+        "x/y sample coordinates, offset from visible edge, cursor kind, native hit-test result, root/window handle at point, expected Dashboard handle, bounding rect, virtual desktop bounds, timing, and settle state",
+        "Post-Resize Settle Planning",
+        "geometry stable, rounded mask applied, WebView visible, active resize state cleared, and cursor reset",
+        "post-resize right-edge rediscovery planning",
+        "Manage Monitors focused LV1 states remain pending recheck",
+    ):
+        _require_contains(
+            monitor_groups_record,
+            right_edge_rediscovery_setup,
+            "FAM-006 Dashboard right-edge rediscovery repair setup source truth",
+            failures,
+        )
+
     for close_guard_runtime in (
         'document.querySelector(\'[data-child-window-close="monitor-group-edit"]\')',
         "webview_focused_visual_proof",
