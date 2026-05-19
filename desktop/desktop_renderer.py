@@ -35,7 +35,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
-from .ai_provider_state import build_default_provider_readiness_config, build_provider_readiness_contract_state
+from .ai_provider_state import build_default_provider_readiness_config, build_provider_activation_foundation_state
 from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
@@ -5753,7 +5753,7 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.create_custom_group_requested.connect(self.handle_create_custom_group_requested)
         self._command_panel.created_groups_requested.connect(self.handle_created_groups_requested)
         self._command_panel.edit_saved_action_requested.connect(self.handle_edit_saved_action_requested)
-        self._ai_provider_state = build_provider_readiness_contract_state(
+        self._ai_provider_state = build_provider_activation_foundation_state(
             build_default_provider_readiness_config(),
             surface_role=self.surface_role,
         )
@@ -13470,6 +13470,19 @@ class DesktopRuntimeWindow(QWidget):
             readiness_provenance=payload.get("readinessProvenance", ""),
             readiness_schema=payload.get("readinessStateSchemaVersion", ""),
             future_provider_gate=payload.get("futureProviderGateStatus", ""),
+            provider_activation=payload.get("providerActivationState", ""),
+            activation_eligibility=payload.get("activationEligibilityState", ""),
+            activation_blocker=payload.get("activationBlockerState", ""),
+            activation_reason=payload.get("activationReasonCode", ""),
+            activation_provenance=payload.get("activationProvenance", ""),
+            activation_schema=payload.get("activationStateSchemaVersion", ""),
+            future_activation_gate=payload.get("futureActivationGateStatus", ""),
+            provider_adapter=payload.get("providerAdapterPosture", ""),
+            prompt_execution_gate=payload.get("promptExecutionGateState", ""),
+            model_execution_gate=payload.get("modelExecutionGateState", ""),
+            provider_execution_gate=payload.get("providerExecutionGateState", ""),
+            functional_ai_criteria=payload.get("functionalAiCriteriaState", ""),
+            v18_prebeta_readiness=payload.get("v18PrebetaReadinessState", ""),
             configured_provider_count=payload.get("configuredProviderCount", 0),
             available_provider_count=payload.get("availableProviderCount", 0),
             hardware_capability=payload.get("hardwareCapabilityState", ""),

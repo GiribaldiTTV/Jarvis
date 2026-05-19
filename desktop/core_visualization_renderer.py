@@ -6,7 +6,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from .ai_provider_state import build_default_provider_readiness_config, build_provider_readiness_contract_state
+from .ai_provider_state import build_default_provider_readiness_config, build_provider_activation_foundation_state
 from .workerw_utils import (
     attach_window_to_desktop,
     make_window_noninteractive,
@@ -33,7 +33,7 @@ class CoreVisualizationWindow(QWidget):
         self._is_shutting_down = False
         self._pending_visual_state = "dormant"
         self._pending_voice_level = None
-        self._ai_provider_state = build_provider_readiness_contract_state(
+        self._ai_provider_state = build_provider_activation_foundation_state(
             build_default_provider_readiness_config(),
             surface_role="core",
         )
@@ -304,6 +304,19 @@ class CoreVisualizationWindow(QWidget):
             f"|readiness_provenance={payload.get('readinessProvenance', '')}"
             f"|readiness_schema={payload.get('readinessStateSchemaVersion', '')}"
             f"|future_provider_gate={payload.get('futureProviderGateStatus', '')}"
+            f"|provider_activation={payload.get('providerActivationState', '')}"
+            f"|activation_eligibility={payload.get('activationEligibilityState', '')}"
+            f"|activation_blocker={payload.get('activationBlockerState', '')}"
+            f"|activation_reason={payload.get('activationReasonCode', '')}"
+            f"|activation_provenance={payload.get('activationProvenance', '')}"
+            f"|activation_schema={payload.get('activationStateSchemaVersion', '')}"
+            f"|future_activation_gate={payload.get('futureActivationGateStatus', '')}"
+            f"|provider_adapter={payload.get('providerAdapterPosture', '')}"
+            f"|prompt_execution_gate={payload.get('promptExecutionGateState', '')}"
+            f"|model_execution_gate={payload.get('modelExecutionGateState', '')}"
+            f"|provider_execution_gate={payload.get('providerExecutionGateState', '')}"
+            f"|functional_ai_criteria={payload.get('functionalAiCriteriaState', '')}"
+            f"|v18_prebeta_readiness={payload.get('v18PrebetaReadinessState', '')}"
             f"|configured_provider_count={payload.get('configuredProviderCount', 0)}"
             f"|available_provider_count={payload.get('availableProviderCount', 0)}"
             f"|hardware_capability={payload.get('hardwareCapabilityState', '')}"
