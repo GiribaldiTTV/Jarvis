@@ -240,6 +240,250 @@ RUNTIME_ENGINEERING_CONTRACT_DETAIL_MARKERS = (
     "Recommendations And Alternatives:",
     "Plan-To-Implementation Traceability:",
 )
+BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING = "Branch Runtime Engineering Plan"
+BRANCH_RUNTIME_ENGINEERING_PLAN_POINTER_LABEL = "Branch Runtime Engineering Plan:"
+BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL = "Branch Runtime Engineering Plan Path:"
+BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = "Docs/branch_plans/"
+BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS = 8
+BRANCH_RUNTIME_ENGINEERING_PLAN_STATUS_TERMS = (
+    "required",
+    "proposed",
+    "present",
+    "accepted",
+    "revised",
+    "folded",
+    "historical",
+)
+REQUIRED_BRANCH_RUNTIME_ENGINEERING_PLAN_MARKERS = (
+    "Plan Identity:",
+    "Owning Branch:",
+    "Worktree Path:",
+    "Branch Authority Record Pointer:",
+    "Current Phase:",
+    BRANCH_RUNTIME_ENGINEERING_PLAN_POINTER_LABEL,
+    "Engineering Plan Status:",
+    "Current Runtime Baseline:",
+    "Branch Purpose:",
+    "Planned Runtime Delta:",
+    "User-Facing Delta:",
+    "Source-Truth Delta:",
+    "State / Config / Schema Delta:",
+    "Validator / Helper Delta:",
+    "Expected Changed Files / Surfaces:",
+    "Workstream / Seam Map:",
+    "Per-Seam Implementation Checklist:",
+    "Per-Seam Validation Checklist:",
+    "Per-Seam User-Facing Proof Checklist:",
+    "Future-Gated Items:",
+    "Approval-Boundary Audit:",
+    "FAM / Shared-Surface Overlap Forecast:",
+    "Open Questions:",
+    "USER Planning Decisions:",
+    "Plan Revision History:",
+    "Plan-To-Implementation Traceability Table:",
+    "Hardening Comparison Checklist:",
+    "Live Validation Proof Or Waiver Checklist:",
+    "PR Readiness Fold-Down / Retention Checklist:",
+    "Release Readiness Public-Scope Translation Checklist:",
+    "USER Planning Review:",
+    "PR Fold-Down Packet:",
+    "Runtime Implementation Approval:",
+)
+BRANCH_RUNTIME_ENGINEERING_PLAN_DETAIL_MARKERS = (
+    "Current Runtime Baseline:",
+    "Branch Purpose:",
+    "Planned Runtime Delta:",
+    "User-Facing Delta:",
+    "Source-Truth Delta:",
+    "State / Config / Schema Delta:",
+    "Validator / Helper Delta:",
+    "Expected Changed Files / Surfaces:",
+    "Workstream / Seam Map:",
+    "Per-Seam Implementation Checklist:",
+    "Per-Seam Validation Checklist:",
+    "Per-Seam User-Facing Proof Checklist:",
+    "Future-Gated Items:",
+    "Approval-Boundary Audit:",
+    "FAM / Shared-Surface Overlap Forecast:",
+    "Plan-To-Implementation Traceability Table:",
+    "Hardening Comparison Checklist:",
+    "Live Validation Proof Or Waiver Checklist:",
+    "PR Readiness Fold-Down / Retention Checklist:",
+    "Release Readiness Public-Scope Translation Checklist:",
+)
+BRANCH_RUNTIME_ENGINEERING_PLAN_DETAIL_TERMS = {
+    "Current Runtime Baseline:": (
+        "state",
+        "config",
+        "schema",
+        "ui",
+        "desktop",
+        "provider",
+        "validator",
+        "helper",
+        "file",
+        "surface",
+        "runtime",
+    ),
+    "Planned Runtime Delta:": (
+        "state",
+        "config",
+        "schema",
+        "ui",
+        "copy",
+        "validator",
+        "helper",
+        "fixture",
+        "file",
+        "surface",
+        "runtime",
+        "delta",
+    ),
+    "User-Facing Delta:": (
+        "user",
+        "visible",
+        "ui",
+        "copy",
+        "status",
+        "label",
+        "interaction",
+        "workflow",
+        "disabled",
+        "future-gated",
+    ),
+    "State / Config / Schema Delta:": (
+        "state",
+        "config",
+        "schema",
+        "field",
+        "metadata",
+        "settings",
+        "persistence",
+        "manifest",
+        "provenance",
+    ),
+    "Validator / Helper Delta:": (
+        "validator",
+        "helper",
+        "fixture",
+        "proof",
+        "test",
+        "gate",
+        "audit",
+        "validation",
+    ),
+    "Expected Changed Files / Surfaces:": (
+        "file",
+        "surface",
+        "desktop",
+        "docs",
+        "dev",
+        "ui",
+        "runtime",
+        "validator",
+    ),
+    "Workstream / Seam Map:": (
+        "seam",
+        "ws",
+        "slice",
+        "implementation",
+        "validation",
+        "hardening",
+        "live validation",
+    ),
+    "Per-Seam Implementation Checklist:": (
+        "seam",
+        "implementation",
+        "checklist",
+        "runtime",
+        "file",
+        "state",
+        "ui",
+    ),
+    "Per-Seam Validation Checklist:": (
+        "seam",
+        "validation",
+        "validator",
+        "fixture",
+        "proof",
+        "check",
+    ),
+    "Per-Seam User-Facing Proof Checklist:": (
+        "seam",
+        "user",
+        "visible",
+        "proof",
+        "screenshot",
+        "uts",
+        "waiver",
+    ),
+    "Future-Gated Items:": (
+        "future",
+        "gated",
+        "approval",
+        "blocked",
+        "pending",
+        "defer",
+    ),
+    "Approval-Boundary Audit:": (
+        "approval",
+        "boundary",
+        "pending",
+        "blocked",
+        "user",
+        "separate",
+    ),
+    "Plan-To-Implementation Traceability Table:": (
+        "planned",
+        "actual",
+        "implementation",
+        "trace",
+        "file",
+        "proof",
+    ),
+    "Hardening Comparison Checklist:": (
+        "hardening",
+        "plan",
+        "implementation",
+        "copy",
+        "validator",
+        "future-gated",
+    ),
+    "Live Validation Proof Or Waiver Checklist:": (
+        "live validation",
+        "proof",
+        "waiver",
+        "user",
+        "static",
+        "runtime",
+    ),
+    "PR Readiness Fold-Down / Retention Checklist:": (
+        "pr readiness",
+        "fold",
+        "retention",
+        "historical",
+        "promote",
+        "receipt",
+    ),
+    "Release Readiness Public-Scope Translation Checklist:": (
+        "release readiness",
+        "public",
+        "scope",
+        "excluded",
+        "future-gated",
+        "release",
+    ),
+}
+BRANCH_RUNTIME_ENGINEERING_PLAN_COMPACTNESS_FORBIDDEN_MARKERS = (
+    "Per-Seam Implementation Checklist:",
+    "Per-Seam Validation Checklist:",
+    "Per-Seam User-Facing Proof Checklist:",
+    "Plan-To-Implementation Traceability Table:",
+    "Hardening Comparison Checklist:",
+    "Live Validation Proof Or Waiver Checklist:",
+    "PR Readiness Fold-Down / Retention Checklist:",
+    "Release Readiness Public-Scope Translation Checklist:",
+)
 RUNTIME_ENGINEERING_DETAIL_TERMS = {
     "Current Runtime Baseline:": (
         "state",
@@ -3697,6 +3941,72 @@ RUNTIME_ENGINEERING_CONTRACT_PHRASES = (
     "Workstream Seam Map:",
     "Proof Expectations:",
     "Plan-To-Implementation Traceability:",
+)
+
+BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "Branch Runtime Engineering Plan",
+        "Docs/branch_plans/<branch_slug>.md",
+        "backlog and roadmap remain compact pointer/status surfaces",
+        "PR Readiness fold-down",
+    ),
+    Path("Docs/phase_governance.md"): (
+        "Branch Runtime Engineering Plan",
+        "Branch Runtime Engineering Plan Path:",
+        "PR Fold-Down Packet:",
+        "backlog and roadmap remain compact pointer/status surfaces",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Branch Runtime Engineering Plan",
+        "Docs/branch_plans/<branch_slug>.md",
+        "Branch Runtime Engineering Plan Path:",
+        "PR Fold-Down Packet:",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Branch Runtime Engineering Plan",
+        "Branch Runtime Engineering Plan Path:",
+        "Engineering Plan Status:",
+        "PR Fold-Down Packet:",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Branch Runtime Engineering Plan",
+        "Branch Runtime Engineering Plan Path:",
+        "Engineering Plan Status:",
+        "PR Fold-Down Packet:",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Branch Runtime Engineering Plan",
+        "Docs/branch_plans/<branch_slug>.md",
+        "backlog and roadmap remain compact pointer/status surfaces",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "Branch Runtime Engineering Plan",
+        "Docs/branch_plans/<branch_slug>.md",
+        "invalid backlog planning sprawl",
+    ),
+    Path("Docs/branch_records/index.md"): (
+        "Branch Runtime Engineering Plan",
+        "Branch Runtime Engineering Plan Path:",
+        "Engineering Plan Status:",
+        "PR Fold-Down Packet:",
+    ),
+    Path("Docs/workstreams/index.md"): (
+        "Branch Runtime Engineering Plan",
+        "Docs/branch_plans/<branch_slug>.md",
+        "PR Readiness fold-down",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "Branch Runtime Engineering Plan",
+        "Docs/branch_plans/<branch_slug>.md",
+        "Per-Seam Implementation Checklist:",
+        "PR Readiness Fold-Down / Retention Checklist:",
+        "Release Readiness Public-Scope Translation Checklist:",
+    ),
+}
+
+BRANCH_RUNTIME_ENGINEERING_PLAN_COMPACT_POINTER_SURFACES = (
+    Path("Docs/feature_backlog.md"),
+    Path("Docs/prebeta_roadmap.md"),
 )
 
 CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES = {
@@ -7321,6 +7631,206 @@ def _validate_runtime_engineering_contract(
             (
                 f"{source_path}: {current_phase} requires Runtime Implementation "
                 "Approval to be approved, granted, or waived"
+            ),
+        )
+
+
+def _validate_branch_runtime_engineering_plan_substance(
+    require,
+    source_path: str,
+    marker: str,
+    value: str,
+) -> None:
+    normalized_value = _normalized_planning_value(value)
+    require(
+        normalized_value not in PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES,
+        (
+            f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING} value for "
+            f"'{marker}' is placeholder/self-assessed wording, not concrete "
+            "branch runtime planning proof"
+        ),
+    )
+    require(
+        _planning_word_count(value) >= BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS,
+        (
+            f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING} value for "
+            f"'{marker}' is too shallow; record concrete branch-specific runtime "
+            "baseline, delta, checklist, proof, or traceability detail"
+        ),
+    )
+
+    required_terms = BRANCH_RUNTIME_ENGINEERING_PLAN_DETAIL_TERMS.get(marker)
+    if required_terms:
+        require(
+            any(term in normalized_value for term in required_terms),
+            (
+                f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING} marker "
+                f"'{marker}' must name concrete runtime plan detail such as "
+                f"{', '.join(required_terms[:5])}"
+            ),
+        )
+
+
+def _validate_branch_runtime_engineering_plan(
+    require,
+    source_path: str,
+    text: str,
+) -> None:
+    require(
+        f"## {BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING}" in text,
+        (
+            f"{source_path}: runtime-focused branch planning is missing "
+            f"'## {BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING}'"
+        ),
+    )
+    plan_section = _section(text, BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING)
+    for marker in REQUIRED_BRANCH_RUNTIME_ENGINEERING_PLAN_MARKERS:
+        require(
+            marker in plan_section,
+            f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING} is missing '{marker}'",
+        )
+        value = _extract_marker_value(plan_section, marker)
+        require(
+            bool(value),
+            (
+                f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING} must give "
+                f"a real value for '{marker}'"
+            ),
+        )
+        if value and marker in BRANCH_RUNTIME_ENGINEERING_PLAN_DETAIL_MARKERS:
+            _validate_branch_runtime_engineering_plan_substance(
+                require,
+                source_path,
+                marker,
+                value,
+            )
+
+    status = _extract_marker_value(plan_section, "Engineering Plan Status:")
+    normalized_status = _normalized_planning_value(status)
+    require(
+        any(term in normalized_status for term in BRANCH_RUNTIME_ENGINEERING_PLAN_STATUS_TERMS),
+        (
+            f"{source_path}: Engineering Plan Status must be Required, Proposed, "
+            "Present, Accepted, Revised, Folded, or Historical"
+        ),
+    )
+
+    fold_down_packet = _extract_marker_value(plan_section, "PR Fold-Down Packet:")
+    require(
+        any(
+            token in _normalized_planning_value(fold_down_packet)
+            for token in ("pending", "complete", "required", "folded", "historical")
+        ),
+        (
+            f"{source_path}: PR Fold-Down Packet must record Pending, Required, "
+            "Complete, Folded, or Historical posture"
+        ),
+    )
+
+    implementation_approval = _extract_marker_value(
+        plan_section,
+        "Runtime Implementation Approval:",
+    )
+    require(
+        bool(implementation_approval),
+        (
+            f"{source_path}: Runtime Implementation Approval must preserve the "
+            "implementation approval boundary"
+        ),
+    )
+
+
+def _validate_branch_runtime_engineering_plan_pointer(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    branch_class: str,
+    current_phase: str,
+) -> None:
+    if branch_class != "implementation":
+        return
+    if current_phase not in RUNTIME_ENGINEERING_CONTRACT_ENFORCED_PHASES:
+        return
+
+    plan_state = _extract_marker_value(text, BRANCH_RUNTIME_ENGINEERING_PLAN_POINTER_LABEL)
+    plan_path = _extract_marker_value(text, BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL)
+    plan_status = _extract_marker_value(text, "Engineering Plan Status:")
+    if not plan_state and not plan_path and not plan_status:
+        return
+
+    normalized_state = _normalized_planning_value(plan_state)
+    normalized_status = _normalized_planning_value(plan_status)
+    require(
+        plan_state,
+        (
+            f"{source_path}: runtime-focused branch plan pointer is missing "
+            f"'{BRANCH_RUNTIME_ENGINEERING_PLAN_POINTER_LABEL}'"
+        ),
+    )
+    require(
+        any(
+            term in f"{normalized_state} {normalized_status}"
+            for term in BRANCH_RUNTIME_ENGINEERING_PLAN_STATUS_TERMS
+        ),
+        (
+            f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_POINTER_LABEL} must "
+            "record Required, Proposed, Present, Accepted, Revised, Folded, or Historical"
+        ),
+    )
+
+    must_have_plan_file = current_phase != "Branch Readiness" or any(
+        term in f"{normalized_state} {normalized_status}"
+        for term in ("present", "accepted", "revised", "folded", "historical")
+    )
+    if not must_have_plan_file:
+        return
+
+    normalized_path = plan_path.replace("\\", "/")
+    require(
+        bool(plan_path),
+        f"{source_path}: accepted/present runtime plan pointer is missing '{BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL}'",
+    )
+    plan_path_valid = normalized_path.startswith(
+        BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY
+    ) and normalized_path.endswith(".md")
+    require(
+        plan_path_valid,
+        (
+            f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL} must point "
+            f"under {BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY}<branch_slug>.md"
+        ),
+    )
+    if not (plan_path and plan_path_valid):
+        return
+    plan_file = ROOT_DIR / normalized_path
+    require(
+        plan_file.is_file(),
+        (
+            f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL} points "
+            f"to missing file '{normalized_path}'"
+        ),
+    )
+    if not plan_file.is_file():
+        return
+    _validate_branch_runtime_engineering_plan(
+        require,
+        normalized_path,
+        plan_file.read_text(encoding="utf-8"),
+    )
+
+
+def _validate_branch_runtime_backlog_compactness(
+    require,
+    source_path: str,
+    text: str,
+) -> None:
+    for marker in BRANCH_RUNTIME_ENGINEERING_PLAN_COMPACTNESS_FORBIDDEN_MARKERS:
+        require(
+            marker not in text,
+            (
+                f"{source_path}: backlog/roadmap compact pointer surfaces must not "
+                f"own detailed Branch Runtime Engineering Plan marker '{marker}'"
             ),
         )
 
@@ -16892,6 +17402,24 @@ def main() -> int:
                 ),
             )
 
+    for relative_path, required_phrases in BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                (
+                    f"{relative_path}: Branch Runtime Engineering Plan guidance "
+                    f"is missing '{required_phrase}'"
+                ),
+            )
+
+    for relative_path in BRANCH_RUNTIME_ENGINEERING_PLAN_COMPACT_POINTER_SURFACES:
+        _validate_branch_runtime_backlog_compactness(
+            require,
+            str(relative_path),
+            _read_text(relative_path),
+        )
+
     for relative_path, required_phrases in CHATGPT_LOADER_SOURCE_TRUTH_SYNC_REQUIRED_PHRASES.items():
         text = _read_text(relative_path)
         for required_phrase in required_phrases:
@@ -17879,6 +18407,13 @@ def main() -> int:
                 branch_class=branch_class,
                 current_phase=current_phase,
             )
+            _validate_branch_runtime_engineering_plan_pointer(
+                require,
+                canonical_path,
+                workstream_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+            )
 
             initial_seam_sequence = _section(workstream_text, "Initial Workstream Seam Sequence")
             for marker in REQUIRED_BRANCH_READINESS_FIRST_SEAM_MARKERS:
@@ -18714,6 +19249,13 @@ def main() -> int:
                 next_legal_phase=str(info["next_legal_phase"]),
             )
             _validate_runtime_engineering_contract(
+                require,
+                branch_record_path,
+                record_text,
+                branch_class=branch_class,
+                current_phase=current_phase,
+            )
+            _validate_branch_runtime_engineering_plan_pointer(
                 require,
                 branch_record_path,
                 record_text,
