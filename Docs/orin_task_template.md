@@ -79,6 +79,33 @@ PR Readiness Stage 2 Approval:
 Origin/Main Freshness Check:
 [PASS / Origin Main Reconciliation Packet Required / not applicable]
 
+Pre-Rebaseline Impact Audit:
+[PASS / Required Before Mutation / not applicable]
+
+No Baseline By Inertia:
+[Required - no merge/rebase/fast-forward/branch switch before audit report and USER approval / not applicable]
+
+Incoming Main Change Set:
+[commit range, PRs, merge commits, and summary of incoming origin/main changes / not applicable]
+
+Incoming Changed Files:
+[complete incoming file list from current HEAD or branch creation base to origin/main / None]
+
+Incoming Runtime / Source-Truth Risk:
+[runtime/provider/UI/source-truth/validator/shared-surface risk classification / None]
+
+Validation Before Rebaseline:
+[read-only validation results or explicit reason validation could not run before mutation]
+
+Recommendation Only:
+[findings reported only; no local branch state mutation yet / not applicable]
+
+Rebaseline Mutation Approval:
+[Pending / USER approved exact worktree, branch, target commit, and operation type / not applicable]
+
+Rebaseline Mutation Status:
+[Not started / Blocked / Approved and completed with operation proof / not applicable]
+
 Branch Creation Base:
 [fill in branch creation base commit or not applicable]
 
