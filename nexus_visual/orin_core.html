@@ -56,6 +56,13 @@
       data-runtime-schema="provider-runtime-state.v1"
       data-runtime-config="default_config"
       data-runtime-fail-closed="true"
+      data-provider-readiness="setup_disabled"
+      data-setup-eligibility="setup_eligibility_disabled"
+      data-setup-blocker="setup_disabled"
+      data-readiness-reason="readiness_default_local_only"
+      data-readiness-provenance="default_config"
+      data-readiness-schema="provider-readiness-state.v1"
+      data-future-provider-gate="provider-setup-future-user-approval-required"
       data-configured-provider-count="0"
       data-available-provider-count="0"
       data-hardware-capability="local-planning-only"
@@ -66,6 +73,8 @@
       data-capability-pack-lifecycle="capability-pack-lifecycle-planned"
       data-capability-pack-manifest="manifest-planned"
       data-capability-pack-compatibility="compatibility-unproven"
+      data-capability-pack-eligibility="capability-pack-eligibility-blocked"
+      data-install-intent="install-intent-blocked"
       data-memory-context="memory-context-disabled"
       data-memory-indexing="memory-indexing-disabled"
       data-network-egress="network-egress-blocked"
@@ -122,6 +131,15 @@
       <div id="ai-provider-status-runtime-reason" class="ai-provider-status__runtime-reason">Reason: setup disabled in local-only seam</div>
       <div id="ai-provider-status-runtime-provenance" class="ai-provider-status__runtime-provenance">Provenance: default config</div>
       <div id="ai-provider-status-runtime-schema" class="ai-provider-status__runtime-schema">provider-runtime-state.v1; provider-runtime-config.v1; Config: safe default local-only</div>
+      <div id="ai-provider-status-readiness" class="ai-provider-status__readiness">Provider readiness: setup disabled</div>
+      <div id="ai-provider-status-setup-eligibility" class="ai-provider-status__setup-eligibility">Setup eligibility: disabled</div>
+      <div id="ai-provider-status-setup-blocker" class="ai-provider-status__setup-blocker">Setup blocker: setup disabled</div>
+      <div id="ai-provider-status-readiness-reason" class="ai-provider-status__readiness-reason">Readiness reason: local-only default</div>
+      <div id="ai-provider-status-readiness-provenance" class="ai-provider-status__readiness-provenance">Readiness provenance: default config</div>
+      <div id="ai-provider-status-readiness-schema" class="ai-provider-status__readiness-schema">provider-readiness-state.v1; provider-readiness-config.v1; Readiness config: safe default local-only</div>
+      <div id="ai-provider-status-future-gate" class="ai-provider-status__future-gate">Future provider gate: USER approval required before setup</div>
+      <div id="ai-provider-status-capability-eligibility" class="ai-provider-status__capability-eligibility">Capability-pack eligibility: blocked</div>
+      <div id="ai-provider-status-install-intent" class="ai-provider-status__install-intent">Install intent: blocked</div>
       <button
         id="ai-provider-status-action"
         class="ai-provider-status__action"

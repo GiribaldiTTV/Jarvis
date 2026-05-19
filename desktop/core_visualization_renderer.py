@@ -6,7 +6,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from .ai_provider_state import build_local_ai_runtime_foundation_provider_boundary_state
+from .ai_provider_state import build_default_provider_readiness_config, build_provider_readiness_contract_state
 from .workerw_utils import (
     attach_window_to_desktop,
     make_window_noninteractive,
@@ -33,7 +33,10 @@ class CoreVisualizationWindow(QWidget):
         self._is_shutting_down = False
         self._pending_visual_state = "dormant"
         self._pending_voice_level = None
-        self._ai_provider_state = build_local_ai_runtime_foundation_provider_boundary_state(surface_role="core")
+        self._ai_provider_state = build_provider_readiness_contract_state(
+            build_default_provider_readiness_config(),
+            surface_role="core",
+        )
         self._desktop_layer_attached = False
         self._desktop_layer_logged = False
         self._visible_logged = False
@@ -294,6 +297,13 @@ class CoreVisualizationWindow(QWidget):
             f"|runtime_schema={payload.get('runtimeStateSchemaVersion', '')}"
             f"|runtime_config={payload.get('runtimeConfigState', '')}"
             f"|runtime_fail_closed={str(payload.get('runtimeFailClosed', True)).lower()}"
+            f"|provider_readiness={payload.get('providerReadinessState', '')}"
+            f"|setup_eligibility={payload.get('setupEligibilityState', '')}"
+            f"|setup_blocker={payload.get('setupBlockerState', '')}"
+            f"|readiness_reason={payload.get('readinessReasonCode', '')}"
+            f"|readiness_provenance={payload.get('readinessProvenance', '')}"
+            f"|readiness_schema={payload.get('readinessStateSchemaVersion', '')}"
+            f"|future_provider_gate={payload.get('futureProviderGateStatus', '')}"
             f"|configured_provider_count={payload.get('configuredProviderCount', 0)}"
             f"|available_provider_count={payload.get('availableProviderCount', 0)}"
             f"|hardware_capability={payload.get('hardwareCapabilityState', '')}"
@@ -308,6 +318,8 @@ class CoreVisualizationWindow(QWidget):
             f"|capability_pack_download={payload.get('capabilityPackDownloadState', '')}"
             f"|capability_pack_manifest={payload.get('capabilityPackManifestState', '')}"
             f"|capability_pack_compatibility={payload.get('capabilityPackCompatibilityState', '')}"
+            f"|capability_pack_eligibility={payload.get('capabilityPackEligibilityState', '')}"
+            f"|install_intent={payload.get('installIntentState', '')}"
             f"|data_classification={payload.get('dataClassificationState', '')}"
             f"|provider_visible_data_guarantee={payload.get('providerVisibleDataGuarantee', '')}"
             f"|memory_context={payload.get('memoryContextState', '')}"

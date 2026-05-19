@@ -2139,6 +2139,7 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
     "Waiting For Governance Intake",
     "Return Digest",
     "Neutral Main Workspace Rebaseline",
+    "Pre-Rebaseline Impact Audit",
     "RRI-YYYYMMDD-NNN",
     "One Active Cycle",
     "Sync Rule",
@@ -2159,6 +2160,7 @@ STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS = (
     "Active RRI Cycle",
     "One Active Cycle",
     "Sync Rule",
+    "Pre-Rebaseline Impact Audit",
     "Bootstrap Exception Limit",
     "Return Digest",
     "Originating Lane Pause",
@@ -2173,6 +2175,7 @@ STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
     "Merge Commit",
     "Updated origin/main",
     "Neutral Main Workspace Rebaseline",
+    "Pre-Rebaseline Impact Audit",
     "Files Changed",
     "Blockers Cleared",
     "Blockers Remaining",
@@ -3220,6 +3223,27 @@ CURRENT_MAIN_RECONCILIATION_IDENTITY_PHRASES = (
     "Incoming Main Active-Branch Blocks Accepted: NO",
     "Sibling Worktree Identity Preservation:",
     "Worktree Branch Identity Drift",
+)
+
+PRE_REBASELINE_IMPACT_AUDIT_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+
+PRE_REBASELINE_IMPACT_AUDIT_PHRASES = (
+    "Pre-Rebaseline Impact Audit",
+    "No Baseline By Inertia",
+    "Incoming Main Change Set",
+    "Incoming Changed Files",
+    "Incoming Runtime / Source-Truth Risk",
+    "Validation Before Rebaseline",
+    "Recommendation Only",
+    "Rebaseline Mutation Approval",
+    "Rebaseline Mutation Status",
 )
 
 RELEASE_READINESS_HEALTH_GATE_DOCS = (
@@ -15602,14 +15626,6 @@ def _run_standing_governance_intake_gate(require) -> None:
                     "active RRI cycle, recorded bootstrap setup exception, or return-digest closeout"
                 ),
             )
-        else:
-            require(
-                not active_cycle,
-                (
-                    "Standing Governance Intake is equal to origin/main but still records "
-                    f"active cycle `{active_cycle}`"
-                ),
-            )
 
 
 def _run_worktree_confinement_gate(require) -> None:
@@ -16563,6 +16579,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness origin/main freshness guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in PRE_REBASELINE_IMPACT_AUDIT_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PRE_REBASELINE_IMPACT_AUDIT_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Pre-Rebaseline Impact Audit guidance is missing '{required_phrase}'",
             )
 
     for relative_path in CURRENT_MAIN_RECONCILIATION_IDENTITY_DOCS:

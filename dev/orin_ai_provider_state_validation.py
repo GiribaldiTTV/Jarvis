@@ -103,12 +103,71 @@ from desktop.ai_provider_state import (  # noqa: E402
     PROVIDER_RUNTIME_REASON_SETUP_DISABLED_LOCAL_ONLY,
     PROVIDER_RUNTIME_STATE_CATEGORIES,
     PROVIDER_RUNTIME_STATE_SCHEMA_VERSION,
+    PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+    PROVIDER_READINESS_CONFIG_STATE_DEFAULT,
+    PROVIDER_READINESS_CONFIG_STATE_INVALID,
+    PROVIDER_READINESS_CONFIG_STATE_LOCAL,
+    PROVIDER_READINESS_CONFIG_STATE_MISSING,
+    PROVIDER_READINESS_PROVENANCE_CAPABILITY_MANIFEST,
+    PROVIDER_READINESS_PROVENANCE_CONSENT_STATE,
+    PROVIDER_READINESS_PROVENANCE_DEFAULT_CONFIG,
+    PROVIDER_READINESS_PROVENANCE_FUTURE_RUNTIME_CHECK,
+    PROVIDER_READINESS_PROVENANCE_HARDWARE_SNAPSHOT,
+    PROVIDER_READINESS_PROVENANCE_RELEASE_SOURCE_TRUTH,
+    PROVIDER_READINESS_REASON_CAPABILITY_MISSING,
+    PROVIDER_READINESS_REASON_CONFIG_INVALID_FAIL_CLOSED,
+    PROVIDER_READINESS_REASON_CONFIG_MISSING_FAIL_CLOSED,
+    PROVIDER_READINESS_REASON_CONSENT_MISSING,
+    PROVIDER_READINESS_REASON_DEFAULT_LOCAL_ONLY,
+    PROVIDER_READINESS_REASON_FUTURE_PROVIDER_GATED,
+    PROVIDER_READINESS_REASON_MANIFEST_INVALID_INSTALL_BLOCKED,
+    PROVIDER_READINESS_REASON_MANIFEST_MISSING,
+    PROVIDER_READINESS_REASON_PROVIDER_NOT_READY,
+    PROVIDER_READINESS_REASON_PROVIDER_READY_EXECUTION_GATED,
+    PROVIDER_READINESS_REASON_PROVIDER_UNCONFIGURED,
+    PROVIDER_READINESS_STATE_PROVIDER_READY_EXECUTION_GATED,
+    PROVIDER_READINESS_STATE_SCHEMA_VERSION,
+    PROVIDER_READINESS_STATE_SETUP_AVAILABLE_FUTURE_GATED,
+    PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_CAPABILITY,
+    PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_CONSENT,
+    PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_MANIFEST,
+    PROVIDER_READINESS_STATE_SETUP_CONFIG_REQUIRED,
+    PROVIDER_READINESS_STATE_SETUP_DISABLED,
+    PROVIDER_READINESS_STATE_DEGRADED,
+    PROVIDER_SETUP_BLOCKER_CAPABILITY_REQUIRED,
+    PROVIDER_SETUP_BLOCKER_CONFIG_INVALID,
+    PROVIDER_SETUP_BLOCKER_CONFIG_REQUIRED,
+    PROVIDER_SETUP_BLOCKER_CONSENT_REQUIRED,
+    PROVIDER_SETUP_BLOCKER_FUTURE_GATE,
+    PROVIDER_SETUP_BLOCKER_MANIFEST_REQUIRED,
+    PROVIDER_SETUP_BLOCKER_NONE,
+    PROVIDER_SETUP_BLOCKER_PROVIDER_NOT_READY,
+    PROVIDER_SETUP_BLOCKER_SETUP_DISABLED,
+    PROVIDER_SETUP_ELIGIBILITY_BLOCKED,
+    PROVIDER_SETUP_ELIGIBILITY_CONFIG_REQUIRED,
+    PROVIDER_SETUP_ELIGIBILITY_DISABLED,
+    PROVIDER_SETUP_ELIGIBILITY_EXECUTION_GATED,
+    PROVIDER_SETUP_ELIGIBILITY_FUTURE_GATED,
+    PROVIDER_FUTURE_GATE_STATUS_EXECUTION_REQUIRED,
+    PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+    CAPABILITY_PACK_ELIGIBILITY_BLOCKED,
+    CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED,
+    CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+    CAPABILITY_PACK_INSTALL_INTENT_FUTURE_GATED,
+    CAPABILITY_PACK_INSTALL_INTENT_NONE,
+    CAPABILITY_PACK_MANIFEST_INVALID,
+    CAPABILITY_PACK_MANIFEST_MISSING,
+    CAPABILITY_PACK_MANIFEST_VALID_FUTURE_GATED,
+    READINESS_ACTION_ALLOWED_LOCAL_READ_ONLY,
+    READINESS_ACTION_FUTURE_USER_APPROVAL_REQUIRED,
     PROVIDER_NEXT_ACTION_DISABLED,
     build_fam007_foundation_readiness_state,
     build_default_provider_runtime_config,
+    build_default_provider_readiness_config,
     build_local_ai_runtime_foundation_provider_boundary_state,
     build_local_provider_registry_state,
     build_no_provider_ai_state,
+    build_provider_readiness_contract_state,
     build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
 )
@@ -168,6 +227,123 @@ def validate() -> list[str]:
         },
         surface_role="core",
     )
+    default_readiness_snapshot = build_provider_readiness_contract_state(
+        build_default_provider_readiness_config(),
+        surface_role="core",
+    )
+    missing_readiness_snapshot = build_provider_readiness_contract_state(None, surface_role="core")
+    invalid_readiness_snapshot = build_provider_readiness_contract_state(
+        {
+            "schema_version": "provider-readiness-config.v0",
+            "provider_configured": True,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    unconfigured_readiness_snapshot = build_provider_readiness_contract_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": False,
+            "consent_granted": False,
+            "capability_ready": False,
+            "manifest_available": False,
+            "manifest_valid": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    consent_missing_readiness_snapshot = build_provider_readiness_contract_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": False,
+            "capability_ready": False,
+            "manifest_available": False,
+            "manifest_valid": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    capability_missing_readiness_snapshot = build_provider_readiness_contract_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": False,
+            "manifest_available": False,
+            "manifest_valid": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    manifest_missing_readiness_snapshot = build_provider_readiness_contract_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": False,
+            "manifest_valid": False,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    manifest_invalid_readiness_snapshot = build_provider_readiness_contract_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": False,
+            "install_intent_requested": True,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    future_gated_readiness_snapshot = build_provider_readiness_contract_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": True,
+            "future_provider_setup_approved": False,
+            "install_intent_requested": True,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    provider_not_ready_readiness_snapshot = build_provider_readiness_contract_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": True,
+            "future_provider_setup_approved": True,
+            "provider_ready": False,
+            "install_intent_requested": True,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    execution_gated_readiness_snapshot = build_provider_readiness_contract_state(
+        {
+            "schema_version": PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            "provider_configured": True,
+            "consent_granted": True,
+            "capability_ready": True,
+            "manifest_available": True,
+            "manifest_valid": True,
+            "future_provider_setup_approved": True,
+            "provider_ready": True,
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
@@ -178,6 +354,19 @@ def validate() -> list[str]:
     invalid_config_payload = invalid_config_snapshot.as_renderer_payload()
     unconfigured_runtime_payload = unconfigured_runtime_snapshot.as_renderer_payload()
     capability_missing_payload = capability_missing_snapshot.as_renderer_payload()
+    readiness_payloads = {
+        "default": default_readiness_snapshot.as_renderer_payload(),
+        "missing": missing_readiness_snapshot.as_renderer_payload(),
+        "invalid": invalid_readiness_snapshot.as_renderer_payload(),
+        "unconfigured": unconfigured_readiness_snapshot.as_renderer_payload(),
+        "consent_missing": consent_missing_readiness_snapshot.as_renderer_payload(),
+        "capability_missing": capability_missing_readiness_snapshot.as_renderer_payload(),
+        "manifest_missing": manifest_missing_readiness_snapshot.as_renderer_payload(),
+        "manifest_invalid": manifest_invalid_readiness_snapshot.as_renderer_payload(),
+        "future_gated": future_gated_readiness_snapshot.as_renderer_payload(),
+        "provider_not_ready": provider_not_ready_readiness_snapshot.as_renderer_payload(),
+        "execution_gated": execution_gated_readiness_snapshot.as_renderer_payload(),
+    }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     html = _read("nexus_visual/orin_core.html")
@@ -185,6 +374,9 @@ def validate() -> list[str]:
     css = _read("nexus_visual/orin_core.css")
     js = _read("nexus_visual/orin_core.js")
     branch_record = _read("Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md")
+    active_readiness_branch_record = _read(
+        "Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md"
+    )
     continuation_branch_record = _read(
         "Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md"
     )
@@ -562,6 +754,248 @@ def validate() -> list[str]:
         failures,
     )
 
+    readiness_expectations = {
+        "default": (
+            PROVIDER_READINESS_STATE_SETUP_DISABLED,
+            PROVIDER_SETUP_ELIGIBILITY_DISABLED,
+            PROVIDER_SETUP_BLOCKER_SETUP_DISABLED,
+            PROVIDER_READINESS_REASON_DEFAULT_LOCAL_ONLY,
+            PROVIDER_READINESS_PROVENANCE_DEFAULT_CONFIG,
+            PROVIDER_READINESS_CONFIG_STATE_DEFAULT,
+            CAPABILITY_PACK_ELIGIBILITY_BLOCKED,
+            CAPABILITY_PACK_MANIFEST_MISSING,
+            CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        ),
+        "missing": (
+            PROVIDER_READINESS_STATE_SETUP_DISABLED,
+            PROVIDER_SETUP_ELIGIBILITY_DISABLED,
+            PROVIDER_SETUP_BLOCKER_SETUP_DISABLED,
+            PROVIDER_READINESS_REASON_CONFIG_MISSING_FAIL_CLOSED,
+            PROVIDER_READINESS_PROVENANCE_DEFAULT_CONFIG,
+            PROVIDER_READINESS_CONFIG_STATE_MISSING,
+            CAPABILITY_PACK_ELIGIBILITY_BLOCKED,
+            CAPABILITY_PACK_MANIFEST_MISSING,
+            CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        ),
+        "invalid": (
+            PROVIDER_READINESS_STATE_DEGRADED,
+            PROVIDER_SETUP_ELIGIBILITY_BLOCKED,
+            PROVIDER_SETUP_BLOCKER_CONFIG_INVALID,
+            PROVIDER_READINESS_REASON_CONFIG_INVALID_FAIL_CLOSED,
+            "local_config",
+            PROVIDER_READINESS_CONFIG_STATE_INVALID,
+            CAPABILITY_PACK_ELIGIBILITY_BLOCKED,
+            CAPABILITY_PACK_MANIFEST_MISSING,
+            CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        ),
+        "unconfigured": (
+            PROVIDER_READINESS_STATE_SETUP_CONFIG_REQUIRED,
+            PROVIDER_SETUP_ELIGIBILITY_CONFIG_REQUIRED,
+            PROVIDER_SETUP_BLOCKER_CONFIG_REQUIRED,
+            PROVIDER_READINESS_REASON_PROVIDER_UNCONFIGURED,
+            "local_config",
+            PROVIDER_READINESS_CONFIG_STATE_LOCAL,
+            CAPABILITY_PACK_ELIGIBILITY_BLOCKED,
+            CAPABILITY_PACK_MANIFEST_MISSING,
+            CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        ),
+        "consent_missing": (
+            PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_CONSENT,
+            PROVIDER_SETUP_ELIGIBILITY_BLOCKED,
+            PROVIDER_SETUP_BLOCKER_CONSENT_REQUIRED,
+            PROVIDER_READINESS_REASON_CONSENT_MISSING,
+            PROVIDER_READINESS_PROVENANCE_CONSENT_STATE,
+            PROVIDER_READINESS_CONFIG_STATE_LOCAL,
+            CAPABILITY_PACK_ELIGIBILITY_BLOCKED,
+            CAPABILITY_PACK_MANIFEST_MISSING,
+            CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        ),
+        "capability_missing": (
+            PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_CAPABILITY,
+            PROVIDER_SETUP_ELIGIBILITY_BLOCKED,
+            PROVIDER_SETUP_BLOCKER_CAPABILITY_REQUIRED,
+            PROVIDER_READINESS_REASON_CAPABILITY_MISSING,
+            PROVIDER_READINESS_PROVENANCE_HARDWARE_SNAPSHOT,
+            PROVIDER_READINESS_CONFIG_STATE_LOCAL,
+            CAPABILITY_PACK_ELIGIBILITY_BLOCKED,
+            CAPABILITY_PACK_MANIFEST_MISSING,
+            CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        ),
+        "manifest_missing": (
+            PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_MANIFEST,
+            PROVIDER_SETUP_ELIGIBILITY_BLOCKED,
+            PROVIDER_SETUP_BLOCKER_MANIFEST_REQUIRED,
+            PROVIDER_READINESS_REASON_MANIFEST_MISSING,
+            PROVIDER_READINESS_PROVENANCE_CAPABILITY_MANIFEST,
+            PROVIDER_READINESS_CONFIG_STATE_LOCAL,
+            CAPABILITY_PACK_ELIGIBILITY_BLOCKED,
+            CAPABILITY_PACK_MANIFEST_MISSING,
+            CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        ),
+        "manifest_invalid": (
+            PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_MANIFEST,
+            PROVIDER_SETUP_ELIGIBILITY_BLOCKED,
+            PROVIDER_SETUP_BLOCKER_MANIFEST_REQUIRED,
+            PROVIDER_READINESS_REASON_MANIFEST_INVALID_INSTALL_BLOCKED,
+            PROVIDER_READINESS_PROVENANCE_CAPABILITY_MANIFEST,
+            PROVIDER_READINESS_CONFIG_STATE_LOCAL,
+            CAPABILITY_PACK_ELIGIBILITY_BLOCKED,
+            CAPABILITY_PACK_MANIFEST_INVALID,
+            CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        ),
+        "future_gated": (
+            PROVIDER_READINESS_STATE_SETUP_AVAILABLE_FUTURE_GATED,
+            PROVIDER_SETUP_ELIGIBILITY_FUTURE_GATED,
+            PROVIDER_SETUP_BLOCKER_FUTURE_GATE,
+            PROVIDER_READINESS_REASON_FUTURE_PROVIDER_GATED,
+            PROVIDER_READINESS_PROVENANCE_RELEASE_SOURCE_TRUTH,
+            PROVIDER_READINESS_CONFIG_STATE_LOCAL,
+            CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED,
+            CAPABILITY_PACK_MANIFEST_VALID_FUTURE_GATED,
+            CAPABILITY_PACK_INSTALL_INTENT_FUTURE_GATED,
+            PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        ),
+        "provider_not_ready": (
+            PROVIDER_READINESS_STATE_DEGRADED,
+            PROVIDER_SETUP_ELIGIBILITY_BLOCKED,
+            PROVIDER_SETUP_BLOCKER_PROVIDER_NOT_READY,
+            PROVIDER_READINESS_REASON_PROVIDER_NOT_READY,
+            PROVIDER_READINESS_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            PROVIDER_READINESS_CONFIG_STATE_LOCAL,
+            CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED,
+            CAPABILITY_PACK_MANIFEST_VALID_FUTURE_GATED,
+            CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            PROVIDER_FUTURE_GATE_STATUS_EXECUTION_REQUIRED,
+        ),
+        "execution_gated": (
+            PROVIDER_READINESS_STATE_PROVIDER_READY_EXECUTION_GATED,
+            PROVIDER_SETUP_ELIGIBILITY_EXECUTION_GATED,
+            PROVIDER_SETUP_BLOCKER_NONE,
+            PROVIDER_READINESS_REASON_PROVIDER_READY_EXECUTION_GATED,
+            PROVIDER_READINESS_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            PROVIDER_READINESS_CONFIG_STATE_LOCAL,
+            CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED,
+            CAPABILITY_PACK_MANIFEST_VALID_FUTURE_GATED,
+            CAPABILITY_PACK_INSTALL_INTENT_NONE,
+            PROVIDER_FUTURE_GATE_STATUS_EXECUTION_REQUIRED,
+        ),
+    }
+    for label, expectation in readiness_expectations.items():
+        readiness_payload = readiness_payloads[label]
+        (
+            expected_state,
+            expected_eligibility,
+            expected_blocker,
+            expected_reason,
+            expected_provenance,
+            expected_config,
+            expected_pack_eligibility,
+            expected_manifest_validity,
+            expected_install_intent,
+            expected_future_gate,
+        ) = expectation
+        _require(
+            readiness_payload["readinessStateSchemaVersion"] == PROVIDER_READINESS_STATE_SCHEMA_VERSION,
+            f"{label} readiness fixture must publish provider readiness state schema",
+            failures,
+        )
+        _require(
+            readiness_payload["readinessConfigSchemaVersion"] == PROVIDER_READINESS_CONFIG_SCHEMA_VERSION,
+            f"{label} readiness fixture must publish provider readiness config schema",
+            failures,
+        )
+        _require(
+            readiness_payload["providerReadinessState"] == expected_state,
+            f"{label} readiness fixture must publish {expected_state}",
+            failures,
+        )
+        _require(
+            readiness_payload["setupEligibilityState"] == expected_eligibility,
+            f"{label} readiness fixture must publish {expected_eligibility}",
+            failures,
+        )
+        _require(
+            readiness_payload["setupBlockerState"] == expected_blocker,
+            f"{label} readiness fixture must publish setup blocker {expected_blocker}",
+            failures,
+        )
+        _require(
+            readiness_payload["readinessReasonCode"] == expected_reason,
+            f"{label} readiness fixture must publish readiness reason {expected_reason}",
+            failures,
+        )
+        _require(
+            readiness_payload["readinessProvenance"] == expected_provenance,
+            f"{label} readiness fixture must publish readiness provenance {expected_provenance}",
+            failures,
+        )
+        _require(
+            readiness_payload["readinessConfigState"] == expected_config,
+            f"{label} readiness fixture must publish readiness config state {expected_config}",
+            failures,
+        )
+        _require(
+            readiness_payload["futureProviderGateStatus"] == expected_future_gate,
+            f"{label} readiness fixture must publish future provider gate {expected_future_gate}",
+            failures,
+        )
+        _require(
+            readiness_payload["capabilityPackEligibilityState"] == expected_pack_eligibility,
+            f"{label} readiness fixture must publish capability-pack eligibility {expected_pack_eligibility}",
+            failures,
+        )
+        _require(
+            readiness_payload["capabilityPackManifestValidityState"] == expected_manifest_validity,
+            f"{label} readiness fixture must publish manifest validity {expected_manifest_validity}",
+            failures,
+        )
+        _require(
+            readiness_payload["installIntentState"] == expected_install_intent,
+            f"{label} readiness fixture must publish install intent {expected_install_intent}",
+            failures,
+        )
+        _require(readiness_payload["sentToProvider"] is False, f"{label} readiness fixture must send nothing", failures)
+        _require(
+            readiness_payload["canAcceptPrompts"] is False,
+            f"{label} readiness fixture must keep prompts disabled",
+            failures,
+        )
+        _require(
+            readiness_payload["providerVisibleData"] == "none",
+            f"{label} readiness fixture must keep provider-visible data as none",
+            failures,
+        )
+        _require(
+            readiness_payload["externalCalls"] == "blocked",
+            f"{label} readiness fixture must keep external calls blocked",
+            failures,
+        )
+
+    default_permissions = readiness_payloads["default"]["actionPermissionMatrix"]
+    _require(
+        len(default_permissions) == 9,
+        "default readiness fixture must publish the full action-permission matrix",
+        failures,
+    )
+    _require(
+        all(item["permission"] == READINESS_ACTION_ALLOWED_LOCAL_READ_ONLY for item in default_permissions[:6]),
+        "view readiness actions must be local read-only allowed",
+        failures,
+    )
+    _require(
+        all(item["permission"] == READINESS_ACTION_FUTURE_USER_APPROVAL_REQUIRED for item in default_permissions[6:]),
+        "future consent/setup/execution actions must require USER approval",
+        failures,
+    )
+
     expected_foundation_slices = (
         SLC_017_ID,
         SLC_018_ID,
@@ -835,7 +1269,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "build_local_ai_runtime_foundation_provider_boundary_state",
+        "build_provider_readiness_contract_state",
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
@@ -847,6 +1281,13 @@ def validate() -> list[str]:
         "runtime_schema",
         "runtime_config",
         "runtime_fail_closed",
+        "provider_readiness",
+        "setup_eligibility",
+        "setup_blocker",
+        "readiness_reason",
+        "readiness_provenance",
+        "readiness_schema",
+        "future_provider_gate",
         "gpu_capability",
         "cpu_fallback",
         "hardware_detection_level",
@@ -857,6 +1298,8 @@ def validate() -> list[str]:
         "capability_pack_download",
         "capability_pack_manifest",
         "capability_pack_compatibility",
+        "capability_pack_eligibility",
+        "install_intent",
         "data_classification",
         "provider_visible_data_guarantee",
         "voice_runtime",
@@ -887,6 +1330,13 @@ def validate() -> list[str]:
             'data-runtime-schema="provider-runtime-state.v1"',
             'data-runtime-config="default_config"',
             'data-runtime-fail-closed="true"',
+            'data-provider-readiness="setup_disabled"',
+            'data-setup-eligibility="setup_eligibility_disabled"',
+            'data-setup-blocker="setup_disabled"',
+            'data-readiness-reason="readiness_default_local_only"',
+            'data-readiness-provenance="default_config"',
+            'data-readiness-schema="provider-readiness-state.v1"',
+            'data-future-provider-gate="provider-setup-future-user-approval-required"',
             'data-configured-provider-count="0"',
             'data-available-provider-count="0"',
             'data-hardware-capability="local-planning-only"',
@@ -915,6 +1365,8 @@ def validate() -> list[str]:
             'data-capability-pack-lifecycle="capability-pack-lifecycle-planned"',
             'data-capability-pack-manifest="manifest-planned"',
             'data-capability-pack-compatibility="compatibility-unproven"',
+            'data-capability-pack-eligibility="capability-pack-eligibility-blocked"',
+            'data-install-intent="install-intent-blocked"',
             'id="ai-provider-status-capability-download"',
             "Capability pack downloads: blocked",
             'id="ai-provider-status-capability-recommendation"',
@@ -974,6 +1426,24 @@ def validate() -> list[str]:
             "Provenance: default config",
             'id="ai-provider-status-runtime-schema"',
             "provider-runtime-state.v1; provider-runtime-config.v1; Config: safe default local-only",
+            'id="ai-provider-status-readiness"',
+            "Provider readiness: setup disabled",
+            'id="ai-provider-status-setup-eligibility"',
+            "Setup eligibility: disabled",
+            'id="ai-provider-status-setup-blocker"',
+            "Setup blocker: setup disabled",
+            'id="ai-provider-status-readiness-reason"',
+            "Readiness reason: local-only default",
+            'id="ai-provider-status-readiness-provenance"',
+            "Readiness provenance: default config",
+            'id="ai-provider-status-readiness-schema"',
+            "provider-readiness-state.v1; provider-readiness-config.v1; Readiness config: safe default local-only",
+            'id="ai-provider-status-future-gate"',
+            "Future provider gate: USER approval required before setup",
+            'id="ai-provider-status-capability-eligibility"',
+            "Capability-pack eligibility: blocked",
+            'id="ai-provider-status-install-intent"',
+            "Install intent: blocked",
             'id="ai-provider-status-action"',
             "Assisted Desktop unavailable",
             "Next: provider setup is disabled in this local-only foundation seam",
@@ -991,8 +1461,10 @@ def validate() -> list[str]:
     for needle in (
         ".ai-provider-status",
         ".ai-provider-status__runtime",
+        ".ai-provider-status__readiness",
         ".ai-provider-status__hardware-detection",
         ".ai-provider-status__capability-manifest",
+        ".ai-provider-status__capability-eligibility",
         ".ai-provider-status__memory-contract",
         ".ai-provider-status__copy-contract",
         'data-availability="ready"',
@@ -1067,6 +1539,22 @@ def validate() -> list[str]:
         "runtimeProvenance",
         "runtimeConfigState",
         "runtimeFailClosed",
+        "providerReadinessState",
+        "setupEligibilityState",
+        "setupBlockerState",
+        "readinessReasonCode",
+        "readinessProvenance",
+        "readinessStateSchemaVersion",
+        "futureProviderGateStatus",
+        "capabilityPackEligibilityState",
+        "installIntentState",
+        "aiProviderStatusReadiness",
+        "aiProviderStatusSetupEligibility",
+        "aiProviderStatusSetupBlocker",
+        "aiProviderStatusReadinessReason",
+        "aiProviderStatusFutureGate",
+        "aiProviderStatusCapabilityEligibility",
+        "aiProviderStatusInstallIntent",
         "aiProviderStatusRuntime",
         "aiProviderStatusRuntimeReason",
         "aiProviderStatusRuntimeProvenance",
@@ -1076,6 +1564,48 @@ def validate() -> list[str]:
         "canAcceptPrompts",
     ):
         _require(needle in js, f"core JS is missing {needle!r}", failures)
+
+    for needle in (
+        "FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility",
+        "SLC-017/SLC-018 Provider Readiness Contract",
+        "SLC-017/SLC-018 Consent and Configuration Transition Contract",
+        "SLC-031/SLC-032 Capability-Pack Eligibility and Install-Intent Posture",
+        "SLC-035/SLC-036 Core/Desktop Readiness UI and Validator Fixtures",
+        "Provider Readiness Contract: `Green`",
+        "Consent and Configuration Transition Contract: `Green`",
+        "Capability-Pack Eligibility and Install-Intent Posture: `Green`",
+        "Core/Desktop Readiness UI and Validator Fixtures: `Green`",
+        "Workstream Completion State: `Green - ready for Hardening H1 after USER approval`",
+        "Hardening H1 Proof Review Status: `Green - Hardening H1 proof review completed",
+        "Hardening H1 Result: `PASS - no runtime, UI, validator, or Engineering Contract defect repair was required",
+        "Live Validation LV1 USER Approval: `Granted - USER approved Live Validation LV1",
+        "Current Live Validation Seam: `Live Validation LV1 - FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`",
+        "Live Validation LV1 Result: `PASS - disabled/status-only local readiness scaffold",
+        "User Test Summary Results: `WAIVED`",
+        "User-Facing Shortcut Validation: `WAIVED`",
+        "Codex Live Client Self-QA: `WAIVED`",
+        "PR Readiness Stage 1 Repair USER Approval: `Historical - USER approved selected-next defer/waiver truth and pre-PR live-state truth before PR #165",
+        "Current PR Readiness State: `Closed by PR #165 merge",
+        "Pre-PR Live State: Historical only - PR #165 was created and merged",
+        "Post-Merge Branch Authority Projection: `PASS -",
+        "Next Workstream User Waiver: Granted - USER approved selected-next defer/waiver",
+        "Selected Next Workstream: None - USER-approved selected-next defer/waiver",
+        "Selected Next Implementation Branch: Not created",
+        "Release Window Audit: PASS",
+        "Governance Drift Found:",
+        "Next Legal Seam: `Release Readiness Stage 1 rerun after Governance RRI-20260519-001 merges",
+        "provider-readiness-state.v1",
+        "provider-readiness-config.v1",
+        "setup_available_future_gated",
+        "provider_ready_but_execution_gated",
+        "readiness_manifest_invalid_install_blocked",
+        "Capability-pack eligibility: blocked",
+        "Install intent: blocked",
+        "Provider SDK integration remains a pending USER decision",
+        "Provider/model execution remains a pending USER decision",
+        "Memory indexing, retrieval, learning, or persistence remains a pending USER decision",
+    ):
+        _require(needle in active_readiness_branch_record, f"active FAM-007 readiness record is missing {needle!r}", failures)
 
     for needle in (
         "SLC-017/SLC-018 No-Provider Shell And Provider-Privacy State",

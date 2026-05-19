@@ -264,6 +264,8 @@ For tracked work, that means:
 
 `Assigned Worktree Confinement` means a thread assigned to one worktree stays inside that worktree for repo mutation, branch/worktree actions, runtime launches, shortcut/provider/model changes, PR/release work, and GitHub Desktop handoff. The preflight must show `Expected Worktree Root:`, `Actual Worktree Root:`, `No Cross-Worktree Mutation:`, and `GitHub Desktop-bound worktree`. If the actual root is different, stop on `Worktree Escape User Waiver Missing`; only USER can grant `Worktree Escape User Waiver: Granted` with exact root, scope, expiration, validation, and return-path details.
 
+`Pre-Rebaseline Impact Audit` is required before any worktree, branch, neutral-main folder, or standing governance lane baselines itself to newer `origin/main`. No Baseline By Inertia: a clean tree, behind status, or fast-forward-only path is not enough. Report `Incoming Main Change Set:`, `Incoming Changed Files:`, `Current Worktree Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Shared Surface / Worktree Overlap Forecast:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` first, then wait for USER approval before merge/rebase/fast-forward/branch-switch mutation.
+
 Promoted workstream docs remain the place to read branch-local feature state, evidence, active seams, artifact history, and branch-local reuse notes.
 Repo-wide lifecycle rules such as phases, stop-loss, timeout governance, and proof authority come from `Docs/phase_governance.md`.
 Repo-wide validation-helper rules and the desktop UI audit rule also come from `Docs/phase_governance.md`.

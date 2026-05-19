@@ -45,7 +45,7 @@ Do not paste `Docs/nexus_startup_contract.md` into Codex prompts; Codex prompts 
 Prompt-generation review must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice/package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval while branch creation and runtime package admission remain separately blocked, separate release-execution approval, and the Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback.
 PR Readiness Stage 1 is the Stage 2 readiness-lock gate. Stage 1 must analyze next-workstream/package hierarchy, release-debt impact, release-debt handling status, selected-next / no-release-debt handling status, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size risk, single-slice drift risk, Element Coverage risk, required current-branch source-truth sync, Stage 2 sync plan, PR title/base/head/summary, watcher plan, blockers, and USER decisions before Stage 2 can begin. Stage 1 selected-next/no-release-debt handling is complete only when the next selected branch/workstream is recorded in source truth before PR creation or an explicit USER waiver says no next branch/workstream is selected, release target/floor semantics and Release Window Audit are resolved when relevant, branch-authority cleanup is durable, stale-canon risk is cleared, and any unavoidable release debt has an explicit USER decision, named owner, and real-carrier plan before Stage 2; otherwise Stage 1 must stop on `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required` instead of reporting Stage 2-ready. Allowed Stage 1 outcomes are `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, and `Stage 1 USER Waiver Required`. Bounded Stage 1 repair/sync may mutate durable source truth only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair. Stage 2 begins only after `Stage 1 Ready For Stage 2` plus explicit USER approval and owns final PR execution only: final PR package sync, commit/push if needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch.
 Stage 2 owns final PR execution only after the readiness-lock outcome is green. Stage 2 final handoff cannot be green until bot-review closeout is verified. Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active. Use the same-PR Codex bot-review repair loop for actionable bot comments, and remember that Watcher configuration is not runtime proof.
-Automation Observability is a multi-worktree evidence gate, not a source-truth shortcut. When a prompt asks Codex to inspect or act on automations, use `dev/automation_observability_report.py` over Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`; only `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED` findings may enter a bounded repair seam. Lane-sensitive automation prompts must declare a configured cwd and prove the intended worktree, branch, `HEAD`, and `origin/main`; otherwise report `Automation CWD Worktree Mismatch`. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree safety repair, and USER-approved `phase-gate governance intake` may use it only for repeatable non-runtime phase-gate miss prevention, under `RRI-YYYYMMDD-NNN`, `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, `Return Digest`, and `Neutral Main Workspace Rebaseline`.
+Automation Observability is a multi-worktree evidence gate, not a source-truth shortcut. When a prompt asks Codex to inspect or act on automations, use `dev/automation_observability_report.py` over Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`; only `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED` findings may enter a bounded repair seam. Lane-sensitive automation prompts must declare a configured cwd and prove the intended worktree, branch, `HEAD`, and `origin/main`; otherwise report `Automation CWD Worktree Mismatch`. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree safety repair, and USER-approved `phase-gate governance intake` may use it only for repeatable non-runtime phase-gate miss prevention, under `RRI-YYYYMMDD-NNN`, operational `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, `Return Digest`, and `Neutral Main Workspace Rebaseline`. The standing Governance branch must not require a dedicated closeout PR solely to clear cycle-ledger wording.
 
 ## Current Project State
 
@@ -78,6 +78,33 @@ PR Readiness Stage 2 Approval:
 
 Origin/Main Freshness Check:
 [PASS / Origin Main Reconciliation Packet Required / not applicable]
+
+Pre-Rebaseline Impact Audit:
+[PASS / Required Before Mutation / not applicable]
+
+No Baseline By Inertia:
+[Required - no merge/rebase/fast-forward/branch switch before audit report and USER approval / not applicable]
+
+Incoming Main Change Set:
+[commit range, PRs, merge commits, and summary of incoming origin/main changes / not applicable]
+
+Incoming Changed Files:
+[complete incoming file list from current HEAD or branch creation base to origin/main / None]
+
+Incoming Runtime / Source-Truth Risk:
+[runtime/provider/UI/source-truth/validator/shared-surface risk classification / None]
+
+Validation Before Rebaseline:
+[read-only validation results or explicit reason validation could not run before mutation]
+
+Recommendation Only:
+[findings reported only; no local branch state mutation yet / not applicable]
+
+Rebaseline Mutation Approval:
+[Pending / USER approved exact worktree, branch, target commit, and operation type / not applicable]
+
+Rebaseline Mutation Status:
+[Not started / Blocked / Approved and completed with operation proof / not applicable]
 
 Branch Creation Base:
 [fill in branch creation base commit or not applicable]
@@ -262,7 +289,7 @@ If execution needs wider scope than the bounded state allows, stop on `Bounded S
 Do not open a governance-only branch or between-branch canon repair lane.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
-The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`; it accepts a `Release Readiness digest`, USER-approved `automation/worktree governance intake`, or USER-approved `phase-gate governance intake` only, uses `RRI-YYYYMMDD-NNN`, enforces `One Active Cycle`, requires the clean pre-intake `Sync Rule`, pauses the originating lane in `Waiting For Governance Intake` or `Waiting For Updated Main`, and must send a post-merge `Return Digest` with exact originating branch, originating worktree, operating workspace, expected branch, and `Neutral Main Workspace Rebaseline:` proof copied from the accepted intake.
+The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `C:\Nexus Worktrees\Governance`; it accepts a `Release Readiness digest`, USER-approved `automation/worktree governance intake`, or USER-approved `phase-gate governance intake` only, uses `RRI-YYYYMMDD-NNN`, enforces operational `One Active Cycle`, requires the clean pre-intake `Sync Rule`, pauses the originating lane in `Waiting For Governance Intake` or `Waiting For Updated Main`, and must send a post-merge `Return Digest` with exact originating branch, originating worktree, operating workspace, expected branch, and `Neutral Main Workspace Rebaseline:` proof copied from the accepted intake. Do not open a dedicated closeout PR solely to clear `Active RRI Cycle` or cycle-ledger wording on the standing Governance branch.
 The standing governance lane must stop on `Return Digest Origin Identity Missing` rather than infer the originating workspace from `C:\Nexus Desktop AI`, `C:\Nexus Worktrees\Governance`, GitHub Desktop's selected repository, or the current shell CWD.
 If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
@@ -941,7 +968,7 @@ Validate the full published Nexus pre-Beta release set, not only the latest rele
 - Do not open a governance-only branch or between-branch repair window for missed PR Readiness work; carry the repair in the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation begins.
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
-- Exception: the single `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, may handle a `Release Readiness digest`, USER-approved `automation/worktree governance intake`, or USER-approved `phase-gate governance intake` using `RRI-YYYYMMDD-NNN`, `One Active Cycle`, the `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main`, and a `Return Digest` with exact originating branch, originating worktree, operating workspace, expected branch, and `Neutral Main Workspace Rebaseline:` proof copied from the accepted intake.
+- Exception: the single `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, may handle a `Release Readiness digest`, USER-approved `automation/worktree governance intake`, or USER-approved `phase-gate governance intake` using `RRI-YYYYMMDD-NNN`, operational `One Active Cycle`, the `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main`, and a `Return Digest` with exact originating branch, originating worktree, operating workspace, expected branch, and `Neutral Main Workspace Rebaseline:` proof copied from the accepted intake. Do not open a dedicated closeout PR solely to clear cycle-ledger wording on this standing branch.
 - The standing governance return digest must stop on `Return Digest Origin Identity Missing` if those concrete identity fields are absent, generic, contradictory, or inferred from `C:\Nexus Desktop AI`, `C:\Nexus Worktrees\Governance`, GitHub Desktop, or the current shell CWD instead of the accepted intake.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
