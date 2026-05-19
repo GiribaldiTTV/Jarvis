@@ -5839,7 +5839,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_resize_proof_overlay.hide()
         self._monitoring_hud_show_guard_active = False
         self._monitoring_hud_show_guard_generation = 0
-        self._monitoring_hud_show_guard_release_delay_ms = 360
+        self._monitoring_hud_show_guard_release_delay_ms = 620
         self._monitoring_hud_deferred_initial_visibility_release = False
         self._monitoring_hud_resize_cursor_key = None
         self._monitoring_hud_resize_override_cursor_active = False
@@ -8577,7 +8577,7 @@ class DesktopRuntimeWindow(QWidget):
             seam="LV1",
             source=source,
             release_delay_ms=self._monitoring_hud_show_guard_release_delay_ms,
-            visual_release_model="dashboard_geometry_settled_before_opacity",
+            visual_release_model="dashboard_geometry_and_webview_frames_settled_before_opacity",
         )
         QTimer.singleShot(
             self._monitoring_hud_show_guard_release_delay_ms,
@@ -8605,6 +8605,8 @@ class DesktopRuntimeWindow(QWidget):
             if not self._native_window_matches_target(int(self.winId()), target_geometry):
                 self.setGeometry(target_geometry)
             self._monitoring_hud_interactive_screen_rect = self._estimate_monitoring_hud_interactive_screen_rect()
+        self.webview.update()
+        self.update()
         self._monitoring_hud_show_guard_active = False
         self.setWindowOpacity(1.0)
         self._emit_runtime_signal(
@@ -9718,7 +9720,9 @@ class DesktopRuntimeWindow(QWidget):
                 "final_monitor_delete_empty_state": h1_proof.get("finalMonitorDeleteEmptyState") is True,
                 "final_monitor_create_reachable": h1_proof.get("finalMonitorCreateReachable") is True,
                 "source_picker_browser": h1_proof.get("sourcePickerBrowser") is True,
+                "source_filter_dropdown": h1_proof.get("sourceFilterDropdown") is True,
                 "source_filter_facets": h1_proof.get("sourceFilterFacets") is True,
+                "source_filter_hover_reset": h1_proof.get("sourceFilterHoverReset") is True,
                 "source_filter_reopen": h1_proof.get("sourceFilterReopen") is True,
                 "source_breadcrumb_metadata": h1_proof.get("sourceBreadcrumbMetadata") is True,
                 "supported_sources_assignable": h1_proof.get("supportedSourcesAssignable") is True,
@@ -10060,7 +10064,9 @@ class DesktopRuntimeWindow(QWidget):
                         let finalMonitorDeleteEmptyState = false;
                         let finalMonitorCreateReachable = false;
                         let sourcePickerBrowser = false;
+                        let sourceFilterDropdown = false;
                         let sourceFilterFacets = false;
+                        let sourceFilterHoverReset = false;
                         let sourceFilterReopen = false;
                         let sourceBreadcrumbMetadata = false;
                         let supportedSourcesAssignable = false;
@@ -10095,8 +10101,14 @@ class DesktopRuntimeWindow(QWidget):
                             && sourceAssignment.dataset.sensorAssignment === "sensor-library-source-picker"
                             && sourceAssignment.getAttribute("role") === "listbox"
                             && sourceFilter
-                            && sourceFilter.dataset.sourceFilterMode === "faceted-chip-source-picker"
+                            && sourceFilter.dataset.sourceFilterMode === "nexus-dropdown-source-picker"
                             && sourceSearch
+                        );
+                        sourceFilterDropdown = Boolean(
+                            sourceFilter
+                            && sourceFilter.dataset.sourceFilterMode === "nexus-dropdown-source-picker"
+                            && sourceFilter.querySelector("#monitoring-hud-sensor-filter-toggle")
+                            && sourceFilter.querySelector(".monitoring-hud__source-filter-menu")
                         );
                         sourceFilterFacets = Boolean(sourceFilter) && requiredFilters.every((filter) => {
                             return Boolean(sourceFilter.querySelector(`[data-source-filter="${filter}"]`));
@@ -10131,9 +10143,22 @@ class DesktopRuntimeWindow(QWidget):
                             );
                         }
                         if (sourceFilter && sourceAssignment) {
+                            const filterToggle = sourceFilter.querySelector("#monitoring-hud-sensor-filter-toggle");
+                            if (filterToggle) filterToggle.click();
                             const supportedButton = sourceFilter.querySelector('[data-source-filter="supported"]');
                             const deferredButton = sourceFilter.querySelector('[data-source-filter="deferred"]');
                             const cpuButton = sourceFilter.querySelector('[data-source-filter="cpu"]');
+                            if (supportedButton && deferredButton) {
+                                supportedButton.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+                                const supportedHovered = supportedButton.classList.contains("is-hovered");
+                                deferredButton.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+                                sourceFilterHoverReset = Boolean(
+                                    supportedHovered
+                                    && !supportedButton.classList.contains("is-hovered")
+                                    && deferredButton.classList.contains("is-hovered")
+                                    && sourceFilter.dataset.hoveredFilter === "deferred"
+                                );
+                            }
                             if (supportedButton) supportedButton.click();
                             const supportedRows = Array.from(sourceAssignment.querySelectorAll("[data-source-picker-row]"));
                             const supportedOk = supportedRows.length > 0 && supportedRows.every((row) => row.dataset.sensorAssignable === "true");
@@ -10420,7 +10445,9 @@ class DesktopRuntimeWindow(QWidget):
                                     finalMonitorDeleteEmptyState,
                                     finalMonitorCreateReachable,
                                     sourcePickerBrowser,
+                                    sourceFilterDropdown,
                                     sourceFilterFacets,
+                                    sourceFilterHoverReset,
                                     sourceFilterReopen,
                                     sourceBreadcrumbMetadata,
                                     supportedSourcesAssignable,
@@ -10473,7 +10500,9 @@ class DesktopRuntimeWindow(QWidget):
                             finalMonitorDeleteEmptyState,
                             finalMonitorCreateReachable,
                             sourcePickerBrowser,
+                            sourceFilterDropdown,
                             sourceFilterFacets,
+                            sourceFilterHoverReset,
                             sourceFilterReopen,
                             sourceBreadcrumbMetadata,
                             supportedSourcesAssignable,

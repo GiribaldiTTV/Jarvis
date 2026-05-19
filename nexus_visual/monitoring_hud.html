@@ -317,16 +317,19 @@
             </div>
             <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="monitor-group-edit" aria-label="Close Edit Monitor">Close</button>
           </header>
-          <div class="monitoring-hud__child-toolbar monitoring-hud__child-toolbar--sticky" aria-label="Monitor management actions">
-            <label class="monitoring-hud__search-field">
+          <div class="monitoring-hud__child-toolbar monitoring-hud__child-toolbar--compact monitoring-hud__child-toolbar--sticky" aria-label="Monitor management actions">
+            <label class="monitoring-hud__search-field monitoring-hud__search-field--compact">
               <span>Search</span>
               <input id="monitoring-hud-monitor-search" type="search" placeholder="Find monitor" autocomplete="off" />
             </label>
-            <button type="button" id="monitoring-hud-manage-monitor-create-action" class="monitoring-hud__hub-action" data-control="manage-create-monitor">Create Monitor</button>
             <span id="monitoring-hud-monitor-manage-summary">2 created monitors</span>
           </div>
           <div class="monitoring-hud__monitor-management-shell" data-monitor-management-layout="compact-command-center-list-detail">
             <aside class="monitoring-hud__monitor-list-pane monitoring-hud__nexus-scroll-pane" data-scroll-pane="monitor-list">
+              <div class="monitoring-hud__monitor-list-header">
+                <span>Monitors</span>
+                <button type="button" id="monitoring-hud-manage-monitor-create-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact" data-control="manage-create-monitor">Create</button>
+              </div>
               <div class="monitoring-hud__monitor-manage-list" id="monitoring-hud-edit-monitor-list" aria-label="Created monitors">
                 <div class="monitoring-hud__monitor-manage-row" data-monitor-row="cpu" data-monitor-select="cpu" role="button" tabindex="0" aria-current="true">
                   <div>
@@ -344,14 +347,6 @@
               <div class="monitoring-hud__empty-state" id="monitoring-hud-monitor-list-empty" data-monitor-list-empty="hidden" hidden>No matching monitors.</div>
             </aside>
             <section class="monitoring-hud__monitor-detail-pane monitoring-hud__nexus-scroll-pane" data-scroll-pane="monitor-detail" aria-label="Selected monitor settings">
-              <div class="monitoring-hud__delete-confirmation" id="monitoring-hud-monitor-delete-confirmation" data-delete-confirmation-state="closed" hidden>
-                <strong id="monitoring-hud-monitor-delete-title">Delete monitor?</strong>
-                <span id="monitoring-hud-monitor-delete-copy">Confirm before removing this Monitor Group.</span>
-                <div class="monitoring-hud__child-actions">
-                  <button type="button" id="monitoring-hud-monitor-delete-confirm" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="confirm-delete-monitor">Delete</button>
-                  <button type="button" id="monitoring-hud-monitor-delete-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="cancel-delete-monitor">Cancel</button>
-                </div>
-              </div>
               <div class="monitoring-hud__unsaved-guard" id="monitoring-hud-monitor-unsaved-guard" data-unsaved-guard="closed" hidden>
                 <strong>Unsaved monitor changes</strong>
                 <span>Save, discard, or cancel before switching to another monitor.</span>
@@ -362,12 +357,9 @@
                 </div>
               </div>
               <div class="monitoring-hud__empty-state monitoring-hud__monitor-detail-empty" id="monitoring-hud-monitor-detail-empty" data-monitor-detail-empty="hidden" hidden>
-                No monitors exist yet. Create Monitor stays available above so you can recover from an empty state.
+                No monitors exist yet. Create stays available so you can recover from an empty state.
               </div>
               <section class="monitoring-hud__monitor-settings-panel" aria-label="Selected monitor settings">
-                <div class="monitoring-hud__detail-actions" data-detail-actions="selected-monitor">
-                  <button type="button" id="monitoring-hud-monitor-detail-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="detail-delete-monitor">Delete Selected Monitor</button>
-                </div>
                 <label class="monitoring-hud__child-field">
                   Group name
                   <input id="monitoring-hud-edit-monitor-name" type="text" value="CPU Group" autocomplete="off" />
@@ -378,7 +370,7 @@
                 </label>
                 <label class="monitoring-hud__child-check">
                   <input id="monitoring-hud-monitor-warning-notifications-setting" type="checkbox" data-monitor-setting="warning-notifications" checked />
-                  Warning Notifications for this monitor group
+                  Warning Notifications
                 </label>
                 <div class="monitoring-hud__readiness-panel" id="monitoring-hud-provider-readiness-panel" data-readiness-panel="provider-readiness-status">
                   <strong>Provider Readiness</strong>
@@ -395,27 +387,33 @@
                 </label>
                 <div class="monitoring-hud__sensor-library" data-sensor-library="search-filter-scalable">
                   <div class="monitoring-hud__sensor-library-toolbar monitoring-hud__sensor-library-toolbar--inline" data-source-controls-layout="search-filter-inline">
-                    <label class="monitoring-hud__search-field">
+                    <label class="monitoring-hud__search-field monitoring-hud__search-field--compact">
                       <span>Find Source</span>
                       <input id="monitoring-hud-sensor-search" type="search" placeholder="Search source, device, metric" autocomplete="off" />
                     </label>
-                    <div class="monitoring-hud__source-filter-chips" id="monitoring-hud-sensor-filter" data-source-filter-mode="faceted-chip-source-picker" role="toolbar" aria-label="Sensor Library filters" data-selected-filter="all">
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="all" aria-pressed="true">All</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="supported" aria-pressed="false">Supported</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="deferred" aria-pressed="false">Deferred</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="missing" aria-pressed="false">Missing</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="warning" aria-pressed="false">Warning</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="cpu" aria-pressed="false">CPU</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="gpu" aria-pressed="false">GPU</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="memory" aria-pressed="false">Memory</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="disk" aria-pressed="false">Disk</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="network" aria-pressed="false">Network</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="temperature" aria-pressed="false">Temperature</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="load" aria-pressed="false">Load</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="clock" aria-pressed="false">Clock</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="power" aria-pressed="false">Power</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="fan" aria-pressed="false">Fan</button>
-                      <button type="button" class="monitoring-hud__source-filter-chip" data-source-filter="voltage" aria-pressed="false">Voltage</button>
+                    <div class="monitoring-hud__source-filter-dropdown" id="monitoring-hud-sensor-filter" data-source-filter-mode="nexus-dropdown-source-picker" role="group" aria-label="Sensor Library filter" data-selected-filter="all" data-filter-open="false" data-hovered-filter="">
+                      <button type="button" class="monitoring-hud__source-filter-toggle" id="monitoring-hud-sensor-filter-toggle" aria-haspopup="listbox" aria-expanded="false">
+                        <span>Filter</span>
+                        <strong id="monitoring-hud-sensor-filter-label">All</strong>
+                      </button>
+                      <div class="monitoring-hud__source-filter-menu monitoring-hud__nexus-scroll-pane" role="listbox" aria-label="Source filter options" hidden>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="all" role="option" aria-selected="true">All</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="supported" role="option" aria-selected="false">Supported</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="deferred" role="option" aria-selected="false">Deferred</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="missing" role="option" aria-selected="false">Missing</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="warning" role="option" aria-selected="false">Warning</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="cpu" role="option" aria-selected="false">CPU</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="gpu" role="option" aria-selected="false">GPU</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="memory" role="option" aria-selected="false">Memory</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="disk" role="option" aria-selected="false">Disk</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="network" role="option" aria-selected="false">Network</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="temperature" role="option" aria-selected="false">Temperature</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="load" role="option" aria-selected="false">Load</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="clock" role="option" aria-selected="false">Clock</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="power" role="option" aria-selected="false">Power</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="fan" role="option" aria-selected="false">Fan</button>
+                        <button type="button" class="monitoring-hud__source-filter-option" data-source-filter="voltage" role="option" aria-selected="false">Voltage</button>
+                      </div>
                     </div>
                     <span id="monitoring-hud-sensor-result-summary" class="monitoring-hud__sensor-result-summary">Showing supported sources</span>
                   </div>
@@ -448,9 +446,20 @@
                     </label>
                   </div>
                 </div>
+                <div class="monitoring-hud__detail-danger-zone" data-detail-actions="selected-monitor-bottom">
+                  <button type="button" id="monitoring-hud-monitor-detail-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="detail-delete-monitor">Delete Selected Monitor</button>
+                  <div class="monitoring-hud__delete-confirmation" id="monitoring-hud-monitor-delete-confirmation" data-delete-confirmation-state="closed" hidden>
+                    <strong id="monitoring-hud-monitor-delete-title">Delete monitor?</strong>
+                    <span id="monitoring-hud-monitor-delete-copy">Confirm before removing this Monitor Group.</span>
+                    <div class="monitoring-hud__child-actions">
+                      <button type="button" id="monitoring-hud-monitor-delete-confirm" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="confirm-delete-monitor">Delete</button>
+                      <button type="button" id="monitoring-hud-monitor-delete-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="cancel-delete-monitor">Cancel</button>
+                    </div>
+                  </div>
+                </div>
               </section>
-              <p class="monitoring-hud__child-note">Manage monitor group membership and supported source settings only. Overlay visual display, external telemetry parity, and provider expansion remain future USER decisions.</p>
-              <div class="monitoring-hud__child-actions">
+              <p class="monitoring-hud__child-note">Supported source settings only. Overlay visual display, external telemetry parity, and provider expansion remain future USER decisions.</p>
+              <div class="monitoring-hud__child-actions monitoring-hud__child-actions--footer">
                 <button type="button" id="monitoring-hud-edit-monitor-confirm" class="monitoring-hud__hub-action" data-control="confirm-edit-monitor">Save Monitor</button>
                 <button type="button" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-child-window-close="monitor-group-edit">Cancel</button>
               </div>

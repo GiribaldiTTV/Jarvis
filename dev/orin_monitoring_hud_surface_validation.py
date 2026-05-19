@@ -374,7 +374,10 @@ def validate() -> list[str]:
         'id="monitoring-hud-monitor-sensor-settings"',
         'id="monitoring-hud-sensor-search"',
         'id="monitoring-hud-sensor-filter"',
-        'data-source-filter-mode="faceted-chip-source-picker"',
+        'data-source-filter-mode="nexus-dropdown-source-picker"',
+        'id="monitoring-hud-sensor-filter-toggle"',
+        'id="monitoring-hud-sensor-filter-label"',
+        'class="monitoring-hud__source-filter-menu',
         'id="monitoring-hud-sensor-result-summary"',
         'id="monitoring-hud-sensor-preview"',
         'data-monitor-management-layout="compact-command-center-list-detail"',
@@ -396,7 +399,7 @@ def validate() -> list[str]:
         'data-monitor-sensor-option="cpu-load"',
         'data-sensor-assignment="sensor-library-source-picker"',
         'role="listbox"',
-        "Sensor Library filters",
+        "Source filter options",
         "Provider Readiness",
         "Display mode",
         "CPU Group",
@@ -463,10 +466,24 @@ def validate() -> list[str]:
         "HUD CSS must keep bounded Sensor Command Center controls compact and inline where practical",
         failures,
     )
+    _require(
+        ".monitoring-hud__source-filter-dropdown" in css
+        and ".monitoring-hud__source-filter-menu" in css
+        and ".monitoring-hud__source-filter-option.is-hovered" in css,
+        "HUD CSS must render Source Filter as a Nexus-styled dropdown with explicit hover reset styling",
+        failures,
+    )
+    _require(
+        ".monitoring-hud__source-filter-chips" not in html,
+        "HUD HTML must not expose Source Filter as bulky always-visible chips",
+        failures,
+    )
     for guard_proof in (
         "monitoringHudPendingGuardAction",
         "pendingMonitorAction",
         "monitoringHudUpdateMonitorDraftFromWindow",
+        "monitoringHudPersistCurrentMonitorDraft",
+        "draft-preserved-before-queued-action",
         "unsavedSavePersistedDraft",
         "unsavedDiscardDroppedDraft",
         "unsavedCancelPreservedDraft",
@@ -480,6 +497,19 @@ def validate() -> list[str]:
         "HUD CSS must gate visible resize proof artifacts behind an explicit test-visible marker",
         failures,
     )
+    for repair_proof in (
+        "sourceFilterDropdown",
+        "sourceFilterHoverReset",
+        "source_filter_dropdown",
+        "source_filter_hover_reset",
+        "firstOpenFlickerGuard",
+        "dashboard_geometry_and_webview_frames_settled_before_opacity",
+        "monitorManagementToolbar",
+        "monitorDeletePlacement",
+        "manageWindowSizing",
+        "monitorListStressProof",
+    ):
+        _require_contains(js + renderer + css + html, repair_proof, "FAM-006 returned blocker repair proof", failures)
 
     retired_product_name = "".join(chr(code) for code in (74, 97, 114, 118, 105, 115)).casefold()
     for forbidden in ("voice", "audio", "spoken", "microphone", retired_product_name):
@@ -1033,8 +1063,8 @@ def validate() -> list[str]:
         "_monitoring_hud_deferred_initial_visibility_release",
         "source=monitoring_hud_visible_show_guard",
         "_monitoring_hud_show_guard_generation",
-        "_monitoring_hud_show_guard_release_delay_ms = 360",
-        'visual_release_model="dashboard_geometry_settled_before_opacity"',
+        "_monitoring_hud_show_guard_release_delay_ms = 620",
+        'visual_release_model="dashboard_geometry_and_webview_frames_settled_before_opacity"',
         "WM_NCLBUTTONDBLCLK",
         "HTCLIENT",
         "self.webview.setGeometry(self.rect())",
@@ -1231,7 +1261,7 @@ def validate() -> list[str]:
         'anchor_state="overlay-deferred"',
         'tray_path="Task tray enables/disables HUD feature and opens/closes Dashboard; Overlay anchor controls deferred"',
         'snap_state="enabled" if snap_enabled else "disabled"',
-        'monitor_management="Dashboard Sensor Command Center uses compact monitor selection, detail-pane delete, source picker facets, supported-source assignment, and monitor polling controls"',
+        'monitor_management="Dashboard Sensor Command Center uses compact monitor selection, detail-pane delete, Nexus source-filter dropdown/facets, supported-source assignment, and monitor polling controls"',
         'overlay_mode_controls="Overlay display and anchor/unanchor controls are deferred/non-gating"',
     ):
         _require_contains(controls, needle, "monitoring HUD controls visibility contract", failures)

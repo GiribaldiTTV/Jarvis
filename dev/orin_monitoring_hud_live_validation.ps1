@@ -506,7 +506,7 @@ Expected: Warning Notifications is a monitor/settings checkbox, Provider Readine
 USER Result / Notes:
 
 Step 8 - Sensor Library Scale And Scrollbars
-Expected: Sensor Library uses Nexus-styled search/facet chips instead of a raw dropdown/checklist, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars.
+Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter dropdown/facet control, clears stale hover highlights when moving between dropdown items or reopening it, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars.
 USER Result / Notes:
 
 Step 9 - Dashboard Resize And Move Smoothness

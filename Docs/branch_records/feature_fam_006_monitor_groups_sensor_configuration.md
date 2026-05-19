@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active Branch Readiness repair setup after PR #163 rebaseline`
-- Bounded State: `Current-main reconciliation to PR #163 / origin/main 0cd1b0430f5634048613bffec411d35d657058bf is in progress on this FAM-006 branch; origin/main is context, not identity; newly returned USER blockers are admitted for FAM-006 repair setup while runtime implementation remains pending USER approval`
+- Branch Authority State: `Active Workstream implementation after PR #163 rebaseline`
+- Bounded State: `Current-main reconciliation to PR #163 / origin/main 0cd1b0430f5634048613bffec411d35d657058bf is complete on this FAM-006 branch; origin/main is context, not identity; newly returned USER blockers are implemented while Hardening H1 remains pending USER approval`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -27,15 +27,15 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 ## Current Phase
 
-Phase: `Branch Readiness`
+Phase: `Workstream`
 
-Stage: `Current-main reconciliation and Branch Readiness repair setup`
+Stage: `Repair Workstream implementation for newly returned FAM-006 blockers`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Refreshed Live Validation Stage 1 returned FAIL after the prior H1 repair, and a later USER video/written review returned additional FAM-006 repair candidates. Current-main reconciliation is rerunning after Governance PR #163 / origin/main `0cd1b0430f5634048613bffec411d35d657058bf`. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md must reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Returned USER video/written repair setup admitted`. Current Repair Workstream Seam: `Pending USER approval for the new blockers`. Current Hardening Seam: `Pending after implementation`. Current PR Readiness Seam: `Blocked until repair implementation, Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
+Refreshed Live Validation Stage 1 returned FAIL after the prior H1 repair, and a later USER video/written review returned additional FAM-006 repair candidates. Governance PR #163 / origin/main `0cd1b0430f5634048613bffec411d35d657058bf` is reconciled as context, not identity. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md must reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Returned USER video/written repair setup admitted`. Current Repair Workstream Seam: `Implemented for the new blockers`. Current Hardening Seam: `Pending after implementation`. Current PR Readiness Seam: `Blocked until Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -106,9 +106,9 @@ USER Critique Loop: `USER critique/feedback returned the refreshed UTS as FAIL a
 
 Historical Repair Trigger Marker: `returned USER UTS FAIL` - preserved for source-truth validator traceability; active state is returned refreshed USER UTS FAIL repair implementation hardened green with refreshed Live Validation / UTS recheck pending.
 
-USER Decision Ledger: `USER approved bounded Repair Workstream implementation for the returned refreshed UTS FAIL and Hardening H1 for that implementation. GitHub issue #127 mutation, refreshed Live Validation / UTS recheck, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
+USER Decision Ledger: `USER approved bounded Repair Workstream implementation for the newly returned FAM-006 blockers after PR #163 reconciliation. Hardening H1 for this newest repair, GitHub issue #127 mutation, refreshed Live Validation / UTS recheck, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
 
-Full Feature Element Breakdown: `Sensor Command Center shell; compact action-light monitor list; row/icon selection; right-side detail panel; detail-pane Delete action; Save / Discard / Cancel guard for unsaved changes; final-monitor delete; true empty state with Create reachable; Sensor Library / Source Picker replacing basic dropdown/checklist assignment; Warning Notifications as settings checkbox outside sensor assignment; Provider Readiness as readiness/status/future capability outside assignable sources; source breadcrumbs using provider > device > category > metric > instance; source status metadata; scalable search plus filter chips/facets; large fixture proof; Overlay Profile planning; Recording Profile planning; validation and UTS proof hooks.`
+Full Feature Element Breakdown: `Sensor Command Center shell; compact action-light monitor list; row/icon selection; right-side detail panel; detail-pane Delete action; Save / Discard / Cancel guard for unsaved changes; final-monitor delete; true empty state with Create reachable; Sensor Library / Source Picker replacing basic dropdown/checklist assignment; Warning Notifications as settings checkbox outside sensor assignment; Provider Readiness as readiness/status/future capability outside assignable sources; source breadcrumbs using provider > device > category > metric > instance; source status metadata; scalable search plus dropdown/facets; large fixture proof; Overlay Profile planning; Recording Profile planning; validation and UTS proof hooks.`
 
 System Concept Model: `Sensor Library exposes available or planned data sources; monitors are configured tracked items; Monitor Groups organize monitor collections; Overlay Profiles later choose visible monitors and layout; Recording Profiles later choose monitors or sensors to log. This branch repairs the Monitor Groups management surface and proof gates while preserving other concepts as future-gated boundaries.`
 
@@ -116,7 +116,7 @@ Entity / Profile Model: `Sensor Library = all available or planned data sources;
 
 User Workflow Model: `USER opens Dashboard, opens Monitor Groups / Manage Monitors, scans compact monitor rows, selects a monitor by row/icon click, edits the right-side detail pane, gets a Save / Discard / Cancel guard before losing unsaved edits, creates monitors from the command surface, deletes from the detail pane with confirmation including the final monitor, reaches a true empty state with Create still available, searches/facets Sensor Library sources, and sees Warning Notifications / Provider Readiness outside assignable sensor rows. The repair also requires Dashboard move/resize proof without visible proof artifacts in the product UI.`
 
-Scale / Data Volume Model: `Manage Monitors must feel like a scalable Sensor Command Center, not a compact modal. It must scale to 100+ monitors and 1,000+ sources using compact rows, source search, filter chips/facets, grouped/statused results, Nexus-styled controls, and fixture validation. The UI must handle duplicate names, long names, deferred sources, missing sources, and source classification without requiring every monitor/source to be visible at once.`
+Scale / Data Volume Model: `Manage Monitors must feel like a scalable Sensor Command Center, not a compact modal. It must scale to 100+ monitors and 1,000+ sources using compact rows, source search, dropdown/facets, grouped/statused results, Nexus-styled controls, and fixture validation. The UI must handle duplicate names, long names, deferred sources, missing sources, and source classification without requiring every monitor/source to be visible at once.`
 
 Configuration And State Model: `Monitor configuration includes group membership, enabled state, polling interval, supported source assignment, and supported per-sensor display settings. Warning Notifications is a monitor/settings checkbox, not an assignable sensor. Provider Readiness is readiness/status/future capability, not an assignable sensor. Overlay visibility, recording inclusion, recording output, export/share, provider expansion, templates/import/export, base NCP backup/restore, and app-wide theme state remain separate future models unless explicitly admitted.`
 
@@ -144,7 +144,7 @@ Why Branch Is Large Enough: `A useful Monitor Groups implementation requires sev
 
 Why Not Split Into Tiny Branches: `The USER-facing flow needs list management and sensor assignment to make sense together; tiny branches would produce dead-end windows or fake-ready controls.`
 
-Acceptance Criteria: `Sensor Command Center lists monitors compactly without row-level Edit/Delete buttons; row/icon click selects and opens details; detail-pane Delete asks for confirmation and can delete the final monitor; empty state is truthful and Create remains reachable; unsaved monitor changes are protected by Save / Discard / Cancel before switching; Sensor Library / Source Picker replaces basic dropdown/checklist assignment; Warning Notifications is a setting checkbox outside sensor assignment; Provider Readiness is readiness/status/future capability outside assignable sources; source rows show provider > device > category > metric > instance breadcrumbs and status metadata; filter chips/facets cover supported categories; visible proof-only resize artifacts are rejected in normal user-facing validation; source truth distinguishes Sensor Library, Monitor, Monitor Group, Overlay Profile, and Recording Profile; no Overlay Profile runtime, Recording Profile runtime, Overlay display acceptance, tray recording controls, export/share behavior, templates/import/export, backup/restore, or app-wide theme work is implied.`
+Acceptance Criteria: `Sensor Command Center lists monitors compactly without row-level Edit/Delete buttons; row/icon click selects and opens details; detail-pane Delete asks for confirmation and can delete the final monitor; empty state is truthful and Create remains reachable; unsaved monitor changes are protected by Save / Discard / Cancel before switching; Sensor Library / Source Picker replaces basic dropdown/checklist assignment; Warning Notifications is a setting checkbox outside sensor assignment; Provider Readiness is readiness/status/future capability outside assignable sources; source rows show provider > device > category > metric > instance breadcrumbs and status metadata; dropdown/facets cover supported categories; visible proof-only resize artifacts are rejected in normal user-facing validation; source truth distinguishes Sensor Library, Monitor, Monitor Group, Overlay Profile, and Recording Profile; no Overlay Profile runtime, Recording Profile runtime, Overlay display acceptance, tray recording controls, export/share behavior, templates/import/export, backup/restore, or app-wide theme work is implied.`
 
 Expected User-Facing Outcomes: `After repair implementation and revalidation, the USER should see Dashboard movement/resizing without visible validation artifacts, plus a Manage Monitors / Sensor Command Center surface that feels scalable, action-light, Nexus-styled, and usable with large monitor/source inventories. PR Readiness remains unavailable until those outcomes are proven or explicitly waived.`
 
@@ -200,7 +200,7 @@ Invisible / Test-Gated Resize Proof Setup: `Resize proof must use invisible/test
 
 Sensor Command Center Setup: `Manage Monitors remains a split layout but becomes a Sensor Command Center: compact action-light monitor list, row/icon selection, right-side detail panel, detail-pane Delete, Save / Discard / Cancel guard for unsaved changes, final-monitor delete, true empty state with Create still reachable, and large-fixture proof for 100+ monitors.`
 
-Sensor Library / Source Picker Setup: `Replace basic dropdown/checklist assignment with Sensor Library / Source Picker behavior: scalable search plus filter chips/facets; categories for CPU, GPU, Memory, Disk, Network, Temperature, Load, Clock, Power, Fan, Voltage, Supported, Deferred, Missing, and Warning where source truth supports them; source rows with provider > device > category > metric > instance breadcrumbs; and source status metadata for supported, deferred, missing, warning, and provider-required states.`
+Sensor Library / Source Picker Setup: `Replace basic dropdown/checklist assignment with Sensor Library / Source Picker behavior: scalable search plus dropdown/facets; categories for CPU, GPU, Memory, Disk, Network, Temperature, Load, Clock, Power, Fan, Voltage, Supported, Deferred, Missing, and Warning where source truth supports them; source rows with provider > device > category > metric > instance breadcrumbs; and source status metadata for supported, deferred, missing, warning, and provider-required states.`
 
 Sensor / Source Classification Setup: `Warning Notifications classified as a monitor/settings checkbox outside sensor assignment. Provider Readiness classified as readiness/status/future capability outside assignable sources. Supported runtime-capable sources remain assignable; provider-required, deferred, missing, warning, readiness, and settings entries must not be over-credited as assignable sensors.`
 
@@ -468,41 +468,41 @@ Non-Includes: `HUD Overlay visual display acceptance, Overlay customization, app
 
 Active seam: `Repair Workstream implementation for FAM-006 Sensor Command Center returned refreshed UTS FAIL`
 
-Active Seam Status: `Returned refreshed UTS FAIL runtime repair implemented: normal UI no longer shows resize proof artifacts, Sensor Command Center replaces row-button/checklist management, final-monitor delete reaches a true empty state, Source Picker uses Nexus search/facets, and Warning Notifications / Provider Readiness are classified outside assignable sensors.`
+Active Seam Status: `Returned USER video/written blocker repair implemented: first-launch Dashboard show guard now waits for geometry and WebView frames before opacity release; Source Filter uses a compact Nexus dropdown/facet control instead of exposed chips; dropdown hover state clears the prior highlighted item; Monitor list has 20+ / 100+ fixture proof with Nexus scrollbars; Create moved into the compact left-list header; Delete and confirmation moved to the lower detail danger zone; Manage Monitors is taller and bounded-resizable; redundant copy was reduced; and the unsaved-change guard saves from the preserved draft before queued selection/create/delete/close actions run.`
 
-Next active seam: `Refreshed Live Validation / UTS recheck after green H1`
+Next active seam: `Hardening H1 for newly returned FAM-006 blocker repair`
 
 ## Backlog Completion Status
 
-Backlog Completion State: `Repair Implementation Complete / Hardening H1 Green / Refreshed Live Validation Pending`
+Backlog Completion State: `Implemented Complete`
 
-Remaining Implementable Work: `No additional runtime work admitted before refreshed Live Validation. Refreshed Live Validation / UTS recheck must prove the implemented and hardened repair through the governed user-facing path, or USER must explicitly waive with reason.`
+Remaining Implementable Work: `None`
 
-Future-Dependent Blockers: `Refreshed Live Validation/UTS after H1; PR Readiness; PR creation; merge; release execution; artifacts; raw evidence handling; future branch/worktree cleanup; FAM-007 work; provider/model/memory/shortcut/installer work; Overlay acceptance; external telemetry parity; AI Product work`
+Future-Dependent Blockers: `None`
 
-Completion Status: `Blocked before PR Readiness`
+Completion Status: `Green`
 
 ## Seam Continuation Decision
 
-Seam Status: `Repair Workstream implementation complete; Hardening H1 green; refreshed Live Validation pending`
+Seam Status: `Green`
 
-Slice Status: `Admitted repair scope implemented; pressure testing pending`
+Slice Status: `Green`
 
-Completion Status: `Blocked by refreshed Live Validation / UTS recheck`
+Completion Status: `Green`
 
 Waiver Status: `None`
 
-Continue Decision: `Proceed only after USER approves refreshed Live Validation / UTS recheck`
+Continue Decision: `Stop`
 
-Continuation Execution Latch: `Closed until USER approves refreshed Live Validation / UTS recheck`
+Continuation Execution Latch: `Closed until USER approves Hardening H1`
 
-Stop Basis: `Repair implementation hardened green / refreshed Live Validation approval pending`
+Stop Basis: `Workstream Green`
 
-Next Active Seam: `Repair Workstream implementation for returned USER repair candidates`
+Next Active Seam: `Hardening H1 for returned USER repair candidates`
 
-Stop Condition: `Branch Readiness repair setup is complete after PR #163 current-main reconciliation; runtime implementation requires explicit USER approval`
+Stop Condition: `Runtime implementation for the newly returned FAM-006 blockers is complete; Hardening H1 requires explicit USER approval`
 
-Continuation Action: `Stop after this setup until USER approves bounded Repair Workstream implementation for the newly returned FAM-006 blockers`
+Continuation Action: `Stop at phase boundary until USER admits the next phase by approving bounded Hardening H1 for the newly returned FAM-006 blockers`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -537,26 +537,26 @@ Rollback is the unmerged Workstream implementation on this branch only if USER l
 
 ## Next Legal Phase
 
-`Workstream`
+`Hardening`
 
-USER decision to approve Repair Workstream implementation for the newly returned FAM-006 Monitor Groups / Sensor Command Center repair candidates on `feature/fam-006-monitor-groups-sensor-configuration`.
+USER decision to approve Hardening H1 for the newly implemented FAM-006 Monitor Groups / Sensor Command Center repair candidates on `feature/fam-006-monitor-groups-sensor-configuration`.
 
 ## Next Legal Phase Digest
 
-Current Phase: `Branch Readiness repair setup after PR #163 current-main reconciliation`
+Current Phase: `Workstream`
 
-Next Legal Phase: `Repair Workstream implementation for returned USER blockers`
+Next Legal Phase: `Hardening`
 
-Why This Phase Is Next: `The USER returned new FAM-006 failures after H1/video review, and this Branch Readiness pass admitted the same-family repair setup after PR #163 rebaseline. The next legal phase is bounded runtime implementation for first-launch Dashboard flicker, Source Filter/dropdown visual behavior, monitor-list scrollbar stress, delete placement, top-area headspace, Manage Monitors default size/resizability, and copy cleanup.`
+Why This Phase Is Next: `The newly returned FAM-006 blocker repair implementation is complete and Workstream is green. The next legal phase is bounded Hardening H1 to pressure-test first-launch Dashboard flicker, Source Filter/dropdown visual behavior, monitor-list scrollbar stress, delete placement, top-area headspace, Manage Monitors default size/resizability, copy cleanup, unsaved draft guarding, and Dashboard control regressions before refreshed Live Validation / UTS recheck.`
 
-Approval Required: `USER approval for bounded Repair Workstream implementation.`
+Approval Required: `USER approval for bounded Hardening H1.`
 
-Exact USER Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to the newly returned FAM-006 blockers: first-launch Dashboard flicker regression; Source Filter as a Nexus-styled dropdown menu rather than exposed chips; dropdown open/hover reset so previous items do not remain highlighted; 20+ monitor-group left-list stress proof with NDAI scrollbar styling; lower-right/bottom Delete Selected Monitor and bottom delete-confirmation placement; reduced top toolbar/search/create headspace; taller default and somewhat resizable Manage Monitors window; removal of over-explaining copy such as "for this monitor group"; preservation of existing draft guard, queued actions, Sensor Library pattern, Warning Notifications setting checkbox, Provider Readiness readiness/status classification, and profile-model boundaries; directly supporting validators/helpers/UTS updates; validation; commit; and push.`
+Exact USER Approval Text: `Approve Hardening H1 for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to the newly implemented FAM-006 blockers: first-launch Dashboard flicker guard; Source Filter Nexus-styled dropdown and hover reset; 20+ monitor-group left-list NDAI scrollbar stress proof; lower-right/bottom Delete Selected Monitor and bottom delete-confirmation placement; reduced top toolbar/search/create headspace; taller default and bounded-resizable Manage Monitors window; copy cleanup; unsaved draft guard and queued actions; Sensor Library pattern; Warning Notifications setting checkbox; Provider Readiness readiness/status classification; and profile-model boundaries. Apply bounded H1 repairs only if defects are found, update directly supporting validators/helpers/UTS/source truth if required, run validation, commit, and push if validation is green.`
 
-Allowed Scope: `FAM-006 runtime implementation and directly supporting validators/helpers/UTS/source-truth updates for the newly returned same-seam Monitor Groups / Sensor Command Center blockers.`
+Allowed Scope: `FAM-006 Hardening H1 pressure-test and bounded H1 repairs for the newly implemented same-seam Monitor Groups / Sensor Command Center blockers, plus directly supporting validators/helpers/UTS/source-truth updates if required.`
 
 Explicit Exclusions: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, tags, GitHub Releases, artifacts, raw evidence upload/import/linking, Governance branch mutation, neutral main mutation, and future branch/worktree cleanup after this branch closes.`
 
 Validation Required: `git status --short --branch; git fetch origin --prune; git rev-parse HEAD; git rev-parse origin/main; git worktree list; git diff --check; git diff --check origin/main...HEAD; python dev\orin_monitoring_hud_surface_validation.py; python dev\orin_monitoring_hud_internal_sandbox_validation.py; python dev\orin_branch_governance_validation.py; python dev\orin_release_body_validation.py; python -m compileall -q dev desktop Audio main.py.`
 
-Stop Conditions: `Stop if branch/worktree identity mismatches C:\Nexus Worktrees\FAM-006 / feature/fam-006-monitor-groups-sensor-configuration, origin/main movement creates required reconciliation, implementation requires excluded Overlay/FAM-007/provider/model/installer/AI Product/release/PR/raw-evidence scope, Sensor Command Center and profile-model boundaries cannot be preserved together, validation fails, or another USER decision is required.`
+Stop Conditions: `Stop if branch/worktree identity mismatches C:\Nexus Worktrees\FAM-006 / feature/fam-006-monitor-groups-sensor-configuration, origin/main movement creates required reconciliation, Hardening requires excluded Overlay/FAM-007/provider/model/installer/AI Product/release/PR/raw-evidence scope, Sensor Command Center and profile-model boundaries cannot be preserved together, validation fails, or another USER decision is required.`

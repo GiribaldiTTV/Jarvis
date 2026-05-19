@@ -15902,7 +15902,7 @@ def main() -> int:
         "final-monitor delete",
         "true empty state",
         "Sensor Library / Source Picker Setup",
-        "filter chips/facets",
+        "dropdown/facets",
         "Warning Notifications classified as a monitor/settings checkbox",
         "Provider Readiness classified as readiness/status/future capability",
         "provider > device > category > metric > instance",

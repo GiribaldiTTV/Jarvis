@@ -83,6 +83,8 @@ const monitoringHudMonitorSensorAssignment = document.getElementById("monitoring
 const monitoringHudMonitorSensorSettings = document.getElementById("monitoring-hud-monitor-sensor-settings");
 const monitoringHudSensorSearch = document.getElementById("monitoring-hud-sensor-search");
 const monitoringHudSensorFilter = document.getElementById("monitoring-hud-sensor-filter");
+const monitoringHudSensorFilterToggle = document.getElementById("monitoring-hud-sensor-filter-toggle");
+const monitoringHudSensorFilterLabel = document.getElementById("monitoring-hud-sensor-filter-label");
 const monitoringHudSensorResultSummary = document.getElementById("monitoring-hud-sensor-result-summary");
 const monitoringHudSensorPreview = document.getElementById("monitoring-hud-sensor-preview");
 
@@ -184,6 +186,24 @@ let monitoringHudPendingGuardAction = null;
 let monitoringHudDraftOriginalMonitorId = "";
 let monitoringHudDraftOriginalLayout = null;
 let monitoringHudDraftWorkingLayout = null;
+const monitoringHudSourceFilterLabels = {
+  all: "All",
+  supported: "Supported",
+  deferred: "Deferred",
+  missing: "Missing",
+  warning: "Warning",
+  cpu: "CPU",
+  gpu: "GPU",
+  memory: "Memory",
+  disk: "Disk",
+  network: "Network",
+  temperature: "Temperature",
+  load: "Load",
+  clock: "Clock",
+  power: "Power",
+  fan: "Fan",
+  voltage: "Voltage"
+};
 
 function monitoringHudSnap(value) {
   if (!monitoringHudControlState.snapEnabled) return Math.round(value);
@@ -735,6 +755,41 @@ function monitoringHudSensorFilterValue() {
   ).trim().toLowerCase() || "all";
 }
 
+function monitoringHudResetSourceFilterHover() {
+  if (!monitoringHudSensorFilter) return;
+  monitoringHudSensorFilter.dataset.hoveredFilter = "";
+  monitoringHudSensorFilter.querySelectorAll("[data-source-filter]").forEach((item) => {
+    item.classList.remove("is-hovered");
+  });
+}
+
+function monitoringHudSetSourceFilterDropdownOpen(open) {
+  if (!monitoringHudSensorFilter) return;
+  const isOpen = Boolean(open);
+  const menu = monitoringHudSensorFilter.querySelector(".monitoring-hud__source-filter-menu");
+  monitoringHudSensorFilter.dataset.filterOpen = isOpen ? "true" : "false";
+  if (monitoringHudSensorFilterToggle) {
+    monitoringHudSensorFilterToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  }
+  if (menu) menu.hidden = !isOpen;
+  monitoringHudResetSourceFilterHover();
+}
+
+function monitoringHudSetSourceFilterValue(value) {
+  if (!monitoringHudSensorFilter) return;
+  const nextValue = String(value || "all").trim().toLowerCase() || "all";
+  monitoringHudSensorFilter.dataset.selectedFilter = nextValue;
+  monitoringHudSensorFilter.dataset.currentFilterLabel = monitoringHudSourceFilterLabels[nextValue] || nextValue;
+  monitoringHudSensorFilter.querySelectorAll("[data-source-filter]").forEach((item) => {
+    const selected = String(item.dataset.sourceFilter || "all").toLowerCase() === nextValue;
+    item.setAttribute("aria-selected", selected ? "true" : "false");
+    item.setAttribute("aria-pressed", selected ? "true" : "false");
+  });
+  if (monitoringHudSensorFilterLabel) {
+    monitoringHudSensorFilterLabel.textContent = monitoringHudSourceFilterLabels[nextValue] || nextValue;
+  }
+}
+
 function monitoringHudSensorMatchesFilter(sensor, query, filterValue) {
   const category = String(sensor.category || monitoringHudSensorCategoryForId(sensor.id)).toLowerCase();
   const metric = String(sensor.metric || "").toLowerCase();
@@ -776,7 +831,7 @@ function monitoringHudRenderSensorPreview(totalCount, renderedCount, selectedCou
   const fixtureCopy = monitoringHudLargeFixtureModeEnabled
     ? ` Large-source fixture proof mode is active with ${monitoringHudLargeSensorFixtureCount} scale sources.`
     : "";
-  monitoringHudSensorPreview.textContent = `${selectedCount} selected for this Monitor Group. Showing ${renderedCount} of ${totalCount} filtered sources; ${supportedCount} supported and ${deferredCount} provider-required/deferred in the current filter. Source rows expose provider, device, category, metric, and sensor instance breadcrumbs.${fixtureCopy}`;
+  monitoringHudSensorPreview.textContent = `${selectedCount} selected. Showing ${renderedCount} of ${totalCount} filtered sources; ${supportedCount} supported and ${deferredCount} provider-required/deferred. Source rows expose provider, device, category, metric, and sensor instance breadcrumbs.${fixtureCopy}`;
 }
 
 function monitoringHudRenderSensorAssignment(selected) {
@@ -950,6 +1005,9 @@ function monitoringHudRenderChildWindows() {
   if (monitoringHudProviderReadinessPanel) {
     monitoringHudProviderReadinessPanel.dataset.readinessClassification = "status-future-capability-not-assignable-source";
   }
+  if (monitoringHudSensorFilter) {
+    monitoringHudSetSourceFilterValue(monitoringHudSensorFilterValue());
+  }
   if (monitoringHudMonitorDetailDelete) {
     monitoringHudMonitorDetailDelete.disabled = !hasSelectedMonitor;
     monitoringHudMonitorDetailDelete.setAttribute("aria-disabled", hasSelectedMonitor ? "false" : "true");
@@ -991,6 +1049,7 @@ function monitoringHudRenderChildWindows() {
       monitoringHudEditMonitorList.appendChild(row);
     });
     monitoringHudEditMonitorList.dataset.monitorListScale = "searchable-large-monitor-list";
+    monitoringHudEditMonitorList.dataset.monitorListStressProof = "20-plus-groups-nexus-scrollbar";
     monitoringHudEditMonitorList.dataset.largeMonitorFixtureCount = String(monitoringHudLargeMonitorFixtureCount);
     monitoringHudEditMonitorList.dataset.visibleMonitorCount = String(visibleMonitorIds.length);
     if (monitoringHudMonitorListEmpty) {
@@ -1232,6 +1291,23 @@ function monitoringHudSaveEditMonitorWindow(options = {}) {
   monitoringHudMarkChanged();
 }
 
+function monitoringHudPersistCurrentMonitorDraft() {
+  const selected = monitoringHudSelectedMonitor();
+  const targetId = monitoringHudDraftOriginalMonitorId || (selected && selected.id) || "";
+  if (!targetId || !monitoringHudControlState.cards || !monitoringHudControlState.cards[targetId]) return false;
+  const targetLayout = monitoringHudDraftWorkingLayout
+    ? monitoringHudCloneMonitorLayout(monitoringHudDraftWorkingLayout)
+    : monitoringHudCloneMonitorLayout(monitoringHudControlState.cards[targetId]);
+  monitoringHudNormalizeSensorAssignments(targetId, targetLayout);
+  monitoringHudControlState.cards[targetId] = targetLayout;
+  monitoringHudPendingDeleteMonitorId = "";
+  monitoringHudSetMonitorDraftDirty(false);
+  monitoringHudApplyCardLayout();
+  monitoringHudRenderControls();
+  monitoringHudMarkChanged();
+  return true;
+}
+
 function monitoringHudRequestDeleteMonitorGroup(cardId, options = {}) {
   if (!cardId || !monitoringHudControlState.cards || !monitoringHudControlState.cards[cardId]) return;
   if (!options.force && monitoringHudUnsavedMonitorDirty && cardId === monitoringHudControlState.selectedMonitorId) {
@@ -1280,6 +1356,8 @@ function monitoringHudSetMonitorDraftDirty(dirty) {
     if (monitoringHudMonitorUnsavedGuard) {
       monitoringHudMonitorUnsavedGuard.hidden = true;
       monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "closed";
+      monitoringHudMonitorUnsavedGuard.dataset.draftMonitorId = "";
+      monitoringHudMonitorUnsavedGuard.dataset.guardStateModel = "";
       monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = "";
       monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorAction = "";
     }
@@ -1287,12 +1365,15 @@ function monitoringHudSetMonitorDraftDirty(dirty) {
 }
 
 function monitoringHudShowUnsavedGuard(action) {
+  monitoringHudUpdateMonitorDraftFromWindow();
   const pendingAction = typeof action === "string" ? { type: "select", cardId: action } : Object.assign({}, action || {});
   monitoringHudPendingGuardAction = pendingAction;
   monitoringHudPendingSelectMonitorId = pendingAction.type === "select" ? (pendingAction.cardId || "") : "";
   if (!monitoringHudMonitorUnsavedGuard) return;
   monitoringHudMonitorUnsavedGuard.hidden = false;
   monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "open-save-discard-cancel";
+  monitoringHudMonitorUnsavedGuard.dataset.draftMonitorId = monitoringHudDraftOriginalMonitorId || "";
+  monitoringHudMonitorUnsavedGuard.dataset.guardStateModel = "draft-preserved-before-queued-action";
   monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = monitoringHudPendingSelectMonitorId;
   monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorAction = pendingAction.type || "unknown";
 }
@@ -1326,7 +1407,7 @@ function monitoringHudRunPendingGuardAction(action) {
 
 function monitoringHudSaveAndSelectPendingMonitor() {
   const pendingAction = Object.assign({}, monitoringHudPendingGuardAction || {});
-  monitoringHudSaveEditMonitorWindow({ keepOpen: true });
+  monitoringHudPersistCurrentMonitorDraft();
   monitoringHudRunPendingGuardAction(pendingAction);
 }
 
@@ -1350,6 +1431,8 @@ function monitoringHudCancelPendingMonitorSelection() {
   if (monitoringHudMonitorUnsavedGuard) {
     monitoringHudMonitorUnsavedGuard.hidden = true;
     monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "closed";
+    monitoringHudMonitorUnsavedGuard.dataset.draftMonitorId = "";
+    monitoringHudMonitorUnsavedGuard.dataset.guardStateModel = "";
     monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = "";
     monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorAction = "";
   }
@@ -1398,9 +1481,14 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.monitorManagementScale = "split-layout-search-filter-large-fixtures";
     monitoringHud.dataset.monitorManagementLayout = "compact-list-right-detail-command-center";
     monitoringHud.dataset.sensorLibraryScale = "search-facet-thousand-source-fixture";
+    monitoringHud.dataset.sourceFilterMode = "nexus-dropdown-source-picker";
     monitoringHud.dataset.sensorLibraryFixtures = `monitors-${monitoringHudLargeMonitorFixtureCount}-sources-${monitoringHudLargeSensorFixtureCount}`;
     monitoringHud.dataset.sensorLibraryFixtureMode = monitoringHudLargeFixtureModeEnabled ? "enabled-validation-support" : "available-validation-support";
     monitoringHud.dataset.monitorManagementScrollbars = "nexus-styled-child-list-detail-sensor-panes";
+    monitoringHud.dataset.monitorManagementToolbar = "compact-search-summary-list-header-create";
+    monitoringHud.dataset.monitorDeletePlacement = "detail-pane-bottom-danger-zone";
+    monitoringHud.dataset.manageWindowSizing = "taller-default-bounded-resizable";
+    monitoringHud.dataset.firstOpenFlickerGuard = "native-opacity-guard-stable-first-open";
     monitoringHud.dataset.resizeLiveProof = "invisible-real-ui-frame-pixel-signature-grow-shrink";
     monitoringHud.dataset.resizeProofVisibility = "normal-ui-no-proof-artifacts";
     monitoringHud.dataset.resizeProofVisuals = "none";
@@ -1974,15 +2062,36 @@ function monitoringHudWireControls() {
   }
   if (monitoringHudSensorFilter) {
     monitoringHudSensorFilter.addEventListener("click", (event) => {
+      const toggle = event.target && event.target.closest ? event.target.closest("#monitoring-hud-sensor-filter-toggle") : null;
+      if (toggle) {
+        monitoringHudSetSourceFilterDropdownOpen(monitoringHudSensorFilter.dataset.filterOpen !== "true");
+        return;
+      }
       const button = event.target && event.target.closest ? event.target.closest("[data-source-filter]") : null;
       if (!button) return;
-      monitoringHudSensorFilter.dataset.selectedFilter = button.dataset.sourceFilter || "all";
-      monitoringHudSensorFilter.querySelectorAll("[data-source-filter]").forEach((item) => {
-        item.setAttribute("aria-pressed", item === button ? "true" : "false");
-      });
+      monitoringHudSetSourceFilterValue(button.dataset.sourceFilter || "all");
+      monitoringHudSetSourceFilterDropdownOpen(false);
       monitoringHudRenderMonitorManagement();
     });
+    monitoringHudSensorFilter.addEventListener("mouseover", (event) => {
+      const option = event.target && event.target.closest ? event.target.closest("[data-source-filter]") : null;
+      if (!option) return;
+      monitoringHudResetSourceFilterHover();
+      option.classList.add("is-hovered");
+      monitoringHudSensorFilter.dataset.hoveredFilter = option.dataset.sourceFilter || "";
+    });
+    monitoringHudSensorFilter.addEventListener("mouseleave", monitoringHudResetSourceFilterHover);
+    monitoringHudSensorFilter.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        monitoringHudSetSourceFilterDropdownOpen(false);
+      }
+    });
+    monitoringHudSetSourceFilterValue(monitoringHudSensorFilterValue());
   }
+  document.addEventListener("click", (event) => {
+    if (!monitoringHudSensorFilter || monitoringHudSensorFilter.contains(event.target)) return;
+    monitoringHudSetSourceFilterDropdownOpen(false);
+  });
   document.querySelectorAll("[data-child-window-close]").forEach((button) => {
     button.addEventListener("click", monitoringHudCloseChildWindow);
   });
