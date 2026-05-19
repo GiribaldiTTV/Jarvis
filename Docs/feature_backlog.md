@@ -60,6 +60,9 @@ None.
 Latest Public Prerelease Recorded In Source Truth: `v1.7.7-prebeta`
 Post-Release Canon Closure Drift: Recorded - `v1.7.7-prebeta release-dependent fields were stale after release execution and are closed by USER-approved Branch Readiness Stage 2 setup on feature/fam-007-local-ai-provider-path-and-consent-readiness`
 Published Release Pending Canon Closure: `None - closed by USER-approved Branch Readiness Stage 2 setup on feature/fam-007-local-ai-provider-path-and-consent-readiness; Stage 1 pending marker was v1.7.7-prebeta`
+Closure Repair Surface: Next Branch Readiness Stage 2
+Closure Drift Scope: release-dependent fields only
+Implementation Entry: Allowed after closure repair validates green for Branch Readiness Stage 2 setup only; runtime Workstream implementation remains pending USER approval.
 Merged-Unreleased PRs: None after `v1.7.7-prebeta`; PR #171 and PR #172 are released historical scope.
 Active Runtime Branch: `feature/fam-007-local-ai-provider-path-and-consent-readiness` in `C:\Nexus Worktrees\FAM-007`.
 Active Governance Branch: `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`.
