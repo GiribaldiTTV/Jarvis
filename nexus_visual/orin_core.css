@@ -757,6 +757,10 @@ body {
   color: rgba(183, 247, 212, 0.96);
 }
 
+body.desktop-mode .ai-provider-status {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .ai-provider-status {
     left: 14px;
