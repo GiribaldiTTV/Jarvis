@@ -33,12 +33,12 @@ This branch is the single standing governance lane for Release Readiness source-
 ## PR Readiness Stage 2 Execution Packet
 
 - PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
-- Live PR State: `Pre-PR - no live PR for RRI-20260519-004 until USER approves PR Readiness Stage 2 / PR creation`
-- Governance PR: `Pending USER approval after validation`
+- Live PR State: `PR #175 is open, non-draft, base main, head feature/release-readiness-source-truth-intake, and mergeable at initial live inspection; branch head is tracked by live GitHub PR state rather than hard-coded here`
+- Governance PR: `#175 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/175`
 - Watcher Readiness Posture: `Stage 2 default - watcher provisioning is included with USER approval for PR Readiness Stage 2 / PR creation; no separate watcher-specific approval is required unless USER explicitly waives watcher provisioning or a platform/runtime blocker is recorded`
 - Historical Merge Proof: `PR #162 is closed/merged implementation proof for FAM-007 runtime expansion; PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
 - Next Workstream User Waiver: `Not applicable - RRI-20260519-004 is a governance phase-gate repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 2 Outcome: `Pending validation, commit, push, and later separate USER approval for PR creation; watcher provisioning will be included in that Stage 2 approval by default`
+- Stage 2 Outcome: `PR #175 created after final validation; merge remains USER-gated and runtime/release/issue/branch-cleanup work remains blocked; watcher provisioning is included in Stage 2 approval by default`
 
 ## Branch Class
 
