@@ -63,6 +63,19 @@ Use these release-state values when relevant:
 
 ## Current Release Posture
 
+## Current Decision Surface
+
+Latest Public Prerelease Recorded In Source Truth: `v1.7.5-prebeta`
+Published Release Pending Canon Closure: `None - closed by USER-approved Branch Readiness Stage 2 setup on feature/fam-007-local-ai-provider-activation-foundation`
+Merged-Unreleased PRs: None after `v1.7.5-prebeta`; PR #164 through PR #168 are released historical scope.
+Active Runtime Branch: `feature/fam-007-local-ai-provider-activation-foundation` in `C:\Nexus Worktrees\FAM-007`.
+Active Governance Branch: `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`.
+Selected-Next Posture: Active FAM-007 Branch Readiness Stage 2 setup recorded; successor selection beyond this carrier remains USER-gated.
+Release Blockers: None for `v1.7.5-prebeta` canon closure; runtime implementation remains blocked until later USER approval.
+Next Legal Phase: Workstream Entry analysis for `feature/fam-007-local-ai-provider-activation-foundation`; runtime/provider SDK/model execution, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, release execution, issue work, branch cleanup, and successor selection remain separate USER decisions.
+
+### Detailed Current Release Posture
+
 Current merged truth indicates:
 
 - latest public prerelease: `v1.7.5-prebeta`
