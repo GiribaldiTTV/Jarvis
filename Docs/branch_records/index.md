@@ -104,11 +104,11 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
-- `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md`
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md`
 - `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md`
 - `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md`

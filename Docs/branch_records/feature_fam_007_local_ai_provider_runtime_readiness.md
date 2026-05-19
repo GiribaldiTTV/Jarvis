@@ -6,7 +6,7 @@
 - Worktree: `C:\Nexus Worktrees\FAM-007`
 - Branch Class: `implementation`
 - Implementation Delta Class: `source-truth Branch Readiness setup and future local-only runtime readiness contract`
-- Backlog Record State: `Active Live Validation LV1 Green / ready for PR Readiness Stage 1`
+- Backlog Record State: `Historical / merge-stable PR Readiness Stage 1 Repair Green / ready for PR Readiness Stage 2`
 - Family: `FAM-007` Local AI and Capability Packs
 - Package: `PKG-007` Local AI foundation and capability-pack architecture package
 - Workstream Label: `FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
@@ -19,12 +19,12 @@ This branch is the USER-approved fresh FAM-007 runtime carrier created from curr
 
 ## Current Phase
 
-- Phase: `Live Validation`
-Stage: `LV1 Green`
-Active Branch Authority: `feature/fam-007-local-ai-provider-runtime-readiness`
+- Phase: `Historical Traceability`
+Stage: `PR Readiness Stage 1 Repair Green`
+Active Branch Authority: `None - merge-stable post-merge projection`
 Active Worktree: `C:\Nexus Worktrees\FAM-007`
 Active Package: `PKG-007`
-Active Seam: `Live Validation LV1 - FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
+Active Seam: `None - PR Readiness Stage 1 repair is merge-stable and ready for Stage 2 operator execution`
 
 ## Phase Status
 
@@ -36,12 +36,14 @@ Current Hardening State: `Green - H1 verified the admitted Workstream plan, Runt
 Live Validation LV1 USER Approval: `Granted - USER approved Live Validation LV1 for the completed and hardened local-only FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility Workstream`
 Current Live Validation Seam: `Live Validation LV1 - FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
 Current Live Validation State: `Green - LV1 classified this branch as a disabled/status-only local readiness scaffold and verified Core/Desktop readiness rail copy, centralized readiness state, fail-closed readiness behavior, provider-visible data none posture, disabled prompt/provider behavior, blocked capability-pack download/install posture, memory-disabled posture, network-egress-blocked posture, validators, and source-truth waiver digest`
-- `Active Branch`: `feature/fam-007-local-ai-provider-runtime-readiness`
-Branch Authority State: `Active Live Validation Green runtime carrier`
+PR Readiness Stage 1 Repair USER Approval: `Granted - USER approved selected-next defer/waiver truth and pre-PR live-state truth for this pass; PR creation and merge remain separate USER decisions`
+Current PR Readiness State: `Stage 1 Repair Green - selected-next defer/waiver truth, post-merge No Active Branch projection, successor selection deferral, and pre-PR live-state truth are recorded in dedicated PR Readiness sections outside projected merged-main current-state truth`
+Branch Under PR Readiness: `feature/fam-007-local-ai-provider-runtime-readiness`
+Branch Authority State: `Historical / merge-stable after future PR merge; not an active branch owner on merged main`
 Release Canon Closure State: `v1.7.4-prebeta published at 0cd1b0430f5634048613bffec411d35d657058bf; PR #162 and PR #163 are released in v1.7.4-prebeta`
-Selected Next Workstream: `FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
-Selected Next Implementation Branch: `feature/fam-007-local-ai-provider-runtime-readiness`
-Selected Next Current-Carrier Note: `This branch is the active FAM-007 runtime carrier for the bounded provider-readiness/setup-eligibility Workstream; Workstream implementation, Hardening H1, and Live Validation LV1 are green, and the next legal phase is PR Readiness Stage 1 after USER approval`
+Selected Next Workstream: `None - USER-approved selected-next defer/waiver for this PR-readiness pass`
+Selected Next Implementation Branch: `Not created`
+Selected Next Current-Carrier Note: `This branch is PR Readiness Stage 1 Repair Green and projected as historical merged-unreleased evidence after merge; Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 selected-next/defer repair are green, and the next legal phase is PR Readiness Stage 2 after USER approval`
 Package Completion State: `PKG-007 admitted but not complete - prior local-only scaffolds are released historical evidence through v1.7.4-prebeta; provider SDK/model execution, downloads, external calls, memory/indexing, voice/Core sync, shortcut/installer, release, issue, AI Product, and FAM-006 work remain separate USER decisions`
 
 ## Branch Class
@@ -116,8 +118,79 @@ Rollback Rule: `If validation fails and cannot be repaired within Stage 2 setup 
 - `PR Readiness`
 
 Next Legal Phase: `PR Readiness`
-Next Legal Seam: `PR Readiness Stage 1 analysis for feature/fam-007-local-ai-provider-runtime-readiness`
-Exact USER Decision Needed: `I approve PR Readiness Stage 1 analysis for feature/fam-007-local-ai-provider-runtime-readiness. This is analysis only; PR creation, merge, release work, provider SDK/model work, model downloads/execution, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, issue work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, and branch cleanup remain separate decisions.`
+Next Legal Seam: `PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-runtime-readiness`
+Exact USER Decision Needed: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-runtime-readiness targeting main, limited to final validation, creating the non-draft PR, recording PR metadata only if governance requires it, inspecting live PR state, and setting watcher/reporting posture. Merge remains a separate later USER decision.`
+
+## PR Readiness Stage 1 Projection
+
+Origin/Main Freshness Check: `PASS - branch creation base was 0cd1b0430f5634048613bffec411d35d657058bf, current origin/main is 89e82405350deda8997ddd3f0720f4e5e796fbfa, origin/main advanced during the branch and was reconciled by commit 9ee328d6967d7d9272f719836606f71acbd4d21f before H1, and current branch merge base remains 89e82405350deda8997ddd3f0720f4e5e796fbfa.`
+Branch Creation Base: `0cd1b0430f5634048613bffec411d35d657058bf`
+Current origin/main: `89e82405350deda8997ddd3f0720f4e5e796fbfa`
+Origin/Main Advanced Since Branch Creation: `YES - reconciled before H1 and unchanged after LV1 Stage 1 repair preflight`
+Origin/Main Changed Files: `PR #164 runtime-contract governance and validator surfaces; reconciled before H1`
+Branch Changed Files: `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md; Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md; Docs/branch_records/index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/validation_helper_registry.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/orin_ai_provider_state_validation.py; nexus_visual/orin_core.css; nexus_visual/orin_core.html; nexus_visual/orin_core.js; nexus_visual/orin_core_desktop.html`
+Reconciliation Required: `NO`
+Reconciliation File List: `None - current merge base equals origin/main 89e82405350deda8997ddd3f0720f4e5e796fbfa`
+Reconciliation Recommendation: `No reconciliation before Stage 2 unless origin/main advances after this Stage 1 repair`
+Reconciliation Mutation Status: `analysis-only after completed reconciliation; no file fixes during Stage 1 freshness check`
+Stage 1 Outcome: `Stage 1 Ready For Stage 2`
+Stage 1 Repairs Made: `Selected-next defer/waiver truth, post-merge No Active Branch projection, pre-PR live-state truth, Release Readiness Health Pass, Release Window Audit, Governance Drift Audit, and merge-stable branch-authority index posture recorded`
+Stage 1 Repair Validation: `PASS - standard validation and PR-readiness gate are required after this repair is committed; pre-commit semantic gate found only the expected dirty-branch blocker`
+Pre-PR Live State: No live PR - PR Readiness Stage 2 PR creation approval missing
+PR Readiness Stage 2 Green-Light Decision Needed: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-runtime-readiness targeting main, limited to final validation, creating the non-draft PR, recording PR metadata only if governance requires it, inspecting live PR state, and setting watcher/reporting posture. Merge remains a separate later USER decision.`
+
+## Post-Merge State
+
+Branch Authority: `No Active Branch`
+Repo State: No Active Branch
+Post-Merge Repo State: No Active Branch
+Post-Merge Branch Authority Projection: `After this branch merges, feature/fam-007-local-ai-provider-runtime-readiness becomes historical merged-unreleased evidence for the FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility Workstream; it must not remain active branch authority on main.`
+Backlog Addition User Approval Missing: Cleared for this PR-readiness pass by USER-approved selected-next defer/waiver; no new backlog identity, backlog split, runtime package admission, successor branch, branch cleanup, or selected-next successor is created before PR creation.
+Next Workstream User Waiver: Granted - USER approved selected-next defer/waiver for this PR-readiness pass.
+Selected Next Workstream: None - USER-approved selected-next defer/waiver for this PR-readiness pass.
+Selected Next Implementation Branch: Not created
+Successor Selection: Deferred to a later USER-approved Branch Readiness decision after merge/release readiness; no successor branch is created or selected before PR creation.
+Release-Debt Handling: `No release execution, tag, GitHub Release, artifact, issue closeout, provider SDK/model work, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, or branch cleanup is authorized by this projection.`
+
+## Release Readiness Health Pass
+
+Post-Merge Branch Authority Projection: `PASS - merged main projects No Active Branch for runtime/product branch authority, this branch record is moved to Historical Branch Authority Records, and the standing Governance intake remains the only active-authority exception.`
+
+Stale Active Branch Wording Scan: `PASS - projected current-state truth does not retain active FAM-007 branch authority after merge.`
+
+Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - pre-PR live-state and Stage 2 operator details are kept in the PR Readiness projection section and are not projected as merged-main current-state truth.`
+
+Merged-Unreleased Scope Posture: `PASS - after merge, this PR becomes merged-unreleased FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility scope until later USER-approved release execution.`
+
+Release Execution Gate: `PASS - release execution, tags, GitHub Release publication, artifacts, and issue closeout remain pending USER approval.`
+
+Watcher / Live PR State Projection: `PASS - watcher and live PR state belong to Stage 2 operator output and are not projected into merged main.`
+
+Branch Cleanup Plan: `PASS - historical FAM-007 branch cleanup, branch deletion, worktree removal, GitHub Desktop cleanup, and old-ref cleanup remain blocked until a later USER-approved cleanup path proves no unique commit loss.`
+
+FAM Overlap Routing: `PASS - FAM-006 overlap belongs to the FAM-006 lane unless it directly blocks this PR; this FAM-007 repair does not mutate FAM-006.`
+
+Release Candidate Anchor Projection: `PASS - after merge, updated origin/main becomes the release-readiness inspection target unless USER selects another release candidate anchor; this PR does not execute release work.`
+
+Release Window Contributor Inventory: `PASS - this branch is the FAM-007 implementation contributor for the next release window after merge; FAM-006 active work remains a separate lane and must be inventoried only if merged into the same release window.`
+
+Projected Post-Merge Validation: `PASS - after merge, rerun branch governance validation, release-readiness health gate, release body validation, provider-state validation, branch-readiness planning fixture validation, and compileall from updated main before any release execution.`
+
+## Release Window Audit
+
+Release Window Audit: PASS
+
+Remaining Known Release Blockers: None
+
+Another Pre-Release Repair PR Required: NO
+
+Release Window Split Waiver: None
+
+## Governance Drift Audit
+
+Governance Drift Found: `Yes - PR Readiness Stage 1 found selected-next/defer truth, pre-PR live-state truth, and merge-target active branch authority projection were required before Stage 2 PR creation.`
+
+Governance Drift Disposition: `Repaired on the current FAM-007 branch under USER-approved PR Readiness Stage 1 selected-next/defer repair; no runtime implementation, provider SDK, model execution, model download, external call, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, release/tag/artifact work, issue work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, PR creation, or merge is admitted by this repair.`
 
 ## Carrier Lifecycle Decision
 
