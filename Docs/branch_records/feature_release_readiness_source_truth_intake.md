@@ -21,14 +21,14 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Intake State: `Active RRI-20260519-001 - USER-approved phase-gate governance intake for Pre-Rebaseline Impact Audit standardization and enforcement; no runtime mutation, no FAM-006 mutation, no FAM-007 mutation, and no PR creation unless separately approved`
+- Intake State: `Active RRI-20260519-001 - USER-approved widened phase-gate and Release Readiness governance intake for Pre-Rebaseline Impact Audit standardization/enforcement plus post-PR #165 Release Readiness source-truth drift repair; no runtime mutation, no FAM-006 mutation, no FAM-007 mutation, and no PR creation unless separately approved`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
 - Active RRI Cycle: `RRI-20260519-001`
 - Latest Closed RRI Cycle: `RRI-20260518-002`
-- Return Digest Status: `Pending - RRI-20260519-001 must validate, commit, push, receive USER-approved PR creation/merge later, sync the standing branch and neutral main workspace to origin/main using Pre-Rebaseline Impact Audit proof, and return a governance closeout digest before the lane returns to idle`
-- Active Cycle Identity: `RRI-20260519-001 / originating lane Governance phase-gate intake from USER prompt / originating worktree C:\Nexus Worktrees\Governance / operating workspace C:\Nexus Worktrees\Governance / expected branch feature/release-readiness-source-truth-intake / repair scope Pre-Rebaseline Impact Audit standardization, source-truth hardening, validator enforcement, and standing-lane neutral-main rebaseline proof / no runtime mutation`
+- Return Digest Status: `Pending - RRI-20260519-001 must validate, commit, push, receive USER-approved PR creation/merge later, sync the standing branch and neutral main workspace to origin/main using Pre-Rebaseline Impact Audit proof, return a governance closeout digest, and include FAM-007 originating-lane rebaseline instructions before the lane returns to idle`
+- Active Cycle Identity: `RRI-20260519-001 / originating lane Governance phase-gate intake plus FAM-007 Release Readiness intake from USER prompts / originating worktrees C:\Nexus Worktrees\Governance and C:\Nexus Worktrees\FAM-007 / operating workspace C:\Nexus Worktrees\Governance / expected branch feature/release-readiness-source-truth-intake / repair scope Pre-Rebaseline Impact Audit standardization, source-truth hardening, validator enforcement, standing-lane neutral-main rebaseline proof, and post-PR #165 merged-unreleased FAM-007 release-readiness source-truth drift repair / no runtime mutation`
 
 ## PR Readiness Stage 1 Analysis Packet
 
@@ -36,7 +36,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Pre-PR Live State: `No live PR yet for RRI-20260519-001 - PR creation remains USER-gated until validation is green and USER separately approves PR creation`
 - Historical Merge Proof: `PR #162 is closed/merged implementation proof for FAM-007 runtime expansion; PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
 - Next Workstream User Waiver: `Not applicable - RRI-20260519-001 is a governance phase-gate repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 1 Outcome: `Active - RRI-20260519-001 standardizes and validator-enforces Pre-Rebaseline Impact Audit before any worktree baselines to updated origin/main; PR creation remains blocked until USER separately approves`
+- Stage 1 Outcome: `Active - RRI-20260519-001 standardizes and validator-enforces Pre-Rebaseline Impact Audit before any worktree baselines to updated origin/main and records PR #165 as merged-unreleased FAM-007 release-window evidence; PR creation remains blocked until USER separately approves`
 
 ## Branch Class
 
@@ -67,7 +67,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Active RRI Cycle: `RRI-20260519-001`
 - Latest Closed RRI Cycle: `RRI-20260518-002`
 - Return Digest Status: `Pending - RRI-20260519-001 must validate, commit, push, receive USER-approved PR creation/merge later, sync the standing branch and neutral main workspace to origin/main using Pre-Rebaseline Impact Audit proof, and return a governance closeout digest before the lane returns to idle`
-- Active Cycle Identity: `RRI-20260519-001 / originating lane Governance phase-gate intake from USER prompt / originating worktree C:\Nexus Worktrees\Governance / operating workspace C:\Nexus Worktrees\Governance / expected branch feature/release-readiness-source-truth-intake / repair scope Pre-Rebaseline Impact Audit standardization, source-truth hardening, validator enforcement, and standing-lane neutral-main rebaseline proof / no runtime mutation`
+- Active Cycle Identity: `RRI-20260519-001 / originating lane Governance phase-gate intake plus FAM-007 Release Readiness intake from USER prompts / originating worktrees C:\Nexus Worktrees\Governance and C:\Nexus Worktrees\FAM-007 / operating workspace C:\Nexus Worktrees\Governance / expected branch feature/release-readiness-source-truth-intake / repair scope Pre-Rebaseline Impact Audit standardization, source-truth hardening, validator enforcement, standing-lane neutral-main rebaseline proof, and post-PR #165 merged-unreleased FAM-007 release-readiness source-truth drift repair / no runtime mutation`
 - One Active Cycle: Required - a second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Pre-Rebaseline Impact Audit: Required before the standing branch, neutral main workspace, or any originating worktree fast-forwards, merges, rebases, branch-switches, or otherwise baselines to newer `origin/main`; report `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before mutation.
@@ -107,6 +107,7 @@ Allowed:
 - Runtime Branch Engineering Contract governance/validator support requiring `USER Engineering Planning Review:`, `Runtime Implementation Approval:`, `Current Runtime Baseline:`, `Planned Runtime Delta:`, `User-Facing Runtime Delta:`, `State / Config / Schema Delta:`, `Validator / Helper Delta:`, `Expected Changed Files / Surfaces:`, `Approval-Boundary Audit:`, `Future-Gated Items:`, `Workstream Seam Map:`, `Proof Expectations:`, `Risk Forecast:`, `Recommendations And Alternatives:`, `Plan Version / Revision Status:`, and `Plan-To-Implementation Traceability:` for runtime-focused implementation branches before Workstream or later phase continuation.
 - Formal Branch Readiness planning fixture support through `dev/orin_branch_readiness_planning_fixture_validation.py` and `dev/fixtures/branch_readiness_planning/`, proving shallow later-phase planning fails and concrete whole-system planning passes.
 - Pre-Rebaseline Impact Audit governance/validator support requiring `No Baseline By Inertia`, `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before fast-forward, merge, rebase, branch-switch, current-main reconciliation, or standing-governance neutral-main sync.
+- Post-PR #165 Release Readiness source-truth drift repair recording `feature/fam-007-local-ai-provider-runtime-readiness` as historical merged-unreleased evidence, preserving No Active Branch / selected-next defer posture, clearing stale PR Readiness Stage 2 / PR creation wording from current-state truth, and routing the originating FAM-007 lane back to Release Readiness Stage 1 after governance merge/rebaseline.
 - One PR per active `RRI-*` cycle after validation.
 
 Forbidden:
@@ -197,11 +198,11 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `RRI-20260519-001 - Pre-Rebaseline Impact Audit governance and validator hardening`
+Active seam: `RRI-20260519-001 - Pre-Rebaseline Impact Audit governance hardening plus post-PR #165 Release Readiness drift repair`
 
-Seam Goal: `Add a mandatory Pre-Rebaseline Impact Audit, validator source checks, and standing-lane return-digest proof so future worktrees cannot fast-forward, merge, rebase, branch-switch, or reconcile current main before reporting incoming changes, risk, validation, recommendation-only posture, and USER approval status.`
+Seam Goal: `Add a mandatory Pre-Rebaseline Impact Audit, validator source checks, and standing-lane return-digest proof so future worktrees cannot fast-forward, merge, rebase, branch-switch, or reconcile current main before reporting incoming changes, risk, validation, recommendation-only posture, and USER approval status; also clear post-PR #165 Release Readiness drift so FAM-007 can rerun Release Readiness Stage 1 against merged-unreleased PR #165 truth.`
 
-Seam Scope: `Governance docs, standing intake record, validation helper registry, and dev/orin_branch_governance_validation.py only.`
+Seam Scope: `Governance docs, standing intake record, validation helper registry, dev/orin_branch_governance_validation.py, and bounded FAM-007 release-readiness source-truth records for post-PR #165 merged-unreleased posture only.`
 
 Seam Non-Includes: `runtime/provider/model/memory/voice/Core/shortcut/installer work, release execution, issue work, FAM-006 or FAM-007 mutation, broad docs churn, branch deletion, worktree cleanup, or direct-main source mutation.`
 
