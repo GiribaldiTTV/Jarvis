@@ -125,6 +125,12 @@ It may be:
 `Post-Release Canon Repair` is not a normal branch phase and is not a governance-only branch.
 Codex must not use direct-main repair; `main` is protected and file-frozen for Codex work.
 
+## Phase Alias UX Boundary
+
+`Docs/governance_efficiency_operating_model.md` owns the governance efficiency operating model's human-facing alias map for phase names. The canonical phase names remain unchanged for source truth, validators, branch records, prompt contracts, and phase resolvers.
+
+Aliases such as `Plan Review`, `Build`, `User Proof`, or `Release Validation` may explain a phase to the USER, but they must not replace canonical phase markers in repo files.
+
 ## Cross-Phase Rules
 
 - repo canon is the detailed authority
