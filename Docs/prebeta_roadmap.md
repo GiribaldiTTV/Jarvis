@@ -66,22 +66,26 @@ Use these release-state values when relevant:
 ## Current Decision Surface
 
 Latest Public Prerelease Recorded In Source Truth: `v1.7.5-prebeta`
-Published Release Pending Canon Closure: `None - closed by USER-approved Branch Readiness Stage 2 setup on feature/fam-007-local-ai-provider-activation-foundation`
-Merged-Unreleased PRs: None after `v1.7.5-prebeta`; PR #164 through PR #168 are released historical scope.
+Post-Release Canon Closure Drift: Recorded
+Published Release Pending Canon Closure: v1.7.6-prebeta
+Closure Repair Surface: Next Branch Readiness Stage 2
+Closure Drift Scope: release-dependent fields only
+Implementation Entry: Blocked until closure repair validates green
+Merged-Unreleased PRs: None after `v1.7.6-prebeta`; detailed release-window closure remains pending next Branch Readiness Stage 2 repair.
 Active Runtime Branch: `feature/fam-007-local-ai-provider-activation-foundation` in `C:\Nexus Worktrees\FAM-007`.
 Active Governance Branch: `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`.
 Selected-Next Posture: Active FAM-007 Branch Readiness Stage 2 setup recorded; successor selection beyond this carrier remains USER-gated.
-Release Blockers: None for `v1.7.5-prebeta` canon closure; local-only activation foundation Workstream implementation, H1, and LV1 are green while provider SDK/model execution remains blocked until later USER approval.
+Release Blockers: `v1.7.6-prebeta` release-dependent canon closure drift is recorded and must be repaired through the next runtime Branch Readiness Stage 2 path before implementation entry.
 Next Legal Phase: PR Readiness Stage 1 for `feature/fam-007-local-ai-provider-activation-foundation`; runtime/provider SDK/model execution, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, release execution, issue work, PR creation, merge, branch cleanup, and successor selection remain separate USER decisions.
 
 ### Detailed Current Release Posture
 
 Current merged truth indicates:
 
-- latest public prerelease: `v1.7.5-prebeta`
-- latest public release commit: `81701d4b351ae7bb4c146daf88a8d884f6bc7981`
-- latest public prerelease publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.5-prebeta`
-- latest public prerelease title: `Pre-Beta v1.7.5`
+- latest public prerelease: `v1.7.6-prebeta`
+- latest public release commit: `1daf4de21cb2a6185efdbdc04795dcf6bf0c619d`
+- latest public prerelease publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.6-prebeta`
+- latest public prerelease title: `Pre-Beta v1.7.6`
 - unreleased non-doc implementation work: none after `v1.7.5-prebeta`; PR #165 FAM-007 Local AI Provider Runtime Readiness is released historical scope in `v1.7.5-prebeta`, and PR #162 FAM-007 local AI runtime expansion foundation plus PR #163 post-PR162 release-window closeout are released historical scope in `v1.7.4-prebeta`. Remaining provider SDK/model/memory/voice/Core/shortcut/installer/release work remains USER-gated.
 - the latest public released implementation milestone is the `v1.7.1-prebeta` FAM-006 Dashboard issue-resolution/settings-panel release window, with PR #129, PR #132, and PR #142 released as FAM-006 scope and PR #138 included as under-the-hood FAM-007 support; FAM-006 Monitoring HUD Dashboard Product Surface remains released historical traceability in `v1.7.0-prebeta`; earlier public released implementation milestones include `FAM-001` legacy `FB-049` Active-session pre-settled incoming-launch conflict truth and `FAM-004` legacy `FB-030` voice/audio runtime diagnostics proof in `v1.6.13-prebeta`; FB-048 Active-session relaunch signal-failure and wait-timeout truth in `v1.6.12-prebeta`; FB-047 Active-session relaunch decline session-preservation proof in `v1.6.11-prebeta`; FB-046 Active-session relaunch reacquisition and settled re-entry proof remains released in `v1.6.10-prebeta`; FB-044 Boot-to-desktop handoff outcome refinement and FB-045 Active-session relaunch outcome refinement remain released in `v1.6.9-prebeta`; FB-043 Top-level desktop entrypoint ownership and `main.py` handoff refinement remains released in `v1.6.8-prebeta`; FB-042 Desktop startup runtime family anchor remains released in `v1.6.7-prebeta`; FB-005 Workspace and folder organization remains released in `v1.6.6-prebeta`; FB-030 ORIN voice/audio direction refinement remains released in `v1.6.5-prebeta`; FB-015 Boot and desktop phase-boundary model plus FB-029 ORIN legal-safe rebrand, future ARIA persona option, and repo licensing hardening remain released in `v1.6.4-prebeta`
 - current phase after `v1.7.5-prebeta` release: Workstream Green, Hardening H1 Green, and Live Validation LV1 Green for `feature/fam-007-local-ai-provider-activation-foundation`; `feature/fam-007-local-ai-provider-runtime-readiness` is historical released PR #165 evidence. PR #164 through PR #168 are released historical scope in v1.7.5. FAM-007 provider SDK/model/shortcut/installer work remains pending USER approval.
@@ -99,7 +103,7 @@ That means the released FB-027 interaction and shared-action family anchor remai
 
 Released Historical Scope: FAM-006 Monitoring HUD Dashboard Product Surface released in v1.7.0-prebeta through PR #118; FAM-006 Dashboard render/layout hardening PR #129, Dashboard IA/control follow-through PR #132, Dashboard settings-panel runtime PR #142, and FAM-007 PR #138 provider-boundary / no-provider shell scaffold support released in v1.7.1-prebeta; FAM-007 PR #152 local AI foundation continuation plus governance/readiness support PRs #148, #149, #150, #151, #153, and #154 released in v1.7.2-prebeta; PR #155 through PR #161 released in v1.7.3-prebeta; PR #162 FAM-007 runtime-expansion foundation and PR #163 post-PR162 closeout released in v1.7.4-prebeta; PR #164 Runtime Branch Engineering Contract governance, PR #165 FAM-007 provider-readiness/setup-eligibility, PR #166 Governance Intake RRI-20260519-001, PR #167 Governance Intake closeout, and PR #168 Governance standing branch closeout exemption released in v1.7.5-prebeta; FAM-001 legacy FB-049 Active-session pre-settled incoming-launch conflict truth, FAM-004 legacy FB-030 voice/audio runtime diagnostics proof, merged governance/automation proof package, PR #112 source-truth closeout / merge-target authority hardening proof, and PR #113 source-truth closeout / merge-target authority hardening proof released in v1.6.13-prebeta.
 Repo State: Active FAM-007 Workstream Green, H1 Green, and LV1 Green posture on `feature/fam-007-local-ai-provider-activation-foundation`; standing Governance intake `feature/release-readiness-source-truth-intake` remains the single governance intake authority exception and is separate from runtime branch authority.
-Merged-Main Repo State Before Branch: No Active Branch after v1.7.5-prebeta release publication; Branch Readiness Stage 2 creates the USER-approved FAM-007 runtime carrier from current `origin/main`.
+Merged-Main Repo State Before Branch: No Active Branch after v1.7.6-prebeta release publication; Branch Readiness Stage 2 must repair release-dependent canon closure before new runtime implementation entry.
 
 Latest Public Prerelease: v1.7.5-prebeta
 Latest Public Release Commit: 81701d4b351ae7bb4c146daf88a8d884f6bc7981
@@ -108,11 +112,12 @@ Latest Public Prerelease Title: Pre-Beta v1.7.5
 Post-PR #159 Source-Truth Drift: Closed by standing Governance intake RRI-20260515-003 through PR #160; stale PR Readiness / PR creation wording for the already-merged FAM-007 branch is removed before Release Readiness reruns.
 Post-PR #162 Source-Truth Drift: Closed by PR #163 and the v1.7.4-prebeta release. PR #162 is released historical FAM-007 runtime-expansion scope.
 Post-PR #165 Source-Truth Drift: Closed by PR #166 through PR #168 and the v1.7.5-prebeta release. PR #165 is released historical FAM-007 provider-readiness/setup-eligibility scope.
-Published Release Pending Canon Closure: None - v1.7.5-prebeta source truth is closed by this Branch Readiness Stage 2 setup.
-Closure Repair Surface: Closed inside USER-approved Branch Readiness Stage 2 for `feature/fam-007-local-ai-provider-activation-foundation`.
-Closure Drift Scope: Closed - PR #164 through PR #168 are released historical scope in v1.7.5-prebeta.
-Implementation Entry: Complete through Workstream, H1, and LV1 for local-only activation foundation; PR Readiness Stage 1 requires later USER approval.
-Release-Debt Avoidance Status: Clear for v1.7.5-prebeta. FAM-007 runtime provider/model/memory/learning/personalization/shortcut/installer work, Overlay acceptance, AI Product work, and v1.8.0-prebeta release execution remain separate USER-gated decisions.
+Post-Release Canon Closure Drift: Recorded
+Published Release Pending Canon Closure: v1.7.6-prebeta
+Closure Repair Surface: Next Branch Readiness Stage 2
+Closure Drift Scope: release-dependent fields only
+Implementation Entry: Blocked until closure repair validates green
+Release-Debt Avoidance Status: Carry-forward closure required for v1.7.6-prebeta before the next runtime implementation entry. FAM-007 runtime provider/model/memory/learning/personalization/shortcut/installer work, Overlay acceptance, AI Product work, and later release execution remain separate USER-gated decisions.
 Merged-main current active workstream: None before this branch - source truth records `feature/fam-007-local-ai-provider-runtime-readiness` as released FAM-007 evidence, not an active runtime carrier.
 Current active workstream: FAM-007 Local AI Provider Activation Foundation on `feature/fam-007-local-ai-provider-activation-foundation` is Workstream Green, Hardening H1 Green, and Live Validation LV1 Green, ready for PR Readiness Stage 1 after USER approval.
 Current Active Workstream Before Reform: None
