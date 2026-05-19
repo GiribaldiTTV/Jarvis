@@ -146,6 +146,9 @@ PRODUCT_PLANNING_ENFORCED_PHASES = {
     "Live Validation",
     "PR Readiness",
 }
+RUNTIME_ENGINEERING_CONTRACT_ENFORCED_PHASES = PRODUCT_PLANNING_ENFORCED_PHASES | {
+    "Release Readiness",
+}
 PRODUCT_PLANNING_EXECUTION_PHASES = PRODUCT_PLANNING_ENFORCED_PHASES - {
     "Branch Readiness",
 }
@@ -186,6 +189,21 @@ PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES = {
     "minimal",
     "placeholder",
 }
+RUNTIME_ENGINEERING_NEGATIVE_APPROVAL_TERMS = (
+    "not approved",
+    "not accepted",
+    "not granted",
+    "not waived",
+    "not yet approved",
+    "approval missing",
+    "user approval missing",
+    "missing approval",
+    "approval pending",
+    "pending approval",
+    "unapproved",
+    "denied",
+    "rejected",
+)
 REQUIRED_RUNTIME_ENGINEERING_CONTRACT_MARKERS = (
     "Engineering Contract Status:",
     "USER Engineering Planning Review:",
@@ -6976,6 +6994,23 @@ def _validate_runtime_engineering_contract_substance(
         )
 
 
+def _has_negative_runtime_approval_wording(normalized_value: str) -> bool:
+    return any(
+        term in normalized_value
+        for term in RUNTIME_ENGINEERING_NEGATIVE_APPROVAL_TERMS
+    )
+
+
+def _has_positive_runtime_approval_wording(
+    normalized_value: str,
+    positive_terms: tuple[str, ...],
+) -> bool:
+    return (
+        not _has_negative_runtime_approval_wording(normalized_value)
+        and any(term in normalized_value for term in positive_terms)
+    )
+
+
 def _validate_runtime_engineering_contract(
     require,
     source_path: str,
@@ -6986,7 +7021,7 @@ def _validate_runtime_engineering_contract(
 ) -> None:
     if branch_class != "implementation":
         return
-    if current_phase not in PRODUCT_PLANNING_ENFORCED_PHASES:
+    if current_phase not in RUNTIME_ENGINEERING_CONTRACT_ENFORCED_PHASES:
         return
 
     require(
@@ -7073,9 +7108,9 @@ def _validate_runtime_engineering_contract(
         )
     else:
         require(
-            any(
-                token in normalized_review
-                for token in ("accepted", "approved", "revised", "waived")
+            _has_positive_runtime_approval_wording(
+                normalized_review,
+                ("accepted", "approved", "revised", "waived"),
             ),
             (
                 f"{source_path}: {current_phase} requires USER Engineering Planning "
@@ -7083,7 +7118,10 @@ def _validate_runtime_engineering_contract(
             ),
         )
         require(
-            any(token in normalized_approval for token in ("approved", "granted", "waived")),
+            _has_positive_runtime_approval_wording(
+                normalized_approval,
+                ("approved", "granted", "waived"),
+            ),
             (
                 f"{source_path}: {current_phase} requires Runtime Implementation "
                 "Approval to be approved, granted, or waived"
