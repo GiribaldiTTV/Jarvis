@@ -623,12 +623,56 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__hub-action--safe-cancel,
 .monitoring-hud__hub-action[data-control="cancel-delete-monitor"] {
-  border-color: rgba(126, 248, 218, 0.42);
-  background: linear-gradient(145deg, rgba(8, 60, 65, 0.88), rgba(4, 31, 48, 0.82));
-  color: rgba(232, 255, 249, 0.98);
+  border-color: rgba(126, 248, 218, 0.68);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.20), transparent 58%),
+    linear-gradient(145deg, rgba(10, 79, 82, 0.94), rgba(4, 35, 52, 0.90));
+  color: rgba(238, 255, 252, 1);
   box-shadow:
-    0 0 0 1px rgba(232, 255, 249, 0.05) inset,
-    0 0 16px rgba(87, 236, 214, 0.14);
+    0 0 0 1px rgba(232, 255, 249, 0.10) inset,
+    0 0 22px rgba(87, 236, 214, 0.26),
+    0 8px 18px rgba(0, 0, 0, 0.22);
+}
+
+.monitoring-hud__hub-action--safe-cancel:hover,
+.monitoring-hud__hub-action--safe-cancel:focus-visible,
+.monitoring-hud__hub-action--safe-cancel.is-pressed,
+.monitoring-hud__hub-action[data-control="cancel-delete-monitor"]:hover,
+.monitoring-hud__hub-action[data-control="cancel-delete-monitor"]:focus-visible,
+.monitoring-hud__hub-action[data-control="cancel-delete-monitor"].is-pressed {
+  border-color: rgba(165, 255, 234, 0.86);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.30), transparent 60%),
+    linear-gradient(145deg, rgba(12, 94, 92, 0.98), rgba(5, 45, 62, 0.94));
+  color: rgba(246, 255, 253, 1);
+  box-shadow:
+    0 0 0 1px rgba(239, 255, 252, 0.15) inset,
+    0 0 28px rgba(87, 236, 214, 0.36),
+    0 10px 22px rgba(0, 0, 0, 0.26);
+}
+
+.monitoring-hud__detail-action-row [data-child-window-close="monitor-group-edit"] {
+  border-color: rgba(126, 248, 218, 0.38);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.12), transparent 58%),
+    linear-gradient(145deg, rgba(9, 54, 65, 0.82), rgba(5, 31, 48, 0.80));
+  color: rgba(226, 249, 250, 0.96);
+  box-shadow:
+    0 0 0 1px rgba(232, 255, 249, 0.06) inset,
+    0 0 14px rgba(87, 236, 214, 0.12);
+}
+
+.monitoring-hud__detail-action-row [data-child-window-close="monitor-group-edit"]:hover,
+.monitoring-hud__detail-action-row [data-child-window-close="monitor-group-edit"]:focus-visible,
+.monitoring-hud__detail-action-row [data-child-window-close="monitor-group-edit"].is-pressed {
+  border-color: rgba(156, 255, 232, 0.72);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.24), transparent 60%),
+    linear-gradient(145deg, rgba(11, 74, 78, 0.92), rgba(5, 39, 58, 0.88));
+  color: rgba(241, 255, 252, 1);
+  box-shadow:
+    0 0 0 1px rgba(239, 255, 252, 0.12) inset,
+    0 0 22px rgba(87, 236, 214, 0.24);
 }
 
 .monitoring-hud__control-button[data-control="warning-notifications"],
@@ -974,13 +1018,27 @@ body.desktop-mode #monitoring-hud > * {
   gap: 8px;
 }
 
-.monitoring-hud__child-actions--guard,
 .monitoring-hud__child-actions--confirm {
   justify-content: space-between;
   width: 100%;
 }
 
-.monitoring-hud__child-actions--guard [data-control="unsaved-discard-monitor"],
+.monitoring-hud__child-actions--guard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  width: 100%;
+}
+
+.monitoring-hud__child-actions--guard [data-control="unsaved-save-monitor"] {
+  grid-column: 1;
+  justify-self: start;
+}
+
+.monitoring-hud__child-actions--guard [data-control="unsaved-discard-monitor"] {
+  grid-column: 3;
+  justify-self: end;
+}
+
 .monitoring-hud__child-actions--confirm [data-control="cancel-delete-monitor"] {
   margin-left: auto;
 }
@@ -1350,9 +1408,13 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__detail-action-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px;
   width: 100%;
+}
+
+.monitoring-hud__detail-action-row > .monitoring-hud__child-actions--footer {
+  margin-right: auto;
 }
 
 .monitoring-hud__detail-action-row > .monitoring-hud__hub-action--danger {

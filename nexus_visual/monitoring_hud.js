@@ -192,6 +192,9 @@ let monitoringHudDraftOriginalMonitorId = "";
 let monitoringHudDraftOriginalLayout = null;
 let monitoringHudDraftWorkingLayout = null;
 let monitoringHudSensorSettingsRefreshFrame = 0;
+let monitoringHudSourcePickerSuppressNativeChangeUntil = 0;
+let monitoringHudSourcePickerSuppressClickUntil = 0;
+let monitoringHudSourcePickerSuppressClickRow = null;
 const monitoringHudSourceFilterLabels = {
   all: "All",
   supported: "Supported",
@@ -1014,6 +1017,66 @@ function monitoringHudWireReliableDelegatedControl(root, selector, keyPrefix, ha
   root.addEventListener("click", (event) => activate(event, "click"));
 }
 
+function monitoringHudSourcePickerRowFromEvent(event) {
+  return event && event.target && event.target.closest
+    ? event.target.closest("[data-source-picker-row]")
+    : null;
+}
+
+function monitoringHudPreventNativeSourcePickerEvent(event) {
+  if (event && typeof event.preventDefault === "function") event.preventDefault();
+  if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+}
+
+function monitoringHudActivateSourcePickerRow(row, event, phase, options = {}) {
+  if (!row || !monitoringHudMonitorSensorAssignment || !monitoringHudMonitorSensorAssignment.contains(row)) return false;
+  monitoringHudPreventNativeSourcePickerEvent(event);
+  const key = `source-picker:checkmark:${monitoringHudControlActivationKey(row)}`;
+  if (options.suppressNativeChange) monitoringHudSourcePickerSuppressNativeChangeUntil = Date.now() + 500;
+  if (options.suppressFollowingClick) {
+    monitoringHudSourcePickerSuppressClickUntil = Date.now() + 500;
+    monitoringHudSourcePickerSuppressClickRow = row;
+  }
+  monitoringHudApplyPressedState(row, true);
+  const result = monitoringHudToggleSensorAssignmentRow(row);
+  window.setTimeout(() => monitoringHudApplyPressedState(row, false), 80);
+  monitoringHudRecordReliableActivation(row, phase, result !== false);
+  if (monitoringHudMonitorSensorAssignment) {
+    monitoringHudMonitorSensorAssignment.dataset.sourcePickerActivationPath = "single-deterministic-row-input-keyboard";
+    monitoringHudMonitorSensorAssignment.dataset.sourcePickerLastActivation = phase;
+    monitoringHudMonitorSensorAssignment.dataset.sourcePickerLastActivationKey = key;
+  }
+  return result;
+}
+
+function monitoringHudWireSourcePickerReliableSelection(root) {
+  if (!root) return;
+  root.addEventListener("pointerdown", (event) => {
+    const row = monitoringHudSourcePickerRowFromEvent(event);
+    if (!row || !root.contains(row)) return;
+    monitoringHudActivateSourcePickerRow(row, event, "pointerdown-immediate", {
+      suppressNativeChange: true,
+      suppressFollowingClick: true
+    });
+  });
+  root.addEventListener("pointerleave", (event) => {
+    const row = monitoringHudSourcePickerRowFromEvent(event);
+    if (row) monitoringHudApplyPressedState(row, false);
+  });
+  root.addEventListener("click", (event) => {
+    const row = monitoringHudSourcePickerRowFromEvent(event);
+    if (!row || !root.contains(row)) return;
+    monitoringHudPreventNativeSourcePickerEvent(event);
+    if (Date.now() <= monitoringHudSourcePickerSuppressClickUntil && row === monitoringHudSourcePickerSuppressClickRow) {
+      monitoringHudSourcePickerSuppressClickUntil = 0;
+      monitoringHudSourcePickerSuppressClickRow = null;
+      return;
+    }
+    monitoringHudSourcePickerSuppressClickRow = null;
+    monitoringHudActivateSourcePickerRow(row, event, "click-fallback");
+  }, true);
+}
+
 function monitoringHudSensorMatchesFilter(sensor, query, filterValue) {
   const category = String(sensor.category || monitoringHudSensorCategoryForId(sensor.id)).toLowerCase();
   const metric = String(sensor.metric || "").toLowerCase();
@@ -1681,6 +1744,22 @@ function monitoringHudRequestDeleteMonitorGroup(cardId, options = {}) {
   monitoringHudPendingDeleteMonitorId = cardId;
   monitoringHudControlState.selectedMonitorId = cardId;
   monitoringHudRenderMonitorManagement();
+  monitoringHudRevealDeleteConfirmation();
+}
+
+function monitoringHudRevealDeleteConfirmation() {
+  if (!monitoringHudMonitorDeleteConfirmation || monitoringHudMonitorDeleteConfirmation.hidden) return;
+  monitoringHudMonitorDeleteConfirmation.dataset.deleteConfirmationReveal = "scrolled-focused";
+  window.requestAnimationFrame(() => {
+    if (!monitoringHudMonitorDeleteConfirmation || monitoringHudMonitorDeleteConfirmation.hidden) return;
+    if (typeof monitoringHudMonitorDeleteConfirmation.scrollIntoView === "function") {
+      monitoringHudMonitorDeleteConfirmation.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "instant" });
+    }
+    const focusTarget = monitoringHudMonitorDeleteConfirm || monitoringHudMonitorDeleteCancel;
+    if (focusTarget && typeof focusTarget.focus === "function") {
+      focusTarget.focus({ preventScroll: true });
+    }
+  });
 }
 
 function monitoringHudConfirmDeleteMonitorGroup() {
@@ -2408,6 +2487,10 @@ function monitoringHudWireControls() {
   if (monitoringHudMonitorSensorAssignment) {
     monitoringHudMonitorSensorAssignment.addEventListener("change", (event) => {
       if (!event.target || !event.target.matches || !event.target.matches("[data-monitor-sensor-input]")) return;
+      if (Date.now() <= monitoringHudSourcePickerSuppressNativeChangeUntil) {
+        monitoringHudPreventNativeSourcePickerEvent(event);
+        return;
+      }
       const row = event.target.closest("[data-source-picker-row]");
       if (row) monitoringHudSetSourceRowSelectionState(row, Boolean(event.target.checked));
       const draft = row
@@ -2416,33 +2499,15 @@ function monitoringHudWireControls() {
       if (!draft) return;
       monitoringHudRefreshSensorPickerSelectionProof(draft, { deferSettingsRefresh: Boolean(row) });
     });
-    monitoringHudWireReliableDelegatedControl(
-      monitoringHudMonitorSensorAssignment,
-      "[data-source-picker-row]",
-      "source-picker:checkmark",
-      (row, event) => {
-        const nativeCheckbox = event && event.target && event.target.closest
-          ? event.target.closest("[data-monitor-sensor-input]")
-          : null;
-        if (nativeCheckbox) return true;
-        return monitoringHudToggleSensorAssignmentRow(row);
-      },
-      {
-        allowNative: (row, event) => Boolean(
-          row
-          && event
-          && event.target
-          && event.target.closest
-          && event.target.closest("[data-monitor-sensor-input]")
-        )
-      }
-    );
+    monitoringHudWireSourcePickerReliableSelection(monitoringHudMonitorSensorAssignment);
     monitoringHudMonitorSensorAssignment.addEventListener("keydown", (event) => {
       if (!["Enter", " "].includes(event.key)) return;
       const row = event.target && event.target.closest ? event.target.closest("[data-source-picker-row]") : null;
       if (!row || !monitoringHudMonitorSensorAssignment.contains(row)) return;
       event.preventDefault();
-      monitoringHudToggleSensorAssignmentRow(row);
+      if (typeof event.stopPropagation === "function") event.stopPropagation();
+      const result = monitoringHudToggleSensorAssignmentRow(row);
+      monitoringHudRecordReliableActivation(row, "keyboard-toggle", result !== false);
     });
   }
   if (monitoringHudMonitorSensorSettings) {
@@ -3023,6 +3088,23 @@ window.runMonitoringHudSourcePickerCheckmarkStressProof = function() {
   let maxToggleMs = 0;
   let rowsTested = 0;
   let rowsAvailable = 0;
+  let alternatingToggleCount = 0;
+  let alternatingTogglePass = false;
+  function dispatchHumanPointerDown(target) {
+    if (!target || typeof target.dispatchEvent !== "function") return;
+    let event = null;
+    try {
+      event = new PointerEvent("pointerdown", {
+        bubbles: true,
+        cancelable: true,
+        pointerType: "mouse",
+        isPrimary: true
+      });
+    } catch (err) {
+      event = new MouseEvent("pointerdown", { bubbles: true, cancelable: true });
+    }
+    target.dispatchEvent(event);
+  }
   try {
     if (typeof window.setMonitoringHudLargeFixtureMode === "function") {
       window.setMonitoringHudLargeFixtureMode(80);
@@ -3048,6 +3130,7 @@ window.runMonitoringHudSourcePickerCheckmarkStressProof = function() {
       monitoringHudReliableActivationState.lastAt = 0;
       const method = activationMethods[index % activationMethods.length];
       if (method === "checkbox-click" && input && typeof input.click === "function") {
+        dispatchHumanPointerDown(input);
         input.click();
       } else if (method === "keyboard-space") {
         if (typeof row.focus === "function") row.focus();
@@ -3080,6 +3163,48 @@ window.runMonitoringHudSourcePickerCheckmarkStressProof = function() {
       if ((row.dataset.sourceSelected === "true") !== after) failures.push(`source-picker-checkmark:${sourceId}:visual-state-mismatch`);
       if (elapsed > 80) failures.push(`source-picker-checkmark:${sourceId}:slow-${Math.round(elapsed)}ms`);
     });
+    const alternatingRow = rows[0];
+    const alternatingInput = alternatingRow ? alternatingRow.querySelector("[data-monitor-sensor-input]") : null;
+    if (alternatingRow && alternatingInput) {
+      let expected = Boolean(alternatingInput.checked);
+      alternatingTogglePass = true;
+      for (let index = 0; index < 12; index += 1) {
+        expected = !expected;
+        monitoringHudReliableActivationState.lastKey = "";
+        monitoringHudReliableActivationState.lastAt = 0;
+        const startedAt = (window.performance && performance.now) ? performance.now() : Date.now();
+        if (index % 2 === 0) {
+          alternatingRow.click();
+        } else {
+          dispatchHumanPointerDown(alternatingInput);
+          alternatingInput.click();
+        }
+        const finishedAt = (window.performance && performance.now) ? performance.now() : Date.now();
+        const elapsed = Math.max(0, finishedAt - startedAt);
+        maxToggleMs = Math.max(maxToggleMs, elapsed);
+        alternatingToggleCount += 1;
+        const after = Boolean(alternatingInput.checked);
+        const ariaSelected = alternatingRow.getAttribute("aria-selected") === "true";
+        const visualSelected = alternatingRow.dataset.sourceSelected === "true";
+        toggles.push({
+          sourceId: alternatingRow.dataset.sourcePickerRow || "alternating-row",
+          method: index % 2 === 0 ? "alternating-row-click" : "alternating-checkbox-click",
+          before: !expected,
+          after,
+          expected,
+          elapsedMs: Math.round(elapsed * 10) / 10,
+          ariaSelected,
+          visualSelected
+        });
+        if (after !== expected || ariaSelected !== expected || visualSelected !== expected) {
+          alternatingTogglePass = false;
+          failures.push(`source-picker-checkmark:alternating-${index}:expected-${expected}-got-${after}`);
+        }
+        if (elapsed > 80) failures.push(`source-picker-checkmark:alternating-${index}:slow-${Math.round(elapsed)}ms`);
+      }
+    } else {
+      failures.push("source-picker-checkmark:alternating-missing-row");
+    }
   } catch (err) {
     failures.push(`source-picker-checkmark:exception:${String(err && err.message ? err.message : err)}`);
   }
@@ -3093,6 +3218,8 @@ window.runMonitoringHudSourcePickerCheckmarkStressProof = function() {
     rowClickTarget: true,
     checkboxClickTarget: true,
     keyboardToggleTarget: true,
+    alternatingTogglePass,
+    alternatingToggleCount,
     activationMethods,
     sourcePickerCheckmarkStress: true,
     sourcePickerCheckmarkMode: "row-and-checkbox-immediate-deferred-settings",

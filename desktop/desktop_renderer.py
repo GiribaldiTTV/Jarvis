@@ -9739,6 +9739,11 @@ class DesktopRuntimeWindow(QWidget):
                 "unsaved_save_persisted_draft": h1_proof.get("unsavedSavePersistedDraft") is True,
                 "unsaved_create_queued_action": h1_proof.get("unsavedCreateQueuedAction") is True,
                 "unsaved_delete_queued_action": h1_proof.get("unsavedDeleteQueuedAction") is True,
+                "dirty_delete_discard_opened_confirmation": h1_proof.get("dirtyDeleteDiscardOpenedConfirmation") is True,
+                "dirty_delete_discard_revealed": h1_proof.get("dirtyDeleteDiscardRevealed") is True,
+                "dirty_delete_discard_cancel_recovered": h1_proof.get("dirtyDeleteDiscardCancelRecovered") is True,
+                "dirty_delete_save_opened_confirmation": h1_proof.get("dirtyDeleteSaveOpenedConfirmation") is True,
+                "dirty_delete_save_persisted_draft": h1_proof.get("dirtyDeleteSavePersistedDraft") is True,
                 "unsaved_close_queued_action": h1_proof.get("unsavedCloseQueuedAction") is True,
                 "unsaved_close_dirty_before_close": h1_proof.get("unsavedCloseDirtyBeforeClose") is True,
                 "unsaved_close_draft_before_close": h1_proof.get("unsavedCloseDraftBeforeClose") is True,
@@ -9755,6 +9760,7 @@ class DesktopRuntimeWindow(QWidget):
                 "empty_state_actions_bounded": h1_proof.get("emptyStateActionsBounded") is True,
                 "empty_state_product_copy": h1_proof.get("emptyStateProductCopy") is True,
                 "detail_action_row_aligned": h1_proof.get("detailActionRowAligned") is True,
+                "footer_cancel_illuminated": h1_proof.get("footerCancelIlluminated") is True,
                 "interactive_control_visual_qa_gate": h1_proof.get("interactiveControlVisualQaGate") is True,
                 "interactive_control_first_click_stress": h1_proof.get("interactiveControlFirstClickStress") is True,
                 "interactive_control_no_interception": h1_proof.get("interactiveControlNoInterception") is True,
@@ -10548,6 +10554,11 @@ class DesktopRuntimeWindow(QWidget):
                         let unsavedSavePersistedDraft = false;
                         let unsavedCreateQueuedAction = false;
                         let unsavedDeleteQueuedAction = false;
+                        let dirtyDeleteDiscardOpenedConfirmation = false;
+                        let dirtyDeleteDiscardRevealed = false;
+                        let dirtyDeleteDiscardCancelRecovered = false;
+                        let dirtyDeleteSaveOpenedConfirmation = false;
+                        let dirtyDeleteSavePersistedDraft = false;
                         let unsavedCloseQueuedAction = false;
                         let unsavedCloseDirtyBeforeClose = false;
                         let unsavedCloseDraftBeforeClose = false;
@@ -10557,6 +10568,7 @@ class DesktopRuntimeWindow(QWidget):
                         let unsavedCloseDiscardDroppedDraft = false;
                         let unsavedCloseDiscardClosedWindow = false;
                         let deleteConfirmationCancelIlluminated = false;
+                        let footerCancelIlluminated = false;
                         let finalMonitorDeleteEmptyState = false;
                         let finalMonitorCreateReachable = false;
                         let emptyStateNoSaveCancel = false;
@@ -10657,15 +10669,29 @@ class DesktopRuntimeWindow(QWidget):
                             const saveRectForRow = saveActionForRow ? saveActionForRow.getBoundingClientRect() : null;
                             const cancelRectForRow = cancelActionForRow ? cancelActionForRow.getBoundingClientRect() : null;
                             const deleteRectForRow = deleteActionForRow ? deleteActionForRow.getBoundingClientRect() : null;
+                            const cancelStyleForRow = cancelActionForRow && window.getComputedStyle ? window.getComputedStyle(cancelActionForRow) : null;
                             detailActionRowAligned = Boolean(
                                 saveRectForRow
                                 && cancelRectForRow
                                 && deleteRectForRow
                                 && rowRect
-                                && saveRectForRow.left <= rowRect.left + 8
+                                && saveRectForRow.left <= rowRect.left + Math.max(24, rowRect.width * 0.18)
+                                && saveRectForRow.left < cancelRectForRow.left
                                 && cancelRectForRow.left < deleteRectForRow.left
                                 && cancelRectForRow.right <= deleteRectForRow.left - 8
-                                && deleteRectForRow.right >= rowRect.right - 8
+                                && deleteRectForRow.right >= rowRect.right - 24
+                            );
+                            footerCancelIlluminated = Boolean(
+                                cancelActionForRow
+                                && cancelStyleForRow
+                                && cancelStyleForRow.cursor === "pointer"
+                                && cancelRectForRow
+                                && cancelRectForRow.width >= 64
+                                && cancelRectForRow.height >= 28
+                                && (
+                                    /gradient/i.test(String(cancelStyleForRow.backgroundImage || ""))
+                                    || /rgba?\\(/.test(String(cancelStyleForRow.backgroundColor || ""))
+                                )
                             );
                         }
                         sourcePickerBrowser = Boolean(
@@ -10818,7 +10844,8 @@ class DesktopRuntimeWindow(QWidget):
                                     && saveRect
                                     && discardRect
                                     && saveRect.left <= guardRect.left + 24
-                                    && discardRect.right >= guardRect.right - 24
+                                    && discardRect.right >= guardRect.right - 48
+                                    && discardRect.right <= guardRect.right + 4
                                     && saveRect.right < discardRect.left
                                 );
                                 const discard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
@@ -10880,6 +10907,59 @@ class DesktopRuntimeWindow(QWidget):
                                 if (deleteButtonQueued) deleteButtonQueued.click();
                                 const deleteGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
                                 unsavedDeleteQueuedAction = Boolean(deleteGuard && deleteGuard.dataset.pendingMonitorAction === "delete");
+                                const discardDelete = document.getElementById("monitoring-hud-monitor-unsaved-discard");
+                                if (unsavedDeleteQueuedAction && discardDelete) discardDelete.click();
+                                const dirtyDeletePanel = document.getElementById("monitoring-hud-monitor-delete-confirmation");
+                                dirtyDeleteDiscardOpenedConfirmation = Boolean(
+                                    dirtyDeletePanel
+                                    && !dirtyDeletePanel.hidden
+                                    && dirtyDeletePanel.dataset.deleteConfirmationState === "open"
+                                    && dirtyDeletePanel.dataset.deleteMonitorId === "cpu"
+                                );
+                                dirtyDeleteDiscardRevealed = Boolean(
+                                    dirtyDeleteDiscardOpenedConfirmation
+                                    && dirtyDeletePanel.dataset.deleteConfirmationReveal === "scrolled-focused"
+                                );
+                                const dirtyDeleteCancel = document.getElementById("monitoring-hud-monitor-delete-cancel");
+                                if (dirtyDeleteCancel) dirtyDeleteCancel.click();
+                                const dirtyDeleteStateAfterCancel = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                const dirtyDeletePanelAfterCancel = document.getElementById("monitoring-hud-monitor-delete-confirmation");
+                                dirtyDeleteDiscardCancelRecovered = Boolean(
+                                    dirtyDeleteStateAfterCancel.cards
+                                    && dirtyDeleteStateAfterCancel.cards.cpu
+                                    && dirtyDeleteStateAfterCancel.cards.cpu.title === unsavedBackup.cards.cpu.title
+                                    && dirtyDeletePanelAfterCancel
+                                    && dirtyDeletePanelAfterCancel.hidden
+                                    && dirtyDeletePanelAfterCancel.dataset.deleteConfirmationState === "closed"
+                                );
+                                if (window.setMonitoringHudControlState) window.setMonitoringHudControlState(unsavedBackup);
+                                if (typeof monitoringHudOpenChildWindow === "function") monitoringHudOpenChildWindow("monitor-group-edit");
+                                const saveDeleteQueuedName = document.getElementById("monitoring-hud-edit-monitor-name");
+                                const saveDeleteDraftValue = "CPU Group Delete Save Draft";
+                                if (saveDeleteQueuedName) {
+                                    saveDeleteQueuedName.value = saveDeleteDraftValue;
+                                    saveDeleteQueuedName.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                                const saveDeleteButtonQueued = document.getElementById("monitoring-hud-monitor-detail-delete");
+                                if (saveDeleteButtonQueued) saveDeleteButtonQueued.click();
+                                const saveDeleteGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                                const saveDelete = document.getElementById("monitoring-hud-monitor-unsaved-save");
+                                if (saveDeleteGuard && saveDeleteGuard.dataset.pendingMonitorAction === "delete" && saveDelete) saveDelete.click();
+                                const dirtyDeleteSavePanel = document.getElementById("monitoring-hud-monitor-delete-confirmation");
+                                const dirtyDeleteSaveState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                dirtyDeleteSaveOpenedConfirmation = Boolean(
+                                    dirtyDeleteSavePanel
+                                    && !dirtyDeleteSavePanel.hidden
+                                    && dirtyDeleteSavePanel.dataset.deleteConfirmationState === "open"
+                                    && dirtyDeleteSavePanel.dataset.deleteMonitorId === "cpu"
+                                );
+                                dirtyDeleteSavePersistedDraft = Boolean(
+                                    dirtyDeleteSaveState.cards
+                                    && dirtyDeleteSaveState.cards.cpu
+                                    && dirtyDeleteSaveState.cards.cpu.title === saveDeleteDraftValue
+                                );
+                                const dirtyDeleteSaveCancel = document.getElementById("monitoring-hud-monitor-delete-cancel");
+                                if (dirtyDeleteSaveCancel) dirtyDeleteSaveCancel.click();
                                 if (window.setMonitoringHudControlState) window.setMonitoringHudControlState(unsavedBackup);
                                 if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
                                     const closeReadyState = window.getMonitoringHudControlState() || {};
@@ -11162,6 +11242,12 @@ class DesktopRuntimeWindow(QWidget):
                                 && emptyStateActionsBounded
                                 && emptyStateProductCopy
                                 && detailActionRowAligned
+                                && footerCancelIlluminated
+                                && dirtyDeleteDiscardOpenedConfirmation
+                                && dirtyDeleteDiscardRevealed
+                                && dirtyDeleteDiscardCancelRecovered
+                                && dirtyDeleteSaveOpenedConfirmation
+                                && dirtyDeleteSavePersistedDraft
                                 && interactiveControlFirstClickStress
                                 && sourcePickerCheckmarkStress
                                 && interactiveControlNoInterception
@@ -11191,6 +11277,7 @@ class DesktopRuntimeWindow(QWidget):
                                     deleteConfirmRemovedMonitor,
                                     deleteConfirmationClosed,
                                     detailActionRowAligned,
+                                    footerCancelIlluminated,
                                     commandCenterLayout,
                                     rowActionsRemoved,
                                     rowSelectionOpensDetail,
@@ -11205,6 +11292,11 @@ class DesktopRuntimeWindow(QWidget):
                                     unsavedSavePersistedDraft,
                                     unsavedCreateQueuedAction,
                                     unsavedDeleteQueuedAction,
+                                    dirtyDeleteDiscardOpenedConfirmation,
+                                    dirtyDeleteDiscardRevealed,
+                                    dirtyDeleteDiscardCancelRecovered,
+                                    dirtyDeleteSaveOpenedConfirmation,
+                                    dirtyDeleteSavePersistedDraft,
                                     unsavedCloseQueuedAction,
                                     unsavedCloseDirtyBeforeClose,
                                     unsavedCloseDraftBeforeClose,
@@ -11277,6 +11369,7 @@ class DesktopRuntimeWindow(QWidget):
                             deleteConfirmRemovedMonitor,
                             deleteConfirmationClosed,
                             detailActionRowAligned,
+                            footerCancelIlluminated,
                             commandCenterLayout,
                             rowActionsRemoved,
                             rowSelectionOpensDetail,
@@ -11291,6 +11384,11 @@ class DesktopRuntimeWindow(QWidget):
                             unsavedSavePersistedDraft,
                             unsavedCreateQueuedAction,
                             unsavedDeleteQueuedAction,
+                            dirtyDeleteDiscardOpenedConfirmation,
+                            dirtyDeleteDiscardRevealed,
+                            dirtyDeleteDiscardCancelRecovered,
+                            dirtyDeleteSaveOpenedConfirmation,
+                            dirtyDeleteSavePersistedDraft,
                             unsavedCloseQueuedAction,
                             unsavedCloseDirtyBeforeClose,
                             unsavedCloseDraftBeforeClose,
