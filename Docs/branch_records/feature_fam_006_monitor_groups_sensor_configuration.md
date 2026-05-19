@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active Repair Workstream implementation hardened / refreshed Live Validation pending`
-- Bounded State: `Returned refreshed USER UTS FAIL repair implementation is complete and Hardening H1 is green; visible resize-proof contamination is removed from normal UI, Sensor Command Center/source picker/final-delete repairs are implemented, and refreshed Live Validation / UTS recheck is pending`
+- Branch Authority State: `Active Branch Readiness repair setup after PR #163 rebaseline`
+- Bounded State: `Current-main reconciliation to PR #163 / origin/main 0cd1b0430f5634048613bffec411d35d657058bf is in progress on this FAM-006 branch; origin/main is context, not identity; newly returned USER blockers are admitted for FAM-006 repair setup while runtime implementation remains pending USER approval`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -29,13 +29,13 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 Phase: `Branch Readiness`
 
-Stage: `Hardening H1 complete / refreshed Live Validation pending`
+Stage: `Current-main reconciliation and Branch Readiness repair setup`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Refreshed Live Validation Stage 1 returned FAIL after the prior H1 repair. Current-main reconciliation is complete at `b7a7114af30ff1d378fbdb06e4a86a1410c2cc06` with `origin/main` `cb620709acb95f4457f317b5369bade7d9564724` as an ancestor of the branch. Current Branch Readiness Seam: `Returned refreshed UTS FAIL Sensor Command Center repair setup admitted`. Current Repair Workstream Seam: `Implementation complete for visible proof contamination removal, compact Sensor Command Center, final-delete empty state, faceted Sensor Library source picker, and source classification cleanup`. Current Hardening Seam: `H1 green after helper/fixture proof-strength repair`. Current PR Readiness Seam: `Blocked until refreshed Live Validation and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
+Refreshed Live Validation Stage 1 returned FAIL after the prior H1 repair, and a later USER video/written review returned additional FAM-006 repair candidates. Current-main reconciliation is rerunning after Governance PR #163 / origin/main `0cd1b0430f5634048613bffec411d35d657058bf`. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md must reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Returned USER video/written repair setup admitted`. Current Repair Workstream Seam: `Pending USER approval for the new blockers`. Current Hardening Seam: `Pending after implementation`. Current PR Readiness Seam: `Blocked until repair implementation, Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -172,7 +172,7 @@ User Test Summary Strategy: `No UTS is generated during Hardening H1. The compac
 
 Repair Setup Status: `ADMITTED - Branch Readiness Stage 2`
 
-Current-Main Reconciliation Confirmation: `PASS - current-main reconciliation is complete, clean, pushed, validation-green, and origin/main cb620709acb95f4457f317b5369bade7d9564724 is an ancestor of the FAM-006 branch.`
+Current-Main Reconciliation Confirmation: `current-main reconciliation is complete for Branch Readiness setup - PR #163 / origin/main 0cd1b0430f5634048613bffec411d35d657058bf is reconciled into this FAM-006 branch with the Current-Main Reconciliation Identity Guard; final commit/push evidence belongs to the reconciliation packet.`
 
 Returned UTS Scope Admitted: `Returned UTS Steps 1-8 passed; Step 9 failed Dashboard resize/move smoothness, especially shrink behavior where rendering appears frozen until resize completes; Step 10 failed Manage Monitors design/scalability because the scrollbar appears native Windows styled and the flow does not scale to hundreds of monitors and thousands of data sources.`
 
@@ -260,9 +260,15 @@ Implemented In This Branch: `Sensor Command Center compact list/detail layout`; 
 
 Valid UTS Critique Targets Now: `Whether the inline Polling Floor/Search/Filter layout feels compact enough`; `whether the unsaved guard correctly saves changed draft values before switching, discards draft values before switching, and preserves visible drafts on Cancel`; `whether create/delete/close actions are blocked by the same guard while dirty`; `whether the Sensor Library source discovery still feels scalable and Nexus-styled`; `whether visible resize proof artifacts are absent in normal user-facing validation`.
 
-Returned USER Video / Written Repair Candidates: `PENDING Branch Readiness repair planning/setup after current-main reconciliation - first-launch Dashboard flicker regression; Source Filter should become a Nexus-styled dropdown menu rather than bulky exposed chips; dropdown open/hover state must clear the previous hovered item; left monitor-group list needs 20+ group stress proof with NDAI scrollbar styling; Delete Selected Monitor should move to the lower right/bottom area with delete confirmation near the bottom; top toolbar/search/create area consumes too much vertical space and should be redesigned without collapsing source discovery back into a basic dropdown/checklist; Manage Monitors should be somewhat resizable and taller by default; copy such as "for this monitor group" should be removed where current selection already provides context.`
+Returned USER Video / Written Repair Candidates: `ADMITTED for Branch Readiness repair setup after PR #163 current-main reconciliation - first-launch Dashboard flicker regression; Source Filter should become a Nexus-styled dropdown menu rather than bulky exposed chips; dropdown open/hover state must clear the previous hovered item; left monitor-group list needs 20+ group stress proof with NDAI scrollbar styling; Delete Selected Monitor should move to the lower right/bottom area with delete confirmation near the bottom; top toolbar/search/create area consumes too much vertical space and should be redesigned without collapsing source discovery back into a basic dropdown/checklist; Manage Monitors should be somewhat resizable and taller by default; copy such as "for this monitor group" should be removed where current selection already provides context.`
 
 Preserved Implemented FAM-006 Work After PR #162 Reconciliation: `Draft-preserving Save / Discard / Cancel guard; queued selection/create/delete/close actions behind the guard; Sensor Library / Source Picker pattern; Warning Notifications as a setting checkbox; Provider Readiness as readiness/status/future capability; Sensor Library, Monitor, Monitor Group, Overlay Profile, and Recording Profile concept separation.`
+
+Current-Main Reconciliation Identity Guard: `During PR #163 reconciliation, origin/main no-active-main and FAM-007 merged-unreleased truth are treated as source-truth context only. Docs/feature_backlog.md, Docs/prebeta_roadmap.md, and Docs/branch_records/index.md must preserve this branch as the active branch-local FAM-006 authority before validation and commit.`
+
+Returned USER Repair Setup Scope: `Admit repair planning/setup for first-launch Dashboard flicker; Source Filter as a compact Nexus-styled dropdown menu; dropdown open/hover reset so prior item highlight clears; 20+ monitor-group left-list stress fixture with NDAI scrollbar styling; bottom/right Delete Selected Monitor placement and bottom delete confirmation; compacted Manage Monitors top controls without collapsing Sensor Library source discovery into a basic dropdown/checklist; taller default Manage Monitors window and bounded resizability; copy cleanup for redundant phrasing; preservation of draft guard / queued actions / Sensor Library / Warning Notifications setting / Provider Readiness classification / profile model separation.`
+
+Returned USER Repair Setup Non-Includes: `Runtime implementation before USER approval`; `FAM-007 work`; `Governance branch mutation`; `neutral main mutation`; `release execution`; `GitHub issue closeout`; `branch/worktree cleanup`; `runtime recording`; `Overlay Profile runtime`; `Recording Profile runtime`; `tray recording controls`; `provider/model/memory/shortcut/installer work`; `Overlay acceptance`; `external telemetry`; `AI Product work`.
 
 Deferred / Not Implemented In This Branch: `Runtime recording`; `Overlay Profile runtime UI`; `Recording Profile runtime UI`; `tray recording controls`; `local CSV/JSON/manifest recording output`; `export/share/import behavior`; `provider SDK/model/runtime expansion`; `Overlay acceptance`; `bulk creation`; `recommended packs`; `alert/rule engine`; `historical sensor data`; `full app backup/restore`; `base NCP settings architecture`; `NDAI-wide themes/skins`; `FAM-007 work`; `AI Product work`.
 
@@ -492,11 +498,11 @@ Continuation Execution Latch: `Closed until USER approves refreshed Live Validat
 
 Stop Basis: `Repair implementation hardened green / refreshed Live Validation approval pending`
 
-Next Active Seam: `Branch Readiness repair planning/setup for returned USER repair candidates`
+Next Active Seam: `Repair Workstream implementation for returned USER repair candidates`
 
-Stop Condition: `Returned USER video/written findings require repair planning/setup before further runtime implementation or PR Readiness; current-main reconciliation must complete first`
+Stop Condition: `Branch Readiness repair setup is complete after PR #163 current-main reconciliation; runtime implementation requires explicit USER approval`
 
-Continuation Action: `Stop after current-main reconciliation until USER approves Branch Readiness repair planning/setup for the newly returned FAM-006 blockers`
+Continuation Action: `Stop after this setup until USER approves bounded Repair Workstream implementation for the newly returned FAM-006 blockers`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -508,12 +514,12 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Blockers
 
-Returned refreshed USER UTS/video review remains in REPAIR posture after additional USER findings. PR Readiness remains blocked until the new repair candidates are planned/setup, implemented if USER approves, hardened, and refreshed Live Validation / returned USER UTS recheck proves the repair or USER explicitly waives remaining gates with reason. PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
+Returned refreshed USER UTS/video review remains in REPAIR posture after additional USER findings. PR Readiness remains blocked until the new repair candidates are implemented after USER approval, hardened, and refreshed Live Validation / returned USER UTS recheck proves the repair or USER explicitly waives remaining gates with reason. PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
 
 ## Exit Criteria
 
-- Current-main reconciliation preserves PR #162 main truth and the FAM-006 branch-local Sensor Command Center work.
-- Newly returned USER repair candidates are recorded as pending planning/setup, not implemented by reconciliation.
+- Current-main reconciliation preserves PR #163 main truth and the FAM-006 branch-local Sensor Command Center work.
+- Newly returned USER repair candidates are admitted for setup, not implemented by reconciliation.
 - Previously implemented draft guard, queued actions, Sensor Library pattern, Warning Notifications setting checkbox, Provider Readiness readiness/status classification, and profile-model separation are preserved.
 - Existing Dashboard settings, close, warning notifications, tray-owned HUD control, resize/scroll/source-truth boundaries are preserved as regression requirements.
 - FAM-006 v1.7.1-prebeta release closure remains green.
@@ -521,7 +527,7 @@ Returned refreshed USER UTS/video review remains in REPAIR posture after additio
 - Directly supporting validators pass.
 - PR Readiness remains blocked until refreshed Live Validation and returned USER UTS PASS or explicit waiver with reason.
 - Required validation passes.
-- Repair Workstream implementation commit is pushed.
+- Branch Readiness repair setup commit is pushed.
 
 ## Rollback Target
 
@@ -533,24 +539,24 @@ Rollback is the unmerged Workstream implementation on this branch only if USER l
 
 `Workstream`
 
-USER decision to approve Branch Readiness repair planning/setup for the newly returned FAM-006 Monitor Groups / Sensor Command Center repair candidates on `feature/fam-006-monitor-groups-sensor-configuration`.
+USER decision to approve Repair Workstream implementation for the newly returned FAM-006 Monitor Groups / Sensor Command Center repair candidates on `feature/fam-006-monitor-groups-sensor-configuration`.
 
 ## Next Legal Phase Digest
 
-Current Phase: `Current-main reconciliation before FAM-006 repair planning/setup`
+Current Phase: `Branch Readiness repair setup after PR #163 current-main reconciliation`
 
-Next Legal Phase: `Branch Readiness repair planning/setup for returned USER blockers`
+Next Legal Phase: `Repair Workstream implementation for returned USER blockers`
 
-Why This Phase Is Next: `The USER returned new FAM-006 failures after H1/video review, including first-launch Dashboard flicker, Source Filter/dropdown visual behavior, monitor-list scrollbar stress, delete placement, top-area headspace, Manage Monitors default size/resizability, and copy cleanup. These are same-family FAM-006 repair candidates that need governed repair planning/setup before runtime implementation or PR Readiness can resume.`
+Why This Phase Is Next: `The USER returned new FAM-006 failures after H1/video review, and this Branch Readiness pass admitted the same-family repair setup after PR #163 rebaseline. The next legal phase is bounded runtime implementation for first-launch Dashboard flicker, Source Filter/dropdown visual behavior, monitor-list scrollbar stress, delete placement, top-area headspace, Manage Monitors default size/resizability, and copy cleanup.`
 
-Approval Required: `USER approval for Branch Readiness repair planning/setup.`
+Approval Required: `USER approval for bounded Repair Workstream implementation.`
 
-Exact USER Approval Text: `Approve Branch Readiness repair planning/setup for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to the newly returned FAM-006 blockers: first-launch Dashboard flicker regression; Source Filter as a Nexus-styled dropdown menu rather than exposed chips; dropdown open/hover reset so previous items do not remain highlighted; 20+ monitor-group left-list stress proof with NDAI scrollbar styling; lower-right/bottom Delete Selected Monitor and bottom delete-confirmation placement; reduced top toolbar/search/create headspace; taller default and somewhat resizable Manage Monitors window; removal of over-explaining copy such as "for this monitor group"; preservation of existing draft guard, queued actions, Sensor Library pattern, Warning Notifications setting checkbox, Provider Readiness readiness/status classification, and profile-model boundaries; validation; commit; and push if source-truth setup changes are required.`
+Exact USER Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to the newly returned FAM-006 blockers: first-launch Dashboard flicker regression; Source Filter as a Nexus-styled dropdown menu rather than exposed chips; dropdown open/hover reset so previous items do not remain highlighted; 20+ monitor-group left-list stress proof with NDAI scrollbar styling; lower-right/bottom Delete Selected Monitor and bottom delete-confirmation placement; reduced top toolbar/search/create headspace; taller default and somewhat resizable Manage Monitors window; removal of over-explaining copy such as "for this monitor group"; preservation of existing draft guard, queued actions, Sensor Library pattern, Warning Notifications setting checkbox, Provider Readiness readiness/status classification, and profile-model boundaries; directly supporting validators/helpers/UTS updates; validation; commit; and push.`
 
-Allowed Scope: `FAM-006 Branch Readiness repair planning/setup and directly supporting source-truth/validator planning for the newly returned same-seam Monitor Groups / Sensor Command Center blockers; no runtime implementation until later USER approval.`
+Allowed Scope: `FAM-006 runtime implementation and directly supporting validators/helpers/UTS/source-truth updates for the newly returned same-seam Monitor Groups / Sensor Command Center blockers.`
 
-Explicit Exclusions: `Runtime implementation before repair setup approval, HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, tags, GitHub Releases, artifacts, raw evidence upload/import/linking, and future branch/worktree cleanup after this branch closes.`
+Explicit Exclusions: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, tags, GitHub Releases, artifacts, raw evidence upload/import/linking, Governance branch mutation, neutral main mutation, and future branch/worktree cleanup after this branch closes.`
 
 Validation Required: `git status --short --branch; git fetch origin --prune; git rev-parse HEAD; git rev-parse origin/main; git worktree list; git diff --check; git diff --check origin/main...HEAD; python dev\orin_monitoring_hud_surface_validation.py; python dev\orin_monitoring_hud_internal_sandbox_validation.py; python dev\orin_branch_governance_validation.py; python dev\orin_release_body_validation.py; python -m compileall -q dev desktop Audio main.py.`
 
-Stop Conditions: `Stop if branch/worktree identity mismatches C:\Nexus Worktrees\FAM-006 / feature/fam-006-monitor-groups-sensor-configuration, origin/main movement creates required reconciliation, repair planning requires excluded Overlay/FAM-007/provider/model/installer/AI Product/release/PR/raw-evidence scope, Sensor Command Center and profile-model boundaries cannot be preserved together, validation fails, or another USER decision is required.`
+Stop Conditions: `Stop if branch/worktree identity mismatches C:\Nexus Worktrees\FAM-006 / feature/fam-006-monitor-groups-sensor-configuration, origin/main movement creates required reconciliation, implementation requires excluded Overlay/FAM-007/provider/model/installer/AI Product/release/PR/raw-evidence scope, Sensor Command Center and profile-model boundaries cannot be preserved together, validation fails, or another USER decision is required.`
