@@ -395,7 +395,9 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud button:not(:disabled):not([aria-disabled="true"]):hover,
+.monitoring-hud button:not(:disabled):not([aria-disabled="true"]).is-hovered,
 .monitoring-hud [role="button"]:not([aria-disabled="true"]):hover,
+.monitoring-hud [role="button"]:not([aria-disabled="true"]).is-hovered,
 .monitoring-hud input[type="checkbox"]:not(:disabled):hover,
 .monitoring-hud input[type="search"]:not(:disabled):hover,
 .monitoring-hud input[type="text"]:not(:disabled):hover,
@@ -942,6 +944,8 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__child-window-header {
+  position: relative;
+  z-index: 4;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -969,8 +973,11 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__child-window-close {
+  position: relative;
+  z-index: 5;
   padding: 8px 12px;
   flex: 0 0 auto;
+  pointer-events: auto;
 }
 
 .monitoring-hud__child-field {

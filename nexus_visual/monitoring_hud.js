@@ -940,6 +940,48 @@ function monitoringHudPollingRateHitboxProof() {
   };
 }
 
+function monitoringHudManageCloseHitboxProof() {
+  const button = document.querySelector('[data-child-window-close="monitor-group-edit"]');
+  const windowNode = document.getElementById("monitoring-hud-edit-monitor-window");
+  if (!button || !windowNode || windowNode.hidden) {
+    return { passed: false, reason: "manage-close-hitbox:missing-open-control" };
+  }
+  const rect = button.getBoundingClientRect();
+  const probes = [0.18, 0.50, 0.82].map((ratio) => {
+    const x = Math.round(rect.left + rect.width / 2);
+    const y = Math.round(rect.top + rect.height * ratio);
+    const target = document.elementFromPoint ? document.elementFromPoint(x, y) : null;
+    const sameTargetOrChild = Boolean(target && (target === button || button.contains(target)));
+    return {
+      ratio,
+      x,
+      y,
+      target: monitoringHudControlActivationKey(target),
+      sameTargetOrChild
+    };
+  });
+  const style = window.getComputedStyle ? window.getComputedStyle(button) : null;
+  const allProbesHitButton = probes.every((probe) => probe.sameTargetOrChild);
+  return {
+    passed: allProbesHitButton
+      && rect.width >= 64
+      && rect.height >= 30
+      && (!style || (style.pointerEvents !== "none" && style.cursor === "pointer")),
+    reason: allProbesHitButton ? "manage-close-hitbox:full-height-clear" : "manage-close-hitbox:partial-interception",
+    rect: {
+      left: Math.round(rect.left),
+      top: Math.round(rect.top),
+      width: Math.round(rect.width),
+      height: Math.round(rect.height),
+      bottom: Math.round(rect.bottom)
+    },
+    probes,
+    pointerEvents: style ? style.pointerEvents : "",
+    cursor: style ? style.cursor : "",
+    activeChildWindow: monitoringHudActiveChildWindow || "none"
+  };
+}
+
 function monitoringHudReliableActivationAllowed(key) {
   const now = Date.now();
   monitoringHudReliableActivationState.lastKey = key;
@@ -2848,9 +2890,12 @@ window.getMonitoringHudLiveClientGeometry = function() {
     editMonitor: rectFor("#monitoring-hud-edit-monitor-action"),
     dashboardClose: rectFor("#monitoring-hud-dashboard-close-action"),
     settingsWindow: rectFor("#monitoring-hud-settings-window"),
+    settingsClose: rectFor('[data-child-window-close="dashboard-settings"]'),
     settingsWarningToggle: rectFor("#monitoring-hud-settings-warning-toggle"),
     createMonitorWindow: rectFor("#monitoring-hud-create-monitor-window"),
+    createMonitorClose: rectFor('[data-child-window-close="monitor-group-create"]'),
     editMonitorWindow: rectFor("#monitoring-hud-edit-monitor-window"),
+    editMonitorClose: rectFor('[data-child-window-close="monitor-group-edit"]'),
     manageMonitorCreate: rectFor("#monitoring-hud-manage-monitor-create-action"),
     manageMonitorEmptyCreate: rectFor("#monitoring-hud-monitor-empty-create-action"),
     monitorDetailActions: rectFor("#monitoring-hud-monitor-detail-actions"),
@@ -3068,6 +3113,7 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
   let sourcePickerCheckmarkProof = {};
   let displayModeChipProof = {};
   let pollingRateHitboxProof = {};
+  let manageCloseHitboxProof = {};
   function prepareVisibleTarget(element) {
     if (!element) return;
     if (typeof element.scrollIntoView === "function") {
@@ -3115,6 +3161,10 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
     activate("settings-close", '[data-child-window-close="dashboard-settings"]', () => monitoringHudActiveChildWindow !== "dashboard-settings");
     activate("dashboard-warning", "#monitoring-hud-warning-toggle", () => true);
     activate("dashboard-manage-monitors", "#monitoring-hud-edit-monitor-action", () => monitoringHudActiveChildWindow === "monitor-group-edit");
+    if (typeof monitoringHudManageCloseHitboxProof === "function") {
+      manageCloseHitboxProof = monitoringHudManageCloseHitboxProof() || {};
+      if (manageCloseHitboxProof.passed !== true) failures.push("manage-close-hitbox-partial-interception");
+    }
     const beforeSelected = monitoringHudControlState.selectedMonitorId;
     const nextRow = document.querySelector(`[data-monitor-select]:not([data-monitor-select="${beforeSelected}"])`);
     if (nextRow) {
@@ -3188,6 +3238,8 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
     pollingRateDropdownNexusStyled: Boolean(monitoringHudMonitorPollingRateControl && monitoringHudMonitorPollingRateControl.dataset.selectedValue),
     pollingRateHitboxToggleOnly: pollingRateHitboxProof.passed === true,
     pollingRateHitboxProof,
+    manageCloseHitboxFullHeight: manageCloseHitboxProof.passed === true,
+    manageCloseHitboxProof,
     sourceFilterDropdownNexusStyled: Boolean(monitoringHudSensorFilter && monitoringHudSensorFilter.dataset.sourceFilterMode === "nexus-dropdown-source-picker"),
     sourcePickerCheckmarkStress: sourcePickerCheckmarkProof.passed === true,
     sourcePickerCheckmarkProof,

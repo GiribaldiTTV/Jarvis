@@ -7214,6 +7214,8 @@ class DesktopRuntimeWindow(QWidget):
         )
 
     def _monitoring_hud_dashboard_control_rect_contains(self, point: QPoint) -> bool:
+        if self._monitoring_hud_active_child_window_rect_contains(point):
+            return True
         control_rect_names = (
             "anchorToggle",
             "visibilityToggle",
@@ -7252,6 +7254,24 @@ class DesktopRuntimeWindow(QWidget):
                 fallback_rect = self._monitoring_hud_settings_action_fallback_screen_rect()
                 if fallback_rect.isValid() and not fallback_rect.isNull() and fallback_rect.contains(point):
                     return True
+        return False
+
+    def _monitoring_hud_active_child_window_rect_contains(self, point: QPoint) -> bool:
+        if point.isNull():
+            return False
+        state = self._monitoring_hud_live_page_state if isinstance(self._monitoring_hud_live_page_state, dict) else {}
+        active_child_window = str(state.get("activeChildWindow", "none") or "none")
+        if active_child_window in ("", "none", "closed"):
+            return False
+        rect_names_by_child_window = {
+            "dashboard-settings": ("settingsWindow", "settingsClose"),
+            "monitor-group-create": ("createMonitorWindow", "createMonitorClose"),
+            "monitor-group-edit": ("editMonitorWindow", "editMonitorClose"),
+        }
+        for name in rect_names_by_child_window.get(active_child_window, ()):
+            rect = self._monitoring_hud_live_screen_rects.get(name, QRect())
+            if rect.isValid() and not rect.isNull() and rect.contains(point):
+                return True
         return False
 
     def _monitoring_hud_dashboard_close_control_rect_contains(self, point: QPoint) -> bool:
@@ -9862,6 +9882,7 @@ class DesktopRuntimeWindow(QWidget):
                 "interactive_control_no_interception": h1_proof.get("interactiveControlNoInterception") is True,
                 "source_picker_checkmark_stress": h1_proof.get("sourcePickerCheckmarkStress") is True,
                 "display_mode_chip_stress": h1_proof.get("displayModeChipStress") is True,
+                "manage_close_hitbox_full_height": h1_proof.get("manageCloseHitboxFullHeight") is True,
                 "polling_rate_dropdown_nexus_styled": h1_proof.get("pollingRateDropdownNexusStyled") is True,
                 "polling_rate_hitbox_toggle_only": h1_proof.get("pollingRateHitboxToggleOnly") is True,
                 "source_picker_browser": h1_proof.get("sourcePickerBrowser") is True,
@@ -10211,10 +10232,12 @@ class DesktopRuntimeWindow(QWidget):
 
                 def finish_visual_sequence() -> None:
                     visual_result_map = {str(item.get("label")): item for item in visual_results}
+                    manage_close_result = visual_result_map.get("03_manage_monitors_close_hover_hitbox", {})
                     source_filter_result = visual_result_map.get("04_source_filter_dropdown_open_hover_reset", {})
                     polling_rate_result = visual_result_map.get("04_polling_rate_dropdown_open_hover_reset", {})
                     required_visual_labels = {
                         "03_manage_monitors_open_state",
+                        "03_manage_monitors_close_hover_hitbox",
                         "04_source_filter_dropdown_open_hover_reset",
                         "04_polling_rate_dropdown_open_hover_reset",
                         "05_unsaved_guard_close_queued",
@@ -10232,6 +10255,7 @@ class DesktopRuntimeWindow(QWidget):
                             required_visual_labels.issubset(captured_labels)
                             and parsed.get("visualProofQualityGate") is True
                             and parsed.get("interactiveControlVisualQaGate") is True
+                            and manage_close_result.get("manageCloseHitboxFullHeight") is True
                             and source_filter_result.get("filterOpen") is True
                             and source_filter_result.get("hoveredFilter") == "deferred"
                             and polling_rate_result.get("sourceFilterClosed") is True
@@ -10252,6 +10276,8 @@ class DesktopRuntimeWindow(QWidget):
                             "pollingRateVisualHoverReset": polling_rate_result.get("hoveredValue") == "5000",
                             "visualProofQualityGate": parsed.get("visualProofQualityGate") is True,
                             "interactiveControlVisualQaGate": parsed.get("interactiveControlVisualQaGate") is True,
+                            "manageCloseHitboxFullHeight": manage_close_result.get("manageCloseHitboxFullHeight") is True,
+                            "manageCloseHitboxProof": manage_close_result.get("manageCloseHitboxProof") or {},
                             "emptyStateNoSaveCancel": parsed.get("emptyStateNoSaveCancel") is True,
                             "emptyStateCreatePrimary": parsed.get("emptyStateCreatePrimary") is True,
                             "emptyStateActionsBounded": parsed.get("emptyStateActionsBounded") is True,
@@ -10583,9 +10609,40 @@ class DesktopRuntimeWindow(QWidget):
                         lambda: (record_visual("04_polling_rate_dropdown_open_hover_reset"), visual_dirty_close_guard()),
                     )
 
+                def visual_manage_close_hitbox() -> None:
+                    run_visual(
+                        "03_manage_monitors_close_hover_hitbox",
+                        """
+                        (function() {
+                            try {
+                                if (typeof monitoringHudOpenChildWindow === "function") {
+                                    monitoringHudOpenChildWindow("monitor-group-edit");
+                                }
+                                document.querySelectorAll(".is-hovered").forEach((node) => node.classList.remove("is-hovered"));
+                                const close = document.querySelector('[data-child-window-close="monitor-group-edit"]');
+                                if (close) {
+                                    close.classList.add("is-hovered");
+                                    close.dataset.liveVisualProofState = "close-hover-full-hitbox";
+                                }
+                                const proof = typeof monitoringHudManageCloseHitboxProof === "function"
+                                    ? monitoringHudManageCloseHitboxProof()
+                                    : { passed: false, reason: "missing-proof" };
+                                return JSON.stringify({
+                                    ok: proof.passed === true,
+                                    manageCloseHitboxFullHeight: proof.passed === true,
+                                    manageCloseHitboxProof: proof
+                                });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("03_manage_monitors_close_hover_hitbox"), visual_source_filter()),
+                    )
+
                 def visual_manage_open() -> None:
                     record_visual("03_manage_monitors_open_state")
-                    visual_source_filter()
+                    visual_manage_close_hitbox()
 
                 def visual_restore_and_finish() -> None:
                     self._run_javascript_with_result(
@@ -10691,6 +10748,8 @@ class DesktopRuntimeWindow(QWidget):
                         let sourcePickerCheckmarkStress = false;
                         let displayModeChipProof = {};
                         let displayModeChipStress = false;
+                        let manageCloseHitboxProof = {};
+                        let manageCloseHitboxFullHeight = false;
                         let pollingRateDropdownNexusStyled = false;
                         let pollingRateHitboxProof = {};
                         let pollingRateHitboxToggleOnly = false;
@@ -11360,6 +11419,11 @@ class DesktopRuntimeWindow(QWidget):
                                 interactiveControlReliabilityProof.displayModeChipStress === true
                                 && displayModeChipProof.passed === true
                             );
+                            manageCloseHitboxProof = interactiveControlReliabilityProof.manageCloseHitboxProof || {};
+                            manageCloseHitboxFullHeight = Boolean(
+                                interactiveControlReliabilityProof.manageCloseHitboxFullHeight === true
+                                && manageCloseHitboxProof.passed === true
+                            );
                             pollingRateHitboxProof = interactiveControlReliabilityProof.pollingRateHitboxProof || {};
                             pollingRateHitboxToggleOnly = Boolean(
                                 interactiveControlReliabilityProof.pollingRateHitboxToggleOnly === true
@@ -11412,6 +11476,7 @@ class DesktopRuntimeWindow(QWidget):
                                 && interactiveControlFirstClickStress
                                 && sourcePickerCheckmarkStress
                                 && displayModeChipStress
+                                && manageCloseHitboxFullHeight
                                 && interactiveControlNoInterception
                                 && pollingRateDropdownNexusStyled
                                 && pollingRateHitboxToggleOnly
@@ -11487,6 +11552,8 @@ class DesktopRuntimeWindow(QWidget):
                                     sourcePickerCheckmarkStress,
                                     displayModeChipProof,
                                     displayModeChipStress,
+                                    manageCloseHitboxProof,
+                                    manageCloseHitboxFullHeight,
                                     pollingRateDropdownNexusStyled,
                                     pollingRateHitboxProof,
                                     pollingRateHitboxToggleOnly,
@@ -11586,6 +11653,8 @@ class DesktopRuntimeWindow(QWidget):
                             sourcePickerCheckmarkStress,
                             displayModeChipProof,
                             displayModeChipStress,
+                            manageCloseHitboxProof,
+                            manageCloseHitboxFullHeight,
                             pollingRateDropdownNexusStyled,
                             pollingRateHitboxProof,
                             pollingRateHitboxToggleOnly,
@@ -11828,8 +11897,9 @@ class DesktopRuntimeWindow(QWidget):
         except (TypeError, ValueError):
             polling_rate_ms = self._monitoring_hud_polling_rate_ms
 
+        geometry_state = state.get("geometry") if isinstance(state.get("geometry"), dict) else {}
+        self._set_monitoring_hud_live_client_page_state(state, geometry_state)
         cards = state.get("cards") if isinstance(state.get("cards"), dict) else {}
-        self._monitoring_hud_live_page_state = state
         monitor_signature_parts = []
         enabled_count = 0
         for card_id in sorted(str(key) for key in cards.keys()):
@@ -11857,7 +11927,6 @@ class DesktopRuntimeWindow(QWidget):
             tuple(monitor_signature_parts),
         )
         active_child_window = str(state.get("activeChildWindow", "none") or "none")
-        geometry_state = state.get("geometry") if isinstance(state.get("geometry"), dict) else {}
         settings_window = geometry_state.get("settingsWindow") if isinstance(geometry_state.get("settingsWindow"), dict) else {}
         settings_window_present = active_child_window == "dashboard-settings" and bool(settings_window)
         try:
