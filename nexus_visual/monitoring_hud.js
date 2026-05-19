@@ -863,6 +863,8 @@ function monitoringHudControlActivationKey(element, fallback = "") {
     if (element.dataset.control) return `control:${element.dataset.control}`;
     if (element.dataset.childWindowClose) return `close:${element.dataset.childWindowClose}`;
     if (element.dataset.monitorSelect) return `monitor:${element.dataset.monitorSelect}`;
+    if (element.dataset.sourcePickerRow) return `source-row:${element.dataset.sourcePickerRow}`;
+    if (element.dataset.monitorSensorInput) return `source-check:${element.dataset.monitorSensorInput}`;
     if (element.dataset.sourceFilter) return `source-filter:${element.dataset.sourceFilter}`;
     if (element.dataset.pollingRateOption) return `polling-rate:${element.dataset.pollingRateOption}`;
   }
@@ -953,13 +955,14 @@ function monitoringHudWireReliableControl(element, key, handler) {
   element.addEventListener("click", (event) => activate(event, "click"));
 }
 
-function monitoringHudWireReliableDelegatedControl(root, selector, keyPrefix, handler) {
+function monitoringHudWireReliableDelegatedControl(root, selector, keyPrefix, handler, options = {}) {
   if (!root || typeof handler !== "function") return;
   const activate = (event, phase) => {
     const target = event.target && event.target.closest ? event.target.closest(selector) : null;
     if (!target || !root.contains(target)) return;
-    if (event && typeof event.preventDefault === "function") event.preventDefault();
-    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+    const allowNative = Boolean(options.allowNative && options.allowNative(target, event, phase));
+    if (!allowNative && event && typeof event.preventDefault === "function") event.preventDefault();
+    if (!allowNative && event && typeof event.stopPropagation === "function") event.stopPropagation();
     monitoringHudApplyPressedState(target, false);
     const key = `${keyPrefix}:${monitoringHudControlActivationKey(target)}`;
     if (!monitoringHudReliableActivationAllowed(key)) return;
@@ -1054,6 +1057,12 @@ function monitoringHudRenderSensorAssignment(selected) {
     row.dataset.sensorMetric = sensor.metric || "";
     row.dataset.sensorInstance = sensor.instance || "";
     row.dataset.sourceBreadcrumb = [sensor.provider, sensor.device, sensor.category, sensor.metric, sensor.instance].filter(Boolean).join(" > ");
+    row.dataset.sourceToggleMode = "row-and-checkbox-immediate";
+    row.dataset.sourceSelected = assigned.has(sensor.id) ? "true" : "false";
+    row.setAttribute("role", "option");
+    row.setAttribute("tabindex", sensor.assignable === false ? "-1" : "0");
+    row.setAttribute("aria-selected", assigned.has(sensor.id) ? "true" : "false");
+    row.setAttribute("aria-disabled", sensor.assignable === false ? "true" : "false");
     if (sensor.assignable === false) {
       row.classList.add("monitoring-hud__sensor-option--disabled");
     }
@@ -1063,6 +1072,7 @@ function monitoringHudRenderSensorAssignment(selected) {
     checkbox.checked = assigned.has(sensor.id);
     checkbox.disabled = sensor.assignable === false;
     checkbox.dataset.monitorSensorInput = sensor.id;
+    checkbox.setAttribute("aria-label", `Assign ${sensor.label || sensor.id}`);
     const name = document.createElement("span");
     name.textContent = sensor.label || sensor.id;
     const status = document.createElement("b");
@@ -1104,6 +1114,48 @@ function monitoringHudRenderSensorAssignment(selected) {
     monitoringHudMonitorSensorAssignment.appendChild(empty);
   }
   monitoringHudRenderSensorPreview(filtered.length, rendered.length, assigned.size, supportedCount, deferredCount);
+}
+
+function monitoringHudSetSourceRowSelectionState(row, checked) {
+  if (!row) return;
+  row.dataset.sourceSelected = checked ? "true" : "false";
+  row.setAttribute("aria-selected", checked ? "true" : "false");
+}
+
+function monitoringHudUpdateSelectedMonitorRowSummary(layout) {
+  if (!monitoringHudEditMonitorList || !monitoringHudControlState.selectedMonitorId || !layout) return;
+  const row = monitoringHudEditMonitorList.querySelector(`[data-monitor-row="${monitoringHudControlState.selectedMonitorId}"]`);
+  const summary = row ? row.querySelector("span") : null;
+  if (summary) summary.textContent = monitoringHudSensorAssignmentSummary(layout);
+}
+
+function monitoringHudRefreshSensorPickerSelectionProof(draft) {
+  const layout = draft && draft.layout ? draft.layout : null;
+  const selectedCount = Array.isArray(layout && layout.sensors) ? layout.sensors.length : 0;
+  const filtered = monitoringHudFilteredSensorDefinitions();
+  const rendered = filtered.slice(0, monitoringHudSensorRenderLimit);
+  const supportedCount = filtered.filter((sensor) => sensor.assignable !== false).length;
+  const deferredCount = filtered.length - supportedCount;
+  monitoringHudUpdateSelectedMonitorRowSummary(layout);
+  monitoringHudRenderSensorSettings(draft);
+  monitoringHudRenderSensorPreview(filtered.length, rendered.length, selectedCount, supportedCount, deferredCount);
+  if (monitoringHudMonitorSensorAssignment) {
+    monitoringHudMonitorSensorAssignment.dataset.sourcePickerCheckmarkMode = "row-and-checkbox-immediate";
+    monitoringHudMonitorSensorAssignment.dataset.sourcePickerCheckmarkStress = "ready";
+  }
+}
+
+function monitoringHudToggleSensorAssignmentRow(row, explicitChecked) {
+  if (!row || row.dataset.sensorAssignable === "false") return false;
+  const input = row.querySelector("[data-monitor-sensor-input]");
+  if (!input || input.disabled) return false;
+  const nextChecked = typeof explicitChecked === "boolean" ? explicitChecked : !input.checked;
+  input.checked = nextChecked;
+  monitoringHudSetSourceRowSelectionState(row, nextChecked);
+  const draft = monitoringHudUpdateMonitorDraftFromWindow();
+  if (!draft) return false;
+  monitoringHudRefreshSensorPickerSelectionProof(draft);
+  return true;
 }
 
 function monitoringHudRenderSensorSettings(selected) {
@@ -2248,8 +2300,39 @@ function monitoringHudWireControls() {
   if (monitoringHudMonitorSensorAssignment) {
     monitoringHudMonitorSensorAssignment.addEventListener("change", (event) => {
       if (!event.target || !event.target.matches || !event.target.matches("[data-monitor-sensor-input]")) return;
-      if (!monitoringHudUpdateMonitorDraftFromWindow()) return;
-      monitoringHudRenderMonitorManagement();
+      const row = event.target.closest("[data-source-picker-row]");
+      if (row) monitoringHudSetSourceRowSelectionState(row, Boolean(event.target.checked));
+      const draft = monitoringHudUpdateMonitorDraftFromWindow();
+      if (!draft) return;
+      monitoringHudRefreshSensorPickerSelectionProof(draft);
+    });
+    monitoringHudWireReliableDelegatedControl(
+      monitoringHudMonitorSensorAssignment,
+      "[data-source-picker-row]",
+      "source-picker:checkmark",
+      (row, event) => {
+        const nativeCheckbox = event && event.target && event.target.closest
+          ? event.target.closest("[data-monitor-sensor-input]")
+          : null;
+        if (nativeCheckbox) return true;
+        return monitoringHudToggleSensorAssignmentRow(row);
+      },
+      {
+        allowNative: (row, event) => Boolean(
+          row
+          && event
+          && event.target
+          && event.target.closest
+          && event.target.closest("[data-monitor-sensor-input]")
+        )
+      }
+    );
+    monitoringHudMonitorSensorAssignment.addEventListener("keydown", (event) => {
+      if (!["Enter", " "].includes(event.key)) return;
+      const row = event.target && event.target.closest ? event.target.closest("[data-source-picker-row]") : null;
+      if (!row || !monitoringHudMonitorSensorAssignment.contains(row)) return;
+      event.preventDefault();
+      monitoringHudToggleSensorAssignmentRow(row);
     });
   }
   if (monitoringHudMonitorSensorSettings) {
@@ -2693,6 +2776,7 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
   const backup = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
   const failures = [];
   const states = {};
+  let sourcePickerCheckmarkProof = {};
   function prepareVisibleTarget(element) {
     if (!element) return;
     if (typeof element.scrollIntoView === "function") {
@@ -2768,6 +2852,10 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
     monitoringHudSetSourceFilterDropdownOpen(false);
     activate("polling-rate-open", "#monitoring-hud-monitor-polling-rate-toggle", () => monitoringHudMonitorPollingRateControl && monitoringHudMonitorPollingRateControl.dataset.dropdownOpen === "true");
     activate("polling-rate-5s", '[data-polling-rate-option="5000"]', () => monitoringHudMonitorPollingRate && monitoringHudMonitorPollingRate.value === "5000");
+    if (typeof window.runMonitoringHudSourcePickerCheckmarkStressProof === "function") {
+      sourcePickerCheckmarkProof = window.runMonitoringHudSourcePickerCheckmarkStressProof() || {};
+      if (sourcePickerCheckmarkProof.passed !== true) failures.push("source-picker-checkmark-stress");
+    }
     activate("save-monitor", "#monitoring-hud-edit-monitor-confirm", () => true);
     if (typeof monitoringHudOpenChildWindow === "function") monitoringHudOpenChildWindow("monitor-group-edit");
     activate("manage-close-clean", '[data-child-window-close="monitor-group-edit"]', () => monitoringHudActiveChildWindow !== "monitor-group-edit");
@@ -2794,6 +2882,8 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
     ],
     pollingRateDropdownNexusStyled: Boolean(monitoringHudMonitorPollingRateControl && monitoringHudMonitorPollingRateControl.dataset.selectedValue),
     sourceFilterDropdownNexusStyled: Boolean(monitoringHudSensorFilter && monitoringHudSensorFilter.dataset.sourceFilterMode === "nexus-dropdown-source-picker"),
+    sourcePickerCheckmarkStress: sourcePickerCheckmarkProof.passed === true,
+    sourcePickerCheckmarkProof,
     affordanceStatesRequired: "normal-hover-active-focus-visible-disabled-open-selected-warning"
   };
   monitoringHudReliableActivationState.visualStates = states;
@@ -2804,6 +2894,106 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
     monitoringHud.dataset.pollingRateDropdown = "nexus-styled-bounded-control";
   }
   monitoringHudControlState.interactiveControlReliabilityProof = proof;
+  return proof;
+};
+
+window.runMonitoringHudSourcePickerCheckmarkStressProof = function() {
+  const backup = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
+  const failures = [];
+  const toggles = [];
+  const activationMethods = ["row-click", "checkbox-click", "keyboard-space"];
+  let maxToggleMs = 0;
+  let rowsTested = 0;
+  let rowsAvailable = 0;
+  try {
+    if (typeof window.setMonitoringHudLargeFixtureMode === "function") {
+      window.setMonitoringHudLargeFixtureMode(80);
+    }
+    monitoringHudOpenChildWindow("monitor-group-edit");
+    if (monitoringHudSensorSearch) {
+      monitoringHudSensorSearch.value = "";
+    }
+    monitoringHudSetSourceFilterValue("supported");
+    monitoringHudSetSourceFilterDropdownOpen(false);
+    monitoringHudRenderMonitorManagement();
+    const rows = Array.from(document.querySelectorAll("[data-source-picker-row]"))
+      .filter((row) => row.dataset.sensorAssignable === "true" && row.querySelector("[data-monitor-sensor-input]"))
+      .slice(0, 18);
+    rowsAvailable = rows.length;
+    rowsTested = rows.length;
+    if (rows.length < 8) failures.push("source-picker-checkmark:too-few-supported-rows");
+    rows.forEach((row, index) => {
+      const input = row.querySelector("[data-monitor-sensor-input]");
+      const before = Boolean(input && input.checked);
+      const startedAt = (window.performance && performance.now) ? performance.now() : Date.now();
+      monitoringHudReliableActivationState.lastKey = "";
+      monitoringHudReliableActivationState.lastAt = 0;
+      const method = activationMethods[index % activationMethods.length];
+      if (method === "checkbox-click" && input && typeof input.click === "function") {
+        input.click();
+      } else if (method === "keyboard-space") {
+        if (typeof row.focus === "function") row.focus();
+        row.dispatchEvent(new KeyboardEvent("keydown", {
+          key: " ",
+          code: "Space",
+          bubbles: true,
+          cancelable: true
+        }));
+      } else {
+        row.click();
+      }
+      const finishedAt = (window.performance && performance.now) ? performance.now() : Date.now();
+      const elapsed = Math.max(0, finishedAt - startedAt);
+      maxToggleMs = Math.max(maxToggleMs, elapsed);
+      const after = Boolean(input && input.checked);
+      const ariaSelected = row.getAttribute("aria-selected") === "true";
+      const sourceId = row.dataset.sourcePickerRow || `row-${index}`;
+      toggles.push({
+        sourceId,
+        method,
+        before,
+        after,
+        elapsedMs: Math.round(elapsed * 10) / 10,
+        ariaSelected,
+        visualSelected: row.dataset.sourceSelected === "true"
+      });
+      if (after === before) failures.push(`source-picker-checkmark:${sourceId}:no-toggle`);
+      if (ariaSelected !== after) failures.push(`source-picker-checkmark:${sourceId}:aria-mismatch`);
+      if ((row.dataset.sourceSelected === "true") !== after) failures.push(`source-picker-checkmark:${sourceId}:visual-state-mismatch`);
+      if (elapsed > 80) failures.push(`source-picker-checkmark:${sourceId}:slow-${Math.round(elapsed)}ms`);
+    });
+  } catch (err) {
+    failures.push(`source-picker-checkmark:exception:${String(err && err.message ? err.message : err)}`);
+  }
+  const proof = {
+    passed: failures.length === 0,
+    failures,
+    rowsTested,
+    rowsAvailable,
+    toggles,
+    maxToggleMs: Math.round(maxToggleMs * 10) / 10,
+    rowClickTarget: true,
+    checkboxClickTarget: true,
+    keyboardToggleTarget: true,
+    activationMethods,
+    sourcePickerCheckmarkStress: true,
+    sourcePickerCheckmarkMode: "row-and-checkbox-immediate",
+    sourcePickerRenderScope: "settings-preview-summary-only"
+  };
+  if (monitoringHudMonitorSensorAssignment) {
+    monitoringHudMonitorSensorAssignment.dataset.sourcePickerCheckmarkStress = proof.passed ? "pass" : "fail";
+    monitoringHudMonitorSensorAssignment.dataset.sourcePickerCheckmarkStressCount = String(rowsTested);
+    monitoringHudMonitorSensorAssignment.dataset.sourcePickerCheckmarkMaxToggleMs = String(proof.maxToggleMs);
+  }
+  if (monitoringHud) {
+    monitoringHud.dataset.sourcePickerCheckmarkStress = proof.passed ? "pass" : "fail";
+    monitoringHud.dataset.sourcePickerCheckmarkMode = proof.sourcePickerCheckmarkMode;
+  }
+  if (backup && window.setMonitoringHudControlState) {
+    window.setMonitoringHudControlState(backup);
+    monitoringHudOpenChildWindow("monitor-group-edit");
+  }
+  monitoringHudControlState.sourcePickerCheckmarkStressProof = proof;
   return proof;
 };
 

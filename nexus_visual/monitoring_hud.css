@@ -1302,19 +1302,31 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__detail-danger-zone {
   display: grid;
-  justify-items: end;
   gap: 8px;
   margin-top: auto;
   padding-top: 4px;
   border-top: 1px solid rgba(255, 132, 132, 0.10);
 }
 
+.monitoring-hud__detail-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.monitoring-hud__detail-action-row > .monitoring-hud__hub-action--danger {
+  margin-left: auto;
+}
+
 .monitoring-hud__detail-danger-zone .monitoring-hud__delete-confirmation {
+  justify-self: end;
   width: min(420px, 100%);
 }
 
 .monitoring-hud__child-actions--footer {
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   align-self: start;
 }
@@ -1546,20 +1558,39 @@ body.desktop-mode #monitoring-hud > * {
   border-radius: 8px;
   background: rgba(6, 28, 48, 0.58);
   color: rgba(229, 249, 255, 0.92);
+  cursor: pointer;
   font-size: 12px;
   font-weight: 700;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
-.monitoring-hud__sensor-option:hover {
+.monitoring-hud__sensor-option:hover,
+.monitoring-hud__sensor-option.is-pressed {
   border-color: rgba(126, 248, 218, 0.32);
   background:
     linear-gradient(145deg, rgba(7, 42, 62, 0.70), rgba(3, 18, 32, 0.66)),
     rgba(6, 28, 48, 0.58);
 }
 
+.monitoring-hud__sensor-option:focus-visible,
 .monitoring-hud__sensor-option:focus-within {
   outline: 2px solid rgba(126, 248, 218, 0.54);
   outline-offset: 2px;
+}
+
+.monitoring-hud__sensor-option[aria-selected="true"] {
+  border-color: rgba(126, 248, 218, 0.46);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(126, 248, 218, 0.18), transparent 52%),
+    linear-gradient(145deg, rgba(7, 48, 62, 0.76), rgba(4, 26, 44, 0.72));
+  box-shadow:
+    0 0 0 1px rgba(229, 255, 251, 0.08) inset,
+    0 0 16px rgba(80, 230, 255, 0.10);
 }
 
 .monitoring-hud__sensor-option input {
@@ -1567,6 +1598,7 @@ body.desktop-mode #monitoring-hud > * {
   width: 17px;
   height: 17px;
   accent-color: rgba(126, 248, 218, 0.9);
+  cursor: pointer;
 }
 
 .monitoring-hud__sensor-option small {
@@ -1603,7 +1635,12 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__sensor-option--disabled {
   color: rgba(176, 204, 214, 0.66);
+  cursor: not-allowed;
   background: rgba(12, 29, 42, 0.42);
+}
+
+.monitoring-hud__sensor-option--disabled input {
+  cursor: not-allowed;
 }
 
 .monitoring-hud__sensor-preview {

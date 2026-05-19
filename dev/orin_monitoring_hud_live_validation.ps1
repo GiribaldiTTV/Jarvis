@@ -498,7 +498,7 @@ Expected: Delete opens a confirmation prompt. Cancel closes the prompt and prese
 USER Result / Notes:
 
 Step 6 - Delete Confirmation And Remove
-Expected: Delete lives in the right detail pane. Confirm removes only the selected monitor, supports deleting the final monitor, shows a true empty state with Create Monitor as the primary action, and does not show Save Monitor / Cancel or oversized action buttons when no monitor exists.
+Expected: Delete lives in the lower right detail-pane action row. Save Monitor and Cancel sit on the far left of that same row when a monitor is selected, Delete Selected Monitor sits on the far right, and the delete confirmation remains near the bottom. Confirm removes only the selected monitor, supports deleting the final monitor, shows a true empty state with Create Monitor as the primary action, and does not show Save Monitor / Cancel or oversized action buttons when no monitor exists.
 USER Result / Notes:
 
 Step 7 - Truthful Sensor Availability
@@ -506,7 +506,7 @@ Expected: Warning Notifications is a monitor/settings checkbox, Provider Readine
 USER Result / Notes:
 
 Step 8 - Sensor Library Scale, Source Filter, And Polling Rate
-Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter dropdown/facet control, clears stale hover highlights when moving between dropdown items or reopening it, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars. Polling Rate replaces Polling Floor and opens as a compact Nexus-styled bounded dropdown with clear hover/open/selected states.
+Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter dropdown/facet control, clears stale hover highlights when moving between dropdown items or reopening it, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars. Supported source rows and their checkmarks respond immediately from row click, checkbox click, and keyboard activation without sluggish missed toggles. Polling Rate replaces Polling Floor and opens as a compact Nexus-styled bounded dropdown with clear hover/open/selected states.
 USER Result / Notes:
 
 Step 9 - Dashboard Resize And Move Smoothness
@@ -514,7 +514,7 @@ Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse 
 USER Result / Notes:
 
 Step 10 - Dashboard And Manage Monitors Control Reliability
-Expected: Dashboard Settings, window-level Close, Warning Notifications, Create/Edit Monitor legacy entry points, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, Create Monitor, Save Monitor, Cancel, Delete confirmation, dirty-guard actions, Source Filter, Polling Rate, and monitor rows visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, post-close/reopen, and post-render states.
+Expected: Dashboard Settings, window-level Close, Warning Notifications, Create/Edit Monitor legacy entry points, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, Create Monitor, Save Monitor, Cancel, Delete confirmation, dirty-guard actions, Source Filter, Polling Rate, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states.
 Regression checkpoints include: Step 7 - #137 Dashboard Rounded Corners On Light Background; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 USER Result / Notes:
 

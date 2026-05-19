@@ -465,7 +465,13 @@
                   </div>
                 </div>
                 <div class="monitoring-hud__detail-danger-zone" data-detail-actions="selected-monitor-bottom">
-                  <button type="button" id="monitoring-hud-monitor-detail-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="detail-delete-monitor">Delete Selected Monitor</button>
+                  <div class="monitoring-hud__detail-action-row" data-detail-action-row="save-cancel-left-delete-right">
+                    <div class="monitoring-hud__child-actions monitoring-hud__child-actions--footer" id="monitoring-hud-monitor-detail-actions" data-monitor-detail-actions="selected-monitor-footer">
+                      <button type="button" id="monitoring-hud-edit-monitor-confirm" class="monitoring-hud__hub-action" data-control="confirm-edit-monitor">Save Monitor</button>
+                      <button type="button" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-child-window-close="monitor-group-edit">Cancel</button>
+                    </div>
+                    <button type="button" id="monitoring-hud-monitor-detail-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="detail-delete-monitor">Delete Selected Monitor</button>
+                  </div>
                   <div class="monitoring-hud__delete-confirmation" id="monitoring-hud-monitor-delete-confirmation" data-delete-confirmation-state="closed" hidden>
                     <strong id="monitoring-hud-monitor-delete-title">Delete monitor?</strong>
                     <span id="monitoring-hud-monitor-delete-copy">Confirm before removing this Monitor Group.</span>
@@ -477,10 +483,6 @@
                 </div>
               </section>
               <p class="monitoring-hud__child-note" id="monitoring-hud-monitor-detail-note">Supported source settings only. Overlay visual display, external telemetry parity, and provider expansion remain future USER decisions.</p>
-              <div class="monitoring-hud__child-actions monitoring-hud__child-actions--footer" id="monitoring-hud-monitor-detail-actions" data-monitor-detail-actions="selected-monitor-footer">
-                <button type="button" id="monitoring-hud-edit-monitor-confirm" class="monitoring-hud__hub-action" data-control="confirm-edit-monitor">Save Monitor</button>
-                <button type="button" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-child-window-close="monitor-group-edit">Cancel</button>
-              </div>
             </section>
           </div>
         </div>

@@ -9755,9 +9755,11 @@ class DesktopRuntimeWindow(QWidget):
                 "empty_state_create_primary": h1_proof.get("emptyStateCreatePrimary") is True,
                 "empty_state_actions_bounded": h1_proof.get("emptyStateActionsBounded") is True,
                 "empty_state_product_copy": h1_proof.get("emptyStateProductCopy") is True,
+                "detail_action_row_aligned": h1_proof.get("detailActionRowAligned") is True,
                 "interactive_control_visual_qa_gate": h1_proof.get("interactiveControlVisualQaGate") is True,
                 "interactive_control_first_click_stress": h1_proof.get("interactiveControlFirstClickStress") is True,
                 "interactive_control_no_interception": h1_proof.get("interactiveControlNoInterception") is True,
+                "source_picker_checkmark_stress": h1_proof.get("sourcePickerCheckmarkStress") is True,
                 "polling_rate_dropdown_nexus_styled": h1_proof.get("pollingRateDropdownNexusStyled") is True,
                 "source_picker_browser": h1_proof.get("sourcePickerBrowser") is True,
                 "source_filter_dropdown": h1_proof.get("sourceFilterDropdown") is True,
@@ -10511,6 +10513,7 @@ class DesktopRuntimeWindow(QWidget):
                         let deleteCancelPreservedMonitor = false;
                         let deleteConfirmRemovedMonitor = false;
                         let deleteConfirmationClosed = false;
+                        let detailActionRowAligned = false;
                         let commandCenterLayout = false;
                         let rowActionsRemoved = false;
                         let rowSelectionOpensDetail = false;
@@ -10545,6 +10548,8 @@ class DesktopRuntimeWindow(QWidget):
                         let interactiveControlReliabilityProof = {};
                         let interactiveControlFirstClickStress = false;
                         let interactiveControlNoInterception = false;
+                        let sourcePickerCheckmarkProof = {};
+                        let sourcePickerCheckmarkStress = false;
                         let pollingRateDropdownNexusStyled = false;
                         let sourcePickerBrowser = false;
                         let sourceFilterDropdown = false;
@@ -10613,6 +10618,7 @@ class DesktopRuntimeWindow(QWidget):
                         const readinessPanel = document.getElementById("monitoring-hud-provider-readiness-panel");
                         const warningSetting = document.getElementById("monitoring-hud-monitor-warning-notifications-setting");
                         const detailDelete = document.getElementById("monitoring-hud-monitor-detail-delete");
+                        const detailActionRow = document.querySelector('[data-detail-action-row="save-cancel-left-delete-right"]');
                         const monitorShell = document.querySelector('[data-monitor-management-layout="compact-command-center-list-detail"]');
                         commandCenterLayout = Boolean(
                             monitorShell
@@ -10622,6 +10628,25 @@ class DesktopRuntimeWindow(QWidget):
                         );
                         rowActionsRemoved = !Boolean(document.querySelector(rowActionSelector));
                         detailPaneDelete = Boolean(detailDelete && !detailDelete.closest(".monitoring-hud__monitor-manage-row"));
+                        if (detailActionRow) {
+                            const saveActionForRow = document.getElementById("monitoring-hud-edit-monitor-confirm");
+                            const cancelActionForRow = detailActionRow.querySelector('[data-child-window-close="monitor-group-edit"]');
+                            const deleteActionForRow = document.getElementById("monitoring-hud-monitor-detail-delete");
+                            const rowRect = detailActionRow.getBoundingClientRect();
+                            const saveRectForRow = saveActionForRow ? saveActionForRow.getBoundingClientRect() : null;
+                            const cancelRectForRow = cancelActionForRow ? cancelActionForRow.getBoundingClientRect() : null;
+                            const deleteRectForRow = deleteActionForRow ? deleteActionForRow.getBoundingClientRect() : null;
+                            detailActionRowAligned = Boolean(
+                                saveRectForRow
+                                && cancelRectForRow
+                                && deleteRectForRow
+                                && rowRect
+                                && saveRectForRow.left <= rowRect.left + 8
+                                && cancelRectForRow.left < deleteRectForRow.left
+                                && cancelRectForRow.right <= deleteRectForRow.left - 8
+                                && deleteRectForRow.right >= rowRect.right - 8
+                            );
+                        }
                         sourcePickerBrowser = Boolean(
                             sourceAssignment
                             && sourceAssignment.dataset.sensorAssignment === "sensor-library-source-picker"
@@ -11033,6 +11058,12 @@ class DesktopRuntimeWindow(QWidget):
                         if (window.runMonitoringHudInteractiveControlStressProof) {
                             interactiveControlReliabilityProof = window.runMonitoringHudInteractiveControlStressProof() || {};
                             interactiveControlFirstClickStress = interactiveControlReliabilityProof.passed === true;
+                            sourcePickerCheckmarkProof = interactiveControlReliabilityProof.sourcePickerCheckmarkProof || {};
+                            sourcePickerCheckmarkStress = Boolean(
+                                interactiveControlReliabilityProof.sourcePickerCheckmarkStress === true
+                                && sourcePickerCheckmarkProof.passed === true
+                                && Number(sourcePickerCheckmarkProof.rowsTested || 0) >= 8
+                            );
                             interactiveControlNoInterception = Boolean(
                                 interactiveControlReliabilityProof
                                 && interactiveControlReliabilityProof.stateCount >= 10
@@ -11066,7 +11097,9 @@ class DesktopRuntimeWindow(QWidget):
                                 && emptyStateCreatePrimary
                                 && emptyStateActionsBounded
                                 && emptyStateProductCopy
+                                && detailActionRowAligned
                                 && interactiveControlFirstClickStress
+                                && sourcePickerCheckmarkStress
                                 && interactiveControlNoInterception
                                 && pollingRateDropdownNexusStyled
                             );
@@ -11092,6 +11125,7 @@ class DesktopRuntimeWindow(QWidget):
                                     deleteCancelPreservedMonitor,
                                     deleteConfirmRemovedMonitor,
                                     deleteConfirmationClosed,
+                                    detailActionRowAligned,
                                     commandCenterLayout,
                                     rowActionsRemoved,
                                     rowSelectionOpensDetail,
@@ -11126,6 +11160,8 @@ class DesktopRuntimeWindow(QWidget):
                                     interactiveControlReliabilityProof,
                                     interactiveControlFirstClickStress,
                                     interactiveControlNoInterception,
+                                    sourcePickerCheckmarkProof,
+                                    sourcePickerCheckmarkStress,
                                     pollingRateDropdownNexusStyled,
                                     sourcePickerBrowser,
                                     sourceFilterDropdown,
@@ -11174,6 +11210,7 @@ class DesktopRuntimeWindow(QWidget):
                             deleteCancelPreservedMonitor,
                             deleteConfirmRemovedMonitor,
                             deleteConfirmationClosed,
+                            detailActionRowAligned,
                             commandCenterLayout,
                             rowActionsRemoved,
                             rowSelectionOpensDetail,
@@ -11208,6 +11245,8 @@ class DesktopRuntimeWindow(QWidget):
                             interactiveControlReliabilityProof,
                             interactiveControlFirstClickStress,
                             interactiveControlNoInterception,
+                            sourcePickerCheckmarkProof,
+                            sourcePickerCheckmarkStress,
                             pollingRateDropdownNexusStyled,
                             sourcePickerBrowser,
                             sourceFilterDropdown,

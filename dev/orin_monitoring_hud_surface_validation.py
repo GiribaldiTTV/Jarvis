@@ -430,7 +430,9 @@ def validate() -> list[str]:
         'id="monitoring-hud-monitor-detail-note"',
         'id="monitoring-hud-monitor-detail-actions"',
         'data-monitor-detail-actions="selected-monitor-footer"',
+        'data-detail-action-row="save-cancel-left-delete-right"',
         ".monitoring-hud__child-note[hidden]",
+        ".monitoring-hud__detail-action-row",
     ):
         _require_contains(html + css, interactive_control_markup, "FAM-006 interactive-control visual QA HTML/CSS", failures)
 
@@ -517,6 +519,13 @@ def validate() -> list[str]:
         "runMonitoringHudInteractiveControlStressProof",
         "interactiveControlFirstClickStress",
         "interactiveControlNoInterception",
+        "runMonitoringHudSourcePickerCheckmarkStressProof",
+        "sourcePickerCheckmarkStress",
+        "sourcePickerCheckmarkMode",
+        "row-and-checkbox-immediate",
+        "sourcePickerRenderScope",
+        "source-picker:checkmark",
+        "detailActionRowAligned",
         "pollingRateDropdownNexusStyled",
         "04_polling_rate_dropdown_open_hover_reset",
         "pollingRateVisualSourceFilterClosed",
