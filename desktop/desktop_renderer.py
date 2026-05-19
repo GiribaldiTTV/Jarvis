@@ -10070,6 +10070,7 @@ class DesktopRuntimeWindow(QWidget):
                     return
 
                 visual_screenshots: list[dict[str, str]] = []
+                visual_results: list[dict[str, object]] = []
 
                 def record_visual(label: str) -> None:
                     path = capture(label)
@@ -10079,22 +10080,65 @@ class DesktopRuntimeWindow(QWidget):
                         "capture": "webview_focused_visual_proof",
                     })
 
-                def run_visual(script: str, next_step) -> None:
+                def append_visual_result(label: str, result) -> None:
+                    try:
+                        parsed_result = json.loads(result) if isinstance(result, str) else result
+                    except Exception:
+                        parsed_result = {"ok": False, "raw": str(result)}
+                    if not isinstance(parsed_result, dict):
+                        parsed_result = {"ok": False, "raw": str(parsed_result)}
+                    visual_results.append({**parsed_result, "label": label})
+
+                def run_visual(label: str, script: str, next_step) -> None:
                     self._run_javascript_with_result(
                         script,
-                        lambda _result: QTimer.singleShot(delay(300), next_step),
+                        lambda result: (
+                            append_visual_result(label, result),
+                            QTimer.singleShot(delay(300), next_step),
+                        ),
                     )
 
                 def finish_visual_sequence() -> None:
+                    visual_result_map = {str(item.get("label")): item for item in visual_results}
+                    source_filter_result = visual_result_map.get("04_source_filter_dropdown_open_hover_reset", {})
+                    polling_rate_result = visual_result_map.get("04_polling_rate_dropdown_open_hover_reset", {})
+                    required_visual_labels = {
+                        "03_manage_monitors_open_state",
+                        "04_source_filter_dropdown_open_hover_reset",
+                        "04_polling_rate_dropdown_open_hover_reset",
+                        "05_unsaved_guard_close_queued",
+                        "06_unsaved_close_cancel_preserves_draft",
+                        "07_unsaved_close_save_closes_after_persist",
+                        "08_unsaved_close_discard_closes_after_drop",
+                        "09_delete_confirmation_bottom",
+                        "10_final_empty_state_create_recovery",
+                        "11_100_monitor_list_scrollbar_and_1200_source_picker",
+                    }
+                    captured_labels = {item["label"] for item in visual_screenshots}
                     add_step(
                         "Manage Monitors visual proof screenshot sequence captured",
-                        len(visual_screenshots) >= 8
-                        and parsed.get("visualProofQualityGate") is True
-                        and parsed.get("interactiveControlVisualQaGate") is True,
+                        (
+                            required_visual_labels.issubset(captured_labels)
+                            and parsed.get("visualProofQualityGate") is True
+                            and parsed.get("interactiveControlVisualQaGate") is True
+                            and source_filter_result.get("filterOpen") is True
+                            and source_filter_result.get("hoveredFilter") == "deferred"
+                            and polling_rate_result.get("sourceFilterClosed") is True
+                            and polling_rate_result.get("pollingDropdownOpen") is True
+                            and polling_rate_result.get("pollingMenuVisible") is True
+                            and polling_rate_result.get("hoveredValue") == "5000"
+                        ),
                         {
                             "screenshotLabels": [item["label"] for item in visual_screenshots],
                             "screenshotPaths": [item["path"] for item in visual_screenshots],
                             "screenshotCaptureMode": "webview_focused_visual_proof",
+                            "visualResultLabels": [str(item.get("label")) for item in visual_results],
+                            "sourceFilterVisualOpen": source_filter_result.get("filterOpen") is True,
+                            "sourceFilterVisualHoverReset": source_filter_result.get("hoveredFilter") == "deferred",
+                            "pollingRateVisualSourceFilterClosed": polling_rate_result.get("sourceFilterClosed") is True,
+                            "pollingRateVisualOpen": polling_rate_result.get("pollingDropdownOpen") is True,
+                            "pollingRateVisualMenuVisible": polling_rate_result.get("pollingMenuVisible") is True,
+                            "pollingRateVisualHoverReset": polling_rate_result.get("hoveredValue") == "5000",
                             "visualProofQualityGate": parsed.get("visualProofQualityGate") is True,
                             "interactiveControlVisualQaGate": parsed.get("interactiveControlVisualQaGate") is True,
                             "emptyStateNoSaveCancel": parsed.get("emptyStateNoSaveCancel") is True,
@@ -10113,6 +10157,7 @@ class DesktopRuntimeWindow(QWidget):
 
                 def visual_large_fixture() -> None:
                     run_visual(
+                        "11_100_monitor_list_scrollbar_and_1200_source_picker",
                         """
                         (function() {
                             try {
@@ -10143,6 +10188,7 @@ class DesktopRuntimeWindow(QWidget):
 
                 def visual_empty_state() -> None:
                     run_visual(
+                        "10_final_empty_state_create_recovery",
                         """
                         (function() {
                             try {
@@ -10178,6 +10224,7 @@ class DesktopRuntimeWindow(QWidget):
 
                 def visual_delete_confirmation() -> None:
                     run_visual(
+                        "09_delete_confirmation_bottom",
                         """
                         (function() {
                             try {
@@ -10230,6 +10277,7 @@ class DesktopRuntimeWindow(QWidget):
 
                 def visual_discard_close_outcome() -> None:
                     run_visual(
+                        "08_unsaved_close_discard_closes_after_drop",
                         """
                         (function() {
                             try {
@@ -10259,6 +10307,7 @@ class DesktopRuntimeWindow(QWidget):
 
                 def visual_save_close_outcome() -> None:
                     run_visual(
+                        "07_unsaved_close_save_closes_after_persist",
                         """
                         (function() {
                             try {
@@ -10288,6 +10337,7 @@ class DesktopRuntimeWindow(QWidget):
 
                 def visual_cancel_close_outcome() -> None:
                     run_visual(
+                        "06_unsaved_close_cancel_preserves_draft",
                         """
                         (function() {
                             try {
@@ -10304,6 +10354,7 @@ class DesktopRuntimeWindow(QWidget):
 
                 def visual_dirty_close_guard() -> None:
                     run_visual(
+                        "05_unsaved_guard_close_queued",
                         """
                         (function() {
                             try {
@@ -10330,6 +10381,7 @@ class DesktopRuntimeWindow(QWidget):
 
                 def visual_source_filter() -> None:
                     run_visual(
+                        "04_source_filter_dropdown_open_hover_reset",
                         """
                         (function() {
                             try {
@@ -10341,7 +10393,12 @@ class DesktopRuntimeWindow(QWidget):
                                 if (supported) supported.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
                                 if (deferred) deferred.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
                                 if (filter) filter.dataset.liveVisualProofState = "source-filter-open-hover-reset";
-                                return JSON.stringify({ ok: Boolean(filter && filter.dataset.filterOpen === "true") });
+                                return JSON.stringify({
+                                    ok: Boolean(filter && filter.dataset.filterOpen === "true"),
+                                    filterOpen: Boolean(filter && filter.dataset.filterOpen === "true"),
+                                    hoveredFilter: filter && filter.dataset ? String(filter.dataset.hoveredFilter || "") : "",
+                                    menuVisible: Boolean(filter && filter.querySelector(".monitoring-hud__source-filter-menu") && !filter.querySelector(".monitoring-hud__source-filter-menu").hidden)
+                                });
                             } catch (err) {
                                 return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
                             }
@@ -10352,19 +10409,37 @@ class DesktopRuntimeWindow(QWidget):
 
                 def visual_polling_rate() -> None:
                     run_visual(
+                        "04_polling_rate_dropdown_open_hover_reset",
                         """
                         (function() {
                             try {
+                                const filter = document.getElementById("monitoring-hud-sensor-filter");
+                                if (typeof monitoringHudSetSourceFilterDropdownOpen === "function") {
+                                    monitoringHudSetSourceFilterDropdownOpen(false);
+                                } else if (filter) {
+                                    filter.dataset.filterOpen = "false";
+                                    const filterMenu = filter.querySelector(".monitoring-hud__source-filter-menu");
+                                    if (filterMenu) filterMenu.hidden = true;
+                                }
                                 const control = document.getElementById("monitoring-hud-monitor-polling-rate-control");
                                 const toggle = document.getElementById("monitoring-hud-monitor-polling-rate-toggle");
+                                if (control && control.scrollIntoView) control.scrollIntoView({ block: "center", inline: "nearest" });
                                 if (toggle && control && control.dataset.dropdownOpen !== "true") toggle.click();
+                                if (control && control.dataset.dropdownOpen !== "true" && typeof monitoringHudSetPollingRateDropdownOpen === "function") {
+                                    monitoringHudSetPollingRateDropdownOpen(true);
+                                }
                                 const option2 = control ? control.querySelector('[data-polling-rate-option="2000"]') : null;
                                 const option5 = control ? control.querySelector('[data-polling-rate-option="5000"]') : null;
                                 if (option2) option2.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
                                 if (option5) option5.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
                                 if (control) control.dataset.liveVisualProofState = "polling-rate-open-hover-reset";
+                                const menu = document.getElementById("monitoring-hud-monitor-polling-rate-menu");
                                 return JSON.stringify({
-                                    ok: Boolean(control && control.dataset.dropdownOpen === "true"),
+                                    ok: Boolean(control && control.dataset.dropdownOpen === "true" && menu && !menu.hidden && (!filter || filter.dataset.filterOpen !== "true")),
+                                    sourceFilterClosed: Boolean(!filter || filter.dataset.filterOpen !== "true"),
+                                    pollingDropdownOpen: Boolean(control && control.dataset.dropdownOpen === "true"),
+                                    pollingMenuVisible: Boolean(menu && !menu.hidden),
+                                    hoveredValue: control && control.dataset ? String(control.dataset.hoveredValue || "") : "",
                                     label: document.getElementById("monitoring-hud-monitor-polling-rate-label")
                                         ? document.getElementById("monitoring-hud-monitor-polling-rate-label").textContent
                                         : ""
@@ -11238,6 +11313,10 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(900), lambda: query("anchored click-through/no-focus posture", assert_anchored, step_finish))
 
         def step_finish():
+            failed_steps = [str(step.get("label", "unknown")) for step in steps if step.get("status") != "PASS"]
+            if failed_steps:
+                finish("FAIL", "live self-QA step failure(s): " + ", ".join(failed_steps))
+                return
             capture("03_final_anchored_live_client")
             add_step(
                 "cleanup route available",

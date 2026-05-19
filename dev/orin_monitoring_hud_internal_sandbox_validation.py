@@ -512,6 +512,13 @@ def _validate_static_surface(failures: list[str]) -> None:
         "interactiveControlNoInterception",
         "pollingRateDropdownNexusStyled",
         "04_polling_rate_dropdown_open_hover_reset",
+        "pollingRateVisualSourceFilterClosed",
+        "pollingRateVisualOpen",
+        "pollingRateVisualMenuVisible",
+        "pollingRateVisualHoverReset",
+        "sourceFilterVisualOpen",
+        "sourceFilterVisualHoverReset",
+        "live self-QA step failure(s)",
     ):
         _require_contains(
             html + css + js + renderer,

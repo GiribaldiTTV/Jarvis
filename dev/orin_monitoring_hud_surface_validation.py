@@ -519,6 +519,13 @@ def validate() -> list[str]:
         "interactiveControlNoInterception",
         "pollingRateDropdownNexusStyled",
         "04_polling_rate_dropdown_open_hover_reset",
+        "pollingRateVisualSourceFilterClosed",
+        "pollingRateVisualOpen",
+        "pollingRateVisualMenuVisible",
+        "pollingRateVisualHoverReset",
+        "sourceFilterVisualOpen",
+        "sourceFilterVisualHoverReset",
+        "live self-QA step failure(s)",
     ):
         _require_contains(
             html + css + js + renderer,
