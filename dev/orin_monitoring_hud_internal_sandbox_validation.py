@@ -559,6 +559,38 @@ def _validate_static_surface(failures: list[str]) -> None:
             failures,
         )
 
+    for interactive_reliability_setup in (
+        "## Refreshed LV1 Interactive-Control Reliability And Visual-Affordance Repair Setup Admission",
+        "missing hover, active, focus, and click affordance coverage",
+        "intermittent first-click reliability",
+        "Dashboard close / settings / warning / hub actions",
+        "Manage Monitors close controls",
+        "Source Filter dropdown",
+        "Polling Rate dropdown",
+        "normal, hover, active / pressed, focus-visible, disabled, open, selected",
+        "Repeated first-click stress proof",
+        "close, row switch, create, save, cancel, discard, delete confirm, delete cancel, Source Filter open/select/close, Polling Rate open/select/close",
+        "after re-render, dirty guard, delete confirmation, dropdown-open, post-close/reopen, and post-render states",
+        "z-index / overlay interception",
+        "pointer-events",
+        "disabled state or stale aria state",
+        "stale DOM references",
+        "focus trap",
+        "transition or animation timing",
+        "Polling Floor copy repair to Polling Rate",
+        "Polling Rate dropdown visual repair",
+        "Nexus-styled bounded control",
+        "focused screenshots, frame-sequence, or video-style proof",
+        "Full-desktop screenshots remain locator/context evidence only",
+        "reject manifest-only or DOM-only PASS",
+    ):
+        _require_contains(
+            monitor_groups_record,
+            interactive_reliability_setup,
+            "FAM-006 interactive-control reliability and visual-affordance setup source truth",
+            failures,
+        )
+
     for right_edge_rediscovery_setup in (
         "## Refreshed LV1 Dashboard Right-Edge Rediscovery Repair Setup Admission",
         "post-corner right-edge resize cursor rediscovery",
