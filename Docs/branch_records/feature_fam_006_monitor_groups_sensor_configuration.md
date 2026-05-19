@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active Branch Readiness Stage 2 repair setup after refreshed LV1 close-guard failure`
-- Bounded State: `Current-main reconciliation to PR #163 / origin/main 0cd1b0430f5634048613bffec411d35d657058bf is complete on this FAM-006 branch; origin/main is context, not identity; refreshed LV1 found unsaved_close_queued_action=false and missing Manage Monitors visual-proof coverage, so PR Readiness remains blocked pending repair implementation`
+- Branch Authority State: `Active Repair Workstream implementation after refreshed LV1 close-guard failure`
+- Bounded State: `Current-main reconciliation to PR #163 / origin/main 0cd1b0430f5634048613bffec411d35d657058bf is complete on this FAM-006 branch; origin/main is context, not identity; refreshed LV1 found unsaved_close_queued_action=false and missing Manage Monitors visual-proof coverage; bounded repair implementation now targets the real Manage Monitors close control and adds named Manage Monitors visual-proof screenshots, so PR Readiness remains blocked pending Hardening H1 and refreshed Live Validation`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -27,15 +27,15 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 ## Current Phase
 
-Phase: `Branch Readiness`
+Phase: `Workstream`
 
-Stage: `Refreshed LV1 close-while-dirty and visual-proof repair setup`
+Stage: `Refreshed LV1 close-while-dirty and visual-proof repair implementation`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Refreshed Live Validation Stage 1 returned REPAIR after the prior H1 PASS because the active-client manifest recorded `unsaved_close_queued_action=false`. Governance PR #163 / origin/main `0cd1b0430f5634048613bffec411d35d657058bf` is reconciled as context, not identity. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md must reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Refreshed LV1 close-while-dirty and visual-proof repair setup admitted`. Current Repair Workstream Seam: `Pending USER approval`. Current Hardening Seam: `Pending after repair implementation`. Current PR gate: `Blocked until repair implementation, Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
+Refreshed Live Validation Stage 1 returned REPAIR after the prior H1 PASS because the active-client manifest recorded `unsaved_close_queued_action=false`. Governance PR #163 / origin/main `0cd1b0430f5634048613bffec411d35d657058bf` is reconciled as context, not identity. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md must reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Refreshed LV1 close-while-dirty and visual-proof repair setup admitted`. Current Repair Workstream Seam: `Implemented for close-while-dirty proof targeting and Manage Monitors screenshot-sequence coverage`. Current Hardening Seam: `Pending after repair implementation`. Current PR gate: `Blocked until Hardening, refreshed Live Validation, and returned USER UTS result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -106,7 +106,7 @@ USER Critique Loop: `USER critique/feedback returned the refreshed UTS as FAIL a
 
 Historical Repair Trigger Marker: `returned USER UTS FAIL` - preserved for source-truth validator traceability; active state is returned refreshed USER UTS FAIL repair implementation hardened green with refreshed Live Validation / UTS recheck pending.
 
-USER Decision Ledger: `USER approved Branch Readiness Stage 2 repair setup for the refreshed LV1 close-guard and visual-proof blocker after prior H1 PASS. Repair Workstream implementation, Hardening H1 after repair, GitHub issue #127 mutation, refreshed Live Validation / UTS recheck, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
+USER Decision Ledger: `USER approved Branch Readiness Stage 2 repair setup and bounded Repair Workstream implementation for the refreshed LV1 close-guard and visual-proof blocker after prior H1 PASS. Hardening H1 after repair, GitHub issue #127 mutation, refreshed Live Validation / UTS recheck, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
 
 Full Feature Element Breakdown: `Sensor Command Center shell; compact action-light monitor list; row/icon selection; right-side detail panel; detail-pane Delete action; Save / Discard / Cancel guard for unsaved changes; final-monitor delete; true empty state with Create reachable; Sensor Library / Source Picker replacing basic dropdown/checklist assignment; Warning Notifications as settings checkbox outside sensor assignment; Provider Readiness as readiness/status/future capability outside assignable sources; source breadcrumbs using provider > device > category > metric > instance; source status metadata; scalable search plus dropdown/facets; large fixture proof; Overlay Profile planning; Recording Profile planning; validation and UTS proof hooks.`
 
@@ -158,7 +158,7 @@ Deferred Ideas / Future Package Ledger: `Templates, monitor list import/export, 
 
 Planning Blockers: `Returned Refreshed USER UTS FAIL`; `Refreshed Live Validation / UTS Recheck Pending`; `Overlay Profile Runtime Approval Missing`; `Recording Profile Runtime Approval Missing`; `Tray Recording Controls Approval Missing`; `Export/Share Runtime Approval Missing`; `Overlay Acceptance Approval Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `External Telemetry Parity Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
 
-USER Decisions Needed: `Approve Repair Workstream implementation for the refreshed LV1 close-guard and visual-proof blocker; approve Hardening H1 after repair; approve refreshed Live Validation / UTS recheck after green H1; approve GitHub issue #127 mutation if desired; return refreshed UTS results or explicit waiver with reason after Live Validation; approve PR creation later; approve merge later; approve release/artifacts/raw evidence/branch cleanup separately; approve templates/import/export, full backup/restore, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, FAM-007, provider/model/memory/shortcut/installer, external telemetry, or AI Product work separately.`
+USER Decisions Needed: `Approve Hardening H1 after repair; approve refreshed Live Validation / UTS recheck after green H1; approve GitHub issue #127 mutation if desired; return refreshed UTS results or explicit waiver with reason after Live Validation; approve PR creation later; approve merge later; approve release/artifacts/raw evidence/branch cleanup separately; approve templates/import/export, full backup/restore, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, FAM-007, provider/model/memory/shortcut/installer, external telemetry, or AI Product work separately.`
 
 Planning Packet Status: `Complete`
 
@@ -212,7 +212,7 @@ Profile Boundary Preservation: `Sensor Library = all available or planned data s
 
 Future Workflow Preservation: `Monitor-first, sensor-first, and group-first workflows remain future planning unless directly needed for this repair. Templates, import/export, bulk packs, recommended packs, alert/rule engine, historical data, Overlay Profile runtime, Recording Profile runtime, tray recording, local CSV/JSON/manifest recording output, event markers, auto-record triggers, rolling buffer capture, full app backup/restore, and base NCP settings architecture remain pending USER decisions.`
 
-PR Readiness Blocker State: `PR Readiness remains blocked pending Repair Workstream implementation, Hardening, refreshed Live Validation / UTS recheck, and returned USER UTS PASS or explicit waiver with reason digested into source truth.`
+PR Readiness Blocker State: `PR Readiness remains blocked pending Hardening, refreshed Live Validation / UTS recheck, and returned USER UTS PASS or explicit waiver with reason digested into source truth.`
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to removing visible resize-proof contamination, adding invisible/test-gated grow/shrink during-drag proof, implementing the Sensor Command Center compact monitor list/detail-pane repair, adding final-monitor delete and true empty state, replacing basic dropdown/checklist source assignment with Nexus Sensor Library / Source Picker search/facets, classifying Warning Notifications and Provider Readiness outside assignable sensors, adding breadcrumbs/status metadata, updating validators/helpers/UTS, validation, commit, and push.`
 
@@ -258,6 +258,10 @@ PR Readiness Blocker State: `PR Readiness remains blocked until refreshed Live V
 
 Repair Setup Status: `ADMITTED - Branch Readiness Stage 2 after refreshed LV1 REPAIR`
 
+Repair Implementation Status: `IMPLEMENTED - the active-client proof now targets data-child-window-close="monitor-group-edit", asserts dirty state and changed draft value before close, records close queued action proof, proves Save / Discard / Cancel close outcomes from visible draft values, and captures named Manage Monitors screenshot-sequence evidence for open state, Source Filter dropdown open/hover/reset, unsaved close guard, close outcomes, delete confirmation, final empty state, and 100+ monitor / 1,200-source scrollbar behavior`
+
+Repair Workstream Validation Evidence: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -RunInteractionSelfQA -ProofSeam "FAM-006 refreshed LV1 close guard visual proof Repair Workstream" PASS; proof root C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260518_184424_564; interaction manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260518_184424_564\monitoring_hud_live_client_interaction_manifest.json; screenshot sequence includes 03_manage_monitors_open_state, 04_source_filter_dropdown_open_hover_reset, 05_unsaved_guard_close_queued, 06_unsaved_close_cancel_preserves_draft, 07_unsaved_close_save_closes_after_persist, 08_unsaved_close_discard_closes_after_drop, 09_delete_confirmation_bottom, 10_final_empty_state_create_recovery, and 11_100_monitor_list_scrollbar_and_1200_source_picker; manifest booleans record unsavedCloseDirtyBeforeClose=true, unsavedCloseDraftBeforeClose=true, unsavedCloseTargetedManageClose=true, unsavedCloseQueuedAction=true, unsavedCloseCancelPreservedDraft=true, unsavedCloseSavePersistedDraft=true, and unsavedCloseDiscardDroppedDraft=true.`
+
 Refreshed LV1 Failure: `The active-client refreshed Live Validation manifest at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260518_180025_205 recorded unsaved_close_queued_action=false. The Sensor Command Center proof otherwise passed command-center layout, row actions removed, row selection, detail-pane delete, final-monitor empty state, Source Filter dropdown, hover reset, Source Picker, source classification, large fixtures, Save / Discard / Create / Delete queued actions, and draft persistence.`
 
 Close-While-Dirty Functional Blocker: `Manage Monitors close while dirty must route through the same Save / Discard / Cancel guard as selection, create, and delete. The close path must queue pendingMonitorAction="close"; Save must persist the visible draft first and then close; Discard must drop the visible draft and then close; Cancel must keep Manage Monitors open and preserve the visible draft.`
@@ -268,7 +272,7 @@ Visual-Proof Coverage Blocker: `The refreshed LV1 screenshot set captured Dashbo
 
 Preservation Requirements: `Preserve first-launch flicker guard, compact Source Filter dropdown and hover reset, 20+ / 100+ monitor-list stress behavior, lower detail danger-zone Delete placement, top toolbar compaction, taller/bounded-resizable Manage Monitors, Sensor Library pattern, Warning Notifications as a settings checkbox, Provider Readiness as readiness/status/future capability, and Sensor Library / Monitor / Monitor Group / Overlay Profile / Recording Profile boundaries.`
 
-Validator Planning Updates: `Directly supporting validators must retain existing Sensor Command Center checks and add planning coverage that the refreshed LV1 repair requires the specific Manage Monitors close target, changed-draft precondition, close queued action proof, and Manage Monitors screenshot/video-style visual evidence. Runtime implementation remains pending the next USER decision.`
+Validator Planning Updates: `Directly supporting validators retain existing Sensor Command Center checks and now require the specific Manage Monitors close target, dirty-state and changed-draft preconditions, Save / Discard / Cancel close outcome proof, and named Manage Monitors screenshot/video-style visual evidence labels. Hardening and refreshed Live Validation remain pending the next USER decisions.`
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to repairing the refreshed LV1 unsaved close-while-dirty failure and Manage Monitors visual-proof gap. Scope: ensure dirty Manage Monitors close queues pendingMonitorAction="close"; Save persists the visible draft then closes; Discard drops the draft then closes; Cancel keeps Manage Monitors open with the draft visible; update proof to target data-child-window-close="monitor-group-edit", assert dirty state and changed draft value before close, and record close queued action proof; add screenshot-sequence or video-style proof for Manage Monitors open state, Source Filter dropdown open/hover/reset, unsaved guard close-queue state, Save / Discard / Cancel close outcomes, delete confirmation, final empty state, and 20+ / 100+ list scrollbar behavior; preserve all existing FAM-006 Sensor Command Center repairs and profile boundaries; run validation; commit and push if green.`
 
@@ -362,7 +366,7 @@ Planning Completion Waiver: `Not required`
 - Exact Affected Paths: `nexus_visual/monitoring_hud.html`; `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`; `desktop/desktop_renderer.py`; `desktop/monitoring_hud_controls.py`; FAM-006 HUD validators/helpers as needed by implementation.
 - Carried Issues: `None newly created by Stage 2 setup`; all released FAM-006 issue threads #123, #124, #125, #126, #127, #137, and #140 are closed / fixed or completed.
 - Non-Includes: `HUD Overlay visual display acceptance`; `Overlay customization`; `NDAI-wide Theme/Skins`; `FAM-007`; `provider/model/memory/shortcut/installer work`; `external telemetry parity`; `AI Product Contract import`; `raw evidence upload/import/linking`; `release execution`; `PR creation`; `merge`; `future branch/worktree cleanup after this branch closes`.
-- Implementation Admission Status: `Prior USER-approved returned refreshed UTS FAIL repair implementation is complete and H1 is green; refreshed LV1 close-guard and visual-proof repair implementation remains pending USER approval.`
+- Implementation Admission Status: `Prior USER-approved returned refreshed UTS FAIL repair implementation is complete and H1 is green; refreshed LV1 close-guard and visual-proof repair implementation is complete and pending Hardening H1.`
 
 ## Backlog Completion Strategy
 
@@ -370,7 +374,7 @@ Branch Completion Goal: `Complete the FAM-006 Monitor Groups sensor-configuratio
 
 Known Future-Dependent Blockers: `Refreshed Live Validation / UTS recheck, PR creation, merge, release execution, artifacts, raw evidence handling, future branch/worktree cleanup after this branch closes, FAM-007 work, provider/model/memory/shortcut/installer work, Overlay acceptance, external telemetry parity, AI Product work, templates/import/export, full app backup/restore, base NCP settings architecture, and app-wide Theme/Skins all require later USER approval.`
 
-Branch Closure Rule: `Stop after this Branch Readiness Stage 2 setup validation, commit, and push; continue only after USER explicitly approves Repair Workstream implementation for the refreshed LV1 close-guard and visual-proof blocker.`
+Branch Closure Rule: `Stop after this Repair Workstream implementation validation, commit, and push; continue only after USER explicitly approves Hardening H1 for the refreshed LV1 close-guard and visual-proof repair.`
 
 ## Explicit Non-Includes
 
@@ -440,9 +444,9 @@ Hardening Repair Files: `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_
 
 ## Live Validation Stage 1 Result
 
-Live Validation Status: `Refreshed LV1 REPAIR / Branch Readiness Stage 2 close-guard repair setup admitted`
+Live Validation Status: `Refreshed LV1 REPAIR / close-guard repair implementation complete pending H1`
 
-Live Validation Summary: `Refreshed Live Validation Stage 1 precheck passed the real red-shortcut human-client path and human-client proof, but active-client refreshed LV1 returned REPAIR because unsaved_close_queued_action=false. All other Sensor Command Center manifest checks passed. The generated screenshot set showed Dashboard/home/travel states only and did not provide USER-reviewable Manage Monitors visual proof for the Source Filter dropdown, unsaved close guard, delete confirmation, empty state, or 20+ / 100+ list scroll behavior. Branch Readiness Stage 2 now admits this close-guard and visual-proof repair setup. PR Readiness remains blocked until repair implementation, Hardening, refreshed Live Validation / UTS recheck, and returned USER result are PASS or explicitly waived with reason and digested.`
+Live Validation Summary: `Refreshed Live Validation Stage 1 precheck passed the real red-shortcut human-client path and human-client proof, but active-client refreshed LV1 returned REPAIR because unsaved_close_queued_action=false. All other Sensor Command Center manifest checks passed. The generated screenshot set showed Dashboard/home/travel states only and did not provide USER-reviewable Manage Monitors visual proof for the Source Filter dropdown, unsaved close guard, delete confirmation, empty state, or 20+ / 100+ list scroll behavior. The bounded repair implementation now targets the real Manage Monitors close control and adds named screenshot-sequence proof. PR Readiness remains blocked until Hardening, refreshed Live Validation / UTS recheck, and returned USER result are PASS or explicitly waived with reason and digested.`
 
 Real USER-Facing Shortcut Proof: `PASS - dev/logs/fam_006_human_client_validation/20260515_114143_928/human_client_manifest.json`
 
@@ -468,7 +472,7 @@ Repair Workstream implementation updates the compact UTS wording source. The cur
 
 ## Later-Phase Expectations
 
-- Prior Hardening H1 is complete for the previous repair implementation and the corrected returned refreshed UTS FAIL repair H1 is green, but refreshed LV1 close-while-dirty proof now blocks PR Readiness until repair implementation, Hardening, and Live Validation / UTS recheck pass or are waived with reason.
+- Prior Hardening H1 is complete for the previous repair implementation and the corrected returned refreshed UTS FAIL repair H1 is green, but refreshed LV1 close-while-dirty proof now blocks PR Readiness until this repair is hardened and Live Validation / UTS recheck passes or is waived with reason.
 - Refreshed Live Validation Stage 1 has real USER-facing launcher/shortcut proof PASS and human-client proof PASS, but active-client refreshed LV1 recorded unsaved_close_queued_action=false and must be repaired before PR Readiness can resume.
 - PR Readiness, PR creation, merge, release execution, artifacts, raw evidence handling, branch cleanup, Overlay acceptance, FAM-007 work, provider/model/memory/shortcut/installer work, external telemetry parity, and AI Product work remain separate USER decisions.
 
@@ -484,43 +488,43 @@ Non-Includes: `HUD Overlay visual display acceptance, Overlay customization, app
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 repair setup for refreshed LV1 close-guard and visual-proof failure`
+Active seam: `Repair Workstream implementation for refreshed LV1 close-guard and visual-proof failure`
 
-Active Seam Status: `Setup admitted for refreshed LV1 failure: close-while-dirty must queue pendingMonitorAction="close" through the real Manage Monitors close target, preserve visible draft values through Save / Discard / Cancel, and refreshed LV1 must capture Manage Monitors screenshot-sequence or video-style proof instead of Dashboard-only screenshots.`
+Active Seam Status: `Implementation complete for refreshed LV1 failure: close-while-dirty proof targets the real Manage Monitors close control, asserts dirty and changed-draft preconditions, records close queued action and Save / Discard / Cancel close outcomes, and captures named Manage Monitors screenshot-sequence proof instead of Dashboard-only screenshots.`
 
-Next active seam: `Repair Workstream implementation for the refreshed LV1 close-guard and visual-proof blocker`
+Next active seam: `Hardening H1 for the refreshed LV1 close-guard and visual-proof repair`
 
 ## Backlog Completion Status
 
-Backlog Completion State: `Repair Setup Admitted`
+Backlog Completion State: `Implemented Complete`
 
-Remaining Implementable Work: `Repair refreshed LV1 close-while-dirty queued action and Manage Monitors visual-proof coverage`
+Remaining Implementable Work: `None`
 
-Future-Dependent Blockers: `None for this repair setup; excluded Overlay/FAM-007/provider/recording/base-NCP/theme work remains USER-gated`
+Future-Dependent Blockers: `None`
 
-Completion Status: `Blocked pending Repair Workstream implementation`
+Completion Status: `green`
 
 ## Seam Continuation Decision
 
-Seam Status: `Repair Setup Admitted`
+Seam Status: `green`
 
-Slice Status: `Blocked pending implementation`
+Slice Status: `green`
 
-Completion Status: `Blocked pending implementation`
+Completion Status: `green`
 
 Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Closed until USER approves Repair Workstream implementation`
+Continuation Execution Latch: `Closed until USER approves Hardening H1`
 
-Stop Basis: `Branch Readiness Stage 2 setup complete`
+Stop Basis: `workstream green`
 
-Next Active Seam: `Repair Workstream implementation for refreshed LV1 close-guard and visual-proof failure`
+Next Active Seam: `Hardening H1 for refreshed LV1 close-guard and visual-proof repair`
 
-Stop Condition: `Runtime implementation for the refreshed LV1 close-guard and visual-proof blocker requires explicit USER approval`
+Stop Condition: `Hardening H1 requires explicit USER approval`
 
-Continuation Action: `Stop at phase boundary until USER admits the next phase by approving bounded Repair Workstream implementation`
+Continuation Action: `Stop at phase boundary until USER admits Hardening H1`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -532,12 +536,12 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Blockers
 
-Refreshed LV1 remains in REPAIR posture because unsaved_close_queued_action=false and Manage Monitors visual-proof coverage is missing from the screenshot set. PR Readiness remains blocked until this repair is implemented after USER approval, hardened, and refreshed Live Validation / returned USER UTS recheck proves the repair or USER explicitly waives remaining gates with reason. PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
+Refreshed LV1 remains in REPAIR posture until the new close-guard and visual-proof implementation is hardened and refreshed Live Validation / returned USER UTS recheck proves the repair or USER explicitly waives remaining gates with reason. PR Readiness remains blocked. PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
 
 ## Exit Criteria
 
 - Current-main reconciliation preserves PR #163 main truth and the FAM-006 branch-local Sensor Command Center work.
-- Refreshed LV1 close-guard and visual-proof repair candidates are admitted for setup, not implemented by this source-truth setup.
+- Refreshed LV1 close-guard and visual-proof repair implementation is complete and awaits H1.
 - Previously implemented draft guard, queued actions, Sensor Library pattern, Warning Notifications setting checkbox, Provider Readiness readiness/status classification, and profile-model separation are preserved.
 - Existing Dashboard settings, close, warning notifications, tray-owned HUD control, resize/scroll/source-truth boundaries are preserved as regression requirements.
 - FAM-006 v1.7.1-prebeta release closure remains green.
@@ -545,7 +549,7 @@ Refreshed LV1 remains in REPAIR posture because unsaved_close_queued_action=fals
 - Directly supporting validators pass.
 - PR Readiness remains blocked until refreshed Live Validation and returned USER UTS PASS or explicit waiver with reason.
 - Required validation passes.
-- Branch Readiness repair setup commit is pushed.
+- Repair Workstream implementation commit is pushed.
 
 ## Rollback Target
 
@@ -555,23 +559,23 @@ Rollback is the unmerged Workstream implementation on this branch only if USER l
 
 ## Next Legal Phase
 
-`Workstream`
+`Hardening`
 
-USER decision to approve bounded Repair Workstream implementation for the refreshed LV1 close-guard and visual-proof blocker on `feature/fam-006-monitor-groups-sensor-configuration`.
+USER decision to approve Hardening H1 for the refreshed LV1 close-guard and visual-proof repair on `feature/fam-006-monitor-groups-sensor-configuration`.
 
 ## Next Legal Phase Digest
 
-Current Phase: `Branch Readiness Stage 2 repair setup`
+Current Phase: `Repair Workstream implementation`
 
-Next Legal Phase: `Workstream`
+Next Legal Phase: `Hardening H1`
 
-Why This Phase Is Next: `Refreshed LV1 found one functional proof blocker after H1 PASS: Manage Monitors close while dirty did not prove pendingMonitorAction="close", and screenshots did not cover Manage Monitors UI states. The next legal phase is bounded Repair Workstream implementation for that close-guard and visual-proof gap before Hardening and refreshed Live Validation can resume.`
+Why This Phase Is Next: `The bounded repair implementation now targets the real Manage Monitors close control, proves close queued action and close Save / Discard / Cancel outcomes from visible draft values, and captures named Manage Monitors screenshot-sequence proof. The next legal phase is Hardening H1 before refreshed Live Validation / UTS can resume.`
 
-Approval Required: `USER approval for bounded Repair Workstream implementation.`
+Approval Required: `USER approval for Hardening H1.`
 
-Exact USER Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to repairing the refreshed LV1 unsaved close-while-dirty failure and Manage Monitors visual-proof gap. Scope: ensure dirty Manage Monitors close queues pendingMonitorAction="close"; Save persists the visible draft then closes; Discard drops the draft then closes; Cancel keeps Manage Monitors open with the draft visible; update proof to target data-child-window-close="monitor-group-edit", assert dirty state and changed draft value before close, and record close queued action proof; add screenshot-sequence or video-style proof for Manage Monitors open state, Source Filter dropdown open/hover/reset, unsaved guard close-queue state, Save / Discard / Cancel close outcomes, delete confirmation, final empty state, and 20+ / 100+ list scrollbar behavior; preserve all existing FAM-006 Sensor Command Center repairs and profile boundaries; run validation; commit and push if green.`
+Exact USER Approval Text: `Approve Hardening H1 for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006 after the refreshed LV1 close-guard and Manage Monitors visual-proof Repair Workstream implementation. Scope: verify repo/worktree identity, branch, upstream, HEAD, origin/main, merge-base, and cleanliness; verify the repair implementation commit is present; pressure-test dirty Manage Monitors close routing through Save / Discard / Cancel with visible draft values; pressure-test proof targeting for data-child-window-close="monitor-group-edit"; pressure-test named screenshot-sequence proof for Manage Monitors open state, Source Filter dropdown open/hover/reset, unsaved close guard, close outcomes, delete confirmation, final empty state, and 20+ / 100+ list scrollbar behavior; preserve existing FAM-006 Sensor Command Center repairs and profile boundaries; apply bounded H1 repairs only if defects are found; run required validation; commit and push if green.`
 
-Allowed Scope: `FAM-006 Repair Workstream implementation and directly supporting validators/helpers/UTS/source-truth updates for the refreshed LV1 close-guard and visual-proof blocker only.`
+Allowed Scope: `FAM-006 Hardening H1 and directly supporting validators/helpers/UTS/source-truth updates for the refreshed LV1 close-guard and visual-proof blocker only.`
 
 Explicit Exclusions: `HUD Overlay visual display acceptance, Overlay customization, app-wide Theme/Skins, FAM-007, provider/model/memory/shortcut/installer work, external telemetry parity, AI Product work, PR creation, merge, release execution, tags, GitHub Releases, artifacts, raw evidence upload/import/linking, Governance branch mutation, neutral main mutation, and future branch/worktree cleanup after this branch closes.`
 

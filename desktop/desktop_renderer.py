@@ -9144,6 +9144,7 @@ class DesktopRuntimeWindow(QWidget):
             path = self._capture_monitoring_hud_live_client_self_qa_screenshot(label)
             if path:
                 screenshots.append(path)
+            return path
 
         def delay(base_ms: int) -> int:
             return max(base_ms, self._monitoring_hud_live_self_qa_step_delay_ms)
@@ -9717,6 +9718,15 @@ class DesktopRuntimeWindow(QWidget):
                 "unsaved_create_queued_action": h1_proof.get("unsavedCreateQueuedAction") is True,
                 "unsaved_delete_queued_action": h1_proof.get("unsavedDeleteQueuedAction") is True,
                 "unsaved_close_queued_action": h1_proof.get("unsavedCloseQueuedAction") is True,
+                "unsaved_close_dirty_before_close": h1_proof.get("unsavedCloseDirtyBeforeClose") is True,
+                "unsaved_close_draft_before_close": h1_proof.get("unsavedCloseDraftBeforeClose") is True,
+                "unsaved_close_targeted_manage_close": h1_proof.get("unsavedCloseTargetedManageClose") is True,
+                "unsaved_close_cancel_kept_open": h1_proof.get("unsavedCloseCancelKeptOpen") is True,
+                "unsaved_close_cancel_preserved_draft": h1_proof.get("unsavedCloseCancelPreservedDraft") is True,
+                "unsaved_close_save_persisted_draft": h1_proof.get("unsavedCloseSavePersistedDraft") is True,
+                "unsaved_close_save_closed_window": h1_proof.get("unsavedCloseSaveClosedWindow") is True,
+                "unsaved_close_discard_dropped_draft": h1_proof.get("unsavedCloseDiscardDroppedDraft") is True,
+                "unsaved_close_discard_closed_window": h1_proof.get("unsavedCloseDiscardClosedWindow") is True,
                 "final_monitor_delete_empty_state": h1_proof.get("finalMonitorDeleteEmptyState") is True,
                 "final_monitor_create_reachable": h1_proof.get("finalMonitorCreateReachable") is True,
                 "source_picker_browser": h1_proof.get("sourcePickerBrowser") is True,
@@ -10028,9 +10038,286 @@ class DesktopRuntimeWindow(QWidget):
                 ):
                     finish("FAIL", "dashboard monitor editor control mutation failed before state assertion")
                     return
-                QTimer.singleShot(
-                    delay(800),
-                    lambda: query("dashboard monitor management create/edit/enable/polling state", assert_monitor_management, step_finish),
+
+                visual_screenshots: list[dict[str, str]] = []
+
+                def record_visual(label: str) -> None:
+                    path = capture(label)
+                    visual_screenshots.append({"label": label, "path": path})
+
+                def run_visual(script: str, next_step) -> None:
+                    self._run_javascript_with_result(
+                        script,
+                        lambda _result: QTimer.singleShot(delay(300), next_step),
+                    )
+
+                def finish_visual_sequence() -> None:
+                    add_step(
+                        "Manage Monitors visual proof screenshot sequence captured",
+                        len(visual_screenshots) >= 8,
+                        {
+                            "screenshotLabels": [item["label"] for item in visual_screenshots],
+                            "screenshotPaths": [item["path"] for item in visual_screenshots],
+                        },
+                    )
+                    QTimer.singleShot(
+                        delay(800),
+                        lambda: query("dashboard monitor management create/edit/enable/polling state", assert_monitor_management, step_finish),
+                    )
+
+                def visual_large_fixture() -> None:
+                    run_visual(
+                        """
+                        (function() {
+                            try {
+                                if (window.__monitoringHudLiveVisualProofBackup && window.setMonitoringHudControlState) {
+                                    window.setMonitoringHudControlState(window.__monitoringHudLiveVisualProofBackup);
+                                }
+                                if (window.setMonitoringHudLargeFixtureMode) {
+                                    window.setMonitoringHudLargeFixtureMode(125);
+                                }
+                                if (typeof monitoringHudOpenChildWindow === "function") {
+                                    monitoringHudOpenChildWindow("monitor-group-edit");
+                                }
+                                const list = document.getElementById("monitoring-hud-edit-monitor-list");
+                                if (list) list.scrollTop = Math.max(0, list.scrollHeight - list.clientHeight);
+                                const sourceSearch = document.getElementById("monitoring-hud-sensor-search");
+                                if (sourceSearch) {
+                                    sourceSearch.value = "duplicate";
+                                    sourceSearch.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                                return JSON.stringify({ ok: true });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("11_100_monitor_list_scrollbar_and_1200_source_picker"), visual_restore_and_finish()),
+                    )
+
+                def visual_empty_state() -> None:
+                    run_visual(
+                        """
+                        (function() {
+                            try {
+                                if (window.__monitoringHudLiveVisualProofBackup && window.setMonitoringHudControlState) {
+                                    window.setMonitoringHudControlState(window.__monitoringHudLiveVisualProofBackup);
+                                }
+                                if (typeof monitoringHudOpenChildWindow === "function") {
+                                    monitoringHudOpenChildWindow("monitor-group-edit");
+                                }
+                                let guard = 0;
+                                while (guard < 160) {
+                                    const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                    const cards = state && state.cards ? state.cards : {};
+                                    const ids = Object.keys(cards);
+                                    if (!ids.length) break;
+                                    const targetId = state.selectedMonitorId && cards[state.selectedMonitorId] ? state.selectedMonitorId : ids[0];
+                                    const row = document.querySelector(`[data-monitor-select="${targetId}"]`);
+                                    if (row) row.click();
+                                    const deleteButton = document.getElementById("monitoring-hud-monitor-detail-delete");
+                                    if (deleteButton) deleteButton.click();
+                                    const confirmButton = document.getElementById("monitoring-hud-monitor-delete-confirm");
+                                    if (confirmButton) confirmButton.click();
+                                    guard += 1;
+                                }
+                                return JSON.stringify({ ok: true });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("10_final_empty_state_create_recovery"), visual_large_fixture()),
+                    )
+
+                def visual_delete_confirmation() -> None:
+                    run_visual(
+                        """
+                        (function() {
+                            try {
+                                if (window.__monitoringHudLiveVisualProofBackup && window.setMonitoringHudControlState) {
+                                    window.setMonitoringHudControlState(window.__monitoringHudLiveVisualProofBackup);
+                                }
+                                if (typeof monitoringHudOpenChildWindow === "function") {
+                                    monitoringHudOpenChildWindow("monitor-group-edit");
+                                }
+                                const deleteButton = document.getElementById("monitoring-hud-monitor-detail-delete");
+                                if (deleteButton) deleteButton.click();
+                                return JSON.stringify({ ok: Boolean(deleteButton) });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("09_delete_confirmation_bottom"), visual_empty_state()),
+                    )
+
+                def visual_discard_close_outcome() -> None:
+                    run_visual(
+                        """
+                        (function() {
+                            try {
+                                if (window.__monitoringHudLiveVisualProofBackup && window.setMonitoringHudControlState) {
+                                    window.setMonitoringHudControlState(window.__monitoringHudLiveVisualProofBackup);
+                                }
+                                if (typeof monitoringHudOpenChildWindow === "function") {
+                                    monitoringHudOpenChildWindow("monitor-group-edit");
+                                }
+                                const input = document.getElementById("monitoring-hud-edit-monitor-name");
+                                if (input) {
+                                    input.value = "Visual Proof Close Discard Draft";
+                                    input.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                                const close = document.querySelector('[data-child-window-close="monitor-group-edit"]');
+                                if (close) close.click();
+                                const discard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
+                                if (discard) discard.click();
+                                return JSON.stringify({ ok: Boolean(close && discard) });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("08_unsaved_close_discard_closes_after_drop"), visual_delete_confirmation()),
+                    )
+
+                def visual_save_close_outcome() -> None:
+                    run_visual(
+                        """
+                        (function() {
+                            try {
+                                if (window.__monitoringHudLiveVisualProofBackup && window.setMonitoringHudControlState) {
+                                    window.setMonitoringHudControlState(window.__monitoringHudLiveVisualProofBackup);
+                                }
+                                if (typeof monitoringHudOpenChildWindow === "function") {
+                                    monitoringHudOpenChildWindow("monitor-group-edit");
+                                }
+                                const input = document.getElementById("monitoring-hud-edit-monitor-name");
+                                if (input) {
+                                    input.value = "Visual Proof Close Save Draft";
+                                    input.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                                const close = document.querySelector('[data-child-window-close="monitor-group-edit"]');
+                                if (close) close.click();
+                                const save = document.getElementById("monitoring-hud-monitor-unsaved-save");
+                                if (save) save.click();
+                                return JSON.stringify({ ok: Boolean(close && save) });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("07_unsaved_close_save_closes_after_persist"), visual_discard_close_outcome()),
+                    )
+
+                def visual_cancel_close_outcome() -> None:
+                    run_visual(
+                        """
+                        (function() {
+                            try {
+                                const cancel = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
+                                if (cancel) cancel.click();
+                                return JSON.stringify({ ok: Boolean(cancel) });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("06_unsaved_close_cancel_preserves_draft"), visual_save_close_outcome()),
+                    )
+
+                def visual_dirty_close_guard() -> None:
+                    run_visual(
+                        """
+                        (function() {
+                            try {
+                                const input = document.getElementById("monitoring-hud-edit-monitor-name");
+                                if (input) {
+                                    input.value = "Visual Proof Close Draft";
+                                    input.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                                const close = document.querySelector('[data-child-window-close="monitor-group-edit"]');
+                                if (close) close.click();
+                                const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                                return JSON.stringify({
+                                    ok: Boolean(close),
+                                    dirty: Boolean(document.getElementById("monitoring-hud") && document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges === "pending"),
+                                    pendingAction: String(guard && guard.dataset ? guard.dataset.pendingMonitorAction || "" : "")
+                                });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("05_unsaved_guard_close_queued"), visual_cancel_close_outcome()),
+                    )
+
+                def visual_source_filter() -> None:
+                    run_visual(
+                        """
+                        (function() {
+                            try {
+                                const filter = document.getElementById("monitoring-hud-sensor-filter");
+                                const toggle = document.getElementById("monitoring-hud-sensor-filter-toggle");
+                                if (toggle && filter && filter.dataset.filterOpen !== "true") toggle.click();
+                                const supported = filter ? filter.querySelector('[data-source-filter="supported"]') : null;
+                                const deferred = filter ? filter.querySelector('[data-source-filter="deferred"]') : null;
+                                if (supported) supported.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+                                if (deferred) deferred.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+                                if (filter) filter.dataset.liveVisualProofState = "source-filter-open-hover-reset";
+                                return JSON.stringify({ ok: Boolean(filter && filter.dataset.filterOpen === "true") });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("04_source_filter_dropdown_open_hover_reset"), visual_dirty_close_guard()),
+                    )
+
+                def visual_manage_open() -> None:
+                    record_visual("03_manage_monitors_open_state")
+                    visual_source_filter()
+
+                def visual_restore_and_finish() -> None:
+                    self._run_javascript_with_result(
+                        """
+                        (function() {
+                            try {
+                                if (window.clearMonitoringHudLargeFixtureMode) window.clearMonitoringHudLargeFixtureMode();
+                                if (window.__monitoringHudLiveVisualProofBackup && window.setMonitoringHudControlState) {
+                                    window.setMonitoringHudControlState(window.__monitoringHudLiveVisualProofBackup);
+                                    window.__monitoringHudLiveVisualProofBackup = null;
+                                }
+                                if (typeof monitoringHudOpenChildWindow === "function") {
+                                    monitoringHudOpenChildWindow("monitor-group-edit");
+                                }
+                                return JSON.stringify({ ok: true });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda _result: QTimer.singleShot(delay(300), finish_visual_sequence),
+                    )
+
+                self._run_javascript_with_result(
+                    """
+                    (function() {
+                        try {
+                            window.__monitoringHudLiveVisualProofBackup = window.getMonitoringHudControlState
+                                ? window.getMonitoringHudControlState()
+                                : null;
+                            if (window.clearMonitoringHudLargeFixtureMode) window.clearMonitoringHudLargeFixtureMode();
+                            if (typeof monitoringHudOpenChildWindow === "function") {
+                                monitoringHudOpenChildWindow("monitor-group-edit");
+                            }
+                            return JSON.stringify({ ok: true });
+                        } catch (err) {
+                            return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                        }
+                    })();
+                    """,
+                    lambda _result: QTimer.singleShot(delay(300), visual_manage_open),
                 )
 
             self._run_javascript_with_result(
@@ -10061,6 +10348,15 @@ class DesktopRuntimeWindow(QWidget):
                         let unsavedCreateQueuedAction = false;
                         let unsavedDeleteQueuedAction = false;
                         let unsavedCloseQueuedAction = false;
+                        let unsavedCloseDirtyBeforeClose = false;
+                        let unsavedCloseDraftBeforeClose = false;
+                        let unsavedCloseTargetedManageClose = false;
+                        let unsavedCloseCancelKeptOpen = false;
+                        let unsavedCloseCancelPreservedDraft = false;
+                        let unsavedCloseSavePersistedDraft = false;
+                        let unsavedCloseSaveClosedWindow = false;
+                        let unsavedCloseDiscardDroppedDraft = false;
+                        let unsavedCloseDiscardClosedWindow = false;
                         let finalMonitorDeleteEmptyState = false;
                         let finalMonitorCreateReachable = false;
                         let sourcePickerBrowser = false;
@@ -10298,12 +10594,61 @@ class DesktopRuntimeWindow(QWidget):
                                 unsavedDeleteQueuedAction = Boolean(deleteGuard && deleteGuard.dataset.pendingMonitorAction === "delete");
                                 const cancelDelete = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
                                 if (cancelDelete) cancelDelete.click();
-                                const childClose = document.querySelector('[data-child-window-close]');
+                                const closeDraftValue = "CPU Group Close Draft";
+                                const closeName = document.getElementById("monitoring-hud-edit-monitor-name");
+                                if (closeName) {
+                                    closeName.value = closeDraftValue;
+                                    closeName.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                                const hud = document.getElementById("monitoring-hud");
+                                const childClose = document.querySelector('[data-child-window-close="monitor-group-edit"]');
+                                unsavedCloseDirtyBeforeClose = Boolean(hud && hud.dataset.monitorUnsavedChanges === "pending");
+                                unsavedCloseDraftBeforeClose = Boolean(closeName && closeName.value === closeDraftValue);
+                                unsavedCloseTargetedManageClose = Boolean(childClose);
                                 if (childClose) childClose.click();
                                 const closeGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
                                 unsavedCloseQueuedAction = Boolean(closeGuard && closeGuard.dataset.pendingMonitorAction === "close");
                                 const cancelClose = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
                                 if (cancelClose) cancelClose.click();
+                                const cancelCloseName = document.getElementById("monitoring-hud-edit-monitor-name");
+                                unsavedCloseCancelKeptOpen = Boolean(hud && hud.dataset.activeChildWindow === "monitor-group-edit");
+                                unsavedCloseCancelPreservedDraft = Boolean(cancelCloseName && cancelCloseName.value === closeDraftValue);
+                                const saveCloseDraftValue = "CPU Group Close Save Draft";
+                                const saveCloseName = document.getElementById("monitoring-hud-edit-monitor-name");
+                                if (saveCloseName) {
+                                    saveCloseName.value = saveCloseDraftValue;
+                                    saveCloseName.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                                const saveCloseButtonTarget = document.querySelector('[data-child-window-close="monitor-group-edit"]');
+                                if (saveCloseButtonTarget) saveCloseButtonTarget.click();
+                                const closeSave = document.getElementById("monitoring-hud-monitor-unsaved-save");
+                                if (closeSave) closeSave.click();
+                                const saveCloseState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                unsavedCloseSavePersistedDraft = Boolean(
+                                    saveCloseState.cards
+                                    && saveCloseState.cards.cpu
+                                    && saveCloseState.cards.cpu.title === saveCloseDraftValue
+                                );
+                                unsavedCloseSaveClosedWindow = Boolean(hud && hud.dataset.activeChildWindow !== "monitor-group-edit");
+                                if (window.setMonitoringHudControlState) window.setMonitoringHudControlState(unsavedBackup);
+                                if (typeof monitoringHudOpenChildWindow === "function") monitoringHudOpenChildWindow("monitor-group-edit");
+                                const discardCloseDraftValue = "CPU Group Close Discard Draft";
+                                const discardCloseName = document.getElementById("monitoring-hud-edit-monitor-name");
+                                if (discardCloseName) {
+                                    discardCloseName.value = discardCloseDraftValue;
+                                    discardCloseName.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
+                                const discardCloseButtonTarget = document.querySelector('[data-child-window-close="monitor-group-edit"]');
+                                if (discardCloseButtonTarget) discardCloseButtonTarget.click();
+                                const closeDiscard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
+                                if (closeDiscard) closeDiscard.click();
+                                const discardCloseState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                                unsavedCloseDiscardDroppedDraft = Boolean(
+                                    discardCloseState.cards
+                                    && discardCloseState.cards.cpu
+                                    && discardCloseState.cards.cpu.title === unsavedBackup.cards.cpu.title
+                                );
+                                unsavedCloseDiscardClosedWindow = Boolean(hud && hud.dataset.activeChildWindow !== "monitor-group-edit");
                             }
                             window.setMonitoringHudControlState(unsavedBackup);
                         }
@@ -10442,6 +10787,15 @@ class DesktopRuntimeWindow(QWidget):
                                     unsavedCreateQueuedAction,
                                     unsavedDeleteQueuedAction,
                                     unsavedCloseQueuedAction,
+                                    unsavedCloseDirtyBeforeClose,
+                                    unsavedCloseDraftBeforeClose,
+                                    unsavedCloseTargetedManageClose,
+                                    unsavedCloseCancelKeptOpen,
+                                    unsavedCloseCancelPreservedDraft,
+                                    unsavedCloseSavePersistedDraft,
+                                    unsavedCloseSaveClosedWindow,
+                                    unsavedCloseDiscardDroppedDraft,
+                                    unsavedCloseDiscardClosedWindow,
                                     finalMonitorDeleteEmptyState,
                                     finalMonitorCreateReachable,
                                     sourcePickerBrowser,
@@ -10497,6 +10851,15 @@ class DesktopRuntimeWindow(QWidget):
                             unsavedCreateQueuedAction,
                             unsavedDeleteQueuedAction,
                             unsavedCloseQueuedAction,
+                            unsavedCloseDirtyBeforeClose,
+                            unsavedCloseDraftBeforeClose,
+                            unsavedCloseTargetedManageClose,
+                            unsavedCloseCancelKeptOpen,
+                            unsavedCloseCancelPreservedDraft,
+                            unsavedCloseSavePersistedDraft,
+                            unsavedCloseSaveClosedWindow,
+                            unsavedCloseDiscardDroppedDraft,
+                            unsavedCloseDiscardClosedWindow,
                             finalMonitorDeleteEmptyState,
                             finalMonitorCreateReachable,
                             sourcePickerBrowser,

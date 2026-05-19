@@ -490,6 +490,15 @@ def validate() -> list[str]:
         "unsavedCreateQueuedAction",
         "unsavedDeleteQueuedAction",
         "unsavedCloseQueuedAction",
+        "unsavedCloseDirtyBeforeClose",
+        "unsavedCloseDraftBeforeClose",
+        "unsavedCloseTargetedManageClose",
+        "unsavedCloseCancelKeptOpen",
+        "unsavedCloseCancelPreservedDraft",
+        "unsavedCloseSavePersistedDraft",
+        "unsavedCloseSaveClosedWindow",
+        "unsavedCloseDiscardDroppedDraft",
+        "unsavedCloseDiscardClosedWindow",
     ):
         _require_contains(js + renderer, guard_proof, "HUD unsaved draft guard proof", failures)
     _require(
@@ -524,6 +533,25 @@ def validate() -> list[str]:
             monitor_groups_record,
             close_guard_setup,
             "FAM-006 refreshed LV1 close-guard repair setup source truth",
+            failures,
+        )
+
+    for close_guard_runtime in (
+        'document.querySelector(\'[data-child-window-close="monitor-group-edit"]\')',
+        "03_manage_monitors_open_state",
+        "04_source_filter_dropdown_open_hover_reset",
+        "05_unsaved_guard_close_queued",
+        "06_unsaved_close_cancel_preserves_draft",
+        "07_unsaved_close_save_closes_after_persist",
+        "08_unsaved_close_discard_closes_after_drop",
+        "09_delete_confirmation_bottom",
+        "10_final_empty_state_create_recovery",
+        "11_100_monitor_list_scrollbar_and_1200_source_picker",
+    ):
+        _require_contains(
+            renderer,
+            close_guard_runtime,
+            "FAM-006 refreshed LV1 close-guard runtime proof",
             failures,
         )
 
