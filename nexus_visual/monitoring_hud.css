@@ -1049,7 +1049,9 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__monitor-manage-list {
   display: grid;
+  align-content: start;
   gap: 8px;
+  grid-auto-rows: max-content;
   min-height: 0;
   overflow: auto;
 }
@@ -1058,7 +1060,8 @@ body.desktop-mode #monitoring-hud > * {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 4px;
-  align-items: stretch;
+  align-items: start;
+  min-height: 54px;
   padding: 7px 8px;
   border: 1px solid rgba(117, 228, 255, 0.14);
   border-radius: 8px;

@@ -538,6 +538,11 @@ def validate() -> list[str]:
 
     for close_guard_runtime in (
         'document.querySelector(\'[data-child-window-close="monitor-group-edit"]\')',
+        "webview_focused_visual_proof",
+        "visualProofQualityGate",
+        "monitorListRowsCompact",
+        "monitorListCssPreventsStretch",
+        "monitorListSmallSetHasSlack",
         "03_manage_monitors_open_state",
         "04_source_filter_dropdown_open_hover_reset",
         "05_unsaved_guard_close_queued",
@@ -714,6 +719,22 @@ def validate() -> list[str]:
         "@keyframes monitoringHudSettle",
     ):
         _require_contains(css, needle, "monitoring HUD CSS", failures)
+    monitor_manage_list_css = re.search(
+        r"\.monitoring-hud__monitor-manage-list\s*\{(?P<body>.*?)\}",
+        css,
+        flags=re.DOTALL,
+    )
+    monitor_manage_list_rule = monitor_manage_list_css.group("body") if monitor_manage_list_css else ""
+    for needle in (
+        "align-content: start;",
+        "grid-auto-rows: max-content;",
+    ):
+        _require_contains(
+            monitor_manage_list_rule,
+            needle,
+            "monitoring HUD compact monitor list CSS",
+            failures,
+        )
     _require(
         ".monitoring-hud__selector-control" not in css,
         "monitoring HUD CSS must not keep legacy Dashboard monitor selector styling",

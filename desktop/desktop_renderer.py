@@ -8885,29 +8885,33 @@ class DesktopRuntimeWindow(QWidget):
                 reason=type(exc).__name__,
             )
 
-    def _capture_monitoring_hud_live_client_self_qa_screenshot(self, label: str) -> str:
+    def _capture_monitoring_hud_live_client_self_qa_screenshot(self, label: str, focused_visual: bool = False) -> str:
         if not self._monitoring_hud_live_self_qa_root:
             return ""
         try:
             os.makedirs(self._monitoring_hud_live_self_qa_root, exist_ok=True)
             safe_label = re.sub(r"[^A-Za-z0-9_.-]+", "_", label).strip("_") or "screenshot"
             path = os.path.join(self._monitoring_hud_live_self_qa_root, f"{safe_label}.png")
-            screens = QApplication.screens()
-            if not screens:
-                return ""
-            virtual = screens[0].geometry()
-            for screen in screens[1:]:
-                virtual = virtual.united(screen.geometry())
-            screenshot = QPixmap(virtual.size())
-            screenshot.fill(QColor(0, 0, 0))
-            painter = QPainter(screenshot)
-            try:
-                for screen in screens:
-                    screen_geometry = screen.geometry()
-                    capture = screen.grabWindow(0)
-                    painter.drawPixmap(screen_geometry.topLeft() - virtual.topLeft(), capture)
-            finally:
-                painter.end()
+            capture_mode = "webview_focused_visual_proof" if focused_visual else "full_virtual_desktop"
+            if focused_visual:
+                screenshot = self.webview.grab()
+            else:
+                screens = QApplication.screens()
+                if not screens:
+                    return ""
+                virtual = screens[0].geometry()
+                for screen in screens[1:]:
+                    virtual = virtual.united(screen.geometry())
+                screenshot = QPixmap(virtual.size())
+                screenshot.fill(QColor(0, 0, 0))
+                painter = QPainter(screenshot)
+                try:
+                    for screen in screens:
+                        screen_geometry = screen.geometry()
+                        capture = screen.grabWindow(0)
+                        painter.drawPixmap(screen_geometry.topLeft() - virtual.topLeft(), capture)
+                finally:
+                    painter.end()
             if screenshot.save(path, "PNG"):
                 self._emit_runtime_signal(
                     "MONITORING_HUD_LIVE_CLIENT_SELF_QA_SCREENSHOT_READY",
@@ -8915,7 +8919,7 @@ class DesktopRuntimeWindow(QWidget):
                     slice="SLC-029",
                     label=safe_label,
                     path=path,
-                    capture="full_virtual_desktop",
+                    capture=capture_mode,
                 )
                 return path
         except Exception as exc:
@@ -9141,7 +9145,23 @@ class DesktopRuntimeWindow(QWidget):
             return passed
 
         def capture(label: str):
-            path = self._capture_monitoring_hud_live_client_self_qa_screenshot(label)
+            focused_visual = label.startswith(
+                (
+                    "03_manage_monitors",
+                    "04_source_filter",
+                    "05_unsaved",
+                    "06_unsaved",
+                    "07_unsaved",
+                    "08_unsaved",
+                    "09_delete",
+                    "10_final",
+                    "11_100_monitor",
+                )
+            )
+            path = self._capture_monitoring_hud_live_client_self_qa_screenshot(
+                label,
+                focused_visual=focused_visual,
+            )
             if path:
                 screenshots.append(path)
             return path
@@ -10043,7 +10063,11 @@ class DesktopRuntimeWindow(QWidget):
 
                 def record_visual(label: str) -> None:
                     path = capture(label)
-                    visual_screenshots.append({"label": label, "path": path})
+                    visual_screenshots.append({
+                        "label": label,
+                        "path": path,
+                        "capture": "webview_focused_visual_proof",
+                    })
 
                 def run_visual(script: str, next_step) -> None:
                     self._run_javascript_with_result(
@@ -10054,10 +10078,15 @@ class DesktopRuntimeWindow(QWidget):
                 def finish_visual_sequence() -> None:
                     add_step(
                         "Manage Monitors visual proof screenshot sequence captured",
-                        len(visual_screenshots) >= 8,
+                        len(visual_screenshots) >= 8 and parsed.get("visualProofQualityGate") is True,
                         {
                             "screenshotLabels": [item["label"] for item in visual_screenshots],
                             "screenshotPaths": [item["path"] for item in visual_screenshots],
+                            "screenshotCaptureMode": "webview_focused_visual_proof",
+                            "visualProofQualityGate": parsed.get("visualProofQualityGate") is True,
+                            "monitorListRowsCompact": parsed.get("monitorListRowsCompact") is True,
+                            "monitorListCssPreventsStretch": parsed.get("monitorListCssPreventsStretch") is True,
+                            "monitorListSmallSetHasSlack": parsed.get("monitorListSmallSetHasSlack") is True,
                         },
                     )
                     QTimer.singleShot(
@@ -10372,11 +10401,40 @@ class DesktopRuntimeWindow(QWidget):
                         let largeMonitorFixture = false;
                         let largeSourceFixture = false;
                         let duplicateLongSourceFixture = false;
+                        let monitorListRowsCompact = false;
+                        let monitorListCssPreventsStretch = false;
+                        let monitorListSmallSetHasSlack = false;
+                        let visualProofQualityGate = false;
                         const rowActionSelector = '.monitoring-hud__monitor-row-actions,[data-monitor-edit-select],[data-monitor-delete]';
                         const requiredFilters = [
                             "cpu", "gpu", "memory", "disk", "network", "temperature", "load",
                             "clock", "power", "fan", "voltage", "supported", "deferred", "missing", "warning"
                         ];
+                        function monitorListVisualContract() {
+                            const list = document.getElementById("monitoring-hud-edit-monitor-list");
+                            const rows = list ? Array.from(list.querySelectorAll(".monitoring-hud__monitor-manage-row")) : [];
+                            const listRect = list ? list.getBoundingClientRect() : null;
+                            const style = list ? window.getComputedStyle(list) : null;
+                            const rowRects = rows.map((row) => row.getBoundingClientRect()).filter((rect) => rect && rect.height > 0);
+                            const maxRowHeight = rowRects.reduce((max, rect) => Math.max(max, rect.height), 0);
+                            const totalRowHeight = rowRects.reduce((total, rect) => total + rect.height, 0);
+                            const compactRows = rowRects.length > 0 && maxRowHeight <= 92;
+                            const preventsStretch = Boolean(
+                                style
+                                && style.alignContent === "start"
+                                && String(style.gridAutoRows || "").indexOf("max-content") >= 0
+                            );
+                            const smallSetHasSlack = !listRect || rowRects.length > 8 || totalRowHeight <= Math.max(180, listRect.height * 0.72);
+                            return {
+                                rowCount: rowRects.length,
+                                maxRowHeight,
+                                totalRowHeight,
+                                listHeight: listRect ? listRect.height : 0,
+                                compactRows,
+                                preventsStretch,
+                                smallSetHasSlack
+                            };
+                        }
                         const sourceAssignment = document.getElementById("monitoring-hud-monitor-sensor-assignment");
                         const sourceFilter = document.getElementById("monitoring-hud-sensor-filter");
                         const sourceSearch = document.getElementById("monitoring-hud-sensor-search");
@@ -10750,6 +10808,17 @@ class DesktopRuntimeWindow(QWidget):
                             polling.dispatchEvent(pollingEvent);
                         }
                         if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
+                            const visualContract = monitorListVisualContract();
+                            monitorListRowsCompact = visualContract.compactRows;
+                            monitorListCssPreventsStretch = visualContract.preventsStretch;
+                            monitorListSmallSetHasSlack = visualContract.smallSetHasSlack;
+                            visualProofQualityGate = Boolean(
+                                monitorListRowsCompact
+                                && monitorListCssPreventsStretch
+                                && monitorListSmallSetHasSlack
+                                && commandCenterLayout
+                                && rowActionsRemoved
+                            );
                             const state = window.getMonitoringHudControlState();
                             if (selectedBefore && state.cards && state.cards[selectedBefore]) {
                                 state.selectedMonitorId = selectedBefore;
@@ -10810,7 +10879,11 @@ class DesktopRuntimeWindow(QWidget):
                                     providerReadinessNotAssignable,
                                     largeMonitorFixture,
                                     largeSourceFixture,
-                                    duplicateLongSourceFixture
+                                    duplicateLongSourceFixture,
+                                    monitorListRowsCompact,
+                                    monitorListCssPreventsStretch,
+                                    monitorListSmallSetHasSlack,
+                                    visualProofQualityGate
                                 };
                                 window.setMonitoringHudControlState(state);
                             }
@@ -10819,7 +10892,12 @@ class DesktopRuntimeWindow(QWidget):
                         const selectedAfter = after && after.selectedMonitorId;
                         const selectedCard = after && after.cards && selectedAfter ? after.cards[selectedAfter] : {};
                         return JSON.stringify({
-                            ok: Boolean(selectedAfter && after.cards && after.cards[selectedAfter]),
+                            ok: Boolean(
+                                selectedAfter
+                                && after.cards
+                                && after.cards[selectedAfter]
+                                && visualProofQualityGate
+                            ),
                             selectedBefore,
                             selectedAfter,
                             enabledControlPresent: Boolean(enabled),
@@ -10874,7 +10952,11 @@ class DesktopRuntimeWindow(QWidget):
                             providerReadinessNotAssignable,
                             largeMonitorFixture,
                             largeSourceFixture,
-                            duplicateLongSourceFixture
+                            duplicateLongSourceFixture,
+                            monitorListRowsCompact,
+                            monitorListCssPreventsStretch,
+                            monitorListSmallSetHasSlack,
+                            visualProofQualityGate
                         });
                     } catch (err) {
                         return JSON.stringify({
