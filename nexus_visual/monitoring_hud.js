@@ -80,7 +80,6 @@ const monitoringHudMonitorDetailDelete = document.getElementById("monitoring-hud
 const monitoringHudMonitorUnsavedGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
 const monitoringHudMonitorUnsavedSave = document.getElementById("monitoring-hud-monitor-unsaved-save");
 const monitoringHudMonitorUnsavedDiscard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
-const monitoringHudMonitorUnsavedCancel = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
 const monitoringHudMonitorDetailEmpty = document.getElementById("monitoring-hud-monitor-detail-empty");
 const monitoringHudMonitorEmptyCreate = document.getElementById("monitoring-hud-monitor-empty-create-action");
 const monitoringHudMonitorWarningSetting = document.getElementById("monitoring-hud-monitor-warning-notifications-setting");
@@ -935,9 +934,6 @@ function monitoringHudPollingRateHitboxProof() {
 
 function monitoringHudReliableActivationAllowed(key) {
   const now = Date.now();
-  if (monitoringHudReliableActivationState.lastKey === key && now - monitoringHudReliableActivationState.lastAt < 280) {
-    return false;
-  }
   monitoringHudReliableActivationState.lastKey = key;
   monitoringHudReliableActivationState.lastAt = now;
   return true;
@@ -988,7 +984,6 @@ function monitoringHudWireReliableControl(element, key, handler) {
     const result = handler(event);
     monitoringHudRecordReliableActivation(element, phase, result !== false);
   };
-  element.addEventListener("pointerup", (event) => activate(event, "pointerup"));
   element.addEventListener("click", (event) => activate(event, "click"));
 }
 
@@ -1016,7 +1011,6 @@ function monitoringHudWireReliableDelegatedControl(root, selector, keyPrefix, ha
     const target = event.target && event.target.closest ? event.target.closest(selector) : null;
     if (target) monitoringHudApplyPressedState(target, false);
   });
-  root.addEventListener("pointerup", (event) => activate(event, "pointerup"));
   root.addEventListener("click", (event) => activate(event, "click"));
 }
 
@@ -1726,6 +1720,7 @@ function monitoringHudSetMonitorDraftDirty(dirty) {
     if (monitoringHudMonitorUnsavedGuard) {
       monitoringHudMonitorUnsavedGuard.hidden = true;
       monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "closed";
+      monitoringHudMonitorUnsavedGuard.dataset.guardActionLayout = "";
       monitoringHudMonitorUnsavedGuard.dataset.draftMonitorId = "";
       monitoringHudMonitorUnsavedGuard.dataset.guardStateModel = "";
       monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = "";
@@ -1741,7 +1736,8 @@ function monitoringHudShowUnsavedGuard(action) {
   monitoringHudPendingSelectMonitorId = pendingAction.type === "select" ? (pendingAction.cardId || "") : "";
   if (!monitoringHudMonitorUnsavedGuard) return;
   monitoringHudMonitorUnsavedGuard.hidden = false;
-  monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "open-save-discard-cancel";
+  monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "open-save-discard";
+  monitoringHudMonitorUnsavedGuard.dataset.guardActionLayout = "save-left-discard-right-no-cancel";
   monitoringHudMonitorUnsavedGuard.dataset.draftMonitorId = monitoringHudDraftOriginalMonitorId || "";
   monitoringHudMonitorUnsavedGuard.dataset.guardStateModel = "draft-preserved-before-queued-action";
   monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = monitoringHudPendingSelectMonitorId;
@@ -1775,14 +1771,32 @@ function monitoringHudRunPendingGuardAction(action) {
   }
 }
 
-function monitoringHudSaveAndSelectPendingMonitor() {
+function monitoringHudPendingGuardActionSnapshot() {
   const pendingAction = Object.assign({}, monitoringHudPendingGuardAction || {});
+  if (pendingAction.type) return pendingAction;
+  if (!monitoringHudMonitorUnsavedGuard || monitoringHudMonitorUnsavedGuard.hidden) return pendingAction;
+  const guardType = monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorAction || "";
+  if (!guardType) return pendingAction;
+  if (guardType === "select") {
+    return {
+      type: "select",
+      cardId: monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect || ""
+    };
+  }
+  return {
+    type: guardType,
+    cardId: monitoringHudMonitorUnsavedGuard.dataset.draftMonitorId || monitoringHudControlState.selectedMonitorId || ""
+  };
+}
+
+function monitoringHudSaveAndSelectPendingMonitor() {
+  const pendingAction = monitoringHudPendingGuardActionSnapshot();
   monitoringHudPersistCurrentMonitorDraft();
   monitoringHudRunPendingGuardAction(pendingAction);
 }
 
 function monitoringHudDiscardAndSelectPendingMonitor() {
-  const pendingAction = Object.assign({}, monitoringHudPendingGuardAction || {});
+  const pendingAction = monitoringHudPendingGuardActionSnapshot();
   if (
     monitoringHudDraftOriginalMonitorId
     && monitoringHudDraftOriginalLayout
@@ -1793,20 +1807,6 @@ function monitoringHudDiscardAndSelectPendingMonitor() {
   }
   monitoringHudSetMonitorDraftDirty(false);
   monitoringHudRunPendingGuardAction(pendingAction);
-}
-
-function monitoringHudCancelPendingMonitorSelection() {
-  monitoringHudPendingSelectMonitorId = "";
-  monitoringHudPendingGuardAction = null;
-  if (monitoringHudMonitorUnsavedGuard) {
-    monitoringHudMonitorUnsavedGuard.hidden = true;
-    monitoringHudMonitorUnsavedGuard.dataset.unsavedGuard = "closed";
-    monitoringHudMonitorUnsavedGuard.dataset.draftMonitorId = "";
-    monitoringHudMonitorUnsavedGuard.dataset.guardStateModel = "";
-    monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorSelect = "";
-    monitoringHudMonitorUnsavedGuard.dataset.pendingMonitorAction = "";
-  }
-  monitoringHudRenderMonitorManagement();
 }
 
 function monitoringHudRenderMonitorManagement() {
@@ -2405,9 +2405,6 @@ function monitoringHudWireControls() {
   if (monitoringHudMonitorUnsavedDiscard) {
     monitoringHudWireReliableControl(monitoringHudMonitorUnsavedDiscard, "manage:dirty-discard", monitoringHudDiscardAndSelectPendingMonitor);
   }
-  if (monitoringHudMonitorUnsavedCancel) {
-    monitoringHudWireReliableControl(monitoringHudMonitorUnsavedCancel, "manage:dirty-cancel", monitoringHudCancelPendingMonitorSelection);
-  }
   if (monitoringHudMonitorSensorAssignment) {
     monitoringHudMonitorSensorAssignment.addEventListener("change", (event) => {
       if (!event.target || !event.target.matches || !event.target.matches("[data-monitor-sensor-input]")) return;
@@ -2959,7 +2956,8 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
       const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
       return Boolean(guard && !guard.hidden && guard.dataset.pendingMonitorAction === "close");
     });
-    activate("dirty-cancel", "#monitoring-hud-monitor-unsaved-cancel", () => monitoringHudActiveChildWindow === "monitor-group-edit");
+    activate("dirty-discard", "#monitoring-hud-monitor-unsaved-discard", () => monitoringHudActiveChildWindow !== "monitor-group-edit");
+    if (typeof monitoringHudOpenChildWindow === "function") monitoringHudOpenChildWindow("monitor-group-edit");
     activate("source-filter-open", "#monitoring-hud-sensor-filter-toggle", () => monitoringHudSensorFilter && monitoringHudSensorFilter.dataset.filterOpen === "true");
     activate("source-filter-supported", '[data-source-filter="supported"]', () => monitoringHudSensorFilterValue() === "supported");
     activate("source-filter-reopen", "#monitoring-hud-sensor-filter-toggle", () => monitoringHudSensorFilter && monitoringHudSensorFilter.dataset.filterOpen === "true");

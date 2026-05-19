@@ -9731,8 +9731,8 @@ class DesktopRuntimeWindow(QWidget):
                 "detail_pane_delete": h1_proof.get("detailPaneDelete") is True,
                 "unsaved_guard_opened": h1_proof.get("unsavedGuardOpened") is True,
                 "unsaved_guard_buttons": h1_proof.get("unsavedGuardButtons") is True,
-                "unsaved_cancel_preserved_selection": h1_proof.get("unsavedCancelPreservedSelection") is True,
-                "unsaved_cancel_preserved_draft": h1_proof.get("unsavedCancelPreservedDraft") is True,
+                "unsaved_guard_cancel_removed": h1_proof.get("unsavedGuardCancelRemoved") is True,
+                "unsaved_discard_right_aligned": h1_proof.get("unsavedDiscardRightAligned") is True,
                 "unsaved_discard_switched_selection": h1_proof.get("unsavedDiscardSwitchedSelection") is True,
                 "unsaved_discard_dropped_draft": h1_proof.get("unsavedDiscardDroppedDraft") is True,
                 "unsaved_save_switched_selection": h1_proof.get("unsavedSaveSwitchedSelection") is True,
@@ -9743,12 +9743,11 @@ class DesktopRuntimeWindow(QWidget):
                 "unsaved_close_dirty_before_close": h1_proof.get("unsavedCloseDirtyBeforeClose") is True,
                 "unsaved_close_draft_before_close": h1_proof.get("unsavedCloseDraftBeforeClose") is True,
                 "unsaved_close_targeted_manage_close": h1_proof.get("unsavedCloseTargetedManageClose") is True,
-                "unsaved_close_cancel_kept_open": h1_proof.get("unsavedCloseCancelKeptOpen") is True,
-                "unsaved_close_cancel_preserved_draft": h1_proof.get("unsavedCloseCancelPreservedDraft") is True,
                 "unsaved_close_save_persisted_draft": h1_proof.get("unsavedCloseSavePersistedDraft") is True,
                 "unsaved_close_save_closed_window": h1_proof.get("unsavedCloseSaveClosedWindow") is True,
                 "unsaved_close_discard_dropped_draft": h1_proof.get("unsavedCloseDiscardDroppedDraft") is True,
                 "unsaved_close_discard_closed_window": h1_proof.get("unsavedCloseDiscardClosedWindow") is True,
+                "delete_confirmation_cancel_illuminated": h1_proof.get("deleteConfirmationCancelIlluminated") is True,
                 "final_monitor_delete_empty_state": h1_proof.get("finalMonitorDeleteEmptyState") is True,
                 "final_monitor_create_reachable": h1_proof.get("finalMonitorCreateReachable") is True,
                 "empty_state_no_save_cancel": h1_proof.get("emptyStateNoSaveCancel") is True,
@@ -10110,7 +10109,7 @@ class DesktopRuntimeWindow(QWidget):
                         "04_source_filter_dropdown_open_hover_reset",
                         "04_polling_rate_dropdown_open_hover_reset",
                         "05_unsaved_guard_close_queued",
-                        "06_unsaved_close_cancel_preserves_draft",
+                        "06_unsaved_guard_save_discard_no_cancel",
                         "07_unsaved_close_save_closes_after_persist",
                         "08_unsaved_close_discard_closes_after_drop",
                         "09_delete_confirmation_bottom",
@@ -10338,21 +10337,41 @@ class DesktopRuntimeWindow(QWidget):
                         lambda: (record_visual("07_unsaved_close_save_closes_after_persist"), visual_discard_close_outcome()),
                     )
 
-                def visual_cancel_close_outcome() -> None:
+                def visual_guard_no_cancel_layout() -> None:
                     run_visual(
-                        "06_unsaved_close_cancel_preserves_draft",
+                        "06_unsaved_guard_save_discard_no_cancel",
                         """
                         (function() {
                             try {
+                                const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                                const save = document.getElementById("monitoring-hud-monitor-unsaved-save");
+                                const discard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
                                 const cancel = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
-                                if (cancel) cancel.click();
-                                return JSON.stringify({ ok: Boolean(cancel) });
+                                const guardRect = guard ? guard.getBoundingClientRect() : null;
+                                const saveRect = save ? save.getBoundingClientRect() : null;
+                                const discardRect = discard ? discard.getBoundingClientRect() : null;
+                                return JSON.stringify({
+                                    ok: Boolean(
+                                        guard
+                                        && !guard.hidden
+                                        && save
+                                        && discard
+                                        && !cancel
+                                        && guard.dataset.guardActionLayout === "save-left-discard-right-no-cancel"
+                                        && saveRect
+                                        && discardRect
+                                        && guardRect
+                                        && saveRect.left <= guardRect.left + 24
+                                        && discardRect.right >= guardRect.right - 24
+                                        && saveRect.right < discardRect.left
+                                    )
+                                });
                             } catch (err) {
                                 return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
                             }
                         })();
                         """,
-                        lambda: (record_visual("06_unsaved_close_cancel_preserves_draft"), visual_save_close_outcome()),
+                        lambda: (record_visual("06_unsaved_guard_save_discard_no_cancel"), visual_save_close_outcome()),
                     )
 
                 def visual_dirty_close_guard() -> None:
@@ -10379,7 +10398,7 @@ class DesktopRuntimeWindow(QWidget):
                             }
                         })();
                         """,
-                        lambda: (record_visual("05_unsaved_guard_close_queued"), visual_cancel_close_outcome()),
+                        lambda: (record_visual("05_unsaved_guard_close_queued"), visual_guard_no_cancel_layout()),
                     )
 
                 def visual_source_filter() -> None:
@@ -10521,8 +10540,8 @@ class DesktopRuntimeWindow(QWidget):
                         let detailPaneDelete = false;
                         let unsavedGuardOpened = false;
                         let unsavedGuardButtons = false;
-                        let unsavedCancelPreservedSelection = false;
-                        let unsavedCancelPreservedDraft = false;
+                        let unsavedGuardCancelRemoved = false;
+                        let unsavedDiscardRightAligned = false;
                         let unsavedDiscardSwitchedSelection = false;
                         let unsavedDiscardDroppedDraft = false;
                         let unsavedSaveSwitchedSelection = false;
@@ -10533,12 +10552,11 @@ class DesktopRuntimeWindow(QWidget):
                         let unsavedCloseDirtyBeforeClose = false;
                         let unsavedCloseDraftBeforeClose = false;
                         let unsavedCloseTargetedManageClose = false;
-                        let unsavedCloseCancelKeptOpen = false;
-                        let unsavedCloseCancelPreservedDraft = false;
                         let unsavedCloseSavePersistedDraft = false;
                         let unsavedCloseSaveClosedWindow = false;
                         let unsavedCloseDiscardDroppedDraft = false;
                         let unsavedCloseDiscardClosedWindow = false;
+                        let deleteConfirmationCancelIlluminated = false;
                         let finalMonitorDeleteEmptyState = false;
                         let finalMonitorCreateReachable = false;
                         let emptyStateNoSaveCancel = false;
@@ -10782,20 +10800,27 @@ class DesktopRuntimeWindow(QWidget):
                                 gpuRow = document.querySelector('[data-monitor-select="gpu"]');
                                 gpuRow.click();
                                 const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
-                                unsavedGuardOpened = Boolean(guard && !guard.hidden && guard.dataset.unsavedGuard === "open-save-discard-cancel");
+                                unsavedGuardOpened = Boolean(guard && !guard.hidden && guard.dataset.unsavedGuard === "open-save-discard");
+                                const guardRect = guard ? guard.getBoundingClientRect() : null;
+                                const saveButton = document.getElementById("monitoring-hud-monitor-unsaved-save");
+                                const discardButton = document.getElementById("monitoring-hud-monitor-unsaved-discard");
+                                const cancelButton = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
+                                const saveRect = saveButton ? saveButton.getBoundingClientRect() : null;
+                                const discardRect = discardButton ? discardButton.getBoundingClientRect() : null;
                                 unsavedGuardButtons = Boolean(
-                                    document.getElementById("monitoring-hud-monitor-unsaved-save")
-                                    && document.getElementById("monitoring-hud-monitor-unsaved-discard")
-                                    && document.getElementById("monitoring-hud-monitor-unsaved-cancel")
+                                    saveButton
+                                    && discardButton
+                                    && !cancelButton
                                 );
-                                const cancel = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
-                                if (cancel) cancel.click();
-                                let cancelState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
-                                const cancelName = document.getElementById("monitoring-hud-edit-monitor-name");
-                                unsavedCancelPreservedSelection = Boolean(cancelState.selectedMonitorId === "cpu");
-                                unsavedCancelPreservedDraft = Boolean(cancelName && cancelName.value === "CPU Group Dirty");
-                                gpuRow = document.querySelector('[data-monitor-select="gpu"]');
-                                gpuRow.click();
+                                unsavedGuardCancelRemoved = Boolean(!cancelButton && guard && guard.dataset.guardActionLayout === "save-left-discard-right-no-cancel");
+                                unsavedDiscardRightAligned = Boolean(
+                                    guardRect
+                                    && saveRect
+                                    && discardRect
+                                    && saveRect.left <= guardRect.left + 24
+                                    && discardRect.right >= guardRect.right - 24
+                                    && saveRect.right < discardRect.left
+                                );
                                 const discard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
                                 if (discard) discard.click();
                                 let discardState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
@@ -10844,14 +10869,18 @@ class DesktopRuntimeWindow(QWidget):
                                 if (createButton) createButton.click();
                                 const createGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
                                 unsavedCreateQueuedAction = Boolean(createGuard && createGuard.dataset.pendingMonitorAction === "create");
-                                const cancelCreate = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
-                                if (cancelCreate) cancelCreate.click();
+                                if (window.setMonitoringHudControlState) window.setMonitoringHudControlState(unsavedBackup);
+                                if (typeof monitoringHudOpenChildWindow === "function") monitoringHudOpenChildWindow("monitor-group-edit");
+                                const deleteQueuedName = document.getElementById("monitoring-hud-edit-monitor-name");
+                                if (deleteQueuedName) {
+                                    deleteQueuedName.value = "CPU Group Delete Queue Draft";
+                                    deleteQueuedName.dispatchEvent(new Event("input", { bubbles: true }));
+                                }
                                 const deleteButtonQueued = document.getElementById("monitoring-hud-monitor-detail-delete");
                                 if (deleteButtonQueued) deleteButtonQueued.click();
                                 const deleteGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
                                 unsavedDeleteQueuedAction = Boolean(deleteGuard && deleteGuard.dataset.pendingMonitorAction === "delete");
-                                const cancelDelete = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
-                                if (cancelDelete) cancelDelete.click();
+                                if (window.setMonitoringHudControlState) window.setMonitoringHudControlState(unsavedBackup);
                                 if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
                                     const closeReadyState = window.getMonitoringHudControlState() || {};
                                     if (closeReadyState.cards && closeReadyState.cards.cpu) {
@@ -10876,11 +10905,14 @@ class DesktopRuntimeWindow(QWidget):
                                 if (childClose) childClose.click();
                                 const closeGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
                                 unsavedCloseQueuedAction = Boolean(closeGuard && closeGuard.dataset.pendingMonitorAction === "close");
-                                const cancelClose = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
-                                if (cancelClose) cancelClose.click();
-                                const cancelCloseName = document.getElementById("monitoring-hud-edit-monitor-name");
-                                unsavedCloseCancelKeptOpen = Boolean(hud && hud.dataset.activeChildWindow === "monitor-group-edit");
-                                unsavedCloseCancelPreservedDraft = Boolean(cancelCloseName && cancelCloseName.value === closeDraftValue);
+                                if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
+                                    const saveReadyState = JSON.parse(JSON.stringify(unsavedBackup));
+                                    if (saveReadyState.cards && saveReadyState.cards.cpu) {
+                                        saveReadyState.selectedMonitorId = "cpu";
+                                    }
+                                    window.setMonitoringHudControlState(saveReadyState);
+                                }
+                                if (typeof monitoringHudOpenChildWindow === "function") monitoringHudOpenChildWindow("monitor-group-edit");
                                 const saveCloseDraftValue = "CPU Group Close Save Draft";
                                 const saveCloseName = document.getElementById("monitoring-hud-edit-monitor-name");
                                 if (saveCloseName) {
@@ -10889,16 +10921,25 @@ class DesktopRuntimeWindow(QWidget):
                                 }
                                 const saveCloseButtonTarget = document.querySelector('[data-child-window-close="monitor-group-edit"]');
                                 if (saveCloseButtonTarget) saveCloseButtonTarget.click();
+                                const saveCloseGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                                const saveCloseGuardReady = Boolean(saveCloseGuard && !saveCloseGuard.hidden && saveCloseGuard.dataset.pendingMonitorAction === "close");
                                 const closeSave = document.getElementById("monitoring-hud-monitor-unsaved-save");
-                                if (closeSave) closeSave.click();
+                                if (saveCloseGuardReady && closeSave) closeSave.click();
                                 const saveCloseState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
                                 unsavedCloseSavePersistedDraft = Boolean(
-                                    saveCloseState.cards
+                                    saveCloseGuardReady
+                                    && saveCloseState.cards
                                     && saveCloseState.cards.cpu
                                     && saveCloseState.cards.cpu.title === saveCloseDraftValue
                                 );
-                                unsavedCloseSaveClosedWindow = Boolean(hud && hud.dataset.activeChildWindow !== "monitor-group-edit");
-                                if (window.setMonitoringHudControlState) window.setMonitoringHudControlState(unsavedBackup);
+                                unsavedCloseSaveClosedWindow = Boolean(saveCloseGuardReady && hud && hud.dataset.activeChildWindow !== "monitor-group-edit");
+                                if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
+                                    const discardReadyState = JSON.parse(JSON.stringify(unsavedBackup));
+                                    if (discardReadyState.cards && discardReadyState.cards.cpu) {
+                                        discardReadyState.selectedMonitorId = "cpu";
+                                    }
+                                    window.setMonitoringHudControlState(discardReadyState);
+                                }
                                 if (typeof monitoringHudOpenChildWindow === "function") monitoringHudOpenChildWindow("monitor-group-edit");
                                 const discardCloseDraftValue = "CPU Group Close Discard Draft";
                                 const discardCloseName = document.getElementById("monitoring-hud-edit-monitor-name");
@@ -10908,15 +10949,18 @@ class DesktopRuntimeWindow(QWidget):
                                 }
                                 const discardCloseButtonTarget = document.querySelector('[data-child-window-close="monitor-group-edit"]');
                                 if (discardCloseButtonTarget) discardCloseButtonTarget.click();
+                                const discardCloseGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                                const discardCloseGuardReady = Boolean(discardCloseGuard && !discardCloseGuard.hidden && discardCloseGuard.dataset.pendingMonitorAction === "close");
                                 const closeDiscard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
-                                if (closeDiscard) closeDiscard.click();
+                                if (discardCloseGuardReady && closeDiscard) closeDiscard.click();
                                 const discardCloseState = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
                                 unsavedCloseDiscardDroppedDraft = Boolean(
-                                    discardCloseState.cards
+                                    discardCloseGuardReady
+                                    && discardCloseState.cards
                                     && discardCloseState.cards.cpu
                                     && discardCloseState.cards.cpu.title === unsavedBackup.cards.cpu.title
                                 );
-                                unsavedCloseDiscardClosedWindow = Boolean(hud && hud.dataset.activeChildWindow !== "monitor-group-edit");
+                                unsavedCloseDiscardClosedWindow = Boolean(discardCloseGuardReady && hud && hud.dataset.activeChildWindow !== "monitor-group-edit");
                             }
                             window.setMonitoringHudControlState(unsavedBackup);
                         }
@@ -11016,6 +11060,18 @@ class DesktopRuntimeWindow(QWidget):
                                     && panel.dataset.deleteMonitorId === manageCreatedId
                                 );
                                 const cancel = document.getElementById("monitoring-hud-monitor-delete-cancel");
+                                if (cancel) {
+                                    const cancelStyle = window.getComputedStyle ? window.getComputedStyle(cancel) : null;
+                                    const cancelRect = cancel.getBoundingClientRect();
+                                    deleteConfirmationCancelIlluminated = Boolean(
+                                        cancel.classList.contains("monitoring-hud__hub-action--safe-cancel")
+                                        && cancel.dataset.control === "cancel-delete-monitor"
+                                        && cancelStyle
+                                        && cancelStyle.cursor === "pointer"
+                                        && cancelRect.width >= 64
+                                        && cancelRect.height >= 28
+                                    );
+                                }
                                 if (cancel) cancel.click();
                                 const afterCancel = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
                                 const afterCancelCards = afterCancel && afterCancel.cards ? afterCancel.cards : {};
@@ -11141,8 +11197,8 @@ class DesktopRuntimeWindow(QWidget):
                                     detailPaneDelete,
                                     unsavedGuardOpened,
                                     unsavedGuardButtons,
-                                    unsavedCancelPreservedSelection,
-                                    unsavedCancelPreservedDraft,
+                                    unsavedGuardCancelRemoved,
+                                    unsavedDiscardRightAligned,
                                     unsavedDiscardSwitchedSelection,
                                     unsavedDiscardDroppedDraft,
                                     unsavedSaveSwitchedSelection,
@@ -11153,12 +11209,11 @@ class DesktopRuntimeWindow(QWidget):
                                     unsavedCloseDirtyBeforeClose,
                                     unsavedCloseDraftBeforeClose,
                                     unsavedCloseTargetedManageClose,
-                                    unsavedCloseCancelKeptOpen,
-                                    unsavedCloseCancelPreservedDraft,
                                     unsavedCloseSavePersistedDraft,
                                     unsavedCloseSaveClosedWindow,
                                     unsavedCloseDiscardDroppedDraft,
                                     unsavedCloseDiscardClosedWindow,
+                                    deleteConfirmationCancelIlluminated,
                                     finalMonitorDeleteEmptyState,
                                     finalMonitorCreateReachable,
                                     emptyStateNoSaveCancel,
@@ -11228,8 +11283,8 @@ class DesktopRuntimeWindow(QWidget):
                             detailPaneDelete,
                             unsavedGuardOpened,
                             unsavedGuardButtons,
-                            unsavedCancelPreservedSelection,
-                            unsavedCancelPreservedDraft,
+                            unsavedGuardCancelRemoved,
+                            unsavedDiscardRightAligned,
                             unsavedDiscardSwitchedSelection,
                             unsavedDiscardDroppedDraft,
                             unsavedSaveSwitchedSelection,
@@ -11240,12 +11295,11 @@ class DesktopRuntimeWindow(QWidget):
                             unsavedCloseDirtyBeforeClose,
                             unsavedCloseDraftBeforeClose,
                             unsavedCloseTargetedManageClose,
-                            unsavedCloseCancelKeptOpen,
-                            unsavedCloseCancelPreservedDraft,
                             unsavedCloseSavePersistedDraft,
                             unsavedCloseSaveClosedWindow,
                             unsavedCloseDiscardDroppedDraft,
                             unsavedCloseDiscardClosedWindow,
+                            deleteConfirmationCancelIlluminated,
                             finalMonitorDeleteEmptyState,
                             finalMonitorCreateReachable,
                             emptyStateNoSaveCancel,

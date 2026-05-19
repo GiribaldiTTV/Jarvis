@@ -605,11 +605,30 @@ body.desktop-mode #monitoring-hud > * {
   color: rgba(176, 204, 214, 0.78);
 }
 
+.monitoring-hud__hub-action[data-control="unsaved-discard-monitor"] {
+  border-color: rgba(255, 168, 116, 0.54);
+  background: linear-gradient(145deg, rgba(104, 42, 18, 0.90), rgba(46, 20, 16, 0.84));
+  color: rgba(255, 236, 224, 0.98);
+  box-shadow:
+    0 0 0 1px rgba(255, 236, 224, 0.06) inset,
+    0 0 18px rgba(255, 137, 86, 0.16);
+}
+
 .monitoring-hud__hub-action--danger,
 .monitoring-hud__hub-action[data-control="confirm-delete-monitor"] {
   border-color: rgba(255, 132, 132, 0.46);
   background: linear-gradient(145deg, rgba(96, 24, 34, 0.88), rgba(42, 16, 26, 0.80));
   color: rgba(255, 232, 232, 0.96);
+}
+
+.monitoring-hud__hub-action--safe-cancel,
+.monitoring-hud__hub-action[data-control="cancel-delete-monitor"] {
+  border-color: rgba(126, 248, 218, 0.42);
+  background: linear-gradient(145deg, rgba(8, 60, 65, 0.88), rgba(4, 31, 48, 0.82));
+  color: rgba(232, 255, 249, 0.98);
+  box-shadow:
+    0 0 0 1px rgba(232, 255, 249, 0.05) inset,
+    0 0 16px rgba(87, 236, 214, 0.14);
 }
 
 .monitoring-hud__control-button[data-control="warning-notifications"],
@@ -953,6 +972,17 @@ body.desktop-mode #monitoring-hud > * {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+}
+
+.monitoring-hud__child-actions--guard,
+.monitoring-hud__child-actions--confirm {
+  justify-content: space-between;
+  width: 100%;
+}
+
+.monitoring-hud__child-actions--guard [data-control="unsaved-discard-monitor"],
+.monitoring-hud__child-actions--confirm [data-control="cancel-delete-monitor"] {
+  margin-left: auto;
 }
 
 .monitoring-hud__child-window--settings {

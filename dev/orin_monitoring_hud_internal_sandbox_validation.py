@@ -399,6 +399,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-scroll-pane="sensor-preview"',
         'data-scroll-pane="sensor-settings"',
         'id="monitoring-hud-monitor-detail-delete"',
+        "Delete Monitor",
+        'data-unsaved-guard-actions="save-left-discard-right"',
+        'data-delete-confirmation-actions="delete-left-cancel-right"',
         'id="monitoring-hud-monitor-unsaved-guard"',
         'id="monitoring-hud-monitor-detail-empty"',
         "Create a monitor to assign sources and settings.",
@@ -437,6 +440,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Monitor Groups assign supported sources and settings. HUD Overlay owns future visual display; fake values remain blocked.",
     ):
         _require_contains(html, needle, "HUD HTML product surface", failures)
+    _require(
+        "Delete Selected Monitor" not in html,
+        "HUD detail-pane delete action must say Delete Monitor, not Delete Selected Monitor",
+        failures,
+    )
     for forbidden_home_copy in (
         "Default polling",
         "Warning posture",
@@ -557,19 +565,19 @@ def _validate_static_surface(failures: list[str]) -> None:
         "draft-preserved-before-queued-action",
         "unsavedSavePersistedDraft",
         "unsavedDiscardDroppedDraft",
-        "unsavedCancelPreservedDraft",
+        "unsavedGuardCancelRemoved",
+        "unsavedDiscardRightAligned",
         "unsavedCreateQueuedAction",
         "unsavedDeleteQueuedAction",
         "unsavedCloseQueuedAction",
         "unsavedCloseDirtyBeforeClose",
         "unsavedCloseDraftBeforeClose",
         "unsavedCloseTargetedManageClose",
-        "unsavedCloseCancelKeptOpen",
-        "unsavedCloseCancelPreservedDraft",
         "unsavedCloseSavePersistedDraft",
         "unsavedCloseSaveClosedWindow",
         "unsavedCloseDiscardDroppedDraft",
         "unsavedCloseDiscardClosedWindow",
+        "deleteConfirmationCancelIlluminated",
     ):
         _require_contains(js + renderer, guard_proof, "HUD unsaved draft guard proof", failures)
     _require(
@@ -695,7 +703,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "03_manage_monitors_open_state",
         "04_source_filter_dropdown_open_hover_reset",
         "05_unsaved_guard_close_queued",
-        "06_unsaved_close_cancel_preserves_draft",
+        "06_unsaved_guard_save_discard_no_cancel",
         "07_unsaved_close_save_closes_after_persist",
         "08_unsaved_close_discard_closes_after_drop",
         "09_delete_confirmation_bottom",

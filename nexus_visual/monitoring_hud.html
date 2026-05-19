@@ -353,11 +353,10 @@
             <section class="monitoring-hud__monitor-detail-pane monitoring-hud__nexus-scroll-pane" data-scroll-pane="monitor-detail" aria-label="Selected monitor settings">
               <div class="monitoring-hud__unsaved-guard" id="monitoring-hud-monitor-unsaved-guard" data-unsaved-guard="closed" hidden>
                 <strong>Unsaved monitor changes</strong>
-                <span>Save, discard, or cancel before switching to another monitor.</span>
-                <div class="monitoring-hud__child-actions">
+                <span>Save changes or discard the draft before continuing.</span>
+                <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="save-left-discard-right">
                   <button type="button" id="monitoring-hud-monitor-unsaved-save" class="monitoring-hud__hub-action" data-control="unsaved-save-monitor">Save</button>
-                  <button type="button" id="monitoring-hud-monitor-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="unsaved-discard-monitor">Discard</button>
-                  <button type="button" id="monitoring-hud-monitor-unsaved-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="unsaved-cancel-monitor">Cancel</button>
+                  <button type="button" id="monitoring-hud-monitor-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="unsaved-discard-monitor">Discard</button>
                 </div>
               </div>
               <div class="monitoring-hud__empty-state monitoring-hud__monitor-detail-empty" id="monitoring-hud-monitor-detail-empty" data-monitor-detail-empty="hidden" hidden>
@@ -470,14 +469,14 @@
                       <button type="button" id="monitoring-hud-edit-monitor-confirm" class="monitoring-hud__hub-action" data-control="confirm-edit-monitor">Save Monitor</button>
                       <button type="button" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-child-window-close="monitor-group-edit">Cancel</button>
                     </div>
-                    <button type="button" id="monitoring-hud-monitor-detail-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="detail-delete-monitor">Delete Selected Monitor</button>
+                    <button type="button" id="monitoring-hud-monitor-detail-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="detail-delete-monitor">Delete Monitor</button>
                   </div>
                   <div class="monitoring-hud__delete-confirmation" id="monitoring-hud-monitor-delete-confirmation" data-delete-confirmation-state="closed" hidden>
                     <strong id="monitoring-hud-monitor-delete-title">Delete monitor?</strong>
                     <span id="monitoring-hud-monitor-delete-copy">Confirm before removing this Monitor Group.</span>
-                    <div class="monitoring-hud__child-actions">
+                    <div class="monitoring-hud__child-actions monitoring-hud__child-actions--confirm" data-delete-confirmation-actions="delete-left-cancel-right">
                       <button type="button" id="monitoring-hud-monitor-delete-confirm" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="confirm-delete-monitor">Delete</button>
-                      <button type="button" id="monitoring-hud-monitor-delete-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="cancel-delete-monitor">Cancel</button>
+                      <button type="button" id="monitoring-hud-monitor-delete-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--safe-cancel" data-control="cancel-delete-monitor">Cancel</button>
                     </div>
                   </div>
                 </div>

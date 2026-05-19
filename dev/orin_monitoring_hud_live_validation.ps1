@@ -490,7 +490,7 @@ Expected: Manage Monitors appears as a compact Sensor Command Center: the left l
 USER Result / Notes:
 
 Step 4 - Edit Monitor Settings
-Expected: Selecting another monitor by row/icon either opens its details or shows Save / Discard / Cancel when the current monitor has unsaved changes.
+Expected: Selecting another monitor by row/icon either opens its details or shows an unsaved-change guard with Save on the left and Discard visibly illuminated on the far right. The dirty-guard Cancel button should not appear; Save must preserve the visible draft before continuing, and Discard must drop the draft before continuing.
 USER Result / Notes:
 
 Step 5 - Delete Confirmation And Cancel
@@ -498,7 +498,7 @@ Expected: Delete opens a confirmation prompt. Cancel closes the prompt and prese
 USER Result / Notes:
 
 Step 6 - Delete Confirmation And Remove
-Expected: Delete lives in the lower right detail-pane action row. Save Monitor and Cancel sit on the far left of that same row when a monitor is selected, Delete Selected Monitor sits on the far right, and the delete confirmation remains near the bottom. Confirm removes only the selected monitor, supports deleting the final monitor, shows a true empty state with Create Monitor as the primary action, and does not show Save Monitor / Cancel or oversized action buttons when no monitor exists.
+Expected: Delete lives in the lower right detail-pane action row. Save Monitor and Cancel sit on the far left of that same row when a monitor is selected, Delete Monitor sits on the far right, and the delete confirmation remains near the bottom. Confirm removes only the selected monitor, the delete-confirmation Cancel button is visibly illuminated and clickable, final monitor delete shows a true empty state with Create Monitor as the primary action, and no Save Monitor / Cancel or oversized action buttons appear when no monitor exists.
 USER Result / Notes:
 
 Step 7 - Truthful Sensor Availability
@@ -514,7 +514,7 @@ Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse 
 USER Result / Notes:
 
 Step 10 - Dashboard And Manage Monitors Control Reliability
-Expected: Dashboard Settings, window-level Close, Warning Notifications, Create/Edit Monitor legacy entry points, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, Create Monitor, Save Monitor, Cancel, Delete confirmation, dirty-guard actions, Source Filter, Polling Rate, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states.
+Expected: Dashboard Settings, window-level Close, Warning Notifications, Create/Edit Monitor legacy entry points, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, Create Monitor, Save Monitor, footer Cancel, delete-confirmation Cancel, dirty-guard Save/Discard, Source Filter, Polling Rate, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states.
 Regression checkpoints include: Step 7 - #137 Dashboard Rounded Corners On Light Background; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 USER Result / Notes:
 
