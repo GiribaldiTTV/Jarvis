@@ -2468,6 +2468,49 @@ VALIDATION_SUITE_SOURCE_PHRASES = (
     "git diff",
     "rationale",
 )
+GOVERNANCE_EFFICIENCY_OPERATING_MODEL = Path(
+    "Docs/governance_efficiency_operating_model.md"
+)
+GOVERNANCE_EFFICIENCY_VALIDATION_HELPER = Path(
+    "dev/orin_governance_efficiency_validation.py"
+)
+GOVERNANCE_EFFICIENCY_DOCS = (
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/validation_helper_registry.md"),
+    Path("Docs/governance_process_efficiency_reform_plan.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/branch_records/feature_release_readiness_source_truth_intake.md"),
+)
+GOVERNANCE_EFFICIENCY_OPERATING_MODEL_PHRASES = (
+    "Rule ID And Owner Model",
+    "Source-Truth Ownership Matrix",
+    "Derived Live Truth Versus Historical Receipt",
+    "Duplicate Live-State Guard",
+    "Current Summary And Historical Appendix Split",
+    "Phase Alias UX",
+    "Branch Planning UX Standard",
+    "Standing Governance Ledger Compaction",
+    "Release Ownership UX",
+    "Public Language Mapping",
+    "Validator Modularization Boundary",
+    "Validation Runner And Registry Query Rule",
+    "Naming Drift Scan Rule",
+    "Reform Pass Completion Model",
+)
+GOVERNANCE_EFFICIENCY_POINTER_PHRASES = (
+    "Docs/governance_efficiency_operating_model.md",
+    "governance efficiency",
+)
+GOVERNANCE_EFFICIENCY_SOURCE_PHRASES = (
+    "governance efficiency validation",
+    "REQUIRED_MODEL_PHRASES",
+    "POINTER_REQUIREMENTS",
+    "BACKLOG_ROADMAP_COMPACTNESS_FORBIDDEN",
+    "report-only",
+)
 CURRENT_DECISION_SURFACE_DOCS = (
     Path("Docs/feature_backlog.md"),
     Path("Docs/prebeta_roadmap.md"),
@@ -2492,6 +2535,7 @@ STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_readiness_planning_fixture_validation.py",
     "dev/orin_worktree_rebaseline_audit.py",
     "dev/orin_validation_suite.py",
+    "dev/orin_governance_efficiency_validation.py",
     "dev/automation_observability_report.py",
     "dev/orin_ai_provider_state_validation.py",
     "dev/orin_pr_body_quality_audit.py",
@@ -16854,6 +16898,46 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: validation suite helper guidance is missing '{required_phrase}'",
+            )
+
+    efficiency_model_text = _read_text(GOVERNANCE_EFFICIENCY_OPERATING_MODEL)
+    require(
+        bool(efficiency_model_text),
+        f"{GOVERNANCE_EFFICIENCY_OPERATING_MODEL}: governance efficiency operating model is missing",
+    )
+    for required_phrase in GOVERNANCE_EFFICIENCY_OPERATING_MODEL_PHRASES:
+        require(
+            required_phrase in efficiency_model_text,
+            (
+                f"{GOVERNANCE_EFFICIENCY_OPERATING_MODEL}: governance efficiency "
+                f"operating model is missing '{required_phrase}'"
+            ),
+        )
+
+    efficiency_source = _read_text(GOVERNANCE_EFFICIENCY_VALIDATION_HELPER)
+    require(
+        bool(efficiency_source),
+        f"{GOVERNANCE_EFFICIENCY_VALIDATION_HELPER}: governance efficiency validator is missing",
+    )
+    for required_phrase in GOVERNANCE_EFFICIENCY_SOURCE_PHRASES:
+        require(
+            required_phrase in efficiency_source,
+            (
+                f"{GOVERNANCE_EFFICIENCY_VALIDATION_HELPER}: governance efficiency "
+                f"validator source is missing '{required_phrase}'"
+            ),
+        )
+
+    for relative_path in GOVERNANCE_EFFICIENCY_DOCS:
+        text = _read_text(relative_path)
+        lower_text = text.casefold()
+        for required_phrase in GOVERNANCE_EFFICIENCY_POINTER_PHRASES:
+            require(
+                required_phrase.casefold() in lower_text,
+                (
+                    f"{relative_path}: governance efficiency operating model pointer "
+                    f"is missing '{required_phrase}'"
+                ),
             )
 
     for relative_path in CURRENT_DECISION_SURFACE_DOCS:

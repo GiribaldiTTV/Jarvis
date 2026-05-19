@@ -89,6 +89,8 @@ Automation Observability is multi-worktree aware. `dev/automation_observability_
 
 PR Readiness Stage 2 approval includes watcher provisioning by default. Codex must not require a separate watcher-specific approval after USER approves PR creation / Stage 2 execution; skipping the watcher requires an explicit USER watcher waiver or a documented platform/runtime blocker.
 
+`Docs/governance_efficiency_operating_model.md` owns the governance efficiency operating model. Use it for Rule ID / owner / compact mirror decisions, duplicate live-state prevention, current-summary versus historical-appendix split, phase alias UX, release ownership UX, public language mapping, and the reform pass completion boundary.
+
 Before branch creation, worktree creation, phase entry, commit, push, PR work, release work, or GitHub Desktop handoff, run a `Thread / Worktree Identity Preflight` and prove the active thread is operating in the intended workspace, repository root, branch, upstream, `HEAD`, `origin/main`, worktree role, clean state, and write target. If the identity does not match the requested work, stop on `Thread / Worktree Identity Mismatch`.
 
 Thread Launch / Write-Target Identity Lock:
@@ -189,10 +191,12 @@ Use these for workflow posture, prompt framing, lifecycle rules, and execution s
 - `Docs/codex_user_guide.md`
 - `Docs/worktree_slots.md`
 - `Docs/governance_process_efficiency_reform_plan.md`
+- `Docs/governance_efficiency_operating_model.md`
 - `Docs/governance_intake_triage_and_digest_profiles.md`
 
 Repo-wide validation-helper rules also live in this governance layer.
 Broad governance reform uses the `Governance Intake Triage Packet` and smallest legal `Digest Profile` standard from `Docs/governance_intake_triage_and_digest_profiles.md`.
+When a governance change risks duplicating policy or live state, use the governance efficiency operating model instead of creating another current-state owner.
 Use `Docs/nexus_startup_contract.md` as the compact ChatGPT/new-chat loader map only.
 Do not treat it as execution authority.
 Use `Docs/phase_governance.md` for the exact phase enum, blocker rules, branch classes, phase resolver, validation helper contract, proof hierarchy, default-budget closeout rule, and desktop UI audit rule instead of recreating those rules inside a workstream doc.

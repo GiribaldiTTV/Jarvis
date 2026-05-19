@@ -402,6 +402,41 @@ Priority:
 15. `Public Language Mapping Pass`.
 16. `Tracked Naming Drift Scan Pass`.
 
+## Consolidated Governance Reform Pass
+
+USER later approved completing the remaining governance reform categories in one bounded Governance PR instead of separate focused PRs.
+
+This consolidated pass completes the policy and validation scaffolding for:
+
+- `Governance Doc Compaction Pass`
+- `Phase Alias UX Pass`
+- `Branch Planning UX And Template Pass`
+- `Standing Governance Ledger Compaction Pass`
+- `Governance Validator Modularization Pass`
+- `Source-Truth Archive And Current-State Split Pass`
+- `Release Ownership UX Pass`
+- `Public Language Mapping Pass`
+- `Tracked Naming Drift Scan Pass`
+
+Implementation record:
+
+- `Docs/governance_efficiency_operating_model.md` owns the Rule ID / owner / compact mirror model, source-truth ownership matrix, derived live truth versus governance receipt boundary, duplicate live-state guard, current-summary / historical-appendix split, phase alias UX, branch planning UX, standing-governance ledger compaction, release ownership UX, public language mapping, validator modularization boundary, validation-suite usage, naming drift scan rule, and consolidated pass completion boundary.
+- `dev/orin_governance_efficiency_validation.py` validates the operating model, owner-doc pointers, and backlog/roadmap compactness against Branch Runtime Engineering Plan sprawl.
+- `Docs/Main.md`, `Docs/phase_governance.md`, `Docs/development_rules.md`, and `Docs/codex_modes.md` carry compact pointers instead of duplicating the full operating model.
+- `Docs/validation_helper_registry.md` registers the reusable governance efficiency validator.
+
+Explicit non-scope:
+
+- No broad historical branch-record migration.
+- No backlog/roadmap shrink migration beyond compactness enforcement.
+- No runtime implementation.
+- No FAM-006 or FAM-007 mutation.
+- No branch deletion, worktree cleanup, issue work, release execution, tag, GitHub Release, or artifact work.
+
+Post-merge operating rule:
+
+- Future governance efficiency changes should first use `Docs/governance_efficiency_operating_model.md` and `dev/orin_governance_efficiency_validation.py` before creating another live-state owner or duplicating policy prose.
+
 ## Highest-Value First Pass
 
 Recommended first focused pass:
@@ -425,18 +460,27 @@ Implementation record:
 - Governance source-truth pointers added to `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/codex_modes.md`, `Docs/orin_task_template.md`, `Docs/Main.md`, `Docs/branch_records/index.md`, and `Docs/validation_helper_registry.md`.
 - Validator source-check owner: `dev/orin_branch_governance_validation.py`.
 
-## Deferred / Needs USER Decision
+## Remaining Deferred Execution Decisions
 
-- Whether to rename phases publicly or keep canonical-only phase names.
-- Whether to split `dev/orin_branch_governance_validation.py` into modules in one pass or over several passes.
-- Whether to archive large branch records now or wait until active FAM lanes are stable.
-- Whether to create a no-mutation validation runner helper.
-- Whether watcher repair-mode should depend on native Codex heartbeat behavior, local helper behavior, or both.
+The consolidated pass records the governance model for the remaining categories, but these physical migrations remain separate USER decisions:
+
+- large historical branch-record migration or archival
+- direct modular split of `dev/orin_branch_governance_validation.py`
+- branch deletion, stale worktree cleanup, or GitHub Desktop cleanup
+- runtime/FAM branch mutation
+- release execution or public release publication
+
+Resolved by prior or consolidated reform passes:
+
+- phase aliases are explanatory only; canonical phase names remain unchanged
+- validation runner recommendation helper exists as `dev/orin_validation_suite.py`
+- watcher approval default and watcher mode contract are recorded
+- governance efficiency operating model exists as `Docs/governance_efficiency_operating_model.md`
 
 ## Next Legal Phase
 
-- Recommended next phase: focused governance planning for `Governance Intake Triage Template Pass` and `Digest Profile Standardization Pass`.
-- PR creation: pending USER approval.
+- Recommended next phase: PR Readiness Stage 2 for the consolidated governance efficiency reform PR after validation.
+- PR creation: USER-approved for the single bounded governance PR.
 - Merge: pending USER approval.
 - Runtime implementation: blocked.
 - FAM-006 mutation: blocked.
