@@ -812,6 +812,23 @@ If the phase is `Branch Readiness` and the current stage is `Branch Readiness St
 - Whole-System Interaction Map:
 - Minimum Viable vs Full System Boundary:
 - Open Questions / USER Decision Points:
+- Runtime Branch Engineering Contract:
+- USER Engineering Planning Review:
+- Runtime Implementation Approval:
+- Current Runtime Baseline:
+- Planned Runtime Delta:
+- User-Facing Runtime Delta:
+- State / Config / Schema Delta:
+- Validator / Helper Delta:
+- Expected Changed Files / Surfaces:
+- Approval-Boundary Audit:
+- Future-Gated Items:
+- Workstream Seam Map:
+- Proof Expectations:
+- Risk Forecast:
+- Recommendations And Alternatives:
+- Plan Version / Revision Status:
+- Plan-To-Implementation Traceability:
 - Validation Plan:
 - Stale Branch Cleanup Plan:
 - Expected Docs Sync:
