@@ -64,6 +64,16 @@ const aiProviderStatusReadinessReason = document.getElementById("ai-provider-sta
 const aiProviderStatusReadinessProvenance = document.getElementById("ai-provider-status-readiness-provenance");
 const aiProviderStatusReadinessSchema = document.getElementById("ai-provider-status-readiness-schema");
 const aiProviderStatusFutureGate = document.getElementById("ai-provider-status-future-gate");
+const aiProviderStatusActivation = document.getElementById("ai-provider-status-activation");
+const aiProviderStatusActivationEligibility = document.getElementById("ai-provider-status-activation-eligibility");
+const aiProviderStatusActivationBlocker = document.getElementById("ai-provider-status-activation-blocker");
+const aiProviderStatusActivationReason = document.getElementById("ai-provider-status-activation-reason");
+const aiProviderStatusActivationProvenance = document.getElementById("ai-provider-status-activation-provenance");
+const aiProviderStatusActivationSchema = document.getElementById("ai-provider-status-activation-schema");
+const aiProviderStatusFutureActivationGate = document.getElementById("ai-provider-status-future-activation-gate");
+const aiProviderStatusAdapter = document.getElementById("ai-provider-status-adapter");
+const aiProviderStatusExecutionGates = document.getElementById("ai-provider-status-execution-gates");
+const aiProviderStatusFunctionalAi = document.getElementById("ai-provider-status-functional-ai");
 const aiProviderStatusCapabilityEligibility = document.getElementById("ai-provider-status-capability-eligibility");
 const aiProviderStatusInstallIntent = document.getElementById("ai-provider-status-install-intent");
 const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
@@ -233,6 +243,43 @@ let aiProviderState = {
   readinessConfigValid: true,
   futureProviderGateStatus: "provider-setup-future-user-approval-required",
   futureProviderGateLabel: "Future provider gate: USER approval required before setup",
+  providerActivationState: "activation_unavailable",
+  providerActivationLabel: "Provider activation: unavailable",
+  activationEligibilityState: "activation_eligibility_unavailable",
+  activationEligibilityLabel: "Activation eligibility: unavailable",
+  activationBlockerState: "readiness_required",
+  activationBlockerLabel: "Activation blocker: readiness required",
+  activationReasonCode: "activation_default_unavailable",
+  activationReasonLabel: "Activation reason: activation foundation only",
+  activationProvenance: "default_config",
+  activationProvenanceLabel: "Activation provenance: default config",
+  activationStateSchemaVersion: "provider-activation-state.v1",
+  activationConfigSchemaVersion: "provider-activation-config.v1",
+  activationConfigState: "default_config",
+  activationConfigLabel: "Activation config: safe default local-only",
+  activationConfigMigration: "safe-defaults-no-runtime-migration",
+  activationConfigValid: true,
+  futureActivationGateStatus: "activation-future-user-approval-required",
+  futureActivationGateLabel: "Future activation gate: USER approval required before activation",
+  providerAdapterPosture: "null-local-adapter",
+  providerAdapterLabel: "Provider adapter: null local adapter",
+  providerAdapterAvailabilityState: "adapter-unavailable",
+  providerAdapterAvailabilityLabel: "Adapter availability: unavailable",
+  providerAdapterExecutionPosture: "adapter-execution-disabled",
+  providerAdapterExecutionLabel: "Adapter execution: disabled",
+  providerMetadataContractVersion: "provider-metadata-contract.v1",
+  providerConfigEnvelopeVersion: "provider-config-envelope.v1",
+  providerActivationHandoffState: "activation-handoff-future-gated",
+  promptExecutionGateState: "prompt-execution-disabled",
+  promptExecutionGateLabel: "Prompt execution gate: disabled",
+  modelExecutionGateState: "model-execution-disabled",
+  modelExecutionGateLabel: "Model execution gate: disabled",
+  providerExecutionGateState: "provider-execution-disabled",
+  providerExecutionGateLabel: "Provider execution gate: disabled",
+  functionalAiCriteriaState: "functional-ai-criteria-pending",
+  functionalAiCriteriaLabel: "Functional AI: criteria pending for v1.8.0-prebeta",
+  v18PrebetaReadinessState: "v1.8.0-prebeta-readiness-pending",
+  v18PrebetaReadinessLabel: "v1.8.0-prebeta readiness: pending functional AI proof",
   capabilityPackEligibilityState: "capability-pack-eligibility-blocked",
   capabilityPackEligibilityLabel: "Capability-pack eligibility: blocked",
   capabilityPackManifestValidityState: "manifest-missing",
@@ -1372,6 +1419,19 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.readinessProvenance = state.readinessProvenance || "unknown";
   aiProviderStatus.dataset.readinessSchema = state.readinessStateSchemaVersion || "unknown";
   aiProviderStatus.dataset.futureProviderGate = state.futureProviderGateStatus || "unknown";
+  aiProviderStatus.dataset.providerActivation = state.providerActivationState || "unknown";
+  aiProviderStatus.dataset.activationEligibility = state.activationEligibilityState || "unknown";
+  aiProviderStatus.dataset.activationBlocker = state.activationBlockerState || "unknown";
+  aiProviderStatus.dataset.activationReason = state.activationReasonCode || "unknown";
+  aiProviderStatus.dataset.activationProvenance = state.activationProvenance || "unknown";
+  aiProviderStatus.dataset.activationSchema = state.activationStateSchemaVersion || "unknown";
+  aiProviderStatus.dataset.futureActivationGate = state.futureActivationGateStatus || "unknown";
+  aiProviderStatus.dataset.providerAdapter = state.providerAdapterPosture || "unknown";
+  aiProviderStatus.dataset.promptExecutionGate = state.promptExecutionGateState || "unknown";
+  aiProviderStatus.dataset.modelExecutionGate = state.modelExecutionGateState || "unknown";
+  aiProviderStatus.dataset.providerExecutionGate = state.providerExecutionGateState || "unknown";
+  aiProviderStatus.dataset.functionalAiCriteria = state.functionalAiCriteriaState || "unknown";
+  aiProviderStatus.dataset.v18PrebetaReadiness = state.v18PrebetaReadinessState || "unknown";
   aiProviderStatus.dataset.configuredProviderCount = String(state.configuredProviderCount || 0);
   aiProviderStatus.dataset.availableProviderCount = String(state.availableProviderCount || 0);
   aiProviderStatus.dataset.hardwareCapability = state.hardwareCapabilityState || "unknown";
@@ -1582,6 +1642,47 @@ function renderAIProviderState() {
   if (aiProviderStatusFutureGate) {
     aiProviderStatusFutureGate.textContent =
       state.futureProviderGateLabel || "Future provider gate: USER approval required before setup";
+  }
+  if (aiProviderStatusActivation) {
+    aiProviderStatusActivation.textContent = state.providerActivationLabel || "Provider activation: unavailable";
+  }
+  if (aiProviderStatusActivationEligibility) {
+    aiProviderStatusActivationEligibility.textContent =
+      state.activationEligibilityLabel || "Activation eligibility: unavailable";
+  }
+  if (aiProviderStatusActivationBlocker) {
+    aiProviderStatusActivationBlocker.textContent =
+      state.activationBlockerLabel || "Activation blocker: readiness required";
+  }
+  if (aiProviderStatusActivationReason) {
+    aiProviderStatusActivationReason.textContent =
+      state.activationReasonLabel || "Activation reason: activation foundation only";
+  }
+  if (aiProviderStatusActivationProvenance) {
+    aiProviderStatusActivationProvenance.textContent =
+      state.activationProvenanceLabel || "Activation provenance: default config";
+  }
+  if (aiProviderStatusActivationSchema) {
+    const activationSchemaVersion = state.activationStateSchemaVersion || "provider-activation-state.v1";
+    const activationConfigVersion = state.activationConfigSchemaVersion || "provider-activation-config.v1";
+    const activationConfigLabel = state.activationConfigLabel || "Activation config: safe default local-only";
+    aiProviderStatusActivationSchema.textContent =
+      `${activationSchemaVersion}; ${activationConfigVersion}; ${activationConfigLabel}`;
+  }
+  if (aiProviderStatusFutureActivationGate) {
+    aiProviderStatusFutureActivationGate.textContent =
+      state.futureActivationGateLabel || "Future activation gate: USER approval required before activation";
+  }
+  if (aiProviderStatusAdapter) {
+    aiProviderStatusAdapter.textContent = state.providerAdapterLabel || "Provider adapter: null local adapter";
+  }
+  if (aiProviderStatusExecutionGates) {
+    aiProviderStatusExecutionGates.textContent =
+      `${state.promptExecutionGateLabel || "Prompt execution gate: disabled"}; ${state.modelExecutionGateLabel || "Model execution gate: disabled"}; ${state.providerExecutionGateLabel || "Provider execution gate: disabled"}`;
+  }
+  if (aiProviderStatusFunctionalAi) {
+    aiProviderStatusFunctionalAi.textContent =
+      `${state.functionalAiCriteriaLabel || "Functional AI: criteria pending for v1.8.0-prebeta"}; ${state.v18PrebetaReadinessLabel || "v1.8.0-prebeta readiness: pending functional AI proof"}`;
   }
   if (aiProviderStatusCapabilityEligibility) {
     aiProviderStatusCapabilityEligibility.textContent =

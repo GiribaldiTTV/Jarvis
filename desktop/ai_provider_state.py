@@ -190,6 +190,97 @@ PROVIDER_READINESS_CONFIG_STATE_INVALID = "invalid_config"
 PROVIDER_READINESS_CONFIG_STATE_LOCAL = "local_config"
 PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED = "provider-setup-future-user-approval-required"
 PROVIDER_FUTURE_GATE_STATUS_EXECUTION_REQUIRED = "provider-execution-future-user-approval-required"
+PROVIDER_ACTIVATION_STATE_SCHEMA_VERSION = "provider-activation-state.v1"
+PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION = "provider-activation-config.v1"
+PROVIDER_ACTIVATION_CONFIG_MIGRATION_POSTURE = "safe-defaults-no-runtime-migration"
+PROVIDER_ACTIVATION_STATE_UNKNOWN = "activation_unknown"
+PROVIDER_ACTIVATION_STATE_UNAVAILABLE = "activation_unavailable"
+PROVIDER_ACTIVATION_STATE_DISABLED = "activation_disabled"
+PROVIDER_ACTIVATION_STATE_BLOCKED_BY_READINESS = "activation_blocked_by_readiness"
+PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CONSENT = "activation_blocked_by_consent"
+PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CAPABILITY = "activation_blocked_by_capability"
+PROVIDER_ACTIVATION_STATE_BLOCKED_BY_POLICY = "activation_blocked_by_policy"
+PROVIDER_ACTIVATION_STATE_BLOCKED_BY_MANIFEST = "activation_blocked_by_manifest"
+PROVIDER_ACTIVATION_STATE_BLOCKED_BY_ADAPTER = "activation_blocked_by_adapter"
+PROVIDER_ACTIVATION_STATE_ELIGIBLE_FUTURE_GATED = "activation_eligible_future_gated"
+PROVIDER_ACTIVATION_STATE_READY_EXECUTION_GATED = "activation_ready_but_execution_gated"
+PROVIDER_ACTIVATION_STATE_DEGRADED = "activation_degraded"
+PROVIDER_ACTIVATION_STATE_FUNCTIONAL_AI_READY_FUTURE_VERSION = "functional_ai_ready_future_version"
+PROVIDER_ACTIVATION_ELIGIBILITY_UNAVAILABLE = "activation_eligibility_unavailable"
+PROVIDER_ACTIVATION_ELIGIBILITY_DISABLED = "activation_eligibility_disabled"
+PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED = "activation_eligibility_blocked"
+PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_GATED = "activation_eligibility_future_gated"
+PROVIDER_ACTIVATION_ELIGIBILITY_EXECUTION_GATED = "activation_eligibility_execution_gated"
+PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_VERSION = "activation_eligibility_future_version"
+PROVIDER_ACTIVATION_BLOCKER_NONE = "none"
+PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED = "readiness_required"
+PROVIDER_ACTIVATION_BLOCKER_CONSENT_REQUIRED = "consent_required"
+PROVIDER_ACTIVATION_BLOCKER_CAPABILITY_REQUIRED = "capability_required"
+PROVIDER_ACTIVATION_BLOCKER_POLICY_BLOCKED = "policy_blocked"
+PROVIDER_ACTIVATION_BLOCKER_MANIFEST_REQUIRED = "manifest_required"
+PROVIDER_ACTIVATION_BLOCKER_ADAPTER_UNAVAILABLE = "adapter_unavailable"
+PROVIDER_ACTIVATION_BLOCKER_EXECUTION_GATE = "execution_gate"
+PROVIDER_ACTIVATION_BLOCKER_FUTURE_ACTIVATION_GATE = "future_activation_gate"
+PROVIDER_ACTIVATION_BLOCKER_CONFIG_INVALID = "activation_config_invalid"
+PROVIDER_ACTIVATION_BLOCKER_VERSION_JUMP_REQUIRED = "version_jump_required"
+PROVIDER_ACTIVATION_REASON_DEFAULT_UNAVAILABLE = "activation_default_unavailable"
+PROVIDER_ACTIVATION_REASON_CONFIG_MISSING_FAIL_CLOSED = "activation_config_missing_fail_closed"
+PROVIDER_ACTIVATION_REASON_CONFIG_INVALID_FAIL_CLOSED = "activation_config_invalid_fail_closed"
+PROVIDER_ACTIVATION_REASON_READINESS_BLOCKED = "activation_readiness_blocked"
+PROVIDER_ACTIVATION_REASON_CONSENT_REQUIRED = "activation_consent_required"
+PROVIDER_ACTIVATION_REASON_CAPABILITY_REQUIRED = "activation_capability_required"
+PROVIDER_ACTIVATION_REASON_POLICY_BLOCKED = "activation_policy_blocked"
+PROVIDER_ACTIVATION_REASON_MANIFEST_REQUIRED = "activation_manifest_required"
+PROVIDER_ACTIVATION_REASON_ADAPTER_UNAVAILABLE = "activation_adapter_unavailable"
+PROVIDER_ACTIVATION_REASON_FUTURE_GATED = "activation_future_gated"
+PROVIDER_ACTIVATION_REASON_EXECUTION_GATED = "activation_execution_gated"
+PROVIDER_ACTIVATION_REASON_FUNCTIONAL_AI_FUTURE_VERSION = "activation_functional_ai_future_version"
+PROVIDER_ACTIVATION_PROVENANCE_DEFAULT_CONFIG = "default_config"
+PROVIDER_ACTIVATION_PROVENANCE_LOCAL_CONFIG = "local_config"
+PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE = "readiness_state"
+PROVIDER_ACTIVATION_PROVENANCE_CAPABILITY_MANIFEST = "capability_manifest"
+PROVIDER_ACTIVATION_PROVENANCE_CONSENT_STATE = "consent_state"
+PROVIDER_ACTIVATION_PROVENANCE_ADAPTER_CONTRACT = "adapter_contract"
+PROVIDER_ACTIVATION_PROVENANCE_VALIDATOR_FIXTURE = "validator_fixture"
+PROVIDER_ACTIVATION_PROVENANCE_FUTURE_RUNTIME_CHECK = "future_runtime_check"
+PROVIDER_ACTIVATION_PROVENANCE_RELEASE_SOURCE_TRUTH = "release_source_truth"
+PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT = "default_config"
+PROVIDER_ACTIVATION_CONFIG_STATE_MISSING = "missing_config"
+PROVIDER_ACTIVATION_CONFIG_STATE_INVALID = "invalid_config"
+PROVIDER_ACTIVATION_CONFIG_STATE_LOCAL = "local_config"
+PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED = "activation-future-user-approval-required"
+PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_EXECUTION_REQUIRED = "activation-execution-future-user-approval-required"
+PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_VERSION_JUMP_REQUIRED = "functional-ai-version-jump-required"
+PROVIDER_ADAPTER_POSTURE_NULL_LOCAL = "null-local-adapter"
+PROVIDER_ADAPTER_KIND_NULL = "null"
+PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE = "adapter-unavailable"
+PROVIDER_ADAPTER_AVAILABILITY_READY_FUTURE_GATED = "adapter-ready-future-gated"
+PROVIDER_ADAPTER_EXECUTION_POSTURE_DISABLED = "adapter-execution-disabled"
+PROVIDER_METADATA_CONTRACT_VERSION = "provider-metadata-contract.v1"
+PROVIDER_CONFIG_ENVELOPE_VERSION = "provider-config-envelope.v1"
+PROVIDER_ACTIVATION_HANDOFF_STATE_FUTURE_GATED = "activation-handoff-future-gated"
+PROVIDER_SDK_INTEGRATION_BOUNDARY_FUTURE_APPROVAL = "future-sdk-integration-user-approval-required"
+PROMPT_EXECUTION_GATE_DISABLED = "prompt-execution-disabled"
+MODEL_EXECUTION_GATE_DISABLED = "model-execution-disabled"
+PROVIDER_EXECUTION_GATE_DISABLED = "provider-execution-disabled"
+FUNCTIONAL_AI_CRITERIA_PENDING = "functional-ai-criteria-pending"
+FUNCTIONAL_AI_CRITERIA_READY_FUTURE_VERSION = "functional-ai-criteria-ready-for-v1.8.0-prebeta"
+V18_PREBETA_READINESS_PENDING = "v1.8.0-prebeta-readiness-pending"
+V18_PREBETA_READINESS_READY = "v1.8.0-prebeta-readiness-functional-ai-ready"
+READINESS_GATE_BLOCKED = "readiness-gate-blocked"
+READINESS_GATE_READY = "readiness-gate-ready"
+CONSENT_GATE_REQUIRED = "consent-gate-required"
+CONSENT_GATE_READY = "consent-gate-ready"
+CAPABILITY_GATE_BLOCKED = "capability-gate-blocked"
+CAPABILITY_GATE_READY = "capability-gate-ready"
+MANIFEST_GATE_BLOCKED = "manifest-gate-blocked"
+MANIFEST_GATE_READY = "manifest-gate-ready"
+ADAPTER_GATE_NULL_LOCAL = "adapter-gate-null-local"
+ADAPTER_GATE_READY_FUTURE_GATED = "adapter-gate-ready-future-gated"
+SAFETY_EVAL_GATE_PENDING = "safety-eval-gate-pending"
+SAFETY_EVAL_GATE_READY = "safety-eval-gate-ready"
+VOICE_CORE_SYNC_GATE_PENDING_APPROVAL = "voice-core-sync-gate-pending-user-approval"
+VERSION_JUMP_GATE_PENDING_FUNCTIONAL_AI = "v1.8.0-prebeta-gate-pending-functional-ai"
 CAPABILITY_PACK_ELIGIBILITY_UNKNOWN = "capability-pack-eligibility-unknown"
 CAPABILITY_PACK_ELIGIBILITY_BLOCKED = "capability-pack-eligibility-blocked"
 CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED = "capability-pack-eligibility-future-gated"
@@ -280,6 +371,47 @@ PROVIDER_READINESS_PROVENANCE_SOURCES = (
     PROVIDER_READINESS_PROVENANCE_VALIDATOR_FIXTURE,
     PROVIDER_READINESS_PROVENANCE_FUTURE_RUNTIME_CHECK,
 )
+PROVIDER_ACTIVATION_STATES = (
+    PROVIDER_ACTIVATION_STATE_UNKNOWN,
+    PROVIDER_ACTIVATION_STATE_UNAVAILABLE,
+    PROVIDER_ACTIVATION_STATE_DISABLED,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_READINESS,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CONSENT,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CAPABILITY,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_POLICY,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_MANIFEST,
+    PROVIDER_ACTIVATION_STATE_BLOCKED_BY_ADAPTER,
+    PROVIDER_ACTIVATION_STATE_ELIGIBLE_FUTURE_GATED,
+    PROVIDER_ACTIVATION_STATE_READY_EXECUTION_GATED,
+    PROVIDER_ACTIVATION_STATE_DEGRADED,
+    PROVIDER_ACTIVATION_STATE_FUNCTIONAL_AI_READY_FUTURE_VERSION,
+)
+PROVIDER_ACTIVATION_REASON_CODES = (
+    PROVIDER_ACTIVATION_REASON_DEFAULT_UNAVAILABLE,
+    PROVIDER_ACTIVATION_REASON_CONFIG_MISSING_FAIL_CLOSED,
+    PROVIDER_ACTIVATION_REASON_CONFIG_INVALID_FAIL_CLOSED,
+    PROVIDER_ACTIVATION_REASON_READINESS_BLOCKED,
+    PROVIDER_ACTIVATION_REASON_CONSENT_REQUIRED,
+    PROVIDER_ACTIVATION_REASON_CAPABILITY_REQUIRED,
+    PROVIDER_ACTIVATION_REASON_POLICY_BLOCKED,
+    PROVIDER_ACTIVATION_REASON_MANIFEST_REQUIRED,
+    PROVIDER_ACTIVATION_REASON_ADAPTER_UNAVAILABLE,
+    PROVIDER_ACTIVATION_REASON_FUTURE_GATED,
+    PROVIDER_ACTIVATION_REASON_EXECUTION_GATED,
+    PROVIDER_ACTIVATION_REASON_FUNCTIONAL_AI_FUTURE_VERSION,
+)
+PROVIDER_ACTIVATION_PROVENANCE_SOURCES = (
+    PROVIDER_ACTIVATION_PROVENANCE_DEFAULT_CONFIG,
+    PROVIDER_ACTIVATION_PROVENANCE_LOCAL_CONFIG,
+    PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE,
+    PROVIDER_ACTIVATION_PROVENANCE_CAPABILITY_MANIFEST,
+    PROVIDER_ACTIVATION_PROVENANCE_CONSENT_STATE,
+    PROVIDER_ACTIVATION_PROVENANCE_ADAPTER_CONTRACT,
+    PROVIDER_ACTIVATION_PROVENANCE_VALIDATOR_FIXTURE,
+    PROVIDER_ACTIVATION_PROVENANCE_FUTURE_RUNTIME_CHECK,
+    PROVIDER_ACTIVATION_PROVENANCE_RELEASE_SOURCE_TRUTH,
+)
+_ACTIVATION_CONFIG_OMITTED = object()
 
 
 @dataclass(frozen=True)
@@ -308,6 +440,20 @@ class AIProviderReadinessConfigSnapshot:
     future_provider_setup_approved: bool
     provider_ready: bool
     install_intent_requested: bool
+    config_valid: bool
+    provenance: str
+
+
+@dataclass(frozen=True)
+class AIProviderActivationConfigSnapshot:
+    schema_version: str
+    config_state: str
+    future_activation_approved: bool
+    adapter_available: bool
+    safety_eval_complete: bool
+    prompt_execution_approved: bool
+    model_execution_approved: bool
+    functional_ai_ready: bool
     config_valid: bool
     provenance: str
 
@@ -587,6 +733,56 @@ class AIProviderStateSnapshot:
     capability_pack_update_blocked_reason: str = CAPABILITY_PACK_UPDATE_BLOCKED_REASON
     capability_pack_uninstall_blocked_reason: str = CAPABILITY_PACK_UNINSTALL_BLOCKED_REASON
     action_permission_matrix: tuple[AIReadinessActionPermissionSnapshot, ...] = ()
+    provider_activation_state: str = PROVIDER_ACTIVATION_STATE_UNAVAILABLE
+    provider_activation_label: str = "Provider activation: unavailable"
+    activation_eligibility_state: str = PROVIDER_ACTIVATION_ELIGIBILITY_UNAVAILABLE
+    activation_eligibility_label: str = "Activation eligibility: unavailable"
+    activation_blocker_state: str = PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED
+    activation_blocker_label: str = "Activation blocker: readiness required"
+    activation_reason_code: str = PROVIDER_ACTIVATION_REASON_DEFAULT_UNAVAILABLE
+    activation_reason_label: str = "Activation reason: activation foundation only"
+    activation_provenance: str = PROVIDER_ACTIVATION_PROVENANCE_DEFAULT_CONFIG
+    activation_provenance_label: str = "Activation provenance: default config"
+    activation_state_schema_version: str = PROVIDER_ACTIVATION_STATE_SCHEMA_VERSION
+    activation_config_schema_version: str = PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION
+    activation_config_state: str = PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT
+    activation_config_label: str = "Activation config: safe default local-only"
+    activation_config_migration: str = PROVIDER_ACTIVATION_CONFIG_MIGRATION_POSTURE
+    activation_config_valid: bool = True
+    future_activation_gate_status: str = PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED
+    future_activation_gate_label: str = "Future activation gate: USER approval required before activation"
+    provider_adapter_posture: str = PROVIDER_ADAPTER_POSTURE_NULL_LOCAL
+    provider_adapter_label: str = "Provider adapter: null local adapter"
+    provider_adapter_kind: str = PROVIDER_ADAPTER_KIND_NULL
+    provider_adapter_availability_state: str = PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE
+    provider_adapter_availability_label: str = "Adapter availability: unavailable"
+    provider_adapter_execution_posture: str = PROVIDER_ADAPTER_EXECUTION_POSTURE_DISABLED
+    provider_adapter_execution_label: str = "Adapter execution: disabled"
+    provider_metadata_contract_version: str = PROVIDER_METADATA_CONTRACT_VERSION
+    provider_config_envelope_version: str = PROVIDER_CONFIG_ENVELOPE_VERSION
+    provider_activation_handoff_state: str = PROVIDER_ACTIVATION_HANDOFF_STATE_FUTURE_GATED
+    provider_activation_handoff_label: str = "Provider activation handoff: future-gated"
+    future_sdk_integration_boundary: str = PROVIDER_SDK_INTEGRATION_BOUNDARY_FUTURE_APPROVAL
+    prompt_execution_gate_state: str = PROMPT_EXECUTION_GATE_DISABLED
+    prompt_execution_gate_label: str = "Prompt execution gate: disabled"
+    model_execution_gate_state: str = MODEL_EXECUTION_GATE_DISABLED
+    model_execution_gate_label: str = "Model execution gate: disabled"
+    provider_execution_gate_state: str = PROVIDER_EXECUTION_GATE_DISABLED
+    provider_execution_gate_label: str = "Provider execution gate: disabled"
+    readiness_gate_state: str = READINESS_GATE_BLOCKED
+    consent_gate_state: str = CONSENT_GATE_REQUIRED
+    capability_gate_state: str = CAPABILITY_GATE_BLOCKED
+    manifest_gate_state: str = MANIFEST_GATE_BLOCKED
+    adapter_gate_state: str = ADAPTER_GATE_NULL_LOCAL
+    safety_eval_gate_state: str = SAFETY_EVAL_GATE_PENDING
+    network_egress_gate_state: str = NETWORK_EGRESS_BLOCKED
+    memory_indexing_gate_state: str = MEMORY_INDEXING_DISABLED
+    voice_core_sync_gate_state: str = VOICE_CORE_SYNC_GATE_PENDING_APPROVAL
+    version_jump_gate_state: str = VERSION_JUMP_GATE_PENDING_FUNCTIONAL_AI
+    functional_ai_criteria_state: str = FUNCTIONAL_AI_CRITERIA_PENDING
+    functional_ai_criteria_label: str = "Functional AI: criteria pending for v1.8.0-prebeta"
+    v18_prebeta_readiness_state: str = V18_PREBETA_READINESS_PENDING
+    v18_prebeta_readiness_label: str = "v1.8.0-prebeta readiness: pending functional AI proof"
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -764,6 +960,56 @@ class AIProviderStateSnapshot:
             "capability_pack_update_blocked_reason": self.capability_pack_update_blocked_reason,
             "capability_pack_uninstall_blocked_reason": self.capability_pack_uninstall_blocked_reason,
             "action_permission_matrix": tuple(item.as_dict() for item in self.action_permission_matrix),
+            "provider_activation_state": self.provider_activation_state,
+            "provider_activation_label": self.provider_activation_label,
+            "activation_eligibility_state": self.activation_eligibility_state,
+            "activation_eligibility_label": self.activation_eligibility_label,
+            "activation_blocker_state": self.activation_blocker_state,
+            "activation_blocker_label": self.activation_blocker_label,
+            "activation_reason_code": self.activation_reason_code,
+            "activation_reason_label": self.activation_reason_label,
+            "activation_provenance": self.activation_provenance,
+            "activation_provenance_label": self.activation_provenance_label,
+            "activation_state_schema_version": self.activation_state_schema_version,
+            "activation_config_schema_version": self.activation_config_schema_version,
+            "activation_config_state": self.activation_config_state,
+            "activation_config_label": self.activation_config_label,
+            "activation_config_migration": self.activation_config_migration,
+            "activation_config_valid": self.activation_config_valid,
+            "future_activation_gate_status": self.future_activation_gate_status,
+            "future_activation_gate_label": self.future_activation_gate_label,
+            "provider_adapter_posture": self.provider_adapter_posture,
+            "provider_adapter_label": self.provider_adapter_label,
+            "provider_adapter_kind": self.provider_adapter_kind,
+            "provider_adapter_availability_state": self.provider_adapter_availability_state,
+            "provider_adapter_availability_label": self.provider_adapter_availability_label,
+            "provider_adapter_execution_posture": self.provider_adapter_execution_posture,
+            "provider_adapter_execution_label": self.provider_adapter_execution_label,
+            "provider_metadata_contract_version": self.provider_metadata_contract_version,
+            "provider_config_envelope_version": self.provider_config_envelope_version,
+            "provider_activation_handoff_state": self.provider_activation_handoff_state,
+            "provider_activation_handoff_label": self.provider_activation_handoff_label,
+            "future_sdk_integration_boundary": self.future_sdk_integration_boundary,
+            "prompt_execution_gate_state": self.prompt_execution_gate_state,
+            "prompt_execution_gate_label": self.prompt_execution_gate_label,
+            "model_execution_gate_state": self.model_execution_gate_state,
+            "model_execution_gate_label": self.model_execution_gate_label,
+            "provider_execution_gate_state": self.provider_execution_gate_state,
+            "provider_execution_gate_label": self.provider_execution_gate_label,
+            "readiness_gate_state": self.readiness_gate_state,
+            "consent_gate_state": self.consent_gate_state,
+            "capability_gate_state": self.capability_gate_state,
+            "manifest_gate_state": self.manifest_gate_state,
+            "adapter_gate_state": self.adapter_gate_state,
+            "safety_eval_gate_state": self.safety_eval_gate_state,
+            "network_egress_gate_state": self.network_egress_gate_state,
+            "memory_indexing_gate_state": self.memory_indexing_gate_state,
+            "voice_core_sync_gate_state": self.voice_core_sync_gate_state,
+            "version_jump_gate_state": self.version_jump_gate_state,
+            "functional_ai_criteria_state": self.functional_ai_criteria_state,
+            "functional_ai_criteria_label": self.functional_ai_criteria_label,
+            "v18_prebeta_readiness_state": self.v18_prebeta_readiness_state,
+            "v18_prebeta_readiness_label": self.v18_prebeta_readiness_label,
         }
 
     def as_renderer_payload(self) -> dict[str, object]:
@@ -943,6 +1189,56 @@ class AIProviderStateSnapshot:
             "capabilityPackUpdateBlockedReason": self.capability_pack_update_blocked_reason,
             "capabilityPackUninstallBlockedReason": self.capability_pack_uninstall_blocked_reason,
             "actionPermissionMatrix": [item.as_renderer_payload() for item in self.action_permission_matrix],
+            "providerActivationState": self.provider_activation_state,
+            "providerActivationLabel": self.provider_activation_label,
+            "activationEligibilityState": self.activation_eligibility_state,
+            "activationEligibilityLabel": self.activation_eligibility_label,
+            "activationBlockerState": self.activation_blocker_state,
+            "activationBlockerLabel": self.activation_blocker_label,
+            "activationReasonCode": self.activation_reason_code,
+            "activationReasonLabel": self.activation_reason_label,
+            "activationProvenance": self.activation_provenance,
+            "activationProvenanceLabel": self.activation_provenance_label,
+            "activationStateSchemaVersion": self.activation_state_schema_version,
+            "activationConfigSchemaVersion": self.activation_config_schema_version,
+            "activationConfigState": self.activation_config_state,
+            "activationConfigLabel": self.activation_config_label,
+            "activationConfigMigration": self.activation_config_migration,
+            "activationConfigValid": self.activation_config_valid,
+            "futureActivationGateStatus": self.future_activation_gate_status,
+            "futureActivationGateLabel": self.future_activation_gate_label,
+            "providerAdapterPosture": self.provider_adapter_posture,
+            "providerAdapterLabel": self.provider_adapter_label,
+            "providerAdapterKind": self.provider_adapter_kind,
+            "providerAdapterAvailabilityState": self.provider_adapter_availability_state,
+            "providerAdapterAvailabilityLabel": self.provider_adapter_availability_label,
+            "providerAdapterExecutionPosture": self.provider_adapter_execution_posture,
+            "providerAdapterExecutionLabel": self.provider_adapter_execution_label,
+            "providerMetadataContractVersion": self.provider_metadata_contract_version,
+            "providerConfigEnvelopeVersion": self.provider_config_envelope_version,
+            "providerActivationHandoffState": self.provider_activation_handoff_state,
+            "providerActivationHandoffLabel": self.provider_activation_handoff_label,
+            "futureSdkIntegrationBoundary": self.future_sdk_integration_boundary,
+            "promptExecutionGateState": self.prompt_execution_gate_state,
+            "promptExecutionGateLabel": self.prompt_execution_gate_label,
+            "modelExecutionGateState": self.model_execution_gate_state,
+            "modelExecutionGateLabel": self.model_execution_gate_label,
+            "providerExecutionGateState": self.provider_execution_gate_state,
+            "providerExecutionGateLabel": self.provider_execution_gate_label,
+            "readinessGateState": self.readiness_gate_state,
+            "consentGateState": self.consent_gate_state,
+            "capabilityGateState": self.capability_gate_state,
+            "manifestGateState": self.manifest_gate_state,
+            "adapterGateState": self.adapter_gate_state,
+            "safetyEvalGateState": self.safety_eval_gate_state,
+            "networkEgressGateState": self.network_egress_gate_state,
+            "memoryIndexingGateState": self.memory_indexing_gate_state,
+            "voiceCoreSyncGateState": self.voice_core_sync_gate_state,
+            "versionJumpGateState": self.version_jump_gate_state,
+            "functionalAiCriteriaState": self.functional_ai_criteria_state,
+            "functionalAiCriteriaLabel": self.functional_ai_criteria_label,
+            "v18PrebetaReadinessState": self.v18_prebeta_readiness_state,
+            "v18PrebetaReadinessLabel": self.v18_prebeta_readiness_label,
             "canAcceptPrompts": False,
             "requiresConsent": self.consent_state == PROVIDER_CONSENT_REQUIRED,
             "sentToProvider": False,
@@ -1413,6 +1709,199 @@ def _readiness_contract_fields(
     }
 
 
+def _activation_contract_fields(
+    *,
+    state: str,
+    reason_code: str,
+    eligibility: str,
+    blocker: str,
+    provenance: str = PROVIDER_ACTIVATION_PROVENANCE_DEFAULT_CONFIG,
+    config_state: str = PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+    config_valid: bool = True,
+    future_gate_status: str = PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+    adapter_available: bool = False,
+    readiness_gate: str = READINESS_GATE_BLOCKED,
+    consent_gate: str = CONSENT_GATE_REQUIRED,
+    capability_gate: str = CAPABILITY_GATE_BLOCKED,
+    manifest_gate: str = MANIFEST_GATE_BLOCKED,
+    safety_eval_gate: str = SAFETY_EVAL_GATE_PENDING,
+    functional_ai_criteria: str = FUNCTIONAL_AI_CRITERIA_PENDING,
+    v18_readiness: str = V18_PREBETA_READINESS_PENDING,
+) -> dict[str, object]:
+    state_labels = {
+        PROVIDER_ACTIVATION_STATE_UNKNOWN: "Provider activation: unknown",
+        PROVIDER_ACTIVATION_STATE_UNAVAILABLE: "Provider activation: unavailable",
+        PROVIDER_ACTIVATION_STATE_DISABLED: "Provider activation: disabled",
+        PROVIDER_ACTIVATION_STATE_BLOCKED_BY_READINESS: "Provider activation: blocked by readiness",
+        PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CONSENT: "Provider activation: blocked by consent",
+        PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CAPABILITY: "Provider activation: blocked by capability proof",
+        PROVIDER_ACTIVATION_STATE_BLOCKED_BY_POLICY: "Provider activation: blocked by policy",
+        PROVIDER_ACTIVATION_STATE_BLOCKED_BY_MANIFEST: "Provider activation: blocked by capability manifest",
+        PROVIDER_ACTIVATION_STATE_BLOCKED_BY_ADAPTER: "Provider activation: blocked by adapter boundary",
+        PROVIDER_ACTIVATION_STATE_ELIGIBLE_FUTURE_GATED: "Provider activation: eligible after future approval",
+        PROVIDER_ACTIVATION_STATE_READY_EXECUTION_GATED: "Provider activation: ready but execution gated",
+        PROVIDER_ACTIVATION_STATE_DEGRADED: "Provider activation: degraded and fail-closed",
+        PROVIDER_ACTIVATION_STATE_FUNCTIONAL_AI_READY_FUTURE_VERSION:
+            "Provider activation: functional AI ready for future version",
+    }
+    eligibility_labels = {
+        PROVIDER_ACTIVATION_ELIGIBILITY_UNAVAILABLE: "Activation eligibility: unavailable",
+        PROVIDER_ACTIVATION_ELIGIBILITY_DISABLED: "Activation eligibility: disabled",
+        PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED: "Activation eligibility: blocked",
+        PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_GATED: "Activation eligibility: future-gated",
+        PROVIDER_ACTIVATION_ELIGIBILITY_EXECUTION_GATED: "Activation eligibility: execution gated",
+        PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_VERSION: "Activation eligibility: future version",
+    }
+    blocker_labels = {
+        PROVIDER_ACTIVATION_BLOCKER_NONE: "Activation blocker: none before execution gate",
+        PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED: "Activation blocker: readiness required",
+        PROVIDER_ACTIVATION_BLOCKER_CONSENT_REQUIRED: "Activation blocker: consent required",
+        PROVIDER_ACTIVATION_BLOCKER_CAPABILITY_REQUIRED: "Activation blocker: capability proof required",
+        PROVIDER_ACTIVATION_BLOCKER_POLICY_BLOCKED: "Activation blocker: policy blocked",
+        PROVIDER_ACTIVATION_BLOCKER_MANIFEST_REQUIRED: "Activation blocker: capability manifest required",
+        PROVIDER_ACTIVATION_BLOCKER_ADAPTER_UNAVAILABLE: "Activation blocker: null adapter boundary",
+        PROVIDER_ACTIVATION_BLOCKER_EXECUTION_GATE: "Activation blocker: execution gate",
+        PROVIDER_ACTIVATION_BLOCKER_FUTURE_ACTIVATION_GATE: "Activation blocker: future USER approval required",
+        PROVIDER_ACTIVATION_BLOCKER_CONFIG_INVALID: "Activation blocker: invalid config",
+        PROVIDER_ACTIVATION_BLOCKER_VERSION_JUMP_REQUIRED: "Activation blocker: v1.8.0-prebeta version jump required",
+    }
+    reason_labels = {
+        PROVIDER_ACTIVATION_REASON_DEFAULT_UNAVAILABLE: "Activation reason: activation foundation only",
+        PROVIDER_ACTIVATION_REASON_CONFIG_MISSING_FAIL_CLOSED: "Activation reason: missing config failed closed",
+        PROVIDER_ACTIVATION_REASON_CONFIG_INVALID_FAIL_CLOSED: "Activation reason: invalid config failed closed",
+        PROVIDER_ACTIVATION_REASON_READINESS_BLOCKED: "Activation reason: readiness not satisfied",
+        PROVIDER_ACTIVATION_REASON_CONSENT_REQUIRED: "Activation reason: consent required",
+        PROVIDER_ACTIVATION_REASON_CAPABILITY_REQUIRED: "Activation reason: capability proof required",
+        PROVIDER_ACTIVATION_REASON_POLICY_BLOCKED: "Activation reason: policy blocked",
+        PROVIDER_ACTIVATION_REASON_MANIFEST_REQUIRED: "Activation reason: capability manifest required",
+        PROVIDER_ACTIVATION_REASON_ADAPTER_UNAVAILABLE: "Activation reason: adapter unavailable",
+        PROVIDER_ACTIVATION_REASON_FUTURE_GATED: "Activation reason: future activation approval required",
+        PROVIDER_ACTIVATION_REASON_EXECUTION_GATED: "Activation reason: execution approval required",
+        PROVIDER_ACTIVATION_REASON_FUNCTIONAL_AI_FUTURE_VERSION:
+            "Activation reason: functional AI proof reserved for v1.8.0-prebeta",
+    }
+    provenance_labels = {
+        PROVIDER_ACTIVATION_PROVENANCE_DEFAULT_CONFIG: "Activation provenance: default config",
+        PROVIDER_ACTIVATION_PROVENANCE_LOCAL_CONFIG: "Activation provenance: local config",
+        PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE: "Activation provenance: readiness state",
+        PROVIDER_ACTIVATION_PROVENANCE_CAPABILITY_MANIFEST: "Activation provenance: capability manifest",
+        PROVIDER_ACTIVATION_PROVENANCE_CONSENT_STATE: "Activation provenance: consent state",
+        PROVIDER_ACTIVATION_PROVENANCE_ADAPTER_CONTRACT: "Activation provenance: adapter contract",
+        PROVIDER_ACTIVATION_PROVENANCE_VALIDATOR_FIXTURE: "Activation provenance: validator fixture",
+        PROVIDER_ACTIVATION_PROVENANCE_FUTURE_RUNTIME_CHECK: "Activation provenance: future runtime check",
+        PROVIDER_ACTIVATION_PROVENANCE_RELEASE_SOURCE_TRUTH: "Activation provenance: release source truth",
+    }
+    config_labels = {
+        PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT: "Activation config: safe default local-only",
+        PROVIDER_ACTIVATION_CONFIG_STATE_MISSING: "Activation config: missing; activation disabled",
+        PROVIDER_ACTIVATION_CONFIG_STATE_INVALID: "Activation config: invalid; degraded fail-closed",
+        PROVIDER_ACTIVATION_CONFIG_STATE_LOCAL: "Activation config: local-only",
+    }
+    future_gate_labels = {
+        PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED:
+            "Future activation gate: USER approval required before activation",
+        PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_EXECUTION_REQUIRED:
+            "Future activation gate: USER approval required before provider execution",
+        PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_VERSION_JUMP_REQUIRED:
+            "Future activation gate: v1.8.0-prebeta requires functional AI proof",
+    }
+    normalized_state = state if state in PROVIDER_ACTIVATION_STATES else PROVIDER_ACTIVATION_STATE_DEGRADED
+    normalized_reason = (
+        reason_code
+        if reason_code in PROVIDER_ACTIVATION_REASON_CODES
+        else PROVIDER_ACTIVATION_REASON_CONFIG_INVALID_FAIL_CLOSED
+    )
+    normalized_provenance = (
+        provenance
+        if provenance in PROVIDER_ACTIVATION_PROVENANCE_SOURCES
+        else PROVIDER_ACTIVATION_PROVENANCE_LOCAL_CONFIG
+    )
+    normalized_config = (
+        config_state
+        if config_state
+        in {
+            PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+            PROVIDER_ACTIVATION_CONFIG_STATE_MISSING,
+            PROVIDER_ACTIVATION_CONFIG_STATE_INVALID,
+            PROVIDER_ACTIVATION_CONFIG_STATE_LOCAL,
+        }
+        else PROVIDER_ACTIVATION_CONFIG_STATE_INVALID
+    )
+    adapter_availability = (
+        PROVIDER_ADAPTER_AVAILABILITY_READY_FUTURE_GATED
+        if adapter_available
+        else PROVIDER_ADAPTER_AVAILABILITY_UNAVAILABLE
+    )
+    adapter_gate = ADAPTER_GATE_READY_FUTURE_GATED if adapter_available else ADAPTER_GATE_NULL_LOCAL
+    functional_ai_label = (
+        "Functional AI: criteria ready for v1.8.0-prebeta"
+        if functional_ai_criteria == FUNCTIONAL_AI_CRITERIA_READY_FUTURE_VERSION
+        else "Functional AI: criteria pending for v1.8.0-prebeta"
+    )
+    v18_label = (
+        "v1.8.0-prebeta readiness: functional AI proof ready"
+        if v18_readiness == V18_PREBETA_READINESS_READY
+        else "v1.8.0-prebeta readiness: pending functional AI proof"
+    )
+    return {
+        "provider_activation_state": normalized_state,
+        "provider_activation_label": state_labels[normalized_state],
+        "activation_eligibility_state": eligibility,
+        "activation_eligibility_label": eligibility_labels.get(eligibility, "Activation eligibility: blocked"),
+        "activation_blocker_state": blocker,
+        "activation_blocker_label": blocker_labels.get(blocker, "Activation blocker: policy blocked"),
+        "activation_reason_code": normalized_reason,
+        "activation_reason_label": reason_labels[normalized_reason],
+        "activation_provenance": normalized_provenance,
+        "activation_provenance_label": provenance_labels[normalized_provenance],
+        "activation_state_schema_version": PROVIDER_ACTIVATION_STATE_SCHEMA_VERSION,
+        "activation_config_schema_version": PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION,
+        "activation_config_state": normalized_config,
+        "activation_config_label": config_labels[normalized_config],
+        "activation_config_migration": PROVIDER_ACTIVATION_CONFIG_MIGRATION_POSTURE,
+        "activation_config_valid": bool(config_valid),
+        "future_activation_gate_status": future_gate_status,
+        "future_activation_gate_label": future_gate_labels.get(
+            future_gate_status,
+            "Future activation gate: USER approval required before activation",
+        ),
+        "provider_adapter_posture": PROVIDER_ADAPTER_POSTURE_NULL_LOCAL,
+        "provider_adapter_label": "Provider adapter: null local adapter",
+        "provider_adapter_kind": PROVIDER_ADAPTER_KIND_NULL,
+        "provider_adapter_availability_state": adapter_availability,
+        "provider_adapter_availability_label": (
+            "Adapter availability: ready for future handoff" if adapter_available else "Adapter availability: unavailable"
+        ),
+        "provider_adapter_execution_posture": PROVIDER_ADAPTER_EXECUTION_POSTURE_DISABLED,
+        "provider_adapter_execution_label": "Adapter execution: disabled",
+        "provider_metadata_contract_version": PROVIDER_METADATA_CONTRACT_VERSION,
+        "provider_config_envelope_version": PROVIDER_CONFIG_ENVELOPE_VERSION,
+        "provider_activation_handoff_state": PROVIDER_ACTIVATION_HANDOFF_STATE_FUTURE_GATED,
+        "provider_activation_handoff_label": "Provider activation handoff: future-gated",
+        "future_sdk_integration_boundary": PROVIDER_SDK_INTEGRATION_BOUNDARY_FUTURE_APPROVAL,
+        "prompt_execution_gate_state": PROMPT_EXECUTION_GATE_DISABLED,
+        "prompt_execution_gate_label": "Prompt execution gate: disabled",
+        "model_execution_gate_state": MODEL_EXECUTION_GATE_DISABLED,
+        "model_execution_gate_label": "Model execution gate: disabled",
+        "provider_execution_gate_state": PROVIDER_EXECUTION_GATE_DISABLED,
+        "provider_execution_gate_label": "Provider execution gate: disabled",
+        "readiness_gate_state": readiness_gate,
+        "consent_gate_state": consent_gate,
+        "capability_gate_state": capability_gate,
+        "manifest_gate_state": manifest_gate,
+        "adapter_gate_state": adapter_gate,
+        "safety_eval_gate_state": safety_eval_gate,
+        "network_egress_gate_state": NETWORK_EGRESS_BLOCKED,
+        "memory_indexing_gate_state": MEMORY_INDEXING_DISABLED,
+        "voice_core_sync_gate_state": VOICE_CORE_SYNC_GATE_PENDING_APPROVAL,
+        "version_jump_gate_state": VERSION_JUMP_GATE_PENDING_FUNCTIONAL_AI,
+        "functional_ai_criteria_state": functional_ai_criteria,
+        "functional_ai_criteria_label": functional_ai_label,
+        "v18_prebeta_readiness_state": v18_readiness,
+        "v18_prebeta_readiness_label": v18_label,
+    }
+
+
 def _provider_selection_options() -> tuple[AIProviderChoiceSnapshot, ...]:
     return (
         AIProviderChoiceSnapshot(
@@ -1627,6 +2116,84 @@ def normalize_provider_readiness_config(
         provenance=provenance
         if provenance in PROVIDER_READINESS_PROVENANCE_SOURCES
         else PROVIDER_READINESS_PROVENANCE_LOCAL_CONFIG,
+    )
+
+
+def build_default_provider_activation_config() -> AIProviderActivationConfigSnapshot:
+    """Return the safe local-only default provider activation config."""
+
+    return AIProviderActivationConfigSnapshot(
+        schema_version=PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION,
+        config_state=PROVIDER_ACTIVATION_CONFIG_STATE_DEFAULT,
+        future_activation_approved=False,
+        adapter_available=False,
+        safety_eval_complete=False,
+        prompt_execution_approved=False,
+        model_execution_approved=False,
+        functional_ai_ready=False,
+        config_valid=True,
+        provenance=PROVIDER_ACTIVATION_PROVENANCE_DEFAULT_CONFIG,
+    )
+
+
+def normalize_provider_activation_config(
+    config: AIProviderActivationConfigSnapshot | dict[str, object] | None,
+) -> AIProviderActivationConfigSnapshot:
+    """Normalize activation config into a fail-closed local-only activation posture."""
+
+    if config is None:
+        return replace(
+            build_default_provider_activation_config(),
+            config_state=PROVIDER_ACTIVATION_CONFIG_STATE_MISSING,
+            config_valid=False,
+        )
+
+    if isinstance(config, AIProviderActivationConfigSnapshot):
+        if config.schema_version == PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION and config.config_valid:
+            return config
+        return replace(
+            build_default_provider_activation_config(),
+            config_state=PROVIDER_ACTIVATION_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=config.provenance
+            if config.provenance in PROVIDER_ACTIVATION_PROVENANCE_SOURCES
+            else PROVIDER_ACTIVATION_PROVENANCE_LOCAL_CONFIG,
+        )
+
+    if not isinstance(config, dict):
+        return replace(
+            build_default_provider_activation_config(),
+            config_state=PROVIDER_ACTIVATION_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=PROVIDER_ACTIVATION_PROVENANCE_LOCAL_CONFIG,
+        )
+
+    schema_version = str(config.get("schema_version") or "")
+    provenance = str(config.get("provenance") or PROVIDER_ACTIVATION_PROVENANCE_LOCAL_CONFIG)
+    config_valid = bool(config.get("config_valid", True)) and schema_version == PROVIDER_ACTIVATION_CONFIG_SCHEMA_VERSION
+    if not config_valid:
+        return replace(
+            build_default_provider_activation_config(),
+            config_state=PROVIDER_ACTIVATION_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=provenance
+            if provenance in PROVIDER_ACTIVATION_PROVENANCE_SOURCES
+            else PROVIDER_ACTIVATION_PROVENANCE_LOCAL_CONFIG,
+        )
+
+    return AIProviderActivationConfigSnapshot(
+        schema_version=schema_version,
+        config_state=PROVIDER_ACTIVATION_CONFIG_STATE_LOCAL,
+        future_activation_approved=bool(config.get("future_activation_approved", False)),
+        adapter_available=bool(config.get("adapter_available", False)),
+        safety_eval_complete=bool(config.get("safety_eval_complete", False)),
+        prompt_execution_approved=bool(config.get("prompt_execution_approved", False)),
+        model_execution_approved=bool(config.get("model_execution_approved", False)),
+        functional_ai_ready=bool(config.get("functional_ai_ready", False)),
+        config_valid=True,
+        provenance=provenance
+        if provenance in PROVIDER_ACTIVATION_PROVENANCE_SOURCES
+        else PROVIDER_ACTIVATION_PROVENANCE_LOCAL_CONFIG,
     )
 
 
@@ -1962,6 +2529,301 @@ def build_provider_readiness_contract_state(
             install_intent=CAPABILITY_PACK_INSTALL_INTENT_FUTURE_GATED
             if normalized_config.install_intent_requested
             else CAPABILITY_PACK_INSTALL_INTENT_NONE,
+        ),
+    )
+
+
+def build_provider_activation_foundation_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve readiness plus activation gates into a local-only activation foundation state."""
+
+    normalized_readiness = normalize_provider_readiness_config(readiness_config)
+    if activation_config is _ACTIVATION_CONFIG_OMITTED:
+        normalized_activation = build_default_provider_activation_config()
+    else:
+        normalized_activation = normalize_provider_activation_config(
+            activation_config  # type: ignore[arg-type]
+        )
+    base_state = build_provider_readiness_contract_state(normalized_readiness, surface_role=surface_role)
+
+    if normalized_activation.config_state == PROVIDER_ACTIVATION_CONFIG_STATE_MISSING:
+        return replace(
+            base_state,
+            status_label="Provider activation disabled",
+            disabled_reason="Provider activation config is missing, so activation is disabled",
+            interaction_disabled_reason="Missing activation config failed closed; prompts remain disabled",
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_DISABLED,
+                reason_code=PROVIDER_ACTIVATION_REASON_CONFIG_MISSING_FAIL_CLOSED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_DISABLED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED,
+                provenance=normalized_activation.provenance,
+                config_state=normalized_activation.config_state,
+                config_valid=False,
+            ),
+        )
+    if normalized_activation.config_state == PROVIDER_ACTIVATION_CONFIG_STATE_INVALID:
+        return replace(
+            base_state,
+            status_label="Provider activation degraded",
+            disabled_reason="Provider activation config is invalid, so activation and provider behavior are disabled",
+            interaction_disabled_reason="Invalid activation config failed closed; prompts remain disabled",
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_DEGRADED,
+                reason_code=PROVIDER_ACTIVATION_REASON_CONFIG_INVALID_FAIL_CLOSED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_CONFIG_INVALID,
+                provenance=normalized_activation.provenance,
+                config_state=normalized_activation.config_state,
+                config_valid=False,
+            ),
+        )
+
+    activation_common = {
+        "config_state": normalized_activation.config_state,
+        "config_valid": normalized_activation.config_valid,
+    }
+    readiness_state = base_state.provider_readiness_state
+    if normalized_readiness.config_state == PROVIDER_READINESS_CONFIG_STATE_INVALID:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_DEGRADED,
+                reason_code=PROVIDER_ACTIVATION_REASON_CONFIG_INVALID_FAIL_CLOSED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE,
+                **activation_common,
+            ),
+        )
+    if readiness_state == PROVIDER_READINESS_STATE_SETUP_DISABLED:
+        return replace(
+            base_state,
+            status_label="Provider activation unavailable",
+            disabled_reason="Provider activation is unavailable until readiness and later USER approval exist",
+            interaction_disabled_reason="Activation foundation is status-only; prompts remain disabled",
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_UNAVAILABLE,
+                reason_code=PROVIDER_ACTIVATION_REASON_DEFAULT_UNAVAILABLE,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_UNAVAILABLE,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_DEFAULT_CONFIG,
+                **activation_common,
+            ),
+        )
+    if readiness_state == PROVIDER_READINESS_STATE_SETUP_CONFIG_REQUIRED:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_BLOCKED_BY_READINESS,
+                reason_code=PROVIDER_ACTIVATION_REASON_READINESS_BLOCKED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE,
+                **activation_common,
+            ),
+        )
+    if readiness_state == PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_CONSENT:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CONSENT,
+                reason_code=PROVIDER_ACTIVATION_REASON_CONSENT_REQUIRED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_CONSENT_REQUIRED,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_CONSENT_STATE,
+                consent_gate=CONSENT_GATE_REQUIRED,
+                **activation_common,
+            ),
+        )
+    if readiness_state == PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_CAPABILITY:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_BLOCKED_BY_CAPABILITY,
+                reason_code=PROVIDER_ACTIVATION_REASON_CAPABILITY_REQUIRED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_CAPABILITY_REQUIRED,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE,
+                consent_gate=CONSENT_GATE_READY,
+                **activation_common,
+            ),
+        )
+    if readiness_state == PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_MANIFEST:
+        manifest_reason = (
+            PROVIDER_ACTIVATION_REASON_MANIFEST_REQUIRED
+            if base_state.capability_pack_manifest_validity_state == CAPABILITY_PACK_MANIFEST_MISSING
+            else PROVIDER_ACTIVATION_REASON_MANIFEST_REQUIRED
+        )
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_BLOCKED_BY_MANIFEST,
+                reason_code=manifest_reason,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_MANIFEST_REQUIRED,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_CAPABILITY_MANIFEST,
+                readiness_gate=READINESS_GATE_READY,
+                consent_gate=CONSENT_GATE_READY,
+                capability_gate=CAPABILITY_GATE_READY,
+                **activation_common,
+            ),
+        )
+    if readiness_state == PROVIDER_READINESS_STATE_SETUP_BLOCKED_BY_POLICY:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_BLOCKED_BY_POLICY,
+                reason_code=PROVIDER_ACTIVATION_REASON_POLICY_BLOCKED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_POLICY_BLOCKED,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE,
+                **activation_common,
+            ),
+        )
+    if readiness_state == PROVIDER_READINESS_STATE_SETUP_AVAILABLE_FUTURE_GATED:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_ELIGIBLE_FUTURE_GATED,
+                reason_code=PROVIDER_ACTIVATION_REASON_FUTURE_GATED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_GATED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_FUTURE_ACTIVATION_GATE,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_RELEASE_SOURCE_TRUTH,
+                future_gate_status=PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+                readiness_gate=READINESS_GATE_READY,
+                consent_gate=CONSENT_GATE_READY,
+                capability_gate=CAPABILITY_GATE_READY,
+                manifest_gate=MANIFEST_GATE_READY,
+                **activation_common,
+            ),
+        )
+    if readiness_state == PROVIDER_READINESS_STATE_DEGRADED:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_DEGRADED,
+                reason_code=PROVIDER_ACTIVATION_REASON_READINESS_BLOCKED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_READINESS_REQUIRED,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_READINESS_STATE,
+                future_gate_status=PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_EXECUTION_REQUIRED,
+                **activation_common,
+            ),
+        )
+    if not normalized_activation.future_activation_approved:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_ELIGIBLE_FUTURE_GATED,
+                reason_code=PROVIDER_ACTIVATION_REASON_FUTURE_GATED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_GATED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_FUTURE_ACTIVATION_GATE,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_RELEASE_SOURCE_TRUTH,
+                future_gate_status=PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_REQUIRED,
+                readiness_gate=READINESS_GATE_READY,
+                consent_gate=CONSENT_GATE_READY,
+                capability_gate=CAPABILITY_GATE_READY,
+                manifest_gate=MANIFEST_GATE_READY,
+                **activation_common,
+            ),
+        )
+    if not normalized_activation.adapter_available:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_BLOCKED_BY_ADAPTER,
+                reason_code=PROVIDER_ACTIVATION_REASON_ADAPTER_UNAVAILABLE,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_ADAPTER_UNAVAILABLE,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_ADAPTER_CONTRACT,
+                future_gate_status=PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_EXECUTION_REQUIRED,
+                readiness_gate=READINESS_GATE_READY,
+                consent_gate=CONSENT_GATE_READY,
+                capability_gate=CAPABILITY_GATE_READY,
+                manifest_gate=MANIFEST_GATE_READY,
+                **activation_common,
+            ),
+        )
+    if not normalized_activation.safety_eval_complete:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_BLOCKED_BY_POLICY,
+                reason_code=PROVIDER_ACTIVATION_REASON_POLICY_BLOCKED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_BLOCKED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_POLICY_BLOCKED,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_RELEASE_SOURCE_TRUTH,
+                future_gate_status=PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_EXECUTION_REQUIRED,
+                adapter_available=True,
+                readiness_gate=READINESS_GATE_READY,
+                consent_gate=CONSENT_GATE_READY,
+                capability_gate=CAPABILITY_GATE_READY,
+                manifest_gate=MANIFEST_GATE_READY,
+                **activation_common,
+            ),
+        )
+    if not normalized_activation.prompt_execution_approved or not normalized_activation.model_execution_approved:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_READY_EXECUTION_GATED,
+                reason_code=PROVIDER_ACTIVATION_REASON_EXECUTION_GATED,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_EXECUTION_GATED,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_EXECUTION_GATE,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_FUTURE_RUNTIME_CHECK,
+                future_gate_status=PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_EXECUTION_REQUIRED,
+                adapter_available=True,
+                readiness_gate=READINESS_GATE_READY,
+                consent_gate=CONSENT_GATE_READY,
+                capability_gate=CAPABILITY_GATE_READY,
+                manifest_gate=MANIFEST_GATE_READY,
+                safety_eval_gate=SAFETY_EVAL_GATE_READY,
+                **activation_common,
+            ),
+        )
+    if normalized_activation.functional_ai_ready:
+        return replace(
+            base_state,
+            **_activation_contract_fields(
+                state=PROVIDER_ACTIVATION_STATE_FUNCTIONAL_AI_READY_FUTURE_VERSION,
+                reason_code=PROVIDER_ACTIVATION_REASON_FUNCTIONAL_AI_FUTURE_VERSION,
+                eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_FUTURE_VERSION,
+                blocker=PROVIDER_ACTIVATION_BLOCKER_VERSION_JUMP_REQUIRED,
+                provenance=PROVIDER_ACTIVATION_PROVENANCE_FUTURE_RUNTIME_CHECK,
+                future_gate_status=PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_VERSION_JUMP_REQUIRED,
+                adapter_available=True,
+                readiness_gate=READINESS_GATE_READY,
+                consent_gate=CONSENT_GATE_READY,
+                capability_gate=CAPABILITY_GATE_READY,
+                manifest_gate=MANIFEST_GATE_READY,
+                safety_eval_gate=SAFETY_EVAL_GATE_READY,
+                functional_ai_criteria=FUNCTIONAL_AI_CRITERIA_READY_FUTURE_VERSION,
+                v18_readiness=V18_PREBETA_READINESS_READY,
+                **activation_common,
+            ),
+        )
+
+    return replace(
+        base_state,
+        **_activation_contract_fields(
+            state=PROVIDER_ACTIVATION_STATE_READY_EXECUTION_GATED,
+            reason_code=PROVIDER_ACTIVATION_REASON_EXECUTION_GATED,
+            eligibility=PROVIDER_ACTIVATION_ELIGIBILITY_EXECUTION_GATED,
+            blocker=PROVIDER_ACTIVATION_BLOCKER_EXECUTION_GATE,
+            provenance=PROVIDER_ACTIVATION_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            future_gate_status=PROVIDER_FUTURE_ACTIVATION_GATE_STATUS_EXECUTION_REQUIRED,
+            adapter_available=True,
+            readiness_gate=READINESS_GATE_READY,
+            consent_gate=CONSENT_GATE_READY,
+            capability_gate=CAPABILITY_GATE_READY,
+            manifest_gate=MANIFEST_GATE_READY,
+            safety_eval_gate=SAFETY_EVAL_GATE_READY,
+            **activation_common,
         ),
     )
 
