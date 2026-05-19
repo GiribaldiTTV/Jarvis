@@ -6,7 +6,7 @@
 - Worktree: `C:\Nexus Worktrees\FAM-007`
 - Branch Class: `implementation`
 - Implementation Delta Class: `source-truth Branch Readiness setup and future local-only runtime readiness contract`
-- Backlog Record State: `Active Hardening H1 Green / ready for Live Validation LV1`
+- Backlog Record State: `Active Live Validation LV1 Green / ready for PR Readiness Stage 1`
 - Family: `FAM-007` Local AI and Capability Packs
 - Package: `PKG-007` Local AI foundation and capability-pack architecture package
 - Workstream Label: `FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
@@ -19,12 +19,12 @@ This branch is the USER-approved fresh FAM-007 runtime carrier created from curr
 
 ## Current Phase
 
-- Phase: `Hardening`
-Stage: `H1 Green`
+- Phase: `Live Validation`
+Stage: `LV1 Green`
 Active Branch Authority: `feature/fam-007-local-ai-provider-runtime-readiness`
 Active Worktree: `C:\Nexus Worktrees\FAM-007`
 Active Package: `PKG-007`
-Active Seam: `Hardening H1 - FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
+Active Seam: `Live Validation LV1 - FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
 
 ## Phase Status
 
@@ -33,12 +33,15 @@ Runtime Workstream USER Approval: `Granted - USER approved bounded multi-seam Wo
 Hardening H1 USER Approval: `Granted - USER approved Hardening H1 after reconciliation with origin/main 89e82405350deda8997ddd3f0720f4e5e796fbfa`
 Current Hardening Seam: `Hardening H1 - FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
 Current Hardening State: `Green - H1 verified the admitted Workstream plan, Runtime Branch Engineering Contract, readiness state model, consent/config transitions, capability-pack eligibility, install-intent posture, Core/Desktop readiness copy, validator fixtures, provider-visible-data posture, disabled prompt/provider execution, approval boundaries, and FAM-006 overlap forecast`
+Live Validation LV1 USER Approval: `Granted - USER approved Live Validation LV1 for the completed and hardened local-only FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility Workstream`
+Current Live Validation Seam: `Live Validation LV1 - FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
+Current Live Validation State: `Green - LV1 classified this branch as a disabled/status-only local readiness scaffold and verified Core/Desktop readiness rail copy, centralized readiness state, fail-closed readiness behavior, provider-visible data none posture, disabled prompt/provider behavior, blocked capability-pack download/install posture, memory-disabled posture, network-egress-blocked posture, validators, and source-truth waiver digest`
 - `Active Branch`: `feature/fam-007-local-ai-provider-runtime-readiness`
-Branch Authority State: `Active Hardening Green runtime carrier`
+Branch Authority State: `Active Live Validation Green runtime carrier`
 Release Canon Closure State: `v1.7.4-prebeta published at 0cd1b0430f5634048613bffec411d35d657058bf; PR #162 and PR #163 are released in v1.7.4-prebeta`
 Selected Next Workstream: `FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
 Selected Next Implementation Branch: `feature/fam-007-local-ai-provider-runtime-readiness`
-Selected Next Current-Carrier Note: `This branch is the active FAM-007 runtime carrier for the bounded provider-readiness/setup-eligibility Workstream; Workstream implementation and Hardening H1 are green and the next legal phase is Live Validation LV1 after USER approval`
+Selected Next Current-Carrier Note: `This branch is the active FAM-007 runtime carrier for the bounded provider-readiness/setup-eligibility Workstream; Workstream implementation, Hardening H1, and Live Validation LV1 are green, and the next legal phase is PR Readiness Stage 1 after USER approval`
 Package Completion State: `PKG-007 admitted but not complete - prior local-only scaffolds are released historical evidence through v1.7.4-prebeta; provider SDK/model execution, downloads, external calls, memory/indexing, voice/Core sync, shortcut/installer, release, issue, AI Product, and FAM-006 work remain separate USER decisions`
 
 ## Branch Class
@@ -110,11 +113,11 @@ Rollback Rule: `If validation fails and cannot be repaired within Stage 2 setup 
 
 ## Next Legal Phase
 
-- `Live Validation`
+- `PR Readiness`
 
-Next Legal Phase: `Live Validation`
-Next Legal Seam: `Live Validation LV1 for the completed and hardened local-only FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility Workstream`
-Exact USER Decision Needed: `I approve Live Validation LV1 for feature/fam-007-local-ai-provider-runtime-readiness, covering the completed and hardened local-only FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility Workstream. Codex may validate the visible Core/Desktop readiness rail, provider/runtime readiness state, fail-closed readiness behavior, provider-visible data none posture, disabled prompt/provider behavior, blocked capability-pack download/install posture, memory-disabled posture, network-egress-blocked posture, source-truth posture, validators, User Test Summary applicability, and FAM-006 overlap risk; apply LV1-scoped repairs if needed; validate, commit, and push. PR creation, merge, provider SDK/model work, model downloads/execution, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, release/tag/artifact work, issue work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, and branch cleanup remain separate decisions.`
+Next Legal Phase: `PR Readiness`
+Next Legal Seam: `PR Readiness Stage 1 analysis for feature/fam-007-local-ai-provider-runtime-readiness`
+Exact USER Decision Needed: `I approve PR Readiness Stage 1 analysis for feature/fam-007-local-ai-provider-runtime-readiness. This is analysis only; PR creation, merge, release work, provider SDK/model work, model downloads/execution, external calls, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, issue work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, and branch cleanup remain separate decisions.`
 
 ## Carrier Lifecycle Decision
 
@@ -162,6 +165,7 @@ Bounded Workstream Rule: `When Workstream is later approved, continue seam-to-se
 Workstream Completion State: `Green - ready for Hardening H1 after USER approval`
 Hardening H1 Proof Review Status: `Green - Hardening H1 proof review completed after reconciliation with origin/main 89e82405350deda8997ddd3f0720f4e5e796fbfa`
 Hardening H1 Result: `PASS - no runtime, UI, validator, or Engineering Contract defect repair was required; source truth records H1 Green without claiming Live Validation, PR Readiness, PR creation, merge, release readiness, or any pending runtime expansion`
+Live Validation LV1 Result: `PASS - disabled/status-only local readiness scaffold classified as static/source-truth/provider-state/compile validated with User Test Summary, user-facing shortcut validation, and Codex live-client self-QA waived for this LV1 phase only`
 Provider Readiness Contract: `Green`
 Consent and Configuration Transition Contract: `Green`
 Capability-Pack Eligibility and Install-Intent Posture: `Green`
@@ -255,17 +259,17 @@ Scale / Data Volume Model: `The planned state covers at least 11 readiness state
 Configuration And State Model: `Readiness config defaults fail closed; missing or invalid config maps to disabled or blocked local-only posture with explicit reason/provenance; schema version and migration posture are planned before future runtime setup.`
 Expected User-Facing Outcomes: `Visible readiness copy explains no-provider, setup-disabled, setup-blocked, consent-required, capability-missing, manifest-invalid, install-intent-blocked, and future-gated provider states without enabling prompts or provider calls.`
 Codex Product Interpretation: `The next useful product layer is not a provider SDK; it is a dependable readiness/setup contract that prevents false readiness, clarifies blocked states, and prepares future provider work.`
-Codex Implementation Recommendation: `The four seam families are implemented as local-only provider-readiness state, Core/Desktop copy mapping, and validator fixtures; Hardening H1 is green and the branch should continue to Live Validation LV1 only after USER approval.`
+Codex Implementation Recommendation: `The four seam families are implemented as local-only provider-readiness state, Core/Desktop copy mapping, and validator fixtures; Hardening H1 and Live Validation LV1 are green and the branch should continue to PR Readiness Stage 1 only after USER approval.`
 Codex Additional Recommendations: `Recommendation: keep provider-visible data at none, implement reason/provenance/schema fields before UI expansion, prefer central state over UI-only labels, add blocked-state validator fixtures before readiness copy ships, and require explicit future approval before any consent collection, setup wizard, provider execution, model download, memory indexing, or external call.`
 USER/ChatGPT Review Checkpoint: `USER and ChatGPT should challenge readiness state names, setup blocker wording, future-gate boundaries, and whether any planned UI copy could imply real AI availability before provider execution is approved.`
-USER Critique Loop: `Before Workstream, USER could approve, change, defer, critique, or give feedback on the readiness/setup eligibility plan; after Hardening H1 Green, USER may challenge H1 findings, require a bounded repair, or approve Live Validation LV1. Codex must not widen scope beyond the local-only readiness/setup eligibility Workstream without explicit USER approval.`
-USER Decision Ledger: `USER approved Branch Readiness Stage 2 setup, bounded Workstream implementation, reconciliation, and Hardening H1 for this branch. Pending decisions include Live Validation LV1, PR creation, merge, provider SDK integration, provider/model execution, model downloads, external calls, memory indexing/retrieval/learning/persistence, voice/Core runtime sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, historical branch cleanup, and successor selection beyond this carrier.`
+USER Critique Loop: `Before Workstream, USER could approve, change, defer, critique, or give feedback on the readiness/setup eligibility plan; after Live Validation LV1 Green, USER may challenge LV1 findings, require a bounded LV1 evidence repair, or approve PR Readiness Stage 1. Codex must not widen scope beyond the local-only readiness/setup eligibility Workstream without explicit USER approval.`
+USER Decision Ledger: `USER approved Branch Readiness Stage 2 setup, bounded Workstream implementation, reconciliation, Hardening H1, and Live Validation LV1 for this branch. Pending decisions include PR Readiness Stage 1, PR creation, merge, provider SDK integration, provider/model execution, model downloads, external calls, memory indexing/retrieval/learning/persistence, voice/Core runtime sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, historical branch cleanup, and successor selection beyond this carrier.`
 Planning Adequacy Review: `The plan covers user-facing readiness, central state, config/fail-closed behavior, consent/config transitions, capability-pack eligibility, UI copy contracts, validator fixtures, boundaries, future gates, validation commands, and FAM-006 overlap.`
 Rejected Shallow Plan: `A shallow plan that only says "make provider setup ready" is rejected because it would miss reason codes, provenance, fail-closed config, manifest/capability blockers, UI copy mapping, and validator proof.`
 Alternatives And Tradeoffs Reviewed: `Alternative one was provider SDK integration now, rejected as a pending USER decision. Alternative two was UI-only copy, rejected because visible copy needs centralized state. Alternative three was readiness contracts first, accepted because it is local-only and validation-friendly.`
 Whole-System Interaction Map: `Provider readiness state feeds Core/Desktop visible copy and validators; capability/manifests and consent/config are represented as local blocked/future-gated state; memory, voice/Core sync, downloads, external calls, and provider SDKs remain outside the branch until separately approved.`
 Minimum Viable vs Full System Boundary: `Minimum viable branch scope is local readiness/setup state, visible copy, and validators. Full system provider setup, consent collection, SDK execution, model install, memory, voice sync, shortcuts/installers, and release packaging are future branches or later USER-approved seams.`
-Open Questions / USER Decision Points: `USER must later approve Live Validation LV1 and decide whether to keep the implemented state names/copy, admit setup wizard work, approve real provider setup, approve model downloads/execution, approve memory, approve voice/Core sync, or approve release/PR work.`
+Open Questions / USER Decision Points: `USER must later approve PR Readiness Stage 1 and decide whether to keep the implemented state names/copy, admit setup wizard work, approve real provider setup, approve model downloads/execution, approve memory, approve voice/Core sync, or approve release/PR work.`
 Deferred Ideas / Future Package Ledger: `Real provider setup, consent collection, provider SDK wiring, local model execution, capability-pack downloads/install/update/uninstall, memory indexing/retrieval/learning/persistence, setup wizard UX, issue closeout, AI Product Contract import, and Private Dev ORIN import are deferred.`
 Full Feature Element Breakdown: `Provider readiness state; setup eligibility; setup blocker; readiness reason codes; readiness provenance; schema version; safe defaults; fail-closed config; consent/config transition map; manifest and capability eligibility; install-intent posture; Core/Desktop copy mapping; golden fixtures; approval-boundary validators.`
 Current Branch vs Future Package Boundaries: `Current branch Stage 2 only admits source-truth setup and future local-only readiness contracts. Future package work covers actual provider setup, provider execution, capability-pack install, memory, voice/Core sync, shortcuts/installers, and release/issue actions after separate USER approvals.`
@@ -278,25 +282,50 @@ Acceptance Criteria: `Branch Readiness Stage 2 records v1.7.4 release closure, a
 Validation Proof Requirements: `Run diff whitespace checks, governance validation, release-readiness health gate, release body validation, provider-state validation, branch-readiness planning fixture validation, compileall, and any new validator required by the Workstream implementation.`
 Screenshot / Live / User Test Summary Proof Requirements: `Stage 2 has no live UI change. Later Live Validation must classify visible Core/Desktop readiness applicability and include User Test Summary steps or explicit phase-specific waiver if repo truth supports a waiver.`
 User Test Summary Strategy: `No UTS is required for this source-truth-only Stage 2 setup. Later Live Validation must include UTS evidence or a source-truth-supported waiver because UTS waiver belongs to Live Validation only.`
-Implementation Sequence Proposal: `Stage 2 setup, Workstream seam 1 provider readiness contract, seam 2 consent/config transitions, seam 3 capability-pack eligibility/install-intent posture, seam 4 Core/Desktop readiness UI and validator fixtures, and Hardening H1 are complete; then Live Validation LV1, PR Readiness, PR creation, merge, and release readiness only after their own approvals.`
-Planning Blockers: `Live Validation LV1 approval is pending after Hardening H1 Green. No provider SDK/model/download/external/memory/voice/shortcut/installer/release/issue/FAM-006 work is authorized.`
-USER Decisions Needed: `Approve Live Validation LV1 for this branch when ready, or request a bounded Hardening H1 evidence repair.`
+Implementation Sequence Proposal: `Stage 2 setup, Workstream seam 1 provider readiness contract, seam 2 consent/config transitions, seam 3 capability-pack eligibility/install-intent posture, seam 4 Core/Desktop readiness UI and validator fixtures, Hardening H1, and Live Validation LV1 are complete; then PR Readiness, PR creation, merge, and release readiness only after their own approvals.`
+Planning Blockers: `PR Readiness Stage 1 approval is pending after Live Validation LV1 Green. No provider SDK/model/download/external/memory/voice/shortcut/installer/release/issue/FAM-006 work is authorized.`
+USER Decisions Needed: `Approve PR Readiness Stage 1 analysis for this branch when ready, or request a bounded Live Validation LV1 evidence repair.`
 Planning Packet Status: `Complete`
 Planning Revalidation Status: `PASS`
 Planning Completion Waiver: `Not required - the Product Definition Plan records concrete current and future boundaries, validation proof, USER decision points, and package-scope reasoning`
 
+## User Test Summary
+
+User Test Summary Results: `WAIVED`
+
+User Test Summary Waiver Reason: `Live Validation LV1 is limited to a disabled/status-only local readiness scaffold. The branch exposes visible provider readiness, setup eligibility, setup blocker, capability-pack eligibility, install-intent, provider-visible data none, memory-disabled, and network-egress-blocked rail state, but it implements no prompt/action flow, provider SDK, model execution, external provider call, memory/indexing implementation, shortcut mutation, installer mutation, capability-pack download/install/update/uninstall execution, release behavior, PR creation, or merge behavior; static source-truth validation, provider-state validation, release-body validation, branch-readiness planning validation, and compile proof are the applicable evidence. This waiver is for this Live Validation phase only and does not waive PR Readiness, merge, release, provider/model, memory, voice/Core, shortcut, installer, issue, FAM-006, or branch-cleanup gates.`
+
+User-Facing Shortcut Validation: `WAIVED`
+
+User-Facing Shortcut Waiver Reason: `No FAM-007 desktop shortcut, launcher mutation, taskbar/tray entrypoint, startup path, installer path, or user action flow is implemented by this branch. The visible provider readiness rail is status-only inside existing desktop/Core surfaces, so shortcut proof is not applicable until a later USER-approved shortcut, installer, launch-surface, or interactive provider seam exists.`
+
+## Codex Live Client Self-QA
+
+Codex Live Client Self-QA Gate: `WAIVED - LV1 reviewed applicability and determined that a live launched-client self-QA handoff is not applicable for this disabled/status-only local readiness scaffold.`
+
+Codex Live Client Self-QA: `WAIVED`
+
+Codex Live Client Self-QA Waiver Reason: `The FAM-007 branch has no interactive prompt/action flow, provider call, model execution, memory/indexing implementation, shortcut/installer mutation, voice/Core runtime sync, capability-pack lifecycle execution, release behavior, PR creation, or merge behavior to inspect live. Static validation proves the visible provider readiness rail state and blocked behavior, and live self-QA remains required for a later USER-approved interactive surface.`
+
+Visual Quality: `WAIVED - no new interactive visual state beyond the validated provider readiness status rail requires live visual QA in LV1.`
+Live Interaction Evidence: `WAIVED - no live interaction exists to test.`
+Usability Check: `WAIVED - no user action flow exists; status copy remains validated by source-truth and provider-state validation.`
+Interaction Check: `WAIVED - prompts and provider actions remain disabled.`
+Platform Uniformity Check: `WAIVED - no shortcut, installer, startup, or platform-entry mutation is implemented.`
+Cleanup Check: `PASS - LV1 did not launch runtime processes, install providers/models, create shortcuts, create artifacts, create PRs, merge, or touch the separate FAM-006 lane.`
+
 ## Backlog Completion Strategy
 
-Backlog Completion Status: `Hardening H1 Green`
-Branch Completion Goal: `Complete the fresh FAM-007 provider-runtime-readiness Workstream as local-only readiness/setup eligibility state, Core/Desktop visible readiness copy, capability-pack eligibility/install-intent posture, validator fixtures, source truth, validation, commit, push, and H1 proof, then stop before Live Validation LV1 without enabling real provider execution.`
-Known Future-Dependent Blockers: `Live Validation LV1, PR creation, merge, provider SDK integration, provider/model execution, model downloads, external provider/API calls, memory indexing/retrieval/learning/persistence, voice/Core runtime sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, FAM-007 branch cleanup, historical branch deletion, and successor selection beyond this carrier require later explicit USER approval.`
-Branch Closure Rule: `Do not create a PR, merge, execute release work, mutate FAM-006, delete branches, or implement provider/model/download/external/memory/voice/shortcut/installer behavior during H1. Stop after validation, commit, and push with Live Validation LV1 as the next legal phase.`
+Backlog Completion Status: `Live Validation LV1 Green`
+Branch Completion Goal: `Complete the fresh FAM-007 provider-runtime-readiness Workstream as local-only readiness/setup eligibility state, Core/Desktop visible readiness copy, capability-pack eligibility/install-intent posture, validator fixtures, source truth, validation, commit, push, H1 proof, and LV1 proof, then stop before PR Readiness Stage 1 without enabling real provider execution.`
+Known Future-Dependent Blockers: `PR Readiness Stage 1, PR creation, merge, provider SDK integration, provider/model execution, model downloads, external provider/API calls, memory indexing/retrieval/learning/persistence, voice/Core runtime sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue work, AI Product Contract import, Private Dev ORIN Import, FAM-006 mutation, FAM-007 branch cleanup, historical branch deletion, and successor selection beyond this carrier require later explicit USER approval.`
+Branch Closure Rule: `Do not create a PR, merge, execute release work, mutate FAM-006, delete branches, or implement provider/model/download/external/memory/voice/shortcut/installer behavior during LV1. Stop after validation, commit, and push with PR Readiness Stage 1 as the next legal phase.`
 
 ## Backlog Completion Status
 
 Backlog Completion State: `Implemented Complete Except Future Dependency`
 Remaining Implementable Work: `None`
-Future-Dependent Blockers: `Live Validation LV1, PR creation, merge, provider SDK integration, provider/model execution, model downloads, external provider/API calls, capability-pack download/install/update/uninstall execution, memory indexing/retrieval/learning/persistence, voice/Core runtime sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, FAM-007 branch cleanup, historical branch deletion, and successor selection beyond this carrier require later explicit USER approval.`
+Future-Dependent Blockers: `PR Readiness Stage 1, PR creation, merge, provider SDK integration, provider/model execution, model downloads, external provider/API calls, capability-pack download/install/update/uninstall execution, memory indexing/retrieval/learning/persistence, voice/Core runtime sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, FAM-007 branch cleanup, historical branch deletion, and successor selection beyond this carrier require later explicit USER approval.`
 Completion Status: `Green`
 
 ## Seam Continuation Decision
@@ -306,11 +335,11 @@ Slice Status: `Green`
 Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Continuation Execution Latch: `Closed - Hardening H1 Green`
-Stop Basis: `Hardening H1 Green`
-Next Active Seam: `Live Validation LV1 - FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility`
-Stop Condition: `All admitted Workstream seams are green, Hardening H1 is green, and Live Validation LV1 is ready for USER admission`
-Continuation Action: `Stop at phase boundary until USER admits Live Validation LV1`
+Continuation Execution Latch: `Closed - Live Validation LV1 Green`
+Stop Basis: `Live Validation LV1 Green`
+Next Active Seam: `PR Readiness Stage 1 - FAM-007 provider runtime readiness analysis`
+Stop Condition: `All admitted Workstream seams are green, Hardening H1 is green, Live Validation LV1 is green, and PR Readiness Stage 1 is ready for USER admission`
+Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stage 1`
 Single-Seam Workstream Waiver: `None`
 Single-Seam Or Single-Slice Waiver Authority: `USER only; Codex cannot infer single-seam or single-slice Workstream authority from prompt breadth, validation, or branch cleanliness`
 Single-Seam Or Single-Slice Workstream Blocker: `One seam or one slice is a blocker unless USER waiver is granted; this branch completed the admitted multi-seam Workstream`
@@ -324,10 +353,10 @@ Create the fresh FAM-007 runtime provider-readiness carrier from current main, c
 
 - `v1.7.4-prebeta` is recorded as the latest public prerelease.
 - PR #162 and PR #163 are recorded as released in `v1.7.4-prebeta`.
-- `feature/fam-007-local-ai-provider-runtime-readiness` is recorded as the active FAM-007 Hardening H1 Green runtime carrier.
+- `feature/fam-007-local-ai-provider-runtime-readiness` is recorded as the active FAM-007 Live Validation LV1 Green runtime carrier.
 - Historical FAM-007 branches remain evidence only.
 - PKG-007 remains admitted and not package-complete.
-- The bounded Workstream is implemented as local-only readiness/setup eligibility scaffolding, Hardening H1 is green, and the branch is ready for Live Validation LV1 after USER approval.
+- The bounded Workstream is implemented as local-only readiness/setup eligibility scaffolding, Hardening H1 and Live Validation LV1 are green, and the branch is ready for PR Readiness Stage 1 after USER approval.
 
 ## Expected Seam Families And Risk Classes
 
@@ -344,7 +373,7 @@ User Test Summary Strategy: `No UTS is required or waived during Branch Readines
 
 - Workstream implementation is complete for the bounded local-only readiness/setup eligibility scope.
 - Hardening H1 is complete and green.
-- Live Validation LV1 begins only after USER approval and must classify visible Core/Desktop readiness applicability and UTS status.
+- Live Validation LV1 is complete and green with User Test Summary, user-facing shortcut validation, and Codex live-client self-QA waived for this disabled/status-only local readiness scaffold.
 - PR Readiness, PR creation, merge, release execution, branch cleanup, provider/model work, memory, voice/Core sync, shortcuts/installers, issues, AI Product work, Private Dev ORIN, and FAM-006 mutation remain separate USER decisions.
 
 ## Initial Workstream Seam Sequence
@@ -371,4 +400,4 @@ Non-Includes: `New provider execution UI, setup wizard implementation, voice/Cor
 
 ## Active Seam
 
-Active seam: `FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility - Workstream Green`
+Active seam: `Live Validation LV1 - FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility - Green`
