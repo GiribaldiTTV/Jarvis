@@ -93,6 +93,8 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 
 Governance intake triage and digest profile source-checking is owned by `dev/orin_branch_governance_validation.py`. It must preserve `Docs/governance_intake_triage_and_digest_profiles.md`, the `Governance Intake Triage Packet`, and the `Digest Profile` vocabulary (`Decision Packet`, `Return Digest`, `Validation Digest`, `Full Audit Packet`, and `Delta Digest`) so future governance reform can stay focused and avoid broad policy replay.
 
+PR watcher mode source-checking is owned by `dev/orin_branch_governance_validation.py`. It must preserve `Docs/pr_watcher_mode_contract.md`, the PR Watcher Mode Contract modes (`Silent Monitor`, `Verify Once`, `Repair Mode`, and `Blocked Mode`), and the `Watcher Health Proof:` fields (`Watcher Mode:`, `Configured CWD:`, `Worktree / Branch:`, `PR:`, `Head SHA:`, `Mergeability:`, `Unresolved Review Threads:`, `Latest Bot Review:`, `Repair Authority:`, `Delivery Route Proof:`, `Runtime Proof:`, and `Next Watcher Posture:`) so future PR Readiness watcher handoffs distinguish intentional silence, one-time verification, bounded repair, and blocked/no-patch posture.
+
 ### Desktop Runtime And Launcher
 
 | Path | Helper Status | Family | Reuse / Consolidation |

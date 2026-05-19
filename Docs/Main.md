@@ -73,6 +73,8 @@ Assigned lane waiting posture is valid. A second Codex thread may sit in Release
 
 Automation Observability is multi-worktree aware. `dev/automation_observability_report.py` reads Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`, but those reports are evidence only until classified as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`. Each standing automation must declare a configured cwd that resolves to a known worktree, and reports must include cwd/worktree/branch/`HEAD`/`origin/main` evidence before lane-sensitive findings affect source truth. `Automation CWD Worktree Mismatch` blocks any active-branch, PR Readiness, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch-governance automation that runs from stale neutral main, a missing cwd, or the wrong assigned worktree.
 
+`Docs/pr_watcher_mode_contract.md` owns the PR Watcher Mode Contract. PR watchers must declare `Silent Monitor`, `Verify Once`, `Repair Mode`, or `Blocked Mode`, and PR Readiness Stage 2 must include `Watcher Health Proof:` with configured cwd, PR number, head SHA, unresolved review-thread count, latest bot review, repair authority, delivery route proof, runtime proof, and next watcher posture.
+
 Before branch creation, worktree creation, phase entry, commit, push, PR work, release work, or GitHub Desktop handoff, run a `Thread / Worktree Identity Preflight` and prove the active thread is operating in the intended workspace, repository root, branch, upstream, `HEAD`, `origin/main`, worktree role, clean state, and write target. If the identity does not match the requested work, stop on `Thread / Worktree Identity Mismatch`.
 
 Thread Launch / Write-Target Identity Lock:

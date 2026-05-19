@@ -3799,6 +3799,38 @@ PR_WATCHER_THREAD_CONTRACT_PHRASES = (
     "Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active",
 )
 
+PR_WATCHER_MODE_CONTRACT_DOC = Path("Docs/pr_watcher_mode_contract.md")
+PR_WATCHER_MODE_CONTRACT_POINTER_DOCS = (
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/validation_helper_registry.md"),
+    Path("Docs/governance_process_efficiency_reform_plan.md"),
+    Path("Docs/branch_records/feature_release_readiness_source_truth_intake.md"),
+)
+PR_WATCHER_MODE_CONTRACT_PHRASES = (
+    "PR Watcher Mode Contract",
+    "Silent Monitor",
+    "Verify Once",
+    "Repair Mode",
+    "Blocked Mode",
+    "Watcher Health Proof:",
+    "Watcher Mode:",
+    "Configured CWD:",
+    "Worktree / Branch:",
+    "PR:",
+    "Head SHA:",
+    "Mergeability:",
+    "Unresolved Review Threads:",
+    "Latest Bot Review:",
+    "Repair Authority:",
+    "Delivery Route Proof:",
+    "Runtime Proof:",
+    "Next Watcher Posture:",
+)
+
 PR_WATCHER_OUTPUT_CONTRACT_SOURCE = Path("dev/pr_same_thread_watcher.py")
 PR_WATCHER_OUTPUT_CONTRACT_PHRASES = (
     "PR watcher source-of-truth update",
@@ -16710,6 +16742,20 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR watcher same-thread contract is missing '{required_phrase}'",
+            )
+
+    watcher_mode_contract_text = _read_text(PR_WATCHER_MODE_CONTRACT_DOC)
+    for required_phrase in PR_WATCHER_MODE_CONTRACT_PHRASES:
+        require(
+            required_phrase in watcher_mode_contract_text,
+            f"{PR_WATCHER_MODE_CONTRACT_DOC}: PR watcher mode contract is missing '{required_phrase}'",
+        )
+    for relative_path in PR_WATCHER_MODE_CONTRACT_POINTER_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in PR_WATCHER_MODE_CONTRACT_PHRASES[:6]:
+            require(
+                required_phrase in text,
+                f"{relative_path}: PR watcher mode contract pointer is missing '{required_phrase}'",
             )
 
     watcher_output_source = _read_text(PR_WATCHER_OUTPUT_CONTRACT_SOURCE)
