@@ -6,6 +6,14 @@ PR watchers exist to prove live PR state, Codex bot-review state, same-branch re
 
 This contract keeps watcher behavior predictable in multi-worktree PR Readiness by making every watcher declare one mode, one configured cwd, one PR, one branch, one delivery route, and one repair authority posture.
 
+## Stage 2 Approval Default
+
+PR Readiness Stage 2 approval includes watcher provisioning by default.
+
+Do not ask for a separate watcher-specific approval after USER approves PR Readiness Stage 2 / PR creation. The Stage 2 approval authorizes the bounded watcher needed for that PR, including Verify Once, Silent Monitor, safe same-PR Repair Mode within the admitted PR scope, and merge-watch reporting.
+
+Skipping watcher provisioning requires an explicit USER watcher waiver or a documented platform/runtime blocker. Manual live PR inspection may supplement watcher proof, but it does not replace the default watcher requirement unless the waiver or blocker is recorded.
+
 ## Watcher Modes
 
 Silent Monitor:

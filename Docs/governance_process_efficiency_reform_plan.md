@@ -23,6 +23,7 @@ This plan is not an implementation branch by itself. It is a reform inventory fo
 - Prefer small reform passes. Each category below should become a focused planning packet or branch pass instead of one broad rewrite.
 - Keep canonical names stable until aliases are proven. User-facing aliases can reduce confusion, but validators should keep the current canonical phase enum until a deliberate rename migration is approved.
 - Let validators enforce markers and let docs explain intent. Long policy paragraphs should shrink into canonical rule IDs, packet templates, and validator-backed marker sets.
+- Separate derived live truth from governance receipts. Git/GitHub and approved helpers should derive volatile facts such as `HEAD`, PR state, tags, releases, dirty state, and merge base; docs should record intent, USER decisions, receipts, and historical interpretation.
 
 ## Category 1: Governance Doc Compaction
 
@@ -137,6 +138,32 @@ Implementation record:
 - Registry owner: `Docs/validation_helper_registry.md`.
 - Validator source-check owner: `dev/orin_branch_governance_validation.py`.
 
+## Category 5A: Source-Truth Ownership And Worktree Slot Model
+
+Current finding:
+- The repo has moved from one neutral folder to a multi-worktree workflow, but old language can make current FAM worktrees look like permanent structural lanes.
+- Backlog and roadmap carry too many current-state mirrors, while Git/GitHub already own many volatile operational facts.
+- Without a stable slot model, branch identity, GitHub Desktop binding, and originating-lane prompts can drift between current family labels and actual worktree roles.
+
+Recommendation:
+- Adopt `Docs/worktree_slots.md` as the slot registry and intended assignment layer.
+- Use stable slot IDs: `neutral-main`, `governance-standing`, `runtime-active-1`, `runtime-active-2`, `runtime-active-3`, and `archived-historical`.
+- Make the slot registry own intended assignment receipts, not raw live Git facts.
+- Keep branch authority records as the legal source for active, historical, blocked, waiting, and next-phase posture.
+- Keep Branch Runtime Engineering Plans canonical while runtime branches are active, then fold down or promote them during PR Readiness.
+
+Focused planning pass:
+- `Source-Truth Ownership And Worktree Slot Model Pass`.
+
+Priority:
+- High.
+
+Implementation record:
+- Focused pass admitted `Docs/worktree_slots.md` as the stable worktree slot registry.
+- `Docs/Main.md` now distinguishes derived live truth from governance receipts and routes worktree slot ownership through `Docs/worktree_slots.md`.
+- `Docs/branch_records/index.md` records that slot assignment does not equal active branch authority.
+- Hard validator enforcement, helper implementation, backlog/roadmap migration or shrink work, duplicate-live-state detection, and shared-surface ownership enforcement remain deferred to later USER-approved reform passes.
+
 ## Category 6: Standing Governance Intake Simplification
 
 Current finding:
@@ -179,6 +206,7 @@ Implementation record:
 - Focused pass admitted `Docs/pr_watcher_mode_contract.md` as the compact PR Watcher Mode Contract.
 - The standard defines `Silent Monitor`, `Verify Once`, `Repair Mode`, and `Blocked Mode` so quiet watcher behavior, one-time proof, safe same-PR repair, and no-patch blockers are no longer ambiguous.
 - The required `Watcher Health Proof:` line records configured cwd, PR number, head SHA, unresolved review-thread count, latest bot review, repair authority, delivery route proof, runtime proof, and next watcher posture before PR Readiness Stage 2 final handoff can be green.
+- Follow-up approval-default repair clarifies that USER approval for PR Readiness Stage 2 / PR creation includes watcher provisioning by default. Codex must not ask for a separate watcher-specific approval after Stage 2 is approved; skipping watcher provisioning requires an explicit USER watcher waiver or documented platform/runtime blocker.
 - Validator source-check owner: `dev/orin_branch_governance_validation.py`.
 
 ## Category 8: Validator Modularization
@@ -360,18 +388,54 @@ Priority:
 1. `Governance Intake Triage Template Pass`.
 2. `Digest Profile Standardization Pass`.
 3. `Worktree Rebaseline Audit Helper Pass`.
-4. `Watcher Reliability And Repair-Mode Pass`.
-5. `Governance Doc Compaction Pass`.
-6. `Branch Planning UX And Template Pass`.
-7. `Source-Truth Archive And Current-State Split Pass`.
-8. `Governance Validator Modularization Pass`.
-9. `Backlog/Roadmap Current Decision Surface Pass`.
-10. `Release Ownership UX Pass`.
-11. `Validation Runner And Registry Query Pass`.
-12. `Phase Alias UX Pass`.
-13. `Standing Governance Ledger Compaction Pass`.
-14. `Public Language Mapping Pass`.
-15. `Tracked Naming Drift Scan Pass`.
+4. `Source-Truth Ownership And Worktree Slot Model Pass`.
+5. `Watcher Reliability And Repair-Mode Pass`.
+6. `Governance Doc Compaction Pass`.
+7. `Branch Planning UX And Template Pass`.
+8. `Source-Truth Archive And Current-State Split Pass`.
+9. `Governance Validator Modularization Pass`.
+10. `Backlog/Roadmap Current Decision Surface Pass`.
+11. `Release Ownership UX Pass`.
+12. `Validation Runner And Registry Query Pass`.
+13. `Phase Alias UX Pass`.
+14. `Standing Governance Ledger Compaction Pass`.
+15. `Public Language Mapping Pass`.
+16. `Tracked Naming Drift Scan Pass`.
+
+## Consolidated Governance Reform Pass
+
+USER later approved completing the remaining governance reform categories in one bounded Governance PR instead of separate focused PRs.
+
+This consolidated pass completes the policy and validation scaffolding for:
+
+- `Governance Doc Compaction Pass`
+- `Phase Alias UX Pass`
+- `Branch Planning UX And Template Pass`
+- `Standing Governance Ledger Compaction Pass`
+- `Governance Validator Modularization Pass`
+- `Source-Truth Archive And Current-State Split Pass`
+- `Release Ownership UX Pass`
+- `Public Language Mapping Pass`
+- `Tracked Naming Drift Scan Pass`
+
+Implementation record:
+
+- `Docs/governance_efficiency_operating_model.md` owns the Rule ID / owner / compact mirror model, source-truth ownership matrix, derived live truth versus governance receipt boundary, duplicate live-state guard, current-summary / historical-appendix split, phase alias UX, branch planning UX, standing-governance ledger compaction, release ownership UX, public language mapping, validator modularization boundary, validation-suite usage, naming drift scan rule, and consolidated pass completion boundary.
+- `dev/orin_governance_efficiency_validation.py` validates the operating model, owner-doc pointers, and backlog/roadmap compactness against Branch Runtime Engineering Plan sprawl.
+- `Docs/Main.md`, `Docs/phase_governance.md`, `Docs/development_rules.md`, and `Docs/codex_modes.md` carry compact pointers instead of duplicating the full operating model.
+- `Docs/validation_helper_registry.md` registers the reusable governance efficiency validator.
+
+Explicit non-scope:
+
+- No broad historical branch-record migration.
+- No backlog/roadmap shrink migration beyond compactness enforcement.
+- No runtime implementation.
+- No FAM-006 or FAM-007 mutation.
+- No branch deletion, worktree cleanup, issue work, release execution, tag, GitHub Release, or artifact work.
+
+Post-merge operating rule:
+
+- Future governance efficiency changes should first use `Docs/governance_efficiency_operating_model.md` and `dev/orin_governance_efficiency_validation.py` before creating another live-state owner or duplicating policy prose.
 
 ## Highest-Value First Pass
 
@@ -396,18 +460,27 @@ Implementation record:
 - Governance source-truth pointers added to `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/codex_modes.md`, `Docs/orin_task_template.md`, `Docs/Main.md`, `Docs/branch_records/index.md`, and `Docs/validation_helper_registry.md`.
 - Validator source-check owner: `dev/orin_branch_governance_validation.py`.
 
-## Deferred / Needs USER Decision
+## Remaining Deferred Execution Decisions
 
-- Whether to rename phases publicly or keep canonical-only phase names.
-- Whether to split `dev/orin_branch_governance_validation.py` into modules in one pass or over several passes.
-- Whether to archive large branch records now or wait until active FAM lanes are stable.
-- Whether to create a no-mutation validation runner helper.
-- Whether watcher repair-mode should depend on native Codex heartbeat behavior, local helper behavior, or both.
+The consolidated pass records the governance model for the remaining categories, but these physical migrations remain separate USER decisions:
+
+- large historical branch-record migration or archival
+- direct modular split of `dev/orin_branch_governance_validation.py`
+- branch deletion, stale worktree cleanup, or GitHub Desktop cleanup
+- runtime/FAM branch mutation
+- release execution or public release publication
+
+Resolved by prior or consolidated reform passes:
+
+- phase aliases are explanatory only; canonical phase names remain unchanged
+- validation runner recommendation helper exists as `dev/orin_validation_suite.py`
+- watcher approval default and watcher mode contract are recorded
+- governance efficiency operating model exists as `Docs/governance_efficiency_operating_model.md`
 
 ## Next Legal Phase
 
-- Recommended next phase: focused governance planning for `Governance Intake Triage Template Pass` and `Digest Profile Standardization Pass`.
-- PR creation: pending USER approval.
+- Recommended next phase: PR Readiness Stage 2 for the consolidated governance efficiency reform PR after validation.
+- PR creation: USER-approved for the single bounded governance PR.
 - Merge: pending USER approval.
 - Runtime implementation: blocked.
 - FAM-006 mutation: blocked.
