@@ -10183,9 +10183,39 @@ class DesktopRuntimeWindow(QWidget):
                                 if (typeof monitoringHudOpenChildWindow === "function") {
                                     monitoringHudOpenChildWindow("monitor-group-edit");
                                 }
+                                const detailPane = document.querySelector('[data-scroll-pane="monitor-detail"]');
                                 const deleteButton = document.getElementById("monitoring-hud-monitor-detail-delete");
+                                if (deleteButton && deleteButton.scrollIntoView) {
+                                    deleteButton.scrollIntoView({ block: "center", inline: "nearest" });
+                                }
                                 if (deleteButton) deleteButton.click();
-                                return JSON.stringify({ ok: Boolean(deleteButton) });
+                                const targetDeleteConfirmation = function() {
+                                    const confirmation = document.getElementById("monitoring-hud-monitor-delete-confirmation");
+                                    if (confirmation && confirmation.scrollIntoView) {
+                                        confirmation.scrollIntoView({ block: "center", inline: "nearest" });
+                                    } else if (detailPane) {
+                                        detailPane.scrollTop = detailPane.scrollHeight;
+                                    }
+                                    return confirmation;
+                                };
+                                const confirmation = targetDeleteConfirmation();
+                                window.setTimeout(targetDeleteConfirmation, 80);
+                                window.setTimeout(targetDeleteConfirmation, 160);
+                                const confirmationState = confirmation ? confirmation.dataset.deleteConfirmationState : "missing";
+                                if (detailPane) {
+                                    window.setTimeout(function() {
+                                        detailPane.scrollTop = detailPane.scrollHeight;
+                                    }, 180);
+                                }
+                                const confirmationVisuallyTargeted = Boolean(
+                                    confirmation
+                                    && confirmationState === "open"
+                                );
+                                return JSON.stringify({
+                                    ok: Boolean(deleteButton && confirmationVisuallyTargeted),
+                                    deleteConfirmationState: confirmationState,
+                                    deleteConfirmationVisualTargeted: confirmationVisuallyTargeted
+                                });
                             } catch (err) {
                                 return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
                             }

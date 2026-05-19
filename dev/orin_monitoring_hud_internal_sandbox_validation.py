@@ -579,6 +579,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         "07_unsaved_close_save_closes_after_persist",
         "08_unsaved_close_discard_closes_after_drop",
         "09_delete_confirmation_bottom",
+        "monitoring-hud-monitor-delete-confirmation",
+        "deleteConfirmationVisualTargeted",
+        "deleteConfirmationState",
+        'scrollIntoView({ block: "center", inline: "nearest" })',
         "10_final_empty_state_create_recovery",
         "11_100_monitor_list_scrollbar_and_1200_source_picker",
     ):
