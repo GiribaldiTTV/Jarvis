@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active Repair Workstream implementation for returned LV1 interactive-control reliability and visual-affordance failure`
-- Bounded State: `Current-main reconciliation through origin/main 6e2e743fd1d8d688c8046eb0a788b1a7109e66c2 is complete on this FAM-006 branch; origin/main PR #169 governance/source-truth changes are context, not identity; right-edge rediscovery repair and Hardening H1 are green with Dashboard product edge math preserved; the returned LV1 interactive-control reliability and visual-affordance repair is implemented. Runtime now adds visible Nexus hover/active/focus-visible/disabled/open/selected states across current Dashboard and Manage Monitors interactables, a reliable activation layer with first-click and click-interception proof data, Polling Floor renamed to Polling Rate, and a Nexus-styled Polling Rate bounded dropdown. PR Readiness remains blocked until Hardening H1 and refreshed LV1/UTS pass or are waived with reason, and blockers are reevaluated.`
+- Branch Authority State: `Active FAM-006 refreshed LV1 / UTS result-pending branch after PR #171 current-main reconciliation`
+- Bounded State: `Current-main reconciliation through origin/main 9e33dd1216bab661c9183b73891c074acd6f5099 is complete on this FAM-006 branch; origin/main PR #171 Branch Runtime Engineering Plan governance/source-truth changes are context, not identity. The accepted Runtime Branch Engineering Contract remains this existing branch's branch-local runtime plan authority unless a later validator or PR Readiness packet requires promotion into a branch-plan file. Right-edge rediscovery repair and Hardening H1 are green with Dashboard product edge math preserved. The returned LV1 interactive-control reliability and visual-affordance repair is implemented and H1-repaired. Automated refreshed LV1 precheck is PASS through real shortcut human-client proof and focused Manage Monitors WebView proof; returned USER UTS result is USER_TEST_REQUIRED. PR Readiness remains blocked until returned USER UTS PASS or explicit waiver with reason is digested and blockers are reevaluated.`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -27,15 +27,15 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 ## Current Phase
 
-Phase: `Workstream`
+Phase: `Live Validation`
 
-Stage: `Hardening H1 - returned LV1 interactive-control reliability and visual-affordance repair`
+Stage: `Refreshed LV1 / UTS result pending after automated precheck PASS`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Refreshed Live Validation Stage 1 after right-edge H1 PASS found a returned USER/UTS failure: Dashboard and Manage Monitors clickable controls did not consistently light up on hover, intermittent first-click actions could miss or appear intercepted for monitor switching and close controls, and the Polling Floor label/dropdown remained product/UI-polish incorrect. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Stage 2 repair setup admitted for interactive-control visual affordance and first-click reliability`. Current Repair Workstream Seam: `Implemented in bounded FAM-006 runtime/helper/source-truth surfaces`. Current Hardening Seam: `H1 found and repaired a focused visual-proof false-positive where the Polling Rate screenshot label could pass while Source Filter remained open; helper proof now requires the actual Polling Rate menu open, Source Filter closed, 5s hover reset, and whole-manifest failure if any live self-QA step fails`. Current Live Validation Seam: `Returned LV1/UTS failure recorded; refreshed LV1 recheck is next after H1`. Current PR gate: `Blocked until refreshed LV1/UTS and returned USER result are PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
+Refreshed Live Validation Stage 1 after right-edge H1 PASS found a returned USER/UTS failure: Dashboard and Manage Monitors clickable controls did not consistently light up on hover, intermittent first-click actions could miss or appear intercepted for monitor switching and close controls, and the Polling Floor label/dropdown remained product/UI-polish incorrect. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Stage 2 repair setup admitted for interactive-control visual affordance and first-click reliability`. Current Repair Workstream Seam: `Implemented in bounded FAM-006 runtime/helper/source-truth surfaces`. Current Hardening Seam: `H1 found and repaired a focused visual-proof false-positive where the Polling Rate screenshot label could pass while Source Filter remained open; helper proof now requires the actual Polling Rate menu open, Source Filter closed, 5s hover reset, and whole-manifest failure if any live self-QA step fails`. Current Live Validation Seam: `Automated refreshed LV1 precheck is PASS after H1; real shortcut human-client proof, focused Manage Monitors WebView proof, Source Filter/Polling Rate distinct dropdown proof, Dashboard resize preservation, and compact UTS handoff are refreshed; returned USER UTS result is USER_TEST_REQUIRED`. Current PR gate: `Blocked until returned USER UTS result is PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -46,6 +46,7 @@ This branch is a FAM-006 runtime carrier. It may carry the bounded source-truth 
 ## Runtime Branch Engineering Contract
 
 Engineering Contract Status: Accepted after PR #164 current-main reconciliation, preserved through PR #169 current-main reconciliation, and current after returned LV1 interactive-control reliability and visual-affordance repair implementation for this active FAM-006 runtime branch.
+Branch Runtime Plan Governance Note: PR #171 Branch Runtime Engineering Plan governance is merged as current-main context. Current validation does not require a separate `Docs/branch_plans/feature_fam_006_monitor_groups_sensor_configuration.md` pointer for this already-active branch, so the accepted Runtime Branch Engineering Contract remains the compact branch-local runtime-plan authority pending PR Readiness fold-down or later validator demand.
 USER Engineering Planning Review: USER approved the FAM-006 Monitor Groups planning, repair setup, and close-guard implementation sequencing before this Workstream continuation.
 Runtime Implementation Approval: `Approved and used for the bounded returned LV1 interactive-control reliability and visual-affordance Repair Workstream implementation. This approval did not authorize app-wide theme/skin work, base NCP settings architecture, provider expansion, Overlay Profile runtime UI, tray recording, release execution, PR creation, or issue mutation.`
 Branch Purpose: This branch implements the FAM-006 Monitor Groups runtime surface for configurable monitor groups, Sensor Library assignment, and proof-backed user interactions.
@@ -610,27 +611,31 @@ Hardening Repair Files: `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_
 
 ## Live Validation Stage 1 Result
 
-Live Validation Status: `REPAIR - returned USER LV1/UTS interactive-control reliability and visual-affordance failure admitted for Stage 2 setup`
+Live Validation Status: `USER_TEST_REQUIRED - automated refreshed LV1 precheck PASS after H1 repair; returned USER UTS result pending`
 
-Live Validation Summary: `Refreshed Live Validation Stage 1 after right-edge H1 PASS launched through the real USER-facing shortcut/client path and produced supporting automated/live helper evidence, but returned USER results identified a new interactive-control reliability and visual-affordance failure. Dashboard and Manage Monitors controls need visible hover/active/focus/click affordances, first-click stress reliability, click-interception diagnosis, Polling Floor copy repair to Polling Rate, and Polling Rate Nexus-styled bounded dropdown repair. PR Readiness remains blocked until this repair is implemented, hardened, refreshed LV1/UTS is green, and returned USER result is PASS or explicitly waived with reason and digested.`
+Live Validation Summary: `Refreshed Live Validation Stage 1 after H1 repair commit ed27a2a711897eb2692a589b02422cc90ec4c6ba launched through the real USER-facing shortcut/client path and produced PASS evidence for Dashboard resize preservation, focused Manage Monitors visual proof, distinct Source Filter and Polling Rate dropdown proof, interactive-control visual affordance, first-click stress reliability, empty state, delete confirmation, monitor-list visual quality, unsaved close guard, source classification, and profile-boundary preservation. The compact UTS handoff was refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt. PR Readiness remains blocked until the USER returns UTS PASS or provides an explicit waiver with reason and Codex digests it.`
 
-Real USER-Facing Shortcut Proof: `PASS - dev/logs/fam_006_human_client_validation/20260519_072954_644/human_client_manifest.json`
+Real USER-Facing Shortcut Proof: `PASS - dev/logs/fam_006_human_client_validation/20260519_094827_533/human_client_manifest.json`
 
 Shortcut Alignment: `PASS - the canonical red FAM-006 desktop shortcut targets C:\Nexus Worktrees\FAM-006\launch_orin_desktop.vbs with working directory C:\Nexus Worktrees\FAM-006`
 
-Active-Client UTS Handoff Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260519_072533_350`
+Active-Client UTS Handoff Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_validation/20260519_095159_577`
 
 Formal UTS Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
-Formal UTS Handoff Status: `RETURNED REPAIR - interactive-control reliability and visual-affordance failure admitted for Branch Readiness Stage 2 setup`
+Formal UTS Handoff Status: `USER_TEST_REQUIRED - compact UTS handoff refreshed after automated LV1 PASS; returned USER result is pending`
 
-Focused Visual Proof Path: `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260519_072533_350\live_client_interaction`
+Focused Visual Proof Path: `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260519_095159_577\live_client_interaction`
 
-Focused Visual Proof Result: `PASS - focused proof includes 03_manage_monitors_open_state.png, 04_source_filter_dropdown_open_hover_reset.png, 05_unsaved_guard_close_queued.png, 09_delete_confirmation_bottom.png, 10_final_empty_state_create_recovery.png, and 11_100_monitor_list_scrollbar_and_1200_source_picker.png; manifest records visualProofQualityGate=true and interactiveControlVisualQaGate=true.`
+Focused Visual Proof Result: `PASS - focused proof includes 03_manage_monitors_open_state.png, 04_source_filter_dropdown_open_hover_reset.png, 04_polling_rate_dropdown_open_hover_reset.png, 05_unsaved_guard_close_queued.png, 09_delete_confirmation_bottom.png, 10_final_empty_state_create_recovery.png, and 11_100_monitor_list_scrollbar_and_1200_source_picker.png; manifest records visualProofQualityGate=true, interactiveControlVisualQaGate=true, sourceFilterVisualOpen=true, sourceFilterVisualHoverReset=true, pollingRateVisualSourceFilterClosed=true, pollingRateVisualOpen=true, pollingRateVisualMenuVisible=true, and pollingRateVisualHoverReset=true. Full-desktop screenshots are context only; focused WebView proof is the acceptance-critical evidence.`
+
+Polling Rate Dropdown Result: `PASS - user-facing copy says Polling Rate; the focused proof 04_polling_rate_dropdown_open_hover_reset.png shows the Polling Rate menu open with Source Filter closed and 5S hover/selection state; the hidden compatibility select is not visible as native/basic UI.`
+
+Source Filter Dropdown Result: `PASS - focused proof 04_source_filter_dropdown_open_hover_reset.png shows the Source Filter menu open separately from Polling Rate with hover/reset state, compact dropdown layout, and Sensor Library source discovery preserved.`
 
 Dashboard Resize Preservation Result: `PASS - real-client proof records post-corner right-edge rediscovery at offset=1, cursor=size-west-east, hitTest=htright, matching reacquired handle/root, right-edge geometry resize, bottom-edge/corner preservation, grow/shrink proof, move fluidity, rounded-corner mask, first-launch stability, and focused local Dashboard/right-edge crops.`
 
-Sensor Command Center Result: `PASS - manifest records commandCenterLayout=true, rowActionsRemoved=true, rowSelectionOpensDetail=true, detailPaneDelete=true, finalMonitorDeleteEmptyState=true, sourceFilterDropdown=true, sourceFilterHoverReset=true, sourcePickerBrowser=true, warningNotificationsSettingOnly=true, providerReadinessNotAssignable=true, monitorListRowsCompact=true, monitorListCssPreventsStretch=true, monitorListSmallSetHasSlack=true, unsavedCloseQueuedAction=true, unsavedCloseTargetedManageClose=true, unsavedCloseSavePersistedDraft=true, unsavedCloseDiscardDroppedDraft=true, and unsavedCloseCancelPreservedDraft=true.`
+Sensor Command Center Result: `PASS - manifest records commandCenterLayout=true, rowActionsRemoved=true, rowSelectionOpensDetail=true, detailPaneDelete=true, finalMonitorDeleteEmptyState=true, sourceFilterDropdown=true, sourceFilterHoverReset=true, sourceFilterReopen=true, pollingRateDropdownNexusStyled=true, interactiveControlFirstClickStress=true, interactiveControlNoInterception=true, sourcePickerBrowser=true, warningNotificationsSettingOnly=true, providerReadinessNotAssignable=true, monitorListRowsCompact=true, monitorListCssPreventsStretch=true, monitorListSmallSetHasSlack=true, unsavedCloseQueuedAction=true, unsavedCloseTargetedManageClose=true, unsavedCloseSavePersistedDraft=true, unsavedCloseDiscardDroppedDraft=true, and unsavedCloseCancelPreservedDraft=true.`
 
 Live Validation Repair Files: `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_human_client_validation.ps1`; `dev/orin_monitoring_hud_live_validation.ps1`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`.
 
@@ -779,21 +784,21 @@ Rollback is the unmerged Workstream implementation on this branch only if USER l
 
 ## Next Legal Phase
 
-`Hardening`
+`PR Readiness`
 
-USER decision to accept this H1 repair packet and approve refreshed LV1 / UTS recheck after the returned LV1 interactive-control reliability and visual-affordance repair is hardened on `feature/fam-006-monitor-groups-sensor-configuration`. The canonical branch-record phase remains the Workstream-to-Hardening boundary until USER admits the refreshed Live Validation phase.
+PR Readiness Stage 1 is the next canonical phase only after the USER returns the completed refreshed UTS result as PASS, or provides an explicit waiver with reason, and Codex digests that result into source truth. Until then, PR Readiness remains blocked by the outstanding USER_TEST_REQUIRED result.
 
 ## Next Legal Phase Digest
 
-Current Phase: `Workstream`
+Current Phase: `Live Validation`
 
-Next Legal Phase: `Hardening`
+Next Legal Phase: `PR Readiness`
 
-Why This Phase Is Next: `Returned USER LV1/UTS findings exposed missing hover/active/focus/click affordances, intermittent first-click reliability failures, Polling Floor naming, and native/basic Polling dropdown behavior. The bounded runtime/helper/source-truth repair is implemented, and H1 found and repaired a focused visual-proof false-positive in the Polling Rate proof path. Refreshed LV1/UTS remains the next requested USER activity after this H1 packet, but the canonical source-truth phase boundary remains Workstream to Hardening until Live Validation is explicitly admitted.`
+Why This Phase Is Next: `The bounded runtime/helper/source-truth repair for returned USER LV1/UTS hover, first-click, Polling Rate copy, and Polling Rate dropdown findings is implemented and H1-repaired. Automated refreshed LV1 precheck is PASS through real shortcut human-client proof and focused Manage Monitors WebView proof. The remaining gate is the returned USER UTS result or an explicit USER waiver with reason.`
 
-Approval Required: `USER approval for refreshed LV1 / UTS recheck.`
+Approval Required: `USER must return the completed refreshed UTS result, or provide an explicit waiver with reason, before PR Readiness can be requested.`
 
-Exact USER Approval Text: `Approve refreshed Live Validation Stage 1 / UTS recheck for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006 after H1 repaired the returned LV1 interactive-control reliability and visual-affordance path. Scope: verify the H1 repair commit is present; validate through the real USER-facing shortcut/client path; capture focused visual proof for Dashboard and Manage Monitors interactables; verify Source Filter and Polling Rate dropdown proof separately show their actual open/hover/reset states; verify first-click reliability, click-interception diagnostics, dirty guard, delete confirmation, empty state, Sensor Library / Source Picker, Dashboard resize preservation, source classification, profile boundaries, and Runtime Branch Engineering Contract fields; refresh compact UTS instructions/results if repo truth requires; run required validation; commit and push bounded source-truth/result updates if validation is green.`
+Exact USER Approval Text: `Return the refreshed FAM-006 User Test Summary result for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, or provide an explicit waiver with reason. Codex should digest the returned USER result, preserve the automated LV1 PASS evidence, classify any remaining failures as repair blockers, and keep PR Readiness blocked unless the returned result is PASS or waived with reason.`
 
 Allowed Scope: `FAM-006 Dashboard and Manage Monitors interactive-control visual affordance, first-click reliability, click-interception diagnostics, Polling Rate copy/dropdown repair, and directly supporting validators/helpers/UTS/source-truth updates only.`
 
