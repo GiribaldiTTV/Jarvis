@@ -6,7 +6,7 @@
 - Worktree: `C:\Nexus Worktrees\FAM-007`
 - Branch Class: `implementation`
 - Implementation Delta Class: `runtime/user-facing, backend/runtime, developer-tooling`
-- Backlog Record State: `Active Live Validation LV1 complete`
+- Backlog Record State: `PR-readiness merge-stable historical/no-active projection`
 - Family: `FAM-007` Local AI and Capability Packs
 - Package: `PKG-007` Local AI foundation and capability-pack architecture package
 - Workstream Label: `FAM-007 Local AI Provider Execution Readiness Gates`
@@ -19,32 +19,36 @@ This branch is the USER-approved fresh FAM-007 runtime carrier created from curr
 
 ## Current Phase
 
-- Phase: `Live Validation`
-Stage: `Live Validation LV1 complete`
-Branch Authority Projection: `Active FAM-007 runtime carrier until Workstream, PR Readiness, merge, and release decisions advance it`
+- Phase: `Historical Traceability`
+Stage: `PR Readiness Stage 1 Ready For Stage 2`
+Branch Authority Projection: `No Active Branch after merge`
 Worktree: `C:\Nexus Worktrees\FAM-007`
 Package: `PKG-007`
 Seam: `FAM-007 Local AI Provider Execution Readiness Gates LV1 complete`
 
 ## Phase Status
 
-Active Branch: `feature/fam-007-local-ai-provider-execution-readiness-gates`
-Branch Authority State: `Active Branch`
+Historical Branch: `feature/fam-007-local-ai-provider-execution-readiness-gates`
+Branch Authority State: `Historical/no-active projection for PR readiness`
 Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-provider-execution-readiness-gates from current origin/main after v1.7.6-prebeta release execution, carrying v1.7.6-prebeta post-release canon closure into Stage 2 setup, recording active FAM-007 branch authority, Product Definition Plan fields, Runtime Branch Engineering Contract fields, bounded Execution Readiness Gates Workstream planning, v1.8.0-prebeta direction, validation, commit, and push`
-Branch Authority Marker: `Active Workstream LV1 complete`
+Branch Authority Marker: `Historical/no-active projection for PR readiness`
+Historical Posture: `This record is indexed under Historical Branch Authority Records before PR creation so merged-main branch-authority truth remains stable after merge`
 Fresh Branch Authority: `Active - created from current origin/main 1daf4de21cb2a6185efdbdc04795dcf6bf0c619d`
 Runtime Workstream Implementation Approval: `Granted - USER approved bounded multi-seam FAM-007 Local AI Provider Execution Readiness Gates implementation while preserving provider/model execution as a pending USER decision`
 Current Workstream State: `Green - bounded multi-seam execution-readiness implementation complete; H1 and LV1 reviewed and green`
 Current Hardening State: `Green - H1 compared the local-only execution-readiness implementation against the admitted Workstream plan, Branch Runtime Engineering Plan, Runtime Branch Engineering Contract, source truth, UI copy, validator fixtures, approval boundaries, and overlap posture`
 Current Live Validation State: `Green - LV1 classified this branch as disabled/status-only local execution-readiness scaffolding with static source-truth and validator proof; no live provider, prompt, model, download/install, memory/learning/personalization, network egress, voice/Core sync, shortcut, installer, or setup path is enabled`
-Current PR Readiness State: `Not started`
+PR Readiness Stage 1 Repair USER Approval: `Granted - USER approved selected-next defer/waiver truth, post-merge No Active Branch projection, and pre-PR live-state truth for this PR-readiness pass; PR creation and merge remain separate USER decisions`
+Current PR Readiness State: `Stage 1 Ready For Stage 2 - selected-next defer/waiver truth, post-merge No Active Branch projection, successor-selection deferral, and pre-PR live-state truth are recorded; PR creation remains blocked until explicit PR Readiness Stage 2 USER approval`
+Next Legal Step: `PR Readiness Stage 2 / PR creation after USER approval`
 Branch Runtime Engineering Plan: `Accepted and implemented - PR #171 reconciliation adopted the detailed Branch Runtime Engineering Plan layer and this Workstream maps it to local-only execution-readiness runtime/UI/validator proof`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`
 Engineering Plan Status: `Implemented, H1 Green, and LV1 Green - detailed execution-readiness runtime plan is mapped to state, UI, validator fixtures, source-truth proof, hardening review, and disabled/status-only live-validation waiver while provider/model execution remains pending USER approval`
 PR Fold-Down Packet: `Pending - PR Readiness must decide whether the branch plan remains historical branch source truth, compacts into a branch receipt, or promotes durable lessons after implementation and validation`
 Release Canon Closure State: `v1.7.6-prebeta published at 1daf4de21cb2a6185efdbdc04795dcf6bf0c619d; PR #169 and PR #170 are released in v1.7.6-prebeta`
-Selected Next Workstream: `FAM-007 Local AI Provider Execution Readiness Gates`
-Selected Next Implementation Branch: `feature/fam-007-local-ai-provider-execution-readiness-gates`
+Selected Next Workstream: `None - USER-approved selected-next defer/waiver for this PR-readiness pass`
+Selected Next Implementation Branch: `Not created`
+Selected Next Current-Carrier Note: `This branch remains the active FAM-007 PR head until PR creation/merge, but no successor branch or successor Workstream is created or selected before PR creation; successor selection is deferred to later USER-approved Branch Readiness after merge/release readiness`
 Package Completion State: `PKG-007 admitted but not complete - prior local-only scaffolds are released historical evidence through v1.7.6-prebeta; provider/model execution, provider SDK integration, model downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer, release, issue, AI Product, Private Dev ORIN, FAM-006 work, Governance mutation, and v1.8.0-prebeta release execution remain separate USER decisions`
 
 ## Branch Class
@@ -126,7 +130,7 @@ USER approved Branch Readiness Stage 2 for the fresh FAM-007 runtime branch afte
 - Runtime Branch Engineering Contract fields are complete.
 - The bounded Execution Readiness Gates Workstream plan is admitted without authorizing runtime implementation.
 - Versioning direction preserves `v1.8.0-prebeta` as the future jump target after functional-AI proof.
-- Workstream implementation, Hardening H1, and Live Validation LV1 validate green; PR Readiness Stage 1 remains the next legal phase after USER approval.
+- Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 validate green; PR Readiness Stage 2 / PR creation remains the next legal phase after USER approval.
 
 ## Rollback Target
 
@@ -139,9 +143,9 @@ Rollback Rule: `If validation fails and cannot be repaired within Stage 2 setup 
 
 - `PR Readiness`
 
-Next Legal Phase: `PR Readiness Stage 1 for FAM-007 Local AI Provider Execution Readiness Gates`
-Next Legal Seam: `PR Readiness Stage 1 source-truth, selected-next/defer, pre-PR live-state, overlap, and validation analysis after LV1 Green`
-Exact USER Decision Needed: `I approve PR Readiness Stage 1 analysis for feature/fam-007-local-ai-provider-execution-readiness-gates, covering branch/worktree identity, origin/main freshness, source-truth posture, Workstream Green, Hardening H1 Green, Live Validation LV1 Green, Branch Runtime Engineering Plan status, changed-file scope, PR readiness markers, selected-next/successor/defer truth, pre-PR live-state posture, UTS/LV1 waiver posture, approval boundaries, validation, and FAM-006/Governance overlap. PR creation, merge, release work, issue work, provider SDK/model execution, downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, FAM-006 mutation, Governance mutation, branch cleanup, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain separate decisions.`
+Next Legal Phase: `PR Readiness Stage 2 / PR creation for FAM-007 Local AI Provider Execution Readiness Gates`
+Next Legal Seam: `PR Readiness Stage 2 PR creation, live PR state inspection, and watcher/reporting posture after USER approval`
+Exact USER Decision Needed: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-execution-readiness-gates targeting main, covering final validation, non-draft PR creation, live PR state inspection, watcher/reporting posture, and any required PR metadata/source-truth update. Merge, release work, issue work, provider SDK/model execution, downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, FAM-006 mutation, Governance mutation, branch cleanup, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain separate decisions.`
 
 ## Carrier Lifecycle Decision
 
@@ -189,8 +193,8 @@ Release-Debt Avoidance Status: `Clear for v1.7.6-prebeta after this setup record
 ## Workstream Plan
 
 Workstream Label: `FAM-007 Local AI Provider Execution Readiness Gates`
-Workstream Status: `Green - implementation complete, H1 Green, and LV1 Green; ready for PR Readiness Stage 1 after USER approval`
-Workstream Completion State: `Green - H1 Green / LV1 Green and ready for PR Readiness Stage 1 after USER approval`
+Workstream Status: `Green - implementation complete, H1 Green, LV1 Green, and PR Readiness Stage 1 ready for Stage 2; ready for PR Readiness Stage 2 / PR creation after USER approval`
+Workstream Completion State: `Green - H1 Green / LV1 Green / PR Readiness Stage 1 repair recorded and ready for PR Readiness Stage 2 after USER approval`
 Workstream Goal: `Define the local-only gate model required before any later provider/model execution work can be approved, while preserving the distinction between activation foundation, execution readiness, provider setup, provider/model execution, and fully functional AI.`
 Execution Readiness Gates Definition: `Contracts, proof posture, validation expectations, state, UI posture, and approval gates for a future provider/model execution path. Execution readiness may define state, blockers, adapter/provider path contracts, prompt/model proof expectations, safety/data gates, and public UI wording, but it must not execute providers or models without later USER approval.`
 Baseline Evidence: `PR #170 released local-only activation foundation, including activation state, eligibility, blockers, reason/provenance/schema fields, null-local-adapter posture, prompt/model/provider execution disabled, functional-AI criteria, v1.8.0-prebeta readiness criteria, Core/Desktop/ORIN activation copy, validator fixtures, provider-visible data none, blocked downloads/install, disabled memory/indexing/learning/personalization, blocked network egress, and gated voice/Core sync.`
@@ -258,6 +262,67 @@ Codex Live Client Self-QA: `WAIVED - no live provider, prompt, model, setup, sho
 Live Validation LV1 Next Legal Phase: `PR Readiness Stage 1 after USER approval`
 LV1 Repairs Made: `Source-truth status repair only - recorded LV1 Green and moved next legal phase to PR Readiness Stage 1; no runtime behavior, provider/model execution, FAM-006, Governance, PR, merge, release, shortcut, installer, or branch-cleanup work performed.`
 
+## PR Readiness Stage 1 Analysis Packet
+
+PR Readiness Stage 1 USER Approval: `Granted - USER approved PR Readiness Stage 1 analysis for this completed, H1-hardened, and LV1-validated execution-readiness branch`
+PR Readiness Stage 1 Repair USER Approval: `Granted - USER approved selected-next defer/waiver truth, pre-PR live-state truth, post-merge No Active Branch projection, no successor branch selection before PR creation, validation, commit, and push`
+Current PR Readiness Stage: `Stage 1 - Analysis Gate`
+PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2 - current branch scope and validation are clean after bounded Stage 1 repair; PR creation remains blocked until explicit PR Readiness Stage 2 USER approval`
+Stage 1 Repairs Made: `Selected-next defer/waiver truth, post-merge No Active Branch projection, pre-PR live-state truth, Release Readiness Health Pass, Release Window Audit, and successor-selection deferral recorded`
+Stage 1 Repair Validation: `PASS - standard validation and PR-readiness gate are required after this repair is committed`
+Origin/Main Freshness Check: `PASS - origin/main remains 9e33dd1216bab661c9183b73891c074acd6f5099, matching the post-LV1 merge base; no reconciliation is required before PR Readiness Stage 2`
+Origin/Main HEAD: `9e33dd1216bab661c9183b73891c074acd6f5099`
+Branch HEAD: `56f015b96d9dd2e607d8e776b716d55be6c0bda1 before this Stage 1 repair`
+Merge Base: `9e33dd1216bab661c9183b73891c074acd6f5099`
+Origin/Main Advanced Since Branch Creation: `NO`
+Reconciliation Required: `NO`
+Reconciliation Mutation Status: `analysis-only - no file fixes during Stage 1 beyond bounded PR-readiness source-truth repair`
+Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing; no open PR exists for feature/fam-007-local-ai-provider-execution-readiness-gates`
+PR Readiness Stage 2 Green-Light Decision Needed: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-execution-readiness-gates targeting main; merge remains a later USER decision`
+
+## Post-Merge State
+
+Branch Authority: `No Active Branch`
+Repo State: No Active Branch
+Post-Merge Repo State: No Active Branch
+Post-Merge Branch Authority Projection: `After this branch merges, feature/fam-007-local-ai-provider-execution-readiness-gates becomes historical merged evidence for the FAM-007 Local AI Provider Execution Readiness Gates Workstream and must not remain active branch authority on main.`
+Backlog Addition User Approval Missing: Cleared for this PR-readiness pass by USER-approved selected-next defer/waiver; no new backlog identity, backlog split, runtime package admission, successor branch, branch cleanup, or selected-next successor is created before PR creation.
+Next Workstream User Waiver: Granted - USER approved selected-next defer/waiver for this PR-readiness pass.
+Selected Next Workstream: None - USER-approved selected-next defer/waiver for this PR-readiness pass.
+Selected Next Implementation Branch: Not created
+Successor Selection: Deferred to a later USER-approved Branch Readiness decision after merge/release readiness; no successor branch is created or selected before PR creation.
+Release-Debt Handling: `After merge, this branch is expected to become merged-unreleased release-window scope until later USER-approved Release Readiness and release execution. No release execution, tag, GitHub Release, artifact, issue closeout, provider SDK/model work, memory/indexing implementation, voice/Core runtime sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, Governance mutation, branch cleanup, or successor branch creation is authorized by this projection.`
+
+## Release Readiness Health Pass
+
+Post-Merge Branch Authority Projection: `PASS - merged main projects No Active Branch for runtime/product branch authority after this PR; this branch record must be historical merged evidence, and the standing Governance intake remains the only active-authority exception.`
+
+Stale Active Branch Wording Scan: `PASS - projected post-merge current-state truth does not retain active FAM-007 branch authority after this PR.`
+
+Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - pre-PR live-state and Stage 2 operator details are PR Readiness audit evidence only and are not projected as merged-main current-state truth.`
+
+Merged-Unreleased Scope Posture: `PASS - this implementation PR is expected to become merged-unreleased FAM-007 execution-readiness release-window scope after merge until later USER-approved Release Readiness and release execution.`
+
+Release Execution Gate: `PASS - release execution, tags, GitHub Release publication, artifacts, and issue closeout remain pending USER approval.`
+
+Watcher / Live PR State Projection: `PASS - watcher and live PR state belong to PR Stage 2 operator output and must not be projected into merged-main current-state truth after merge.`
+
+Branch Cleanup Plan: `PASS - historical FAM-007 branch cleanup, branch deletion, worktree removal, GitHub Desktop cleanup, and old-ref cleanup remain blocked until a later USER-approved cleanup path proves no unique commit loss.`
+
+FAM Overlap Routing: `PASS - FAM-006 and Governance overlap is a later reconciliation risk only; this FAM-007 repair does not mutate those worktrees.`
+
+Release Candidate Anchor Projection: `PASS - current origin/main after the future merge becomes the Release Readiness inspection target unless USER selects another release candidate anchor; this record does not execute release work.`
+
+Release Window Contributor Inventory: `PASS - projected release window includes this FAM-007 execution-readiness PR after merge; if FAM-006, Governance, or another branch merges before release execution, Release Readiness must rerun the inventory from updated origin/main.`
+
+Projected Post-Merge Validation: `PASS - after merge, rerun branch governance validation, release-readiness health gate, release body validation, provider-state validation, branch-readiness planning fixture validation, validation suite recommendation, and compileall from updated main before any release execution.`
+
+## Release Window Audit
+
+Release Window Audit: PASS
+Merged-Unreleased Release Window Scope: `Projected after merge - FAM-007 Local AI Provider Execution Readiness Gates becomes release-window scope until later USER-approved release readiness and release execution.`
+Release Window Exclusions: `Provider SDK integration, provider/model execution, model downloads, external provider/API calls, memory indexing/retrieval/learning/persistence/personalization, voice/Core runtime sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue closeout, FAM-006 mutation, Governance mutation, branch cleanup, successor branch creation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain pending USER decisions.`
+
 ## Functional AI And v1.8.0-prebeta Direction
 
 Functional AI Version Jump Target: `v1.8.0-prebeta`
@@ -275,14 +340,14 @@ Branch-Specific Vision Alignment: `This branch turns released activation-foundat
 User-Facing Goal: `Prepare visible, reliable execution-readiness posture so users can distinguish activation foundation, execution readiness, provider setup, provider/model execution, and fully functional AI when later approved.`
 USER Vision Questions: `Which provider path should be selected first? What proof must exist before prompts can be accepted? What model execution behavior is acceptable for functional-AI proof? What network/provider-visible-data disclosure is required? Should memory, learning, and personalization wait until the v1.8.0-prebeta phase?`
 USER Vision Question Packet: `No new USER question packet required for Stage 2 because USER specified the branch, Workstream label, seam families, v1.8.0-prebeta direction, and pending approval boundaries.`
-USER Vision Recommendation: `Proceed with PR Readiness Stage 1 for the completed, H1-hardened, and LV1-validated local-only execution-readiness gate implementation before any PR creation, merge, release, or provider/model execution branch.`
+USER Vision Recommendation: `Proceed with PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage-1-readied local-only execution-readiness gate implementation before any merge, release, or provider/model execution branch.`
 USER Vision Input Handoff: `Not required for this setup; current USER prompt is the governing Stage 2 input.`
 Codex Product Interpretation: `Users should be able to see whether the local AI path is merely ready for future execution, not mistake readiness for a live AI, and understand which approvals or blockers still prevent prompts, models, network egress, memory, and provider calls.`
 Codex Implementation Recommendation: `Prefer one bounded multi-seam branch that defines execution-readiness state, provider path selection, prompt/model gates, safety/data gates, v1.8.0 criteria, UI copy, and validators without importing SDKs or running models.`
 Codex Additional Recommendations: `Option A is the preferred bounded multi-seam execution-readiness path: define state, provider path selection, prompt/model gates, safety/data gates, UI copy, validators, and branch-count forecast together. Option B is a safer narrower source-truth-only gate contract if runtime overlap rises. Option C is a larger future provider SDK/model execution proof branch after USER approves execution. Recommendation: take Option A, keep provider-visible data at none, keep prompt/model execution disabled, and label the 3 to 5 branch forecast as planning-only rather than a release commitment.`
 USER/ChatGPT Review Checkpoint: `USER and ChatGPT should review execution-readiness state names, provider path selection posture, prompt/model execution proof criteria, v1.8.0-prebeta proof expectations, and whether any planned UI copy could imply live AI before provider execution is approved.`
 USER Critique Loop: `USER may approve Hardening H1, redirect to FAM-006/Governance sequencing, request a narrower repair, or defer provider/model execution decisions.`
-USER Decision Ledger: `USER approved Stage 2 setup, Workstream Entry analysis, bounded Workstream implementation, Hardening H1, and Live Validation LV1 for this branch. Pending decisions include PR Readiness Stage 1, PR creation, merge, provider SDK integration, provider/model execution, model downloads, external calls, memory indexing/retrieval/learning/persistence/personalization, voice/Core sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue work, FAM-006 mutation, Governance mutation, branch cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta release execution.`
+USER Decision Ledger: `USER approved Stage 2 setup, Workstream Entry analysis, bounded Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 source-truth repair for this branch. Pending decisions include PR Readiness Stage 2 / PR creation, merge, provider SDK integration, provider/model execution, model downloads, external calls, memory indexing/retrieval/learning/persistence/personalization, voice/Core sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue work, FAM-006 mutation, Governance mutation, branch cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta release execution.`
 Full Feature Element Breakdown: `Execution readiness state, prompt execution readiness state, model execution readiness state, provider execution readiness state, execution blockers, reason codes, provenance, schema version, approval status, provider path selection, adapter selection, provider configuration envelope, null/local fallback, SDK handoff fields, prompt acceptance gate, prompt routing gate, model execution gate, provider-visible-data proof posture, safety/consent/network/data gates, functional-AI release gate, v1.8.0 criteria, Core/Desktop/ORIN visible labels, validator fixtures, release-readiness proof expectations, and expected branch-count forecast.`
 System Concept Model: `Activation foundation feeds execution readiness; execution readiness feeds UI copy, validators, release-readiness proof, and future handoff fields; actual provider/model execution remains blocked until a later approved provider path exists.`
 Entity / Profile Model: `Entities are activation foundation state, execution readiness state, provider path selection, adapter selection, provider config envelope, execution gate, blocker, reason/provenance, UI rail label, validator fixture, release marker, and branch-count forecast. No user profile, cloud account, provider credential, memory index, learning profile, or personalization model is created in this setup.`
@@ -304,15 +369,15 @@ Rejected Shallow Plan: `Rejected a single docs-only marker or one execution-read
 Alternatives And Tradeoffs Reviewed: `Alternative A: proceed directly to provider SDK execution; rejected because approval is pending and proof gates are not ready. Alternative B: route to FAM-006 first; rejected for this Stage 2 because FAM-006 is a separate active lane. Alternative C: use Governance as carrier; rejected because this is runtime-focused FAM-007 work and governance mutation is pending.`
 Deferred Ideas / Future Package Ledger: `Real provider setup, consent collection, provider SDK wiring, local model execution, capability-pack downloads/install/update/uninstall, memory indexing/retrieval/learning/persistence, personalization, setup wizard UX, issue closeout, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, Governance mutation, and v1.8.0-prebeta release execution are deferred.`
 Planning Adequacy Review: `The plan covers branch authority, release-canon closure, user-facing execution-readiness posture, central state, provider path selection, prompt/model gates, safety/data gates, functional-AI and v1.8.0 criteria, approval boundaries, future gates, validation commands, expected branch-count forecast, and FAM-006/Governance overlap.`
-Open Questions / USER Decision Points: `USER decision pending: approve PR Readiness Stage 1. USER decision pending: decide the first provider path and functional-AI proof bar in a later branch. USER approvals remain pending for provider/model execution, model downloads, external calls, memory/learning/personalization timing, voice/Core sync, shortcut/installer work, PR creation, merge, release execution, issue closeout, branch cleanup, FAM-006 sequencing, Governance mutation, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta release execution.`
-Planning Blockers: `PR Readiness Stage 1 Approval Missing; Provider SDK Approval Missing; Provider/Model Execution Approval Missing; Model Download Approval Missing; External Provider/API Call Approval Missing; Memory/Indexing/Learning/Personalization Approval Missing; Voice/Core Runtime Sync Approval Missing; Shortcut/Installer Approval Missing; Release/Tag/GitHub Release/Artifact Approval Missing; Issue Work Approval Missing; PR Creation Approval Missing; Merge Approval Missing; FAM-006 Mutation Approval Missing; Governance Mutation Approval Missing; Branch Cleanup Approval Missing; AI Product Contract Import Approval Missing; Private Dev ORIN Import Approval Missing; v1.8.0-prebeta Release Execution Approval Missing`
+Open Questions / USER Decision Points: `USER decision pending: approve PR Readiness Stage 2 / PR creation. USER decision pending: decide the first provider path and functional-AI proof bar in a later branch. USER approvals remain pending for provider/model execution, model downloads, external calls, memory/learning/personalization timing, voice/Core sync, shortcut/installer work, merge, release execution, issue closeout, branch cleanup, FAM-006 sequencing, Governance mutation, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta release execution.`
+Planning Blockers: `PR Readiness Stage 2 / PR Creation Approval Missing; Provider SDK Approval Missing; Provider/Model Execution Approval Missing; Model Download Approval Missing; External Provider/API Call Approval Missing; Memory/Indexing/Learning/Personalization Approval Missing; Voice/Core Runtime Sync Approval Missing; Shortcut/Installer Approval Missing; Release/Tag/GitHub Release/Artifact Approval Missing; Issue Work Approval Missing; Merge Approval Missing; FAM-006 Mutation Approval Missing; Governance Mutation Approval Missing; Branch Cleanup Approval Missing; AI Product Contract Import Approval Missing; Private Dev ORIN Import Approval Missing; v1.8.0-prebeta Release Execution Approval Missing`
 Affected Surfaces: `Docs/feature_backlog.md, Docs/prebeta_roadmap.md, Docs/branch_records/index.md, this branch record, the branch plan, provider/runtime state code, Core/Desktop provider rail surfaces, nexus_visual Core surfaces, and provider-state validators are current Workstream implementation surfaces.`
 Why Branch Is Large Enough: `Execution readiness spans provider execution state, prompt readiness, model execution readiness, provider path selection, adapter selection, safety/data gates, functional-AI release criteria, Core/Desktop/ORIN copy, validator fixtures, and expected branch-count forecasting, so it is large enough to be a coherent FAM-007 carrier.`
 Why Not Split Into Tiny Branches: `Splitting these gate contracts before Workstream Entry would separate execution-readiness state from UI copy and validators, increasing the chance of false functional-AI wording or proof drift.`
 Validation Proof Requirements: `Run diff whitespace checks, branch governance validation, release-readiness health gate, release body validation, provider-state validation, branch-readiness planning fixture validation, validation suite recommendation, worktree rebaseline audit, compileall, and any additional validator required by future implementation surfaces.`
 Screenshot / Live / User Test Summary Proof Requirements: `LV1 classified the branch as disabled/status-only local execution-readiness scaffolding; no interactive user path is enabled, so static Core/Desktop/ORIN source-truth and validator proof with an explicit Live Validation waiver is the applicable proof route.`
 User Test Summary Strategy: `Live Validation LV1 records User Test Summary Results as WAIVED because no live provider, prompt, model workload, setup, shortcut, installer, download/install, memory/learning/personalization, network, or voice/Core path is enabled; PR Readiness may verify this digested LV1 waiver but must not create a new UTS artifact.`
-USER Decisions Needed: `Approve PR Readiness Stage 1 for this branch; provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release execution, issue work, FAM-006 mutation, Governance mutation, branch cleanup, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain separate decisions.`
+USER Decisions Needed: `Approve PR Readiness Stage 2 / PR creation for this branch; provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, merge, release execution, issue work, FAM-006 mutation, Governance mutation, branch cleanup, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain separate decisions.`
 Planning Packet Status: `Complete`
 Planning Revalidation Status: `PASS`
 Planning Completion Waiver: `Not required - the Product Definition Plan records concrete current and future boundaries, validation proof, USER decision points, package-scope reasoning, and approval boundaries`
@@ -350,14 +415,14 @@ Create the fresh FAM-007 execution-readiness carrier from current main, close th
 - Historical FAM-007 branches remain evidence only.
 - PKG-007 remains admitted and not package-complete.
 - Fresh branch authority is recorded for `feature/fam-007-local-ai-provider-execution-readiness-gates`.
-- The bounded Workstream, Hardening H1, and Live Validation LV1 are Green for execution-readiness gates only, and PR Readiness Stage 1 is the next legal phase after USER approval.
+- The bounded Workstream, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 are Green for execution-readiness gates only, and PR Readiness Stage 2 / PR creation is the next legal phase after USER approval.
 
 ## Backlog Completion Strategy
 
 Backlog Completion Strategy: `Complete PR Readiness after this Workstream Green, H1 Green, and LV1 Green point; future provider/model/memory/voice/shortcut/installer/release work remains USER-gated.`
 Branch Completion Goal: `Complete FAM-007 Execution Readiness Gates as local-only contract, proof posture, validation expectations, state, UI posture, and approval gates for a future provider/model execution path; actual execution may proceed only after later explicit USER approval.`
 Known Future-Dependent Blockers: `Provider SDK integration, provider/model execution, model downloads, external provider/API calls, memory indexing/retrieval/learning/persistence/personalization, voice/Core runtime sync, shortcut/installer work, release/tag/GitHub Release/artifact work, issue work, PR creation, merge, FAM-006 mutation, Governance mutation, branch cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta release execution require later explicit USER approval.`
-Branch Closure Rule: `Do not create a PR, merge, execute release work, mutate FAM-006 or Governance, delete branches, or implement provider/model/download/external/memory/voice/shortcut/installer behavior during this Workstream, H1, or LV1. Stop after validation, commit, and push with PR Readiness Stage 1 as the next legal phase.`
+Branch Closure Rule: `Do not create a PR, merge, execute release work, mutate FAM-006 or Governance, delete branches, or implement provider/model/download/external/memory/voice/shortcut/installer behavior during this Workstream, H1, LV1, or PR Readiness Stage 1. Stop after validation, commit, and push with PR Readiness Stage 2 / PR creation as the next legal phase.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -415,8 +480,8 @@ Non-Includes: `Live provider UI, prompt input enablement, setup wizard execution
 ## Active Seam
 
 Active seam: `None - all admitted execution-readiness seam families are Workstream Green`
-Next active seam: `PR Readiness Stage 1 after USER approval`
-Seam Status: `Green - Workstream implementation complete, H1 Green, and LV1 Green`
+Next active seam: `PR Readiness Stage 2 / PR creation after USER approval`
+Seam Status: `Green - Workstream implementation complete, H1 Green, LV1 Green, and PR Readiness Stage 1 ready for Stage 2`
 
 ## Backlog Completion Status
 
