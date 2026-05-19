@@ -2912,6 +2912,9 @@ def validate() -> list[str]:
         ".ai-provider-status__capability-eligibility",
         ".ai-provider-status__memory-contract",
         ".ai-provider-status__copy-contract",
+        ".ai-provider-status::after",
+        "max-height: min(34vh, 210px)",
+        "Details held in validation; setup and execution remain gated",
         'data-availability="ready"',
         "overflow-wrap: anywhere",
     ):
