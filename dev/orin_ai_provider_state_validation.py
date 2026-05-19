@@ -3072,8 +3072,11 @@ def validate() -> list[str]:
 
     for needle in (
         "FAM-007 Local AI Provider Execution Readiness Gates",
-        "Current Workstream State: `Green - bounded multi-seam execution-readiness implementation complete; ready for Hardening H1 after USER approval`",
-        "Workstream Completion State: `Green - ready for Hardening H1 after USER approval`",
+        "Current Workstream State: `Green - bounded multi-seam execution-readiness implementation complete; H1 reviewed and green`",
+        "Current Hardening State: `Green - H1 compared the local-only execution-readiness implementation against the admitted Workstream plan",
+        "Workstream Completion State: `Green - H1 Green and ready for Live Validation LV1 after USER approval`",
+        "Hardening H1 Status: `Green`",
+        "Next Legal Phase: `Live Validation LV1 for FAM-007 Local AI Provider Execution Readiness Gates`",
         "Seam Family 1 - Execution Readiness Gate Contract: `Green`",
         "Seam Family 2 - Provider Path And Adapter Selection Contract: `Green`",
         "Seam Family 3 - Prompt Path And Model Execution Proof Contract: `Green`",
@@ -3110,7 +3113,8 @@ def validate() -> list[str]:
 
     for needle in (
         "Branch Runtime Engineering Plan: FAM-007 Local AI Provider Execution Readiness Gates",
-        "Engineering Plan Status: `Implemented - bounded Workstream implementation maps the accepted plan into local-only execution-readiness state, UI, validator fixtures, and source-truth proof; Hardening H1 remains pending USER approval.`",
+        "Engineering Plan Status: `Implemented and H1 Green - bounded Workstream implementation maps the accepted plan into local-only execution-readiness state, UI, validator fixtures, source-truth proof, and hardening review; Live Validation LV1 remains pending USER approval.`",
+        "Hardening H1 Result: `Green - H1 compared implementation against this plan",
         "Runtime Implementation Approval: `Granted - USER approved bounded Workstream implementation for this local-only execution-readiness gates branch; provider/model execution remains pending USER decision.`",
         "Plan-To-Implementation Traceability Table: `Implemented - planned execution-readiness state maps to actual file desktop/ai_provider_state.py; planned provider path and adapter selection map to actual local config/schema fields; planned prompt/model gates map to actual disabled prompt/model/provider execution fields; planned UI copy maps to actual Core/Desktop/ORIN status surfaces; validator implementation traces no prompt send, no model execution, provider-visible data none, blocked network egress, deferred memory/learning/personalization, and v1.8.0 criteria pending.`",
         "Workstream Completion Evidence: `Green - all admitted execution-readiness seam families implemented as local-only contracts, state, UI posture, validator fixtures, and source-truth proof.",
