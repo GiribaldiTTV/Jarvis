@@ -87,6 +87,8 @@ Automation Observability is multi-worktree aware. `dev/automation_observability_
 
 `Docs/pr_watcher_mode_contract.md` owns the PR Watcher Mode Contract. PR watchers must declare `Silent Monitor`, `Verify Once`, `Repair Mode`, or `Blocked Mode`, and PR Readiness Stage 2 must include `Watcher Health Proof:` with configured cwd, PR number, head SHA, unresolved review-thread count, latest bot review, repair authority, delivery route proof, runtime proof, and next watcher posture.
 
+PR Readiness Stage 2 approval includes watcher provisioning by default. Codex must not require a separate watcher-specific approval after USER approves PR creation / Stage 2 execution; skipping the watcher requires an explicit USER watcher waiver or a documented platform/runtime blocker.
+
 Before branch creation, worktree creation, phase entry, commit, push, PR work, release work, or GitHub Desktop handoff, run a `Thread / Worktree Identity Preflight` and prove the active thread is operating in the intended workspace, repository root, branch, upstream, `HEAD`, `origin/main`, worktree role, clean state, and write target. If the identity does not match the requested work, stop on `Thread / Worktree Identity Mismatch`.
 
 Thread Launch / Write-Target Identity Lock:

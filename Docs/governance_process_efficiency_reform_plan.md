@@ -206,6 +206,7 @@ Implementation record:
 - Focused pass admitted `Docs/pr_watcher_mode_contract.md` as the compact PR Watcher Mode Contract.
 - The standard defines `Silent Monitor`, `Verify Once`, `Repair Mode`, and `Blocked Mode` so quiet watcher behavior, one-time proof, safe same-PR repair, and no-patch blockers are no longer ambiguous.
 - The required `Watcher Health Proof:` line records configured cwd, PR number, head SHA, unresolved review-thread count, latest bot review, repair authority, delivery route proof, runtime proof, and next watcher posture before PR Readiness Stage 2 final handoff can be green.
+- Follow-up approval-default repair clarifies that USER approval for PR Readiness Stage 2 / PR creation includes watcher provisioning by default. Codex must not ask for a separate watcher-specific approval after Stage 2 is approved; skipping watcher provisioning requires an explicit USER watcher waiver or documented platform/runtime blocker.
 - Validator source-check owner: `dev/orin_branch_governance_validation.py`.
 
 ## Category 8: Validator Modularization
