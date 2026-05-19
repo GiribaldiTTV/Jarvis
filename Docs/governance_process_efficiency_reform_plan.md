@@ -129,6 +129,13 @@ Focused planning pass:
 Priority:
 - High.
 
+Implementation record:
+- Focused pass admitted `dev/orin_worktree_rebaseline_audit.py` as a reusable report-only helper.
+- The helper emits the required `Pre-Rebaseline Impact Audit:` and `Current-Main Reconciliation Identity Guard:` markers without fetching, merging, rebasing, checking out, resetting, or mutating files.
+- The helper emits `Rebaseline Mutation Approval:` and `Rebaseline Mutation Status:` so every baseline request remains report-only until USER approves mutation.
+- Registry owner: `Docs/validation_helper_registry.md`.
+- Validator source-check owner: `dev/orin_branch_governance_validation.py`.
+
 ## Category 6: Standing Governance Intake Simplification
 
 Current finding:

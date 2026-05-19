@@ -2177,9 +2177,33 @@ GOVERNANCE_INTAKE_DIGEST_STANDARD_PHRASES = (
     "Full Audit Packet",
     "Delta Digest",
 )
+WORKTREE_REBASELINE_AUDIT_HELPER = Path("dev/orin_worktree_rebaseline_audit.py")
+WORKTREE_REBASELINE_AUDIT_DOCS = (
+    Path("Docs/validation_helper_registry.md"),
+    Path("Docs/governance_process_efficiency_reform_plan.md"),
+    Path("Docs/branch_records/feature_release_readiness_source_truth_intake.md"),
+)
+WORKTREE_REBASELINE_AUDIT_PHRASES = (
+    "dev/orin_worktree_rebaseline_audit.py",
+    "report-only",
+    "Pre-Rebaseline Impact Audit",
+    "Current-Main Reconciliation Identity Guard",
+    "Rebaseline Mutation Approval",
+    "Rebaseline Mutation Status",
+)
+WORKTREE_REBASELINE_AUDIT_SOURCE_PHRASES = (
+    "report-only",
+    "Pre-Rebaseline Impact Audit:",
+    "Current-Main Reconciliation Identity Guard:",
+    "Recommendation Only:",
+    "Rebaseline Mutation Approval:",
+    "Rebaseline Mutation Status:",
+    "no fetch, merge, rebase, checkout, reset, or file mutation",
+)
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
     "dev/orin_branch_readiness_planning_fixture_validation.py",
+    "dev/orin_worktree_rebaseline_audit.py",
     "dev/automation_observability_report.py",
     "dev/orin_ai_provider_state_validation.py",
     "dev/orin_pr_body_quality_audit.py",
@@ -16208,6 +16232,24 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: governance intake triage / digest profile pointer is missing '{required_phrase}'",
+            )
+
+    rebaseline_audit_source = _read_text(WORKTREE_REBASELINE_AUDIT_HELPER)
+    require(
+        bool(rebaseline_audit_source),
+        f"{WORKTREE_REBASELINE_AUDIT_HELPER}: worktree rebaseline audit helper is missing",
+    )
+    for required_phrase in WORKTREE_REBASELINE_AUDIT_SOURCE_PHRASES:
+        require(
+            required_phrase in rebaseline_audit_source,
+            f"{WORKTREE_REBASELINE_AUDIT_HELPER}: report-only audit helper source is missing '{required_phrase}'",
+        )
+    for relative_path in WORKTREE_REBASELINE_AUDIT_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in WORKTREE_REBASELINE_AUDIT_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: worktree rebaseline audit helper guidance is missing '{required_phrase}'",
             )
 
     for relative_path in ASSIGNED_WORKTREE_CONFINEMENT_DOCS:

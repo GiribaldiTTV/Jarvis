@@ -110,6 +110,7 @@ Allowed:
 - Post-PR #165 Release Readiness source-truth drift repair recording `feature/fam-007-local-ai-provider-runtime-readiness` as historical merged-unreleased evidence, preserving No Active Branch / selected-next defer posture, clearing stale PR Readiness Stage 2 / PR creation wording from current-state truth, and routing the originating FAM-007 lane back to Release Readiness Stage 1 after governance merge/rebaseline.
 - Governance process efficiency reform planning may record repo-wide audit inventories under `Docs/governance_process_efficiency_reform_plan.md` when USER requests governance/source-truth analysis and recommendations; implementing those reforms requires later focused planning and USER approval.
 - Governance Intake Triage Packet and Digest Profile standardization may be repaired on this standing lane when USER approves the focused reform pass; the standard lives in `Docs/governance_intake_triage_and_digest_profiles.md` and keeps future reform packets narrow.
+- Worktree Rebaseline Audit Helper standardization may be repaired on this standing lane when USER approves the focused reform pass; the reusable helper is `dev/orin_worktree_rebaseline_audit.py`, is report-only, and emits `Current-Main Reconciliation Identity Guard`.
 - One PR per active `RRI-*` cycle after validation.
 
 Forbidden:
