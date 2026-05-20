@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=VALIDATOR-HELPER; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=branch-readiness-planning-fixture-validator; status=shared
 """Regression fixtures for Branch Readiness product-system planning.
 
 The governance validator is intentionally broad and source-truth heavy. This

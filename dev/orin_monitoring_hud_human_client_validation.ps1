@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM006-HUD; ledger=SRCOWN-FIRSTPASS-FAM006-HUD-008; surface=fam006-hud-human-client-validator; status=shared
 param(
     [int]$StartupTimeoutSeconds = 45,
     [int]$ActionTimeoutSeconds = 12,

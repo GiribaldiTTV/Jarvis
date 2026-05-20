@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-CLEANUP-REBINDING-013; surface=worktree-rebaseline-audit-helper; status=shared
 """Report-only Pre-Rebaseline Impact Audit for Nexus worktrees.
 
 This helper intentionally performs no fetch, merge, rebase, checkout, or file

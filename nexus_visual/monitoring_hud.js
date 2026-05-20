@@ -1,3 +1,4 @@
+// NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM006-HUD; ledger=SRCOWN-FIRSTPASS-FAM006-HUD-008; surface=monitoring-hud-dashboard-script; status=shared
 const body = document.body;
 const monitoringHud = document.getElementById("monitoring-hud");
 const monitoringHudMinimal = document.getElementById("monitoring-hud-minimal");

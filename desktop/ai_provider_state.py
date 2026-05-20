@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=SRCOWN-FIRSTPASS-FAM007-AI-007; surface=provider-state-contract; status=shared
 """Provider/no-provider and foundation-readiness state contract for FAM-007.
 
 This module owns local-only FAM-007 scaffolds. It does not load models, call

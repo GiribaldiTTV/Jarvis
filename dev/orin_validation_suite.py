@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=VALIDATOR-HELPER; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=validation-suite-recommendation-helper; status=shared
 from __future__ import annotations
 
 import argparse
@@ -160,6 +161,13 @@ def _surface_commands(changed_files: tuple[str, ...]) -> tuple[ValidationCommand
             ValidationCommand(
                 r"python dev\orin_branch_governance_validation.py --release-readiness-health-gate",
                 "shared source-truth files changed, so release-readiness health must be rechecked",
+            )
+        )
+    if "source_owner_marker" in normalized or "source-owner" in normalized:
+        commands.append(
+            ValidationCommand(
+                r"python dev\orin_source_owner_marker_validation.py",
+                "checks source-owner marker syntax, ledger linkage, shared-surface coverage, and protected Compact-AI posture",
             )
         )
     return tuple(commands)

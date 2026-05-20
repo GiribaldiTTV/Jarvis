@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM006-HUD; ledger=SRCOWN-FIRSTPASS-FAM006-HUD-008; surface=fam006-hud-surface-validator; status=shared
 """Validate the FAM-006 Monitoring HUD product surface baseline.
 
 This helper is intentionally static. It proves the Dashboard-first HUD
@@ -827,7 +828,7 @@ def validate() -> list[str]:
         )
 
     fake_metric_pattern = re.compile(
-        r"\b\d+(?:\.\d+)?\s?(?:°|c\b|%|rpm\b|mhz\b|ghz\b|w\b)",
+        r"\b\d+(?:\.\d+)?\s?(?:\u00b0|c\b|%|rpm\b|mhz\b|ghz\b|w\b)",
         flags=re.IGNORECASE,
     )
     _require(

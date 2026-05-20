@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM006-HUD; ledger=SRCOWN-FIRSTPASS-FAM006-HUD-008; surface=fam006-hud-internal-sandbox-validator; status=shared
 """Internal sandbox validation for the FAM-006 Monitoring HUD Workstream.
 
 This helper proves the current-branch Dashboard-first Workstream handoff without

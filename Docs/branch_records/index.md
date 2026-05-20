@@ -1,4 +1,5 @@
 # Branch Authority Records Index
+<!-- NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=SHARED-DOCS; ledger=SRCOWN-FIRSTPASS-DOCS-011; surface=branch-record-index-owner; status=shared -->
 
 ## Purpose
 
@@ -115,6 +116,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
+- `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
 ## Historical Branch Authority Records

@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=SRCOWN-FIRSTPASS-FAM007-AI-007; surface=fam007-provider-state-validator; status=shared
 """Validate the FAM-007 no-provider/provider-privacy scaffold."""
 
 from __future__ import annotations
