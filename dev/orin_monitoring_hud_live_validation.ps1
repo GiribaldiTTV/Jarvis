@@ -443,7 +443,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $precheckStep3 = Format-ShortcutPrecheckLine @("tray_exit_confirmation_visible", "tray_exit_cancel_preserves_session", "tray_exit_accept_prompt_visible", "tray_exit_accept_shuts_down_promptly") "LV1 cannot claim unrestricted green handoff for tray Exit confirmation without USER waiver."
     $precheckNcpInteraction = Format-ShortcutPrecheckLine @("dashboard_mouse_move", "ncp_tray_icon_left_click_opens", "ncp_tray_menu_state_changes_to_close", "ncp_opens_with_dashboard_visible", "ncp_tray_icon_left_click_closes", "ncp_create_custom_task_clickable_with_dashboard_open", "ncp_create_custom_group_clickable_with_dashboard_open", "ncp_manage_custom_tasks_clickable_with_dashboard_open", "ncp_manage_custom_groups_clickable_with_dashboard_open") "LV1 cannot claim unrestricted green handoff for Dashboard-visible NCP tray toggle/state interaction without USER waiver."
     $precheckTrayAuthoring = Format-ShortcutPrecheckLine @("tray_create_custom_task_duplicate_guard") "LV1 cannot claim unrestricted green handoff for tray authoring duplicate-dialog safety without USER waiver."
-    $precheckResizeDiscoverability = Format-ShortcutPrecheckLine @("dashboard_move_fluidity", "dashboard_resize_cursor_alignment", "dashboard_resize_corner_arc_diagonal_zone", "dashboard_resize_cursor_transition_discovery", "dashboard_mouse_resize_corner", "dashboard_mouse_resize_right_edge", "dashboard_mouse_resize_bottom_edge", "dashboard_resize_fluidity", "dashboard_mouse_resize") "LV1 cannot claim unrestricted green handoff for Dashboard movement/resize discoverability/fluidity without USER waiver."
+    $precheckResizeDiscoverability = Format-ShortcutPrecheckLine @("dashboard_move_fluidity", "dashboard_resize_cursor_alignment", "dashboard_resize_corner_arc_diagonal_zone", "dashboard_resize_cursor_transition_discovery", "dashboard_mouse_resize_corner", "dashboard_mouse_resize_right_edge", "dashboard_mouse_resize_bottom_edge", "dashboard_resize_grow_during_drag_visual_proof", "dashboard_resize_shrink_during_drag_visual_proof", "dashboard_resize_fluidity", "dashboard_mouse_resize") "LV1 cannot claim unrestricted green handoff for Dashboard movement/resize discoverability/fluidity without USER waiver."
     $precheckFirstOpenStability = Format-ShortcutPrecheckLine @("dashboard_first_open_stability_sequence") "LV1 cannot claim unrestricted green handoff for #123 first-open stability without real shortcut screenshot-sequence proof or USER waiver."
     $precheckSettingsPanel = Format-ShortcutPrecheckLine @("dashboard_settings_opens_with_real_mouse", "dashboard_settings_double_click_does_not_maximize", "dashboard_settings_done_closes_with_real_mouse") "LV1 cannot claim unrestricted green handoff for Dashboard Settings unless the real mouse Dashboard IA-card path opens and closes the panel without native maximize drift or USER waiver."
     $precheckTopChromeClose = Format-ShortcutPrecheckLine @("dashboard_top_chrome_close_hides_dashboard", "dashboard_reopens_after_top_chrome_close") "LV1 cannot claim unrestricted green handoff for Dashboard window-level Close unless the visible Close control hides only the Dashboard and tray reopen works or USER waiver."
@@ -457,7 +457,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     # evidence stays in manifests and source truth.
     $content = @"
 Nexus Desktop AI - User Test Summary
-Workstream: FAM-006 Dashboard Settings Panel
+Workstream: FAM-006 Monitor Groups Sensor Configuration
 Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: $currentBranch
 Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
@@ -481,39 +481,44 @@ Step 1 - Launch From Red FAM-006 Shortcut
 Expected: The shortcut launches the FAM-006 worktree build and the app/tray settle normally.
 USER Result / Notes:
 
-Step 2 - Open HUD Dashboard From Tray
-Expected: Enable/Open HUD Dashboard makes the Dashboard visible and usable.
+Step 2 - Open Dashboard And Monitor Groups
+Expected: Enable/Open HUD Dashboard makes the Dashboard visible, and Monitor Groups opens the real Manage Monitors flow.
 USER Result / Notes:
 
-Step 3 - #123 First-Open Stability
-Expected: During the first 1-2 seconds, the Dashboard does not show a full-window flicker, blank flash, or late geometry snap.
+Step 3 - Manage Monitors List And Create
+Expected: Manage Monitors appears as a compact Sensor Command Center: the left list is action-light, row/icon selection opens the right detail pane, and Create stays reachable from the command surface.
 USER Result / Notes:
 
-Step 4 - #127 Move / Resize Cursor And Smoothness
-Expected: Moving the Dashboard at normal USER speed does not skip or visibly lag. Resize cursors appear at the visible right edge, bottom edge, and bottom-right corner before click/drag, the rounded corner exposes an easy diagonal resize zone, and resize tracks smoothly without obvious catch-up lag.
+Step 4 - Edit Monitor Settings
+Expected: Selecting another monitor by row/icon either opens its details or shows an unsaved-change guard with Save on the left and Discard visibly illuminated on the far right. If the detail pane was scrolled, the window should snap to the unsaved-change prompt so the prompt is visible. The dirty-guard Cancel button should not appear; Save must preserve the visible draft before continuing, and Discard must drop the draft before continuing.
 USER Result / Notes:
 
-Step 5 - Dashboard Settings Panel
-Expected: Settings opens with one click, double-clicking Settings does not maximize the Dashboard, and Done/Close returns to the Dashboard while it stays usable.
+Step 5 - Delete Confirmation And Cancel
+Expected: Delete opens a confirmation prompt. Cancel closes the prompt and preserves the monitor in the list.
 USER Result / Notes:
 
-Step 6 - Dashboard Window-Level Close
-Expected: The Close pill sits at the top-right as a whole-window control, hides only the Dashboard, and tray Open HUD Dashboard brings it back.
+Step 6 - Delete Confirmation And Remove
+Expected: Delete lives in the lower right detail-pane action row. Save Monitor and Discard sit on the far left of that same row when a monitor is selected, Delete Monitor sits on the far right, Save Monitor and Discard are greyed out while clean and illuminated only when changes exist, and the delete confirmation remains near the bottom. Confirm removes only the selected monitor, the delete-confirmation Cancel button is visibly illuminated and clickable, final monitor delete shows a true empty state with Create Monitor as the primary action, and no Save Monitor / Discard or oversized action buttons appear when no monitor exists.
 USER Result / Notes:
 
-Step 7 - #137 Dashboard Rounded Corners On Light Background
-Expected: With a white or light window behind the Dashboard, the rounded corners show the backdrop cleanly and no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
+Step 7 - Truthful Sensor Availability
+Expected: Warning Notifications is a monitor/settings checkbox, Provider Readiness is readiness/status/future capability, and neither appears as an assignable sensor/source row.
 USER Result / Notes:
 
-Step 8 - Quick Access Warning Notifications
-Expected: The Warning Notifications button is readable, not shadowed or pinched from the top, and still works as a quick access control.
+Step 8 - Sensor Library Scale, Source Filter, And Polling Rate
+Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter dropdown/facet control, clears stale hover highlights when moving between dropdown items or reopening it, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars. Supported source rows and their checkmarks visibly check/uncheck immediately from row click, checkbox click, and keyboard activation without perceptible half-second lag; source settings may update just after the row/checkmark state but must not delay that visible response. Display mode buttons inside the per-sensor settings must switch selection on the first click/key activation instead of only showing a pressed cue. Polling Rate replaces Polling Floor and opens as a compact Nexus-styled bounded dropdown with clear hover/open/selected states; only the visible Polling Rate toggle/menu/options should open or change the dropdown, not blank label-side row space.
 USER Result / Notes:
 
-Step 9 - Regression Sweep
-Expected: Create Monitor, Edit Monitor, NCP tray icon left-click open/close, tray menu Open/Close Command Overlay state, scroll gutter, tray enable/disable, and tray Exit confirmation still behave normally.
+Step 9 - Dashboard Resize And Move Smoothness
+Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse is still held; when the Dashboard is reduced to its minimum size, the bottom HUD chrome edge remains visible and is not clipped; no resize-proof stripes, overlays, debug markers, or other proof artifacts should appear in the normal user-facing Dashboard UI.
 USER Result / Notes:
 
-Step 10 - Closing Additions
+Step 10 - Dashboard And Manage Monitors Control Reliability
+Expected: Dashboard Settings, window-level Close, Warning Notifications, Manage Monitors, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, in-window Create Monitor, Save Monitor, footer Discard, delete-confirmation Cancel, dirty-guard Save/Discard, Source Filter, Polling Rate, Display mode buttons, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states. The main Dashboard Monitor Groups card should not show a Create Monitor button.
+Regression checkpoints include: Step 7 - #137 Dashboard Rounded Corners On Light Background; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
+USER Result / Notes:
+
+Step 11 - Closing Additions
 Any remaining readability, placement, motion, clipping, confusion, or polish notes:
 
 Final USER Result

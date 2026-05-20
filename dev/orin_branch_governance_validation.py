@@ -3042,6 +3042,30 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
     ),
 }
 
+NEXT_LEGAL_PHASE_DIGEST_DOCS = (
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+NEXT_LEGAL_PHASE_DIGEST_REQUIRED_PHRASES = (
+    "Formal Next Legal Phase Digest",
+    "Next Legal Phase Digest",
+    "Current Phase:",
+    "Next Legal Phase:",
+    "Why This Phase Is Next:",
+    "Approval Required:",
+    "Exact USER Approval Text:",
+    "Allowed Scope:",
+    "Explicit Exclusions:",
+    "Validation Required:",
+    "Stop Conditions:",
+    "Next Legal Phase Digest Missing",
+    "Next Safe Move",
+)
+
 WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/codex_modes.md"),
@@ -3887,6 +3911,21 @@ STALE_BRANCH_CLEANUP_PHRASES = (
     "Branch Cleanup Execution Gate:",
     "GitHub Desktop-bound worktree",
     "Branch Readiness Stage 2 - Execution Gate",
+)
+
+STABLE_WORKTREE_PATH_PRESERVATION_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+STABLE_WORKTREE_PATH_PRESERVATION_PHRASES = (
+    "Stable Worktree Path Preservation Gate:",
+    "Stable Worktree Path:",
+    "Replacement Binding Path:",
+    "Stable Worktree Path At Risk",
 )
 
 BRANCH_READINESS_CARRIER_LIFECYCLE_DOCS = (
@@ -17001,6 +17040,136 @@ def main() -> int:
             f"{fam007_record_path}: FAM-007 bounded-state lock is missing '{required_phrase}'",
         )
 
+    fam006_monitor_groups_record_path = Path(
+        "Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md"
+    )
+    fam006_monitor_groups_record_text = _read_text(fam006_monitor_groups_record_path)
+    for required_phrase in (
+        "## Sensor Library And Profile Planning Admission",
+        "Sensor Library = all available or planned data sources",
+        "Monitor = one configured tracked item",
+        "Monitor Group = organization/configuration collection",
+        "Overlay Profile = selected monitors plus layout visible on overlay",
+        "Recording Profile = selected monitors or sensors logged to file",
+        "Monitor Groups do not own overlay visibility, recording selection, or recording output behavior",
+        "Sensor Library must support searchable and filterable source discovery",
+        "Manage Monitors must scale to hundreds of monitors and thousands of data sources",
+        "Active Overlay Only",
+        "Active Monitor Group",
+        "All Enabled Monitors",
+        "Custom Recording Profile",
+        "Selected Sensors",
+        "Start Recording",
+        "Stop Recording",
+        "Open Recordings Folder",
+        "Recording Settings",
+        "CSV data plus JSON metadata and sensor manifest",
+        "profile name",
+        "hardware snapshot",
+        "event markers during recording",
+        "auto-record triggers",
+        "Save Last 5 Minutes",
+        "Recordings are saved locally by default",
+        "enabled, visible, recorded, warning-enabled, or hidden independently",
+        "no runtime recording, Overlay Profile UI, tray recording controls, export/share behavior",
+        "returned USER UTS FAIL",
+        "## Returned UTS FAIL Repair Setup Admission",
+        "Repair Setup Status: `ADMITTED - Branch Readiness Stage 2`",
+        "current-main reconciliation is complete",
+        "Dashboard resize/move live render smoothness",
+        "shrink and grow resize visual continuity",
+        "during-drag frame, pixel-signature, or video-style proof before mouse release",
+        "Manage Monitors scalable split layout",
+        "Nexus-styled scrollbars in child windows, monitor list, detail pane, sensor tree, sensor result list, and sensor preview/details pane",
+        "large-monitor and large-source fixtures",
+        "PR Readiness remains blocked pending repair implementation",
+        "## Returned Refreshed UTS FAIL Sensor Command Center Repair Setup Admission",
+        "Returned Refreshed UTS Classification",
+        "Visible Resize-Proof Contamination Setup",
+        "proof-only visible artifacts",
+        "Invisible / Test-Gated Resize Proof Setup",
+        "invisible/test-gated",
+        "Sensor Command Center Setup",
+        "compact action-light monitor list",
+        "row/icon selection",
+        "right-side detail panel",
+        "detail-pane Delete",
+        "Save / Discard / Cancel guard",
+        "final-monitor delete",
+        "true empty state",
+        "Sensor Library / Source Picker Setup",
+        "dropdown/facets",
+        "Warning Notifications classified as a monitor/settings checkbox",
+        "Provider Readiness classified as readiness/status/future capability",
+        "provider > device > category > metric > instance",
+        "source status metadata",
+        "Dropdown Repair And Proof Setup",
+        "open, hover, close, reopen",
+        "Large Fixture / Edge Case Proof Setup",
+        "100+ monitors",
+        "1,000+ sources",
+        "duplicate source names",
+        "long monitor names",
+        "long source names",
+        "deferred sources",
+        "missing sources",
+        "source classification",
+        "Future Workflow Preservation",
+        "## Refreshed LV1 Interactive Control Visual QA Repair Setup Admission",
+        "Interactive Control Visual QA Gate",
+        "All user-facing interactable controls must pass code inspection and focused visual inspection",
+        "buttons, user-facing dropdowns, checkboxes, selectable rows, search fields, filter controls, scrollbars, close controls, delete confirmations, empty-state actions, source-picker controls",
+        "Code Inspection Requirement",
+        "Focused Visual Inspection Requirement",
+        "Empty-State Repair Scope",
+        "Save Monitor and Discard must not appear as valid actions",
+        "Create Monitor must be the primary recovery action",
+        "reject manifest-only or DOM-only PASS when focused screenshots show invalid interactive controls",
+        "## Refreshed LV1 Dashboard Right-Edge Rediscovery Repair Setup Admission",
+        "post-corner right-edge resize cursor rediscovery",
+        "Initial right-edge hit-test passed with rightEdge10px=htright",
+        "rightOutside=True / htright / size-west-east / offset=1",
+        "corner resize passed and changed the Dashboard from 780x1060 to 860x1130",
+        "Dashboard element, native/root handle, bounding rect, DPI/scale context, virtual desktop bounds, and visible-edge coordinates",
+        "Diagnostic Sweep Planning",
+        "x/y sample coordinates, offset from visible edge, cursor kind, native hit-test result, root/window handle at point, expected Dashboard handle, bounding rect, virtual desktop bounds, timing, and settle state",
+        "Post-Resize Settle Planning",
+        "geometry stable, rounded mask applied, WebView visible, active resize state cleared, and cursor reset",
+        "Manage Monitors focused LV1 states remain pending recheck",
+    ):
+        require(
+            required_phrase in fam006_monitor_groups_record_text,
+            (
+                f"{fam006_monitor_groups_record_path}: FAM-006 Monitor Groups "
+                f"profile planning admission is missing '{required_phrase}'"
+            ),
+        )
+    for current_state_path, current_state_text in (
+        (Path("Docs/feature_backlog.md"), backlog_text),
+        (Path("Docs/prebeta_roadmap.md"), roadmap_text),
+    ):
+        for required_phrase in (
+            "Sensor Library",
+            "Sensor Command Center",
+            "visible resize-proof contamination",
+            "invisible/test-gated",
+            "Warning Notifications",
+            "Provider Readiness",
+            "Overlay Profile",
+            "Recording Profile",
+            "returned USER UTS FAIL",
+            "interactive-control visual QA",
+            "right-edge resize rediscovery",
+            "PR Readiness remains blocked",
+        ):
+            require(
+                required_phrase in current_state_text,
+                (
+                    f"{current_state_path}: FAM-006 Monitor Groups profile planning "
+                    f"sync is missing '{required_phrase}'"
+                ),
+            )
+
     for relative_path in INTERFACE_RELEASE_BOUNDARY_DOCS:
         text = _read_text(relative_path)
         lower_text = text.casefold()
@@ -17255,6 +17424,14 @@ def main() -> int:
                 f"{relative_path}: stale branch cleanup governance is missing '{required_phrase}'",
             )
 
+    for relative_path in STABLE_WORKTREE_PATH_PRESERVATION_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in STABLE_WORKTREE_PATH_PRESERVATION_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: stable worktree path preservation governance is missing '{required_phrase}'",
+            )
+
     for relative_path in BRANCH_READINESS_CARRIER_LIFECYCLE_DOCS:
         text = _read_text(relative_path)
         for required_phrase in BRANCH_READINESS_CARRIER_LIFECYCLE_PHRASES:
@@ -17272,6 +17449,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness Stage 1 readiness-lock guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in NEXT_LEGAL_PHASE_DIGEST_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in NEXT_LEGAL_PHASE_DIGEST_REQUIRED_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Next Legal Phase Digest guidance is missing '{required_phrase}'",
             )
 
     for relative_path in BRANCH_READINESS_STAGE_GATE_DOCS:
