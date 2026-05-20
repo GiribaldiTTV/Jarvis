@@ -10,11 +10,11 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`
 
-Current Phase: `Live Validation LV1 Green - PR Readiness Stage 1 pending USER approval`
+Current Phase: `PR Readiness Stage 1 Ready For Stage 2 - PR creation pending USER approval`
 
 Branch Runtime Engineering Plan: `Accepted and implemented for the bounded local-only setup and consent flow readiness Workstream; real setup flow, consent collection, SDK, provider, model, memory, voice/Core, shortcut, installer, release, PR, and merge work remain pending USER decisions.`
 
-Engineering Plan Status: `Accepted - implemented setup/consent-flow readiness contracts, desktop display suppression, validator fixtures, UI telemetry, source-truth proof, H1 review, and LV1 static validation are Green; PR Readiness Stage 1 is pending USER approval.`
+Engineering Plan Status: `Accepted - implemented setup/consent-flow readiness contracts, desktop display suppression, validator fixtures, UI telemetry, source-truth proof, H1 review, LV1 static validation, and PR Readiness Stage 1 fold-down are Green; PR Readiness Stage 2 / PR creation is pending USER approval.`
 
 Current Runtime Baseline: `PR #177 released local-only provider path and consent readiness state, provider selection/configuration envelope posture, distinct setup and execution consent posture, provider-visible-data none, sentToProvider false, canAcceptPrompts false, prompt/provider/model execution disabled, downloads/install blocked, memory/indexing/learning/personalization deferred, network egress blocked, voice/Core sync gated, and Core/Desktop/ORIN status copy.`
 
@@ -46,11 +46,11 @@ Approval-Boundary Audit: `USER approved Workstream Entry, the bounded local-only
 
 FAM / Shared-Surface Overlap Forecast: `FAM-006 is dirty in its own worktree and carries later shared-doc, desktop_renderer.py, validation, and nexus_visual overlap risk. Governance remains a standing intake lane. This branch may touch Core/Desktop/ORIN and source-truth surfaces, so future reconciliation must preserve active FAM-007 authority while not mutating FAM-006 or Governance without USER approval.`
 
-Open Questions: `None for Workstream implementation, H1, or LV1. LV1 validated the disabled/status-only posture, desktop display absence, and static validator/source-truth proof route; PR Readiness must fold down this evidence before PR creation can be requested.`
+Open Questions: `None for Workstream implementation, H1, LV1, or PR Readiness Stage 1. LV1 validated the disabled/status-only posture, desktop display absence, and static validator/source-truth proof route; PR Readiness Stage 1 folded down this evidence, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, and release-window posture before PR creation can be requested.`
 
-USER Planning Decisions: `USER approved Branch Readiness Stage 2 setup with a revision requiring validation that the visible desktop AI-owned readiness display is removed because the previous branch did not solve it, then approved Workstream Entry, bounded implementation, H1, and LV1. USER has not approved PR Readiness Stage 1, provider setup implementation, consent collection implementation, provider SDK/model execution, release work, PR creation, merge, or successor runtime implementation.`
+USER Planning Decisions: `USER approved Branch Readiness Stage 2 setup with a revision requiring validation that the visible desktop AI-owned readiness display is removed because the previous branch did not solve it, then approved Workstream Entry, bounded implementation, H1, LV1, and PR Readiness Stage 1 source-truth repair. USER has not approved PR Readiness Stage 2 / PR creation, provider setup implementation, consent collection implementation, provider SDK/model execution, release work, merge, or successor runtime implementation.`
 
-Plan Revision History: `v1 - created during Branch Readiness Stage 2 after v1.7.8-prebeta release execution from origin/main 2bd54f0e34c6759e9618f42d104d80b975ecc1c3; includes USER revision requiring desktop AI-owned readiness display removal validation.`
+Plan Revision History: `v1 - created during Branch Readiness Stage 2 after v1.7.8-prebeta release execution from origin/main 2bd54f0e34c6759e9618f42d104d80b975ecc1c3; includes USER revision requiring desktop AI-owned readiness display removal validation. PR Readiness Stage 1 revision records selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, and Stage 2 / PR creation as the next USER-gated phase.`
 
 Plan-To-Implementation Traceability Table: `Implemented state and UI proof maps to desktop/ai_provider_state.py, desktop/core_visualization_renderer.py, desktop/desktop_renderer.py, nexus_visual/orin_core.css, nexus_visual/orin_core.html, nexus_visual/orin_core.js, nexus_visual/orin_core_desktop.html, dev/orin_ai_provider_state_validation.py, this plan, the branch record, feature_backlog, prebeta_roadmap, and validation_helper_registry. H1 compared implemented setup flow readiness, consent flow readiness, desktop display suppression, validators, and source truth against this plan. LV1 proved disabled/status-only behavior and absence of the long AI-owned readiness desktop display. PR Readiness must fold those proofs into branch metadata.`
 
@@ -62,11 +62,11 @@ PR Readiness Fold-Down / Retention Checklist: `PR readiness must retain this pla
 
 Release Readiness Public-Scope Translation Checklist: `A future release must describe setup and consent flow readiness as local-only scaffolding, not real provider setup or consent collection. Public notes must mention that provider SDKs, model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, and v1.8.0-prebeta release execution remain future-gated unless separately approved.`
 
-USER Planning Review: `Complete for Workstream Entry, implementation, H1, and LV1; PR Readiness Stage 1 is the next USER decision.`
+USER Planning Review: `Complete for Workstream Entry, implementation, H1, LV1, and PR Readiness Stage 1; PR Readiness Stage 2 / PR creation is the next USER decision.`
 
 Hardening H1 Result: `Green - H1 compared the implemented setup flow readiness, consent flow readiness, provider setup handoff, setup consent, execution consent, data visibility, audit/local-only posture, desktop AI-owned readiness display suppression, Core/Desktop/ORIN UI copy, validators, source truth, approval boundaries, and overlap posture against this plan and found no runtime or approval-boundary drift.`
 
-PR Fold-Down Packet: `Pending - PR metadata must later fold down the Workstream Green, H1 Green, LV1, desktop display suppression validation, release-window, approval-boundary, and validation proof after LV1 is approved and complete.`
+PR Fold-Down Packet: `Ready for Stage 2 - PR Readiness Stage 1 folds down Workstream Green, H1 Green, LV1 Green, desktop display suppression validation, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, release-window, approval-boundary, and validation proof; PR creation remains pending USER approval.`
 
 Live Validation LV1 Result: `Green - LV1 classified the branch as disabled/status-only local setup and consent flow readiness scaffolding, used static Core/Desktop/ORIN source-truth plus provider-state validator proof as the applicable User Test Summary substitute, proved the long desktop AI-owned readiness display remains suppressed/absent, and confirmed provider setup, consent collection, prompt/provider/model execution, downloads, network, memory, voice/Core sync, shortcut, installer, release, PR, and merge work remain unapproved.`
 
@@ -76,6 +76,6 @@ Workstream Completion State: `Green - all admitted seam families complete and va
 
 Desktop AI-Owned Readiness Display Suppression: `Implemented - #ai-provider-status is hidden/aria-hidden with suppression markers in Core/Desktop HTML, CSS forces hidden/suppressed status to display none, JS reasserts the hidden state while preserving provider telemetry, and validator fixtures prove the long desktop display is suppressed by default.`
 
-Next Legal Phase: `PR Readiness Stage 1`
+Next Legal Phase: `PR Readiness Stage 2 / PR creation`
 
-Exact USER Decision Needed: `Approve PR Readiness Stage 1 analysis for the completed, H1-hardened, and LV1-validated FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`
+Exact USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`
