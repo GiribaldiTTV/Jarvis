@@ -400,7 +400,7 @@ let aiProviderState = {
   consentFlowReadinessLabel: "Consent flow readiness: required for setup",
   consentFlowEligibilityState: "consent_flow_eligibility_unavailable",
   consentFlowEligibilityLabel: "Consent flow eligibility: unavailable",
-  consentFlowBlockerState: "consent_collection_pending",
+  consentFlowBlockerState: "consent_collection_not_approved",
   consentFlowBlockerLabel: "Consent flow blocker: consent collection pending USER approval",
   consentFlowReasonCode: "consent_flow_setup_required",
   consentFlowReasonLabel: "Consent flow reason: setup consent required",
