@@ -428,6 +428,11 @@ body {
   pointer-events: none;
 }
 
+.ai-provider-status[hidden],
+.ai-provider-status[data-display-visibility="suppressed-by-default"] {
+  display: none !important;
+}
+
 .ai-provider-status__topline {
   display: flex;
   align-items: center;

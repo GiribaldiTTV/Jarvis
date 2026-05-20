@@ -44,6 +44,10 @@
     <div
       id="ai-provider-status"
       class="ai-provider-status"
+      hidden
+      aria-hidden="true"
+      data-display-suppression="desktop-ai-owned-readiness-display-suppressed"
+      data-display-visibility="suppressed-by-default"
       data-availability="disabled"
       data-mode="no-provider"
       data-privacy-scope="local-only"
@@ -101,6 +105,10 @@
       data-execution-consent="consent_required_for_provider_execution"
       data-consent-schema="provider-consent-readiness-state.v1"
       data-provider-visible-data-requirement="provider-visible-data-requirement-none"
+      data-setup-flow-readiness="setup_flow_unavailable"
+      data-consent-flow-readiness="consent_flow_required_for_setup"
+      data-consent-collection="consent-collection-pending-user-approval"
+      data-provider-setup-handoff="provider-setup-handoff-future-gated"
       data-data-classification-posture="data-classification-local-only"
       data-audit-envelope="audit-envelope-planned-no-collection"
       data-local-only-status="local-only-status-active"
