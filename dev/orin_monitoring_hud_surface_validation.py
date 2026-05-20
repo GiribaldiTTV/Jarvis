@@ -828,7 +828,7 @@ def validate() -> list[str]:
         )
 
     fake_metric_pattern = re.compile(
-        r"\b\d+(?:\.\d+)?\s?(?:Ã‚Â°|c\b|%|rpm\b|mhz\b|ghz\b|w\b)",
+        r"\b\d+(?:\.\d+)?\s?(?:\u00b0|c\b|%|rpm\b|mhz\b|ghz\b|w\b)",
         flags=re.IGNORECASE,
     )
     _require(
