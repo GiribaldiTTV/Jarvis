@@ -152,14 +152,14 @@ Runtime slots are reusable active-work slots. Their assignment changes as branch
 
 - Slot ID: `runtime-active-1`
 - Role: active runtime/workstream lane
-- Expected Path: `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
-- Assignment Status: assigned by USER-approved Branch Readiness Stage 2 setup
-- Assigned Branch: `feature/repo-wide-source-owner-marker-adoption`
-- Assigned Family / Workstream: `Repo-Wide High-Risk Source Owner Marker Adoption`
-- Branch Authority Record: `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
-- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`
-- USER Decision Pointer: USER accepted Branch Readiness Stage 1 Option 1 and selected `feature/repo-wide-source-owner-marker-adoption` as the next governed path
-- Last Reviewed Posture: active governance/package workstream lane; no runtime behavior change, marker implementation, branch cleanup, or worktree deletion is inferred from the slot alone
+- Expected Path: `C:\Nexus Worktrees\<USER-assigned label>`
+- Assignment Status: retired / unassigned after PR #185 merge and USER-approved cleanup
+- Assigned Branch: none in merged-main default; historical branch `feature/repo-wide-source-owner-marker-adoption` was merged in PR #185 and deleted locally/remotely after no-unique-commit-loss proof
+- Assigned Family / Workstream: none in merged-main default; `Repo-Wide High-Risk Source Owner Marker Adoption` is historical merged evidence
+- Branch Authority Record: historical pointer `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
+- Branch Runtime Engineering Plan: historical/folded pointer `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`
+- USER Decision Pointer: USER approved cleanup after PR #185 merge; retired worktree path `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers` was removed after clean-state and ancestor proof
+- Last Reviewed Posture: unassigned; no active work, branch authority, PR readiness, or worktree recreation may be inferred from the historical source-owner marker assignment
 - Operational Truth Source: Thread / Worktree Identity Preflight, `git worktree list`, `git status`, GitHub PR state, and Pre-Rebaseline Impact Audit
 
 ### runtime-active-2

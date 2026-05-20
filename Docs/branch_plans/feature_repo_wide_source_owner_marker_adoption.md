@@ -7,15 +7,15 @@ Plan Identity: `Repo-Wide High-Risk Source Owner Marker Adoption Branch Runtime 
 
 Owning Branch: `feature/repo-wide-source-owner-marker-adoption`
 
-Worktree Path: `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
+Worktree Path: `Retired after PR #185 cleanup; historical path was C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
 
-Current Phase: `Live Validation LV1 complete`
+Current Phase: `Historical Traceability`
 
 Branch Runtime Engineering Plan: `Implemented for bounded Workstream. The plan admits source-truth policy, high-risk surface inventory, marker-to-ledger consistency validation, marker coverage, production UI exclusion validation, and Dev Toolkit review-mode disposition planning. Runtime/product behavior changes remain blocked.`
 
-Engineering Plan Status: `Accepted - created during Branch Readiness Stage 2 from origin/main 26bb76becd4089d2e451d44e969939f0f074371f, completed through bounded Workstream implementation, H1 Green, and LV1 Green. PR Readiness, PR creation, merge, release, issue mutation, cleanup, Compact-AI mutation, stable worktree rebinding, and runtime/product work remain pending USER decisions.`
+Engineering Plan Status: `Historical / folded - created during Branch Readiness Stage 2 from origin/main 26bb76becd4089d2e451d44e969939f0f074371f, completed through bounded Workstream implementation, H1 Green, LV1 Green, PR Readiness, PR #185 merge, and USER-approved branch/worktree cleanup. Release, issue mutation, Compact-AI mutation, stable worktree rebinding, future marker expansion, and runtime/product work remain pending USER decisions.`
 
 Current Runtime Baseline: `origin/main 26bb76becd4089d2e451d44e969939f0f074371f after PR #181 / v1.7.9-prebeta, with production runtime state, config, schema, desktop UI, FAM-006 historical surfaces, FAM-007 provider state, and No Active Branch main truth unchanged before this approved branch creation.`
 
@@ -49,9 +49,9 @@ FAM / Shared-Surface Overlap Forecast: `FAM-006 is historical/merged and owns ca
 
 Open Questions: `Whether later marker work should broaden beyond the limited high-risk pilot, and whether Dev Toolkit review-mode remains planning-only or becomes implementation scope.`
 
-USER Planning Decisions: `USER approved Stage 1 analysis, Stage 2 setup, bounded Workstream implementation, selected FAM-006/SRCOWN marker insertion, reusable marker validator implementation, Hardening H1, and Live Validation LV1/static proof. USER has not approved PR Readiness Stage 1, broader marker insertion, Dev Toolkit runtime, PR creation, merge, release, issue mutation, or cleanup.`
+USER Planning Decisions: `USER approved Stage 1 analysis, Stage 2 setup, bounded Workstream implementation, selected FAM-006/SRCOWN marker insertion, reusable marker validator implementation, Hardening H1, Live Validation LV1/static proof, PR Readiness, PR #185 merge, and cleanup. USER has not approved broader marker insertion, Dev Toolkit runtime, release execution, issue mutation, Compact-AI mutation, or future branch/worktree recreation.`
 
-Plan Revision History: `v4 - LV1 Green after origin/main 26bb76becd4089d2e451d44e969939f0f074371f, preserving the bounded Workstream implementation, H1 Green, inventory artifact, reusable marker validator, limited FAM-006/SRCOWN marker pilot, production UI exclusion proof, Compact-AI preservation posture, cleanup/rebinding planning-only posture, and static validator/source-truth LV1 proof.`
+Plan Revision History: `v5 - Historical/folded after PR #185 merge at 6643ce8d18c5e3940c1ef1c0d2b531ad7ef5d79b and USER-approved cleanup, preserving bounded Workstream implementation, H1 Green, inventory artifact, reusable marker validator, limited FAM-006/SRCOWN marker pilot, production UI exclusion proof, Compact-AI preservation posture, cleanup proof, and static validator/source-truth LV1 proof.`
 
 Plan-To-Implementation Traceability Table: `Planned marker inventory, syntax, ledger mapping, coverage, and production UI exclusion are traced to actual implementation files: Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md, dev/orin_source_owner_marker_validation.py, Docs/validation_helper_registry.md, selected high-risk FAM-006/SRCOWN source-comment markers, inventory-only dispositions for FAM-007/provider/core and Compact-AI surfaces, and production UI exclusion checks.`
 
@@ -63,19 +63,19 @@ Live Validation Proof Or Waiver Checklist: `Complete - LV1 used static validator
 
 Live Validation LV1 Result: `Green - static proof from source-owner marker validation, branch governance validation, release-readiness health gate, governance efficiency validation, release body validation, provider-state validation, HUD validators, rebaseline audit, compileall, and diff checks proves the source-only marker adoption branch without requiring UTS/live-client proof.`
 
-PR Readiness Fold-Down / Retention Checklist: `PR Readiness must decide whether this plan remains as historical branch source truth, whether durable marker policy moves to development_rules or phase_governance, whether the active branch authority record becomes historical/no-active before merge, and whether backlog/roadmap return to compact No Active Branch truth.`
+PR Readiness Fold-Down / Retention Checklist: `Complete - PR #185 merged, this plan remains as historical branch source truth, durable marker policy and validator proof are retained, the branch authority record is historical/no-active, and backlog/roadmap return to compact post-merge truth.`
 
 Release Readiness Public-Scope Translation Checklist: `Public release language must describe developer/source-traceability improvements only if there are no production runtime changes. It must not expose internal marker IDs, ledger IDs, element numbers, or governance jargon to end users.`
 
-USER Planning Review: `Complete for Stage 2 setup, bounded Workstream implementation, Hardening H1, and Live Validation LV1; PR Readiness Stage 1 remains pending USER approval.`
+USER Planning Review: `Complete for Stage 2 setup, bounded Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness, PR #185 merge, and cleanup.`
 
-PR Fold-Down Packet: `Prepared for later PR Readiness - preserve durable marker syntax, validator command, inventory artifact, limited pilot marker list, production UI exclusion rule, and inventory-only dispositions; convert active branch truth to historical/no-active before PR merge if USER later approves PR creation.`
+PR Fold-Down Packet: `Complete - preserve durable marker syntax, validator command, inventory artifact, limited pilot marker list, production UI exclusion rule, and inventory-only dispositions; active branch truth is historical/no-active after PR #185 merge and cleanup.`
 
 Runtime Implementation Approval: `Pending/Blocked - not granted for runtime behavior, production UI, Dev Toolkit runtime, or product feature changes. Bounded source-only marker insertion and marker validator implementation were granted for this Workstream and are complete.`
 
 ## Workstream Implementation Closeout
 
-Workstream Completion State: `Green - bounded multi-seam source-owner marker adoption complete, H1 Green, LV1 Green, and ready for PR Readiness Stage 1 analysis after USER approval.`
+Workstream Completion State: `Historical Green - bounded multi-seam source-owner marker adoption, H1 Green, LV1 Green, PR Readiness, PR #185 merge, and cleanup are complete.`
 
 
 Implemented Marker Classes: `Selected FAM-006 Dashboard / Sensor Command Center source comments and the source-owner marker validator self-marker; inventory-only dispositions for FAM-007/provider/core, Compact-AI, generic launcher, release-helper, blanket all-file insertion, Dev Toolkit runtime, and cleanup/rebinding execution surfaces.`
