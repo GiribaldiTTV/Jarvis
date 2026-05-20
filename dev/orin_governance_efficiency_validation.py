@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=governance-efficiency-validator; status=shared
 """Validate the governance efficiency operating model.
 
 This helper is intentionally small and report-only. It checks that the compact

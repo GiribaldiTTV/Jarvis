@@ -1,4 +1,5 @@
 # Branch Authority Records Index
+<!-- NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=SHARED-DOCS; ledger=SRCOWN-FIRSTPASS-DOCS-011; surface=branch-record-index-owner; status=shared -->
 
 ## Purpose
 

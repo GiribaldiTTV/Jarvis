@@ -1,4 +1,6 @@
 # Branch Authority Record: feature/repo-wide-source-owner-marker-adoption
+<!-- NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=COMPACT-AI-PROTECTED; ledger=SRCOWN-COMPACT-AI-PRESERVE-014; surface=compact-ai-protected-unique-commit-posture; status=external -->
+<!-- NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-GOV-POLICY-001; surface=branch-authority-marker-policy; status=canonical -->
 
 ## Branch Identity
 
@@ -16,11 +18,11 @@ This branch is the USER-approved Branch Readiness Stage 2 carrier for the post-F
 
 The branch exists because merged `main` after PR #181 and `v1.7.9-prebeta` recorded `No Active Branch`, selected no runtime successor, and preserved Repo-Wide High-Risk Source Owner Marker Adoption as the strongest required governance/package candidate after the FAM-006 UI proof loop exposed repeated acceptance-critical visual/control-proof misses.
 
-This branch may set up branch authority, branch planning, source-truth policy, high-risk surface inventory planning, marker-to-ledger validation planning, and dev-only review-mode disposition planning. It must not change production runtime behavior, expose element numbers in production UI, mutate FAM-007, mutate Compact-AI-Status-Card, use the standing Governance intake carrier, create a PR, merge, release, tag, create artifacts, mutate GitHub issues, or perform additional branch/worktree cleanup.
+This branch may set up branch authority, branch planning, source-truth policy, high-risk surface inventory planning, marker-to-ledger validation planning, dev-only review-mode disposition planning, a bounded high-risk inventory artifact, a reusable source-owner marker validator, and a limited comment-only marker pilot on selected ledger-mapped FAM-006/SRCOWN surfaces. It must not change production runtime behavior, expose element numbers in production UI, mutate FAM-007, mutate Compact-AI-Status-Card, use the standing Governance intake carrier, create a PR, merge, release, tag, create artifacts, mutate GitHub issues, or perform additional branch/worktree cleanup.
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Workstream`
 
 ## Phase Status
 
@@ -32,13 +34,14 @@ Branch Creation Base: `26bb76becd4089d2e451d44e969939f0f074371f`
 Current origin/main: `26bb76becd4089d2e451d44e969939f0f074371f`
 Origin/Main Advanced Since Branch Creation: `NO`
 Worktree Path: `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
-Branch Runtime Engineering Plan: `Accepted for Branch Readiness Stage 2 setup only`
-Engineering Plan Status: `Accepted - marker policy, high-risk surface inventory plan, marker-to-ledger consistency plan, validator planning, and dev-only review-mode disposition plan are recorded; marker insertion and validator implementation remain pending USER decision`
-Runtime Implementation Approval: `Pending/Blocked - production runtime behavior changes and product UI changes remain blocked`
-Marker Insertion Approval: `Pending/Blocked except for setup/planning source truth; high-risk runtime/product source marker insertion remains pending later USER decision`
-Package/Slice Admission: `Admitted for source-truth/validator/dev-tooling planning only; no existing FAM runtime package is claimed complete`
+Branch Runtime Engineering Plan: `Accepted for Workstream implementation`
+Engineering Plan Status: `Accepted - high-risk inventory artifact, marker-to-ledger consistency validator, production UI exclusion proof, and limited comment-only FAM-006/SRCOWN marker pilot are recorded; H1 remains pending USER decision`
+Runtime Implementation Approval: `Granted only for dev-only source comments and validator/source-truth implementation that do not change production runtime behavior; production runtime behavior changes and product UI changes remain blocked`
+Marker Insertion Approval: `Granted for this bounded Workstream only - selected ledger-mapped FAM-006/SRCOWN markers are implemented as source comments/backlinks; broad marker insertion remains pending later USER decision`
+Package/Slice Admission: `Admitted and implemented for source-truth/validator/dev-tooling marker adoption only; no existing FAM runtime package is claimed complete`
 Element Validation Ledger Posture: `Ledger remains canonical; source-owner markers are optional dev-only backlinks and cannot satisfy user-facing acceptance proof`
 Dev Toolkit Review Mode Posture: `Planning admitted; runtime/toolkit implementation remains pending USER decision`
+Current Workstream State: `Green - NEXUS source-owner schema syntax, bounded first-pass high-risk source/proof markers, reusable validator proof, fold-down linkage, production UI exclusion, and inventory-only dispositions are implemented`
 
 ## Branch Class
 
@@ -49,7 +52,7 @@ Implementation Delta Class: `docs-only`
 ## Planning-Loop Guardrail
 
 Implementation Delta Class: `docs-only`
-Docs-Only Workstream: `Yes`
+Docs-Only Workstream: Yes
 Planning-Loop Bypass User Approval: `APPROVED`
 Planning-Loop Bypass Reason: `USER approved the branch/worktree creation plus directly supporting branch authority, branch plan, source-truth, and validator planning setup. Runtime/product changes, marker insertion, validator implementation, PR, merge, release, issue mutation, and cleanup remain blocked.`
 
@@ -61,7 +64,7 @@ Backlog-Split Reason: `None`
 
 ## Bounded State
 
-Bounded State: `Active - Branch Readiness Stage 2 setup / feature/repo-wide-source-owner-marker-adoption / C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers / repo-wide source-owner marker policy and validation planning only / no production runtime behavior, product UI, marker insertion into runtime files, PR, merge, release, issue mutation, FAM-007, Governance, Compact-AI, or cleanup work`
+Bounded State: `Active - Workstream implementation / feature/repo-wide-source-owner-marker-adoption / C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers / source-owner marker inventory, reusable marker validator, and limited comment-only FAM-006/SRCOWN pilot / no production runtime behavior, product UI, broad marker insertion, PR, merge, release, issue mutation, FAM-007, Governance, Compact-AI, or cleanup work`
 
 Expected Worktree Root: `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
 
@@ -69,13 +72,15 @@ Actual Worktree Root: `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
 
 No Cross-Worktree Mutation: `Required - do not mutate C:\Nexus Desktop AI except for branch/worktree creation already completed from main, and do not mutate C:\Nexus Worktrees\FAM-007, C:\Nexus Worktrees\Governance, or C:\Nexus Worktrees\Compact-AI-Status-Card`
 
+Compact-AI Unique Commit Protection: `Protected - Compact-AI-Status-Card remains external sibling work with unique commits 2f2354db Hide desktop AI provider status card and ac16ca37 Compact AI provider status card; salvage, PR, abandonment, mutation, or cleanup requires later USER approval.`
+
 GitHub Desktop-bound worktree: `Not claimed for this branch during Stage 2 setup`
 
 ## Blockers
 
-- `Runtime Implementation Approval Missing`: `Active - no production runtime behavior, UI behavior, provider/model, dashboard, monitor, or toolkit runtime implementation is authorized`
-- `Marker Insertion Approval Missing`: `Active for high-risk product/runtime source files until Workstream implementation is separately approved`
-- `Validator Implementation Approval Missing`: `Active for new or changed marker validators beyond planning unless USER approves Workstream implementation`
+- `Runtime Implementation Approval Missing`: `Cleared only for dev-only source comments and static validator/source-truth implementation; active for production runtime behavior, UI behavior, provider/model, dashboard, monitor, or toolkit runtime implementation`
+- `Broad Marker Insertion Approval Missing`: `Active for any marker sweep beyond first-pass high-risk surfaces`
+- `Validator Implementation Approval Missing`: `Cleared for source-owner marker validation only; future Dev Toolkit or broader validator scope remains pending USER approval`
 - `Dev Toolkit Runtime Approval Missing`: `Active - review-mode runtime/toolkit affordances remain planning only`
 - `PR Creation Approval Missing`: `Active`
 - `Merge Approval Missing`: `Active`
@@ -103,8 +108,26 @@ GitHub Desktop-bound worktree: `Not claimed for this branch during Stage 2 setup
 - Element Validation Ledger remains canonical.
 - High-risk surface inventory, marker-to-ledger consistency, marker coverage, production UI exclusion, and Dev Toolkit review-mode disposition planning are recorded.
 - Validation passes.
-- Stage 2 setup commit is pushed.
+- Bounded Workstream implementation creates the high-risk inventory artifact, marker validator, and limited comment-only FAM-006/SRCOWN marker pilot.
+- Source-owner marker validation and production UI exclusion proof pass.
+- Workstream implementation commit is pushed.
 - Next legal phase is reported for USER approval.
+
+## Workstream Closeout
+
+Workstream Completion State: `Green - bounded multi-seam source-owner marker adoption implementation complete; H1 pending USER approval.`
+
+Seam Family 1 - Source Owner Marker Taxonomy And Syntax: `Green - the NEXUS source-owner schema syntax, owner category model, language-native comment placement guidance, and marker versioning are implemented through this record, the inventory artifact, the branch plan, source comments, and dev/orin_source_owner_marker_validation.py.`
+
+Seam Family 2 - High-Risk Surface Inventory And Selection: `Green - first-pass high-risk surfaces are selected for ledger-mapped FAM-006 Dashboard / Sensor Command Center and SRCOWN validator/source-truth surfaces; FAM-007/provider/core, Compact-AI, generic launcher, and release-helper surfaces are inventory-only until later USER-approved owner mapping.`
+
+Seam Family 3 - Limited Marker Pilot: `Green - selected FAM-006 Dashboard / Sensor Command Center and SRCOWN validator source comments carry sparse source-owner markers mapped to canonical ledger rows; FAM-007/provider/core, Compact-AI, generic launcher, release-helper, cleanup/rebinding, and broad source-truth marker sweeps remain inventory-only or deferred to protect production UI exclusion and avoid blanket marker insertion.`
+
+Seam Family 4 - Validator Enforcement: `Green - dev/orin_source_owner_marker_validation.py validates marker syntax, marker-to-ledger consistency, duplicate/orphan/stale markers, expected pilot coverage, inventory-only dispositions, comment-only placement, and production UI exclusion.`
+
+Seam Family 5 - Branch Plan / PR Fold-Down / Release Fold-Down Linkage: `Green - branch plan, helper registry, backlog, roadmap, inventory artifact, and this record identify the marker validator and PR/release fold-down expectations while keeping PR creation and release execution USER-gated.`
+
+Seam Family 6 - Dev Toolkit / Cleanup Disposition: `Green - Dev Toolkit review mode, FAM-007/provider surfaces, Compact-AI mutation, branch cleanup, worktree deletion, and stable worktree rebinding remain planning/proof posture only.`
 
 ## Branch Objective
 
@@ -148,7 +171,47 @@ Non-Includes: `Production runtime behavior changes, production UI changes, Dev T
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 setup - no Workstream seam is active until USER approves Workstream Entry.`
+Active seam: `Workstream Green - all admitted seam families complete; Hardening H1 pending USER approval.`
+
+## Backlog Completion Status
+
+Backlog Completion State: Implemented Complete Except Future Dependency
+
+Remaining Implementable Work: None
+
+Future-Dependent Blockers: PR creation, merge, release/tag/GitHub Release/artifact work, issue closeout, branch cleanup, worktree deletion, stable worktree rebinding execution, Compact-AI mutation/salvage/abandonment/cleanup/PR path, FAM-006 runtime/product mutation, FAM-007 runtime/product mutation, Governance mutation outside this branch path, runtime behavior changes, production UI changes, provider SDK/model/download/external-call/memory/voice/Core/shortcut/installer work, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain pending USER decisions.
+
+Completion Status: Green
+
+## Seam Continuation Decision
+
+Seam Status: Green
+
+Slice Status: Green
+
+Completion Status: Green
+
+Waiver Status: None
+
+Continue Decision: Stop
+
+Continuation Execution Latch: Closed
+
+Stop Basis: Workstream Green
+
+Next Active Seam: Hardening H1
+
+Stop Condition: Workstream implementation is green; Hardening H1 remains pending USER approval.
+
+Continuation Action: Stop at phase boundary until USER admits Hardening H1.
+
+Single-Seam Workstream Waiver: None
+
+Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice authority.
+
+Single-Seam Or Single-Slice Workstream Blocker: One seam or one slice is a blocker unless USER waiver is recorded; no one-seam or one-slice stop is being claimed.
+
+Bounded Seam Default: Bounded means one active seam at a time; bounded is not one-seam Workstream authority, and continuation runs through all admitted seams until Workstream Green or a named blocker.
 
 ## Rollback Target
 
@@ -160,31 +223,31 @@ Rollback Path: return to Branch Readiness Stage 1 decision posture if validation
 
 ## Next Legal Phase
 
-- `Workstream`
+- `Hardening`
 
-Next Legal Phase Gate: USER must explicitly approve Workstream Entry analysis before Codex prepares the engineering design packet for marker implementation. Workstream implementation remains a later USER decision.
+Next Legal Phase Gate: USER must explicitly approve Hardening H1 before Codex reviews the implemented marker adoption against this branch plan, validator proof, approval boundaries, Compact-AI preservation posture, and cleanup/rebinding posture.
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Branch Readiness Stage 2 setup`
+Current Phase: `Workstream implementation`
 
-Next Legal Phase: `Workstream`
+Next Legal Phase: `Hardening`
 
-Next Legal Seam: `Workstream Entry analysis`
+Next Legal Seam: `Hardening H1`
 
-Why This Phase Is Next: `Stage 2 setup creates the legal carrier and source-truth plan; Workstream Entry must produce the engineering design packet before marker insertion, validator implementation, and any dev-toolkit review-mode work can be approved.`
+Why This Phase Is Next: `The bounded Workstream has implemented marker taxonomy, sparse first-pass markers, validator proof, fold-down linkage, and cleanup/rebinding posture. H1 must compare implementation against the admitted branch plan before LV/PR readiness.`
 
-Approval Required: `USER approval for Workstream Entry analysis`
+Approval Required: `USER approval for Hardening H1`
 
-Exact USER Approval Text: `Approve Workstream Entry analysis for feature/repo-wide-source-owner-marker-adoption in C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers. Codex may inspect source truth and high-risk product/proof-bearing source surfaces, map candidate regions to canonical Element Validation Ledger rows, recommend marker syntax and placement rules, recommend marker-to-ledger / coverage / production-UI-exclusion validators, assess Compact-AI-Status-Card preservation and cleanup/rebinding posture, and return the bounded implementation decision packet. Do not insert source-owner markers, implement validators, change production runtime behavior, expose production UI element numbers, mutate FAM-007, Compact-AI, Governance, release/tag/artifact work, GitHub issues, PR creation, merge, provider/model/memory/shortcut/installer work, or branch cleanup.`
+Exact USER Approval Text: `Approve Hardening H1 for feature/repo-wide-source-owner-marker-adoption in C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers. Codex may inspect the completed source-owner marker adoption Workstream, compare implementation against the branch plan and source truth, verify first-pass marker coverage, marker-to-ledger consistency, production UI exclusion, Compact-AI preservation, cleanup/rebinding planning posture, validation helper registration, and approval-boundary integrity, apply H1-scoped repairs if repo truth supports them, validate, commit, and push if needed. Do not create a PR, merge, release, mutate Compact-AI, mutate FAM-006/FAM-007 runtime/product behavior, rebind or delete worktrees, clean branches, mutate issues, change production runtime behavior, expose production UI marker IDs, or perform provider/model/memory/voice/Core/shortcut/installer work.`
 
-Allowed Scope: `Read-only source-truth and source inspection, high-risk marker surface design, ledger mapping recommendation, validator/helper design, dev-only review-mode disposition planning, cleanup/rebinding planning, and next implementation approval text.`
+Allowed Scope: `H1 inspection and repair of source-owner marker adoption source truth, validators, marker comments, fold-down planning, and proof posture only.`
 
 Explicit Exclusions: `Production runtime behavior changes, production product UI changes, production element-number exposure, FAM-007 work, Compact-AI work, Governance standing intake mutation, PR creation, merge, release/tag/artifact work, issue mutation, branch cleanup, provider/model/memory/shortcut/installer work, and unrelated refactors.`
 
-Validation Required: `branch governance validation, branch readiness planning fixture validation, release body validation, governance efficiency validation, compileall, diff checks, and any read-only helper validation required by source truth.`
+Validation Required: `branch governance validation, release-readiness health gate, governance efficiency validation, source-owner marker validation, branch readiness planning fixture validation, release body validation, provider-state validation, HUD validators, rebaseline audit, compileall, and diff checks.`
 
-Stop Conditions: `origin/main advances before Workstream Entry, worktree starts dirty outside approved setup changes, marker policy cannot preserve the Element Validation Ledger as canonical, implementation is needed before USER approval, validation fails, or source truth redirects to a different carrier.`
+Stop Conditions: `origin/main advances before Hardening H1, worktree starts dirty outside approved implementation changes, marker policy cannot preserve the Element Validation Ledger as canonical, production UI exclusion fails, validation fails, or source truth redirects to a different carrier.`
 
 ## Product Definition Plan
 
@@ -196,7 +259,7 @@ Project-Wide Vision Alignment: `The project has repeatedly needed stronger proof
 
 Branch-Specific Vision Alignment: `This branch is not a user-facing feature branch. It is a repo-wide traceability and validator-readiness branch that turns the recorded post-FAM-006 candidate into a legal work carrier while preserving No Active Branch main truth as the branch-creation basis.`
 
-USER Vision Questions: `None block Stage 2 setup. Later Workstream implementation must ask for USER approval before marker insertion, validator implementation, or Dev Toolkit review-mode runtime work.`
+USER Vision Questions: `None block the bounded Workstream implementation. Later H1, PR creation, merge, release, cleanup, broad marker insertion, and Dev Toolkit review-mode runtime work require separate USER approval.`
 
 USER Vision Question Packet: `No external USER input artifact is required for Stage 2 setup; branch purpose, exclusions, and next decision are fully stated in this record.`
 
@@ -206,11 +269,11 @@ Codex Implementation Recommendation: `Begin Workstream with an inventory and mar
 
 Codex Additional Recommendations: `Option 1 is inventory-only first for lowest risk; option 2 is a limited high-risk marker pilot for faster proof; option 3 is broader adoption only after validators prove marker-to-ledger consistency. Codex recommends option 2 after inventory because it balances progress with stale-marker risk.`
 
-USER/ChatGPT Review Checkpoint: `USER approved Stage 2 setup only; Workstream implementation remains pending. ChatGPT review is not repo source truth.`
+USER/ChatGPT Review Checkpoint: `USER approved Stage 2 setup and bounded Workstream implementation. ChatGPT review is not repo source truth.`
 
 USER Critique Loop: `USER may approve, change, defer, critique, reject, or give feedback on marker format, source-owner naming, coverage threshold, and Dev Toolkit review-mode scope before Workstream inserts markers broadly.`
 
-USER Decision Ledger: `USER approved Stage 1 analysis and Stage 2 setup. USER decisions pending: Workstream implementation, marker insertion, validator implementation, Dev Toolkit runtime, PR, merge, release, issue mutation, and cleanup. USER-deferred: production runtime behavior and product UI changes unless separately admitted.`
+USER Decision Ledger: `USER approved Stage 1 analysis, Stage 2 setup, bounded Workstream implementation, selected FAM-006/SRCOWN marker insertion, and reusable marker validator implementation. USER decisions pending: Hardening H1, broader marker insertion, Dev Toolkit runtime, PR, merge, release, issue mutation, and cleanup. USER-deferred: production runtime behavior and product UI changes unless separately admitted.`
 
 Deferred Ideas / Future Package Ledger: `Per-interface Dev Toolkit launchers, generalized all-surfaces review-mode launch, dev-only badges, hover highlighting, ledger tooltips, screenshot annotations, and future Overlay/display markers are deferred until Workstream or later USER approval.`
 
@@ -236,9 +299,9 @@ Whole-System Interaction Map: `Branch authority owns active scope; branch plan o
 
 Minimum Viable vs Full System Boundary: `Minimum viable Workstream is scan + marker format + limited high-risk marker adoption + validator proof. Full system may add Dev Toolkit review-mode launchers and visual overlays later, but only with USER approval.`
 
-Open Questions / USER Decision Points: `USER must decide whether to approve Workstream implementation, whether initial marker insertion should be inventory-only, limited high-risk pilot, or broader adoption, and whether Dev Toolkit review mode remains planning-only or becomes implementation scope.`
+Open Questions / USER Decision Points: `USER must decide whether to approve Hardening H1, whether later marker insertion should broaden beyond the limited high-risk pilot, and whether Dev Toolkit review mode remains planning-only or becomes implementation scope.`
 
-Current Branch vs Future Package Boundaries: `Current Stage 2 setup records policy and planning. Future Workstream may implement marker scan, marker insertion, validator checks, and dev-only review-mode planning. Future runtime/product behavior and production UI remain separate.`
+Current Branch vs Future Package Boundaries: `Current Workstream implementation records policy, inventory, selected marker comments, validator checks, and dev-only review-mode planning. Future runtime/product behavior, production UI, broad marker insertion, and Dev Toolkit runtime remain separate.`
 
 Full Feature Element Breakdown: `Source-owner marker policy; high-risk source inventory; canonical ledger mapping; marker placement model; marker coverage validation; production UI exclusion validation; Dev Toolkit review-mode disposition planning; PR fold-down source-truth cleanup.`
 
@@ -276,47 +339,46 @@ Planning Completion Waiver: `Not required - Stage 2 setup planning is complete a
 
 ## Runtime Branch Engineering Contract
 
-USER Engineering Planning Review: `Stage 2 approved by USER after Stage 1 selected the candidate. Workstream implementation remains pending USER decision.`
+USER Engineering Planning Review: `Stage 2 and bounded Workstream implementation were approved by USER after Stage 1 selected the candidate. Hardening H1 remains pending USER decision.`
 
-Engineering Contract Status: `Accepted - Stage 2 setup records the contract; Workstream implementation remains pending.`
+Engineering Contract Status: `Accepted - bounded Workstream inventory, validator, source-comment pilot, marker-to-ledger proof, and production UI exclusion proof map to this contract.`
 
 Branch Purpose: `Prepare repo-wide high-risk source owner marker adoption as a traceability and validator package while keeping runtime behavior and product UI unchanged.`
 
-Runtime Implementation Approval: `Pending/Blocked - this branch is runtime-adjacent because it may later annotate runtime/proof-bearing files, but Stage 2 setup does not change runtime behavior.`
+Runtime Implementation Approval: `Granted only for dev-only source comments and validator/source-truth implementation that do not change production runtime behavior. Production runtime behavior and product UI remain blocked.`
 
 Current Runtime Baseline: `Production behavior is unchanged from origin/main 26bb76becd4089d2e451d44e969939f0f074371f; FAM-006 and FAM-007 runtime work is historical or separate.`
 
-Planned Runtime Delta: `None for Stage 2 setup. Future Workstream may add dev-only source-owner comments/backlinks in source files without changing executable behavior.`
+Planned Runtime Delta: `None for production runtime behavior. Bounded Workstream adds dev-only source-owner comments/backlinks in selected source files and a static validator without changing executable behavior.`
 
 User-Facing Runtime Delta: `None. Production users must not see element numbers, marker IDs, review badges, or Dev Toolkit review-mode annotations.`
 
 State / Config / Schema Delta: `None for production state/config/schema. Future marker metadata must remain source/dev-only and validator-readable.`
 
-Validator / Helper Delta: `Stage 2 records planning for marker placement, marker-to-ledger consistency, marker coverage, and production UI exclusion. Future Workstream may implement or extend validators after USER approval.`
+Validator / Helper Delta: `dev/orin_source_owner_marker_validation.py is implemented and registered for marker syntax, marker-to-ledger consistency, inventory disposition, comment-only placement, and production UI exclusion.`
 
-Expected Changed Files / Surfaces: `Stage 2 setup affects source truth and planning only. Future Workstream may affect dev validators and selected high-risk source files after USER approval.`
+Expected Changed Files / Surfaces: `Branch source truth, branch plan inventory, validation helper registry, dev/orin_source_owner_marker_validation.py, and selected FAM-006/SRCOWN JS/CSS/Python/PowerShell source comment markers.`
 
-Approval-Boundary Audit: `Stage 2 setup is approved; runtime behavior, product UI, marker insertion into high-risk runtime files, Dev Toolkit runtime, PR, merge, release, issue mutation, cleanup, FAM-007, Governance, and Compact-AI remain outside scope.`
+Approval-Boundary Audit: `Stage 2 setup and bounded Workstream implementation are approved. Production runtime behavior, product UI, broad marker insertion, Dev Toolkit runtime, PR, merge, release, issue mutation, cleanup, FAM-007, Governance, and Compact-AI remain outside scope.`
 
-Future-Gated Items: `Marker insertion, validator implementation, Dev Toolkit review-mode implementation, production UI changes, production runtime behavior changes, PR, merge, release/tag/artifact work, issue mutation, branch cleanup, FAM-007 provider/model/memory/shortcut/installer work, Compact-AI work, Governance intake mutation, AI Product work, and external telemetry parity.`
+Future-Gated Items: `Marker insertion beyond the selected FAM-006/SRCOWN pilot, Dev Toolkit review-mode implementation, production UI changes, production runtime behavior changes, PR, merge, release/tag/artifact work, issue mutation, branch cleanup, FAM-007 provider/model/memory/shortcut/installer work, Compact-AI work, Governance intake mutation, AI Product work, and external telemetry parity.`
 
 Workstream Seam Map: `Seam 1 high-risk inventory; Seam 2 marker format and policy validation; Seam 3 ledger mapping and not-applicable reasons; Seam 4 limited marker insertion; Seam 5 marker coverage and production UI exclusion validation; Seam 6 Dev Toolkit review-mode disposition planning.`
 
-Proof Expectations: `Static source-truth validation, diff checks, marker syntax/coverage validation when implemented, ledger existence checks, production UI exclusion checks, and no runtime behavior delta proof.`
+Proof Expectations: `Static source-truth validation, diff checks, source-owner marker validation, ledger existence checks, inventory-only disposition checks, production UI exclusion checks, and no runtime behavior delta proof.`
 
 Risk Forecast: `Marker noise, stale marker comments, ledger drift, production UI element-number leakage, over-broad runtime edits, cross-worktree contamination, FAM-007/provider scope creep, and Dev Toolkit runtime scope creep.`
 
 Recommendations And Alternatives: `Prefer high-risk-only markers and validator-backed coverage over broad comment insertion; keep ledger canonical and review-mode dev-only.`
 
-Plan Version / Revision Status: `v1 - Branch Readiness Stage 2 setup from origin/main 26bb76becd4089d2e451d44e969939f0f074371f.`
+Plan Version / Revision Status: `v2 - bounded Workstream implementation from origin/main 26bb76becd4089d2e451d44e969939f0f074371f.`
 
-Plan-To-Implementation Traceability: `Stage 2 changes map to this branch record, the branch plan, compact backlog/roadmap pointers, branch_records index, and validation helper registry planning. Future Workstream must compare planned deltas with actual implementation by mapping each marker, validator, inventory result, production UI exclusion check, and not-applicable decision back to this plan and canonical ledger rows.`
+Plan-To-Implementation Traceability: `Planned deltas in this branch record and branch plan trace to actual implementation files: Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md, dev/orin_source_owner_marker_validation.py, Docs/validation_helper_registry.md, selected FAM-006/SRCOWN source-comment markers, compact backlog/roadmap pointers, inventory-only dispositions, and production UI exclusion checks.`
 
 ## Marker Policy Summary
 
 Marker Purpose: `Help reviewers find the canonical ledger row and proof expectations for high-risk source regions.`
 
-Marker Format: `Future Workstream should use a compact stable comment format containing a marker prefix, ledger row ID, and short owner/scope label. Exact syntax remains pending implementation approval.`
 
 Marker Placement Policy: `Place markers only near high-risk code regions that affect user-facing UI, hidden user-facing behavior, proof generation, state/lifecycle cleanup, focus/click routing, windowing, z-order, provider truth, warning behavior, source-truth mutation, UTS generation, or validation acceptance.`
 
@@ -324,7 +386,7 @@ Marker Ownership Rules: `The owning Element Validation Ledger row remains canoni
 
 Production UI Exclusion Rule: `Production UI must not expose marker IDs, ledger IDs, element numbers, source-owner labels, review badges, hover outlines, or ledger tooltips. Dev-only review affordances require later USER approval.`
 
-Validator Expectations: `Future validation should prove marker syntax, marker-to-ledger consistency, high-risk coverage or not-applicable reasons, no orphaned markers, no stale ledger IDs, no production UI exposure, and no marker-only proof substitution.`
+Validator Expectations: `dev/orin_source_owner_marker_validation.py proves marker syntax, marker-to-ledger consistency, inventory coverage and inventory-only reasons, no orphaned markers, no stale ledger IDs, comment-only placement, no production UI exposure, and no marker-only proof substitution.`
 
 ## Package / Slice Fit
 
@@ -338,12 +400,12 @@ Planned Slices:
 
 | Slice | Scope | Admission State | Completion State | Boundary |
 | --- | --- | --- | --- | --- |
-| `SRCOWN-SLC-001` | High-risk source surface inventory | Admitted for planning | Pending Workstream | Scan only until implementation approval |
-| `SRCOWN-SLC-002` | Element Validation Ledger mapping | Admitted for planning | Pending Workstream | Ledger remains canonical |
-| `SRCOWN-SLC-003` | Source-owner marker format and placement | Admitted for planning | Pending Workstream | Dev-only backlinks only |
-| `SRCOWN-SLC-004` | Marker-to-ledger and coverage validation | Admitted for planning | Pending Workstream | Static validation only unless later approved |
-| `SRCOWN-SLC-005` | Production UI exclusion validation | Admitted for planning | Pending Workstream | Production UI must not expose element IDs |
-| `SRCOWN-SLC-006` | Dev Toolkit Interface Review Mode disposition planning | Admitted for planning | Pending Workstream | Runtime/toolkit implementation remains blocked |
+| `SRCOWN-SLC-001` | High-risk source surface inventory | Admitted | Workstream Green | Inventory artifact records marked and inventory-only dispositions |
+| `SRCOWN-SLC-002` | Element Validation Ledger mapping | Admitted | Workstream Green | Ledger remains canonical |
+| `SRCOWN-SLC-003` | Source-owner marker format and placement | Admitted | Workstream Green | Dev-only backlinks only |
+| `SRCOWN-SLC-004` | Marker-to-ledger and coverage validation | Admitted | Workstream Green | Static validator implemented |
+| `SRCOWN-SLC-005` | Production UI exclusion validation | Admitted | Workstream Green | Production UI must not expose element IDs |
+| `SRCOWN-SLC-006` | Dev Toolkit Interface Review Mode disposition planning | Admitted for planning | Pending future USER decision | Runtime/toolkit implementation remains blocked |
 
 ## High-Risk Surface Inventory Plan
 
@@ -351,17 +413,17 @@ Initial Inventory Surfaces: `nexus_visual/`, `desktop/`, `dev/` proof helpers, b
 
 High-Risk Classes: `Window ownership, drag/move/resize behavior, focus and click-through, clipping/z-order, source picker/checkable controls, warning behavior, provider truth, persistence/state transitions, cleanup/lifecycle, screenshot/proof generation, UTS generation, branch/source-truth mutation, and release/PR readiness validators.`
 
-Inventory Output: `Future Workstream should record files scanned, candidate high-risk regions, ledger row targets, markers added, not-applicable decisions, and validator findings.`
+Inventory Output: `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md records files scanned, candidate high-risk regions, ledger row targets, markers added, inventory-only decisions, and validator contract.`
 
 ## Validator Planning
 
-Marker Placement Validation: `Future validator should flag malformed marker syntax, duplicate marker IDs, markers without ledger rows, markers in generated evidence, and markers in production UI text.`
+Marker Placement Validation: `dev/orin_source_owner_marker_validation.py flags malformed marker syntax, unsupported owner/status values, duplicate path/surface markers, markers without ledger rows, inventory/source mismatches, non-comment markers in source files, obsolete marker tokens, and markers in production UI text after comment stripping.`
 
-Marker-To-Ledger Consistency Validation: `Future validator should verify referenced ledger IDs exist in canonical owners and that ledger rows list affected source surfaces or not-applicable reasons.`
+Marker-To-Ledger Consistency Validation: `dev/orin_source_owner_marker_validation.py verifies referenced ledger IDs exist in canonical owners and that each pilot marker is inventory-recorded with disposition.`
 
-Marker Coverage Validation: `Future validator should compare high-risk inventory classes against marker or not-applicable coverage without requiring blanket repo coverage.`
+Marker Coverage Validation: `dev/orin_source_owner_marker_validation.py compares the required first-pass marker path/surface/owner/ledger/status entries and required inventory-only disposition phrases without requiring blanket repo coverage.`
 
-Production UI Exclusion Validation: `Future validator should scan production HTML/CSS/JS/Python UI copy for marker prefixes, ledger IDs, element numbers, review-badge copy, and dev-only review text.`
+Production UI Exclusion Validation: `dev/orin_source_owner_marker_validation.py strips comments from production HTML/CSS/JS/Python UI source and rejects marker prefixes, marker IDs, ledger IDs, source-owner labels, review-badge copy, and dev-only review text outside comments.`
 
 Dev Toolkit Review Mode Validation: `Future validator should prove dev-only gating before any review-mode UI is considered acceptable.`
 
@@ -383,12 +445,20 @@ High-Risk Source Owner Marker Posture: `Ledger rows are canonical. Source-owner 
 
 | Element ID | Element Name | Category | Parent Surface | Classification | User-Facing Status | Expected Behavior | Risk | Affected Source Surfaces | Source Owner Marker Posture | Validation Required | Current Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `SRCOWN-GOV-POLICY-001` | Source owner marker policy | Source-truth governance | Branch authority / branch plan | Created | Internal support | Define marker purpose, format, placement, ledger relationship, ownership, and production UI exclusion | High | This record; branch plan; backlog/roadmap pointers | Marker policy owner, no runtime marker yet | Branch governance validation | Stage 2 setup | Ledger remains canonical |
-| `SRCOWN-SCAN-INVENTORY-002` | High-risk source surface inventory plan | Source inventory | Repo-wide source | Created | Internal support | Plan scan of high-risk product/proof-bearing regions before marker insertion | High | Future `desktop/`, `nexus_visual/`, `dev/`, docs ledgers | Future marker adoption | Workstream validator / inventory proof | Pending Workstream | No files scanned during Stage 2 setup beyond source-truth inspection |
-| `SRCOWN-LEDGER-MAPPING-003` | Marker-to-ledger mapping plan | Validation governance | Element Validation Ledger owners | Created | Internal support | Ensure every marker references a canonical ledger row or not-applicable reason | Critical | Branch records; companion ledgers; future validators | Future marker adoption | Marker-to-ledger consistency validation | Pending Workstream | Prevents orphan/stale markers |
-| `SRCOWN-MARKER-PLACEMENT-004` | High-risk-only marker placement | Source marker policy | Runtime/proof-bearing code | Created / future | Internal support | Add sparse markers only where useful and high-risk | Medium | Future selected source files | Future marker adoption | Marker placement and coverage validation | Pending Workstream | Blanket marker insertion is rejected |
-| `SRCOWN-PROD-UI-EXCLUSION-005` | Production UI marker exclusion | Product UI safety | Production UI source | Created / future | Hidden user-facing safety | Production UI must not expose marker IDs or element numbers | Critical | Future UI source scans | Future marker adoption | Production UI exclusion validation | Pending Workstream | Dev-only review badges remain future-gated |
-| `SRCOWN-DEVTOOLKIT-DISPOSITION-006` | Dev Toolkit Interface Review Mode disposition | Dev tooling planning | Existing and future user-facing interfaces | Created / future | Dev-only | Plan review-mode disposition without implementing runtime/toolkit behavior in Stage 2 setup | Medium | Future dev toolkit source if approved | Future marker adoption | Dev-only gating validation if implemented | Pending Workstream | NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components are in planning scope |
+| `SRCOWN-GOV-POLICY-001` | Source owner marker policy | Source-truth governance | Branch authority / branch plan | Created / touched | Internal support | Define marker purpose, format, placement, ledger relationship, ownership, and production UI exclusion | High | This record; branch plan; inventory artifact; backlog/roadmap pointers | Marker policy owner | Branch governance validation | Workstream Green | Ledger remains canonical |
+| `SRCOWN-SCAN-INVENTORY-002` | High-risk source surface inventory | Source inventory | Repo-wide source | Created / touched | Internal support | Inventory high-risk product/proof-bearing regions before broader marker insertion | High | Inventory artifact; selected `desktop/`, `nexus_visual/`, `dev/`, docs ledgers | Inventory plus selected marker adoption | Source-owner marker validation / inventory proof | Workstream Green | FAM-007/provider/core and Compact-AI are inventory-only |
+| `SRCOWN-LEDGER-MAPPING-003` | Marker-to-ledger mapping | Validation governance | Element Validation Ledger owners | Created / touched | Internal support | Ensure every marker references a canonical ledger row or inventory-only reason | Critical | Branch records; companion ledgers; source-owner marker validator | Marker adoption | Marker-to-ledger consistency validation | Workstream Green | Prevents orphan/stale markers |
+| `SRCOWN-MARKER-PLACEMENT-004` | High-risk-only marker placement | Source marker policy | Runtime/proof-bearing code | Created / touched | Internal support | Add sparse markers only where useful and high-risk | Medium | Selected source files | Selected marker adoption | Marker placement and coverage validation | Workstream Green | Blanket marker insertion is rejected |
+| `SRCOWN-PROD-UI-EXCLUSION-005` | Production UI marker exclusion | Product UI safety | Production UI source | Created / touched | Hidden user-facing safety | Production UI must not expose marker IDs or element numbers | Critical | Production UI source scans | Selected marker adoption | Production UI exclusion validation | Workstream Green | Dev-only review badges remain future-gated |
+| `SRCOWN-DEVTOOLKIT-DISPOSITION-006` | Dev Toolkit Interface Review Mode disposition | Dev tooling planning | Existing and future user-facing interfaces | Created / future | Dev-only | Plan review-mode disposition without implementing runtime/toolkit behavior in Stage 2 setup | Medium | Future dev toolkit source if approved | Future marker adoption | Dev-only gating validation if implemented | Pending future USER decision | NCP, Core visualization, Dashboard, Overlay/display when admitted, and other windows/components are in planning scope |
+| `SRCOWN-FIRSTPASS-FAM007-AI-007` | FAM-007 provider inventory disposition | Source inventory | Local AI / provider source and proof surfaces | Inventoried only | Internal support | Record FAM-007/provider/core surfaces as out of pilot marker scope without changing runtime behavior | High | `desktop/ai_provider_state.py`; `dev/orin_ai_provider_state_validation.py`; `nexus_visual/orin_core.*` | Inventory-only; no marker insertion into FAM-007/provider execution surfaces | Source-owner marker validation requires inventory disposition | Workstream Green | Provider setup, consent collection, SDK/model execution, and runtime behavior remain future USER decisions |
+| `SRCOWN-FIRSTPASS-FAM006-HUD-008` | FAM-006 HUD source-owner marker pilot | Source marker adoption | Monitoring HUD Dashboard source and proof surfaces | Touched | Internal support | Mark selected FAM-006 HUD dashboard/proof anchors as source-only backlinks without changing HUD behavior | High | `nexus_visual/monitoring_hud.css`; `nexus_visual/monitoring_hud.js`; `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_human_client_validation.ps1` | Selected comment-only marker adoption | Source-owner marker validation; HUD validators | Workstream Green | FAM-006 runtime/product mutation remains a future USER decision |
+| `SRCOWN-FIRSTPASS-SHARED-DESKTOP-009` | Dashboard renderer source-owner marker pilot | Runtime-adjacent source marker adoption | Desktop renderer Dashboard boundary | Touched | Internal support | Mark the Dashboard visible-edge/native hit-test anchor as a source-only backlink to FAM-006 resize ledger truth | High | `desktop/desktop_renderer.py` | Selected comment-only marker adoption | Source-owner marker validation; compileall | Workstream Green | Runtime behavior and production UI behavior remain unchanged |
+| `SRCOWN-FIRSTPASS-VALIDATOR-010` | Source-owner marker validator support | Validator/helper adoption | `dev/` validation helpers | Created / touched | Internal support | Add reusable source-owner marker validation and register it in the helper registry | High | `dev/orin_source_owner_marker_validation.py`; `Docs/validation_helper_registry.md`; FAM proof validators | Selected validator adoption | Source-owner marker validation | Workstream Green | Future broader marker validator scope remains USER-gated |
+| `SRCOWN-FIRSTPASS-DOCS-011` | Shared docs/source-truth pointer update | Source-truth marker adoption | Compact current-state docs and branch index | Touched | Internal support | Keep backlog/roadmap compact while pointing to branch authority, branch plan, inventory, and validator | Medium | `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; `Docs/validation_helper_registry.md`; inventory artifact | Compact source-truth pointer update; no production UI marker exposure | Source-owner marker validation; governance efficiency validation | Workstream Green | Detailed branch-plan narrative remains outside backlog/roadmap |
+| `SRCOWN-FOLDDOWN-LINKAGE-012` | Branch plan / PR / release fold-down linkage | Fold-down planning | Branch plan and PR/release readiness handoff | Touched | Internal support | Record how markers fold down through PR Readiness and Release Readiness without creating PR or release work | Medium | Branch plan; branch record; inventory artifact | Fold-down planning only | Source-owner marker validation; branch governance validation | Workstream Green | PR creation, merge, release execution remain USER-gated |
+| `SRCOWN-CLEANUP-REBINDING-013` | Cleanup and stable worktree rebinding proof posture | Cleanup/rebinding planning | Worktree slot and rebaseline proof surfaces | Inventoried only | Internal support | Preserve planning-only posture for old branch cleanup, stable worktree rebinding, GitHub Desktop binding risk, and unique-commit protection | High | `Docs/worktree_slots.md`; `dev/orin_worktree_rebaseline_audit.py` | Inventory-only; no cleanup/rebinding execution | Source-owner marker validation requires inventory disposition | Workstream Green | Cleanup, branch deletion, worktree deletion, and rebinding execution remain USER-gated |
+| `SRCOWN-COMPACT-AI-PRESERVE-014` | Compact-AI protected unique-commit preservation | Protected branch posture | Compact-AI-Status-Card branch/worktree | Preserved / external | Internal support | Record that Compact-AI remains sibling worktree context and is not mutated by this Workstream | Critical | `C:\Nexus Worktrees\Compact-AI-Status-Card` | External protected posture; no marker insertion into Compact-AI | Source-owner marker validation requires inventory disposition | Workstream Green | Salvage, PR, abandonment, mutation, or cleanup requires later USER decision |
 
 ## Multi-Worktree Risk Findings
 
@@ -405,5 +475,6 @@ High-Risk Source Owner Marker Posture: `Ledger rows are canonical. Source-owner 
 - `python dev\orin_branch_readiness_planning_fixture_validation.py`
 - `python dev\orin_release_body_validation.py`
 - `python dev\orin_governance_efficiency_validation.py`
+- `python dev\orin_source_owner_marker_validation.py`
 - `python -m compileall -q desktop dev nexus_visual`
 - targeted source-truth searches for this branch record, branch plan pointer, marker policy, production UI exclusion, and pending USER decisions
