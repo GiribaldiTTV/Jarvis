@@ -7,42 +7,42 @@
 - Branch: `feature/repo-wide-source-owner-marker-adoption`
 - Workstream: `Repo-Wide High-Risk Source Owner Marker Adoption`
 - Branch Class: `implementation`
-- Backlog Record State: `Registry-only active branch`
+- Backlog Record State: `Historical merged evidence`
 - Package Fit: `Repo-wide source-truth, validator, and dev-tooling planning package; not a production runtime package`
 - Primary Source-Truth Owner: `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
 - Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`
 
 ## Purpose / Why It Exists
 
-This branch is the USER-approved Branch Readiness Stage 2 carrier for the post-FAM-006 Repo-Wide High-Risk Source Owner Marker Adoption candidate.
+This branch was the USER-approved Branch Readiness Stage 2 carrier for the post-FAM-006 Repo-Wide High-Risk Source Owner Marker Adoption candidate.
 
 The branch exists because merged `main` after PR #181 and `v1.7.9-prebeta` recorded `No Active Branch`, selected no runtime successor, and preserved Repo-Wide High-Risk Source Owner Marker Adoption as the strongest required governance/package candidate after the FAM-006 UI proof loop exposed repeated acceptance-critical visual/control-proof misses.
 
-This branch may set up branch authority, branch planning, source-truth policy, high-risk surface inventory planning, marker-to-ledger validation planning, dev-only review-mode disposition planning, a bounded high-risk inventory artifact, a reusable source-owner marker validator, and a limited comment-only marker pilot on selected ledger-mapped FAM-006/SRCOWN surfaces. It must not change production runtime behavior, expose element numbers in production UI, mutate FAM-007, mutate Compact-AI-Status-Card, use the standing Governance intake carrier, create a PR, merge, release, tag, create artifacts, mutate GitHub issues, or perform additional branch/worktree cleanup.
+PR #185 merged this branch into `main` at `6643ce8d18c5e3940c1ef1c0d2b531ad7ef5d79b` on `2026-05-20T21:42:11Z` with head `674aa4691b8ef7db9225a4e291d33871e53da78d`. After merge, USER-approved cleanup removed `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers` and deleted the local and remote `feature/repo-wide-source-owner-marker-adoption` refs after clean-state and no-unique-commit-loss proof. Future marker expansion, Dev Toolkit runtime, production behavior, issue work, release execution, or branch/worktree recreation requires a new USER-approved lane.
 
 ## Current Phase
 
-- Phase: `Live Validation`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
 Stage 1 Basis: `Complete - verified clean main at origin/main 26bb76becd4089d2e451d44e969939f0f074371f, No Active Branch source truth, selected-next None, FAM-006 historical/merged, and Repo-Wide High-Risk Source Owner Marker Adoption as the recorded candidate`
 Stage 2 USER Approval: `Granted - USER approved branch/worktree creation and directly supporting branch authority, branch plan, source-truth, and validator planning setup`
-Active Branch: `feature/repo-wide-source-owner-marker-adoption`
-`Active Branch`: `feature/repo-wide-source-owner-marker-adoption`
+Historical Branch: `feature/repo-wide-source-owner-marker-adoption`
+PR Merge: `PR #185 merged at 6643ce8d18c5e3940c1ef1c0d2b531ad7ef5d79b`
 Branch Creation Base: `26bb76becd4089d2e451d44e969939f0f074371f`
-Current origin/main: `26bb76becd4089d2e451d44e969939f0f074371f`
-Origin/Main Advanced Since Branch Creation: `NO`
-Worktree Path: `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
-Branch Runtime Engineering Plan: `Accepted through Workstream implementation, Hardening H1, and Live Validation LV1`
-Engineering Plan Status: `Accepted - high-risk inventory artifact, marker-to-ledger consistency validator, production UI exclusion proof, limited comment-only FAM-006/SRCOWN marker pilot, validation-suite linkage, H1 Green, and LV1 Green are recorded; PR Readiness remains pending USER decision`
+Merged origin/main: `6643ce8d18c5e3940c1ef1c0d2b531ad7ef5d79b`
+Origin/Main Advanced Since Branch Creation: `YES - branch merged through PR #185`
+Retired Worktree Path: `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
+Branch Runtime Engineering Plan: `Historical / folded after Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness, PR #185 merge, and cleanup`
+Engineering Plan Status: `Historical - high-risk inventory artifact, marker-to-ledger consistency validator, production UI exclusion proof, limited comment-only FAM-006/SRCOWN marker pilot, validation-suite linkage, H1 Green, LV1 Green, PR #185 merge, and cleanup are recorded`
 Runtime Implementation Approval: `Granted only for dev-only source comments and validator/source-truth implementation that do not change production runtime behavior; production runtime behavior changes and product UI changes remain blocked`
 Marker Insertion Approval: `Granted for this bounded Workstream only - selected ledger-mapped FAM-006/SRCOWN markers are implemented as source comments/backlinks; broad marker insertion remains pending later USER decision`
 Package/Slice Admission: `Admitted and implemented for source-truth/validator/dev-tooling marker adoption only; no existing FAM runtime package is claimed complete`
 Element Validation Ledger Posture: `Ledger remains canonical; source-owner markers are optional dev-only backlinks and cannot satisfy user-facing acceptance proof`
 Dev Toolkit Review Mode Posture: `Planning admitted; runtime/toolkit implementation remains pending USER decision`
-Current Workstream State: `LV1 Green - NEXUS source-owner schema syntax, bounded first-pass high-risk source/proof markers, reusable validator proof, validation-suite linkage, fold-down linkage, production UI exclusion, inventory-only dispositions, and static LV1 proof are recorded`
-Current Live Validation State: `Green - LV1 used static validator/source-truth proof because this branch is source-only; no production runtime behavior, product UI, Dev Toolkit runtime, provider/model execution, Compact-AI mutation, cleanup/rebinding, PR, merge, release, issue, or artifact work was performed`
+Historical Workstream State: `Merged - NEXUS source-owner schema syntax, bounded first-pass high-risk source/proof markers, reusable validator proof, validation-suite linkage, fold-down linkage, production UI exclusion, inventory-only dispositions, static LV1 proof, and PR #185 merge are recorded`
+Historical Live Validation State: `Green - LV1 used static validator/source-truth proof because this branch is source-only; no production runtime behavior, product UI, Dev Toolkit runtime, provider/model execution, Compact-AI mutation, release, issue, or artifact work was performed`
 
 ## Branch Class
 
@@ -65,11 +65,11 @@ Backlog-Split Reason: `None`
 
 ## Bounded State
 
-Bounded State: `Active - LV1 Green / feature/repo-wide-source-owner-marker-adoption / C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers / source-owner marker inventory, reusable marker validator, validation-suite linkage, limited comment-only FAM-006/SRCOWN pilot, and static LV1 proof / no production runtime behavior, product UI, broad marker insertion, PR, merge, release, issue mutation, FAM-007, Governance, Compact-AI, or cleanup work`
+Bounded State: `Historical - PR #185 merged feature/repo-wide-source-owner-marker-adoption, source-owner marker inventory, reusable marker validator, validation-suite linkage, limited comment-only FAM-006/SRCOWN pilot, and static LV1 proof into main; branch/worktree cleanup is complete; no production runtime behavior, product UI, broad marker insertion, release, issue mutation, FAM-007, Governance, Compact-AI, or successor work is authorized by this record`
 
-Expected Worktree Root: `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
+Expected Worktree Root: `Retired after PR #185 cleanup`
 
-Actual Worktree Root: `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
+Actual Worktree Root: `Removed after PR #185 cleanup`
 
 No Cross-Worktree Mutation: `Required - do not mutate C:\Nexus Desktop AI except for branch/worktree creation already completed from main, and do not mutate C:\Nexus Worktrees\FAM-007, C:\Nexus Worktrees\Governance, or C:\Nexus Worktrees\Compact-AI-Status-Card`
 
@@ -79,14 +79,14 @@ GitHub Desktop-bound worktree: `Not claimed for this branch during Stage 2 setup
 
 ## Blockers
 
-- `Runtime Implementation Approval Missing`: `Cleared only for dev-only source comments and static validator/source-truth implementation; active for production runtime behavior, UI behavior, provider/model, dashboard, monitor, or toolkit runtime implementation`
-- `Broad Marker Insertion Approval Missing`: `Active for any marker sweep beyond first-pass high-risk surfaces`
-- `Validator Implementation Approval Missing`: `Cleared for source-owner marker validation only; future Dev Toolkit or broader validator scope remains pending USER approval`
-- `Dev Toolkit Runtime Approval Missing`: `Active - review-mode runtime/toolkit affordances remain planning only`
-- `PR Creation Approval Missing`: `Active`
-- `Merge Approval Missing`: `Active`
-- `Release Execution Approval Missing`: `Active`
-- `Issue Mutation Approval Missing`: `Active`
+- `Runtime Implementation Approval Missing`: `Historical/preserved for future lanes - production runtime behavior, UI behavior, provider/model, dashboard, monitor, or toolkit runtime implementation still requires separate USER approval`
+- `Broad Marker Insertion Approval Missing`: `Historical/preserved for future lanes - any marker sweep beyond first-pass high-risk surfaces requires separate USER approval`
+- `Validator Implementation Approval Missing`: `Cleared for the merged source-owner marker validation helper only; future Dev Toolkit or broader validator scope remains pending USER approval`
+- `Dev Toolkit Runtime Approval Missing`: `Historical/preserved for future lanes - review-mode runtime/toolkit affordances remain planning only`
+- `PR Creation Approval Missing`: `Cleared by PR #185`
+- `Merge Approval Missing`: `Cleared by PR #185`
+- `Release Execution Approval Missing`: `Active for any future release that includes PR #185`
+- `Issue Mutation Approval Missing`: `Active for any future issue work`
 
 ## Entry Basis
 
@@ -116,7 +116,7 @@ GitHub Desktop-bound worktree: `Not claimed for this branch during Stage 2 setup
 
 ## Workstream Closeout
 
-Workstream Completion State: `Green - bounded multi-seam source-owner marker adoption implementation complete; H1 Green; LV1 Green; PR Readiness Stage 1 pending USER approval.`
+Workstream Completion State: `Historical Green - bounded multi-seam source-owner marker adoption implementation, H1 Green, LV1 Green, PR Readiness, PR #185 merge, and branch/worktree cleanup are complete.`
 
 Seam Family 1 - Source Owner Marker Taxonomy And Syntax: `Green - the NEXUS source-owner schema syntax, owner category model, language-native comment placement guidance, and marker versioning are implemented through this record, the inventory artifact, the branch plan, source comments, and dev/orin_source_owner_marker_validation.py.`
 
@@ -156,11 +156,11 @@ Stage 2 exits with an active branch authority record, linked branch plan, compac
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Complete the marker-adoption planning and, after later USER approval, execute a bounded Workstream that can scan, map, mark, validate, harden, and fold down source-owner marker adoption without creating production runtime behavior.`
+Branch Completion Goal: `Complete - marker-adoption planning and bounded Workstream scanned, mapped, marked, validated, hardened, folded down, and merged without creating production runtime behavior.`
 
-Known Future-Dependent Blockers: `PR Readiness Stage 1 approval, Dev Toolkit runtime approval, PR creation approval, merge approval, release execution approval, issue mutation approval, branch cleanup approval, FAM-007/provider/model/memory/shortcut/installer approval, Compact-AI approval, Governance intake approval, and AI Product approval remain pending.`
+Known Future-Dependent Blockers: `Dev Toolkit runtime approval, release execution approval, issue mutation approval, future branch/worktree recreation or cleanup approval, FAM-007/provider/model/memory/shortcut/installer approval, Compact-AI approval, Governance intake approval, and AI Product approval remain pending for future work.`
 
-Branch Closure Rule: `Before PR green, this active authority record must be made merge-stable or historical/no-active, backlog/roadmap must return to compact post-merge truth, and the Element Validation Ledger canonicality rule must remain intact.`
+Branch Closure Rule: `Satisfied after PR #185 merge and USER-approved cleanup. This authority record is historical/no-active, backlog/roadmap must carry compact post-merge truth, and the Element Validation Ledger canonicality rule remains intact.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -188,7 +188,7 @@ Non-Includes: `Production runtime behavior changes, production UI changes, Dev T
 
 ## Active Seam
 
-Active seam: `Live Validation LV1 Green - all admitted seam families are hardening-verified and static LV1 proof is recorded; PR Readiness Stage 1 pending USER approval.`
+Active seam: `None - historical PR #185 merged evidence.`
 
 ## Backlog Completion Status
 
@@ -196,7 +196,7 @@ Backlog Completion State: Implemented Complete Except Future Dependency
 
 Remaining Implementable Work: None
 
-Future-Dependent Blockers: PR creation, merge, release/tag/GitHub Release/artifact work, issue closeout, branch cleanup, worktree deletion, stable worktree rebinding execution, Compact-AI mutation/salvage/abandonment/cleanup/PR path, FAM-006 runtime/product mutation, FAM-007 runtime/product mutation, Governance mutation outside this branch path, runtime behavior changes, production UI changes, provider SDK/model/download/external-call/memory/voice/Core/shortcut/installer work, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain pending USER decisions.
+Future-Dependent Blockers: release/tag/GitHub Release/artifact work, issue closeout, future branch/worktree recreation or cleanup, stable worktree rebinding execution, Compact-AI mutation/salvage/abandonment/cleanup/PR path, FAM-006 runtime/product mutation, FAM-007 runtime/product mutation, Governance mutation outside this historical branch path, runtime behavior changes, production UI changes, provider SDK/model/download/external-call/memory/voice/Core/shortcut/installer work, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain pending USER decisions.
 
 Completion Status: Green
 
@@ -218,9 +218,9 @@ Stop Basis: Workstream Green
 
 Next Active Seam: Hardening H1
 
-Stop Condition: Workstream implementation, Hardening H1, and Live Validation LV1 are green; PR Readiness Stage 1 remains pending USER approval.
+Stop Condition: Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness, PR #185 merge, and branch/worktree cleanup are complete.
 
-Continuation Action: Stop at phase boundary until USER admits PR Readiness Stage 1 analysis.
+Continuation Action: Stop; this branch is historical merged evidence.
 
 Single-Seam Workstream Waiver: None
 
@@ -240,23 +240,23 @@ Rollback Path: return to Branch Readiness Stage 1 decision posture if validation
 
 ## Next Legal Phase
 
-- `PR Readiness`
+- `Release Readiness`
 
-Next Legal Phase Gate: USER must explicitly approve PR Readiness Stage 1 before Codex analyzes fold-down, merge-stability, PR scope, validation posture, and PR creation readiness for this source-only marker adoption branch.
+Next Legal Phase Gate: This branch has no active branch-local next phase after PR #185 merge and cleanup. The only repo-level next phase this historical branch may inform is a later USER-approved Release Readiness pass for merged-unreleased PR #184/#185; future marker expansion, Dev Toolkit runtime, issue work, or new worktree creation requires a separate USER-approved Branch Readiness lane.
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Live Validation LV1 complete`
+Current Phase: `Historical Traceability`
 
-Next Legal Phase: `PR Readiness`
+Next Legal Phase: `Release Readiness`
 
-Next Legal Seam: `PR Readiness Stage 1 analysis`
+Next Legal Seam: `Release Readiness Stage 1 analysis only if USER selects release readiness for merged-unreleased PR #184/#185`
 
-Why This Phase Is Next: `The bounded Workstream, H1, and LV1 static proof are green. PR Readiness Stage 1 must analyze fold-down, merge-stability, PR scope, release-public wording risk, and PR creation readiness while PR creation remains separately USER-gated.`
+Why This Phase Is Next: `PR #185 merged and the branch/worktree cleanup is complete. This branch now only preserves historical source-owner marker adoption evidence that may be included in a later release-readiness window.`
 
-Approval Required: `USER approval for PR Readiness Stage 1 analysis`
+Approval Required: `USER approval for Release Readiness if USER wants to evaluate merged-unreleased PR #184/#185 for release`
 
-Exact USER Approval Text: `Approve PR Readiness Stage 1 analysis for feature/repo-wide-source-owner-marker-adoption in C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers. Codex may inspect the completed Workstream, H1, and LV1 evidence; analyze PR scope, fold-down, merge-stability, release-public wording risk, validation requirements, Compact-AI preservation, cleanup/rebinding planning-only posture, and approval-boundary integrity; apply PR1-scoped source-truth repairs if repo truth supports them; validate, commit, and push if needed. Do not create a PR, merge, release, mutate Compact-AI, mutate FAM-006/FAM-007 runtime/product behavior, rebind or delete worktrees, clean branches, mutate issues, change production runtime behavior, expose production UI marker IDs, or perform provider/model/memory/voice/Core/shortcut/installer work.`
+Exact USER Approval Text: `Approve Release Readiness Stage 1 analysis for merged-unreleased PR #184 and PR #185 from updated origin/main. This is analysis only; release execution, tag/GitHub Release/artifact work, issue mutation, branch/worktree creation or cleanup, FAM-006 mutation, FAM-007 mutation, Compact-AI mutation, provider/model/memory/voice/Core/shortcut/installer work, Dev Toolkit runtime, and future marker expansion remain separate USER decisions.`
 
 Allowed Scope: `PR Readiness Stage 1 analysis and source-truth repair for PR scope, fold-down planning, merge-stability, validation posture, and proof posture only.`
 
