@@ -376,13 +376,12 @@ Summary: External Integrations keeps the trigger architecture release as proof w
 
 ### [ID: FAM-006] Monitoring and HUD
 
-Status: Released historical traceability in v1.7.0-prebeta / PR #180 merged-unreleased candidate scope after v1.7.8-prebeta
+Status: Released historical traceability in v1.7.0-prebeta / PR #180 released in v1.7.9-prebeta
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: Medium
 Next Workstream: None after PR #181 and `v1.7.9-prebeta`.
-Next Workstream: PR #180 FAM-006 Monitor Groups Sensor Command Center is merged-unreleased candidate scope after `v1.7.8-prebeta`; released PR #118/v1.7.0-prebeta evidence remains historical baseline.
 Selected Next Workstream: None after PR #181 and `v1.7.9-prebeta`.
 Selected Next Runtime Package Candidate: None after PR #181 and `v1.7.9-prebeta`.
 Selected Next Status: PR #180 merged the FAM-006 Monitor Groups / Sensor Command Center work; successor selection remains USER-gated.
