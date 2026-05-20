@@ -21,14 +21,14 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Intake State: `Active - RRI-20260520-002 is a USER-approved post-release canon closure repair for v1.7.9-prebeta after release publication; runtime work, release execution, issue work, branch cleanup, FAM-006 mutation, FAM-007 successor creation, provider setup, consent collection, and model/provider execution remain separate USER decisions`
+- Intake State: `Active - RRI-20260520-003 is a USER-approved automation/worktree governance intake repairing cross-thread / cross-worktree assignment enforcement after a same-worktree collision risk on feature/repo-wide-source-owner-marker-adoption; runtime work, release execution, issue work, branch cleanup, FAM-006 mutation, FAM-007 successor creation, Repo-Wide-Source-Owner-Markers mutation, provider setup, consent collection, and model/provider execution remain separate USER decisions`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
-- Active RRI Cycle: `RRI-20260520-002`
-- Latest Closed RRI Cycle: `RRI-20260519-006`
-- Return Digest Status: `Pending - RRI-20260520-002 must validate, commit, push, complete the USER-approved PR/merge/return path, and then leave source truth aligned to published v1.7.9-prebeta before any next runtime Branch Readiness`
-- Active Cycle Identity: `RRI-20260520-002 originates from post-release canon closure drift after v1.7.9-prebeta published at 2c6446d556cf2825a1dd0f3e96283fab25d60282; repair scope is release-dependent source truth only, recording PR #179, PR #180, and PR #181 as released in v1.7.9-prebeta and clearing merged-unreleased candidate posture`
+- Active RRI Cycle: `RRI-20260520-003`
+- Latest Closed RRI Cycle: `RRI-20260520-002`
+- Return Digest Status: `Pending - RRI-20260520-003 must validate, commit, push, complete the USER-approved PR/merge/return path, and then leave thread/worktree ownership enforcement source truth available before any lane resumes mutation`
+- Active Cycle Identity: `RRI-20260520-003 originates from Governance incident analysis for cross-thread / cross-worktree assignment violation risk involving C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers on feature/repo-wide-source-owner-marker-adoption; repair scope is non-runtime worktree/thread ownership source truth, prompt contract, validator support, and dirty-worktree collision recovery only`
 
 ## PR Readiness Stage 2 Execution Packet
 
@@ -66,10 +66,10 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only for release-blocker intake; USER-approved automation/worktree governance intake may also use this standing lane when the repair is non-runtime, multi-worktree safety related, and held to the same one-cycle/PR-gated contract; USER-approved phase-gate governance intake may also use this standing lane when a live branch exposes a repeatable Branch Readiness, PR Readiness, Release Readiness, or Workstream gate miss and the repair is limited to governance/source-truth/validator/helper prevention; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `RRI-20260520-002`
-- Latest Closed RRI Cycle: `RRI-20260519-006`
-- Return Digest Status: `Pending - RRI-20260520-002 must validate, commit, push, complete the USER-approved PR/merge/return path, and then leave source truth aligned to published v1.7.9-prebeta before any next runtime Branch Readiness`
-- Active Cycle Identity: `RRI-20260520-002 originates from post-release canon closure drift after v1.7.9-prebeta published at 2c6446d556cf2825a1dd0f3e96283fab25d60282; repair scope is release-dependent source truth only, recording PR #179, PR #180, and PR #181 as released in v1.7.9-prebeta and clearing merged-unreleased candidate posture`
+- Active RRI Cycle: `RRI-20260520-003`
+- Latest Closed RRI Cycle: `RRI-20260520-002`
+- Return Digest Status: `Pending - RRI-20260520-003 must validate, commit, push, complete the USER-approved PR/merge/return path, and then leave thread/worktree ownership enforcement source truth available before any lane resumes mutation`
+- Active Cycle Identity: `RRI-20260520-003 originates from Governance incident analysis for cross-thread / cross-worktree assignment violation risk involving C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers on feature/repo-wide-source-owner-marker-adoption; repair scope is non-runtime worktree/thread ownership source truth, prompt contract, validator support, and dirty-worktree collision recovery only`
 - One Active Cycle: Required operationally while a cycle is in flight. A second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main; the standing Governance branch is the only branch class where merged source truth does not require a separate closeout PR solely to clear or rewrite the cycle ledger.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Pre-Rebaseline Impact Audit: Required before the standing branch, neutral main workspace, or any originating worktree fast-forwards, merges, rebases, branch-switches, or otherwise baselines to newer `origin/main`; report `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before mutation.
@@ -80,6 +80,13 @@ This branch is the single standing governance lane for Release Readiness source-
 ## Assigned Worktree Confinement
 
 - Assigned Worktree Confinement: `Required`
+- Active Thread Owner: `Current Governance thread only for RRI-20260520-003 until PR/merge/return path completes; no other thread may mutate C:\Nexus Worktrees\Governance during this cycle`
+- Thread Assignment Status: `Assigned and active for this RRI cycle; competing same-worktree/same-branch ownership is blocked on Parallel Worktree Coordination Missing`
+- Worktree Ownership Ledger: `This branch authority record is the ownership ledger for the standing Governance worktree; runtime worktrees must record equivalent ownership in their active authority record or Branch Runtime Engineering Plan before mutation`
+- Intended Write Set: `Governance/source-truth docs, prompt templates, validation helper registry, and dev/orin_branch_governance_validation.py only`
+- Same Worktree / Same Branch Collision Check: `Clear for C:\Nexus Worktrees\Governance; any second active thread targeting this same worktree and branch must stop and route through USER before mutation`
+- Dirty Worktree Collision Check: `Owner claimed by the current Governance thread during RRI-20260520-003; unowned dirty tracked files in any target worktree block mutation until a dirty-worktree recovery packet is complete`
+- Dirty Worktree Recovery Packet: `Required when a target worktree is dirty before a new thread claims it: freeze mutation, inventory dirty files, name owning thread per file, preserve/discard only with USER approval, and resume with one active owner`
 - Expected Worktree Root: `C:\Nexus Worktrees\Governance`
 - Actual Worktree Root: `Must resolve to C:\Nexus Worktrees\Governance before mutation, branch/worktree action, runtime launch, PR/release action, shortcut/provider/model action, or GitHub Desktop handoff`
 - No Cross-Worktree Mutation: `Required - this thread must not mutate C:\Nexus Desktop AI, C:\Nexus Worktrees\FAM-006, C:\Nexus Worktrees\FAM-007, parked clones, sibling worktrees, or neutral/main folders by convenience`
@@ -103,6 +110,7 @@ Allowed:
 - Helper registry updates tied directly to those validators.
 - Automation observability helper support for configured cwd/worktree identity, stale neutral-main detection, lane-sensitive prompt drift, automation memory/reporting mismatch, and `Automation CWD Worktree Mismatch` blocker reporting from Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`.
 - Assigned Worktree Confinement governance/validator support for this standing worktree.
+- Thread/worktree ownership governance and validator support requiring active thread owner, assignment status, ownership ledger, intended write set, same-worktree/same-branch collision check, dirty-worktree collision check, and dirty-worktree recovery packet markers before mutation.
 - Neutral Main Workspace Rebaseline governance/validator support proving `C:\Nexus Desktop AI` is clean on `main` and equals `origin/main` after standing-governance PR merge/closeout, or reporting the blocker that prevents the fast-forward.
 - PR Readiness Stage 1 `Origin/Main Freshness Check` governance/validator support so Stage 1 reports branch-creation-base drift and reconciliation recommendations without fixing files by surprise.
 - Branch Readiness product-system planning gate governance/validator support so broad implementation branches must prove project-wide vision alignment, branch-specific vision alignment, concept/entity/profile modeling, user workflow planning, scale/state planning, expected outcomes, Codex extra recommendations, USER critique/decision loop, planning adequacy review, rejected shallow plan, alternatives/tradeoffs, whole-system interaction map, minimum viable vs full-system boundary, and open USER decision points before Workstream, Hardening, Live Validation, or PR Readiness can continue.
@@ -133,6 +141,7 @@ Forbidden:
 - Accepting anything other than a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR standing-governance bot-review repair after the bootstrap setup cycle.
 - Accepting runtime, implementation, release-execution, or branch-cleanup work through an automation/worktree governance intake.
 - Cross-worktree mutation outside `C:\Nexus Worktrees\Governance` without `Worktree Escape User Waiver: Granted`.
+- Mutating `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers` or any other sibling worktree during this RRI cycle; recovery there must be performed by its assigned owner after USER-approved dirty-worktree recovery.
 
 ## Return Digest Contract
 
@@ -210,13 +219,13 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `RRI-20260520-002 - v1.7.9-prebeta post-release canon closure repair`
+Active seam: `RRI-20260520-003 - cross-thread worktree assignment enforcement repair`
 
-Seam Goal: `Close post-release canon drift by recording v1.7.9-prebeta as the latest public prerelease, recording PR #179, PR #180, and PR #181 as released in that window, and clearing merged-unreleased candidate wording for the now-published release.`
+Seam Goal: `Prevent recurrence of cross-thread / cross-worktree assignment violations by making assigned worktree confinement, active thread ownership, same-worktree/same-branch collision checks, and dirty-worktree recovery machine-checkable before mutation.`
 
-Seam Scope: `Docs/feature_backlog.md, Docs/prebeta_roadmap.md, this standing governance branch authority record, and only release-dependent source-truth support required by validation.`
+Seam Scope: `Governance/source-truth docs, prompt templates, validation helper registry, this standing governance branch authority record, and dev/orin_branch_governance_validation.py.`
 
-Seam Non-Includes: `runtime/provider/model/memory/voice/Core/shortcut/installer work, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag/GitHub Release/artifact work, issue work, branch deletion, worktree cleanup, broad historical migration, direct-main source mutation, or changing canonical phase names.`
+Seam Non-Includes: `Repo-Wide-Source-Owner-Markers mutation, runtime/provider/model/memory/voice/Core/shortcut/installer work, FAM-006 mutation, FAM-007 mutation, Compact-AI mutation, successor branch creation, release execution, tag/GitHub Release/artifact work, issue work, branch deletion, worktree cleanup, broad historical migration, direct-main source mutation, or changing canonical phase names.`
 
 ## Initial Workstream Seam Sequence
 

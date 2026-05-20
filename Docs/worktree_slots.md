@@ -19,6 +19,7 @@ This file owns:
 - branch authority record pointer
 - Branch Runtime Engineering Plan pointer when a runtime branch requires one
 - USER decision pointer or branch authority receipt
+- worktree ownership ledger requirements for active thread owner, intended write set, and collision checks
 - last reviewed posture
 - where live operational truth must be derived from
 
@@ -96,6 +97,13 @@ Each slot assignment or retirement receipt should use these fields when a slot i
 - Branch Authority Record:
 - Branch Runtime Engineering Plan:
 - USER Decision Pointer:
+- Active Thread Owner:
+- Thread Assignment Status:
+- Worktree Ownership Ledger:
+- Intended Write Set:
+- Same Worktree / Same Branch Collision Check:
+- Dirty Worktree Collision Check:
+- Dirty Worktree Recovery Packet:
 - Last Reviewed Posture:
 - Operational Truth Source:
 
@@ -202,11 +210,26 @@ When a runtime branch is assigned to a slot, the branch authority record or Bran
 - Branch Authority Record:
 - Branch Runtime Engineering Plan:
 - GitHub Desktop-bound worktree:
+- Active Thread Owner:
+- Thread Assignment Status:
+- Worktree Ownership Ledger:
+- Intended Write Set:
+- Same Worktree / Same Branch Collision Check:
+- Dirty Worktree Collision Check:
+- Dirty Worktree Recovery Packet:
 - USER Assignment Decision:
 - Assignment Status:
 - Operational Truth Source:
 
 The assignment receipt must be validated by Thread / Worktree Identity Preflight before mutation.
+
+## Active Thread Ownership And Collision Recovery
+
+An assigned slot has exactly one active Codex thread owner for mutation. A second thread may read the slot for audit, but it must not edit, stage, commit, push, merge, rebase, clean, stash, reset, launch runtime validation, or use GitHub Desktop against that slot until USER assigns ownership or grants a bounded waiver.
+
+Same-worktree or same-branch concurrent mutation blocks on `Parallel Worktree Coordination Missing`. Dirty worktree collision recovery is freeze-first: inventory dirty files, identify the owning thread per file, preserve or discard only with USER approval, then resume with one active owner and a validated worktree ownership ledger.
+
+`Docs/worktree_slots.md` records the slot model and required receipt fields. It does not claim volatile live ownership facts by itself; live owner proof must come from the branch authority record, Branch Runtime Engineering Plan, prompt packet, automation configured cwd, Git/GitHub evidence, or approved helper output at the time of mutation.
 
 ## Slot Retirement Receipt
 

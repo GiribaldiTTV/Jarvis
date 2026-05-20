@@ -2597,6 +2597,13 @@ ASSIGNED_WORKTREE_CONFINEMENT_DOCS = (
 )
 ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
     "Assigned Worktree Confinement",
+    "Active Thread Owner",
+    "Thread Assignment Status",
+    "Worktree Ownership Ledger",
+    "Intended Write Set",
+    "Same Worktree / Same Branch Collision Check",
+    "Dirty Worktree Collision Check",
+    "Dirty Worktree Recovery Packet",
     "Worktree Escape User Waiver: Granted",
     "Worktree Escape User Waiver Missing",
     "Expected Worktree Root:",
@@ -2606,6 +2613,13 @@ ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
 )
 ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
     "Assigned Worktree Confinement",
+    "Active Thread Owner",
+    "Thread Assignment Status",
+    "Worktree Ownership Ledger",
+    "Intended Write Set",
+    "Same Worktree / Same Branch Collision Check",
+    "Dirty Worktree Collision Check",
+    "Dirty Worktree Recovery Packet",
     "Expected Worktree Root",
     "Actual Worktree Root",
     "No Cross-Worktree Mutation",
@@ -16362,6 +16376,48 @@ def _run_worktree_confinement_gate(require) -> None:
         require(
             marker in confinement,
             f"{record_path}: Assigned Worktree Confinement is missing '{marker}:'",
+        )
+
+    owner_state = _extract_marker_value(confinement, "Active Thread Owner")
+    assignment_state = _extract_marker_value(confinement, "Thread Assignment Status")
+    ledger_state = _extract_marker_value(confinement, "Worktree Ownership Ledger")
+    write_set = _extract_marker_value(confinement, "Intended Write Set")
+    same_worktree_state = _extract_marker_value(
+        confinement, "Same Worktree / Same Branch Collision Check"
+    )
+    dirty_collision_state = _extract_marker_value(
+        confinement, "Dirty Worktree Collision Check"
+    )
+    recovery_packet = _extract_marker_value(confinement, "Dirty Worktree Recovery Packet")
+    for marker, value in (
+        ("Active Thread Owner", owner_state),
+        ("Thread Assignment Status", assignment_state),
+        ("Worktree Ownership Ledger", ledger_state),
+        ("Intended Write Set", write_set),
+        ("Same Worktree / Same Branch Collision Check", same_worktree_state),
+        ("Dirty Worktree Collision Check", dirty_collision_state),
+        ("Dirty Worktree Recovery Packet", recovery_packet),
+    ):
+        normalized_value = value.casefold()
+        require(
+            bool(value)
+            and "unknown" not in normalized_value
+            and "not checked" not in normalized_value
+            and "not recorded" not in normalized_value,
+            f"{record_path}: Assigned Worktree Confinement '{marker}:' must be explicit before mutation",
+        )
+
+    tracked_status = _git_status_porcelain(tracked_only=True)
+    if tracked_status:
+        normalized_dirty = dirty_collision_state.casefold()
+        require(
+            "owner claimed" in normalized_dirty
+            or "current owner" in normalized_dirty
+            or "no unowned" in normalized_dirty,
+            (
+                "Dirty Worktree Collision Check must name the active owner before "
+                f"continuing with dirty tracked files: {tracked_status}"
+            ),
         )
 
     if expected_root and actual_root:

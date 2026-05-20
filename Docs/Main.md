@@ -60,7 +60,7 @@ Current local workspace roles:
 - `codex/ai-llm-lab` is historical AI Lab planning traceability only; after USER-approved consolidation into the current feature branch it has no active local/remote branch ref and must not be recreated or reused without USER-approved repo governance
 - active branch names must not use the `codex/` prefix; use `feature/` or another USER-approved non-`codex/` prefix, and treat historical `codex/` branch names as traceability only
 
-Assigned parallel worktrees are allowed only when USER explicitly assigns separate Codex threads to separate branch worktrees and each thread's Thread / Worktree Identity Preflight proves the expected path, branch, upstream, `HEAD`, `origin/main`, clean state, and write target.
+Assigned parallel worktrees are allowed only when USER explicitly assigns separate Codex threads to separate branch worktrees and each thread's Thread / Worktree Identity Preflight proves the expected path, branch, upstream, `HEAD`, `origin/main`, clean state, write target, active thread owner, thread assignment status, worktree ownership ledger, intended write set, same-worktree/same-branch collision check, dirty-worktree collision check, and dirty-worktree recovery packet posture.
 
 Default assigned-worktree limit: two active branch worktrees across the repo. More than two active branch worktrees, or two worktrees touching the same files or source-truth owners, requires an explicit USER decision before work continues.
 
@@ -76,6 +76,10 @@ Parallel worktree governance markers that must be tracked when more than one bra
 - Runtime/process owner and interactive validation owner
 - Git operation owner, because related worktrees should use one Git operation at a time where practical
 - GitHub Desktop folder binding if Desktop is used
+- Worktree Ownership Ledger: the branch authority record, Branch Runtime Engineering Plan, or approved helper output that records active thread owner and write set
+- Same Worktree / Same Branch Collision Check: blocks when two active Codex threads target the same worktree or branch until USER selects one owner
+- Dirty Worktree Collision Check: blocks unowned dirty tracked files before a new thread claims a worktree
+- Dirty Worktree Recovery Packet: freeze mutation, inventory dirty files, identify owning thread per file, preserve or discard only with USER approval, and resume with one active owner
 
 Main/consolidator worktrees remain read-only for Codex file mutation. A parked or historical worktree does not become active merely because it exists on disk; it becomes active only when a current branch record plus preflight names it as the assigned worktree.
 
@@ -91,7 +95,7 @@ PR Readiness Stage 2 approval includes watcher provisioning by default. Codex mu
 
 `Docs/governance_efficiency_operating_model.md` owns the governance efficiency operating model. Use it for Rule ID / owner / compact mirror decisions, duplicate live-state prevention, current-summary versus historical-appendix split, phase alias UX, release ownership UX, public language mapping, and the reform pass completion boundary.
 
-Before branch creation, worktree creation, phase entry, commit, push, PR work, release work, or GitHub Desktop handoff, run a `Thread / Worktree Identity Preflight` and prove the active thread is operating in the intended workspace, repository root, branch, upstream, `HEAD`, `origin/main`, worktree role, clean state, and write target. If the identity does not match the requested work, stop on `Thread / Worktree Identity Mismatch`.
+Before branch creation, worktree creation, phase entry, commit, push, PR work, release work, or GitHub Desktop handoff, run a `Thread / Worktree Identity Preflight` and prove the active thread is operating in the intended workspace, repository root, branch, upstream, `HEAD`, `origin/main`, worktree role, clean state, write target, active thread owner, thread assignment status, and intended write set. If the identity does not match the requested work, stop on `Thread / Worktree Identity Mismatch`; if another active thread owns the same worktree or branch, stop on `Parallel Worktree Coordination Missing`; if the target worktree is already dirty and ownership is unclear, stop for a `Dirty Worktree Recovery Packet`.
 
 Thread Launch / Write-Target Identity Lock:
 
@@ -257,7 +261,7 @@ Rules:
 - backlog is not the seam-by-seam traceability surface for continuation, blocker-clearing, or validator follow-through; canonical workstreams and branch authority records own that history
 - historical pass aliases, support/governance lanes, old registry-only implemented IDs, and all legacy `FB-###` references in `Docs/feature_backlog.md` are trace rows only; do not treat them as live backlog identities or selected-next candidates
 - continuation or reopening on an existing feature family should reuse that same backlog identity by default unless the USER explicitly approves a backlog split or the work is materially a new user-facing feature family
-- Assigned Worktree Confinement is required for assigned Codex threads: branch records must report `Expected Worktree Root:`, `Actual Worktree Root:`, `No Cross-Worktree Mutation:`, and `GitHub Desktop-bound worktree`; operating outside the assigned root blocks on `Worktree Escape User Waiver Missing` until USER grants `Worktree Escape User Waiver: Granted` with exact scope, duration, validation, and return path
+- Assigned Worktree Confinement is required for assigned Codex threads: branch records must report `Active Thread Owner:`, `Thread Assignment Status:`, `Worktree Ownership Ledger:`, `Intended Write Set:`, `Same Worktree / Same Branch Collision Check:`, `Dirty Worktree Collision Check:`, `Dirty Worktree Recovery Packet:`, `Expected Worktree Root:`, `Actual Worktree Root:`, `No Cross-Worktree Mutation:`, and `GitHub Desktop-bound worktree`; operating outside the assigned root blocks on `Worktree Escape User Waiver Missing` until USER grants `Worktree Escape User Waiver: Granted` with exact scope, duration, validation, and return path
 - backlog candidate selection is priority-led; `Priority` and deferred-context fields are the selection inputs for open items
 - `Target Version` is not an open-backlog selection input and belongs only to release posture, release debt, or historical closed/implemented evidence
 - deferred open backlog entries must explain `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` before they can be selected efficiently
