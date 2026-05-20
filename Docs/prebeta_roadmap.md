@@ -67,16 +67,19 @@ Use these release-state values when relevant:
 ## Current Decision Surface
 
 Latest Public Prerelease Recorded In Source Truth: `v1.7.9-prebeta`
-Post-Release Canon Closure Drift: None for the latest public prerelease; `v1.7.9-prebeta` source truth is closed by the post-release canon closure repair.
-Published Release Pending Canon Closure: `None for current public release; v1.7.9-prebeta source truth is closed. PR #182 through PR #186 are merged-unreleased source-truth/dev-tooling support after v1.7.9-prebeta.`
-Merged-Unreleased PRs: PR #182 post-release canon closure, PR #183 worktree ownership/routing governance, PR #184 governance PR-readiness/source-truth repair, PR #185 repo-wide source-owner marker adoption, and PR #186 source-owner marker fold-down after `v1.7.9-prebeta`; PR #179, PR #180, and PR #181 are released in `v1.7.9-prebeta`.
-Current-Main Reconciliation Update: `origin/main` includes PR #186 merge commit `325cd241ec988224cf8d70fc1740f8a77b83b78b`; PR #179 and PR #180 are released implementation scope in `v1.7.9-prebeta`, PR #181 is released release-window validation support, and PR #182/#183/#184/#185/#186 are merged-unreleased source-truth/dev-tooling support.
+Post-Release Canon Closure Drift: Recorded - Git/GitHub published `v1.7.10-prebeta`; source truth intentionally records this as release-dependent closure drift until the next Branch Readiness Stage 2 closure carrier updates release-dependent fields.
+Published Release Pending Canon Closure: v1.7.10-prebeta
+Closure Repair Surface: Next Branch Readiness Stage 2
+Closure Drift Scope: release-dependent fields only
+Implementation Entry: Blocked until closure repair validates green
+Merged-Unreleased PRs: None after `v1.7.10-prebeta`; PR #182, PR #183, PR #184, PR #185, PR #186, and PR #187 are released in `v1.7.10-prebeta`.
+Current-Main Reconciliation Update: `origin/main` includes PR #187 merge commit `fe65c3bb6d11439c1ab93c82239b76a6de1b8782`; PR #182 through PR #187 are published support scope in `v1.7.10-prebeta`, and release-dependent source-truth closure is recorded as pending for the next Branch Readiness Stage 2 closure carrier.
 Active Runtime Branch: None on merged main after PR #186; the standing Governance intake branch remains active, and the source-owner marker branch is historical merged evidence with cleanup complete.
 Active Governance Branch: `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`.
 Active Governance/Package Branch: None beyond the standing Governance intake branch; `feature/repo-wide-source-owner-marker-adoption` merged in PR #185 and its worktree/local/remote branch cleanup is complete.
 Selected-Next Posture: No successor runtime or governance/package branch is selected by inertia after PR #186; future FAM-006, FAM-007, provider, marker-expansion, or Dev Toolkit work remains USER-gated.
-Release Blockers: None for the published `v1.7.9-prebeta` release; PR #182 through PR #186 remain merged-unreleased support scope for a later USER-approved Release Readiness pass, and issue work, artifacts beyond GitHub source archives, branch cleanup, successor selection, FAM-006 successor work, and FAM-007 successor work remain separate USER decisions.
-Next Legal Phase: USER decision for Release Readiness Stage 1 on merged-unreleased PR #182 through PR #186 or Branch Readiness for the next approved work lane; release execution, issue work, artifacts, successor branch/worktree creation, FAM-006 successor work, FAM-007 successor work, and runtime implementation remain separate USER decisions.
+Release Blockers: Post-release canon closure drift is recorded for `v1.7.10-prebeta`; the release is published, but release-dependent source-truth fields must close through the next Branch Readiness Stage 2 closure carrier before runtime implementation entry validates green. Issue work, artifacts beyond GitHub source archives, branch cleanup, successor selection, FAM-006 successor work, and FAM-007 successor work remain separate USER decisions.
+Next Legal Phase: USER decision for Branch Readiness Stage 2 post-release canon closure for `v1.7.10-prebeta` or Branch Readiness for the next approved work lane with closure drift carried in its setup list; issue work, artifacts beyond GitHub source archives, provider setup, consent collection, provider SDK/model work, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, successor runtime branch selection, release work, and AI Product Contract import remain separate USER decisions.
 
 ### Detailed Current Release Posture
 
@@ -114,12 +117,12 @@ Post-PR #162 Source-Truth Drift: Closed by PR #163 and the v1.7.4-prebeta releas
 Post-PR #165 Source-Truth Drift: Closed by PR #166 through PR #168 and the v1.7.5-prebeta release. PR #165 is released historical FAM-007 provider-readiness/setup-eligibility scope.
 Post-PR #170 Source-Truth Drift: Closed by the Branch Readiness Stage 2 setup after the v1.7.6-prebeta release. PR #170 is released historical FAM-007 activation-foundation scope.
 Post-PR #172 Source-Truth Drift: Closed by this Branch Readiness Stage 2 setup after the v1.7.7-prebeta release. PR #172 is released historical FAM-007 execution-readiness-gates scope.
-Post-Release Canon Closure Drift: None for latest public `v1.7.9-prebeta`; source truth records the published release and PR #179/#180/#181 release window.
-Published Release Pending Canon Closure: None for current public release.
-Closure Repair Surface: None for current public release; future closure repair belongs to the next Branch Readiness Stage 2 setup only if a later release creates drift.
+Post-Release Canon Closure Drift: Recorded - Git/GitHub published `v1.7.10-prebeta`; release-dependent source truth remains pending closure.
+Published Release Pending Canon Closure: v1.7.10-prebeta
+Closure Repair Surface: Next Branch Readiness Stage 2
 Closure Drift Scope: release-dependent fields only.
-Implementation Entry: Blocked for new runtime work until this post-release closure repair validates green and merges; FAM-006 PR #180 and FAM-007 PR #179 implementation work is released in `v1.7.9-prebeta`.
-Release-Debt Avoidance Status: No release debt remains for the `v1.7.9-prebeta` window after this closure repair; future runtime work remains USER-gated.
+Implementation Entry: Blocked until closure repair validates green.
+Release-Debt Avoidance Status: No release debt remains for the `v1.7.10-prebeta` window after publication; release-dependent source-truth closure is pending, and future runtime work remains USER-gated.
 Merged-main current active workstream: None after PR #181 and `v1.7.9-prebeta`.
 Current active workstream: None after PR #186; `Repo-Wide High-Risk Source Owner Marker Adoption` is historical merged evidence.
 Historical Validator Marker: `PR Readiness remains blocked` is retained only as prior-state traceability for the repaired FAM-006 Monitor Groups lane; PR #180 is now merged historical evidence.
@@ -174,15 +177,15 @@ Historical Workstream State: automation catalog implementation is merged histori
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Canonical Current-State Rule: merge-target current-state owners stay merge-stable and must not normalize unresolved release debt, stale canon, or cleanup-only branches as the default. Live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration live only in explicit historical PR sections of the canonical workstream and in operator output.
-Release Execution State: `v1.7.9-prebeta` is published at `2c6446d556cf2825a1dd0f3e96283fab25d60282`; PR #179, PR #180, and PR #181 are released in that release window, and PR #182 through PR #186 are merged-unreleased support scope after it.
-Release Target: None - `v1.7.9-prebeta` is published; future release targets require a later USER-approved Release Readiness pass.
+Release Execution State: `v1.7.10-prebeta` is published at `fe65c3bb6d11439c1ab93c82239b76a6de1b8782`; PR #182 through PR #187 are published support scope, and release-dependent canon closure drift is recorded for the next Branch Readiness Stage 2 closure carrier.
+Release Target: None - `v1.7.10-prebeta` is published; future release targets require a later USER-approved Release Readiness pass.
 Release Floor: None for current public release; future release floor requires later USER-approved Release Readiness.
 Version Rationale: `v1.7.9-prebeta` released PR #179 FAM-007 provider setup/consent readiness, PR #180 FAM-006 Monitor Groups Sensor Command Center, and PR #181 release-window validation support after `v1.7.8-prebeta`, while provider SDK/model execution, downloads, external calls, memory, learning, personalization, network egress, voice/Core sync, issue work, artifacts, and branch cleanup remain USER-gated.
-Release Scope: Released in `v1.7.8-prebeta`: PR #173 through PR #178. Released in `v1.7.9-prebeta`: PR #179, PR #180, and PR #181. Merged-unreleased after `v1.7.9-prebeta`: PR #182, PR #183, PR #184, PR #185, and PR #186.
-Release Artifacts: Published - lightweight tag `v1.7.9-prebeta` and GitHub Release `Pre-Beta v1.7.9` exist at tag commit `2c6446d556cf2825a1dd0f3e96283fab25d60282`; release URL `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.9-prebeta`; assets none attached.
-Post-Release Truth: `v1.7.9-prebeta` is the latest public prerelease; PR #182 through PR #186 are merged-unreleased support scope after it, and no active runtime branch authority is implied after PR #186.
-Next-Branch Creation Gate: No successor runtime branch is selected after PR #186 and `v1.7.9-prebeta`; branch creation remains USER-gated through Branch Readiness.
-Next Legal Phase: USER decision for Release Readiness Stage 1 on merged-unreleased PR #182 through PR #186 or Branch Readiness for the next approved work lane; issue work, artifacts beyond GitHub source archives, provider setup, consent collection, provider SDK/model work, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, successor runtime branch selection, release, and AI Product Contract import remain separate USER decisions.
+Release Scope: Released in `v1.7.8-prebeta`: PR #173 through PR #178. Released in `v1.7.9-prebeta`: PR #179, PR #180, and PR #181. Released in `v1.7.10-prebeta`: PR #182, PR #183, PR #184, PR #185, PR #186, and PR #187.
+Release Artifacts: Published - lightweight tag `v1.7.10-prebeta` and GitHub Release `Pre-Beta v1.7.10` exist at tag commit `fe65c3bb6d11439c1ab93c82239b76a6de1b8782`; release URL `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.10-prebeta`; assets none attached.
+Post-Release Truth: `v1.7.10-prebeta` is published; release-dependent source-truth closure is recorded as pending through `Published Release Pending Canon Closure: v1.7.10-prebeta`, and no active runtime branch authority is implied after PR #187.
+Next-Branch Creation Gate: No successor runtime branch is selected after PR #187 and `v1.7.10-prebeta`; branch creation remains USER-gated through Branch Readiness.
+Next Legal Phase: USER decision for Branch Readiness Stage 2 post-release canon closure for `v1.7.10-prebeta` or Branch Readiness for the next approved work lane with closure drift carried in its setup list; issue work, artifacts beyond GitHub source archives, provider setup, consent collection, provider SDK/model work, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, successor runtime branch selection, release, and AI Product Contract import remain separate USER decisions.
 
 ## Selected Next Workstream
 
