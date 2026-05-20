@@ -10,7 +10,7 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `PR-readiness merge-stable historical/no-active projection after refreshed LV1 PASS, returned USER UTS PASS, PR #177 current-main reconciliation, and bounded confirmation-control affordance repair`
+- Branch Authority State: `Historical merged evidence after PR #180; no active runtime branch authority remains on merged main`
 - Bounded State: `Current-main reconciliation through origin/main 2bd54f0e34c6759e9618f42d104d80b975ecc1c3 is complete for this FAM-006 branch; origin/main PR #178 v1.7.8 release-window source-truth repair, PR #177 FAM-007 provider path and consent readiness, PR #171 Branch Runtime Engineering Plan governance, PR #172 FAM-007 execution-readiness changes, PR #173 v1.7.7 canon-closure drift truth, PR #174 worktree slot ownership governance, PR #175 PR watcher approval-default governance, and PR #176 governance efficiency reform are context, not identity. The accepted Runtime Branch Engineering Contract remains this existing branch's branch-local runtime plan authority unless a later validator or PR Readiness packet requires promotion into a branch-plan file. Right-edge rediscovery repair and Hardening H1 are green with Dashboard product edge math preserved. The returned LV1 interactive-control reliability and visual-affordance repair is implemented and H1-repaired. The latest bounded USER regression repair makes Sensor Picker row/input/keyboard checkmark activation single-path and immediate, clears paired-click suppression after each native checkbox event, reveals and focuses delete confirmation after dirty Save/Discard paths, keeps dirty-guard Discard illuminated on the far right with no dirty-guard Cancel, illuminates delete-confirmation Cancel and footer Discard, preserves Delete Monitor copy, preserves Polling Rate toggle-only activation, removes the main-dashboard Create Monitor button, makes per-sensor Display mode selection deterministic on first activation, gates Save Monitor/Discard to clean-disabled versus dirty-enabled states, and snaps dirty leave/close attempts to the unsaved prompt. The current returned UTS close-button hitbox repair makes active child windows bypass Dashboard native header/caption hit-testing and proves the Manage Monitors Close control top/middle/bottom hitbox resolves to the button. The current returned UTS minimum-size repair keeps the Dashboard visible chrome bottom edge aligned inside the native frameless window at the Qt minimum size and adds validator guardrails for the responsive small-height rule. Refreshed LV1 is PASS with full human-client proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260519_152638_974 and focused active-client WebView proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260519_194527_955, including 02_dashboard_minimum_size_bottom_edge_visible.png for the local minimum-size Dashboard edge state; the prior shortcut/tray precheck blocker is cleared by the full human-client PASS. Returned USER UTS result is PASS as of 2026-05-19; USER confirmed UTS is green and all questions are PASS. PR Readiness Stage 1 is unblocked; PR creation, merge, release, issue mutation, and branch cleanup remain separate USER decisions.`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
@@ -29,23 +29,23 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 Phase: `Historical Traceability`
 
-Stage: `PR Readiness Stage 2 live PR opened; PR-readiness validation running`
+Stage: `Merged historical evidence after PR #180`
 
 ## Phase Status
 
-Branch Authority Marker: `Historical/no-active projection for PR readiness`
+Branch Authority Marker: `Historical merged PR #180 evidence`
 
-- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/180`
+- Historical PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/180`
 - PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/180`
-Live PR Draft State: `non-draft`
-Live PR Base: `main`
-Live PR Head: `feature/fam-006-monitor-groups-sensor-configuration`
-Live PR Head SHA: `Tracks the current pushed branch head for PR #180 after each PR-review repair`
-Live PR Mergeability: `Rechecked by the PR-readiness gate after each pushed PR-review repair`
+PR State: `MERGED`
+PR Merged At: `2026-05-20T16:12:04Z`
+PR Merge Commit: `13ee9d5790cb9bf7cf2268f90bcf88707b4d31d4`
+PR Head Branch: `feature/fam-006-monitor-groups-sensor-configuration`
+PR Head SHA: `97812972da0770de2b7b17ddec0e98f21260263e`
 
-Refreshed Live Validation Stage 1 after right-edge H1 PASS found a returned USER/UTS failure: Dashboard and Manage Monitors clickable controls did not consistently light up on hover, intermittent first-click actions could miss or appear intercepted for monitor switching and close controls, and the Polling Floor label/dropdown remained product/UI-polish incorrect. USER then returned bounded follow-up findings: Save Monitor and Discard should share the lower detail-pane action row with Delete Monitor far right; Sensor Picker checkmark selection needed responsiveness stress proof; Polling Rate should not open from blank label-row space; Sensor Picker checkmark toggles should not feel like half-second delayed actions; dirty-guard Cancel should be removed; dirty-guard Discard should move far right and look interactable; delete-confirmation Cancel should be visibly illuminated; and the detail destructive action should say Delete Monitor rather than Delete Selected Monitor. USER then returned a regression: dirty/delete confirmation could appear to freeze the HUD, Source Picker checkmarks were inconsistent, and Cancel still looked greyed out. USER then returned bounded follow-up findings that the main Dashboard Create Monitor button should be removed, Display mode buttons could press without changing selection, Save Monitor/Discard should be grey while clean and illuminated while dirty, and dirty leave/close must snap to the unsaved prompt. USER then returned a bounded Dashboard minimum-size clipping finding: reducing the Dashboard to minimum clips only the bottom HUD edge. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Prior Stage 2 repair setup admitted interactive-control visual affordance and first-click reliability; latest bounded USER hitbox/checkmark-latency/confirmation-affordance/regression/follow-up/minimum-size findings were handled inside the same FAM-006 interactive-control and Dashboard geometry scope with no app-wide expansion`. Current Repair Workstream Seam: `Implemented in bounded FAM-006 runtime/helper/source-truth surfaces`. Current Hardening Seam: `H1 found and repaired a focused visual-proof false-positive where the Polling Rate screenshot label could pass while Source Filter remained open; helper proof now requires the actual Polling Rate menu open, Source Filter closed, 5s hover reset, whole-manifest failure if any live self-QA step fails, and Polling Rate hitbox proof that rejects full-row activation.` Current Live Validation Seam: `Focused active-client LV1 self-QA is PASS after the confirmation/checkmark regression repair and the Dashboard minimum-size bottom-edge repair; focused local proof now includes 02_dashboard_minimum_size_bottom_edge_visible.png plus Manage Monitors WebView proof, dirty-guard Save/Discard no-Cancel proof, dirty-delete Save/Discard confirmation reveal proof, delete-confirmation Cancel illumination proof, footer Discard illumination proof, Source Filter/Polling Rate distinct dropdown proof, Dashboard resize preservation, Polling Rate toggle-only hitbox proof, Source Picker checkmark stress proof, Display mode stress proof, dashboard Create absence proof, clean/dirty footer proof, unsaved prompt reveal proof, compact UTS handoff, and returned USER UTS PASS`. Current PR gate: `PR Readiness Stage 2 approval was granted, live PR #180 is open, and PR-readiness validation is running before any merge/release/issue/artifact/cleanup action.` Current Release Readiness Seam: `Not started`.
+Refreshed Live Validation Stage 1 after right-edge H1 PASS found a returned USER/UTS failure: Dashboard and Manage Monitors clickable controls did not consistently light up on hover, intermittent first-click actions could miss or appear intercepted for monitor switching and close controls, and the Polling Floor label/dropdown remained product/UI-polish incorrect. USER then returned bounded follow-up findings: Save Monitor and Discard should share the lower detail-pane action row with Delete Monitor far right; Sensor Picker checkmark selection needed responsiveness stress proof; Polling Rate should not open from blank label-row space; Sensor Picker checkmark toggles should not feel like half-second delayed actions; dirty-guard Cancel should be removed; dirty-guard Discard should move far right and look interactable; delete-confirmation Cancel should be visibly illuminated; and the detail destructive action should say Delete Monitor rather than Delete Selected Monitor. USER then returned a regression: dirty/delete confirmation could appear to freeze the HUD, Source Picker checkmarks were inconsistent, and Cancel still looked greyed out. USER then returned bounded follow-up findings that the main Dashboard Create Monitor button should be removed, Display mode buttons could press without changing selection, Save Monitor/Discard should be grey while clean and illuminated while dirty, and dirty leave/close must snap to the unsaved prompt. USER then returned a bounded Dashboard minimum-size clipping finding: reducing the Dashboard to minimum clips only the bottom HUD edge. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Prior Stage 2 repair setup admitted interactive-control visual affordance and first-click reliability; latest bounded USER hitbox/checkmark-latency/confirmation-affordance/regression/follow-up/minimum-size findings were handled inside the same FAM-006 interactive-control and Dashboard geometry scope with no app-wide expansion`. Current Repair Workstream Seam: `Implemented in bounded FAM-006 runtime/helper/source-truth surfaces`. Current Hardening Seam: `H1 found and repaired a focused visual-proof false-positive where the Polling Rate screenshot label could pass while Source Filter remained open; helper proof now requires the actual Polling Rate menu open, Source Filter closed, 5s hover reset, whole-manifest failure if any live self-QA step fails, and Polling Rate hitbox proof that rejects full-row activation.` Current Live Validation Seam: `Focused active-client LV1 self-QA is PASS after the confirmation/checkmark regression repair and the Dashboard minimum-size bottom-edge repair; focused local proof now includes 02_dashboard_minimum_size_bottom_edge_visible.png plus Manage Monitors WebView proof, dirty-guard Save/Discard no-Cancel proof, dirty-delete Save/Discard confirmation reveal proof, delete-confirmation Cancel illumination proof, footer Discard illumination proof, Source Filter/Polling Rate distinct dropdown proof, Dashboard resize preservation, Polling Rate toggle-only hitbox proof, Source Picker checkmark stress proof, Display mode stress proof, dashboard Create absence proof, clean/dirty footer proof, unsaved prompt reveal proof, compact UTS handoff, and returned USER UTS PASS`. Historical PR gate: `PR Readiness Stage 2 approval opened PR #180; PR #180 merged at 2026-05-20T16:12:04Z with merge commit 13ee9d5790cb9bf7cf2268f90bcf88707b4d31d4. Release Readiness, issue work, artifacts, branch cleanup, and successor selection remain separate USER decisions.` Current Release Readiness Seam: `Pending candidate inspection from updated origin/main`.
 
-PR #180 Bot Review Repair: `Addressed P2 empty-monitor durability comment by preserving an explicit empty cards object in setMonitoringHudControlState and stored-state restore paths, keeping selectedMonitorId empty when no monitor exists, marking the monitor list as true empty state, and adding empty-cards persistence proof hooks to HUD validators.`
+PR #180 Bot Review Repair: `Addressed P2 empty-monitor durability comment by preserving an explicit empty cards object in setMonitoringHudControlState and stored-state restore paths, keeping selectedMonitorId empty when no monitor exists, marking the monitor list as true empty state, and adding empty-cards persistence proof hooks to HUD validators. Post-merge Codex review reported no major issues.`
 
 ## Branch Class
 
@@ -792,7 +792,7 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Blockers
 
-Returned LV1 interactive-control reliability and visual-affordance repair plus the bounded action-row, Polling Rate hitbox, Source Picker checkmark latency, dirty-guard confirmation, delete-confirmation Cancel illumination, and Delete Monitor copy repair are implemented and automated refreshed LV1 precheck is PASS. Returned USER UTS is PASS as of 2026-05-19, so PR Readiness Stage 1 is unblocked. PR Readiness Stage 2, PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
+Returned LV1 interactive-control reliability and visual-affordance repair plus the bounded action-row, Polling Rate hitbox, Source Picker checkmark latency, dirty-guard confirmation, delete-confirmation Cancel illumination, and Delete Monitor copy repair are implemented and automated refreshed LV1 precheck is PASS. Returned USER UTS is PASS as of 2026-05-19, and PR #180 merged this branch on 2026-05-20. Release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, branch cleanup, successor selection, and AI Product work remain pending USER decisions for later phases.
 
 ## Exit Criteria
 
@@ -803,7 +803,7 @@ Returned LV1 interactive-control reliability and visual-affordance repair plus t
 - FAM-006 v1.7.1-prebeta release closure remains green.
 - FAM-006 released issue closeout posture is preserved.
 - Directly supporting validators pass.
-- PR Readiness Stage 1 is unblocked by refreshed USER UTS PASS; Stage 2 and PR creation remain later USER-gated phases.
+- PR #180 merged after refreshed USER UTS PASS, PR Readiness Stage 2 approval, and PR creation; release execution, issue work, branch cleanup, and successor selection remain later USER-gated phases.
 - Required validation passes.
 - Dashboard right-edge rediscovery Repair Workstream implementation and H1 are validated and pushed; current returned LV1 USER review is PASS after the automated PASS handoff refreshed after confirmation-control affordance repair.
 
@@ -823,7 +823,7 @@ Selected Next Implementation Branch: `Not created`
 
 Successor Selection Status: `Deferred by USER-approved selected-next defer posture; successor branch creation, package admission, issue mutation, release execution, provider/model work, and branch cleanup remain later USER decisions.`
 
-Current Carrier Branch: `feature/fam-006-monitor-groups-sensor-configuration`; this is not an uncreated successor branch.
+Current Carrier Branch: `None after PR #180 merge; feature/fam-006-monitor-groups-sensor-configuration is historical merged evidence.`
 
 Repair-Only Branch Handling: `feature/fam-006-sensor-hud-provider-governance` is repair-only/dev-tooling-governance history and does not imply Branch Readiness admission or active branch truth for this FAM-006 Monitor Groups carrier.
 
@@ -847,7 +847,7 @@ FAM Overlap Routing: `PASS - FAM-007 and Governance remain separate lanes; any f
 
 Release Candidate Anchor Projection: `PASS - current origin/main after the future merge becomes the Release Readiness inspection target unless USER selects another release candidate anchor; this record does not execute release work.`
 
-Release Window Contributor Inventory: `PASS - projected release window includes this FAM-006 Monitor Groups / Sensor Command Center branch after merge plus current-main v1.7.8-prebeta context; if FAM-007, Governance, or another branch merges before release execution, Release Readiness must rerun from updated origin/main.`
+Release Window Contributor Inventory: `PASS - release window now includes PR #180 FAM-006 Monitor Groups Sensor Command Center as merged-unreleased candidate scope after v1.7.8-prebeta; if FAM-007, Governance, or another branch merges before release execution, Release Readiness must rerun from updated origin/main.`
 
 Projected Post-Merge Validation: `PASS - after merge, rerun branch governance validation, release-readiness health gate, HUD/provider validators, release body validation, validation suite recommendation, and compileall from updated main before any release execution.`
 
@@ -861,11 +861,11 @@ Governance Intake Routing: `Not required for this Stage 1 repair; Governance rem
 
 Release Window Audit: `PASS`
 
-Release Window Contributor Inventory: `PASS - projected release window includes this FAM-006 Monitor Groups / Sensor Command Center branch after merge plus current-main v1.7.8-prebeta context.`
+Release Window Contributor Inventory: `PASS - release window includes PR #180 FAM-006 Monitor Groups Sensor Command Center as merged-unreleased candidate scope after v1.7.8-prebeta.`
 
-Merged-Unreleased Release Window Scope: `Projected after merge - FAM-006 Monitor Groups / Sensor Command Center becomes release-window scope until later USER-approved release readiness and release execution.`
+Merged-Unreleased Release Window Scope: `Recorded after PR #180 merge - FAM-006 Monitor Groups Sensor Command Center is release-window scope until later USER-approved release readiness and release execution.`
 
-Remaining Known Release Blockers: `None for Stage 1; Stage 2 PR creation approval and later Release Readiness remain separate gates.`
+Remaining Known Release Blockers: `Release Readiness must inspect PR #179 and PR #180 merged-unreleased candidate scope before any v1.7.9-prebeta release execution.`
 
 Another Pre-Release Repair PR Required: `NO`
 
@@ -937,7 +937,7 @@ Reconciliation Mutation Status: `analysis-only with no file fixes during Stage 1
 
 Planned Next Branch Block: `No successor branch may be created in Stage 1 or Stage 2 unless USER separately approves Branch Readiness for a selected next workstream.`
 
-Planned Watcher Provisioning: `Stage 2 PR creation approval has been granted and PR #180 is open; watcher/proactive monitoring remains a read-only PR-readiness follow-up only if repo truth or USER explicitly requires it before merge readiness.`
+Planned Watcher Provisioning: `Historical - Stage 2 PR creation approval was granted, PR #180 opened, and post-merge review found no major issues. Future PR watchers are per-PR operator scope, not active state for this historical branch record.`
 
 Planned Validation Commands: `git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --pr-readiness-gate after PR URL exists; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_monitoring_hud_surface_validation.py; python dev\orin_monitoring_hud_internal_sandbox_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python -m compileall -q dev desktop Audio main.py`
 
@@ -959,37 +959,37 @@ Branch Readiness Fallback: `Not required for this carrier; future successor bran
 
 Stage 1 Outcome: `Stage 1 completed; USER approved Stage 2 and PR #180 was opened`
 
-Stage 2 Sync Plan: `USER approved Stage 2; Codex fetched origin, verified clean worktree and origin/main freshness, opened live PR #180, recorded PR URL/live PR truth, and is running the PR-readiness gate before stopping short of merge/release/issue/artifact/cleanup actions.`
+Stage 2 Sync Plan: `Historical - USER approved Stage 2; Codex fetched origin, verified clean worktree and origin/main freshness, opened PR #180, recorded PR URL truth, addressed bot review, and PR #180 merged before release/issue/artifact/cleanup actions.`
 
 Drift Findings: `No current-main drift; no FAM-007 or Governance overlap blocks Stage 2.`
 
-Blockers And Waivers Needed: `PR Readiness Stage 2 approval and PR creation approval are complete for PR #180. No waiver is recorded for merge, release, issue mutation, artifacts, raw evidence, branch cleanup, provider/model work, or successor branch creation.`
+Blockers And Waivers Needed: `PR Readiness Stage 2 approval, PR creation, and PR #180 merge are complete. No waiver is recorded for release, issue mutation, artifacts, raw evidence, branch cleanup, provider/model work, or successor branch creation.`
 
 Release Window Audit Posture: `Aggregated release-window posture; no release execution in PR Readiness Stage 1.`
 
 Rollback Plan: `If USER denies Stage 2, leave branch pushed at PR Readiness Stage 1 and do not create PR or mutate successor branches.`
 
-Next Legal Phase: `PR Readiness Stage 2 - Live PR validation and bot-review/watch status`
+Next Legal Phase: `Release Readiness inspection from updated origin/main`
 
-Stage 2 Green-Light Decision Needed: `Fulfilled by USER approval; PR #180 is open and Codex may only continue read-only PR-readiness validation/watch reporting unless USER separately approves merge, release, issue mutation, artifact/raw-evidence handling, successor branch creation, or branch cleanup.`
+Stage 2 Green-Light Decision Needed: `Fulfilled historically by USER approval and PR #180 merge; further action requires separate USER approval for release, issue mutation, artifact/raw-evidence handling, successor branch creation, or branch cleanup.`
 
 ## Next Legal Phase
 
-`PR Readiness`
+`Release Readiness`
 
-PR Readiness Stage 1 is the next canonical phase. USER returned the completed refreshed UTS result as PASS on 2026-05-19 and Codex digested that result into source truth. PR Readiness Stage 2, PR creation, merge, release, issue mutation, artifacts, and branch cleanup remain separate USER decisions.
+Release Readiness inspection from updated `origin/main` is the next canonical phase. USER returned the completed refreshed UTS result as PASS on 2026-05-19, PR Readiness Stage 2 and PR creation completed, and PR #180 merged on 2026-05-20. Release execution, issue mutation, artifacts, successor selection, and branch cleanup remain separate USER decisions.
 
 ## Next Legal Phase Digest
 
-Current Phase: `PR Readiness Stage 1`
+Current Phase: `Historical Traceability after PR #180 merge`
 
-Next Legal Phase: `PR Readiness`
+Next Legal Phase: `Release Readiness`
 
-Why This Phase Is Next: `The bounded runtime/helper/source-truth repair for returned USER LV1/UTS hover, first-click, Polling Rate copy, Polling Rate dropdown, Source Picker checkmark, Display mode activation, main-dashboard Create Monitor removal, clean/dirty footer Save/Discard states, dirty prompt scroll visibility, dirty-guard confirmation, delete-confirmation Cancel, footer Discard illumination, dirty-delete confirmation reveal, Delete Monitor copy, and Dashboard minimum-size bottom-edge clipping findings is implemented and focused active-client live-helper green. USER returned UTS PASS on 2026-05-19 with all questions treated as PASS; the prior shortcut/tray human-client precheck blocker is cleared by full human-client PASS, and any future shortcut/tray precheck failure would become a separate blocker before formal PR Readiness can go green.`
+Why This Phase Is Next: `The bounded runtime/helper/source-truth repair for returned USER LV1/UTS findings is implemented, validated, and merged through PR #180. The branch is now historical merged evidence and the next repo-level gate is Release Readiness inspection of the PR #179 and PR #180 merged-unreleased candidate window.`
 
-Approval Required: `No additional USER approval is required for PR Readiness Stage 1 analysis. PR Readiness Stage 2, PR creation, merge, release execution, issue mutation, artifacts, raw evidence handling, and branch cleanup require later explicit USER approval.`
+Approval Required: `Release Readiness analysis may inspect; release execution, issue mutation, artifacts, raw evidence handling, branch cleanup, successor branch creation, and future runtime work require later explicit USER approval.`
 
-Exact USER Approval Text: `After PR Readiness Stage 1 is green, approve PR Readiness Stage 2 for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006. Codex may prepare the PR-readiness packet and, only if Stage 2 approval explicitly includes it, create the PR without merging, releasing, mutating issues, uploading artifacts, or cleaning branches.`
+Exact USER Approval Text: `Approve Release Readiness inspection for the v1.7.9-prebeta candidate window from updated origin/main, including PR #179 and PR #180 as merged-unreleased scope. Do not execute release, mutate issues, upload artifacts, clean branches/worktrees, create successor branches, or perform new runtime work without separate approval.`
 
 Allowed Scope: `FAM-006 Dashboard and Manage Monitors interactive-control visual affordance, first-click reliability, click-interception diagnostics, Polling Rate copy/dropdown repair, Polling Rate toggle-only hitbox repair, lower detail action-row placement, Source Picker immediate-checkmark responsiveness proof, dirty-guard Save/Discard no-Cancel layout, delete-confirmation Cancel illumination, Delete Monitor copy, and directly supporting validators/helpers/UTS/source-truth updates only.`
 
