@@ -21,24 +21,24 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Intake State: `Active - RRI-20260520-003 is a USER-approved automation/worktree governance intake repairing cross-thread / cross-worktree assignment enforcement after a same-worktree collision risk on feature/repo-wide-source-owner-marker-adoption; runtime work, release execution, issue work, branch cleanup, FAM-006 mutation, FAM-007 successor creation, Repo-Wide-Source-Owner-Markers mutation, provider setup, consent collection, and model/provider execution remain separate USER decisions`
+- Intake State: `Active - RRI-20260520-003 is a USER-approved automation/worktree governance intake repairing cross-thread / cross-worktree assignment enforcement after a same-worktree collision risk on feature/repo-wide-source-owner-marker-adoption and adding the Governance Routing Barrier for off-worktree or out-of-scope work; runtime work, release execution, issue work, branch cleanup, FAM-006 mutation, FAM-007 successor creation, Repo-Wide-Source-Owner-Markers mutation, provider setup, consent collection, and model/provider execution remain separate USER decisions`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
 - Active RRI Cycle: `RRI-20260520-003`
 - Latest Closed RRI Cycle: `RRI-20260520-002`
 - Return Digest Status: `Pending - RRI-20260520-003 must validate, commit, push, complete the USER-approved PR/merge/return path, and then leave thread/worktree ownership enforcement source truth available before any lane resumes mutation`
-- Active Cycle Identity: `RRI-20260520-003 originates from Governance incident analysis for cross-thread / cross-worktree assignment violation risk involving C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers on feature/repo-wide-source-owner-marker-adoption; repair scope is non-runtime worktree/thread ownership source truth, prompt contract, validator support, and dirty-worktree collision recovery only`
+- Active Cycle Identity: `RRI-20260520-003 originates from Governance incident analysis for cross-thread / cross-worktree assignment violation risk involving C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers on feature/repo-wide-source-owner-marker-adoption; repair scope is non-runtime worktree/thread ownership source truth, off-worktree routing barrier source truth, prompt contract, validator support, and dirty-worktree collision recovery only`
 
 ## PR Readiness Stage 2 Execution Packet
 
 - PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
-- Live PR State: `Derived from GitHub for PR #182; initial creation inspection found open, non-draft, base main, head feature/release-readiness-source-truth-intake, mergeable CLEAN at head 3f1b9a292e8299fccd6787e0845908c1b07d94d8`
-- Governance PR: `#182 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/182`
+- Live PR State: `Derived from GitHub for PR #183; initial creation inspection found open, non-draft, base main, head feature/release-readiness-source-truth-intake, mergeable MERGEABLE at head 7fc85fd5509bb410effc0b29d201cb3f4c8b486a before metadata commit`
+- Governance PR: `#183 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/183`
 - Watcher Readiness Posture: `Stage 2 default - watcher provisioning is included with USER approval for PR Readiness Stage 2 / PR creation; no separate watcher-specific approval is required unless USER explicitly waives watcher provisioning or a platform/runtime blocker is recorded`
-- Historical Merge Proof: `PR #162 is closed/merged implementation proof for FAM-007 runtime expansion; PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
-- Next Workstream User Waiver: `Not applicable - RRI-20260519-005 is a governance phase-gate repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 2 Outcome: `PR #182 created after validation for the v1.7.9-prebeta post-release canon closure repair; merge, issue work, artifacts, branch cleanup, runtime work, and successor selection remain blocked pending separate USER approval, and live PR state must be derived from GitHub rather than maintained as a stale manual field`
+- Historical Merge Proof: `PR #182 is closed/merged proof for the v1.7.9-prebeta post-release canon closure repair; PR #162 is closed/merged implementation proof for FAM-007 runtime expansion; PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
+- Next Workstream User Waiver: `Not applicable - RRI-20260520-003 is a governance automation/worktree safety repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
+- Stage 2 Outcome: `PR #183 created after validation for the worktree ownership confinement and Governance Routing Barrier repair; merge, issue work, artifacts, branch cleanup, runtime work, Repo-Wide-Source-Owner-Markers recovery, and successor selection remain blocked pending separate USER approval, and live PR state must be derived from GitHub rather than maintained as a stale manual field`
 
 ## Branch Class
 
@@ -225,7 +225,7 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 Active seam: `RRI-20260520-003 - cross-thread worktree assignment enforcement repair`
 
-Seam Goal: `Prevent recurrence of cross-thread / cross-worktree assignment violations by making assigned worktree confinement, active thread ownership, same-worktree/same-branch collision checks, and dirty-worktree recovery machine-checkable before mutation.`
+Seam Goal: `Prevent recurrence of cross-thread / cross-worktree assignment violations by making assigned worktree confinement, active thread ownership, same-worktree/same-branch collision checks, dirty-worktree recovery, off-worktree work routing, Governance Routing Barrier, and New Worktree Decision Gate machine-checkable before mutation.`
 
 Seam Scope: `Governance/source-truth docs, prompt templates, validation helper registry, this standing governance branch authority record, and dev/orin_branch_governance_validation.py.`
 
