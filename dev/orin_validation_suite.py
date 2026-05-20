@@ -163,6 +163,13 @@ def _surface_commands(changed_files: tuple[str, ...]) -> tuple[ValidationCommand
                 "shared source-truth files changed, so release-readiness health must be rechecked",
             )
         )
+    if "source_owner_marker" in normalized or "source-owner" in normalized:
+        commands.append(
+            ValidationCommand(
+                r"python dev\orin_source_owner_marker_validation.py",
+                "checks source-owner marker syntax, ledger linkage, shared-surface coverage, and protected Compact-AI posture",
+            )
+        )
     return tuple(commands)
 
 
