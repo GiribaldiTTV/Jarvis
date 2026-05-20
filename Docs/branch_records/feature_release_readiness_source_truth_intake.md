@@ -21,24 +21,24 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Intake State: `Active - RRI-20260520-001 is a USER-approved Release Readiness source-truth intake and governance-efficiency hardening repair for the post-PR #180 v1.7.9-prebeta candidate window; runtime work, release execution, issue work, branch cleanup, FAM-006 mutation, FAM-007 successor creation, provider setup, consent collection, and model/provider execution remain separate USER decisions`
+- Intake State: `Active - RRI-20260520-002 is a USER-approved post-release canon closure repair for v1.7.9-prebeta after release publication; runtime work, release execution, issue work, branch cleanup, FAM-006 mutation, FAM-007 successor creation, provider setup, consent collection, and model/provider execution remain separate USER decisions`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
-- Active RRI Cycle: `RRI-20260520-001`
+- Active RRI Cycle: `RRI-20260520-002`
 - Latest Closed RRI Cycle: `RRI-20260519-006`
-- Return Digest Status: `Pending - RRI-20260520-001 must validate, commit, push, complete the USER-approved PR/merge/return path, and then route Release Readiness inspection back to updated origin/main`
-- Active Cycle Identity: `RRI-20260520-001 originates from post-PR #180 governance audit at origin/main 13ee9d5790cb9bf7cf2268f90bcf88707b4d31d4; repair scope is PR #179 and PR #180 merged-unreleased v1.7.9-prebeta candidate source truth, FAM-006 PR #180 historical merged evidence, backlog/roadmap compactness, and governance-efficiency validator prevention for branch-local live-state duplication`
+- Return Digest Status: `Pending - RRI-20260520-002 must validate, commit, push, complete the USER-approved PR/merge/return path, and then leave source truth aligned to published v1.7.9-prebeta before any next runtime Branch Readiness`
+- Active Cycle Identity: `RRI-20260520-002 originates from post-release canon closure drift after v1.7.9-prebeta published at 2c6446d556cf2825a1dd0f3e96283fab25d60282; repair scope is release-dependent source truth only, recording PR #179, PR #180, and PR #181 as released in v1.7.9-prebeta and clearing merged-unreleased candidate posture`
 
 ## PR Readiness Stage 2 Execution Packet
 
 - PR Readiness Stage: `PR Readiness Stage 2 - Execution Gate`
-- Live PR State: `Derived from GitHub for PR #178; initial creation inspection found non-draft, base main, head feature/release-readiness-source-truth-intake, mergeable CLEAN at head 27abfd06e35f74c7beea25e2420b35034be4e0c0`
-- Governance PR: `#178 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/178`
+- Live PR State: `Derived from GitHub for PR #182; initial creation inspection found open, non-draft, base main, head feature/release-readiness-source-truth-intake, mergeable CLEAN at head 3f1b9a292e8299fccd6787e0845908c1b07d94d8`
+- Governance PR: `#182 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/182`
 - Watcher Readiness Posture: `Stage 2 default - watcher provisioning is included with USER approval for PR Readiness Stage 2 / PR creation; no separate watcher-specific approval is required unless USER explicitly waives watcher provisioning or a platform/runtime blocker is recorded`
 - Historical Merge Proof: `PR #162 is closed/merged implementation proof for FAM-007 runtime expansion; PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
 - Next Workstream User Waiver: `Not applicable - RRI-20260519-005 is a governance phase-gate repair and does not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 2 Outcome: `PR #178 created after validation; USER approved merge for this bounded source-truth repair while runtime/release/issue/branch-cleanup work remains blocked, and live PR state must be derived from GitHub rather than maintained as a stale manual field`
+- Stage 2 Outcome: `PR #182 created after validation for the v1.7.9-prebeta post-release canon closure repair; merge, issue work, artifacts, branch cleanup, runtime work, and successor selection remain blocked pending separate USER approval, and live PR state must be derived from GitHub rather than maintained as a stale manual field`
 
 ## Branch Class
 
@@ -66,10 +66,10 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only for release-blocker intake; USER-approved automation/worktree governance intake may also use this standing lane when the repair is non-runtime, multi-worktree safety related, and held to the same one-cycle/PR-gated contract; USER-approved phase-gate governance intake may also use this standing lane when a live branch exposes a repeatable Branch Readiness, PR Readiness, Release Readiness, or Workstream gate miss and the repair is limited to governance/source-truth/validator/helper prevention; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `RRI-20260520-001`
+- Active RRI Cycle: `RRI-20260520-002`
 - Latest Closed RRI Cycle: `RRI-20260519-006`
-- Return Digest Status: `Pending - RRI-20260520-001 must validate, commit, push, complete the USER-approved PR/merge/return path, and then route Release Readiness inspection back to updated origin/main`
-- Active Cycle Identity: `RRI-20260520-001 originates from post-PR #180 governance audit at origin/main 13ee9d5790cb9bf7cf2268f90bcf88707b4d31d4; repair scope is PR #179 and PR #180 merged-unreleased v1.7.9-prebeta candidate source truth, FAM-006 PR #180 historical merged evidence, backlog/roadmap compactness, and governance-efficiency validator prevention for branch-local live-state duplication`
+- Return Digest Status: `Pending - RRI-20260520-002 must validate, commit, push, complete the USER-approved PR/merge/return path, and then leave source truth aligned to published v1.7.9-prebeta before any next runtime Branch Readiness`
+- Active Cycle Identity: `RRI-20260520-002 originates from post-release canon closure drift after v1.7.9-prebeta published at 2c6446d556cf2825a1dd0f3e96283fab25d60282; repair scope is release-dependent source truth only, recording PR #179, PR #180, and PR #181 as released in v1.7.9-prebeta and clearing merged-unreleased candidate posture`
 - One Active Cycle: Required operationally while a cycle is in flight. A second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main; the standing Governance branch is the only branch class where merged source truth does not require a separate closeout PR solely to clear or rewrite the cycle ledger.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Pre-Rebaseline Impact Audit: Required before the standing branch, neutral main workspace, or any originating worktree fast-forwards, merges, rebases, branch-switches, or otherwise baselines to newer `origin/main`; report `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before mutation.
@@ -210,11 +210,11 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `RRI-20260520-001 - post-PR #180 release-window source-truth and efficiency guard repair`
+Active seam: `RRI-20260520-002 - v1.7.9-prebeta post-release canon closure repair`
 
-Seam Goal: `Clear post-PR #180 Release Readiness source-truth blockers by recording PR #179 and PR #180 as merged-unreleased v1.7.9-prebeta candidate scope, marking the FAM-006 Monitor Groups branch as historical merged PR #180 evidence, and preventing backlog/roadmap from carrying branch-local live-state duplication after merge.`
+Seam Goal: `Close post-release canon drift by recording v1.7.9-prebeta as the latest public prerelease, recording PR #179, PR #180, and PR #181 as released in that window, and clearing merged-unreleased candidate wording for the now-published release.`
 
-Seam Scope: `Docs/feature_backlog.md, Docs/prebeta_roadmap.md, Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md, this standing governance branch authority record, dev/orin_governance_efficiency_validation.py, and only validator/source-truth support required by validation.`
+Seam Scope: `Docs/feature_backlog.md, Docs/prebeta_roadmap.md, this standing governance branch authority record, and only release-dependent source-truth support required by validation.`
 
 Seam Non-Includes: `runtime/provider/model/memory/voice/Core/shortcut/installer work, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag/GitHub Release/artifact work, issue work, branch deletion, worktree cleanup, broad historical migration, direct-main source mutation, or changing canonical phase names.`
 
