@@ -847,7 +847,7 @@ Hard blockers:
 - `User Test Summary Results Pending`:
   Live Validation and PR Readiness cannot be green while a user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted, waived, digested into the active authority record, and reevaluated. Workstream must not list this blocker as the reason to stop implementation; unresolved product work belongs to `Backlog Completion Unproven`, named implementation blockers, or the next bounded Workstream seam.
 - `PR Creation Pending`:
-  PR Readiness package-ready is not PR Readiness green. PR Readiness cannot be green until the GitHub PR exists for the current head branch and base branch.
+  PR Readiness package-ready is not PR Readiness green. PR Readiness Stage 1 may record `Pre-PR Live State: No live PR`, `PR Creation Approval: Pending USER approval`, and `Stage 2 PR Creation: Pending USER approval` while it is still analyzing and repairing pre-PR posture; that state is lawful only before Stage 2 approval and must not be reported as PR-ready green. PR Readiness cannot be green until Stage 2 has USER approval and the GitHub PR exists for the current head branch and base branch.
 - `PR Validation Pending`:
   PR Readiness cannot be green until the existing PR has been validated as open, non-draft, conflict-free, aligned to the merge-target canon, and clear of unresolved Codex comments/issues or requested changes.
 - `PR State Unknown`:
@@ -857,6 +857,8 @@ Hard blockers:
   This preserves the existing analysis-first blocker repair gate inside the readiness lock.
 - `PR Readiness Stage 1 Repair Pending`:
   When PR Readiness Stage 1 finds repo drift, source-truth drift, validator drift, branch-authority drift, or a PR-readiness blocker that can be repaired on the current branch, Stage 1 records `PR Readiness Stage 1 Repair Required` and must remain in Stage 1 until the repair is complete. Stage 1 repair/sync may mutate, stage, commit, and push the active branch only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that bounded PR-readiness repair work; Stage 1 specifically owns selected-next branch/workstream truth or USER waiver, merge-target `No Active Branch` projection only when explicitly waived, no-release-debt posture, any unavoidable merged-unreleased release-debt owner contract, and active-branch-authority cleanup when those items are found, and they must not be deferred to Stage 2 as planned sync. Stage 1 still cannot create a PR, provision a watcher, create a branch, admit a package, waive single-slice rules, create a tag, create release artifacts, draft or publish a GitHub Release, or execute a release. Stage 1 may encode selected-next truth only when USER explicitly approves that selected-next sync, and it still must leave branch creation plus runtime package admission blocked for Branch Readiness.
+- `No Successor Runtime Branch By Inertia`:
+  Source-only, docs-only, governance, validator, or repo-wide support branches must not invent the next runtime carrier merely to satisfy selected-next gates. When USER explicitly approves no successor runtime branch by inertia, Stage 1 must record `No Successor Runtime Branch By Inertia: USER-waived`, `Selected-Next Defer User Waiver: Granted`, and a post-merge `No Active Branch` projection. That waiver clears the selected-next blocker only for the current non-runtime/support branch; it does not create, select, or admit a runtime successor.
 - `Stage 1 USER Waiver Required`:
   PR Readiness Stage 1 may request an explicit USER waiver for a required next-workstream/package recommendation or other Stage 1 review item only when repo truth allows a waiver. Without the waiver, Stage 1 remains active and Stage 2 cannot begin.
 - `Next Workstream User Waiver Missing`:
@@ -2350,13 +2352,23 @@ Before meaningful repo work, file mutation, phase entry, branch/worktree creatio
 
 When relevant, the lock must also verify runtime/process ownership and GitHub Desktop folder binding.
 
-Assigned parallel worktree mode is allowed when USER explicitly assigns different Codex threads to different active branch worktrees. The default limit is two active branch worktrees. Each assigned worktree must have one owning thread, one branch, one write target, and one source-truth owner set. A third active branch worktree, unknown owner, unknown write target, or overlapping same-file/source-truth-owner mutation is `Parallel Worktree Coordination Missing` until USER routes the work.
+Assigned parallel worktree mode is allowed when USER explicitly assigns different Codex threads to different active branch worktrees. The default limit is two active branch worktrees. Each assigned worktree must have one owning thread, one branch, one write target, one worktree ownership ledger, one intended write set, and one source-truth owner set. A third active branch worktree, unknown active thread owner, unknown write target, missing worktree ownership ledger, same-worktree/same-branch collision, dirty-worktree ownership ambiguity, or overlapping same-file/source-truth-owner mutation is `Parallel Worktree Coordination Missing` until USER routes the work.
 
 An assigned thread may also be in `Waiting For Updated Main` posture. This is valid when that thread is in Release Readiness analysis, Branch Readiness Stage 1 analysis, or another file-freeze analysis state and is waiting for a different branch to merge before creating or continuing its branch. A waiting thread is not an active mutation carrier; it must remain read-only, must not create a branch from stale source truth, and must rerun preflight after `origin/main` updates.
 
 Before mutation in assigned parallel worktree mode, each thread must report:
 
 - assigned thread / worktree owner
+- Active Thread Owner:
+- Thread Assignment Status:
+- Worktree Ownership Ledger:
+- Intended Write Set:
+- Same Worktree / Same Branch Collision Check:
+- Dirty Worktree Collision Check:
+- Dirty Worktree Recovery Packet:
+- Off-Worktree Work Routing:
+- Governance Routing Barrier:
+- New Worktree Decision Gate:
 - expected path, git root, branch, upstream, `HEAD`, and `origin/main`
 - worktree role and phase/seam
 - intended write target and source-truth owner
@@ -2367,11 +2379,13 @@ Before mutation in assigned parallel worktree mode, each thread must report:
 - GitHub Desktop binding when Desktop is used
 - waiting status if the assigned lane has no created branch yet and is blocked on updated `origin/main`
 
-Only one related Git operation should run at a time where practical, and only one interactive desktop validation may run at a time. If a branch needs a shared source-truth file already being edited by the other assigned worktree, stop and surface the coordination decision before patching.
+Only one related Git operation should run at a time where practical, and only one interactive desktop validation may run at a time. If a branch needs a shared source-truth file already being edited by the other assigned worktree, or if two Codex threads target the same worktree/branch, stop and surface the coordination decision before patching.
 
 If the active folder, branch, upstream, worktree role, phase/seam, write target, runtime/process owner, or GitHub Desktop binding does not match the requested work, `Thread / Worktree Identity Mismatch` blocks entry and Codex must return a routing packet instead of mutating files.
 
 The routing packet must include expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected phase/seam, actual repo state, mismatch evidence, and safest next correction.
+
+If the requested work belongs outside the assigned worktree, outside the active branch scope, or to another active lane, Codex must stop on `Governance Routing Barrier` and route the packet to `C:\Nexus Worktrees\Governance` on `feature/release-readiness-source-truth-intake`. Governance decides whether the work belongs to the current owner, an existing worktree/thread, a new worktree/thread, or a USER waiver. New worktree/thread creation, activation, reassignment, and GitHub Desktop repo binding remain blocked on `New Worktree Decision Gate` until USER approves the exact path, branch, owner, and validation route.
 
 ### Assigned Worktree Confinement
 
@@ -2380,6 +2394,16 @@ Assigned Worktree Confinement is mandatory once a thread is assigned to a specif
 Every assigned branch authority record must carry:
 
 - Assigned Worktree Confinement: Required
+- Active Thread Owner:
+- Thread Assignment Status:
+- Worktree Ownership Ledger:
+- Intended Write Set:
+- Same Worktree / Same Branch Collision Check:
+- Dirty Worktree Collision Check:
+- Dirty Worktree Recovery Packet:
+- Off-Worktree Work Routing:
+- Governance Routing Barrier:
+- New Worktree Decision Gate:
 - Expected Worktree Root:
 - Actual Worktree Root:
 - No Cross-Worktree Mutation: Required
@@ -2387,7 +2411,11 @@ Every assigned branch authority record must carry:
 - Worktree Escape User Waiver: Granted only when USER explicitly names the expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path
 - Worktree Escape User Waiver Missing: Blocks mutation, branch/worktree changes, runtime launch, shortcut/provider/model actions, PR/release actions, and GitHub Desktop handoff outside the assigned worktree
 
-Read-only identity checks may inspect `git worktree list`, remotes, branch names, and GitHub Desktop binding evidence from the assigned root. Any write, branch switch, cleanup, runtime launch, shortcut edit, or helper execution against a sibling worktree or parked clone is `No Cross-Worktree Mutation` scope and must stop on `Worktree Escape User Waiver Missing` unless the USER grants the waiver in clear text.
+Read-only identity checks may inspect `git worktree list`, remotes, branch names, dirty-file inventory, and GitHub Desktop binding evidence from the assigned root. Any write, branch switch, cleanup, runtime launch, shortcut edit, or helper execution against a sibling worktree or parked clone is `No Cross-Worktree Mutation` scope and must stop on `Worktree Escape User Waiver Missing` unless the USER grants the waiver in clear text.
+
+Dirty worktree collision recovery is mandatory when a target worktree is dirty before a new owner claims it. Freeze mutation, inventory dirty files, identify which thread owns each file, preserve or discard only with USER approval, and resume with exactly one active owner recorded in the worktree ownership ledger.
+
+Off-worktree work routing is mandatory when a branch thread discovers work that does not belong to its assigned worktree or active branch. The discovering thread reports the issue, expected/actual identity, dirty-file risk, likely owning lane, and recommendation, then waits. It must not self-activate a sibling worktree, take over another active thread's branch, or create a new worktree by convenience.
 
 The active thread must run or report the equivalent of `python dev\orin_branch_governance_validation.py --worktree-confinement-gate` before Stage 2 execution, phase entry, branch/worktree creation, commit, push, PR work, release work, runtime validation, or GitHub Desktop handoff when the assigned branch record declares a worktree.
 

@@ -2598,6 +2598,16 @@ ASSIGNED_WORKTREE_CONFINEMENT_DOCS = (
 )
 ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
     "Assigned Worktree Confinement",
+    "Active Thread Owner",
+    "Thread Assignment Status",
+    "Worktree Ownership Ledger",
+    "Intended Write Set",
+    "Same Worktree / Same Branch Collision Check",
+    "Dirty Worktree Collision Check",
+    "Dirty Worktree Recovery Packet",
+    "Off-Worktree Work Routing",
+    "Governance Routing Barrier",
+    "New Worktree Decision Gate",
     "Worktree Escape User Waiver: Granted",
     "Worktree Escape User Waiver Missing",
     "Expected Worktree Root:",
@@ -2607,6 +2617,16 @@ ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
 )
 ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
     "Assigned Worktree Confinement",
+    "Active Thread Owner",
+    "Thread Assignment Status",
+    "Worktree Ownership Ledger",
+    "Intended Write Set",
+    "Same Worktree / Same Branch Collision Check",
+    "Dirty Worktree Collision Check",
+    "Dirty Worktree Recovery Packet",
+    "Off-Worktree Work Routing",
+    "Governance Routing Barrier",
+    "New Worktree Decision Gate",
     "Expected Worktree Root",
     "Actual Worktree Root",
     "No Cross-Worktree Mutation",
@@ -14116,7 +14136,45 @@ def _run_next_workstream_gate(
                 "selected-next defer user waiver: granted",
                 "selected-next user waiver: granted",
                 "user-approved selected-next defer",
+                "no successor runtime branch by inertia: user-waived",
+                "no successor runtime branch by inertia: granted",
             )
+        )
+
+    def source_only_no_successor_defer_exists() -> bool:
+        normalized_record = active_branch_record_text.casefold()
+        explicit_no_successor = any(
+            marker in normalized_record
+            for marker in (
+                "no successor runtime branch by inertia: user-waived",
+                "no successor runtime branch by inertia: granted",
+                "selected no runtime successor",
+            )
+        )
+        source_only_posture = any(
+            marker in normalized_record
+            for marker in (
+                "source-only",
+                "docs-only",
+                "source-truth",
+                "dev-only source comments",
+            )
+        )
+        pre_pr_or_stage1_pending = any(
+            marker in normalized_record
+            for marker in (
+                "pr creation approval missing",
+                "pr readiness stage 1 pending",
+                "pr readiness stage 1 remains pending",
+                "pr readiness stage 1 approval",
+            )
+        )
+        return (
+            explicit_no_successor
+            and "no active branch" in normalized_record
+            and source_only_posture
+            and pre_pr_or_stage1_pending
+            and "successor selection user approval: granted" not in normalized_record
         )
 
     def explicitly_records_no_selected_next(blocker: str) -> bool:
@@ -14145,6 +14203,8 @@ def _run_next_workstream_gate(
                         f"{not_closed_entries}"
                     ),
                 )
+                return
+            if source_only_no_successor_defer_exists():
                 return
             if explicitly_records_no_selected_next(BACKLOG_ADDITION_USER_APPROVAL_BLOCKER):
                 if successor_selection_defer_waiver_exists():
@@ -15469,15 +15529,43 @@ def _pre_pr_stage1_state_allows_missing_live_pr(
 ) -> bool:
     normalized_record = active_branch_record_text.casefold()
     normalized_error = pr_error.casefold()
-    return (
-        "pre-pr live state:" in normalized_record
-        and "no live pr" in normalized_record
-        and "pr readiness stage 2" in normalized_record
-        and "pr creation approval missing" in normalized_record
-        and (
-            "no pull requests found" in normalized_error
-            or "no open pull request" in normalized_error
+    no_pr_error = (
+        "no pull requests found" in normalized_error
+        or "no open pull request" in normalized_error
+    )
+    stage1_context_recorded = any(
+        marker in normalized_record
+        for marker in (
+            "pr readiness stage 1",
+            "stage 1 ready for stage 2",
+            "stage 1 user waiver required",
         )
+    )
+    pre_pr_state_recorded = (
+        (
+            "pre-pr live state:" in normalized_record
+            and "no live pr" in normalized_record
+        )
+        or "pre-pr live state: `no live pr`" in normalized_record
+        or (
+            "pr creation approval missing" in normalized_record
+            and "live pr state: `open`" not in normalized_record
+        )
+    )
+    creation_pending_recorded = any(
+        marker in normalized_record
+        for marker in (
+            "pr creation approval missing",
+            "pr creation approval: pending",
+            "stage 2 pr creation: pending",
+            "pr readiness execution user approval missing",
+        )
+    )
+    return (
+        no_pr_error
+        and stage1_context_recorded
+        and pre_pr_state_recorded
+        and creation_pending_recorded
     )
 
 
@@ -16363,6 +16451,54 @@ def _run_worktree_confinement_gate(require) -> None:
         require(
             marker in confinement,
             f"{record_path}: Assigned Worktree Confinement is missing '{marker}:'",
+        )
+
+    owner_state = _extract_marker_value(confinement, "Active Thread Owner")
+    assignment_state = _extract_marker_value(confinement, "Thread Assignment Status")
+    ledger_state = _extract_marker_value(confinement, "Worktree Ownership Ledger")
+    write_set = _extract_marker_value(confinement, "Intended Write Set")
+    same_worktree_state = _extract_marker_value(
+        confinement, "Same Worktree / Same Branch Collision Check"
+    )
+    dirty_collision_state = _extract_marker_value(
+        confinement, "Dirty Worktree Collision Check"
+    )
+    recovery_packet = _extract_marker_value(confinement, "Dirty Worktree Recovery Packet")
+    off_worktree_routing = _extract_marker_value(confinement, "Off-Worktree Work Routing")
+    governance_barrier = _extract_marker_value(confinement, "Governance Routing Barrier")
+    new_worktree_gate = _extract_marker_value(confinement, "New Worktree Decision Gate")
+    for marker, value in (
+        ("Active Thread Owner", owner_state),
+        ("Thread Assignment Status", assignment_state),
+        ("Worktree Ownership Ledger", ledger_state),
+        ("Intended Write Set", write_set),
+        ("Same Worktree / Same Branch Collision Check", same_worktree_state),
+        ("Dirty Worktree Collision Check", dirty_collision_state),
+        ("Dirty Worktree Recovery Packet", recovery_packet),
+        ("Off-Worktree Work Routing", off_worktree_routing),
+        ("Governance Routing Barrier", governance_barrier),
+        ("New Worktree Decision Gate", new_worktree_gate),
+    ):
+        normalized_value = value.casefold()
+        require(
+            bool(value)
+            and "unknown" not in normalized_value
+            and "not checked" not in normalized_value
+            and "not recorded" not in normalized_value,
+            f"{record_path}: Assigned Worktree Confinement '{marker}:' must be explicit before mutation",
+        )
+
+    tracked_status = _git_status_porcelain(tracked_only=True)
+    if tracked_status:
+        normalized_dirty = dirty_collision_state.casefold()
+        require(
+            "owner claimed" in normalized_dirty
+            or "current owner" in normalized_dirty
+            or "no unowned" in normalized_dirty,
+            (
+                "Dirty Worktree Collision Check must name the active owner before "
+                f"continuing with dirty tracked files: {tracked_status}"
+            ),
         )
 
     if expected_root and actual_root:

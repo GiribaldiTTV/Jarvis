@@ -172,6 +172,36 @@ Bounded State:
 Assigned Worktree Confinement:
 [Required / not applicable]
 
+Active Thread Owner:
+[fill in the single Codex thread or lane owner for this worktree/branch]
+
+Thread Assignment Status:
+[assigned active owner / waiting read-only / unassigned / collision blocked]
+
+Worktree Ownership Ledger:
+[branch authority record, Branch Runtime Engineering Plan, or approved helper output that records owner and write set]
+
+Intended Write Set:
+[exact files/surfaces this thread may mutate]
+
+Same Worktree / Same Branch Collision Check:
+[Clear / Blocked on Parallel Worktree Coordination Missing with evidence]
+
+Dirty Worktree Collision Check:
+[Clean / owner claimed / dirty unowned and blocked]
+
+Dirty Worktree Recovery Packet:
+[Required when target worktree is dirty before ownership is clear: freeze mutation, inventory dirty files, identify owning thread per file, USER approves preserve/discard, resume with one active owner / not applicable]
+
+Off-Worktree Work Routing:
+[Required when requested work is outside the assigned worktree or active branch scope: route packet to C:\Nexus Worktrees\Governance / clear]
+
+Governance Routing Barrier:
+[Clear / blocked and routed to Governance with expected worktree, actual worktree, expected branch, actual branch, requested work, owning lane if known, dirty files, recommendation, and next legal phase]
+
+New Worktree Decision Gate:
+[USER-approved exact worktree/thread/branch activation / pending / not applicable]
+
 Expected Worktree Root:
 [fill in assigned worktree root, or not applicable]
 
@@ -298,6 +328,7 @@ If repo state is steady-state `No Active Branch`, do not start implementation by
 If `Bounded State` is missing, stale, or ambiguous, stop on `Bounded State Missing` before mutation.
 Broad work requests do not authorize implementation. `Continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording may execute only when repo source truth resolves it to one exact active bounded seam.
 If execution needs wider scope than the bounded state allows, stop on `Bounded State Waiver Missing` unless `Bounded State User Waiver: Granted` names the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions.
+If another active thread owns the same worktree or branch, stop on `Parallel Worktree Coordination Missing` and return a routing packet. If the target worktree is dirty before this thread owns it, stop for a `Dirty Worktree Recovery Packet`; do not clean, stash, reset, overwrite, commit, or continue by inference. If the requested work belongs outside the assigned worktree or active branch scope, stop on `Governance Routing Barrier` and route the packet to the standing Governance lane; do not self-activate a sibling worktree or create a new one by convenience.
 Do not open a governance-only branch or between-branch canon repair lane.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
@@ -796,6 +827,12 @@ If the phase is `PR Readiness`, the final response must include:
 - Planned Merge-Target Canon Updates:
 - Planned Next Branch Block:
 - Planned Watcher Provisioning:
+- Pre-PR Live State:
+- PR Creation Approval:
+- Stage 2 PR Creation:
+- No Successor Runtime Branch By Inertia:
+- Selected-Next Defer User Waiver:
+- Post-Merge No Active Branch Projection:
 - Planned Validation Commands:
 - Expected Files To Change:
 - Stage 1 Repairs Made:
