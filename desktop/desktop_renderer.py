@@ -7509,6 +7509,7 @@ class DesktopRuntimeWindow(QWidget):
             scrollbar_owner="monitoring-hud-control-hub",
             scrollbar_boundary="inner-content-well-gutter",
             outer_frame_haze="removed-no-square-layer",
+            minimum_edge_policy="native-min-size-bottom-edge-visible",
             native_resize_hit_zone="preclick-hover-cursor-aligned-14px-app-owned-resize-action",
             resize_edge_scope="all-edges-and-corners",
             resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
@@ -12202,6 +12203,7 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardProofPath = "dashboard-specific-static-live-uts";
                     monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel";
                     monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
+                    monitoringHud.dataset.dashboardMinimumEdgeProof = "native-min-size-bottom-edge-visible";
                     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
                     monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
                     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-monitor-management-child-windows";

@@ -2079,6 +2079,7 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardProofPath = "dashboard-specific-static-live-uts";
     monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel";
     monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop";
+    monitoringHud.dataset.dashboardMinimumEdgeProof = "native-min-size-bottom-edge-visible";
     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
     monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
     monitoringHud.dataset.dashboardLayoutProof = "monitor-groups-measured-no-overlap";
@@ -2259,6 +2260,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch";
     monitoringHud.dataset.dashboardAcceptanceBaseline = "ws31-dashboard-control-panel";
     monitoringHud.dataset.dashboardProofPath = "dashboard-specific-static-live-uts";
+    monitoringHud.dataset.dashboardMinimumEdgeProof = "native-min-size-bottom-edge-visible";
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
     monitoringHud.dataset.coreRepairClassification = "dependency-repair-only";
@@ -2960,6 +2962,7 @@ window.getMonitoringHudSurfaceSplitState = function() {
     dashboardProofPath: monitoringHud ? monitoringHud.dataset.dashboardProofPath || "" : "",
     dashboardStandaloneProof: monitoringHud ? monitoringHud.dataset.dashboardStandaloneProof || "" : "",
     dashboardClippingProof: monitoringHud ? monitoringHud.dataset.dashboardClippingProof || "" : "",
+    dashboardMinimumEdgeProof: monitoringHud ? monitoringHud.dataset.dashboardMinimumEdgeProof || "" : "",
     dashboardDecouplingProof: monitoringHud ? monitoringHud.dataset.dashboardDecouplingProof || "" : "",
     dashboardContentPolish: monitoringHud ? monitoringHud.dataset.dashboardContentPolish || "" : "",
     dashboardSettingsModel: monitoringHud ? monitoringHud.dataset.dashboardSettingsModel || "" : "",
@@ -2999,6 +3002,7 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
     dashboardProofPath: split.dashboardProofPath || "",
     dashboardStandaloneProof: split.dashboardStandaloneProof || "",
     dashboardClippingProof: split.dashboardClippingProof || "",
+    dashboardMinimumEdgeProof: split.dashboardMinimumEdgeProof || "",
     dashboardDecouplingProof: split.dashboardDecouplingProof || "",
     interfaceAcceptancePolicy: split.interfaceAcceptancePolicy || "",
     overlayAcceptancePolicy: split.overlayAcceptancePolicy || "",
@@ -3018,6 +3022,7 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
     dashboardStandaloneMovementReady: Boolean(
       split.dashboardStandaloneProof === "ws32-dashboard-window-travel"
       && split.dashboardClippingProof === "within-virtual-desktop"
+      && split.dashboardMinimumEdgeProof === "native-min-size-bottom-edge-visible"
       && split.dashboardDecouplingProof === "core-overlay-independent"
     ),
     dashboardSettingsContentReady: Boolean(

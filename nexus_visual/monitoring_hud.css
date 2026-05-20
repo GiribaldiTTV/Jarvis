@@ -2311,10 +2311,15 @@ body.desktop-mode #monitoring-hud > * {
 
 @media (max-width: 760px), (max-height: 620px) {
   body.desktop-mode #monitoring-hud {
-    top: 12px;
-    right: 12px;
-    width: calc(100vw - 24px);
-    height: calc(100vh - 24px);
+    /* Keep the visible chrome edge aligned with the frameless native window at the Qt minimum size. */
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    min-height: 0;
+    max-height: 100vh;
   }
 
   .monitoring-hud__title {

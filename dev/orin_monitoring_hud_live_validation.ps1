@@ -510,7 +510,7 @@ Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter d
 USER Result / Notes:
 
 Step 9 - Dashboard Resize And Move Smoothness
-Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse is still held; no resize-proof stripes, overlays, debug markers, or other proof artifacts should appear in the normal user-facing Dashboard UI.
+Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse is still held; when the Dashboard is reduced to its minimum size, the bottom HUD chrome edge remains visible and is not clipped; no resize-proof stripes, overlays, debug markers, or other proof artifacts should appear in the normal user-facing Dashboard UI.
 USER Result / Notes:
 
 Step 10 - Dashboard And Manage Monitors Control Reliability

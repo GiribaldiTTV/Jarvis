@@ -308,6 +308,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-dashboard-proof-path="dashboard-specific-static-live"',
         'data-dashboard-standalone-proof="ws32-dashboard-window-travel"',
         'data-dashboard-clipping-proof="within-virtual-desktop"',
+        'data-dashboard-minimum-edge-proof="native-min-size-bottom-edge-visible"',
         'data-dashboard-decoupling-proof="core-overlay-independent"',
         'data-dashboard-content-polish="branch2-monitor-groups-no-dead-space"',
         'data-dashboard-layout-proof="monitor-groups-measured-no-overlap"',
@@ -802,6 +803,27 @@ def _validate_static_surface(failures: list[str]) -> None:
         "scrollbar-gutter: stable;",
     ):
         _require_contains(css, needle, "HUD CSS interaction surface", failures)
+    minimum_size_media = re.search(
+        r"@media\s*\(max-width:\s*760px\),\s*\(max-height:\s*620px\)\s*\{\s*body\.desktop-mode\s+#monitoring-hud\s*\{(?P<body>.*?)\}",
+        css,
+        flags=re.DOTALL,
+    )
+    minimum_size_rule = minimum_size_media.group("body") if minimum_size_media else ""
+    for needle in (
+        "top: 0;",
+        "right: 0;",
+        "bottom: 0;",
+        "left: 0;",
+        "height: 100vh;",
+        "min-height: 0;",
+        "max-height: 100vh;",
+    ):
+        _require_contains(
+            minimum_size_rule,
+            needle,
+            "HUD minimum-size native edge CSS",
+            failures,
+        )
     monitor_manage_list_css = re.search(
         r"\.monitoring-hud__monitor-manage-list\s*\{(?P<body>.*?)\}",
         css,
@@ -868,6 +890,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'monitoringHud.dataset.interfaceAcceptancePolicy = "dashboard-only-current-branch"',
         'monitoringHud.dataset.dashboardStandaloneProof = "ws32-dashboard-window-travel"',
         'monitoringHud.dataset.dashboardClippingProof = "within-virtual-desktop"',
+        'monitoringHud.dataset.dashboardMinimumEdgeProof = "native-min-size-bottom-edge-visible"',
         'monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent"',
         'monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space"',
         'monitoringHud.dataset.dashboardLayoutProof = "monitor-groups-measured-no-overlap"',
@@ -1045,6 +1068,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "self.setWindowFlag(Qt.Window, True)",
         "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY",
         "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY",
+        'minimum_edge_policy="native-min-size-bottom-edge-visible"',
         "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY",
         "request_monitoring_hud_unanchor_from_tray",
         "request_monitoring_hud_toggle_from_tray",
