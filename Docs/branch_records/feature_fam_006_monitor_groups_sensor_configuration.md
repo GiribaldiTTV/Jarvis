@@ -10,8 +10,8 @@
 - Family: `FAM-006`
 - Package: `PKG-006 - Monitoring and HUD`
 - Branch Class: `implementation`
-- Branch Authority State: `Active FAM-006 refreshed LV1 / UTS result-pending branch after PR #177 current-main reconciliation and bounded confirmation-control affordance repair`
-- Bounded State: `Current-main reconciliation through origin/main 2bd54f0e34c6759e9618f42d104d80b975ecc1c3 is complete for this FAM-006 branch; origin/main PR #178 v1.7.8 release-window source-truth repair, PR #177 FAM-007 provider path and consent readiness, PR #171 Branch Runtime Engineering Plan governance, PR #172 FAM-007 execution-readiness changes, PR #173 v1.7.7 canon-closure drift truth, PR #174 worktree slot ownership governance, PR #175 PR watcher approval-default governance, and PR #176 governance efficiency reform are context, not identity. The accepted Runtime Branch Engineering Contract remains this existing branch's branch-local runtime plan authority unless a later validator or PR Readiness packet requires promotion into a branch-plan file. Right-edge rediscovery repair and Hardening H1 are green with Dashboard product edge math preserved. The returned LV1 interactive-control reliability and visual-affordance repair is implemented and H1-repaired. The latest bounded USER regression repair makes Sensor Picker row/input/keyboard checkmark activation single-path and immediate, clears paired-click suppression after each native checkbox event, reveals and focuses delete confirmation after dirty Save/Discard paths, keeps dirty-guard Discard illuminated on the far right with no dirty-guard Cancel, illuminates delete-confirmation Cancel and footer Discard, preserves Delete Monitor copy, preserves Polling Rate toggle-only activation, removes the main-dashboard Create Monitor button, makes per-sensor Display mode selection deterministic on first activation, gates Save Monitor/Discard to clean-disabled versus dirty-enabled states, and snaps dirty leave/close attempts to the unsaved prompt. The current returned UTS close-button hitbox repair makes active child windows bypass Dashboard native header/caption hit-testing and proves the Manage Monitors Close control top/middle/bottom hitbox resolves to the button. The current returned UTS minimum-size repair keeps the Dashboard visible chrome bottom edge aligned inside the native frameless window at the Qt minimum size and adds validator guardrails for the responsive small-height rule. Refreshed LV1 is PASS with full human-client proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260519_152638_974 and focused active-client WebView proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260519_194527_955, including 02_dashboard_minimum_size_bottom_edge_visible.png for the local minimum-size Dashboard edge state; the prior shortcut/tray precheck blocker is cleared by the full human-client PASS. Returned USER UTS result is USER_TEST_REQUIRED pending refreshed UTS review. PR Readiness remains blocked until refreshed UTS PASS or explicit waiver with reason, and blocker reevaluation.`
+- Branch Authority State: `Active FAM-006 PR Readiness Stage 1 branch after refreshed LV1 PASS, returned USER UTS PASS, PR #177 current-main reconciliation, and bounded confirmation-control affordance repair`
+- Bounded State: `Current-main reconciliation through origin/main 2bd54f0e34c6759e9618f42d104d80b975ecc1c3 is complete for this FAM-006 branch; origin/main PR #178 v1.7.8 release-window source-truth repair, PR #177 FAM-007 provider path and consent readiness, PR #171 Branch Runtime Engineering Plan governance, PR #172 FAM-007 execution-readiness changes, PR #173 v1.7.7 canon-closure drift truth, PR #174 worktree slot ownership governance, PR #175 PR watcher approval-default governance, and PR #176 governance efficiency reform are context, not identity. The accepted Runtime Branch Engineering Contract remains this existing branch's branch-local runtime plan authority unless a later validator or PR Readiness packet requires promotion into a branch-plan file. Right-edge rediscovery repair and Hardening H1 are green with Dashboard product edge math preserved. The returned LV1 interactive-control reliability and visual-affordance repair is implemented and H1-repaired. The latest bounded USER regression repair makes Sensor Picker row/input/keyboard checkmark activation single-path and immediate, clears paired-click suppression after each native checkbox event, reveals and focuses delete confirmation after dirty Save/Discard paths, keeps dirty-guard Discard illuminated on the far right with no dirty-guard Cancel, illuminates delete-confirmation Cancel and footer Discard, preserves Delete Monitor copy, preserves Polling Rate toggle-only activation, removes the main-dashboard Create Monitor button, makes per-sensor Display mode selection deterministic on first activation, gates Save Monitor/Discard to clean-disabled versus dirty-enabled states, and snaps dirty leave/close attempts to the unsaved prompt. The current returned UTS close-button hitbox repair makes active child windows bypass Dashboard native header/caption hit-testing and proves the Manage Monitors Close control top/middle/bottom hitbox resolves to the button. The current returned UTS minimum-size repair keeps the Dashboard visible chrome bottom edge aligned inside the native frameless window at the Qt minimum size and adds validator guardrails for the responsive small-height rule. Refreshed LV1 is PASS with full human-client proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260519_152638_974 and focused active-client WebView proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260519_194527_955, including 02_dashboard_minimum_size_bottom_edge_visible.png for the local minimum-size Dashboard edge state; the prior shortcut/tray precheck blocker is cleared by the full human-client PASS. Returned USER UTS result is PASS as of 2026-05-19; USER confirmed UTS is green and all questions are PASS. PR Readiness Stage 1 is unblocked; PR creation, merge, release, issue mutation, and branch cleanup remain separate USER decisions.`
 - Runtime-Specific Carrier: `FAM-006 Dashboard Monitor Groups sensor/data-source configuration`
 - Source-Truth Authority: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - No Cross-Worktree Mutation: `Required - this branch writes only inside C:\Nexus Worktrees\FAM-006`
@@ -29,13 +29,13 @@ Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-sett
 
 Phase: `Live Validation`
 
-Stage: `Refreshed LV1 / UTS result pending after automated precheck PASS`
+Stage: `PR Readiness Stage 1 after refreshed LV1 PASS and returned USER UTS PASS`
 
 ## Phase Status
 
 Branch Authority Marker: `Active Branch`
 
-Refreshed Live Validation Stage 1 after right-edge H1 PASS found a returned USER/UTS failure: Dashboard and Manage Monitors clickable controls did not consistently light up on hover, intermittent first-click actions could miss or appear intercepted for monitor switching and close controls, and the Polling Floor label/dropdown remained product/UI-polish incorrect. USER then returned bounded follow-up findings: Save Monitor and Discard should share the lower detail-pane action row with Delete Monitor far right; Sensor Picker checkmark selection needed responsiveness stress proof; Polling Rate should not open from blank label-row space; Sensor Picker checkmark toggles should not feel like half-second delayed actions; dirty-guard Cancel should be removed; dirty-guard Discard should move far right and look interactable; delete-confirmation Cancel should be visibly illuminated; and the detail destructive action should say Delete Monitor rather than Delete Selected Monitor. USER then returned a regression: dirty/delete confirmation could appear to freeze the HUD, Source Picker checkmarks were inconsistent, and Cancel still looked greyed out. USER then returned bounded follow-up findings that the main Dashboard Create Monitor button should be removed, Display mode buttons could press without changing selection, Save Monitor/Discard should be grey while clean and illuminated while dirty, and dirty leave/close must snap to the unsaved prompt. USER then returned a bounded Dashboard minimum-size clipping finding: reducing the Dashboard to minimum clips only the bottom HUD edge. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Prior Stage 2 repair setup admitted interactive-control visual affordance and first-click reliability; latest bounded USER hitbox/checkmark-latency/confirmation-affordance/regression/follow-up/minimum-size findings were handled inside the same FAM-006 interactive-control and Dashboard geometry scope with no app-wide expansion`. Current Repair Workstream Seam: `Implemented in bounded FAM-006 runtime/helper/source-truth surfaces`. Current Hardening Seam: `H1 found and repaired a focused visual-proof false-positive where the Polling Rate screenshot label could pass while Source Filter remained open; helper proof now requires the actual Polling Rate menu open, Source Filter closed, 5s hover reset, whole-manifest failure if any live self-QA step fails, and Polling Rate hitbox proof that rejects full-row activation.` Current Live Validation Seam: `Focused active-client LV1 self-QA is PASS after the confirmation/checkmark regression repair and the Dashboard minimum-size bottom-edge repair; focused local proof now includes 02_dashboard_minimum_size_bottom_edge_visible.png plus Manage Monitors WebView proof, dirty-guard Save/Discard no-Cancel proof, dirty-delete Save/Discard confirmation reveal proof, delete-confirmation Cancel illumination proof, footer Discard illumination proof, Source Filter/Polling Rate distinct dropdown proof, Dashboard resize preservation, Polling Rate toggle-only hitbox proof, Source Picker checkmark stress proof, Display mode stress proof, dashboard Create absence proof, clean/dirty footer proof, unsaved prompt reveal proof, and compact UTS handoff; returned USER UTS result is USER_TEST_REQUIRED`. Current PR gate: `Blocked until returned USER UTS result is PASS or explicitly waived with reason and digested`. Current Release Readiness Seam: `Not started`.
+Refreshed Live Validation Stage 1 after right-edge H1 PASS found a returned USER/UTS failure: Dashboard and Manage Monitors clickable controls did not consistently light up on hover, intermittent first-click actions could miss or appear intercepted for monitor switching and close controls, and the Polling Floor label/dropdown remained product/UI-polish incorrect. USER then returned bounded follow-up findings: Save Monitor and Discard should share the lower detail-pane action row with Delete Monitor far right; Sensor Picker checkmark selection needed responsiveness stress proof; Polling Rate should not open from blank label-row space; Sensor Picker checkmark toggles should not feel like half-second delayed actions; dirty-guard Cancel should be removed; dirty-guard Discard should move far right and look interactable; delete-confirmation Cancel should be visibly illuminated; and the detail destructive action should say Delete Monitor rather than Delete Selected Monitor. USER then returned a regression: dirty/delete confirmation could appear to freeze the HUD, Source Picker checkmarks were inconsistent, and Cancel still looked greyed out. USER then returned bounded follow-up findings that the main Dashboard Create Monitor button should be removed, Display mode buttons could press without changing selection, Save Monitor/Discard should be grey while clean and illuminated while dirty, and dirty leave/close must snap to the unsaved prompt. USER then returned a bounded Dashboard minimum-size clipping finding: reducing the Dashboard to minimum clips only the bottom HUD edge. Current-Main Reconciliation Identity Guard: `origin/main is context, not identity; Docs/feature_backlog.md and Docs/prebeta_roadmap.md reassert feature/fam-006-monitor-groups-sensor-configuration and this authority record as branch-local FAM-006 truth before commit`. Current Branch Readiness Seam: `Prior Stage 2 repair setup admitted interactive-control visual affordance and first-click reliability; latest bounded USER hitbox/checkmark-latency/confirmation-affordance/regression/follow-up/minimum-size findings were handled inside the same FAM-006 interactive-control and Dashboard geometry scope with no app-wide expansion`. Current Repair Workstream Seam: `Implemented in bounded FAM-006 runtime/helper/source-truth surfaces`. Current Hardening Seam: `H1 found and repaired a focused visual-proof false-positive where the Polling Rate screenshot label could pass while Source Filter remained open; helper proof now requires the actual Polling Rate menu open, Source Filter closed, 5s hover reset, whole-manifest failure if any live self-QA step fails, and Polling Rate hitbox proof that rejects full-row activation.` Current Live Validation Seam: `Focused active-client LV1 self-QA is PASS after the confirmation/checkmark regression repair and the Dashboard minimum-size bottom-edge repair; focused local proof now includes 02_dashboard_minimum_size_bottom_edge_visible.png plus Manage Monitors WebView proof, dirty-guard Save/Discard no-Cancel proof, dirty-delete Save/Discard confirmation reveal proof, delete-confirmation Cancel illumination proof, footer Discard illumination proof, Source Filter/Polling Rate distinct dropdown proof, Dashboard resize preservation, Polling Rate toggle-only hitbox proof, Source Picker checkmark stress proof, Display mode stress proof, dashboard Create absence proof, clean/dirty footer proof, unsaved prompt reveal proof, compact UTS handoff, and returned USER UTS PASS`. Current PR gate: `PR Readiness Stage 1 unblocked by returned USER UTS PASS; Stage 2 and PR creation remain explicit USER decisions`. Current Release Readiness Seam: `Not started`.
 
 ## Branch Class
 
@@ -131,9 +131,9 @@ Interactive Control Visual QA Critique Loop: `USER review of the refreshed LV1 f
 
 Dashboard Right-Edge Rediscovery Critique Loop: `Refreshed LV1 real-client validation stopped after Dashboard initial right-edge proof and corner resize proof passed. The active blocker is post-corner right-edge resize cursor rediscovery near the visible edge before the right-edge resize action. Manage Monitors focused proof states remain pending recheck because the run stopped first on the Dashboard rediscovery blocker.`
 
-Historical Repair Trigger Marker: `returned USER UTS FAIL` - preserved for source-truth validator traceability; active state is refreshed LV1 automated/live helper evidence green after right-edge rediscovery H1 PASS, with returned USER UTS results pending.
+Historical Repair Trigger Marker: `returned USER UTS FAIL` - preserved for source-truth validator traceability; active state is refreshed LV1 automated/live helper evidence green and returned USER UTS PASS on 2026-05-19.
 
-USER Decision Ledger: `USER approved Branch Readiness Stage 2 repair setup and bounded Repair Workstream implementation for the refreshed LV1 close-guard and visual-proof blocker after prior H1 PASS, approved the interactive-control visual QA repair path, approved Branch Readiness Stage 2 repair setup for the Dashboard right-edge resize rediscovery blocker, approved the bounded Dashboard right-edge rediscovery Repair Workstream implementation after PR #169 reconciliation, and approved/run Hardening H1. Returned USER UTS result, GitHub issue #127 mutation, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
+USER Decision Ledger: `USER approved Branch Readiness Stage 2 repair setup and bounded Repair Workstream implementation for the refreshed LV1 close-guard and visual-proof blocker after prior H1 PASS, approved the interactive-control visual QA repair path, approved Branch Readiness Stage 2 repair setup for the Dashboard right-edge resize rediscovery blocker, approved the bounded Dashboard right-edge rediscovery Repair Workstream implementation after PR #169 reconciliation, approved/run Hardening H1, and returned refreshed UTS as PASS on 2026-05-19. GitHub issue #127 mutation, PR Readiness Stage 2, PR creation, merge, release execution, raw evidence handling, Overlay Profile runtime, Recording Profile runtime, provider expansion, FAM-007 work, AI Product work, and NDAI-wide Theme/Skins remain pending USER decisions.`
 
 Full Feature Element Breakdown: `Sensor Command Center shell; compact action-light monitor list; row/icon selection; right-side detail panel; detail-pane Delete action; Save / Discard / Cancel guard for unsaved changes; final-monitor delete; true empty state with Create reachable; Sensor Library / Source Picker replacing basic dropdown/checklist assignment; Warning Notifications as settings checkbox outside sensor assignment; Provider Readiness as readiness/status/future capability outside assignable sources; source breadcrumbs using provider > device > category > metric > instance; source status metadata; scalable search plus dropdown/facets; large fixture proof; Overlay Profile planning; Recording Profile planning; validation and UTS proof hooks.`
 
@@ -183,7 +183,7 @@ Implementation Sequence Proposal: `Remove or test-gate visible resize proof arti
 
 Deferred Ideas / Future Package Ledger: `Templates, monitor list import/export, full app backup/restore through base NCP settings architecture, bulk packs, recommended packs, alert/rule engine, historical sensor data, Overlay Profile runtime, Recording Profile runtime, tray recording controls, local recording output, export/share actions, provider expansion, Overlay acceptance, external telemetry parity, FAM-007 runtime work, AI Product work, and NDAI-wide Theme/Skins are deferred future packages or separately gated work. They must not be implemented by this repair setup.`
 
-Planning Blockers: `Returned Refreshed USER UTS FAIL`; `Refreshed Live Validation / UTS Recheck Pending`; `Overlay Profile Runtime Approval Missing`; `Recording Profile Runtime Approval Missing`; `Tray Recording Controls Approval Missing`; `Export/Share Runtime Approval Missing`; `Overlay Acceptance Approval Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `External Telemetry Parity Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
+Planning Blockers: `Cleared Returned Refreshed USER UTS Failure`; `Cleared Refreshed Live Validation / UTS Recheck`; `Overlay Profile Runtime Approval Missing`; `Recording Profile Runtime Approval Missing`; `Tray Recording Controls Approval Missing`; `Export/Share Runtime Approval Missing`; `Overlay Acceptance Approval Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `External Telemetry Parity Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
 
 USER Decisions Needed: `Approve Hardening H1 after repair; approve refreshed Live Validation / UTS recheck after green H1; approve GitHub issue #127 mutation if desired; return refreshed UTS results or explicit waiver with reason after Live Validation; approve PR creation later; approve merge later; approve release/artifacts/raw evidence/branch cleanup separately; approve templates/import/export, full backup/restore, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, FAM-007, provider/model/memory/shortcut/installer, external telemetry, or AI Product work separately.`
 
@@ -193,7 +193,7 @@ Planning Revalidation Status: `PASS`
 
 Planning Completion Waiver: `Not required - required product/system/profile/workflow/scale/state planning fields are recorded for this branch-local Stage 2 repair setup.`
 
-User Test Summary Strategy: `No UTS is generated during Branch Readiness Stage 2 setup. The compact UTS handoff remains a Live Validation Stage 1 artifact. The current active-client LV1 returned REPAIR before a green USER handoff because unsaved_close_queued_action=false and Manage Monitors visual proof was missing, so PR Readiness remains blocked until repair implementation, Hardening, refreshed Live Validation / UTS recheck, and returned USER result are PASS or explicitly waived with reason and digested.`
+User Test Summary Strategy: `No UTS is generated during Branch Readiness Stage 2 setup. The compact UTS handoff remains a Live Validation Stage 1 artifact. The earlier active-client LV1 returned REPAIR before a green USER handoff because unsaved_close_queued_action=false and Manage Monitors visual proof was missing; that blocker is now cleared by repair implementation, Hardening, refreshed Live Validation / UTS recheck, and returned USER PASS.`
 
 ## Returned UTS FAIL Repair Setup Admission
 
@@ -211,7 +211,7 @@ Profile Boundary Preservation: `Monitor Groups remain organization/configuration
 
 Validator Planning Update: `Directly supporting validators must prove shrink and grow resize continuity, during-drag render evidence before mouse release, Nexus-styled scrollbar usage in Manage Monitors panes, and large fixture behavior beyond marker-only proof.`
 
-PR Readiness Blocker State: `PR Readiness remains blocked pending Hardening H1 for the implemented repair, refreshed Live Validation, and returned USER UTS PASS or explicit waiver with reason digested into source truth. Historical setup phrase preserved for validator traceability: PR Readiness remains blocked pending repair implementation.`
+PR Readiness Blocker State: `Cleared by repair implementation, Hardening H1, refreshed Live Validation, and returned USER UTS PASS. Historical setup phrase preserved for validator traceability: PR Readiness remains blocked pending repair implementation. This phrase is historical only; active PR Readiness Stage 1 is unblocked by returned USER UTS PASS.`
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to removing visible resize-proof contamination, adding invisible/test-gated grow/shrink during-drag proof, implementing the Sensor Command Center compact monitor list/detail-pane repair, adding final-monitor delete and true empty state, replacing basic dropdown/checklist source assignment with Nexus Sensor Library / Source Picker search/facets, classifying Warning Notifications and Provider Readiness outside assignable sensors, adding breadcrumbs/status metadata, updating validators/helpers/UTS, validation, commit, and push.`
 
@@ -239,7 +239,7 @@ Profile Boundary Preservation: `Sensor Library = all available or planned data s
 
 Future Workflow Preservation: `Monitor-first, sensor-first, and group-first workflows remain future planning unless directly needed for this repair. Templates, import/export, bulk packs, recommended packs, alert/rule engine, historical data, Overlay Profile runtime, Recording Profile runtime, tray recording, local CSV/JSON/manifest recording output, event markers, auto-record triggers, rolling buffer capture, full app backup/restore, and base NCP settings architecture remain pending USER decisions.`
 
-PR Readiness Blocker State: `PR Readiness remains blocked pending Hardening, refreshed Live Validation / UTS recheck, and returned USER UTS PASS or explicit waiver with reason digested into source truth.`
+PR Readiness Blocker State: `Cleared by Hardening, refreshed Live Validation / UTS recheck, and returned USER UTS PASS digested into source truth.`
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to removing visible resize-proof contamination, adding invisible/test-gated grow/shrink during-drag proof, implementing the Sensor Command Center compact monitor list/detail-pane repair, adding final-monitor delete and true empty state, replacing basic dropdown/checklist source assignment with Nexus Sensor Library / Source Picker search/facets, classifying Warning Notifications and Provider Readiness outside assignable sensors, adding breadcrumbs/status metadata, updating validators/helpers/UTS, validation, commit, and push.`
 
@@ -261,7 +261,7 @@ Nexus Scrollbar Repair: `Nexus-styled scrollbar treatment is applied to child wi
 
 UTS Handoff Refresh: `The compact User Test Summary handoff now separates resize proof contamination, Sensor Command Center layout, final-delete empty state, Sensor Library scale/scrollbar review, source picker visuals, classification cleanup, Dashboard resize/move smoothness, and Dashboard control regressions so returned USER results can distinguish repaired findings.`
 
-PR Readiness Blocker State: `PR Readiness remains blocked until refreshed Live Validation/UTS PASS or explicit USER waiver with reason is digested.`
+PR Readiness Blocker State: `Cleared by refreshed Live Validation/UTS PASS and returned USER PASS digested into source truth.`
 
 ## Returned Refreshed UTS FAIL Repair Hardening H1
 
@@ -279,7 +279,7 @@ Planning Adequacy Preservation: `PR #157/#158 planning adequacy fields remain pr
 
 Hardening Validation Evidence: `powershell -NoProfile -ExecutionPolicy Bypass -File dev\orin_monitoring_hud_live_validation.ps1 -RunInteractionSelfQA PASS after H1 addendum repair; proof root C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260515_141844_405; interaction manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260515_141844_405\monitoring_hud_live_client_interaction_manifest.json; screenshot evidence root C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260515_141844_405. The manifest records commandCenterLayout=true, rowActionsRemoved=true, rowSelectionOpensDetail=true, detailPaneDelete=true, unsavedGuardOpened=true, unsavedGuardButtons=true, unsavedCancelPreservedSelection=true, unsavedCancelPreservedDraft=true, unsavedDiscardSwitchedSelection=true, unsavedDiscardDroppedDraft=true, unsavedSaveSwitchedSelection=true, unsavedSavePersistedDraft=true, unsavedCreateQueuedAction=true, unsavedDeleteQueuedAction=true, unsavedCloseQueuedAction=true, finalMonitorDeleteEmptyState=true, finalMonitorCreateReachable=true, sourcePickerBrowser=true, sourceFilterFacets=true, sourceFilterReopen=true, sourceBreadcrumbMetadata=true, supportedSourcesAssignable=true, deferredSourcesDisabledExplained=true, warningNotificationsSettingOnly=true, providerReadinessNotAssignable=true, largeMonitorFixture=true, largeSourceFixture=true, and duplicateLongSourceFixture=true. UTS export skipped because UTS belongs to refreshed Live Validation Stage 1.`
 
-PR Readiness Blocker State: `PR Readiness remains blocked until refreshed Live Validation / UTS recheck returns PASS, or an explicit USER waiver with reason is digested into source truth.`
+PR Readiness Blocker State: `Cleared by refreshed Live Validation / UTS recheck PASS and returned USER PASS digested into source truth.`
 
 ## Refreshed LV1 Close-Guard Repair Setup Admission
 
@@ -331,7 +331,7 @@ Immediate Repair Scope: `Repair the Manage Monitors empty-state action model and
 
 Future / Deferred Scope: `This setup does not authorize runtime recording, Overlay Profile runtime UI, Recording Profile runtime UI, tray recording controls, export/share behavior, provider expansion, Overlay acceptance, FAM-007 work, AI Product work, app-wide Theme/Skins, bulk creation, recommended packs, alert/rule engine, historical data, full app backup/restore, or base NCP settings architecture.`
 
-PR Readiness Blocker State: `PR Readiness remains blocked until this interactive-control visual QA repair is implemented, hardened, refreshed Live Validation / UTS is green, and returned USER result is PASS or explicitly waived with reason and digested.`
+PR Readiness Blocker State: `Cleared by interactive-control visual QA repair implementation, Hardening, refreshed Live Validation / UTS green, and returned USER PASS digested into source truth.`
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to repairing the refreshed LV1 interactive-control visual QA failure. Scope: remove invalid Save Monitor / Cancel actions from no-monitor and no-selection empty states; make Create Monitor the primary empty-state recovery action; prevent oversized/stretched action buttons; clean empty-state copy and redundant empty-state noise; add code-plus-focused-visual QA gates for all user-facing interactables including buttons, dropdowns, checkboxes, rows, search fields, filters, scrollbars, close controls, delete confirmations, empty-state actions, and source-picker controls; update helpers/validators/UTS so focused screenshots can fail obvious UI defects; preserve existing FAM-006 Sensor Command Center repairs and profile boundaries; run validation; commit and push if green.`
 
@@ -373,7 +373,7 @@ Preservation Requirements: `Preserve corner resize proof, bottom-edge proof, mov
 
 Immediate Repair Scope: `Repair setup only. Runtime implementation is not authorized by this Stage 2 setup. The next implementation may update Dashboard resize helper/runtime proof code and directly supporting validators/source truth only as needed for right-edge rediscovery. It must not expand into Manage Monitors implementation, provider expansion, Overlay Profile runtime, Recording Profile runtime, tray recording, release execution, GitHub issue mutation, branch cleanup, FAM-007, AI Product, app-wide theme/skin work, or base NCP settings architecture.`
 
-PR Readiness Blocker State: `PR Readiness remains blocked until right-edge rediscovery repair implementation, Hardening H1, refreshed Live Validation / UTS recheck, and returned USER result are PASS or explicitly waived with reason and digested.`
+PR Readiness Blocker State: `Cleared by right-edge rediscovery repair implementation, Hardening H1, refreshed Live Validation / UTS recheck, and returned USER PASS digested into source truth.`
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to repairing the refreshed LV1 Dashboard right-edge resize cursor rediscovery failure. Scope: reacquire the Dashboard element, native/root handle, bounding rect, DPI/scale context, virtual desktop bounds, and visible-edge coordinates after each resize action; add diagnostic sweep evidence for x/y samples, offset from visible edge, cursor kind, native hit-test, root/window handle at point, expected Dashboard handle, bounding rect, virtual desktop bounds, timing, rounded-mask state, and settle state; add post-resize settle checks for stable geometry, applied rounded mask, visible WebView, cleared active resize state, and cursor reset; repair product hit-zone math or helper targeting/timing only if diagnostics prove the cause; preserve the 14px visible rail unless bounded evidence requires adjustment; preserve corner resize, bottom-edge resize, move fluidity, first-launch flicker guard, focused visual proof quality, and all existing Sensor Command Center repairs; update directly supporting validators/helpers/source truth/UTS; run validation; commit and push if green.`
 
@@ -395,7 +395,7 @@ Validation Preservation: `Corner resize, right-edge geometry resize, bottom-edge
 
 Manage Monitors Pending LV1 States: `Empty state, delete confirmation bottom placement, Source Filter dropdown/hover reset, monitor-list visual quality, unsaved close guard, and Sensor Command Center preservation remain pending refreshed LV1 recheck after the Dashboard right-edge blocker clears.`
 
-Next Legal Phase After Implementation: `Superseded - Hardening H1 is green; refreshed LV1 automated/live helper evidence is green and returned USER UTS results are pending.`
+Next Legal Phase After Implementation: `Superseded - Hardening H1 is green; refreshed LV1 automated/live helper evidence is green and returned USER UTS PASS is digested.`
 
 ## Implemented vs Deferred Digest For Refreshed UTS
 
@@ -441,7 +441,7 @@ Immediate Repair Scope: `Repair setup only. Runtime implementation is not author
 
 Future / Deferred Scope: `This setup does not authorize app-wide Theme/Skins work, base NCP settings architecture, runtime recording, Overlay Profile runtime UI, Recording Profile runtime UI, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, Overlay acceptance, external telemetry parity, FAM-007 work, AI Product work, full app backup/restore, release execution, PR creation, issue mutation, artifact upload, raw evidence handling, or branch/worktree cleanup.`
 
-PR Readiness Blocker State: `PR Readiness remains blocked until interactive-control reliability / visual-affordance repair implementation, Hardening H1, refreshed LV1 / UTS recheck, and returned USER result are PASS or explicitly waived with reason and digested.`
+PR Readiness Blocker State: `Cleared by interactive-control reliability / visual-affordance repair implementation, Hardening H1, refreshed LV1 / UTS recheck, and returned USER PASS digested into source truth.`
 
 Next Repair Workstream Approval Text: `Approve Repair Workstream implementation for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, limited to repairing the returned LV1 interactive-control reliability and visual-affordance failure. Scope: add visible Nexus hover, active, focus-visible, disabled, open, selected, and click affordance states for every current FAM-006 Dashboard and Manage Monitors user-facing interactable; repair intermittent first-click reliability for close, monitor switching, create, save, cancel, discard, delete confirmation, Source Filter, Polling Rate, Dashboard settings/warning/hub actions, and Dashboard close; add repeated first-click stress proof after re-render, dirty guard, delete confirmation, dropdown-open, post-close/reopen, and post-render states; investigate and repair z-index, pointer-events, stale aria/disabled state, stale DOM, focus trap, timing, transition, child-window close routing, and Manage Monitors focus ownership issues only where diagnostics prove them; rename Polling Floor to Polling Rate; implement Polling Rate as a compact Nexus-styled bounded dropdown; preserve Sensor Library / Source Picker source discovery and all existing FAM-006 Sensor Command Center, Dashboard resize, source classification, and profile-boundary repairs; update directly supporting validators/helpers/source truth/UTS; run required validation; commit and push if validation is green.`
 
@@ -611,9 +611,9 @@ Hardening Repair Files: `desktop/desktop_renderer.py`; `dev/orin_monitoring_hud_
 
 ## Live Validation Stage 1 Result
 
-Live Validation Status: `USER_TEST_REQUIRED - automated refreshed LV1 precheck PASS after H1 repair; returned USER UTS result pending`
+Live Validation Status: `PASS - automated refreshed LV1 precheck PASS after H1 repair; USER returned UTS PASS on 2026-05-19`
 
-Live Validation Summary: `Refreshed Live Validation Stage 1 launched through the real USER-facing shortcut/client path and produced PASS evidence for Dashboard resize preservation, focused Dashboard minimum-size bottom-edge proof, focused Manage Monitors visual proof, distinct Source Filter and Polling Rate dropdown proof, Polling Rate toggle-only hitbox proof, interactive-control visual affordance, first-click stress reliability, Source Picker immediate-checkmark stress, empty state, delete confirmation, monitor-list visual quality, dirty-guard Save/Discard no-Cancel layout, delete-confirmation Cancel illumination, Delete Monitor copy, unsaved close guard, source classification, and profile-boundary preservation. The compact UTS handoff was refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt. PR Readiness remains blocked until the USER returns UTS PASS or provides an explicit waiver with reason and Codex digests it.`
+Live Validation Summary: `Refreshed Live Validation Stage 1 launched through the real USER-facing shortcut/client path and produced PASS evidence for Dashboard resize preservation, focused Dashboard minimum-size bottom-edge proof, focused Manage Monitors visual proof, distinct Source Filter and Polling Rate dropdown proof, Polling Rate toggle-only hitbox proof, interactive-control visual affordance, first-click stress reliability, Source Picker immediate-checkmark stress, empty state, delete confirmation, monitor-list visual quality, dirty-guard Save/Discard no-Cancel layout, delete-confirmation Cancel illumination, Delete Monitor copy, unsaved close guard, source classification, and profile-boundary preservation. The compact UTS handoff was refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt. USER returned UTS PASS on 2026-05-19 and stated all questions are PASS. PR Readiness Stage 1 is now the next legal phase; PR creation and merge remain later USER-gated phases.`
 
 Real USER-Facing Shortcut Proof: `PASS - dev/logs/fam_006_human_client_validation/20260519_152638_974/human_client_manifest.json`
 
@@ -623,7 +623,7 @@ Active-Client UTS Handoff Proof: `PASS - dev/logs/fam_006_monitoring_hud_live_va
 
 Formal UTS Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
-Formal UTS Handoff Status: `USER_TEST_REQUIRED - compact UTS handoff refreshed after automated LV1 PASS; returned USER result is pending`
+Formal UTS Handoff Status: `PASS - compact UTS handoff refreshed after automated LV1 PASS; USER returned refreshed UTS result as PASS on 2026-05-19`
 
 Focused Visual Proof Path: `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260519_194527_955\live_client_interaction`
 
@@ -677,15 +677,15 @@ User Test Summary Strategy: `The refreshed Live Validation handoff is updated fo
 
 ## User Test Summary
 
-Automated validators and live helper evidence: PASS - supporting USER UTS review; USER result remains required before PR Readiness.
+Automated validators, live helper evidence, and returned USER UTS result: PASS.
 
 User-Facing Shortcut Validation: PASS
 
 User-Facing Shortcut Path: `C:\Nexus Worktrees\FAM-006\launch_orin_desktop.vbs`
 
-User Test Summary Results: USER_TEST_REQUIRED.
+User Test Summary Results: PASS - USER confirmed UTS is green for this branch and all questions are PASS on 2026-05-19.
 
-Final phase advancement is BLOCKED until the USER returns the refreshed UTS as PASS or explicitly waives remaining review with reason, and blockers are reevaluated.
+Final phase advancement is unblocked for PR Readiness Stage 1. PR creation, merge, release execution, issue mutation, and branch cleanup remain separate USER decisions.
 
 User Test Summary Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 
@@ -719,7 +719,7 @@ Returned UTS Follow-Up Proof Requirements:
 ## Later-Phase Expectations
 
 - Prior Hardening H1 is complete for the previous repair implementation and the Dashboard right-edge rediscovery H1 is green.
-- Refreshed Live Validation Stage 1 launched through the real USER-facing shortcut/client path and produced PASS supporting proof, including the latest action-row, Polling Rate hitbox, and Sensor Picker checkmark latency repair; USER UTS result is still required before PR Readiness.
+- Refreshed Live Validation Stage 1 launched through the real USER-facing shortcut/client path and produced PASS supporting proof, including the latest action-row, Polling Rate hitbox, and Sensor Picker checkmark latency repair; USER returned UTS PASS on 2026-05-19, unblocking PR Readiness Stage 1.
 - PR Readiness, PR creation, merge, release execution, artifacts, raw evidence handling, branch cleanup, Overlay acceptance, FAM-007 work, provider/model/memory/shortcut/installer work, external telemetry parity, and AI Product work remain separate USER decisions.
 
 ## Initial Workstream Seam Sequence
@@ -734,11 +734,11 @@ Non-Includes: `HUD Overlay visual display acceptance, Overlay customization, app
 
 ## Active Seam
 
-Active seam: `Refreshed Live Validation / UTS review for returned LV1 interactive-control, action-row, and Source Picker checkmark repair`
+Active seam: `PR Readiness Stage 1 analysis gate after returned USER UTS PASS`
 
 Active Seam Status: `green`
 
-Next active seam: `USER UTS result digest; PR Readiness Stage 1 only after returned USER PASS or explicit waiver with reason.`
+Next active seam: `PR Readiness Stage 1 analysis gate; PR Readiness Stage 2 and PR creation require separate explicit USER approval.`
 
 ## Backlog Completion Status
 
@@ -760,17 +760,17 @@ Completion Status: `green`
 
 Waiver Status: `None`
 
-Continue Decision: `stop`
+Continue Decision: `continue to PR Readiness Stage 1`
 
-Continuation Execution Latch: `Closed until USER returns refreshed UTS result or explicit waiver with reason`
+Continuation Execution Latch: `Open for PR Readiness Stage 1 analysis only; PR creation remains closed pending explicit USER approval`
 
 Stop Basis: `workstream green`
 
-Next Active Seam: `Returned USER UTS digest for the refreshed Live Validation handoff`
+Next Active Seam: `PR Readiness Stage 1 analysis gate`
 
-Stop Condition: `PR Readiness remains blocked until USER UTS PASS or explicit waiver with reason`
+Stop Condition: `PR Readiness Stage 2 / PR creation remains blocked until Stage 1 is green and USER explicitly approves Stage 2`
 
-Continuation Action: `Stop at Live Validation pending returned USER UTS review`
+Continuation Action: `Proceed to PR Readiness Stage 1 analysis without creating a PR`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -782,20 +782,20 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Blockers
 
-Returned LV1 interactive-control reliability and visual-affordance repair plus the bounded action-row, Polling Rate hitbox, Source Picker checkmark latency, dirty-guard confirmation, delete-confirmation Cancel illumination, and Delete Monitor copy repair are implemented and automated refreshed LV1 precheck is PASS. PR Readiness remains blocked until returned USER UTS passes or is explicitly waived with reason and blockers are reevaluated. PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
+Returned LV1 interactive-control reliability and visual-affordance repair plus the bounded action-row, Polling Rate hitbox, Source Picker checkmark latency, dirty-guard confirmation, delete-confirmation Cancel illumination, and Delete Monitor copy repair are implemented and automated refreshed LV1 precheck is PASS. Returned USER UTS is PASS as of 2026-05-19, so PR Readiness Stage 1 is unblocked. PR Readiness Stage 2, PR creation, merge, release execution, raw evidence handling, FAM-007 scope, provider/model/memory/shortcut/installer work, Overlay Profile runtime, Recording Profile runtime, tray recording controls, export/share behavior, Overlay acceptance, external telemetry parity, and AI Product work remain pending USER decisions for later phases.
 
 ## Exit Criteria
 
 - Current-main reconciliation preserves current main truth and the FAM-006 branch-local Sensor Command Center work.
-- Refreshed LV1 close-guard, visual-proof, interactive-control visual QA, right-edge rediscovery, detail action-row, Polling Rate hitbox, Source Picker immediate-checkmark responsiveness, dirty-guard no-Cancel Discard placement, delete-confirmation Cancel illumination, and Delete Monitor copy repairs are preserved; returned USER UTS review is pending.
+- Refreshed LV1 close-guard, visual-proof, interactive-control visual QA, right-edge rediscovery, detail action-row, Polling Rate hitbox, Source Picker immediate-checkmark responsiveness, dirty-guard no-Cancel Discard placement, delete-confirmation Cancel illumination, and Delete Monitor copy repairs are preserved; returned USER UTS review is PASS.
 - Previously implemented draft guard, queued actions, Sensor Library pattern, Warning Notifications setting checkbox, Provider Readiness readiness/status classification, and profile-model separation are preserved.
 - Existing Dashboard settings, close, warning notifications, tray-owned HUD control, resize/scroll/source-truth boundaries are preserved as regression requirements.
 - FAM-006 v1.7.1-prebeta release closure remains green.
 - FAM-006 released issue closeout posture is preserved.
 - Directly supporting validators pass.
-- PR Readiness remains blocked until refreshed USER UTS is green or waived with reason and blockers are reevaluated.
+- PR Readiness Stage 1 is unblocked by refreshed USER UTS PASS; Stage 2 and PR creation remain later USER-gated phases.
 - Required validation passes.
-- Dashboard right-edge rediscovery Repair Workstream implementation and H1 are validated and pushed; current returned LV1 blocker is USER_TEST_REQUIRED review of the automated PASS handoff refreshed after confirmation-control affordance repair.
+- Dashboard right-edge rediscovery Repair Workstream implementation and H1 are validated and pushed; current returned LV1 USER review is PASS after the automated PASS handoff refreshed after confirmation-control affordance repair.
 
 ## Rollback Target
 
@@ -807,19 +807,19 @@ Rollback is the unmerged Workstream implementation on this branch only if USER l
 
 `PR Readiness`
 
-PR Readiness Stage 1 is the next canonical phase only after the USER returns the completed refreshed UTS result as PASS, or provides an explicit waiver with reason, and Codex digests that result into source truth. Until then, PR Readiness remains blocked by the outstanding USER_TEST_REQUIRED result.
+PR Readiness Stage 1 is the next canonical phase. USER returned the completed refreshed UTS result as PASS on 2026-05-19 and Codex digested that result into source truth. PR Readiness Stage 2, PR creation, merge, release, issue mutation, artifacts, and branch cleanup remain separate USER decisions.
 
 ## Next Legal Phase Digest
 
-Current Phase: `Live Validation`
+Current Phase: `PR Readiness Stage 1`
 
 Next Legal Phase: `PR Readiness`
 
-Why This Phase Is Next: `The bounded runtime/helper/source-truth repair for returned USER LV1/UTS hover, first-click, Polling Rate copy, Polling Rate dropdown, Source Picker checkmark, Display mode activation, main-dashboard Create Monitor removal, clean/dirty footer Save/Discard states, dirty prompt scroll visibility, dirty-guard confirmation, delete-confirmation Cancel, footer Discard illumination, dirty-delete confirmation reveal, Delete Monitor copy, and Dashboard minimum-size bottom-edge clipping findings is implemented and focused active-client live-helper green. The remaining gate is the returned USER UTS result or an explicit USER waiver with reason; the prior shortcut/tray human-client precheck blocker is cleared by full human-client PASS, and any future shortcut/tray precheck failure would become a separate blocker before formal PR Readiness can go green.`
+Why This Phase Is Next: `The bounded runtime/helper/source-truth repair for returned USER LV1/UTS hover, first-click, Polling Rate copy, Polling Rate dropdown, Source Picker checkmark, Display mode activation, main-dashboard Create Monitor removal, clean/dirty footer Save/Discard states, dirty prompt scroll visibility, dirty-guard confirmation, delete-confirmation Cancel, footer Discard illumination, dirty-delete confirmation reveal, Delete Monitor copy, and Dashboard minimum-size bottom-edge clipping findings is implemented and focused active-client live-helper green. USER returned UTS PASS on 2026-05-19 with all questions treated as PASS; the prior shortcut/tray human-client precheck blocker is cleared by full human-client PASS, and any future shortcut/tray precheck failure would become a separate blocker before formal PR Readiness can go green.`
 
-Approval Required: `USER must return the completed refreshed UTS result, or provide an explicit waiver with reason, before PR Readiness can be requested.`
+Approval Required: `No additional USER approval is required for PR Readiness Stage 1 analysis. PR Readiness Stage 2, PR creation, merge, release execution, issue mutation, artifacts, raw evidence handling, and branch cleanup require later explicit USER approval.`
 
-Exact USER Approval Text: `Return the refreshed FAM-006 User Test Summary result for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006, or provide an explicit waiver with reason. Codex should digest the returned USER result, preserve the automated LV1 PASS evidence, classify any remaining failures as repair blockers, and keep PR Readiness blocked unless the returned result is PASS or waived with reason.`
+Exact USER Approval Text: `After PR Readiness Stage 1 is green, approve PR Readiness Stage 2 for feature/fam-006-monitor-groups-sensor-configuration in C:\Nexus Worktrees\FAM-006. Codex may prepare the PR-readiness packet and, only if Stage 2 approval explicitly includes it, create the PR without merging, releasing, mutating issues, uploading artifacts, or cleaning branches.`
 
 Allowed Scope: `FAM-006 Dashboard and Manage Monitors interactive-control visual affordance, first-click reliability, click-interception diagnostics, Polling Rate copy/dropdown repair, Polling Rate toggle-only hitbox repair, lower detail action-row placement, Source Picker immediate-checkmark responsiveness proof, dirty-guard Save/Discard no-Cancel layout, delete-confirmation Cancel illumination, Delete Monitor copy, and directly supporting validators/helpers/UTS/source-truth updates only.`
 
