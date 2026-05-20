@@ -10,11 +10,11 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`
 
-Current Phase: `Workstream Green - Hardening H1 pending USER approval`
+Current Phase: `Hardening H1 Green - Live Validation LV1 pending USER approval`
 
 Branch Runtime Engineering Plan: `Accepted and implemented for the bounded local-only setup and consent flow readiness Workstream; real setup flow, consent collection, SDK, provider, model, memory, voice/Core, shortcut, installer, release, PR, and merge work remain pending USER decisions.`
 
-Engineering Plan Status: `Accepted - implemented setup/consent-flow readiness contracts, desktop display suppression, validator fixtures, UI telemetry, and source-truth proof are complete; H1 review is pending USER approval.`
+Engineering Plan Status: `Accepted - implemented setup/consent-flow readiness contracts, desktop display suppression, validator fixtures, UI telemetry, and source-truth proof are complete; H1 review is Green and LV1 is pending USER approval.`
 
 Current Runtime Baseline: `PR #177 released local-only provider path and consent readiness state, provider selection/configuration envelope posture, distinct setup and execution consent posture, provider-visible-data none, sentToProvider false, canAcceptPrompts false, prompt/provider/model execution disabled, downloads/install blocked, memory/indexing/learning/personalization deferred, network egress blocked, voice/Core sync gated, and Core/Desktop/ORIN status copy.`
 
@@ -42,13 +42,13 @@ Per-Seam User-Facing Proof Checklist: `Workstream proof must show compact visibl
 
 Future-Gated Items: `Provider setup implementation, consent collection implementation, provider SDK integration, provider/model execution, model downloads, external provider/API calls, memory indexing/retrieval/learning/persistence/personalization, voice/Core runtime sync, shortcut/installer work, release/tag/artifact work, issue closeout, PR creation, merge, FAM-006 mutation, Governance mutation outside this branch path, branch cleanup, AI Product Contract import, Private Dev ORIN import, successor selection, and v1.8.0-prebeta release execution remain pending USER decisions.`
 
-Approval-Boundary Audit: `USER approved Workstream Entry and the bounded local-only implementation; any real provider setup flow, consent capture, SDK selection, model execution, network call, download, memory store, voice/Core sync, shortcut/installer change, issue action, PR, merge, release, or branch cleanup remains out of scope.`
+Approval-Boundary Audit: `USER approved Workstream Entry, the bounded local-only implementation, and H1; any real provider setup flow, consent capture, SDK selection, model execution, network call, download, memory store, voice/Core sync, shortcut/installer change, issue action, PR, merge, release, or branch cleanup remains out of scope.`
 
 FAM / Shared-Surface Overlap Forecast: `FAM-006 is dirty in its own worktree and carries later shared-doc, desktop_renderer.py, validation, and nexus_visual overlap risk. Governance remains a standing intake lane. This branch may touch Core/Desktop/ORIN and source-truth surfaces, so future reconciliation must preserve active FAM-007 authority while not mutating FAM-006 or Governance without USER approval.`
 
-Open Questions: `None for Workstream implementation. H1 must review whether the hidden telemetry-only status posture and provider-state validator proof satisfy the USER desktop display revision.`
+Open Questions: `None for Workstream implementation or H1. H1 reviewed the hidden telemetry-only status posture and provider-state validator proof as satisfying the USER desktop display revision; LV1 must prove the disabled/status-only posture and desktop display absence before PR Readiness.`
 
-USER Planning Decisions: `USER approved Branch Readiness Stage 2 setup with a revision requiring validation that the visible desktop AI-owned readiness display is removed because the previous branch did not solve it. USER has not approved provider setup implementation, consent collection implementation, provider SDK/model execution, release work, PR creation, merge, or successor runtime implementation.`
+USER Planning Decisions: `USER approved Branch Readiness Stage 2 setup with a revision requiring validation that the visible desktop AI-owned readiness display is removed because the previous branch did not solve it, then approved Workstream Entry, bounded implementation, and H1. USER has not approved LV1, provider setup implementation, consent collection implementation, provider SDK/model execution, release work, PR creation, merge, or successor runtime implementation.`
 
 Plan Revision History: `v1 - created during Branch Readiness Stage 2 after v1.7.8-prebeta release execution from origin/main 2bd54f0e34c6759e9618f42d104d80b975ecc1c3; includes USER revision requiring desktop AI-owned readiness display removal validation.`
 
@@ -62,9 +62,11 @@ PR Readiness Fold-Down / Retention Checklist: `PR readiness must retain this pla
 
 Release Readiness Public-Scope Translation Checklist: `A future release must describe setup and consent flow readiness as local-only scaffolding, not real provider setup or consent collection. Public notes must mention that provider SDKs, model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, and v1.8.0-prebeta release execution remain future-gated unless separately approved.`
 
-USER Planning Review: `Complete for Workstream Entry and implementation; H1 review is the next USER decision.`
+USER Planning Review: `Complete for Workstream Entry, implementation, and H1; LV1 is the next USER decision.`
 
-PR Fold-Down Packet: `Pending - PR metadata must later fold down the Workstream Green, H1, LV1, desktop display suppression validation, release-window, approval-boundary, and validation proof after H1 and LV1 are approved and complete.`
+Hardening H1 Result: `Green - H1 compared the implemented setup flow readiness, consent flow readiness, provider setup handoff, setup consent, execution consent, data visibility, audit/local-only posture, desktop AI-owned readiness display suppression, Core/Desktop/ORIN UI copy, validators, source truth, approval boundaries, and overlap posture against this plan and found no runtime or approval-boundary drift.`
+
+PR Fold-Down Packet: `Pending - PR metadata must later fold down the Workstream Green, H1 Green, LV1, desktop display suppression validation, release-window, approval-boundary, and validation proof after LV1 is approved and complete.`
 
 Runtime Implementation Approval: `Granted for the bounded local-only setup and consent flow readiness Workstream only; real setup flow, consent collection, provider SDK, provider/model execution, memory, voice/Core, shortcut, installer, release, PR, and merge work remain pending USER decision.`
 
@@ -72,6 +74,6 @@ Workstream Completion State: `Green - all admitted seam families complete and va
 
 Desktop AI-Owned Readiness Display Suppression: `Implemented - #ai-provider-status is hidden/aria-hidden with suppression markers in Core/Desktop HTML, CSS forces hidden/suppressed status to display none, JS reasserts the hidden state while preserving provider telemetry, and validator fixtures prove the long desktop display is suppressed by default.`
 
-Next Legal Phase: `Hardening H1`
+Next Legal Phase: `Live Validation LV1`
 
-Exact USER Decision Needed: `Approve Hardening H1 for the completed FAM-007 Local AI Provider Setup and Consent Flow Readiness Workstream.`
+Exact USER Decision Needed: `Approve Live Validation LV1 for the completed and H1-hardened FAM-007 Local AI Provider Setup and Consent Flow Readiness Workstream.`
