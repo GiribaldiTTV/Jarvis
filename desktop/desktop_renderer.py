@@ -35,7 +35,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
-from .ai_provider_state import build_default_provider_readiness_config, build_provider_path_consent_readiness_state
+from .ai_provider_state import build_default_provider_readiness_config, build_provider_setup_consent_flow_readiness_state
 from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
@@ -5752,7 +5752,7 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.create_custom_group_requested.connect(self.handle_create_custom_group_requested)
         self._command_panel.created_groups_requested.connect(self.handle_created_groups_requested)
         self._command_panel.edit_saved_action_requested.connect(self.handle_edit_saved_action_requested)
-        self._ai_provider_state = build_provider_path_consent_readiness_state(
+        self._ai_provider_state = build_provider_setup_consent_flow_readiness_state(
             build_default_provider_readiness_config(),
             surface_role=self.surface_role,
         )
@@ -12175,6 +12175,15 @@ class DesktopRuntimeWindow(QWidget):
             provider_path_blocker=payload.get("providerPathBlockerState", ""),
             provider_path_reason=payload.get("providerPathReasonCode", ""),
             provider_path_schema=payload.get("providerPathStateSchemaVersion", ""),
+            setup_flow=payload.get("setupFlowReadinessState", ""),
+            setup_flow_blocker=payload.get("setupFlowBlockerState", ""),
+            setup_flow_approval=payload.get("setupFlowApprovalStatus", ""),
+            consent_flow=payload.get("consentFlowReadinessState", ""),
+            consent_flow_blocker=payload.get("consentFlowBlockerState", ""),
+            consent_collection=payload.get("consentCollectionPosture", ""),
+            provider_setup_handoff=payload.get("providerSetupHandoffPosture", ""),
+            provider_consent_handoff=payload.get("providerConsentHandoffPosture", ""),
+            desktop_readiness_display=payload.get("desktopAiOwnedReadinessDisplayState", ""),
             setup_consent=payload.get("setupConsentState", ""),
             execution_consent=payload.get("executionConsentState", ""),
             provider_config_status=payload.get("providerConfigStatus", ""),

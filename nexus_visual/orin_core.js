@@ -386,6 +386,42 @@ let aiProviderState = {
   auditEnvelopePostureLabel: "Audit envelope posture: planned; no collection",
   localOnlyStatusPosture: "local-only-status-posture-active",
   localOnlyStatusLabel: "Local-only status: active",
+  setupFlowReadinessState: "setup_flow_unavailable",
+  setupFlowReadinessLabel: "Setup flow readiness: unavailable",
+  setupFlowEligibilityState: "setup_flow_eligibility_unavailable",
+  setupFlowEligibilityLabel: "Setup flow eligibility: unavailable",
+  setupFlowBlockerState: "provider_path_required",
+  setupFlowBlockerLabel: "Setup flow blocker: provider path required",
+  setupFlowReasonCode: "setup_flow_default_unavailable",
+  setupFlowReasonLabel: "Setup flow reason: local-only setup flow unavailable",
+  setupFlowApprovalStatus: "setup-flow-approval-missing",
+  setupFlowApprovalLabel: "Setup flow approval: USER approval missing",
+  consentFlowReadinessState: "consent_flow_required_for_setup",
+  consentFlowReadinessLabel: "Consent flow readiness: required for setup",
+  consentFlowEligibilityState: "consent_flow_eligibility_unavailable",
+  consentFlowEligibilityLabel: "Consent flow eligibility: unavailable",
+  consentFlowBlockerState: "consent_collection_pending",
+  consentFlowBlockerLabel: "Consent flow blocker: consent collection pending USER approval",
+  consentFlowReasonCode: "consent_flow_setup_required",
+  consentFlowReasonLabel: "Consent flow reason: setup consent required",
+  consentFlowApprovalStatus: "consent-flow-approval-missing",
+  consentFlowApprovalLabel: "Consent flow approval: USER approval missing",
+  consentCollectionPosture: "consent-collection-pending-user-approval",
+  consentCollectionLabel: "Consent collection: pending USER approval",
+  providerSetupHandoffPosture: "provider-setup-handoff-future-gated",
+  providerSetupHandoffLabel: "Provider setup handoff: future-gated",
+  providerConsentHandoffPosture: "provider-consent-handoff-future-gated",
+  providerConsentHandoffLabel: "Provider consent handoff: future-gated",
+  providerPathHandoffPosture: "provider-path-handoff-future-gated",
+  providerPathHandoffLabel: "Provider path handoff: future-gated",
+  setupFlowGateState: "setup-flow-gate-blocked",
+  consentFlowGateState: "consent-flow-gate-required",
+  setupApprovalGateState: "setup-approval-gate-missing",
+  executionApprovalGateState: "execution-approval-gate-missing",
+  dataVisibilityConsentPosture: "data-visibility-consent-none-required",
+  dataVisibilityConsentLabel: "Data visibility consent: none required for local status",
+  desktopAiOwnedReadinessDisplayState: "desktop-ai-owned-readiness-display-suppressed",
+  desktopAiOwnedReadinessDisplayLabel: "Desktop AI-owned readiness display: suppressed by default",
   providerSetupFutureGatedPosture: "provider-setup-future-gated",
   providerSetupFutureGatedLabel: "Provider setup: future-gated",
   providerExecutionFutureGatedPosture: "provider-execution-future-gated",
@@ -1543,6 +1579,11 @@ function renderAIProviderState() {
   if (!aiProviderStatus) return;
 
   const state = aiProviderState || {};
+  aiProviderStatus.hidden = true;
+  aiProviderStatus.setAttribute("aria-hidden", "true");
+  aiProviderStatus.dataset.displaySuppression =
+    state.desktopAiOwnedReadinessDisplayState || "desktop-ai-owned-readiness-display-suppressed";
+  aiProviderStatus.dataset.displayVisibility = "suppressed-by-default";
   aiProviderStatus.dataset.mode = state.mode || "unknown";
   aiProviderStatus.dataset.availability = state.availability || "disabled";
   aiProviderStatus.dataset.privacyScope = state.privacyScope || "unknown";
@@ -1604,6 +1645,25 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.dataClassificationPosture = state.dataClassificationPostureState || "unknown";
   aiProviderStatus.dataset.auditEnvelope = state.auditEnvelopePostureState || "unknown";
   aiProviderStatus.dataset.localOnlyStatus = state.localOnlyStatusPosture || "unknown";
+  aiProviderStatus.dataset.setupFlowReadiness = state.setupFlowReadinessState || "unknown";
+  aiProviderStatus.dataset.setupFlowEligibility = state.setupFlowEligibilityState || "unknown";
+  aiProviderStatus.dataset.setupFlowBlocker = state.setupFlowBlockerState || "unknown";
+  aiProviderStatus.dataset.setupFlowReason = state.setupFlowReasonCode || "unknown";
+  aiProviderStatus.dataset.setupFlowApproval = state.setupFlowApprovalStatus || "unknown";
+  aiProviderStatus.dataset.consentFlowReadiness = state.consentFlowReadinessState || "unknown";
+  aiProviderStatus.dataset.consentFlowEligibility = state.consentFlowEligibilityState || "unknown";
+  aiProviderStatus.dataset.consentFlowBlocker = state.consentFlowBlockerState || "unknown";
+  aiProviderStatus.dataset.consentFlowReason = state.consentFlowReasonCode || "unknown";
+  aiProviderStatus.dataset.consentFlowApproval = state.consentFlowApprovalStatus || "unknown";
+  aiProviderStatus.dataset.consentCollection = state.consentCollectionPosture || "unknown";
+  aiProviderStatus.dataset.providerSetupHandoff = state.providerSetupHandoffPosture || "unknown";
+  aiProviderStatus.dataset.providerConsentHandoff = state.providerConsentHandoffPosture || "unknown";
+  aiProviderStatus.dataset.providerPathHandoff = state.providerPathHandoffPosture || "unknown";
+  aiProviderStatus.dataset.setupFlowGate = state.setupFlowGateState || "unknown";
+  aiProviderStatus.dataset.consentFlowGate = state.consentFlowGateState || "unknown";
+  aiProviderStatus.dataset.setupApprovalGate = state.setupApprovalGateState || "unknown";
+  aiProviderStatus.dataset.executionApprovalGate = state.executionApprovalGateState || "unknown";
+  aiProviderStatus.dataset.dataVisibilityConsent = state.dataVisibilityConsentPosture || "unknown";
   aiProviderStatus.dataset.adapterSelection = state.adapterSelectionPosture || "unknown";
   aiProviderStatus.dataset.promptAcceptanceGate = state.promptAcceptanceGateState || "unknown";
   aiProviderStatus.dataset.promptRoutingGate = state.promptRoutingGateState || "unknown";
