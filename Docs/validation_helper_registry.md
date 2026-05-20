@@ -97,6 +97,8 @@ Governance intake triage and digest profile source-checking is owned by `dev/ori
 
 PR watcher mode source-checking is owned by `dev/orin_branch_governance_validation.py`. It must preserve `Docs/pr_watcher_mode_contract.md`, the PR Watcher Mode Contract modes (`Silent Monitor`, `Verify Once`, `Repair Mode`, and `Blocked Mode`), and the `Watcher Health Proof:` fields (`Watcher Mode:`, `Configured CWD:`, `Worktree / Branch:`, `PR:`, `Head SHA:`, `Mergeability:`, `Unresolved Review Threads:`, `Latest Bot Review:`, `Repair Authority:`, `Delivery Route Proof:`, `Runtime Proof:`, and `Next Watcher Posture:`) so future PR Readiness watcher handoffs distinguish intentional silence, one-time verification, bounded repair, and blocked/no-patch posture.
 
+Repo-wide high-risk source owner marker adoption validation planning is owned by `dev/orin_branch_governance_validation.py` until a dedicated reusable marker validator is admitted. The Workstream implementation plan for `feature/repo-wide-source-owner-marker-adoption` must either extend the governance validator or add a reusable marker validator that checks marker syntax, marker-to-ledger consistency, high-risk coverage or not-applicable reasons, orphan/stale marker detection, production UI exclusion, and dev-only review-mode gating while preserving the Element Validation Ledger as canonical and treating markers as backlinks only.
+
 ### Desktop Runtime And Launcher
 
 | Path | Helper Status | Family | Reuse / Consolidation |

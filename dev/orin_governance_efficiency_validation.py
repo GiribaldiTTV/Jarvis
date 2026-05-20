@@ -84,8 +84,6 @@ BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN = (
 )
 
 BACKLOG_ROADMAP_CURRENT_STATE_BRANCH_FIELDS = (
-    "Current Execution Branch",
-    "Active Branch Authority Record",
     "Selected Next Implementation Branch",
     "Current Carrier Branch",
     "Branch",

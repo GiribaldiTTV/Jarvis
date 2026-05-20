@@ -139,14 +139,14 @@ Runtime slots are reusable active-work slots. Their assignment changes as branch
 
 - Slot ID: `runtime-active-1`
 - Role: active runtime/workstream lane
-- Expected Path: `C:\Nexus Worktrees\<USER-assigned label>`
-- Assignment Status: unassigned in merged-main slot registry until a USER-approved branch authority record or slot assignment receipt names the active branch
-- Assigned Branch: none in merged-main default
-- Assigned Family / Workstream: none in merged-main default
-- Branch Authority Record: required when assigned
-- Branch Runtime Engineering Plan: required for runtime-focused branches when the Branch Runtime Engineering Plan gate applies
-- USER Decision Pointer: required when assigned
-- Last Reviewed Posture: no branch authority is inferred from the slot alone
+- Expected Path: `C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers`
+- Assignment Status: assigned by USER-approved Branch Readiness Stage 2 setup
+- Assigned Branch: `feature/repo-wide-source-owner-marker-adoption`
+- Assigned Family / Workstream: `Repo-Wide High-Risk Source Owner Marker Adoption`
+- Branch Authority Record: `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
+- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`
+- USER Decision Pointer: USER accepted Branch Readiness Stage 1 Option 1 and selected `feature/repo-wide-source-owner-marker-adoption` as the next governed path
+- Last Reviewed Posture: active governance/package workstream lane; no runtime behavior change, marker implementation, branch cleanup, or worktree deletion is inferred from the slot alone
 - Operational Truth Source: Thread / Worktree Identity Preflight, `git worktree list`, `git status`, GitHub PR state, and Pre-Rebaseline Impact Audit
 
 ### runtime-active-2
