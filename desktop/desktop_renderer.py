@@ -9260,6 +9260,7 @@ class DesktopRuntimeWindow(QWidget):
         def capture(label: str):
             focused_visual = label.startswith(
                 (
+                    "02_dashboard_minimum",
                     "03_manage_monitors",
                     "04_source_filter",
                     "04_polling_rate",
@@ -9290,6 +9291,9 @@ class DesktopRuntimeWindow(QWidget):
                 const text = hud ? hud.innerText : "";
                 const minimalText = minimalHud ? minimalHud.innerText : "";
                 const rect = hud ? hud.getBoundingClientRect() : null;
+                const chrome = hud ? hud.querySelector(".monitoring-hud__chrome") : null;
+                const chromeRect = chrome ? chrome.getBoundingClientRect() : null;
+                const hudStyle = hud ? window.getComputedStyle(hud) : null;
                 const minimalRect = minimalHud ? minimalHud.getBoundingClientRect() : null;
                 const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
                 const geometry = window.getMonitoringHudLiveClientGeometry
@@ -9303,8 +9307,20 @@ class DesktopRuntimeWindow(QWidget):
                     minimalText,
                     dataset: hud ? Object.assign({}, hud.dataset) : {},
                     minimalDataset: minimalHud ? Object.assign({}, minimalHud.dataset) : {},
-                    rect: rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null,
-                    minimalRect: minimalRect ? { left: minimalRect.left, top: minimalRect.top, width: minimalRect.width, height: minimalRect.height } : null,
+                    viewport: { width: window.innerWidth, height: window.innerHeight },
+                    rect: rect ? { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height } : null,
+                    chromeRect: chromeRect ? { left: chromeRect.left, top: chromeRect.top, right: chromeRect.right, bottom: chromeRect.bottom, width: chromeRect.width, height: chromeRect.height } : null,
+                    hudStyle: hudStyle ? {
+                        top: hudStyle.top,
+                        right: hudStyle.right,
+                        bottom: hudStyle.bottom,
+                        left: hudStyle.left,
+                        width: hudStyle.width,
+                        height: hudStyle.height,
+                        minHeight: hudStyle.minHeight,
+                        maxHeight: hudStyle.maxHeight
+                    } : {},
+                    minimalRect: minimalRect ? { left: minimalRect.left, top: minimalRect.top, right: minimalRect.right, bottom: minimalRect.bottom, width: minimalRect.width, height: minimalRect.height } : null,
                     geometry,
                     state,
                     isolation: window.getMonitoringHudIsolationState ? window.getMonitoringHudIsolationState() : {},
@@ -9554,6 +9570,45 @@ class DesktopRuntimeWindow(QWidget):
                 "native_window_split_ready": split.get("nativeWindowSplitProof") == "ready-ws26",
             }
             return all(checks.values()), checks
+
+        def assert_dashboard_minimum_edge(result):
+            dataset = result.get("dataset") or {}
+            rect = result.get("rect") or {}
+            chrome_rect = result.get("chromeRect") or {}
+            viewport = result.get("viewport") or {}
+            hud_style = result.get("hudStyle") or {}
+            native_geometry = self.geometry()
+            viewport_width = rect_number(viewport, "width")
+            viewport_height = rect_number(viewport, "height")
+            hud_bottom = rect_number(rect, "bottom")
+            chrome_bottom = rect_number(chrome_rect, "bottom")
+            checks = {
+                "dashboard_minimum_edge_marker": dataset.get("dashboardMinimumEdgeProof") == "native-min-size-bottom-edge-visible",
+                "native_width_at_minimum": native_geometry.width() == max(self.minimumWidth(), 640),
+                "native_height_at_minimum": native_geometry.height() == max(self.minimumHeight(), 520),
+                "viewport_matches_native_width": abs(viewport_width - native_geometry.width()) <= 2,
+                "viewport_matches_native_height": abs(viewport_height - native_geometry.height()) <= 2,
+                "hud_top_aligned_to_native_frame": abs(rect_number(rect, "top")) <= 1.5,
+                "hud_bottom_inside_viewport": hud_bottom <= viewport_height + 1.5,
+                "chrome_bottom_inside_viewport": chrome_bottom <= viewport_height + 1.5,
+                "hud_uses_viewport_height": abs(rect_number(rect, "height") - viewport_height) <= 2,
+                "minimum_media_min_height_cleared": str(hud_style.get("minHeight") or "") in {"0px", "0"},
+                "minimum_media_max_height_viewport": str(hud_style.get("maxHeight") or "").endswith("px")
+                    and abs(rect_number({"value": str(hud_style.get("maxHeight") or "0").replace("px", "")}, "value") - viewport_height) <= 2,
+            }
+            return all(checks.values()), {
+                **checks,
+                "nativeGeometry": {
+                    "x": native_geometry.x(),
+                    "y": native_geometry.y(),
+                    "width": native_geometry.width(),
+                    "height": native_geometry.height(),
+                },
+                "viewport": viewport,
+                "hudRect": rect,
+                "chromeRect": chrome_rect,
+                "hudStyle": hud_style,
+            }
 
         def assert_minimal_native_overlay(result):
             geometry = result.get("geometry") or {}
@@ -9966,9 +10021,57 @@ class DesktopRuntimeWindow(QWidget):
             }
             return all(checks.values()), checks
 
+        minimum_edge_probe_state: dict[str, QRect] = {}
+
+        def sync_dashboard_geometry_for_live_proof(source: str) -> None:
+            self.webview.setGeometry(self.rect())
+            self.webview.updateGeometry()
+            self.webview.update()
+            self.update()
+            self._monitoring_hud_interactive_screen_rect = QRect(self.geometry())
+            self._apply_monitoring_hud_rounded_window_mask(source=source)
+            self._run_javascript(
+                """
+                window.requestAnimationFrame(() => {
+                    window.dispatchEvent(new Event('resize'));
+                });
+                """
+            )
+            QApplication.processEvents()
+
         def step_initial():
             capture("01_initial_live_client_visible")
-            query("initial visible HUD identity/provider/no-fake-state", assert_initial, step_surface_split)
+            query("initial visible HUD identity/provider/no-fake-state", assert_initial, step_dashboard_minimum_edge_probe)
+
+        def step_dashboard_minimum_edge_probe():
+            minimum_edge_probe_state["restoreGeometry"] = QRect(self.geometry())
+            minimum_width = max(self.minimumWidth(), 640)
+            minimum_height = max(self.minimumHeight(), 520)
+            current = self.geometry()
+            minimum_rect = self._bound_monitoring_hud_window_resize_rect(
+                QRect(current.x(), current.y(), minimum_width, minimum_height)
+            )
+            self.setGeometry(minimum_rect)
+            sync_dashboard_geometry_for_live_proof("live_minimum_size_bottom_edge_proof")
+            QTimer.singleShot(
+                delay(650),
+                lambda: query(
+                    "Dashboard minimum-size bottom edge remains visible in focused WebView proof",
+                    assert_dashboard_minimum_edge,
+                    step_dashboard_minimum_edge_capture,
+                ),
+            )
+
+        def step_dashboard_minimum_edge_capture():
+            capture("02_dashboard_minimum_size_bottom_edge_visible")
+            restore_geometry = minimum_edge_probe_state.get("restoreGeometry")
+            if isinstance(restore_geometry, QRect) and restore_geometry.isValid():
+                self.setGeometry(restore_geometry)
+                sync_dashboard_geometry_for_live_proof("live_minimum_size_bottom_edge_restore")
+            QTimer.singleShot(
+                delay(500),
+                lambda: query("Dashboard restored after minimum-size bottom-edge proof", assert_dashboard_restored, step_surface_split),
+            )
 
         def step_surface_split():
             query("dashboard and minimal HUD surfaces are split", assert_surface_split, step_minimal_native_overlay)
