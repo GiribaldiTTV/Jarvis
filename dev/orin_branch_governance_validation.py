@@ -2604,6 +2604,9 @@ ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
     "Same Worktree / Same Branch Collision Check",
     "Dirty Worktree Collision Check",
     "Dirty Worktree Recovery Packet",
+    "Off-Worktree Work Routing",
+    "Governance Routing Barrier",
+    "New Worktree Decision Gate",
     "Worktree Escape User Waiver: Granted",
     "Worktree Escape User Waiver Missing",
     "Expected Worktree Root:",
@@ -2620,6 +2623,9 @@ ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
     "Same Worktree / Same Branch Collision Check",
     "Dirty Worktree Collision Check",
     "Dirty Worktree Recovery Packet",
+    "Off-Worktree Work Routing",
+    "Governance Routing Barrier",
+    "New Worktree Decision Gate",
     "Expected Worktree Root",
     "Actual Worktree Root",
     "No Cross-Worktree Mutation",
@@ -16389,6 +16395,9 @@ def _run_worktree_confinement_gate(require) -> None:
         confinement, "Dirty Worktree Collision Check"
     )
     recovery_packet = _extract_marker_value(confinement, "Dirty Worktree Recovery Packet")
+    off_worktree_routing = _extract_marker_value(confinement, "Off-Worktree Work Routing")
+    governance_barrier = _extract_marker_value(confinement, "Governance Routing Barrier")
+    new_worktree_gate = _extract_marker_value(confinement, "New Worktree Decision Gate")
     for marker, value in (
         ("Active Thread Owner", owner_state),
         ("Thread Assignment Status", assignment_state),
@@ -16397,6 +16406,9 @@ def _run_worktree_confinement_gate(require) -> None:
         ("Same Worktree / Same Branch Collision Check", same_worktree_state),
         ("Dirty Worktree Collision Check", dirty_collision_state),
         ("Dirty Worktree Recovery Packet", recovery_packet),
+        ("Off-Worktree Work Routing", off_worktree_routing),
+        ("Governance Routing Barrier", governance_barrier),
+        ("New Worktree Decision Gate", new_worktree_gate),
     ):
         normalized_value = value.casefold()
         require(

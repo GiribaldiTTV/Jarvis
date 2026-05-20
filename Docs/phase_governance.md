@@ -2364,6 +2364,9 @@ Before mutation in assigned parallel worktree mode, each thread must report:
 - Same Worktree / Same Branch Collision Check:
 - Dirty Worktree Collision Check:
 - Dirty Worktree Recovery Packet:
+- Off-Worktree Work Routing:
+- Governance Routing Barrier:
+- New Worktree Decision Gate:
 - expected path, git root, branch, upstream, `HEAD`, and `origin/main`
 - worktree role and phase/seam
 - intended write target and source-truth owner
@@ -2380,6 +2383,8 @@ If the active folder, branch, upstream, worktree role, phase/seam, write target,
 
 The routing packet must include expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected phase/seam, actual repo state, mismatch evidence, and safest next correction.
 
+If the requested work belongs outside the assigned worktree, outside the active branch scope, or to another active lane, Codex must stop on `Governance Routing Barrier` and route the packet to `C:\Nexus Worktrees\Governance` on `feature/release-readiness-source-truth-intake`. Governance decides whether the work belongs to the current owner, an existing worktree/thread, a new worktree/thread, or a USER waiver. New worktree/thread creation, activation, reassignment, and GitHub Desktop repo binding remain blocked on `New Worktree Decision Gate` until USER approves the exact path, branch, owner, and validation route.
+
 ### Assigned Worktree Confinement
 
 Assigned Worktree Confinement is mandatory once a thread is assigned to a specific worktree. The thread must treat that worktree root as its boundary for repo mutation, branch operations, runtime launch, shortcut mutation, provider/model install, PR work, release work, and GitHub Desktop handoff.
@@ -2394,6 +2399,9 @@ Every assigned branch authority record must carry:
 - Same Worktree / Same Branch Collision Check:
 - Dirty Worktree Collision Check:
 - Dirty Worktree Recovery Packet:
+- Off-Worktree Work Routing:
+- Governance Routing Barrier:
+- New Worktree Decision Gate:
 - Expected Worktree Root:
 - Actual Worktree Root:
 - No Cross-Worktree Mutation: Required
@@ -2404,6 +2412,8 @@ Every assigned branch authority record must carry:
 Read-only identity checks may inspect `git worktree list`, remotes, branch names, dirty-file inventory, and GitHub Desktop binding evidence from the assigned root. Any write, branch switch, cleanup, runtime launch, shortcut edit, or helper execution against a sibling worktree or parked clone is `No Cross-Worktree Mutation` scope and must stop on `Worktree Escape User Waiver Missing` unless the USER grants the waiver in clear text.
 
 Dirty worktree collision recovery is mandatory when a target worktree is dirty before a new owner claims it. Freeze mutation, inventory dirty files, identify which thread owns each file, preserve or discard only with USER approval, and resume with exactly one active owner recorded in the worktree ownership ledger.
+
+Off-worktree work routing is mandatory when a branch thread discovers work that does not belong to its assigned worktree or active branch. The discovering thread reports the issue, expected/actual identity, dirty-file risk, likely owning lane, and recommendation, then waits. It must not self-activate a sibling worktree, take over another active thread's branch, or create a new worktree by convenience.
 
 The active thread must run or report the equivalent of `python dev\orin_branch_governance_validation.py --worktree-confinement-gate` before Stage 2 execution, phase entry, branch/worktree creation, commit, push, PR work, release work, runtime validation, or GitHub Desktop handoff when the assigned branch record declares a worktree.
 

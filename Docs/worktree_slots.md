@@ -20,6 +20,7 @@ This file owns:
 - Branch Runtime Engineering Plan pointer when a runtime branch requires one
 - USER decision pointer or branch authority receipt
 - worktree ownership ledger requirements for active thread owner, intended write set, and collision checks
+- off-worktree routing and new-worktree decision gate requirements
 - last reviewed posture
 - where live operational truth must be derived from
 
@@ -104,6 +105,9 @@ Each slot assignment or retirement receipt should use these fields when a slot i
 - Same Worktree / Same Branch Collision Check:
 - Dirty Worktree Collision Check:
 - Dirty Worktree Recovery Packet:
+- Off-Worktree Work Routing:
+- Governance Routing Barrier:
+- New Worktree Decision Gate:
 - Last Reviewed Posture:
 - Operational Truth Source:
 
@@ -136,7 +140,7 @@ Each slot assignment or retirement receipt should use these fields when a slot i
 - Branch Authority Record: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 - Branch Runtime Engineering Plan: not applicable unless a future USER-approved governance runtime plan says otherwise
 - USER Decision Pointer: standing governance intake authority record
-- Last Reviewed Posture: accepts Release Readiness digest intake, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR standing-governance bot-review repair only
+- Last Reviewed Posture: accepts Release Readiness digest intake, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, Governance Routing Barrier packets for off-worktree/out-of-scope work, or same-PR standing-governance bot-review repair only
 - Operational Truth Source: `git status`, `git rev-parse HEAD`, `git rev-parse origin/main`, `python dev\orin_branch_governance_validation.py --standing-governance-intake-gate`, and Pre-Rebaseline Impact Audit before sync
 
 ## Runtime Slot Definitions
@@ -217,6 +221,9 @@ When a runtime branch is assigned to a slot, the branch authority record or Bran
 - Same Worktree / Same Branch Collision Check:
 - Dirty Worktree Collision Check:
 - Dirty Worktree Recovery Packet:
+- Off-Worktree Work Routing:
+- Governance Routing Barrier:
+- New Worktree Decision Gate:
 - USER Assignment Decision:
 - Assignment Status:
 - Operational Truth Source:
@@ -228,6 +235,8 @@ The assignment receipt must be validated by Thread / Worktree Identity Preflight
 An assigned slot has exactly one active Codex thread owner for mutation. A second thread may read the slot for audit, but it must not edit, stage, commit, push, merge, rebase, clean, stash, reset, launch runtime validation, or use GitHub Desktop against that slot until USER assigns ownership or grants a bounded waiver.
 
 Same-worktree or same-branch concurrent mutation blocks on `Parallel Worktree Coordination Missing`. Dirty worktree collision recovery is freeze-first: inventory dirty files, identify the owning thread per file, preserve or discard only with USER approval, then resume with one active owner and a validated worktree ownership ledger.
+
+Off-worktree or out-of-scope work blocks on `Governance Routing Barrier`. The assigned thread reports the requested work, expected/actual worktree and branch, dirty-file risk, known owner if any, and recommendation to the standing Governance lane. Governance decides whether the current owner continues, an existing slot owner handles it, a new worktree/thread is needed, or a USER waiver is required. New worktree/thread creation and reassignment remain USER-gated by `New Worktree Decision Gate`.
 
 `Docs/worktree_slots.md` records the slot model and required receipt fields. It does not claim volatile live ownership facts by itself; live owner proof must come from the branch authority record, Branch Runtime Engineering Plan, prompt packet, automation configured cwd, Git/GitHub evidence, or approved helper output at the time of mutation.
 
