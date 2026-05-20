@@ -385,6 +385,8 @@ Selected Next Workstream: FAM-006 Monitor Groups / Sensor Command Center returne
 Selected Next Runtime Package Candidate: PKG-006 continuation for Monitor Groups / Sensor Command Center only.
 Selected Next Status: Branch-local current-main reconciliation preserves current main truth, returned LV1 interactive-control reliability/visual-affordance repair is implemented, H1 and refreshed Live Validation are green, returned USER UTS is PASS, and PR Readiness Stage 1 is now unblocked.
 Selected Next Implementation Branch: `feature/fam-006-monitor-groups-sensor-configuration`
+Current Carrier Branch: `feature/fam-006-monitor-groups-sensor-configuration`; this is not an uncreated successor branch.
+Repair-Only Branch Handling: `feature/fam-006-sensor-hud-provider-governance` is repair-only/dev-tooling-governance history and does not imply Branch Readiness admission or active branch truth for this FAM-006 Monitor Groups carrier.
 Branch Creation Status: Created in Branch Readiness Stage 2 from updated main at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4`
 Runtime Package Admission: Historical - `PKG-006` was admitted on the FAM-006 branch and merged through PR #118.
 Active Branch Authority Record: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
