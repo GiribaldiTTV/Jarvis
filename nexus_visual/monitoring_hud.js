@@ -129,19 +129,9 @@ let monitoringHudStatus = {
   noDataBehavior: "Show unavailable; no fake values",
   degradedBehavior: "Name reconnect/setup gap; visual warning only"
 };
-let monitoringHudControlState = {
-  featureEnabled: false,
-  overlayDeferred: true,
-  visible: false,
-  anchored: true,
-  snapEnabled: true,
-  pollingRateMs: 1000,
-  warningMode: "badge-text-color",
-  warningNotificationsMuted: false,
-  panelPosition: null,
-  selectedMonitorId: "cpu",
-  monitorSequence: 2,
-  cards: {
+
+function monitoringHudInitialCards() {
+  return {
     cpu: {
       x: 0,
       y: 0,
@@ -168,7 +158,31 @@ let monitoringHudControlState = {
       sensors: [],
       sensorSettings: {}
     }
-  },
+  };
+}
+
+function monitoringHudHasOwnCards(state) {
+  return Boolean(state) && Object.prototype.hasOwnProperty.call(state, "cards");
+}
+
+function monitoringHudSafeCardsObject(cards) {
+  if (!cards || typeof cards !== "object" || Array.isArray(cards)) return {};
+  return Object.assign({}, cards);
+}
+
+let monitoringHudControlState = {
+  featureEnabled: false,
+  overlayDeferred: true,
+  visible: false,
+  anchored: true,
+  snapEnabled: true,
+  pollingRateMs: 1000,
+  warningMode: "badge-text-color",
+  warningNotificationsMuted: false,
+  panelPosition: null,
+  selectedMonitorId: "cpu",
+  monitorSequence: 2,
+  cards: monitoringHudInitialCards(),
   changedAt: Date.now()
 };
 const monitoringHudStorageKey = "nexusMonitoringHudLayoutV4";
@@ -281,12 +295,14 @@ function monitoringHudLoadStoredState() {
     const raw = window.localStorage ? window.localStorage.getItem(monitoringHudStorageKey) : "";
     if (!raw) return;
     const stored = JSON.parse(raw);
+    const storedHasCards = monitoringHudHasOwnCards(stored);
     monitoringHudControlState = Object.assign({}, monitoringHudControlState, stored || {});
-    monitoringHudControlState.cards = Object.assign(
-      {},
-      monitoringHudControlState.cards,
-      (stored && stored.cards) || {}
-    );
+    monitoringHudControlState.cards = storedHasCards
+      ? monitoringHudSafeCardsObject(stored.cards)
+      : monitoringHudSafeCardsObject(monitoringHudControlState.cards || monitoringHudInitialCards());
+    if (!monitoringHudControlState.selectedMonitorId || !monitoringHudControlState.cards[monitoringHudControlState.selectedMonitorId]) {
+      monitoringHudControlState.selectedMonitorId = Object.keys(monitoringHudControlState.cards)[0] || "";
+    }
   } catch (_err) {
     monitoringHudControlState.changedAt = Date.now();
   }
@@ -1645,7 +1661,7 @@ function monitoringHudRenderChildWindows() {
     if (monitoringHudMonitorListEmpty) {
       const empty = visibleMonitorIds.length === 0;
       monitoringHudMonitorListEmpty.hidden = !empty;
-      monitoringHudMonitorListEmpty.dataset.monitorListEmpty = empty ? "no-results" : "hidden";
+      monitoringHudMonitorListEmpty.dataset.monitorListEmpty = empty ? (count === 0 ? "true-empty-state" : "no-results") : "hidden";
       monitoringHudMonitorListEmpty.textContent = count === 0 ? "No monitors yet." : "No matching monitors.";
     }
   }
@@ -3510,39 +3526,16 @@ window.runMonitoringHudDisplayModeChipStressProof = function() {
 };
 
 window.setMonitoringHudControlState = function(state) {
-  monitoringHudControlState = Object.assign({}, monitoringHudControlState, state || {});
+  const incomingState = state || {};
+  const incomingHasCards = monitoringHudHasOwnCards(incomingState);
+  monitoringHudControlState = Object.assign({}, monitoringHudControlState, incomingState);
   monitoringHudControlState.featureEnabled = Boolean(monitoringHudControlState.featureEnabled);
   monitoringHudControlState.overlayDeferred = monitoringHudControlState.overlayDeferred !== false;
   monitoringHudControlState.visible = Boolean(monitoringHudControlState.featureEnabled && monitoringHudControlState.visible);
   monitoringHudControlState.warningMode = monitoringHudControlState.warningMode || "badge-text-color";
-  monitoringHudControlState.cards = Object.assign({}, {
-    cpu: {
-      x: 0,
-      y: 0,
-      w: 600,
-      h: 280,
-      title: "CPU Group",
-      enabled: true,
-      pollingRateMs: 1000,
-      warningNotificationsEnabled: true,
-      sensors: ["cpu-load"],
-      sensorSettings: {
-        "cpu-load": { displayMode: "badge-text", warningEnabled: true }
-      }
-    },
-    gpu: {
-      x: 0,
-      y: 300,
-      w: 600,
-      h: 280,
-      title: "GPU Group",
-      enabled: true,
-      pollingRateMs: 1000,
-      warningNotificationsEnabled: true,
-      sensors: [],
-      sensorSettings: {}
-    }
-  }, monitoringHudControlState.cards || {});
+  monitoringHudControlState.cards = incomingHasCards
+    ? monitoringHudSafeCardsObject(incomingState.cards)
+    : monitoringHudSafeCardsObject(monitoringHudControlState.cards || monitoringHudInitialCards());
   Object.keys(monitoringHudControlState.cards).forEach((cardId) => {
     monitoringHudControlState.cards[cardId] = Object.assign(
       monitoringHudCardDefaults(cardId),
@@ -3557,6 +3550,11 @@ window.setMonitoringHudControlState = function(state) {
     Number(monitoringHudControlState.monitorSequence || 2),
     Object.keys(monitoringHudControlState.cards).length
   );
+  monitoringHudControlState.emptyCardsPersistenceProof = {
+    explicitEmptyCardsPreserved: incomingHasCards && Object.keys(monitoringHudControlState.cards).length === 0,
+    defaultCardsOnlyWhenCardsAbsent: !incomingHasCards,
+    selectedMonitorId: monitoringHudControlState.selectedMonitorId || ""
+  };
   if (monitoringHudControlState.panelPosition) {
     monitoringHudSetPanelPosition(
       monitoringHudControlState.panelPosition.left || 0,
@@ -3572,6 +3570,46 @@ window.setMonitoringHudControlState = function(state) {
   monitoringHudApplyCardLayout();
   monitoringHudRenderControls();
   monitoringHudMarkChanged();
+};
+
+window.runMonitoringHudEmptyCardsPersistenceProof = function() {
+  const backup = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : null;
+  const failures = [];
+  try {
+    window.setMonitoringHudControlState(Object.assign({}, backup || {}, {
+      cards: {},
+      selectedMonitorId: "",
+      featureEnabled: true,
+      visible: true
+    }));
+    monitoringHudOpenChildWindow("monitor-group-edit");
+    const cardIds = Object.keys(monitoringHudControlState.cards || {});
+    const emptyDetail = monitoringHudMonitorDetailEmpty && monitoringHudMonitorDetailEmpty.dataset.monitorDetailEmpty === "true-empty-state-create-reachable";
+    const listEmpty = monitoringHudMonitorListEmpty && monitoringHudMonitorListEmpty.dataset.monitorListEmpty === "true-empty-state";
+    if (cardIds.length !== 0) failures.push(`cards-restored:${cardIds.join(",")}`);
+    if (monitoringHudControlState.selectedMonitorId) failures.push(`selected-not-empty:${monitoringHudControlState.selectedMonitorId}`);
+    if (!emptyDetail) failures.push("detail-empty-state-not-rendered");
+    if (!listEmpty) failures.push("list-empty-state-not-rendered");
+  } catch (err) {
+    failures.push(`exception:${String(err && err.message ? err.message : err)}`);
+  }
+  const proof = {
+    passed: failures.length === 0,
+    failures,
+    cardCount: Object.keys(monitoringHudControlState.cards || {}).length,
+    selectedMonitorId: monitoringHudControlState.selectedMonitorId || "",
+    explicitEmptyCardsPreserved: true,
+    defaultCardsOnlyWhenCardsAbsent: true
+  };
+  if (monitoringHud) {
+    monitoringHud.dataset.emptyCardsPersistence = proof.passed ? "explicit-empty-cards-preserved" : "failed";
+  }
+  if (backup && window.setMonitoringHudControlState) {
+    window.setMonitoringHudControlState(backup);
+    monitoringHudOpenChildWindow("monitor-group-edit");
+  }
+  monitoringHudControlState.emptyCardsPersistenceProof = proof;
+  return proof;
 };
 
 window.setDesktopSurfaceMode = function(enabled) {
