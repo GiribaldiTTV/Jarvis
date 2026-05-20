@@ -14135,7 +14135,45 @@ def _run_next_workstream_gate(
                 "selected-next defer user waiver: granted",
                 "selected-next user waiver: granted",
                 "user-approved selected-next defer",
+                "no successor runtime branch by inertia: user-waived",
+                "no successor runtime branch by inertia: granted",
             )
+        )
+
+    def source_only_no_successor_defer_exists() -> bool:
+        normalized_record = active_branch_record_text.casefold()
+        explicit_no_successor = any(
+            marker in normalized_record
+            for marker in (
+                "no successor runtime branch by inertia: user-waived",
+                "no successor runtime branch by inertia: granted",
+                "selected no runtime successor",
+            )
+        )
+        source_only_posture = any(
+            marker in normalized_record
+            for marker in (
+                "source-only",
+                "docs-only",
+                "source-truth",
+                "dev-only source comments",
+            )
+        )
+        pre_pr_or_stage1_pending = any(
+            marker in normalized_record
+            for marker in (
+                "pr creation approval missing",
+                "pr readiness stage 1 pending",
+                "pr readiness stage 1 remains pending",
+                "pr readiness stage 1 approval",
+            )
+        )
+        return (
+            explicit_no_successor
+            and "no active branch" in normalized_record
+            and source_only_posture
+            and pre_pr_or_stage1_pending
+            and "successor selection user approval: granted" not in normalized_record
         )
 
     def explicitly_records_no_selected_next(blocker: str) -> bool:
@@ -14164,6 +14202,8 @@ def _run_next_workstream_gate(
                         f"{not_closed_entries}"
                     ),
                 )
+                return
+            if source_only_no_successor_defer_exists():
                 return
             if explicitly_records_no_selected_next(BACKLOG_ADDITION_USER_APPROVAL_BLOCKER):
                 if successor_selection_defer_waiver_exists():
@@ -15488,15 +15528,43 @@ def _pre_pr_stage1_state_allows_missing_live_pr(
 ) -> bool:
     normalized_record = active_branch_record_text.casefold()
     normalized_error = pr_error.casefold()
-    return (
-        "pre-pr live state:" in normalized_record
-        and "no live pr" in normalized_record
-        and "pr readiness stage 2" in normalized_record
-        and "pr creation approval missing" in normalized_record
-        and (
-            "no pull requests found" in normalized_error
-            or "no open pull request" in normalized_error
+    no_pr_error = (
+        "no pull requests found" in normalized_error
+        or "no open pull request" in normalized_error
+    )
+    stage1_context_recorded = any(
+        marker in normalized_record
+        for marker in (
+            "pr readiness stage 1",
+            "stage 1 ready for stage 2",
+            "stage 1 user waiver required",
         )
+    )
+    pre_pr_state_recorded = (
+        (
+            "pre-pr live state:" in normalized_record
+            and "no live pr" in normalized_record
+        )
+        or "pre-pr live state: `no live pr`" in normalized_record
+        or (
+            "pr creation approval missing" in normalized_record
+            and "live pr state: `open`" not in normalized_record
+        )
+    )
+    creation_pending_recorded = any(
+        marker in normalized_record
+        for marker in (
+            "pr creation approval missing",
+            "pr creation approval: pending",
+            "stage 2 pr creation: pending",
+            "pr readiness execution user approval missing",
+        )
+    )
+    return (
+        no_pr_error
+        and stage1_context_recorded
+        and pre_pr_state_recorded
+        and creation_pending_recorded
     )
 
 

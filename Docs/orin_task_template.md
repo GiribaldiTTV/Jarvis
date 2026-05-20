@@ -827,6 +827,12 @@ If the phase is `PR Readiness`, the final response must include:
 - Planned Merge-Target Canon Updates:
 - Planned Next Branch Block:
 - Planned Watcher Provisioning:
+- Pre-PR Live State:
+- PR Creation Approval:
+- Stage 2 PR Creation:
+- No Successor Runtime Branch By Inertia:
+- Selected-Next Defer User Waiver:
+- Post-Merge No Active Branch Projection:
 - Planned Validation Commands:
 - Expected Files To Change:
 - Stage 1 Repairs Made:
