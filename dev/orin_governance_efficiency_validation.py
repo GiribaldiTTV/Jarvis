@@ -7,6 +7,7 @@ backlog/roadmap from absorbing detailed runtime-branch planning narrative.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 
@@ -68,12 +69,70 @@ BACKLOG_ROADMAP_COMPACTNESS_FORBIDDEN = (
     "Release Readiness Public-Scope Translation Checklist:",
 )
 
+BACKLOG_ROADMAP_CURRENT_STATE_SECTIONS = (
+    "## Current Decision Surface",
+    "## Current Branch Execution Posture",
+    "## Selected Next Workstream",
+)
+
+BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN = (
+    "Active Runtime Branch: Branch-local",
+    "Current Active Workstream: Branch-local",
+    "Current active workstream: Branch-local",
+    "PR Readiness Stage 2 / PR creation",
+    "PR Readiness Stage 2 execution gate",
+)
+
+BACKLOG_ROADMAP_CURRENT_STATE_BRANCH_FIELDS = (
+    "Current Execution Branch",
+    "Active Branch Authority Record",
+    "Selected Next Implementation Branch",
+    "Current Carrier Branch",
+    "Branch",
+)
+
+BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN_PATTERNS = (
+    (
+        r"(?i)\bPR\s+#\d+\s+is\s+open\b",
+        "current-state text records an open live PR",
+    ),
+    (
+        r"(?mi)^\s*Live PR(?:\s|:)",
+        "current-state text records live PR state",
+    ),
+)
+
 
 def _read(relative_path: Path) -> str:
     path = ROOT / relative_path
     if not path.is_file():
         return ""
     return path.read_text(encoding="utf-8")
+
+
+def _section(text: str, heading: str) -> str:
+    start = text.find(heading)
+    if start == -1:
+        return ""
+
+    rest = text[start + len(heading) :]
+    next_heading = re.search(r"(?m)^##\s+", rest)
+    if next_heading:
+        return text[start : start + len(heading) + next_heading.start()]
+    return text[start:]
+
+
+def _field_value(line: str, field: str) -> str | None:
+    prefix = f"{field}:"
+    stripped = line.strip()
+    if not stripped.startswith(prefix):
+        return None
+    return stripped[len(prefix) :].strip().strip("`").strip()
+
+
+def _is_empty_branch_state(value: str) -> bool:
+    normalized = value.casefold()
+    return normalized.startswith("none") or normalized.startswith("not created")
 
 
 def validate() -> list[str]:
@@ -108,6 +167,33 @@ def validate() -> list[str]:
                 failures.append(
                     f"{path}: detailed Branch Runtime Engineering Plan marker {phrase!r} "
                     "belongs in Docs/branch_plans or folded historical receipts, not backlog/roadmap"
+                )
+
+        current_state_text = "\n".join(
+            _section(text, heading) for heading in BACKLOG_ROADMAP_CURRENT_STATE_SECTIONS
+        )
+        for phrase in BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN:
+            if phrase in current_state_text:
+                failures.append(
+                    f"{path}: current-state section carries branch-local/live-state phrase "
+                    f"{phrase!r}; backlog/roadmap must stay compact and route active branch "
+                    "identity to branch authority records, branch plans, or historical receipts"
+                )
+        for line in current_state_text.splitlines():
+            for field in BACKLOG_ROADMAP_CURRENT_STATE_BRANCH_FIELDS:
+                value = _field_value(line, field)
+                if value is not None and not _is_empty_branch_state(value):
+                    failures.append(
+                        f"{path}: current-state field {field!r} carries branch-local/live-state "
+                        "identity; backlog/roadmap must stay compact and route active branch "
+                        "identity to branch authority records, branch plans, or historical receipts"
+                    )
+        for pattern, label in BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN_PATTERNS:
+            if re.search(pattern, current_state_text):
+                failures.append(
+                    f"{path}: current-state section carries branch-local/live-state pattern "
+                    f"{label!r}; backlog/roadmap must stay compact and route active branch "
+                    "identity to branch authority records, branch plans, or historical receipts"
                 )
 
     return failures
