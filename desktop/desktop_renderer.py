@@ -8973,6 +8973,17 @@ class DesktopRuntimeWindow(QWidget):
             "package": "PKG-006",
             "slice": "SLC-029",
             "seam": "Dashboard-specific active-client self-QA - no UTS export",
+            "proofSlice": "SLC-041",
+            "proofSeam": "SLC-041 Overlay Profile validation and live desktop proof",
+            "proofStandard": "focused WebView proof is acceptance evidence; full desktop screenshots are locator/context evidence only",
+            "formalUserTestSummaryBoundary": "Live Validation Stage 1 only after human-client precheck PASS or USER waiver",
+            "overlayProfileProofChain": {
+                "slc037": "Overlay Profile data/state foundation and renderer bridge",
+                "slc038": "Dashboard selector plus Overlay Profile Settings create/rename/save/discard",
+                "slc039": "settings-window monitor membership mapping",
+                "slc040": "Manage Monitors read-only Overlay Profile context and settings route",
+                "slc041": "focused validator and live desktop proof readiness",
+            },
             "client": "desktop/orin_desktop_main.py",
             "mode": "live-client-interaction-self-qa",
             "entrypoint": "Nexus Desktop AI desktop runtime",
@@ -10291,6 +10302,28 @@ class DesktopRuntimeWindow(QWidget):
             )
             if not parsed.get("ok"):
                 finish("FAIL", "SLC-039 Overlay Profile controls proof failed before focused screenshot")
+                return
+            slc041_ready = (
+                parsed.get("stateProofPassed") is True
+                and parsed.get("controlsProofPassed") is True
+                and parsed.get("integrationProofPassed") is True
+                and parsed.get("settingsWindowOpen") is True
+                and parsed.get("membership") == "editable-slc-039-mapping"
+            )
+            add_step(
+                "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, Manage Monitors route, and LV1 UTS boundary",
+                slc041_ready,
+                {
+                    "stateProofPassed": parsed.get("stateProofPassed") is True,
+                    "controlsProofPassed": parsed.get("controlsProofPassed") is True,
+                    "integrationProofPassed": parsed.get("integrationProofPassed") is True,
+                    "focusedWebViewProofRequired": True,
+                    "fullDesktopScreenshotsContextOnly": True,
+                    "formalUserTestSummaryBoundary": "Live Validation Stage 1 only",
+                },
+            )
+            if not slc041_ready:
+                finish("FAIL", "SLC-041 Overlay Profile proof-chain readiness failed before focused screenshots")
                 return
             QTimer.singleShot(
                 delay(300),

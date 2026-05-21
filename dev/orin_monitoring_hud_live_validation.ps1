@@ -273,6 +273,20 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         dashboardUserTestSummaryExportRefreshed = [bool]$PrepareLiveValidationUserTestSummary
         dashboardUserTestSummaryExportPath = if ($PrepareLiveValidationUserTestSummary) { $Paths.UserTestSummary } else { "" }
         dashboardUserTestSummaryReturnedResults = "live-validation-stage-1-only"
+        overlayProfileValidationProof = [pscustomobject]@{
+            seam = "SLC-041 Overlay Profile validation and live desktop proof"
+            focusedWebViewProofRequired = $true
+            fullDesktopScreenshotsAreContextOnly = $true
+            formalUserTestSummaryBoundary = "Live Validation Stage 1 only after human-client precheck PASS or USER waiver"
+            workstreamAndHardeningNoUtsExport = -not [bool]$PrepareLiveValidationUserTestSummary
+            proofChain = @(
+                "SLC-037 Overlay Profile data/state foundation",
+                "SLC-038 Dashboard selector and Overlay Profile Settings controls",
+                "SLC-039 settings-window monitor membership mapping",
+                "SLC-040 Manage Monitors read-only Overlay Profile context and route",
+                "SLC-041 focused validator and live desktop proof readiness"
+            )
+        }
         dashboardSpecificProof = [pscustomobject]@{
             beforeLaunchFullVirtualDesktopScreenshot = [bool]$script:BeforeScreenshotPath
             afterLaunchFullVirtualDesktopScreenshot = [bool]$script:ScreenshotPath

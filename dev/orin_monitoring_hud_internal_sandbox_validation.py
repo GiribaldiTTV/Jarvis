@@ -5,8 +5,9 @@ This helper proves the current-branch Dashboard-first Workstream handoff without
 asking the USER for a User Test Summary during Workstream or Branch Readiness.
 It validates the bounded runtime seams for the HUD shell, controls,
 provider-truthful telemetry, no-data/degraded states, visual warnings, source
-truth, and naming sterilization. Overlay/display proof remains supporting
-evidence unless that interface is later re-admitted.
+truth, naming sterilization, and SLC-041 Overlay Profile proof-readiness.
+Overlay/display proof remains supporting evidence unless that interface is later
+re-admitted.
 """
 
 from __future__ import annotations
@@ -96,6 +97,12 @@ def _validate_static_surface(failures: list[str]) -> None:
     prebeta_roadmap = _read("Docs/prebeta_roadmap.md")
     helper_registry = _read("Docs/validation_helper_registry.md")
     phase_governance = _read("Docs/phase_governance.md")
+    overlay_profile_record = _read(
+        "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md"
+    )
+    overlay_profile_plan = _read(
+        "Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md"
+    )
     core_html = _read("nexus_visual/orin_core.html")
     core_css = _read("nexus_visual/orin_core.css")
     core_desktop_html = _read("nexus_visual/orin_core_desktop.html")
@@ -197,9 +204,30 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Dashboard-first Workstream handoff posture",
         "Overlay/display deferred/non-gating classification",
         "WS35 dashboard-specific proof refresh and Live Validation UTS boundary",
+        "SLC-041 Overlay Profile focused validation/live-proof readiness",
         "Historical WS18-WS30 markers remain supporting repair evidence",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
+    for needle in (
+        "SLC-041 validation/live-proof Workstream implementation Green",
+        "SLC-041 Hardening H1 is next",
+        "focused validator and visual proof",
+        "focused WebView proof is acceptance evidence",
+        "full desktop screenshots are context only",
+        "formal UTS export remains Live Validation Stage 1 only",
+    ):
+        _require_contains(
+            overlay_profile_record,
+            needle,
+            "SLC-041 Overlay Profile branch authority",
+            failures,
+        )
+        _require_contains(
+            overlay_profile_plan,
+            needle,
+            "SLC-041 Overlay Profile branch plan",
+            failures,
+        )
 
     for label, text in (
         ("ORIN Core HTML", core_html),
@@ -786,6 +814,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         "SLC-040 Manage Monitors read-only Overlay Profile context and route proof prepared",
         "SLC-039 Overlay Profile settings-window create/rename/membership Save/Discard visual proof prepared",
         "SLC-039 Overlay Profile settings-window controls stay bounded and distinct",
+        "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, Manage Monitors route, and LV1 UTS boundary",
+        '"proofSeam": "SLC-041 Overlay Profile validation and live desktop proof"',
+        "focused WebView proof is acceptance evidence; full desktop screenshots are locator/context evidence only",
+        "formalUserTestSummaryBoundary",
         "03_manage_monitors_open_state",
         "04_source_filter_dropdown_open_hover_reset",
         "05_unsaved_guard_close_queued",
@@ -860,6 +892,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "margin: 10px 0 14px;",
         'body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"]',
         "scrollbar-gutter: stable;",
+        ".monitoring-hud__child-actions--guard",
+        "justify-self: stretch;",
     ):
         _require_contains(css, needle, "HUD CSS interaction surface", failures)
     minimum_size_media = re.search(
@@ -1549,7 +1583,19 @@ def _write_manifest(status: str, failures: list[str], contracts: dict[str, objec
         "status": status,
         "package": "PKG-006",
         "phase": "Workstream",
-        "seam": "SLC-040 Dashboard / Manage Monitors Overlay Profile integration",
+        "seam": "SLC-041 Overlay Profile validation and live desktop proof readiness",
+        "proofChain": {
+            "SLC-037": "Overlay Profile data/state foundation",
+            "SLC-038": "Dashboard selector and Overlay Profile Settings controls",
+            "SLC-039": "settings-window monitor membership mapping",
+            "SLC-040": "Manage Monitors read-only Overlay Profile context and route",
+            "SLC-041": "focused validator and live desktop proof readiness",
+        },
+        "proofBoundary": {
+            "focusedWebViewProofRequired": True,
+            "fullDesktopScreenshotsContextOnly": True,
+            "formalUtsExport": "Live Validation Stage 1 only after human-client precheck PASS or USER waiver",
+        },
         "contracts": contracts,
         "failures": failures,
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

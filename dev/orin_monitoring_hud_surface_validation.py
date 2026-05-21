@@ -82,6 +82,12 @@ def validate() -> list[str]:
     monitor_groups_record = _read(
         "Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md"
     )
+    overlay_profile_record = _read(
+        "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md"
+    )
+    overlay_profile_plan = _read(
+        "Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md"
+    )
     feature_backlog = _read("Docs/feature_backlog.md")
     prebeta_roadmap = _read("Docs/prebeta_roadmap.md")
     helper_registry = _read("Docs/validation_helper_registry.md")
@@ -174,10 +180,31 @@ def validate() -> list[str]:
         "Stage 2-R13 Dashboard-first Workstream handoff source-truth markers",
         "Dashboard-first Interface Release Boundary source-truth markers",
         "WS35 dashboard-specific proof refresh and Live Validation UTS boundary",
+        "SLC-041 Overlay Profile focused validation/live-proof readiness",
         "Overlay/display deferred/non-gating proof classification",
         "future Overlay/display proof only when that interface is re-admitted",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
+    for needle in (
+        "SLC-041 validation/live-proof Workstream implementation Green",
+        "SLC-041 Hardening H1 is next",
+        "focused validator and visual proof",
+        "focused WebView proof is acceptance evidence",
+        "full desktop screenshots are context only",
+        "formal UTS export remains Live Validation Stage 1 only",
+    ):
+        _require_contains(
+            overlay_profile_record,
+            needle,
+            "SLC-041 Overlay Profile branch authority",
+            failures,
+        )
+        _require_contains(
+            overlay_profile_plan,
+            needle,
+            "SLC-041 Overlay Profile branch plan",
+            failures,
+        )
 
     for label, text in (
         ("ORIN Core HTML", core_html),
@@ -475,6 +502,7 @@ def validate() -> list[str]:
         ".monitoring-hud__child-note[hidden]",
         ".monitoring-hud__detail-action-row",
         ".monitoring-hud__child-actions--guard",
+        "justify-self: stretch;",
         ".monitoring-hud__hub-action--safe-cancel",
     ):
         _require_contains(html + css, interactive_control_markup, "FAM-006 interactive-control visual QA HTML/CSS", failures)
@@ -1319,6 +1347,10 @@ def validate() -> list[str]:
         "SLC-040 Manage Monitors read-only Overlay Profile context and route proof prepared",
         "SLC-039 Overlay Profile settings-window create/rename/membership Save/Discard visual proof prepared",
         "SLC-039 Overlay Profile settings-window controls stay bounded and distinct",
+        "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, Manage Monitors route, and LV1 UTS boundary",
+        '"proofSeam": "SLC-041 Overlay Profile validation and live desktop proof"',
+        "focused WebView proof is acceptance evidence; full desktop screenshots are locator/context evidence only",
+        "formalUserTestSummaryBoundary",
         "MONITORING_HUD_WINDOW_STATUS_READY",
         "MONITORING_HUD_WINDOW_OWNERSHIP_FOCUS_READY",
         "MONITORING_HUD_NATIVE_SYSTEM_MOVE_STARTED",
@@ -1736,6 +1768,12 @@ def validate() -> list[str]:
         "dashboardUserTestSummaryExportRefreshed",
         "dashboardUserTestSummaryExportPath",
         "dashboardUserTestSummaryReturnedResults",
+        "overlayProfileValidationProof",
+        "SLC-041 Overlay Profile validation and live desktop proof",
+        "focusedWebViewProofRequired",
+        "fullDesktopScreenshotsAreContextOnly",
+        "formalUserTestSummaryBoundary",
+        "workstreamAndHardeningNoUtsExport",
         "live-validation-stage-1-only",
         "dashboardSpecificProof",
         "dashboardOnlyCurrentInterfaceGate",
