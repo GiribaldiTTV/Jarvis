@@ -29,6 +29,9 @@ FAM007_EXECUTION_READINESS_STATE_ID = "fam007-execution-readiness-gates"
 FAM007_PROVIDER_PATH_CONSENT_READINESS_STATE_ID = "fam007-provider-path-consent-readiness"
 FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_STATE_ID = "fam007-provider-setup-consent-flow-readiness"
 FAM007_PROVIDER_SETUP_CONTRACT_READINESS_STATE_ID = "fam007-provider-setup-contract-readiness"
+FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_STATE_ID = (
+    "fam007-provider-setup-implementation-foundation"
+)
 
 NO_PROVIDER_MODE = "no-provider"
 NO_PROVIDER_AVAILABILITY = "disabled"
@@ -51,6 +54,8 @@ FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_MODE = "provider-setup-consent-flow
 FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_AVAILABILITY = "disabled"
 FAM007_PROVIDER_SETUP_CONTRACT_READINESS_MODE = "provider-setup-contract-readiness"
 FAM007_PROVIDER_SETUP_CONTRACT_READINESS_AVAILABILITY = "disabled"
+FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_MODE = "provider-setup-implementation-foundation"
+FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_AVAILABILITY = "disabled"
 NO_PROVIDER_ID = "no-provider"
 NO_PROVIDER_FALLBACK_SELECTION = "fallback-no-provider"
 PROVIDER_CONSENT_REQUIRED = "required-before-provider"
@@ -743,6 +748,102 @@ PROVIDER_SETUP_CONTRACT_FOLD_DOWN_READY = "setup-contract-fold-down-ready-for-pr
 PROVIDER_SETUP_PREREQUISITE_POSTURE_LOCAL_ONLY = "provider-setup-prerequisites-local-only"
 PROVIDER_SETUP_VALIDATION_POSTURE_STATIC = "provider-setup-contract-static-validator-fixtures"
 PROVIDER_SETUP_UI_PROOF_POSTURE_STATUS_ONLY = "provider-setup-contract-status-only-ui-proof"
+
+SETUP_FOUNDATION_STATE_SCHEMA_VERSION = "provider-setup-implementation-foundation-state.v1"
+SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION = "provider-setup-implementation-foundation-config.v1"
+SETUP_FOUNDATION_CONFIG_MIGRATION_POSTURE = "safe-defaults-no-provider-setup-foundation-migration"
+SETUP_FOUNDATION_STATE_UNKNOWN = "setup_foundation_unknown"
+SETUP_FOUNDATION_STATE_UNAVAILABLE = "setup_foundation_unavailable"
+SETUP_FOUNDATION_STATE_DISABLED = "setup_foundation_disabled"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONTRACT = "setup_foundation_blocked_by_setup_contract"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_PROFILE = "setup_foundation_blocked_by_profile"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_CONFIG = "setup_foundation_blocked_by_config"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION = "setup_foundation_blocked_by_validation"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONSENT = "setup_foundation_blocked_by_setup_consent"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_EXECUTION_CONSENT = (
+    "setup_foundation_blocked_by_execution_consent"
+)
+SETUP_FOUNDATION_STATE_READY_LOCAL_DRAFT = "setup_foundation_ready_local_draft"
+SETUP_FOUNDATION_STATE_READY_FUTURE_GATED = "setup_foundation_ready_future_gated"
+SETUP_FOUNDATION_STATE_READY_BUT_NOT_APPROVED = "setup_foundation_ready_but_not_approved"
+SETUP_FOUNDATION_STATE_DEGRADED = "setup_foundation_degraded"
+SETUP_FOUNDATION_STATE_READY_FOR_FUTURE_SETUP_BRANCH = (
+    "setup_foundation_ready_for_future_setup_branch"
+)
+SETUP_FOUNDATION_ELIGIBILITY_UNAVAILABLE = "setup_foundation_eligibility_unavailable"
+SETUP_FOUNDATION_ELIGIBILITY_DISABLED = "setup_foundation_eligibility_disabled"
+SETUP_FOUNDATION_ELIGIBILITY_BLOCKED = "setup_foundation_eligibility_blocked"
+SETUP_FOUNDATION_ELIGIBILITY_LOCAL_DRAFT = "setup_foundation_eligibility_local_draft"
+SETUP_FOUNDATION_ELIGIBILITY_FUTURE_GATED = "setup_foundation_eligibility_future_gated"
+SETUP_FOUNDATION_ELIGIBILITY_READY_NOT_APPROVED = (
+    "setup_foundation_eligibility_ready_not_approved"
+)
+SETUP_FOUNDATION_ELIGIBILITY_FUTURE_SETUP_BRANCH = (
+    "setup_foundation_eligibility_future_setup_branch"
+)
+SETUP_FOUNDATION_BLOCKER_SETUP_CONTRACT_REQUIRED = "setup_foundation_setup_contract_required"
+SETUP_FOUNDATION_BLOCKER_PROFILE_DRAFT_REQUIRED = "setup_foundation_profile_draft_required"
+SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED = "setup_foundation_config_draft_required"
+SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED = "setup_foundation_validation_required"
+SETUP_FOUNDATION_BLOCKER_SETUP_CONSENT_REQUIRED = "setup_foundation_setup_consent_required"
+SETUP_FOUNDATION_BLOCKER_EXECUTION_CONSENT_REQUIRED = (
+    "setup_foundation_execution_consent_required"
+)
+SETUP_FOUNDATION_BLOCKER_APPROVAL_REQUIRED = "setup_foundation_approval_required"
+SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH = "setup_foundation_future_setup_branch_required"
+SETUP_FOUNDATION_REASON_DEFAULT_UNAVAILABLE = "setup_foundation_default_unavailable"
+SETUP_FOUNDATION_REASON_SETUP_ENTRY_DISABLED = "setup_foundation_setup_entry_disabled"
+SETUP_FOUNDATION_REASON_SETUP_CONTRACT_REQUIRED = "setup_foundation_setup_contract_required"
+SETUP_FOUNDATION_REASON_CONFIG_MISSING = "setup_foundation_config_missing"
+SETUP_FOUNDATION_REASON_CONFIG_INVALID = "setup_foundation_config_invalid"
+SETUP_FOUNDATION_REASON_PROFILE_DRAFT_MISSING = "setup_foundation_profile_draft_missing"
+SETUP_FOUNDATION_REASON_PROFILE_DRAFT_INVALID = "setup_foundation_profile_draft_invalid"
+SETUP_FOUNDATION_REASON_CONFIG_DRAFT_MISSING = "setup_foundation_config_draft_missing"
+SETUP_FOUNDATION_REASON_CONFIG_DRAFT_INVALID = "setup_foundation_config_draft_invalid"
+SETUP_FOUNDATION_REASON_VALIDATION_FAILED = "setup_foundation_validation_failed"
+SETUP_FOUNDATION_REASON_SETUP_CONSENT_REQUIRED = "setup_foundation_setup_consent_required"
+SETUP_FOUNDATION_REASON_EXECUTION_CONSENT_REQUIRED = (
+    "setup_foundation_execution_consent_required"
+)
+SETUP_FOUNDATION_REASON_APPROVAL_MISSING = "setup_foundation_approval_missing"
+SETUP_FOUNDATION_REASON_READY_LOCAL_DRAFT = "setup_foundation_ready_local_draft"
+SETUP_FOUNDATION_REASON_READY_FOR_FUTURE_SETUP_BRANCH = (
+    "setup_foundation_ready_for_future_setup_branch"
+)
+SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT = "provider_setup_contract_state"
+SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT = "provider_profile_draft"
+SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT = "provider_config_draft"
+SETUP_FOUNDATION_PROVENANCE_VALIDATION = "setup_foundation_validation"
+SETUP_FOUNDATION_PROVENANCE_CONSENT = "provider_consent_prerequisites"
+SETUP_FOUNDATION_PROVENANCE_APPROVAL = "future_setup_approval"
+SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME = "future_provider_setup_check"
+SETUP_FOUNDATION_APPROVAL_STATUS_MISSING = "setup-foundation-approval-missing"
+SETUP_FOUNDATION_APPROVAL_STATUS_FUTURE_GATED = "setup-foundation-approval-future-gated"
+SETUP_FOUNDATION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF = (
+    "setup-foundation-approval-ready-for-future-proof"
+)
+SETUP_FOUNDATION_GATE_BLOCKED = "setup-foundation-gate-blocked"
+SETUP_FOUNDATION_GATE_LOCAL_DRAFT = "setup-foundation-gate-local-draft"
+SETUP_FOUNDATION_GATE_FUTURE_GATED = "setup-foundation-gate-future-gated"
+SETUP_FOUNDATION_SETUP_ENTRY_DISABLED = "setup-entry-disabled"
+SETUP_FOUNDATION_SETUP_ENTRY_READY_LOCAL_DRAFT = "setup-entry-ready-local-draft"
+SETUP_FOUNDATION_PROFILE_DRAFT_MISSING = "profile-draft-missing"
+SETUP_FOUNDATION_PROFILE_DRAFT_INVALID = "profile-draft-invalid"
+SETUP_FOUNDATION_PROFILE_DRAFT_READY = "profile-draft-ready-local-only"
+SETUP_FOUNDATION_CONFIG_DRAFT_MISSING = "config-draft-missing"
+SETUP_FOUNDATION_CONFIG_DRAFT_INVALID = "config-draft-invalid"
+SETUP_FOUNDATION_CONFIG_DRAFT_READY = "config-draft-ready-local-only"
+SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED = "setup-foundation-validation-fail-closed"
+SETUP_FOUNDATION_VALIDATION_STATIC_READY = "setup-foundation-validation-static-ready"
+SETUP_FOUNDATION_PERSISTENCE_DISABLED = "setup-foundation-persistence-disabled"
+SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY = "setup-foundation-persistence-local-draft-only"
+LOCAL_NULL_PROVIDER_FALLBACK_PROOF = "local-null-provider-fallback-no-provider-calls"
+FUTURE_PROVIDER_SETUP_IMPLEMENTATION_HANDOFF_READY = (
+    "future-provider-setup-implementation-handoff-ready"
+)
+PROVIDER_SETUP_IMPLEMENTATION_FOLD_DOWN_READY = (
+    "setup-implementation-foundation-fold-down-ready-for-pr-release"
+)
 CAPABILITY_PACK_ELIGIBILITY_UNKNOWN = "capability-pack-eligibility-unknown"
 CAPABILITY_PACK_ELIGIBILITY_BLOCKED = "capability-pack-eligibility-blocked"
 CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED = "capability-pack-eligibility-future-gated"
@@ -1006,6 +1107,7 @@ CONSENT_PROVENANCE_SOURCES = (
 _ACTIVATION_CONFIG_OMITTED = object()
 _EXECUTION_CONFIG_OMITTED = object()
 _PATH_CONSENT_CONFIG_OMITTED = object()
+_SETUP_FOUNDATION_CONFIG_OMITTED = object()
 
 
 @dataclass(frozen=True)
@@ -1094,6 +1196,24 @@ class AIProviderPathConsentReadinessConfigSnapshot:
     execution_approved: bool
     future_execution_branch_ready: bool
     functional_ai_release_ready: bool
+    config_valid: bool
+    provenance: str
+
+
+@dataclass(frozen=True)
+class AIProviderSetupFoundationConfigSnapshot:
+    schema_version: str
+    config_state: str
+    setup_entry_enabled: bool
+    provider_profile_draft_present: bool
+    provider_profile_draft_valid: bool
+    provider_config_draft_present: bool
+    provider_config_draft_valid: bool
+    local_persistence_ready: bool
+    validation_passed: bool
+    setup_foundation_approved: bool
+    setup_consent_ready: bool
+    execution_consent_ready: bool
     config_valid: bool
     provenance: str
 
@@ -1650,6 +1770,54 @@ class AIProviderStateSnapshot:
     provider_setup_ui_proof_posture: str = PROVIDER_SETUP_UI_PROOF_POSTURE_STATUS_ONLY
     future_setup_branch_handoff_state: str = FUTURE_SETUP_BRANCH_HANDOFF_READY
     provider_setup_contract_fold_down_posture: str = PROVIDER_SETUP_CONTRACT_FOLD_DOWN_READY
+    provider_setup_foundation_state: str = SETUP_FOUNDATION_STATE_UNAVAILABLE
+    provider_setup_foundation_label: str = "Setup implementation foundation: unavailable"
+    provider_setup_foundation_eligibility_state: str = SETUP_FOUNDATION_ELIGIBILITY_UNAVAILABLE
+    provider_setup_foundation_eligibility_label: str = "Setup foundation eligibility: unavailable"
+    provider_setup_foundation_blocker_state: str = SETUP_FOUNDATION_BLOCKER_SETUP_CONTRACT_REQUIRED
+    provider_setup_foundation_blocker_label: str = (
+        "Setup foundation blocker: setup contract readiness required"
+    )
+    provider_setup_foundation_reason_code: str = SETUP_FOUNDATION_REASON_DEFAULT_UNAVAILABLE
+    provider_setup_foundation_reason_label: str = "Setup foundation reason: local-only safe default"
+    provider_setup_foundation_provenance: str = SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT
+    provider_setup_foundation_provenance_label: str = (
+        "Setup foundation provenance: provider setup contract state"
+    )
+    provider_setup_foundation_state_schema_version: str = SETUP_FOUNDATION_STATE_SCHEMA_VERSION
+    provider_setup_foundation_config_schema_version: str = SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION
+    provider_setup_foundation_config_state: str = PROVIDER_PATH_CONFIG_STATE_DEFAULT
+    provider_setup_foundation_config_label: str = (
+        "Setup foundation config: safe default local-only"
+    )
+    provider_setup_foundation_config_migration: str = SETUP_FOUNDATION_CONFIG_MIGRATION_POSTURE
+    provider_setup_foundation_config_valid: bool = True
+    provider_setup_foundation_setup_entry_state: str = SETUP_FOUNDATION_SETUP_ENTRY_DISABLED
+    provider_setup_foundation_setup_entry_label: str = (
+        "Setup entry point: disabled until USER-approved setup work"
+    )
+    provider_setup_foundation_profile_draft_status: str = SETUP_FOUNDATION_PROFILE_DRAFT_MISSING
+    provider_setup_foundation_profile_draft_label: str = (
+        "Provider profile draft: missing local-only draft"
+    )
+    provider_setup_foundation_config_draft_status: str = SETUP_FOUNDATION_CONFIG_DRAFT_MISSING
+    provider_setup_foundation_config_draft_label: str = (
+        "Provider config draft: missing local-only draft"
+    )
+    provider_setup_foundation_validation_status: str = SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED
+    provider_setup_foundation_validation_label: str = (
+        "Setup foundation validation: fail-closed"
+    )
+    provider_setup_foundation_persistence_status: str = SETUP_FOUNDATION_PERSISTENCE_DISABLED
+    provider_setup_foundation_persistence_label: str = (
+        "Setup foundation persistence: disabled; no provider credentials stored"
+    )
+    provider_setup_foundation_approval_status: str = SETUP_FOUNDATION_APPROVAL_STATUS_MISSING
+    provider_setup_foundation_approval_label: str = "Setup foundation approval: USER approval missing"
+    provider_setup_foundation_gate_state: str = SETUP_FOUNDATION_GATE_BLOCKED
+    local_null_provider_fallback_proof: str = LOCAL_NULL_PROVIDER_FALLBACK_PROOF
+    provider_setup_implementation_handoff_state: str = FUTURE_PROVIDER_SETUP_IMPLEMENTATION_HANDOFF_READY
+    provider_setup_implementation_fold_down_posture: str = PROVIDER_SETUP_IMPLEMENTATION_FOLD_DOWN_READY
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -2092,6 +2260,78 @@ class AIProviderStateSnapshot:
             "provider_setup_ui_proof_posture": self.provider_setup_ui_proof_posture,
             "future_setup_branch_handoff_state": self.future_setup_branch_handoff_state,
             "provider_setup_contract_fold_down_posture": self.provider_setup_contract_fold_down_posture,
+            "provider_setup_foundation_state": self.provider_setup_foundation_state,
+            "provider_setup_foundation_label": self.provider_setup_foundation_label,
+            "provider_setup_foundation_eligibility_state": (
+                self.provider_setup_foundation_eligibility_state
+            ),
+            "provider_setup_foundation_eligibility_label": (
+                self.provider_setup_foundation_eligibility_label
+            ),
+            "provider_setup_foundation_blocker_state": self.provider_setup_foundation_blocker_state,
+            "provider_setup_foundation_blocker_label": self.provider_setup_foundation_blocker_label,
+            "provider_setup_foundation_reason_code": self.provider_setup_foundation_reason_code,
+            "provider_setup_foundation_reason_label": self.provider_setup_foundation_reason_label,
+            "provider_setup_foundation_provenance": self.provider_setup_foundation_provenance,
+            "provider_setup_foundation_provenance_label": (
+                self.provider_setup_foundation_provenance_label
+            ),
+            "provider_setup_foundation_state_schema_version": (
+                self.provider_setup_foundation_state_schema_version
+            ),
+            "provider_setup_foundation_config_schema_version": (
+                self.provider_setup_foundation_config_schema_version
+            ),
+            "provider_setup_foundation_config_state": self.provider_setup_foundation_config_state,
+            "provider_setup_foundation_config_label": self.provider_setup_foundation_config_label,
+            "provider_setup_foundation_config_migration": (
+                self.provider_setup_foundation_config_migration
+            ),
+            "provider_setup_foundation_config_valid": self.provider_setup_foundation_config_valid,
+            "provider_setup_foundation_setup_entry_state": (
+                self.provider_setup_foundation_setup_entry_state
+            ),
+            "provider_setup_foundation_setup_entry_label": (
+                self.provider_setup_foundation_setup_entry_label
+            ),
+            "provider_setup_foundation_profile_draft_status": (
+                self.provider_setup_foundation_profile_draft_status
+            ),
+            "provider_setup_foundation_profile_draft_label": (
+                self.provider_setup_foundation_profile_draft_label
+            ),
+            "provider_setup_foundation_config_draft_status": (
+                self.provider_setup_foundation_config_draft_status
+            ),
+            "provider_setup_foundation_config_draft_label": (
+                self.provider_setup_foundation_config_draft_label
+            ),
+            "provider_setup_foundation_validation_status": (
+                self.provider_setup_foundation_validation_status
+            ),
+            "provider_setup_foundation_validation_label": (
+                self.provider_setup_foundation_validation_label
+            ),
+            "provider_setup_foundation_persistence_status": (
+                self.provider_setup_foundation_persistence_status
+            ),
+            "provider_setup_foundation_persistence_label": (
+                self.provider_setup_foundation_persistence_label
+            ),
+            "provider_setup_foundation_approval_status": (
+                self.provider_setup_foundation_approval_status
+            ),
+            "provider_setup_foundation_approval_label": (
+                self.provider_setup_foundation_approval_label
+            ),
+            "provider_setup_foundation_gate_state": self.provider_setup_foundation_gate_state,
+            "local_null_provider_fallback_proof": self.local_null_provider_fallback_proof,
+            "provider_setup_implementation_handoff_state": (
+                self.provider_setup_implementation_handoff_state
+            ),
+            "provider_setup_implementation_fold_down_posture": (
+                self.provider_setup_implementation_fold_down_posture
+            ),
         }
 
     def as_renderer_payload(self) -> dict[str, object]:
@@ -2536,6 +2776,76 @@ class AIProviderStateSnapshot:
             "providerSetupUiProofPosture": self.provider_setup_ui_proof_posture,
             "futureSetupBranchHandoffState": self.future_setup_branch_handoff_state,
             "providerSetupContractFoldDownPosture": self.provider_setup_contract_fold_down_posture,
+            "providerSetupFoundationState": self.provider_setup_foundation_state,
+            "providerSetupFoundationLabel": self.provider_setup_foundation_label,
+            "providerSetupFoundationEligibilityState": (
+                self.provider_setup_foundation_eligibility_state
+            ),
+            "providerSetupFoundationEligibilityLabel": (
+                self.provider_setup_foundation_eligibility_label
+            ),
+            "providerSetupFoundationBlockerState": self.provider_setup_foundation_blocker_state,
+            "providerSetupFoundationBlockerLabel": self.provider_setup_foundation_blocker_label,
+            "providerSetupFoundationReasonCode": self.provider_setup_foundation_reason_code,
+            "providerSetupFoundationReasonLabel": self.provider_setup_foundation_reason_label,
+            "providerSetupFoundationProvenance": self.provider_setup_foundation_provenance,
+            "providerSetupFoundationProvenanceLabel": self.provider_setup_foundation_provenance_label,
+            "providerSetupFoundationStateSchemaVersion": (
+                self.provider_setup_foundation_state_schema_version
+            ),
+            "providerSetupFoundationConfigSchemaVersion": (
+                self.provider_setup_foundation_config_schema_version
+            ),
+            "providerSetupFoundationConfigState": self.provider_setup_foundation_config_state,
+            "providerSetupFoundationConfigLabel": self.provider_setup_foundation_config_label,
+            "providerSetupFoundationConfigMigration": (
+                self.provider_setup_foundation_config_migration
+            ),
+            "providerSetupFoundationConfigValid": self.provider_setup_foundation_config_valid,
+            "providerSetupFoundationSetupEntryState": (
+                self.provider_setup_foundation_setup_entry_state
+            ),
+            "providerSetupFoundationSetupEntryLabel": (
+                self.provider_setup_foundation_setup_entry_label
+            ),
+            "providerSetupFoundationProfileDraftStatus": (
+                self.provider_setup_foundation_profile_draft_status
+            ),
+            "providerSetupFoundationProfileDraftLabel": (
+                self.provider_setup_foundation_profile_draft_label
+            ),
+            "providerSetupFoundationConfigDraftStatus": (
+                self.provider_setup_foundation_config_draft_status
+            ),
+            "providerSetupFoundationConfigDraftLabel": (
+                self.provider_setup_foundation_config_draft_label
+            ),
+            "providerSetupFoundationValidationStatus": (
+                self.provider_setup_foundation_validation_status
+            ),
+            "providerSetupFoundationValidationLabel": (
+                self.provider_setup_foundation_validation_label
+            ),
+            "providerSetupFoundationPersistenceStatus": (
+                self.provider_setup_foundation_persistence_status
+            ),
+            "providerSetupFoundationPersistenceLabel": (
+                self.provider_setup_foundation_persistence_label
+            ),
+            "providerSetupFoundationApprovalStatus": (
+                self.provider_setup_foundation_approval_status
+            ),
+            "providerSetupFoundationApprovalLabel": (
+                self.provider_setup_foundation_approval_label
+            ),
+            "providerSetupFoundationGateState": self.provider_setup_foundation_gate_state,
+            "localNullProviderFallbackProof": self.local_null_provider_fallback_proof,
+            "providerSetupImplementationHandoffState": (
+                self.provider_setup_implementation_handoff_state
+            ),
+            "providerSetupImplementationFoldDownPosture": (
+                self.provider_setup_implementation_fold_down_posture
+            ),
             "canAcceptPrompts": False,
             "requiresConsent": self.consent_state == PROVIDER_CONSENT_REQUIRED,
             "sentToProvider": False,
@@ -5247,6 +5557,472 @@ def normalize_provider_path_consent_readiness_config(
         provenance=provenance
         if provenance in PROVIDER_PATH_PROVENANCE_SOURCES
         else PROVIDER_PATH_PROVENANCE_LOCAL_CONFIG,
+    )
+
+
+def build_default_provider_setup_foundation_config() -> AIProviderSetupFoundationConfigSnapshot:
+    """Return the safe local-only default provider setup foundation config."""
+
+    return AIProviderSetupFoundationConfigSnapshot(
+        schema_version=SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION,
+        config_state=PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+        setup_entry_enabled=False,
+        provider_profile_draft_present=False,
+        provider_profile_draft_valid=False,
+        provider_config_draft_present=False,
+        provider_config_draft_valid=False,
+        local_persistence_ready=False,
+        validation_passed=False,
+        setup_foundation_approved=False,
+        setup_consent_ready=False,
+        execution_consent_ready=False,
+        config_valid=True,
+        provenance=SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT,
+    )
+
+
+def normalize_provider_setup_foundation_config(
+    config: AIProviderSetupFoundationConfigSnapshot | dict[str, object] | None,
+) -> AIProviderSetupFoundationConfigSnapshot:
+    """Normalize setup foundation config into a fail-closed local-only posture."""
+
+    provenance_sources = {
+        SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT,
+        SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT,
+        SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT,
+        SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+        SETUP_FOUNDATION_PROVENANCE_CONSENT,
+        SETUP_FOUNDATION_PROVENANCE_APPROVAL,
+        SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME,
+    }
+
+    if config is None:
+        return replace(
+            build_default_provider_setup_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_MISSING,
+            config_valid=False,
+            provenance=SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT,
+        )
+
+    if isinstance(config, AIProviderSetupFoundationConfigSnapshot):
+        if config.schema_version == SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION and config.config_valid:
+            return config
+        return replace(
+            build_default_provider_setup_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=config.provenance
+            if config.provenance in provenance_sources
+            else SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+        )
+
+    if not isinstance(config, dict):
+        return replace(
+            build_default_provider_setup_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+        )
+
+    schema_version = str(config.get("schema_version") or "")
+    provenance = str(config.get("provenance") or SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT)
+    config_valid = bool(config.get("config_valid", True)) and schema_version == SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION
+    if not config_valid:
+        return replace(
+            build_default_provider_setup_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=provenance
+            if provenance in provenance_sources
+            else SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+        )
+
+    return AIProviderSetupFoundationConfigSnapshot(
+        schema_version=schema_version,
+        config_state=PROVIDER_PATH_CONFIG_STATE_LOCAL,
+        setup_entry_enabled=bool(config.get("setup_entry_enabled", False)),
+        provider_profile_draft_present=bool(config.get("provider_profile_draft_present", False)),
+        provider_profile_draft_valid=bool(config.get("provider_profile_draft_valid", False)),
+        provider_config_draft_present=bool(config.get("provider_config_draft_present", False)),
+        provider_config_draft_valid=bool(config.get("provider_config_draft_valid", False)),
+        local_persistence_ready=bool(config.get("local_persistence_ready", False)),
+        validation_passed=bool(config.get("validation_passed", False)),
+        setup_foundation_approved=bool(config.get("setup_foundation_approved", False)),
+        setup_consent_ready=bool(config.get("setup_consent_ready", False)),
+        execution_consent_ready=bool(config.get("execution_consent_ready", False)),
+        config_valid=True,
+        provenance=provenance
+        if provenance in provenance_sources
+        else SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT,
+    )
+
+
+def _provider_setup_foundation_fields(
+    contract_state: AIProviderStateSnapshot,
+    setup_config: AIProviderSetupFoundationConfigSnapshot,
+) -> dict[str, object]:
+    foundation_state = SETUP_FOUNDATION_STATE_UNAVAILABLE
+    foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_UNAVAILABLE
+    foundation_blocker = SETUP_FOUNDATION_BLOCKER_SETUP_CONTRACT_REQUIRED
+    foundation_reason = SETUP_FOUNDATION_REASON_DEFAULT_UNAVAILABLE
+    foundation_provenance = SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT
+    foundation_approval = SETUP_FOUNDATION_APPROVAL_STATUS_MISSING
+    foundation_gate = SETUP_FOUNDATION_GATE_BLOCKED
+
+    setup_entry_state = (
+        SETUP_FOUNDATION_SETUP_ENTRY_READY_LOCAL_DRAFT
+        if setup_config.setup_entry_enabled
+        else SETUP_FOUNDATION_SETUP_ENTRY_DISABLED
+    )
+    profile_draft_status = (
+        SETUP_FOUNDATION_PROFILE_DRAFT_READY
+        if setup_config.provider_profile_draft_present and setup_config.provider_profile_draft_valid
+        else SETUP_FOUNDATION_PROFILE_DRAFT_INVALID
+        if setup_config.provider_profile_draft_present
+        else SETUP_FOUNDATION_PROFILE_DRAFT_MISSING
+    )
+    config_draft_status = (
+        SETUP_FOUNDATION_CONFIG_DRAFT_READY
+        if setup_config.provider_config_draft_present and setup_config.provider_config_draft_valid
+        else SETUP_FOUNDATION_CONFIG_DRAFT_INVALID
+        if setup_config.provider_config_draft_present
+        else SETUP_FOUNDATION_CONFIG_DRAFT_MISSING
+    )
+    persistence_status = (
+        SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY
+        if setup_config.local_persistence_ready
+        else SETUP_FOUNDATION_PERSISTENCE_DISABLED
+    )
+    validation_status = (
+        SETUP_FOUNDATION_VALIDATION_STATIC_READY
+        if setup_config.validation_passed
+        and setup_config.provider_profile_draft_present
+        and setup_config.provider_profile_draft_valid
+        and setup_config.provider_config_draft_present
+        and setup_config.provider_config_draft_valid
+        and setup_config.local_persistence_ready
+        else SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED
+    )
+
+    ready_contract_states = {
+        SETUP_CONTRACT_STATE_READY_FUTURE_GATED,
+        SETUP_CONTRACT_STATE_READY_BUT_NOT_APPROVED,
+        SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+    }
+    if setup_config.config_state == PROVIDER_PATH_CONFIG_STATE_MISSING:
+        foundation_state = SETUP_FOUNDATION_STATE_DISABLED
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_DISABLED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_CONFIG_MISSING
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT
+    elif setup_config.config_state == PROVIDER_PATH_CONFIG_STATE_INVALID:
+        foundation_state = SETUP_FOUNDATION_STATE_DEGRADED
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_CONFIG_INVALID
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_VALIDATION
+    elif contract_state.provider_setup_contract_readiness_state not in ready_contract_states:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONTRACT
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_reason = SETUP_FOUNDATION_REASON_SETUP_CONTRACT_REQUIRED
+    elif not setup_config.setup_entry_enabled:
+        foundation_state = SETUP_FOUNDATION_STATE_DISABLED
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_DISABLED
+        foundation_reason = SETUP_FOUNDATION_REASON_SETUP_ENTRY_DISABLED
+    elif not setup_config.provider_profile_draft_present:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_PROFILE
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_PROFILE_DRAFT_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_PROFILE_DRAFT_MISSING
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT
+    elif not setup_config.provider_profile_draft_valid:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_PROFILE_DRAFT_INVALID
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT
+    elif not setup_config.provider_config_draft_present:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_CONFIG
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_CONFIG_DRAFT_MISSING
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT
+    elif not setup_config.provider_config_draft_valid:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_CONFIG_DRAFT_INVALID
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT
+    elif not setup_config.local_persistence_ready or not setup_config.validation_passed:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_VALIDATION_FAILED
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_VALIDATION
+    elif not setup_config.setup_consent_ready:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONSENT
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_SETUP_CONSENT_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_SETUP_CONSENT_REQUIRED
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_CONSENT
+    elif not setup_config.execution_consent_ready:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_EXECUTION_CONSENT
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_EXECUTION_CONSENT_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_EXECUTION_CONSENT_REQUIRED
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_CONSENT
+    elif not setup_config.setup_foundation_approved:
+        foundation_state = SETUP_FOUNDATION_STATE_READY_BUT_NOT_APPROVED
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_READY_NOT_APPROVED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_APPROVAL_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_APPROVAL_MISSING
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_APPROVAL
+        foundation_gate = SETUP_FOUNDATION_GATE_LOCAL_DRAFT
+    elif contract_state.provider_setup_contract_readiness_state == SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH:
+        foundation_state = SETUP_FOUNDATION_STATE_READY_FOR_FUTURE_SETUP_BRANCH
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_FUTURE_SETUP_BRANCH
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH
+        foundation_reason = SETUP_FOUNDATION_REASON_READY_FOR_FUTURE_SETUP_BRANCH
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME
+        foundation_approval = SETUP_FOUNDATION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF
+        foundation_gate = SETUP_FOUNDATION_GATE_FUTURE_GATED
+    else:
+        foundation_state = SETUP_FOUNDATION_STATE_READY_LOCAL_DRAFT
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_LOCAL_DRAFT
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH
+        foundation_reason = SETUP_FOUNDATION_REASON_READY_LOCAL_DRAFT
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME
+        foundation_approval = SETUP_FOUNDATION_APPROVAL_STATUS_FUTURE_GATED
+        foundation_gate = SETUP_FOUNDATION_GATE_FUTURE_GATED
+
+    foundation_labels = {
+        SETUP_FOUNDATION_STATE_UNAVAILABLE: "Setup implementation foundation: unavailable",
+        SETUP_FOUNDATION_STATE_DISABLED: "Setup implementation foundation: disabled",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONTRACT:
+            "Setup implementation foundation: blocked by setup contract",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_PROFILE:
+            "Setup implementation foundation: blocked by provider profile draft",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_CONFIG:
+            "Setup implementation foundation: blocked by provider config draft",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION:
+            "Setup implementation foundation: validation failed closed",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONSENT:
+            "Setup implementation foundation: blocked by setup consent",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_EXECUTION_CONSENT:
+            "Setup implementation foundation: blocked by execution consent",
+        SETUP_FOUNDATION_STATE_READY_LOCAL_DRAFT:
+            "Setup implementation foundation: local draft ready, future-gated",
+        SETUP_FOUNDATION_STATE_READY_FUTURE_GATED:
+            "Setup implementation foundation: ready but future-gated",
+        SETUP_FOUNDATION_STATE_READY_BUT_NOT_APPROVED:
+            "Setup implementation foundation: ready but USER approval missing",
+        SETUP_FOUNDATION_STATE_DEGRADED:
+            "Setup implementation foundation: degraded and fail-closed",
+        SETUP_FOUNDATION_STATE_READY_FOR_FUTURE_SETUP_BRANCH:
+            "Setup implementation foundation: ready for future setup branch",
+    }
+    eligibility_labels = {
+        SETUP_FOUNDATION_ELIGIBILITY_UNAVAILABLE: "Setup foundation eligibility: unavailable",
+        SETUP_FOUNDATION_ELIGIBILITY_DISABLED: "Setup foundation eligibility: disabled",
+        SETUP_FOUNDATION_ELIGIBILITY_BLOCKED: "Setup foundation eligibility: blocked",
+        SETUP_FOUNDATION_ELIGIBILITY_LOCAL_DRAFT:
+            "Setup foundation eligibility: local draft only",
+        SETUP_FOUNDATION_ELIGIBILITY_FUTURE_GATED:
+            "Setup foundation eligibility: future-gated",
+        SETUP_FOUNDATION_ELIGIBILITY_READY_NOT_APPROVED:
+            "Setup foundation eligibility: ready but USER approval missing",
+        SETUP_FOUNDATION_ELIGIBILITY_FUTURE_SETUP_BRANCH:
+            "Setup foundation eligibility: future setup branch",
+    }
+    blocker_labels = {
+        SETUP_FOUNDATION_BLOCKER_SETUP_CONTRACT_REQUIRED:
+            "Setup foundation blocker: setup contract readiness required",
+        SETUP_FOUNDATION_BLOCKER_PROFILE_DRAFT_REQUIRED:
+            "Setup foundation blocker: provider profile draft required",
+        SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED:
+            "Setup foundation blocker: provider config draft required",
+        SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED:
+            "Setup foundation blocker: local validation proof required",
+        SETUP_FOUNDATION_BLOCKER_SETUP_CONSENT_REQUIRED:
+            "Setup foundation blocker: setup consent prerequisite required",
+        SETUP_FOUNDATION_BLOCKER_EXECUTION_CONSENT_REQUIRED:
+            "Setup foundation blocker: execution consent prerequisite required",
+        SETUP_FOUNDATION_BLOCKER_APPROVAL_REQUIRED:
+            "Setup foundation blocker: USER setup foundation approval required",
+        SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH:
+            "Setup foundation blocker: future setup branch required",
+    }
+    reason_labels = {
+        SETUP_FOUNDATION_REASON_DEFAULT_UNAVAILABLE:
+            "Setup foundation reason: local-only safe default",
+        SETUP_FOUNDATION_REASON_SETUP_ENTRY_DISABLED:
+            "Setup foundation reason: setup entry point disabled",
+        SETUP_FOUNDATION_REASON_SETUP_CONTRACT_REQUIRED:
+            "Setup foundation reason: setup contract readiness required",
+        SETUP_FOUNDATION_REASON_CONFIG_MISSING:
+            "Setup foundation reason: config snapshot missing",
+        SETUP_FOUNDATION_REASON_CONFIG_INVALID:
+            "Setup foundation reason: config snapshot invalid",
+        SETUP_FOUNDATION_REASON_PROFILE_DRAFT_MISSING:
+            "Setup foundation reason: provider profile draft missing",
+        SETUP_FOUNDATION_REASON_PROFILE_DRAFT_INVALID:
+            "Setup foundation reason: provider profile draft invalid",
+        SETUP_FOUNDATION_REASON_CONFIG_DRAFT_MISSING:
+            "Setup foundation reason: provider config draft missing",
+        SETUP_FOUNDATION_REASON_CONFIG_DRAFT_INVALID:
+            "Setup foundation reason: provider config draft invalid",
+        SETUP_FOUNDATION_REASON_VALIDATION_FAILED:
+            "Setup foundation reason: validation failed closed",
+        SETUP_FOUNDATION_REASON_SETUP_CONSENT_REQUIRED:
+            "Setup foundation reason: setup consent prerequisite required",
+        SETUP_FOUNDATION_REASON_EXECUTION_CONSENT_REQUIRED:
+            "Setup foundation reason: execution consent prerequisite required",
+        SETUP_FOUNDATION_REASON_APPROVAL_MISSING:
+            "Setup foundation reason: USER setup approval missing",
+        SETUP_FOUNDATION_REASON_READY_LOCAL_DRAFT:
+            "Setup foundation reason: local draft ready for future proof",
+        SETUP_FOUNDATION_REASON_READY_FOR_FUTURE_SETUP_BRANCH:
+            "Setup foundation reason: ready for future setup branch",
+    }
+    provenance_labels = {
+        SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT:
+            "Setup foundation provenance: provider setup contract state",
+        SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT:
+            "Setup foundation provenance: provider profile draft",
+        SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT:
+            "Setup foundation provenance: provider config draft",
+        SETUP_FOUNDATION_PROVENANCE_VALIDATION:
+            "Setup foundation provenance: local validation proof",
+        SETUP_FOUNDATION_PROVENANCE_CONSENT:
+            "Setup foundation provenance: consent prerequisites",
+        SETUP_FOUNDATION_PROVENANCE_APPROVAL:
+            "Setup foundation provenance: future setup approval",
+        SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME:
+            "Setup foundation provenance: future provider setup check",
+    }
+
+    return {
+        "provider_setup_foundation_state": foundation_state,
+        "provider_setup_foundation_label": foundation_labels[foundation_state],
+        "provider_setup_foundation_eligibility_state": foundation_eligibility,
+        "provider_setup_foundation_eligibility_label": eligibility_labels[foundation_eligibility],
+        "provider_setup_foundation_blocker_state": foundation_blocker,
+        "provider_setup_foundation_blocker_label": blocker_labels[foundation_blocker],
+        "provider_setup_foundation_reason_code": foundation_reason,
+        "provider_setup_foundation_reason_label": reason_labels[foundation_reason],
+        "provider_setup_foundation_provenance": foundation_provenance,
+        "provider_setup_foundation_provenance_label": provenance_labels[foundation_provenance],
+        "provider_setup_foundation_state_schema_version": SETUP_FOUNDATION_STATE_SCHEMA_VERSION,
+        "provider_setup_foundation_config_schema_version": SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION,
+        "provider_setup_foundation_config_state": setup_config.config_state,
+        "provider_setup_foundation_config_label": "Setup foundation config: local-only draft envelope",
+        "provider_setup_foundation_config_migration": SETUP_FOUNDATION_CONFIG_MIGRATION_POSTURE,
+        "provider_setup_foundation_config_valid": setup_config.config_valid,
+        "provider_setup_foundation_setup_entry_state": setup_entry_state,
+        "provider_setup_foundation_setup_entry_label": {
+            SETUP_FOUNDATION_SETUP_ENTRY_DISABLED:
+                "Setup entry point: disabled until USER-approved setup work",
+            SETUP_FOUNDATION_SETUP_ENTRY_READY_LOCAL_DRAFT:
+                "Setup entry point: local draft shell ready, execution disabled",
+        }[setup_entry_state],
+        "provider_setup_foundation_profile_draft_status": profile_draft_status,
+        "provider_setup_foundation_profile_draft_label": {
+            SETUP_FOUNDATION_PROFILE_DRAFT_MISSING:
+                "Provider profile draft: missing local-only draft",
+            SETUP_FOUNDATION_PROFILE_DRAFT_INVALID:
+                "Provider profile draft: invalid local-only draft",
+            SETUP_FOUNDATION_PROFILE_DRAFT_READY:
+                "Provider profile draft: local-only draft validated",
+        }[profile_draft_status],
+        "provider_setup_foundation_config_draft_status": config_draft_status,
+        "provider_setup_foundation_config_draft_label": {
+            SETUP_FOUNDATION_CONFIG_DRAFT_MISSING:
+                "Provider config draft: missing local-only draft",
+            SETUP_FOUNDATION_CONFIG_DRAFT_INVALID:
+                "Provider config draft: invalid local-only draft",
+            SETUP_FOUNDATION_CONFIG_DRAFT_READY:
+                "Provider config draft: local-only draft validated",
+        }[config_draft_status],
+        "provider_setup_foundation_validation_status": validation_status,
+        "provider_setup_foundation_validation_label": {
+            SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED:
+                "Setup foundation validation: fail-closed",
+            SETUP_FOUNDATION_VALIDATION_STATIC_READY:
+                "Setup foundation validation: static local proof ready",
+        }[validation_status],
+        "provider_setup_foundation_persistence_status": persistence_status,
+        "provider_setup_foundation_persistence_label": {
+            SETUP_FOUNDATION_PERSISTENCE_DISABLED:
+                "Setup foundation persistence: disabled; no provider credentials stored",
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY:
+                "Setup foundation persistence: local draft metadata only; no secrets",
+        }[persistence_status],
+        "provider_setup_foundation_approval_status": foundation_approval,
+        "provider_setup_foundation_approval_label": {
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING:
+                "Setup foundation approval: USER approval missing",
+            SETUP_FOUNDATION_APPROVAL_STATUS_FUTURE_GATED:
+                "Setup foundation approval: future-gated",
+            SETUP_FOUNDATION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF:
+                "Setup foundation approval: ready for future proof",
+        }[foundation_approval],
+        "provider_setup_foundation_gate_state": foundation_gate,
+        "local_null_provider_fallback_proof": LOCAL_NULL_PROVIDER_FALLBACK_PROOF,
+        "provider_setup_implementation_handoff_state": (
+            FUTURE_PROVIDER_SETUP_IMPLEMENTATION_HANDOFF_READY
+        ),
+        "provider_setup_implementation_fold_down_posture": (
+            PROVIDER_SETUP_IMPLEMENTATION_FOLD_DOWN_READY
+        ),
+    }
+
+
+def build_provider_setup_implementation_foundation_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    execution_config: AIProviderExecutionReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _EXECUTION_CONFIG_OMITTED
+    ),
+    path_consent_config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _PATH_CONSENT_CONFIG_OMITTED
+    ),
+    setup_foundation_config: AIProviderSetupFoundationConfigSnapshot | dict[str, object] | None | object = (
+        _SETUP_FOUNDATION_CONFIG_OMITTED
+    ),
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve local setup implementation foundation without running provider setup."""
+
+    contract_state = build_provider_setup_contract_readiness_state(
+        readiness_config,
+        activation_config=activation_config,
+        execution_config=execution_config,
+        path_consent_config=path_consent_config,
+        surface_role=surface_role,
+    )
+    if setup_foundation_config is _SETUP_FOUNDATION_CONFIG_OMITTED:
+        normalized_setup = build_default_provider_setup_foundation_config()
+    else:
+        normalized_setup = normalize_provider_setup_foundation_config(
+            setup_foundation_config  # type: ignore[arg-type]
+        )
+    foundation_fields = _provider_setup_foundation_fields(contract_state, normalized_setup)
+    return replace(
+        contract_state,
+        state_id=FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_STATE_ID,
+        mode=FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_MODE,
+        availability=FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_AVAILABILITY,
+        status_label=foundation_fields["provider_setup_foundation_label"],
+        disabled_reason=(
+            "Provider setup implementation foundation is local-only; real setup remains pending USER approval"
+        ),
+        provider_next_action_label="Next: local setup foundation proof remains future-gated",
+        interaction_label="Provider setup implementation foundation only",
+        interaction_disabled_reason=(
+            "Provider setup, consent collection, prompt routing, and model execution require later USER approval"
+        ),
+        **foundation_fields,
     )
 
 
