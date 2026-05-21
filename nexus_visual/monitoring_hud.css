@@ -13,6 +13,13 @@ body {
   font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
 }
 
+:root {
+  --monitoring-hud-divider-line: rgba(138, 236, 255, 0.46);
+  --monitoring-hud-divider-highlight: rgba(232, 250, 255, 0.12);
+  --monitoring-hud-divider-shadow: rgba(20, 49, 63, 0.72);
+  --monitoring-hud-divider-glow: linear-gradient(180deg, rgba(117, 228, 255, 0.06), transparent 58%);
+}
+
 #monitoring-hud {
   display: none;
 }
@@ -877,9 +884,9 @@ body.desktop-mode #monitoring-hud > * {
   gap: 8px;
   align-items: start;
   padding: 8px 0;
-  border-top: 1px solid rgba(138, 236, 255, 0.46);
-  box-shadow: 0 -1px 0 rgba(232, 250, 255, 0.12), inset 0 1px 0 rgba(20, 49, 63, 0.72);
-  background: linear-gradient(180deg, rgba(117, 228, 255, 0.06), transparent 58%);
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
+  background: var(--monitoring-hud-divider-glow);
 }
 
 .monitoring-hud__state-row span {
@@ -906,12 +913,14 @@ body.desktop-mode #monitoring-hud > * {
   display: grid;
   gap: 9px;
   padding-top: 10px;
-  border-top: 1px solid rgba(119, 221, 255, 0.10);
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
+  background: var(--monitoring-hud-divider-glow);
 }
 
 .monitoring-hud__overlay-profile-heading {
   display: grid;
-  grid-template-columns: max-content minmax(0, 0.95fr) minmax(132px, 1fr);
+  grid-template-columns: max-content minmax(0, 0.72fr) minmax(264px, 1.45fr);
   gap: 8px;
   align-items: center;
 }
@@ -1171,9 +1180,9 @@ body.desktop-mode #monitoring-hud > * {
   gap: 8px;
   align-items: start;
   padding: 8px 0;
-  border-top: 1px solid rgba(138, 236, 255, 0.46);
-  box-shadow: 0 -1px 0 rgba(232, 250, 255, 0.12), inset 0 1px 0 rgba(20, 49, 63, 0.72);
-  background: linear-gradient(180deg, rgba(117, 228, 255, 0.06), transparent 58%);
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
+  background: var(--monitoring-hud-divider-glow);
 }
 
 .monitoring-hud__setting-row span {
