@@ -64,6 +64,13 @@ PR Readiness Stage 2 final handoff and every Verify Once post must include:
 - Accepted delivery proof comes from assistant-message transcript presence, Codex thread-state refresh, automation run/inbox visibility, automation memory/log/state-file updates, or scheduler last-run evidence.
 - If final merge delivery proof is missing, the watcher remains in Silent Monitor or Blocked Mode and must not retire.
 
+## Reliability Degradation
+
+- A configured automation that misses Verify Once, cannot emit into the approved reporting surface, cannot inspect review-thread detail, or cannot perform the admitted same-PR repair loop must be downgraded to `Background Observability` for that PR.
+- Background Observability may report evidence, but it cannot clear `PR Watcher Provisioning Unproven`, `PR Watcher Routing Unverified`, `Automation Runtime Unproven`, `Bot Review Signal Pending`, or `PR Merge Verification Pending`.
+- If the native Codex heartbeat watcher is unreliable, Codex must either activate a bounded fallback with current PR binding and delivery proof or report Blocked Mode with the exact USER decision needed.
+- Stale automation memory or historical toolchain-path findings are not current blockers unless a current source-truth owner still declares the path, PR, branch, or worktree as active.
+
 ## Repair Authority Boundaries
 
 Repair Authority values:
