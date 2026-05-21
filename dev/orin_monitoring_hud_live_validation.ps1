@@ -486,7 +486,7 @@ Expected: Enable/Open HUD Dashboard makes the Dashboard visible, and Monitor Gro
 USER Result / Notes:
 
 Step 3 - Overlay Profile Selection And Editing
-Expected: The Dashboard shows a compact Overlay Profile control surface. The 250px selector displays the active profile name without a redundant static Active Profile row, opens only from its visible toggle/menu/options, and supports hover/reset/select. The main Dashboard card does not expose the profile-name text field; Overlay Profile Settings opens a separate child window where Create Overlay adds a selectable profile, editing the profile name enables Save Name and Discard, Save persists the draft name, and Discard restores the saved name. Read-only details show monitor count and display mode. Monitor membership must remain read-only in this seam.
+Expected: The Dashboard shows a compact Overlay Profile control surface. The selector has a 300px minimum width, can grow with longer profile names, is capped at 450px or the available row width, displays the active profile name without a redundant static Active Profile row, opens only from its visible toggle/menu/options, and supports hover/reset/select. The main Dashboard card does not expose the profile-name text field; Overlay Profile Settings opens a separate child window where Create Overlay adds a selectable profile, editing the profile name enables Save Name and Discard, Save persists the draft name, and Discard restores the saved name. Read-only details show monitor count and display mode. Monitor membership must remain read-only in this seam.
 USER Result / Notes:
 
 Step 4 - Manage Monitors List And Create

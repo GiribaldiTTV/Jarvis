@@ -541,9 +541,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__overlay-profile-panel" in css
         and ".monitoring-hud__overlay-profile-dropdown" in css
         and ".monitoring-hud__bounded-dropdown.monitoring-hud__overlay-profile-dropdown" in css
-        and "grid-template-columns: max-content minmax(250px, 1fr)" in css
-        and "width: min(250px, 100%)" in css
-        and "min-width: min(250px, 100%)" in css
+        and "grid-template-columns: max-content minmax(300px, 1fr)" in css
+        and "width: max-content" in css
+        and "min-width: min(300px, 100%)" in css
+        and "max-width: min(450px, 100%)" in css
+        and ".monitoring-hud__overlay-profile-dropdown .monitoring-hud__bounded-dropdown-menu" in css
         and "<span>Overlay Profile</span>" in html
         and 'id="monitoring-hud-overlay-profile-active-name"' not in html
         and ".monitoring-hud__overlay-profile-actions" in css
@@ -553,7 +555,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "monitoringHudSetOverlayProfileDropdownOpen" in js
         and "monitoringHudOpenChildWindow(\"overlay-profile-settings\")" in js
         and "monitoringHudSaveOverlayProfileDraft" in js,
-        "HUD must render SLC-038 Overlay Profile controls as a Nexus-styled 250px selector without a redundant dashboard active-profile line plus settings-window create/rename/save/discard UI",
+        "HUD must render SLC-038 Overlay Profile controls as a Nexus-styled 300px-to-450px content-growing selector without a redundant dashboard active-profile line plus settings-window create/rename/save/discard UI",
         failures,
     )
     _require(
