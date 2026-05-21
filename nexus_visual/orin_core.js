@@ -99,6 +99,10 @@ const aiProviderStatusSetupFoundationBlocker = document.getElementById("ai-provi
 const aiProviderStatusSetupFoundationValidation = document.getElementById("ai-provider-status-setup-foundation-validation");
 const aiProviderStatusSetupFoundationPersistence = document.getElementById("ai-provider-status-setup-foundation-persistence");
 const aiProviderStatusSetupFoundationHandoff = document.getElementById("ai-provider-status-setup-foundation-handoff");
+const aiProviderStatusConsentCollectionFoundation = document.getElementById("ai-provider-status-consent-collection-foundation");
+const aiProviderStatusConsentCollectionBlocker = document.getElementById("ai-provider-status-consent-collection-blocker");
+const aiProviderStatusConsentCollectionAudit = document.getElementById("ai-provider-status-consent-collection-audit");
+const aiProviderStatusConsentCollectionHandoff = document.getElementById("ai-provider-status-consent-collection-handoff");
 const aiProviderStatusSetupConsent = document.getElementById("ai-provider-status-setup-consent");
 const aiProviderStatusExecutionConsent = document.getElementById("ai-provider-status-execution-consent");
 const aiProviderStatusConsentSchema = document.getElementById("ai-provider-status-consent-schema");
@@ -445,6 +449,30 @@ let aiProviderState = {
   providerSetupFoundationPersistenceStatus: "setup-foundation-persistence-disabled",
   providerSetupFoundationPersistenceLabel: "Setup foundation persistence: disabled; no provider credentials stored",
   providerSetupImplementationHandoffState: "future-provider-setup-implementation-handoff-ready",
+  consentCollectionFoundationState: "consent_collection_unavailable",
+  consentCollectionFoundationLabel: "Consent collection foundation: unavailable",
+  consentCollectionEligibilityState: "consent_collection_eligibility_unavailable",
+  consentCollectionEligibilityLabel: "Consent collection eligibility: unavailable",
+  consentCollectionBlockerState: "consent_collection_consent_flow_required",
+  consentCollectionBlockerLabel: "Consent collection blocker: consent flow readiness required",
+  consentCollectionReasonCode: "consent_collection_default_unavailable",
+  consentCollectionReasonLabel: "Consent collection reason: local-only safe default",
+  consentCollectionApprovalStatus: "consent-collection-approval-missing",
+  consentCollectionApprovalLabel: "Consent collection approval: USER approval missing",
+  consentCollectionGateState: "consent-collection-gate-blocked",
+  consentCaptureSurfaceState: "consent-capture-surface-disabled",
+  consentCaptureSurfaceLabel: "Consent capture surface: disabled until USER-approved consent work",
+  consentDataVisibilityReviewStatus: "data-visibility-review-required",
+  consentDataVisibilityReviewLabel: "Consent data visibility review: required before capture",
+  consentAuditEnvelopeStatus: "consent-audit-envelope-required",
+  consentAuditEnvelopeLabel: "Consent audit envelope: required before capture",
+  consentProvenanceStatus: "consent-provenance-required",
+  consentProvenanceLabel: "Consent provenance: required before capture",
+  consentPersistenceStatus: "consent-persistence-disabled",
+  consentPersistenceLabel: "Consent persistence: disabled; no consent stored",
+  consentCollectionValidationStatus: "consent-collection-validation-fail-closed",
+  consentCollectionValidationLabel: "Consent collection validation: fail-closed",
+  futureConsentCaptureHandoffState: "future-consent-capture-branch-handoff-ready",
   providerSetupHandoffPosture: "provider-setup-handoff-future-gated",
   providerSetupHandoffLabel: "Provider setup handoff: future-gated",
   providerConsentHandoffPosture: "provider-consent-handoff-future-gated",
@@ -1710,6 +1738,18 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.setupFoundationPersistence =
     state.providerSetupFoundationPersistenceStatus || "unknown";
   aiProviderStatus.dataset.setupFoundationGate = state.providerSetupFoundationGateState || "unknown";
+  aiProviderStatus.dataset.consentCollectionFoundation =
+    state.consentCollectionFoundationState || "unknown";
+  aiProviderStatus.dataset.consentCollectionBlocker =
+    state.consentCollectionBlockerState || "unknown";
+  aiProviderStatus.dataset.consentCollectionApproval =
+    state.consentCollectionApprovalStatus || "unknown";
+  aiProviderStatus.dataset.consentCollectionValidation =
+    state.consentCollectionValidationStatus || "unknown";
+  aiProviderStatus.dataset.consentCollectionPersistence =
+    state.consentPersistenceStatus || "unknown";
+  aiProviderStatus.dataset.consentCollectionGate =
+    state.consentCollectionGateState || "unknown";
   aiProviderStatus.dataset.providerSetupHandoff = state.providerSetupHandoffPosture || "unknown";
   aiProviderStatus.dataset.providerConsentHandoff = state.providerConsentHandoffPosture || "unknown";
   aiProviderStatus.dataset.providerPathHandoff = state.providerPathHandoffPosture || "unknown";
@@ -2085,6 +2125,23 @@ function renderAIProviderState() {
   if (aiProviderStatusSetupFoundationHandoff) {
     aiProviderStatusSetupFoundationHandoff.textContent =
       `${state.providerSetupFoundationApprovalLabel || "Setup foundation approval: USER approval missing"}; ${state.providerSetupImplementationHandoffState || "future-provider-setup-implementation-handoff-ready"}`;
+  }
+  if (aiProviderStatusConsentCollectionFoundation) {
+    aiProviderStatusConsentCollectionFoundation.textContent =
+      state.consentCollectionFoundationLabel || "Consent collection foundation: unavailable";
+  }
+  if (aiProviderStatusConsentCollectionBlocker) {
+    aiProviderStatusConsentCollectionBlocker.textContent =
+      state.consentCollectionBlockerLabel ||
+      "Consent collection blocker: consent flow readiness required";
+  }
+  if (aiProviderStatusConsentCollectionAudit) {
+    aiProviderStatusConsentCollectionAudit.textContent =
+      `${state.consentAuditEnvelopeLabel || "Consent audit envelope: required before capture"}; ${state.consentPersistenceLabel || "Consent persistence: disabled; no consent stored"}`;
+  }
+  if (aiProviderStatusConsentCollectionHandoff) {
+    aiProviderStatusConsentCollectionHandoff.textContent =
+      `${state.consentCollectionApprovalLabel || "Consent collection approval: USER approval missing"}; ${state.futureConsentCaptureHandoffState || "future-consent-capture-branch-handoff-ready"}`;
   }
   if (aiProviderStatusSetupConsent) {
     aiProviderStatusSetupConsent.textContent =

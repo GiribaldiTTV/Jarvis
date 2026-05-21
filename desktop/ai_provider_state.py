@@ -32,6 +32,9 @@ FAM007_PROVIDER_SETUP_CONTRACT_READINESS_STATE_ID = "fam007-provider-setup-contr
 FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_STATE_ID = (
     "fam007-provider-setup-implementation-foundation"
 )
+FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_STATE_ID = (
+    "fam007-provider-consent-collection-foundation"
+)
 
 NO_PROVIDER_MODE = "no-provider"
 NO_PROVIDER_AVAILABILITY = "disabled"
@@ -56,6 +59,8 @@ FAM007_PROVIDER_SETUP_CONTRACT_READINESS_MODE = "provider-setup-contract-readine
 FAM007_PROVIDER_SETUP_CONTRACT_READINESS_AVAILABILITY = "disabled"
 FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_MODE = "provider-setup-implementation-foundation"
 FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_AVAILABILITY = "disabled"
+FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_MODE = "provider-consent-collection-foundation"
+FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_AVAILABILITY = "disabled"
 NO_PROVIDER_ID = "no-provider"
 NO_PROVIDER_FALLBACK_SELECTION = "fallback-no-provider"
 PROVIDER_CONSENT_REQUIRED = "required-before-provider"
@@ -844,6 +849,134 @@ FUTURE_PROVIDER_SETUP_IMPLEMENTATION_HANDOFF_READY = (
 PROVIDER_SETUP_IMPLEMENTATION_FOLD_DOWN_READY = (
     "setup-implementation-foundation-fold-down-ready-for-pr-release"
 )
+CONSENT_COLLECTION_FOUNDATION_STATE_SCHEMA_VERSION = (
+    "provider-consent-collection-foundation-state.v1"
+)
+CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION = (
+    "provider-consent-collection-foundation-config.v1"
+)
+CONSENT_COLLECTION_FOUNDATION_CONFIG_MIGRATION_POSTURE = (
+    "safe-defaults-no-consent-collection-foundation-migration"
+)
+CONSENT_COLLECTION_STATE_UNKNOWN = "consent_collection_unknown"
+CONSENT_COLLECTION_STATE_UNAVAILABLE = "consent_collection_unavailable"
+CONSENT_COLLECTION_STATE_DISABLED = "consent_collection_disabled"
+CONSENT_COLLECTION_STATE_BLOCKED_BY_CONSENT_FLOW = (
+    "consent_collection_blocked_by_consent_flow"
+)
+CONSENT_COLLECTION_STATE_BLOCKED_BY_SETUP_FOUNDATION = (
+    "consent_collection_blocked_by_setup_foundation"
+)
+CONSENT_COLLECTION_STATE_BLOCKED_BY_POLICY = "consent_collection_blocked_by_policy"
+CONSENT_COLLECTION_STATE_BLOCKED_BY_DATA_VISIBILITY = (
+    "consent_collection_blocked_by_data_visibility"
+)
+CONSENT_COLLECTION_STATE_BLOCKED_BY_AUDIT = "consent_collection_blocked_by_audit"
+CONSENT_COLLECTION_STATE_READY_FUTURE_GATED = "consent_collection_ready_future_gated"
+CONSENT_COLLECTION_STATE_READY_BUT_NOT_APPROVED = (
+    "consent_collection_ready_but_not_approved"
+)
+CONSENT_COLLECTION_STATE_READY_BUT_NOT_COLLECTED = (
+    "consent_collection_ready_but_not_collected"
+)
+CONSENT_COLLECTION_STATE_READY_FOR_FUTURE_CAPTURE_BRANCH = (
+    "consent_collection_ready_for_future_capture_branch"
+)
+CONSENT_COLLECTION_STATE_DEGRADED = "consent_collection_degraded"
+CONSENT_COLLECTION_ELIGIBILITY_UNAVAILABLE = "consent_collection_eligibility_unavailable"
+CONSENT_COLLECTION_ELIGIBILITY_DISABLED = "consent_collection_eligibility_disabled"
+CONSENT_COLLECTION_ELIGIBILITY_BLOCKED = "consent_collection_eligibility_blocked"
+CONSENT_COLLECTION_ELIGIBILITY_FUTURE_GATED = (
+    "consent_collection_eligibility_future_gated"
+)
+CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_APPROVED = (
+    "consent_collection_eligibility_ready_not_approved"
+)
+CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_COLLECTED = (
+    "consent_collection_eligibility_ready_not_collected"
+)
+CONSENT_COLLECTION_ELIGIBILITY_FUTURE_CAPTURE_BRANCH = (
+    "consent_collection_eligibility_future_capture_branch"
+)
+CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED = (
+    "consent_collection_consent_flow_required"
+)
+CONSENT_COLLECTION_BLOCKER_SETUP_FOUNDATION_REQUIRED = (
+    "consent_collection_setup_foundation_required"
+)
+CONSENT_COLLECTION_BLOCKER_POLICY_BLOCKED = "consent_collection_policy_blocked"
+CONSENT_COLLECTION_BLOCKER_DATA_VISIBILITY_REQUIRED = (
+    "consent_collection_data_visibility_required"
+)
+CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED = "consent_collection_audit_required"
+CONSENT_COLLECTION_BLOCKER_APPROVAL_REQUIRED = "consent_collection_approval_required"
+CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH = (
+    "consent_collection_future_capture_branch_required"
+)
+CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE = "consent_collection_default_unavailable"
+CONSENT_COLLECTION_REASON_CONFIG_MISSING = "consent_collection_config_missing"
+CONSENT_COLLECTION_REASON_CONFIG_INVALID = "consent_collection_config_invalid"
+CONSENT_COLLECTION_REASON_CONSENT_FLOW_REQUIRED = (
+    "consent_collection_consent_flow_required"
+)
+CONSENT_COLLECTION_REASON_SETUP_FOUNDATION_REQUIRED = (
+    "consent_collection_setup_foundation_required"
+)
+CONSENT_COLLECTION_REASON_POLICY_BLOCKED = "consent_collection_policy_blocked"
+CONSENT_COLLECTION_REASON_DATA_VISIBILITY_BLOCKED = (
+    "consent_collection_data_visibility_blocked"
+)
+CONSENT_COLLECTION_REASON_AUDIT_REQUIRED = "consent_collection_audit_required"
+CONSENT_COLLECTION_REASON_APPROVAL_MISSING = "consent_collection_approval_missing"
+CONSENT_COLLECTION_REASON_READY_BUT_NOT_COLLECTED = (
+    "consent_collection_ready_but_not_collected"
+)
+CONSENT_COLLECTION_REASON_READY_FOR_FUTURE_CAPTURE_BRANCH = (
+    "consent_collection_ready_for_future_capture_branch"
+)
+CONSENT_COLLECTION_REASON_READY_FUTURE_GATED = "consent_collection_ready_future_gated"
+CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW = "consent_flow_readiness_state"
+CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION = "provider_setup_foundation_state"
+CONSENT_COLLECTION_PROVENANCE_DATA_VISIBILITY = "data_visibility_contract"
+CONSENT_COLLECTION_PROVENANCE_AUDIT = "audit_policy"
+CONSENT_COLLECTION_PROVENANCE_POLICY = "consent_collection_policy"
+CONSENT_COLLECTION_PROVENANCE_APPROVAL = "future_consent_collection_approval"
+CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE = "future_consent_capture_branch"
+CONSENT_COLLECTION_APPROVAL_STATUS_MISSING = "consent-collection-approval-missing"
+CONSENT_COLLECTION_APPROVAL_STATUS_FUTURE_GATED = (
+    "consent-collection-approval-future-gated"
+)
+CONSENT_COLLECTION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF = (
+    "consent-collection-approval-ready-for-future-proof"
+)
+CONSENT_COLLECTION_GATE_BLOCKED = "consent-collection-gate-blocked"
+CONSENT_COLLECTION_GATE_FUTURE_GATED = "consent-collection-gate-future-gated"
+CONSENT_COLLECTION_GATE_LOCAL_PROOF = "consent-collection-gate-local-proof"
+CONSENT_COLLECTION_CAPTURE_SURFACE_DISABLED = "consent-capture-surface-disabled"
+CONSENT_COLLECTION_CAPTURE_SURFACE_PLANNED = "consent-capture-surface-planned"
+CONSENT_COLLECTION_CAPTURE_SURFACE_READY_FUTURE_GATED = (
+    "consent-capture-surface-ready-future-gated"
+)
+CONSENT_COLLECTION_CAPTURE_SETUP_READY = "setup-consent-capture-ready"
+CONSENT_COLLECTION_CAPTURE_SETUP_REQUIRED = "setup-consent-capture-required"
+CONSENT_COLLECTION_CAPTURE_EXECUTION_READY = "execution-consent-capture-ready"
+CONSENT_COLLECTION_CAPTURE_EXECUTION_REQUIRED = "execution-consent-capture-required"
+CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_READY = "data-visibility-review-ready"
+CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_REQUIRED = "data-visibility-review-required"
+CONSENT_COLLECTION_AUDIT_ENVELOPE_READY = "consent-audit-envelope-ready"
+CONSENT_COLLECTION_AUDIT_ENVELOPE_REQUIRED = "consent-audit-envelope-required"
+CONSENT_COLLECTION_PROVENANCE_READY = "consent-provenance-ready"
+CONSENT_COLLECTION_PROVENANCE_REQUIRED = "consent-provenance-required"
+CONSENT_COLLECTION_PERSISTENCE_DISABLED = "consent-persistence-disabled"
+CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY = "consent-persistence-local-proof-only"
+CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED = "consent-collection-validation-fail-closed"
+CONSENT_COLLECTION_VALIDATION_STATIC_READY = "consent-collection-validation-static-ready"
+FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY = (
+    "future-consent-capture-branch-handoff-ready"
+)
+CONSENT_COLLECTION_FOLD_DOWN_READY = (
+    "consent-collection-foundation-fold-down-ready-for-pr-release"
+)
 CAPABILITY_PACK_ELIGIBILITY_UNKNOWN = "capability-pack-eligibility-unknown"
 CAPABILITY_PACK_ELIGIBILITY_BLOCKED = "capability-pack-eligibility-blocked"
 CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED = "capability-pack-eligibility-future-gated"
@@ -1108,6 +1241,7 @@ _ACTIVATION_CONFIG_OMITTED = object()
 _EXECUTION_CONFIG_OMITTED = object()
 _PATH_CONSENT_CONFIG_OMITTED = object()
 _SETUP_FOUNDATION_CONFIG_OMITTED = object()
+_CONSENT_COLLECTION_CONFIG_OMITTED = object()
 
 
 @dataclass(frozen=True)
@@ -1214,6 +1348,25 @@ class AIProviderSetupFoundationConfigSnapshot:
     setup_foundation_approved: bool
     setup_consent_ready: bool
     execution_consent_ready: bool
+    config_valid: bool
+    provenance: str
+
+
+@dataclass(frozen=True)
+class AIProviderConsentCollectionFoundationConfigSnapshot:
+    schema_version: str
+    config_state: str
+    consent_capture_surface_enabled: bool
+    setup_consent_capture_ready: bool
+    execution_consent_capture_ready: bool
+    data_visibility_review_ready: bool
+    audit_envelope_ready: bool
+    provenance_ready: bool
+    local_persistence_ready: bool
+    validation_passed: bool
+    policy_allows_collection: bool
+    consent_collection_approved: bool
+    future_capture_branch_ready: bool
     config_valid: bool
     provenance: str
 
@@ -1818,6 +1971,69 @@ class AIProviderStateSnapshot:
     local_null_provider_fallback_proof: str = LOCAL_NULL_PROVIDER_FALLBACK_PROOF
     provider_setup_implementation_handoff_state: str = FUTURE_PROVIDER_SETUP_IMPLEMENTATION_HANDOFF_READY
     provider_setup_implementation_fold_down_posture: str = PROVIDER_SETUP_IMPLEMENTATION_FOLD_DOWN_READY
+    consent_collection_foundation_state: str = CONSENT_COLLECTION_STATE_UNAVAILABLE
+    consent_collection_foundation_label: str = "Consent collection foundation: unavailable"
+    consent_collection_eligibility_state: str = CONSENT_COLLECTION_ELIGIBILITY_UNAVAILABLE
+    consent_collection_eligibility_label: str = "Consent collection eligibility: unavailable"
+    consent_collection_blocker_state: str = CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED
+    consent_collection_blocker_label: str = (
+        "Consent collection blocker: consent flow readiness required"
+    )
+    consent_collection_reason_code: str = CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE
+    consent_collection_reason_label: str = (
+        "Consent collection reason: local-only safe default"
+    )
+    consent_collection_provenance: str = CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW
+    consent_collection_provenance_label: str = (
+        "Consent collection provenance: consent flow readiness state"
+    )
+    consent_collection_state_schema_version: str = (
+        CONSENT_COLLECTION_FOUNDATION_STATE_SCHEMA_VERSION
+    )
+    consent_collection_config_schema_version: str = (
+        CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION
+    )
+    consent_collection_config_state: str = PROVIDER_PATH_CONFIG_STATE_DEFAULT
+    consent_collection_config_label: str = (
+        "Consent collection config: safe default local-only"
+    )
+    consent_collection_config_migration: str = (
+        CONSENT_COLLECTION_FOUNDATION_CONFIG_MIGRATION_POSTURE
+    )
+    consent_collection_config_valid: bool = True
+    consent_collection_approval_status: str = CONSENT_COLLECTION_APPROVAL_STATUS_MISSING
+    consent_collection_approval_label: str = (
+        "Consent collection approval: USER approval missing"
+    )
+    consent_collection_gate_state: str = CONSENT_COLLECTION_GATE_BLOCKED
+    consent_capture_surface_state: str = CONSENT_COLLECTION_CAPTURE_SURFACE_DISABLED
+    consent_capture_surface_label: str = (
+        "Consent capture surface: disabled until USER-approved consent work"
+    )
+    setup_consent_capture_status: str = CONSENT_COLLECTION_CAPTURE_SETUP_REQUIRED
+    setup_consent_capture_label: str = "Setup consent capture: required"
+    execution_consent_capture_status: str = CONSENT_COLLECTION_CAPTURE_EXECUTION_REQUIRED
+    execution_consent_capture_label: str = "Execution consent capture: required"
+    consent_data_visibility_review_status: str = (
+        CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_REQUIRED
+    )
+    consent_data_visibility_review_label: str = (
+        "Consent data visibility review: required before capture"
+    )
+    consent_audit_envelope_status: str = CONSENT_COLLECTION_AUDIT_ENVELOPE_REQUIRED
+    consent_audit_envelope_label: str = (
+        "Consent audit envelope: required before capture"
+    )
+    consent_provenance_status: str = CONSENT_COLLECTION_PROVENANCE_REQUIRED
+    consent_provenance_label: str = "Consent provenance: required before capture"
+    consent_persistence_status: str = CONSENT_COLLECTION_PERSISTENCE_DISABLED
+    consent_persistence_label: str = "Consent persistence: disabled; no consent stored"
+    consent_collection_validation_status: str = CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED
+    consent_collection_validation_label: str = (
+        "Consent collection validation: fail-closed"
+    )
+    future_consent_capture_handoff_state: str = FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY
+    consent_collection_fold_down_posture: str = CONSENT_COLLECTION_FOLD_DOWN_READY
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -2332,6 +2548,45 @@ class AIProviderStateSnapshot:
             "provider_setup_implementation_fold_down_posture": (
                 self.provider_setup_implementation_fold_down_posture
             ),
+            "consent_collection_foundation_state": self.consent_collection_foundation_state,
+            "consent_collection_foundation_label": self.consent_collection_foundation_label,
+            "consent_collection_eligibility_state": self.consent_collection_eligibility_state,
+            "consent_collection_eligibility_label": self.consent_collection_eligibility_label,
+            "consent_collection_blocker_state": self.consent_collection_blocker_state,
+            "consent_collection_blocker_label": self.consent_collection_blocker_label,
+            "consent_collection_reason_code": self.consent_collection_reason_code,
+            "consent_collection_reason_label": self.consent_collection_reason_label,
+            "consent_collection_provenance": self.consent_collection_provenance,
+            "consent_collection_provenance_label": self.consent_collection_provenance_label,
+            "consent_collection_state_schema_version": self.consent_collection_state_schema_version,
+            "consent_collection_config_schema_version": self.consent_collection_config_schema_version,
+            "consent_collection_config_state": self.consent_collection_config_state,
+            "consent_collection_config_label": self.consent_collection_config_label,
+            "consent_collection_config_migration": self.consent_collection_config_migration,
+            "consent_collection_config_valid": self.consent_collection_config_valid,
+            "consent_collection_approval_status": self.consent_collection_approval_status,
+            "consent_collection_approval_label": self.consent_collection_approval_label,
+            "consent_collection_gate_state": self.consent_collection_gate_state,
+            "consent_capture_surface_state": self.consent_capture_surface_state,
+            "consent_capture_surface_label": self.consent_capture_surface_label,
+            "setup_consent_capture_status": self.setup_consent_capture_status,
+            "setup_consent_capture_label": self.setup_consent_capture_label,
+            "execution_consent_capture_status": self.execution_consent_capture_status,
+            "execution_consent_capture_label": self.execution_consent_capture_label,
+            "consent_data_visibility_review_status": (
+                self.consent_data_visibility_review_status
+            ),
+            "consent_data_visibility_review_label": self.consent_data_visibility_review_label,
+            "consent_audit_envelope_status": self.consent_audit_envelope_status,
+            "consent_audit_envelope_label": self.consent_audit_envelope_label,
+            "consent_provenance_status": self.consent_provenance_status,
+            "consent_provenance_label": self.consent_provenance_label,
+            "consent_persistence_status": self.consent_persistence_status,
+            "consent_persistence_label": self.consent_persistence_label,
+            "consent_collection_validation_status": self.consent_collection_validation_status,
+            "consent_collection_validation_label": self.consent_collection_validation_label,
+            "future_consent_capture_handoff_state": self.future_consent_capture_handoff_state,
+            "consent_collection_fold_down_posture": self.consent_collection_fold_down_posture,
         }
 
     def as_renderer_payload(self) -> dict[str, object]:
@@ -2846,6 +3101,45 @@ class AIProviderStateSnapshot:
             "providerSetupImplementationFoldDownPosture": (
                 self.provider_setup_implementation_fold_down_posture
             ),
+            "consentCollectionFoundationState": self.consent_collection_foundation_state,
+            "consentCollectionFoundationLabel": self.consent_collection_foundation_label,
+            "consentCollectionEligibilityState": self.consent_collection_eligibility_state,
+            "consentCollectionEligibilityLabel": self.consent_collection_eligibility_label,
+            "consentCollectionBlockerState": self.consent_collection_blocker_state,
+            "consentCollectionBlockerLabel": self.consent_collection_blocker_label,
+            "consentCollectionReasonCode": self.consent_collection_reason_code,
+            "consentCollectionReasonLabel": self.consent_collection_reason_label,
+            "consentCollectionProvenance": self.consent_collection_provenance,
+            "consentCollectionProvenanceLabel": self.consent_collection_provenance_label,
+            "consentCollectionStateSchemaVersion": self.consent_collection_state_schema_version,
+            "consentCollectionConfigSchemaVersion": self.consent_collection_config_schema_version,
+            "consentCollectionConfigState": self.consent_collection_config_state,
+            "consentCollectionConfigLabel": self.consent_collection_config_label,
+            "consentCollectionConfigMigration": self.consent_collection_config_migration,
+            "consentCollectionConfigValid": self.consent_collection_config_valid,
+            "consentCollectionApprovalStatus": self.consent_collection_approval_status,
+            "consentCollectionApprovalLabel": self.consent_collection_approval_label,
+            "consentCollectionGateState": self.consent_collection_gate_state,
+            "consentCaptureSurfaceState": self.consent_capture_surface_state,
+            "consentCaptureSurfaceLabel": self.consent_capture_surface_label,
+            "setupConsentCaptureStatus": self.setup_consent_capture_status,
+            "setupConsentCaptureLabel": self.setup_consent_capture_label,
+            "executionConsentCaptureStatus": self.execution_consent_capture_status,
+            "executionConsentCaptureLabel": self.execution_consent_capture_label,
+            "consentDataVisibilityReviewStatus": (
+                self.consent_data_visibility_review_status
+            ),
+            "consentDataVisibilityReviewLabel": self.consent_data_visibility_review_label,
+            "consentAuditEnvelopeStatus": self.consent_audit_envelope_status,
+            "consentAuditEnvelopeLabel": self.consent_audit_envelope_label,
+            "consentProvenanceStatus": self.consent_provenance_status,
+            "consentProvenanceLabel": self.consent_provenance_label,
+            "consentPersistenceStatus": self.consent_persistence_status,
+            "consentPersistenceLabel": self.consent_persistence_label,
+            "consentCollectionValidationStatus": self.consent_collection_validation_status,
+            "consentCollectionValidationLabel": self.consent_collection_validation_label,
+            "futureConsentCaptureHandoffState": self.future_consent_capture_handoff_state,
+            "consentCollectionFoldDownPosture": self.consent_collection_fold_down_posture,
             "canAcceptPrompts": False,
             "requiresConsent": self.consent_state == PROVIDER_CONSENT_REQUIRED,
             "sentToProvider": False,
@@ -6023,6 +6317,528 @@ def build_provider_setup_implementation_foundation_state(
             "Provider setup, consent collection, prompt routing, and model execution require later USER approval"
         ),
         **foundation_fields,
+    )
+
+
+def build_default_provider_consent_collection_foundation_config() -> (
+    AIProviderConsentCollectionFoundationConfigSnapshot
+):
+    """Return the safe local-only default consent collection foundation config."""
+
+    return AIProviderConsentCollectionFoundationConfigSnapshot(
+        schema_version=CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION,
+        config_state=PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+        consent_capture_surface_enabled=False,
+        setup_consent_capture_ready=False,
+        execution_consent_capture_ready=False,
+        data_visibility_review_ready=False,
+        audit_envelope_ready=False,
+        provenance_ready=False,
+        local_persistence_ready=False,
+        validation_passed=False,
+        policy_allows_collection=True,
+        consent_collection_approved=False,
+        future_capture_branch_ready=False,
+        config_valid=True,
+        provenance=CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+    )
+
+
+def normalize_provider_consent_collection_foundation_config(
+    config: AIProviderConsentCollectionFoundationConfigSnapshot | dict[str, object] | None,
+) -> AIProviderConsentCollectionFoundationConfigSnapshot:
+    """Normalize consent collection foundation config into a fail-closed posture."""
+
+    provenance_sources = {
+        CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW,
+        CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+        CONSENT_COLLECTION_PROVENANCE_DATA_VISIBILITY,
+        CONSENT_COLLECTION_PROVENANCE_AUDIT,
+        CONSENT_COLLECTION_PROVENANCE_POLICY,
+        CONSENT_COLLECTION_PROVENANCE_APPROVAL,
+        CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE,
+    }
+
+    if config is None:
+        return replace(
+            build_default_provider_consent_collection_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_MISSING,
+            config_valid=False,
+            provenance=CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+        )
+
+    if isinstance(config, AIProviderConsentCollectionFoundationConfigSnapshot):
+        if (
+            config.schema_version == CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION
+            and config.config_valid
+        ):
+            return config
+        return replace(
+            build_default_provider_consent_collection_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=config.provenance
+            if config.provenance in provenance_sources
+            else CONSENT_COLLECTION_PROVENANCE_AUDIT,
+        )
+
+    if not isinstance(config, dict):
+        return replace(
+            build_default_provider_consent_collection_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=CONSENT_COLLECTION_PROVENANCE_AUDIT,
+        )
+
+    schema_version = str(config.get("schema_version") or "")
+    provenance = str(config.get("provenance") or CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION)
+    config_valid = (
+        bool(config.get("config_valid", True))
+        and schema_version == CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION
+    )
+    if not config_valid:
+        return replace(
+            build_default_provider_consent_collection_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=provenance
+            if provenance in provenance_sources
+            else CONSENT_COLLECTION_PROVENANCE_AUDIT,
+        )
+
+    return AIProviderConsentCollectionFoundationConfigSnapshot(
+        schema_version=schema_version,
+        config_state=PROVIDER_PATH_CONFIG_STATE_LOCAL,
+        consent_capture_surface_enabled=bool(
+            config.get("consent_capture_surface_enabled", False)
+        ),
+        setup_consent_capture_ready=bool(config.get("setup_consent_capture_ready", False)),
+        execution_consent_capture_ready=bool(
+            config.get("execution_consent_capture_ready", False)
+        ),
+        data_visibility_review_ready=bool(config.get("data_visibility_review_ready", False)),
+        audit_envelope_ready=bool(config.get("audit_envelope_ready", False)),
+        provenance_ready=bool(config.get("provenance_ready", False)),
+        local_persistence_ready=bool(config.get("local_persistence_ready", False)),
+        validation_passed=bool(config.get("validation_passed", False)),
+        policy_allows_collection=bool(config.get("policy_allows_collection", True)),
+        consent_collection_approved=bool(config.get("consent_collection_approved", False)),
+        future_capture_branch_ready=bool(config.get("future_capture_branch_ready", False)),
+        config_valid=True,
+        provenance=provenance
+        if provenance in provenance_sources
+        else CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+    )
+
+
+def _provider_consent_collection_foundation_fields(
+    setup_foundation_state: AIProviderStateSnapshot,
+    consent_config: AIProviderConsentCollectionFoundationConfigSnapshot,
+) -> dict[str, object]:
+    collection_state = CONSENT_COLLECTION_STATE_UNAVAILABLE
+    collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_UNAVAILABLE
+    collection_blocker = CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED
+    collection_reason = CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE
+    collection_provenance = CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW
+    collection_approval = CONSENT_COLLECTION_APPROVAL_STATUS_MISSING
+    collection_gate = CONSENT_COLLECTION_GATE_BLOCKED
+
+    capture_surface_state = (
+        CONSENT_COLLECTION_CAPTURE_SURFACE_READY_FUTURE_GATED
+        if consent_config.consent_capture_surface_enabled
+        else CONSENT_COLLECTION_CAPTURE_SURFACE_DISABLED
+    )
+    setup_capture_status = (
+        CONSENT_COLLECTION_CAPTURE_SETUP_READY
+        if consent_config.setup_consent_capture_ready
+        else CONSENT_COLLECTION_CAPTURE_SETUP_REQUIRED
+    )
+    execution_capture_status = (
+        CONSENT_COLLECTION_CAPTURE_EXECUTION_READY
+        if consent_config.execution_consent_capture_ready
+        else CONSENT_COLLECTION_CAPTURE_EXECUTION_REQUIRED
+    )
+    data_visibility_status = (
+        CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_READY
+        if consent_config.data_visibility_review_ready
+        else CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_REQUIRED
+    )
+    audit_envelope_status = (
+        CONSENT_COLLECTION_AUDIT_ENVELOPE_READY
+        if consent_config.audit_envelope_ready
+        else CONSENT_COLLECTION_AUDIT_ENVELOPE_REQUIRED
+    )
+    provenance_status = (
+        CONSENT_COLLECTION_PROVENANCE_READY
+        if consent_config.provenance_ready
+        else CONSENT_COLLECTION_PROVENANCE_REQUIRED
+    )
+    persistence_status = (
+        CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY
+        if consent_config.local_persistence_ready
+        else CONSENT_COLLECTION_PERSISTENCE_DISABLED
+    )
+    validation_status = (
+        CONSENT_COLLECTION_VALIDATION_STATIC_READY
+        if consent_config.validation_passed
+        and consent_config.consent_capture_surface_enabled
+        and consent_config.setup_consent_capture_ready
+        and consent_config.execution_consent_capture_ready
+        and consent_config.data_visibility_review_ready
+        and consent_config.audit_envelope_ready
+        and consent_config.provenance_ready
+        and consent_config.local_persistence_ready
+        else CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED
+    )
+
+    ready_consent_flow_states = {
+        CONSENT_FLOW_STATE_READY_FUTURE_GATED,
+        CONSENT_FLOW_STATE_READY_BUT_NOT_COLLECTED,
+        CONSENT_FLOW_STATE_READY_FOR_FUTURE_CONSENT_BRANCH,
+    }
+    ready_setup_foundation_states = {
+        SETUP_FOUNDATION_STATE_READY_LOCAL_DRAFT,
+        SETUP_FOUNDATION_STATE_READY_FUTURE_GATED,
+        SETUP_FOUNDATION_STATE_READY_BUT_NOT_APPROVED,
+        SETUP_FOUNDATION_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+    }
+
+    if consent_config.config_state == PROVIDER_PATH_CONFIG_STATE_MISSING:
+        collection_state = CONSENT_COLLECTION_STATE_DISABLED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_DISABLED
+        collection_reason = CONSENT_COLLECTION_REASON_CONFIG_MISSING
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION
+    elif consent_config.config_state == PROVIDER_PATH_CONFIG_STATE_INVALID:
+        collection_state = CONSENT_COLLECTION_STATE_DEGRADED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_CONFIG_INVALID
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_AUDIT
+    elif not consent_config.policy_allows_collection:
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_POLICY
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_POLICY_BLOCKED
+        collection_reason = CONSENT_COLLECTION_REASON_POLICY_BLOCKED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_POLICY
+    elif setup_foundation_state.consent_flow_readiness_state not in ready_consent_flow_states:
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_CONSENT_FLOW
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_reason = CONSENT_COLLECTION_REASON_CONSENT_FLOW_REQUIRED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW
+    elif (
+        setup_foundation_state.provider_setup_foundation_state
+        not in ready_setup_foundation_states
+    ):
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_SETUP_FOUNDATION
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_SETUP_FOUNDATION_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_SETUP_FOUNDATION_REQUIRED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION
+    elif not consent_config.consent_capture_surface_enabled:
+        collection_state = CONSENT_COLLECTION_STATE_DISABLED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_DISABLED
+        collection_reason = CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION
+    elif (
+        not consent_config.setup_consent_capture_ready
+        or not consent_config.execution_consent_capture_ready
+    ):
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_CONSENT_FLOW
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_reason = CONSENT_COLLECTION_REASON_CONSENT_FLOW_REQUIRED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW
+    elif not consent_config.data_visibility_review_ready:
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_DATA_VISIBILITY
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_DATA_VISIBILITY_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_DATA_VISIBILITY_BLOCKED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_DATA_VISIBILITY
+    elif not consent_config.audit_envelope_ready or not consent_config.provenance_ready:
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_AUDIT
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_AUDIT_REQUIRED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_AUDIT
+    elif not consent_config.local_persistence_ready or not consent_config.validation_passed:
+        collection_state = CONSENT_COLLECTION_STATE_DEGRADED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_AUDIT_REQUIRED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_AUDIT
+    elif not consent_config.consent_collection_approved:
+        collection_state = CONSENT_COLLECTION_STATE_READY_BUT_NOT_APPROVED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_APPROVED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_APPROVAL_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_APPROVAL_MISSING
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_APPROVAL
+        collection_gate = CONSENT_COLLECTION_GATE_LOCAL_PROOF
+    elif consent_config.future_capture_branch_ready:
+        collection_state = CONSENT_COLLECTION_STATE_READY_FOR_FUTURE_CAPTURE_BRANCH
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_FUTURE_CAPTURE_BRANCH
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH
+        collection_reason = CONSENT_COLLECTION_REASON_READY_FOR_FUTURE_CAPTURE_BRANCH
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE
+        collection_approval = CONSENT_COLLECTION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF
+        collection_gate = CONSENT_COLLECTION_GATE_FUTURE_GATED
+    else:
+        collection_state = CONSENT_COLLECTION_STATE_READY_BUT_NOT_COLLECTED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_COLLECTED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH
+        collection_reason = CONSENT_COLLECTION_REASON_READY_BUT_NOT_COLLECTED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE
+        collection_approval = CONSENT_COLLECTION_APPROVAL_STATUS_FUTURE_GATED
+        collection_gate = CONSENT_COLLECTION_GATE_FUTURE_GATED
+
+    state_labels = {
+        CONSENT_COLLECTION_STATE_UNAVAILABLE: "Consent collection foundation: unavailable",
+        CONSENT_COLLECTION_STATE_DISABLED: "Consent collection foundation: disabled",
+        CONSENT_COLLECTION_STATE_BLOCKED_BY_CONSENT_FLOW:
+            "Consent collection foundation: blocked by consent flow",
+        CONSENT_COLLECTION_STATE_BLOCKED_BY_SETUP_FOUNDATION:
+            "Consent collection foundation: blocked by setup foundation",
+        CONSENT_COLLECTION_STATE_BLOCKED_BY_POLICY:
+            "Consent collection foundation: blocked by policy",
+        CONSENT_COLLECTION_STATE_BLOCKED_BY_DATA_VISIBILITY:
+            "Consent collection foundation: blocked by data visibility review",
+        CONSENT_COLLECTION_STATE_BLOCKED_BY_AUDIT:
+            "Consent collection foundation: blocked by audit envelope",
+        CONSENT_COLLECTION_STATE_READY_FUTURE_GATED:
+            "Consent collection foundation: ready but future-gated",
+        CONSENT_COLLECTION_STATE_READY_BUT_NOT_APPROVED:
+            "Consent collection foundation: ready but USER approval missing",
+        CONSENT_COLLECTION_STATE_READY_BUT_NOT_COLLECTED:
+            "Consent collection foundation: ready but no consent collected",
+        CONSENT_COLLECTION_STATE_READY_FOR_FUTURE_CAPTURE_BRANCH:
+            "Consent collection foundation: ready for future capture branch",
+        CONSENT_COLLECTION_STATE_DEGRADED:
+            "Consent collection foundation: degraded and fail-closed",
+    }
+    eligibility_labels = {
+        CONSENT_COLLECTION_ELIGIBILITY_UNAVAILABLE:
+            "Consent collection eligibility: unavailable",
+        CONSENT_COLLECTION_ELIGIBILITY_DISABLED:
+            "Consent collection eligibility: disabled",
+        CONSENT_COLLECTION_ELIGIBILITY_BLOCKED:
+            "Consent collection eligibility: blocked",
+        CONSENT_COLLECTION_ELIGIBILITY_FUTURE_GATED:
+            "Consent collection eligibility: future-gated",
+        CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_APPROVED:
+            "Consent collection eligibility: ready but USER approval missing",
+        CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_COLLECTED:
+            "Consent collection eligibility: ready but no consent collected",
+        CONSENT_COLLECTION_ELIGIBILITY_FUTURE_CAPTURE_BRANCH:
+            "Consent collection eligibility: future capture branch",
+    }
+    blocker_labels = {
+        CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED:
+            "Consent collection blocker: consent flow readiness required",
+        CONSENT_COLLECTION_BLOCKER_SETUP_FOUNDATION_REQUIRED:
+            "Consent collection blocker: setup foundation readiness required",
+        CONSENT_COLLECTION_BLOCKER_POLICY_BLOCKED:
+            "Consent collection blocker: policy blocks consent collection",
+        CONSENT_COLLECTION_BLOCKER_DATA_VISIBILITY_REQUIRED:
+            "Consent collection blocker: provider-visible data review required",
+        CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED:
+            "Consent collection blocker: audit/provenance proof required",
+        CONSENT_COLLECTION_BLOCKER_APPROVAL_REQUIRED:
+            "Consent collection blocker: USER consent collection approval required",
+        CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH:
+            "Consent collection blocker: future capture branch required",
+    }
+    reason_labels = {
+        CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE:
+            "Consent collection reason: local-only safe default",
+        CONSENT_COLLECTION_REASON_CONFIG_MISSING:
+            "Consent collection reason: config snapshot missing",
+        CONSENT_COLLECTION_REASON_CONFIG_INVALID:
+            "Consent collection reason: config snapshot invalid",
+        CONSENT_COLLECTION_REASON_CONSENT_FLOW_REQUIRED:
+            "Consent collection reason: consent flow readiness required",
+        CONSENT_COLLECTION_REASON_SETUP_FOUNDATION_REQUIRED:
+            "Consent collection reason: setup foundation readiness required",
+        CONSENT_COLLECTION_REASON_POLICY_BLOCKED:
+            "Consent collection reason: policy blocks collection",
+        CONSENT_COLLECTION_REASON_DATA_VISIBILITY_BLOCKED:
+            "Consent collection reason: data visibility review required",
+        CONSENT_COLLECTION_REASON_AUDIT_REQUIRED:
+            "Consent collection reason: audit/provenance proof required",
+        CONSENT_COLLECTION_REASON_APPROVAL_MISSING:
+            "Consent collection reason: USER approval missing",
+        CONSENT_COLLECTION_REASON_READY_BUT_NOT_COLLECTED:
+            "Consent collection reason: future capture not collected",
+        CONSENT_COLLECTION_REASON_READY_FOR_FUTURE_CAPTURE_BRANCH:
+            "Consent collection reason: ready for future capture branch",
+        CONSENT_COLLECTION_REASON_READY_FUTURE_GATED:
+            "Consent collection reason: ready but future-gated",
+    }
+    provenance_labels = {
+        CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW:
+            "Consent collection provenance: consent flow readiness state",
+        CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION:
+            "Consent collection provenance: provider setup foundation state",
+        CONSENT_COLLECTION_PROVENANCE_DATA_VISIBILITY:
+            "Consent collection provenance: data visibility contract",
+        CONSENT_COLLECTION_PROVENANCE_AUDIT:
+            "Consent collection provenance: audit policy",
+        CONSENT_COLLECTION_PROVENANCE_POLICY:
+            "Consent collection provenance: consent collection policy",
+        CONSENT_COLLECTION_PROVENANCE_APPROVAL:
+            "Consent collection provenance: future USER approval",
+        CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE:
+            "Consent collection provenance: future capture branch",
+    }
+
+    return {
+        "consent_collection_foundation_state": collection_state,
+        "consent_collection_foundation_label": state_labels[collection_state],
+        "consent_collection_eligibility_state": collection_eligibility,
+        "consent_collection_eligibility_label": eligibility_labels[collection_eligibility],
+        "consent_collection_blocker_state": collection_blocker,
+        "consent_collection_blocker_label": blocker_labels[collection_blocker],
+        "consent_collection_reason_code": collection_reason,
+        "consent_collection_reason_label": reason_labels[collection_reason],
+        "consent_collection_provenance": collection_provenance,
+        "consent_collection_provenance_label": provenance_labels[collection_provenance],
+        "consent_collection_state_schema_version": (
+            CONSENT_COLLECTION_FOUNDATION_STATE_SCHEMA_VERSION
+        ),
+        "consent_collection_config_schema_version": (
+            CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION
+        ),
+        "consent_collection_config_state": consent_config.config_state,
+        "consent_collection_config_label": (
+            "Consent collection config: local-only foundation envelope"
+        ),
+        "consent_collection_config_migration": (
+            CONSENT_COLLECTION_FOUNDATION_CONFIG_MIGRATION_POSTURE
+        ),
+        "consent_collection_config_valid": consent_config.config_valid,
+        "consent_collection_approval_status": collection_approval,
+        "consent_collection_approval_label": {
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING:
+                "Consent collection approval: USER approval missing",
+            CONSENT_COLLECTION_APPROVAL_STATUS_FUTURE_GATED:
+                "Consent collection approval: future-gated",
+            CONSENT_COLLECTION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF:
+                "Consent collection approval: ready for future proof",
+        }[collection_approval],
+        "consent_collection_gate_state": collection_gate,
+        "consent_capture_surface_state": capture_surface_state,
+        "consent_capture_surface_label": {
+            CONSENT_COLLECTION_CAPTURE_SURFACE_DISABLED:
+                "Consent capture surface: disabled until USER-approved consent work",
+            CONSENT_COLLECTION_CAPTURE_SURFACE_PLANNED:
+                "Consent capture surface: planned only",
+            CONSENT_COLLECTION_CAPTURE_SURFACE_READY_FUTURE_GATED:
+                "Consent capture surface: local proof ready, future-gated",
+        }[capture_surface_state],
+        "setup_consent_capture_status": setup_capture_status,
+        "setup_consent_capture_label": {
+            CONSENT_COLLECTION_CAPTURE_SETUP_READY:
+                "Setup consent capture: contract-ready, not collected",
+            CONSENT_COLLECTION_CAPTURE_SETUP_REQUIRED:
+                "Setup consent capture: required before collection",
+        }[setup_capture_status],
+        "execution_consent_capture_status": execution_capture_status,
+        "execution_consent_capture_label": {
+            CONSENT_COLLECTION_CAPTURE_EXECUTION_READY:
+                "Execution consent capture: contract-ready, not collected",
+            CONSENT_COLLECTION_CAPTURE_EXECUTION_REQUIRED:
+                "Execution consent capture: required before collection",
+        }[execution_capture_status],
+        "consent_data_visibility_review_status": data_visibility_status,
+        "consent_data_visibility_review_label": {
+            CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_READY:
+                "Consent data visibility review: local proof ready; provider-visible data remains none",
+            CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_REQUIRED:
+                "Consent data visibility review: required before capture",
+        }[data_visibility_status],
+        "consent_audit_envelope_status": audit_envelope_status,
+        "consent_audit_envelope_label": {
+            CONSENT_COLLECTION_AUDIT_ENVELOPE_READY:
+                "Consent audit envelope: local proof ready",
+            CONSENT_COLLECTION_AUDIT_ENVELOPE_REQUIRED:
+                "Consent audit envelope: required before capture",
+        }[audit_envelope_status],
+        "consent_provenance_status": provenance_status,
+        "consent_provenance_label": {
+            CONSENT_COLLECTION_PROVENANCE_READY:
+                "Consent provenance: local proof ready",
+            CONSENT_COLLECTION_PROVENANCE_REQUIRED:
+                "Consent provenance: required before capture",
+        }[provenance_status],
+        "consent_persistence_status": persistence_status,
+        "consent_persistence_label": {
+            CONSENT_COLLECTION_PERSISTENCE_DISABLED:
+                "Consent persistence: disabled; no consent stored",
+            CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY:
+                "Consent persistence: local proof only; no user consent stored",
+        }[persistence_status],
+        "consent_collection_validation_status": validation_status,
+        "consent_collection_validation_label": {
+            CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED:
+                "Consent collection validation: fail-closed",
+            CONSENT_COLLECTION_VALIDATION_STATIC_READY:
+                "Consent collection validation: static local proof ready",
+        }[validation_status],
+        "future_consent_capture_handoff_state": FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY,
+        "consent_collection_fold_down_posture": CONSENT_COLLECTION_FOLD_DOWN_READY,
+    }
+
+
+def build_provider_consent_collection_foundation_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    execution_config: AIProviderExecutionReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _EXECUTION_CONFIG_OMITTED
+    ),
+    path_consent_config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _PATH_CONSENT_CONFIG_OMITTED
+    ),
+    setup_foundation_config: AIProviderSetupFoundationConfigSnapshot | dict[str, object] | None | object = (
+        _SETUP_FOUNDATION_CONFIG_OMITTED
+    ),
+    consent_collection_config: (
+        AIProviderConsentCollectionFoundationConfigSnapshot | dict[str, object] | None | object
+    ) = _CONSENT_COLLECTION_CONFIG_OMITTED,
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve consent collection foundation without collecting consent."""
+
+    setup_foundation_state = build_provider_setup_implementation_foundation_state(
+        readiness_config,
+        activation_config=activation_config,
+        execution_config=execution_config,
+        path_consent_config=path_consent_config,
+        setup_foundation_config=setup_foundation_config,
+        surface_role=surface_role,
+    )
+    if consent_collection_config is _CONSENT_COLLECTION_CONFIG_OMITTED:
+        normalized_consent = build_default_provider_consent_collection_foundation_config()
+    else:
+        normalized_consent = normalize_provider_consent_collection_foundation_config(
+            consent_collection_config  # type: ignore[arg-type]
+        )
+    collection_fields = _provider_consent_collection_foundation_fields(
+        setup_foundation_state,
+        normalized_consent,
+    )
+    return replace(
+        setup_foundation_state,
+        state_id=FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_STATE_ID,
+        mode=FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_MODE,
+        availability=FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_AVAILABILITY,
+        status_label=collection_fields["consent_collection_foundation_label"],
+        disabled_reason=(
+            "Consent collection foundation is local-only; actual consent capture remains pending USER approval"
+        ),
+        provider_next_action_label="Next: consent collection foundation proof remains future-gated",
+        interaction_label="Consent collection foundation only",
+        interaction_disabled_reason=(
+            "Consent capture, provider setup, prompt routing, and model execution require later USER approval"
+        ),
+        **collection_fields,
     )
 
 
