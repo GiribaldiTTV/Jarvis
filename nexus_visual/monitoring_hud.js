@@ -3532,6 +3532,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     membershipListVisible: Boolean(monitoringHudOverlayProfileMembershipList),
     membershipSaved: false,
     membershipDiscardRestored: false,
+    membershipModelPresent: false,
     monitorGroupBoundary: true,
     recordingProfileBoundary: true,
     activeProfilePersistsInState: false
@@ -3548,7 +3549,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     const createdId = monitoringHudControlState.activeOverlayProfileId;
     const createdProfile = (monitoringHudControlState.overlayProfiles || {})[createdId] || {};
     proof.createdProfileSelectable = Boolean(created && createdId && createdProfile.id === createdId);
-    proof.monitorMembershipReadOnly = Array.isArray(createdProfile.monitorIds);
+    proof.membershipModelPresent = Array.isArray(createdProfile.monitorIds);
     if (monitoringHudOverlayProfileNameInput) {
       monitoringHudOverlayProfileNameInput.value = "Focused Overlay Profile";
     }
@@ -3610,6 +3611,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     && proof.saveDiscardVisible
     && proof.editableMembership
     && proof.createdProfileSelectable
+    && proof.membershipModelPresent
     && proof.renameSaved
     && proof.discardRestored
     && proof.membershipListVisible
