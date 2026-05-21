@@ -1913,6 +1913,12 @@ def validate() -> list[str]:
         failures,
     )
     _require(
+        snapshot.provider_profile_available is False
+        and payload["providerProfileAvailable"] is False,
+        "no-provider state must not advertise a provider profile as available",
+        failures,
+    )
+    _require(
         payload["providerInteractionState"] == PROVIDER_BOUNDARY_INTERACTION_PLAN_STATE,
         "no-provider state must publish the provider-boundary interaction plan",
         failures,
@@ -2021,6 +2027,12 @@ def validate() -> list[str]:
     _require(
         registry_payload["providerRegistryState"] == LOCAL_PROVIDER_REGISTRY_STATE,
         "provider registry scaffold must expose local-only registry state",
+        failures,
+    )
+    _require(
+        runtime_foundation_snapshot.provider_profile_available is False
+        and runtime_foundation_payload["providerProfileAvailable"] is False,
+        "runtime foundation provider boundary must not advertise a provider profile as available",
         failures,
     )
     _require(

@@ -1498,7 +1498,7 @@ class AIProviderStateSnapshot:
     provider_profile_display_name: str = "Local/null provider profile"
     provider_profile_source: str = PROVIDER_PROFILE_SOURCE_LOCAL_SCAFFOLD
     provider_profile_metadata_contract_version: str = PROVIDER_PROFILE_METADATA_CONTRACT_VERSION
-    provider_profile_available: bool = True
+    provider_profile_available: bool = False
     provider_sdk_requirement_posture: str = PROVIDER_SDK_REQUIREMENT_PENDING_APPROVAL
     provider_network_requirement_posture: str = PROVIDER_NETWORK_REQUIREMENT_BLOCKED
     provider_config_status: str = PROVIDER_CONFIG_ENVELOPE_STATUS_MISSING
