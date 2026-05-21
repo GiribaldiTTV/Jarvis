@@ -109,6 +109,10 @@
       data-setup-flow-readiness="setup_flow_unavailable"
       data-consent-flow-readiness="consent_flow_required_for_setup"
       data-consent-collection="consent-collection-pending-user-approval"
+      data-setup-contract-readiness="setup_contract_unavailable"
+      data-setup-contract-blocker="setup_contract_provider_path_required"
+      data-setup-contract-approval="setup-contract-approval-missing"
+      data-setup-contract-gate="setup-contract-gate-blocked"
       data-provider-setup-handoff="provider-setup-handoff-future-gated"
       data-data-classification-posture="data-classification-local-only"
       data-audit-envelope="audit-envelope-planned-no-collection"
@@ -223,6 +227,9 @@
       <div id="ai-provider-status-provider-profile" class="ai-provider-status__provider-profile">Provider profile: local-null-provider-profile; Provider kind: null-local-provider; Provider source: local status scaffold</div>
       <div id="ai-provider-status-provider-config-envelope" class="ai-provider-status__provider-config-envelope">Provider config: missing; SDK integration: pending USER approval; Network requirement: blocked</div>
       <div id="ai-provider-status-provider-approvals" class="ai-provider-status__provider-approvals">Provider setup approval: missing; Provider execution approval: missing</div>
+      <div id="ai-provider-status-setup-contract" class="ai-provider-status__setup-contract">Setup contract readiness: unavailable</div>
+      <div id="ai-provider-status-setup-contract-blocker" class="ai-provider-status__setup-contract-blocker">Setup contract blocker: provider path readiness required</div>
+      <div id="ai-provider-status-setup-contract-handoff" class="ai-provider-status__setup-contract-handoff">Setup contract handoff: future setup branch gated</div>
       <div id="ai-provider-status-setup-consent" class="ai-provider-status__setup-consent">Setup consent: required before provider setup</div>
       <div id="ai-provider-status-execution-consent" class="ai-provider-status__execution-consent">Execution consent: required before prompt/model execution</div>
       <div id="ai-provider-status-consent-schema" class="ai-provider-status__consent-schema">provider-consent-readiness-state.v1; provider-consent-readiness-config.v1; Consent config: safe default local-only</div>
