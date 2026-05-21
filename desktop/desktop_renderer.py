@@ -10362,6 +10362,8 @@ class DesktopRuntimeWindow(QWidget):
                             discardDisabledDefault: discard ? discard.disabled : false,
                             dangerDiscard: discard ? discard.classList.contains("monitoring-hud__hub-action--danger") : false,
                             dangerDelete: deleteButton ? deleteButton.classList.contains("monitoring-hud__hub-action--danger") : false,
+                            detailActionsVisualReviewable: Boolean(controlsProof.detailActionsVisualReviewable),
+                            deleteConfirmationVisualReviewable: Boolean(controlsProof.deleteConfirmationVisualReviewable),
                             searchFilterVisible: Boolean(search && filter && filter.dataset.boundedDropdown === "overlay-profile-monitor-filter"),
                             maxFiveInnerScrollPolicy: Boolean(
                                 membershipList
@@ -10409,6 +10411,8 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("discardDisabledDefault") is True
                 and parsed.get("dangerDiscard") is True
                 and parsed.get("dangerDelete") is True
+                and parsed.get("detailActionsVisualReviewable") is True
+                and parsed.get("deleteConfirmationVisualReviewable") is True
                 and parsed.get("searchFilterVisible") is True
                 and parsed.get("maxFiveInnerScrollPolicy") is True
                 and parsed.get("settingsWindowWorkflow") == "selector-first-create-edit-delete-followup-uts-repair"
@@ -10612,7 +10616,12 @@ class DesktopRuntimeWindow(QWidget):
                     const deleteButton = document.getElementById("monitoring-hud-overlay-profile-delete");
                     if (deleteButton && !deleteButton.disabled) deleteButton.click();
                     const confirmation = document.getElementById("monitoring-hud-overlay-profile-delete-confirmation");
-                    if (confirmation) confirmation.dataset.liveVisualProofState = "delete-confirmation-visible";
+                    if (confirmation) {
+                        confirmation.dataset.liveVisualProofState = "delete-confirmation-visible";
+                        if (confirmation.scrollIntoView) {
+                            confirmation.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "instant" });
+                        }
+                    }
                 })();
                 """
             )

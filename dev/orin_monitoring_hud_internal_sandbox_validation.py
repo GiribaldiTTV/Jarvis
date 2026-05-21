@@ -644,8 +644,12 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "largeProfileFixture" in js
         and "profileDropdownMaxFiveStress" in js
         and "profileDropdownNDAIScrollbar" in js
+        and "deleteConfirmationVisualReviewable" in js
+        and "detailActionsVisualReviewable" in js
         and "visualStressProfileCount" in renderer
         and "visualVisibleProfileOptions" in renderer
+        and "deleteConfirmationVisualReviewable" in renderer
+        and "detailActionsVisualReviewable" in renderer
         and "__monitoringHudOverlayProfileDropdownVisualProofState" in renderer
         and "selected source" in js
         and "monitoringHudOpenChildWindow(\"overlay-profile-settings\")" in js
@@ -659,6 +663,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "min-width: min(680px, calc(100% - 24px))" in css
         and "max-height: 178px;" in css
         and "min-height: 250px;" in css
+        and 'data-overlay-profile-detail-state="open"' in css
+        and "max-height: 132px;" in css
+        and "min-height: 148px;" in css
         and css.rfind(".monitoring-hud__child-window--overlay-profile") > css.rfind(".monitoring-hud__child-window {")
         and "grid-template-columns: minmax(236px, auto) minmax(0, 1fr) minmax(78px, auto)" in css
         and ".monitoring-hud__unsaved-guard {\n  grid-template-columns: minmax(0, 1fr);" in css

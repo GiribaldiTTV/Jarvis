@@ -1049,7 +1049,7 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__child-window--overlay-profile {
   width: min(760px, calc(100% - 24px));
-  max-height: min(620px, calc(100% - 24px));
+  max-height: min(740px, calc(100% - 24px));
   overflow: hidden;
   grid-template-rows: auto auto auto minmax(0, auto) auto auto;
 }
@@ -1503,9 +1503,25 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__child-window--overlay-profile {
   width: min(760px, calc(100% - 24px));
   min-width: min(680px, calc(100% - 24px));
-  max-height: min(620px, calc(100% - 24px));
+  max-height: min(740px, calc(100% - 24px));
   overflow: hidden;
   grid-template-rows: auto auto auto minmax(0, auto) auto auto;
+}
+
+.monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-choice-panel {
+  min-height: 148px;
+}
+
+.monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-manager-row {
+  padding: 10px 12px;
+}
+
+.monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-manager-meta {
+  padding: 8px 10px;
+}
+
+.monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-membership-list {
+  max-height: 132px;
 }
 
 .monitoring-hud__child-window--monitor-management {

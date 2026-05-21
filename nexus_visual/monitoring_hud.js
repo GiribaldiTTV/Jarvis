@@ -4288,6 +4288,8 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       && monitoringHudOverlayProfileDelete.classList.contains("monitoring-hud__hub-action--danger")
     ),
     deleteConfirmationVisible: false,
+    deleteConfirmationVisualReviewable: false,
+    detailActionsVisualReviewable: false,
     profileDeleted: false,
     editableMembership: monitoringHudOverlayProfileEditor
       ? monitoringHudOverlayProfileEditor.dataset.overlayProfileMembership === "editable-slc-039-mapping"
@@ -4452,11 +4454,30 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     proof.membershipDiscardRestored = JSON.stringify(restoredProfile.monitorIds || []) === JSON.stringify(savedMonitorIds)
       && monitoringHudSameMonitorMembership(monitoringHudOverlayProfileDraftMonitorIds, savedMonitorIds, monitoringHudControlState.cards || {});
     proof.activeProfilePersistsInState = monitoringHudControlState.activeOverlayProfileId === createdId;
+    const actionWindowRect = monitoringHudOverlayProfileWindow
+      ? monitoringHudOverlayProfileWindow.getBoundingClientRect()
+      : { top: 0, bottom: 0 };
+    const actionRects = [monitoringHudOverlayProfileSave, monitoringHudOverlayProfileDelete, monitoringHudOverlayProfileDiscard]
+      .filter(Boolean)
+      .map((element) => element.getBoundingClientRect());
+    proof.detailActionsVisualReviewable = Boolean(
+      actionRects.length === 3
+      && actionRects.every((rect) => rect.height > 0 && rect.top >= actionWindowRect.top - 1 && rect.bottom <= actionWindowRect.bottom + 1)
+    );
     monitoringHudSetOverlayProfileDeleteConfirmation(true);
     proof.deleteConfirmationVisible = Boolean(
       monitoringHudOverlayProfileDeleteConfirmation
       && monitoringHudOverlayProfileDeleteConfirmation.hidden === false
       && monitoringHudOverlayProfileDeleteConfirmation.dataset.overlayProfileDeleteConfirmation === "open"
+    );
+    const confirmationRect = monitoringHudOverlayProfileDeleteConfirmation
+      ? monitoringHudOverlayProfileDeleteConfirmation.getBoundingClientRect()
+      : { top: 0, bottom: 0, height: 0 };
+    proof.deleteConfirmationVisualReviewable = Boolean(
+      proof.deleteConfirmationVisible
+      && confirmationRect.height > 0
+      && confirmationRect.top >= actionWindowRect.top - 1
+      && confirmationRect.bottom <= actionWindowRect.bottom + 1
     );
     monitoringHudConfirmDeleteOverlayProfile();
     proof.profileDeleted = !((monitoringHudControlState.overlayProfiles || {})[createdId]);
@@ -4500,6 +4521,8 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     && proof.dangerDiscardRight
     && proof.deleteDangerVisible
     && proof.deleteConfirmationVisible
+    && proof.deleteConfirmationVisualReviewable
+    && proof.detailActionsVisualReviewable
     && proof.profileDeleted
     && proof.editableMembership
     && proof.createdProfileSelectable
