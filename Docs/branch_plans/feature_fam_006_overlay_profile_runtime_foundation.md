@@ -12,11 +12,11 @@ Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_overlay_pr
 
 Current Phase: `Workstream`
 
-Stage Detail: `SLC-037 Overlay Profile data/state foundation implementation`
+Stage Detail: `SLC-037 Overlay Profile data/state foundation H1 Green; SLC-038 Workstream Entry analysis next`
 
-Branch Runtime Engineering Plan: `Active - SLC-037 implementation mapped to this plan; later SLC-038 through SLC-041 remain pending USER decisions`
+Branch Runtime Engineering Plan: `Active - SLC-037 implementation and H1 are mapped to this plan; later SLC-038 through SLC-041 remain pending USER decisions`
 
-Engineering Plan Status: `SLC-037 implemented - Overlay Profile data/state foundation is present and awaits Hardening H1`
+Engineering Plan Status: `SLC-037 implemented and H1 Green - Overlay Profile data/state foundation is present, validation-backed, and ready for SLC-038 Workstream Entry analysis`
 
 Current Runtime Baseline: `FAM-006 Dashboard and Monitor Groups / Sensor Command Center are released historical evidence. Monitor Groups organize and configure monitors. Overlay Profile now has a bounded SLC-037 data/state foundation only; visible profile selection/editing, monitor-to-profile UI mapping, Recording Profile runtime, and Overlay/display acceptance remain future-gated.`
 
@@ -56,7 +56,9 @@ Plan Revision History: `v1 - created during Branch Readiness Stage 2 setup from 
 
 Plan-To-Implementation Traceability Table: `SLC-037 -> nexus_visual/monitoring_hud.js, nexus_visual/monitoring_hud.html, desktop/monitoring_hud_state.py, desktop/desktop_renderer.py, dev/orin_monitoring_hud_surface_validation.py, dev/orin_monitoring_hud_internal_sandbox_validation.py, Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md, Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md, Docs/feature_backlog.md, Docs/prebeta_roadmap.md. Proof: default profile migration, active fallback, monitor membership normalization, save/load persistence, MONITORING_HUD_OVERLAY_PROFILE_STATE_READY bridge signal, concept separation, and no visible profile editor UI.`
 
-Hardening Comparison Checklist: `H1 must compare implementation against this plan, ensure Overlay Profile boundaries do not collapse into Monitor Groups or Recording Profiles, verify no Recording/Profile/tray/export/provider/theme/FAM-007 scope creep, verify focused visual proof quality, and verify all validators pass.`
+Hardening Comparison Checklist: `H1 compared implementation against this plan, ensured Overlay Profile boundaries do not collapse into Monitor Groups or Recording Profiles, verified no Recording/Profile/tray/export/provider/theme/FAM-007 scope creep, preserved no-visible-profile-editor posture, and reran validators.`
+
+Hardening H1 Result: `Green - SLC-037 schema/default/migration/persistence/renderer-bridge/concept-boundary proof passed during bounded source-truth posture repair. Evidence basis includes HUD surface validation, HUD internal sandbox validation manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260520_172108_manifest.json, branch governance validation, worktree-confinement gate, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, compileall, bundled Node syntax check, and runtime-fam006 validation-suite recommendation review.`
 
 Live Validation Proof Or Waiver Checklist: `LV1 must use real user-facing client/shortcut path when runtime UI changes exist, focused local proof for acceptance-critical states, and USER Test Summary only when the Live Validation stage is reached. USER waiver with reason is required for any unavailable live proof.`
 
@@ -66,6 +68,6 @@ Release Readiness Public-Scope Translation Checklist: `Release wording must desc
 
 USER Planning Review: `Complete for Branch Readiness Stage 2 setup and Workstream Entry; USER approved SLC-037 implementation.`
 
-PR Fold-Down Packet: `Pending H1, remaining seams, Live Validation when user-facing controls exist, and PR Readiness.`
+PR Fold-Down Packet: `Pending SLC-038 through SLC-041 seams, Live Validation when user-facing controls exist, and PR Readiness.`
 
-Runtime Implementation Approval: `Granted for SLC-037 only; SLC-038 visible profile selection/editing and later seams remain pending USER decisions.`
+Runtime Implementation Approval: `Granted for SLC-037 only and now H1 Green; SLC-038 visible profile selection/editing implementation and later seams remain pending USER decisions.`
