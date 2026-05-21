@@ -67,21 +67,21 @@ Use these release-state values when relevant:
 ## Current Decision Surface
 
 Latest Public Prerelease Recorded In Source Truth: `v1.7.12-prebeta`
-Post-Release Canon Closure Drift: Recorded
-Published Release Pending Canon Closure: v1.7.12-prebeta
-Closure Repair Surface: Next Branch Readiness Stage 2
+Post-Release Canon Closure Drift: Closed by this FAM-006 `v1.7.12-prebeta` closure repair.
+Published Release Pending Canon Closure: None.
+Closure Repair Surface: Closed by this FAM-006 closure repair; FAM-006 branch-local source truth carries current-main context forward while preserving runtime authority.
 Closure Drift Scope: release-dependent fields only.
-Implementation Entry: Blocked until closure repair validates green
-Merged-Unreleased PRs: None after `v1.7.12-prebeta`; PR #192 `FAM-007 Local AI Provider Setup Implementation Foundation` is published in `v1.7.12-prebeta` and pending canon closure.
+Implementation Entry: SLC-040 Manage Monitors read-only Overlay Profile context and settings-route integration is implemented after SLC-037 data/state H1 Green, SLC-038 visible selection/editing H1 Green, SLC-039 membership mapping H1 Green, SLC-040 Workstream Green, and `v1.7.12-prebeta` closure repair; SLC-040 Hardening H1 is next before later live-proof seams.
+Merged-Unreleased PRs: None after `v1.7.12-prebeta`; PR #192 `FAM-007 Local AI Provider Setup Implementation Foundation` is published in `v1.7.12-prebeta`.
 Current-Main Reconciliation Update: `origin/main` is PR #192 merge commit and `v1.7.12-prebeta` tag commit `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`; PR #192 / FAM-007 setup implementation foundation is preserved as current-main context, while `feature/fam-006-overlay-profile-runtime-foundation` remains the active FAM-006 branch-local runtime carrier in `C:\Nexus Worktrees\FAM-006`.
 Active Runtime Branch: `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006`; current main includes merged PR #192 FAM-007 setup implementation foundation context, and that FAM-007 history does not replace this worktree's FAM-006 carrier by inertia.
 Active Governance Branch: `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`.
 Active Governance/Package Branch: None beyond the standing Governance intake branch; `feature/repo-wide-source-owner-marker-adoption` merged in PR #185 and its worktree/local/remote branch cleanup is complete.
 Selected-Next Posture: USER approved Branch Readiness Stage 2 setup for the FAM-006 Overlay Profile Runtime Foundation successor branch; no other runtime or governance/package branch is selected by inertia for this worktree.
 Latest Public Release Anchor: `v1.7.12-prebeta` at `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`.
-Release Window Contributor Inventory: PR #188 `Record v1.7.10 Post-Release Canon Closure Drift`; PR #189 `Harden Automation Reliability Governance`; PR #190 `FAM-007 Local AI Provider Setup Contract Readiness`; PR #191 `Release Readiness Source Truth Intake`; all released in `v1.7.11-prebeta`. PR #192 `FAM-007 Local AI Provider Setup Implementation Foundation` is published in `v1.7.12-prebeta` and pending canon closure.
-Release Blockers: `v1.7.12-prebeta` release-dependent canon closure is recorded and requires the next Branch Readiness Stage 2 closure repair before FAM-006 SLC-040 H1 can proceed.
-Next Legal Phase: Next Branch Readiness Stage 2 closure repair for `v1.7.12-prebeta` release-dependent canon drift; after that validates green, resume SLC-040 Hardening H1 for Dashboard / Manage Monitors integration.
+Release Window Contributor Inventory: PR #188 `Record v1.7.10 Post-Release Canon Closure Drift`; PR #189 `Harden Automation Reliability Governance`; PR #190 `FAM-007 Local AI Provider Setup Contract Readiness`; PR #191 `Release Readiness Source Truth Intake`; all released in `v1.7.11-prebeta`. PR #192 `FAM-007 Local AI Provider Setup Implementation Foundation` is published in `v1.7.12-prebeta`.
+Release Blockers: None for `v1.7.12-prebeta` canon closure after this repair validates; FAM-006 SLC-040 Hardening H1 is the branch-local next phase.
+Next Legal Phase: SLC-040 Hardening H1 for Dashboard / Manage Monitors integration; SLC-041 live proof, Release Readiness execution, provider setup, consent collection, provider SDK/model work, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, issue work, artifacts beyond GitHub source archives, branch cleanup, and AI Product Contract import remain separate USER decisions.
 
 ### Detailed Current Release Posture
 
@@ -119,13 +119,13 @@ Post-PR #162 Source-Truth Drift: Closed by PR #163 and the v1.7.4-prebeta releas
 Post-PR #165 Source-Truth Drift: Closed by PR #166 through PR #168 and the v1.7.5-prebeta release. PR #165 is released historical FAM-007 provider-readiness/setup-eligibility scope.
 Post-PR #170 Source-Truth Drift: Closed by the Branch Readiness Stage 2 setup after the v1.7.6-prebeta release. PR #170 is released historical FAM-007 activation-foundation scope.
 Post-PR #172 Source-Truth Drift: Closed by this Branch Readiness Stage 2 setup after the v1.7.7-prebeta release. PR #172 is released historical FAM-007 execution-readiness-gates scope.
-Post-Release Canon Closure Drift: Recorded
-Published Release Pending Canon Closure: v1.7.12-prebeta
-Closure Repair Surface: Next Branch Readiness Stage 2
+Post-Release Canon Closure Drift: Closed by this FAM-006 `v1.7.12-prebeta` closure repair.
+Published Release Pending Canon Closure: None.
+Closure Repair Surface: Closed by this FAM-006 closure repair; this branch preserves FAM-006 source-truth authority after reconciliation.
 Closure Drift Scope: release-dependent fields only.
-Implementation Entry: Blocked until closure repair validates green
-Release-Debt Avoidance Status: `v1.7.12-prebeta` publication is detected and release-dependent canon closure is recorded as pending; future runtime work remains USER-gated.
-Merged-main current active workstream: PR #192 merged FAM-007 setup implementation foundation context after `v1.7.11-prebeta`; it does not select or replace this FAM-006 branch-local carrier.
+Implementation Entry: SLC-040 Manage Monitors read-only Overlay Profile context/settings-route integration is implemented on `feature/fam-006-overlay-profile-runtime-foundation`; SLC-040 Hardening H1 is the next legal phase after the approved compact layout, selector-width repair, SLC-038 H1, SLC-039 Workstream implementation/H1, SLC-040 Workstream implementation, current-main PR #192 reconciliation, and `v1.7.12-prebeta` closure repair. PR #192 is FAM-007 current-main context, with provider execution pending separate USER decisions.
+Release-Debt Avoidance Status: No release debt remains for the `v1.7.12-prebeta` window after publication and closure repair; future runtime work remains USER-gated.
+Merged-main current active workstream: PR #192 is published `v1.7.12-prebeta` FAM-007 setup implementation foundation context; it does not select or replace this FAM-006 branch-local carrier.
 Current active workstream: `FAM-006 Overlay Profile Runtime Foundation` on `feature/fam-006-overlay-profile-runtime-foundation`; FAM-007 Local AI Provider Setup Implementation Foundation is current-main context and separate branch evidence.
 Historical Validator Marker: `PR Readiness remains blocked` is retained only as prior-state traceability for the repaired FAM-006 Monitor Groups lane; PR #180 is now merged historical evidence.
 Branch-local FAM-006 reconciliation note: `feature/fam-006-monitor-groups-sensor-configuration` is historical merged PR #180 evidence at merge commit `13ee9d5790cb9bf7cf2268f90bcf88707b4d31d4`, with head `97812972da0770de2b7b17ddec0e98f21260263e`. The merged scope preserves first-launch Dashboard flicker guard, Nexus-styled Source Filter dropdown, dropdown open/hover reset, 20+ monitor-group stress proof, Delete Monitor placement/confirmation, top-area compaction, taller/resizable Manage Monitors posture, copy cleanup, visible resize-proof contamination regression prevention, invisible/test-gated grow/shrink proof preservation, Dashboard minimum-size bottom-edge clip repair, Sensor Library source discovery, Warning Notifications as a setting checkbox, Provider Readiness as readiness/status/future capability, returned USER UTS FAIL repair traceability, interactive-control visual QA, right-edge resize rediscovery, Polling Rate toggle-only hitbox proof, Source Picker immediate-checkmark responsiveness proof, dirty-guard no-Cancel proof, delete-confirmation Cancel illumination proof, footer Discard illumination proof, Manage Monitors Close full-height hitbox proof, and Sensor Library / Monitor / Monitor Group / Overlay Profile / Recording Profile separation.
@@ -183,15 +183,15 @@ Historical Workstream State: automation catalog implementation is merged histori
 Historical Hardening State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Historical Live Validation State: Complete on `feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth`.
 Canonical Current-State Rule: merge-target current-state owners stay merge-stable and must not normalize unresolved release debt, stale canon, or cleanup-only branches as the default. Live PR state, conflict/readiness details, review-resolution details, and blocker-clearing repair-lane narration live only in explicit historical PR sections of the canonical workstream and in operator output.
-Release Execution State: `v1.7.12-prebeta` is published at `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`; release-dependent canon closure is recorded as pending the next Branch Readiness Stage 2 closure repair.
+Release Execution State: `v1.7.12-prebeta` is published at `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`; release-dependent canon closure is closed by this FAM-006 repair.
 Release Target: None - `v1.7.12-prebeta` is published; future release targets require a later USER-approved Release Readiness pass.
 Release Floor: None for current public release; future release floor requires later USER-approved Release Readiness.
 Version Rationale: `v1.7.9-prebeta` released PR #179 FAM-007 provider setup/consent readiness, PR #180 FAM-006 Monitor Groups Sensor Command Center, and PR #181 release-window validation support after `v1.7.8-prebeta`, while provider SDK/model execution, downloads, external calls, memory, learning, personalization, network egress, voice/Core sync, issue work, artifacts, and branch cleanup remain USER-gated.
 Release Scope: Released in `v1.7.8-prebeta`: PR #173 through PR #178. Released in `v1.7.9-prebeta`: PR #179, PR #180, and PR #181. Released in `v1.7.10-prebeta`: PR #182, PR #183, PR #184, PR #185, PR #186, and PR #187. Released in `v1.7.11-prebeta`: PR #188, PR #189, PR #190, and PR #191. Released in `v1.7.12-prebeta`: PR #192.
 Release Artifacts: Published - lightweight tag `v1.7.12-prebeta` exists at tag commit `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`; release URL `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.12-prebeta`; assets none attached.
-Post-Release Truth: `v1.7.12-prebeta` is published; release-dependent source-truth closure is recorded as pending the next Branch Readiness Stage 2 closure repair, and this worktree preserves FAM-006 branch-local runtime authority.
+Post-Release Truth: `v1.7.12-prebeta` is published; release-dependent source-truth closure is closed by this FAM-006 repair, and this worktree preserves FAM-006 branch-local runtime authority.
 Next-Branch Creation Gate: Fulfilled for `feature/fam-006-overlay-profile-runtime-foundation` by USER-approved Branch Readiness Stage 2 setup; any additional successor branch remains USER-gated.
-Next Legal Phase: Next Branch Readiness Stage 2 closure repair for `v1.7.12-prebeta` release-dependent canon drift; after that validates green, resume SLC-040 Hardening H1 on `feature/fam-006-overlay-profile-runtime-foundation`. Release Readiness Stage 2, release execution, SLC-041 implementation, issue work, artifacts beyond GitHub source archives, provider setup, consent collection, provider SDK/model work, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, and AI Product Contract import remain separate USER decisions.
+Next Legal Phase: SLC-040 Hardening H1 for Dashboard / Manage Monitors integration on `feature/fam-006-overlay-profile-runtime-foundation`; Release Readiness Stage 2, release execution, SLC-041 implementation, issue work, artifacts beyond GitHub source archives, provider setup, consent collection, provider SDK/model work, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, and AI Product Contract import remain separate USER decisions.
 
 ## Selected Next Workstream
 
