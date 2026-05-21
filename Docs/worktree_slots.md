@@ -167,23 +167,23 @@ Runtime slots are reusable active-work slots. Their assignment changes as branch
 - Slot ID: `runtime-active-2`
 - Role: active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: USER-approved FAM-007 runtime carrier for Branch Readiness Stage 2
+- Assignment Status: USER-approved FAM-007 runtime carrier with Workstream Green
 - Assigned Branch: `feature/fam-007-local-ai-provider-setup-contract-readiness`
 - Assigned Family / Workstream: `FAM-007 Local AI Provider Setup Contract Readiness`
 - Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
 - Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
-- USER Decision Pointer: USER-approved FAM-007 Branch Readiness Stage 2 setup after `v1.7.10-prebeta`; Workstream implementation remains pending USER approval
+- USER Decision Pointer: USER-approved FAM-007 Branch Readiness Stage 2, Workstream Entry, and bounded setup contract readiness implementation after `v1.7.10-prebeta`; Hardening H1 remains pending USER approval
 - Active Thread Owner: Codex in `C:\Nexus Worktrees\FAM-007`
-- Thread Assignment Status: active for FAM-007 Stage 2 setup only
+- Thread Assignment Status: active for FAM-007 setup contract readiness through Workstream Green
 - Worktree Ownership Ledger: FAM-007 stable runtime worktree, localized to FAM-007 branch work
-- Intended Write Set: FAM-007 branch authority/plan, shared source-truth current-branch posture, validation registry only if required, and no sibling worktrees
+- Intended Write Set: FAM-007 branch authority/plan, shared source-truth current-branch posture, validation registry, provider state, Core/Desktop renderers, ORIN visual surfaces, FAM-007 provider validator, and no sibling worktrees
 - Same Worktree / Same Branch Collision Check: target branch was absent before creation and was created from current `origin/main`
 - Dirty Worktree Collision Check: FAM-007 worktree was clean before Stage 2 edits
 - Dirty Worktree Recovery Packet: not required for FAM-007; FAM-006 dirt is recorded as later PR/merge reconciliation risk only
 - Off-Worktree Work Routing: FAM-006, Governance, and Compact-AI are context only and must not be mutated by this branch
 - Governance Routing Barrier: Governance mutation outside this FAM-007 path remains pending USER decision
 - New Worktree Decision Gate: no new worktree is required
-- Last Reviewed Posture: active Stage 2 setup carrier; live Git/GitHub proof remains derived operational truth
+- Last Reviewed Posture: active Workstream Green carrier; Hardening H1 pending USER approval and live Git/GitHub proof remains derived operational truth
 - Operational Truth Source: Thread / Worktree Identity Preflight, `git worktree list`, `git status`, GitHub PR state, and Pre-Rebaseline Impact Audit
 
 ### runtime-active-3

@@ -91,6 +91,9 @@ const aiProviderStatusProviderPathSchema = document.getElementById("ai-provider-
 const aiProviderStatusProviderProfile = document.getElementById("ai-provider-status-provider-profile");
 const aiProviderStatusProviderConfigEnvelope = document.getElementById("ai-provider-status-provider-config-envelope");
 const aiProviderStatusProviderApprovals = document.getElementById("ai-provider-status-provider-approvals");
+const aiProviderStatusSetupContract = document.getElementById("ai-provider-status-setup-contract");
+const aiProviderStatusSetupContractBlocker = document.getElementById("ai-provider-status-setup-contract-blocker");
+const aiProviderStatusSetupContractHandoff = document.getElementById("ai-provider-status-setup-contract-handoff");
 const aiProviderStatusSetupConsent = document.getElementById("ai-provider-status-setup-consent");
 const aiProviderStatusExecutionConsent = document.getElementById("ai-provider-status-execution-consent");
 const aiProviderStatusConsentSchema = document.getElementById("ai-provider-status-consent-schema");
@@ -409,6 +412,18 @@ let aiProviderState = {
   consentFlowApprovalLabel: "Consent flow approval: USER approval missing",
   consentCollectionPosture: "consent-collection-pending-user-approval",
   consentCollectionLabel: "Consent collection: pending USER approval",
+  providerSetupContractReadinessState: "setup_contract_unavailable",
+  providerSetupContractReadinessLabel: "Setup contract readiness: unavailable",
+  providerSetupContractEligibilityState: "setup_contract_eligibility_unavailable",
+  providerSetupContractEligibilityLabel: "Setup contract eligibility: unavailable",
+  providerSetupContractBlockerState: "setup_contract_provider_path_required",
+  providerSetupContractBlockerLabel: "Setup contract blocker: provider path readiness required",
+  providerSetupContractReasonCode: "setup_contract_default_unavailable",
+  providerSetupContractReasonLabel: "Setup contract reason: setup contract is local-only",
+  providerSetupContractApprovalStatus: "setup-contract-approval-missing",
+  providerSetupContractApprovalLabel: "Setup contract approval: USER approval missing",
+  providerSetupContractGateState: "setup-contract-gate-blocked",
+  futureSetupBranchHandoffState: "future-provider-setup-branch-handoff-ready-for-contract",
   providerSetupHandoffPosture: "provider-setup-handoff-future-gated",
   providerSetupHandoffLabel: "Provider setup handoff: future-gated",
   providerConsentHandoffPosture: "provider-consent-handoff-future-gated",
@@ -1657,6 +1672,12 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.consentFlowReason = state.consentFlowReasonCode || "unknown";
   aiProviderStatus.dataset.consentFlowApproval = state.consentFlowApprovalStatus || "unknown";
   aiProviderStatus.dataset.consentCollection = state.consentCollectionPosture || "unknown";
+  aiProviderStatus.dataset.setupContractReadiness = state.providerSetupContractReadinessState || "unknown";
+  aiProviderStatus.dataset.setupContractEligibility = state.providerSetupContractEligibilityState || "unknown";
+  aiProviderStatus.dataset.setupContractBlocker = state.providerSetupContractBlockerState || "unknown";
+  aiProviderStatus.dataset.setupContractReason = state.providerSetupContractReasonCode || "unknown";
+  aiProviderStatus.dataset.setupContractApproval = state.providerSetupContractApprovalStatus || "unknown";
+  aiProviderStatus.dataset.setupContractGate = state.providerSetupContractGateState || "unknown";
   aiProviderStatus.dataset.providerSetupHandoff = state.providerSetupHandoffPosture || "unknown";
   aiProviderStatus.dataset.providerConsentHandoff = state.providerConsentHandoffPosture || "unknown";
   aiProviderStatus.dataset.providerPathHandoff = state.providerPathHandoffPosture || "unknown";
@@ -1998,6 +2019,18 @@ function renderAIProviderState() {
   if (aiProviderStatusProviderApprovals) {
     aiProviderStatusProviderApprovals.textContent =
       `${state.providerSetupApprovalLabel || "Provider setup approval: missing"}; ${state.providerExecutionApprovalLabel || "Provider execution approval: missing"}`;
+  }
+  if (aiProviderStatusSetupContract) {
+    aiProviderStatusSetupContract.textContent =
+      state.providerSetupContractReadinessLabel || "Setup contract readiness: unavailable";
+  }
+  if (aiProviderStatusSetupContractBlocker) {
+    aiProviderStatusSetupContractBlocker.textContent =
+      state.providerSetupContractBlockerLabel || "Setup contract blocker: provider path readiness required";
+  }
+  if (aiProviderStatusSetupContractHandoff) {
+    aiProviderStatusSetupContractHandoff.textContent =
+      `${state.providerSetupContractApprovalLabel || "Setup contract approval: USER approval missing"}; ${state.futureSetupBranchHandoffState || "future-provider-setup-branch-handoff-ready-for-contract"}`;
   }
   if (aiProviderStatusSetupConsent) {
     aiProviderStatusSetupConsent.textContent =

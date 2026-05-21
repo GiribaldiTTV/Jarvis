@@ -12,27 +12,27 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
 
-Current Phase: `Branch Readiness`
+Current Phase: `Workstream`
 
 Branch Runtime Engineering Plan: Accepted - this plan is present for the FAM-007 setup contract readiness carrier.
 
-Engineering Plan Status: Accepted
+Engineering Plan Status: Accepted - implemented through Workstream Green and ready for Hardening H1 after USER approval.
 
 Current Runtime Baseline: PR #179 released FAM-007 setup/consent-flow readiness with provider setup future-gated, consent collection pending, provider-visible data `none`, `sentToProvider=false`, `canAcceptPrompts=false`, prompt/model execution disabled, downloads blocked, network egress blocked, memory/indexing disabled, and voice/Core sync gated.
 
 Branch Purpose: define setup contract readiness as the next FAM-007 layer after setup/consent-flow readiness, preserving a status-only/local posture before any real provider setup, consent collection, SDK integration, or model execution.
 
-Planned Runtime Delta: add setup contract state/schema planning, provider profile/config requirements, setup preconditions, consent prerequisites, setup handoff criteria, approval gate posture, validator fixture expectations, and short status-proof mapping without activating setup.
+Planned Runtime Delta: setup contract state/schema, provider profile/config requirements, setup preconditions, consent prerequisites, setup handoff criteria, approval gate posture, validator fixture expectations, and short status-proof mapping are implemented without activating setup.
 
-User-Facing Delta: no Stage 2 production UI change; future Workstream implementation may add or refine concise Core/Desktop/ORIN status-only setup contract copy that does not imply provider setup, consent collection, prompt acceptance, or functional AI.
+User-Facing Delta: Core/Desktop/ORIN setup contract status proof is status-only and validator-visible; the long desktop AI-owned readiness display remains hidden/suppressed by default and copy does not imply provider setup, consent collection, prompt acceptance, or functional AI.
 
-Source-Truth Delta: record fresh FAM-007 branch authority, close `v1.7.10-prebeta` release-canon drift, admit this branch plan, update current carrier posture, and preserve FAM-006/Governance/Compact-AI overlap as later reconciliation context only.
+Source-Truth Delta: records fresh FAM-007 branch authority, closed `v1.7.10-prebeta` release-canon drift, admitted this branch plan, folded down Workstream Green posture, and preserved FAM-006/Governance/Compact-AI overlap as later reconciliation context only.
 
-State / Config / Schema Delta: planned setup contract readiness fields, setup precondition fields, setup approval fields, provider profile/config requirement fields, consent prerequisite fields, provenance/reason/schema markers, and future handoff markers only.
+State / Config / Schema Delta: setup contract readiness fields, setup precondition fields, setup approval fields, provider profile/config requirement fields, consent prerequisite fields, provenance/reason/schema markers, and future handoff markers are implemented as local-only/static contract state.
 
-Validator / Helper Delta: future Workstream should extend `dev/orin_ai_provider_state_validation.py`, `dev/orin_validation_suite.py`, and any setup contract fixtures required by repo truth; Stage 2 validates existing governance, source-owner, provider-state, and release-health gates.
+Validator / Helper Delta: `dev/orin_ai_provider_state_validation.py` now validates setup contract readiness state/schema, profile/config requirements, setup/execution consent prerequisites, approval gates, handoff posture, desktop readiness display suppression continuity, and provider/runtime no-execution fixtures; the validation suite continues to include the FAM-007 provider validator.
 
-Expected Changed Files / Surfaces: Stage 2 touches branch record, branch plan, backlog, roadmap, branch index, and worktree slot receipt; future Workstream may touch provider state, Core/Desktop renderers, ORIN visual surfaces, and validators only after USER approval.
+Expected Changed Files / Surfaces: branch record, branch plan, backlog, roadmap, worktree slot receipt, validation registry, provider state, Core/Desktop renderers, ORIN visual surfaces, and FAM-007 provider validator.
 
 Workstream / Seam Map: Seam 1 setup contract state/schema; Seam 2 provider profile/config requirements; Seam 3 setup preconditions and consent prerequisites; Seam 4 setup handoff and approval gates; Seam 5 Core/Desktop/ORIN setup contract status proof; Seam 6 functional-AI and v1.8.0 continuation criteria.
 
@@ -42,15 +42,15 @@ Per-Seam Validation Checklist: run diff checks, branch governance, release-healt
 
 Per-Seam User-Facing Proof Checklist: each seam must include user-visible proof or a waiver; if Core/Desktop/ORIN copy changes, capture visible status-only proof, screenshot/static validator evidence, and confirmation that copy does not imply provider setup, consent collection, provider execution, functional AI, or `v1.8.0-prebeta` release readiness.
 
-Future-Gated Items: future provider setup implementation, consent collection, provider SDK integration, provider/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcuts/installers, PR creation, merge, release, FAM-006 mutation, Governance mutation outside this branch, Compact-AI mutation, and `v1.8.0-prebeta` remain gated, blocked, and pending later USER approval.
+Future-Gated Items: provider setup implementation, consent collection, provider SDK integration, provider/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcuts/installers, PR creation, merge, release, FAM-006 mutation, Governance mutation outside this branch, Compact-AI mutation, and `v1.8.0-prebeta` remain gated, blocked, and pending later USER approval.
 
 Approval-Boundary Audit: Stage 2 and the planned Workstream may define contracts, state, gates, UI proof, and validators only; real setup execution, consent collection, provider communication, provider-visible data, prompt routing, model workload execution, downloads, network egress, memory, voice/Core sync, shortcut/installer work, release, PR creation, merge, issue work, cleanup, and cross-lane mutation require later USER approval.
 
 FAM / Shared-Surface Overlap Forecast: FAM-006 dirty shared docs are later PR/merge reconciliation risk only; Governance is standing intake context only; Compact-AI has protected unique commits and must not be mutated by this branch; FAM-007 owns only this localized branch/worktree path.
 
-Open Questions: USER must decide whether to approve Workstream Entry, then whether to approve implementation; future questions include whether setup contract status should remain source-only or touch Core/Desktop/ORIN copy, and when real provider setup or consent collection should be admitted.
+Open Questions: USER must decide whether to approve Hardening H1; future questions include when real provider setup, consent collection, provider SDK/model work, or functional-AI proof should be admitted.
 
-USER Planning Decisions: USER approved Branch Readiness Stage 2 setup for this branch; USER decisions remain pending for Workstream implementation, provider setup, consent collection, SDK/model execution, PR creation, merge, release, cleanup, and future functional-AI work.
+USER Planning Decisions: USER approved Branch Readiness Stage 2, Workstream Entry, and bounded Workstream implementation for this branch; USER decisions remain pending for H1, LV1, PR creation, merge, release, cleanup, provider setup, consent collection, SDK/model execution, and future functional-AI work.
 
 Plan Revision History: v1 created during Branch Readiness Stage 2 from `origin/main` at `b67e59df0481091bfbeb739c4b5e1954552bb421`, carrying `v1.7.10-prebeta` canon closure and PR #179 FAM-007 released evidence.
 
@@ -62,17 +62,17 @@ Live Validation Proof Or Waiver Checklist: LV1 must classify source/static/statu
 
 PR Readiness Fold-Down / Retention Checklist: PR Readiness must retain or fold this plan into branch record/source truth, clear stale active-branch wording, prove selected-next or waiver truth, prove no-release-debt posture, and preserve pending USER decisions.
 
-Release Readiness Public-Scope Translation Checklist: release readiness must describe this branch as setup contract readiness/status-only scaffolding unless later Workstream evidence proves more; it must not claim provider setup, consent collection, SDK/model execution, functional AI, or `v1.8.0-prebeta` execution.
+Release Readiness Public-Scope Translation Checklist: release readiness must describe this branch as setup contract readiness/status-only scaffolding; it must not claim provider setup, consent collection, SDK/model execution, functional AI, or `v1.8.0-prebeta` execution.
 
-USER Planning Review: Pending Workstream Entry approval; USER may approve, change, defer, or reject the plan before implementation.
+USER Planning Review: Complete through Workstream implementation; USER may approve, change, defer, or reject Hardening H1 before the next phase.
 
 PR Fold-Down Packet: Pending
 
-Runtime Implementation Approval: Pending USER approval; Stage 2 does not grant Workstream implementation or provider/runtime execution approval.
+Runtime Implementation Approval: Granted for the bounded setup contract readiness Workstream only; provider setup, consent collection, SDK/model execution, and provider/runtime execution remain pending USER decisions.
 
 ## Plan Status
 
-Branch Readiness Stage 2 setup admitted this plan for `feature/fam-007-local-ai-provider-setup-contract-readiness`. Workstream implementation has not started and requires later USER approval.
+Branch Readiness Stage 2 admitted this plan for `feature/fam-007-local-ai-provider-setup-contract-readiness`; the bounded Workstream implementation is complete and ready for Hardening H1 after USER approval.
 
 ## Branch Identity
 
@@ -88,14 +88,14 @@ This branch advances FAM-007 by defining provider setup contract readiness. It d
 
 ## Runtime Branch Engineering Contract
 
-- USER Engineering Planning Review: required at Workstream Entry.
-- Runtime Implementation Approval: pending USER decision.
+- USER Engineering Planning Review: complete through Workstream Entry and bounded implementation; H1 approval pending.
+- Runtime Implementation Approval: granted for bounded setup contract readiness implementation only.
 - Current Runtime Baseline: released FAM-007 setup/consent-flow readiness from PR #179; provider setup future-gated; consent collection pending; provider-visible data `none`; `sentToProvider=false`; `canAcceptPrompts=false`; provider/model execution disabled.
 - Planned Runtime Delta: setup contract state/schema, setup handoff criteria, provider profile/config requirements, consent prerequisites, approval gate posture, validator fixtures, and status/proof expectations.
-- User-Facing Runtime Delta: none during Stage 2; future Workstream may add short status-only Core/Desktop/ORIN setup contract proof if repo truth supports it.
-- State / Config / Schema Delta: setup contract readiness planning only until implementation approval.
-- Validator / Helper Delta: extend FAM-007 provider state validation and validation suite coverage during Workstream implementation if repo truth supports it.
-- Expected Changed Files / Surfaces: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`, this plan, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/branch_records/index.md`, `Docs/worktree_slots.md`, and future Workstream files discovered by source truth.
+- User-Facing Runtime Delta: status-only setup contract proof is available through Core/Desktop/ORIN state telemetry while the long desktop readiness display remains hidden/suppressed by default.
+- State / Config / Schema Delta: setup contract readiness state/schema, provider profile/config requirements, prerequisites, approvals, handoff, and fold-down fields are implemented as local-only/static contract scaffolding.
+- Validator / Helper Delta: FAM-007 provider state validation covers setup contract fixtures and suppression continuity.
+- Expected Changed Files / Surfaces: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`, this plan, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/worktree_slots.md`, `Docs/validation_helper_registry.md`, `desktop/ai_provider_state.py`, Core/Desktop renderers, ORIN visual surfaces, and `dev/orin_ai_provider_state_validation.py`.
 - Approval-Boundary Audit: all provider/runtime execution work remains pending USER decision.
 - Future-Gated Items: provider setup implementation, consent collection, SDK/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcuts/installers, PR/merge/release, and `v1.8.0-prebeta`.
 - Workstream Seam Map: admitted below.
@@ -165,7 +165,7 @@ Provider Setup Contract Readiness is the FAM-007 layer after setup/consent-flow 
 
 - Define status-only copy expectations for setup contract readiness.
 - Confirm copy distinguishes setup contract readiness, setup flow readiness, consent readiness, provider setup, provider execution, and functional AI.
-- Preserve no production UI behavior change unless future Workstream implementation is approved.
+- Preserve no provider setup, consent collection, prompt acceptance, provider execution, or functional-AI behavior change.
 - Preserve compact/non-invasive status posture established by prior FAM-007 work.
 
 ### 6. Functional-AI and v1.8.0 Continuation Criteria
@@ -174,9 +174,29 @@ Provider Setup Contract Readiness is the FAM-007 layer after setup/consent-flow 
 - Define criteria still unsatisfied before provider setup/execution.
 - Preserve `v1.8.0-prebeta` as a later USER-approved release execution target after functional-AI proof.
 
+## Workstream Implementation Result
+
+Workstream Completion State: `Green - bounded setup contract readiness implementation complete and ready for Hardening H1 after USER approval`.
+
+Seam Family 1 - Provider Setup Contract State and Schema: `Green - setup contract readiness state, eligibility, blocker, reason, provenance, schema versioning, config schema, approval status, gate state, and future handoff fields are centralized in desktop/ai_provider_state.py`.
+
+Seam Family 2 - Provider Profile / Configuration Contract Requirements: `Green - provider profile required fields, provider config required fields, config readiness posture, profile gate, local/null fallback, setup approval, execution approval, SDK handoff, and validation posture are represented without real config mutation`.
+
+Seam Family 3 - Setup Preconditions and Consent Prerequisite Contract: `Green - setup consent, execution consent, provider-visible-data, audit, data classification, safety/eval, capability, manifest, network, local-only, memory/indexing, and voice/Core prerequisites remain explicit and future-gated`.
+
+Seam Family 4 - Setup Handoff and Approval Gate Planning: `Green - future provider setup branch handoff, setup approval gate, execution approval gate, provider path handoff, consent handoff, config/profile handoff, UI handoff, validator handoff, and PR/release fold-down handoff are recorded as local-only contract proof`.
+
+Seam Family 5 - Core/Desktop/ORIN Setup Contract Status UI and Proof: `Green - Core/Desktop/ORIN state publication includes setup contract telemetry and hidden status rows; the long AI-owned desktop readiness display remains hidden/suppressed by default`.
+
+Seam Family 6 - Functional-AI and v1.8.0 Continuation Criteria: `Green - functional AI and v1.8.0-prebeta criteria remain unsatisfied by design until separate USER-approved provider setup, consent, adapter, prompt routing, model execution, provider-visible-data, and release proof work`.
+
+Runtime Safety Posture: `Provider setup not implemented; consent collection not implemented; SDK/model execution not implemented; provider-visible data none; sentToProvider=false; canAcceptPrompts=false; downloads/install blocked; network egress blocked; memory/indexing disabled; voice/Core sync gated`.
+
+Validator Proof: `dev/orin_ai_provider_state_validation.py` covers default setup contract unavailable, blocked-by-provider-path, blocked-by-config, setup consent, execution consent, policy, capability, manifest, safety, future-gated, approval-missing, provider-profile-missing, provider-config-missing, provider-config-invalid, ready-for-future-setup-branch, degraded/fail-closed, desktop readiness display suppression continuity, no provider-visible data, no prompt/model execution, blocked downloads/install, blocked network, disabled memory, and gated voice fixtures.
+
 ## Validation Plan
 
-Required Stage 2 validation:
+Required Workstream validation:
 
 - `git diff --check origin/main...HEAD`
 - `git diff --check`
@@ -191,7 +211,7 @@ Required Stage 2 validation:
 - `python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main`
 - `python -m compileall -q dev desktop Audio main.py`
 
-Future Workstream validation should add any setup contract readiness fixtures required by repo truth.
+This Workstream adds setup contract readiness fixtures in `dev/orin_ai_provider_state_validation.py`.
 
 ## Release / Continuation Posture
 
@@ -208,8 +228,8 @@ Future Workstream validation should add any setup contract readiness fixtures re
 
 ## Next Legal Phase
 
-Workstream Entry analysis after USER approval.
+Hardening H1 after USER approval.
 
 ## Exact USER Decision Needed
 
-Approve Workstream Entry analysis for `FAM-007 Local AI Provider Setup Contract Readiness`.
+Approve Hardening H1 for `FAM-007 Local AI Provider Setup Contract Readiness`.

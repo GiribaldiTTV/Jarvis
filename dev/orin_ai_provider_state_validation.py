@@ -224,6 +224,8 @@ from desktop.ai_provider_state import (  # noqa: E402
     FAM007_PROVIDER_PATH_CONSENT_READINESS_STATE_ID,
     FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_MODE,
     FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_STATE_ID,
+    FAM007_PROVIDER_SETUP_CONTRACT_READINESS_MODE,
+    FAM007_PROVIDER_SETUP_CONTRACT_READINESS_STATE_ID,
     PROVIDER_EXECUTION_READINESS_CONFIG_SCHEMA_VERSION,
     PROVIDER_EXECUTION_READINESS_STATE_SCHEMA_VERSION,
     PROVIDER_EXECUTION_CONFIG_STATE_DEFAULT,
@@ -525,6 +527,80 @@ from desktop.ai_provider_state import (  # noqa: E402
     EXECUTION_APPROVAL_GATE_FUTURE_GATED,
     AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED,
     AI_PROVIDER_STATUS_DISPLAY_ABSENT_FROM_DEFAULT_DESKTOP,
+    SETUP_CONTRACT_READINESS_CONFIG_SCHEMA_VERSION,
+    SETUP_CONTRACT_READINESS_STATE_SCHEMA_VERSION,
+    SETUP_CONTRACT_STATE_BLOCKED_BY_CAPABILITY,
+    SETUP_CONTRACT_STATE_BLOCKED_BY_CONFIG,
+    SETUP_CONTRACT_STATE_BLOCKED_BY_EXECUTION_CONSENT,
+    SETUP_CONTRACT_STATE_BLOCKED_BY_MANIFEST,
+    SETUP_CONTRACT_STATE_BLOCKED_BY_POLICY,
+    SETUP_CONTRACT_STATE_BLOCKED_BY_PROVIDER_PATH,
+    SETUP_CONTRACT_STATE_BLOCKED_BY_SAFETY,
+    SETUP_CONTRACT_STATE_BLOCKED_BY_SETUP_CONSENT,
+    SETUP_CONTRACT_STATE_DEGRADED,
+    SETUP_CONTRACT_STATE_DISABLED,
+    SETUP_CONTRACT_STATE_READY_BUT_NOT_APPROVED,
+    SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+    SETUP_CONTRACT_STATE_READY_FUTURE_GATED,
+    SETUP_CONTRACT_STATE_UNAVAILABLE,
+    SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+    SETUP_CONTRACT_ELIGIBILITY_DISABLED,
+    SETUP_CONTRACT_ELIGIBILITY_FUTURE_GATED,
+    SETUP_CONTRACT_ELIGIBILITY_FUTURE_SETUP_BRANCH,
+    SETUP_CONTRACT_ELIGIBILITY_READY_NOT_APPROVED,
+    SETUP_CONTRACT_ELIGIBILITY_UNAVAILABLE,
+    SETUP_CONTRACT_BLOCKER_CAPABILITY_REQUIRED,
+    SETUP_CONTRACT_BLOCKER_CONFIG_REQUIRED,
+    SETUP_CONTRACT_BLOCKER_EXECUTION_CONSENT_REQUIRED,
+    SETUP_CONTRACT_BLOCKER_FUTURE_SETUP_BRANCH,
+    SETUP_CONTRACT_BLOCKER_MANIFEST_REQUIRED,
+    SETUP_CONTRACT_BLOCKER_POLICY_BLOCKED,
+    SETUP_CONTRACT_BLOCKER_PROVIDER_PATH_REQUIRED,
+    SETUP_CONTRACT_BLOCKER_SAFETY_EVAL_REQUIRED,
+    SETUP_CONTRACT_BLOCKER_SETUP_APPROVAL_REQUIRED,
+    SETUP_CONTRACT_BLOCKER_SETUP_CONSENT_REQUIRED,
+    SETUP_CONTRACT_REASON_CAPABILITY_MISSING,
+    SETUP_CONTRACT_REASON_CONFIG_INVALID,
+    SETUP_CONTRACT_REASON_CONFIG_MISSING,
+    SETUP_CONTRACT_REASON_DEFAULT_UNAVAILABLE,
+    SETUP_CONTRACT_REASON_EXECUTION_CONSENT_REQUIRED,
+    SETUP_CONTRACT_REASON_MANIFEST_MISSING,
+    SETUP_CONTRACT_REASON_POLICY_BLOCKED,
+    SETUP_CONTRACT_REASON_PROFILE_MISSING,
+    SETUP_CONTRACT_REASON_PROVIDER_PATH_REQUIRED,
+    SETUP_CONTRACT_REASON_READY_FOR_FUTURE_SETUP_BRANCH,
+    SETUP_CONTRACT_REASON_SAFETY_BLOCKED,
+    SETUP_CONTRACT_REASON_SETUP_APPROVAL_MISSING,
+    SETUP_CONTRACT_REASON_SETUP_CONSENT_REQUIRED,
+    SETUP_CONTRACT_PROVENANCE_CAPABILITY,
+    SETUP_CONTRACT_PROVENANCE_CONFIG,
+    SETUP_CONTRACT_PROVENANCE_CONSENT,
+    SETUP_CONTRACT_PROVENANCE_FUTURE_RUNTIME,
+    SETUP_CONTRACT_PROVENANCE_MANIFEST,
+    SETUP_CONTRACT_PROVENANCE_POLICY,
+    SETUP_CONTRACT_PROVENANCE_PROFILE,
+    SETUP_CONTRACT_PROVENANCE_PROVIDER_PATH,
+    SETUP_CONTRACT_PROVENANCE_SAFETY,
+    SETUP_CONTRACT_PROVENANCE_SETUP_FLOW,
+    SETUP_CONTRACT_APPROVAL_STATUS_FUTURE_GATED,
+    SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+    SETUP_CONTRACT_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF,
+    SETUP_CONTRACT_GATE_BLOCKED,
+    SETUP_CONTRACT_GATE_FUTURE_GATED,
+    PROVIDER_PROFILE_GATE_BLOCKED,
+    PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
+    CAPABILITY_GATE_BLOCKED,
+    CAPABILITY_GATE_READY_FUTURE_GATED,
+    MANIFEST_GATE_BLOCKED,
+    MANIFEST_GATE_READY_FUTURE_GATED,
+    SAFETY_EVAL_GATE_BLOCKED,
+    SAFETY_EVAL_GATE_READY_FUTURE_GATED,
+    NETWORK_GATE_BLOCKED,
+    MEMORY_INDEXING_GATE_BLOCKED,
+    VOICE_CORE_SYNC_GATE_BLOCKED,
+    VERSION_JUMP_GATE_PENDING,
+    FUTURE_SETUP_BRANCH_HANDOFF_READY,
+    PROVIDER_SETUP_CONTRACT_FOLD_DOWN_READY,
     FUNCTIONAL_AI_CRITERIA_PENDING,
     FUNCTIONAL_AI_CRITERIA_READY_FUTURE_VERSION,
     V18_PREBETA_READINESS_PENDING,
@@ -560,6 +636,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_provider_execution_readiness_gates_state,
     build_provider_path_consent_readiness_state,
     build_provider_setup_consent_flow_readiness_state,
+    build_provider_setup_contract_readiness_state,
     build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
 )
@@ -1507,6 +1584,175 @@ def validate() -> list[str]:
         ),
         surface_role="core",
     )
+    default_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        build_default_provider_readiness_config(),
+        surface_role="core",
+    )
+    missing_setup_contract_config_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=None,
+        surface_role="core",
+    )
+    invalid_setup_contract_config_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config={
+            "schema_version": "provider-path-readiness-config.v0",
+            "provenance": "local_config",
+        },
+        surface_role="core",
+    )
+    path_unselected_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(),
+        surface_role="core",
+    )
+    provider_config_missing_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(provider_path_selected=True),
+        surface_role="core",
+    )
+    provider_config_invalid_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(
+            provider_path_selected=True,
+            provider_config_present=True,
+            provider_config_valid=False,
+        ),
+        surface_role="core",
+    )
+    provider_profile_missing_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(
+            provider_path_selected=True,
+            provider_config_present=True,
+            provider_profile_available=False,
+        ),
+        surface_role="core",
+    )
+    setup_consent_required_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(
+            provider_path_selected=True,
+            provider_config_present=True,
+        ),
+        surface_role="core",
+    )
+    execution_consent_required_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(
+            provider_path_selected=True,
+            provider_config_present=True,
+            setup_consent_ready=True,
+        ),
+        surface_role="core",
+    )
+    capability_missing_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(
+            provider_path_selected=True,
+            provider_config_present=True,
+            setup_consent_ready=True,
+            execution_consent_ready=True,
+            data_visibility_approved=True,
+            audit_ready=True,
+        ),
+        surface_role="core",
+    )
+    manifest_missing_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(
+            provider_path_selected=True,
+            provider_config_present=True,
+            setup_consent_ready=True,
+            execution_consent_ready=True,
+            data_visibility_approved=True,
+            audit_ready=True,
+            capability_ready=True,
+        ),
+        surface_role="core",
+    )
+    safety_blocked_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(
+            provider_path_selected=True,
+            provider_config_present=True,
+            setup_consent_ready=True,
+            execution_consent_ready=True,
+            data_visibility_approved=True,
+            audit_ready=True,
+            capability_ready=True,
+            manifest_available=True,
+            manifest_valid=True,
+        ),
+        surface_role="core",
+    )
+    policy_blocked_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(
+            provider_path_selected=True,
+            provider_config_present=True,
+            setup_consent_ready=True,
+            execution_consent_ready=True,
+            data_visibility_approved=True,
+            audit_ready=True,
+            capability_ready=True,
+            manifest_available=True,
+            manifest_valid=True,
+            safety_eval_complete=True,
+            policy_allows_provider_path=False,
+        ),
+        surface_role="core",
+    )
+    setup_approval_missing_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(
+            provider_path_selected=True,
+            provider_config_present=True,
+            setup_consent_ready=True,
+            execution_consent_ready=True,
+            data_visibility_approved=True,
+            audit_ready=True,
+            capability_ready=True,
+            manifest_available=True,
+            manifest_valid=True,
+            safety_eval_complete=True,
+        ),
+        surface_role="core",
+    )
+    ready_future_setup_contract_snapshot = build_provider_setup_contract_readiness_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=_path_consent_config(
+            provider_path_selected=True,
+            provider_config_present=True,
+            provider_available=True,
+            setup_consent_ready=True,
+            execution_consent_ready=True,
+            data_visibility_approved=True,
+            audit_ready=True,
+            capability_ready=True,
+            manifest_available=True,
+            manifest_valid=True,
+            safety_eval_complete=True,
+            setup_approved=True,
+            execution_approved=True,
+            future_execution_branch_ready=True,
+        ),
+        surface_role="core",
+    )
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
@@ -1596,6 +1842,23 @@ def validate() -> list[str]:
         "setup_approval_missing": setup_approval_missing_setup_flow_snapshot.as_renderer_payload(),
         "execution_approval_missing": execution_approval_missing_setup_flow_snapshot.as_renderer_payload(),
         "ready_future_setup_branch": ready_future_setup_branch_snapshot.as_renderer_payload(),
+    }
+    setup_contract_payloads = {
+        "default": default_setup_contract_snapshot.as_renderer_payload(),
+        "missing_config": missing_setup_contract_config_snapshot.as_renderer_payload(),
+        "invalid_config": invalid_setup_contract_config_snapshot.as_renderer_payload(),
+        "path_unselected": path_unselected_setup_contract_snapshot.as_renderer_payload(),
+        "provider_config_missing": provider_config_missing_setup_contract_snapshot.as_renderer_payload(),
+        "provider_config_invalid": provider_config_invalid_setup_contract_snapshot.as_renderer_payload(),
+        "provider_profile_missing": provider_profile_missing_setup_contract_snapshot.as_renderer_payload(),
+        "setup_consent_required": setup_consent_required_setup_contract_snapshot.as_renderer_payload(),
+        "execution_consent_required": execution_consent_required_setup_contract_snapshot.as_renderer_payload(),
+        "capability_missing": capability_missing_setup_contract_snapshot.as_renderer_payload(),
+        "manifest_missing": manifest_missing_setup_contract_snapshot.as_renderer_payload(),
+        "safety_blocked": safety_blocked_setup_contract_snapshot.as_renderer_payload(),
+        "policy_blocked": policy_blocked_setup_contract_snapshot.as_renderer_payload(),
+        "setup_approval_missing": setup_approval_missing_setup_contract_snapshot.as_renderer_payload(),
+        "ready_future_setup_branch": ready_future_setup_contract_snapshot.as_renderer_payload(),
     }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -3930,6 +4193,334 @@ def validate() -> list[str]:
             failures,
         )
 
+    setup_contract_expectations = {
+        "default": (
+            SETUP_CONTRACT_STATE_UNAVAILABLE,
+            SETUP_CONTRACT_ELIGIBILITY_UNAVAILABLE,
+            SETUP_CONTRACT_BLOCKER_PROVIDER_PATH_REQUIRED,
+            SETUP_CONTRACT_REASON_DEFAULT_UNAVAILABLE,
+            SETUP_CONTRACT_PROVENANCE_SETUP_FLOW,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_BLOCKED,
+            CAPABILITY_GATE_BLOCKED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "missing_config": (
+            SETUP_CONTRACT_STATE_DISABLED,
+            SETUP_CONTRACT_ELIGIBILITY_DISABLED,
+            SETUP_CONTRACT_BLOCKER_PROVIDER_PATH_REQUIRED,
+            SETUP_CONTRACT_REASON_DEFAULT_UNAVAILABLE,
+            SETUP_CONTRACT_PROVENANCE_PROVIDER_PATH,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_MISSING,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_BLOCKED,
+            CAPABILITY_GATE_BLOCKED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "invalid_config": (
+            SETUP_CONTRACT_STATE_DEGRADED,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_POLICY_BLOCKED,
+            SETUP_CONTRACT_REASON_POLICY_BLOCKED,
+            SETUP_CONTRACT_PROVENANCE_POLICY,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_INVALID,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_BLOCKED,
+            CAPABILITY_GATE_BLOCKED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "path_unselected": (
+            SETUP_CONTRACT_STATE_BLOCKED_BY_PROVIDER_PATH,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_PROVIDER_PATH_REQUIRED,
+            SETUP_CONTRACT_REASON_PROVIDER_PATH_REQUIRED,
+            SETUP_CONTRACT_PROVENANCE_PROVIDER_PATH,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_BLOCKED,
+            CAPABILITY_GATE_BLOCKED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "provider_config_missing": (
+            SETUP_CONTRACT_STATE_BLOCKED_BY_CONFIG,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_CONFIG_REQUIRED,
+            SETUP_CONTRACT_REASON_CONFIG_MISSING,
+            SETUP_CONTRACT_PROVENANCE_CONFIG,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_BLOCKED,
+            CAPABILITY_GATE_BLOCKED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "provider_config_invalid": (
+            SETUP_CONTRACT_STATE_BLOCKED_BY_CONFIG,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_CONFIG_REQUIRED,
+            SETUP_CONTRACT_REASON_CONFIG_INVALID,
+            SETUP_CONTRACT_PROVENANCE_CONFIG,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_BLOCKED,
+            CAPABILITY_GATE_BLOCKED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "provider_profile_missing": (
+            SETUP_CONTRACT_STATE_BLOCKED_BY_CONFIG,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_CONFIG_REQUIRED,
+            SETUP_CONTRACT_REASON_PROFILE_MISSING,
+            SETUP_CONTRACT_PROVENANCE_PROFILE,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_BLOCKED,
+            CAPABILITY_GATE_BLOCKED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "setup_consent_required": (
+            SETUP_CONTRACT_STATE_BLOCKED_BY_SETUP_CONSENT,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_SETUP_CONSENT_REQUIRED,
+            SETUP_CONTRACT_REASON_SETUP_CONSENT_REQUIRED,
+            SETUP_CONTRACT_PROVENANCE_CONSENT,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
+            CAPABILITY_GATE_BLOCKED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "execution_consent_required": (
+            SETUP_CONTRACT_STATE_BLOCKED_BY_EXECUTION_CONSENT,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_EXECUTION_CONSENT_REQUIRED,
+            SETUP_CONTRACT_REASON_EXECUTION_CONSENT_REQUIRED,
+            SETUP_CONTRACT_PROVENANCE_CONSENT,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
+            CAPABILITY_GATE_BLOCKED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "capability_missing": (
+            SETUP_CONTRACT_STATE_BLOCKED_BY_CAPABILITY,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_CAPABILITY_REQUIRED,
+            SETUP_CONTRACT_REASON_CAPABILITY_MISSING,
+            SETUP_CONTRACT_PROVENANCE_CAPABILITY,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
+            CAPABILITY_GATE_BLOCKED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "manifest_missing": (
+            SETUP_CONTRACT_STATE_BLOCKED_BY_MANIFEST,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_MANIFEST_REQUIRED,
+            SETUP_CONTRACT_REASON_MANIFEST_MISSING,
+            SETUP_CONTRACT_PROVENANCE_MANIFEST,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
+            CAPABILITY_GATE_READY_FUTURE_GATED,
+            MANIFEST_GATE_BLOCKED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "safety_blocked": (
+            SETUP_CONTRACT_STATE_BLOCKED_BY_SAFETY,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_SAFETY_EVAL_REQUIRED,
+            SETUP_CONTRACT_REASON_SAFETY_BLOCKED,
+            SETUP_CONTRACT_PROVENANCE_SAFETY,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
+            CAPABILITY_GATE_READY_FUTURE_GATED,
+            MANIFEST_GATE_READY_FUTURE_GATED,
+            SAFETY_EVAL_GATE_BLOCKED,
+        ),
+        "policy_blocked": (
+            SETUP_CONTRACT_STATE_BLOCKED_BY_POLICY,
+            SETUP_CONTRACT_ELIGIBILITY_BLOCKED,
+            SETUP_CONTRACT_BLOCKER_POLICY_BLOCKED,
+            SETUP_CONTRACT_REASON_POLICY_BLOCKED,
+            SETUP_CONTRACT_PROVENANCE_POLICY,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
+            CAPABILITY_GATE_READY_FUTURE_GATED,
+            MANIFEST_GATE_READY_FUTURE_GATED,
+            SAFETY_EVAL_GATE_READY_FUTURE_GATED,
+        ),
+        "setup_approval_missing": (
+            SETUP_CONTRACT_STATE_READY_BUT_NOT_APPROVED,
+            SETUP_CONTRACT_ELIGIBILITY_READY_NOT_APPROVED,
+            SETUP_CONTRACT_BLOCKER_SETUP_APPROVAL_REQUIRED,
+            SETUP_CONTRACT_REASON_SETUP_APPROVAL_MISSING,
+            SETUP_CONTRACT_PROVENANCE_FUTURE_RUNTIME,
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_BLOCKED,
+            PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
+            CAPABILITY_GATE_READY_FUTURE_GATED,
+            MANIFEST_GATE_READY_FUTURE_GATED,
+            SAFETY_EVAL_GATE_READY_FUTURE_GATED,
+        ),
+        "ready_future_setup_branch": (
+            SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+            SETUP_CONTRACT_ELIGIBILITY_FUTURE_SETUP_BRANCH,
+            SETUP_CONTRACT_BLOCKER_FUTURE_SETUP_BRANCH,
+            SETUP_CONTRACT_REASON_READY_FOR_FUTURE_SETUP_BRANCH,
+            SETUP_CONTRACT_PROVENANCE_FUTURE_RUNTIME,
+            SETUP_CONTRACT_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            SETUP_CONTRACT_GATE_FUTURE_GATED,
+            PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
+            CAPABILITY_GATE_READY_FUTURE_GATED,
+            MANIFEST_GATE_READY_FUTURE_GATED,
+            SAFETY_EVAL_GATE_READY_FUTURE_GATED,
+        ),
+    }
+    for label, expectation in setup_contract_expectations.items():
+        contract_payload = setup_contract_payloads[label]
+        (
+            expected_state,
+            expected_eligibility,
+            expected_blocker,
+            expected_reason,
+            expected_provenance,
+            expected_approval,
+            expected_config_state,
+            expected_contract_gate,
+            expected_profile_gate,
+            expected_capability_gate,
+            expected_manifest_gate,
+            expected_safety_gate,
+        ) = expectation
+        _require(
+            contract_payload["stateId"] == FAM007_PROVIDER_SETUP_CONTRACT_READINESS_STATE_ID,
+            f"{label} setup-contract fixture must use setup contract state id",
+            failures,
+        )
+        _require(
+            contract_payload["mode"] == FAM007_PROVIDER_SETUP_CONTRACT_READINESS_MODE,
+            f"{label} setup-contract fixture must use setup contract mode",
+            failures,
+        )
+        _require(
+            contract_payload["providerSetupContractStateSchemaVersion"]
+            == SETUP_CONTRACT_READINESS_STATE_SCHEMA_VERSION
+            and contract_payload["providerSetupContractConfigSchemaVersion"]
+            == SETUP_CONTRACT_READINESS_CONFIG_SCHEMA_VERSION,
+            f"{label} setup-contract fixture must publish setup contract schemas",
+            failures,
+        )
+        _require(
+            contract_payload["providerSetupContractReadinessState"] == expected_state
+            and contract_payload["providerSetupContractEligibilityState"] == expected_eligibility
+            and contract_payload["providerSetupContractBlockerState"] == expected_blocker
+            and contract_payload["providerSetupContractReasonCode"] == expected_reason
+            and contract_payload["providerSetupContractProvenance"] == expected_provenance
+            and contract_payload["providerSetupContractApprovalStatus"] == expected_approval,
+            f"{label} setup-contract fixture must publish expected contract values",
+            failures,
+        )
+        _require(
+            contract_payload["providerSetupContractConfigState"] == expected_config_state
+            and contract_payload["providerSetupContractConfigValid"]
+            == contract_payload["providerPathConfigValid"],
+            f"{label} setup-contract fixture must map provider path config posture",
+            failures,
+        )
+        _require(
+            contract_payload["providerSetupContractGateState"] == expected_contract_gate
+            and contract_payload["providerProfileGateState"] == expected_profile_gate
+            and contract_payload["capabilityGateState"] == expected_capability_gate
+            and contract_payload["manifestGateState"] == expected_manifest_gate
+            and contract_payload["safetyEvalGateState"] == expected_safety_gate
+            and contract_payload["networkGateState"] == NETWORK_GATE_BLOCKED
+            and contract_payload["memoryIndexingGateState"] == MEMORY_INDEXING_GATE_BLOCKED
+            and contract_payload["voiceCoreSyncGateState"] == VOICE_CORE_SYNC_GATE_BLOCKED
+            and contract_payload["versionJumpGateState"] == VERSION_JUMP_GATE_PENDING,
+            f"{label} setup-contract fixture must publish setup contract gate posture",
+            failures,
+        )
+        _require(
+            contract_payload["providerProfileRequiredFields"]
+            == ["provider_id", "provider_kind", "display_name", "source", "metadata_contract_version"]
+            and contract_payload["providerConfigRequiredFields"]
+            == ["config_status", "sdk_requirement", "network_requirement", "setup_approval", "execution_approval"],
+            f"{label} setup-contract fixture must publish profile/config required fields",
+            failures,
+        )
+        _require(
+            contract_payload["futureSetupBranchHandoffState"] == FUTURE_SETUP_BRANCH_HANDOFF_READY
+            and contract_payload["providerSetupContractFoldDownPosture"]
+            == PROVIDER_SETUP_CONTRACT_FOLD_DOWN_READY,
+            f"{label} setup-contract fixture must publish future setup and fold-down handoff posture",
+            failures,
+        )
+        _require(
+            contract_payload["desktopAiOwnedReadinessDisplayState"] == AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED,
+            f"{label} setup-contract fixture must preserve desktop readiness display suppression",
+            failures,
+        )
+        _require(
+            contract_payload["providerVisibleData"] == "none"
+            and contract_payload["sentToProvider"] is False
+            and contract_payload["canAcceptPrompts"] is False,
+            f"{label} setup-contract fixture must keep provider-visible data none and prompts disabled",
+            failures,
+        )
+        _require(
+            contract_payload["providerSetupApprovalStatus"]
+            in {PROVIDER_SETUP_APPROVAL_STATUS_MISSING, PROVIDER_SETUP_APPROVAL_STATUS_FUTURE_GATED}
+            and contract_payload["providerExecutionApprovalStatus"]
+            == PROVIDER_EXECUTION_APPROVAL_STATUS_PROVIDER_PATH_MISSING,
+            f"{label} setup-contract fixture must keep provider setup/execution unapproved",
+            failures,
+        )
+        _require(
+            contract_payload["promptSendPosture"] == PROMPT_SEND_POSTURE_DISABLED
+            and contract_payload["modelExecutionStatus"] == MODEL_EXECUTION_STATUS_DISABLED
+            and contract_payload["providerExecutionGateState"] == PROVIDER_EXECUTION_GATE_DISABLED,
+            f"{label} setup-contract fixture must keep prompt/provider/model execution disabled",
+            failures,
+        )
+        _require(
+            contract_payload["capabilityPackDownloadState"] == CAPABILITY_PACK_DOWNLOADS_BLOCKED
+            and contract_payload["capabilityPackInstallState"] == CAPABILITY_PACK_INSTALL_BLOCKED
+            and contract_payload["memoryIndexingState"] == MEMORY_INDEXING_DISABLED
+            and contract_payload["networkEgressState"] == NETWORK_EGRESS_BLOCKED
+            and contract_payload["voiceRuntimeState"] == "voice-runtime-disabled",
+            f"{label} setup-contract fixture must keep downloads/install, memory, network, and voice gated",
+            failures,
+        )
+
     default_permissions = readiness_payloads["default"]["actionPermissionMatrix"]
     _require(
         len(default_permissions) == 9,
@@ -4220,7 +4811,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "build_provider_setup_consent_flow_readiness_state",
+        "build_provider_setup_contract_readiness_state",
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
@@ -4271,6 +4862,10 @@ def validate() -> list[str]:
         "consent_flow",
         "consent_flow_blocker",
         "consent_collection",
+        "setup_contract",
+        "setup_contract_blocker",
+        "setup_contract_approval",
+        "setup_contract_gate",
         "provider_setup_handoff",
         "provider_consent_handoff",
         "desktop_readiness_display",
@@ -4377,6 +4972,10 @@ def validate() -> list[str]:
             'data-setup-flow-readiness="setup_flow_unavailable"',
             'data-consent-flow-readiness="consent_flow_required_for_setup"',
             'data-consent-collection="consent-collection-pending-user-approval"',
+            'data-setup-contract-readiness="setup_contract_unavailable"',
+            'data-setup-contract-blocker="setup_contract_provider_path_required"',
+            'data-setup-contract-approval="setup-contract-approval-missing"',
+            'data-setup-contract-gate="setup-contract-gate-blocked"',
             'data-provider-setup-handoff="provider-setup-handoff-future-gated"',
             'data-data-classification-posture="data-classification-local-only"',
             'data-audit-envelope="audit-envelope-planned-no-collection"',
@@ -4544,6 +5143,12 @@ def validate() -> list[str]:
             "Provider config: missing; SDK integration: pending USER approval; Network requirement: blocked",
             'id="ai-provider-status-provider-approvals"',
             "Provider setup approval: missing; Provider execution approval: missing",
+            'id="ai-provider-status-setup-contract"',
+            "Setup contract readiness: unavailable",
+            'id="ai-provider-status-setup-contract-blocker"',
+            "Setup contract blocker: provider path readiness required",
+            'id="ai-provider-status-setup-contract-handoff"',
+            "Setup contract handoff: future setup branch gated",
             'id="ai-provider-status-setup-consent"',
             "Setup consent: required before provider setup",
             'id="ai-provider-status-execution-consent"',
@@ -4607,6 +5212,9 @@ def validate() -> list[str]:
         ".ai-provider-status__provider-profile",
         ".ai-provider-status__provider-config-envelope",
         ".ai-provider-status__provider-approvals",
+        ".ai-provider-status__setup-contract",
+        ".ai-provider-status__setup-contract-blocker",
+        ".ai-provider-status__setup-contract-handoff",
         ".ai-provider-status__setup-consent",
         ".ai-provider-status__execution-consent",
         ".ai-provider-status__consent-schema",
@@ -4792,6 +5400,10 @@ def validate() -> list[str]:
         "providerExecutionFutureGatedPosture",
         "providerPathGateState",
         "providerConfigGateState",
+        "providerSetupContractReadinessState",
+        "providerSetupContractBlockerState",
+        "providerSetupContractApprovalStatus",
+        "providerSetupContractGateState",
         "setupConsentGateState",
         "executionConsentGateState",
         "providerVisibleDataGateState",
@@ -4839,6 +5451,9 @@ def validate() -> list[str]:
         "aiProviderStatusProviderProfile",
         "aiProviderStatusProviderConfigEnvelope",
         "aiProviderStatusProviderApprovals",
+        "aiProviderStatusSetupContract",
+        "aiProviderStatusSetupContractBlocker",
+        "aiProviderStatusSetupContractHandoff",
         "aiProviderStatusSetupConsent",
         "aiProviderStatusExecutionConsent",
         "aiProviderStatusConsentSchema",

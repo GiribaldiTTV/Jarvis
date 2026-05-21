@@ -101,6 +101,8 @@ PR watcher mode source-checking is owned by `dev/orin_branch_governance_validati
 
 Repo-wide high-risk source owner marker adoption branch-authority checks remain owned by `dev/orin_branch_governance_validation.py`. Dedicated source-owner marker validation is now owned by `dev/orin_source_owner_marker_validation.py`, which checks marker syntax, marker-to-ledger consistency, limited pilot coverage, inventory-only dispositions, orphan/stale/duplicate marker risks, comment-only placement, and production UI exclusion while preserving the Element Validation Ledger as canonical and treating markers as backlinks only.
 
+FAM-007 setup contract readiness extension: the FAM-007 provider state validator now also owns setup contract readiness state/schema, provider profile/config requirements, setup/execution consent prerequisites, setup approval, execution approval, setup handoff, PR/release fold-down posture, desktop AI-owned readiness display suppression continuity, provider-visible-data none, prompt/model execution disabled, downloads/install blocked, network blocked, memory disabled, and voice/Core gated proof for `feature/fam-007-local-ai-provider-setup-contract-readiness`.
+
 ### Desktop Runtime And Launcher
 
 | Path | Helper Status | Family | Reuse / Consolidation |

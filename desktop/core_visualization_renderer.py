@@ -7,7 +7,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from .ai_provider_state import build_default_provider_readiness_config, build_provider_setup_consent_flow_readiness_state
+from .ai_provider_state import build_default_provider_readiness_config, build_provider_setup_contract_readiness_state
 from .workerw_utils import (
     attach_window_to_desktop,
     make_window_noninteractive,
@@ -34,7 +34,7 @@ class CoreVisualizationWindow(QWidget):
         self._is_shutting_down = False
         self._pending_visual_state = "dormant"
         self._pending_voice_level = None
-        self._ai_provider_state = build_provider_setup_consent_flow_readiness_state(
+        self._ai_provider_state = build_provider_setup_contract_readiness_state(
             build_default_provider_readiness_config(),
             surface_role="core",
         )
@@ -337,6 +337,10 @@ class CoreVisualizationWindow(QWidget):
             f"|consent_flow={payload.get('consentFlowReadinessState', '')}"
             f"|consent_flow_blocker={payload.get('consentFlowBlockerState', '')}"
             f"|consent_collection={payload.get('consentCollectionPosture', '')}"
+            f"|setup_contract={payload.get('providerSetupContractReadinessState', '')}"
+            f"|setup_contract_blocker={payload.get('providerSetupContractBlockerState', '')}"
+            f"|setup_contract_approval={payload.get('providerSetupContractApprovalStatus', '')}"
+            f"|setup_contract_gate={payload.get('providerSetupContractGateState', '')}"
             f"|provider_setup_handoff={payload.get('providerSetupHandoffPosture', '')}"
             f"|provider_consent_handoff={payload.get('providerConsentHandoffPosture', '')}"
             f"|desktop_readiness_display={payload.get('desktopAiOwnedReadinessDisplayState', '')}"
