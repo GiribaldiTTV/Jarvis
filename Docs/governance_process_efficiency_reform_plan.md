@@ -573,6 +573,9 @@ Future implementation target files:
 - `Docs/phase_governance.md`
 - `Docs/governance_efficiency_operating_model.md`
 - `Docs/validation_helper_registry.md`
+- `Docs/nexus_startup_contract.md` (compact owner pointer only; it owns ChatGPT-generated Codex prompt-gate wording and loader/startup continuity)
+- `Docs/codex_user_guide.md` (future USER-facing explanation/examples only)
+- `Docs/orin_task_template.md` (future prompt-template field examples only)
 - `dev/orin_branch_governance_validation.py`
 - `dev/orin_branch_readiness_planning_fixture_validation.py`
 - `dev/orin_governance_efficiency_validation.py`
@@ -781,6 +784,8 @@ User-facing process names:
 
 Codex prompt naming standard:
 - Every prompt should name exact worktree, exact branch, exact phase, exact stage if applicable, exact source-truth owner, allowed mutation surfaces, pending USER decisions, validation commands, stop/report conditions, and exact return packet fields.
+- ChatGPT-generated Codex prompt gates are owned by `Docs/nexus_startup_contract.md`. This plan and Codex prompt naming standards may point to that owner, but must not re-own or restate the Nexus Prompt Gate final scrub rule.
+- Governance docs may define direct repo policy for Codex execution. The startup/loader contract owns generated-prompt wording and ChatGPT/new-chat bootstrap continuity.
 - If a friendly alias is used, include the canonical name next to it on first use.
 - Do not say `current state` without naming whether it means derived live truth, current summary, decision surface, or historical receipt.
 - Do not say `branch plan` without naming the file path when mutation or validation is in scope.
@@ -793,13 +798,31 @@ Validator output naming standard:
 
 Index / README documentation standard:
 - `Docs/Main.md`: glossary pointer, acronym first-use map, source-truth owner map, canonical/friendly phase alias table.
+- `Docs/nexus_startup_contract.md`: ChatGPT/new-chat loader map and Nexus Prompt Gate owner for generated Codex prompts; other docs should use compact pointers instead of copying its prompt-gate wording.
 - `Docs/codex_user_guide.md`: USER-facing explanation and examples.
+- `Docs/orin_task_template.md`: reusable prompt packet skeleton and prompt-field examples; it points to the startup contract for prompt-gate wording rather than owning it.
 - `Docs/phase_governance.md`: canonical lifecycle names and validator-backed markers.
 - `Docs/branch_plans/README.md`: Branch Runtime Engineering Plan, UFD ledger, Branch Vision Snapshot, fold-down fields.
 - `Docs/workstreams/index.md`: package/slice/seam/workstream/dossier naming.
 - `Docs/branch_records/index.md`: branch authority, branch receipt, active/no-active/selected-next naming.
 - `Docs/validation_helper_registry.md`: helper and validator naming standard.
 - `Docs/worktree_slots.md`: slot naming and assignment-vs-authority distinction.
+
+Missed source-truth owner coverage audit:
+
+This table is a compact addendum to the complete Docs manifest in `Docs/governance_docs_full_inventory_reform_audit.md`. It records the owner files most likely to be missed by the UFD/naming implementation path and keeps prompt-gate ownership visible without duplicating prompt-gate policy.
+
+| File path | Expected owner role | Manifest represented | Ownership map represented | Reform package represented | Missing / weak area | Repair posture |
+| --- | --- | --- | --- | --- | --- | --- |
+| `Docs/nexus_startup_contract.md` | ChatGPT/new-chat loader map and Nexus Prompt Gate owner for generated Codex prompts. | Yes | Yes | Weak before this addendum | UFD/naming implementation targets and Codex prompt naming standard did not visibly point to the loader/startup owner. | Repaired with compact target-file, prompt-naming, and documentation-standard pointers; no policy duplication. |
+| `Docs/orin_task_template.md` | Reusable Codex task/prompt packet skeleton and prompt-field examples. | Yes | Yes | Present but paired weakly with startup owner | Template can look like prompt-gate owner if the startup contract pointer is missing. | Repaired with compact pointer that template examples route prompt-gate wording to `Docs/nexus_startup_contract.md`. |
+| `Docs/codex_user_guide.md` | USER-facing Codex workflow guide and examples. | Yes | Yes | Yes | No source-truth miss found. | No repair beyond keeping it in future implementation targets for examples. |
+| `Docs/codex_modes.md` | Codex execution posture and mode behavior. | Yes | Yes | Yes | No source-truth miss found. | No repair; it already points to the startup contract for prompt generation scope. |
+| `Docs/pr_watcher_mode_contract.md` | PR watcher mode contract and watcher approval/default behavior. | Yes | Yes | Yes | No source-truth miss found. | No repair. |
+| `Docs/user_test_summary_guidance.md` | User Test Summary guidance and UTS artifact expectations. | Yes | Yes | Yes | No source-truth miss found. | No repair. |
+| `Docs/governance_intake_triage_and_digest_profiles.md` | Governance intake triage and digest profile standard. | Yes | Yes | Yes | No source-truth miss found. | No repair. |
+| `Docs/orin_vision.md` | Current product/architecture vision reference and future Nexus Vision candidate. | Yes | Yes | Yes | Rename/reframe remains a pending USER decision, not a miss. | Deferred; no rename or broad vision migration in this pass. |
+| `Docs/validation_helper_registry.md` | Helper/validator responsibility registry. | Yes | Yes | Yes | No source-truth miss found. | No repair. |
 
 Staged naming migration plan:
 
