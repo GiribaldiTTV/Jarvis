@@ -10019,6 +10019,9 @@ class DesktopRuntimeWindow(QWidget):
                 "interactive_control_visual_qa_gate": h1_proof.get("interactiveControlVisualQaGate") is True,
                 "interactive_control_first_click_stress": h1_proof.get("interactiveControlFirstClickStress") is True,
                 "interactive_control_no_interception": h1_proof.get("interactiveControlNoInterception") is True,
+                "hud_wide_visual_inspection_matrix": h1_proof.get("hudWideVisualInspectionMatrix") is True,
+                "button_glow_uniformity": h1_proof.get("buttonGlowUniformity") is True,
+                "visual_inspection_scope_covered": h1_proof.get("visualInspectionScopeCovered") is True,
                 "source_picker_checkmark_stress": h1_proof.get("sourcePickerCheckmarkStress") is True,
                 "display_mode_chip_stress": h1_proof.get("displayModeChipStress") is True,
                 "manage_close_hitbox_full_height": h1_proof.get("manageCloseHitboxFullHeight") is True,
@@ -11423,6 +11426,10 @@ class DesktopRuntimeWindow(QWidget):
                         let displayModeChipStress = false;
                         let manageCloseHitboxProof = {};
                         let manageCloseHitboxFullHeight = false;
+                        let visualInspectionMatrixProof = {};
+                        let hudWideVisualInspectionMatrix = false;
+                        let buttonGlowUniformity = false;
+                        let visualInspectionScopeCovered = false;
                         let pollingRateDropdownNexusStyled = false;
                         let pollingRateHitboxProof = {};
                         let pollingRateHitboxToggleOnly = false;
@@ -12102,6 +12109,22 @@ class DesktopRuntimeWindow(QWidget):
                                 interactiveControlReliabilityProof.pollingRateHitboxToggleOnly === true
                                 && pollingRateHitboxProof.passed === true
                             );
+                            visualInspectionMatrixProof = interactiveControlReliabilityProof.visualInspectionMatrixProof || {};
+                            hudWideVisualInspectionMatrix = Boolean(
+                                interactiveControlReliabilityProof.hudWideVisualInspectionMatrix === true
+                                && visualInspectionMatrixProof.passed === true
+                                && Number(visualInspectionMatrixProof.targetCount || 0) >= 24
+                                && Number(visualInspectionMatrixProof.surfaceCount || 0) >= 3
+                            );
+                            buttonGlowUniformity = Boolean(
+                                visualInspectionMatrixProof.buttonGlowUniformity === true
+                                && Array.isArray(visualInspectionMatrixProof.failures)
+                                && visualInspectionMatrixProof.failures.every((failure) => String(failure).indexOf("hover-glow-missing") < 0)
+                            );
+                            visualInspectionScopeCovered = Boolean(
+                                String(visualInspectionMatrixProof.scope || "").indexOf("buttons-dropdowns-rows-chips-fields") >= 0
+                                && String(visualInspectionMatrixProof.scope || "").indexOf("page-breaks-backgrounds-bleed-clipping-scaling") >= 0
+                            );
                             interactiveControlNoInterception = Boolean(
                                 interactiveControlReliabilityProof
                                 && interactiveControlReliabilityProof.stateCount >= 10
@@ -12150,6 +12173,9 @@ class DesktopRuntimeWindow(QWidget):
                                 && sourcePickerCheckmarkStress
                                 && displayModeChipStress
                                 && manageCloseHitboxFullHeight
+                                && hudWideVisualInspectionMatrix
+                                && buttonGlowUniformity
+                                && visualInspectionScopeCovered
                                 && interactiveControlNoInterception
                                 && pollingRateDropdownNexusStyled
                                 && pollingRateHitboxToggleOnly
@@ -12227,6 +12253,10 @@ class DesktopRuntimeWindow(QWidget):
                                     displayModeChipStress,
                                     manageCloseHitboxProof,
                                     manageCloseHitboxFullHeight,
+                                    visualInspectionMatrixProof,
+                                    hudWideVisualInspectionMatrix,
+                                    buttonGlowUniformity,
+                                    visualInspectionScopeCovered,
                                     pollingRateDropdownNexusStyled,
                                     pollingRateHitboxProof,
                                     pollingRateHitboxToggleOnly,
@@ -12328,6 +12358,10 @@ class DesktopRuntimeWindow(QWidget):
                             displayModeChipStress,
                             manageCloseHitboxProof,
                             manageCloseHitboxFullHeight,
+                            visualInspectionMatrixProof,
+                            hudWideVisualInspectionMatrix,
+                            buttonGlowUniformity,
+                            visualInspectionScopeCovered,
                             pollingRateDropdownNexusStyled,
                             pollingRateHitboxProof,
                             pollingRateHitboxToggleOnly,

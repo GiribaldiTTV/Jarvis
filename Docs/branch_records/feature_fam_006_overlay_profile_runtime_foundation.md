@@ -19,8 +19,8 @@ The branch exists to admit the Overlay Profile runtime foundation as the next FA
 
 ## Current Phase
 
-- Phase: `Live Validation`
-- Stage Detail: `Refreshed LV1 technical proof and Codex Visual Adjudication are PASS after bounded visual-proof reviewability repair. Formal UTS handoff is refreshed and USER_TEST_REQUIRED remains pending returned USER PASS or waiver with reason before PR Readiness.`
+- Phase: `Workstream`
+- Stage Detail: `Returned USER review identified HUD-wide button glow inconsistency and a Live Validation visual-inspection governance gap. Bounded Workstream repair adds HUD-wide affordance glow uniformity plus a per-element visual inspection matrix covering buttons, dropdowns, rows, chips, fields, page breaks, background glow/graphics, bleed-through, clipping, and scaling. Hardening H1 is the next legal phase after validation-green repair commit.`
 
 ## Phase Status
 
@@ -45,6 +45,24 @@ Branch Runtime Engineering Plan: `Accepted - detailed setup/runtime planning is 
 Engineering Plan Status: `Refreshed LV1 technical proof is PASS and Codex Visual Adjudication is PASS after an in-run bounded proof repair. The first refreshed LV1 rerun after H1 caught a non-reviewable Overlay Profile delete-confirmation proof and failed the new gate at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_151541_063\monitoring_hud_live_client_interaction_manifest.json. The bounded repair added reviewability gates for Overlay Profile detail actions and delete confirmation, compacted the detail-open manager layout, and raised the Overlay Profile settings child-window vertical budget so delete confirmation is visible in focused proof. Final real shortcut human-client proof is PASS at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_150318_801\human_client_manifest.json. Final active-client LV1 proof is PASS at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_151710_034\monitoring_hud_live_client_interaction_manifest.json. Formal UTS is refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt. USER_TEST_REQUIRED remains pending returned USER PASS or waiver with reason before PR Readiness.`
 SLC-041 Workstream Implementation: `SLC-041 validation/live-proof Workstream implementation Green - focused WebView proof is acceptance evidence, full desktop screenshots are context only, formal UTS export remains Live Validation Stage 1 only, and proof-chain readiness now spans SLC-037 state, SLC-038 selector/settings controls, SLC-039 membership mapping, compact returned-UTS Manage Monitors context, and returned-UTS selector-first/search-filter repair proof.`
 PR Fold-Down Packet: `Blocked until returned USER UTS PASS or explicit waiver with reason is recorded. Refreshed LV1 technical proof and Codex Visual Adjudication are PASS, but PR Readiness, PR creation, merge, and release-scope translation remain pending USER decisions.`
+
+## Returned USER Visual Inspection Matrix Repair - 2026-05-21
+
+Returned USER UTS Classification: `REPAIR`
+
+Repair Trigger: `USER identified non-uniform HUD button glow and a validation miss where Hardening / Live Validation did not individually inspect every acceptance-critical visual surface. The miss includes clickable controls plus page breaks, background glow/graphics, bleed-through, clipping, scaling, and related visual affordance details.`
+
+Button Glow Uniformity Contract: `All current FAM-006 HUD clickable controls and button-like rows/options/chips must share the same Nexus hover/pressed/focus glow family unless the control is disabled or intentionally danger/safe-cancel styled. Danger actions use the red danger glow; safe Cancel actions use the safe-cancel glow; disabled controls must remain visually disabled and non-interactive.`
+
+Visual Inspection Matrix Contract: `H1 and LV1 proof must inspect the HUD element classes individually: dashboard actions, child-window close controls, primary/secondary/danger actions, Save/Discard disabled and dirty states, dropdown toggles/options/open states, selectable monitor/source/profile rows, mode chips, search/text fields, source settings buttons, Assigned Overlay status row, delete confirmations, page breaks/divider haze, background glow/graphics, bleed-through/clipping, and responsive scaling. Helper PASS or screenshot existence cannot substitute for this matrix.`
+
+Validator Repair Scope: `nexus_visual/monitoring_hud.css now exposes shared affordance-glow variables; nexus_visual/monitoring_hud.js exposes runMonitoringHudVisualInspectionMatrixProof with buttonGlowUniformity, pageBreakVisualInspection, backgroundBleedClippingInspection, and scope=buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling; desktop/desktop_renderer.py requires hudWideVisualInspectionMatrix, buttonGlowUniformity, and visualInspectionScopeCovered inside interactiveControlVisualQaGate; HUD surface/internal sandbox validators source-check the contract.`
+
+PR Readiness Status: `Blocked until this repair completes Hardening H1 and refreshed LV1 / UTS returns PASS or USER waiver with reason.`
+
+Workstream Repair Proof: `Green - active-client live self-QA passed the HUD-wide visual inspection matrix at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_160228_031\monitoring_hud_live_client_interaction_manifest.json with hudWideVisualInspectionMatrix=true, buttonGlowUniformity=true, targetCount=36, surfaceCount=3, and scope=buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling.`
+
+Recommended Phase After Workstream Green: `Hardening H1 for HUD-wide button glow uniformity and visual inspection matrix repair, pending USER phase admission.`
 
 ## Branch Class
 
@@ -136,15 +154,15 @@ Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Inactive - refreshed LV1 technical proof and Codex Visual Adjudication are PASS; returned USER PASS or waiver with reason is required before PR Readiness or later runtime seams.`
+Continuation Execution Latch: `Active - returned USER UTS REPAIR is admitted as bounded Workstream repair; stop at Workstream Green and do not enter Hardening H1 until USER admits the next phase.`
 
 Stop Basis: `Workstream Green`
 
-Next Active Seam: `Returned USER UTS review/digest for the refreshed LV1 handoff`
+Next Active Seam: `Hardening H1 - HUD-wide button glow uniformity and visual inspection matrix repair`
 
-Stop Condition: `Refreshed LV1 technical proof and formal UTS refresh are complete; stop for returned USER UTS results before PR Readiness.`
+Stop Condition: `Bounded Workstream repair validation green; stop at the Workstream-to-Hardening phase boundary unless USER admits H1.`
 
-Continuation Action: `Digest returned USER UTS results when available; do not run PR Readiness or later runtime seams until returned USER PASS or waiver with reason is recorded.`
+Continuation Action: `Report Workstream Green and stop at phase boundary; do not run PR Readiness, H1, LV1, or later runtime seams until USER admits the next phase.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -652,21 +670,21 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 
 ## Next Legal Phase
 
-Next Legal Phase: `Live Validation`
+Next Legal Phase: `Workstream`
 
-Next Legal Phase Detail: `Returned USER UTS review/digest for the refreshed LV1 handoff; PR Readiness may resume only after returned USER PASS or waiver with reason is complete`
+Next Legal Phase Detail: `Current phase remains Workstream until this bounded HUD-wide button glow / visual inspection matrix repair is committed and the USER admits Hardening H1.`
 
 ## Next Legal Phase Digest
 
-Current Phase: `Live Validation`
+Current Phase: `Workstream`
 
-Stage Detail: `Refreshed LV1 technical proof and Codex Visual Adjudication are PASS; returned USER UTS results are USER_TEST_REQUIRED before PR Readiness`
+Stage Detail: `Returned USER UTS review is REPAIR for HUD-wide button glow uniformity and insufficient per-element visual inspection coverage.`
 
-Next Legal Phase: `Live Validation`
+Next Legal Phase: `Workstream`
 
-Next Legal Phase Detail: `Returned USER UTS review/digest for the refreshed LV1 handoff after PASS proof for Overlay Profile manager readability/flow, distinct focused proof states, high-volume selector stress proof, row-only Manage Monitors Assigned Overlay affordance proof, Dashboard action parity proof quality, and strengthened LV1 visual-governance enforcement`
+Next Legal Phase Detail: `Current phase remains Workstream for the returned USER HUD-wide button glow / visual inspection matrix repair; Hardening H1 is the recommended next phase after Workstream Green and USER phase admission.`
 
-Why This Phase Is Next: `The bounded repair, H1, refreshed LV1 proof, and Codex Visual Adjudication are Green/PASS, including high-volume Overlay Profile selector stress proof and delete-confirmation reviewability proof. Returned USER UTS results must now be digested before PR Readiness can resume.`
+Why This Phase Is Next: `Returned USER review found remaining visual affordance and validation-coverage defects. This Workstream repair must land before H1, refreshed LV1, PR Readiness, or later runtime seams can resume.`
 
 Approval Required: `USER returned UTS results or waiver with reason are required next. Later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams.`
 

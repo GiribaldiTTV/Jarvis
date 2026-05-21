@@ -128,6 +128,8 @@ FAM-007 consent collection foundation extension: `feature/fam-007-local-ai-provi
 
 FAM-006 LV1 Reviewability Addendum: `dev/orin_monitoring_hud_surface_validation.py`, `dev/orin_monitoring_hud_internal_sandbox_validation.py`, and `dev/orin_monitoring_hud_live_validation.ps1` now also own Overlay Profile detail-actions and delete-confirmation reviewability proof gates. A focused proof cannot pass solely because confirmation DOM is open; the action footer and confirmation block must be visible inside the Overlay Profile settings window. After the final refreshed LV1 PASS, the remaining package-complete gap is returned USER UTS acceptance or waiver digestion, followed by PR Readiness and final package closeout.`
 
+FAM-006 HUD-Wide Visual Inspection Matrix Addendum: `dev/orin_monitoring_hud_surface_validation.py`, `dev/orin_monitoring_hud_internal_sandbox_validation.py`, `desktop/desktop_renderer.py`, and `nexus_visual/monitoring_hud.js` now own the returned USER visual-inspection repair gate. H1 and LV1 proof must prove `runMonitoringHudVisualInspectionMatrixProof`, `hudWideVisualInspectionMatrix`, `buttonGlowUniformity`, `visualInspectionScopeCovered`, `pageBreakVisualInspection`, `backgroundBleedClippingInspection`, and `scope=buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling` before a Codex Visual Adjudication PASS. The matrix must inspect current HUD buttons, dropdown toggles/options, rows, chips, fields, page breaks, background glow/graphics, bleed-through, clipping, and scaling; helper PASS, marker PASS, screenshot existence, and DOM presence alone cannot clear visual acceptability.`
+
 ### Shared Action, Interaction, And Saved Actions
 
 | Path | Helper Status | Family | Reuse / Consolidation |

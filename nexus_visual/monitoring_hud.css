@@ -18,6 +18,27 @@ body {
   --monitoring-hud-divider-highlight: rgba(232, 250, 255, 0.12);
   --monitoring-hud-divider-shadow: rgba(20, 49, 63, 0.72);
   --monitoring-hud-divider-glow: linear-gradient(180deg, rgba(117, 228, 255, 0.06), transparent 58%);
+  --monitoring-hud-affordance-hover-shadow:
+    0 0 0 1px rgba(233, 255, 251, 0.08) inset,
+    0 0 18px rgba(86, 236, 255, 0.18),
+    0 0 10px rgba(103, 255, 210, 0.12);
+  --monitoring-hud-affordance-active-shadow:
+    0 0 0 1px rgba(233, 255, 251, 0.10) inset,
+    0 0 10px rgba(103, 255, 210, 0.16);
+  --monitoring-hud-affordance-focus-shadow:
+    0 0 0 1px rgba(233, 255, 251, 0.10) inset,
+    0 0 0 4px rgba(90, 255, 214, 0.14),
+    0 0 18px rgba(86, 236, 255, 0.16);
+  --monitoring-hud-affordance-selected-shadow:
+    0 0 0 1px rgba(229, 255, 251, 0.08) inset,
+    0 0 16px rgba(80, 230, 255, 0.10);
+  --monitoring-hud-affordance-danger-shadow:
+    0 0 0 1px rgba(255, 232, 232, 0.10) inset,
+    0 0 20px rgba(255, 112, 112, 0.18);
+  --monitoring-hud-affordance-safe-shadow:
+    0 0 0 1px rgba(239, 255, 252, 0.15) inset,
+    0 0 28px rgba(87, 236, 214, 0.36),
+    0 10px 22px rgba(0, 0, 0, 0.26);
 }
 
 #monitoring-hud {
@@ -408,17 +429,29 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud [role="button"]:not([aria-disabled="true"]).is-hovered,
 .monitoring-hud input[type="checkbox"]:not(:disabled):hover,
 .monitoring-hud input[type="search"]:not(:disabled):hover,
+.monitoring-hud input[type="search"]:not(:disabled).is-hovered,
 .monitoring-hud input[type="text"]:not(:disabled):hover,
+.monitoring-hud input[type="text"]:not(:disabled).is-hovered,
 .monitoring-hud select:not(:disabled):hover {
   border-color: rgba(126, 248, 218, 0.56);
   background:
     radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.20), transparent 58%),
     linear-gradient(145deg, rgba(12, 67, 84, 0.92), rgba(4, 30, 49, 0.88));
   color: rgba(241, 255, 252, 0.99);
-  box-shadow:
-    0 0 0 1px rgba(233, 255, 251, 0.08) inset,
-    0 0 18px rgba(86, 236, 255, 0.18),
-    0 0 10px rgba(103, 255, 210, 0.12);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
+}
+
+.monitoring-hud__control-button:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud__hub-action:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud__source-filter-toggle:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud__bounded-dropdown-toggle:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud__mode-chip:not(:disabled):not([aria-disabled="true"]).is-hovered {
+  border-color: rgba(126, 248, 218, 0.56);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.20), transparent 58%),
+    linear-gradient(145deg, rgba(12, 67, 84, 0.92), rgba(4, 30, 49, 0.88));
+  color: rgba(241, 255, 252, 0.99);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
 
 .monitoring-hud button:not(:disabled):not([aria-disabled="true"]):active,
@@ -430,9 +463,7 @@ body.desktop-mode #monitoring-hud > * {
   background:
     radial-gradient(circle at 50% 100%, rgba(126, 248, 218, 0.22), transparent 60%),
     linear-gradient(145deg, rgba(8, 54, 64, 0.98), rgba(3, 20, 36, 0.94));
-  box-shadow:
-    0 0 0 1px rgba(233, 255, 251, 0.10) inset,
-    0 0 10px rgba(103, 255, 210, 0.16);
+  box-shadow: var(--monitoring-hud-affordance-active-shadow);
 }
 
 .monitoring-hud button:focus-visible,
@@ -441,10 +472,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud select:focus-visible {
   outline: 2px solid rgba(126, 248, 218, 0.78);
   outline-offset: 2px;
-  box-shadow:
-    0 0 0 1px rgba(233, 255, 251, 0.10) inset,
-    0 0 0 4px rgba(90, 255, 214, 0.14),
-    0 0 18px rgba(86, 236, 255, 0.16);
+  box-shadow: var(--monitoring-hud-affordance-focus-shadow);
 }
 
 .monitoring-hud button:disabled,
@@ -650,24 +678,26 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__hub-action--danger[data-control-state="discardable"]:hover,
 .monitoring-hud__hub-action--danger[data-control-state="discardable"]:focus-visible,
+.monitoring-hud__hub-action--danger[data-control-state="discardable"].is-hovered,
 .monitoring-hud__hub-action--danger[data-control-state="discardable"].is-pressed,
 .monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"]:hover,
 .monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"]:focus-visible,
+.monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"].is-hovered,
 .monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"].is-pressed,
 .monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"]:hover,
 .monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"]:focus-visible,
+.monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"].is-hovered,
 .monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"].is-pressed,
 .monitoring-hud__hub-action[data-control="confirm-delete-monitor"]:hover,
 .monitoring-hud__hub-action[data-control="confirm-delete-monitor"]:focus-visible,
+.monitoring-hud__hub-action[data-control="confirm-delete-monitor"].is-hovered,
 .monitoring-hud__hub-action[data-control="confirm-delete-monitor"].is-pressed {
   border-color: rgba(255, 170, 170, 0.74);
   background:
     radial-gradient(circle at 50% 0%, rgba(255, 132, 132, 0.24), transparent 60%),
     linear-gradient(145deg, rgba(122, 31, 42, 0.94), rgba(53, 18, 28, 0.88));
   color: rgba(255, 244, 244, 1);
-  box-shadow:
-    0 0 0 1px rgba(255, 232, 232, 0.10) inset,
-    0 0 20px rgba(255, 112, 112, 0.18);
+  box-shadow: var(--monitoring-hud-affordance-danger-shadow);
 }
 
 .monitoring-hud__hub-action--safe-cancel,
@@ -685,19 +715,18 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__hub-action--safe-cancel:hover,
 .monitoring-hud__hub-action--safe-cancel:focus-visible,
+.monitoring-hud__hub-action--safe-cancel.is-hovered,
 .monitoring-hud__hub-action--safe-cancel.is-pressed,
 .monitoring-hud__hub-action[data-control="cancel-delete-monitor"]:hover,
 .monitoring-hud__hub-action[data-control="cancel-delete-monitor"]:focus-visible,
+.monitoring-hud__hub-action[data-control="cancel-delete-monitor"].is-hovered,
 .monitoring-hud__hub-action[data-control="cancel-delete-monitor"].is-pressed {
   border-color: rgba(165, 255, 234, 0.86);
   background:
     radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.30), transparent 60%),
     linear-gradient(145deg, rgba(12, 94, 92, 0.98), rgba(5, 45, 62, 0.94));
   color: rgba(246, 255, 253, 1);
-  box-shadow:
-    0 0 0 1px rgba(239, 255, 252, 0.15) inset,
-    0 0 28px rgba(87, 236, 214, 0.36),
-    0 10px 22px rgba(0, 0, 0, 0.26);
+  box-shadow: var(--monitoring-hud-affordance-safe-shadow);
 }
 
 .monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"] {
@@ -713,6 +742,7 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"]:hover,
 .monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"]:focus-visible,
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"].is-hovered,
 .monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"].is-pressed {
   border-color: rgba(150, 242, 255, 0.72);
   background:
@@ -1143,6 +1173,7 @@ body.desktop-mode #monitoring-hud > * {
   background:
     linear-gradient(145deg, rgba(7, 42, 62, 0.70), rgba(3, 18, 32, 0.66)),
     rgba(6, 28, 48, 0.58);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
 
 .monitoring-hud__overlay-profile-membership-row[aria-selected="true"] {
@@ -1150,9 +1181,7 @@ body.desktop-mode #monitoring-hud > * {
   background:
     radial-gradient(circle at 0% 0%, rgba(126, 248, 218, 0.18), transparent 52%),
     linear-gradient(145deg, rgba(7, 48, 62, 0.76), rgba(4, 26, 44, 0.72));
-  box-shadow:
-    0 0 0 1px rgba(229, 255, 251, 0.08) inset,
-    0 0 16px rgba(80, 230, 255, 0.10);
+  box-shadow: var(--monitoring-hud-affordance-selected-shadow);
 }
 
 .monitoring-hud__overlay-profile-membership-row--context {
@@ -1248,9 +1277,7 @@ body.desktop-mode #monitoring-hud > * {
   background:
     radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.12), transparent 58%),
     linear-gradient(145deg, rgba(7, 45, 62, 0.76), rgba(3, 20, 34, 0.70));
-  box-shadow:
-    0 0 0 1px rgba(229, 255, 251, 0.07) inset,
-    0 0 16px rgba(80, 230, 255, 0.10);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
 
 .monitoring-hud__overlay-profile-context-heading {
@@ -1729,6 +1756,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__monitor-manage-row:hover {
   border-color: rgba(117, 228, 255, 0.34);
   background: rgba(10, 44, 67, 0.68);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
 
 .monitoring-hud__monitor-manage-row:active,
@@ -1738,6 +1766,7 @@ body.desktop-mode #monitoring-hud > * {
   background:
     linear-gradient(145deg, rgba(7, 57, 63, 0.82), rgba(5, 30, 48, 0.76)),
     rgba(6, 28, 48, 0.54);
+  box-shadow: var(--monitoring-hud-affordance-active-shadow);
 }
 
 .monitoring-hud__monitor-manage-row[aria-current="true"] {
@@ -1745,6 +1774,7 @@ body.desktop-mode #monitoring-hud > * {
   background:
     linear-gradient(145deg, rgba(7, 57, 63, 0.72), rgba(5, 30, 48, 0.68)),
     rgba(6, 28, 48, 0.54);
+  box-shadow: var(--monitoring-hud-affordance-selected-shadow);
 }
 
 .monitoring-hud__monitor-manage-row strong,
@@ -2076,6 +2106,7 @@ body.desktop-mode #monitoring-hud > * {
   border-color: rgba(126, 248, 218, 0.42);
   background: rgba(10, 57, 66, 0.86);
   color: rgba(238, 255, 249, 0.98);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
 
 .monitoring-hud__source-filter-option[aria-selected="true"],
@@ -2083,6 +2114,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__mode-chip[aria-pressed="true"] {
   border-color: rgba(126, 248, 218, 0.46);
   background: linear-gradient(145deg, rgba(7, 57, 63, 0.88), rgba(5, 30, 48, 0.82));
+  box-shadow: var(--monitoring-hud-affordance-selected-shadow);
 }
 
 .monitoring-hud__source-filter-dropdown[data-filter-open="true"] .monitoring-hud__source-filter-toggle,
@@ -2092,8 +2124,7 @@ body.desktop-mode #monitoring-hud > * {
     radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.20), transparent 58%),
     linear-gradient(145deg, rgba(12, 67, 84, 0.92), rgba(4, 30, 49, 0.88));
   box-shadow:
-    0 0 0 1px rgba(233, 255, 251, 0.08) inset,
-    0 0 18px rgba(86, 236, 255, 0.18);
+    var(--monitoring-hud-affordance-hover-shadow);
 }
 
 .monitoring-hud__bounded-dropdown[data-control-disabled="true"] {
@@ -2154,17 +2185,20 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__sensor-option:hover,
+.monitoring-hud__sensor-option.is-hovered,
 .monitoring-hud__sensor-option.is-pressed {
   border-color: rgba(126, 248, 218, 0.32);
   background:
     linear-gradient(145deg, rgba(7, 42, 62, 0.70), rgba(3, 18, 32, 0.66)),
     rgba(6, 28, 48, 0.58);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
 
 .monitoring-hud__sensor-option:focus-visible,
 .monitoring-hud__sensor-option:focus-within {
   outline: 2px solid rgba(126, 248, 218, 0.54);
   outline-offset: 2px;
+  box-shadow: var(--monitoring-hud-affordance-focus-shadow);
 }
 
 .monitoring-hud__sensor-option[aria-selected="true"] {
@@ -2172,9 +2206,7 @@ body.desktop-mode #monitoring-hud > * {
   background:
     radial-gradient(circle at 0% 0%, rgba(126, 248, 218, 0.18), transparent 52%),
     linear-gradient(145deg, rgba(7, 48, 62, 0.76), rgba(4, 26, 44, 0.72));
-  box-shadow:
-    0 0 0 1px rgba(229, 255, 251, 0.08) inset,
-    0 0 16px rgba(80, 230, 255, 0.10);
+  box-shadow: var(--monitoring-hud-affordance-selected-shadow);
 }
 
 .monitoring-hud__sensor-option input {
@@ -2239,7 +2271,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__source-settings-button.is-pressed {
   border-color: rgba(126, 248, 218, 0.46);
   background: linear-gradient(145deg, rgba(7, 57, 63, 0.86), rgba(5, 30, 48, 0.80));
-  box-shadow: 0 0 14px rgba(80, 230, 255, 0.12);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
 
 .monitoring-hud__source-settings-button:disabled,

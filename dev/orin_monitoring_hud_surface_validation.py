@@ -207,6 +207,66 @@ def validate() -> list[str]:
             "SLC-041 Overlay Profile branch plan",
             failures,
         )
+    for needle in (
+        "Returned USER Visual Inspection Matrix Repair",
+        "Button Glow Uniformity Contract",
+        "Visual Inspection Matrix Contract",
+        "HUD-Wide Visual Inspection Matrix Checklist",
+        "HUD-wide button glow uniformity and visual inspection matrix repair",
+    ):
+        _require_contains(
+            overlay_profile_record + "\n" + overlay_profile_plan,
+            needle,
+            "FAM-006 HUD-wide visual inspection repair source truth",
+            failures,
+        )
+    for needle in (
+        "FAM-006 HUD-Wide Visual Inspection Matrix Addendum",
+        "runMonitoringHudVisualInspectionMatrixProof",
+        "hudWideVisualInspectionMatrix",
+        "buttonGlowUniformity",
+        "visualInspectionScopeCovered",
+        "pageBreakVisualInspection",
+        "backgroundBleedClippingInspection",
+        "buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling",
+    ):
+        _require_contains(helper_registry, needle, "FAM-006 HUD visual inspection helper registry", failures)
+    for needle in (
+        "--monitoring-hud-affordance-hover-shadow",
+        "--monitoring-hud-affordance-active-shadow",
+        "--monitoring-hud-affordance-focus-shadow",
+        "--monitoring-hud-affordance-danger-shadow",
+        "--monitoring-hud-affordance-safe-shadow",
+        ".monitoring-hud__source-filter-option.is-hovered",
+        ".monitoring-hud__bounded-dropdown-option.is-hovered",
+        ".monitoring-hud__bounded-dropdown-toggle:not(:disabled):not([aria-disabled=\"true\"]).is-hovered",
+        ".monitoring-hud__hub-action:not(:disabled):not([aria-disabled=\"true\"]).is-hovered",
+        ".monitoring-hud__sensor-option.is-hovered",
+        ".monitoring-hud__sensor-option.is-pressed",
+        ".monitoring-hud__monitor-manage-row:hover",
+        "box-shadow: var(--monitoring-hud-affordance-hover-shadow)",
+    ):
+        _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
+    for needle in (
+        "window.runMonitoringHudVisualInspectionMatrixProof",
+        "monitoringHudVisualInspectionStyleSnapshot",
+        "buttonGlowUniformity",
+        "pageBreakVisualInspection",
+        "backgroundBleedClippingInspection",
+        'element.style.transition = "none"',
+        'monitoringHudOpenChildWindow("monitor-group-edit");\n    monitoringHudRenderMonitorManagement();\n    inspectTarget("assigned-overlay-status"',
+        "buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling",
+        "hudWideVisualInspectionMatrix",
+    ):
+        _require_contains(js, needle, "FAM-006 HUD-wide visual inspection proof JS", failures)
+    for needle in (
+        "hudWideVisualInspectionMatrix",
+        "buttonGlowUniformity",
+        "visualInspectionScopeCovered",
+        "targetCount || 0) >= 24",
+        "surfaceCount || 0) >= 3",
+    ):
+        _require_contains(renderer, needle, "FAM-006 HUD-wide visual inspection renderer gate", failures)
 
     for label, text in (
         ("ORIN Core HTML", core_html),
