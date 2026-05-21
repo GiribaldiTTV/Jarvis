@@ -340,7 +340,10 @@
           class="monitoring-hud__child-window monitoring-hud__child-window--overlay-profile"
           id="monitoring-hud-overlay-profile-window"
           data-child-window="overlay-profile-settings"
-          data-overlay-profile-window="create-rename-membership-settings-shell"
+          data-overlay-profile-window="selector-first-create-first-membership-settings-shell"
+          data-overlay-profile-workflow="selector-first-create-first-returned-uts-repair"
+          data-overlay-profile-volume-policy="max-five-visible-monitors-inner-scroll"
+          data-overlay-profile-outer-scroll-policy="no-normal-window-scrollbar"
           role="dialog"
           aria-modal="true"
           aria-labelledby="monitoring-hud-overlay-profile-window-title"
@@ -349,20 +352,20 @@
           <header class="monitoring-hud__child-window-header">
             <div>
               <span>Overlay Profiles</span>
-              <strong id="monitoring-hud-overlay-profile-window-title">Profile Settings</strong>
+              <strong id="monitoring-hud-overlay-profile-window-title">Select Or Create</strong>
             </div>
             <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="overlay-profile-settings" aria-label="Close Overlay Profile Settings">Close</button>
           </header>
-          <div class="monitoring-hud__settings-grid" aria-label="Overlay Profile settings status">
-            <div class="monitoring-hud__setting-row">
-              <span>Active Profile</span>
+          <div class="monitoring-hud__overlay-profile-choice-panel" aria-label="Overlay Profile selection workflow">
+            <div class="monitoring-hud__state-row">
+              <span>Load Profile</span>
               <strong id="monitoring-hud-overlay-profile-window-active-name">Default Overlay Profile</strong>
             </div>
-            <div class="monitoring-hud__setting-row">
+            <div class="monitoring-hud__state-row">
               <span>Profiles</span>
               <strong id="monitoring-hud-overlay-profile-window-count">1 available</strong>
             </div>
-            <div class="monitoring-hud__setting-row">
+            <div class="monitoring-hud__state-row">
               <span>Membership</span>
               <strong id="monitoring-hud-overlay-profile-window-membership">2 monitors mapped</strong>
             </div>
@@ -374,21 +377,39 @@
           <div class="monitoring-hud__overlay-profile-membership" aria-label="Overlay Profile monitor membership">
             <div class="monitoring-hud__overlay-profile-membership-heading">
               <span>Visible monitors</span>
-              <strong>Profile membership</strong>
+              <strong id="monitoring-hud-overlay-profile-monitor-results">Profile membership</strong>
+            </div>
+            <div class="monitoring-hud__overlay-profile-membership-tools" data-overlay-profile-membership-tools="search-filter">
+              <label class="monitoring-hud__search-field monitoring-hud__search-field--compact monitoring-hud__overlay-profile-search">
+                <span>Search</span>
+                <input id="monitoring-hud-overlay-profile-monitor-search" type="search" placeholder="Find monitor" autocomplete="off" />
+              </label>
+              <label class="monitoring-hud__child-field monitoring-hud__overlay-profile-filter-field">
+                Filter
+                <select id="monitoring-hud-overlay-profile-monitor-filter" data-overlay-profile-monitor-filter="all">
+                  <option value="all">All monitors</option>
+                  <option value="visible">Visible only</option>
+                  <option value="hidden">Hidden only</option>
+                </select>
+              </label>
             </div>
             <div
               class="monitoring-hud__overlay-profile-membership-list monitoring-hud__nexus-scroll-pane"
               id="monitoring-hud-overlay-profile-membership-list"
               data-overlay-profile-membership-list="editable-monitor-membership"
+              data-overlay-profile-visible-monitor-target="max-five"
+              data-scrollbar-style="ndai-native"
               role="group"
               aria-label="Select monitors visible in this Overlay Profile"
             ></div>
           </div>
-          <p class="monitoring-hud__child-note">Creates, renames, and maps Overlay Profiles to existing Monitor Groups. Monitor Group organization and Recording Profiles remain separate.</p>
-          <div class="monitoring-hud__child-actions monitoring-hud__overlay-profile-window-actions" data-overlay-profile-actions="window-create-save-discard">
-            <button type="button" id="monitoring-hud-overlay-profile-create" class="monitoring-hud__hub-action" data-control="overlay-profile-create">Create Overlay</button>
-            <button type="button" id="monitoring-hud-overlay-profile-save" class="monitoring-hud__hub-action" data-control="overlay-profile-save" data-control-state="clean-disabled" aria-disabled="true" disabled>Save Profile</button>
-            <button type="button" id="monitoring-hud-overlay-profile-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="overlay-profile-discard" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
+          <p class="monitoring-hud__child-note">Select an existing profile or create a new one first. Visible monitor membership is scroll-contained here; Monitor Groups and Recording Profiles remain separate.</p>
+          <div class="monitoring-hud__child-actions monitoring-hud__overlay-profile-window-actions" data-overlay-profile-actions="create-save-left-discard-right">
+            <div class="monitoring-hud__overlay-profile-window-actions-left">
+              <button type="button" id="monitoring-hud-overlay-profile-create" class="monitoring-hud__hub-action" data-control="overlay-profile-create">Create Overlay</button>
+              <button type="button" id="monitoring-hud-overlay-profile-save" class="monitoring-hud__hub-action" data-control="overlay-profile-save" data-control-state="clean-disabled" aria-disabled="true" disabled>Save Profile</button>
+            </div>
+            <button type="button" id="monitoring-hud-overlay-profile-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-discard" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
           </div>
         </div>
         <div
@@ -482,53 +503,29 @@
                   <input id="monitoring-hud-edit-monitor-name" type="text" value="CPU Group" autocomplete="off" />
                 </label>
                 <label class="monitoring-hud__child-check">
-                  <input id="monitoring-hud-monitor-enabled" type="checkbox" checked />
-                  Enabled for future Overlay display
-                </label>
-                <label class="monitoring-hud__child-check">
                   <input id="monitoring-hud-monitor-warning-notifications-setting" type="checkbox" data-monitor-setting="warning-notifications" checked />
                   Warning Notifications
                 </label>
-                <div class="monitoring-hud__readiness-panel" id="monitoring-hud-provider-readiness-panel" data-readiness-panel="provider-readiness-status">
-                  <strong>Provider Readiness</strong>
-                  <span>Readiness/status and future capability only; not an assignable sensor.</span>
-                </div>
+                <label class="monitoring-hud__child-check">
+                  <input id="monitoring-hud-monitor-enabled" type="checkbox" checked />
+                  Enabled for Overlay
+                </label>
                 <div
-                  class="monitoring-hud__monitor-overlay-profile-context"
+                  class="monitoring-hud__monitor-overlay-profile-context monitoring-hud__monitor-overlay-profile-context--compact"
                   id="monitoring-hud-monitor-overlay-profile-context"
                   data-overlay-profile-integration="slc-040-readonly-manage-context"
+                  data-overlay-profile-context-layout="single-row-readonly"
                   data-overlay-profile-membership-state="unknown"
                   data-overlay-profile-mutation="blocked-readonly-manage-context"
+                  data-overlay-profile-route="removed-centralized-settings"
                   aria-label="Selected monitor Overlay Profile context"
                 >
                   <div class="monitoring-hud__overlay-profile-context-heading">
-                    <span>Overlay Profile</span>
-                    <strong id="monitoring-hud-monitor-overlay-profile-name">Default Overlay Profile</strong>
+                    <span>Assigned Overlay</span>
+                    <strong id="monitoring-hud-monitor-overlay-profile-count">0 assigned</strong>
                   </div>
-                  <div class="monitoring-hud__overlay-profile-context-grid">
-                    <div class="monitoring-hud__state-row">
-                      <span>Selected monitor</span>
-                      <strong id="monitoring-hud-monitor-overlay-profile-selected-state">Included</strong>
-                    </div>
-                    <div class="monitoring-hud__state-row">
-                      <span>Membership</span>
-                      <strong id="monitoring-hud-monitor-overlay-profile-count">2 mapped</strong>
-                    </div>
-                    <div class="monitoring-hud__state-row">
-                      <span>Display mode</span>
-                      <strong id="monitoring-hud-monitor-overlay-profile-display-mode">Monitor cards</strong>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    id="monitoring-hud-monitor-overlay-profile-settings"
-                    class="monitoring-hud__hub-action monitoring-hud__hub-action--compact"
-                    data-control="manage-overlay-profile-settings"
-                    data-child-window-target="overlay-profile-settings"
-                    aria-haspopup="dialog"
-                    aria-expanded="false"
-                  >Open Overlay Profile Settings</button>
-                  <small>Monitor Groups configure sources. Overlay Profiles choose which configured monitors appear in overlay display.</small>
+                  <span id="monitoring-hud-monitor-overlay-profile-selected-state">Active profile: Included</span>
+                  <span id="monitoring-hud-monitor-overlay-profile-display-mode">Monitor cards</span>
                 </div>
                 <div class="monitoring-hud__child-field monitoring-hud__child-field--inline" data-control-row="polling-rate-inline" data-polling-rate-hitbox="toggle-only">
                   <span>Polling Rate</span>
@@ -550,6 +547,10 @@
                     <option value="5000">5s</option>
                     <option value="10000">10s</option>
                   </select>
+                </div>
+                <div class="monitoring-hud__readiness-panel" id="monitoring-hud-provider-readiness-panel" data-readiness-panel="provider-readiness-status">
+                  <strong>Provider Readiness</strong>
+                  <span>Readiness/status and future capability only; not an assignable sensor.</span>
                 </div>
                 <div class="monitoring-hud__sensor-library" data-sensor-library="search-filter-scalable">
                   <div class="monitoring-hud__sensor-library-toolbar monitoring-hud__sensor-library-toolbar--inline" data-source-controls-layout="search-filter-inline">

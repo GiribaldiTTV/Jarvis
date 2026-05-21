@@ -283,7 +283,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
                 "SLC-037 Overlay Profile data/state foundation",
                 "SLC-038 Dashboard selector and Overlay Profile Settings controls",
                 "SLC-039 settings-window monitor membership mapping",
-                "SLC-040 Manage Monitors read-only Overlay Profile context and route",
+                "Returned-UTS selector-first Overlay Profile settings with search/filter and max-five visible monitor target",
+                "Returned-UTS Manage Monitors compact read-only Overlay Profile context",
                 "SLC-041 focused validator and live desktop proof readiness"
             )
         }
@@ -500,11 +501,11 @@ Expected: Enable/Open HUD Dashboard makes the Dashboard visible, and Monitor Gro
 USER Result / Notes:
 
 Step 3 - Overlay Profile Selection And Editing
-Expected: The Dashboard shows a compact Overlay Profile control surface. The selector has a 300px minimum width, can grow with longer profile names, is capped at 450px or the available row width, displays the active profile name without a redundant static Active Profile row, opens only from its visible toggle/menu/options, and supports hover/reset/select. The main Dashboard card does not expose the profile-name text field; Overlay Profile Settings opens a separate child window where Create Overlay adds a selectable profile, editing the profile name or monitor membership enables Save Profile and Discard, Save persists the draft name and membership, and Discard restores the saved name and membership. Read-only details show monitor count and display mode. Monitor membership mapping is editable only inside Overlay Profile Settings; Monitor Groups and Recording Profiles remain separate.
+Expected: The Dashboard shows a compact Overlay Profile control surface. The selector has a 300px minimum width, can grow with longer profile names, is capped at 450px or the available row width, displays the active profile name without a redundant static Active Profile row, opens only from its visible toggle/menu/options, and supports hover/reset/select. The main Dashboard card does not expose the profile-name text field; Overlay Profile Settings opens a separate child window that leads with load-existing/create-first choices, where Create Overlay adds a selectable profile, editing the profile name or monitor membership enables Save Profile and a far-right red Discard, Save persists the draft name and membership, and Discard restores the saved name and membership. Visible monitors use search/filter, target no more than five visible rows before an inner NDAI-styled scrollbar, and the settings window itself should not need a normal outer scrollbar. Read-only details show monitor count and display mode. Monitor membership mapping is editable only inside Overlay Profile Settings; Monitor Groups and Recording Profiles remain separate.
 USER Result / Notes:
 
 Step 4 - Manage Monitors List And Create
-Expected: Manage Monitors appears as a compact Sensor Command Center: the left list is action-light, row/icon selection opens the right detail pane, and Create stays reachable from the command surface. The selected monitor detail pane shows read-only Overlay Profile context with active profile name, whether the selected monitor is included, mapped monitor count, and display mode. The Open Overlay Profile Settings button routes to the existing Overlay Profile Settings window without adding a second membership editor inside Manage Monitors.
+Expected: Manage Monitors appears as a compact Sensor Command Center: the left list is action-light, row/icon selection opens the right detail pane, and Create stays reachable from the command surface. The selected monitor detail pane is ordered as Group name, Warning Notifications, Enabled for Overlay, Assigned Overlay, Polling Rate, Provider Readiness, then the existing Sensor Library/settings content. Assigned Overlay is a single compact read-only row that reports the assigned Overlay count and active-profile included/excluded state without an Open Overlay Profile Settings button or a duplicate membership editor inside Manage Monitors.
 USER Result / Notes:
 
 Step 5 - Edit Monitor Settings
@@ -532,7 +533,7 @@ Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse 
 USER Result / Notes:
 
 Step 11 - Dashboard, Overlay Profile, And Manage Monitors Control Reliability
-Expected: Dashboard Settings, window-level Close, Warning Notifications, Manage Monitors, Overlay Profile selector, Overlay Profile Settings, Manage Monitors Open Overlay Profile Settings route, settings-window Create Overlay/Save Profile/Discard/name input/membership checkboxes, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, in-window Create Monitor, Save Monitor, footer Discard, delete-confirmation Cancel, dirty-guard Save/Discard, Source Filter, Polling Rate, Display mode buttons, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states. The main Dashboard Monitor Groups card should not show a Create Monitor button.
+Expected: Dashboard Settings, window-level Close, Warning Notifications, Manage Monitors, Overlay Profile selector, Overlay Profile Settings, settings-window Create Overlay/Save Profile/red Discard/name input/search/filter/membership checkboxes, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, in-window Create Monitor, Save Monitor, footer red Discard, delete-confirmation Cancel, dirty-guard Save/Discard, Source Filter, Polling Rate, Display mode buttons, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states. The main Dashboard Monitor Groups card should not show a Create Monitor button.
 Regression checkpoints include: Step 7 - #137 Dashboard Rounded Corners On Light Background; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 USER Result / Notes:
 

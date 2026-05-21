@@ -625,10 +625,34 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__hub-action--danger,
+.monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"],
+.monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"],
 .monitoring-hud__hub-action[data-control="confirm-delete-monitor"] {
   border-color: rgba(255, 132, 132, 0.46);
   background: linear-gradient(145deg, rgba(96, 24, 34, 0.88), rgba(42, 16, 26, 0.80));
   color: rgba(255, 232, 232, 0.96);
+}
+
+.monitoring-hud__hub-action--danger[data-control-state="discardable"]:hover,
+.monitoring-hud__hub-action--danger[data-control-state="discardable"]:focus-visible,
+.monitoring-hud__hub-action--danger[data-control-state="discardable"].is-pressed,
+.monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"]:hover,
+.monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"]:focus-visible,
+.monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"].is-pressed,
+.monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"]:hover,
+.monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"]:focus-visible,
+.monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"].is-pressed,
+.monitoring-hud__hub-action[data-control="confirm-delete-monitor"]:hover,
+.monitoring-hud__hub-action[data-control="confirm-delete-monitor"]:focus-visible,
+.monitoring-hud__hub-action[data-control="confirm-delete-monitor"].is-pressed {
+  border-color: rgba(255, 170, 170, 0.74);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 132, 132, 0.24), transparent 60%),
+    linear-gradient(145deg, rgba(122, 31, 42, 0.94), rgba(53, 18, 28, 0.88));
+  color: rgba(255, 244, 244, 1);
+  box-shadow:
+    0 0 0 1px rgba(255, 232, 232, 0.10) inset,
+    0 0 20px rgba(255, 112, 112, 0.18);
 }
 
 .monitoring-hud__hub-action--safe-cancel,
@@ -659,30 +683,6 @@ body.desktop-mode #monitoring-hud > * {
     0 0 0 1px rgba(239, 255, 252, 0.15) inset,
     0 0 28px rgba(87, 236, 214, 0.36),
     0 10px 22px rgba(0, 0, 0, 0.26);
-}
-
-.monitoring-hud__detail-action-row [data-control="discard-edit-monitor"][data-control-state="discardable"] {
-  border-color: rgba(126, 248, 218, 0.38);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.12), transparent 58%),
-    linear-gradient(145deg, rgba(9, 54, 65, 0.82), rgba(5, 31, 48, 0.80));
-  color: rgba(226, 249, 250, 0.96);
-  box-shadow:
-    0 0 0 1px rgba(232, 255, 249, 0.06) inset,
-    0 0 14px rgba(87, 236, 214, 0.12);
-}
-
-.monitoring-hud__detail-action-row [data-control="discard-edit-monitor"][data-control-state="discardable"]:hover,
-.monitoring-hud__detail-action-row [data-control="discard-edit-monitor"][data-control-state="discardable"]:focus-visible,
-.monitoring-hud__detail-action-row [data-control="discard-edit-monitor"][data-control-state="discardable"].is-pressed {
-  border-color: rgba(156, 255, 232, 0.72);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.24), transparent 60%),
-    linear-gradient(145deg, rgba(11, 74, 78, 0.92), rgba(5, 39, 58, 0.88));
-  color: rgba(241, 255, 252, 1);
-  box-shadow:
-    0 0 0 1px rgba(239, 255, 252, 0.12) inset,
-    0 0 22px rgba(87, 236, 214, 0.24);
 }
 
 .monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"] {
@@ -958,7 +958,16 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__overlay-profile-window-actions {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.monitoring-hud__overlay-profile-window-actions-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-self: start;
 }
 
 .monitoring-hud__overlay-profile-membership {
@@ -972,11 +981,48 @@ body.desktop-mode #monitoring-hud > * {
     rgba(6, 28, 48, 0.44);
 }
 
+.monitoring-hud__child-window--overlay-profile {
+  width: min(620px, calc(100% - 24px));
+  max-height: min(620px, calc(100% - 24px));
+  overflow: hidden;
+  grid-template-rows: auto auto auto minmax(0, auto) auto auto;
+}
+
+.monitoring-hud__overlay-profile-choice-panel {
+  display: grid;
+  gap: 0;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, rgba(7, 31, 50, 0.58), rgba(3, 18, 32, 0.52)),
+    rgba(6, 28, 48, 0.34);
+}
+
 .monitoring-hud__overlay-profile-membership-heading {
   display: flex;
   justify-content: space-between;
   gap: 10px;
   align-items: baseline;
+}
+
+.monitoring-hud__overlay-profile-membership-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(132px, 0.32fr);
+  gap: 8px;
+  align-items: end;
+}
+
+.monitoring-hud__overlay-profile-filter-field {
+  min-width: 132px;
+}
+
+.monitoring-hud__overlay-profile-filter-field select {
+  appearance: none;
+  background:
+    linear-gradient(145deg, rgba(8, 46, 68, 0.86), rgba(4, 25, 43, 0.82)),
+    rgba(6, 28, 48, 0.78);
+  cursor: pointer;
 }
 
 .monitoring-hud__overlay-profile-membership-heading span {
@@ -996,7 +1042,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__overlay-profile-membership-list {
   display: grid;
   gap: 7px;
-  max-height: 178px;
+  max-height: 206px;
   overflow: auto;
   padding-right: 4px;
 }
@@ -1106,11 +1152,24 @@ body.desktop-mode #monitoring-hud > * {
     rgba(6, 28, 48, 0.42);
 }
 
+.monitoring-hud__monitor-overlay-profile-context--compact {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
 .monitoring-hud__overlay-profile-context-heading {
   display: grid;
   grid-template-columns: minmax(100px, 0.42fr) minmax(0, 1fr);
   gap: 8px;
   align-items: baseline;
+}
+
+.monitoring-hud__monitor-overlay-profile-context--compact .monitoring-hud__overlay-profile-context-heading {
+  grid-template-columns: max-content minmax(0, auto);
+  align-items: center;
 }
 
 .monitoring-hud__overlay-profile-context-heading span {
@@ -1127,6 +1186,13 @@ body.desktop-mode #monitoring-hud > * {
   overflow: hidden;
   color: rgba(157, 246, 218, 0.92);
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-hud__monitor-overlay-profile-context--compact > span {
+  color: rgba(172, 215, 228, 0.80);
+  font-size: 11px;
+  font-weight: 650;
   white-space: nowrap;
 }
 
@@ -1291,6 +1357,13 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__child-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.monitoring-hud__child-actions.monitoring-hud__overlay-profile-window-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
 }

@@ -8981,7 +8981,7 @@ class DesktopRuntimeWindow(QWidget):
                 "slc037": "Overlay Profile data/state foundation and renderer bridge",
                 "slc038": "Dashboard selector plus Overlay Profile Settings create/rename/save/discard",
                 "slc039": "settings-window monitor membership mapping",
-                "slc040": "Manage Monitors read-only Overlay Profile context and settings route",
+                "returnedUtsRepair": "selector-first settings window, search/filter, max-five visible monitor target, and compact Manage Monitors read-only Overlay row",
                 "slc041": "focused validator and live desktop proof readiness",
             },
             "client": "desktop/orin_desktop_main.py",
@@ -10191,14 +10191,17 @@ class DesktopRuntimeWindow(QWidget):
                         const manageWindow = document.getElementById("monitoring-hud-edit-monitor-window");
                         const routeButton = document.getElementById("monitoring-hud-monitor-overlay-profile-settings");
                         return JSON.stringify({
-                            ok: Boolean(integrationProof.passed && context && manageWindow && routeButton),
+                            ok: Boolean(integrationProof.passed && context && manageWindow && !routeButton),
                             integrationProofPassed: Boolean(integrationProof.passed),
                             integrationProof: integrationProof,
                             manageWindowOpen: manageWindow ? manageWindow.hidden === false : false,
                             contextVisible: context ? context.getBoundingClientRect().height > 20 : false,
                             contextMode: context ? context.dataset.overlayProfileIntegration : "",
                             contextMutation: context ? context.dataset.overlayProfileMutation : "",
-                            routeButtonVisible: routeButton ? routeButton.getBoundingClientRect().width > 24 : false
+                            contextLayout: context ? context.dataset.overlayProfileContextLayout : "",
+                            contextRoute: context ? context.dataset.overlayProfileRoute : "",
+                            assignedOverlayCount: context ? context.dataset.assignedOverlayCount : "",
+                            routeButtonRemoved: !routeButton
                         });
                     } catch (err) {
                         return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
@@ -10216,14 +10219,16 @@ class DesktopRuntimeWindow(QWidget):
             if not isinstance(parsed, dict):
                 parsed = {"ok": False, "raw": str(parsed)}
             add_step(
-                "SLC-040 Manage Monitors read-only Overlay Profile context and route proof prepared",
+                "Returned-UTS Manage Monitors compact read-only Overlay row proof prepared",
                 bool(parsed.get("ok"))
                 and parsed.get("integrationProofPassed") is True
                 and parsed.get("manageWindowOpen") is True
                 and parsed.get("contextVisible") is True
                 and parsed.get("contextMode") == "slc-040-readonly-manage-context"
                 and parsed.get("contextMutation") == "blocked-readonly-manage-context"
-                and parsed.get("routeButtonVisible") is True,
+                and parsed.get("contextLayout") == "single-row-readonly"
+                and parsed.get("contextRoute") == "removed-centralized-settings"
+                and parsed.get("routeButtonRemoved") is True,
                 parsed,
             )
             if not parsed.get("ok"):
@@ -10257,6 +10262,9 @@ class DesktopRuntimeWindow(QWidget):
                         const settingsWindow = document.getElementById("monitoring-hud-overlay-profile-window");
                         const save = document.getElementById("monitoring-hud-overlay-profile-save");
                         const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
+                        const search = document.getElementById("monitoring-hud-overlay-profile-monitor-search");
+                        const filter = document.getElementById("monitoring-hud-overlay-profile-monitor-filter");
+                        const membershipList = document.getElementById("monitoring-hud-overlay-profile-membership-list");
                         return JSON.stringify({
                             ok: Boolean(stateProof.passed && controlsProof.passed && selector && settingsButton && settingsWindow && input),
                             stateProofPassed: Boolean(stateProof.passed),
@@ -10269,6 +10277,15 @@ class DesktopRuntimeWindow(QWidget):
                             dropdownClosed: selector ? selector.dataset.dropdownOpen !== "true" : false,
                             saveEnabled: save ? !save.disabled : false,
                             discardEnabled: discard ? !discard.disabled : false,
+                            dangerDiscard: discard ? discard.classList.contains("monitoring-hud__hub-action--danger") : false,
+                            searchFilterVisible: Boolean(search && filter),
+                            maxFiveInnerScrollPolicy: Boolean(
+                                membershipList
+                                && membershipList.dataset.overlayProfileVisibleMonitorTarget === "max-five"
+                                && membershipList.dataset.scrollbarStyle === "ndai-native"
+                            ),
+                            settingsWindowWorkflow: settingsWindow ? settingsWindow.dataset.overlayProfileWorkflow : "",
+                            outerScrollPolicy: settingsWindow ? settingsWindow.dataset.overlayProfileOuterScrollPolicy : "",
                             membership: document.getElementById("monitoring-hud-overlay-profile-editor")
                                 ? document.getElementById("monitoring-hud-overlay-profile-editor").dataset.overlayProfileMembership
                                 : ""
@@ -10289,7 +10306,7 @@ class DesktopRuntimeWindow(QWidget):
             if not isinstance(parsed, dict):
                 parsed = {"ok": False, "raw": str(parsed)}
             add_step(
-                "SLC-039 Overlay Profile settings-window create/rename/membership Save/Discard visual proof prepared",
+                "Returned-UTS Overlay Profile selector-first settings-window search/filter/max-five proof prepared",
                 bool(parsed.get("ok"))
                 and parsed.get("settingsWindowOpen") is True
                 and parsed.get("settingsButtonExpanded") is True
@@ -10297,6 +10314,11 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("integrationProofPassed") is True
                 and parsed.get("saveEnabled") is True
                 and parsed.get("discardEnabled") is True
+                and parsed.get("dangerDiscard") is True
+                and parsed.get("searchFilterVisible") is True
+                and parsed.get("maxFiveInnerScrollPolicy") is True
+                and parsed.get("settingsWindowWorkflow") == "selector-first-create-first-returned-uts-repair"
+                and parsed.get("outerScrollPolicy") == "no-normal-window-scrollbar"
                 and parsed.get("membership") == "editable-slc-039-mapping",
                 parsed,
             )
@@ -10311,7 +10333,7 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("membership") == "editable-slc-039-mapping"
             )
             add_step(
-                "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, Manage Monitors route, and LV1 UTS boundary",
+                "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, compact Manage Monitors context, and LV1 UTS boundary",
                 slc041_ready,
                 {
                     "stateProofPassed": parsed.get("stateProofPassed") is True,
