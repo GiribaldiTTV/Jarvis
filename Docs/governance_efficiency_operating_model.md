@@ -58,6 +58,26 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/governance_intake_triage_and_digest_profiles.md` | governance intake and digest profile standard | branch-specific blocker narratives |
 | `Docs/pr_watcher_mode_contract.md` | watcher mode contract and approval default | live PR state beyond explicit watcher proof packets |
 
+## Docs Source-Truth Reform Model
+
+Docs Source-Truth Reform Model: Compact Pointer Layer.
+
+The post-audit reform model has one owner per active fact class:
+
+- backlog owns compact product-family identity and canonical pointers
+- roadmap owns release sequencing and public milestone posture
+- worktree slots own reusable slot definitions and intended assignment receipts
+- branch records own branch authority, approvals, phase history, and compact branch receipts
+- branch plans own detailed active runtime-branch engineering plans
+- workstreams and family dossiers own durable package trace, slice trace, proof history, and reusable continuity
+- Git, GitHub, and approved helpers own live operational truth
+
+Backlog and roadmap must not contain `Package Trace:` or `Slice Trace:` sections. Those detailed ledgers belong in workstream records, family dossiers, branch plans, or compact branch receipts.
+
+Backlog and roadmap must not manually maintain latest public prerelease, latest tag, release URL, target commit, open PR state, active branch identity, review-thread state, worktree dirty state, or ahead/behind state as active truth. They may point to the helper or owner that derives that truth.
+
+Historical receipts remain allowed when they are explicitly historical interpretation, compact, and routed to the owning receipt surface.
+
 ## Derived Live Truth Versus Historical Receipt
 
 Derived live truth comes from Git, GitHub, or approved helpers. Examples include current `HEAD`, `origin/main`, merge base, dirty state, branch ahead/behind state, remote ref existence, open PR state, review-thread state, latest tag, latest GitHub Release, and issue state.
@@ -84,6 +104,8 @@ Prohibited duplication by default:
 - live watcher state in backlog or roadmap
 - detailed per-seam runtime plan narrative in backlog or roadmap
 - release/latest-tag truth copied into multiple docs without validator or GitHub check
+- `Package Trace:` or `Slice Trace:` detail inside backlog or roadmap
+- repeated release-window PR lists inside both backlog and roadmap
 
 If duplication is unavoidable for scanability, name the owner and make the mirror explicitly compact.
 

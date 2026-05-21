@@ -2488,6 +2488,7 @@ GOVERNANCE_EFFICIENCY_DOCS = (
 GOVERNANCE_EFFICIENCY_OPERATING_MODEL_PHRASES = (
     "Rule ID And Owner Model",
     "Source-Truth Ownership Matrix",
+    "Docs Source-Truth Reform Model",
     "Derived Live Truth Versus Historical Receipt",
     "Duplicate Live-State Guard",
     "Current Summary And Historical Appendix Split",
@@ -2511,6 +2512,30 @@ GOVERNANCE_EFFICIENCY_SOURCE_PHRASES = (
     "POINTER_REQUIREMENTS",
     "BACKLOG_ROADMAP_COMPACTNESS_FORBIDDEN",
     "report-only",
+)
+DOCS_SOURCE_TRUTH_REFORM_MARKER = "Docs Source-Truth Reform Model: Compact Pointer Layer"
+POINTER_ONLY_FORBIDDEN_MARKERS = (
+    "Package Trace:",
+    "Slice Trace:",
+    "Latest Public Prerelease Recorded In Source Truth:",
+    "Latest Public Prerelease:",
+    "Latest Public Release Commit:",
+    "Latest Public Prerelease Publication:",
+    "Merged-Unreleased PRs:",
+)
+COMPACT_BACKLOG_REQUIRED_FIELDS = (
+    "Status",
+    "Record State",
+    "Registry Class",
+    "Family Anchor",
+    "Priority",
+    "Family Scope",
+    "Package Summary",
+    "Package Admission State",
+    "Admitted Slice Count",
+    "Package Completion State",
+    "Single-Slice Package User Approval",
+    "Canonical Detail Owner",
 )
 CURRENT_DECISION_SURFACE_DOCS = (
     Path("Docs/feature_backlog.md"),
@@ -5969,6 +5994,150 @@ def _parse_family_slice_rows(block: str) -> list[dict[str, str]]:
     for match in pattern.finditer(block):
         rows.append({key: value.strip() for key, value in match.groupdict().items()})
     return rows
+
+
+def _docs_source_truth_reform_active(backlog_text: str, roadmap_text: str) -> bool:
+    return DOCS_SOURCE_TRUTH_REFORM_MARKER in backlog_text and DOCS_SOURCE_TRUTH_REFORM_MARKER in roadmap_text
+
+
+def _validate_docs_source_truth_reform_model(
+    require,
+    *,
+    backlog_text: str,
+    roadmap_text: str,
+    index_text: str,
+    main_text: str,
+    backlog_entries: list[dict[str, str]],
+) -> None:
+    combined_pointer_text = "\n".join((backlog_text, roadmap_text))
+    for path_name, text in (
+        ("Docs/feature_backlog.md", backlog_text),
+        ("Docs/prebeta_roadmap.md", roadmap_text),
+    ):
+        require(
+            DOCS_SOURCE_TRUTH_REFORM_MARKER in text,
+            f"{path_name}: missing compact pointer-layer reform marker",
+        )
+        for marker in POINTER_ONLY_FORBIDDEN_MARKERS:
+            require(
+                marker not in text,
+                (
+                    f"{path_name}: pointer-only surface must not carry live-state "
+                    f"or detailed trace marker '{marker}'"
+                ),
+            )
+        require(
+            not re.search(r"\b[0-9a-f]{40}\b", text),
+            f"{path_name}: pointer-only surface must not pin exact commit hashes",
+        )
+
+    require(
+        DOCS_SOURCE_TRUTH_REFORM_MARKER in main_text,
+        "Docs/Main.md: compact pointer-layer reform routing is missing",
+    )
+    require(
+        "Git/GitHub/helpers as live operational truth" in main_text,
+        "Docs/Main.md: derived live truth owner is missing from compact reform routing",
+    )
+    require(
+        "Docs/workstreams/index.md" in backlog_text,
+        "Docs/feature_backlog.md: compact registry must point to workstream routing",
+    )
+    require(
+        "Docs/branch_records/index.md" in backlog_text,
+        "Docs/feature_backlog.md: compact registry must point to branch authority routing",
+    )
+    require(
+        "Docs/branch_plans/" in backlog_text,
+        "Docs/feature_backlog.md: compact registry must point to branch runtime plans",
+    )
+    require(
+        "Use GitHub Releases for the authoritative public release list" in roadmap_text,
+        "Docs/prebeta_roadmap.md: roadmap must route live release truth to GitHub Releases",
+    )
+
+    live_family_ids = [entry["id"] for entry in backlog_entries]
+    require(
+        live_family_ids == list(FRESH_FAMILY_TAXONOMY),
+        (
+            "Docs/feature_backlog.md: compact family registry must keep the fresh FAM "
+            f"namespace in ascending order: {', '.join(FRESH_FAMILY_TAXONOMY)}"
+        ),
+    )
+    for entry in backlog_entries:
+        expected_family = FRESH_FAMILY_TAXONOMY.get(entry["id"])
+        require(
+            bool(expected_family),
+            f"Docs/feature_backlog.md: unexpected compact family id {entry['id']}",
+        )
+        if not expected_family:
+            continue
+        require(
+            entry["title"] == expected_family["title"],
+            (
+                "Docs/feature_backlog.md: compact family entry "
+                f"{entry['id']} must use broad title `{expected_family['title']}`"
+            ),
+        )
+        for field in COMPACT_BACKLOG_REQUIRED_FIELDS:
+            require(
+                bool(_extract_colon_value(entry["block"], field)),
+                f"Docs/feature_backlog.md: compact family entry {entry['id']} is missing `{field}:`",
+            )
+        require(
+            expected_family["package"] in entry["block"],
+            (
+                "Docs/feature_backlog.md: compact family entry "
+                f"{entry['id']} must cite package {expected_family['package']}"
+            ),
+        )
+        if expected_family["legacy"]:
+            for legacy_id in expected_family["legacy"]:
+                require(
+                    legacy_id in entry["block"] or legacy_id in combined_pointer_text,
+                    (
+                        "Docs/feature_backlog.md: compact family entry "
+                        f"{entry['id']} is missing historical trace for {legacy_id}"
+                    ),
+                )
+        else:
+            require(
+                "no legacy fb trace" in entry["block"].casefold()
+                or "repo vision trace only" in entry["block"].casefold()
+                or entry["id"] == "FAM-007",
+                (
+                    "Docs/feature_backlog.md: compact family entry "
+                    f"{entry['id']} must state no legacy FB trace or cite repo vision trace"
+                ),
+            )
+
+    for required_phrase in (
+        "Former standalone historical pass backlog entries now live here as family traceability only.",
+        "Historical Family Pass Aliases",
+        "Historical Support, Architecture, And Governance Lanes",
+        "Historical Implemented Registry-Only Items",
+    ):
+        require(
+            required_phrase in backlog_text,
+            f"Docs/feature_backlog.md: compact historical pointer section is missing '{required_phrase}'",
+        )
+    for trace_id in CONSOLIDATED_TRACE_BACKLOG_IDS:
+        require(
+            f"### [ID: {trace_id}]" not in backlog_text,
+            f"Docs/feature_backlog.md: legacy {trace_id} must not be parseable after compaction",
+        )
+        require(
+            f"`{trace_id}`" in backlog_text,
+            f"Docs/feature_backlog.md: legacy trace {trace_id} must remain discoverable as compact history",
+        )
+    for required_path in (
+        "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md",
+        "Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md",
+    ):
+        require(
+            required_path in index_text and required_path in backlog_text,
+            f"{required_path}: family dossier must be routed by workstream index and backlog pointer",
+        )
 
 
 def _is_admitted_slice(row: dict[str, str]) -> bool:
@@ -16933,6 +17102,7 @@ def main() -> int:
     main_text = _read_text(Path("Docs/Main.md"))
     development_rules_text = _read_text(Path("Docs/development_rules.md"))
     main_canonical_workstream_routes = _subsection(main_text, "Canonical Workstream Records")
+    compact_source_truth_reform = _docs_source_truth_reform_active(backlog_text, roadmap_text)
 
     def require(condition: bool, message: str) -> None:
         nonlocal checks
@@ -17128,19 +17298,27 @@ def main() -> int:
                 ),
             )
 
-    for relative_path in CURRENT_DECISION_SURFACE_DOCS:
-        text = _read_text(relative_path)
-        for required_phrase in CURRENT_DECISION_SURFACE_PHRASES:
+    if not compact_source_truth_reform:
+        for relative_path in CURRENT_DECISION_SURFACE_DOCS:
+            text = _read_text(relative_path)
+            for required_phrase in CURRENT_DECISION_SURFACE_PHRASES:
+                require(
+                    required_phrase in text,
+                    f"{relative_path}: Current Decision Surface is missing '{required_phrase}'",
+                )
+        for relative_path in CURRENT_DECISION_SURFACE_POINTER_DOCS:
+            text = _read_text(relative_path)
+            for required_phrase in ("Current Decision Surface", "Latest Public Prerelease Recorded In Source Truth:"):
+                require(
+                    required_phrase in text,
+                    f"{relative_path}: Current Decision Surface pointer is missing '{required_phrase}'",
+                )
+    else:
+        for relative_path in CURRENT_DECISION_SURFACE_DOCS:
+            text = _read_text(relative_path)
             require(
-                required_phrase in text,
-                f"{relative_path}: Current Decision Surface is missing '{required_phrase}'",
-            )
-    for relative_path in CURRENT_DECISION_SURFACE_POINTER_DOCS:
-        text = _read_text(relative_path)
-        for required_phrase in ("Current Decision Surface", "Latest Public Prerelease Recorded In Source Truth:"):
-            require(
-                required_phrase in text,
-                f"{relative_path}: Current Decision Surface pointer is missing '{required_phrase}'",
+                DOCS_SOURCE_TRUTH_REFORM_MARKER in text,
+                f"{relative_path}: compact pointer-layer source-truth marker is missing",
             )
 
     for relative_path in ASSIGNED_WORKTREE_CONFINEMENT_DOCS:
@@ -17293,29 +17471,46 @@ def main() -> int:
                 f"profile planning admission is missing '{required_phrase}'"
             ),
         )
-    for current_state_path, current_state_text in (
-        (Path("Docs/feature_backlog.md"), backlog_text),
-        (Path("Docs/prebeta_roadmap.md"), roadmap_text),
-    ):
+    if not compact_source_truth_reform:
+        for current_state_path, current_state_text in (
+            (Path("Docs/feature_backlog.md"), backlog_text),
+            (Path("Docs/prebeta_roadmap.md"), roadmap_text),
+        ):
+            for required_phrase in (
+                "Sensor Library",
+                "Sensor Command Center",
+                "visible resize-proof contamination",
+                "invisible/test-gated",
+                "Warning Notifications",
+                "Provider Readiness",
+                "Overlay Profile",
+                "Recording Profile",
+                "returned USER UTS FAIL",
+                "interactive-control visual QA",
+                "right-edge resize rediscovery",
+                "PR Readiness remains blocked",
+            ):
+                require(
+                    required_phrase in current_state_text,
+                    (
+                        f"{current_state_path}: FAM-006 Monitor Groups profile planning "
+                        f"sync is missing '{required_phrase}'"
+                    ),
+                )
+    else:
         for required_phrase in (
             "Sensor Library",
             "Sensor Command Center",
-            "visible resize-proof contamination",
-            "invisible/test-gated",
             "Warning Notifications",
             "Provider Readiness",
             "Overlay Profile",
             "Recording Profile",
-            "returned USER UTS FAIL",
-            "interactive-control visual QA",
-            "right-edge resize rediscovery",
-            "PR Readiness remains blocked",
         ):
             require(
-                required_phrase in current_state_text,
+                required_phrase in fam006_monitor_groups_record_text,
                 (
-                    f"{current_state_path}: FAM-006 Monitor Groups profile planning "
-                    f"sync is missing '{required_phrase}'"
+                    f"{fam006_monitor_groups_record_path}: compact backlog/roadmap reform "
+                    f"requires FAM-006 detail to remain in the branch record; missing '{required_phrase}'"
                 ),
             )
 
@@ -17382,6 +17577,11 @@ def main() -> int:
             )
 
     for relative_path, required_phrases in AUTOMATION_RUNTIME_PROOF_CURRENT_STATE_REQUIRED_PHRASES.items():
+        if compact_source_truth_reform and relative_path in {
+            Path("Docs/feature_backlog.md"),
+            Path("Docs/prebeta_roadmap.md"),
+        }:
+            continue
         text = _read_text(relative_path)
         for required_phrase in required_phrases:
             require(
@@ -17718,6 +17918,11 @@ def main() -> int:
     for relative_path, required_phrases in (
         SOURCE_OWNER_MARKER_ADOPTION_NEXT_BRANCH_REQUIRED_PHRASES.items()
     ):
+        if compact_source_truth_reform and relative_path in {
+            Path("Docs/feature_backlog.md"),
+            Path("Docs/prebeta_roadmap.md"),
+        }:
+            continue
         text = _read_text(relative_path)
         for required_phrase in required_phrases:
             require(
@@ -18055,68 +18260,78 @@ def main() -> int:
             )
 
     backlog_entries = _parse_backlog_sections(backlog_text)
-    _validate_consolidated_backlog_source_truth(
-        require,
-        backlog_text=backlog_text,
-        main_text=main_text,
-        development_rules_text=development_rules_text,
-        phase_governance_text=phase_governance_text,
-        backlog_entries=backlog_entries,
-    )
-    _validate_backlog_family_reform_bootstrap(
-        require,
-        current_branch=current_git_branch,
-        backlog_text=backlog_text,
-        index_text=index_text,
-        backlog_entries=backlog_entries,
-    )
-    _validate_backlog_family_reform_seam_truth(
-        require,
-        current_branch=current_git_branch,
-        backlog_entries=backlog_entries,
-        backlog_text=backlog_text,
-        roadmap_text=roadmap_text,
-    )
-    _validate_automation_planning_phase_truth(
-        require,
-        current_branch=current_git_branch,
-        backlog_text=backlog_text,
-        roadmap_text=roadmap_text,
-    )
-    _validate_automation_planning_runtime_truth(
-        require,
-        current_branch=current_git_branch,
-        backlog_text=backlog_text,
-        roadmap_text=roadmap_text,
-    )
-    _validate_automation_closeout_repair_phase_truth(
-        require,
-        current_branch=current_git_branch,
-    )
-    _validate_pr101_closeout_canon_repair_phase_truth(
-        require,
-        current_branch=current_git_branch,
-    )
-    _validate_pr102_closeout_canon_repair_phase_truth(
-        require,
-        current_branch=current_git_branch,
-    )
-    _validate_pr103_closeout_canon_repair_phase_truth(
-        require,
-        current_branch=current_git_branch,
-    )
-    _validate_backlog_family_dossier_shell(
-        require,
-        current_branch=current_git_branch,
-        backlog_entries=backlog_entries,
-        roadmap_text=roadmap_text,
-        index_text=index_text,
-        main_text=main_text,
-    )
-    _validate_backlog_family_historical_pass_records(
-        require,
-        current_branch=current_git_branch,
-    )
+    if compact_source_truth_reform:
+        _validate_docs_source_truth_reform_model(
+            require,
+            backlog_text=backlog_text,
+            roadmap_text=roadmap_text,
+            index_text=index_text,
+            main_text=main_text,
+            backlog_entries=backlog_entries,
+        )
+    else:
+        _validate_consolidated_backlog_source_truth(
+            require,
+            backlog_text=backlog_text,
+            main_text=main_text,
+            development_rules_text=development_rules_text,
+            phase_governance_text=phase_governance_text,
+            backlog_entries=backlog_entries,
+        )
+        _validate_backlog_family_reform_bootstrap(
+            require,
+            current_branch=current_git_branch,
+            backlog_text=backlog_text,
+            index_text=index_text,
+            backlog_entries=backlog_entries,
+        )
+        _validate_backlog_family_reform_seam_truth(
+            require,
+            current_branch=current_git_branch,
+            backlog_entries=backlog_entries,
+            backlog_text=backlog_text,
+            roadmap_text=roadmap_text,
+        )
+        _validate_automation_planning_phase_truth(
+            require,
+            current_branch=current_git_branch,
+            backlog_text=backlog_text,
+            roadmap_text=roadmap_text,
+        )
+        _validate_automation_planning_runtime_truth(
+            require,
+            current_branch=current_git_branch,
+            backlog_text=backlog_text,
+            roadmap_text=roadmap_text,
+        )
+        _validate_automation_closeout_repair_phase_truth(
+            require,
+            current_branch=current_git_branch,
+        )
+        _validate_pr101_closeout_canon_repair_phase_truth(
+            require,
+            current_branch=current_git_branch,
+        )
+        _validate_pr102_closeout_canon_repair_phase_truth(
+            require,
+            current_branch=current_git_branch,
+        )
+        _validate_pr103_closeout_canon_repair_phase_truth(
+            require,
+            current_branch=current_git_branch,
+        )
+        _validate_backlog_family_dossier_shell(
+            require,
+            current_branch=current_git_branch,
+            backlog_entries=backlog_entries,
+            roadmap_text=roadmap_text,
+            index_text=index_text,
+            main_text=main_text,
+        )
+        _validate_backlog_family_historical_pass_records(
+            require,
+            current_branch=current_git_branch,
+        )
     for entry in backlog_entries:
         post_release_truth_count = _count_field_occurrences(entry["block"], "Post-Release Truth")
         require(
@@ -18129,7 +18344,7 @@ def main() -> int:
     _run_open_backlog_selection_governance(require, backlog_entries)
     latest_public_prerelease = _latest_public_prerelease(roadmap_text)
     highest_known_prebeta_tag = _highest_known_prebeta_tag()
-    if highest_known_prebeta_tag:
+    if highest_known_prebeta_tag and not compact_source_truth_reform:
         has_recorded_post_release_closure_drift = _post_release_closure_drift_is_recorded(
             backlog_text,
             roadmap_text,
@@ -18194,7 +18409,7 @@ def main() -> int:
             f"{FB038_CANONICAL_PATH}: released-state canon must record release title '{FB038_RELEASE_TITLE}'",
         )
 
-    if highest_known_prebeta_tag:
+    if highest_known_prebeta_tag and not compact_source_truth_reform:
         expected_latest_title = _expected_prebeta_release_title(highest_known_prebeta_tag)
         latest_release_owner_entries = [
             entry
@@ -18508,20 +18723,21 @@ def main() -> int:
             f"{fb041_path}: Status must be Released after v1.3.1-prebeta release",
         )
 
-    fb041_roadmap_section = _roadmap_section_for_id(roadmap_text, "FB-041")
-    require(
-        bool(fb041_roadmap_section),
-        "Docs/prebeta_roadmap.md: FB-041 release section is missing",
-    )
-    if fb041_roadmap_section:
+    if not compact_source_truth_reform:
+        fb041_roadmap_section = _roadmap_section_for_id(roadmap_text, "FB-041")
         require(
-            fb041_path in fb041_roadmap_section,
-            "Docs/prebeta_roadmap.md: FB-041 release section must cite the canonical workstream doc",
+            bool(fb041_roadmap_section),
+            "Docs/prebeta_roadmap.md: FB-041 release section is missing",
         )
-        require(
-            "release state: `released`" in fb041_roadmap_section,
-            "Docs/prebeta_roadmap.md: FB-041 release state must be `released`",
-        )
+        if fb041_roadmap_section:
+            require(
+                fb041_path in fb041_roadmap_section,
+                "Docs/prebeta_roadmap.md: FB-041 release section must cite the canonical workstream doc",
+            )
+            require(
+                "release state: `released`" in fb041_roadmap_section,
+                "Docs/prebeta_roadmap.md: FB-041 release state must be `released`",
+            )
 
     for entry in promoted_entries:
         workstream_id = entry["id"]

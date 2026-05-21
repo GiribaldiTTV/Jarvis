@@ -18,6 +18,7 @@ OPERATING_MODEL = Path("Docs/governance_efficiency_operating_model.md")
 REQUIRED_MODEL_PHRASES = (
     "Rule ID And Owner Model",
     "Source-Truth Ownership Matrix",
+    "Docs Source-Truth Reform Model",
     "Derived Live Truth Versus Historical Receipt",
     "Duplicate Live-State Guard",
     "Current Summary And Historical Appendix Split",
@@ -60,6 +61,8 @@ POINTER_REQUIREMENTS = {
 }
 
 BACKLOG_ROADMAP_COMPACTNESS_FORBIDDEN = (
+    "Package Trace:",
+    "Slice Trace:",
     "Per-Seam Implementation Checklist:",
     "Per-Seam Validation Checklist:",
     "Per-Seam User-Facing Proof Checklist:",
@@ -77,7 +80,15 @@ BACKLOG_ROADMAP_CURRENT_STATE_SECTIONS = (
 )
 
 BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN = (
+    "Latest Public Prerelease Recorded In Source Truth:",
+    "Latest Public Prerelease:",
+    "Latest Public Release Commit:",
+    "Latest Public Prerelease Publication:",
+    "Release Candidate Anchor:",
+    "Release Window Contributor Inventory:",
+    "Merged-Unreleased PRs:",
     "Active Runtime Branch: Branch-local",
+    "Active Runtime Branch:",
     "Current Active Workstream: Branch-local",
     "Current active workstream: Branch-local",
     "PR Readiness Stage 2 / PR creation",
@@ -98,6 +109,14 @@ BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN_PATTERNS = (
     (
         r"(?mi)^\s*Live PR(?:\s|:)",
         "current-state text records live PR state",
+    ),
+    (
+        r"(?mi)^\s*(?:Current-Main Reconciliation Update|Release Scope|Release Artifacts|Post-Release Truth):",
+        "current-state text records release or branch execution receipt detail",
+    ),
+    (
+        r"\b[0-9a-f]{40}\b",
+        "current-state text pins an exact commit hash",
     ),
 )
 
@@ -164,9 +183,14 @@ def validate() -> list[str]:
         for phrase in BACKLOG_ROADMAP_COMPACTNESS_FORBIDDEN:
             if phrase in text:
                 failures.append(
-                    f"{path}: detailed Branch Runtime Engineering Plan marker {phrase!r} "
-                    "belongs in Docs/branch_plans or folded historical receipts, not backlog/roadmap"
+                    f"{path}: detailed source-truth marker {phrase!r} belongs in "
+                    "Docs/workstreams, Docs/branch_plans, or folded historical receipts, "
+                    "not backlog/roadmap"
                 )
+        if "Docs Source-Truth Reform Model: Compact Pointer Layer" not in text:
+            failures.append(
+                f"{path}: missing Docs Source-Truth Reform Model compact pointer marker"
+            )
 
         current_state_text = "\n".join(
             _section(text, heading) for heading in BACKLOG_ROADMAP_CURRENT_STATE_SECTIONS
