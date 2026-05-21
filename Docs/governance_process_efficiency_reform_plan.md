@@ -557,11 +557,26 @@ Validator/helper posture:
 
 ## USER Feedback Disposition Implementation Plan - 2026-05-21
 
+Status:
+- Planning Status: `Planning / USER review only`.
+- Implementation Status: `Not yet implemented as binding governance`.
+- This section records the recommended model and future implementation targets. It does not by itself authorize Codex to enforce UFD requirements, mutate branch plans, create new UFD records, rename files, or treat proposed feedback as accepted branch scope.
+
 Scope:
 - Plan the USER Feedback Disposition model before implementation.
 - Preserve meaningful USER feedback without creating another permanent feedback ledger.
 - Keep this as planning/source-truth model work only until USER separately approves source-rule, validator, fixture, or template edits.
 - Add repo naming / governance taxonomy reform planning so feedback IDs, phase labels, workstream labels, and file names become easier for USER, ChatGPT, and Codex to call consistently.
+
+Future implementation target files:
+- `Docs/branch_plans/README.md`
+- `Docs/phase_governance.md`
+- `Docs/governance_efficiency_operating_model.md`
+- `Docs/validation_helper_registry.md`
+- `dev/orin_branch_governance_validation.py`
+- `dev/orin_branch_readiness_planning_fixture_validation.py`
+- `dev/orin_governance_efficiency_validation.py`
+- `dev/fixtures/branch_readiness_planning/<ufd_valid_or_invalid_fixture>.md`
 
 Recommended model:
 - Active full-detail feedback belongs in the active Branch Runtime Engineering Plan at `Docs/branch_plans/<branch_slug>.md`.
@@ -578,6 +593,12 @@ Feedback ID recommendation:
 - Do not use `FBK-*`; it collides visually with historical `FB-###` records and could be misread as a backlog identity.
 - Scope examples: `UFD-FAM006-20260521-001`, `UFD-FAM007-20260521-001`, `UFD-GOV-20260521-001`, `UFD-NEXUS-20260521-001`.
 - The ID is the compact pointer used by branch records, backlog, roadmap, workstreams, family dossiers, and PR fold-down receipts. Full feedback text should not be copied into each pointer location.
+- UFD IDs remain valid after branch-plan fold-down and retirement. The fold-down receipt becomes the lookup path from the UFD ID to the final owner.
+
+Meaningful feedback threshold:
+- Not every USER comment becomes a UFD item.
+- UFD disposition is required when USER feedback affects branch scope, accepted vision, user-facing behavior, runtime behavior, validation proof, future work, reusable product standards, approval boundaries, or a USER decision.
+- Minor comments, acknowledgements, typo-level notes, duplicate remarks, or non-actionable conversation can close as `Rejected / No Action` or no durable UFD record when Codex states why no source-truth action is needed.
 
 Split-state recommendation:
 
@@ -588,7 +609,16 @@ Split-state recommendation:
 | `Workstream Severity:` | How much it affects implementation continuity. | Level 1 Non-Blocking; Level 2 Seam-Blocking; Level 3 Workstream-Breaking |
 | `Owner Class:` | Which source-truth layer owns the durable fact. | Branch Plan; Branch Record; Backlog Pointer; Roadmap Pointer; Nexus Vision; Family Vision / Dossier; Workstream Doc; Governance Receipt; No Durable Owner Needed |
 
-Required feedback item fields:
+Minimum UFD record:
+- `Feedback ID:`
+- `Feedback Summary:`
+- `Disposition Type:`
+- `USER Decision State:`
+- `Owner Class:`
+- `Workstream Severity:`
+- `Fold-Down Target:`
+
+Full UFD record:
 - `Feedback ID:`
 - `Feedback Summary:`
 - `Source:` chat, USER file, User Test Summary, ChatGPT review, GitHub review, validation result, or live proof.
@@ -615,11 +645,19 @@ Fold-down receipt rule:
 - PR Readiness Stage 2 may proceed only when every meaningful feedback item is migrated, deferred with waiver, rejected/no-action with reason, closed, or explicitly carried to a future owner.
 - The fold-down receipt should include `Feedback ID`, original owner, final disposition, final owner, USER decision, proof or migration reference, branch-plan retirement/deletion eligibility, and remaining open items.
 - Branch plan deletion remains a separate USER decision. The default post-PR outcome is folded/retired posture, not deletion.
+- Default branch-plan lifecycle outcome: folded / retired posture. Deletion requires separate USER approval or a future repo-established deletion rule that includes reference scans and durable-content preservation proof.
 
 Validator/helper implementation posture:
 - Initial implementation should add source-truth rule text, branch-plan template markers, fixture examples, and marker-based validator scaffolding.
 - Heavy enforcement against historical branch records is deferred because old receipts contain many historical feedback/disposition phrases that were not created under this model.
 - False-positive-prone duplicate full-text detection should be report-only until fixtures prove the pattern.
+- Initial validators should enforce required markers, owner fields, safe decision-state values, and fold-down status only.
+- Natural-language duplicate feedback detection starts as report-only. Blocking duplicate-feedback detection requires fixture coverage and separate USER approval.
+
+Codex implementation guard:
+- Codex may recommend UFD disposition, owner, Workstream severity, and fold-down target.
+- Codex may not convert proposed feedback, Codex recommendations, ChatGPT recommendations, or inferred design preference into accepted branch scope without USER decision.
+- USER decision controls accepted branch scope, accepted vision, accepted future-work posture, accepted reusable standard, and accepted no-action closure.
 
 ### Repo Naming / Governance Taxonomy Reform Addendum
 
@@ -627,6 +665,12 @@ Purpose:
 - Make governance names easy for USER to call, easy for Codex to follow, easy for validators to report, and hard to confuse with backlog IDs, branch IDs, feedback IDs, or historical records.
 - Reduce ambiguity that causes drift, especially around phase/stage/seam/slice/package/workstream/family and live-state/current-state language.
 - Produce naming recommendations only. Bulk rename execution, file moves, directory moves, historical rewrites, and validator enforcement remain pending USER decisions.
+
+Canonical names versus friendly aliases:
+- Canonical names are used by validators, source truth, Codex packets, branch records, branch plans, helper output, and commit/PR metadata.
+- Friendly aliases are USER-facing helper labels only.
+- Friendly aliases never replace canonical phase, stage, marker, or file-owner names unless a future USER-approved rename migration updates source truth, validators, fixtures, templates, and historical compatibility notes.
+- When both are useful, write the canonical name first and the alias second, such as `Branch Readiness Stage 1 (Plan Review)`.
 
 Naming inventory:
 
@@ -673,6 +717,18 @@ Naming inventory:
 | Active Branch | Legal current branch authority. | Active branch authorized by branch record, not slot or git alone. | High. | Use `Active Branch Authority` when legal meaning matters. | `Docs/branch_records/index.md` | High | No |
 | Selected Next | USER-approved next branch/workstream posture. | Future selected work, not active branch by inertia. | High. | Use `Selected Next Workstream` or `Selected Next: Deferred/Waived`. | `Docs/phase_governance.md` | High | No |
 | No Active Branch | Merged-main runtime/implementation idle posture. | No runtime/implementation/release/repair carrier active; standing governance may still exist. | High. | Keep with explicit standing-governance exception. | `Docs/branch_records/index.md` | High | No |
+
+ID namespace policy:
+
+| Namespace | Meaning | Status | Collision guard |
+| --- | --- | --- | --- |
+| `FAM-*` | Feature Family. | Live backlog family namespace. | Do not use for branch IDs, feedback IDs, PR IDs, or worktree slot IDs. |
+| `PKG-*` | Feature Package under one family. | Live package namespace. | Expand as `Package` at first use. |
+| `SLC-*` | Slice or source-owner marker slice row where historically required. | Avoid in new prose; preserve where existing source-owner records require it. | Prefer `Slice` in USER-facing text. |
+| `FB-*` | Legacy backlog/workstream trace. | Historical-only. | Never use for new live backlog items or feedback IDs. |
+| `UFD-*` | USER Feedback Disposition item. | Proposed future feedback namespace. | Never use `FBK-*`; UFD is not a backlog item. |
+| `RRI-*` | Standing governance / Release Readiness Intake cycle. | Existing governance intake namespace. | Expand at first use; do not use for release IDs. |
+| `PR #*` | GitHub pull request number. | GitHub evidence only. | PR number is never a backlog, workstream, package, or feedback identity. |
 
 File naming analysis:
 
