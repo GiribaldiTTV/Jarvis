@@ -526,6 +526,77 @@ BRANCH_VISION_TRACEABILITY_TERMS = (
     "validator",
     "proof",
 )
+USER_FEEDBACK_DISPOSITION_HEADING = "USER Feedback Disposition"
+USER_FEEDBACK_DISPOSITION_REQUIRED_MARKERS = (
+    "USER Feedback Disposition Required:",
+    "UFD Status:",
+    "Feedback ID:",
+    "Feedback Summary:",
+    "Disposition Type:",
+    "USER Decision State:",
+    "Owner Class:",
+    "Canonical Owner File:",
+    "Workstream Severity:",
+    "Status:",
+    "Fold-Down Target:",
+)
+USER_FEEDBACK_DISPOSITION_ALLOWED_STATES = (
+    "proposed by codex",
+    "recommended by chatgpt",
+    "accepted by user",
+    "revised by user",
+    "rejected by user",
+    "deferred by user",
+    "deferred with waiver",
+    "superseded",
+    "needs user decision",
+)
+USER_FEEDBACK_DISPOSITION_ALLOWED_STATUSES = (
+    "open",
+    "queued",
+    "blocking",
+    "closed",
+    "folded down",
+    "deferred",
+    "superseded",
+)
+USER_FEEDBACK_DISPOSITION_OWNER_CLASSES = (
+    "branch plan",
+    "branch record",
+    "backlog pointer",
+    "roadmap pointer",
+    "nexus vision",
+    "family vision",
+    "dossier",
+    "workstream doc",
+    "governance receipt",
+    "no durable owner needed",
+)
+USER_FEEDBACK_DISPOSITION_TYPES = (
+    "current branch requirement",
+    "current seam blocker",
+    "current seam non-blocking queue",
+    "branch plan revision required",
+    "future branch candidate",
+    "family vision update candidate",
+    "nexus vision update candidate",
+    "backlog pointer candidate",
+    "branch receipt item",
+    "workstream / family dossier item",
+    "workstream",
+    "family dossier",
+    "rejected / no action",
+    "rejected",
+    "no action",
+)
+USER_FEEDBACK_DISPOSITION_SEVERITY_TERMS = (
+    "level 1",
+    "level 2",
+    "level 3",
+    "non-blocking",
+    "seam-blocking",
+    "workstream-breaking",
+)
 RUNTIME_ENGINEERING_DETAIL_TERMS = {
     "Current Runtime Baseline:": (
         "state",
@@ -4133,6 +4204,40 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
         "Per-Seam Implementation Checklist:",
         "PR Readiness Fold-Down / Retention Checklist:",
         "Release Readiness Public-Scope Translation Checklist:",
+    ),
+}
+
+USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "USER Feedback Disposition",
+        "Docs/branch_plans/<branch_slug>.md",
+        "compact UFD pointers",
+    ),
+    Path("Docs/phase_governance.md"): (
+        "USER Feedback Disposition:",
+        "Feedback ID:",
+        "No Durable Owner Needed",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "USER Feedback Disposition Markers",
+        "UFD IDs use `UFD-<scope>-YYYYMMDD-NNN`",
+        "No-Action Reason:",
+        "fold-down receipt must preserve a lookup path",
+    ),
+    Path("Docs/governance_efficiency_operating_model.md"): (
+        "USER Feedback Disposition Model",
+        "full active USER Feedback Disposition items",
+        "Natural-language duplicate feedback detection remains report-only",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "USER Feedback Disposition scaffolding",
+        "marker-first",
+        "No Durable Owner Needed",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "USER Feedback Disposition Required:",
+        "UFD Status:",
+        "Feedback ID:",
     ),
 }
 
@@ -8026,6 +8131,8 @@ def _validate_branch_runtime_engineering_plan(
             "implementation approval boundary"
         ),
     )
+    if f"## {USER_FEEDBACK_DISPOSITION_HEADING}" in text:
+        _validate_user_feedback_disposition(require, source_path, text)
 
 
 def _validate_branch_vision_contract_snapshot(
@@ -8156,6 +8263,152 @@ def _validate_branch_vision_contract_snapshot(
             "decision when accepted vision or implementation scope changes"
         ),
     )
+
+
+def _validate_user_feedback_disposition(
+    require,
+    source_path: str,
+    text: str,
+) -> None:
+    require(
+        f"## {USER_FEEDBACK_DISPOSITION_HEADING}" in text,
+        (
+            f"{source_path}: meaningful-feedback planning is missing "
+            f"'## {USER_FEEDBACK_DISPOSITION_HEADING}'"
+        ),
+    )
+    ufd_section = _section(text, USER_FEEDBACK_DISPOSITION_HEADING)
+    for marker in USER_FEEDBACK_DISPOSITION_REQUIRED_MARKERS:
+        require(
+            marker in ufd_section,
+            f"{source_path}: {USER_FEEDBACK_DISPOSITION_HEADING} is missing '{marker}'",
+        )
+        value = _extract_marker_value(ufd_section, marker)
+        require(
+            bool(value),
+            (
+                f"{source_path}: {USER_FEEDBACK_DISPOSITION_HEADING} must give "
+                f"a real value for '{marker}'"
+            ),
+        )
+
+    feedback_id = _extract_marker_value(ufd_section, "Feedback ID:").strip()
+    normalized_feedback_id = feedback_id.casefold()
+    require(
+        normalized_feedback_id.startswith("ufd-"),
+        f"{source_path}: Feedback ID must use the UFD-* namespace",
+    )
+    require(
+        not normalized_feedback_id.startswith("fbk-"),
+        f"{source_path}: Feedback ID must not use FBK-* because it collides with FB-*",
+    )
+
+    disposition_type = _normalized_planning_value(
+        _extract_marker_value(ufd_section, "Disposition Type:")
+    )
+    require(
+        any(term in disposition_type for term in USER_FEEDBACK_DISPOSITION_TYPES),
+        (
+            f"{source_path}: Disposition Type must be a recognized UFD disposition "
+            "such as Current Branch Requirement, Future Branch Candidate, "
+            "Branch Receipt Item, Workstream / Family Dossier Item, or Rejected / No Action"
+        ),
+    )
+
+    decision_state = _normalized_planning_value(
+        _extract_marker_value(ufd_section, "USER Decision State:")
+    )
+    require(
+        any(term in decision_state for term in USER_FEEDBACK_DISPOSITION_ALLOWED_STATES),
+        (
+            f"{source_path}: USER Decision State must be Proposed by Codex, "
+            "Recommended by ChatGPT, Accepted/Revised/Rejected/Deferred by USER, "
+            "Deferred With Waiver, Superseded, or Needs USER Decision"
+        ),
+    )
+
+    owner_class = _normalized_planning_value(
+        _extract_marker_value(ufd_section, "Owner Class:")
+    )
+    require(
+        any(term in owner_class for term in USER_FEEDBACK_DISPOSITION_OWNER_CLASSES),
+        f"{source_path}: Owner Class must name a recognized UFD owner class",
+    )
+
+    canonical_owner = _extract_marker_value(ufd_section, "Canonical Owner File:").strip()
+    no_durable_owner = "no durable owner needed" in owner_class
+    if no_durable_owner:
+        no_action_reason = _extract_marker_value(ufd_section, "No-Action Reason:")
+        require(
+            bool(no_action_reason),
+            (
+                f"{source_path}: No Durable Owner Needed requires No-Action Reason "
+                "so meaningful-looking feedback is not silently dropped"
+            ),
+        )
+    else:
+        require(
+            canonical_owner.startswith("Docs/"),
+            (
+                f"{source_path}: Canonical Owner File must point to a Docs/ owner "
+                "unless Owner Class is No Durable Owner Needed"
+            ),
+        )
+
+    severity = _normalized_planning_value(
+        _extract_marker_value(ufd_section, "Workstream Severity:")
+    )
+    require(
+        any(term in severity for term in USER_FEEDBACK_DISPOSITION_SEVERITY_TERMS),
+        (
+            f"{source_path}: Workstream Severity must distinguish Level 1 "
+            "non-blocking, Level 2 seam-blocking, or Level 3 workstream-breaking"
+        ),
+    )
+
+    status = _normalized_planning_value(_extract_marker_value(ufd_section, "Status:"))
+    require(
+        any(term in status for term in USER_FEEDBACK_DISPOSITION_ALLOWED_STATUSES),
+        (
+            f"{source_path}: Status must be Open, Queued, Blocking, Closed, "
+            "Folded Down, Deferred, or Superseded"
+        ),
+    )
+
+    fold_down_target = _normalized_planning_value(
+        _extract_marker_value(ufd_section, "Fold-Down Target:")
+    )
+    require(
+        any(
+            term in fold_down_target
+            for term in (
+                "docs/",
+                "branch record",
+                "branch receipt",
+                "workstream",
+                "dossier",
+                "nexus vision",
+                "family vision",
+                "backlog pointer",
+                "governance receipt",
+                "no durable owner needed",
+            )
+        ),
+        f"{source_path}: Fold-Down Target must name the final UFD owner or no-action posture",
+    )
+
+    pointer_locations = _extract_marker_value(ufd_section, "Pointer Locations:")
+    if pointer_locations:
+        normalized_pointers = _normalized_planning_value(pointer_locations)
+        require(
+            "full feedback text" not in normalized_pointers
+            and "full decision history" not in normalized_pointers
+            and "live implementation state" not in normalized_pointers,
+            (
+                f"{source_path}: Pointer Locations may carry UFD ID, short title, "
+                "canonical owner, compact status, and fold-down status only"
+            ),
+        )
 
 
 def _validate_branch_runtime_engineering_plan_pointer(
@@ -18014,6 +18267,17 @@ def main() -> int:
                 required_phrase in text,
                 (
                     f"{relative_path}: Branch Runtime Engineering Plan guidance "
+                    f"is missing '{required_phrase}'"
+                ),
+            )
+
+    for relative_path, required_phrases in USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                (
+                    f"{relative_path}: USER Feedback Disposition guidance "
                     f"is missing '{required_phrase}'"
                 ),
             )

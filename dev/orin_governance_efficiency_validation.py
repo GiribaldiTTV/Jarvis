@@ -29,6 +29,7 @@ REQUIRED_MODEL_PHRASES = (
     "Branch Record / Plan / Workstream Fold-Down Model",
     "Product Vision Contract Model",
     "Vision-To-Plan Interaction Loop",
+    "USER Feedback Disposition Model",
     "USER Review Integration Decisions",
     "Standing Governance Ledger Compaction",
     "Release Ownership UX",
@@ -69,6 +70,8 @@ POINTER_REQUIREMENTS = {
         "Docs Source-Truth Reform Model: Compact Pointer Layer",
         "Fold-Down Model",
         "PR Fold-Down Packet:",
+        "USER Feedback Disposition",
+        "No-Action Reason:",
     ),
     Path("Docs/workstreams/index.md"): (
         "Docs Source-Truth Reform Model: Compact Pointer Layer",
@@ -83,6 +86,8 @@ POINTER_REQUIREMENTS = {
     Path("Docs/governance_process_efficiency_reform_plan.md"): (
         "Consolidated Governance Reform Pass",
         "Docs/governance_efficiency_operating_model.md",
+        "Marker-first governance scaffolding implemented",
+        "USER Feedback Disposition",
     ),
 }
 
@@ -165,6 +170,9 @@ BRANCH_PLAN_README_REQUIRED = (
     "Branch plans are canonical while the owning branch is active",
     "At PR Readiness, the `PR Fold-Down Packet:` must classify plan content",
     "It must not preserve stale active phase",
+    "USER Feedback Disposition",
+    "UFD-<scope>-YYYYMMDD-NNN",
+    "No-Action Reason:",
 )
 
 WORKSTREAM_INDEX_REQUIRED = (

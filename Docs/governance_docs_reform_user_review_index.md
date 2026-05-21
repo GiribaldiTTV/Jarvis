@@ -105,7 +105,8 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 
 | File | Ambiguity Risk | Signals | Action |
 | --- | --- | --- | --- |
-| `Docs/Main.md` | High | `volatile-current-wording=318`; `unclear-ownership-wording=129`; `soft-commitment-wording=51`; `state-ledger-wording=155` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/Main.md` | High | `volatile-current-wording=320`; `unclear-ownership-wording=130`; `soft-commitment-wording=51`; `state-ledger-wording=155` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/README.md` | High | `volatile-current-wording=23`; `unclear-ownership-wording=26`; `soft-commitment-wording=8`; `state-ledger-wording=26` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | `volatile-current-wording=22`; `unclear-ownership-wording=11`; `soft-commitment-wording=4`; `state-ledger-wording=53` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | High | `volatile-current-wording=41`; `unclear-ownership-wording=11`; `soft-commitment-wording=3`; `state-ledger-wording=84` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | High | `volatile-current-wording=27`; `unclear-ownership-wording=16`; `soft-commitment-wording=4`; `state-ledger-wording=76` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -122,7 +123,6 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | High | `volatile-current-wording=134`; `unclear-ownership-wording=39`; `soft-commitment-wording=17`; `state-ledger-wording=163` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md` | High | `volatile-current-wording=58`; `unclear-ownership-wording=23`; `soft-commitment-wording=6`; `state-ledger-wording=31` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | High | `volatile-current-wording=187`; `unclear-ownership-wording=61`; `soft-commitment-wording=38`; `state-ledger-wording=279` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | High | `volatile-current-wording=774`; `unclear-ownership-wording=151`; `soft-commitment-wording=103`; `state-ledger-wording=931` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 
 ## Structure Review Queue
 

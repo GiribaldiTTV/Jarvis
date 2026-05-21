@@ -35,6 +35,15 @@ INVALID_PROPOSED_BRANCH_VISION_CONTRACT_FIXTURE = (
 INVALID_BLOCKING_BRANCH_VISION_CONTRACT_FIXTURE = (
     FIXTURE_DIR / "invalid_blocking_branch_vision_question.md"
 )
+VALID_USER_FEEDBACK_DISPOSITION_FIXTURE = (
+    FIXTURE_DIR / "valid_user_feedback_disposition.md"
+)
+INVALID_USER_FEEDBACK_NO_OWNER_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_feedback_no_durable_owner.md"
+)
+INVALID_USER_FEEDBACK_BAD_ID_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_feedback_bad_id.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -61,6 +70,10 @@ EXPECTED_PROPOSED_VISION_FAILURE_SNIPPET = (
 EXPECTED_BLOCKING_VISION_FAILURE_SNIPPET = (
     "Open Vision Questions must be None, queued non-blocking, or Deferred With Waiver"
 )
+EXPECTED_UFD_NO_OWNER_FAILURE_SNIPPET = (
+    "No Durable Owner Needed requires No-Action Reason"
+)
+EXPECTED_UFD_BAD_ID_FAILURE_SNIPPET = "Feedback ID must use the UFD-* namespace"
 
 
 def _collect_failures():
@@ -127,6 +140,16 @@ def _validate_branch_vision_contract_text(text: str) -> list[str]:
     return failures
 
 
+def _validate_user_feedback_disposition_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_user_feedback_disposition(
+        require,
+        "<user-feedback-disposition-fixture>",
+        text,
+    )
+    return failures
+
+
 def _validate_compact_backlog_text(text: str) -> list[str]:
     failures, require = _collect_failures()
     governance._validate_branch_runtime_backlog_compactness(
@@ -166,6 +189,9 @@ def validate() -> list[str]:
         VALID_BRANCH_VISION_CONTRACT_FIXTURE,
         INVALID_PROPOSED_BRANCH_VISION_CONTRACT_FIXTURE,
         INVALID_BLOCKING_BRANCH_VISION_CONTRACT_FIXTURE,
+        VALID_USER_FEEDBACK_DISPOSITION_FIXTURE,
+        INVALID_USER_FEEDBACK_NO_OWNER_FIXTURE,
+        INVALID_USER_FEEDBACK_BAD_ID_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -313,6 +339,33 @@ def validate() -> list[str]:
         failures.append(
             "Invalid blocking Branch Vision Contract fixture did not reject "
             "open blocking vision questions"
+        )
+
+    valid_ufd_failures = _validate_user_feedback_disposition_text(
+        VALID_USER_FEEDBACK_DISPOSITION_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_ufd_failures:
+        failures.append(
+            "Valid USER Feedback Disposition fixture unexpectedly failed: "
+            + "; ".join(valid_ufd_failures[:5])
+        )
+
+    no_owner_ufd_failures = _validate_user_feedback_disposition_text(
+        INVALID_USER_FEEDBACK_NO_OWNER_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_UFD_NO_OWNER_FAILURE_SNIPPET not in "\n".join(no_owner_ufd_failures):
+        failures.append(
+            "Invalid USER Feedback Disposition no-owner fixture did not reject "
+            "No Durable Owner Needed without No-Action Reason"
+        )
+
+    bad_id_ufd_failures = _validate_user_feedback_disposition_text(
+        INVALID_USER_FEEDBACK_BAD_ID_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_UFD_BAD_ID_FAILURE_SNIPPET not in "\n".join(bad_id_ufd_failures):
+        failures.append(
+            "Invalid USER Feedback Disposition bad-ID fixture did not reject "
+            "non-UFD feedback ID namespace"
         )
 
     return failures

@@ -81,6 +81,12 @@ Engineering Plan Status:
 PR Fold-Down Packet:
 [Pending / Complete / not applicable]
 
+USER Feedback Disposition Required:
+[Yes / No / not applicable]
+
+UFD Status:
+[Open / Queued / Blocking / Closed / Folded Down / Deferred / Superseded / not applicable]
+
 PR Readiness Stage:
 [PR Readiness Stage 1 - Analysis Gate / PR Readiness Stage 2 - Execution Gate / not applicable]
 
@@ -894,6 +900,11 @@ If the phase is `Branch Readiness` and the current stage is `Branch Readiness St
 - Branch Runtime Engineering Plan Path:
 - Engineering Plan Status:
 - PR Fold-Down Packet:
+- USER Feedback Disposition Required:
+- UFD Status:
+- Feedback ID:
+- Canonical Owner File:
+- Fold-Down Target:
 - USER Engineering Planning Review:
 - Runtime Implementation Approval:
 - Current Runtime Baseline:

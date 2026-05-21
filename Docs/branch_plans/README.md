@@ -123,6 +123,76 @@ Branch Plan Revision Packet fields:
 - Codex recommendation
 - Exact USER decision needed
 
+## USER Feedback Disposition Markers
+
+`USER Feedback Disposition` is the active branch-plan mechanism for preserving meaningful USER feedback without creating another permanent feedback ledger.
+
+Meaningful feedback requires a UFD item when it affects branch scope, accepted vision, user-facing behavior, runtime behavior, validation proof, future work, reusable product standards, approval boundaries, or a USER decision.
+
+Minor comments, acknowledgements, typo-level notes, duplicate remarks, or non-actionable conversation may close with no durable UFD item only when Codex records the no-action reason in the active branch plan or return digest.
+
+Minimum UFD markers:
+
+- USER Feedback Disposition Required:
+- UFD Status:
+- Feedback ID:
+- Feedback Summary:
+- Disposition Type:
+- USER Decision State:
+- Owner Class:
+- Canonical Owner File:
+- Workstream Severity:
+- Status:
+- Fold-Down Target:
+
+Allowed UFD decision states:
+
+- Proposed by Codex
+- Recommended by ChatGPT
+- Accepted by USER
+- Revised by USER
+- Rejected by USER
+- Deferred by USER
+- Deferred With Waiver
+- Superseded
+- Needs USER Decision
+
+Allowed UFD status values:
+
+- Open
+- Queued
+- Blocking
+- Closed
+- Folded Down
+- Deferred
+- Superseded
+
+Allowed UFD owner classes:
+
+- Branch Plan
+- Branch Record
+- Backlog Pointer
+- Roadmap Pointer
+- Nexus Vision
+- Family Vision / Dossier
+- Workstream Doc
+- Governance Receipt
+- No Durable Owner Needed
+
+`No Durable Owner Needed` is valid only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with `No-Action Reason:` recorded in the active branch plan or return digest.
+
+Pointer locations may carry UFD ID, short title, canonical owner, compact status, and fold-down status only. They must not carry full feedback text, full decision history, or live implementation state.
+
+UFD IDs use `UFD-<scope>-YYYYMMDD-NNN`. Do not use `FBK-*`, because it collides visually with historical `FB-###` workstream records.
+
+## USER Feedback Disposition Fold-Down
+
+At PR Readiness, every UFD item must be migrated, deferred with waiver, rejected/no-action with reason, closed, or explicitly carried to a future owner.
+
+The fold-down receipt must preserve a lookup path from every UFD ID to its final owner after branch-plan fold-down and retirement.
+
+Branch records carry compact UFD status and pointers only. Backlog carries future-candidate pointers only after USER accepts the future-work disposition. Nexus Vision and family vision owners receive only accepted reusable standards, not branch-local unresolved feedback.
+
 ## Lifecycle
 
 Branch Readiness Stage 1 proposes the plan requirements and returns the USER planning-review decision needed.
@@ -133,13 +203,19 @@ Workstream Entry reads the plan and returns the first seam design packet before 
 
 If a Branch Vision Contract Snapshot is required, Workstream Entry also proves `Branch Vision Snapshot Status: Accepted`, `Open Vision Questions: None` or `Deferred With Waiver`, `USER Vision Green: Yes`, accepted implementation scope, accepted seam map, and accepted stop conditions before implementation begins.
 
+If USER feedback is meaningful to current branch scope, future branch scope, accepted vision, validation proof, or reusable product standards, Workstream Entry and later seam packets must either add or update a UFD item or state the no-action reason.
+
 Hardening compares actual implementation against the plan and records extra behavior, skipped items, UI copy integrity, validator coverage, and future-gated item checks.
 
 Hardening also compares actual behavior against the accepted Branch Vision Contract Snapshot when one is required.
 
+Hardening also checks UFD items that affect accepted scope, skipped items, user-facing behavior, validation proof, and future-gated items.
+
 Live Validation records proof or waiver posture against the plan. Disabled/status-only branches must include a static proof substitute and waiver reason.
 
 Live Validation compares observed user-facing behavior against accepted vision and records waiver posture when a branch is disabled/status-only or static-proof-only.
+
+Live Validation must not mark user-facing feedback accepted unless the UFD item is implemented, waived, deferred, rejected/no-action with reason, or carried to a named future owner.
 
 PR Readiness compares the whole branch against the plan and produces the `PR Fold-Down Packet:`. That packet decides what durable content moves into the structured branch receipt, what promotes to a canonical workstream or family dossier, and when the plan is retired from active planning posture.
 

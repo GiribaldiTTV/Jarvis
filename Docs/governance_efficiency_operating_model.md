@@ -49,8 +49,8 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/feature_backlog.md` | compact feature-family registry, status, and pointer layer | detailed active-branch execution planning |
 | `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, and broad feature-family checkpoints | volatile Git/GitHub operational state or active release ledger fields |
 | `Docs/branch_records/index.md` | active/historical branch authority routing | detailed branch implementation checklists |
-| `Docs/branch_records/<branch>.md` | branch authority, phase history, approvals, legal next phase, structured traceability receipt | volatile live state, unindexed execution diaries, or reusable family-level implementation history after promotion |
-| `Docs/branch_plans/<branch>.md` | active runtime branch engineering plan, per-seam checklist, plan-to-implementation traceability while active | permanent family-level dossier, active authority after fold-down, or live-state ledger after retirement |
+| `Docs/branch_records/<branch>.md` | branch authority, phase history, approvals, legal next phase, compact UFD pointer/status markers, structured traceability receipt | volatile live state, unindexed execution diaries, full feedback text, or reusable family-level implementation history after promotion |
+| `Docs/branch_plans/<branch>.md` | active runtime branch engineering plan, USER Feedback Disposition full-detail owner while active, per-seam checklist, plan-to-implementation traceability while active | permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger after retirement |
 | `Docs/workstreams/index.md` | canonical workstream and dossier routing | per-branch live state by inertia |
 | `Docs/workstreams/<id>.md` | durable promoted implementation history and reusable continuity | volatile branch/PR state |
 | `Docs/validation_helper_registry.md` | durable helper inventory, statuses, reuse/consolidation decisions | workstream evidence details already owned by branch/workstream docs |
@@ -68,7 +68,7 @@ The post-audit reform model has one owner per active fact class:
 - roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, and broad feature-family checkpoints
 - worktree slots own reusable slot definitions and intended assignment receipts
 - branch records own branch authority, approvals, phase history, and structured branch traceability receipts
-- branch plans own detailed active runtime-branch engineering plans and retire after fold-down
+- branch plans own detailed active runtime-branch engineering plans, full active USER Feedback Disposition items, and retire after fold-down
 - workstreams and family dossiers own durable package trace, slice trace, proof history, and reusable continuity
 - Git, GitHub, and approved helpers own live operational truth
 
@@ -90,9 +90,9 @@ Docs may record historical receipts, but they must not pretend to be live operat
 
 Backlog, roadmap, branch records, worktree slots, and workstream docs must not all manually track the same volatile state.
 
-Allowed compact current-state markers:
+Allowed compact non-live markers:
 
-- a current decision surface in backlog or roadmap
+- compact backlog/roadmap status and owner pointers that do not manually maintain volatile live facts
 - branch authority status in the active branch record
 - slot assignment receipt in `Docs/worktree_slots.md`
 - historical receipts after live truth is validated
@@ -225,6 +225,22 @@ Before Workstream implementation, runtime/user-facing branches should record `Br
 Vision Contract is required for user-facing UI/UX behavior change, runtime behavior change, workflow hierarchy change, visual standard change, setup or activation behavior change, provider/model/memory/voice/Core behavior, returned UTS that changes target behavior, broad family planning, ambiguous acceptance criteria, conflicting prior source truth, or any Codex recommendation that would otherwise become product/design truth. It may be marked not required for mechanical docs-only repair, validator-only repair with no product/runtime/user-facing impact, release-body formatting repair, source-truth typo/format repair, or branch metadata repair when the reason is recorded.
 
 Accepted assumptions expire or require review when branch scope changes, returned UTS changes the accepted target, family vision changes, source truth contradicts the prior assumption, new user-facing behavior appears, or implementation would apply an old decision to a new family or surface.
+
+## USER Feedback Disposition Model
+
+USER Feedback Disposition (UFD) preserves meaningful USER feedback without creating another permanent feedback ledger.
+
+The active Branch Runtime Engineering Plan is the full-detail owner for UFD items while the branch is active. Branch records, backlog, roadmap, workstream docs, family dossiers, Nexus Vision, and family vision owners may carry compact UFD pointers or folded outcomes only when they are the correct owner for the final disposition.
+
+Every meaningful feedback item should have one UFD ID, one canonical owner file, one USER decision state, one disposition type, one status, one Workstream severity, and one fold-down target. UFD IDs use `UFD-<scope>-YYYYMMDD-NNN`; `FBK-*` is not allowed because it collides visually with historical `FB-###` workstream records.
+
+Meaningful feedback requires UFD disposition when it affects branch scope, accepted vision, user-facing behavior, runtime behavior, validation proof, future work, reusable product standards, approval boundaries, or a USER decision. Minor comments, acknowledgements, typo-level notes, duplicate remarks, or non-actionable conversation may close without durable UFD only when Codex records the no-action reason.
+
+Pointer locations may carry UFD ID, short title, canonical owner, compact status, and fold-down status only. They must not carry full feedback text, full decision history, or live implementation state.
+
+At PR Readiness, each UFD item must be migrated, deferred with waiver, rejected/no-action with reason, closed, or explicitly carried to a future owner. Fold-down must preserve a lookup path from every UFD ID to its final owner after branch-plan fold-down and retirement.
+
+Initial validator support is marker-first. It validates UFD IDs, required owner/status/decision markers, `No Durable Owner Needed` guardrails, and fold-down lookup posture. Natural-language duplicate feedback detection remains report-only until approved fixtures, false-positive review, and USER approval make it safe to block.
 
 ## USER Review Integration Decisions
 

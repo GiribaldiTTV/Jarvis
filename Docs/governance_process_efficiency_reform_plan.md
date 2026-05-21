@@ -562,9 +562,9 @@ Validator/helper posture:
 
 Status:
 - Planning Status: `Planning / USER review only`.
-- Implementation Status: `Not yet implemented as binding governance`.
-- This section records the recommended model and future implementation targets. It does not by itself authorize Codex to enforce UFD requirements, mutate branch plans, create new UFD records, rename files, or treat proposed feedback as accepted branch scope.
-- Future Codex packets should treat this section as planning evidence until a later implementation commit updates the owning governance docs, templates, fixtures, and validators.
+- Implementation Status: `Marker-first governance scaffolding implemented on 2026-05-21; heavy historical enforcement remains pending USER decision`.
+- This section records the recommended model, implementation targets, and implementation record. It does not by itself authorize Codex to mutate branch plans, create new UFD records outside an approved branch plan, rename files, or treat proposed feedback as accepted branch scope.
+- Future Codex packets should treat this section as planning evidence and implementation history; binding UFD guidance lives in the owning governance docs, templates, fixtures, and validators updated by the implementation commit.
 
 Scope:
 - Plan the USER Feedback Disposition model before implementation.
