@@ -26,6 +26,15 @@ SHALLOW_BRANCH_RUNTIME_PLAN_FIXTURE = (
 )
 BACKLOG_SPRAWL_FIXTURE = FIXTURE_DIR / "invalid_backlog_planning_sprawl.md"
 FOLD_DOWN_FIXTURE = FIXTURE_DIR / "valid_pr_fold_down_packet.md"
+VALID_BRANCH_VISION_CONTRACT_FIXTURE = (
+    FIXTURE_DIR / "valid_branch_vision_contract_snapshot.md"
+)
+INVALID_PROPOSED_BRANCH_VISION_CONTRACT_FIXTURE = (
+    FIXTURE_DIR / "invalid_proposed_branch_vision_contract_snapshot.md"
+)
+INVALID_BLOCKING_BRANCH_VISION_CONTRACT_FIXTURE = (
+    FIXTURE_DIR / "invalid_blocking_branch_vision_question.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -45,6 +54,12 @@ EXPECTED_BRANCH_RUNTIME_PLAN_FAILURE_SNIPPETS = (
     "Branch Runtime Engineering Plan value for 'Current Runtime Baseline:'",
     "Branch Runtime Engineering Plan marker 'Planned Runtime Delta:'",
     "Branch Runtime Engineering Plan value for 'Per-Seam Implementation Checklist:'",
+)
+EXPECTED_PROPOSED_VISION_FAILURE_SNIPPET = (
+    "Branch Vision Snapshot Status cannot stay Proposed"
+)
+EXPECTED_BLOCKING_VISION_FAILURE_SNIPPET = (
+    "Open Vision Questions must be None, queued non-blocking, or Deferred With Waiver"
 )
 
 
@@ -102,6 +117,16 @@ def _validate_branch_runtime_plan_text(text: str) -> list[str]:
     return failures
 
 
+def _validate_branch_vision_contract_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_branch_vision_contract_snapshot(
+        require,
+        "<branch-vision-contract-fixture>",
+        text,
+    )
+    return failures
+
+
 def _validate_compact_backlog_text(text: str) -> list[str]:
     failures, require = _collect_failures()
     governance._validate_branch_runtime_backlog_compactness(
@@ -138,6 +163,9 @@ def validate() -> list[str]:
         SHALLOW_BRANCH_RUNTIME_PLAN_FIXTURE,
         BACKLOG_SPRAWL_FIXTURE,
         FOLD_DOWN_FIXTURE,
+        VALID_BRANCH_VISION_CONTRACT_FIXTURE,
+        INVALID_PROPOSED_BRANCH_VISION_CONTRACT_FIXTURE,
+        INVALID_BLOCKING_BRANCH_VISION_CONTRACT_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -254,6 +282,37 @@ def validate() -> list[str]:
         failures.append(
             "Missing Branch Runtime Engineering Plan path fixture did not reject "
             "an accepted plan pointer to a nonexistent file"
+        )
+
+    valid_vision_failures = _validate_branch_vision_contract_text(
+        VALID_BRANCH_VISION_CONTRACT_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_vision_failures:
+        failures.append(
+            "Valid Branch Vision Contract Snapshot fixture unexpectedly failed: "
+            + "; ".join(valid_vision_failures[:5])
+        )
+
+    proposed_vision_failures = _validate_branch_vision_contract_text(
+        INVALID_PROPOSED_BRANCH_VISION_CONTRACT_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_PROPOSED_VISION_FAILURE_SNIPPET not in "\n".join(
+        proposed_vision_failures
+    ):
+        failures.append(
+            "Invalid proposed-only Branch Vision Contract fixture did not reject "
+            "Codex/ChatGPT recommendations without USER acceptance"
+        )
+
+    blocking_vision_failures = _validate_branch_vision_contract_text(
+        INVALID_BLOCKING_BRANCH_VISION_CONTRACT_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BLOCKING_VISION_FAILURE_SNIPPET not in "\n".join(
+        blocking_vision_failures
+    ):
+        failures.append(
+            "Invalid blocking Branch Vision Contract fixture did not reject "
+            "open blocking vision questions"
         )
 
     return failures

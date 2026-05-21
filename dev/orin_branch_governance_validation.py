@@ -485,6 +485,47 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_COMPACTNESS_FORBIDDEN_MARKERS = (
     "PR Readiness Fold-Down / Retention Checklist:",
     "Release Readiness Public-Scope Translation Checklist:",
 )
+BRANCH_VISION_CONTRACT_HEADING = "Branch Vision Contract Snapshot"
+BRANCH_VISION_CONTRACT_REQUIRED_MARKERS = (
+    "Vision Contract Required:",
+    "Vision Contract Requirement Reason:",
+    "Branch Vision Snapshot Status:",
+    "Open Vision Questions:",
+    "USER Vision Green:",
+    "Implementation Scope:",
+    "Seam Map:",
+    "Stop Conditions:",
+    "Design Assumption Ledger:",
+    "Vision Question Queue:",
+    "Question Severity Policy:",
+    "Vision-to-Implementation Traceability:",
+    "Branch Plan Revision Packet:",
+)
+BRANCH_VISION_SAFE_STATE_TERMS = (
+    "accepted by user",
+    "accepted",
+    "revised by user",
+    "revised",
+    "deferred with waiver",
+    "waived",
+    "not required",
+)
+BRANCH_VISION_UNSAFE_STATE_TERMS = (
+    "proposed by codex",
+    "recommended by chatgpt",
+    "needs user decision",
+    "pending user",
+    "unanswered",
+    "blocking",
+)
+BRANCH_VISION_TRACEABILITY_TERMS = (
+    "vision",
+    "branch",
+    "seam",
+    "file",
+    "validator",
+    "proof",
+)
 RUNTIME_ENGINEERING_DETAIL_TERMS = {
     "Current Runtime Baseline:": (
         "state",
@@ -7983,6 +8024,136 @@ def _validate_branch_runtime_engineering_plan(
         (
             f"{source_path}: Runtime Implementation Approval must preserve the "
             "implementation approval boundary"
+        ),
+    )
+
+
+def _validate_branch_vision_contract_snapshot(
+    require,
+    source_path: str,
+    text: str,
+) -> None:
+    require(
+        f"## {BRANCH_VISION_CONTRACT_HEADING}" in text,
+        (
+            f"{source_path}: user-facing or runtime branch planning is missing "
+            f"'## {BRANCH_VISION_CONTRACT_HEADING}'"
+        ),
+    )
+
+    vision_section = _section(text, BRANCH_VISION_CONTRACT_HEADING)
+    for marker in BRANCH_VISION_CONTRACT_REQUIRED_MARKERS:
+        require(
+            marker in vision_section,
+            f"{source_path}: {BRANCH_VISION_CONTRACT_HEADING} is missing '{marker}'",
+        )
+        value = _extract_marker_value(vision_section, marker)
+        require(
+            bool(value),
+            (
+                f"{source_path}: {BRANCH_VISION_CONTRACT_HEADING} must give "
+                f"a real value for '{marker}'"
+            ),
+        )
+
+    required = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Vision Contract Required:")
+    )
+    status = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Branch Vision Snapshot Status:")
+    )
+    open_questions = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Open Vision Questions:")
+    )
+    user_green = _normalized_planning_value(
+        _extract_marker_value(vision_section, "USER Vision Green:")
+    )
+    assumption_ledger = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Design Assumption Ledger:")
+    )
+    severity_policy = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Question Severity Policy:")
+    )
+    traceability = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Vision-to-Implementation Traceability:")
+    )
+    revision_packet = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Branch Plan Revision Packet:")
+    )
+
+    is_required = "yes" in required or "required" in required
+    if is_required:
+        require(
+            any(term in status for term in BRANCH_VISION_SAFE_STATE_TERMS),
+            (
+                f"{source_path}: Branch Vision Snapshot Status must be accepted, "
+                "revised, deferred with waiver, waived, or not required before "
+                "implementation-safe planning"
+            ),
+        )
+        require(
+            any(term in user_green for term in ("yes", "green", "accepted", "waived")),
+            (
+                f"{source_path}: USER Vision Green must be Yes/Green/Accepted "
+                "or explicitly waived before implementation-safe planning"
+            ),
+        )
+
+    require(
+        not any(term in status for term in BRANCH_VISION_UNSAFE_STATE_TERMS),
+        (
+            f"{source_path}: Branch Vision Snapshot Status cannot stay Proposed, "
+            "Recommended, Pending, Blocking, or Needs USER Decision for "
+            "implementation-safe planning"
+        ),
+    )
+    require(
+        "blocking" not in open_questions
+        and "needs user" not in open_questions
+        and "unanswered" not in open_questions,
+        (
+            f"{source_path}: Open Vision Questions must be None, queued "
+            "non-blocking, or Deferred With Waiver before implementation-safe planning"
+        ),
+    )
+    require(
+        any(term in assumption_ledger for term in ("accepted by user", "revised by user", "deferred with waiver", "waived", "not required")),
+        (
+            f"{source_path}: Design Assumption Ledger must show USER-accepted, "
+            "USER-revised, USER-deferred-with-waiver, waived, or not-required "
+            "decision state; Codex or ChatGPT recommendations alone are not safe"
+        ),
+    )
+    require(
+        (
+            "level 1" in severity_policy
+            and "level 2" in severity_policy
+            and "level 3" in severity_policy
+        )
+        or (
+            "non-blocking" in severity_policy
+            and "seam-blocking" in severity_policy
+            and "workstream-breaking" in severity_policy
+        ),
+        (
+            f"{source_path}: Question Severity Policy must distinguish Level 1 "
+            "non-blocking, Level 2 seam-blocking, and Level 3 workstream-breaking "
+            "vision questions"
+        ),
+    )
+    for term in BRANCH_VISION_TRACEABILITY_TERMS:
+        require(
+            term in traceability,
+            (
+                f"{source_path}: Vision-to-Implementation Traceability must map "
+                f"accepted vision to branch/seam/files/validator/proof; missing {term!r}"
+            ),
+        )
+    require(
+        "user" in revision_packet and "decision" in revision_packet,
+        (
+            f"{source_path}: Branch Plan Revision Packet must require USER "
+            "decision when accepted vision or implementation scope changes"
         ),
     )
 

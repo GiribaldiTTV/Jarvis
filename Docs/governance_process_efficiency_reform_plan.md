@@ -535,6 +535,26 @@ Deferred decisions:
 - Which oversized branch records should be reorganized first into structured receipt format.
 - Which low-risk reference docs should be deleted, collapsed, or retained.
 
+## Vision Contract Implementation Checkpoint - 2026-05-21
+
+Scope:
+- Implement the approved Vision Contract / Vision-to-Plan governance model on this Governance carrier.
+- Keep implementation limited to source-truth rules, branch-plan lifecycle updates, packet templates, assumption decision-state markers, USER Vision Green markers, fixture examples, and validator/helper scaffolding.
+- Preserve `Docs/orin_vision.md` rename/reframe, broad family vision file creation, PR creation, merge, runtime work, FAM-006/FAM-007 mutation, release work, issue work, branch cleanup, and heavy validator enforcement against historical records as pending USER decisions.
+
+Implementation model:
+- Vision Contract complements the Branch Runtime Engineering Plan rather than replacing it.
+- Nexus Vision remains the project-wide product intent layer; optional family vision should live in a family dossier or later USER-approved family vision file only when the feature family is broad enough.
+- Branch Vision Contract Snapshot belongs inside the active branch plan so accepted branch-specific vision is close to the seams, files, validators, and proof it governs.
+- Codex and ChatGPT recommendations remain proposed until USER accepts, revises, rejects, defers, waives, or supersedes them.
+- `USER Vision Green: Yes` is the Workstream continuity lock: after it is recorded, Codex continues on the accepted plan unless a Level 2 seam-blocking or Level 3 workstream-breaking question appears.
+- New design questions during Workstream should be classified as Level 1 non-blocking, Level 2 seam-blocking, or Level 3 workstream-breaking so implementation does not churn on harmless questions or silently ignore blocking ones.
+
+Validator/helper posture:
+- `dev/orin_branch_governance_validation.py` now carries reusable Branch Vision Contract Snapshot validation scaffolding.
+- `dev/orin_branch_readiness_planning_fixture_validation.py` proves valid accepted vision, invalid proposed-only assumptions, and invalid blocking open vision questions through fixtures.
+- Heavy enforcement against historical branch records remains deferred so old receipts are not broken by a new model.
+
 ## Next Legal Phase
 
 - Recommended next phase: USER review of the updated Docs reform dossier and review index.

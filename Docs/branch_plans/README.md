@@ -52,6 +52,77 @@ Runtime-focused plans must include:
 - PR Fold-Down Packet:
 - Runtime Implementation Approval:
 
+## Vision Contract Snapshot Markers
+
+Runtime/user-facing branches that affect product behavior, UI/UX, workflow hierarchy, visual standards, setup/activation behavior, provider/model/memory/voice/Core behavior, acceptance criteria, or any design assumption must include a Branch Vision Contract Snapshot before Workstream implementation.
+
+Small docs-only, metadata-only, release-body-format, typo/format, or validator-only branches may record `Vision Contract Required: No` with a reason when there is no product, runtime, or user-facing impact.
+
+Branch Vision Contract Snapshot markers:
+
+- Vision Contract Required:
+- Vision Contract Requirement Reason:
+- Branch Vision Snapshot Status:
+- Open Vision Questions:
+- USER Vision Green:
+- Implementation Scope:
+- Seam Map:
+- Stop Conditions:
+- Design Assumption Ledger:
+- Vision Question Queue:
+- Question Severity Policy:
+- Vision-to-Implementation Traceability:
+- Branch Plan Revision Packet:
+
+Allowed design assumption decision states:
+
+- Proposed by Codex
+- Recommended by ChatGPT
+- Accepted by USER
+- Revised by USER
+- Rejected by USER
+- Deferred by USER
+- Deferred With Waiver
+- Superseded
+- Needs USER Decision
+
+Only `Accepted by USER`, `Revised by USER`, or `Deferred With Waiver` design states are implementation-safe for user-facing/runtime behavior. Codex and ChatGPT recommendations remain proposed evidence until USER accepts, revises, rejects, defers, waives, or supersedes them.
+
+`USER Vision Green: Yes` means the branch may implement the accepted branch plan without repeatedly reopening broad design unless new repo truth triggers a Level 2 or Level 3 vision question.
+
+Question severity:
+
+- Level 1 - Non-blocking question: record in the vision/question queue, continue using the accepted plan, and return at the next appropriate review point.
+- Level 2 - Seam-blocking question: pause the affected seam, return a Vision Question Digest, and continue unaffected areas only when the plan and source truth support that path.
+- Level 3 - Workstream-breaking question: return a Branch Plan Revision Packet and require USER decision before continuing affected Workstream scope.
+
+Vision Question Digest fields:
+
+- Question
+- Why it matters
+- Affected branch/seam
+- Current accepted vision
+- Codex recommendation
+- Alternative options
+- Risk of each option
+- Whether work can continue without this answer
+- Recommended USER decision
+- Exact USER decision needed
+
+Branch Plan Revision Packet fields:
+
+- Current accepted plan
+- Discovered issue
+- Why current plan is insufficient
+- Proposed revision
+- Affected seams
+- Files/surfaces affected
+- Validation impact
+- Whether this stays in current Workstream
+- Whether this moves to future branch
+- Codex recommendation
+- Exact USER decision needed
+
 ## Lifecycle
 
 Branch Readiness Stage 1 proposes the plan requirements and returns the USER planning-review decision needed.
@@ -60,11 +131,19 @@ Branch Readiness Stage 2 creates or admits `Docs/branch_plans/<branch_slug>.md`,
 
 Workstream Entry reads the plan and returns the first seam design packet before implementation. Each seam updates plan-to-implementation traceability with planned item, changed files, validator proof, user-facing proof, and future-gated decisions.
 
+If a Branch Vision Contract Snapshot is required, Workstream Entry also proves `Branch Vision Snapshot Status: Accepted`, `Open Vision Questions: None` or `Deferred With Waiver`, `USER Vision Green: Yes`, accepted implementation scope, accepted seam map, and accepted stop conditions before implementation begins.
+
 Hardening compares actual implementation against the plan and records extra behavior, skipped items, UI copy integrity, validator coverage, and future-gated item checks.
+
+Hardening also compares actual behavior against the accepted Branch Vision Contract Snapshot when one is required.
 
 Live Validation records proof or waiver posture against the plan. Disabled/status-only branches must include a static proof substitute and waiver reason.
 
+Live Validation compares observed user-facing behavior against accepted vision and records waiver posture when a branch is disabled/status-only or static-proof-only.
+
 PR Readiness compares the whole branch against the plan and produces the `PR Fold-Down Packet:`. That packet decides what durable content moves into the structured branch receipt, what promotes to a canonical workstream or family dossier, and when the plan is retired from active planning posture.
+
+PR Readiness also folds reusable vision updates into the correct durable owner: Nexus Vision, family vision/family dossier, workstream doc, structured branch receipt, or validated historical receipt. Branch-specific snapshots should not become permanent branch-specific vision file sprawl.
 
 Release Readiness translates the plan into public release language: user-visible highlights, excluded work, future-gated capabilities, and public body wording without internal governance jargon.
 

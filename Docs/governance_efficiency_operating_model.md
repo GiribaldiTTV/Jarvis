@@ -192,6 +192,40 @@ The vision contract should drive backlog-family planning and Branch Readiness re
 
 Vision records should support USER/Codex back-and-forth. They may grow as implementation teaches the project, but changes should be explicit USER-reviewed product intent, not accidental branch-local drift.
 
+## Vision-To-Plan Interaction Loop
+
+The Vision Contract layer complements Branch Runtime Engineering Plans. It does not create a parallel planning system.
+
+Use this layer when product/design assumptions would otherwise become implementation truth by Codex inference:
+
+- Nexus Vision owns project-wide principles, long-term standards, and durable product direction.
+- Family Vision owns broad feature-family direction only when the family is large enough to justify a durable owner.
+- Branch Vision Contract Snapshot lives inside the active Branch Engineering Plan and records the USER-accepted branch-specific vision state.
+- Branch Engineering Plan translates the accepted snapshot into seams, files, validators, proof, and stop conditions.
+- Vision Question Digest is the required packet when product/design uncertainty affects planning or execution.
+- Branch Plan Revision Packet is the required packet when accepted vision or accepted branch scope needs controlled revision.
+- Plan-to-Implementation Traceability proves that implementation followed accepted vision and the branch plan.
+
+Design assumption states:
+
+- `Proposed by Codex`
+- `Recommended by ChatGPT`
+- `Accepted by USER`
+- `Revised by USER`
+- `Rejected by USER`
+- `Deferred by USER`
+- `Deferred With Waiver`
+- `Superseded`
+- `Needs USER Decision`
+
+Only `Accepted by USER`, `Revised by USER`, or `Deferred With Waiver` design states are implementation-safe for user-facing/runtime behavior. Codex and ChatGPT recommendations remain proposed evidence until USER acts on them.
+
+Before Workstream implementation, runtime/user-facing branches should record `Branch Vision Snapshot Status: Accepted`, `Open Vision Questions: None` or `Deferred With Waiver`, `USER Vision Green: Yes`, accepted implementation scope, accepted seam map, and accepted stop conditions. After that green point, new questions use the severity ladder: Level 1 non-blocking questions queue for later review, Level 2 seam-blocking questions pause only the affected seam, and Level 3 workstream-breaking questions return a Branch Plan Revision Packet before affected scope continues.
+
+Vision Contract is required for user-facing UI/UX behavior change, runtime behavior change, workflow hierarchy change, visual standard change, setup or activation behavior change, provider/model/memory/voice/Core behavior, returned UTS that changes target behavior, broad family planning, ambiguous acceptance criteria, conflicting prior source truth, or any Codex recommendation that would otherwise become product/design truth. It may be marked not required for mechanical docs-only repair, validator-only repair with no product/runtime/user-facing impact, release-body formatting repair, source-truth typo/format repair, or branch metadata repair when the reason is recorded.
+
+Accepted assumptions expire or require review when branch scope changes, returned UTS changes the accepted target, family vision changes, source truth contradicts the prior assumption, new user-facing behavior appears, or implementation would apply an old decision to a new family or surface.
+
 ## USER Review Integration Decisions
 
 The 2026-05-21 USER review responses are model-changing requirements, not passive review notes.

@@ -497,6 +497,20 @@ Branch Runtime Engineering Plan:
 - Workstream Entry reads the plan, each seam updates traceability, Hardening compares actual implementation against it, Live Validation records proof or waiver posture, PR Readiness produces the `PR Fold-Down Packet:`, and Release Readiness translates the plan into public scope without internal governance jargon
 - a missing or shallow Branch Runtime Engineering Plan keeps runtime implementation blocked on Branch Readiness planning until USER accepts, revises, or explicitly waives the plan boundary
 
+Vision Contract / Vision-to-Plan loop:
+
+- runtime/user-facing branches must not silently convert Codex or ChatGPT design recommendations into implementation truth
+- Nexus Vision owns project-wide product principles; optional family vision or family dossier sections own broad feature-family direction only when the family is large enough; the active branch plan owns the Branch Vision Contract Snapshot for branch-specific accepted vision
+- `Vision Contract Required:` is `Yes` for user-facing UI/UX behavior changes, runtime behavior changes, workflow hierarchy changes, visual standard changes, setup/activation behavior changes, provider/model/memory/voice/Core behavior, returned UTS that changes target behavior, broad family planning, ambiguous acceptance criteria, conflicting prior source truth, or any Codex recommendation that would otherwise become product/design truth
+- `Vision Contract Required:` may be `No` only for mechanical docs-only repair, validator-only repair with no product/runtime/user-facing impact, release-body formatting repair, source-truth typo/format repair, or branch metadata repair, and the reason must be recorded
+- valid design assumption states are `Proposed by Codex`, `Recommended by ChatGPT`, `Accepted by USER`, `Revised by USER`, `Rejected by USER`, `Deferred by USER`, `Deferred With Waiver`, `Superseded`, and `Needs USER Decision`; only `Accepted by USER`, `Revised by USER`, or `Deferred With Waiver` are implementation-safe for product/runtime/user-facing behavior
+- before Workstream implementation, a required Branch Vision Contract Snapshot must record `Branch Vision Snapshot Status: Accepted`, `Open Vision Questions: None` or `Deferred With Waiver`, `USER Vision Green: Yes`, accepted implementation scope, accepted seam map, accepted stop conditions, a design assumption ledger, a vision question queue, and vision-to-implementation traceability
+- after USER Vision Green, Codex should preserve the accepted plan during implementation; new Level 1 non-blocking questions are queued, Level 2 seam-blocking questions pause only the affected seam and require a Vision Question Digest, and Level 3 workstream-breaking questions require a Branch Plan Revision Packet before affected scope continues
+- accepted assumptions expire or require review when branch scope changes, returned UTS changes the accepted target, family vision changes, source truth contradicts prior assumptions, new user-facing behavior appears, or implementation would apply an old decision to a new family/surface
+- Hardening compares implementation against accepted vision and accepted branch plan; Live Validation compares observed user-facing behavior against accepted vision and accepted branch plan; PR Readiness folds reusable vision updates into Nexus Vision, family vision/family dossier, workstream docs, structured branch receipts, or validated historical receipts without creating permanent branch-specific vision-file sprawl
+- Vision Question Digest must include question, why it matters, affected branch/seam, current accepted vision, Codex recommendation, alternatives, risk of each option, whether work can continue without the answer, recommended USER decision, and exact USER decision needed
+- Branch Plan Revision Packet must include current accepted plan, discovered issue, why current plan is insufficient, proposed revision, affected seams, files/surfaces affected, validation impact, current Workstream versus future branch routing, Codex recommendation, and exact USER decision needed
+
 Required active authority markers for implementation branches in `Branch Readiness`, `Workstream`, `Hardening`, `Live Validation`, `PR Readiness`, or merged-unreleased release-debt truth:
 
 - `## Admitted Implementation Slice`
@@ -2084,6 +2098,8 @@ When USER input is needed, Codex must output a structured `USER Vision Question 
 
 When USER input needs a durable user-editable handoff, Codex must generate or refresh a USER-facing `User Vision Input.txt` desktop artifact. The artifact must present each decision with Codex's recommendation, rationale, options, tradeoffs, current-branch impact, future-package impact, proof impact, and three answer paths: accept Codex recommendation; change recommendation with USER-written changes; or defer/future-package/waive with USER-written reason. This artifact is USER input only and not repo source truth. Codex recommendations, default options, and unanswered prompts must not be treated as USER-approved answers. Repo source truth may record artifact generation and blockers, but USER answers enter repo source truth only after a later USER-approved digest pass reads and summarizes the completed artifact.
 
+For runtime/user-facing branches, the accepted USER answers become the Branch Vision Contract Snapshot inside the active Branch Engineering Plan. Workstream implementation may proceed only when required vision questions are answered, explicitly deferred with waiver, or classified as Level 1 non-blocking queue items. Codex recommendations and ChatGPT recommendations remain proposed until USER accepts, revises, rejects, defers, or waives them.
+
 Allowed planning loop: Branch Readiness Stage 1 analyzes planning sufficiency; USER/ChatGPT reviews the packet; Branch Readiness Stage 2 may repair/source-sync the planning packet after USER approval; Branch Readiness Stage 1 revalidates planning sufficiency; the loop repeats until planning is complete or explicitly USER-waived. Workstream entry or continuation is blocked while `Branch Readiness Planning Incomplete` or any of its planning blockers remain active.
 
 Planning blockers are planning blockers, not implementation blockers. They include `Product Vision Input Missing`, `Project-Wide Vision Alignment Missing`, `Branch-Specific Vision Alignment Missing`, `USER Vision Question Packet Missing`, `USER Vision Recommendation Missing`, `USER Vision Questions Unanswered`, `USER Vision Input Pending`, `USER Vision Input File Missing`, `USER Vision Input Answers Pending`, `USER Vision Input Digest Pending`, `System Concept Model Missing`, `Entity / Profile Model Missing`, `User Workflow Model Missing`, `Scale / Data Volume Model Missing`, `Configuration And State Model Missing`, `Expected User-Facing Outcomes Missing`, `Codex Additional Recommendations Missing`, `USER Critique Loop Missing`, `USER Decision Ledger Missing`, `Deferred Ideas / Future Package Ledger Missing`, `Planning Adequacy Review Missing`, `Rejected Shallow Plan Missing`, `Alternatives And Tradeoffs Missing`, `Whole-System Interaction Map Missing`, `Minimum Viable vs Full System Boundary Missing`, `Open Questions / USER Decision Points Missing`, `Branch Reach Unproven`, `Feature Element Breakdown Missing`, `Acceptance Criteria Missing`, `User-Facing Proof Standard Missing`, `Current Branch vs Future Package Boundary Missing`, and `Branch Readiness Planning Incomplete`. They clear only when the packet is complete and revalidated, when completed USER Vision Input answers are digested into repo source truth, or when explicit USER waiver text is recorded.
@@ -2166,6 +2182,8 @@ Forbidden:
 Required evidence:
 
 - approved execution boundary
+- accepted Branch Vision Contract Snapshot or recorded not-required reason when the branch is runtime/user-facing
+- no blocking open vision questions unless they are deferred with USER waiver
 - implementation delta classification and planning-loop guardrail markers
 - admitted implementation slice
 - direct verification of the changed behavior or docs
@@ -2207,6 +2225,7 @@ Required evidence:
 
 - validator results
 - runtime results when relevant
+- plan-vs-vision comparison when a Branch Vision Contract Snapshot is required
 - explicit distinction between product defects, harness defects, environment issues, and canon or contract drift
 
 Exit:
@@ -2239,6 +2258,7 @@ Required evidence:
 
 - required interactive or manual evidence
 - required UI audit evidence when applicable
+- vision-vs-observed-behavior comparison or waiver when a Branch Vision Contract Snapshot is required
 - evidence digestion into the authority record
 
 Exit:
@@ -2283,6 +2303,7 @@ Forbidden:
 Required evidence:
 
 - branch-local proof complete
+- accepted vision and accepted branch plan satisfied, revised, waived, or folded down with explicit receipt when a Branch Vision Contract Snapshot is required
 - required user-facing desktop shortcut validation digested, passing or explicitly waived, and no `User-Facing Shortcut Validation Pending` blocker
 - required User Test Summary results digested, passing or explicitly waived, and no `User Test Summary Results Pending` blocker
 - merge-target canon completeness gate passed
@@ -2334,6 +2355,7 @@ Forbidden:
 Required evidence:
 
 - merged or legitimately merge-ready truth
+- public release language translates accepted user-facing vision/scope and excludes future-gated vision items when a Branch Vision Contract Snapshot is part of the release window
 - `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:` for the selected release candidate
 - `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, and `FAM Contributor Routing:` for the selected release candidate
 - explicit `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches

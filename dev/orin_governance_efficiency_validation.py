@@ -27,6 +27,8 @@ REQUIRED_MODEL_PHRASES = (
     "Phase Alias UX",
     "Branch Planning UX Standard",
     "Branch Record / Plan / Workstream Fold-Down Model",
+    "Product Vision Contract Model",
+    "Vision-To-Plan Interaction Loop",
     "USER Review Integration Decisions",
     "Standing Governance Ledger Compaction",
     "Release Ownership UX",
