@@ -961,6 +961,109 @@ body.desktop-mode #monitoring-hud > * {
   grid-template-columns: minmax(0, 1fr) auto auto;
 }
 
+.monitoring-hud__overlay-profile-membership {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(117, 228, 255, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(7, 31, 50, 0.66), rgba(3, 18, 32, 0.58)),
+    rgba(6, 28, 48, 0.44);
+}
+
+.monitoring-hud__overlay-profile-membership-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.monitoring-hud__overlay-profile-membership-heading span {
+  color: rgba(145, 202, 218, 0.82);
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__overlay-profile-membership-heading strong {
+  color: rgba(157, 246, 218, 0.9);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.monitoring-hud__overlay-profile-membership-list {
+  display: grid;
+  gap: 7px;
+  max-height: 178px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.monitoring-hud__overlay-profile-membership-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 8px;
+  align-items: start;
+  padding: 9px;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.58);
+  color: rgba(229, 249, 255, 0.92);
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
+}
+
+.monitoring-hud__overlay-profile-membership-row:hover,
+.monitoring-hud__overlay-profile-membership-row:focus-within {
+  border-color: rgba(126, 248, 218, 0.32);
+  background:
+    linear-gradient(145deg, rgba(7, 42, 62, 0.70), rgba(3, 18, 32, 0.66)),
+    rgba(6, 28, 48, 0.58);
+}
+
+.monitoring-hud__overlay-profile-membership-row[aria-selected="true"] {
+  border-color: rgba(126, 248, 218, 0.46);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(126, 248, 218, 0.18), transparent 52%),
+    linear-gradient(145deg, rgba(7, 48, 62, 0.76), rgba(4, 26, 44, 0.72));
+  box-shadow:
+    0 0 0 1px rgba(229, 255, 251, 0.08) inset,
+    0 0 16px rgba(80, 230, 255, 0.10);
+}
+
+.monitoring-hud__overlay-profile-membership-row input {
+  grid-row: 1 / span 2;
+  width: 17px;
+  height: 17px;
+  accent-color: rgba(126, 248, 218, 0.9);
+  cursor: pointer;
+}
+
+.monitoring-hud__overlay-profile-membership-row strong {
+  color: rgba(232, 250, 255, 0.94);
+  font-size: 12px;
+  font-weight: 740;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-hud__overlay-profile-membership-row small {
+  grid-column: 2;
+  color: rgba(172, 215, 228, 0.78);
+  font-size: 11px;
+  font-weight: 620;
+  line-height: 1.28;
+}
+
 .monitoring-hud__overlay-profile-detail-grid {
   display: grid;
   gap: 0;

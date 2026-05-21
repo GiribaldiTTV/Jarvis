@@ -44,13 +44,24 @@ def _stable_monitor_ids(values) -> list[str]:
 
 def default_overlay_profile_state(monitor_ids=None, previous_profile=None) -> dict[str, object]:
     previous = previous_profile if isinstance(previous_profile, dict) else {}
+    allowed_monitor_ids = _stable_monitor_ids(monitor_ids or [])
+    allowed_monitor_id_set = set(allowed_monitor_ids)
+    previous_monitor_ids = (
+        [
+            monitor_id
+            for monitor_id in _stable_monitor_ids(previous.get("monitorIds"))
+            if not allowed_monitor_id_set or monitor_id in allowed_monitor_id_set
+        ]
+        if isinstance(previous.get("monitorIds"), list)
+        else None
+    )
     return {
         "id": DEFAULT_OVERLAY_PROFILE_ID,
         "schemaVersion": OVERLAY_PROFILE_SCHEMA_VERSION,
         "kind": "overlay-profile",
         "scope": "overlay-visible-monitor-membership",
         "name": str(previous.get("name") or "Default Overlay Profile"),
-        "monitorIds": _stable_monitor_ids(monitor_ids or []),
+        "monitorIds": previous_monitor_ids if previous_monitor_ids is not None else allowed_monitor_ids,
         "displayMode": str(previous.get("displayMode") or "monitor-cards"),
         "source": str(previous.get("source") or "legacy-monitor-card-migration"),
         "dirty": False,
@@ -107,7 +118,7 @@ def normalize_monitoring_hud_overlay_profiles(payload=None, monitor_ids=None) ->
             "profileCount": len(profiles),
             "monitorGroupBoundary": "monitor-groups-organize-configuration-only",
             "recordingProfileBoundary": "recording-profile-state-absent-future-gated",
-            "visibleEditorUi": "slc-038-entry-controls",
+            "visibleEditorUi": "slc-039-membership-editor",
         },
     }
 

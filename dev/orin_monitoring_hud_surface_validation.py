@@ -311,14 +311,14 @@ def validate() -> list[str]:
         'data-overlay-acceptance-policy="deferred-non-gating"',
         'data-interface-bundle-approval="not-granted"',
         'data-core-repair-classification="dependency-repair-only"',
-        'data-overlay-profile-state="slc-038-visible-selection-editing"',
+        'data-overlay-profile-state="slc-039-membership-mapping"',
         'data-overlay-profile-schema-version="1"',
         'data-active-overlay-profile-id="default-overlay-profile"',
-        'data-overlay-profile-editor="slc-038-entry-controls"',
-        'data-overlay-profile-membership="read-only-slc-039-pending"',
+        'data-overlay-profile-editor="slc-039-membership-editor"',
+        'data-overlay-profile-membership="editable-slc-039-mapping"',
         'id="monitoring-hud-overlay-profile-editor"',
-        'data-overlay-profile-editor-ui="slc-038-entry-controls"',
-        'data-overlay-profile-proof="selector-settings-window-create-rename-save-discard"',
+        'data-overlay-profile-editor-ui="slc-039-membership-editor"',
+        'data-overlay-profile-proof="selector-settings-window-create-rename-membership-save-discard"',
         'id="monitoring-hud-overlay-profile-selector"',
         'data-bounded-dropdown="overlay-profile"',
         'id="monitoring-hud-overlay-profile-toggle"',
@@ -328,13 +328,15 @@ def validate() -> list[str]:
         'data-overlay-profile-actions="settings-window-entry"',
         'id="monitoring-hud-overlay-profile-window"',
         'data-child-window="overlay-profile-settings"',
-        'data-overlay-profile-window="create-rename-settings-shell"',
+        'data-overlay-profile-window="create-rename-membership-settings-shell"',
         'id="monitoring-hud-overlay-profile-name-input"',
+        'id="monitoring-hud-overlay-profile-membership-list"',
+        'data-overlay-profile-membership-list="editable-monitor-membership"',
         'id="monitoring-hud-overlay-profile-create"',
         'id="monitoring-hud-overlay-profile-save"',
         'id="monitoring-hud-overlay-profile-discard"',
         'data-overlay-profile-actions="window-create-save-discard"',
-        'read-only in SLC-038',
+        'Membership is editable inside Overlay Profile Settings',
         'data-recording-profile-state="recording-profile-state-absent-future-gated"',
         'aria-label="Nexus Desktop AI Monitoring HUD product surface"',
         'aria-label="HUD Dashboard control hub cards"',
@@ -566,7 +568,7 @@ def validate() -> list[str]:
         and "monitoringHudSetOverlayProfileDropdownOpen" in js
         and "monitoringHudOpenChildWindow(\"overlay-profile-settings\")" in js
         and "monitoringHudSaveOverlayProfileDraft" in js,
-        "HUD must render SLC-038 Overlay Profile controls as a Nexus-styled 300px-to-450px content-growing selector without a redundant dashboard active-profile line plus settings-window create/rename/save/discard UI",
+        "HUD must render SLC-039 Overlay Profile controls as a Nexus-styled 300px-to-450px selector with settings-window create/rename/membership Save/Discard UI",
         failures,
     )
     _require(
@@ -814,10 +816,10 @@ def validate() -> list[str]:
         )
     for needle in (
         'id="monitoring-hud-overlay-profile-editor"',
-        'data-overlay-profile-editor-ui="slc-038-entry-controls"',
-        'data-overlay-profile-membership="read-only-slc-039-pending"',
+        'data-overlay-profile-editor-ui="slc-039-membership-editor"',
+        'data-overlay-profile-membership="editable-slc-039-mapping"',
     ):
-        _require_contains(html, needle, "SLC-038 Overlay Profile visible editor UI", failures)
+        _require_contains(html, needle, "SLC-039 Overlay Profile visible membership editor UI", failures)
 
     for needle in (
         'data-package="PKG-006"',
@@ -1299,12 +1301,12 @@ def validate() -> list[str]:
         "MONITORING_HUD_MONITOR_MANAGEMENT_READY",
         "MONITORING_HUD_OVERLAY_PROFILE_STATE_READY",
         "self._monitoring_hud_overlay_profile_signature",
-        "visible_profile_editor=\"slc-038-entry-controls\"",
-        "profile_membership_editor=\"read-only-slc-039-pending\"",
+        "visible_profile_editor=\"slc-039-membership-editor\"",
+        "profile_membership_editor=\"editable-slc-039-mapping\"",
         "03_overlay_profile_settings_window_create_clean",
         "03_overlay_profile_settings_window_dirty",
-        "SLC-038 Overlay Profile settings-window create/rename Save/Discard visual proof prepared",
-        "SLC-038 Overlay Profile settings-window controls stay bounded and distinct",
+        "SLC-039 Overlay Profile settings-window create/rename/membership Save/Discard visual proof prepared",
+        "SLC-039 Overlay Profile settings-window controls stay bounded and distinct",
         "MONITORING_HUD_WINDOW_STATUS_READY",
         "MONITORING_HUD_WINDOW_OWNERSHIP_FOCUS_READY",
         "MONITORING_HUD_NATIVE_SYSTEM_MOVE_STARTED",

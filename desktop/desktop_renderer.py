@@ -9478,9 +9478,9 @@ class DesktopRuntimeWindow(QWidget):
             active_profile_id = str(state.get("activeOverlayProfileId") or "")
             active_profile = overlay_profiles.get(active_profile_id) if isinstance(overlay_profiles.get(active_profile_id), dict) else {}
             checks = {
-                "overlay_profile_state": dataset.get("overlayProfileState") == "slc-038-visible-selection-editing",
-                "overlay_profile_editor": dataset.get("overlayProfileEditor") == "slc-038-entry-controls",
-                "overlay_profile_membership": dataset.get("overlayProfileMembership") == "read-only-slc-039-pending",
+                "overlay_profile_state": dataset.get("overlayProfileState") == "slc-039-membership-mapping",
+                "overlay_profile_editor": dataset.get("overlayProfileEditor") == "slc-039-membership-editor",
+                "overlay_profile_membership": dataset.get("overlayProfileMembership") == "editable-slc-039-mapping",
                 "overlay_profile_state_proof": dataset.get("overlayProfileStateProof") == "pass",
                 "overlay_profile_controls_proof": dataset.get("overlayProfileControlsProof") == "pass",
                 "active_profile_id_present": bool(active_profile_id),
@@ -9494,6 +9494,12 @@ class DesktopRuntimeWindow(QWidget):
                 "settings_window_geometry": rect_present(geometry.get("overlayProfileWindow") if isinstance(geometry.get("overlayProfileWindow"), dict) else {}),
                 "settings_window_close_geometry": rect_present(geometry.get("overlayProfileWindowClose") if isinstance(geometry.get("overlayProfileWindowClose"), dict) else {}),
                 "name_input_geometry": rect_present(geometry.get("overlayProfileNameInput") if isinstance(geometry.get("overlayProfileNameInput"), dict) else {}),
+                "membership_list_geometry": rect_present(geometry.get("overlayProfileMembershipList") if isinstance(geometry.get("overlayProfileMembershipList"), dict) else {}),
+                "membership_toggle_geometry": rect_present(
+                    geometry.get("overlayProfileMembershipFirstToggle") if isinstance(geometry.get("overlayProfileMembershipFirstToggle"), dict) else {},
+                    min_width=14,
+                    min_height=14,
+                ),
                 "create_geometry": rect_present(geometry.get("overlayProfileCreate") if isinstance(geometry.get("overlayProfileCreate"), dict) else {}),
                 "save_geometry": rect_present(geometry.get("overlayProfileSave") if isinstance(geometry.get("overlayProfileSave"), dict) else {}),
                 "discard_geometry": rect_present(geometry.get("overlayProfileDiscard") if isinstance(geometry.get("overlayProfileDiscard"), dict) else {}),
@@ -10185,6 +10191,7 @@ class DesktopRuntimeWindow(QWidget):
                             ok: Boolean(stateProof.passed && controlsProof.passed && selector && settingsButton && settingsWindow && input),
                             stateProofPassed: Boolean(stateProof.passed),
                             controlsProofPassed: Boolean(controlsProof.passed),
+                            controlsProof: controlsProof,
                             settingsWindowOpen: settingsWindow ? settingsWindow.hidden === false : false,
                             settingsButtonExpanded: settingsButton ? settingsButton.getAttribute("aria-expanded") === "true" : false,
                             dropdownClosed: selector ? selector.dataset.dropdownOpen !== "true" : false,
@@ -10210,18 +10217,18 @@ class DesktopRuntimeWindow(QWidget):
             if not isinstance(parsed, dict):
                 parsed = {"ok": False, "raw": str(parsed)}
             add_step(
-                "SLC-038 Overlay Profile settings-window create/rename Save/Discard visual proof prepared",
+                "SLC-039 Overlay Profile settings-window create/rename/membership Save/Discard visual proof prepared",
                 bool(parsed.get("ok"))
                 and parsed.get("settingsWindowOpen") is True
                 and parsed.get("settingsButtonExpanded") is True
                 and parsed.get("dropdownClosed") is True
                 and parsed.get("saveEnabled") is True
                 and parsed.get("discardEnabled") is True
-                and parsed.get("membership") == "read-only-slc-039-pending",
+                and parsed.get("membership") == "editable-slc-039-mapping",
                 parsed,
             )
             if not parsed.get("ok"):
-                finish("FAIL", "SLC-038 Overlay Profile controls proof failed before focused screenshot")
+                finish("FAIL", "SLC-039 Overlay Profile controls proof failed before focused screenshot")
                 return
             QTimer.singleShot(
                 delay(300),
@@ -10229,7 +10236,7 @@ class DesktopRuntimeWindow(QWidget):
                     capture("03_overlay_profile_settings_window_dirty"),
                     QTimer.singleShot(
                         delay(300),
-                        lambda: query("SLC-038 Overlay Profile settings-window controls stay bounded and distinct", assert_overlay_profile_controls, step_overlay_profile_cleanup),
+                        lambda: query("SLC-039 Overlay Profile settings-window controls stay bounded and distinct", assert_overlay_profile_controls, step_overlay_profile_cleanup),
                     ),
                 ),
             )
@@ -12178,7 +12185,7 @@ class DesktopRuntimeWindow(QWidget):
             self._emit_runtime_signal(
                 "MONITORING_HUD_OVERLAY_PROFILE_STATE_READY",
                 package="PKG-006",
-                slice="SLC-037",
+                slice="SLC-039",
                 seam="Workstream",
                 active_overlay_profile_id=active_overlay_profile_id,
                 profile_count=len(overlay_profiles),
@@ -12187,8 +12194,8 @@ class DesktopRuntimeWindow(QWidget):
                 default_profile_membership=",".join(str(monitor_id) for monitor_id in default_monitor_ids),
                 monitor_group_boundary="separate-configuration-organization",
                 recording_profile_boundary="future-gated-not-present",
-                visible_profile_editor="slc-038-entry-controls",
-                profile_membership_editor="read-only-slc-039-pending",
+                visible_profile_editor="slc-039-membership-editor",
+                profile_membership_editor="editable-slc-039-mapping",
                 schema_version=int(state.get("overlayProfileSchemaVersion") or 0),
             )
             overlay_profile_changed = True
