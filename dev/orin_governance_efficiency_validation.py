@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OPERATING_MODEL = Path("Docs/governance_efficiency_operating_model.md")
 DOCS_INVENTORY_AUDIT = Path("Docs/governance_docs_full_inventory_reform_audit.md")
+DOCS_REFORM_REVIEW_INDEX = Path("Docs/governance_docs_reform_user_review_index.md")
 
 REQUIRED_MODEL_PHRASES = (
     "Rule ID And Owner Model",
@@ -184,14 +185,25 @@ CORE_GOVERNANCE_DUPLICATE_POLICY_FORBIDDEN = (
 
 AUDIT_REQUIRED_SECTIONS = (
     "## Executive Summary",
+    "## How To Review This Dossier",
+    "## What Was Completed",
+    "## What Remains Deferred",
+    "## What Requires USER Decision",
+    "## High-Risk Files",
+    "## Files Safe To Leave For Now",
+    "## Files Needing Future Migration",
+    "## Files That May Be Retired Later",
+    "## Completed / Deferred Matrix",
     "## Source-Truth Ownership Map",
     "## Complete Docs Manifest",
+    "## File-by-File Review Table",
     "## Fact-Class Ownership Table",
     "## Duplicate Truth Map",
     "## Backlog Final Schema",
     "## Roadmap Final Schema",
     "## Branch Records Final Schema",
     "## Branch Plans Lifecycle And Deletion Rule",
+    "## Branch Runtime Engineering Plan Lifecycle Proof",
     "## Workstreams / Family Dossier Schema",
     "## Worktree Slots Schema",
     "## Governance Docs Ownership Table",
@@ -199,8 +211,21 @@ AUDIT_REQUIRED_SECTIONS = (
     "## Validator Enforcement Table",
     "## File Retirement / Delete Candidate Table",
     "## File-By-File Review Dossier",
+    "## PR Readiness Checklist",
     "## Deferred USER Decisions",
     "## Next Legal Phase",
+)
+
+INDEX_REQUIRED_SECTIONS = (
+    "## Start Here",
+    "## Review Proof",
+    "## Suggested Review Order",
+    "## Decision Checklist",
+    "## Files Needing USER Decision",
+    "## High-Risk Review Queue",
+    "## Future Migration Queue",
+    "## Safe To Leave For Now",
+    "## Exact USER Decision This Index Supports",
 )
 
 
@@ -301,6 +326,32 @@ def validate() -> list[str]:
         if "dev/orin_docs_inventory_reform_audit.py" not in audit_text:
             failures.append(
                 f"{DOCS_INVENTORY_AUDIT}: missing generator helper reference"
+            )
+        if str(DOCS_REFORM_REVIEW_INDEX).replace("\\", "/") not in audit_text:
+            failures.append(
+                f"{DOCS_INVENTORY_AUDIT}: missing user review index pointer"
+            )
+
+    index_text = _read(DOCS_REFORM_REVIEW_INDEX)
+    if not index_text:
+        failures.append(f"{DOCS_REFORM_REVIEW_INDEX}: missing user review index")
+    else:
+        for section in INDEX_REQUIRED_SECTIONS:
+            if section not in index_text:
+                failures.append(
+                    f"{DOCS_REFORM_REVIEW_INDEX}: missing required review section {section!r}"
+                )
+        if str(DOCS_INVENTORY_AUDIT).replace("\\", "/") not in index_text:
+            failures.append(
+                f"{DOCS_REFORM_REVIEW_INDEX}: missing full dossier pointer"
+            )
+        docs_count = _docs_file_count()
+        index_count_match = re.search(r"Docs files covered:\s*(\d+)", index_text)
+        index_count = int(index_count_match.group(1)) if index_count_match else -1
+        if index_count != docs_count:
+            failures.append(
+                f"{DOCS_REFORM_REVIEW_INDEX}: Docs files covered {index_count} "
+                f"does not match filesystem Docs file count {docs_count}"
             )
 
     for path in (Path("Docs/feature_backlog.md"), Path("Docs/prebeta_roadmap.md")):

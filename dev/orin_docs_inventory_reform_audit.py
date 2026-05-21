@@ -16,6 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "Docs"
 AUDIT = DOCS / "governance_docs_full_inventory_reform_audit.md"
+INDEX = DOCS / "governance_docs_reform_user_review_index.md"
 
 PATTERNS = {
     "live": (
@@ -456,8 +457,123 @@ def validator_need(owner: str) -> str:
     return "Covered by existing owner validator or future focused owner check."
 
 
+def bool_text(value: bool) -> str:
+    return "Yes" if value else "No"
+
+
+def compact_review_value(value: str, limit: int = 96) -> str:
+    text = re.sub(r"\s+", " ", value).strip()
+    if len(text) <= limit:
+        return text
+    return text[: limit - 3].rstrip() + "..."
+
+
+def build_user_review_index(
+    *,
+    docs_count: int,
+    head: str,
+    origin_main: str,
+    merge_base: str,
+    high_risk: list[dict[str, object]],
+    migration_candidates: list[dict[str, object]],
+    safe_files: list[dict[str, object]],
+    retire_candidates: list[tuple[str, str, str]],
+) -> str:
+    def add_file_rows(rows: list[dict[str, object]], limit: int = 18) -> list[str]:
+        table_rows: list[str] = []
+        for row in rows[:limit]:
+            table_rows.append(
+                f"| `{row['rel']}` | {row['owner']} | {row['action']} | {row['risk']} |"
+            )
+        if not table_rows:
+            table_rows.append("| None | N/A | N/A | N/A |")
+        return table_rows
+
+    out: list[str] = []
+    add = out.append
+    add("# Nexus Docs Reform User Review Index")
+    add("")
+    add("## Start Here")
+    add("")
+    add(
+        "This is the short review index for the full Docs source-truth reform. "
+        "Use it to decide whether the long dossier is ready for PR Readiness, "
+        "or whether specific files need more cleanup first."
+    )
+    add("")
+    add("## Review Proof")
+    add("")
+    add("- Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`")
+    add(f"- Docs files covered: {docs_count}")
+    add(f"- Generated from Governance HEAD: `{head}`")
+    add(f"- origin/main at generation: `{origin_main}`")
+    add(f"- merge base at generation: `{merge_base}`")
+    add("- Runtime/FAM/Compact-AI mutation: none.")
+    add("- PR Readiness: held until USER review accepts this packet.")
+    add("")
+    add("## Suggested Review Order")
+    add("")
+    add("1. Read `Executive Summary` and `How To Review This Dossier` in the full dossier.")
+    add("2. Review `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision`.")
+    add("3. Review the `Completed / Deferred Matrix` for the reform scope.")
+    add("4. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
+    add("5. Use the `File-by-File Review Table` for a compact pass over every Docs file.")
+    add("6. Use the detailed `File-By-File Review Dossier` only for files you want to inspect deeply.")
+    add("7. Confirm the `PR Readiness Checklist` before approving PR creation.")
+    add("")
+    add("## Decision Checklist")
+    add("")
+    add("- [ ] The source-truth ownership split is acceptable.")
+    add("- [ ] Backlog and roadmap roles are acceptable.")
+    add("- [ ] Branch Runtime Engineering Plan lifecycle and deletion rule are acceptable.")
+    add("- [ ] Deferred deletion/fold-down candidates should remain deferred for now.")
+    add("- [ ] No additional Docs file needs immediate retirement before PR Readiness.")
+    add("- [ ] Validators are enough to stop the worst sprawl from returning.")
+    add("- [ ] PR Readiness Stage 2 may proceed after final validation.")
+    add("")
+    add("## Files Needing USER Decision")
+    add("")
+    add("| File | Reason | Recommendation |")
+    add("| --- | --- | --- |")
+    for rel, reason, rec in retire_candidates[:25]:
+        add(f"| `{rel}` | {reason} | {rec} |")
+    if not retire_candidates:
+        add("| None | N/A | N/A |")
+    add("")
+    add("## High-Risk Review Queue")
+    add("")
+    add("| File | Owner | Recommendation | Risk |")
+    add("| --- | --- | --- | --- |")
+    out.extend(add_file_rows(high_risk))
+    add("")
+    add("## Future Migration Queue")
+    add("")
+    add("| File | Owner | Recommendation | Risk |")
+    add("| --- | --- | --- | --- |")
+    out.extend(add_file_rows(migration_candidates))
+    add("")
+    add("## Safe To Leave For Now")
+    add("")
+    add("| File | Owner | Recommendation | Risk |")
+    add("| --- | --- | --- | --- |")
+    out.extend(add_file_rows(safe_files))
+    add("")
+    add("## Exact USER Decision This Index Supports")
+    add("")
+    add(
+        "`I accept the Docs reform review surface and approve PR Readiness Stage 2 / PR creation "
+        "for feature/release-readiness-source-truth-intake targeting main. Merge, release work, "
+        "runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical "
+        "branch deletion, and successor branch creation remain separate decisions.`"
+    )
+    return "\n".join(out) + "\n"
+
+
 def generate() -> None:
-    files = sorted([path for path in DOCS.rglob("*") if path.is_file()], key=lambda p: p.as_posix().lower())
+    files = sorted(
+        [path for path in DOCS.rglob("*") if path.is_file() and path != INDEX],
+        key=lambda p: p.as_posix().lower(),
+    )
     changed = set(git_output("diff", "--name-only", "origin/main...HEAD").splitlines())
     head = git_output("rev-parse", "HEAD")
     origin_main = git_output("rev-parse", "origin/main")
@@ -530,6 +646,104 @@ def generate() -> None:
             }
         )
 
+    high_risk = sorted(
+        [row for row in file_rows if row["risk"] in {"High", "Critical"}],
+        key=lambda row: (str(row["risk"]), str(row["rel"])),
+    )
+    migration_candidates = sorted(
+        [
+            row
+            for row in file_rows
+            if "Migrate" in str(row["action"])
+            or "Fold-down" in str(row["action"])
+            or "USER review" in str(row["action"])
+        ],
+        key=lambda row: str(row["rel"]),
+    )
+    safe_files = sorted(
+        [
+            row
+            for row in file_rows
+            if row["risk"] == "Low" and str(row["action"]).startswith("Keep")
+        ],
+        key=lambda row: str(row["rel"]),
+    )
+
+    index_text = build_user_review_index(
+        docs_count=len(file_rows) + 1,
+        head=head,
+        origin_main=origin_main,
+        merge_base=merge_base,
+        high_risk=high_risk,
+        migration_candidates=migration_candidates,
+        safe_files=safe_files,
+        retire_candidates=retire_candidates,
+    )
+    index_rel = INDEX.relative_to(ROOT).as_posix()
+    index_owner = owner_for(index_rel)
+    index_owns, index_should_record, index_should_move = OWNER_DESCRIPTIONS[index_owner]
+    index_counts = {name: count_matches(index_text, patterns) for name, patterns in PATTERNS.items()}
+    index_duplicate_classes = [
+        fact for fact, patterns in FACT_CLASSES.items() if count_matches(index_text, patterns)
+    ]
+    for fact in index_duplicate_classes:
+        fact_map[fact].add(index_rel)
+    index_action, index_completed, index_remaining = action_for(
+        index_rel, index_owner, index_text.count("\n"), changed
+    )
+    file_rows.append(
+        {
+            "rel": index_rel,
+            "lines": index_text.count("\n"),
+            "owner": index_owner,
+            "action": index_action,
+            "risk": "Medium",
+            "confidence": "High",
+            "counts": index_counts,
+            "title": "Nexus Docs Reform User Review Index",
+            "owns": index_owns,
+            "should_record": index_should_record,
+            "should_move": index_should_move,
+            "completed": "Created in this review-surface repair branch.",
+            "remaining": index_remaining,
+            "duplicate_classes": index_duplicate_classes,
+            "live_fields": snippets(index_text, PATTERNS["live"]),
+            "receipt_fields": snippets(
+                index_text,
+                (r"Historical", r"Receipt", r"USER", r"Decision", r"Approval", r"Closeout", r"Merge Proof"),
+            ),
+            "current_markers": snippets(
+                index_text, (r"Current", r"Active", r"Next Legal Phase", r"Phase Status")
+            ),
+            "trace_markers": snippets(index_text, PATTERNS["package_slice"]),
+            "branch_markers": snippets(index_text, PATTERNS["branch_phase"]),
+            "release_markers": snippets(index_text, PATTERNS["pr_release_issue"]),
+        }
+    )
+    file_rows = sorted(file_rows, key=lambda row: str(row["rel"]).lower())
+    high_risk = sorted(
+        [row for row in file_rows if row["risk"] in {"High", "Critical"}],
+        key=lambda row: (str(row["risk"]), str(row["rel"])),
+    )
+    migration_candidates = sorted(
+        [
+            row
+            for row in file_rows
+            if "Migrate" in str(row["action"])
+            or "Fold-down" in str(row["action"])
+            or "USER review" in str(row["action"])
+        ],
+        key=lambda row: str(row["rel"]),
+    )
+    safe_files = sorted(
+        [
+            row
+            for row in file_rows
+            if row["risk"] == "Low" and str(row["action"]).startswith("Keep")
+        ],
+        key=lambda row: str(row["rel"]),
+    )
+
     converted_pointer = {
         "Docs/feature_backlog.md",
         "Docs/prebeta_roadmap.md",
@@ -563,6 +777,80 @@ def generate() -> None:
         "fold-down/deletion decision is safe."
     )
     add("")
+    add("Start here for review: `Docs/governance_docs_reform_user_review_index.md`.")
+    add("")
+    add("## How To Review This Dossier")
+    add("")
+    add("1. Start with the companion index: `Docs/governance_docs_reform_user_review_index.md`.")
+    add("2. Read `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision` below.")
+    add("3. Review `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
+    add("4. Use `File-by-File Review Table` for a compact row-by-row pass over every Docs file.")
+    add("5. Use `File-By-File Review Dossier` for detailed per-file evidence and notes.")
+    add("6. Approve PR Readiness only when the `PR Readiness Checklist` is acceptable.")
+    add("")
+    add("## What Was Completed")
+    add("")
+    add("- Every file under `Docs/` is enumerated in the manifest, review table, and detailed dossier.")
+    add("- Backlog, roadmap, and worktree-slot ownership rules are captured as compact pointer/status surfaces.")
+    add("- Branch Runtime Engineering Plan lifecycle is stated as active-only, fold-down, then deletion after migration.")
+    add("- Duplicate fact classes are mapped to their correct owner surfaces.")
+    add("- Validator coverage checks dossier file count, required sections, file-by-file entries, and review index presence.")
+    add("- A short user review index is generated for easier inspection before PR Readiness.")
+    add("")
+    add("## What Remains Deferred")
+    add("")
+    add("- Historical branch records larger than the compact receipt model remain preserved until a focused fold-down pass migrates durable detail.")
+    add("- Historical Branch Runtime Engineering Plans remain queued for fold-down/deletion review until their durable content is migrated.")
+    add("- Low-risk product/reference docs remain kept unless USER approves a later retirement pass.")
+    add("- GitHub-derived live-state helpers can be expanded later, but this pass does not require runtime or GitHub source mutations.")
+    add("")
+    add("## What Requires USER Decision")
+    add("")
+    add("- Whether to approve PR Readiness Stage 2 after reviewing this dossier.")
+    add("- Whether to run a later branch-plan fold-down/deletion pass for historical plans.")
+    add("- Whether to run focused compaction of oversized historical branch diaries into workstreams/family dossiers.")
+    add("- Whether to retire low-risk or duplicate reference docs after USER review.")
+    add("- Whether to create or expand FAM-family dossiers as migration targets for bulk historical detail.")
+    add("")
+    add("## High-Risk Files")
+    add("")
+    add("| File | Owner | Recommendation | Why It Is High Risk |")
+    add("| --- | --- | --- | --- |")
+    for row in high_risk[:40]:
+        add(
+            f"| `{row['rel']}` | {row['owner']} | {row['action']} | "
+            f"{row['risk']} source-truth density / migration risk |"
+        )
+    if not high_risk:
+        add("| None | N/A | N/A | N/A |")
+    add("")
+    add("## Files Safe To Leave For Now")
+    add("")
+    add("| File | Owner | Recommendation |")
+    add("| --- | --- | --- |")
+    for row in safe_files[:40]:
+        add(f"| `{row['rel']}` | {row['owner']} | {row['action']} |")
+    if not safe_files:
+        add("| None | N/A | N/A |")
+    add("")
+    add("## Files Needing Future Migration")
+    add("")
+    add("| File | Owner | Migration / Compaction Recommendation |")
+    add("| --- | --- | --- |")
+    for row in migration_candidates[:50]:
+        add(f"| `{row['rel']}` | {row['owner']} | {row['remaining']} |")
+    if not migration_candidates:
+        add("| None | N/A | N/A |")
+    add("")
+    add("## Files That May Be Retired Later")
+    add("")
+    add("| File | Reason | Recommendation |")
+    add("| --- | --- | --- |")
+    for rel, reason, rec in retire_candidates:
+        add(f"| `{rel}` | {reason} | {rec} |")
+    if not retire_candidates:
+        add("| None | N/A | N/A |")
+    add("")
     add("## Audit Identity")
     add("")
     add("- Audit Type: Full `Docs/` source-truth inventory, cleanup, and restructuring dossier.")
@@ -571,13 +859,36 @@ def generate() -> None:
     add(f"- Audit HEAD: `{head}`")
     add(f"- Audit origin/main: `{origin_main}`")
     add(f"- Audit Merge Base: `{merge_base}`")
-    add(f"- Audit File Count: {len(files)} files under `Docs/`")
+    add(f"- Audit File Count: {len(file_rows)} files under `Docs/`")
     add(f"- Manifest Files Enumerated: {len(file_rows)}")
     add("- Manifest Match: PASS - filesystem enumeration and dossier manifest counts match.")
     add("- Mutation Scope: docs/source-truth/governance/validator reform only.")
     add("- Runtime Mutation: none.")
     add("- FAM-006 / FAM-007 / Compact-AI Mutation: none.")
     add("- Release / Tag / GitHub Release / Issue Work: none.")
+    add("")
+    add("## Completed / Deferred Matrix")
+    add("")
+    add("| Reform Item | Completed In This Branch | Deferred | Reason Deferred | Future Owner | USER Decision Needed | Validator Coverage |")
+    add("| --- | --- | --- | --- | --- | --- | --- |")
+    matrix_rows = (
+        ("feature_backlog compaction", "Yes", "No", "N/A", "Docs/feature_backlog.md", "No", "governance efficiency validation"),
+        ("prebeta_roadmap compaction", "Yes", "No", "N/A", "Docs/prebeta_roadmap.md", "No", "governance efficiency validation"),
+        ("worktree_slots cleanup", "Yes", "No", "N/A", "Docs/worktree_slots.md", "No", "governance efficiency validation"),
+        ("branch_records cleanup", "Partial", "Yes", "Large historical records need safe fold-down into durable owners", "Docs/branch_records + workstreams/family dossiers", "Yes for bulk compaction", "branch governance validation"),
+        ("branch_plans lifecycle", "Yes", "Deletion deferred", "Durable content must be migrated first", "Docs/branch_plans + branch records + workstreams/family dossiers", "Yes before deleting historical plans", "planning fixture and governance efficiency validation"),
+        ("workstreams/family dossier ownership", "Yes", "Expansion deferred", "Future dossier creation should be focused by family", "Docs/workstreams", "Yes for new/expanded dossiers", "branch governance validation"),
+        ("governance docs consolidation", "Yes", "No broad deletion", "Rule mirrors preserved as pointers where safe", "Main/phase/development/codex docs", "No", "governance efficiency validation"),
+        ("duplicate live-state validator hardening", "Yes", "Focused future checks possible", "Some historical receipts intentionally preserve old live facts", "dev/orin_governance_efficiency_validation.py", "No", "governance efficiency validation"),
+        ("source owner marker validation", "Yes", "No", "N/A", "dev/orin_source_owner_marker_validation.py", "No", "source owner marker validation"),
+        ("Docs inventory regeneration helper", "Yes", "No", "N/A", "dev/orin_docs_inventory_reform_audit.py", "No", "governance efficiency validation"),
+        ("file retirement/delete candidates", "Identified", "Yes", "Deletion needs USER review and migration proof", "USER-approved future cleanup", "Yes", "dossier + future focused validation"),
+        ("release-state derived truth", "Yes", "No", "N/A", "Git/GitHub/release validators", "No", "release body and governance validation"),
+        ("branch-state derived truth", "Yes", "No", "N/A", "git/GitHub/worktree audit helpers", "No", "branch governance validation"),
+        ("worktree-state derived truth", "Yes", "No", "N/A", "git status/worktree audit helper", "No", "governance efficiency validation"),
+    )
+    for row in matrix_rows:
+        add("| " + " | ".join(row) + " |")
     add("")
     add("## Reform Principles")
     add("")
@@ -623,6 +934,26 @@ def generate() -> None:
         add(
             f"| {idx} | `{row['rel']}` | {row['owner']} | {row['lines']} | "
             f"{row['action']} | {row['risk']} | {row['confidence']} |"
+        )
+    add("")
+    add("## File-by-File Review Table")
+    add("")
+    add("| File path | Line count | Current purpose | Correct owner category | What this file records | What this file should record | Reform action completed | Remaining action needed | Recommendation | Duplicate truth found | Live operational truth found | Governance receipt found | Validator coverage | USER review notes |")
+    add("| --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+    for row in file_rows:
+        counts = row["counts"]
+        duplicate_found = bool(row["duplicate_classes"])
+        live_found = bool(row["live_fields"]) or counts["live"] > 0
+        receipt_found = bool(row["receipt_fields"])
+        add(
+            f"| `{row['rel']}` | {row['lines']} | {compact_review_value(str(row['title']))} | "
+            f"{row['owner']} | {compact_review_value(str(row['owns']))} | "
+            f"{compact_review_value(str(row['should_record']))} | "
+            f"{compact_review_value(str(row['completed']))} | "
+            f"{compact_review_value(str(row['remaining']))} | {row['action']} | "
+            f"{bool_text(duplicate_found)} | {bool_text(live_found)} | "
+            f"{bool_text(receipt_found)} | "
+            f"{compact_review_value(validator_need(str(row['owner'])))} | _Add notes here._ |"
         )
     add("")
     add("## Fact-Class Ownership Table")
@@ -700,6 +1031,15 @@ def generate() -> None:
         "Existing historical plans are queued for fold-down/deletion review rather than deleted in "
         "this pass because their durable content has not been fully migrated and validated file-by-file."
     )
+    add("")
+    add("## Branch Runtime Engineering Plan Lifecycle Proof")
+    add("")
+    add("- Branch Runtime Engineering Plans are canonical active-branch planning docs while a runtime branch is active.")
+    add("- Branch plans contain detailed per-seam implementation, validation, user-facing proof, future-gated items, and approval boundaries.")
+    add("- Branch plans are folded down during PR Readiness Stage 1.")
+    add("- Branch plans are deleted during or before PR Readiness Stage 2 approval after durable content is migrated.")
+    add("- Durable content moves to the branch receipt, workstream doc, family dossier, or validated historical receipt owner.")
+    add("- Backlog and roadmap remain compact pointer/status surfaces and must not absorb detailed branch planning.")
     add("")
     add("## Workstreams / Family Dossier Schema")
     add("")
@@ -820,6 +1160,15 @@ def generate() -> None:
     add("- Existing historical Branch Runtime Engineering Plans are not deleted yet because durable content must be migrated and references validated first.")
     add("- Some product/reference docs are low-risk but still need USER review before retirement because they may preserve historical design context.")
     add("")
+    add("## PR Readiness Checklist")
+    add("")
+    add("- [ ] USER reviewed the companion index.")
+    add("- [ ] USER reviewed high-risk files and deferred deletion candidates.")
+    add("- [ ] USER accepts that no ambiguous Docs files are deleted before later focused approval.")
+    add("- [ ] USER accepts Branch Runtime Engineering Plan fold-down/deletion lifecycle.")
+    add("- [ ] Validation remains green from the Governance branch.")
+    add("- [ ] PR creation is separately approved.")
+    add("")
     add("## Deferred USER Decisions")
     add("")
     add("- Approve focused deletion/fold-down of historical branch plans after durable content is migrated.")
@@ -832,7 +1181,11 @@ def generate() -> None:
     add("After this dossier and validators are accepted, the next legal phase is PR Readiness Stage 2 / PR creation for the Governance reform branch. Merge remains separate USER approval.")
 
     AUDIT.write_text("\n".join(out) + "\n", encoding="utf-8")
-    print(f"Wrote {AUDIT.relative_to(ROOT)} with {len(file_rows)} file entries")
+    INDEX.write_text(index_text, encoding="utf-8")
+    print(
+        f"Wrote {AUDIT.relative_to(ROOT)} and {INDEX.relative_to(ROOT)} "
+        f"with {len(file_rows)} file entries"
+    )
 
 
 def main() -> int:
