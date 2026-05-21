@@ -10353,6 +10353,9 @@ class DesktopRuntimeWindow(QWidget):
                             managerSelectorWidth: managerSelector ? managerSelector.getBoundingClientRect().width : 0,
                             managerToggleWidth: managerToggle ? managerToggle.getBoundingClientRect().width : 0,
                             managerLabelReadable: managerLabel ? managerLabel.scrollWidth <= managerLabel.clientWidth + 1 : false,
+                            largeProfileFixture: Boolean(controlsProof.largeProfileFixture),
+                            profileDropdownMaxFiveStress: Boolean(controlsProof.profileDropdownMaxFiveStress),
+                            profileDropdownNDAIScrollbar: Boolean(controlsProof.profileDropdownNDAIScrollbar),
                             editDisabledWithoutSelection: edit ? edit.disabled : false,
                             createVisible: Boolean(create),
                             saveDisabledDefault: save ? save.disabled : false,
@@ -10396,6 +10399,9 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("managerRowPolicy") == "create-edit-wide-selector"
                 and float(parsed.get("managerSelectorWidth") or 0) >= 300
                 and parsed.get("managerLabelReadable") is True
+                and parsed.get("largeProfileFixture") is True
+                and parsed.get("profileDropdownMaxFiveStress") is True
+                and parsed.get("profileDropdownNDAIScrollbar") is True
                 and parsed.get("integrationProofPassed") is True
                 and parsed.get("editDisabledWithoutSelection") is True
                 and parsed.get("createVisible") is True
@@ -10448,6 +10454,32 @@ class DesktopRuntimeWindow(QWidget):
                 """
                 (function() {
                     try {
+                        window.__monitoringHudOverlayProfileDropdownVisualProofState = JSON.stringify({
+                            overlayProfiles: Object.assign({}, monitoringHudControlState.overlayProfiles || {}),
+                            activeOverlayProfileId: monitoringHudControlState.activeOverlayProfileId || "",
+                            overlayProfileSchemaVersion: monitoringHudControlState.overlayProfileSchemaVersion || 1
+                        });
+                        const stressMonitorIds = typeof monitoringHudStableMonitorIds === "function"
+                            ? monitoringHudStableMonitorIds(monitoringHudControlState.cards || {})
+                            : Object.keys((monitoringHudControlState && monitoringHudControlState.cards) || {});
+                        if (!monitoringHudControlState.overlayProfiles) {
+                            monitoringHudControlState.overlayProfiles = {};
+                        }
+                        for (let index = 1; index <= 14; index += 1) {
+                            const stressId = `visual-proof-overlay-profile-${index}`;
+                            monitoringHudControlState.overlayProfiles[stressId] = {
+                                id: stressId,
+                                name: `Visual Proof Overlay ${String(index).padStart(2, "0")}`,
+                                monitorIds: stressMonitorIds.slice(0, Math.max(1, Math.min(index, stressMonitorIds.length || 1))),
+                                displayMode: "monitor-cards"
+                            };
+                        }
+                        if (typeof monitoringHudRenderControls === "function") {
+                            monitoringHudRenderControls();
+                        }
+                        if (typeof monitoringHudOpenChildWindow === "function") {
+                            monitoringHudOpenChildWindow("overlay-profile-settings");
+                        }
                         if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
                             monitoringHudSetOverlayProfileWindowDropdownOpen(true);
                         }
@@ -10457,10 +10489,19 @@ class DesktopRuntimeWindow(QWidget):
                         if (option) option.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
                         if (selector) selector.dataset.liveVisualProofState = "profile-window-selector-open-hover-reset";
                         const label = document.getElementById("monitoring-hud-overlay-profile-window-label");
+                        const menuRect = menu ? menu.getBoundingClientRect() : null;
+                        const visibleProfileOptions = menuRect
+                            ? Array.from(menu.querySelectorAll("[data-overlay-profile-window-option]")).filter((entry) => {
+                                const rect = entry.getBoundingClientRect();
+                                return rect.top >= menuRect.top - 1 && rect.bottom <= menuRect.bottom + 1;
+                            }).length
+                            : 0;
                         return JSON.stringify({
                             ok: Boolean(selector && selector.dataset.dropdownOpen === "true" && menu && !menu.hidden && option),
                             selectorOpen: selector ? selector.dataset.dropdownOpen === "true" : false,
                             menuVisible: Boolean(menu && !menu.hidden),
+                            visualStressProfileCount: menu ? menu.querySelectorAll("[data-overlay-profile-window-option]").length : 0,
+                            visualVisibleProfileOptions: visibleProfileOptions,
                             hoveredProfileId: selector && selector.dataset ? String(selector.dataset.hoveredProfileId || "") : "",
                             labelReadable: label ? label.scrollWidth <= label.clientWidth + 1 : false,
                             selectorWidth: selector ? selector.getBoundingClientRect().width : 0
@@ -10485,6 +10526,8 @@ class DesktopRuntimeWindow(QWidget):
                 bool(parsed.get("ok"))
                 and parsed.get("selectorOpen") is True
                 and parsed.get("menuVisible") is True
+                and int(parsed.get("visualStressProfileCount") or 0) >= 15
+                and int(parsed.get("visualVisibleProfileOptions") or 0) == 5
                 and bool(parsed.get("hoveredProfileId"))
                 and parsed.get("labelReadable") is True
                 and float(parsed.get("selectorWidth") or 0) >= 300,
@@ -10493,13 +10536,36 @@ class DesktopRuntimeWindow(QWidget):
             if not parsed.get("ok"):
                 finish("FAIL", "Overlay Profile manager selector open/hover proof failed before focused screenshot")
                 return
-            capture("03_overlay_profile_settings_window_profile_dropdown_open_hover")
-            QTimer.singleShot(delay(300), step_overlay_profile_capture_dirty)
+            QTimer.singleShot(
+                delay(350),
+                lambda: (
+                    capture("03_overlay_profile_settings_window_profile_dropdown_open_hover"),
+                    QTimer.singleShot(delay(300), step_overlay_profile_capture_dirty),
+                ),
+            )
 
         def step_overlay_profile_capture_dirty():
             self._run_javascript(
                 """
                 (() => {
+                    if (window.__monitoringHudOverlayProfileDropdownVisualProofState) {
+                        try {
+                            const previousOverlayProfileState = JSON.parse(window.__monitoringHudOverlayProfileDropdownVisualProofState);
+                            delete window.__monitoringHudOverlayProfileDropdownVisualProofState;
+                            monitoringHudControlState.overlayProfiles = previousOverlayProfileState.overlayProfiles || {};
+                            monitoringHudControlState.activeOverlayProfileId = previousOverlayProfileState.activeOverlayProfileId || "";
+                            monitoringHudControlState.overlayProfileSchemaVersion = previousOverlayProfileState.overlayProfileSchemaVersion || 1;
+                            if (typeof monitoringHudNormalizeOverlayProfileState === "function") {
+                                monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+                            }
+                            if (typeof monitoringHudRenderControls === "function") {
+                                monitoringHudRenderControls();
+                            }
+                            if (typeof monitoringHudOpenChildWindow === "function") {
+                                monitoringHudOpenChildWindow("overlay-profile-settings");
+                            }
+                        } catch (_restoreErr) {}
+                    }
                     if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
                         monitoringHudSetOverlayProfileWindowDropdownOpen(false);
                     }

@@ -1057,6 +1057,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__overlay-profile-choice-panel {
   display: grid;
   gap: 0;
+  min-height: 250px;
   border: 1px solid rgba(117, 228, 255, 0.14);
   border-radius: 8px;
   overflow: hidden;
@@ -1091,7 +1092,7 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__overlay-profile-window-dropdown .monitoring-hud__bounded-dropdown-menu,
 .monitoring-hud__overlay-profile-filter-dropdown .monitoring-hud__bounded-dropdown-menu {
-  max-height: 184px;
+  max-height: 178px;
   scrollbar-color: rgba(117, 228, 255, 0.58) rgba(3, 16, 28, 0.82);
 }
 
@@ -1497,6 +1498,14 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__child-window--settings {
   width: min(520px, calc(100% - 24px));
+}
+
+.monitoring-hud__child-window--overlay-profile {
+  width: min(760px, calc(100% - 24px));
+  min-width: min(680px, calc(100% - 24px));
+  max-height: min(620px, calc(100% - 24px));
+  overflow: hidden;
+  grid-template-rows: auto auto auto minmax(0, auto) auto auto;
 }
 
 .monitoring-hud__child-window--monitor-management {

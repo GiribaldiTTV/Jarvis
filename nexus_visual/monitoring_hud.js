@@ -4256,6 +4256,9 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     windowSelectorReadable: false,
     visualRepairMarker: false,
     windowDropdownMaxFive: false,
+    largeProfileFixture: false,
+    profileDropdownMaxFiveStress: false,
+    profileDropdownNDAIScrollbar: false,
     editDisabledUntilSelection: false,
     editOpensSelectedSettings: false,
     createVisible: Boolean(monitoringHudOverlayProfileCreate),
@@ -4333,6 +4336,65 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       monitoringHudOverlayProfileWindow
       && monitoringHudOverlayProfileWindow.dataset.overlayProfileVisualRepair === "manager-selector-readable-assignment-affordance-proof"
     );
+    const stressProfileIds = [];
+    const stressMonitorIds = monitoringHudStableMonitorIds(monitoringHudControlState.cards || {});
+    for (let index = 1; index <= 14; index += 1) {
+      const stressId = `stress-overlay-profile-${index}`;
+      stressProfileIds.push(stressId);
+      monitoringHudControlState.overlayProfiles[stressId] = {
+        id: stressId,
+        name: `Overlay Profile ${String(index).padStart(2, "0")}`,
+        monitorIds: stressMonitorIds.slice(0, Math.max(1, Math.min(index, stressMonitorIds.length || 1))),
+        displayMode: "monitor-cards"
+      };
+    }
+    monitoringHudRenderControls();
+    monitoringHudOpenChildWindow("overlay-profile-settings");
+    if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
+      monitoringHudSetOverlayProfileWindowDropdownOpen(true);
+    }
+    const stressOptions = monitoringHudOverlayProfileWindowMenu
+      ? Array.from(monitoringHudOverlayProfileWindowMenu.querySelectorAll("[data-overlay-profile-window-option]"))
+      : [];
+    const stressMenuRect = monitoringHudOverlayProfileWindowMenu
+      ? monitoringHudOverlayProfileWindowMenu.getBoundingClientRect()
+      : { height: 0 };
+    const stressOptionRect = stressOptions[0]
+      ? stressOptions[0].getBoundingClientRect()
+      : { height: 0 };
+    const stressMenuStyle = monitoringHudOverlayProfileWindowMenu
+      ? window.getComputedStyle(monitoringHudOverlayProfileWindowMenu)
+      : {};
+    const stressVisibleOptions = stressOptions.filter((option) => {
+      const optionRect = option.getBoundingClientRect();
+      return Boolean(
+        stressMenuRect.height > 0
+        && optionRect.top >= stressMenuRect.top - 1
+        && optionRect.bottom <= stressMenuRect.bottom + 1
+      );
+    });
+    const stressMenuScrollable = Boolean(
+      monitoringHudOverlayProfileWindowMenu
+      && monitoringHudOverlayProfileWindowMenu.scrollHeight > monitoringHudOverlayProfileWindowMenu.clientHeight + 1
+    );
+    proof.largeProfileFixture = stressOptions.length >= 15;
+    proof.profileDropdownNDAIScrollbar = Boolean(
+      monitoringHudOverlayProfileWindowMenu
+      && monitoringHudOverlayProfileWindowMenu.classList.contains("monitoring-hud__nexus-scroll-pane")
+      && monitoringHudOverlayProfileWindowSelector
+      && monitoringHudOverlayProfileWindowSelector.dataset.scrollbarStyle === "ndai-native"
+    );
+    proof.profileDropdownMaxFiveStress = Boolean(
+      proof.largeProfileFixture
+      && stressOptionRect.height > 0
+      && stressOptions.length > 5
+      && stressVisibleOptions.length <= 5
+      && stressMenuScrollable
+      && (stressMenuStyle.overflowY === "auto" || stressMenuStyle.overflowY === "scroll")
+    );
+    if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
+      monitoringHudSetOverlayProfileWindowDropdownOpen(false);
+    }
     const firstProfile = monitoringHudOverlayProfileList()[0] || {};
     if (firstProfile.id) {
       monitoringHudSelectOverlayProfileForWindow(firstProfile.id);
@@ -4423,6 +4485,9 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     && proof.windowSelectorReadable
     && proof.visualRepairMarker
     && proof.windowDropdownMaxFive
+    && proof.largeProfileFixture
+    && proof.profileDropdownMaxFiveStress
+    && proof.profileDropdownNDAIScrollbar
     && proof.editDisabledUntilSelection
     && proof.editOpensSelectedSettings
     && proof.createVisible
