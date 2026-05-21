@@ -9454,10 +9454,13 @@ class DesktopRuntimeWindow(QWidget):
 
         def assert_user_hit_targets(result):
             geometry = result.get("geometry") or {}
+            manage_rect = geometry.get("editMonitor") if isinstance(geometry, dict) else None
+            overlay_settings_rect = geometry.get("overlayProfileOpenSettings") if isinstance(geometry, dict) else None
             controls = {
                 "hud": geometry.get("hud") if isinstance(geometry, dict) else None,
                 "settingsAction": geometry.get("settingsAction") if isinstance(geometry, dict) else None,
-                "editMonitor": geometry.get("editMonitor") if isinstance(geometry, dict) else None,
+                "editMonitor": manage_rect,
+                "overlayProfileOpenSettings": overlay_settings_rect,
                 "dashboardClose": geometry.get("dashboardClose") if isinstance(geometry, dict) else None,
                 "panelDragHandle": geometry.get("panelDragHandle") if isinstance(geometry, dict) else None,
                 "warningToggle": geometry.get("warningToggle") if isinstance(geometry, dict) else None,
@@ -9467,6 +9470,16 @@ class DesktopRuntimeWindow(QWidget):
             checks = {}
             for key, rect in controls.items():
                 checks[f"{key}_present"] = isinstance(rect, dict) and float(rect.get("width") or 0) > 24 and float(rect.get("height") or 0) > 18
+            checks["dashboard_manage_overlay_action_width_parity"] = (
+                isinstance(manage_rect, dict)
+                and isinstance(overlay_settings_rect, dict)
+                and abs(float(manage_rect.get("width") or 0) - float(overlay_settings_rect.get("width") or 0)) <= 1.5
+            )
+            checks["dashboard_manage_overlay_action_height_parity"] = (
+                isinstance(manage_rect, dict)
+                and isinstance(overlay_settings_rect, dict)
+                and abs(float(manage_rect.get("height") or 0) - float(overlay_settings_rect.get("height") or 0)) <= 1.5
+            )
             checks["dashboard_create_monitor_absent"] = not isinstance((geometry.get("createMonitor") if isinstance(geometry, dict) else None), dict)
             hud_rect = controls.get("hud") or {}
             checks["hud_readable_width"] = float(hud_rect.get("width") or 0) >= 620

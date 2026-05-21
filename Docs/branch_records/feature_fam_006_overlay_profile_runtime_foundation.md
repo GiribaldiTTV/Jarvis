@@ -263,6 +263,8 @@ Overlay Profile Filter Result: `The visible-monitor Filter control is now a Nexu
 
 Manage Monitors Assignment Result: `The Dashboard Manage Monitors action uses the same compact visual affordance size as Overlay Profile Settings. Manage Monitors removes the user-facing Enabled for Overlay checkbox, turns Assigned Overlay into a clickable status/assignment surface, and opens a bounded assignment window that lists assigned overlays and provides assign/unassign controls for the selected monitor/group context.`
 
+Dashboard Button Parity Repair: `Follow-up correction after USER inspection: Dashboard Manage Monitors and Overlay Profile Settings now share the same explicit paired Dashboard action class, data-dashboard-action-size=paired-overlay-manage-250 marker, 250px target width, fixed 36px action height, and live self-QA geometry parity check instead of relying on a soft min-width marker.`
+
 Source Settings IA Result: `Sensor-specific settings moved toward Source list entry points: each source row exposes a Settings action, the source settings child window owns Display Mode and Polling Rate controls for that source, and the UI records the Default polling-rate disclaimer that a sensor-specific rate overrides the Monitor Group generalized Polling Rate.`
 
 Concept Boundary Result: `Overlay Profile assignment remains distinct from Monitor Group organization and Recording Profile runtime. Warning Notifications remains a settings concept, Provider Readiness remains readiness/status/future capability, and Sensor Library / Source Picker discovery remains separate from Overlay Profile management.`

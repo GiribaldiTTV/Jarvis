@@ -609,10 +609,19 @@ body.desktop-mode #monitoring-hud > * {
   background: linear-gradient(145deg, rgba(7, 57, 63, 0.82), rgba(5, 30, 48, 0.78));
 }
 
+.monitoring-hud__dashboard-paired-action,
 .monitoring-hud__hub-action--dashboard-entry,
 .monitoring-hud__hub-action[data-control="overlay-profile-open-settings"] {
-  min-width: 210px;
+  box-sizing: border-box;
+  width: 250px;
+  max-width: 100%;
+  height: 36px;
+  min-height: 36px;
+  align-items: center;
   justify-content: center;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .monitoring-hud__hub-action--secondary {
