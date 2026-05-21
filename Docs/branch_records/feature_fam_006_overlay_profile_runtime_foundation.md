@@ -40,7 +40,7 @@ Historical FAM-006 Preservation: `Preserved as PR #180 merged evidence; stale re
 v1.7.10 Closure-Drift Setup: `Carried into this Branch Readiness Stage 2 setup as release-dependent source-truth context; runtime implementation remained blocked until setup validation was green and USER approved Workstream implementation`
 v1.7.11 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair after v1.7.11-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.11-prebeta while preserving branch-local Overlay Profile authority`
 Branch Runtime Engineering Plan: `Accepted - detailed setup/runtime planning is present at Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md`
-Engineering Plan Status: `SLC-038 implemented - Overlay Profile state/schema foundation plus right-sized Dashboard selector, redundant active-profile row removal, Overlay Profile Settings child-window create/rename/save/discard controls, read-only profile details, read-only membership bridge, persistence proof, and concept-boundary validation are present; SLC-038 H1 is next`
+Engineering Plan Status: `SLC-038 implemented - Overlay Profile state/schema foundation plus 250px Dashboard selector, redundant active-profile row removal, Overlay Profile Settings child-window create/rename/save/discard controls, read-only profile details, read-only membership bridge, persistence proof, and concept-boundary validation are present; SLC-038 H1 is next`
 PR Fold-Down Packet: `Pending SLC-038 H1, SLC-039 through SLC-041 seams, Live Validation LV1 after H1 Green, PR Readiness, PR creation, merge, and release-scope translation`
 
 ## Branch Class
