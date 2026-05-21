@@ -24,6 +24,7 @@ REQUIRED_MODEL_PHRASES = (
     "Current Summary And Historical Appendix Split",
     "Phase Alias UX",
     "Branch Planning UX Standard",
+    "Branch Record / Plan / Workstream Fold-Down Model",
     "Standing Governance Ledger Compaction",
     "Release Ownership UX",
     "Public Language Mapping",
@@ -53,6 +54,26 @@ POINTER_REQUIREMENTS = {
     Path("Docs/validation_helper_registry.md"): (
         "dev/orin_governance_efficiency_validation.py",
         "governance efficiency operating model",
+    ),
+    Path("Docs/branch_records/index.md"): (
+        "Docs Source-Truth Reform Model: Compact Pointer Layer",
+        "Current Summary And Historical Appendix Split",
+        "PR Readiness fold-down",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "Docs Source-Truth Reform Model: Compact Pointer Layer",
+        "Fold-Down Model",
+        "PR Fold-Down Packet:",
+    ),
+    Path("Docs/workstreams/index.md"): (
+        "Docs Source-Truth Reform Model: Compact Pointer Layer",
+        "Package And Slice Trace Ownership",
+        "Package Trace and Slice Trace detail belongs here",
+    ),
+    Path("Docs/worktree_slots.md"): (
+        "Docs Source-Truth Reform Model: Compact Pointer Layer",
+        "This file does not own",
+        "Assigned slot does not equal active branch authority",
     ),
     Path("Docs/governance_process_efficiency_reform_plan.md"): (
         "Consolidated Governance Reform Pass",
@@ -118,6 +139,33 @@ BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN_PATTERNS = (
         r"\b[0-9a-f]{40}\b",
         "current-state text pins an exact commit hash",
     ),
+)
+
+WORKTREE_SLOT_FORBIDDEN = (
+    "Latest Public Prerelease Recorded In Source Truth:",
+    "Release Candidate Anchor:",
+    "Release Window Contributor Inventory:",
+    "Merged-Unreleased PRs:",
+    "Live PR State:",
+    "Review Decision:",
+)
+
+BRANCH_RECORD_INDEX_REQUIRED = (
+    "Branch records are authority and compact receipt surfaces",
+    "Branch records must not become durable family dossiers",
+    "Package Trace and Slice Trace detail belongs",
+)
+
+BRANCH_PLAN_README_REQUIRED = (
+    "Branch plans are canonical while the owning branch is active",
+    "At PR Readiness, the `PR Fold-Down Packet:` must classify plan content",
+    "It must not preserve stale active phase",
+)
+
+WORKSTREAM_INDEX_REQUIRED = (
+    "workstreams and family dossiers own durable package trace, slice trace",
+    "workstreams and family dossiers must not mirror live Git/GitHub state",
+    "Do not promote:",
 )
 
 
@@ -218,6 +266,39 @@ def validate() -> list[str]:
                     f"{label!r}; backlog/roadmap must stay compact and route active branch "
                     "identity to branch authority records, branch plans, or historical receipts"
                 )
+
+    worktree_slots_text = _read(Path("Docs/worktree_slots.md"))
+    for phrase in WORKTREE_SLOT_FORBIDDEN:
+        if phrase in worktree_slots_text:
+            failures.append(
+                "Docs/worktree_slots.md: slot registry must not carry live release, "
+                f"release-window, PR, or review-state field {phrase!r}"
+            )
+    if re.search(r"\b[0-9a-f]{40}\b", _section(worktree_slots_text, "Standing Slot Receipts")):
+        failures.append(
+            "Docs/worktree_slots.md: standing slot receipts must not pin exact live commit hashes"
+        )
+
+    branch_record_index_text = _read(Path("Docs/branch_records/index.md"))
+    for phrase in BRANCH_RECORD_INDEX_REQUIRED:
+        if phrase not in branch_record_index_text:
+            failures.append(
+                f"Docs/branch_records/index.md: missing branch-record reform rule {phrase!r}"
+            )
+
+    branch_plan_readme_text = _read(Path("Docs/branch_plans/README.md"))
+    for phrase in BRANCH_PLAN_README_REQUIRED:
+        if phrase not in branch_plan_readme_text:
+            failures.append(
+                f"Docs/branch_plans/README.md: missing branch-plan fold-down rule {phrase!r}"
+            )
+
+    workstream_index_text = _read(Path("Docs/workstreams/index.md"))
+    for phrase in WORKSTREAM_INDEX_REQUIRED:
+        if phrase not in workstream_index_text:
+            failures.append(
+                f"Docs/workstreams/index.md: missing workstream trace ownership rule {phrase!r}"
+            )
 
     return failures
 

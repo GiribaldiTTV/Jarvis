@@ -5,6 +5,8 @@
 
 This index routes repo-owned authority records for approved branches that do not map to a promoted backlog workstream.
 
+Docs Source-Truth Reform Model: Compact Pointer Layer.
+
 Use this layer for:
 
 - active `Registry-only` backlog branches in `Branch Readiness` before a promoted canonical workstream exists
@@ -113,6 +115,11 @@ Do not use this layer to replace:
   - why the branch exists
   - why it cannot or should not ride on an active implementation branch
   - what it must not change
+- Branch records are authority and compact receipt surfaces. They may record phase history, approvals, blockers, legal next phase, compact merge/release interpretation, and pointers to detailed owners.
+- Branch records must not become durable family dossiers, release ledgers, worktree live-state ledgers, open-PR monitors, or detailed per-seam implementation checklists by inertia.
+- Current Summary And Historical Appendix Split is required for large active records: keep machine-readable current truth near the top, and move long narrative to clearly historical appendix or fold-down receipt sections.
+- Package Trace and Slice Trace detail belongs in canonical workstreams, family dossiers, active branch plans, or explicitly folded compact receipts. Backlog and roadmap must only point to those owners.
+- PR Readiness fold-down must decide whether detailed branch-plan content remains historical branch source truth, compacts into this branch receipt layer, or promotes durable lessons to workstreams/family dossiers.
 
 ## Active Branch Authority Records
 

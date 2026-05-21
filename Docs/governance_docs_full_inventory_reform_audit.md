@@ -322,3 +322,15 @@ Add or strengthen validators for: `Package Trace:` forbidden in `Docs/feature_ba
 Governance Reform Stage 2 should review this audit, accept or revise the ownership model, then begin Reform PR 1: Audit And Ownership Lock.
 
 Runtime implementation, FAM-006 mutation, FAM-007 mutation, Compact-AI mutation, release execution, tag/GitHub Release work, issue work, branch cleanup, and successor branch creation remain blocked while this reform is in progress unless USER explicitly routes a separate lane.
+
+## Implementation Checkpoint Status
+
+USER later selected a single-merge reform path on the standing Governance carrier instead of the initial multi-PR sequence above.
+
+Checkpoint 1 created this full audit artifact as the baseline inventory and reform plan.
+
+Checkpoint 2 compacted `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/worktree_slots.md` into their proper owner roles, updated the source-truth ownership model, and hardened validators so backlog/roadmap cannot reabsorb `Package Trace:`, `Slice Trace:`, live release state, live branch state, or Branch Runtime Engineering Plan detail.
+
+Checkpoint 3 aligned the standing Governance branch record with the current Docs reform cycle and added branch-record / branch-plan / workstream fold-down rules so detailed active planning and durable package/slice proof route to their owners instead of returning to backlog or roadmap.
+
+Deferred migration remains: broad historical deletion, archival, or line-by-line rewriting of all preserved branch/workstream receipts is not performed in this pass unless required for validation. Historical receipts may keep prior evidence when clearly historical; future and active records must follow the compact pointer-layer model.

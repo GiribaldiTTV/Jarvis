@@ -161,6 +161,25 @@ Runtime Branch Readiness should separate dense planning into:
 
 The user-facing packet should summarize each area and point to the Branch Runtime Engineering Plan for detail. The detailed plan remains in `Docs/branch_plans/<branch_slug>.md`; backlog and roadmap stay compact pointer/status surfaces.
 
+## Branch Record / Plan / Workstream Fold-Down Model
+
+Branch records, branch plans, and workstreams are related but not interchangeable.
+
+Use this split:
+
+- branch records own branch authority, approvals, phase history, blockers, legal next phase, and compact branch receipts
+- branch plans own detailed active runtime planning while the branch is active
+- workstreams and family dossiers own durable package trace, slice trace, proof history, reusable lessons, and family continuity
+
+At PR Readiness, every runtime-focused branch needs a fold-down or retention decision:
+
+- keep the branch plan as historical branch source truth when the detail is branch-specific evidence
+- compact only the receipt into the branch authority record when the plan is too detailed for long-term active loading
+- promote reusable lessons, package trace, slice trace, validators, and proof history to workstreams or family dossiers
+- leave backlog and roadmap as compact pointers instead of copying the plan or trace tables
+
+Historical receipts may preserve PRs, tags, releases, and commit hashes when they are evidence for a closed decision. They must not be presented as live operational truth or repeated across backlog and roadmap.
+
 ## Standing Governance Ledger Compaction
 
 The standing Governance record may keep one compact current cycle summary plus a latest closed cycle pointer.

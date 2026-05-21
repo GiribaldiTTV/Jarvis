@@ -2,6 +2,8 @@
 
 `Docs/branch_plans/<branch_slug>.md` is the source-truth home for a runtime-focused branch's active Branch Runtime Engineering Plan.
 
+Docs Source-Truth Reform Model: Compact Pointer Layer.
+
 This layer sits under the branch authority record. It does not replace the branch authority record, backlog, roadmap, or canonical workstream doc.
 
 ## Ownership Model
@@ -65,6 +67,19 @@ Live Validation records proof or waiver posture against the plan. Disabled/statu
 PR Readiness compares the whole branch against the plan and produces the `PR Fold-Down Packet:`. That packet decides whether the plan remains as historical branch source truth, is compacted into a branch receipt, or promotes durable lessons to a canonical workstream or family dossier.
 
 Release Readiness translates the plan into public release language: user-visible highlights, excluded work, future-gated capabilities, and public body wording without internal governance jargon.
+
+## Fold-Down Model
+
+Branch plans are canonical while the owning branch is active. They are not permanent backlog, roadmap, or release-state ledgers.
+
+At PR Readiness, the `PR Fold-Down Packet:` must classify plan content into one of these outcomes:
+
+- retained as historical branch-plan source truth
+- compacted into the branch authority record as a branch receipt
+- promoted to a canonical workstream or family dossier because future branches should reuse it
+- removed from active planning posture because it was superseded, rejected, or future-gated
+
+Fold-down must preserve USER decisions, approval boundaries, future-gated items, validator/helper proof, user-facing proof, and plan-to-implementation traceability. It must not preserve stale active phase, live PR, latest-release, worktree dirty-state, or watcher state as current truth.
 
 ## Compact Pointer Rule
 
