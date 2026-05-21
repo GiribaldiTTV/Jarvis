@@ -1445,6 +1445,7 @@ function monitoringHudRenderOverlayProfileControls() {
   if (monitoringHudOverlayProfileWindow) {
     monitoringHudOverlayProfileWindow.dataset.overlayProfileWindow = "selector-first-create-first-edit-delete-settings-shell";
     monitoringHudOverlayProfileWindow.dataset.overlayProfileWorkflow = "selector-first-create-edit-delete-followup-uts-repair";
+    monitoringHudOverlayProfileWindow.dataset.overlayProfileVisualRepair = "manager-selector-readable-assignment-affordance-proof";
     monitoringHudOverlayProfileWindow.dataset.overlayProfileVolumePolicy = "max-five-visible-monitors-inner-scroll";
     monitoringHudOverlayProfileWindow.dataset.overlayProfileSelectorPolicy = "max-five-visible-profile-options-ndai-scrollbar";
     monitoringHudOverlayProfileWindow.dataset.overlayProfileOuterScrollPolicy = "no-normal-window-scrollbar";
@@ -2200,10 +2201,11 @@ function monitoringHudFilteredSensorDefinitions() {
 function monitoringHudRenderSensorPreview(totalCount, renderedCount, selectedCount, supportedCount, deferredCount) {
   if (!monitoringHudSensorPreview) return;
   monitoringHudSensorPreview.dataset.sensorPreview = "source-identity-breadcrumbs";
+  monitoringHudSensorPreview.dataset.sensorSourceSummaryPlacement = "attached-to-sensor-source-card";
   const fixtureCopy = monitoringHudLargeFixtureModeEnabled
     ? ` Large-source fixture proof mode is active with ${monitoringHudLargeSensorFixtureCount} scale sources.`
     : "";
-  monitoringHudSensorPreview.textContent = `${selectedCount} selected. Showing ${renderedCount} of ${totalCount} filtered sources; ${supportedCount} supported and ${deferredCount} provider-required/deferred. Source rows expose provider, device, category, metric, and sensor instance breadcrumbs.${fixtureCopy}`;
+  monitoringHudSensorPreview.textContent = `${selectedCount} selected source${selectedCount === 1 ? "" : "s"}. Showing ${renderedCount} of ${totalCount} filtered sources; ${supportedCount} supported and ${deferredCount} provider-required/deferred. Source rows expose provider, device, category, metric, sensor instance breadcrumbs, and their own Settings buttons.${fixtureCopy}`;
 }
 
 function monitoringHudRenderSensorAssignment(selected) {
@@ -2563,19 +2565,9 @@ function monitoringHudRenderSensorSettings(selected) {
   const assigned = Array.isArray(layout && layout.sensors) ? layout.sensors : [];
   monitoringHudMonitorSensorSettings.innerHTML = "";
   monitoringHudMonitorSensorSettings.dataset.sensorSettings = "source-list-entry-points";
-  if (!assigned.length) {
-    const empty = document.createElement("div");
-    empty.className = "monitoring-hud__sensor-settings-empty";
-    empty.dataset.sensorSettingsEmpty = "source-list-entry-points";
-    empty.textContent = "No supported sources assigned. Use Source row checkmarks first; each row keeps its Settings button for sensor-specific options.";
-    monitoringHudMonitorSensorSettings.appendChild(empty);
-    return;
-  }
-  const summary = document.createElement("div");
-  summary.className = "monitoring-hud__sensor-settings-empty";
-  summary.dataset.sensorSettingsEmpty = "source-list-entry-points";
-  summary.textContent = `${assigned.length} assigned source${assigned.length === 1 ? "" : "s"}. Open source-specific settings from the Source row Settings buttons.`;
-  monitoringHudMonitorSensorSettings.appendChild(summary);
+  monitoringHudMonitorSensorSettings.dataset.sensorSettingsSummaryPlacement = "sensor-source-card";
+  monitoringHudMonitorSensorSettings.dataset.assignedSourceCount = String(assigned.length);
+  monitoringHudMonitorSensorSettings.hidden = true;
 }
 
 function monitoringHudRenderChildWindows() {
@@ -4261,6 +4253,8 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     settingsWindowOpens: false,
     managerDefaultState: false,
     windowSelectorVisible: Boolean(monitoringHudOverlayProfileWindowSelector && monitoringHudOverlayProfileWindowToggle && monitoringHudOverlayProfileWindowMenu),
+    windowSelectorReadable: false,
+    visualRepairMarker: false,
     windowDropdownMaxFive: false,
     editDisabledUntilSelection: false,
     editOpensSelectedSettings: false,
@@ -4328,6 +4322,16 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       monitoringHudOverlayProfileWindowSelector
       && monitoringHudOverlayProfileWindowSelector.dataset.visibleOptionTarget === "max-five"
       && monitoringHudOverlayProfileWindowSelector.dataset.scrollbarStyle === "ndai-native"
+    );
+    proof.windowSelectorReadable = Boolean(
+      monitoringHudOverlayProfileWindowSelector
+      && monitoringHudOverlayProfileWindowSelector.getBoundingClientRect().width >= 300
+      && monitoringHudOverlayProfileWindowLabel
+      && monitoringHudOverlayProfileWindowLabel.scrollWidth <= monitoringHudOverlayProfileWindowLabel.clientWidth + 1
+    );
+    proof.visualRepairMarker = Boolean(
+      monitoringHudOverlayProfileWindow
+      && monitoringHudOverlayProfileWindow.dataset.overlayProfileVisualRepair === "manager-selector-readable-assignment-affordance-proof"
     );
     const firstProfile = monitoringHudOverlayProfileList()[0] || {};
     if (firstProfile.id) {
@@ -4416,6 +4420,8 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     && proof.settingsWindowOpens
     && proof.managerDefaultState
     && proof.windowSelectorVisible
+    && proof.windowSelectorReadable
+    && proof.visualRepairMarker
     && proof.windowDropdownMaxFive
     && proof.editDisabledUntilSelection
     && proof.editOpensSelectedSettings
@@ -4460,6 +4466,8 @@ window.runMonitoringHudOverlayProfileIntegrationProof = function() {
     manageContextClickable: false,
     manageContextStateMatchesMembership: false,
     manageContextSingleRow: false,
+    manageContextBelowSensorSource: false,
+    manageContextRowAffordanceVisible: false,
     manageContextAssignedCount: false,
     manageContextDisplayMode: false,
     noDuplicateMembershipEditorInManageMonitors: false,
@@ -4515,6 +4523,23 @@ window.runMonitoringHudOverlayProfileIntegrationProof = function() {
       && contextPanel.dataset.overlayProfileContextLayout === "single-row-readonly"
       && contextPanel.dataset.overlayProfileRoute === "assigned-overlay-status-window"
     );
+    const sensorSourceCard = manageWindow ? manageWindow.querySelector('[data-monitor-detail-card="sensor-source"]') : null;
+    proof.manageContextBelowSensorSource = Boolean(
+      contextPanel
+      && sensorSourceCard
+      && contextPanel.dataset.monitorDetailPlacement === "below-sensor-source"
+      && (sensorSourceCard.compareDocumentPosition(contextPanel) & Node.DOCUMENT_POSITION_FOLLOWING)
+    );
+    const contextRect = contextPanel ? contextPanel.getBoundingClientRect() : null;
+    proof.manageContextRowAffordanceVisible = Boolean(
+      contextPanel
+      && contextPanel.tagName === "BUTTON"
+      && contextPanel.dataset.control === "assigned-overlay-status"
+      && !contextPanel.disabled
+      && contextRect
+      && contextRect.width >= 300
+      && contextRect.height >= 32
+    );
     proof.manageContextAssignedCount = Boolean(
       monitoringHudMonitorOverlayProfileCount
       && monitoringHudMonitorOverlayProfileCount.textContent === `${assignedProfileCount} assigned`
@@ -4560,6 +4585,8 @@ window.runMonitoringHudOverlayProfileIntegrationProof = function() {
     && proof.manageContextClickable
     && proof.manageContextStateMatchesMembership
     && proof.manageContextSingleRow
+    && proof.manageContextBelowSensorSource
+    && proof.manageContextRowAffordanceVisible
     && proof.manageContextAssignedCount
     && proof.manageContextDisplayMode
     && proof.noDuplicateMembershipEditorInManageMonitors

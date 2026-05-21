@@ -624,10 +624,17 @@ def validate() -> list[str]:
         and "data-overlay-profile-option" in html
         and "data-child-window=\"overlay-profile-settings\"" in html
         and 'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"' in html
+        and 'data-overlay-profile-visual-repair="manager-selector-readable-assignment-affordance-proof"' in html
+        and 'data-overlay-profile-manager-row="create-edit-wide-selector"' in html
         and 'data-overlay-profile-visible-monitor-target="max-five"' in html
         and 'data-scrollbar-style="ndai-native"' in html
         and 'data-overlay-profile-route="assigned-overlay-status-window"' in html
         and 'data-overlay-profile-mutation="assign-unassign-status-window"' in html
+        and 'data-control="assigned-overlay-status"' in html
+        and 'data-monitor-detail-card="sensor-source"' in html
+        and 'data-sensor-source-summary-placement="attached-to-sensor-source-card"' in html
+        and 'data-monitor-detail-placement="below-sensor-source"' in html
+        and html.find('data-monitor-detail-card="sensor-source"') < html.find('data-monitor-detail-placement="below-sensor-source"')
         and 'data-bounded-dropdown="overlay-profile-monitor-filter"' in html
         and 'id="monitoring-hud-overlay-profile-edit-selected"' in html
         and 'id="monitoring-hud-overlay-profile-delete"' in html
@@ -640,9 +647,23 @@ def validate() -> list[str]:
         and "monitoringHudSetOverlayProfileMonitorFilterValue" in js
         and "monitoringHudToggleOverlayAssignment" in js
         and "monitoringHudOpenSourceSettings" in js
+        and "windowSelectorReadable" in js
+        and "manageContextRowAffordanceVisible" in js
+        and "manageContextBelowSensorSource" in js
+        and "sensorSourceSummaryPlacement" in js
+        and "selected source" in js
         and "monitoringHudOpenChildWindow(\"overlay-profile-settings\")" in js
         and "monitoringHudSaveOverlayProfileDraft" in js,
         "HUD must render follow-up returned-UTS Overlay Profile manager controls, NDAI filter dropdown, profile delete, clickable assignment surface, Enabled-for-Overlay removal, and source-list sensor settings entry points",
+        failures,
+    )
+    _require(
+        "grid-template-columns: minmax(160px, auto) minmax(170px, auto) minmax(300px, 1fr)" in css
+        and "width: min(760px, calc(100% - 24px))" in css
+        and "grid-template-columns: minmax(236px, auto) minmax(0, 1fr) minmax(78px, auto)" in css
+        and ".monitoring-hud__unsaved-guard {\n  grid-template-columns: minmax(0, 1fr);" in css
+        and ".monitoring-hud__monitor-overlay-profile-context.is-hovered" in css,
+        "HUD CSS must widen the Overlay Profile manager selector and make Assigned Overlay read as an actionable status row",
         failures,
     )
     _require(
@@ -1388,6 +1409,7 @@ def validate() -> list[str]:
         "Follow-up returned-UTS Overlay Profile manager selector/filter/delete proof prepared",
         "Follow-up returned-UTS Manage Monitors clickable Assigned Overlay proof prepared",
         "ok: Boolean(integrationProof.passed && context && manageWindow && !routeButton)",
+        "contextBelowSensorSource",
         "SLC-039 Overlay Profile settings-window controls stay bounded and distinct",
         "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, compact Manage Monitors context, and LV1 UTS boundary",
         '"proofSeam": "SLC-041 Overlay Profile validation and live desktop proof"',

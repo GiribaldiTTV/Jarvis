@@ -342,6 +342,7 @@
           data-child-window="overlay-profile-settings"
           data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"
           data-overlay-profile-workflow="selector-first-create-edit-delete-followup-uts-repair"
+          data-overlay-profile-visual-repair="manager-selector-readable-assignment-affordance-proof"
           data-overlay-profile-volume-policy="max-five-visible-monitors-inner-scroll"
           data-overlay-profile-selector-policy="max-five-visible-profile-options-ndai-scrollbar"
           data-overlay-profile-outer-scroll-policy="no-normal-window-scrollbar"
@@ -358,7 +359,7 @@
             <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="overlay-profile-settings" aria-label="Close Overlay Profile Settings">Close</button>
           </header>
           <div class="monitoring-hud__overlay-profile-choice-panel" aria-label="Overlay Profile selection workflow" data-overlay-profile-manager-default="create-edit-select">
-            <div class="monitoring-hud__overlay-profile-manager-row">
+            <div class="monitoring-hud__overlay-profile-manager-row" data-overlay-profile-manager-row="create-edit-wide-selector">
               <button type="button" id="monitoring-hud-overlay-profile-create" class="monitoring-hud__hub-action" data-control="overlay-profile-create">Create Overlay Profile</button>
               <button type="button" id="monitoring-hud-overlay-profile-edit-selected" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="overlay-profile-edit-selected" data-control-state="clean-disabled" aria-disabled="true" disabled>Edit Overlay Profile</button>
               <div
@@ -609,25 +610,6 @@
                   <input id="monitoring-hud-monitor-warning-notifications-setting" type="checkbox" data-monitor-setting="warning-notifications" checked />
                   Warning Notifications
                 </label>
-                <button
-                  type="button"
-                  class="monitoring-hud__monitor-overlay-profile-context monitoring-hud__monitor-overlay-profile-context--compact"
-                  id="monitoring-hud-monitor-overlay-profile-context"
-                  data-control="assigned-overlay-status"
-                  data-overlay-profile-integration="slc-040-readonly-manage-context"
-                  data-overlay-profile-context-layout="single-row-readonly"
-                  data-overlay-profile-membership-state="unknown"
-                  data-overlay-profile-mutation="assign-unassign-status-window"
-                  data-overlay-profile-route="assigned-overlay-status-window"
-                  aria-label="Selected monitor Overlay Profile context"
-                >
-                  <div class="monitoring-hud__overlay-profile-context-heading">
-                    <span>Assigned Overlay</span>
-                    <strong id="monitoring-hud-monitor-overlay-profile-count">0 assigned</strong>
-                  </div>
-                  <span id="monitoring-hud-monitor-overlay-profile-selected-state">Active profile: Included</span>
-                  <span id="monitoring-hud-monitor-overlay-profile-display-mode">Monitor cards</span>
-                </button>
                 <div class="monitoring-hud__child-field monitoring-hud__child-field--inline" data-control-row="polling-rate-inline" data-polling-rate-hitbox="toggle-only">
                   <span>Polling Rate</span>
                   <div class="monitoring-hud__bounded-dropdown" id="monitoring-hud-monitor-polling-rate-control" data-bounded-dropdown="polling-rate" data-selected-value="1000" data-dropdown-open="false" data-hovered-value="">
@@ -653,7 +635,7 @@
                   <strong>Provider Readiness</strong>
                   <span>Readiness/status and future capability only; not an assignable sensor.</span>
                 </div>
-                <div class="monitoring-hud__sensor-library" data-sensor-library="search-filter-scalable">
+                <div class="monitoring-hud__sensor-library" data-sensor-library="search-filter-scalable" data-monitor-detail-card="sensor-source" data-sensor-source-summary-placement="attached-to-sensor-source-card">
                   <div class="monitoring-hud__sensor-library-toolbar monitoring-hud__sensor-library-toolbar--inline" data-source-controls-layout="search-filter-inline">
                     <label class="monitoring-hud__search-field monitoring-hud__search-field--compact">
                       <span>Find Source</span>
@@ -697,9 +679,29 @@
                       <small>provider-required &gt; GPU &gt; gpu &gt; Load &gt; primary</small>
                     </div>
                   </div>
-                  <div class="monitoring-hud__sensor-preview monitoring-hud__nexus-scroll-pane" id="monitoring-hud-sensor-preview" data-scroll-pane="sensor-preview">Select supported sources for this Monitor Group. Deferred sources stay visible but disabled.</div>
+                  <div class="monitoring-hud__sensor-preview monitoring-hud__nexus-scroll-pane" id="monitoring-hud-sensor-preview" data-scroll-pane="sensor-preview" data-sensor-source-summary-placement="attached-to-sensor-source-card">Select supported sources for this Monitor Group. Deferred sources stay visible but disabled.</div>
                 </div>
-                <div class="monitoring-hud__sensor-settings monitoring-hud__sensor-settings--source-entry monitoring-hud__nexus-scroll-pane" id="monitoring-hud-monitor-sensor-settings" data-sensor-settings="source-list-entry-points" data-scroll-pane="sensor-settings" aria-label="Per-sensor settings entry points">
+                <button
+                  type="button"
+                  class="monitoring-hud__monitor-overlay-profile-context monitoring-hud__monitor-overlay-profile-context--compact"
+                  id="monitoring-hud-monitor-overlay-profile-context"
+                  data-control="assigned-overlay-status"
+                  data-monitor-detail-placement="below-sensor-source"
+                  data-overlay-profile-integration="slc-040-readonly-manage-context"
+                  data-overlay-profile-context-layout="single-row-readonly"
+                  data-overlay-profile-membership-state="unknown"
+                  data-overlay-profile-mutation="assign-unassign-status-window"
+                  data-overlay-profile-route="assigned-overlay-status-window"
+                  aria-label="Selected monitor Overlay Profile context"
+                >
+                  <div class="monitoring-hud__overlay-profile-context-heading">
+                    <span>Assigned Overlay</span>
+                    <strong id="monitoring-hud-monitor-overlay-profile-count">0 assigned</strong>
+                  </div>
+                  <span id="monitoring-hud-monitor-overlay-profile-selected-state">Active profile: Included</span>
+                  <span id="monitoring-hud-monitor-overlay-profile-display-mode">Monitor cards</span>
+                </button>
+                <div class="monitoring-hud__sensor-settings monitoring-hud__sensor-settings--source-entry monitoring-hud__nexus-scroll-pane" id="monitoring-hud-monitor-sensor-settings" data-sensor-settings="source-list-entry-points" data-scroll-pane="sensor-settings" aria-label="Per-sensor settings entry points" hidden>
                   <div class="monitoring-hud__sensor-settings-empty" data-sensor-settings-empty="source-list-entry-points">Use each Source row's Settings button for display mode, warning, and sensor-specific Polling Rate overrides.</div>
                 </div>
                 <div class="monitoring-hud__detail-danger-zone" data-detail-actions="selected-monitor-bottom">

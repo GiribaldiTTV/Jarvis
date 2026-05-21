@@ -10197,13 +10197,22 @@ class DesktopRuntimeWindow(QWidget):
                     if (window.runMonitoringHudOverlayProfileControlsProof) window.runMonitoringHudOverlayProfileControlsProof();
                     if (window.runMonitoringHudOverlayProfileIntegrationProof) window.runMonitoringHudOverlayProfileIntegrationProof();
                     if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
+                    const assignedOverlay = document.getElementById("monitoring-hud-monitor-overlay-profile-context");
+                    if (assignedOverlay) {
+                        assignedOverlay.classList.add("is-hovered");
+                        assignedOverlay.dataset.liveVisualProofState = "assigned-overlay-hover-clickable";
+                        assignedOverlay.scrollIntoView({ block: "center", inline: "nearest" });
+                        const detailPane = document.querySelector('[data-scroll-pane="monitor-detail"]');
+                        if (detailPane) {
+                            detailPane.scrollTop = Math.max(0, assignedOverlay.offsetTop - detailPane.offsetTop - 120);
+                        }
+                    }
                 })();
                 """
             )
             QTimer.singleShot(delay(300), step_overlay_profile_capture_manage_context)
 
         def step_overlay_profile_capture_manage_context():
-            capture("03_overlay_profile_manage_context")
             self._run_javascript_with_result(
                 """
                 (function() {
@@ -10214,14 +10223,41 @@ class DesktopRuntimeWindow(QWidget):
                             : { passed: false, missing: "integration-proof" };
                         if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
                         const context = document.getElementById("monitoring-hud-monitor-overlay-profile-context");
+                        if (context) {
+                            context.classList.add("is-hovered");
+                            context.dataset.liveVisualProofState = "assigned-overlay-hover-clickable-single-row";
+                            context.scrollIntoView({ block: "center", inline: "nearest" });
+                            const detailPane = document.querySelector('[data-scroll-pane="monitor-detail"]');
+                            if (detailPane) {
+                                detailPane.scrollTop = Math.max(0, context.offsetTop - detailPane.offsetTop - 120);
+                            }
+                        }
                         const manageWindow = document.getElementById("monitoring-hud-edit-monitor-window");
                         const routeButton = document.getElementById("monitoring-hud-monitor-overlay-profile-settings");
+                        const contextRect = context ? context.getBoundingClientRect() : null;
+                        const sensorSource = manageWindow ? manageWindow.querySelector('[data-monitor-detail-card="sensor-source"]') : null;
                         return JSON.stringify({
                             ok: Boolean(integrationProof.passed && context && manageWindow && !routeButton),
                             integrationProofPassed: Boolean(integrationProof.passed),
                             integrationProof: integrationProof,
                             manageWindowOpen: manageWindow ? manageWindow.hidden === false : false,
                             contextVisible: context ? context.getBoundingClientRect().height > 20 : false,
+                            contextHovered: context ? context.classList.contains("is-hovered") : false,
+                            contextSingleButton: context ? context.tagName === "BUTTON" : false,
+                            contextBelowSensorSource: Boolean(
+                                context
+                                && sensorSource
+                                && context.dataset.monitorDetailPlacement === "below-sensor-source"
+                                && (sensorSource.compareDocumentPosition(context) & Node.DOCUMENT_POSITION_FOLLOWING)
+                            ),
+                            contextRowAffordanceVisible: Boolean(
+                                context
+                                && contextRect
+                                && context.dataset.control === "assigned-overlay-status"
+                                && !context.disabled
+                                && contextRect.width >= 300
+                                && contextRect.height >= 32
+                            ),
                             contextMode: context ? context.dataset.overlayProfileIntegration : "",
                             contextMutation: context ? context.dataset.overlayProfileMutation : "",
                             contextLayout: context ? context.dataset.overlayProfileContextLayout : "",
@@ -10250,20 +10286,29 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("integrationProofPassed") is True
                 and parsed.get("manageWindowOpen") is True
                 and parsed.get("contextVisible") is True
+                and parsed.get("contextHovered") is True
                 and parsed.get("contextMode") == "slc-040-readonly-manage-context"
                 and parsed.get("contextMutation") == "assign-unassign-status-window"
                 and parsed.get("contextLayout") == "single-row-readonly"
                 and parsed.get("contextRoute") == "assigned-overlay-status-window"
+                and parsed.get("contextSingleButton") is True
+                and parsed.get("contextBelowSensorSource") is True
+                and parsed.get("contextRowAffordanceVisible") is True
                 and parsed.get("routeButtonRemoved") is True,
                 parsed,
             )
             if not parsed.get("ok"):
                 finish("FAIL", "SLC-040 Manage Monitors Overlay Profile integration proof failed before focused screenshot")
                 return
-            QTimer.singleShot(delay(250), step_overlay_profile_capture_clean)
+            QTimer.singleShot(
+                delay(250),
+                lambda: (
+                    capture("03_overlay_profile_manage_context"),
+                    QTimer.singleShot(delay(250), step_overlay_profile_capture_clean),
+                ),
+            )
 
         def step_overlay_profile_capture_clean():
-            capture("03_overlay_profile_settings_window_create_clean")
             self._run_javascript_with_result(
                 """
                 (function() {
@@ -10282,6 +10327,9 @@ class DesktopRuntimeWindow(QWidget):
                         const settingsButton = document.getElementById("monitoring-hud-overlay-profile-open-settings");
                         const settingsWindow = document.getElementById("monitoring-hud-overlay-profile-window");
                         const managerSelector = document.getElementById("monitoring-hud-overlay-profile-window-selector");
+                        const managerToggle = document.getElementById("monitoring-hud-overlay-profile-window-toggle");
+                        const managerLabel = document.getElementById("monitoring-hud-overlay-profile-window-label");
+                        const managerRow = document.querySelector("[data-overlay-profile-manager-row]");
                         const edit = document.getElementById("monitoring-hud-overlay-profile-edit-selected");
                         const create = document.getElementById("monitoring-hud-overlay-profile-create");
                         const save = document.getElementById("monitoring-hud-overlay-profile-save");
@@ -10298,8 +10346,13 @@ class DesktopRuntimeWindow(QWidget):
                             controlsProof: controlsProof,
                             integrationProof: integrationProof,
                             settingsWindowOpen: settingsWindow ? settingsWindow.hidden === false : false,
+                            settingsWindowVisualRepair: settingsWindow ? settingsWindow.dataset.overlayProfileVisualRepair : "",
                             settingsButtonExpanded: settingsButton ? settingsButton.getAttribute("aria-expanded") === "true" : false,
                             dropdownClosed: selector ? selector.dataset.dropdownOpen !== "true" : false,
+                            managerRowPolicy: managerRow ? managerRow.dataset.overlayProfileManagerRow : "",
+                            managerSelectorWidth: managerSelector ? managerSelector.getBoundingClientRect().width : 0,
+                            managerToggleWidth: managerToggle ? managerToggle.getBoundingClientRect().width : 0,
+                            managerLabelReadable: managerLabel ? managerLabel.scrollWidth <= managerLabel.clientWidth + 1 : false,
                             editDisabledWithoutSelection: edit ? edit.disabled : false,
                             createVisible: Boolean(create),
                             saveDisabledDefault: save ? save.disabled : false,
@@ -10337,8 +10390,12 @@ class DesktopRuntimeWindow(QWidget):
                 "Follow-up returned-UTS Overlay Profile manager selector/filter/delete proof prepared",
                 bool(parsed.get("ok"))
                 and parsed.get("settingsWindowOpen") is True
+                and parsed.get("settingsWindowVisualRepair") == "manager-selector-readable-assignment-affordance-proof"
                 and parsed.get("settingsButtonExpanded") is True
                 and parsed.get("dropdownClosed") is True
+                and parsed.get("managerRowPolicy") == "create-edit-wide-selector"
+                and float(parsed.get("managerSelectorWidth") or 0) >= 300
+                and parsed.get("managerLabelReadable") is True
                 and parsed.get("integrationProofPassed") is True
                 and parsed.get("editDisabledWithoutSelection") is True
                 and parsed.get("createVisible") is True
@@ -10381,7 +10438,122 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(
                 delay(300),
                 lambda: (
-                    capture("03_overlay_profile_settings_window_dirty"),
+                    capture("03_overlay_profile_settings_window_create_clean"),
+                    QTimer.singleShot(delay(300), step_overlay_profile_capture_selector_open),
+                ),
+            )
+
+        def step_overlay_profile_capture_selector_open():
+            self._run_javascript_with_result(
+                """
+                (function() {
+                    try {
+                        if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
+                            monitoringHudSetOverlayProfileWindowDropdownOpen(true);
+                        }
+                        const selector = document.getElementById("monitoring-hud-overlay-profile-window-selector");
+                        const menu = document.getElementById("monitoring-hud-overlay-profile-window-menu");
+                        const option = menu ? menu.querySelector("[data-overlay-profile-window-option]") : null;
+                        if (option) option.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+                        if (selector) selector.dataset.liveVisualProofState = "profile-window-selector-open-hover-reset";
+                        const label = document.getElementById("monitoring-hud-overlay-profile-window-label");
+                        return JSON.stringify({
+                            ok: Boolean(selector && selector.dataset.dropdownOpen === "true" && menu && !menu.hidden && option),
+                            selectorOpen: selector ? selector.dataset.dropdownOpen === "true" : false,
+                            menuVisible: Boolean(menu && !menu.hidden),
+                            hoveredProfileId: selector && selector.dataset ? String(selector.dataset.hoveredProfileId || "") : "",
+                            labelReadable: label ? label.scrollWidth <= label.clientWidth + 1 : false,
+                            selectorWidth: selector ? selector.getBoundingClientRect().width : 0
+                        });
+                    } catch (err) {
+                        return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                    }
+                })();
+                """,
+                lambda result: handle_overlay_profile_selector_open_result(result),
+            )
+
+        def handle_overlay_profile_selector_open_result(result):
+            try:
+                parsed = json.loads(result) if isinstance(result, str) else result
+            except Exception:
+                parsed = {"ok": False, "raw": str(result)}
+            if not isinstance(parsed, dict):
+                parsed = {"ok": False, "raw": str(parsed)}
+            add_step(
+                "Overlay Profile manager selector open/hover visual proof prepared",
+                bool(parsed.get("ok"))
+                and parsed.get("selectorOpen") is True
+                and parsed.get("menuVisible") is True
+                and bool(parsed.get("hoveredProfileId"))
+                and parsed.get("labelReadable") is True
+                and float(parsed.get("selectorWidth") or 0) >= 300,
+                parsed,
+            )
+            if not parsed.get("ok"):
+                finish("FAIL", "Overlay Profile manager selector open/hover proof failed before focused screenshot")
+                return
+            capture("03_overlay_profile_settings_window_profile_dropdown_open_hover")
+            QTimer.singleShot(delay(300), step_overlay_profile_capture_dirty)
+
+        def step_overlay_profile_capture_dirty():
+            self._run_javascript(
+                """
+                (() => {
+                    if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
+                        monitoringHudSetOverlayProfileWindowDropdownOpen(false);
+                    }
+                    const create = document.getElementById("monitoring-hud-overlay-profile-create");
+                    if (create && !create.disabled) {
+                        create.click();
+                    } else {
+                        const option = document.querySelector("[data-overlay-profile-window-option]");
+                        if (option) option.click();
+                        const edit = document.getElementById("monitoring-hud-overlay-profile-edit-selected");
+                        if (edit && !edit.disabled) edit.click();
+                    }
+                    const name = document.getElementById("monitoring-hud-overlay-profile-name-input");
+                    if (name) {
+                        name.value = "Focused Overlay Profile Visual";
+                        name.dispatchEvent(new Event("input", { bubbles: true }));
+                    }
+                    if (typeof monitoringHudSetOverlayProfileMonitorFilterOpen === "function") {
+                        monitoringHudSetOverlayProfileMonitorFilterOpen(true);
+                    }
+                    const filter = document.getElementById("monitoring-hud-overlay-profile-monitor-filter");
+                    const visible = filter ? filter.querySelector('[data-overlay-profile-monitor-filter-option="visible"]') : null;
+                    if (visible) visible.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+                    const deleteButton = document.getElementById("monitoring-hud-overlay-profile-delete");
+                    if (deleteButton) deleteButton.dataset.liveVisualProofState = "delete-danger-ready";
+                })();
+                """
+            )
+            QTimer.singleShot(
+                delay(300),
+                lambda: (
+                    capture("03_overlay_profile_settings_window_dirty_filter_open"),
+                    QTimer.singleShot(delay(300), step_overlay_profile_capture_delete_confirmation),
+                ),
+            )
+
+        def step_overlay_profile_capture_delete_confirmation():
+            self._run_javascript(
+                """
+                (() => {
+                    if (typeof monitoringHudSetOverlayProfileMonitorFilterOpen === "function") {
+                        monitoringHudSetOverlayProfileMonitorFilterOpen(false);
+                    }
+                    const deleteButton = document.getElementById("monitoring-hud-overlay-profile-delete");
+                    if (deleteButton && !deleteButton.disabled) deleteButton.click();
+                    const confirmation = document.getElementById("monitoring-hud-overlay-profile-delete-confirmation");
+                    if (confirmation) confirmation.dataset.liveVisualProofState = "delete-confirmation-visible";
+                })();
+                """
+            )
+            QTimer.singleShot(
+                delay(300),
+                lambda: (
+                    capture("03_overlay_profile_settings_window_delete_confirmation"),
                     QTimer.singleShot(
                         delay(300),
                         lambda: query("SLC-039 Overlay Profile settings-window controls stay bounded and distinct", assert_overlay_profile_controls, step_overlay_profile_cleanup),
@@ -10410,6 +10582,21 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_settings_panel():
+            self._run_javascript(
+                """
+                (() => {
+                    if (window.monitoringHudCloseChildWindow) window.monitoringHudCloseChildWindow({ force: true });
+                    if (window.monitoringHudRenderControls) window.monitoringHudRenderControls();
+                    const settingsAction = document.getElementById("monitoring-hud-settings-action");
+                    if (settingsAction && settingsAction.scrollIntoView) {
+                        settingsAction.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+                    }
+                })();
+                """
+            )
+            QTimer.singleShot(delay(500), step_settings_panel_click)
+
+        def step_settings_panel_click():
             clicked = self._monitoring_hud_send_mouse_click(rect_center("settingsAction"))
             add_step(
                 "active live-client Dashboard settings affordance opens settings panel",
