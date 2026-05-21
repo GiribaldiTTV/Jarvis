@@ -9490,6 +9490,9 @@ class DesktopRuntimeWindow(QWidget):
                 "recording_profile_boundary": "recordingProfileId" not in active_profile,
                 "editor_geometry": rect_present(geometry.get("overlayProfileEditor") if isinstance(geometry.get("overlayProfileEditor"), dict) else {}),
                 "toggle_geometry": rect_present(geometry.get("overlayProfileToggle") if isinstance(geometry.get("overlayProfileToggle"), dict) else {}),
+                "settings_entry_geometry": rect_present(geometry.get("overlayProfileOpenSettings") if isinstance(geometry.get("overlayProfileOpenSettings"), dict) else {}),
+                "settings_window_geometry": rect_present(geometry.get("overlayProfileWindow") if isinstance(geometry.get("overlayProfileWindow"), dict) else {}),
+                "settings_window_close_geometry": rect_present(geometry.get("overlayProfileWindowClose") if isinstance(geometry.get("overlayProfileWindowClose"), dict) else {}),
                 "name_input_geometry": rect_present(geometry.get("overlayProfileNameInput") if isinstance(geometry.get("overlayProfileNameInput"), dict) else {}),
                 "create_geometry": rect_present(geometry.get("overlayProfileCreate") if isinstance(geometry.get("overlayProfileCreate"), dict) else {}),
                 "save_geometry": rect_present(geometry.get("overlayProfileSave") if isinstance(geometry.get("overlayProfileSave"), dict) else {}),
@@ -9531,7 +9534,7 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
                 "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
-                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows",
+                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings",
                 "dashboard_monitor_selection_in_child_window": dataset.get("dashboardMonitorSelectionPlacement") == "edit-child-window-only",
                 "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-overlay-monitor-groups-provider-warning",
                 "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "dashboard-ia-card-settings-button",
@@ -9911,7 +9914,7 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
                 "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
-                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows",
+                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings",
                 "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "configurable-groups-sensor-assignment",
                 "dashboard_monitor_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-visual-rendering",
                 "dashboard_sensor_assignment": dataset.get("monitorSensorAssignment") == "sensor-library-source-picker",
@@ -10150,12 +10153,13 @@ class DesktopRuntimeWindow(QWidget):
                 if (toggle && toggle.getAttribute("aria-expanded") === "true") toggle.click();
                 if (window.runMonitoringHudOverlayProfileStateProof) window.runMonitoringHudOverlayProfileStateProof();
                 if (window.runMonitoringHudOverlayProfileControlsProof) window.runMonitoringHudOverlayProfileControlsProof();
+                if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("overlay-profile-settings");
                 """
             )
             QTimer.singleShot(delay(300), step_overlay_profile_capture_clean)
 
         def step_overlay_profile_capture_clean():
-            capture("03_overlay_profile_selector_create_rename_clean")
+            capture("03_overlay_profile_settings_window_create_clean")
             self._run_javascript_with_result(
                 """
                 (function() {
@@ -10166,29 +10170,24 @@ class DesktopRuntimeWindow(QWidget):
                         const controlsProof = window.runMonitoringHudOverlayProfileControlsProof
                             ? window.runMonitoringHudOverlayProfileControlsProof()
                             : { passed: false, missing: "controls-proof" };
-                        const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
-                        if (toggle && toggle.getAttribute("aria-expanded") !== "true") {
-                            toggle.click();
-                        }
-                        const option = document.querySelector("[data-overlay-profile-option]");
-                        if (option) {
-                            option.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
-                            option.classList.add("is-hovered");
-                        }
+                        if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("overlay-profile-settings");
                         const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
                         if (input) {
                             input.value = "Focused Overlay Profile Draft";
                             input.dispatchEvent(new Event("input", { bubbles: true }));
                         }
                         const selector = document.getElementById("monitoring-hud-overlay-profile-selector");
+                        const settingsButton = document.getElementById("monitoring-hud-overlay-profile-open-settings");
+                        const settingsWindow = document.getElementById("monitoring-hud-overlay-profile-window");
                         const save = document.getElementById("monitoring-hud-overlay-profile-save");
                         const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
                         return JSON.stringify({
-                            ok: Boolean(stateProof.passed && controlsProof.passed && selector && input),
+                            ok: Boolean(stateProof.passed && controlsProof.passed && selector && settingsButton && settingsWindow && input),
                             stateProofPassed: Boolean(stateProof.passed),
                             controlsProofPassed: Boolean(controlsProof.passed),
-                            dropdownOpen: selector ? selector.dataset.dropdownOpen === "true" : false,
-                            hoveredProfileId: selector ? selector.dataset.hoveredProfileId || "" : "",
+                            settingsWindowOpen: settingsWindow ? settingsWindow.hidden === false : false,
+                            settingsButtonExpanded: settingsButton ? settingsButton.getAttribute("aria-expanded") === "true" : false,
+                            dropdownClosed: selector ? selector.dataset.dropdownOpen !== "true" : false,
                             saveEnabled: save ? !save.disabled : false,
                             discardEnabled: discard ? !discard.disabled : false,
                             membership: document.getElementById("monitoring-hud-overlay-profile-editor")
@@ -10211,9 +10210,11 @@ class DesktopRuntimeWindow(QWidget):
             if not isinstance(parsed, dict):
                 parsed = {"ok": False, "raw": str(parsed)}
             add_step(
-                "SLC-038 Overlay Profile selector/create/rename Save/Discard visual proof prepared",
+                "SLC-038 Overlay Profile settings-window create/rename Save/Discard visual proof prepared",
                 bool(parsed.get("ok"))
-                and parsed.get("dropdownOpen") is True
+                and parsed.get("settingsWindowOpen") is True
+                and parsed.get("settingsButtonExpanded") is True
+                and parsed.get("dropdownClosed") is True
                 and parsed.get("saveEnabled") is True
                 and parsed.get("discardEnabled") is True
                 and parsed.get("membership") == "read-only-slc-039-pending",
@@ -10225,10 +10226,10 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(
                 delay(300),
                 lambda: (
-                    capture("03_overlay_profile_dropdown_open_hover_dirty"),
+                    capture("03_overlay_profile_settings_window_dirty"),
                     QTimer.singleShot(
                         delay(300),
-                        lambda: query("SLC-038 Overlay Profile visible controls stay bounded and distinct", assert_overlay_profile_controls, step_overlay_profile_cleanup),
+                        lambda: query("SLC-038 Overlay Profile settings-window controls stay bounded and distinct", assert_overlay_profile_controls, step_overlay_profile_cleanup),
                     ),
                 ),
             )
@@ -10240,6 +10241,7 @@ class DesktopRuntimeWindow(QWidget):
                 if (discard && !discard.disabled) discard.click();
                 const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
                 if (toggle && toggle.getAttribute("aria-expanded") === "true") toggle.click();
+                if (window.monitoringHudCloseChildWindow) window.monitoringHudCloseChildWindow({ force: true });
                 """
             )
             QTimer.singleShot(delay(250), step_settings_panel)
@@ -12498,7 +12500,7 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
                     monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
                     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-monitor-management-child-windows";
-                    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows";
+                    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings";
                     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
                     monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
                     monitoringHud.dataset.dashboardOpenBadge = "removed";

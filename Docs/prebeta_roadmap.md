@@ -220,7 +220,7 @@ Runtime Implementation: SLC-037 Overlay Profile data/state foundation and SLC-03
 - Active Workstream Direction: `None - PR #118 merged FAM-006`
 - Record State: `Registry-only`
 - Selected Next Runtime Package Candidate: `FAM-006 / PKG-006 Overlay Profile Runtime Foundation`
-- Selected Next Status: `SLC-038 Overlay Profile visible selection/editing controls implemented after SLC-037 H1 Green; SLC-038 H1 next`
+- Selected Next Status: `SLC-038 Overlay Profile visible selection/editing controls implemented after SLC-037 H1 Green; bounded UI repair moves profile-name editing into an Overlay Profile Settings child window and strengthens row dividers; SLC-038 H1 next`
 - Runtime Package Admission: `Admitted for successor setup; historical PKG-006 Dashboard-first release evidence remains preserved`
 - Minimal Scope: `runtime package for optional Nexus/NDAI hardware-monitoring HUD visual/user-facing surface, provider-contract-first telemetry health/setup/unavailable states, desktop placement and renderer ownership, settings or user controls visibility, fail-safe/setup/reconnect/no-data/degraded-status behavior, visual/non-invasive warning posture, validation/live desktop proof, and audio/spoken warning integration only if later admitted through FAM-004/cross-family approval.`
 - Branch: `feature/fam-006-monitoring-hud-product-surface`

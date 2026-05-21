@@ -877,7 +877,9 @@ body.desktop-mode #monitoring-hud > * {
   gap: 8px;
   align-items: start;
   padding: 8px 0;
-  border-top: 1px solid rgba(119, 221, 255, 0.08);
+  border-top: 1px solid rgba(138, 236, 255, 0.46);
+  box-shadow: 0 -1px 0 rgba(232, 250, 255, 0.12), inset 0 1px 0 rgba(20, 49, 63, 0.72);
+  background: linear-gradient(180deg, rgba(117, 228, 255, 0.06), transparent 58%);
 }
 
 .monitoring-hud__state-row span {
@@ -937,6 +939,11 @@ body.desktop-mode #monitoring-hud > * {
   justify-self: end;
   width: 100%;
   min-width: 0;
+}
+
+.monitoring-hud__overlay-profile-window-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
 }
 
 .monitoring-hud__overlay-profile-detail-grid {
@@ -1164,7 +1171,9 @@ body.desktop-mode #monitoring-hud > * {
   gap: 8px;
   align-items: start;
   padding: 8px 0;
-  border-top: 1px solid rgba(119, 221, 255, 0.08);
+  border-top: 1px solid rgba(138, 236, 255, 0.46);
+  box-shadow: 0 -1px 0 rgba(232, 250, 255, 0.12), inset 0 1px 0 rgba(20, 49, 63, 0.72);
+  background: linear-gradient(180deg, rgba(117, 228, 255, 0.06), transparent 58%);
 }
 
 .monitoring-hud__setting-row span {

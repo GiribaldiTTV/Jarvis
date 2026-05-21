@@ -316,7 +316,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-dashboard-content-polish="branch2-monitor-groups-no-dead-space"',
         'data-dashboard-layout-proof="monitor-groups-measured-no-overlap"',
         'data-dashboard-home-model="control-hub-cards-monitor-management-child-windows"',
-        'data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows"',
+        'data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"',
         'data-dashboard-close-affordance="window-level-close-button"',
         'data-dashboard-close-layout="window-level-top-right-close-pill"',
         'data-dashboard-open-badge="removed"',
@@ -344,11 +344,17 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-overlay-profile-membership="read-only-slc-039-pending"',
         'id="monitoring-hud-overlay-profile-editor"',
         'data-overlay-profile-editor-ui="slc-038-entry-controls"',
+        'data-overlay-profile-proof="selector-settings-window-create-rename-save-discard"',
         'id="monitoring-hud-overlay-profile-selector"',
         'data-bounded-dropdown="overlay-profile"',
         'id="monitoring-hud-overlay-profile-toggle"',
         'id="monitoring-hud-overlay-profile-menu"',
         'data-overlay-profile-option="default-overlay-profile"',
+        'id="monitoring-hud-overlay-profile-open-settings"',
+        'data-overlay-profile-actions="settings-window-entry"',
+        'id="monitoring-hud-overlay-profile-window"',
+        'data-child-window="overlay-profile-settings"',
+        'data-overlay-profile-window="create-rename-settings-shell"',
         'id="monitoring-hud-overlay-profile-name-input"',
         'id="monitoring-hud-overlay-profile-create"',
         'id="monitoring-hud-overlay-profile-save"',
@@ -535,10 +541,13 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__overlay-profile-panel" in css
         and ".monitoring-hud__overlay-profile-dropdown" in css
         and ".monitoring-hud__overlay-profile-actions" in css
+        and ".monitoring-hud__overlay-profile-window-actions" in css
         and "data-overlay-profile-option" in html
+        and "data-child-window=\"overlay-profile-settings\"" in html
         and "monitoringHudSetOverlayProfileDropdownOpen" in js
+        and "monitoringHudOpenChildWindow(\"overlay-profile-settings\")" in js
         and "monitoringHudSaveOverlayProfileDraft" in js,
-        "HUD must render SLC-038 Overlay Profile controls as Nexus-styled selector/create/rename/save/discard UI",
+        "HUD must render SLC-038 Overlay Profile controls as a Nexus-styled selector plus settings-window create/rename/save/discard UI",
         failures,
     )
     _require(
@@ -755,10 +764,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         "emptyStateProductCopy",
         "interactiveControlVisualQaGate",
         "hidden-no-monitor",
-        "03_overlay_profile_selector_create_rename_clean",
-        "03_overlay_profile_dropdown_open_hover_dirty",
-        "SLC-038 Overlay Profile selector/create/rename Save/Discard visual proof prepared",
-        "SLC-038 Overlay Profile visible controls stay bounded and distinct",
+        "03_overlay_profile_settings_window_create_clean",
+        "03_overlay_profile_settings_window_dirty",
+        "SLC-038 Overlay Profile settings-window create/rename Save/Discard visual proof prepared",
+        "SLC-038 Overlay Profile settings-window controls stay bounded and distinct",
         "03_manage_monitors_open_state",
         "04_source_filter_dropdown_open_hover_reset",
         "05_unsaved_guard_close_queued",
@@ -936,7 +945,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-monitor-management-child-windows"',
         'monitoringHud.dataset.dashboardPollingPlacement = "monitor-group-editor-only"',
         'monitoringHud.dataset.dashboardProofContentPolicy = "validator-artifacts-not-home-surface"',
-        'monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows"',
+        'monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"',
         'monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning"',
         'monitoringHud.dataset.dashboardSettingsAffordance = "dashboard-ia-card-settings-button"',
         'monitoringHud.dataset.dashboardSettingsPanel = "settings-panel-child-window"',

@@ -39,7 +39,7 @@ Historical FAM-006 Monitor Groups Branch: `feature/fam-006-monitor-groups-sensor
 Historical FAM-006 Preservation: `Preserved as PR #180 merged evidence; stale remote branch hygiene remains a separate USER-gated decision`
 v1.7.10 Closure-Drift Setup: `Carried into this Branch Readiness Stage 2 setup as release-dependent source-truth context; runtime implementation remains blocked until setup validation is green and USER approves Workstream implementation`
 Branch Runtime Engineering Plan: `Accepted - detailed setup/runtime planning is present at Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md`
-Engineering Plan Status: `SLC-038 implemented - Overlay Profile state/schema foundation plus compact Dashboard selector/create/rename/save/discard controls, read-only profile details, read-only membership bridge, persistence proof, and concept-boundary validation are present; SLC-038 H1 is next`
+Engineering Plan Status: `SLC-038 implemented - Overlay Profile state/schema foundation plus compact Dashboard selector, Overlay Profile Settings child-window create/rename/save/discard controls, read-only profile details, read-only membership bridge, persistence proof, and concept-boundary validation are present; SLC-038 H1 is next`
 PR Fold-Down Packet: `Pending SLC-038 H1, SLC-039 through SLC-041 seams, Live Validation LV1 after H1 Green, PR Readiness, PR creation, merge, and release-scope translation`
 
 ## Branch Class
@@ -218,7 +218,7 @@ Non-Includes: `Recording Profile runtime, tray recording controls, local recordi
 
 ## Active Seam
 
-Active seam: `SLC-038 Workstream implementation complete - compact Dashboard Overlay Profile selector/create/rename/save/discard controls are present; H1 is next.`
+Active seam: `SLC-038 Workstream implementation complete - compact Dashboard Overlay Profile selector and Overlay Profile Settings child-window create/rename/save/discard controls are present; H1 is next.`
 
 ## Workstream Implementation - SLC-037 Overlay Profile Data/State Foundation
 
@@ -252,9 +252,9 @@ Implementation Status: `Workstream Green - bounded SLC-038 visible controls are 
 
 Overlay Profile Selector Result: `Dashboard HUD now renders a compact Nexus-styled active Overlay Profile selector with bounded option menu, open/hover/reset/select behavior, activeOverlayProfileId updates, and persistence through the existing HUD state architecture.`
 
-Create Profile Shell Result: `Create Profile adds a stable overlay-profile id, applies a valid default name, clones current read-only membership metadata from the active profile, makes the new profile active/selectable, and persists through save/load state proof.`
+Create Profile Shell Result: `The Overlay Profile Settings child window owns Create Overlay; it adds a stable overlay-profile id, applies a valid default name, clones current read-only membership metadata from the active profile, makes the new profile active/selectable, and persists through save/load state proof.`
 
-Rename/Edit-Name Result: `The profile-name shell supports draft edits for the active profile only; Save normalizes and persists the name, Discard restores the saved name, and empty/duplicate names normalize through the smallest legal current-state rule.`
+Rename/Edit-Name Result: `The profile-name shell lives in the Overlay Profile Settings child window and supports draft edits for the active profile only; Save normalizes and persists the name, Discard restores the saved name, and empty/duplicate names normalize through the smallest legal current-state rule.`
 
 Save / Discard Result: `Save and Discard use the current FAM-006 control affordance pattern, stay disabled when no profile-name draft is dirty, and illuminate only when a saveable/discardable profile-name change exists.`
 
@@ -264,7 +264,7 @@ State Bridge Result: `Renderer/state proof now reports visible_profile_editor=sl
 
 Concept Boundary Result: `Overlay Profile selection/editing remains distinct from Monitor Group organization and Recording Profile runtime state; no runtime recording, tray recording controls, export/share behavior, provider expansion, broad theme/skin work, FAM-007 work, or AI Product work is introduced.`
 
-Validation Trace: `dev/orin_monitoring_hud_surface_validation.py and dev/orin_monitoring_hud_internal_sandbox_validation.py now check SLC-038 selector/create/rename/save/discard/read-only membership proof, profile selection/rename persistence, renderer bridge proof, and concept-boundary preservation.`
+Validation Trace: `dev/orin_monitoring_hud_surface_validation.py and dev/orin_monitoring_hud_internal_sandbox_validation.py now check SLC-038 selector plus settings-window create/rename/save/discard/read-only membership proof, profile selection/rename persistence, renderer bridge proof, and concept-boundary preservation.`
 
 ## Admitted Implementation Slice
 
@@ -390,9 +390,9 @@ Branch Runtime Engineering Plan: `Accepted - Docs/branch_plans/feature_fam_006_o
 
 Current Runtime Baseline: `FAM-006 Dashboard and Monitor Groups / Sensor Command Center are released historical evidence. Monitor Groups organize configured monitors; Overlay Profile now has SLC-037 data/state foundation plus SLC-038 Dashboard visible selection/editing entry controls; Recording Profile runtime and Overlay/display acceptance remain deferred/non-gating.`
 
-Planned Runtime Delta: `SLC-037 added the Overlay Profile state foundation. SLC-038 adds compact Dashboard selector/create/rename/save/discard entry controls. Future Workstream implementation should add monitor-to-profile mapping and bounded Dashboard / Manage Monitors integration without adding recording, export/share, provider expansion, or broad theming behavior.`
+Planned Runtime Delta: `SLC-037 added the Overlay Profile state foundation. SLC-038 adds a compact Dashboard selector plus Overlay Profile Settings child-window create/rename/save/discard entry controls. Future Workstream implementation should add monitor-to-profile mapping and bounded Dashboard / Manage Monitors integration without adding recording, export/share, provider expansion, or broad theming behavior.`
 
-User-Facing Runtime Delta: `Users can now select the active Overlay Profile, create a profile, rename the active profile, save/discard profile-name drafts, and see read-only profile details from a compact Dashboard HUD control surface. Membership editing remains pending SLC-039.`
+User-Facing Runtime Delta: `Users can now select the active Overlay Profile from the compact Dashboard HUD control surface, then open Overlay Profile Settings to create a profile, rename the active profile, save/discard profile-name drafts, and see read-only profile details. The main Dashboard card does not host the profile-name text field. Membership editing remains pending SLC-039.`
 
 State / Config / Schema Delta: `Plan overlayProfileId, overlay profile name, selected monitor references, layout/display mode metadata where admitted, active overlay profile selection, dirty/clean editor state, and persistence boundaries. Recording profile state, recording output state, export/share state, provider state, and theme/skin state remain excluded.`
 
@@ -470,11 +470,11 @@ Next Legal Phase: `Workstream`
 
 Next Legal Phase Detail: `SLC-038 Hardening H1 for visible Overlay Profile selection/editing controls`
 
-Why This Phase Is Next: `SLC-038 visible Overlay Profile selection/editing controls are implemented as a bounded Dashboard HUD seam; H1 must pressure-test selector/create/rename/save/discard behavior, read-only membership posture, persistence, concept boundaries, and existing FAM-006 preservation before later seams can proceed.`
+Why This Phase Is Next: `SLC-038 visible Overlay Profile selection/editing controls are implemented as a bounded Dashboard HUD seam; H1 must pressure-test selector and settings-window create/rename/save/discard behavior, read-only membership posture, persistence, concept boundaries, and existing FAM-006 preservation before later seams can proceed.`
 
 Approval Required: `USER approval for SLC-038 Hardening H1 and later separate approval for SLC-039 or additional runtime seams`
 
-Exact USER Approval Text: `Approve SLC-038 Hardening H1 for visible Overlay Profile selection/editing controls on feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006. Codex may verify repo/worktree identity, confirm the SLC-038 implementation commit, pressure-test Overlay Profile selector/create/rename/save/discard/read-only details, persistence, renderer/state bridge, concept boundaries, existing FAM-006 preservation, source-truth alignment, validators, and focused proof; apply bounded H1 repairs inside the approved SLC-038 scope if required; validate, commit, and push if repairs are green. Do not implement SLC-039 mapping, SLC-040 integration, PRs, merge, release, issue mutation, cleanup, or sibling-worktree changes without separate approval.`
+Exact USER Approval Text: `Approve SLC-038 Hardening H1 for visible Overlay Profile selection/editing controls on feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006. Codex may verify repo/worktree identity, confirm the SLC-038 implementation commit, pressure-test Overlay Profile selector and Overlay Profile Settings child-window create/rename/save/discard/read-only details, persistence, renderer/state bridge, concept boundaries, existing FAM-006 preservation, source-truth alignment, validators, and focused proof; apply bounded H1 repairs inside the approved SLC-038 scope if required; validate, commit, and push if repairs are green. Do not implement SLC-039 mapping, SLC-040 integration, PRs, merge, release, issue mutation, cleanup, or sibling-worktree changes without separate approval.`
 
 Allowed Scope: `SLC-038 Hardening H1 after bounded visible control implementation`
 
