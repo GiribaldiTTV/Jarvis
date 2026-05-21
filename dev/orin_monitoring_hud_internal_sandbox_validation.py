@@ -27,8 +27,10 @@ from desktop.monitoring_hud_controls import build_monitoring_hud_controls_visibi
 from desktop.monitoring_hud_placement import build_monitoring_hud_placement_contract
 from desktop.monitoring_hud_status import build_monitoring_hud_status_snapshot
 from desktop.monitoring_hud_state import (
+    DEFAULT_OVERLAY_PROFILE_ID,
     MONITORING_HUD_STATE_ENV,
     load_monitoring_hud_state,
+    normalize_monitoring_hud_overlay_profiles,
     save_monitoring_hud_state,
 )
 from desktop.monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
@@ -1381,6 +1383,17 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
                 feature_enabled=True,
                 dashboard_visible=False,
                 source="internal_sandbox_validation",
+                monitor_ids=["cpu", "gpu"],
+                overlay_profiles={
+                    "custom-overlay": {
+                        "id": "custom-overlay",
+                        "name": "Custom Overlay Profile",
+                        "monitorIds": ["gpu", "gpu", "missing", "cpu"],
+                        "recordingProfileId": "must-not-survive",
+                        "monitorGroupId": "must-not-survive",
+                    }
+                },
+                active_overlay_profile_id="missing-overlay",
             )
             persisted_state = load_monitoring_hud_state()
             _require(saved, "HUD feature state persistence save must succeed", failures)
@@ -1392,6 +1405,34 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
             _require(
                 persisted_state.get("dashboardVisible") is False,
                 "HUD feature state persistence must allow Dashboard to stay closed on startup",
+                failures,
+            )
+            _require(
+                persisted_state.get("activeOverlayProfileId") == DEFAULT_OVERLAY_PROFILE_ID,
+                "Overlay Profile active pointer must fall back to the default profile",
+                failures,
+            )
+            default_profile = (persisted_state.get("overlayProfiles") or {}).get(DEFAULT_OVERLAY_PROFILE_ID, {})
+            _require(
+                default_profile.get("monitorIds") == ["cpu", "gpu"],
+                "Default Overlay Profile must preserve legacy monitor membership across save/load",
+                failures,
+            )
+            custom_profile = (persisted_state.get("overlayProfiles") or {}).get("custom-overlay", {})
+            _require(
+                custom_profile.get("monitorIds") == ["gpu", "cpu"],
+                "Overlay Profile normalization must remove duplicate and stale monitor ids",
+                failures,
+            )
+            _require(
+                "recordingProfileId" not in custom_profile and "monitorGroupId" not in custom_profile,
+                "Overlay Profile state must stay distinct from Recording Profile and Monitor Group fields",
+                failures,
+            )
+            normalized_legacy = normalize_monitoring_hud_overlay_profiles({}, ["cpu", "gpu"])
+            _require(
+                normalized_legacy.get("overlayProfiles", {}).get(DEFAULT_OVERLAY_PROFILE_ID, {}).get("monitorIds") == ["cpu", "gpu"],
+                "Legacy card state without overlayProfiles must create a default Overlay Profile",
                 failures,
             )
         finally:
@@ -1418,7 +1459,7 @@ def _write_manifest(status: str, failures: list[str], contracts: dict[str, objec
         "status": status,
         "package": "PKG-006",
         "phase": "Workstream",
-        "seam": "WS33 dashboard settings content and monitor-management clarity sandbox consolidation",
+        "seam": "SLC-037 Overlay Profile data/state foundation",
         "contracts": contracts,
         "failures": failures,
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

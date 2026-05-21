@@ -171,6 +171,101 @@ function monitoringHudSafeCardsObject(cards) {
   return Object.assign({}, cards);
 }
 
+const monitoringHudOverlayProfileSchemaVersion = 1;
+const monitoringHudDefaultOverlayProfileId = "default-overlay-profile";
+
+function monitoringHudSafeOverlayProfilesObject(overlayProfiles) {
+  if (!overlayProfiles || typeof overlayProfiles !== "object" || Array.isArray(overlayProfiles)) return {};
+  return Object.assign({}, overlayProfiles);
+}
+
+function monitoringHudStableMonitorIds(cards) {
+  return Object.keys(cards || {}).filter((cardId) => typeof cardId === "string" && cardId.trim());
+}
+
+function monitoringHudUniqueValidMonitorIds(values, cards) {
+  const cardIds = new Set(monitoringHudStableMonitorIds(cards));
+  const seen = new Set();
+  const result = [];
+  if (!Array.isArray(values)) return result;
+  values.forEach((value) => {
+    const monitorId = String(value || "").trim();
+    if (!monitorId || !cardIds.has(monitorId) || seen.has(monitorId)) return;
+    seen.add(monitorId);
+    result.push(monitorId);
+  });
+  return result;
+}
+
+function monitoringHudDefaultOverlayProfile(cards, previousProfile = {}) {
+  return {
+    id: monitoringHudDefaultOverlayProfileId,
+    schemaVersion: monitoringHudOverlayProfileSchemaVersion,
+    kind: "overlay-profile",
+    scope: "overlay-visible-monitor-membership",
+    name: previousProfile.name || "Default Overlay Profile",
+    monitorIds: monitoringHudStableMonitorIds(cards),
+    displayMode: previousProfile.displayMode || "monitor-cards",
+    source: previousProfile.source || "legacy-monitor-card-migration",
+    dirty: false
+  };
+}
+
+function monitoringHudNormalizeOverlayProfileState(state) {
+  const targetState = state || monitoringHudControlState;
+  const cards = monitoringHudSafeCardsObject(targetState.cards || {});
+  const rawProfiles = monitoringHudSafeOverlayProfilesObject(targetState.overlayProfiles);
+  const profiles = {};
+  const migratedLegacyCards = !Object.prototype.hasOwnProperty.call(targetState, "overlayProfiles");
+
+  Object.keys(rawProfiles).forEach((profileKey) => {
+    const rawProfile = rawProfiles[profileKey];
+    if (!rawProfile || typeof rawProfile !== "object" || Array.isArray(rawProfile)) return;
+    const profileId = String(rawProfile.id || profileKey || "").trim();
+    if (!profileId) return;
+    profiles[profileId] = {
+      id: profileId,
+      schemaVersion: monitoringHudOverlayProfileSchemaVersion,
+      kind: "overlay-profile",
+      scope: "overlay-visible-monitor-membership",
+      name: String(rawProfile.name || "Overlay Profile").trim() || "Overlay Profile",
+      monitorIds: monitoringHudUniqueValidMonitorIds(rawProfile.monitorIds, cards),
+      displayMode: String(rawProfile.displayMode || "monitor-cards").trim() || "monitor-cards",
+      source: String(rawProfile.source || "persisted-overlay-profile-state").trim() || "persisted-overlay-profile-state",
+      dirty: Boolean(rawProfile.dirty)
+    };
+  });
+
+  profiles[monitoringHudDefaultOverlayProfileId] = monitoringHudDefaultOverlayProfile(
+    cards,
+    profiles[monitoringHudDefaultOverlayProfileId] || rawProfiles[monitoringHudDefaultOverlayProfileId] || {}
+  );
+  const activeProfileId = String(targetState.activeOverlayProfileId || "").trim();
+  targetState.overlayProfileSchemaVersion = monitoringHudOverlayProfileSchemaVersion;
+  targetState.overlayProfiles = profiles;
+  targetState.activeOverlayProfileId = profiles[activeProfileId] ? activeProfileId : monitoringHudDefaultOverlayProfileId;
+  targetState.overlayProfileStateProof = {
+    schemaVersion: monitoringHudOverlayProfileSchemaVersion,
+    activeProfileId: targetState.activeOverlayProfileId,
+    defaultProfileId: monitoringHudDefaultOverlayProfileId,
+    defaultProfileMonitorIds: profiles[monitoringHudDefaultOverlayProfileId].monitorIds.slice(),
+    profileCount: Object.keys(profiles).length,
+    legacyCardsMigrated: migratedLegacyCards,
+    duplicateMonitorIdsRemoved: true,
+    staleMonitorIdsRemoved: true,
+    monitorGroupBoundary: "monitor-groups-organize-configuration-only",
+    recordingProfileBoundary: "recording-profile-state-absent-future-gated",
+    visibleEditorUi: "not-rendered-slc-037"
+  };
+  return targetState;
+}
+
+function monitoringHudActiveOverlayProfile() {
+  monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+  return monitoringHudControlState.overlayProfiles[monitoringHudControlState.activeOverlayProfileId]
+    || monitoringHudControlState.overlayProfiles[monitoringHudDefaultOverlayProfileId];
+}
+
 let monitoringHudControlState = {
   featureEnabled: false,
   overlayDeferred: true,
@@ -184,8 +279,12 @@ let monitoringHudControlState = {
   selectedMonitorId: "cpu",
   monitorSequence: 2,
   cards: monitoringHudInitialCards(),
+  overlayProfileSchemaVersion: monitoringHudOverlayProfileSchemaVersion,
+  activeOverlayProfileId: monitoringHudDefaultOverlayProfileId,
+  overlayProfiles: {},
   changedAt: Date.now()
 };
+monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
 const monitoringHudStorageKey = "nexusMonitoringHudLayoutV4";
 const monitoringHudLegacyStorageKeys = ["nexusMonitoringHudLayoutV1", "nexusMonitoringHudLayoutV2", "nexusMonitoringHudLayoutV3"];
 const monitoringHudSnapSize = 20;
@@ -304,14 +403,17 @@ function monitoringHudLoadStoredState() {
     if (!monitoringHudControlState.selectedMonitorId || !monitoringHudControlState.cards[monitoringHudControlState.selectedMonitorId]) {
       monitoringHudControlState.selectedMonitorId = Object.keys(monitoringHudControlState.cards)[0] || "";
     }
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   } catch (_err) {
     monitoringHudControlState.changedAt = Date.now();
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   }
 }
 
 function monitoringHudSaveStoredState() {
   try {
     if (!window.localStorage) return;
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
     window.localStorage.setItem(monitoringHudStorageKey, JSON.stringify(monitoringHudControlState));
   } catch (_err) {}
 }
@@ -2209,7 +2311,9 @@ function monitoringHudCreateOverlayCardNode(cardId, layout) {
 
 function monitoringHudRenderOverlayDisplay() {
   if (!monitoringHudOverlayDisplay || !monitoringHudOverlayCanvas) return;
+  monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   const cards = monitoringHudControlState.cards || {};
+  const activeProfile = monitoringHudActiveOverlayProfile() || {};
   const overlayDeferred = monitoringHudControlState.overlayDeferred !== false;
   monitoringHudOverlayDisplay.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
   monitoringHudOverlayDisplay.dataset.visibilityState = overlayDeferred ? "hidden-deferred" : (monitoringHudControlState.visible ? "visible" : "hidden");
@@ -2222,6 +2326,12 @@ function monitoringHudRenderOverlayDisplay() {
   monitoringHudOverlayDisplay.dataset.dashboardAcceptanceRole = "supporting-future-interface-evidence";
   monitoringHudOverlayDisplay.dataset.currentBranchReleaseGate = "false";
   monitoringHudOverlayDisplay.dataset.monitorCount = String(Object.keys(cards).length);
+  monitoringHudOverlayDisplay.dataset.overlayProfileState = "slc-037-state-foundation";
+  monitoringHudOverlayDisplay.dataset.overlayProfileSchemaVersion = String(monitoringHudOverlayProfileSchemaVersion);
+  monitoringHudOverlayDisplay.dataset.activeOverlayProfileId = String(monitoringHudControlState.activeOverlayProfileId || monitoringHudDefaultOverlayProfileId);
+  monitoringHudOverlayDisplay.dataset.activeOverlayProfileMonitorCount = String((activeProfile.monitorIds || []).length);
+  monitoringHudOverlayDisplay.dataset.overlayProfileEditor = "not-rendered-slc-037";
+  monitoringHudOverlayDisplay.dataset.recordingProfileState = "recording-profile-state-absent-future-gated";
   Object.keys(cards).forEach((cardId) => {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), cards[cardId] || {});
     const overlayLayout = Object.assign({}, layout, {
@@ -2349,6 +2459,7 @@ function monitoringHudApplyCardLayout() {
     monitoringHudNormalizeMonitorGroupTitle(cardId, layout);
     monitoringHudControlState.cards[cardId] = layout;
   });
+  monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   monitoringHudRenderMonitorManagement();
   monitoringHudRenderOverlayDisplay();
 }
@@ -2369,6 +2480,11 @@ function monitoringHudRenderControls() {
     : "feature-disabled-dashboard-closed";
   monitoringHud.dataset.snapState = monitoringHudControlState.snapEnabled ? "enabled" : "disabled";
   monitoringHud.dataset.pollingRateMs = String(monitoringHudControlState.pollingRateMs);
+  monitoringHud.dataset.overlayProfileState = "slc-037-state-foundation";
+  monitoringHud.dataset.overlayProfileSchemaVersion = String(monitoringHudOverlayProfileSchemaVersion);
+  monitoringHud.dataset.activeOverlayProfileId = String(monitoringHudControlState.activeOverlayProfileId || monitoringHudDefaultOverlayProfileId);
+  monitoringHud.dataset.overlayProfileEditor = "not-rendered-slc-037";
+  monitoringHud.dataset.recordingProfileState = "recording-profile-state-absent-future-gated";
   monitoringHud.dataset.warningControlPosture = monitoringHudControlState.warningNotificationsMuted
     ? "global-muted"
     : "visual-notifications-enabled";
@@ -2867,9 +2983,83 @@ function monitoringHudInitializeControls() {
   }, true);
 }
 
+window.runMonitoringHudOverlayProfileStateProof = function() {
+  const legacyCards = {
+    cpu: Object.assign(monitoringHudCardDefaults("cpu"), { title: "CPU Group" }),
+    gpu: Object.assign(monitoringHudCardDefaults("gpu"), { title: "GPU Group" })
+  };
+  const legacyState = {
+    cards: legacyCards,
+    selectedMonitorId: "gpu"
+  };
+  monitoringHudNormalizeOverlayProfileState(legacyState);
+  const legacyDefaultProfile = legacyState.overlayProfiles[monitoringHudDefaultOverlayProfileId] || {};
+
+  const mixedState = {
+    cards: legacyCards,
+    selectedMonitorId: "gpu",
+    activeOverlayProfileId: "missing-profile",
+    overlayProfiles: {
+      custom: {
+        id: "custom",
+        name: "Custom Overlay Profile",
+        monitorIds: ["gpu", "gpu", "missing", "cpu"],
+        displayMode: "monitor-cards",
+        monitorGroupId: "must-not-survive",
+        recordingProfileId: "must-not-survive"
+      }
+    }
+  };
+  monitoringHudNormalizeOverlayProfileState(mixedState);
+  const customProfile = mixedState.overlayProfiles.custom || {};
+  const visibleEditorUi = Boolean(document.querySelector("#monitoring-hud-overlay-profile-editor, [data-overlay-profile-editor-ui]"));
+  const proof = {
+    passed: true,
+    package: "PKG-006",
+    slice: "SLC-037",
+    schemaVersion: monitoringHudOverlayProfileSchemaVersion,
+    defaultProfileId: monitoringHudDefaultOverlayProfileId,
+    defaultProfileCreatedForLegacyCards: legacyState.activeOverlayProfileId === monitoringHudDefaultOverlayProfileId,
+    legacyDefaultMembership: (legacyDefaultProfile.monitorIds || []).slice(),
+    activeProfileFallback: mixedState.activeOverlayProfileId === monitoringHudDefaultOverlayProfileId,
+    customMembershipNormalized: JSON.stringify(customProfile.monitorIds || []) === JSON.stringify(["gpu", "cpu"]),
+    staleMonitorIdsRemoved: !(customProfile.monitorIds || []).includes("missing"),
+    duplicateMonitorIdsRemoved: (customProfile.monitorIds || []).length === 2,
+    selectedMonitorIdPreserved: mixedState.selectedMonitorId === "gpu",
+    monitorGroupBoundary: !Object.prototype.hasOwnProperty.call(customProfile, "monitorGroupId"),
+    recordingProfileBoundary: !Object.prototype.hasOwnProperty.call(customProfile, "recordingProfileId"),
+    visibleProfileEditorUi: visibleEditorUi ? "unexpected-visible-ui" : "not-rendered-slc-037"
+  };
+  proof.passed = proof.defaultProfileCreatedForLegacyCards
+    && JSON.stringify(proof.legacyDefaultMembership) === JSON.stringify(["cpu", "gpu"])
+    && proof.activeProfileFallback
+    && proof.customMembershipNormalized
+    && proof.staleMonitorIdsRemoved
+    && proof.duplicateMonitorIdsRemoved
+    && proof.selectedMonitorIdPreserved
+    && proof.monitorGroupBoundary
+    && proof.recordingProfileBoundary
+    && !visibleEditorUi;
+  monitoringHudControlState.overlayProfileStateProof = proof;
+  if (monitoringHud) {
+    monitoringHud.dataset.overlayProfileStateProof = proof.passed ? "pass" : "fail";
+    monitoringHud.dataset.overlayProfileEditor = proof.visibleProfileEditorUi;
+  }
+  if (monitoringHudOverlayDisplay) {
+    monitoringHudOverlayDisplay.dataset.overlayProfileStateProof = proof.passed ? "pass" : "fail";
+    monitoringHudOverlayDisplay.dataset.overlayProfileEditor = proof.visibleProfileEditorUi;
+  }
+  return proof;
+};
+
 window.getMonitoringHudControlState = function() {
+  monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   return Object.assign({}, monitoringHudControlState, {
     cards: Object.assign({}, monitoringHudControlState.cards),
+    overlayProfiles: JSON.parse(JSON.stringify(monitoringHudControlState.overlayProfiles || {})),
+    activeOverlayProfileId: monitoringHudControlState.activeOverlayProfileId || monitoringHudDefaultOverlayProfileId,
+    overlayProfileSchemaVersion: monitoringHudOverlayProfileSchemaVersion,
+    overlayProfileStateProof: Object.assign({}, monitoringHudControlState.overlayProfileStateProof || {}),
     activeChildWindow: monitoringHudActiveChildWindow || "none",
     interactiveControlReliabilityProof: Object.assign({}, monitoringHudReliableActivationState, {
       attempts: monitoringHudReliableActivationState.attempts.slice(-40)
@@ -3547,6 +3737,7 @@ window.setMonitoringHudControlState = function(state) {
   if (!monitoringHudControlState.selectedMonitorId || !monitoringHudControlState.cards[monitoringHudControlState.selectedMonitorId]) {
     monitoringHudControlState.selectedMonitorId = Object.keys(monitoringHudControlState.cards)[0] || "";
   }
+  monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   monitoringHudControlState.monitorSequence = Math.max(
     Number(monitoringHudControlState.monitorSequence || 2),
     Object.keys(monitoringHudControlState.cards).length

@@ -5784,6 +5784,10 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_polling_rate_ms = 1000
         self._monitoring_hud_control_signature = None
         self._monitoring_hud_monitor_management_signature = None
+        self._monitoring_hud_overlay_profile_signature = None
+        self._monitoring_hud_overlay_profiles = {}
+        self._monitoring_hud_active_overlay_profile_id = "default-overlay-profile"
+        self._monitoring_hud_overlay_profile_monitor_ids = []
         self._monitoring_hud_active_child_window_signature = None
         self._monitoring_hud_control_sync_timer = QTimer(self)
         self._monitoring_hud_control_sync_timer.timeout.connect(self._sync_monitoring_hud_control_state_from_page)
@@ -8782,6 +8786,12 @@ class DesktopRuntimeWindow(QWidget):
             dashboard_visible=bool(self._monitoring_hud_visible and self.isVisible()),
             event_logger=self._log_event,
             source=source,
+            monitor_ids=list(getattr(self, "_monitoring_hud_overlay_profile_monitor_ids", []) or []),
+            overlay_profiles=dict(getattr(self, "_monitoring_hud_overlay_profiles", {}) or {}),
+            active_overlay_profile_id=str(
+                getattr(self, "_monitoring_hud_active_overlay_profile_id", "default-overlay-profile")
+                or "default-overlay-profile"
+            ),
         )
 
     def monitoring_hud_feature_state(self) -> dict[str, object]:
@@ -12005,6 +12015,49 @@ class DesktopRuntimeWindow(QWidget):
         geometry_state = state.get("geometry") if isinstance(state.get("geometry"), dict) else {}
         self._set_monitoring_hud_live_client_page_state(state, geometry_state)
         cards = state.get("cards") if isinstance(state.get("cards"), dict) else {}
+        overlay_profiles = state.get("overlayProfiles") if isinstance(state.get("overlayProfiles"), dict) else {}
+        active_overlay_profile_id = str(state.get("activeOverlayProfileId") or "default-overlay-profile")
+        overlay_profile_signature_parts = []
+        for profile_id in sorted(str(key) for key in overlay_profiles.keys()):
+            profile = overlay_profiles.get(profile_id) if isinstance(overlay_profiles.get(profile_id), dict) else {}
+            monitor_ids = profile.get("monitorIds") if isinstance(profile.get("monitorIds"), list) else []
+            overlay_profile_signature_parts.append((
+                profile_id,
+                str(profile.get("kind", "")),
+                str(profile.get("scope", "")),
+                str(profile.get("name", "")),
+                tuple(str(monitor_id) for monitor_id in monitor_ids),
+                str(profile.get("displayMode", "")),
+            ))
+        overlay_profile_signature = (
+            active_overlay_profile_id,
+            int(state.get("overlayProfileSchemaVersion") or 0),
+            tuple(overlay_profile_signature_parts),
+        )
+        overlay_profile_changed = False
+        if overlay_profile_signature != self._monitoring_hud_overlay_profile_signature:
+            self._monitoring_hud_overlay_profile_signature = overlay_profile_signature
+            self._monitoring_hud_overlay_profiles = overlay_profiles
+            self._monitoring_hud_active_overlay_profile_id = active_overlay_profile_id
+            self._monitoring_hud_overlay_profile_monitor_ids = [str(key) for key in cards.keys()]
+            default_profile = overlay_profiles.get("default-overlay-profile") if isinstance(overlay_profiles.get("default-overlay-profile"), dict) else {}
+            default_monitor_ids = default_profile.get("monitorIds") if isinstance(default_profile.get("monitorIds"), list) else []
+            self._emit_runtime_signal(
+                "MONITORING_HUD_OVERLAY_PROFILE_STATE_READY",
+                package="PKG-006",
+                slice="SLC-037",
+                seam="Workstream",
+                active_overlay_profile_id=active_overlay_profile_id,
+                profile_count=len(overlay_profiles),
+                default_profile_id="default-overlay-profile",
+                default_profile_monitor_count=len(default_monitor_ids),
+                default_profile_membership=",".join(str(monitor_id) for monitor_id in default_monitor_ids),
+                monitor_group_boundary="separate-configuration-organization",
+                recording_profile_boundary="future-gated-not-present",
+                visible_profile_editor="not-rendered-slc-037",
+                schema_version=int(state.get("overlayProfileSchemaVersion") or 0),
+            )
+            overlay_profile_changed = True
         monitor_signature_parts = []
         enabled_count = 0
         for card_id in sorted(str(key) for key in cards.keys()):
@@ -12089,6 +12142,8 @@ class DesktopRuntimeWindow(QWidget):
 
         signature = (feature_enabled, visible, anchored, snap_enabled, polling_rate_ms)
         if signature == self._monitoring_hud_control_signature:
+            if overlay_profile_changed:
+                self._persist_monitoring_hud_feature_state(source="page_sync_overlay_profile")
             self._sync_monitoring_hud_minimal_native_overlay(source="page_sync")
             return
 

@@ -10,25 +10,25 @@ Worktree Path: `C:\Nexus Worktrees\FAM-006`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`
 
-Current Phase: `Branch Readiness`
+Current Phase: `Workstream`
 
-Stage Detail: `Branch Readiness Stage 2 setup`
+Stage Detail: `SLC-037 Overlay Profile data/state foundation implementation`
 
-Branch Runtime Engineering Plan: `Accepted for setup - runtime implementation remains pending USER approval after Workstream Entry analysis`
+Branch Runtime Engineering Plan: `Active - SLC-037 implementation mapped to this plan; later SLC-038 through SLC-041 remain pending USER decisions`
 
-Engineering Plan Status: `Accepted - setup admitted with branch authority, package/slice scope, runtime boundaries, validation planning, and v1.7.10 closure-drift carry-forward recorded`
+Engineering Plan Status: `SLC-037 implemented - Overlay Profile data/state foundation is present and awaits Hardening H1`
 
-Current Runtime Baseline: `FAM-006 Dashboard and Monitor Groups / Sensor Command Center are released historical evidence. Monitor Groups organize and configure monitors. Overlay Profile and Recording Profile are source-truth-planned concepts, not implemented runtime surfaces. Overlay/display acceptance remains deferred/non-gating.`
+Current Runtime Baseline: `FAM-006 Dashboard and Monitor Groups / Sensor Command Center are released historical evidence. Monitor Groups organize and configure monitors. Overlay Profile now has a bounded SLC-037 data/state foundation only; visible profile selection/editing, monitor-to-profile UI mapping, Recording Profile runtime, and Overlay/display acceptance remain future-gated.`
 
 Branch Purpose: `Prepare the next FAM-006 runtime lane by admitting the Overlay Profile foundation: data/state model, selection/editing entry points, monitor-to-overlay-profile mapping, Dashboard / Manage Monitors integration points, and validation/live proof planning.`
 
-Planned Runtime Delta: `Future implementation should add a bounded Overlay Profile state foundation, active profile selection, profile editing shell, monitor membership mapping, and integration points from Dashboard and Manage Monitors while preserving existing Sensor Command Center behavior.`
+Planned Runtime Delta: `SLC-037 adds bounded Overlay Profile state/schema, default active profile behavior, monitor membership normalization, persistence, and renderer/state bridge proof. Future SLC-038 through SLC-041 should add selection/editing controls, monitor-to-profile mapping, Dashboard / Manage Monitors integration, and focused live proof while preserving existing Sensor Command Center behavior.`
 
-User-Facing Delta: `Future users should be able to manage which monitors appear through an Overlay Profile and select the profile used by the overlay display. This setup does not change current user-facing runtime behavior.`
+User-Facing Delta: `SLC-037 intentionally adds no visible profile editor UI. Future users should be able to manage which monitors appear through an Overlay Profile and select the profile used by the overlay display only after later USER-approved seams.`
 
 Source-Truth Delta: `Docs/feature_backlog.md, Docs/prebeta_roadmap.md, Docs/branch_records/index.md, this plan, and the branch authority record carry active branch truth. Validator registry updates are deferred unless implementation changes helper contracts. v1.7.10 release-dependent closure drift is carried into this setup and must stay resolved before runtime implementation proceeds.`
 
-State / Config / Schema Delta: `Planned schema includes overlayProfileId, profile name, selected monitor ids, optional display metadata where admitted, active overlay profile selection, persistence boundaries, and dirty/clean edit state. Recording profile schema, recording output state, export/share state, provider state, and theme/skin state are excluded.`
+State / Config / Schema Delta: `Implemented schema includes overlayProfileSchemaVersion, overlayProfiles, activeOverlayProfileId, default-overlay-profile, monitorIds membership, displayMode=monitor-cards, and normalization/migration for missing, stale, duplicate, or invalid references. Recording profile schema, recording output state, export/share state, provider state, and theme/skin state are excluded.`
 
 Validator / Helper Delta: `Expected validators include branch governance, branch readiness planning fixture validation, release body validation, monitoring HUD surface validation, monitoring HUD internal sandbox validation, source-owner marker validation, compileall, and future live/human-client proof if UI changes are implemented.`
 
@@ -54,7 +54,7 @@ USER Planning Decisions: `USER approved Stage 1 analysis and Stage 2 setup for f
 
 Plan Revision History: `v1 - created during Branch Readiness Stage 2 setup from origin/main b67e59df0481091bfbeb739c4b5e1954552bb421 after v1.7.10-prebeta publication and FAM-006 stable worktree restoration.`
 
-Plan-To-Implementation Traceability Table: `Pending Workstream Entry and implementation. Future rows must map each seam to changed files, validators, proof artifacts, source-truth updates, and USER decisions.`
+Plan-To-Implementation Traceability Table: `SLC-037 -> nexus_visual/monitoring_hud.js, nexus_visual/monitoring_hud.html, desktop/monitoring_hud_state.py, desktop/desktop_renderer.py, dev/orin_monitoring_hud_surface_validation.py, dev/orin_monitoring_hud_internal_sandbox_validation.py, Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md, Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md, Docs/feature_backlog.md, Docs/prebeta_roadmap.md. Proof: default profile migration, active fallback, monitor membership normalization, save/load persistence, MONITORING_HUD_OVERLAY_PROFILE_STATE_READY bridge signal, concept separation, and no visible profile editor UI.`
 
 Hardening Comparison Checklist: `H1 must compare implementation against this plan, ensure Overlay Profile boundaries do not collapse into Monitor Groups or Recording Profiles, verify no Recording/Profile/tray/export/provider/theme/FAM-007 scope creep, verify focused visual proof quality, and verify all validators pass.`
 
@@ -64,8 +64,8 @@ PR Readiness Fold-Down / Retention Checklist: `PR Readiness must preserve branch
 
 Release Readiness Public-Scope Translation Checklist: `Release wording must describe Overlay Profile runtime behavior accurately, avoid claiming Recording Profile/tray/export/provider/theme work, and note any deferred Overlay display acceptance separately from implemented foundation behavior.`
 
-USER Planning Review: `Complete for Branch Readiness Stage 2 setup; Workstream Entry analysis is the next USER decision.`
+USER Planning Review: `Complete for Branch Readiness Stage 2 setup and Workstream Entry; USER approved SLC-037 implementation.`
 
-PR Fold-Down Packet: `Pending Workstream implementation, H1, Live Validation, and PR Readiness.`
+PR Fold-Down Packet: `Pending H1, remaining seams, Live Validation when user-facing controls exist, and PR Readiness.`
 
-Runtime Implementation Approval: `Pending - no runtime behavior changes are authorized by this setup.`
+Runtime Implementation Approval: `Granted for SLC-037 only; SLC-038 visible profile selection/editing and later seams remain pending USER decisions.`
