@@ -602,6 +602,122 @@ def compact_review_value(value: str, limit: int = 96) -> str:
     return text[: limit - 3].rstrip() + "..."
 
 
+USER_RESPONSE_INTEGRATION_ROWS = (
+    (
+        "Single PR / staged execution",
+        "Run remaining reform as internal stages on this Governance carrier and one final PR path.",
+        "This plan; generated dossier/index",
+        "R1-R9 staged execution plan; PR Readiness held until USER accepts the corrected surface.",
+        "Required generated sections prevent the response from being flattened into a passive note.",
+    ),
+    (
+        "Main as canonical pointer ledger",
+        "`Docs/Main.md` is the least-updated canonical docs index and recovery map.",
+        "Main; operating model",
+        "Do not add branch/release/current-state ledgers to Main.",
+        "Pointer checks keep Main routed to the operating model.",
+    ),
+    (
+        "Canonical docs versus context docs",
+        "Canonical docs own law/routing; context docs preserve evidence, product reasoning, and history.",
+        "Operating model; full dossier",
+        "Every Docs file receives owner category, disposition, ambiguity risk, and structure risk.",
+        "Inventory helper regenerates the file-by-file review surface.",
+    ),
+    (
+        "Branch plans retire, not delete by default",
+        "Plans are canonical while active, then fold down, migrate durable content, and retire.",
+        "Branch plan README; branch record index; dossier",
+        "Plan files become retirement candidates only after fold-down proof.",
+        "Planning fixtures and governance efficiency validation preserve the lifecycle language.",
+    ),
+    (
+        "Traceability compaction is dangerous",
+        "Branch records may remain large when they are structured traceability receipts.",
+        "Branch records index; operating model; dossier",
+        "Organize receipts instead of compressing away commit/PR/release/validation evidence.",
+        "Sprawl checks focus on duplicate live state, not legitimate historical evidence.",
+    ),
+    (
+        "Safe docs may delete/collapse only after proof",
+        "Deletion requires reference scan, replacement owner, and USER acceptance when ambiguous.",
+        "Full dossier; review index",
+        "Every Docs file gets keep/organize/migrate/retire/delete posture.",
+        "Inventory validation requires disposition rows for every Docs file.",
+    ),
+    (
+        "Nexus Vision contract",
+        "`Docs/orin_vision.md` should be evaluated as a Nexus-wide vision contract.",
+        "Operating model; future vision pass",
+        "Record the model now; do not rename/reframe without focused reference update.",
+        "Future checks should keep vision out of branch-plan implementation detail.",
+    ),
+    (
+        "Backlog family vision discussion",
+        "Backlog may point to family vision owners but should not absorb long planning narratives.",
+        "Backlog; future family dossiers/vision records",
+        "Keep backlog compact while preserving product-intent routing.",
+        "Backlog sprawl checks allow compact pointers, not detailed branch planning.",
+    ),
+)
+
+
+SINGLE_PR_STAGED_EXECUTION_ROWS = (
+    ("R1", "User-response model correction", "Turn USER responses into model decisions instead of passive notes.", "Update model, generator, generated dossier/index, and validator section requirements.", "Dossier/index expose integration sections."),
+    ("R2", "Canonical/context taxonomy", "Make Main the least-updated canonical docs index and classify context docs.", "Update ownership language and file-by-file review categories.", "Every Docs file has owner, action, risk, and migration target."),
+    ("R3", "Backlog/roadmap enforcement model", "Keep backlog as product registry/pointers and roadmap as release-stage breakpoint outline.", "Harden schemas and sprawl checks.", "Backlog/roadmap validators stay green."),
+    ("R4", "Branch plan lifecycle model", "Keep active planning detailed while preventing stale active authority after completion.", "Use fold-down/retirement candidate queues; no default deletion.", "Branch plans list as retirement candidates only."),
+    ("R5", "Structured branch receipt model", "Preserve traceability without duplicate live-state chaos.", "Define receipt schema and queue high-risk records for organization.", "Structure queues identify records needing organization."),
+    ("R6", "Vision contract planning", "Treat `Docs/orin_vision.md` as future Nexus Vision contract candidate.", "Record rename/reframe analysis; no rename yet.", "Operating model and dossier carry Product Vision Contract language."),
+    ("R7", "Safe file disposition review", "Identify keep/collapse/migrate/retire/delete posture for every Docs file.", "Generate disposition table and USER decision list.", "Manifest count matches filesystem enumeration."),
+    ("R8", "Validator and review-surface hardening", "Make corrected review model regeneration-safe.", "Update helper/validator sections and regenerate audit/index.", "Validation passes and generated output is stable."),
+    ("R9", "Final USER review hold", "Stop before PR Readiness until USER accepts the complete reform surface.", "Report results only.", "Next legal phase remains USER review."),
+)
+
+
+DISPOSITION_CHANGE_ROWS = (
+    ("Branch plans", "Delete after PR Readiness", "Fold down, migrate durable content, then retire by explicit posture; deletion needs separate USER approval."),
+    ("Branch records", "Compact receipts", "Structured traceability receipts; size is acceptable when evidence is organized and not duplicate live state."),
+    ("Main", "General source-truth doc", "Least-updated canonical docs index, recovery map, and owner pointer ledger."),
+    ("Backlog", "Current status plus detailed trace", "Compact product registry, family scope/status, package summary, and pointers."),
+    ("Roadmap", "Release/current-state record", "Release-stage schedule outline, public milestone posture, and broad feature breakpoints."),
+    ("Vision", "Low-risk product reference", "Future Nexus Vision contract candidate that drives backlog and branch planning."),
+    ("Safe/low-risk docs", "Safe to leave", "Reference-scan before delete/collapse, with replacement owner and USER acceptance recorded."),
+)
+
+
+def add_user_response_integration_matrix(add) -> None:
+    add("## USER Response Integration Matrix")
+    add("")
+    add("| USER Response Area | Model Decision | Owner Files | Execution Effect | Validator / Helper Effect |")
+    add("| --- | --- | --- | --- | --- |")
+    for area, decision, owners, effect, validator in USER_RESPONSE_INTEGRATION_ROWS:
+        add(f"| {area} | {decision} | {owners} | {effect} | {validator} |")
+    add("")
+
+
+def add_single_pr_staged_execution_plan(add) -> None:
+    add("## Single-PR Staged Execution Plan")
+    add("")
+    add("All remaining Docs reform work stays on this Governance branch as staged internal commits until USER accepts the full reform surface. PR creation is not the next move by inertia.")
+    add("")
+    add("| Stage | Name | Purpose | Allowed Work | Completion Proof |")
+    add("| --- | --- | --- | --- | --- |")
+    for stage, name, purpose, allowed, proof in SINGLE_PR_STAGED_EXECUTION_ROWS:
+        add(f"| {stage} | {name} | {purpose} | {allowed} | {proof} |")
+    add("")
+
+
+def add_disposition_changes_from_user_review(add) -> None:
+    add("## Disposition Changes From USER Review")
+    add("")
+    add("| Surface | Prior Risky Interpretation | Corrected Disposition |")
+    add("| --- | --- | --- |")
+    for surface, prior, corrected in DISPOSITION_CHANGE_ROWS:
+        add(f"| {surface} | {prior} | {corrected} |")
+    add("")
+
+
 def build_user_review_index(
     *,
     docs_count: int,
@@ -650,17 +766,21 @@ def build_user_review_index(
     add("")
     add("1. Read `Executive Summary` and `How To Review This Dossier` in the full dossier.")
     add("2. Review `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision`.")
-    add("3. Review the `Completed / Deferred Matrix` for the reform scope.")
-    add("4. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.")
-    add("5. Review ambiguity and structure queues before deciding whether cleanup is complete.")
-    add("6. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
-    add("7. Use the `File-by-File Review Table` for a compact pass over every Docs file.")
-    add("8. Use the detailed `File-By-File Review Dossier` only for files you want to inspect deeply.")
-    add("9. Confirm the `PR Readiness Checklist` before approving PR creation.")
+    add("3. Review `USER Response Integration Matrix` and confirm each response changed the model.")
+    add("4. Review `Single-PR Staged Execution Plan` before deciding whether work should continue.")
+    add("5. Review the `Completed / Deferred Matrix` for the reform scope.")
+    add("6. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.")
+    add("7. Review ambiguity and structure queues before deciding whether cleanup is complete.")
+    add("8. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
+    add("9. Use the `File-by-File Review Table` for a compact pass over every Docs file.")
+    add("10. Use the detailed `File-By-File Review Dossier` only for files you want to inspect deeply.")
+    add("11. Confirm the `PR Readiness Checklist` only after the staged cleanup is accepted.")
     add("")
     add("## Decision Checklist")
     add("")
     add("- [ ] The source-truth ownership split is acceptable.")
+    add("- [ ] USER response requirements are integrated as model decisions, not just preserved as notes.")
+    add("- [ ] Remaining reform work should stay on this single Governance branch/final PR path.")
     add("- [ ] Backlog and roadmap roles are acceptable.")
     add("- [ ] Branch Runtime Engineering Plan lifecycle and retirement rule are acceptable.")
     add("- [ ] Deferred retirement/fold-down candidates should remain deferred for now.")
@@ -675,8 +795,18 @@ def build_user_review_index(
     add("")
     add("- USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.")
     add("- This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.")
-    add("- Current execution model: analysis and planning only until USER approves concrete cleanup; remaining Docs reform should run in staged internal commits on this single Governance branch/PR path rather than revolving PRs.")
+    add("- Current execution model: analysis and model maintenance only until USER accepts the corrected review surface; remaining Docs reform should run in staged internal commits on this single Governance branch/PR path rather than revolving PRs.")
+    add("- PR Readiness remains held while the USER is correcting the model and execution plan.")
     add("")
+    add("## USER Response Integration Summary")
+    add("")
+    add("| USER Response Area | Model Decision | Execution Effect |")
+    add("| --- | --- | --- |")
+    for area, decision, _owners, effect, _validator in USER_RESPONSE_INTEGRATION_ROWS:
+        add(f"| {area} | {decision} | {effect} |")
+    add("")
+    add_single_pr_staged_execution_plan(add)
+    add_disposition_changes_from_user_review(add)
     add("## Files Needing USER Decision")
     add("")
     add("| File | Reason | Recommendation |")
@@ -732,10 +862,11 @@ def build_user_review_index(
     add("## Exact USER Decision This Index Supports")
     add("")
     add(
-        "`I accept the Docs reform review surface and approve PR Readiness Stage 2 / PR creation "
-        "for feature/release-readiness-source-truth-intake targeting main. Merge, release work, "
-        "runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical "
-        "branch deletion, and successor branch creation remain separate decisions.`"
+        "`I accept the corrected USER-response integration model and approve continuing the staged "
+        "Docs source-truth reform on feature/release-readiness-source-truth-intake as one final "
+        "Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/"
+        "Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor "
+        "branch creation remain separate decisions.`"
     )
     return "\n".join(out) + "\n"
 
@@ -1044,18 +1175,21 @@ def generate() -> None:
     add("")
     add("1. Start with the companion index: `Docs/governance_docs_reform_user_review_index.md`.")
     add("2. Read `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision` below.")
-    add("3. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.")
-    add("4. Review `Ambiguity Pass` and `Structure Pass` before deciding whether cleanup is complete.")
-    add("5. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
-    add("6. Use `File-by-File Review Table` for a compact row-by-row pass over every Docs file.")
-    add("7. Use `File-By-File Review Dossier` for detailed per-file evidence and notes.")
-    add("8. Approve PR Readiness only when the `PR Readiness Checklist` is acceptable.")
+    add("3. Review `USER Response Integration Matrix` to confirm the USER responses changed the model.")
+    add("4. Review `Single-PR Staged Execution Plan` to confirm the remaining reform path.")
+    add("5. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.")
+    add("6. Review `Ambiguity Pass` and `Structure Pass` before deciding whether cleanup is complete.")
+    add("7. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
+    add("8. Use `File-by-File Review Table` for a compact row-by-row pass over every Docs file.")
+    add("9. Use `File-By-File Review Dossier` for detailed per-file evidence and notes.")
+    add("10. Approve PR Readiness only after the staged cleanup and corrected model are acceptable.")
     add("")
     add("## What Was Completed")
     add("")
     add("- Every file under `Docs/` is enumerated in the manifest, review table, and detailed dossier.")
     add("- Every file has an explicit cleanup/disposition row with a consolidation target and deletion posture.")
     add("- Every file has an ambiguity risk and structure risk classification for USER review.")
+    add("- USER review responses are integrated as model decisions, not only preserved as notes.")
     add("- Backlog, roadmap, and worktree-slot ownership rules are captured as compact pointer/status surfaces.")
     add("- Branch Runtime Engineering Plan lifecycle is stated as active-only, fold-down, then retirement after migration.")
     add("- Duplicate fact classes are mapped to their correct owner surfaces.")
@@ -1072,6 +1206,7 @@ def generate() -> None:
     add("## What Requires USER Decision")
     add("")
     add("- Whether to approve PR Readiness Stage 2 after reviewing this dossier.")
+    add("- Whether to accept the corrected USER-response model and continue staged cleanup on this single branch.")
     add("- Whether to run a later branch-plan fold-down/retirement pass for historical plans.")
     add("- Whether to run focused organization of oversized historical branch ledgers into user-readable, Codex-indexable structures.")
     add("- Whether to retire low-risk or duplicate reference docs after USER review.")
@@ -1080,12 +1215,16 @@ def generate() -> None:
     add("## USER Review Intake Model")
     add("")
     add("- Durable USER response home: `Docs/governance_process_efficiency_reform_plan.md`, section `USER Review Intake - 2026-05-21`.")
-    add("- Execution posture: analysis and model maintenance only until USER approves concrete cleanup; remaining work stays on this single Governance branch and one final PR path.")
+    add("- Execution posture: analysis and model maintenance only until USER accepts the corrected review surface; remaining work stays on this single Governance branch and one final PR path.")
+    add("- PR Readiness remains held while USER is still correcting the model and execution plan.")
     add("- Main model: `Docs/Main.md` should be the least-updated canonical docs index and recovery map, not an execution diary.")
     add("- Branch plan model: Branch Runtime Engineering Plans fold down and retire after durable content migrates; deletion is not the default.")
     add("- Branch record model: branch records may be large when they are structured traceability ledgers; the reform target is clear organization and no duplicate live state, not evidence loss.")
     add("- Vision model: the current `Docs/orin_vision.md` surface should be evaluated as a future Nexus-wide vision contract that drives backlog planning without duplicating branch plans.")
     add("")
+    add_user_response_integration_matrix(add)
+    add_single_pr_staged_execution_plan(add)
+    add_disposition_changes_from_user_review(add)
     add("## High-Risk Files")
     add("")
     add("| File | Owner | Recommendation | Why It Is High Risk |")
@@ -1145,6 +1284,8 @@ def generate() -> None:
     add("| Reform Item | Completed In This Branch | Deferred | Reason Deferred | Future Owner | USER Decision Needed | Validator Coverage |")
     add("| --- | --- | --- | --- | --- | --- | --- |")
     matrix_rows = (
+        ("USER response integration", "Yes", "No", "N/A", "Docs/governance_process_efficiency_reform_plan.md", "No", "governance efficiency validation"),
+        ("single-PR staged execution model", "Yes", "No", "N/A", "this Governance carrier", "No", "governance efficiency validation"),
         ("feature_backlog compaction", "Yes", "No", "N/A", "Docs/feature_backlog.md", "No", "governance efficiency validation"),
         ("prebeta_roadmap compaction", "Yes", "No", "N/A", "Docs/prebeta_roadmap.md", "No", "governance efficiency validation"),
         ("worktree_slots cleanup", "Yes", "No", "N/A", "Docs/worktree_slots.md", "No", "governance efficiency validation"),
@@ -1500,7 +1641,7 @@ def generate() -> None:
     add("")
     add("## Next Legal Phase")
     add("")
-    add("After this dossier and validators are accepted, the next legal phase is PR Readiness Stage 2 / PR creation for the Governance reform branch. Merge remains separate USER approval.")
+    add("The next legal phase is USER review of the corrected USER-response integration model and the single-PR staged execution plan. PR Readiness Stage 2 / PR creation remains held until USER accepts the corrected review surface and separately approves PR creation. Merge remains separate USER approval.")
 
     AUDIT.write_text("\n".join(out) + "\n", encoding="utf-8")
     INDEX.write_text(index_text, encoding="utf-8")

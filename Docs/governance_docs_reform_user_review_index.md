@@ -17,17 +17,21 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 
 1. Read `Executive Summary` and `How To Review This Dossier` in the full dossier.
 2. Review `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision`.
-3. Review the `Completed / Deferred Matrix` for the reform scope.
-4. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.
-5. Review ambiguity and structure queues before deciding whether cleanup is complete.
-6. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.
-7. Use the `File-by-File Review Table` for a compact pass over every Docs file.
-8. Use the detailed `File-By-File Review Dossier` only for files you want to inspect deeply.
-9. Confirm the `PR Readiness Checklist` before approving PR creation.
+3. Review `USER Response Integration Matrix` and confirm each response changed the model.
+4. Review `Single-PR Staged Execution Plan` before deciding whether work should continue.
+5. Review the `Completed / Deferred Matrix` for the reform scope.
+6. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.
+7. Review ambiguity and structure queues before deciding whether cleanup is complete.
+8. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.
+9. Use the `File-by-File Review Table` for a compact pass over every Docs file.
+10. Use the detailed `File-By-File Review Dossier` only for files you want to inspect deeply.
+11. Confirm the `PR Readiness Checklist` only after the staged cleanup is accepted.
 
 ## Decision Checklist
 
 - [ ] The source-truth ownership split is acceptable.
+- [ ] USER response requirements are integrated as model decisions, not just preserved as notes.
+- [ ] Remaining reform work should stay on this single Governance branch/final PR path.
 - [ ] Backlog and roadmap roles are acceptable.
 - [ ] Branch Runtime Engineering Plan lifecycle and retirement rule are acceptable.
 - [ ] Deferred retirement/fold-down candidates should remain deferred for now.
@@ -42,7 +46,49 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 
 - USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.
 - This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.
-- Current execution model: analysis and planning only until USER approves concrete cleanup; remaining Docs reform should run in staged internal commits on this single Governance branch/PR path rather than revolving PRs.
+- Current execution model: analysis and model maintenance only until USER accepts the corrected review surface; remaining Docs reform should run in staged internal commits on this single Governance branch/PR path rather than revolving PRs.
+- PR Readiness remains held while the USER is correcting the model and execution plan.
+
+## USER Response Integration Summary
+
+| USER Response Area | Model Decision | Execution Effect |
+| --- | --- | --- |
+| Single PR / staged execution | Run remaining reform as internal stages on this Governance carrier and one final PR path. | R1-R9 staged execution plan; PR Readiness held until USER accepts the corrected surface. |
+| Main as canonical pointer ledger | `Docs/Main.md` is the least-updated canonical docs index and recovery map. | Do not add branch/release/current-state ledgers to Main. |
+| Canonical docs versus context docs | Canonical docs own law/routing; context docs preserve evidence, product reasoning, and history. | Every Docs file receives owner category, disposition, ambiguity risk, and structure risk. |
+| Branch plans retire, not delete by default | Plans are canonical while active, then fold down, migrate durable content, and retire. | Plan files become retirement candidates only after fold-down proof. |
+| Traceability compaction is dangerous | Branch records may remain large when they are structured traceability receipts. | Organize receipts instead of compressing away commit/PR/release/validation evidence. |
+| Safe docs may delete/collapse only after proof | Deletion requires reference scan, replacement owner, and USER acceptance when ambiguous. | Every Docs file gets keep/organize/migrate/retire/delete posture. |
+| Nexus Vision contract | `Docs/orin_vision.md` should be evaluated as a Nexus-wide vision contract. | Record the model now; do not rename/reframe without focused reference update. |
+| Backlog family vision discussion | Backlog may point to family vision owners but should not absorb long planning narratives. | Keep backlog compact while preserving product-intent routing. |
+
+## Single-PR Staged Execution Plan
+
+All remaining Docs reform work stays on this Governance branch as staged internal commits until USER accepts the full reform surface. PR creation is not the next move by inertia.
+
+| Stage | Name | Purpose | Allowed Work | Completion Proof |
+| --- | --- | --- | --- | --- |
+| R1 | User-response model correction | Turn USER responses into model decisions instead of passive notes. | Update model, generator, generated dossier/index, and validator section requirements. | Dossier/index expose integration sections. |
+| R2 | Canonical/context taxonomy | Make Main the least-updated canonical docs index and classify context docs. | Update ownership language and file-by-file review categories. | Every Docs file has owner, action, risk, and migration target. |
+| R3 | Backlog/roadmap enforcement model | Keep backlog as product registry/pointers and roadmap as release-stage breakpoint outline. | Harden schemas and sprawl checks. | Backlog/roadmap validators stay green. |
+| R4 | Branch plan lifecycle model | Keep active planning detailed while preventing stale active authority after completion. | Use fold-down/retirement candidate queues; no default deletion. | Branch plans list as retirement candidates only. |
+| R5 | Structured branch receipt model | Preserve traceability without duplicate live-state chaos. | Define receipt schema and queue high-risk records for organization. | Structure queues identify records needing organization. |
+| R6 | Vision contract planning | Treat `Docs/orin_vision.md` as future Nexus Vision contract candidate. | Record rename/reframe analysis; no rename yet. | Operating model and dossier carry Product Vision Contract language. |
+| R7 | Safe file disposition review | Identify keep/collapse/migrate/retire/delete posture for every Docs file. | Generate disposition table and USER decision list. | Manifest count matches filesystem enumeration. |
+| R8 | Validator and review-surface hardening | Make corrected review model regeneration-safe. | Update helper/validator sections and regenerate audit/index. | Validation passes and generated output is stable. |
+| R9 | Final USER review hold | Stop before PR Readiness until USER accepts the complete reform surface. | Report results only. | Next legal phase remains USER review. |
+
+## Disposition Changes From USER Review
+
+| Surface | Prior Risky Interpretation | Corrected Disposition |
+| --- | --- | --- |
+| Branch plans | Delete after PR Readiness | Fold down, migrate durable content, then retire by explicit posture; deletion needs separate USER approval. |
+| Branch records | Compact receipts | Structured traceability receipts; size is acceptable when evidence is organized and not duplicate live state. |
+| Main | General source-truth doc | Least-updated canonical docs index, recovery map, and owner pointer ledger. |
+| Backlog | Current status plus detailed trace | Compact product registry, family scope/status, package summary, and pointers. |
+| Roadmap | Release/current-state record | Release-stage schedule outline, public milestone posture, and broad feature breakpoints. |
+| Vision | Low-risk product reference | Future Nexus Vision contract candidate that drives backlog and branch planning. |
+| Safe/low-risk docs | Safe to leave | Reference-scan before delete/collapse, with replacement owner and USER acceptance recorded. |
 
 ## Files Needing USER Decision
 
@@ -153,4 +199,4 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 
 ## Exact USER Decision This Index Supports
 
-`I accept the Docs reform review surface and approve PR Readiness Stage 2 / PR creation for feature/release-readiness-source-truth-intake targeting main. Merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`
+`I accept the corrected USER-response integration model and approve continuing the staged Docs source-truth reform on feature/release-readiness-source-truth-intake as one final Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`

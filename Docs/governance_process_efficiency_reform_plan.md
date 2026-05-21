@@ -484,29 +484,49 @@ Scope:
 - Preserve USER review responses from `Docs/governance_docs_reform_user_review_index.md` in this durable planning/model record so the generated review index can be regenerated safely.
 - Update the model for this branch's execution without deleting, renaming, archiving, or broadly migrating Docs files in this pass.
 
-USER response themes:
-- Complete the remaining reform in staged internal work on this same Governance carrier and one final PR; avoid revolving PRs for every subtopic.
-- `Docs/Main.md` should be the least-updated canonical docs index: a clear pointer ledger to valid current governance/source-truth files and their intended purpose, not a frequently edited execution diary.
-- Use a clearer mental model of canonical docs versus context docs. Canonical docs point to other canonical docs and ownership surfaces; context docs preserve detailed evidence, receipts, product reasoning, or implementation history.
-- Branch plans should not remain active historical execution authorities after work completes. They should be folded down and explicitly retired, not deleted by default, after durable content is preserved in the proper owner.
-- Branch records may intentionally be large when they are the traceability ledger. The defect is chaos, duplicated live state, and poor indexability, not size by itself.
-- Traceability compaction must not erase useful evidence. Branch receipts should preserve commit/PR/release references, changed-surface proof, validation proof, and the ability to debug future USER-reported issues.
-- Low-risk/reference docs should be deleted only when a reference scan and replacement owner prove they are safe to remove. If useful, they should be collapsed or indexed instead of abandoned.
-- `Docs/orin_vision.md` should be evaluated for rename/reframe into a Nexus-wide vision contract. The vision should drive backlog planning and Codex recommendations.
-- Each backlog family may need a USER-reviewed vision surface or section. The vision defines the desired product outcome; the Branch Runtime Engineering Plan defines how one active branch implements and proves it.
+USER response integration matrix:
 
-Analysis:
+| USER response requirement | Governance interpretation | Model decision | Owner files | Execution effect on this branch | Validator/helper implication |
+| --- | --- | --- | --- | --- | --- |
+| Complete the remaining reform in staged internal work on this same Governance carrier and one final PR; avoid revolving PRs. | The reform should not become a sequence of small PRs that each leave drift for the next one. | Keep the current carrier as the single reform branch and use internal commits/stages until USER accepts the complete cleanup. | This plan, `Docs/governance_docs_full_inventory_reform_audit.md`, `Docs/governance_docs_reform_user_review_index.md`. | The review packet must show a staged execution plan and must not present PR creation as the next automatic step while USER is still correcting the model. | `dev/orin_governance_efficiency_validation.py` must require the generated dossier/index to expose the user-response integration and single-PR staged execution sections. |
+| `Docs/Main.md` should be the least-updated canonical docs index and pointer ledger. | Main is a recovery map and canonical owner index, not a live operations diary. | Main routes to owner docs and explains purpose; context docs preserve evidence and detail. | `Docs/Main.md`, `Docs/governance_efficiency_operating_model.md`. | The cleanup plan must avoid adding live branch/release/current-state ledgers to Main and must flag future Main edits that duplicate owner content. | Governance efficiency validation keeps Main as pointer/routing surface and checks for the operating model pointer. |
+| Use a clearer canonical docs versus context docs model. | Some files are law/routing owners; others are evidence/history/reasoning owners. | Add canonical/context taxonomy to the model and dossier so files are not judged only by size. | Operating model, audit dossier, review index. | The file-by-file review must classify each file by owner role and disposition rather than only "keep/delete." | The docs inventory helper must generate owner category, action, consolidation target, ambiguity risk, and structure risk per file. |
+| Branch plans should fold down and be retired, not deleted by default. | Planning evidence has value after merge, but it must stop acting like active authority. | Branch plans are canonical only while active; after PR Readiness they fold down, migrate durable content, and get explicit retired posture unless USER later approves deletion. | `Docs/branch_plans/README.md`, operating model, branch record index, audit dossier. | The review packet must list branch plans as fold-down/retirement candidates, not automatic delete candidates. | Planning fixture/governance efficiency validation should preserve fold-down/retirement wording and reject stale active plan authority. |
+| Branch receipts may be large for traceability. Compaction for traceability is bad. | The defect is duplicate live state and poor organization, not evidence volume. | Branch records become structured traceability receipts: current summary, indexed historical sections, commit/PR/release evidence, changed-surface map, validation proof, and pointers to promoted durable owners. | `Docs/branch_records/index.md`, operating model, audit dossier. | Large branch records are organized or queued for organization, not blindly compressed. Evidence needed for future bug/rollback analysis is preserved. | Validator wording must distinguish "sprawl/live-state duplication" from legitimate historical receipt evidence. |
+| Safe files should be deleted when proven safe or collapsed into current tracked files. | Delete/retire decisions require reference scan, replacement owner, and USER acceptance when ambiguous. | Every Docs file gets a disposition row: keep, organize, migrate, retire, delete candidate, or USER decision needed. | Audit dossier and generated review index. | The branch may identify delete/retire candidates now, but ambiguous deletion stays deferred until USER review. | Inventory helper must keep a full cleanup/disposition table and retirement/delete candidate table. |
+| `Docs/orin_vision.md` should become/reframe as Nexus Vision and drive planning. | Product vision should be a durable product contract, not a branch execution plan. | Create a Product Vision Contract model: vision drives backlog planning and Branch Readiness recommendations; branch plans explain implementation/proof. | Operating model, audit dossier, future focused vision pass. | This pass records the decision and queues safe rename/reframe analysis; it does not rename without a focused reference update. | Future validation should prevent vision content from duplicating branch-plan implementation detail. |
+| Each backlog family may need USER-reviewed vision discussion. | Family vision belongs above branch plans and should shape plan recommendations. | Backlog points to vision/family owners where needed; it does not absorb long vision/planning narratives. | Backlog, future family dossier/vision surfaces, operating model. | Dossier must record this as a future model requirement and not treat backlog compaction as erasing product intent. | Future backlog sprawl checks should allow compact vision pointers, not full branch planning. |
+
+Corrected analysis:
+- The earlier review surface underweighted the USER responses because it recorded them as a receipt, not as requirements that reshape the model. This section is the durable correction.
 - The prior "delete branch plans after fold-down" wording was too aggressive and could lose useful planning evidence. The corrected model is "fold down, migrate durable content, then retire by explicit posture"; deletion requires separate USER approval.
 - The prior "compact branch receipt" wording was too easy to misread as "make traceability small." The corrected model is "structured branch receipt": current summary first, indexed historical sections, commit/PR/release evidence, changed-surface map, validation proof, and promoted reusable lessons.
 - Main should become more canonical and less operational. It should point to owners and explain the file system, while specific policy, branch, plan, workstream, and vision surfaces carry their own detail.
 - The Docs reform should separate information by job: canonical index, policy owner, branch ledger, active plan, workstream/family history, product vision, and generated review/audit surface.
-- The generated review index should not be the durable home for raw USER responses because it is regenerated by helper. This plan is the durable intake home.
+- The generated review index should not be the durable home for raw USER responses because it is regenerated by helper. This plan is the durable intake home, and the generated dossier/index must summarize how the responses changed the model.
 
-Execution plan for this branch:
-- Stage 1: update the operating model and generator language for canonical/context docs, structured branch receipts, branch plan retirement, and vision contract planning.
-- Stage 2: regenerate the review dossier and index so the USER review surface reflects the corrected model.
-- Stage 3: validate that the generator is stable and that governance efficiency checks enforce the updated sections.
-- Stage 4: stop for USER review; do not perform deletion, renaming, broad migration, or PR creation until USER accepts the updated review surface.
+Single-PR staged execution plan for this branch:
+
+| Stage | Name | Purpose | Allowed work | Completion proof |
+| --- | --- | --- | --- | --- |
+| R1 | User-response model correction | Turn USER responses into model decisions instead of passive notes. | Update this plan, operating model, generated dossier/index, and validator-required sections. | Dossier/index contain `USER Response Integration Matrix`, `Single-PR Staged Execution Plan`, and `Disposition Changes From USER Review`. |
+| R2 | Canonical/context taxonomy | Make Main the least-updated canonical docs index and classify context docs. | Update ownership model and file-by-file dossier language; no broad file deletion. | Every Docs file has owner category, action, migration target, ambiguity risk, and structure risk. |
+| R3 | Backlog/roadmap enforcement model | Keep backlog as product registry/pointers and roadmap as release-stage breakpoint outline. | Harden generated schemas and validators; migrate only safe duplicated planning text already approved. | Backlog/roadmap sprawl checks stay green. |
+| R4 | Branch plan lifecycle model | Keep detailed active planning but prevent stale active authority after completion. | Fold-down/retirement rules and candidate queues; no deletion without USER review. | Branch plan candidates appear as retirement candidates, not automatic deletion. |
+| R5 | Structured branch receipt model | Preserve traceability without duplicate live-state chaos. | Define receipt schema and queue high-risk records for organization. | High-risk/structure queues identify oversized records and their organization action. |
+| R6 | Vision contract planning | Treat `Docs/orin_vision.md` as future Nexus Vision contract candidate. | Record rename/reframe analysis and future approval need; do not rename yet. | Operating model and dossier carry Product Vision Contract language. |
+| R7 | Safe file disposition review | Identify keep/collapse/migrate/retire/delete posture for every Docs file. | Generate full disposition table and USER decision list. | Manifest count matches filesystem enumeration and every file has a review row. |
+| R8 | Validator and review-surface hardening | Make the corrected review model regeneration-safe. | Update helper/validator sections and regenerate audit/index. | Validation passes and generator output is stable. |
+| R9 | Final USER review hold | Stop before PR Readiness until USER accepts the complete reform surface. | Report results only. | Next legal phase remains USER review, not PR creation by inertia. |
+
+Disposition changes from USER review:
+- Branch plans: from "delete after PR Readiness" to "fold down, migrate durable content, then retire by explicit posture; delete only with separate USER approval."
+- Branch records: from "compact receipts" to "structured traceability receipts that may remain large when they are the correct ledger."
+- Main: from "general source-truth doc" to "least-updated canonical docs index and recovery map."
+- Backlog: from "current status plus detailed trace" to "compact product registry, status, family scope, package summary, and pointers."
+- Roadmap: from "release/current-state record" to "release-stage schedule outline, public milestone posture, and broad feature breakpoints."
+- Vision: from "low-risk product reference" to "future Nexus Vision contract candidate that drives backlog and branch planning."
+- Safe/low-risk docs: from "safe to leave" to "reference-scan before delete/collapse, with replacement owner recorded."
 
 Deferred decisions:
 - Whether to rename `Docs/orin_vision.md` to a Nexus vision file and update all references.

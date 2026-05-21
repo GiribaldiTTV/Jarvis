@@ -192,6 +192,23 @@ The vision contract should drive backlog-family planning and Branch Readiness re
 
 Vision records should support USER/Codex back-and-forth. They may grow as implementation teaches the project, but changes should be explicit USER-reviewed product intent, not accidental branch-local drift.
 
+## USER Review Integration Decisions
+
+The 2026-05-21 USER review responses are model-changing requirements, not passive review notes.
+
+Required decisions from that intake:
+
+- Complete the Docs reform as staged internal work on this same Governance carrier and one final PR path; avoid revolving PRs for every subtopic.
+- Keep `Docs/Main.md` as the least-updated canonical docs index, recovery map, and pointer ledger.
+- Distinguish canonical docs from context docs. Canonical docs own law, routing, or source-truth roles; context docs preserve evidence, product reasoning, implementation history, receipts, or review detail.
+- Treat Branch Runtime Engineering Plans as canonical while active, then fold down and retire after durable content migrates. Deletion is not the default.
+- Treat branch records as structured traceability receipts that may remain large when they preserve useful debugging, rollback, commit, PR, release, validation, and changed-surface evidence.
+- Do not use "compaction" to erase traceability. The reform target is duplicate live-state removal, clearer organization, and owner routing.
+- Delete or collapse low-risk/reference docs only after a reference scan, replacement owner, and USER acceptance prove the move is safe.
+- Evaluate `Docs/orin_vision.md` as a future Nexus Vision contract surface that drives backlog-family planning and Branch Readiness recommendations without duplicating branch plans.
+
+The generated review dossier and index must expose these decisions through a USER response integration matrix, a single-PR staged execution plan, and explicit disposition changes. PR Readiness must stay held while USER is still correcting this model.
+
 ## Standing Governance Ledger Compaction
 
 The standing Governance record may keep one compact current cycle summary plus a latest closed cycle pointer.
