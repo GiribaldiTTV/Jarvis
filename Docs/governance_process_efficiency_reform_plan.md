@@ -138,6 +138,185 @@ Implementation record:
 - Registry owner: `Docs/validation_helper_registry.md`.
 - Validator source-check owner: `dev/orin_branch_governance_validation.py`.
 
+### 2026-05-21 Planning Amendment - Rebaseline Overlap Intent Gate
+
+Status:
+- Planning / USER review and future implementation target.
+- This amendment strengthens Category 5 without creating a new global live-state ledger.
+- Effective point: this rule becomes binding for active or re-entering branches after the Governance reform PR merges and each active worktree rebaselines to that updated `origin/main`.
+- Fallback evidence supports PASS / WARN / BLOCKED classification and USER decision-making. It does not automatically waive missing Branch Change Intent Ledger evidence.
+
+Rule name:
+- `Rebaseline Overlap Intent Gate`.
+
+Trigger:
+- Any path appears in both:
+  - incoming `origin/main` changed files; and
+  - current branch/worktree changed files.
+- For this gate, current branch/worktree changed files means the union of:
+  - branch changed files from `merge_base..HEAD`;
+  - staged, unstaged, and untracked worktree files when applicable; and
+  - any current-worktree changed files reported by the Pre-Rebaseline Impact Audit.
+- `Rebaseline Overlap Files:` means the intersection of incoming changed files and current branch/worktree changed files. Future helper output must compute and report this field rather than requiring Codex to manually compare two lists.
+
+Covered surface classes:
+- `governance/source-truth`
+- `runtime`
+- `desktop/UI`
+- `Core visual`
+- `validator/helper`
+- `fixture/test`
+- `configuration/state/schema`
+- `release/public-output`
+- `prompt/template`
+- `automation/watcher`
+- `build/packaging`
+- `documentation/reference`
+- `asset/media`
+
+Required active owner:
+- `Docs/branch_plans/<branch_slug>.md` owns active full-detail change intent while the branch is active.
+- Runtime branches use the Branch Runtime Engineering Plan shape. When a non-runtime branch has `Rebaseline Overlap Files:`, an active Branch Engineering Plan under `Docs/branch_plans/<branch_slug>.md` must be admitted or updated as the active change-intent owner before rebaseline mutation can proceed, using the smallest source-truth-supported branch-plan variant.
+- The branch authority record owns compact authority/receipt status and fold-down evidence after PR Readiness decides what should survive.
+- Workstreams and family dossiers own reusable or historical implementation lessons after fold-down.
+- Backlog, roadmap, worktree slots, and `Docs/Main.md` remain compact pointer/routing surfaces, not overlap ledgers.
+
+Required branch-plan section:
+
+```text
+## Branch Change Intent Ledger
+```
+
+Required repeatable block:
+
+```text
+### Changed Surface: <path>
+Surface Class:
+Change Intent:
+Why This File Was Touched:
+Owned Behavior / Fact Class:
+Canonical Owner / Source Owner:
+Resolution Owner:
+Shared Surface:
+Overlap Risk:
+Expected Conflict Risk:
+Semantic Merge Risk:
+Conflict Resolution Rule:
+Rebaseline Handling:
+Validation Proof:
+Fallback Evidence:
+USER Decision / Waiver:
+Fold-Down Target:
+```
+
+Allowed values:
+- `Semantic Merge Risk:` uses `None`, `Low`, `Medium`, `High`, or `Unknown`. For high-risk surface classes, `Unknown` classifies as BLOCKED until evidence or USER decision resolves it.
+- `Resolution Owner:` uses `Current Branch`, `Incoming/Folded Owner`, `Originating Lane`, `Standing Governance`, `USER Decision`, or `Future Branch`.
+
+Rebaseline Overlap Failure Procedure:
+- Procedure name: `Rebaseline Overlap Failure Procedure`.
+- Trigger: an overlapping changed file has missing, weak, stale, or conflicting intent evidence.
+- First action: freeze rebaseline mutation and return a packet.
+- The packet classifies every overlapping file as PASS, WARN, or BLOCKED.
+
+Severity model:
+- PASS: branch-owned intent evidence exists, incoming/current intent aligns with source-truth ownership, and required validation is named.
+- WARN: lower-risk surface, partial intent evidence, fallback evidence supports a USER-visible recommendation, and the packet names the risk.
+- BLOCKED: high-risk surface lacks intent evidence, incoming/current intent conflicts, accepted behavior changes, source-truth ownership changes, validation rules change, runtime behavior changes, UI behavior changes, config/schema/state changes, public release meaning changes, or approval boundaries change.
+- Named blocker: `Rebaseline Overlap Intent Missing`.
+- `Rebaseline Overlap Intent Missing` applies when an overlapping changed file lacks required Branch Change Intent evidence, has conflicting intent, or needs USER decision before mutation.
+- After the Effective Point, fallback evidence alone cannot produce PASS. PASS requires branch-owned change-intent evidence. Fallback evidence may support WARN or help classify BLOCKED items for USER decision.
+- Overall Overlap Gate Result is the highest per-file severity. Any BLOCKED file keeps `Rebaseline Mutation Status:` blocked until the blocker is repaired, waived, deferred by USER decision, or sequencing changes.
+
+High-risk classes default to BLOCKED when intent evidence is missing or contradictory:
+- `runtime`
+- `desktop/UI`
+- `Core visual`
+- `governance/source-truth`
+- `validator/helper`
+- `configuration/state/schema`
+- `automation/watcher`
+- `release/public-output`
+- `build/packaging`
+
+Lower-risk classes may use WARN when fallback evidence is sufficient:
+- `documentation/reference`
+- `asset/media`
+- `fixture/test` only when non-executing and not changing validator truth, regression coverage, or release gating.
+- `documentation/reference` is lower-risk only when the file is not a source-truth owner, prompt/template owner, validator/helper owner, branch record, branch plan, backlog/roadmap owner, or governance policy owner.
+
+Required failure packet:
+
+When `Rebaseline Overlap Files:` is `None`, this gate reports `Not Applicable`; the normal Pre-Rebaseline Impact Audit and USER-approved mutation path still apply.
+
+```text
+Overall Overlap Gate Result:
+Rebaseline Overlap Files:
+Overlapping Files:
+File:
+Surface Class:
+Incoming Change Summary:
+Current Branch Change Summary:
+Branch Change Intent Present:
+Incoming Intent Evidence Present:
+Fallback Evidence:
+Risk:
+Per-File Result: PASS / WARN / BLOCKED
+Recommended Resolution:
+Resolution Owner:
+Validation Required:
+USER Decision Needed:
+Rebaseline Mutation Status:
+```
+
+Fallback evidence sources:
+- active branch plan
+- branch record
+- PR body when available
+- commit messages
+- git diff
+- source-owner markers
+- source-truth owner lookup from `Docs/Main.md` or the relevant owner index
+- validation helper registry
+- workstream or family dossier
+- relevant fixtures/tests
+- release notes or public-output record when release/public-output files overlap
+
+Resolution paths:
+- Add missing Branch Change Intent Ledger entry on the current branch when the current branch is the legal carrier.
+- Adding a missing Branch Change Intent Ledger entry is blocker repair before mutation. It does not authorize rebaseline mutation until validation passes and USER approves the rebaseline operation.
+- After any overlap-intent repair, rerun the overlap gate and required validation before requesting or executing the rebaseline mutation.
+- Request originating-lane evidence when incoming `origin/main` contains a sibling branch change whose intent is not represented.
+- Prepare a manual reconciliation patch only after USER approval.
+- Return a Branch Plan Revision Packet when the overlap changes accepted branch scope.
+- Defer rebaseline until sibling branch/PR sequencing is resolved.
+- Route to standing Governance when the current branch cannot legally own the repair.
+
+Future implementation targets:
+- `Docs/governance_process_efficiency_reform_plan.md`
+- `Docs/branch_plans/README.md`
+- `Docs/phase_governance.md`
+- `Docs/governance_efficiency_operating_model.md`
+- `Docs/orin_task_template.md`
+- `Docs/validation_helper_registry.md`
+- `Docs/branch_records/index.md` if compact fold-down receipt wording is needed
+- `dev/orin_branch_governance_validation.py`
+- `dev/orin_governance_efficiency_validation.py`
+- `dev/orin_branch_readiness_planning_fixture_validation.py`
+- `dev/orin_worktree_rebaseline_audit.py`
+- branch-readiness planning fixtures for:
+  - valid overlap intent;
+  - invalid missing high-risk intent;
+  - invalid fallback-only PASS after the Effective Point; and
+  - valid low-risk WARN with fallback evidence.
+- `dev/orin_worktree_rebaseline_audit.py` must compute and report `Rebaseline Overlap Files:` from incoming files intersected with branch/worktree changed files.
+
+Implementation guard:
+- Do not implement this as backlog, roadmap, worktree-slot, or `Docs/Main.md` live-state tracking.
+- Do not add backward-compatibility bypass language. After the merged reform baseline is adopted, future active or re-entering branches must carry overlap intent evidence or stop on the failure procedure.
+- Historical branches and branch records remain receipts only; this amendment controls active/re-entering branch behavior after the Effective Point.
+- Marker-first blocking applies to missing, stale, weak, or conflicting required overlap-intent markers. Natural-language semantic conflict detection beyond the required packet fields remains pending USER approval.
+
 ## Category 5A: Source-Truth Ownership And Worktree Slot Model
 
 Current finding:
