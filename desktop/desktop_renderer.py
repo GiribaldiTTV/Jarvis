@@ -10188,14 +10188,16 @@ class DesktopRuntimeWindow(QWidget):
         def step_overlay_profile_controls():
             self._run_javascript(
                 """
-                const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
-                if (discard && !discard.disabled) discard.click();
-                const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
-                if (toggle && toggle.getAttribute("aria-expanded") === "true") toggle.click();
-                if (window.runMonitoringHudOverlayProfileStateProof) window.runMonitoringHudOverlayProfileStateProof();
-                if (window.runMonitoringHudOverlayProfileControlsProof) window.runMonitoringHudOverlayProfileControlsProof();
-                if (window.runMonitoringHudOverlayProfileIntegrationProof) window.runMonitoringHudOverlayProfileIntegrationProof();
-                if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
+                (() => {
+                    const overlayDiscard = document.getElementById("monitoring-hud-overlay-profile-discard");
+                    if (overlayDiscard && !overlayDiscard.disabled) overlayDiscard.click();
+                    const overlayToggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
+                    if (overlayToggle && overlayToggle.getAttribute("aria-expanded") === "true") overlayToggle.click();
+                    if (window.runMonitoringHudOverlayProfileStateProof) window.runMonitoringHudOverlayProfileStateProof();
+                    if (window.runMonitoringHudOverlayProfileControlsProof) window.runMonitoringHudOverlayProfileControlsProof();
+                    if (window.runMonitoringHudOverlayProfileIntegrationProof) window.runMonitoringHudOverlayProfileIntegrationProof();
+                    if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
+                })();
                 """
             )
             QTimer.singleShot(delay(300), step_overlay_profile_capture_manage_context)
@@ -10390,14 +10392,16 @@ class DesktopRuntimeWindow(QWidget):
         def step_overlay_profile_cleanup():
             self._run_javascript(
                 """
-                const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
-                if (discard && !discard.disabled) discard.click();
-                const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
-                if (toggle && toggle.getAttribute("aria-expanded") === "true") toggle.click();
-                if (window.monitoringHudCloseChildWindow) window.monitoringHudCloseChildWindow({ force: true });
-                if (window.monitoringHudRenderControls) window.monitoringHudRenderControls();
-                const settings = document.getElementById("monitoring-hud-settings-action");
-                if (settings && settings.scrollIntoView) settings.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+                (() => {
+                    const overlayDiscard = document.getElementById("monitoring-hud-overlay-profile-discard");
+                    if (overlayDiscard && !overlayDiscard.disabled) overlayDiscard.click();
+                    const overlayToggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
+                    if (overlayToggle && overlayToggle.getAttribute("aria-expanded") === "true") overlayToggle.click();
+                    if (window.monitoringHudCloseChildWindow) window.monitoringHudCloseChildWindow({ force: true });
+                    if (window.monitoringHudRenderControls) window.monitoringHudRenderControls();
+                    const settingsAction = document.getElementById("monitoring-hud-settings-action");
+                    if (settingsAction && settingsAction.scrollIntoView) settingsAction.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+                })();
                 """
             )
             QTimer.singleShot(
