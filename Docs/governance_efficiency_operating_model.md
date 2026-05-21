@@ -47,7 +47,7 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/codex_user_guide.md` | human-readable operator guide | machine-enforced current-state authority |
 | `Docs/worktree_slots.md` | stable slot IDs and intended assignment receipts | `HEAD`, dirty state, ahead/behind, PR state, latest tag, latest release |
 | `Docs/feature_backlog.md` | compact feature-family registry, status, and pointer layer | detailed active-branch execution planning |
-| `Docs/prebeta_roadmap.md` | release sequencing and milestone posture | volatile Git/GitHub operational state |
+| `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, and broad feature-family checkpoints | volatile Git/GitHub operational state or active release ledger fields |
 | `Docs/branch_records/index.md` | active/historical branch authority routing | detailed branch implementation checklists |
 | `Docs/branch_records/<branch>.md` | branch authority, phase history, approvals, legal next phase, compact branch receipt | reusable family-level implementation history after fold-down |
 | `Docs/branch_plans/<branch>.md` | active runtime branch engineering plan, per-seam checklist, plan-to-implementation traceability | permanent family-level dossier after PR fold-down unless explicitly retained |
@@ -65,7 +65,7 @@ Docs Source-Truth Reform Model: Compact Pointer Layer.
 The post-audit reform model has one owner per active fact class:
 
 - backlog owns compact product-family identity and canonical pointers
-- roadmap owns release sequencing and public milestone posture
+- roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, and broad feature-family checkpoints
 - worktree slots own reusable slot definitions and intended assignment receipts
 - branch records own branch authority, approvals, phase history, and compact branch receipts
 - branch plans own detailed active runtime-branch engineering plans
@@ -74,7 +74,7 @@ The post-audit reform model has one owner per active fact class:
 
 Backlog and roadmap must not contain `Package Trace:` or `Slice Trace:` sections. Those detailed ledgers belong in workstream records, family dossiers, branch plans, or compact branch receipts.
 
-Backlog and roadmap must not manually maintain latest public prerelease, latest tag, release URL, target commit, open PR state, active branch identity, review-thread state, worktree dirty state, or ahead/behind state as active truth. They may point to the helper or owner that derives that truth.
+Backlog and roadmap must not manually maintain latest public prerelease, latest tag, release URL, target commit, open PR state, active branch identity, review-thread state, worktree dirty state, or ahead/behind state as active truth. The roadmap is a stage-breakpoint reference, not a release ledger. These surfaces may point to the helper or owner that derives live truth.
 
 Historical receipts remain allowed when they are explicitly historical interpretation, compact, and routed to the owning receipt surface.
 

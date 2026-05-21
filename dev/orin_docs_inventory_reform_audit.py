@@ -98,7 +98,7 @@ FACT_CLASSES = {
     "merge status": (r"merge commit", r"merged", r"Merged at"),
     "latest tag/release": (r"Latest Public", r"latest tag", r"GitHub Release"),
     "release receipt": (r"Release Summary", r"Release Receipt", r"Release Window"),
-    "release sequencing": (r"release sequencing", r"public milestone", r"pre-Beta"),
+    "release schedule outline": (r"stage breakpoint", r"public milestone", r"pre-Beta", r"release schedule"),
     "package trace": (r"Package Trace", r"Package ID", r"Package Completion"),
     "slice trace": (r"Slice Trace", r"Slice ID", r"Admission State"),
     "issue posture": (r"issue #\d+", r"GitHub issue", r"Issue Posture"),
@@ -116,6 +116,39 @@ FACT_CLASSES = {
     "phase rules": (r"Phase", r"Gate", r"blocks", r"Required"),
     "prompt/Codex mode rules": (r"Codex", r"prompt", r"template", r"mode"),
     "release note/public body rules": (r"release notes", r"public", r"Release body"),
+}
+
+AMBIGUITY_PATTERNS = {
+    "volatile-current-wording": (
+        r"\bcurrent\b",
+        r"\bactive\b",
+        r"\blatest\b",
+        r"\bnext\b",
+        r"\bpending\b",
+    ),
+    "unclear-ownership-wording": (
+        r"\bowner\b",
+        r"\bauthority\b",
+        r"\bsource truth\b",
+        r"\bcanonical\b",
+        r"\bprimary\b",
+    ),
+    "soft-commitment-wording": (
+        r"\bmaybe\b",
+        r"\bpossibly\b",
+        r"\blikely\b",
+        r"\bshould\b",
+        r"\bmay\b",
+        r"\bTBD\b",
+        r"\bTODO\b",
+    ),
+    "state-ledger-wording": (
+        r"\bstate\b",
+        r"\bstatus\b",
+        r"\bposture\b",
+        r"\bledger\b",
+        r"\bwindow\b",
+    ),
 }
 
 OWNER_DESCRIPTIONS = {
@@ -159,10 +192,10 @@ OWNER_DESCRIPTIONS = {
         "FAM registry rows and compact pointers",
         "package trace, slice trace, live branch/release/issue state",
     ),
-    "release sequencing posture": (
-        "release sequencing and public milestone posture",
-        "release stream intent and milestone pointers",
-        "live latest-release state or PR windows",
+    "release schedule outline": (
+        "pre-Beta/Beta/release stage-breakpoint schedule and broad milestone checkpoints",
+        "release-stage gates, public milestone checkpoints, and broad feature-family breakpoint references",
+        "live latest-release state, release-window records, PR windows, or current branch/release execution ledgers",
     ),
     "worktree slot registry": (
         "stable slot IDs and intended assignment receipts",
@@ -304,7 +337,7 @@ def owner_for(rel: str) -> str:
     if rel == "Docs/feature_backlog.md":
         return "compact product registry"
     if rel == "Docs/prebeta_roadmap.md":
-        return "release sequencing posture"
+        return "release schedule outline"
     if rel == "Docs/worktree_slots.md":
         return "worktree slot registry"
     if rel == "Docs/branch_records/index.md":
@@ -366,7 +399,7 @@ def owner_for_fact(fact: str) -> str:
         "merge status": "GitHub PR merge truth plus compact historical receipt",
         "latest tag/release": "GitHub Releases / tags / release validator",
         "release receipt": "Docs/closeouts, compact branch receipt, or release body after validation",
-        "release sequencing": "Docs/prebeta_roadmap.md",
+        "release schedule outline": "Docs/prebeta_roadmap.md",
         "package trace": "Docs/workstreams or family dossiers",
         "slice trace": "Docs/workstreams or family dossiers",
         "issue posture": "GitHub issues plus compact historical receipt when needed",
@@ -392,7 +425,7 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
     )
     remaining = "None unless USER edits this dossier or a future validator flags drift."
     action = "Keep"
-    if owner in {"compact product registry", "release sequencing posture", "worktree slot registry"}:
+    if owner in {"compact product registry", "release schedule outline", "worktree slot registry"}:
         return (
             "Keep compact",
             completed,
@@ -444,7 +477,7 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
 
 
 def validator_need(owner: str) -> str:
-    if owner in {"compact product registry", "release sequencing posture"}:
+    if owner in {"compact product registry", "release schedule outline"}:
         return "Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan detail, and repeated release-window sprawl."
     if owner == "worktree slot registry":
         return "Governance efficiency validator blocks live-state/PR/release sprawl in slot registry."
@@ -455,6 +488,107 @@ def validator_need(owner: str) -> str:
     if owner in {"workstream durable history", "family dossier"}:
         return "Branch governance validator and future dossier checks should preserve durable trace ownership without treating old live facts as current."
     return "Covered by existing owner validator or future focused owner check."
+
+
+def consolidation_target_for(row: dict[str, object]) -> str:
+    rel = str(row["rel"])
+    owner = str(row["owner"])
+    action = str(row["action"])
+    if rel == "Docs/feature_backlog.md":
+        return "Keep here as compact product registry; move detailed trace to branch/workstream/family owners."
+    if rel == "Docs/prebeta_roadmap.md":
+        return "Keep here as stage-breakpoint schedule outline; move release state to Git/GitHub/helpers and receipts."
+    if rel == "Docs/worktree_slots.md":
+        return "Keep here as slot registry; move live worktree facts to git/helper output."
+    if rel == "Docs/Main.md":
+        return "Keep here as recovery/source-truth map; move full policy to owner docs."
+    if owner == "branch runtime engineering plan":
+        return "Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval."
+    if owner == "branch authority / compact receipt":
+        if "Migrate" in action:
+            return "Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers."
+        return "Keep as compact historical branch receipt."
+    if owner == "workstream durable history":
+        return "Keep as durable implementation/proof owner; normalize stale live wording only when edited."
+    if owner == "family dossier":
+        return "Keep or expand as durable family continuity owner."
+    if owner == "release closeout receipt":
+        return "Keep as historical release/closeout receipt archive unless USER approves closeout consolidation."
+    if owner in {
+        "normative phase governance",
+        "Codex execution rule mirror",
+        "Codex mode / behavior mirror",
+        "prompt template",
+        "operator guide",
+        "ChatGPT loader / prompt gate",
+        "validator/helper registry",
+        "governance support standard",
+        "branch plan standard",
+        "branch plan inventory receipt",
+        "branch authority router",
+        "workstream index",
+        "product / architecture reference",
+        "bug / issue historical tracker",
+    }:
+        return "Keep unless a focused USER-approved consolidation pass names a replacement owner."
+    return "Needs USER review before consolidation or retirement."
+
+
+def deletion_posture_for(row: dict[str, object]) -> str:
+    owner = str(row["owner"])
+    action = str(row["action"])
+    if owner == "branch runtime engineering plan":
+        return "Delete later after fold-down and USER-approved PR Readiness Stage 2 proof."
+    if "USER review" in action:
+        return "Needs USER decision before delete/retire."
+    if "Migrate" in action:
+        return "Do not delete now; compact/migrate first."
+    return "Keep; no deletion recommended in this pass."
+
+
+def ambiguity_for(text: str, owner: str) -> tuple[str, list[str], str]:
+    hits: list[str] = []
+    weighted = 0
+    for label, patterns in AMBIGUITY_PATTERNS.items():
+        count = count_matches(text, patterns)
+        if count:
+            hits.append(f"{label}={count}")
+            weighted += count
+    if owner in {
+        "release closeout receipt",
+        "workstream durable history",
+        "family dossier",
+        "branch authority / compact receipt",
+    }:
+        weighted = max(0, weighted - 20)
+    if weighted >= 80:
+        return "High", hits, "Clarify owner, time basis, and whether wording is historical receipt or live truth."
+    if weighted >= 25:
+        return "Medium", hits, "Review for ambiguous current/active/latest/pending ownership language."
+    if weighted:
+        return "Low", hits, "Low ambiguity; keep owner labels precise when edited."
+    return "Low", hits, "No scanner ambiguity markers found."
+
+
+def structure_for(text: str, lines: int, owner: str) -> tuple[str, str]:
+    headings = len(re.findall(r"(?m)^#{1,6}\s+", text))
+    tables = len(re.findall(r"(?m)^\|", text))
+    bullets = len(re.findall(r"(?m)^\s*[-*]\s+", text))
+    if not text.strip():
+        return "High", "Empty or unreadable file; confirm purpose before keeping."
+    if lines > 600 and headings < 8:
+        return "High", "Long file with too few headings; split current summary from historical appendix or migrate detail."
+    if lines > 400 and owner == "branch authority / compact receipt":
+        return "High", "Oversized branch receipt; compact current authority and migrate durable execution detail."
+    if lines > 250 and headings < 5:
+        return "Medium", "Large file needs clearer sections or a summary/index block."
+    if owner in {"compact product registry", "release schedule outline", "worktree slot registry"} and lines > 220:
+        return "Medium", "Pointer surface is getting long; watch for sprawl."
+    if headings == 0 and lines > 40:
+        return "Medium", "Reference file has limited heading structure."
+    if tables + bullets == 0 and lines > 60:
+        return "Medium", "Dense prose; consider a summary or table if edited."
+    return "Low", "Structure is acceptable for current owner category."
 
 
 def bool_text(value: bool) -> str:
@@ -477,6 +611,8 @@ def build_user_review_index(
     high_risk: list[dict[str, object]],
     migration_candidates: list[dict[str, object]],
     safe_files: list[dict[str, object]],
+    ambiguity_queue: list[dict[str, object]],
+    structure_queue: list[dict[str, object]],
     retire_candidates: list[tuple[str, str, str]],
 ) -> str:
     def add_file_rows(rows: list[dict[str, object]], limit: int = 18) -> list[str]:
@@ -515,10 +651,12 @@ def build_user_review_index(
     add("1. Read `Executive Summary` and `How To Review This Dossier` in the full dossier.")
     add("2. Review `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision`.")
     add("3. Review the `Completed / Deferred Matrix` for the reform scope.")
-    add("4. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
-    add("5. Use the `File-by-File Review Table` for a compact pass over every Docs file.")
-    add("6. Use the detailed `File-By-File Review Dossier` only for files you want to inspect deeply.")
-    add("7. Confirm the `PR Readiness Checklist` before approving PR creation.")
+    add("4. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/compact/migrate/retire/delete posture.")
+    add("5. Review ambiguity and structure queues before deciding whether cleanup is complete.")
+    add("6. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
+    add("7. Use the `File-by-File Review Table` for a compact pass over every Docs file.")
+    add("8. Use the detailed `File-By-File Review Dossier` only for files you want to inspect deeply.")
+    add("9. Confirm the `PR Readiness Checklist` before approving PR creation.")
     add("")
     add("## Decision Checklist")
     add("")
@@ -527,6 +665,9 @@ def build_user_review_index(
     add("- [ ] Branch Runtime Engineering Plan lifecycle and deletion rule are acceptable.")
     add("- [ ] Deferred deletion/fold-down candidates should remain deferred for now.")
     add("- [ ] No additional Docs file needs immediate retirement before PR Readiness.")
+    add("- [ ] Every Docs file has a clear disposition in the complete cleanup table.")
+    add("- [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.")
+    add("- [ ] Structure risks have a migration, compaction, or keep-now decision.")
     add("- [ ] Validators are enough to stop the worst sprawl from returning.")
     add("- [ ] PR Readiness Stage 2 may proceed after final validation.")
     add("")
@@ -537,6 +678,31 @@ def build_user_review_index(
     for rel, reason, rec in retire_candidates[:25]:
         add(f"| `{rel}` | {reason} | {rec} |")
     if not retire_candidates:
+        add("| None | N/A | N/A |")
+    add("")
+    add("## Ambiguity Review Queue")
+    add("")
+    add("| File | Ambiguity Risk | Signals | Action |")
+    add("| --- | --- | --- | --- |")
+    for row in ambiguity_queue[:18]:
+        add(
+            f"| `{row['rel']}` | {row['ambiguity_risk']} | "
+            f"{md_list(list(row['ambiguity_hits']))} | "
+            f"{compact_review_value(str(row['ambiguity_action']), 120)} |"
+        )
+    if not ambiguity_queue:
+        add("| None | N/A | N/A | N/A |")
+    add("")
+    add("## Structure Review Queue")
+    add("")
+    add("| File | Structure Risk | Action |")
+    add("| --- | --- | --- |")
+    for row in structure_queue[:18]:
+        add(
+            f"| `{row['rel']}` | {row['structure_risk']} | "
+            f"{compact_review_value(str(row['structure_action']), 120)} |"
+        )
+    if not structure_queue:
         add("| None | N/A | N/A |")
     add("")
     add("## High-Risk Review Queue")
@@ -595,6 +761,8 @@ def generate() -> None:
         action, completed, remaining = action_for(rel, owner, lines, changed)
         counts = {name: count_matches(text, patterns) for name, patterns in PATTERNS.items()}
         duplicate_classes = [fact for fact, patterns in FACT_CLASSES.items() if count_matches(text, patterns)]
+        ambiguity_risk, ambiguity_hits, ambiguity_action = ambiguity_for(text, owner)
+        structure_risk, structure_action = structure_for(text, lines, owner)
         for fact in duplicate_classes:
             fact_map[fact].add(rel)
         risk = "Low"
@@ -636,7 +804,14 @@ def generate() -> None:
                 "should_move": should_move,
                 "completed": completed,
                 "remaining": remaining,
+                "consolidation_target": "",
+                "deletion_posture": "",
                 "duplicate_classes": duplicate_classes,
+                "ambiguity_risk": ambiguity_risk,
+                "ambiguity_hits": ambiguity_hits,
+                "ambiguity_action": ambiguity_action,
+                "structure_risk": structure_risk,
+                "structure_action": structure_action,
                 "live_fields": snippets(text, PATTERNS["live"]),
                 "receipt_fields": snippets(
                     text,
@@ -671,6 +846,14 @@ def generate() -> None:
         ],
         key=lambda row: str(row["rel"]),
     )
+    ambiguity_queue = sorted(
+        [row for row in file_rows if row["ambiguity_risk"] in {"High", "Medium"}],
+        key=lambda row: (str(row["ambiguity_risk"]), str(row["rel"])),
+    )
+    structure_queue = sorted(
+        [row for row in file_rows if row["structure_risk"] in {"High", "Medium"}],
+        key=lambda row: (str(row["structure_risk"]), str(row["rel"])),
+    )
 
     index_text = build_user_review_index(
         docs_count=len(file_rows) + 2,
@@ -680,6 +863,8 @@ def generate() -> None:
         high_risk=high_risk,
         migration_candidates=migration_candidates,
         safe_files=safe_files,
+        ambiguity_queue=ambiguity_queue,
+        structure_queue=structure_queue,
         retire_candidates=retire_candidates,
     )
     index_rel = INDEX.relative_to(ROOT).as_posix()
@@ -709,7 +894,14 @@ def generate() -> None:
             "should_move": index_should_move,
             "completed": "Created in this review-surface repair branch.",
             "remaining": index_remaining,
+            "consolidation_target": "",
+            "deletion_posture": "",
             "duplicate_classes": index_duplicate_classes,
+            "ambiguity_risk": ambiguity_for(index_text, index_owner)[0],
+            "ambiguity_hits": ambiguity_for(index_text, index_owner)[1],
+            "ambiguity_action": ambiguity_for(index_text, index_owner)[2],
+            "structure_risk": structure_for(index_text, index_text.count("\n"), index_owner)[0],
+            "structure_action": structure_for(index_text, index_text.count("\n"), index_owner)[1],
             "live_fields": snippets(index_text, PATTERNS["live"]),
             "receipt_fields": snippets(
                 index_text,
@@ -753,7 +945,14 @@ def generate() -> None:
                 "Self-reference is intentionally synthetic so regeneration does not "
                 "change the dossier by re-scanning its previous generated output."
             ),
+            "consolidation_target": "",
+            "deletion_posture": "",
             "duplicate_classes": ["helper responsibility"],
+            "ambiguity_risk": "Low",
+            "ambiguity_hits": [],
+            "ambiguity_action": "Synthetic self-reference; review the actual generated dossier directly.",
+            "structure_risk": "Low",
+            "structure_action": "Synthetic self-reference keeps generation stable.",
             "live_fields": [],
             "receipt_fields": [
                 "Generated review dossier; content is reviewed through the real file, not self-scanned."
@@ -766,6 +965,9 @@ def generate() -> None:
     )
     fact_map["helper responsibility"].add(audit_rel)
     file_rows = sorted(file_rows, key=lambda row: str(row["rel"]).lower())
+    for row in file_rows:
+        row["consolidation_target"] = consolidation_target_for(row)
+        row["deletion_posture"] = deletion_posture_for(row)
     high_risk = sorted(
         [row for row in file_rows if row["risk"] in {"High", "Critical"}],
         key=lambda row: (str(row["risk"]), str(row["rel"])),
@@ -787,6 +989,14 @@ def generate() -> None:
             if row["risk"] == "Low" and str(row["action"]).startswith("Keep")
         ],
         key=lambda row: str(row["rel"]),
+    )
+    ambiguity_queue = sorted(
+        [row for row in file_rows if row["ambiguity_risk"] in {"High", "Medium"}],
+        key=lambda row: (str(row["ambiguity_risk"]), str(row["rel"])),
+    )
+    structure_queue = sorted(
+        [row for row in file_rows if row["structure_risk"] in {"High", "Medium"}],
+        key=lambda row: (str(row["structure_risk"]), str(row["rel"])),
     )
 
     converted_pointer = {
@@ -828,14 +1038,18 @@ def generate() -> None:
     add("")
     add("1. Start with the companion index: `Docs/governance_docs_reform_user_review_index.md`.")
     add("2. Read `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision` below.")
-    add("3. Review `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
-    add("4. Use `File-by-File Review Table` for a compact row-by-row pass over every Docs file.")
-    add("5. Use `File-By-File Review Dossier` for detailed per-file evidence and notes.")
-    add("6. Approve PR Readiness only when the `PR Readiness Checklist` is acceptable.")
+    add("3. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/compact/migrate/retire/delete posture.")
+    add("4. Review `Ambiguity Pass` and `Structure Pass` before deciding whether cleanup is complete.")
+    add("5. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
+    add("6. Use `File-by-File Review Table` for a compact row-by-row pass over every Docs file.")
+    add("7. Use `File-By-File Review Dossier` for detailed per-file evidence and notes.")
+    add("8. Approve PR Readiness only when the `PR Readiness Checklist` is acceptable.")
     add("")
     add("## What Was Completed")
     add("")
     add("- Every file under `Docs/` is enumerated in the manifest, review table, and detailed dossier.")
+    add("- Every file has an explicit cleanup/disposition row with a consolidation target and deletion posture.")
+    add("- Every file has an ambiguity risk and structure risk classification for USER review.")
     add("- Backlog, roadmap, and worktree-slot ownership rules are captured as compact pointer/status surfaces.")
     add("- Branch Runtime Engineering Plan lifecycle is stated as active-only, fold-down, then deletion after migration.")
     add("- Duplicate fact classes are mapped to their correct owner surfaces.")
@@ -940,7 +1154,7 @@ def generate() -> None:
         "Git/GitHub/helpers own live operational truth: `HEAD`, `origin/main`, dirty state, ahead/behind, merge base, remote refs, PR state, reviews, latest tag/release, release existence, and issue state.",
         "Docs own governance intent, USER decisions, approvals, branch authority, historical interpretation, durable implementation proof, and compact pointers to owning records.",
         "Backlog owns compact feature-family identity, priority, status, family scope, package summary, and canonical pointers only.",
-        "Roadmap owns release sequencing and public milestone posture only.",
+        "Roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, and broad feature-family checkpoints only.",
         "Branch records own branch authority, phase history, approvals, legal carrier status, and compact current/historical receipts.",
         "Branch plans own detailed active-branch engineering plans while active, then fold down during PR Readiness and delete after durable content is migrated and no active branch depends on them.",
         "Workstreams and family dossiers own durable package trace, slice trace, implementation proof, closure history, and reusable continuity.",
@@ -957,7 +1171,7 @@ def generate() -> None:
         ("Git/GitHub/helpers", "live operational truth", "governance decisions or durable source-truth interpretation"),
         ("Docs/Main.md", "recovery map and ownership routing", "detailed branch/release/live-state narration"),
         ("Docs/feature_backlog.md", "compact FAM registry and pointer layer", "Package Trace, Slice Trace, live branch/release/issue state"),
-        ("Docs/prebeta_roadmap.md", "release sequencing and public milestone posture", "live latest-release or PR-window truth"),
+        ("Docs/prebeta_roadmap.md", "stage-breakpoint schedule outline and broad milestone checkpoints", "live latest-release, release-window, PR-window, or current branch state truth"),
         ("Docs/worktree_slots.md", "slot definitions and assignment receipts", "HEAD, dirty state, ahead/behind, PR/release state"),
         ("Docs/branch_records/index.md", "branch authority routing", "implementation checklists"),
         ("Docs/branch_records/<branch>.md", "authority, approvals, phase history, compact receipts", "durable family implementation history after fold-down"),
@@ -980,10 +1194,49 @@ def generate() -> None:
             f"{row['action']} | {row['risk']} | {row['confidence']} |"
         )
     add("")
+    add("## Complete Docs Cleanup / Disposition Table")
+    add("")
+    add("This is the full file-by-file cleanup plan. It includes every file under `Docs/`, not just the files edited in this reform branch.")
+    add("")
+    add("| File | Current Owner | Keep / Compact / Migrate / Retire / Delete | Consolidation Target | Deletion Posture | USER Decision |")
+    add("| --- | --- | --- | --- | --- | --- |")
+    for row in file_rows:
+        user_decision = "Yes" if "USER" in str(row["deletion_posture"]) or "USER" in str(row["action"]) else "No"
+        add(
+            f"| `{row['rel']}` | {row['owner']} | {row['action']} | "
+            f"{compact_review_value(str(row['consolidation_target']), 140)} | "
+            f"{compact_review_value(str(row['deletion_posture']), 120)} | {user_decision} |"
+        )
+    add("")
+    add("## Ambiguity Pass")
+    add("")
+    add("Ambiguity risk flags wording that often causes source-truth drift, especially `current`, `active`, `latest`, `next`, `pending`, unclear ownership words, soft commitments, and state-ledger language. High or medium ambiguity is not automatically wrong for historical receipts, but it is a review target.")
+    add("")
+    add("| File | Ambiguity Risk | Ambiguity Signals | Required Review Action |")
+    add("| --- | --- | --- | --- |")
+    for row in file_rows:
+        add(
+            f"| `{row['rel']}` | {row['ambiguity_risk']} | "
+            f"{md_list(list(row['ambiguity_hits']))} | "
+            f"{compact_review_value(str(row['ambiguity_action']), 140)} |"
+        )
+    add("")
+    add("## Structure Pass")
+    add("")
+    add("Structure risk flags files that are too long for their owner role, have too few headings, or mix current summary with historical detail in a way that can hide drift.")
+    add("")
+    add("| File | Structure Risk | Structure Action |")
+    add("| --- | --- | --- |")
+    for row in file_rows:
+        add(
+            f"| `{row['rel']}` | {row['structure_risk']} | "
+            f"{compact_review_value(str(row['structure_action']), 150)} |"
+        )
+    add("")
     add("## File-by-File Review Table")
     add("")
-    add("| File path | Line count | Current purpose | Correct owner category | What this file records | What this file should record | Reform action completed | Remaining action needed | Recommendation | Duplicate truth found | Live operational truth found | Governance receipt found | Validator coverage | USER review notes |")
-    add("| --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+    add("| File path | Line count | Current purpose | Correct owner category | What this file records | What this file should record | Reform action completed | Remaining action needed | Recommendation | Ambiguity Risk | Structure Risk | Duplicate truth found | Live operational truth found | Governance receipt found | Validator coverage | USER review notes |")
+    add("| --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
     for row in file_rows:
         counts = row["counts"]
         duplicate_found = bool(row["duplicate_classes"])
@@ -995,6 +1248,7 @@ def generate() -> None:
             f"{compact_review_value(str(row['should_record']))} | "
             f"{compact_review_value(str(row['completed']))} | "
             f"{compact_review_value(str(row['remaining']))} | {row['action']} | "
+            f"{row['ambiguity_risk']} | {row['structure_risk']} | "
             f"{bool_text(duplicate_found)} | {bool_text(live_found)} | "
             f"{bool_text(receipt_found)} | "
             f"{compact_review_value(validator_need(str(row['owner'])))} | _Add notes here._ |"
@@ -1050,9 +1304,10 @@ def generate() -> None:
     add("## Roadmap Final Schema")
     add("")
     add(
-        "`Docs/prebeta_roadmap.md` now owns pre-Beta release sequencing, public milestone posture, "
-        "and release-readiness field expectations. It derives live latest release/tag/window truth "
-        "from Git/GitHub/helpers and should not maintain active release state manually."
+        "`Docs/prebeta_roadmap.md` owns the pre-Beta/Beta/release stage-breakpoint schedule outline: "
+        "the broad feature-family checkpoints and milestone gates needed before later release stages. "
+        "It is a reference outline, not a release ledger. Live latest release/tag/window truth is "
+        "derived from Git/GitHub/helpers and must not be manually maintained here."
     )
     add("")
     add("## Branch Records Final Schema")
@@ -1179,6 +1434,13 @@ def generate() -> None:
         add(f"- What should move elsewhere: {row['should_move']}.")
         add(f"- Migration target: {row['should_move']}.")
         add(f"- Recommendation: {row['action']}.")
+        add(f"- Consolidation target: {row['consolidation_target']}.")
+        add(f"- Deletion posture: {row['deletion_posture']}.")
+        add(f"- Ambiguity risk: {row['ambiguity_risk']}.")
+        add(f"- Ambiguity signals: {md_list(list(row['ambiguity_hits']))}")
+        add(f"- Ambiguity review action: {row['ambiguity_action']}")
+        add(f"- Structure risk: {row['structure_risk']}.")
+        add(f"- Structure action: {row['structure_action']}")
         duplicates = ", ".join(row["duplicate_classes"]) if row["duplicate_classes"] else "None found"
         add(f"- Duplicate fact classes found: {duplicates}.")
         add(f"- Live operational truth fields found: {md_list(row['live_fields'])}")

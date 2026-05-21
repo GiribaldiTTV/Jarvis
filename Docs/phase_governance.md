@@ -246,7 +246,7 @@ The ledger is canonical only inside the existing authority owner:
 - Large active ledger: optional companion file with canonical pointer from the owning workstream doc or branch authority record.
 - Family dossier: aggregate or historical trace only.
 - Feature backlog: identity and registry only.
-- Roadmap: sequencing only.
+- Roadmap: stage-breakpoint schedule outline and broad milestone checkpoints only.
 - Validation helper registry: helper inventory only.
 - Element Coverage: non-identity checklist only.
 
@@ -623,7 +623,7 @@ This gate is mandatory when a branch would:
 - become the latest released or merged-unreleased implementation milestone
 - change the current rebaseline or closeout baseline
 - change the current closeout-index pointer
-- change backlog, roadmap, or workstream-index release posture
+- change backlog status, roadmap stage-breakpoint/checkpoint posture, or workstream-index release posture
 - change `Docs/Main.md` routing for the current baseline
 
 When this gate applies, the branch must already contain the required release-facing canon updates before PR creation is allowed:

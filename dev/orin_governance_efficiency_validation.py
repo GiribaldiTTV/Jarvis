@@ -196,6 +196,9 @@ AUDIT_REQUIRED_SECTIONS = (
     "## Completed / Deferred Matrix",
     "## Source-Truth Ownership Map",
     "## Complete Docs Manifest",
+    "## Complete Docs Cleanup / Disposition Table",
+    "## Ambiguity Pass",
+    "## Structure Pass",
     "## File-by-File Review Table",
     "## Fact-Class Ownership Table",
     "## Duplicate Truth Map",
@@ -222,6 +225,8 @@ INDEX_REQUIRED_SECTIONS = (
     "## Suggested Review Order",
     "## Decision Checklist",
     "## Files Needing USER Decision",
+    "## Ambiguity Review Queue",
+    "## Structure Review Queue",
     "## High-Risk Review Queue",
     "## Future Migration Queue",
     "## Safe To Leave For Now",
@@ -322,6 +327,33 @@ def validate() -> list[str]:
             failures.append(
                 f"{DOCS_INVENTORY_AUDIT}: File-By-File Review Dossier has "
                 f"{dossier_entries} entries, expected {docs_count}"
+            )
+        disposition_rows = len(
+            re.findall(
+                r"(?m)^\| `Docs/",
+                _section(audit_text, "## Complete Docs Cleanup / Disposition Table"),
+            )
+        )
+        if disposition_rows != docs_count:
+            failures.append(
+                f"{DOCS_INVENTORY_AUDIT}: cleanup/disposition table has "
+                f"{disposition_rows} file rows, expected {docs_count}"
+            )
+        ambiguity_rows = len(
+            re.findall(r"(?m)^\| `Docs/", _section(audit_text, "## Ambiguity Pass"))
+        )
+        if ambiguity_rows != docs_count:
+            failures.append(
+                f"{DOCS_INVENTORY_AUDIT}: Ambiguity Pass has "
+                f"{ambiguity_rows} file rows, expected {docs_count}"
+            )
+        structure_rows = len(
+            re.findall(r"(?m)^\| `Docs/", _section(audit_text, "## Structure Pass"))
+        )
+        if structure_rows != docs_count:
+            failures.append(
+                f"{DOCS_INVENTORY_AUDIT}: Structure Pass has "
+                f"{structure_rows} file rows, expected {docs_count}"
             )
         if "dev/orin_docs_inventory_reform_audit.py" not in audit_text:
             failures.append(

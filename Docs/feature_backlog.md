@@ -83,7 +83,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | Branch runtime engineering plans | `Docs/branch_plans/` |
 | Workstream routing and family dossiers | `Docs/workstreams/index.md` |
 | Stable worktree slot registry | `Docs/worktree_slots.md` |
-| Release sequencing posture | `Docs/prebeta_roadmap.md` |
+| Stage-breakpoint schedule posture | `Docs/prebeta_roadmap.md` |
 | Full reform audit | `Docs/governance_docs_full_inventory_reform_audit.md` |
 
 ## Registry Items

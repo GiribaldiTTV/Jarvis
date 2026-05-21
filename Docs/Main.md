@@ -98,7 +98,7 @@ PR Readiness Stage 2 approval includes watcher provisioning by default. Codex mu
 
 `Docs/governance_efficiency_operating_model.md` owns the governance efficiency operating model. Use it for Rule ID / owner / compact mirror decisions, duplicate live-state prevention, current-summary versus historical-appendix split, phase alias UX, release ownership UX, public language mapping, and the reform pass completion boundary.
 
-Docs Source-Truth Reform Model: Compact Pointer Layer. `Docs/governance_docs_full_inventory_reform_audit.md` is the full Docs inventory and reform audit. The accepted ownership direction is backlog as compact product registry, roadmap as release sequencing posture, worktree slots as reusable slot assignment receipts, branch records as authority/compact receipts, branch plans as active runtime engineering plans, workstreams/family dossiers as durable package/slice/proof history, and Git/GitHub/helpers as live operational truth.
+Docs Source-Truth Reform Model: Compact Pointer Layer. `Docs/governance_docs_full_inventory_reform_audit.md` is the full Docs inventory and reform audit. The accepted ownership direction is backlog as compact product registry, roadmap as pre-Beta/Beta/release stage-breakpoint schedule outline, worktree slots as reusable slot assignment receipts, branch records as authority/compact receipts, branch plans as active runtime engineering plans, workstreams/family dossiers as durable package/slice/proof history, and Git/GitHub/helpers as live operational truth.
 
 Before branch creation, worktree creation, phase entry, commit, push, PR work, release work, or GitHub Desktop handoff, run a `Thread / Worktree Identity Preflight` and prove the active thread is operating in the intended workspace, repository root, branch, upstream, `HEAD`, `origin/main`, worktree role, clean state, write target, active thread owner, thread assignment status, and intended write set. If the identity does not match the requested work, stop on `Thread / Worktree Identity Mismatch`; if another active thread owns the same worktree or branch, stop on `Parallel Worktree Coordination Missing`; if the target worktree is already dirty and ownership is unclear, stop for a `Dirty Worktree Recovery Packet`; if the work belongs outside the assigned worktree or active branch scope, route it to Governance instead of self-activating a sibling worktree.
 
@@ -143,7 +143,7 @@ Use this ownership split unless a validated source conflict requires a temporary
 
 - backlog = identity and registry
 - workstream docs = promoted-work feature-state, branch-local evidence, active seam references, artifact history, branch-local reuse notes, and closure history
-- roadmap = sequencing and release posture
+- roadmap = stage-breakpoint schedule outline and broad milestone checkpoints, not a release ledger
 - rebaselines and closeouts = epoch or milestone summaries
 - incident patterns = generalized reusable lessons
 - bug tracking = backlog-first, with promoted bug docs only when warranted
@@ -270,7 +270,7 @@ Rules:
 - backlog candidate selection is priority-led; `Priority` and deferred-context fields are the selection inputs for open items
 - `Target Version` is not an open-backlog selection input and belongs only to release posture, release debt, or historical closed/implemented evidence
 - deferred open backlog entries must explain `Deferred Since:`, `Deferred Because:`, and `Selection / Unblock:` before they can be selected efficiently
-- roadmap owns sequencing and release posture
+- roadmap owns stage-breakpoint schedule outline and broad milestone checkpoints
 - neither backlog nor roadmap should retain the full execution story once a canonical workstream record exists
 
 ### Canonical Workstream Records

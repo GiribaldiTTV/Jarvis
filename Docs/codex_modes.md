@@ -655,7 +655,7 @@ When release-dependent truth changes:
 - preserve architecture boundaries
 - call out source-of-truth conflicts explicitly
 - backlog owns identity
-- roadmap owns sequencing
+- roadmap owns the stage-breakpoint schedule outline, not live release state
 - workstream docs own promoted-work feature-state, branch-local evidence, active seam references, artifact history, branch-local reuse notes, and closure history
 - `Docs/phase_governance.md` owns repo-wide phase, proof, timeout, seam, stop-loss, validation-helper, and desktop UI audit rules
 - `Docs/validation_helper_registry.md` owns durable helper naming, helper status, registry, and consolidation expectations

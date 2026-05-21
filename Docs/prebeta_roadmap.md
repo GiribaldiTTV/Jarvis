@@ -3,19 +3,20 @@
 
 ## Purpose
 
-`Docs/prebeta_roadmap.md` owns release sequencing and public milestone posture for the pre-Beta line.
+`Docs/prebeta_roadmap.md` owns the pre-Beta schedule outline: the release-stage breakpoints, milestone gates, and broad feature-family checkpoints that explain what must be true before the project moves from pre-Beta toward Beta and release.
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
-This file does not own live latest-release state, live tag state, active branch state, open PR state, current review state, worktree freshness, or release-window inventories. Those are derived from Git, GitHub, and approved helpers at the time of Release Readiness or release execution.
+This file is a reference outline, not a release ledger. It does not own live latest-release state, live tag state, active branch state, open PR state, current review state, worktree freshness, or release-window inventories. Those are derived from Git, GitHub, and approved helpers at the time of Release Readiness or release execution.
 
 ## Authority And Boundaries
 
 Roadmap owns:
 
-- public milestone sequencing intent
-- broad release stream posture
+- pre-Beta, Beta, and release breakpoint criteria
+- broad feature checkpoint ordering
 - high-level user-facing milestone grouping
+- schedule reference language for what must be finished before later release stages
 - pointers to backlog, branch records, branch plans, workstreams, and GitHub Releases
 - historical interpretation only when it is compact and explicitly receipt-oriented
 
@@ -44,18 +45,19 @@ Use these sources instead of manually updating live release facts here:
 
 Historical receipts may cite releases, PRs, and commits when the receipt is intentionally preserved as interpretation. Do not promote those receipts into live current-state ownership.
 
-## Release Sequencing Model
+## Stage Breakpoint Schedule
 
-The pre-Beta stream remains incremental and evidence-driven.
+The roadmap is a release-stage outline. It should be referenced often and edited rarely. Edits should change only the stage-breakpoint model, milestone criteria, or broad feature-family checkpoint order.
 
 Package/slice release blockers remain named `Single-Slice Package User Approval Missing` and `Package Completion Unproven`. Only `Admission State: Admitted` rows in the owning workstream, branch plan, family dossier, or branch receipt count as admitted release/package slices; this roadmap points to those owners instead of duplicating their detailed ledgers.
 
-| Release Stream | Public Meaning | Sequencing Posture |
+| Release Stage | Public Meaning | Breakpoint / Gate Posture |
 | --- | --- | --- |
-| `v1.x.y-prebeta` | public pre-Beta snapshots | release only after Release Readiness derives candidate scope from Git/GitHub and validates release body standards |
-| Patch prerelease | bugfix, readiness, source-truth, validation, or narrow user-facing improvements | default when the public surface is incremental |
-| Minor prerelease | broader user-facing package milestone | requires Release Readiness scope proof and USER approval |
-| Major prerelease | not currently planned | requires separate USER decision |
+| Pre-Beta snapshots | public iterative proof of working systems | continue until core desktop, monitoring/HUD, local AI readiness, packaging/install, and safety/privacy checkpoints have enough validated evidence for Beta planning |
+| Beta readiness | broader public stabilization milestone | requires USER-approved Beta criteria, stable package boundaries, validation confidence, user-facing readiness proof, and no unresolved governance/source-truth blockers |
+| Release readiness | public release milestone | requires separate USER-approved release criteria, installer/package posture, support posture, privacy/safety posture, and durable rollback/traceability evidence |
+| Patch prerelease | bugfix, readiness, source-truth, validation, or narrow user-facing improvements inside the current stage | default when the public surface is incremental |
+| Minor prerelease | broader user-facing package milestone inside the current stage | requires Release Readiness scope proof and USER approval |
 
 ## Public Milestone Pointers
 
@@ -104,8 +106,8 @@ Use these repo surfaces for durable internal interpretation:
 - `Docs/workstreams/` for durable package/slice/proof history and family dossiers.
 - `Docs/feature_backlog.md` for compact family identity and pointer routing.
 
-## Current Sequencing Reading
+## Current Schedule Reading
 
-The roadmap's current reading is intentionally compact: release execution remains USER-gated, active runtime branch identity belongs in branch authority records, and latest release/tag truth is derived live.
+The roadmap's current reading is intentionally compact: pre-Beta remains active until the milestone checkpoints above are satisfied. Release execution remains USER-gated, active runtime branch identity belongs in branch authority records, and latest release/tag truth is derived live.
 
 No release, tag, GitHub Release, artifact upload, issue closeout, branch cleanup, worktree cleanup, runtime implementation, provider/model execution, downloads, memory/indexing, voice/Core sync, shortcut/installer work, AI Product Contract import, or Private Dev ORIN import is authorized by this roadmap.

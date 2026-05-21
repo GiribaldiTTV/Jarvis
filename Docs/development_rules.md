@@ -97,7 +97,7 @@ Use this layered ownership model:
 
 - backlog = identity and registry
 - workstream docs = promoted-work feature-state, branch-local evidence, active seam references, artifact history, branch-local reuse notes, and closure history
-- roadmap = sequencing and release posture
+- roadmap = stage-breakpoint schedule outline and broad milestone checkpoints, not a release ledger
 - rebaselines and closeouts = epoch or milestone summaries
 - incident patterns = generalized reusable lessons
 - bugs = backlog-first, with promoted bug docs only when warranted
@@ -377,7 +377,7 @@ That means:
 - no PR-ready with stale canon:
   - current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
   - Merge-target post-merge-stable authority projection is mandatory before PR green and is a PR Readiness Stage 1 repair responsibility when Stage 1 finds it: `Merge-Target Authority Projection Unproven` blocks Stage 2 and PR green when post-merge truth will be `No Active Branch` but the PR branch would merge an active branch authority record into `main`; default governance validation and `--pr-readiness-gate` must both catch this state before merge; the active authority record must be moved to historical/no-active posture or otherwise made merge-stable during Stage 1 before Stage 2 can execute, and historical branch records must not retain active PR Readiness phase, active seam ownership, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`
-- when a branch closes a workstream, changes released milestone posture, changes the current rebaseline, changes closeout-index routing, changes backlog or roadmap release posture, changes workstream-index release posture, or changes `Docs/Main.md` baseline routing, the required release-facing canon updates must already be on that branch before PR creation is allowed
+- when a branch closes a workstream, changes released milestone posture, changes the current rebaseline, changes closeout-index routing, changes backlog status, changes roadmap stage-breakpoint/checkpoint posture, changes workstream-index release posture, or changes `Docs/Main.md` baseline routing, the required release-facing canon updates must already be on that branch before PR creation is allowed
 - no PR-ready with `Next Workstream Undefined`:
   - If post-merge truth would otherwise resolve to `No Active Branch` because release handling or another repo-level admission blocker remains open, Stage 1 treats that as an explicit USER waiver/defer question, not the default; successor branch creation remains deferred only when that waiver/defer is recorded, otherwise Stage 1 stops on the selected-next or backlog-approval blocker.
   - if USER approval for new or successor backlog selection is absent, keep `Backlog Addition User Approval Missing` active, output the still-not-closed FAM list plus every not-complete package and slice, and stop instead of adding selected-next truth
