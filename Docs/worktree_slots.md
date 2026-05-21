@@ -167,14 +167,14 @@ Runtime slots are reusable active-work slots. Their assignment changes as branch
 - Slot ID: `runtime-active-2`
 - Role: active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: historical merged branch after PR #190; no active runtime successor selected by inertia
-- Assigned Branch: historical `feature/fam-007-local-ai-provider-setup-contract-readiness`
-- Assigned Family / Workstream: historical `FAM-007 Local AI Provider Setup Contract Readiness`
-- Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
-- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
-- USER Decision Pointer: USER-approved FAM-007 Branch Readiness Stage 2, Workstream Entry, bounded setup contract readiness implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1, PR Readiness Stage 2, and PR #190 merge after `v1.7.10-prebeta`; Release Readiness and successor branch creation remain pending USER approval
-- Active Thread Owner: Codex in `C:\Nexus Worktrees\FAM-007` for release-readiness analysis / historical branch reconciliation only
-- Thread Assignment Status: historical merged evidence; active runtime implementation is not selected
+- Assignment Status: active FAM-007 Branch Readiness Stage 2 carrier after `v1.7.11-prebeta`; Workstream implementation pending USER approval
+- Assigned Branch: `feature/fam-007-local-ai-provider-setup-implementation-foundation`
+- Assigned Family / Workstream: FAM-007 Local AI Provider Setup Implementation Foundation
+- Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
+- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
+- USER Decision Pointer: USER-approved FAM-007 Branch Readiness Stage 1 recommendation and Stage 2 setup for this detailed implementation-bearing carrier after PR #190, PR #191, and `v1.7.11-prebeta`; Workstream implementation, PR creation, merge, release, cleanup, provider SDK/model work, consent collection, memory, voice/Core, shortcuts/installers, AI Product Contract import, and v1.8.0-prebeta execution remain pending USER approval
+- Active Thread Owner: Codex in `C:\Nexus Worktrees\FAM-007` for localized FAM-007 Stage 2 setup only
+- Thread Assignment Status: active Stage 2 setup; implementation begins only after Workstream Entry and later USER approval
 - Worktree Ownership Ledger: FAM-007 stable runtime worktree, localized to FAM-007 branch work
 - Intended Write Set: FAM-007 branch authority/plan, shared source-truth current-branch posture, validation registry, provider state, Core/Desktop renderers, ORIN visual surfaces, FAM-007 provider validator, and no sibling worktrees
 - Same Worktree / Same Branch Collision Check: target branch was absent before creation and was created from current `origin/main`
@@ -183,7 +183,7 @@ Runtime slots are reusable active-work slots. Their assignment changes as branch
 - Off-Worktree Work Routing: FAM-006, Governance, and Compact-AI are context only and must not be mutated by this branch
 - Governance Routing Barrier: Governance mutation outside this FAM-007 path remains pending USER decision
 - New Worktree Decision Gate: no new worktree is required
-- Last Reviewed Posture: PR #190 merged; selected-next defer/waiver and post-merge No Active Branch truth are recorded, and live Git/GitHub proof remains derived operational truth for Release Readiness
+- Last Reviewed Posture: `v1.7.11-prebeta` is published and release debt is clear; PR #190 is released historical setup contract readiness evidence, and this slot now carries the fresh setup implementation foundation Stage 2 branch from `origin/main` at `2158ff66649f9d2e045fe75c4813c19e88d06762`
 - Operational Truth Source: Thread / Worktree Identity Preflight, `git worktree list`, `git status`, GitHub PR state, and Pre-Rebaseline Impact Audit
 
 ### runtime-active-3
