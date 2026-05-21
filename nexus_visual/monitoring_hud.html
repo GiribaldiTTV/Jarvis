@@ -102,10 +102,11 @@
     data-overlay-acceptance-policy="deferred-non-gating"
     data-interface-bundle-approval="not-granted"
     data-core-repair-classification="dependency-repair-only"
-    data-overlay-profile-state="slc-037-state-foundation"
+    data-overlay-profile-state="slc-038-visible-selection-editing"
     data-overlay-profile-schema-version="1"
     data-active-overlay-profile-id="default-overlay-profile"
-    data-overlay-profile-editor="not-rendered-slc-037"
+    data-overlay-profile-editor="slc-038-entry-controls"
+    data-overlay-profile-membership="read-only-slc-039-pending"
     data-recording-profile-state="recording-profile-state-absent-future-gated"
     aria-label="Nexus Desktop AI Monitoring HUD product surface"
     aria-hidden="true"
@@ -167,6 +168,63 @@
           <div class="monitoring-hud__state-row">
             <span>Control boundary</span>
             <strong id="monitoring-hud-resize-posture">Overlay settings are future branch scope</strong>
+          </div>
+          <div
+            class="monitoring-hud__overlay-profile-panel"
+            id="monitoring-hud-overlay-profile-editor"
+            data-overlay-profile-editor-ui="slc-038-entry-controls"
+            data-overlay-profile-membership="read-only-slc-039-pending"
+            data-overlay-profile-proof="selector-create-rename-save-discard"
+            aria-label="Overlay Profile selector and editor"
+          >
+            <div class="monitoring-hud__overlay-profile-heading">
+              <span>Active Profile</span>
+              <strong id="monitoring-hud-overlay-profile-active-name">Default Overlay Profile</strong>
+            </div>
+            <div
+              class="monitoring-hud__bounded-dropdown monitoring-hud__overlay-profile-dropdown"
+              id="monitoring-hud-overlay-profile-selector"
+              data-bounded-dropdown="overlay-profile"
+              data-selected-profile-id="default-overlay-profile"
+              data-dropdown-open="false"
+              data-hovered-profile-id=""
+            >
+              <button
+                type="button"
+                class="monitoring-hud__bounded-dropdown-toggle"
+                id="monitoring-hud-overlay-profile-toggle"
+                aria-label="Overlay Profile"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-controls="monitoring-hud-overlay-profile-menu"
+              >
+                <span>Profile</span>
+                <strong id="monitoring-hud-overlay-profile-label">Default</strong>
+              </button>
+              <div class="monitoring-hud__bounded-dropdown-menu monitoring-hud__nexus-scroll-pane" id="monitoring-hud-overlay-profile-menu" role="listbox" aria-label="Overlay Profile options" hidden>
+                <button type="button" class="monitoring-hud__bounded-dropdown-option" data-overlay-profile-option="default-overlay-profile" role="option" aria-selected="true">Default Overlay Profile</button>
+              </div>
+            </div>
+            <div class="monitoring-hud__overlay-profile-detail-grid" aria-label="Overlay Profile details">
+              <div class="monitoring-hud__state-row">
+                <span>Monitors</span>
+                <strong id="monitoring-hud-overlay-profile-monitor-count">2 read-only</strong>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Display</span>
+                <strong id="monitoring-hud-overlay-profile-display-mode">Monitor cards</strong>
+              </div>
+            </div>
+            <label class="monitoring-hud__child-field monitoring-hud__overlay-profile-name-field">
+              Profile name
+              <input id="monitoring-hud-overlay-profile-name-input" type="text" value="Default Overlay Profile" autocomplete="off" maxlength="48" />
+            </label>
+            <div class="monitoring-hud__hub-actions monitoring-hud__overlay-profile-actions" data-overlay-profile-actions="create-save-discard">
+              <button type="button" id="monitoring-hud-overlay-profile-create" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact" data-control="overlay-profile-create">Create Profile</button>
+              <button type="button" id="monitoring-hud-overlay-profile-save" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact" data-control="overlay-profile-save" data-control-state="clean-disabled" aria-disabled="true" disabled>Save</button>
+              <button type="button" id="monitoring-hud-overlay-profile-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--secondary" data-control="overlay-profile-discard" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
+            </div>
+            <small id="monitoring-hud-overlay-profile-membership-note">Membership is read-only in SLC-038; monitor mapping is reserved for SLC-039.</small>
           </div>
         </article>
         <article class="monitoring-hud__hub-card monitoring-hud__hub-card--monitor-groups" data-dashboard-hub-card="monitor-groups" data-slice="SLC-027" data-dashboard-issue="125" data-monitor-group-flow="sensor-command-center-list-detail-source-picker">
@@ -521,10 +579,11 @@
     data-interface-acceptance-policy="deferred-non-gating"
     data-dashboard-acceptance-role="supporting-future-interface-evidence"
     data-current-branch-release-gate="false"
-    data-overlay-profile-state="slc-037-state-foundation"
+    data-overlay-profile-state="slc-038-visible-selection-editing"
     data-overlay-profile-schema-version="1"
     data-active-overlay-profile-id="default-overlay-profile"
-    data-overlay-profile-editor="not-rendered-slc-037"
+    data-overlay-profile-editor="slc-038-entry-controls"
+    data-overlay-profile-membership="read-only-slc-039-pending"
     data-recording-profile-state="recording-profile-state-absent-future-gated"
     aria-label="Nexus Desktop AI edgeless Monitoring HUD overlay display"
     aria-hidden="true"

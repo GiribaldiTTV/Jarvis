@@ -900,6 +900,69 @@ body.desktop-mode #monitoring-hud > * {
   gap: 4px;
 }
 
+.monitoring-hud__overlay-profile-panel {
+  display: grid;
+  gap: 9px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(119, 221, 255, 0.10);
+}
+
+.monitoring-hud__overlay-profile-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 0.48fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.monitoring-hud__overlay-profile-heading span,
+.monitoring-hud__overlay-profile-name-field {
+  color: rgba(145, 202, 218, 0.82);
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__overlay-profile-heading strong {
+  min-width: 0;
+  color: rgba(157, 246, 218, 0.93);
+  font-size: 12px;
+  font-weight: 760;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-hud__overlay-profile-dropdown {
+  justify-self: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.monitoring-hud__overlay-profile-detail-grid {
+  display: grid;
+  gap: 0;
+}
+
+.monitoring-hud__overlay-profile-name-field {
+  gap: 6px;
+}
+
+.monitoring-hud__overlay-profile-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+}
+
+.monitoring-hud__overlay-profile-actions .monitoring-hud__hub-action {
+  min-height: 32px;
+  white-space: nowrap;
+}
+
+.monitoring-hud__overlay-profile-panel small {
+  color: rgba(169, 207, 219, 0.78);
+}
+
 #monitoring-hud-monitor-list-summary {
   min-width: 220px;
   flex: 1 1 260px;

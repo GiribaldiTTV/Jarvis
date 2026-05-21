@@ -9272,6 +9272,7 @@ class DesktopRuntimeWindow(QWidget):
             focused_visual = label.startswith(
                 (
                     "02_dashboard_minimum",
+                    "03_overlay_profile",
                     "03_manage_monitors",
                     "04_source_filter",
                     "04_polling_rate",
@@ -9467,6 +9468,33 @@ class DesktopRuntimeWindow(QWidget):
             checks["native_hud_control_zone"] = self._monitoring_hud_point_in_interactive_rect(
                 QPoint(*(rect_center("warningToggle") or rect_center("editMonitor") or (0, 0)))
             )
+            return all(checks.values()), checks
+
+        def assert_overlay_profile_controls(result):
+            dataset = result.get("dataset") or {}
+            state = result.get("state") if isinstance(result.get("state"), dict) else {}
+            geometry = result.get("geometry") if isinstance(result.get("geometry"), dict) else {}
+            overlay_profiles = state.get("overlayProfiles") if isinstance(state.get("overlayProfiles"), dict) else {}
+            active_profile_id = str(state.get("activeOverlayProfileId") or "")
+            active_profile = overlay_profiles.get(active_profile_id) if isinstance(overlay_profiles.get(active_profile_id), dict) else {}
+            checks = {
+                "overlay_profile_state": dataset.get("overlayProfileState") == "slc-038-visible-selection-editing",
+                "overlay_profile_editor": dataset.get("overlayProfileEditor") == "slc-038-entry-controls",
+                "overlay_profile_membership": dataset.get("overlayProfileMembership") == "read-only-slc-039-pending",
+                "overlay_profile_state_proof": dataset.get("overlayProfileStateProof") == "pass",
+                "overlay_profile_controls_proof": dataset.get("overlayProfileControlsProof") == "pass",
+                "active_profile_id_present": bool(active_profile_id),
+                "active_profile_present": bool(active_profile),
+                "active_profile_kind": active_profile.get("kind") == "overlay-profile",
+                "monitor_group_boundary": "monitorGroupId" not in active_profile,
+                "recording_profile_boundary": "recordingProfileId" not in active_profile,
+                "editor_geometry": rect_present(geometry.get("overlayProfileEditor") if isinstance(geometry.get("overlayProfileEditor"), dict) else {}),
+                "toggle_geometry": rect_present(geometry.get("overlayProfileToggle") if isinstance(geometry.get("overlayProfileToggle"), dict) else {}),
+                "name_input_geometry": rect_present(geometry.get("overlayProfileNameInput") if isinstance(geometry.get("overlayProfileNameInput"), dict) else {}),
+                "create_geometry": rect_present(geometry.get("overlayProfileCreate") if isinstance(geometry.get("overlayProfileCreate"), dict) else {}),
+                "save_geometry": rect_present(geometry.get("overlayProfileSave") if isinstance(geometry.get("overlayProfileSave"), dict) else {}),
+                "discard_geometry": rect_present(geometry.get("overlayProfileDiscard") if isinstance(geometry.get("overlayProfileDiscard"), dict) else {}),
+            }
             return all(checks.values()), checks
 
         def assert_initial(result):
@@ -10111,7 +10139,110 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(250), step_hit_targets)
 
         def step_hit_targets():
-            query("real mouse hit targets are visible and large enough", assert_user_hit_targets, step_settings_panel)
+            query("real mouse hit targets are visible and large enough", assert_user_hit_targets, step_overlay_profile_controls)
+
+        def step_overlay_profile_controls():
+            self._run_javascript(
+                """
+                const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
+                if (discard && !discard.disabled) discard.click();
+                const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
+                if (toggle && toggle.getAttribute("aria-expanded") === "true") toggle.click();
+                if (window.runMonitoringHudOverlayProfileStateProof) window.runMonitoringHudOverlayProfileStateProof();
+                if (window.runMonitoringHudOverlayProfileControlsProof) window.runMonitoringHudOverlayProfileControlsProof();
+                """
+            )
+            QTimer.singleShot(delay(300), step_overlay_profile_capture_clean)
+
+        def step_overlay_profile_capture_clean():
+            capture("03_overlay_profile_selector_create_rename_clean")
+            self._run_javascript_with_result(
+                """
+                (function() {
+                    try {
+                        const stateProof = window.runMonitoringHudOverlayProfileStateProof
+                            ? window.runMonitoringHudOverlayProfileStateProof()
+                            : { passed: false, missing: "state-proof" };
+                        const controlsProof = window.runMonitoringHudOverlayProfileControlsProof
+                            ? window.runMonitoringHudOverlayProfileControlsProof()
+                            : { passed: false, missing: "controls-proof" };
+                        const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
+                        if (toggle && toggle.getAttribute("aria-expanded") !== "true") {
+                            toggle.click();
+                        }
+                        const option = document.querySelector("[data-overlay-profile-option]");
+                        if (option) {
+                            option.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+                            option.classList.add("is-hovered");
+                        }
+                        const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
+                        if (input) {
+                            input.value = "Focused Overlay Profile Draft";
+                            input.dispatchEvent(new Event("input", { bubbles: true }));
+                        }
+                        const selector = document.getElementById("monitoring-hud-overlay-profile-selector");
+                        const save = document.getElementById("monitoring-hud-overlay-profile-save");
+                        const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
+                        return JSON.stringify({
+                            ok: Boolean(stateProof.passed && controlsProof.passed && selector && input),
+                            stateProofPassed: Boolean(stateProof.passed),
+                            controlsProofPassed: Boolean(controlsProof.passed),
+                            dropdownOpen: selector ? selector.dataset.dropdownOpen === "true" : false,
+                            hoveredProfileId: selector ? selector.dataset.hoveredProfileId || "" : "",
+                            saveEnabled: save ? !save.disabled : false,
+                            discardEnabled: discard ? !discard.disabled : false,
+                            membership: document.getElementById("monitoring-hud-overlay-profile-editor")
+                                ? document.getElementById("monitoring-hud-overlay-profile-editor").dataset.overlayProfileMembership
+                                : ""
+                        });
+                    } catch (err) {
+                        return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                    }
+                })();
+                """,
+                lambda result: handle_overlay_profile_visual_result(result),
+            )
+
+        def handle_overlay_profile_visual_result(result):
+            try:
+                parsed = json.loads(result) if isinstance(result, str) else result
+            except Exception:
+                parsed = {"ok": False, "raw": str(result)}
+            if not isinstance(parsed, dict):
+                parsed = {"ok": False, "raw": str(parsed)}
+            add_step(
+                "SLC-038 Overlay Profile selector/create/rename Save/Discard visual proof prepared",
+                bool(parsed.get("ok"))
+                and parsed.get("dropdownOpen") is True
+                and parsed.get("saveEnabled") is True
+                and parsed.get("discardEnabled") is True
+                and parsed.get("membership") == "read-only-slc-039-pending",
+                parsed,
+            )
+            if not parsed.get("ok"):
+                finish("FAIL", "SLC-038 Overlay Profile controls proof failed before focused screenshot")
+                return
+            QTimer.singleShot(
+                delay(300),
+                lambda: (
+                    capture("03_overlay_profile_dropdown_open_hover_dirty"),
+                    QTimer.singleShot(
+                        delay(300),
+                        lambda: query("SLC-038 Overlay Profile visible controls stay bounded and distinct", assert_overlay_profile_controls, step_overlay_profile_cleanup),
+                    ),
+                ),
+            )
+
+        def step_overlay_profile_cleanup():
+            self._run_javascript(
+                """
+                const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
+                if (discard && !discard.disabled) discard.click();
+                const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
+                if (toggle && toggle.getAttribute("aria-expanded") === "true") toggle.click();
+                """
+            )
+            QTimer.singleShot(delay(250), step_settings_panel)
 
         def step_settings_panel():
             clicked = self._monitoring_hud_send_mouse_click(rect_center("settingsAction"))
@@ -12054,7 +12185,8 @@ class DesktopRuntimeWindow(QWidget):
                 default_profile_membership=",".join(str(monitor_id) for monitor_id in default_monitor_ids),
                 monitor_group_boundary="separate-configuration-organization",
                 recording_profile_boundary="future-gated-not-present",
-                visible_profile_editor="not-rendered-slc-037",
+                visible_profile_editor="slc-038-entry-controls",
+                profile_membership_editor="read-only-slc-039-pending",
                 schema_version=int(state.get("overlayProfileSchemaVersion") or 0),
             )
             overlay_profile_changed = True

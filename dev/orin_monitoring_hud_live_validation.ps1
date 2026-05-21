@@ -457,7 +457,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     # evidence stays in manifests and source truth.
     $content = @"
 Nexus Desktop AI - User Test Summary
-Workstream: FAM-006 Monitor Groups Sensor Configuration
+Workstream: FAM-006 Overlay Profile Runtime Foundation
 Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: $currentBranch
 Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
@@ -485,40 +485,44 @@ Step 2 - Open Dashboard And Monitor Groups
 Expected: Enable/Open HUD Dashboard makes the Dashboard visible, and Monitor Groups opens the real Manage Monitors flow.
 USER Result / Notes:
 
-Step 3 - Manage Monitors List And Create
+Step 3 - Overlay Profile Selection And Editing
+Expected: The Dashboard shows a compact Overlay Profile control surface. The active profile name is visible, the selector opens only from its visible toggle/menu/options and supports hover/reset/select, Create Profile adds a selectable profile, editing the profile name enables Save and Discard, Save persists the draft name, Discard restores the saved name, and read-only details show active profile name, monitor count, and display mode. Monitor membership must remain read-only in this seam.
+USER Result / Notes:
+
+Step 4 - Manage Monitors List And Create
 Expected: Manage Monitors appears as a compact Sensor Command Center: the left list is action-light, row/icon selection opens the right detail pane, and Create stays reachable from the command surface.
 USER Result / Notes:
 
-Step 4 - Edit Monitor Settings
+Step 5 - Edit Monitor Settings
 Expected: Selecting another monitor by row/icon either opens its details or shows an unsaved-change guard with Save on the left and Discard visibly illuminated on the far right. If the detail pane was scrolled, the window should snap to the unsaved-change prompt so the prompt is visible. The dirty-guard Cancel button should not appear; Save must preserve the visible draft before continuing, and Discard must drop the draft before continuing.
 USER Result / Notes:
 
-Step 5 - Delete Confirmation And Cancel
+Step 6 - Delete Confirmation And Cancel
 Expected: Delete opens a confirmation prompt. Cancel closes the prompt and preserves the monitor in the list.
 USER Result / Notes:
 
-Step 6 - Delete Confirmation And Remove
+Step 7 - Delete Confirmation And Remove
 Expected: Delete lives in the lower right detail-pane action row. Save Monitor and Discard sit on the far left of that same row when a monitor is selected, Delete Monitor sits on the far right, Save Monitor and Discard are greyed out while clean and illuminated only when changes exist, and the delete confirmation remains near the bottom. Confirm removes only the selected monitor, the delete-confirmation Cancel button is visibly illuminated and clickable, final monitor delete shows a true empty state with Create Monitor as the primary action, and no Save Monitor / Discard or oversized action buttons appear when no monitor exists.
 USER Result / Notes:
 
-Step 7 - Truthful Sensor Availability
+Step 8 - Truthful Sensor Availability
 Expected: Warning Notifications is a monitor/settings checkbox, Provider Readiness is readiness/status/future capability, and neither appears as an assignable sensor/source row.
 USER Result / Notes:
 
-Step 8 - Sensor Library Scale, Source Filter, And Polling Rate
+Step 9 - Sensor Library Scale, Source Filter, And Polling Rate
 Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter dropdown/facet control, clears stale hover highlights when moving between dropdown items or reopening it, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars. Supported source rows and their checkmarks visibly check/uncheck immediately from row click, checkbox click, and keyboard activation without perceptible half-second lag; source settings may update just after the row/checkmark state but must not delay that visible response. Display mode buttons inside the per-sensor settings must switch selection on the first click/key activation instead of only showing a pressed cue. Polling Rate replaces Polling Floor and opens as a compact Nexus-styled bounded dropdown with clear hover/open/selected states; only the visible Polling Rate toggle/menu/options should open or change the dropdown, not blank label-side row space.
 USER Result / Notes:
 
-Step 9 - Dashboard Resize And Move Smoothness
+Step 10 - Dashboard Resize And Move Smoothness
 Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse is still held; when the Dashboard is reduced to its minimum size, the bottom HUD chrome edge remains visible and is not clipped; no resize-proof stripes, overlays, debug markers, or other proof artifacts should appear in the normal user-facing Dashboard UI.
 USER Result / Notes:
 
-Step 10 - Dashboard And Manage Monitors Control Reliability
-Expected: Dashboard Settings, window-level Close, Warning Notifications, Manage Monitors, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, in-window Create Monitor, Save Monitor, footer Discard, delete-confirmation Cancel, dirty-guard Save/Discard, Source Filter, Polling Rate, Display mode buttons, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states. The main Dashboard Monitor Groups card should not show a Create Monitor button.
+Step 11 - Dashboard, Overlay Profile, And Manage Monitors Control Reliability
+Expected: Dashboard Settings, window-level Close, Warning Notifications, Manage Monitors, Overlay Profile selector/create/save/discard/name input, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, in-window Create Monitor, Save Monitor, footer Discard, delete-confirmation Cancel, dirty-guard Save/Discard, Source Filter, Polling Rate, Display mode buttons, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states. The main Dashboard Monitor Groups card should not show a Create Monitor button.
 Regression checkpoints include: Step 7 - #137 Dashboard Rounded Corners On Light Background; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 USER Result / Notes:
 
-Step 11 - Closing Additions
+Step 12 - Closing Additions
 Any remaining readability, placement, motion, clipping, confusion, or polish notes:
 
 Final USER Result

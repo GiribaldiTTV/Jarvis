@@ -339,6 +339,21 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-overlay-acceptance-policy="deferred-non-gating"',
         'data-interface-bundle-approval="not-granted"',
         'data-core-repair-classification="dependency-repair-only"',
+        'data-overlay-profile-state="slc-038-visible-selection-editing"',
+        'data-overlay-profile-editor="slc-038-entry-controls"',
+        'data-overlay-profile-membership="read-only-slc-039-pending"',
+        'id="monitoring-hud-overlay-profile-editor"',
+        'data-overlay-profile-editor-ui="slc-038-entry-controls"',
+        'id="monitoring-hud-overlay-profile-selector"',
+        'data-bounded-dropdown="overlay-profile"',
+        'id="monitoring-hud-overlay-profile-toggle"',
+        'id="monitoring-hud-overlay-profile-menu"',
+        'data-overlay-profile-option="default-overlay-profile"',
+        'id="monitoring-hud-overlay-profile-name-input"',
+        'id="monitoring-hud-overlay-profile-create"',
+        'id="monitoring-hud-overlay-profile-save"',
+        'id="monitoring-hud-overlay-profile-discard"',
+        'read-only in SLC-038',
         'id="monitoring-hud-warning-toggle"',
         'id="monitoring-hud-settings-action"',
         'data-control="open-dashboard-settings"',
@@ -514,6 +529,16 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "monitoringHudSetPollingRateDropdownOpen" in js
         and "monitoringHudSetPollingRateValue" in js,
         "HUD must render Polling Rate as a Nexus-styled bounded dropdown with hover/open/select behavior",
+        failures,
+    )
+    _require(
+        ".monitoring-hud__overlay-profile-panel" in css
+        and ".monitoring-hud__overlay-profile-dropdown" in css
+        and ".monitoring-hud__overlay-profile-actions" in css
+        and "data-overlay-profile-option" in html
+        and "monitoringHudSetOverlayProfileDropdownOpen" in js
+        and "monitoringHudSaveOverlayProfileDraft" in js,
+        "HUD must render SLC-038 Overlay Profile controls as Nexus-styled selector/create/rename/save/discard UI",
         failures,
     )
     _require(
@@ -730,6 +755,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         "emptyStateProductCopy",
         "interactiveControlVisualQaGate",
         "hidden-no-monitor",
+        "03_overlay_profile_selector_create_rename_clean",
+        "03_overlay_profile_dropdown_open_hover_dirty",
+        "SLC-038 Overlay Profile selector/create/rename Save/Discard visual proof prepared",
+        "SLC-038 Overlay Profile visible controls stay bounded and distinct",
         "03_manage_monitors_open_state",
         "04_source_filter_dropdown_open_hover_reset",
         "05_unsaved_guard_close_queued",
@@ -1435,6 +1464,40 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
                 "Legacy card state without overlayProfiles must create a default Overlay Profile",
                 failures,
             )
+            saved_selection = save_monitoring_hud_state(
+                feature_enabled=True,
+                dashboard_visible=True,
+                source="internal_sandbox_slc038_selection",
+                monitor_ids=["cpu", "gpu"],
+                overlay_profiles={
+                    DEFAULT_OVERLAY_PROFILE_ID: default_profile,
+                    "custom-overlay": {
+                        "id": "custom-overlay",
+                        "name": "Focused Overlay Profile",
+                        "monitorIds": ["cpu", "gpu"],
+                        "displayMode": "monitor-cards",
+                    },
+                },
+                active_overlay_profile_id="custom-overlay",
+            )
+            selected_state = load_monitoring_hud_state()
+            _require(saved_selection, "SLC-038 Overlay Profile selection save must succeed", failures)
+            _require(
+                selected_state.get("activeOverlayProfileId") == "custom-overlay",
+                "SLC-038 active Overlay Profile selection must persist across save/load",
+                failures,
+            )
+            selected_profile = (selected_state.get("overlayProfiles") or {}).get("custom-overlay", {})
+            _require(
+                selected_profile.get("name") == "Focused Overlay Profile",
+                "SLC-038 Overlay Profile rename metadata must persist across save/load",
+                failures,
+            )
+            _require(
+                selected_profile.get("monitorIds") == ["cpu", "gpu"],
+                "SLC-038 Overlay Profile membership must remain read-only/preserved during name edits",
+                failures,
+            )
         finally:
             if previous_state_path is None:
                 os.environ.pop(MONITORING_HUD_STATE_ENV, None)
@@ -1459,7 +1522,7 @@ def _write_manifest(status: str, failures: list[str], contracts: dict[str, objec
         "status": status,
         "package": "PKG-006",
         "phase": "Workstream",
-        "seam": "SLC-037 Overlay Profile data/state foundation",
+        "seam": "SLC-038 Overlay Profile visible selection/editing controls",
         "contracts": contracts,
         "failures": failures,
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

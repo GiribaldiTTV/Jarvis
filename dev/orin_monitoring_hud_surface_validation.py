@@ -311,10 +311,24 @@ def validate() -> list[str]:
         'data-overlay-acceptance-policy="deferred-non-gating"',
         'data-interface-bundle-approval="not-granted"',
         'data-core-repair-classification="dependency-repair-only"',
-        'data-overlay-profile-state="slc-037-state-foundation"',
+        'data-overlay-profile-state="slc-038-visible-selection-editing"',
         'data-overlay-profile-schema-version="1"',
         'data-active-overlay-profile-id="default-overlay-profile"',
-        'data-overlay-profile-editor="not-rendered-slc-037"',
+        'data-overlay-profile-editor="slc-038-entry-controls"',
+        'data-overlay-profile-membership="read-only-slc-039-pending"',
+        'id="monitoring-hud-overlay-profile-editor"',
+        'data-overlay-profile-editor-ui="slc-038-entry-controls"',
+        'id="monitoring-hud-overlay-profile-selector"',
+        'data-bounded-dropdown="overlay-profile"',
+        'id="monitoring-hud-overlay-profile-toggle"',
+        'id="monitoring-hud-overlay-profile-menu"',
+        'data-overlay-profile-option="default-overlay-profile"',
+        'id="monitoring-hud-overlay-profile-name-input"',
+        'id="monitoring-hud-overlay-profile-create"',
+        'id="monitoring-hud-overlay-profile-save"',
+        'id="monitoring-hud-overlay-profile-discard"',
+        'data-overlay-profile-actions="create-save-discard"',
+        'read-only in SLC-038',
         'data-recording-profile-state="recording-profile-state-absent-future-gated"',
         'aria-label="Nexus Desktop AI Monitoring HUD product surface"',
         'aria-label="HUD Dashboard control hub cards"',
@@ -526,6 +540,16 @@ def validate() -> list[str]:
         and "monitoringHudSetPollingRateDropdownOpen" in js
         and "monitoringHudSetPollingRateValue" in js,
         "HUD must render Polling Rate as a Nexus-styled bounded dropdown with hover/open/select behavior",
+        failures,
+    )
+    _require(
+        ".monitoring-hud__overlay-profile-panel" in css
+        and ".monitoring-hud__overlay-profile-dropdown" in css
+        and ".monitoring-hud__overlay-profile-actions" in css
+        and "data-overlay-profile-option" in html
+        and "monitoringHudSetOverlayProfileDropdownOpen" in js
+        and "monitoringHudSaveOverlayProfileDraft" in js,
+        "HUD must render SLC-038 Overlay Profile controls as Nexus-styled selector/create/rename/save/discard UI",
         failures,
     )
     _require(
@@ -771,12 +795,12 @@ def validate() -> list[str]:
             f"monitoring HUD HTML must not introduce {forbidden} behavior in WS7",
             failures,
         )
-    for forbidden in ('id="monitoring-hud-overlay-profile-editor"', "data-overlay-profile-editor-ui"):
-        _require(
-            forbidden not in html,
-            f"monitoring HUD HTML must not render Overlay Profile editor UI during SLC-037 ({forbidden})",
-            failures,
-        )
+    for needle in (
+        'id="monitoring-hud-overlay-profile-editor"',
+        'data-overlay-profile-editor-ui="slc-038-entry-controls"',
+        'data-overlay-profile-membership="read-only-slc-039-pending"',
+    ):
+        _require_contains(html, needle, "SLC-038 Overlay Profile visible editor UI", failures)
 
     for needle in (
         'data-package="PKG-006"',
@@ -1110,9 +1134,16 @@ def validate() -> list[str]:
         "monitoringHudDefaultOverlayProfileId",
         "monitoringHudNormalizeOverlayProfileState",
         "monitoringHudActiveOverlayProfile",
+        "monitoringHudRenderOverlayProfileControls",
+        "monitoringHudSetOverlayProfileDropdownOpen",
+        "monitoringHudSelectOverlayProfile",
+        "monitoringHudCreateOverlayProfile",
+        "monitoringHudSaveOverlayProfileDraft",
+        "monitoringHudDiscardOverlayProfileDraft",
         "overlayProfiles",
         "activeOverlayProfileId",
         "window.runMonitoringHudOverlayProfileStateProof = function()",
+        "window.runMonitoringHudOverlayProfileControlsProof = function()",
         "defaultProfileCreatedForLegacyCards",
         "visibleProfileEditorUi",
         "window.runMonitoringHudEmptyCardsPersistenceProof = function()",
@@ -1251,7 +1282,11 @@ def validate() -> list[str]:
         "MONITORING_HUD_MONITOR_MANAGEMENT_READY",
         "MONITORING_HUD_OVERLAY_PROFILE_STATE_READY",
         "self._monitoring_hud_overlay_profile_signature",
-        "visible_profile_editor=\"not-rendered-slc-037\"",
+        "visible_profile_editor=\"slc-038-entry-controls\"",
+        "profile_membership_editor=\"read-only-slc-039-pending\"",
+        "03_overlay_profile_dropdown_open_hover_dirty",
+        "SLC-038 Overlay Profile selector/create/rename Save/Discard visual proof prepared",
+        "SLC-038 Overlay Profile visible controls stay bounded and distinct",
         "MONITORING_HUD_WINDOW_STATUS_READY",
         "MONITORING_HUD_WINDOW_OWNERSHIP_FOCUS_READY",
         "MONITORING_HUD_NATIVE_SYSTEM_MOVE_STARTED",

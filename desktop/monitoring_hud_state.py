@@ -107,7 +107,7 @@ def normalize_monitoring_hud_overlay_profiles(payload=None, monitor_ids=None) ->
             "profileCount": len(profiles),
             "monitorGroupBoundary": "monitor-groups-organize-configuration-only",
             "recordingProfileBoundary": "recording-profile-state-absent-future-gated",
-            "visibleEditorUi": "not-rendered-slc-037",
+            "visibleEditorUi": "slc-038-entry-controls",
         },
     }
 

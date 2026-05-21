@@ -20,7 +20,7 @@ The branch exists to admit the Overlay Profile runtime foundation as the next FA
 ## Current Phase
 
 - Phase: `Workstream`
-- Stage Detail: `SLC-038 Workstream Entry analysis pending after SLC-037 H1 Green`
+- Stage Detail: `SLC-038 visible Overlay Profile selection/editing Workstream implementation complete; H1 next`
 
 ## Phase Status
 
@@ -28,7 +28,7 @@ Branch Authority Marker: `Active Branch`
 Active Branch: `feature/fam-006-overlay-profile-runtime-foundation`
 Stage 1 Basis: `Complete - FAM-006 worktree restored, current-main aligned at b67e59df0481091bfbeb739c4b5e1954552bb421, source truth verified No Active Branch / USER decision gate, and FAM-006 Overlay Profile Runtime Foundation recommended as the USER-gated successor candidate`
 Stage 2 USER Approval: `Granted - USER approved branch/worktree rebinding, branch authority record, branch plan, compact source-truth pointers, package/slice admission, validation planning, and v1.7.10 closure-drift carry-forward for this setup only`
-Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation only - USER approved bounded Workstream implementation; SLC-038 visible profile controls, SLC-039 mapping, SLC-040 integration, SLC-041 live proof, PR creation, merge, release, issue mutation, and branch cleanup remain pending USER decisions`
+Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation and bounded SLC-038 visible profile controls only - USER approved bounded Workstream implementation; SLC-039 mapping, SLC-040 integration, SLC-041 live proof beyond this seam, PR creation, merge, release, issue mutation, and branch cleanup remain pending USER decisions`
 Current Branch: `feature/fam-006-overlay-profile-runtime-foundation`
 Current Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `b67e59df0481091bfbeb739c4b5e1954552bb421`
@@ -39,8 +39,8 @@ Historical FAM-006 Monitor Groups Branch: `feature/fam-006-monitor-groups-sensor
 Historical FAM-006 Preservation: `Preserved as PR #180 merged evidence; stale remote branch hygiene remains a separate USER-gated decision`
 v1.7.10 Closure-Drift Setup: `Carried into this Branch Readiness Stage 2 setup as release-dependent source-truth context; runtime implementation remains blocked until setup validation is green and USER approves Workstream implementation`
 Branch Runtime Engineering Plan: `Accepted - detailed setup/runtime planning is present at Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md`
-Engineering Plan Status: `SLC-037 implemented and H1 Green - Overlay Profile state/schema foundation, default active profile, monitor membership normalization, persistence, renderer bridge proof, and concept-boundary validation are present; SLC-038 Workstream Entry analysis is next`
-PR Fold-Down Packet: `Pending SLC-038 through SLC-041 implementation, Live Validation LV1 when user-facing controls exist, PR Readiness, PR creation, merge, and release-scope translation`
+Engineering Plan Status: `SLC-038 implemented - Overlay Profile state/schema foundation plus compact Dashboard selector/create/rename/save/discard controls, read-only profile details, read-only membership bridge, persistence proof, and concept-boundary validation are present; SLC-038 H1 is next`
+PR Fold-Down Packet: `Pending SLC-038 H1, SLC-039 through SLC-041 seams, Live Validation LV1 after H1 Green, PR Readiness, PR creation, merge, and release-scope translation`
 
 ## Branch Class
 
@@ -58,7 +58,7 @@ Thread Assignment Status: `Current owner claimed for Branch Readiness Stage 2 se
 
 Worktree Ownership Ledger: `C:\Nexus Worktrees\FAM-006 is bound to feature/fam-006-overlay-profile-runtime-foundation for this FAM-006 successor setup; C:\Nexus Worktrees\FAM-007, C:\Nexus Worktrees\Governance, C:\Nexus Worktrees\Compact-AI-Status-Card, and C:\Nexus Desktop AI remain sibling or main worktrees outside this branch`
 
-Intended Write Set: `nexus_visual/monitoring_hud.js, nexus_visual/monitoring_hud.html, desktop/monitoring_hud_state.py, desktop/desktop_renderer.py, dev/orin_monitoring_hud_surface_validation.py, dev/orin_monitoring_hud_internal_sandbox_validation.py, Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md, Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md, Docs/feature_backlog.md, and Docs/prebeta_roadmap.md for SLC-037 state-foundation implementation`
+Intended Write Set: `nexus_visual/monitoring_hud.js, nexus_visual/monitoring_hud.html, nexus_visual/monitoring_hud.css, desktop/monitoring_hud_state.py, desktop/desktop_renderer.py, dev/orin_monitoring_hud_surface_validation.py, dev/orin_monitoring_hud_internal_sandbox_validation.py, dev/orin_monitoring_hud_live_validation.ps1, Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md, Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md, Docs/feature_backlog.md, and Docs/prebeta_roadmap.md for SLC-037 state-foundation and SLC-038 visible selection/editing implementation`
 
 Same Worktree / Same Branch Collision Check: `No sibling worktree is checked out to feature/fam-006-overlay-profile-runtime-foundation; this thread is the current owner of the dirty setup files in C:\Nexus Worktrees\FAM-006`
 
@@ -106,7 +106,7 @@ Backlog-Split Reason: `None`
 
 Branch Completion Goal: `Complete the Overlay Profile runtime foundation as one coherent FAM-006 successor branch: overlay profile state, selection/editing entry points, monitor-to-overlay-profile mapping, Dashboard / Manage Monitors integration, focused validators, live proof, H1, LV1, PR Readiness, PR creation, and merge when separately approved.`
 
-Known Future-Dependent Blockers: `Runtime implementation, Workstream Entry, H1, LV1, PR creation, merge, release execution, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, and AI Product work require later USER decisions.`
+Known Future-Dependent Blockers: `SLC-038 H1, LV1, SLC-039 mapping, SLC-040 integration, SLC-041 live proof beyond this seam, PR creation, merge, release execution, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, and AI Product work require later USER decisions.`
 
 Branch Closure Rule: `This branch may close only after the admitted Overlay Profile foundation seams are implemented, hardened, live-validated or waived with reason, PR-ready, PR-created, and merged under separate USER approvals; otherwise it remains active or stops at the relevant blocker.`
 
@@ -114,15 +114,15 @@ Branch Closure Rule: `This branch may close only after the admitted Overlay Prof
 
 Backlog Completion State: `In Progress`
 
-Remaining Implementable Work: `SLC-038 Workstream Entry analysis and later USER-approved implementation seams remain; SLC-037 implementation and H1 are green.`
+Remaining Implementable Work: `SLC-038 H1 and later USER-approved implementation seams remain; SLC-037 implementation/H1 and SLC-038 Workstream implementation are green after validation.`
 
-Future-Dependent Blockers: `SLC-038 profile selection/editing entry points, SLC-039 monitor-to-overlay-profile mapping, SLC-040 Dashboard / Manage Monitors integration, SLC-041 validation/live proof, PR Readiness, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
+Future-Dependent Blockers: `SLC-038 H1, SLC-039 monitor-to-overlay-profile mapping, SLC-040 Dashboard / Manage Monitors integration, SLC-041 validation/live proof beyond this seam, PR Readiness, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
 
 Completion Status: `Red`
 
 ## Seam Continuation Decision
 
-Seam Status: `Green`
+Seam Status: `In Progress`
 
 Slice Status: `In Progress`
 
@@ -132,15 +132,15 @@ Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Closed by named blocker - SLC-038 Workstream Entry analysis requires USER decision before continuation; final response is allowed because continuation is blocked.`
+Continuation Execution Latch: `Closed by named blocker - SLC-038 H1 requires USER decision before continuation; final response is allowed because continuation is blocked.`
 
 Stop Basis: `Named Blocker`
 
-Next Active Seam: `SLC-038 Workstream Entry analysis for visible Overlay Profile selection/editing controls`
+Next Active Seam: `SLC-039 monitor-to-overlay-profile mapping - blocked pending SLC-038 H1 and USER approval`
 
-Stop Condition: `SLC-037 implementation and H1 are bounded, validator-backed, source-truth updated, and green; bounded Workstream continuation is stopped until USER admits SLC-038 Workstream Entry analysis.`
+Stop Condition: `SLC-037 implementation/H1 and SLC-038 Workstream implementation are bounded, validator-backed, source-truth updated, and green; bounded Workstream continuation is stopped until USER admits SLC-038 H1.`
 
-Continuation Action: `USER must approve SLC-038 Workstream Entry analysis before bounded Workstream continuation may resume; do not implement SLC-038 visible profile controls without separate USER approval.`
+Continuation Action: `USER must approve SLC-038 H1 before bounded Workstream continuation may resume; do not implement SLC-039 mapping, SLC-040 integration, or broader live proof without separate USER approval.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -152,7 +152,7 @@ Bounded Seam Default: `One active seam at a time; bounded is not one-seam Workst
 
 ## Bounded State
 
-Bounded State: `Active - Workstream implementation / feature/fam-006-overlay-profile-runtime-foundation / C:\Nexus Worktrees\FAM-006 / SLC-037 Overlay Profile data/state foundation only / no visible profile editor UI or later SLC runtime expansion until USER approval`
+Bounded State: `Active - Workstream implementation / feature/fam-006-overlay-profile-runtime-foundation / C:\Nexus Worktrees\FAM-006 / SLC-038 visible Overlay Profile selection/editing controls only / read-only membership bridge / no SLC-039 mapping or later SLC runtime expansion until USER approval`
 
 Expected Worktree Root: `C:\Nexus Worktrees\FAM-006`
 
@@ -218,7 +218,7 @@ Non-Includes: `Recording Profile runtime, tray recording controls, local recordi
 
 ## Active Seam
 
-Active seam: `SLC-038 Workstream Entry analysis pending - SLC-037 Overlay Profile data/state foundation implementation and H1 are green.`
+Active seam: `SLC-038 Workstream implementation complete - compact Dashboard Overlay Profile selector/create/rename/save/discard controls are present; H1 is next.`
 
 ## Workstream Implementation - SLC-037 Overlay Profile Data/State Foundation
 
@@ -245,6 +245,26 @@ Hardening H1 Result: `Green - SLC-037 schema/default/migration/persistence/rende
 H1 Evidence Basis: `Rerun validation passed HUD surface validation, HUD internal sandbox validation with manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260520_172108_manifest.json, branch governance validation, worktree-confinement gate, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, compileall, bundled Node syntax check for nexus_visual/monitoring_hud.js, and runtime-fam006 validation-suite recommendation review.`
 
 H1 Scope Confirmation: `No visible Overlay Profile editor UI was introduced; SLC-038 visible profile selection/editing, SLC-039 mapping, SLC-040 integration, SLC-041 live proof, Recording Profile runtime, tray recording controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, artifact handling, and branch cleanup remain pending USER decisions.`
+
+## Workstream Implementation - SLC-038 Overlay Profile Selection/Editing Controls
+
+Implementation Status: `Workstream Green - bounded SLC-038 visible controls are present in Dashboard HUD runtime, state bridge, proof validators, and source truth; H1 is next.`
+
+Overlay Profile Selector Result: `Dashboard HUD now renders a compact Nexus-styled active Overlay Profile selector with bounded option menu, open/hover/reset/select behavior, activeOverlayProfileId updates, and persistence through the existing HUD state architecture.`
+
+Create Profile Shell Result: `Create Profile adds a stable overlay-profile id, applies a valid default name, clones current read-only membership metadata from the active profile, makes the new profile active/selectable, and persists through save/load state proof.`
+
+Rename/Edit-Name Result: `The profile-name shell supports draft edits for the active profile only; Save normalizes and persists the name, Discard restores the saved name, and empty/duplicate names normalize through the smallest legal current-state rule.`
+
+Save / Discard Result: `Save and Discard use the current FAM-006 control affordance pattern, stay disabled when no profile-name draft is dirty, and illuminate only when a saveable/discardable profile-name change exists.`
+
+Read-Only Details Result: `The SLC-038 panel shows active profile name, read-only monitor count, and display mode where current state supports truthful values. Monitor membership remains read-only and is marked read-only-slc-039-pending.`
+
+State Bridge Result: `Renderer/state proof now reports visible_profile_editor=slc-038-entry-controls and profile_membership_editor=read-only-slc-039-pending while preserving MONITORING_HUD_OVERLAY_PROFILE_STATE_READY, active profile persistence, and SLC-039 mapping as future-gated.`
+
+Concept Boundary Result: `Overlay Profile selection/editing remains distinct from Monitor Group organization and Recording Profile runtime state; no runtime recording, tray recording controls, export/share behavior, provider expansion, broad theme/skin work, FAM-007 work, or AI Product work is introduced.`
+
+Validation Trace: `dev/orin_monitoring_hud_surface_validation.py and dev/orin_monitoring_hud_internal_sandbox_validation.py now check SLC-038 selector/create/rename/save/discard/read-only membership proof, profile selection/rename persistence, renderer bridge proof, and concept-boundary preservation.`
 
 ## Admitted Implementation Slice
 
@@ -358,21 +378,21 @@ Planning Completion Waiver: `Not required - Stage 2 records concrete Product Def
 
 ## Runtime Branch Engineering Contract
 
-Engineering Contract Status: `Accepted for SLC-037 Workstream implementation`
+Engineering Contract Status: `Accepted for SLC-037 implementation/H1 and bounded SLC-038 Workstream implementation`
 
-USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup and Workstream Entry; USER approved bounded SLC-037 implementation`
+USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup, SLC-037 Workstream/H1, SLC-038 Workstream Entry, and bounded SLC-038 implementation`
 
-Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation only; SLC-038 visible controls and later seams remain pending USER decisions`
+Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation and bounded SLC-038 visible selection/editing controls only; SLC-039 mapping and later seams remain pending USER decisions`
 
 Branch Purpose: `Prepare the FAM-006 Overlay Profile Runtime Foundation successor branch with source truth, branch plan, package/slice admission, runtime boundaries, validation planning, and future focused proof requirements before any runtime implementation starts.`
 
 Branch Runtime Engineering Plan: `Accepted - Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md carries the detailed Branch Runtime Engineering Plan for this branch`
 
-Current Runtime Baseline: `FAM-006 Dashboard and Monitor Groups / Sensor Command Center are released historical evidence. Monitor Groups organize configured monitors; Overlay Profile and Recording Profile concepts are source-truth-planned but not runtime-implemented. Overlay/display acceptance remains deferred/non-gating.`
+Current Runtime Baseline: `FAM-006 Dashboard and Monitor Groups / Sensor Command Center are released historical evidence. Monitor Groups organize configured monitors; Overlay Profile now has SLC-037 data/state foundation plus SLC-038 Dashboard visible selection/editing entry controls; Recording Profile runtime and Overlay/display acceptance remain deferred/non-gating.`
 
-Planned Runtime Delta: `Future Workstream implementation should add the Overlay Profile state foundation, selection/editing entry points, monitor-to-profile mapping, and bounded Dashboard / Manage Monitors integration without adding recording, export/share, provider expansion, or broad theming behavior.`
+Planned Runtime Delta: `SLC-037 added the Overlay Profile state foundation. SLC-038 adds compact Dashboard selector/create/rename/save/discard entry controls. Future Workstream implementation should add monitor-to-profile mapping and bounded Dashboard / Manage Monitors integration without adding recording, export/share, provider expansion, or broad theming behavior.`
 
-User-Facing Runtime Delta: `Future users should be able to understand and manage which configured monitors belong to an Overlay Profile and how that profile is selected for overlay display. This branch setup does not yet change visible runtime behavior.`
+User-Facing Runtime Delta: `Users can now select the active Overlay Profile, create a profile, rename the active profile, save/discard profile-name drafts, and see read-only profile details from a compact Dashboard HUD control surface. Membership editing remains pending SLC-039.`
 
 State / Config / Schema Delta: `Plan overlayProfileId, overlay profile name, selected monitor references, layout/display mode metadata where admitted, active overlay profile selection, dirty/clean editor state, and persistence boundaries. Recording profile state, recording output state, export/share state, provider state, and theme/skin state remain excluded.`
 
@@ -408,7 +428,7 @@ Future Runtime Validation: `HUD surface validation`; `HUD internal sandbox valid
 
 ## Blockers
 
-Active Blockers: `SLC-038 Workstream Entry analysis pending USER decision after SLC-037 H1 Green`
+Active Blockers: `SLC-038 H1 pending USER decision after bounded Workstream implementation`
 
 ## Entry Basis
 
@@ -438,28 +458,28 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 
 Next Legal Phase: `Workstream`
 
-Next Legal Phase Detail: `SLC-038 Workstream Entry analysis for visible Overlay Profile selection/editing controls`
+Next Legal Phase Detail: `SLC-038 Hardening H1 for visible Overlay Profile selection/editing controls`
 
 ## Next Legal Phase Digest
 
 Current Phase: `Workstream`
 
-Stage Detail: `SLC-037 Overlay Profile data/state foundation H1 Green`
+Stage Detail: `SLC-038 visible Overlay Profile selection/editing Workstream implementation complete`
 
 Next Legal Phase: `Workstream`
 
-Next Legal Phase Detail: `SLC-038 Workstream Entry analysis for visible Overlay Profile selection/editing controls`
+Next Legal Phase Detail: `SLC-038 Hardening H1 for visible Overlay Profile selection/editing controls`
 
-Why This Phase Is Next: `SLC-037 is implemented and H1 Green as a bounded data/state foundation with no visible Overlay Profile editor UI. SLC-038 Workstream Entry must inspect the branch plan, runtime surfaces, validators, user-facing proof needs, and approval boundaries before any visible profile selection/editing implementation is admitted.`
+Why This Phase Is Next: `SLC-038 visible Overlay Profile selection/editing controls are implemented as a bounded Dashboard HUD seam; H1 must pressure-test selector/create/rename/save/discard behavior, read-only membership posture, persistence, concept boundaries, and existing FAM-006 preservation before later seams can proceed.`
 
-Approval Required: `USER approval for SLC-038 Workstream Entry analysis and later separate approval for SLC-038 implementation or additional runtime seams`
+Approval Required: `USER approval for SLC-038 Hardening H1 and later separate approval for SLC-039 or additional runtime seams`
 
-Exact USER Approval Text: `Approve SLC-038 Workstream Entry analysis for visible Overlay Profile selection/editing controls on feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006. Codex may inspect source truth, the branch plan, SLC-038 intent, FAM-006 runtime surfaces, validators, helpers, user-facing proof needs, and sibling-worktree overlap; return the bounded SLC-038 implementation decision packet and exact implementation approval text. Do not implement SLC-038 controls, SLC-039 mapping, SLC-040 integration, PRs, merge, release, issue mutation, cleanup, or sibling-worktree changes without separate approval.`
+Exact USER Approval Text: `Approve SLC-038 Hardening H1 for visible Overlay Profile selection/editing controls on feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006. Codex may verify repo/worktree identity, confirm the SLC-038 implementation commit, pressure-test Overlay Profile selector/create/rename/save/discard/read-only details, persistence, renderer/state bridge, concept boundaries, existing FAM-006 preservation, source-truth alignment, validators, and focused proof; apply bounded H1 repairs inside the approved SLC-038 scope if required; validate, commit, and push if repairs are green. Do not implement SLC-039 mapping, SLC-040 integration, PRs, merge, release, issue mutation, cleanup, or sibling-worktree changes without separate approval.`
 
-Allowed Scope: `Analysis-only SLC-038 Workstream Entry planning after SLC-037 H1 Green`
+Allowed Scope: `SLC-038 Hardening H1 after bounded visible control implementation`
 
 Explicit Exclusions: `Runtime implementation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 mutation, Governance mutation, Compact-AI mutation, stale branch cleanup, PR creation, merge, release, issues, artifacts, raw evidence handling`
 
-Validation Required: `Report-only identity checks and source-truth inspection during SLC-038 Workstream Entry; implementation validation only after later USER approval`
+Validation Required: `H1 identity checks, source-truth inspection, HUD surface validation, HUD internal sandbox validation, branch governance validation, planning fixture validation, release body validation, source-owner marker validation, compileall, JS syntax/runtime proof where available, and focused proof review`
 
 Stop Conditions: `Stop if worktree/branch identity mismatches, origin/main advances and needs rebaseline, implementation would require excluded scope, source truth contradicts the branch plan, or another USER decision is required`
