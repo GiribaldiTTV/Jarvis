@@ -12,11 +12,11 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
 
-Current Phase: `PR Readiness Stage 1 Ready For Stage 2 - PR creation pending USER approval`
+Current Phase: `Historical merged-unreleased after PR #190 - Release Readiness pending`
 
 Branch Runtime Engineering Plan: Accepted - this plan is present for the FAM-007 setup contract readiness carrier.
 
-Engineering Plan Status: Accepted - implemented through Workstream Green, inspected through Hardening H1 Green, validated through Live Validation LV1 Green, and PR Readiness Stage 1 fold-down is Green; PR Readiness Stage 2 / PR creation is pending USER approval.
+Engineering Plan Status: Historical - implemented through Workstream Green, inspected through Hardening H1 Green, validated through Live Validation LV1 Green, folded down in PR Readiness Stage 1, and merged in PR #190; release/public-scope translation remains pending Release Readiness.
 
 Current Runtime Baseline: PR #179 released FAM-007 setup/consent-flow readiness with provider setup future-gated, consent collection pending, provider-visible data `none`, `sentToProvider=false`, `canAcceptPrompts=false`, prompt/model execution disabled, downloads blocked, network egress blocked, memory/indexing disabled, and voice/Core sync gated.
 
@@ -48,11 +48,11 @@ Approval-Boundary Audit: Stage 2 and the planned Workstream may define contracts
 
 FAM / Shared-Surface Overlap Forecast: FAM-006 dirty shared docs are later PR/merge reconciliation risk only; Governance is standing intake context only; Compact-AI has protected unique commits and must not be mutated by this branch; FAM-007 owns only this localized branch/worktree path.
 
-Open Questions: USER must decide whether to approve PR Readiness Stage 2 / PR creation; future questions include when real provider setup, consent collection, provider SDK/model work, or functional-AI proof should be admitted.
+Open Questions: USER must decide whether to approve Release Readiness Stage 2 / release execution; future questions include when real provider setup, consent collection, provider SDK/model work, or functional-AI proof should be admitted.
 
-USER Planning Decisions: USER approved Branch Readiness Stage 2, Workstream Entry, bounded Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 source-truth repair for this branch; USER decisions remain pending for PR Readiness Stage 2 / PR creation, merge, Release Readiness, release execution, cleanup, provider setup, consent collection, SDK/model execution, and future functional-AI work.
+USER Planning Decisions: USER approved Branch Readiness Stage 2, Workstream Entry, bounded Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1 source-truth repair, PR Readiness Stage 2 / PR creation, and PR #190 merge for this branch; USER decisions remain pending for Release Readiness Stage 2, release execution, cleanup, provider setup, consent collection, SDK/model execution, and future functional-AI work.
 
-Plan Revision History: v4 - PR Readiness Stage 1 recorded selected-next defer/waiver truth, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, and Stage 2 / PR creation as the next USER-gated phase; v3 - Live Validation LV1 recorded disabled/status-only classification, static validator/source-truth proof, User Test Summary waiver, desktop readiness display suppression continuity, and PR Readiness Stage 1 as the next legal phase; v2 - Hardening H1 folded down H1 Green posture, validator proof, desktop readiness display suppression continuity, approval-boundary integrity, and LV1-next handoff after Workstream completion; v1 created during Branch Readiness Stage 2 from `origin/main` at `b67e59df0481091bfbeb739c4b5e1954552bb421`, carrying `v1.7.10-prebeta` canon closure and PR #179 FAM-007 released evidence.
+Plan Revision History: v5 - PR #190 merged and this plan is historical merged-unreleased evidence pending Release Readiness; v4 - PR Readiness Stage 1 recorded selected-next defer/waiver truth, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, and Stage 2 / PR creation as the next USER-gated phase; v3 - Live Validation LV1 recorded disabled/status-only classification, static validator/source-truth proof, User Test Summary waiver, desktop readiness display suppression continuity, and PR Readiness Stage 1 as the next legal phase; v2 - Hardening H1 folded down H1 Green posture, validator proof, desktop readiness display suppression continuity, approval-boundary integrity, and LV1-next handoff after Workstream completion; v1 created during Branch Readiness Stage 2 from `origin/main` at `b67e59df0481091bfbeb739c4b5e1954552bb421`, carrying `v1.7.10-prebeta` canon closure and PR #179 FAM-007 released evidence.
 
 Plan-To-Implementation Traceability Table: planned setup contract state maps to provider-state implementation and fixtures; planned profile/config requirements map to metadata/config envelope proof; planned consent prerequisites map to setup/execution consent posture; planned UI proof maps to Core/Desktop/ORIN copy if touched; planned continuation criteria map to H1/LV1/PR Readiness proof.
 
@@ -64,15 +64,15 @@ PR Readiness Fold-Down / Retention Checklist: Complete - PR Readiness Stage 1 fo
 
 Release Readiness Public-Scope Translation Checklist: release readiness must describe this branch as setup contract readiness/status-only scaffolding; it must not claim provider setup, consent collection, SDK/model execution, functional AI, or `v1.8.0-prebeta` execution.
 
-USER Planning Review: Complete through Live Validation LV1 and PR Readiness Stage 1 source-truth repair; PR Readiness Stage 2 / PR creation is the next USER decision.
+USER Planning Review: Complete through Live Validation LV1, PR Readiness Stage 1 source-truth repair, PR Readiness Stage 2, and PR #190 merge; Release Readiness is the next USER decision.
 
-PR Fold-Down Packet: Ready for Stage 2 - PR Readiness Stage 1 folds down Workstream Green, H1 Green, LV1 Green, setup contract readiness proof, validation, approval-boundary, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, release-window, and no-runtime-change evidence; PR creation remains pending USER approval.
+PR Fold-Down Packet: Complete - PR #190 merged this plan as historical branch evidence; Release Readiness should translate setup contract readiness as status-only scaffolding and must not claim provider setup, consent collection, SDK/model execution, functional AI, or `v1.8.0-prebeta` execution.
 
 Runtime Implementation Approval: Granted for the bounded setup contract readiness Workstream only; provider setup, consent collection, SDK/model execution, and provider/runtime execution remain pending USER decisions.
 
 ## Plan Status
 
-Branch Readiness Stage 2 admitted this plan for `feature/fam-007-local-ai-provider-setup-contract-readiness`; the bounded Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 source-truth repair are complete and the branch is ready for PR Readiness Stage 2 / PR creation after USER approval.
+Branch Readiness Stage 2 admitted this plan for `feature/fam-007-local-ai-provider-setup-contract-readiness`; bounded Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1, PR Readiness Stage 2, and PR #190 merge are complete. The plan is historical merged-unreleased evidence pending Release Readiness.
 
 ## Branch Identity
 
@@ -84,11 +84,11 @@ Branch Readiness Stage 2 admitted this plan for `feature/fam-007-local-ai-provid
 
 ## Product Definition Plan Linkage
 
-This branch advances FAM-007 by defining provider setup contract readiness. It does not implement provider setup, consent collection, provider SDK integration, prompt/model execution, downloads, external calls, memory, voice/Core sync, shortcut/installer work, release work, PR creation, or merge.
+This branch advances FAM-007 by defining provider setup contract readiness. It does not implement provider setup, consent collection, provider SDK integration, prompt/model execution, downloads, external calls, memory, voice/Core sync, shortcut/installer work, release execution, or successor branch creation.
 
 ## Runtime Branch Engineering Contract
 
-- USER Engineering Planning Review: complete through Workstream Entry, bounded implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 source-truth repair; PR Readiness Stage 2 / PR creation approval pending.
+- USER Engineering Planning Review: complete through Workstream Entry, bounded implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1 source-truth repair, PR Readiness Stage 2, and PR #190 merge; Release Readiness approval pending.
 - Runtime Implementation Approval: granted for bounded setup contract readiness implementation only.
 - Current Runtime Baseline: released FAM-007 setup/consent-flow readiness from PR #179; provider setup future-gated; consent collection pending; provider-visible data `none`; `sentToProvider=false`; `canAcceptPrompts=false`; provider/model execution disabled.
 - Planned Runtime Delta: setup contract state/schema, setup handoff criteria, provider profile/config requirements, consent prerequisites, approval gate posture, validator fixtures, and status/proof expectations.
@@ -242,7 +242,7 @@ This Workstream adds setup contract readiness fixtures in `dev/orin_ai_provider_
 
 ## Next Legal Phase
 
-PR Readiness Stage 2 / PR creation after USER approval.
+Release Readiness Stage 2 preparation after PR #190 merge; release execution remains separately USER-gated.
 
 ## Exact USER Decision Needed
 
