@@ -12,11 +12,11 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
 
-Current Phase: `Live Validation LV1 complete - FAM-007 setup implementation foundation`
+Current Phase: `PR Readiness Stage 1 complete - FAM-007 setup implementation foundation`
 
 Branch Runtime Engineering Plan: Accepted - this plan is present for the FAM-007 setup implementation foundation carrier.
 
-Engineering Plan Status: Accepted - implemented for the bounded Workstream, inspected through H1 Green, and validated through LV1 Green; PR Readiness Stage 1 remains pending.
+Engineering Plan Status: Accepted - implemented for the bounded Workstream, inspected through H1 Green, validated through LV1 Green, and PR Readiness Stage 1 source-truth repair is complete; PR Readiness Stage 2 / PR creation remains pending USER approval.
 
 Current Runtime Baseline: Released FAM-007 state already includes provider readiness, activation, execution-readiness, provider path/consent readiness, setup/consent-flow readiness, and setup contract readiness, with provider-visible data none, sentToProvider false, canAcceptPrompts false, prompt/model execution disabled, downloads and network blocked, memory disabled, voice/Core sync gated, desktop readiness display suppression preserved, and validation helper coverage in `dev/orin_ai_provider_state_validation.py`.
 
@@ -52,7 +52,7 @@ FAM / Shared-Surface Overlap Forecast: FAM-006 is a later PR/merge reconciliatio
 
 Open Questions: USER must later decide when PR Readiness Stage 1, PR creation, real provider setup beyond the local foundation, consent collection, SDK/model execution, and functional-AI proof are admissible, and when that proof is strong enough for a v1.8.0-prebeta release decision.
 
-USER Planning Decisions: USER approved Branch Readiness Stage 1, selected the detailed setup implementation foundation successor, approved Stage 2 setup in the FAM-007 worktree, approved bounded Workstream implementation, approved Hardening H1, and approved Live Validation LV1. PR Readiness Stage 1, PR creation, merge, release, provider SDK/model work, consent collection, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, and v1.8.0 execution remain pending.
+USER Planning Decisions: USER approved Branch Readiness Stage 1, selected the detailed setup implementation foundation successor, approved Stage 2 setup in the FAM-007 worktree, approved bounded Workstream implementation, approved Hardening H1, approved Live Validation LV1, and approved PR Readiness Stage 1 selected-next defer/pre-PR live-state source-truth repair. PR Readiness Stage 2 / PR creation, merge, release, provider SDK/model work, consent collection, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, and v1.8.0 execution remain pending.
 
 Plan Revision History: v1 created during Branch Readiness Stage 2 from `origin/main` at `2158ff66649f9d2e045fe75c4813c19e88d06762`, after `v1.7.11-prebeta` publication and release-canon closure.
 
@@ -68,13 +68,13 @@ Release Readiness Public-Scope Translation Checklist: Release Readiness must des
 
 USER Planning Review: Accepted for Branch Readiness Stage 2 setup, Workstream Entry, bounded Workstream implementation, Hardening H1, and Live Validation LV1.
 
-PR Fold-Down Packet: Pending until PR Readiness decides retention, compaction, or promotion after Workstream, H1, and LV1 are green.
+PR Fold-Down Packet: Stage 1 complete - selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, branch-authority historical projection, and Stage 2 approval boundary are recorded in the branch record. Live PR metadata belongs to PR Readiness Stage 2 after USER approves PR creation.
 
 Runtime Implementation Approval: USER-approved bounded Workstream implementation is complete; provider setup beyond the local foundation remains pending USER approval.
 
 ## Plan Status
 
-Workstream implementation, Hardening H1, and Live Validation LV1 are green for `feature/fam-007-local-ai-provider-setup-implementation-foundation`. The plan is current for PR Readiness Stage 1 review; provider setup beyond the local foundation begins only after later USER approval.
+Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 source-truth repair are green for `feature/fam-007-local-ai-provider-setup-implementation-foundation`. The plan is current for PR Readiness Stage 2 review; provider setup beyond the local foundation begins only after later USER approval.
 
 ## Workstream Green Fold-Down
 
@@ -110,7 +110,9 @@ User Test Summary Waiver Reason: `Disabled/status-only local setup implementatio
 
 LV1 Validation Posture: `Green after required diff checks, branch governance validation, release-readiness health gate, governance efficiency validation, release body validation, AI provider validation, source-owner marker validation, branch-readiness planning fixture validation, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, and compileall.`
 
-PR Readiness Stage 1 Next: `Pending USER approval - fold down Workstream Green, H1 Green, LV1 Green, UTS waiver, desktop readiness display suppression continuity, selected-next/defer truth, release-window posture, approval boundaries, and validation proof before PR creation is requested.`
+PR Readiness Stage 1 Result: `Complete - folded down Workstream Green, H1 Green, LV1 Green, UTS waiver, desktop readiness display suppression continuity, selected-next defer/waiver truth, pre-PR live-state, post-merge No Active Branch projection, release-window posture, approval boundaries, Release Readiness Health Pass, and validation proof before PR creation is requested.`
+
+PR Readiness Stage 2 Next: `Pending USER approval - create the PR, validate live PR state, watcher provisioning, mergeability, checks, review state, and PR body/operator copy before any merge decision is requested.`
 
 ## Branch Identity
 
