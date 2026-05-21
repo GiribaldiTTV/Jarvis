@@ -346,9 +346,9 @@ def validate() -> list[str]:
         'data-overlay-profile-editor="slc-039-membership-editor"',
         'data-overlay-profile-membership="editable-slc-039-mapping"',
         'data-overlay-profile-integration="slc-040-readonly-manage-context"',
-        'data-overlay-profile-mutation="blocked-readonly-manage-context"',
+        'data-overlay-profile-mutation="assign-unassign-status-window"',
         'data-overlay-profile-context-layout="single-row-readonly"',
-        'data-overlay-profile-route="removed-centralized-settings"',
+        'data-overlay-profile-route="assigned-overlay-status-window"',
         'id="monitoring-hud-monitor-overlay-profile-context"',
         'id="monitoring-hud-overlay-profile-editor"',
         'data-overlay-profile-editor-ui="slc-039-membership-editor"',
@@ -362,13 +362,18 @@ def validate() -> list[str]:
         'data-overlay-profile-actions="settings-window-entry"',
         'id="monitoring-hud-overlay-profile-window"',
         'data-child-window="overlay-profile-settings"',
-        'data-overlay-profile-window="selector-first-create-first-membership-settings-shell"',
-        'data-overlay-profile-workflow="selector-first-create-first-returned-uts-repair"',
+        'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"',
+        'data-overlay-profile-workflow="selector-first-create-edit-delete-followup-uts-repair"',
         'data-overlay-profile-volume-policy="max-five-visible-monitors-inner-scroll"',
+        'data-overlay-profile-selector-policy="max-five-visible-profile-options-ndai-scrollbar"',
         'data-overlay-profile-outer-scroll-policy="no-normal-window-scrollbar"',
+        'id="monitoring-hud-overlay-profile-window-selector"',
+        'data-visible-option-target="max-five"',
+        'id="monitoring-hud-overlay-profile-edit-selected"',
         'id="monitoring-hud-overlay-profile-name-input"',
         'id="monitoring-hud-overlay-profile-monitor-search"',
         'id="monitoring-hud-overlay-profile-monitor-filter"',
+        'data-bounded-dropdown="overlay-profile-monitor-filter"',
         'id="monitoring-hud-overlay-profile-monitor-results"',
         'id="monitoring-hud-overlay-profile-membership-list"',
         'data-overlay-profile-membership-list="editable-monitor-membership"',
@@ -377,9 +382,13 @@ def validate() -> list[str]:
         'id="monitoring-hud-overlay-profile-create"',
         'id="monitoring-hud-overlay-profile-save"',
         'id="monitoring-hud-overlay-profile-discard"',
-        'data-overlay-profile-actions="create-save-left-discard-right"',
+        'id="monitoring-hud-overlay-profile-delete"',
+        'data-overlay-profile-actions="save-left-discard-delete-right"',
+        'data-child-window="monitor-overlay-assignment"',
+        'data-overlay-assignment-window="monitor-group-overlay-status-assignment"',
+        'data-child-window="sensor-source-settings"',
+        'data-source-settings-window="source-list-sensor-settings"',
         "Select an existing profile or create a new one first",
-        "Enabled for Overlay",
         'data-recording-profile-state="recording-profile-state-absent-future-gated"',
         'aria-label="Nexus Desktop AI Monitoring HUD product surface"',
         'aria-label="HUD Dashboard control hub cards"',
@@ -611,15 +620,26 @@ def validate() -> list[str]:
         and ".monitoring-hud__monitor-overlay-profile-context--compact" in css
         and "data-overlay-profile-option" in html
         and "data-child-window=\"overlay-profile-settings\"" in html
-        and 'data-overlay-profile-window="selector-first-create-first-membership-settings-shell"' in html
+        and 'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"' in html
         and 'data-overlay-profile-visible-monitor-target="max-five"' in html
         and 'data-scrollbar-style="ndai-native"' in html
-        and 'data-overlay-profile-route="removed-centralized-settings"' in html
+        and 'data-overlay-profile-route="assigned-overlay-status-window"' in html
+        and 'data-overlay-profile-mutation="assign-unassign-status-window"' in html
+        and 'data-bounded-dropdown="overlay-profile-monitor-filter"' in html
+        and 'id="monitoring-hud-overlay-profile-edit-selected"' in html
+        and 'id="monitoring-hud-overlay-profile-delete"' in html
+        and 'data-child-window="monitor-overlay-assignment"' in html
+        and 'data-source-settings-window="source-list-sensor-settings"' in html
+        and "Enabled for Overlay" not in html
         and 'data-control="manage-overlay-profile-settings"' not in html
         and "monitoringHudSetOverlayProfileDropdownOpen" in js
+        and "monitoringHudSetOverlayProfileWindowDropdownOpen" in js
+        and "monitoringHudSetOverlayProfileMonitorFilterValue" in js
+        and "monitoringHudToggleOverlayAssignment" in js
+        and "monitoringHudOpenSourceSettings" in js
         and "monitoringHudOpenChildWindow(\"overlay-profile-settings\")" in js
         and "monitoringHudSaveOverlayProfileDraft" in js,
-        "HUD must render returned-UTS Overlay Profile controls as a Nexus-styled 300px-to-450px selector with selector-first settings-window create/rename/search/filter/membership Save/Discard UI and compact read-only Manage Monitors context",
+        "HUD must render follow-up returned-UTS Overlay Profile manager controls, NDAI filter dropdown, profile delete, clickable assignment surface, Enabled-for-Overlay removal, and source-list sensor settings entry points",
         failures,
     )
     _require(
@@ -1216,7 +1236,7 @@ def validate() -> list[str]:
         "window.runMonitoringHudOverlayProfileControlsProof = function()",
         "window.runMonitoringHudOverlayProfileIntegrationProof = function()",
         "monitoringHudOpenOverlayProfileSettingsFromManage",
-        "manageContextReadOnly",
+        "manageContextClickable",
         "settingsRouteRemoved",
         "manageContextAssignedCount",
         "defaultProfileCreatedForLegacyCards",
@@ -1362,8 +1382,8 @@ def validate() -> list[str]:
         "03_overlay_profile_settings_window_create_clean",
         "03_overlay_profile_settings_window_dirty",
         "03_overlay_profile_manage_context",
-        "Returned-UTS Overlay Profile selector-first settings-window search/filter/max-five proof prepared",
-        "Returned-UTS Manage Monitors compact read-only Overlay row proof prepared",
+        "Follow-up returned-UTS Overlay Profile manager selector/filter/delete proof prepared",
+        "Follow-up returned-UTS Manage Monitors clickable Assigned Overlay proof prepared",
         "ok: Boolean(integrationProof.passed && context && manageWindow && !routeButton)",
         "SLC-039 Overlay Profile settings-window controls stay bounded and distinct",
         "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, compact Manage Monitors context, and LV1 UTS boundary",

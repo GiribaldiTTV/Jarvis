@@ -9488,6 +9488,23 @@ class DesktopRuntimeWindow(QWidget):
             overlay_profiles = state.get("overlayProfiles") if isinstance(state.get("overlayProfiles"), dict) else {}
             active_profile_id = str(state.get("activeOverlayProfileId") or "")
             active_profile = overlay_profiles.get(active_profile_id) if isinstance(overlay_profiles.get(active_profile_id), dict) else {}
+            name_input_rect = geometry.get("overlayProfileNameInput") if isinstance(geometry.get("overlayProfileNameInput"), dict) else {}
+            membership_list_rect = geometry.get("overlayProfileMembershipList") if isinstance(geometry.get("overlayProfileMembershipList"), dict) else {}
+            membership_toggle_rect = geometry.get("overlayProfileMembershipFirstToggle") if isinstance(geometry.get("overlayProfileMembershipFirstToggle"), dict) else {}
+            save_rect = geometry.get("overlayProfileSave") if isinstance(geometry.get("overlayProfileSave"), dict) else {}
+            discard_rect = geometry.get("overlayProfileDiscard") if isinstance(geometry.get("overlayProfileDiscard"), dict) else {}
+            detail_geometry_visible = (
+                rect_present(name_input_rect)
+                and rect_present(membership_list_rect)
+                and rect_present(membership_toggle_rect, min_width=14, min_height=14)
+                and rect_present(save_rect)
+                and rect_present(discard_rect)
+            )
+            manager_default_geometry_visible = (
+                rect_present(geometry.get("overlayProfileWindowSelector") if isinstance(geometry.get("overlayProfileWindowSelector"), dict) else {})
+                and rect_present(geometry.get("overlayProfileWindowEdit") if isinstance(geometry.get("overlayProfileWindowEdit"), dict) else {})
+                and rect_present(geometry.get("overlayProfileCreate") if isinstance(geometry.get("overlayProfileCreate"), dict) else {})
+            )
             checks = {
                 "overlay_profile_state": dataset.get("overlayProfileState") == "slc-039-membership-mapping",
                 "overlay_profile_editor": dataset.get("overlayProfileEditor") == "slc-039-membership-editor",
@@ -9504,16 +9521,10 @@ class DesktopRuntimeWindow(QWidget):
                 "settings_entry_geometry": rect_present(geometry.get("overlayProfileOpenSettings") if isinstance(geometry.get("overlayProfileOpenSettings"), dict) else {}),
                 "settings_window_geometry": rect_present(geometry.get("overlayProfileWindow") if isinstance(geometry.get("overlayProfileWindow"), dict) else {}),
                 "settings_window_close_geometry": rect_present(geometry.get("overlayProfileWindowClose") if isinstance(geometry.get("overlayProfileWindowClose"), dict) else {}),
-                "name_input_geometry": rect_present(geometry.get("overlayProfileNameInput") if isinstance(geometry.get("overlayProfileNameInput"), dict) else {}),
-                "membership_list_geometry": rect_present(geometry.get("overlayProfileMembershipList") if isinstance(geometry.get("overlayProfileMembershipList"), dict) else {}),
-                "membership_toggle_geometry": rect_present(
-                    geometry.get("overlayProfileMembershipFirstToggle") if isinstance(geometry.get("overlayProfileMembershipFirstToggle"), dict) else {},
-                    min_width=14,
-                    min_height=14,
-                ),
                 "create_geometry": rect_present(geometry.get("overlayProfileCreate") if isinstance(geometry.get("overlayProfileCreate"), dict) else {}),
-                "save_geometry": rect_present(geometry.get("overlayProfileSave") if isinstance(geometry.get("overlayProfileSave"), dict) else {}),
-                "discard_geometry": rect_present(geometry.get("overlayProfileDiscard") if isinstance(geometry.get("overlayProfileDiscard"), dict) else {}),
+                "manager_window_selector_geometry": rect_present(geometry.get("overlayProfileWindowSelector") if isinstance(geometry.get("overlayProfileWindowSelector"), dict) else {}),
+                "manager_edit_geometry": rect_present(geometry.get("overlayProfileWindowEdit") if isinstance(geometry.get("overlayProfileWindowEdit"), dict) else {}),
+                "manager_or_detail_geometry": detail_geometry_visible or manager_default_geometry_visible,
             }
             return all(checks.values()), checks
 
@@ -10219,15 +10230,15 @@ class DesktopRuntimeWindow(QWidget):
             if not isinstance(parsed, dict):
                 parsed = {"ok": False, "raw": str(parsed)}
             add_step(
-                "Returned-UTS Manage Monitors compact read-only Overlay row proof prepared",
+                "Follow-up returned-UTS Manage Monitors clickable Assigned Overlay proof prepared",
                 bool(parsed.get("ok"))
                 and parsed.get("integrationProofPassed") is True
                 and parsed.get("manageWindowOpen") is True
                 and parsed.get("contextVisible") is True
                 and parsed.get("contextMode") == "slc-040-readonly-manage-context"
-                and parsed.get("contextMutation") == "blocked-readonly-manage-context"
+                and parsed.get("contextMutation") == "assign-unassign-status-window"
                 and parsed.get("contextLayout") == "single-row-readonly"
-                and parsed.get("contextRoute") == "removed-centralized-settings"
+                and parsed.get("contextRoute") == "assigned-overlay-status-window"
                 and parsed.get("routeButtonRemoved") is True,
                 parsed,
             )
@@ -10252,21 +10263,20 @@ class DesktopRuntimeWindow(QWidget):
                             ? window.runMonitoringHudOverlayProfileIntegrationProof()
                             : { passed: false, missing: "integration-proof" };
                         if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("overlay-profile-settings");
-                        const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
-                        if (input) {
-                            input.value = "Focused Overlay Profile Draft";
-                            input.dispatchEvent(new Event("input", { bubbles: true }));
-                        }
                         const selector = document.getElementById("monitoring-hud-overlay-profile-selector");
                         const settingsButton = document.getElementById("monitoring-hud-overlay-profile-open-settings");
                         const settingsWindow = document.getElementById("monitoring-hud-overlay-profile-window");
+                        const managerSelector = document.getElementById("monitoring-hud-overlay-profile-window-selector");
+                        const edit = document.getElementById("monitoring-hud-overlay-profile-edit-selected");
+                        const create = document.getElementById("monitoring-hud-overlay-profile-create");
                         const save = document.getElementById("monitoring-hud-overlay-profile-save");
                         const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
+                        const deleteButton = document.getElementById("monitoring-hud-overlay-profile-delete");
                         const search = document.getElementById("monitoring-hud-overlay-profile-monitor-search");
                         const filter = document.getElementById("monitoring-hud-overlay-profile-monitor-filter");
                         const membershipList = document.getElementById("monitoring-hud-overlay-profile-membership-list");
                         return JSON.stringify({
-                            ok: Boolean(stateProof.passed && controlsProof.passed && selector && settingsButton && settingsWindow && input),
+                            ok: Boolean(stateProof.passed && controlsProof.passed && selector && settingsButton && settingsWindow && managerSelector && edit && create),
                             stateProofPassed: Boolean(stateProof.passed),
                             controlsProofPassed: Boolean(controlsProof.passed),
                             integrationProofPassed: Boolean(integrationProof.passed),
@@ -10275,10 +10285,13 @@ class DesktopRuntimeWindow(QWidget):
                             settingsWindowOpen: settingsWindow ? settingsWindow.hidden === false : false,
                             settingsButtonExpanded: settingsButton ? settingsButton.getAttribute("aria-expanded") === "true" : false,
                             dropdownClosed: selector ? selector.dataset.dropdownOpen !== "true" : false,
-                            saveEnabled: save ? !save.disabled : false,
-                            discardEnabled: discard ? !discard.disabled : false,
+                            editDisabledWithoutSelection: edit ? edit.disabled : false,
+                            createVisible: Boolean(create),
+                            saveDisabledDefault: save ? save.disabled : false,
+                            discardDisabledDefault: discard ? discard.disabled : false,
                             dangerDiscard: discard ? discard.classList.contains("monitoring-hud__hub-action--danger") : false,
-                            searchFilterVisible: Boolean(search && filter),
+                            dangerDelete: deleteButton ? deleteButton.classList.contains("monitoring-hud__hub-action--danger") : false,
+                            searchFilterVisible: Boolean(search && filter && filter.dataset.boundedDropdown === "overlay-profile-monitor-filter"),
                             maxFiveInnerScrollPolicy: Boolean(
                                 membershipList
                                 && membershipList.dataset.overlayProfileVisibleMonitorTarget === "max-five"
@@ -10306,18 +10319,21 @@ class DesktopRuntimeWindow(QWidget):
             if not isinstance(parsed, dict):
                 parsed = {"ok": False, "raw": str(parsed)}
             add_step(
-                "Returned-UTS Overlay Profile selector-first settings-window search/filter/max-five proof prepared",
+                "Follow-up returned-UTS Overlay Profile manager selector/filter/delete proof prepared",
                 bool(parsed.get("ok"))
                 and parsed.get("settingsWindowOpen") is True
                 and parsed.get("settingsButtonExpanded") is True
                 and parsed.get("dropdownClosed") is True
                 and parsed.get("integrationProofPassed") is True
-                and parsed.get("saveEnabled") is True
-                and parsed.get("discardEnabled") is True
+                and parsed.get("editDisabledWithoutSelection") is True
+                and parsed.get("createVisible") is True
+                and parsed.get("saveDisabledDefault") is True
+                and parsed.get("discardDisabledDefault") is True
                 and parsed.get("dangerDiscard") is True
+                and parsed.get("dangerDelete") is True
                 and parsed.get("searchFilterVisible") is True
                 and parsed.get("maxFiveInnerScrollPolicy") is True
-                and parsed.get("settingsWindowWorkflow") == "selector-first-create-first-returned-uts-repair"
+                and parsed.get("settingsWindowWorkflow") == "selector-first-create-edit-delete-followup-uts-repair"
                 and parsed.get("outerScrollPolicy") == "no-normal-window-scrollbar"
                 and parsed.get("membership") == "editable-slc-039-mapping",
                 parsed,
@@ -10371,7 +10387,10 @@ class DesktopRuntimeWindow(QWidget):
                 if (settings && settings.scrollIntoView) settings.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
                 """
             )
-            QTimer.singleShot(delay(250), step_settings_panel)
+            QTimer.singleShot(
+                delay(350),
+                lambda: query("Dashboard restored after Overlay Profile cleanup before settings click", assert_dashboard_restored, step_settings_panel),
+            )
 
         def step_settings_panel():
             clicked = self._monitoring_hud_send_mouse_click(rect_center("settingsAction"))
