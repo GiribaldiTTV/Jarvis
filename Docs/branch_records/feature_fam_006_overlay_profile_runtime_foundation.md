@@ -19,8 +19,8 @@ The branch exists to admit the Overlay Profile runtime foundation as the next FA
 
 ## Current Phase
 
-- Phase: `Workstream`
-- Stage Detail: `SLC-041 validation/live-proof Workstream implementation and Hardening H1 Green; Live Validation LV1 is next`
+- Phase: `Live Validation`
+- Stage Detail: `Live Validation LV1 technical proof and UTS handoff complete; USER_TEST_REQUIRED pending returned USER review`
 
 ## Phase Status
 
@@ -28,7 +28,7 @@ Branch Authority Marker: `Active Branch`
 Active Branch: `feature/fam-006-overlay-profile-runtime-foundation`
 Stage 1 Basis: `Complete - FAM-006 worktree restored, current-main aligned at b67e59df0481091bfbeb739c4b5e1954552bb421, source truth verified No Active Branch / USER decision gate, and FAM-006 Overlay Profile Runtime Foundation recommended as the USER-gated successor candidate`
 Stage 2 USER Approval: `Granted - USER approved branch/worktree rebinding, branch authority record, branch plan, compact source-truth pointers, package/slice admission, validation planning, and v1.7.10 closure-drift carry-forward for this setup only`
-Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible profile controls, bounded SLC-039 settings-window monitor membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, SLC-040 H1, bounded SLC-041 validator/live-proof readiness implementation, and SLC-041 Hardening H1 only; LV1, PR creation, merge, release, issue mutation, and branch cleanup remain pending USER decisions`
+Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible profile controls, bounded SLC-039 settings-window monitor membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, SLC-040 H1, bounded SLC-041 validator/live-proof readiness implementation, SLC-041 Hardening H1, and LV1 technical proof/UTS handoff only; returned USER UTS review, PR creation, merge, release, issue mutation, and branch cleanup remain pending USER decisions`
 Current Branch: `feature/fam-006-overlay-profile-runtime-foundation`
 Current Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `b67e59df0481091bfbeb739c4b5e1954552bb421`
@@ -41,9 +41,9 @@ v1.7.10 Closure-Drift Setup: `Carried into this Branch Readiness Stage 2 setup a
 v1.7.11 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair after v1.7.11-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.11-prebeta while preserving branch-local Overlay Profile authority`
 v1.7.12 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair after v1.7.12-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.12-prebeta while preserving branch-local Overlay Profile authority and PR #192 as current-main FAM-007 context`
 Branch Runtime Engineering Plan: `Accepted - detailed setup/runtime planning is present at Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md`
-Engineering Plan Status: `SLC-041 Hardening H1 Green - Overlay Profile state/schema foundation, 300px-to-450px Dashboard selector, Overlay Profile Settings child-window create/rename/save/discard controls, editable settings-window monitor membership mapping, Manage Monitors read-only Overlay Profile context/settings route, SLC-041 focused validator and visual proof readiness, live-helper proof-chain manifest metadata, and concept-boundary validation are present and pressure-tested; Live Validation LV1 is next`
+Engineering Plan Status: `Live Validation LV1 USER_TEST_REQUIRED - Overlay Profile state/schema foundation, 300px-to-450px Dashboard selector, Overlay Profile Settings child-window create/rename/save/discard controls, editable settings-window monitor membership mapping, Manage Monitors read-only Overlay Profile context/settings route, SLC-041 focused validator and visual proof readiness, live-helper proof-chain manifest metadata, and concept-boundary validation are present and pressure-tested; real shortcut human-client precheck and active-client live proof passed, UTS handoff is refreshed, and returned USER review is pending`
 SLC-041 Workstream Implementation: `SLC-041 validation/live-proof Workstream implementation Green - focused WebView proof is acceptance evidence, full desktop screenshots are context only, formal UTS export remains Live Validation Stage 1 only, and proof-chain readiness spans SLC-037 state, SLC-038 selector/settings controls, SLC-039 membership mapping, and SLC-040 Manage Monitors context/route.`
-PR Fold-Down Packet: `Pending Live Validation LV1, PR Readiness, PR creation, merge, and release-scope translation after SLC-041 Hardening H1 Green`
+PR Fold-Down Packet: `Pending returned USER UTS PASS or waiver with reason, then PR Readiness, PR creation, merge, and release-scope translation`
 
 ## Branch Class
 
@@ -109,7 +109,7 @@ Backlog-Split Reason: `None`
 
 Branch Completion Goal: `Complete the Overlay Profile runtime foundation as one coherent FAM-006 successor branch: overlay profile state, selection/editing entry points, monitor-to-overlay-profile mapping, Dashboard / Manage Monitors integration, focused validators, live proof, H1, LV1, PR Readiness, PR creation, and merge when separately approved.`
 
-Known Future-Dependent Blockers: `SLC-041 Hardening H1, Live Validation LV1, PR creation, merge, release execution, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, and AI Product work require later USER decisions.`
+Known Future-Dependent Blockers: `Returned USER UTS review, PR creation, merge, release execution, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, and AI Product work require later USER decisions.`
 
 Branch Closure Rule: `This branch may close only after the admitted Overlay Profile foundation seams are implemented, hardened, live-validated or waived with reason, PR-ready, PR-created, and merged under separate USER approvals; otherwise it remains active or stops at the relevant blocker.`
 
@@ -117,9 +117,9 @@ Branch Closure Rule: `This branch may close only after the admitted Overlay Prof
 
 Backlog Completion State: `In Progress`
 
-Remaining Implementable Work: `Live Validation LV1 and later USER-approved PR seams remain; SLC-037 implementation/H1, SLC-038 Workstream implementation/H1, compact layout/settings-window repair, selector-width repair, v1.7.11 closure-drift repair, SLC-039 Workstream implementation/H1, SLC-040 Workstream implementation/H1, bounded SLC-041 Workstream implementation, and SLC-041 Hardening H1 are green after validation.`
+Remaining Implementable Work: `Returned USER UTS review and later USER-approved PR seams remain; SLC-037 implementation/H1, SLC-038 Workstream implementation/H1, compact layout/settings-window repair, selector-width repair, v1.7.11 closure-drift repair, SLC-039 Workstream implementation/H1, SLC-040 Workstream implementation/H1, bounded SLC-041 Workstream implementation, SLC-041 Hardening H1, real shortcut human-client precheck, active-client LV1 proof, and formal UTS refresh are green after validation.`
 
-Future-Dependent Blockers: `Live Validation LV1, PR Readiness, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
+Future-Dependent Blockers: `Returned USER UTS review, PR Readiness, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
 
 Completion Status: `Red`
 
@@ -135,15 +135,15 @@ Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Inactive - SLC-041 Hardening H1 is green; phase-boundary stop is required before USER may admit Live Validation LV1.`
+Continuation Execution Latch: `Inactive - LV1 technical proof and UTS handoff are complete; USER review boundary stop is required before PR Readiness.`
 
 Stop Basis: `Workstream Green`
 
-Next Active Seam: `Live Validation LV1 - SLC-041 validation and live desktop proof Hardening H1 is complete`
+Next Active Seam: `Returned USER UTS review for Live Validation LV1 - technical proof and UTS handoff are complete`
 
-Stop Condition: `SLC-041 Hardening H1 is complete and validated as far as current Codex authority allows.`
+Stop Condition: `Live Validation LV1 technical proof is complete and formal UTS is refreshed; stop for returned USER review or waiver with reason.`
 
-Continuation Action: `Stop at phase boundary until USER admits Live Validation LV1; do not run LV1, PR Readiness, or later runtime seams without separate USER approval.`
+Continuation Action: `Stop at USER review boundary until returned UTS results are provided; do not run PR Readiness or later runtime seams without separate USER approval.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -155,7 +155,7 @@ Bounded Seam Default: `One active seam at a time; bounded is not one-seam Workst
 
 ## Bounded State
 
-Bounded State: `Active - Workstream implementation / feature/fam-006-overlay-profile-runtime-foundation / C:\Nexus Worktrees\FAM-006 / SLC-041 Overlay Profile validation and live desktop proof readiness only / no LV1, PR Readiness, or later SLC runtime expansion until USER approval`
+Bounded State: `Active - Live Validation LV1 / feature/fam-006-overlay-profile-runtime-foundation / C:\Nexus Worktrees\FAM-006 / technical proof and formal UTS handoff complete / USER_TEST_REQUIRED pending returned review / no PR Readiness or later SLC runtime expansion until USER approval`
 
 Expected Worktree Root: `C:\Nexus Worktrees\FAM-006`
 
@@ -221,7 +221,7 @@ Non-Includes: `Recording Profile runtime, tray recording controls, local recordi
 
 ## Active Seam
 
-Active seam: `SLC-041 H1 Green - compact Dashboard Overlay Profile selector, Overlay Profile Settings child-window create/rename/save/discard/membership controls, Manage Monitors read-only Overlay Profile context/settings route, and SLC-041 focused validator/live-proof readiness are present, validation-backed, and pressure-tested; Live Validation LV1 is next.`
+Active seam: `Live Validation LV1 USER_TEST_REQUIRED - compact Dashboard Overlay Profile selector, Overlay Profile Settings child-window create/rename/save/discard/membership controls, Manage Monitors read-only Overlay Profile context/settings route, and SLC-041 focused validator/live-proof readiness are present, validation-backed, pressure-tested, and live-proofed through the real shortcut/client path; returned USER review is next.`
 
 ## Workstream Implementation - SLC-037 Overlay Profile Data/State Foundation
 
@@ -251,7 +251,7 @@ H1 Scope Confirmation: `No visible Overlay Profile editor UI was introduced; SLC
 
 ## Workstream Implementation - SLC-038 Overlay Profile Selection/Editing Controls
 
-Implementation Status: `Workstream + H1 Green - bounded SLC-038 visible controls are present in Dashboard HUD runtime, state bridge, proof validators, and source truth; SLC-039 Workstream implementation/H1, SLC-040 Workstream implementation/H1, and bounded SLC-041 Workstream implementation/H1 are now present, with Live Validation LV1 next.`
+Implementation Status: `Workstream + H1 Green - bounded SLC-038 visible controls are present in Dashboard HUD runtime, state bridge, proof validators, and source truth; SLC-039 Workstream implementation/H1, SLC-040 Workstream implementation/H1, bounded SLC-041 Workstream implementation/H1, and LV1 technical proof/UTS handoff are now present, with returned USER review next.`
 
 Overlay Profile Selector Result: `Dashboard HUD now renders a compact Nexus-styled active Overlay Profile selector with bounded option menu, open/hover/reset/select behavior, activeOverlayProfileId updates, and persistence through the existing HUD state architecture.`
 
@@ -265,7 +265,7 @@ Read-Only Details Result: `The SLC-038 panel shows active profile name, monitor 
 
 ## Workstream Implementation - SLC-039 Monitor-To-Overlay-Profile Mapping
 
-Implementation Status: `Workstream + H1 Green - bounded SLC-039 membership mapping is present in the Overlay Profile Settings child window; SLC-040 Workstream implementation/H1 and bounded SLC-041 Workstream implementation/H1 are now present, with Live Validation LV1 next.`
+Implementation Status: `Workstream + H1 Green - bounded SLC-039 membership mapping is present in the Overlay Profile Settings child window; SLC-040 Workstream implementation/H1, bounded SLC-041 Workstream implementation/H1, and LV1 technical proof/UTS handoff are now present, with returned USER review next.`
 
 Membership Mapping Result: `Existing Monitor Groups are rendered as editable membership rows in Overlay Profile Settings. Toggling a row edits the active profile draft only, and Save Profile persists monitorIds through the existing Overlay Profile state architecture.`
 
@@ -289,7 +289,7 @@ Hardening H1 Result: `Green - SLC-039 settings-window monitor membership mapping
 
 ## Workstream Implementation - SLC-040 Dashboard / Manage Monitors Integration
 
-Implementation Status: `Workstream + H1 Green - bounded SLC-040 Dashboard / Manage Monitors integration is present in HUD runtime, focused proof helpers, validators, UTS wording, and source truth; bounded SLC-041 Workstream implementation/H1 is present, with Live Validation LV1 next.`
+Implementation Status: `Workstream + H1 Green - bounded SLC-040 Dashboard / Manage Monitors integration is present in HUD runtime, focused proof helpers, validators, UTS wording, and source truth; bounded SLC-041 Workstream implementation/H1 and LV1 technical proof/UTS handoff are present, with returned USER review next.`
 
 Manage Monitors Context Result: `The selected monitor detail pane now shows read-only Overlay Profile context: active profile name, selected-monitor included/excluded state, mapped monitor count, and display mode. The context is marked data-overlay-profile-integration=slc-040-readonly-manage-context and data-overlay-profile-mutation=blocked-readonly-manage-context.`
 
@@ -323,11 +323,21 @@ Validation Trace: `HUD surface validation and internal sandbox validation now re
 
 ## Hardening H1 - SLC-041 Validation And Live Desktop Proof
 
+SLC-041 Hardening H1 Green: `Recorded - SLC-041 validation/live-proof readiness passed H1 before LV1 technical proof.`
+
 Hardening H1 Result: `Green - SLC-041 proof-chain metadata, focused WebView proof requirements, full-desktop-screenshot context-only discipline, formal UTS Live Validation Stage 1 boundary, live helper self-QA manifest coverage, HUD surface/internal sandbox validators, and SLC-037 through SLC-040 Overlay Profile preservation passed pressure-test validation.`
 
 H1 Evidence Basis: `Rerun validation passed git diff checks, branch governance validation, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, HUD surface validation, HUD internal sandbox validation with manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260521_064151_manifest.json, live interaction self-QA with manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_064023_814\monitoring_hud_live_client_interaction_manifest.json, focused WebView proof artifacts under C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_064023_814\live_client_interaction\, compileall, bundled Node syntax check for nexus_visual\monitoring_hud.js, and runtime-fam006 validation-suite recommendation review. Full desktop screenshots from the live helper are context only and were not used as acceptance-critical proof.`
 
 H1 Scope Confirmation: `No LV1, formal UTS refresh/digest, new product UI, profile duplicate/delete, Recording Profile runtime, tray recording controls, export/share behavior, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, artifact handling, sibling-worktree mutation, or branch cleanup was introduced.`
+
+## Live Validation LV1 - Overlay Profile Runtime Foundation
+
+Live Validation LV1 Result: `USER_TEST_REQUIRED - real user-facing shortcut/client precheck passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_073353_859\human_client_manifest.json after bounded tray/menu acquisition timeout repair; active-client live validation and focused interaction self-QA passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_073818_655\monitoring_hud_live_client_interaction_manifest.json; formal UTS handoff refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt. Returned USER review is pending before PR Readiness.`
+
+LV1 Helper Repair Result: `The human-client precheck previously hung after shortcut-settled proof before tray acquisition evidence. The bounded repair added timeout-safe native tray/popup probes and removed a malformed tray-menu fallback that could return a button-click hashtable instead of a menu rectangle. The rerun completed through the real shortcut/client path and wrote the governed manifest.`
+
+LV1 Proof Discipline: `Focused local/WebView proof from the live interaction manifest is the acceptance-critical evidence. Full desktop screenshots remain context/locator evidence only.`
 
 ## Hardening H1 - SLC-038 Overlay Profile Selection/Editing Controls
 
@@ -405,7 +415,7 @@ Codex Additional Recommendations: `Recommend keeping the first runtime pass narr
 
 USER Critique Loop: `USER can critique whether the profile editor belongs in Dashboard, Manage Monitors, or a child window, whether selection copy is understandable, whether the visual hierarchy is clear, and whether focused proof captures the real interactive state rather than full-desktop context.`
 
-USER Decision Ledger: `USER approved FAM-006 worktree restoration, Stage 1 successor analysis, and Branch Readiness Stage 2 setup. Pending decisions include Workstream Entry, runtime implementation, H1, LV1, PR creation, merge, release, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording, export/share, provider/model work, broad theme/skin work, FAM-007, Governance mutation, Compact-AI, Repo-Wide marker expansion, and AI Product work.`
+USER Decision Ledger: `USER approved FAM-006 worktree restoration, Stage 1 successor analysis, Branch Readiness Stage 2 setup, bounded runtime seams through SLC-041, H1 gates, and LV1 technical proof/UTS handoff. Pending decisions include returned USER UTS review, PR Readiness, PR creation, merge, release, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording, export/share, provider/model work, broad theme/skin work, FAM-007, Governance mutation, Compact-AI, Repo-Wide marker expansion, and AI Product work.`
 
 Deferred Ideas / Future Package Ledger: `Recording Profile runtime, local recording output, tray recording controls, export/share/import, overlay display acceptance beyond this foundation, detailed overlay visual themes, bulk profile packs, provider expansion, external telemetry parity, FAM-007, AI Product, and app-wide backup/restore remain deferred.`
 
@@ -451,9 +461,9 @@ Planning Completion Waiver: `Not required - Stage 2 records concrete Product Def
 
 Engineering Contract Status: `Accepted for SLC-037 implementation/H1, bounded SLC-038 Workstream implementation/H1, bounded SLC-039 Workstream implementation/H1, bounded SLC-040 Workstream implementation/H1, and bounded SLC-041 Workstream implementation/H1`
 
-USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup, SLC-037 Workstream/H1, SLC-038 Workstream Entry/implementation/H1, SLC-039 Workstream Entry, bounded SLC-039 implementation/H1, SLC-040 Workstream Entry, bounded SLC-040 implementation/H1, SLC-041 Workstream Entry, bounded SLC-041 implementation, and SLC-041 H1`
+USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup, SLC-037 Workstream/H1, SLC-038 Workstream Entry/implementation/H1, SLC-039 Workstream Entry, bounded SLC-039 implementation/H1, SLC-040 Workstream Entry, bounded SLC-040 implementation/H1, SLC-041 Workstream Entry, bounded SLC-041 implementation, SLC-041 H1, and LV1 technical proof/UTS handoff`
 
-Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible selection/editing controls, bounded SLC-039 monitor-to-overlay-profile membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, SLC-040 H1, SLC-041 Workstream Entry, bounded SLC-041 validator/live-proof readiness implementation, and SLC-041 H1 only; LV1 and later seams remain pending USER decisions`
+Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible selection/editing controls, bounded SLC-039 monitor-to-overlay-profile membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, SLC-040 H1, SLC-041 Workstream Entry, bounded SLC-041 validator/live-proof readiness implementation, SLC-041 H1, and LV1 technical proof/UTS handoff only; returned USER UTS review and later seams remain pending USER decisions`
 
 Branch Purpose: `Prepare the FAM-006 Overlay Profile Runtime Foundation successor branch with source truth, branch plan, package/slice admission, runtime boundaries, validation planning, and future focused proof requirements before any runtime implementation starts.`
 
@@ -499,7 +509,7 @@ Future Runtime Validation: `HUD surface validation`; `HUD internal sandbox valid
 
 ## Blockers
 
-Active Blockers: `Live Validation LV1 pending USER decision after SLC-041 Hardening H1 Green`
+Active Blockers: `USER_TEST_REQUIRED - Live Validation LV1 technical proof and UTS handoff passed; returned USER review or waiver with reason is pending before PR Readiness`
 
 ## Entry Basis
 
@@ -527,29 +537,29 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 
 ## Next Legal Phase
 
-Next Legal Phase: `Workstream`
+Next Legal Phase: `Live Validation`
 
-Next Legal Phase Detail: `Live Validation LV1 for the FAM-006 Overlay Profile runtime foundation`
+Next Legal Phase Detail: `Returned USER UTS review / digest for the FAM-006 Overlay Profile runtime foundation`
 
 ## Next Legal Phase Digest
 
-Current Phase: `Workstream`
+Current Phase: `Live Validation`
 
-Stage Detail: `SLC-041 validation/live-proof Workstream implementation and Hardening H1 Green; Live Validation LV1 next`
+Stage Detail: `Live Validation LV1 technical proof and UTS handoff complete; USER_TEST_REQUIRED pending returned review`
 
-Next Legal Phase: `Workstream`
+Next Legal Phase: `Live Validation`
 
-Next Legal Phase Detail: `Live Validation LV1 for the FAM-006 Overlay Profile runtime foundation`
+Next Legal Phase Detail: `Digest returned USER UTS result; proceed to PR Readiness only after USER PASS or waiver with reason`
 
-Why This Phase Is Next: `SLC-041 validator/live-proof readiness is implemented, H1 pressure-tested, validation-backed, and source-truth aligned; the next bounded phase is Live Validation LV1 to collect USER-facing acceptance evidence.`
+Why This Phase Is Next: `SLC-041 validator/live-proof readiness is implemented, H1 pressure-tested, validation-backed, and source-truth aligned; LV1 technical proof passed through the real shortcut/client path and refreshed the formal UTS, so the next bounded phase is returned USER review/digest.`
 
-Approval Required: `USER approval for Live Validation LV1 and later separate approval for PR Readiness, PR creation, merge, release, or additional runtime seams`
+Approval Required: `Returned USER UTS result or waiver with reason; later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams`
 
-Exact USER Approval Text: `Approve Live Validation LV1 for the FAM-006 Overlay Profile runtime foundation on feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006. Codex may verify repo/worktree identity and current-main freshness, verify SLC-041 Workstream implementation and H1 commits are present, validate through the real USER-facing shortcut/client path, capture focused WebView proof for the Dashboard Overlay Profile selector, Overlay Profile Settings create/rename/save/discard/membership controls, Manage Monitors read-only Overlay Profile context/settings route, concept boundaries, and existing Sensor Command Center preservation, refresh the formal UTS only after the governed human-client precheck passes or USER provides a waiver with reason, digest returned USER results when available, run required validation, and commit/push bounded source-truth/result updates if validation is green. Do not create PRs, merge, release, mutate issues, implement new product UI, add profile duplicate/delete, Recording Profile runtime, provider work, cleanup, or sibling-worktree changes without separate approval.`
+Exact USER Approval Text: `Return the FAM-006 Overlay Profile Runtime Foundation UTS result for feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006. Codex may digest the returned USER result or waiver with reason, update source truth, run required validation, and commit/push bounded result updates if validation is green. Do not create PRs, merge, release, mutate issues, implement new product UI, add profile duplicate/delete, Recording Profile runtime, provider work, cleanup, or sibling-worktree changes without separate approval.`
 
-Allowed Scope: `Live Validation LV1 only`
+Allowed Scope: `Returned USER UTS result digest only`
 
-Explicit Exclusions: `Live Validation LV1, formal UTS refresh/digest, new product UI, profile duplicate/delete, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 mutation, Governance mutation, Compact-AI mutation, stale branch cleanup, PR creation, merge, release, issues, artifacts, raw evidence handling`
+Explicit Exclusions: `PR Readiness, new product UI, profile duplicate/delete, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 mutation, Governance mutation, Compact-AI mutation, stale branch cleanup, PR creation, merge, release, issues, artifacts, raw evidence handling`
 
 Validation Required: `LV1 identity checks, real USER-facing shortcut/client validation, focused WebView proof, governed UTS generation only after human-client precheck PASS or USER waiver, branch governance/source-truth checks, HUD surface validation, HUD internal sandbox validation, git diff checks, compileall, and bundled Node syntax check where available`
 

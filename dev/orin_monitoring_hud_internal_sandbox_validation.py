@@ -211,7 +211,8 @@ def _validate_static_surface(failures: list[str]) -> None:
     for needle in (
         "SLC-041 validation/live-proof Workstream implementation Green",
         "SLC-041 Hardening H1 Green",
-        "Live Validation LV1 is next",
+        "Live Validation LV1 Result",
+        "USER_TEST_REQUIRED",
         "focused validator and visual proof",
         "focused WebView proof is acceptance evidence",
         "full desktop screenshots are context only",

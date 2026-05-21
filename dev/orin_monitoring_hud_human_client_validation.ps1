@@ -293,6 +293,18 @@ public static class CodexHumanClientWin32 {
         return new int[0];
     }
 
+    public static int[] GetNotifyIconRectForProcessWithTimeout(int processId, int timeoutMilliseconds) {
+        try {
+            System.Threading.Tasks.Task<int[]> task = System.Threading.Tasks.Task.Run(() => GetNotifyIconRectForProcess(processId));
+            if (!task.Wait(Math.Max(1, timeoutMilliseconds))) {
+                return new int[0];
+            }
+            return task.Result ?? new int[0];
+        } catch {
+            return new int[0];
+        }
+    }
+
     public static int[] GetVisiblePopupRectForProcess(int processId) {
         int[] result = new int[0];
         EnumWindows(delegate(IntPtr hWnd, IntPtr lParam) {
@@ -327,6 +339,18 @@ public static class CodexHumanClientWin32 {
         return result;
     }
 
+    public static int[] GetVisiblePopupRectForProcessWithTimeout(int processId, int timeoutMilliseconds) {
+        try {
+            System.Threading.Tasks.Task<int[]> task = System.Threading.Tasks.Task.Run(() => GetVisiblePopupRectForProcess(processId));
+            if (!task.Wait(Math.Max(1, timeoutMilliseconds))) {
+                return new int[0];
+            }
+            return task.Result ?? new int[0];
+        } catch {
+            return new int[0];
+        }
+    }
+
     public static long GetVisiblePopupHandleForProcess(int processId) {
         IntPtr result = IntPtr.Zero;
         EnumWindows(delegate(IntPtr hWnd, IntPtr lParam) {
@@ -359,6 +383,18 @@ public static class CodexHumanClientWin32 {
         }, IntPtr.Zero);
 
         return result.ToInt64();
+    }
+
+    public static long GetVisiblePopupHandleForProcessWithTimeout(int processId, int timeoutMilliseconds) {
+        try {
+            System.Threading.Tasks.Task<long> task = System.Threading.Tasks.Task.Run(() => GetVisiblePopupHandleForProcess(processId));
+            if (!task.Wait(Math.Max(1, timeoutMilliseconds))) {
+                return 0;
+            }
+            return task.Result;
+        } catch {
+            return 0;
+        }
     }
 
     public static string[] GetNativeMenuItemsForPopup(long hwndValue) {
@@ -1979,10 +2015,11 @@ function Cleanup-Runtime {
 
 function Open-HiddenTrayOnNexus {
     $deadline = (Get-Date).AddSeconds(8)
+    $notifyIconProbeTimeoutMs = 750
     while ((Get-Date) -lt $deadline) {
         $runtimeProcesses = Find-ProcessesForLogRoot
         foreach ($process in $runtimeProcesses) {
-            $rect = [CodexHumanClientWin32]::GetNotifyIconRectForProcess([int]$process.ProcessId)
+            $rect = [CodexHumanClientWin32]::GetNotifyIconRectForProcessWithTimeout([int]$process.ProcessId, $notifyIconProbeTimeoutMs)
             if ($rect -and $rect.Length -eq 4) {
                 $x = [int](($rect[0] + $rect[2]) / 2)
                 $y = [int](($rect[1] + $rect[3]) / 2)
@@ -2024,7 +2061,7 @@ function Open-HiddenTrayOnNexus {
     }
 
     $runtimeProcesses = Find-ProcessesForLogRoot
-    throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', ')"
+    throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', '); notify_icon_probe_timeout_ms=$notifyIconProbeTimeoutMs"
 }
 
 function Clear-StrayTrayAvailabilityEffects {
@@ -2075,10 +2112,11 @@ function Click-NexusTrayIcon {
     param([string]$Label = "Nexus tray icon")
 
     $deadline = (Get-Date).AddSeconds(8)
+    $notifyIconProbeTimeoutMs = 750
     while ((Get-Date) -lt $deadline) {
         $runtimeProcesses = Find-ProcessesForLogRoot
         foreach ($process in $runtimeProcesses) {
-            $rect = [CodexHumanClientWin32]::GetNotifyIconRectForProcess([int]$process.ProcessId)
+            $rect = [CodexHumanClientWin32]::GetNotifyIconRectForProcessWithTimeout([int]$process.ProcessId, $notifyIconProbeTimeoutMs)
             if ($rect -and $rect.Length -eq 4) {
                 $x = [int](($rect[0] + $rect[2]) / 2)
                 $y = [int](($rect[1] + $rect[3]) / 2)
@@ -2099,7 +2137,7 @@ function Click-NexusTrayIcon {
     }
 
     $runtimeProcesses = Find-ProcessesForLogRoot
-    throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', ')"
+    throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', '); notify_icon_probe_timeout_ms=$notifyIconProbeTimeoutMs"
 }
 
 function Invoke-TrayIconActivation {
@@ -2127,38 +2165,14 @@ function Get-VisibleTrayMenuRect {
     param([int]$TimeoutSeconds = 5)
 
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    $popupProbeTimeoutMs = 750
     while ((Get-Date) -lt $deadline) {
         $runtimeProcesses = Find-ProcessesForLogRoot
         foreach ($process in $runtimeProcesses) {
-            $rect = [CodexHumanClientWin32]::GetVisiblePopupRectForProcess([int]$process.ProcessId)
+            $rect = [CodexHumanClientWin32]::GetVisiblePopupRectForProcessWithTimeout([int]$process.ProcessId, $popupProbeTimeoutMs)
             if ($rect -and $rect.Length -eq 4) {
                 return $rect
             }
-        }
-        $fallbackButton = Find-VisibleRuntimeElementByName -Name $ButtonName -ControlTypeName "ControlType.Button" -TimeoutSeconds 1
-        if ($fallbackButton) {
-            try {
-                $rect = $fallbackButton.Current.BoundingRectangle
-                if ($rect.Width -gt 0 -and $rect.Height -gt 0 -and $fallbackButton.Current.IsEnabled) {
-                    $x = [int]($rect.X + ($rect.Width / 2))
-                    $y = [int]($rect.Y + ($rect.Height / 2))
-                    [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
-                    Start-Sleep -Milliseconds 150
-                    [CodexHumanClientWin32]::SendLeftClick()
-                    return @{
-                        button = $ButtonName
-                        clicked = @($x, $y)
-                        buttonRect = @(
-                            [int]$rect.X,
-                            [int]$rect.Y,
-                            [int]($rect.X + $rect.Width),
-                            [int]($rect.Y + $rect.Height)
-                        )
-                        fallback = "runtime-process-button-search"
-                        dialogRect = $lastDialogRect
-                    }
-                }
-            } catch {}
         }
         Start-Sleep -Milliseconds 120
     }
@@ -2170,10 +2184,11 @@ function Get-VisibleTrayMenuHandle {
     param([int]$TimeoutSeconds = 5)
 
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    $popupProbeTimeoutMs = 750
     while ((Get-Date) -lt $deadline) {
         $runtimeProcesses = Find-ProcessesForLogRoot
         foreach ($process in $runtimeProcesses) {
-            $handle = [CodexHumanClientWin32]::GetVisiblePopupHandleForProcess([int]$process.ProcessId)
+            $handle = [CodexHumanClientWin32]::GetVisiblePopupHandleForProcessWithTimeout([int]$process.ProcessId, $popupProbeTimeoutMs)
             if ($handle -and $handle -ne 0) {
                 return [IntPtr]$handle
             }
