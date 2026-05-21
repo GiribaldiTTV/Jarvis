@@ -168,6 +168,19 @@ WORKSTREAM_INDEX_REQUIRED = (
     "Do not promote:",
 )
 
+CORE_GOVERNANCE_MIRROR_DOCS = (
+    Path("Docs/Main.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+CORE_GOVERNANCE_DUPLICATE_POLICY_FORBIDDEN = (
+    "Release Readiness Candidate Anchor: require",
+    "Release Window Aggregation Ownership: merge order does not decide release ownership",
+)
+
 
 def _read(relative_path: Path) -> str:
     path = ROOT / relative_path
@@ -299,6 +312,16 @@ def validate() -> list[str]:
             failures.append(
                 f"Docs/workstreams/index.md: missing workstream trace ownership rule {phrase!r}"
             )
+
+    for path in CORE_GOVERNANCE_MIRROR_DOCS:
+        text = _read(path)
+        for phrase in CORE_GOVERNANCE_DUPLICATE_POLICY_FORBIDDEN:
+            if phrase in text:
+                failures.append(
+                    f"{path}: duplicate full release-readiness policy {phrase!r} "
+                    "belongs in Docs/phase_governance.md; mirror docs should point to "
+                    "the owner instead of repeating full policy prose"
+                )
 
     return failures
 
