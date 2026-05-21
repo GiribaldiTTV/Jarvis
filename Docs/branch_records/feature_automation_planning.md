@@ -245,6 +245,16 @@ Backlog-Split Reason: `None`
 - Any bounded fallback watcher must be target-scoped to the live PR, phase-scoped to `PR Readiness`, read-only, and self-terminating or explicitly deleted when the PR becomes `merged` or `closed` or the branch leaves `PR Readiness`.
 - `Release Window Sentinel` and `Post-Merge Closure Watch` may remain durable read-only waiting monitors outside their owned windows, but they must not create merge, release, or green authority by themselves.
 
+## Automation Reliability Disposition
+
+- Toolchain Availability Watch Current Disposition: `Background observability only`
+- Automation Drift Audit Current Disposition: `Background observability only`
+- Legacy Runtime Path Expectation: `dev/i/runtime/service.py is retired historical automation truth, not current source truth`
+- Current Source-Truth Requirement: `No current governance rule requires dev/i/runtime/service.py unless a future branch reintroduces it explicitly`
+- Phase-Critical Watcher Requirement: `Current PR binding, configured-cwd proof, delivery/runtime proof, and same-PR repair authority are required before watcher output can clear PR Readiness or merge-watch gates`
+- Stale Automation Memory Handling: `Historical toolchain-path findings remain REVIEW_INFO unless current source truth still owns the referenced path`
+- Automation Repair Default: `If native heartbeat delivery or same-PR repair automation is unreliable, use Blocked Mode or a bounded fallback with current PR binding instead of treating the ACTIVE card as green`
+
 ## Rollback And Containment Requirements
 
 - disable or delete any automation whose target, cadence, or output surface drifts away from the admitted contract

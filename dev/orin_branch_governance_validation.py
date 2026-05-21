@@ -4287,6 +4287,8 @@ PR_WATCHER_MODE_CONTRACT_PHRASES = (
     "Delivery Route Proof:",
     "Runtime Proof:",
     "Next Watcher Posture:",
+    "Reliability Degradation",
+    "Background Observability",
 )
 
 PR_WATCHER_OUTPUT_CONTRACT_SOURCE = Path("dev/pr_same_thread_watcher.py")
@@ -4385,6 +4387,10 @@ AUTOMATION_OBSERVABILITY_SOURCE_PHRASES = (
     "memory.md",
     "configured cwd",
     "Lane-sensitive automation runs from neutral main",
+    "neutral_main_background_observability_prompt",
+    "fresh main equality before reporting blockers",
+    "LEGACY_TOOLCHAIN_RUNTIME_FINDING_MARKERS",
+    "legacy_toolchain_runtime_finding_is_retired",
     "BLOCKER_CANDIDATE",
     "REVIEW_REQUIRED",
     "--strict",
@@ -5119,6 +5125,12 @@ AUTOMATION_PLANNING_RUNTIME_PROOF_REQUIRED_PHRASES = (
     "If the preferred Codex heartbeat remains `ACTIVE` without run evidence, keep the owning phase blocked until native run evidence exists or a bounded fallback watcher is activated.",
     "Any bounded fallback watcher must be target-scoped to the live PR, phase-scoped to `PR Readiness`, read-only, and self-terminating or explicitly deleted when the PR becomes `merged` or `closed` or the branch leaves `PR Readiness`.",
     "`Release Window Sentinel` and `Post-Merge Closure Watch` may remain durable read-only waiting monitors outside their owned windows, but they must not create merge, release, or green authority by themselves.",
+    "## Automation Reliability Disposition",
+    "Toolchain Availability Watch Current Disposition: `Background observability only`",
+    "Automation Drift Audit Current Disposition: `Background observability only`",
+    "Legacy Runtime Path Expectation: `dev/i/runtime/service.py is retired historical automation truth, not current source truth`",
+    "Current Source-Truth Requirement: `No current governance rule requires dev/i/runtime/service.py unless a future branch reintroduces it explicitly`",
+    "Stale Automation Memory Handling: `Historical toolchain-path findings remain REVIEW_INFO unless current source truth still owns the referenced path`",
     "PR Readiness PR1 runtime-proof status:",
     "$CODEX_HOME/automations/pr99-heartbeat-watch/automation.toml",
     "$CODEX_HOME/watchers/pr99-watch.ps1",
