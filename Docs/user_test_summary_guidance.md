@@ -246,6 +246,13 @@ Before User Test Summary handoff, the active authority record must declare:
 - `Codex Live Client Self-QA: FAIL`
 - `Codex Live Client Self-QA: WAIVED`
 - `Visual Quality:`
+- `Codex Visual Adjudication:`
+- `Visual Artifact Review Scope:`
+- `Product Vision Alignment:`
+- `Per-Element Visual Verdicts:`
+- `Helper Marker Limitation:`
+- `Unacceptable UI Findings:`
+- `LV1 Handoff Disposition:`
 - `Live Interaction Evidence:`
 - `Usability Check:`
 - `Platform Uniformity Check:`
@@ -254,8 +261,10 @@ Named blocker:
 
 - `Codex Live Client Self-QA Pending`
 
-The gate is green only when Codex records a live-client review of readability, placement, visual quality, NDAI uniformity, interaction posture, naming cleanliness, cleanup, and evidence quality from the launched user-facing path or an explicitly equivalent path.
+The gate is green only when Codex records a live-client review of readability, placement, visual quality, NDAI uniformity, interaction posture, naming cleanliness, cleanup, evidence quality, and product-vision alignment from the launched user-facing path or an explicitly equivalent path.
 Screenshot-only or marker-only proof is not enough. Codex must exercise the same visible user-facing interactions it would ask the USER to test, record `Live Interaction Evidence:`, and include an interaction manifest or equivalent evidence when the work adds an interactive UI surface.
+For desktop UI, Codex must also perform a failure-seeking visual adjudication pass over the focused proof artifacts before UTS handoff. That pass must compare every acceptance-critical screenshot or frame sequence against the Product Definition Plan, Runtime Branch Engineering Contract, latest USER vision/UTS feedback, and package-level UI/UX intent, then record per-element `PASS`, `REPAIR`, `STOP`, or `WAIVED_WITH_REASON` verdicts. Helper PASS, marker PASS, screenshot existence, and manifest existence cannot clear visual acceptability by themselves.
+If Codex can see clipped text, unclear workflow hierarchy, weak hover/click affordance, missing open/disabled/danger/empty/error proof, native/basic controls where Nexus styling is required, unreadable density, confusing window flow, or package-vision mismatch, LV1 must route back to Workstream or Hardening before asking the USER to accept the handoff.
 If the UTS asks the USER to right-click a tray icon, open or close a window through a tray menu, confirm shutdown, move/resize a visible window, or verify a visible state transition, Codex must precheck that same user-facing operation through the actual shortcut/runtime path when feasible. Fake windows, hidden clients, direct callbacks, and offscreen model assertions can support implementation confidence but cannot be recorded as the sole PASS for the same USER-facing step.
 For desktop UI, the Live Validation helper must offer an active foreground/user-observable mode; a fast hidden or blink-through run may support automation evidence but does not satisfy USER-visible active-client validation.
 For desktop UI with tray/menu/window operations, app-side precheck code that calls tray handlers directly is not a human-client pass. A green LV1 handoff requires a human-client manifest or explicit USER waiver. The manifest must show visible desktop shortcut launch, visible tray/menu selection, mouse/cursor or UIAutomation-backed click evidence, visible window state evidence, screenshot or frame-sequence artifacts, and Codex inspection of visual/UI quality for every issue-grounded UTS item. If this evidence is missing, the UTS must not be exported as green and the branch routes back to Workstream or Hardening.

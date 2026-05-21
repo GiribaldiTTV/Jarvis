@@ -1219,6 +1219,13 @@ Machine-checkable authority-record markers:
 - `Live Client Entry Path:`
 - `Evidence Screenshot:`
 - `Visual Quality:`
+- `Codex Visual Adjudication:`
+- `Visual Artifact Review Scope:`
+- `Product Vision Alignment:`
+- `Per-Element Visual Verdicts:`
+- `Helper Marker Limitation:`
+- `Unacceptable UI Findings:`
+- `LV1 Handoff Disposition:`
 - `Interaction Manifest:`
 - `Interaction Evidence Root:`
 - `Live Interaction Evidence:`
@@ -1239,6 +1246,8 @@ Required proof:
 - screenshots used for Live Validation closeout must be copied into `C:\Users\anden\OneDrive\Pictures\Screenshots\<project-or-validation-lane>\<timestamp>\` or the active USER-declared screenshots folder, and the raw image path must be surfaced in the Codex chat/handoff for USER inspection; `dev/logs` copies alone are not enough when visual proof is part of the gate
 - platform uniformity is reviewed across current NDAI naming, visual language, copy tone, and surrounding user-facing surfaces touched by the branch
 - validators, markers, screenshots, and manifests are treated as supporting evidence, not a replacement for Codex's visual/usability judgment
+- desktop UI Live Validation must include a failure-seeking visual adjudication pass before UTS handoff; Codex must inspect the focused proof images, compare them against the Product Definition Plan, Runtime Branch Engineering Contract, latest USER vision/UTS feedback, and package-level UI/UX intent, and record artifact-by-artifact `PASS`, `REPAIR`, `STOP`, or `WAIVED_WITH_REASON` verdicts for acceptance-critical states
+- helper PASS, marker PASS, screenshot existence, and manifest existence cannot clear visual acceptability; clipped text, unclear workflow hierarchy, weak hover/click affordance, missing open/disabled/danger/empty/error proof, native/basic controls where Nexus styling is required, or package-vision mismatch must route LV1 back to Workstream or Hardening before USER handoff
 
 Routing:
 
