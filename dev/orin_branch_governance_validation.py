@@ -2562,6 +2562,7 @@ STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_worktree_rebaseline_audit.py",
     "dev/orin_validation_suite.py",
     "dev/orin_governance_efficiency_validation.py",
+    "dev/orin_docs_inventory_reform_audit.py",
     "dev/automation_observability_report.py",
     "dev/orin_ai_provider_state_validation.py",
     "dev/orin_pr_body_quality_audit.py",

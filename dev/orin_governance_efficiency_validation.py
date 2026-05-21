@@ -14,6 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OPERATING_MODEL = Path("Docs/governance_efficiency_operating_model.md")
+DOCS_INVENTORY_AUDIT = Path("Docs/governance_docs_full_inventory_reform_audit.md")
 
 REQUIRED_MODEL_PHRASES = (
     "Rule ID And Owner Model",
@@ -181,6 +182,27 @@ CORE_GOVERNANCE_DUPLICATE_POLICY_FORBIDDEN = (
     "Release Window Aggregation Ownership: merge order does not decide release ownership",
 )
 
+AUDIT_REQUIRED_SECTIONS = (
+    "## Executive Summary",
+    "## Source-Truth Ownership Map",
+    "## Complete Docs Manifest",
+    "## Fact-Class Ownership Table",
+    "## Duplicate Truth Map",
+    "## Backlog Final Schema",
+    "## Roadmap Final Schema",
+    "## Branch Records Final Schema",
+    "## Branch Plans Lifecycle And Deletion Rule",
+    "## Workstreams / Family Dossier Schema",
+    "## Worktree Slots Schema",
+    "## Governance Docs Ownership Table",
+    "## Git / GitHub / Helper-Derived Truth Plan",
+    "## Validator Enforcement Table",
+    "## File Retirement / Delete Candidate Table",
+    "## File-By-File Review Dossier",
+    "## Deferred USER Decisions",
+    "## Next Legal Phase",
+)
+
 
 def _read(relative_path: Path) -> str:
     path = ROOT / relative_path
@@ -214,6 +236,11 @@ def _is_empty_branch_state(value: str) -> bool:
     return normalized.startswith("none") or normalized.startswith("not created")
 
 
+def _docs_file_count() -> int:
+    docs_root = ROOT / "Docs"
+    return sum(1 for path in docs_root.rglob("*") if path.is_file())
+
+
 def validate() -> list[str]:
     failures: list[str] = []
 
@@ -235,6 +262,46 @@ def validate() -> list[str]:
         for phrase in required_phrases:
             if phrase not in text:
                 failures.append(f"{path}: missing governance efficiency pointer {phrase!r}")
+
+    audit_text = _read(DOCS_INVENTORY_AUDIT)
+    if not audit_text:
+        failures.append(f"{DOCS_INVENTORY_AUDIT}: missing full Docs reform audit dossier")
+    else:
+        for section in AUDIT_REQUIRED_SECTIONS:
+            if section not in audit_text:
+                failures.append(
+                    f"{DOCS_INVENTORY_AUDIT}: missing required review section {section!r}"
+                )
+        docs_count = _docs_file_count()
+        audit_count_match = re.search(
+            r"Audit File Count:\s*(\d+)\s+files under `Docs/`",
+            audit_text,
+        )
+        manifest_count_match = re.search(r"Manifest Files Enumerated:\s*(\d+)", audit_text)
+        audit_count = int(audit_count_match.group(1)) if audit_count_match else -1
+        manifest_count = int(manifest_count_match.group(1)) if manifest_count_match else -1
+        if audit_count != docs_count:
+            failures.append(
+                f"{DOCS_INVENTORY_AUDIT}: Audit File Count {audit_count} does not "
+                f"match filesystem Docs file count {docs_count}"
+            )
+        if manifest_count != docs_count:
+            failures.append(
+                f"{DOCS_INVENTORY_AUDIT}: Manifest Files Enumerated {manifest_count} "
+                f"does not match filesystem Docs file count {docs_count}"
+            )
+        dossier_entries = len(
+            re.findall(r"(?m)^###\s+\d+\.\s+`Docs/", audit_text)
+        )
+        if dossier_entries != docs_count:
+            failures.append(
+                f"{DOCS_INVENTORY_AUDIT}: File-By-File Review Dossier has "
+                f"{dossier_entries} entries, expected {docs_count}"
+            )
+        if "dev/orin_docs_inventory_reform_audit.py" not in audit_text:
+            failures.append(
+                f"{DOCS_INVENTORY_AUDIT}: missing generator helper reference"
+            )
 
     for path in (Path("Docs/feature_backlog.md"), Path("Docs/prebeta_roadmap.md")):
         text = _read(path)
