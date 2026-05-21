@@ -20,7 +20,7 @@ This plan is not an implementation branch by itself. It is a reform inventory fo
 
 - Preserve safety before speed. Any compaction must keep protections for protected `main`, Release Readiness file freeze, multi-worktree identity, pre-rebaseline audit, branch-local authority, and PR/release body firewalls.
 - Reduce duplicated prose first. Repetition across `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/codex_modes.md`, `Docs/orin_task_template.md`, `Docs/codex_user_guide.md`, and `Docs/Main.md` is the largest token-cost driver.
-- Prefer small reform passes. Each category below should become a focused planning packet or branch pass instead of one broad rewrite.
+- Prefer small reform passes. Each category below should become a focused planning packet or branch pass instead of one broad rewrite. Exception: when USER approves a single-carrier / single-PR reform, use internal staged checkpoints on the same branch instead of forcing separate PRs.
 - Keep canonical names stable until aliases are proven. User-facing aliases can reduce confusion, but validators should keep the current canonical phase enum until a deliberate rename migration is approved.
 - Let validators enforce markers and let docs explain intent. Long policy paragraphs should shrink into canonical rule IDs, packet templates, and validator-backed marker sets.
 - Separate derived live truth from governance receipts. Git/GitHub and approved helpers should derive volatile facts such as `HEAD`, PR state, tags, releases, dirty state, and merge base; docs should record intent, USER decisions, receipts, and historical interpretation.
@@ -298,29 +298,29 @@ Implementation record:
 
 ## Category 12: Backlog And Roadmap Current-State Clarity
 
+Revised status:
+- Superseded / revised by the Source-Truth Ownership and Derived Live Truth reform. Backlog and roadmap should not own duplicated live-state decision surfaces. They may carry compact status and owner pointers, while Git/GitHub/helpers derive live operational truth and branch/release receipts preserve validated historical interpretation.
+
 Current finding:
 - `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` carry current state, release history, selected-next posture, and future candidates in dense prose.
 
-Recommendation:
-- Add a compact top-level `Current Decision Surface` block to each:
-  - latest public prerelease.
-  - merged-unreleased PRs.
-  - active runtime branch.
-  - active governance branch.
-  - selected-next posture.
-  - release blockers.
-  - next legal phase.
-- Move longer historical explanation below a stable marker.
+Revised recommendation:
+- Keep `Docs/feature_backlog.md` as a compact product registry and pointer layer.
+- Keep `Docs/prebeta_roadmap.md` as a release-stage breakpoint schedule outline and public milestone posture surface.
+- Do not preserve duplicated backlog/roadmap live-state blocks for latest release, merged-unreleased PRs, active branch, worktree state, release blockers, or next legal phase.
+- Route volatile facts to Git/GitHub/helpers, route branch authority and selected-next/no-active decisions to branch records, and route validated historical release interpretation to structured receipts.
+- Move longer historical explanation below its owning receipt, branch record, workstream doc, or family dossier.
 
 Focused planning pass:
-- `Backlog/Roadmap Current Decision Surface Pass`.
+- Historical: `Backlog/Roadmap Current Decision Surface Pass`.
 
 Priority:
 - Medium-high.
 
 Implementation record:
-- Focused pass admitted compact `## Current Decision Surface` blocks in `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md`.
-- The blocks keep `Latest Public Prerelease Recorded In Source Truth:`, `Published Release Pending Canon Closure:`, `Merged-Unreleased PRs:`, `Active Runtime Branch:`, `Active Governance Branch:`, `Selected-Next Posture:`, `Release Blockers:`, and `Next Legal Phase:` near the top so routine phase loading can avoid scanning long historical prose.
+- Historical note: an earlier focused pass admitted compact `## Current Decision Surface` blocks in `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md`.
+- Current reform supersedes that future model. Any remaining backlog/roadmap current-summary fields are transitional compact pointers only, not preferred live-state owners.
+- Future implementation should replace duplicated live-state fields with owner pointers, helper-derived reports, and branch/release receipts before treating backlog or roadmap as green for source-truth efficiency.
 - Validator source-check owner: `dev/orin_branch_governance_validation.py`.
 
 ## Category 13: Naming And Product Identity Drift
@@ -437,7 +437,10 @@ Post-merge operating rule:
 
 - Future governance efficiency changes should first use `Docs/governance_efficiency_operating_model.md` and `dev/orin_governance_efficiency_validation.py` before creating another live-state owner or duplicating policy prose.
 
-## Highest-Value First Pass
+## Highest-Value First Pass - Historical / Completed
+
+Status:
+- Historical recommendation; the implementation record below supersedes this as an active next-step recommendation.
 
 Recommended first focused pass:
 
@@ -561,6 +564,7 @@ Status:
 - Planning Status: `Planning / USER review only`.
 - Implementation Status: `Not yet implemented as binding governance`.
 - This section records the recommended model and future implementation targets. It does not by itself authorize Codex to enforce UFD requirements, mutate branch plans, create new UFD records, rename files, or treat proposed feedback as accepted branch scope.
+- Future Codex packets should treat this section as planning evidence until a later implementation commit updates the owning governance docs, templates, fixtures, and validators.
 
 Scope:
 - Plan the USER Feedback Disposition model before implementation.
@@ -590,6 +594,7 @@ Recommended model:
 - Worktree slots carry no feedback detail.
 - Nexus Vision and family vision/family dossier owners receive only accepted reusable standards, not branch-local unresolved feedback.
 - Workstream docs and family dossiers receive folded durable outcomes, proof history, branch lessons, package trace, slice trace, and reusable continuity during PR Readiness fold-down.
+- Pointer locations may carry UFD ID, short title, canonical owner, compact status, and fold-down status only; they should not carry full feedback text, full decision history, or live implementation state.
 
 Feedback ID recommendation:
 - Use `UFD-<scope>-YYYYMMDD-NNN` for USER Feedback Disposition IDs.
@@ -602,6 +607,7 @@ Meaningful feedback threshold:
 - Not every USER comment becomes a UFD item.
 - UFD disposition is required when USER feedback affects branch scope, accepted vision, user-facing behavior, runtime behavior, validation proof, future work, reusable product standards, approval boundaries, or a USER decision.
 - Minor comments, acknowledgements, typo-level notes, duplicate remarks, or non-actionable conversation can close as `Rejected / No Action` or no durable UFD record when Codex states why no source-truth action is needed.
+- When Codex closes a meaningful-looking comment without a durable UFD item, the return digest should state the no-action reason so feedback is not silently dropped.
 
 Split-state recommendation:
 
@@ -611,6 +617,10 @@ Split-state recommendation:
 | `USER Decision State:` | Whether USER has accepted the disposition. | Proposed by Codex; Recommended by ChatGPT; Accepted by USER; Revised by USER; Rejected by USER; Deferred by USER; Deferred With Waiver; Superseded; Needs USER Decision |
 | `Workstream Severity:` | How much it affects implementation continuity. | Level 1 Non-Blocking; Level 2 Seam-Blocking; Level 3 Workstream-Breaking |
 | `Owner Class:` | Which source-truth layer owns the durable fact. | Branch Plan; Branch Record; Backlog Pointer; Roadmap Pointer; Nexus Vision; Family Vision / Dossier; Workstream Doc; Governance Receipt; No Durable Owner Needed |
+| `Status:` | Current handling state for the feedback item. | Open; Queued; Blocking; Closed; Folded Down; Deferred; Superseded |
+
+Owner-class guardrail:
+- `No Durable Owner Needed` may be used only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with reason recorded in the active branch plan or return digest.
 
 Minimum UFD record:
 - `Feedback ID:`
@@ -618,7 +628,9 @@ Minimum UFD record:
 - `Disposition Type:`
 - `USER Decision State:`
 - `Owner Class:`
+- `Canonical Owner File:`
 - `Workstream Severity:`
+- `Status:`
 - `Fold-Down Target:`
 
 Full UFD record:
@@ -633,6 +645,7 @@ Full UFD record:
 - `Accepted Disposition:`
 - `USER Decision State:`
 - `Workstream Severity:`
+- `Status:`
 - `Canonical Owner File:`
 - `Pointer Locations:`
 - `Current Branch Impact:`
@@ -647,6 +660,7 @@ Fold-down receipt rule:
 - PR Readiness Stage 1 must compare all open feedback items against the accepted branch plan and accepted Branch Vision Contract Snapshot.
 - PR Readiness Stage 2 may proceed only when every meaningful feedback item is migrated, deferred with waiver, rejected/no-action with reason, closed, or explicitly carried to a future owner.
 - The fold-down receipt should include `Feedback ID`, original owner, final disposition, final owner, USER decision, proof or migration reference, branch-plan retirement/deletion eligibility, and remaining open items.
+- Fold-down must preserve a lookup path from every UFD ID to its final owner after branch-plan fold-down and retirement.
 - Branch plan deletion remains a separate USER decision. The default post-PR outcome is folded/retired posture, not deletion.
 - Default branch-plan lifecycle outcome: folded / retired posture. Deletion requires separate USER approval or a future repo-established deletion rule that includes reference scans and durable-content preservation proof.
 
@@ -655,7 +669,7 @@ Validator/helper implementation posture:
 - Heavy enforcement against historical branch records is deferred because old receipts contain many historical feedback/disposition phrases that were not created under this model.
 - False-positive-prone duplicate full-text detection should be report-only until fixtures prove the pattern.
 - Initial validators should enforce required markers, owner fields, safe decision-state values, and fold-down status only.
-- Natural-language duplicate feedback detection starts as report-only. Blocking duplicate-feedback detection requires fixture coverage and separate USER approval.
+- Natural-language duplicate feedback detection starts as report-only. Blocking duplicate-feedback detection requires approved fixtures, false-positive review, and separate USER approval.
 
 Codex implementation guard:
 - Codex may recommend UFD disposition, owner, Workstream severity, and fold-down target.
@@ -689,6 +703,7 @@ Naming inventory:
 | Backlog Item | Product registry entry. | Broad selectable family/package identity. | Medium: legacy FB rows are historical only. | Use `Backlog Family` for FAM records; `historical trace` for old FB rows. | `Docs/feature_backlog.md` | Medium | No |
 | Branch Authority Record | Branch legal control surface. | Branch authority, approvals, phase history, compact receipt. | Low/Medium: often shortened to branch record. | Keep; allow `Branch Record` as alias after first use. | `Docs/branch_records/index.md` | Low | No |
 | Branch Runtime Engineering Plan | Active detailed branch plan. | Runtime-focused active execution blueprint. | Medium: long name. | Keep formal name; alias `Branch Plan` after first use. | `Docs/branch_plans/README.md` | Low | No |
+| Branch Engineering Plan | Conversational form for branch-level implementation planning. | Generic alias for Branch Runtime Engineering Plan or a future non-runtime branch plan when source truth supports it. | Medium: can blur runtime and governance branches. | Use the formal owner name first, then the alias. | `Docs/branch_plans/README.md` | Medium | No |
 | Branch Plan | Short alias. | Alias for Branch Runtime Engineering Plan when context is clear. | Medium: could mean any plan. | Use only after formal name is introduced. | `Docs/branch_plans/README.md` | Medium | No |
 | Branch Receipt | Folded historical branch evidence. | Compact/structured historical branch trace. | Medium: not consistently defined. | Define as `Structured Branch Receipt`. | `Docs/branch_records/index.md` | Medium | No |
 | Worktree Slot | Stable workspace role assignment. | Intended lane assignment, not live state. | Low/Medium. | Keep; always say slot does not equal active authority. | `Docs/worktree_slots.md` | Low | No |
@@ -720,6 +735,7 @@ Naming inventory:
 | Active Branch | Legal current branch authority. | Active branch authorized by branch record, not slot or git alone. | High. | Use `Active Branch Authority` when legal meaning matters. | `Docs/branch_records/index.md` | High | No |
 | Selected Next | USER-approved next branch/workstream posture. | Future selected work, not active branch by inertia. | High. | Use `Selected Next Workstream` or `Selected Next: Deferred/Waived`. | `Docs/phase_governance.md` | High | No |
 | No Active Branch | Merged-main runtime/implementation idle posture. | No runtime/implementation/release/repair carrier active; standing governance may still exist. | High. | Keep with explicit standing-governance exception. | `Docs/branch_records/index.md` | High | No |
+| Compact-AI | Protected sibling lane/worktree name found in mutation-boundary and source-owner-marker records. | Separate protected mutation boundary until USER/source truth defines whether it becomes a feature family, workstream, external project, or retired lane. | Medium: unclear whether it is a feature family, workstream, or external project. | Do not treat as active branch/workstream identity without owner definition; keep as pending/protected boundary in packets. | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`, `Docs/validation_helper_registry.md` | Medium | Needs USER/source-truth decision |
 
 ID namespace policy:
 
@@ -732,6 +748,8 @@ ID namespace policy:
 | `UFD-*` | USER Feedback Disposition item. | Proposed future feedback namespace. | Never use `FBK-*`; UFD is not a backlog item. |
 | `RRI-*` | Standing governance / Release Readiness Intake cycle. | Existing governance intake namespace. | Expand at first use; do not use for release IDs. |
 | `PR #*` | GitHub pull request number. | GitHub evidence only. | PR number is never a backlog, workstream, package, or feedback identity. |
+| `feature/*`, `repair/*`, `codex/*` | Git branch/ref namespace. | Branch/ref identity only. | Never use as feature, package, feedback, workstream, release, or vision identity. |
+| `v*-prebeta` | Git tag / GitHub Release namespace. | Release identity only. | Never use as branch, workstream, backlog, feedback, or package identity. |
 
 File naming analysis:
 
@@ -749,10 +767,12 @@ File naming analysis:
 Governance label hierarchy recommendation:
 - `Phase`: top-level lifecycle state: Branch Readiness, Workstream, Hardening, Live Validation, PR Readiness, Release Readiness, Release Execution, Post-Release Carry-Forward.
 - `Stage`: ordered sub-step inside a phase: Stage 1 analysis; Stage 2 setup/execution.
+- Use `Release Milestone` or `Release Sequencing` when discussing public release progress; reserve `Stage` for ordered substeps inside a phase.
 - `Workstream`: implementation/build phase and promoted durable work record. When referencing files, say `Workstream Doc`.
 - `Package`: delivery scope under one feature family.
 - `Slice`: deliverable unit inside a package.
 - `Seam`: bounded execution/proof checkpoint inside Workstream; not automatically the whole branch scope.
+- A branch may contain multiple seams and slices; neither a seam nor a slice automatically defines the full branch scope.
 - `Branch Record`: legal authority and structured branch receipt.
 - `Branch Plan`: active Branch Runtime Engineering Plan after first formal use.
 - `Dossier`: durable family-level continuity surface, not active branch authority.
@@ -781,6 +801,7 @@ User-facing process names:
   - `Release Execution` = `Publish Release`
   - `Post-Release Carry-Forward` = `Next-Branch Carry-Forward`
 - Validators should continue to use canonical names until USER approves any canonical enum rename.
+- Validator output may include friendly aliases only after the canonical term appears, such as `Branch Readiness Stage 1 (Plan Review)`.
 
 Codex prompt naming standard:
 - Every prompt should name exact worktree, exact branch, exact phase, exact stage if applicable, exact source-truth owner, allowed mutation surfaces, pending USER decisions, validation commands, stop/report conditions, and exact return packet fields.
