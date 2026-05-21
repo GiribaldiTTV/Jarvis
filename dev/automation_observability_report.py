@@ -33,6 +33,18 @@ HISTORICAL_OR_STALE_AUTOMATION_PROMPT_MARKERS = {
     "main-revalidation-gate-watch": ("FB-049",),
     "selected-next-lock-audit": ("FB-049",),
 }
+LEGACY_TOOLCHAIN_RUNTIME_FINDING_MARKERS = (
+    "toolchain path drift remains",
+    "branch-governance runtime path still missing",
+    "branch-governance runtime surface",
+    "dev/i/runtime/service.py",
+    "dev\\i\\runtime\\service.py",
+)
+LEGACY_TOOLCHAIN_RUNTIME_CANON_MARKERS = (
+    "Toolchain Availability Watch Current Disposition: `Background observability only`",
+    "Legacy Runtime Path Expectation: `dev/i/runtime/service.py is retired historical automation truth, not current source truth`",
+    "Current Source-Truth Requirement: `No current governance rule requires dev/i/runtime/service.py unless a future branch reintroduces it explicitly`",
+)
 BLOCKER_WORDS = (
     "block",
     "blocked",
@@ -272,6 +284,15 @@ def lane_sensitive_prompt(prompt: str) -> bool:
     return any(marker in text for marker in LANE_SENSITIVE_PROMPT_MARKERS)
 
 
+def neutral_main_background_observability_prompt(prompt: str) -> bool:
+    text = prompt.casefold()
+    return (
+        "background observability" in text
+        and "fresh main equality before reporting blockers" in text
+        and "do not mutate" in text
+    )
+
+
 def pr99_heartbeat_missing_is_historical() -> bool:
     record = read_repo_text("Docs/branch_records/feature_automation_planning.md")
     required_markers = (
@@ -280,6 +301,17 @@ def pr99_heartbeat_missing_is_historical() -> bool:
         "missing live PR99 TOML/script files after retirement are not automation drift by themselves",
     )
     return all(marker in record for marker in required_markers)
+
+
+def legacy_toolchain_runtime_finding_is_retired() -> bool:
+    record = read_repo_text("Docs/branch_records/feature_automation_planning.md")
+    registry = read_repo_text("Docs/validation_helper_registry.md")
+    main_doc = read_repo_text("Docs/Main.md")
+    return (
+        all(marker in record for marker in LEGACY_TOOLCHAIN_RUNTIME_CANON_MARKERS)
+        and "stale toolchain-path findings are downgraded to `review_info`" in registry.casefold()
+        and "current source truth still owns the referenced path" in main_doc
+    )
 
 
 def fb049_active_phase_truth_is_aligned() -> bool:
@@ -481,6 +513,11 @@ def fb030_post_merge_drift_is_carried_into_fb027() -> bool:
 def classify_pending_review(title: str, summary: str) -> str:
     text = f"{title}\n{summary}".casefold()
     if "no blocker remains" in text:
+        return "REVIEW_INFO"
+    if (
+        any(marker in text for marker in LEGACY_TOOLCHAIN_RUNTIME_FINDING_MARKERS)
+        and legacy_toolchain_runtime_finding_is_retired()
+    ):
         return "REVIEW_INFO"
     if (
         (
@@ -693,7 +730,16 @@ def build_report() -> tuple[dict[str, object], list[Finding]]:
                             ),
                         )
                     )
-                if role == "neutral-main" and lane_sensitive_prompt(prompt):
+                if (
+                    role == "neutral-main"
+                    and lane_sensitive_prompt(prompt)
+                    and not (
+                        neutral_main_background_observability_prompt(prompt)
+                        and head
+                        and origin_main
+                        and head == origin_main
+                    )
+                ):
                     findings.append(
                         Finding(
                             "REVIEW_REQUIRED",
