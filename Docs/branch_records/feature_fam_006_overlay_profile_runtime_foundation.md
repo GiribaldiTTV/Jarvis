@@ -19,8 +19,8 @@ The branch exists to admit the Overlay Profile runtime foundation as the next FA
 
 ## Current Phase
 
-- Phase: `Workstream`
-- Stage Detail: `Returned USER review identified HUD-wide button glow inconsistency and a Live Validation visual-inspection governance gap. Bounded Workstream repair adds HUD-wide affordance glow uniformity plus a per-element visual inspection matrix covering buttons, dropdowns, rows, chips, fields, page breaks, background glow/graphics, bleed-through, clipping, and scaling. Hardening H1 is the next legal phase after validation-green repair commit.`
+- Phase: `Hardening`
+- Stage Detail: `Hardening H1 is Green for the returned USER HUD-wide button glow uniformity and visual-inspection matrix repair. H1 pressure-tested HUD-wide glow uniformity, page-break/divider haze, background glow/graphics, bleed-through, clipping, scaling, and existing interactive-control proof. Refreshed Live Validation LV1 / UTS is the next legal phase.`
 
 ## Phase Status
 
@@ -62,7 +62,9 @@ PR Readiness Status: `Blocked until this repair completes Hardening H1 and refre
 
 Workstream Repair Proof: `Green - active-client live self-QA passed the HUD-wide visual inspection matrix at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_160228_031\monitoring_hud_live_client_interaction_manifest.json with hudWideVisualInspectionMatrix=true, buttonGlowUniformity=true, targetCount=36, surfaceCount=3, and scope=buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling.`
 
-Recommended Phase After Workstream Green: `Hardening H1 for HUD-wide button glow uniformity and visual inspection matrix repair, pending USER phase admission.`
+Hardening H1 Proof: `Green - active-client H1 proof passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_160957_373\monitoring_hud_live_client_interaction_manifest.json with hudWideVisualInspectionMatrix=true, buttonGlowUniformity=true, targetCount=36, surfaceCount=3, no matrix failures, dashboard travel/clipping boundary proof green, and no bounded H1 source repair required.`
+
+Recommended Phase After H1 Green: `Refreshed Live Validation LV1 / UTS recheck for the HUD-wide button glow uniformity and visual inspection matrix repair, pending USER phase admission.`
 
 ## Branch Class
 
@@ -136,7 +138,7 @@ Branch Closure Rule: `This branch may close only after the admitted Overlay Prof
 
 Backlog Completion State: `In Progress`
 
-Remaining Implementable Work: `Bounded LV1 visual acceptability repair implementation, H1, refreshed LV1 technical proof, Codex Visual Adjudication PASS, and formal UTS refresh are complete; returned USER UTS review/digest is next, and later USER-approved PR seams remain. SLC-037 implementation/H1, SLC-038 Workstream implementation/H1, compact layout/settings-window repair, selector-width repair, v1.7.11 closure-drift repair, SLC-039 Workstream implementation/H1, SLC-040 Workstream implementation/H1, bounded SLC-041 Workstream implementation, SLC-041 Hardening H1, real shortcut human-client precheck, active-client LV1 proof, formal UTS refresh, returned USER UTS digest recording, returned-UTS repair setup, returned-UTS Workstream implementation, follow-up returned-UTS repair setup, follow-up returned-UTS Workstream implementation, follow-up H1, refreshed LV1 technical proof/UTS handoff, returned refreshed LV1 visual-governance repair setup, bounded LV1 visual acceptability Workstream repair, bounded LV1 visual acceptability H1, and final refreshed LV1 technical proof are complete.`
+Remaining Implementable Work: `Bounded LV1 visual acceptability repair implementation, H1, refreshed LV1 technical proof, Codex Visual Adjudication PASS, and formal UTS refresh are complete; returned USER UTS review/digest is next, and later USER-approved PR seams remain. SLC-037 implementation/H1, SLC-038 Workstream implementation/H1, compact layout/settings-window repair, selector-width repair, v1.7.11 closure-drift repair, SLC-039 Workstream implementation/H1, SLC-040 Workstream implementation/H1, bounded SLC-041 Workstream implementation, SLC-041 Hardening H1, real shortcut human-client precheck, active-client LV1 proof, formal UTS refresh, returned USER UTS digest recording, returned-UTS repair setup, returned-UTS Workstream implementation, follow-up returned-UTS repair setup, follow-up returned-UTS Workstream implementation, follow-up H1, refreshed LV1 technical proof/UTS handoff, returned refreshed LV1 visual-governance repair setup, bounded LV1 visual acceptability Workstream repair, bounded LV1 visual acceptability H1, final refreshed LV1 technical proof, HUD-wide visual inspection matrix Workstream repair, and HUD-wide visual inspection matrix H1 are complete.`
 
 Future-Dependent Blockers: `Returned refreshed UTS review/digest, PR Readiness, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
 
@@ -154,15 +156,15 @@ Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Active - returned USER UTS REPAIR is admitted as bounded Workstream repair; stop at Workstream Green and do not enter Hardening H1 until USER admits the next phase.`
+Continuation Execution Latch: `Inactive - Hardening H1 is Green; phase-boundary stop is required before USER may admit refreshed Live Validation LV1.`
 
-Stop Basis: `Workstream Green`
+Stop Basis: `Hardening H1 Green`
 
-Next Active Seam: `Hardening H1 - HUD-wide button glow uniformity and visual inspection matrix repair`
+Next Active Seam: `Live Validation LV1 - refreshed HUD-wide visual inspection matrix recheck`
 
-Stop Condition: `Bounded Workstream repair validation green; stop at the Workstream-to-Hardening phase boundary unless USER admits H1.`
+Stop Condition: `Hardening H1 validation green; stop at the Hardening-to-Live Validation phase boundary unless USER admits refreshed LV1.`
 
-Continuation Action: `Report Workstream Green and stop at phase boundary; do not run PR Readiness, H1, LV1, or later runtime seams until USER admits the next phase.`
+Continuation Action: `Report H1 Green and stop at phase boundary; do not run PR Readiness, LV1, or later runtime seams until USER admits the next phase.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -642,7 +644,7 @@ Future Runtime Validation: `HUD surface validation`; `HUD internal sandbox valid
 
 ## Blockers
 
-Active Blockers: `USER_TEST_REQUIRED - final refreshed LV1 technical proof and Codex Visual Adjudication are PASS; PR Readiness is blocked until returned USER PASS or waiver with reason is complete`
+Active Blockers: `Refreshed LV1 / UTS required after returned USER HUD-wide visual inspection repair H1 Green. PR Readiness is blocked until refreshed LV1 / UTS returns PASS or USER waiver with reason is complete.`
 
 ## Entry Basis
 
@@ -670,23 +672,23 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 
 ## Next Legal Phase
 
-Next Legal Phase: `Workstream`
+Next Legal Phase: `Hardening`
 
-Next Legal Phase Detail: `Current phase remains Workstream until this bounded HUD-wide button glow / visual inspection matrix repair is committed and the USER admits Hardening H1.`
+Next Legal Phase Detail: `Governance-canonical phase remains Hardening after H1 Green until USER admits refreshed Live Validation LV1 / UTS for the HUD-wide visual inspection matrix repair. Recommended next phase after USER admission is Live Validation.`
 
 ## Next Legal Phase Digest
 
-Current Phase: `Workstream`
+Current Phase: `Hardening`
 
-Stage Detail: `Returned USER UTS review is REPAIR for HUD-wide button glow uniformity and insufficient per-element visual inspection coverage.`
+Stage Detail: `Hardening H1 is Green for the returned USER HUD-wide button glow uniformity and visual inspection matrix repair.`
 
-Next Legal Phase: `Workstream`
+Next Legal Phase: `Hardening`
 
-Next Legal Phase Detail: `Current phase remains Workstream for the returned USER HUD-wide button glow / visual inspection matrix repair; Hardening H1 is the recommended next phase after Workstream Green and USER phase admission.`
+Next Legal Phase Detail: `Current phase remains Hardening for the returned USER HUD-wide button glow / visual inspection matrix repair; refreshed Live Validation LV1 / UTS is the recommended next phase after H1 Green and USER phase admission.`
 
-Why This Phase Is Next: `Returned USER review found remaining visual affordance and validation-coverage defects. This Workstream repair must land before H1, refreshed LV1, PR Readiness, or later runtime seams can resume.`
+Why This Phase Is Next: `Returned USER review found remaining visual affordance and validation-coverage defects. The bounded Workstream repair and H1 are now Green, so refreshed LV1 / UTS must verify the real user-facing path before PR Readiness or later runtime seams can resume.`
 
-Approval Required: `USER returned UTS results or waiver with reason are required next. Later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams.`
+Approval Required: `USER approval is required to run refreshed Live Validation LV1 / UTS. Later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams.`
 
 Exact USER Approval Text: `Return completed User Test Summary results for feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006 as PASS, FAIL/REPAIR with notes, or WAIVED_WITH_REASON. Codex may digest the returned USER results, record the result in source truth, run required validation, commit/push bounded result updates if validation is green, and report the next legal phase. PR Readiness, PR creation, merge, release, issue mutation, artifacts, branch cleanup, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model work, broad theme/skin work, FAM-007, Governance, Compact-AI, and AI Product work remain separate USER decisions.`
 
