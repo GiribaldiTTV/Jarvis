@@ -9,7 +9,7 @@ This layer sits under the branch authority record. It does not replace the branc
 ## Ownership Model
 
 - Backlog entries remain compact registry, status, and pointer surfaces.
-- Roadmap entries remain compact release/sequencing surfaces.
+- Roadmap entries remain compact stage-breakpoint schedule and milestone-checkpoint reference surfaces.
 - Branch authority records remain control surfaces for branch identity, phase, approvals, blockers, and legal next phase.
 - Branch Runtime Engineering Plans own detailed active-branch runtime execution planning for the current branch/worktree.
 - Canonical workstream docs and family dossiers receive durable promoted lessons only after PR Readiness fold-down decides what should survive beyond the active branch.
@@ -64,7 +64,7 @@ Hardening compares actual implementation against the plan and records extra beha
 
 Live Validation records proof or waiver posture against the plan. Disabled/status-only branches must include a static proof substitute and waiver reason.
 
-PR Readiness compares the whole branch against the plan and produces the `PR Fold-Down Packet:`. That packet decides whether the plan remains as historical branch source truth, is compacted into a branch receipt, or promotes durable lessons to a canonical workstream or family dossier.
+PR Readiness compares the whole branch against the plan and produces the `PR Fold-Down Packet:`. That packet decides what durable content moves into the structured branch receipt, what promotes to a canonical workstream or family dossier, and when the plan is retired from active planning posture.
 
 Release Readiness translates the plan into public release language: user-visible highlights, excluded work, future-gated capabilities, and public body wording without internal governance jargon.
 
@@ -74,10 +74,11 @@ Branch plans are canonical while the owning branch is active. They are not perma
 
 At PR Readiness, the `PR Fold-Down Packet:` must classify plan content into one of these outcomes:
 
-- retained as historical branch-plan source truth
-- compacted into the branch authority record as a branch receipt
+- migrated into the branch authority record as a structured traceability receipt
 - promoted to a canonical workstream or family dossier because future branches should reuse it
-- removed from active planning posture because it was superseded, rejected, or future-gated
+- retired from active planning posture because it was superseded, rejected, future-gated, or fully folded down
+
+Branch plans are not deleted by default. Deletion requires a separate USER decision after reference scans prove the plan's durable content and useful historical evidence are preserved elsewhere.
 
 Fold-down must preserve USER decisions, approval boundaries, future-gated items, validator/helper proof, user-facing proof, and plan-to-implementation traceability. It must not preserve stale active phase, live PR, latest-release, worktree dirty-state, or watcher state as current truth.
 

@@ -153,7 +153,7 @@ WORKTREE_SLOT_FORBIDDEN = (
 )
 
 BRANCH_RECORD_INDEX_REQUIRED = (
-    "Branch records are authority and compact receipt surfaces",
+    "Branch records are authority and structured traceability receipt surfaces",
     "Branch records must not become durable family dossiers",
     "Package Trace and Slice Trace detail belongs",
 )
@@ -189,6 +189,7 @@ AUDIT_REQUIRED_SECTIONS = (
     "## What Was Completed",
     "## What Remains Deferred",
     "## What Requires USER Decision",
+    "## USER Review Intake Model",
     "## High-Risk Files",
     "## Files Safe To Leave For Now",
     "## Files Needing Future Migration",
@@ -205,7 +206,7 @@ AUDIT_REQUIRED_SECTIONS = (
     "## Backlog Final Schema",
     "## Roadmap Final Schema",
     "## Branch Records Final Schema",
-    "## Branch Plans Lifecycle And Deletion Rule",
+    "## Branch Plans Lifecycle And Retirement Rule",
     "## Branch Runtime Engineering Plan Lifecycle Proof",
     "## Workstreams / Family Dossier Schema",
     "## Worktree Slots Schema",
@@ -224,6 +225,7 @@ INDEX_REQUIRED_SECTIONS = (
     "## Review Proof",
     "## Suggested Review Order",
     "## Decision Checklist",
+    "## User Response Intake Status",
     "## Files Needing USER Decision",
     "## Ambiguity Review Queue",
     "## Structure Review Queue",

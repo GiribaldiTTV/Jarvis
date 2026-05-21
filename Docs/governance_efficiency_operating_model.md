@@ -39,7 +39,7 @@ Use this ownership model before creating or updating a governance/source-truth f
 
 | Surface | Owns | Must Not Own |
 | --- | --- | --- |
-| `Docs/Main.md` | highest-level routing map, source-truth layer ownership, recovery pointers | detailed branch execution narratives |
+| `Docs/Main.md` | least-updated canonical docs index, source-truth layer ownership, recovery pointers, and clear digest of valid governance/source-truth files | detailed branch execution narratives or volatile current-state ledgers |
 | `Docs/phase_governance.md` | normative phase rules, phase enum, blockers, gates, proof hierarchy | branch-local implementation details |
 | `Docs/development_rules.md` | developer-facing execution rules and compact phase mirrors | duplicate full policy blocks already owned elsewhere |
 | `Docs/codex_modes.md` | Codex operating posture and mode behavior | branch-local truth or release receipts |
@@ -49,8 +49,8 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/feature_backlog.md` | compact feature-family registry, status, and pointer layer | detailed active-branch execution planning |
 | `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, and broad feature-family checkpoints | volatile Git/GitHub operational state or active release ledger fields |
 | `Docs/branch_records/index.md` | active/historical branch authority routing | detailed branch implementation checklists |
-| `Docs/branch_records/<branch>.md` | branch authority, phase history, approvals, legal next phase, compact branch receipt | reusable family-level implementation history after fold-down |
-| `Docs/branch_plans/<branch>.md` | active runtime branch engineering plan, per-seam checklist, plan-to-implementation traceability | permanent family-level dossier after PR fold-down unless explicitly retained |
+| `Docs/branch_records/<branch>.md` | branch authority, phase history, approvals, legal next phase, structured traceability receipt | volatile live state, unindexed execution diaries, or reusable family-level implementation history after promotion |
+| `Docs/branch_plans/<branch>.md` | active runtime branch engineering plan, per-seam checklist, plan-to-implementation traceability while active | permanent family-level dossier, active authority after fold-down, or live-state ledger after retirement |
 | `Docs/workstreams/index.md` | canonical workstream and dossier routing | per-branch live state by inertia |
 | `Docs/workstreams/<id>.md` | durable promoted implementation history and reusable continuity | volatile branch/PR state |
 | `Docs/validation_helper_registry.md` | durable helper inventory, statuses, reuse/consolidation decisions | workstream evidence details already owned by branch/workstream docs |
@@ -67,12 +67,12 @@ The post-audit reform model has one owner per active fact class:
 - backlog owns compact product-family identity and canonical pointers
 - roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, and broad feature-family checkpoints
 - worktree slots own reusable slot definitions and intended assignment receipts
-- branch records own branch authority, approvals, phase history, and compact branch receipts
-- branch plans own detailed active runtime-branch engineering plans
+- branch records own branch authority, approvals, phase history, and structured branch traceability receipts
+- branch plans own detailed active runtime-branch engineering plans and retire after fold-down
 - workstreams and family dossiers own durable package trace, slice trace, proof history, and reusable continuity
 - Git, GitHub, and approved helpers own live operational truth
 
-Backlog and roadmap must not contain `Package Trace:` or `Slice Trace:` sections. Those detailed ledgers belong in workstream records, family dossiers, branch plans, or compact branch receipts.
+Backlog and roadmap must not contain `Package Trace:` or `Slice Trace:` sections. Those detailed ledgers belong in workstream records, family dossiers, active branch plans, or structured branch receipts.
 
 Backlog and roadmap must not manually maintain latest public prerelease, latest tag, release URL, target commit, open PR state, active branch identity, review-thread state, worktree dirty state, or ahead/behind state as active truth. The roadmap is a stage-breakpoint reference, not a release ledger. These surfaces may point to the helper or owner that derives live truth.
 
@@ -96,6 +96,8 @@ Allowed compact current-state markers:
 - branch authority status in the active branch record
 - slot assignment receipt in `Docs/worktree_slots.md`
 - historical receipts after live truth is validated
+
+Canonical docs and context docs are distinct. `Docs/Main.md` is the highest-level canonical docs index: it should be updated rarely, point to the current valid governance/source-truth files, and explain each file's intended purpose clearly enough to recover the system. Context docs may preserve historical evidence, workstream detail, branch receipts, product reasoning, or implementation lessons, but they must point back to their canonical owner and must not pretend to be the top-level source of current governance law.
 
 Prohibited duplication by default:
 
@@ -167,18 +169,28 @@ Branch records, branch plans, and workstreams are related but not interchangeabl
 
 Use this split:
 
-- branch records own branch authority, approvals, phase history, blockers, legal next phase, and compact branch receipts
+- branch records own branch authority, approvals, phase history, blockers, legal next phase, and structured branch traceability receipts
 - branch plans own detailed active runtime planning while the branch is active
 - workstreams and family dossiers own durable package trace, slice trace, proof history, reusable lessons, and family continuity
 
-At PR Readiness, every runtime-focused branch needs a fold-down or retention decision:
+At PR Readiness, every runtime-focused branch needs a fold-down or retirement decision:
 
-- keep the branch plan as historical branch source truth when the detail is branch-specific evidence
-- compact only the receipt into the branch authority record when the plan is too detailed for long-term active loading
+- retire the branch plan after durable content is migrated and no active branch depends on it
+- preserve branch-specific evidence in a structured branch receipt when it is needed for later debugging, rollback analysis, or USER memory
 - promote reusable lessons, package trace, slice trace, validators, and proof history to workstreams or family dossiers
 - leave backlog and roadmap as compact pointers instead of copying the plan or trace tables
 
+Traceability compaction must not mean evidence loss. Large branch records may remain large when they are the correct historical ledger, but they should be organized for USER review and Codex indexing: current summary first, clear historical sections, commit/PR/release evidence, changed-surface map, validation proof, and links to promoted workstream/family-dossier detail. The reform target is less chaos and less duplicate live state, not smaller files at the cost of useful evidence.
+
 Historical receipts may preserve PRs, tags, releases, and commit hashes when they are evidence for a closed decision. They must not be presented as live operational truth or repeated across backlog and roadmap.
+
+## Product Vision Contract Model
+
+`Docs/orin_vision.md` is currently classified as product/architecture reference, but the USER review direction is to evolve it into a Nexus-wide vision contract. Future focused cleanup should evaluate renaming or reframing it as a Nexus vision surface and updating references safely.
+
+The vision contract should drive backlog-family planning and Branch Readiness recommendations. A backlog item may need its own family-level vision record or vision section when the product intent is not obvious, but that vision is not a branch plan and should not duplicate per-seam implementation detail. The vision explains what outcome the plan must satisfy; the Branch Runtime Engineering Plan explains how the active branch intends to implement and prove it.
+
+Vision records should support USER/Codex back-and-forth. They may grow as implementation teaches the project, but changes should be explicit USER-reviewed product intent, not accidental branch-local drift.
 
 ## Standing Governance Ledger Compaction
 
@@ -257,6 +269,8 @@ Historical GitHub tags, release titles, old branch records, and prior evidence m
 ## Reform Pass Completion Model
 
 The consolidated governance reform PR may complete the policy, pointer, and validator scaffolding for all reform categories in `Docs/governance_process_efficiency_reform_plan.md`.
+
+For `RRI-20260521-001`, the USER direction is one single final PR with staged internal commits rather than revolving PRs. Analysis, model updates, and planning refinements may continue on the standing Governance branch until USER accepts the reform review surface; cleanup execution remains bounded by this model and PR Readiness stays held until USER approval.
 
 It must not perform broad historical migration, branch deletion, worktree cleanup, runtime mutation, release execution, or FAM lane mutation. Those remain separate USER decisions.
 

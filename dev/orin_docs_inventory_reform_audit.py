@@ -153,8 +153,8 @@ AMBIGUITY_PATTERNS = {
 
 OWNER_DESCRIPTIONS = {
     "recovery map / source-truth router": (
-        "highest-level recovery map and source-truth ownership map",
-        "pointers to canonical owners and compact required field names",
+        "least-updated canonical docs index, recovery map, and source-truth ownership map",
+        "clear pointers to current governance/source-truth owners and a digest of each file's purpose",
         "detailed branch execution, release windows, or policy prose",
     ),
     "normative phase governance": (
@@ -207,15 +207,15 @@ OWNER_DESCRIPTIONS = {
         "lists and rules for branch authority records",
         "detailed implementation plans",
     ),
-    "branch authority / compact receipt": (
-        "branch authority, approvals, phase history, legal carrier status, compact receipts",
-        "branch identity, phase markers, approvals, blockers, historical receipt",
-        "durable family implementation history after fold-down",
+    "branch authority / structured receipt": (
+        "branch authority, approvals, phase history, legal carrier status, and structured traceability receipt",
+        "branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections",
+        "volatile live state, unindexed execution diaries, or reusable family implementation history after promotion",
     ),
     "branch runtime engineering plan": (
         "active branch engineering plan",
         "per-seam checklists, deltas, proof, approval boundaries while active",
-        "permanent family dossier after PR fold-down",
+        "permanent family dossier or active/live branch authority after PR fold-down",
     ),
     "branch plan standard": (
         "branch runtime engineering plan standard",
@@ -343,7 +343,7 @@ def owner_for(rel: str) -> str:
     if rel == "Docs/branch_records/index.md":
         return "branch authority router"
     if rel.startswith("Docs/branch_records/"):
-        return "branch authority / compact receipt"
+        return "branch authority / structured receipt"
     if rel == "Docs/branch_plans/README.md":
         return "branch plan standard"
     if rel.endswith("_inventory.md") and rel.startswith("Docs/branch_plans/"):
@@ -396,15 +396,15 @@ def owner_for_fact(fact: str) -> str:
         "worktree live state": "git status / worktree preflight / helper output",
         "origin/main": "git fetch + git rev-parse / helper output",
         "PR state": "GitHub / watcher / gh / GraphQL output",
-        "merge status": "GitHub PR merge truth plus compact historical receipt",
+        "merge status": "GitHub PR merge truth plus structured historical receipt",
         "latest tag/release": "GitHub Releases / tags / release validator",
-        "release receipt": "Docs/closeouts, compact branch receipt, or release body after validation",
+        "release receipt": "Docs/closeouts, structured branch receipt, or release body after validation",
         "release schedule outline": "Docs/prebeta_roadmap.md",
         "package trace": "Docs/workstreams or family dossiers",
         "slice trace": "Docs/workstreams or family dossiers",
-        "issue posture": "GitHub issues plus compact historical receipt when needed",
+        "issue posture": "GitHub issues plus structured historical receipt when needed",
         "branch runtime plan": "Docs/branch_plans/<branch>.md while active",
-        "branch phase history": "Docs/branch_records/<branch>.md compact receipt",
+        "branch phase history": "Docs/branch_records/<branch>.md structured receipt",
         "branch receipt": "Docs/branch_records/<branch>.md",
         "workstream durable history": "Docs/workstreams/<id>.md or family dossier",
         "family dossier continuity": "Docs/workstreams/*_family_dossier.md",
@@ -431,7 +431,7 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
             completed,
             "Keep pointer-only; do not reintroduce live state or detailed trace tables.",
         )
-    if owner == "branch authority / compact receipt":
+    if owner == "branch authority / structured receipt":
         if rel == "Docs/branch_records/feature_release_readiness_source_truth_intake.md":
             return (
                 "Keep active standing authority",
@@ -440,9 +440,9 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
             )
         if lines > 400:
             return (
-                "Migrate / compact receipt",
+                "Organize structured receipt",
                 completed,
-                "Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.",
+                "Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.",
             )
         return (
             "Keep historical receipt",
@@ -451,9 +451,9 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
         )
     if owner == "branch runtime engineering plan":
         return (
-            "Fold-down then delete candidate",
+            "Fold-down then retire candidate",
             completed,
-            "At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it.",
+            "At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it.",
         )
     if owner == "workstream durable history":
         return (
@@ -481,10 +481,10 @@ def validator_need(owner: str) -> str:
         return "Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan detail, and repeated release-window sprawl."
     if owner == "worktree slot registry":
         return "Governance efficiency validator blocks live-state/PR/release sprawl in slot registry."
-    if owner == "branch authority / compact receipt":
+    if owner == "branch authority / structured receipt":
         return "Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable."
     if owner == "branch runtime engineering plan":
-        return "Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/deletion for the owning branch."
+        return "Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/retirement for the owning branch."
     if owner in {"workstream durable history", "family dossier"}:
         return "Branch governance validator and future dossier checks should preserve durable trace ownership without treating old live facts as current."
     return "Covered by existing owner validator or future focused owner check."
@@ -501,13 +501,13 @@ def consolidation_target_for(row: dict[str, object]) -> str:
     if rel == "Docs/worktree_slots.md":
         return "Keep here as slot registry; move live worktree facts to git/helper output."
     if rel == "Docs/Main.md":
-        return "Keep here as recovery/source-truth map; move full policy to owner docs."
+        return "Keep here as least-updated canonical docs index and recovery/source-truth map; move full policy to owner docs."
     if owner == "branch runtime engineering plan":
-        return "Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval."
-    if owner == "branch authority / compact receipt":
-        if "Migrate" in action:
-            return "Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers."
-        return "Keep as compact historical branch receipt."
+        return "Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval."
+    if owner == "branch authority / structured receipt":
+        if "Organize" in action:
+            return "Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers."
+        return "Keep as structured historical branch receipt."
     if owner == "workstream durable history":
         return "Keep as durable implementation/proof owner; normalize stale live wording only when edited."
     if owner == "family dossier":
@@ -538,11 +538,11 @@ def deletion_posture_for(row: dict[str, object]) -> str:
     owner = str(row["owner"])
     action = str(row["action"])
     if owner == "branch runtime engineering plan":
-        return "Delete later after fold-down and USER-approved PR Readiness Stage 2 proof."
+        return "Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default."
     if "USER review" in action:
         return "Needs USER decision before delete/retire."
-    if "Migrate" in action:
-        return "Do not delete now; compact/migrate first."
+    if "Migrate" in action or "Organize" in action:
+        return "Do not delete now; organize or migrate first."
     return "Keep; no deletion recommended in this pass."
 
 
@@ -558,7 +558,7 @@ def ambiguity_for(text: str, owner: str) -> tuple[str, list[str], str]:
         "release closeout receipt",
         "workstream durable history",
         "family dossier",
-        "branch authority / compact receipt",
+        "branch authority / structured receipt",
     }:
         weighted = max(0, weighted - 20)
     if weighted >= 80:
@@ -578,8 +578,8 @@ def structure_for(text: str, lines: int, owner: str) -> tuple[str, str]:
         return "High", "Empty or unreadable file; confirm purpose before keeping."
     if lines > 600 and headings < 8:
         return "High", "Long file with too few headings; split current summary from historical appendix or migrate detail."
-    if lines > 400 and owner == "branch authority / compact receipt":
-        return "High", "Oversized branch receipt; compact current authority and migrate durable execution detail."
+    if lines > 400 and owner == "branch authority / structured receipt":
+        return "High", "Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons."
     if lines > 250 and headings < 5:
         return "Medium", "Large file needs clearer sections or a summary/index block."
     if owner in {"compact product registry", "release schedule outline", "worktree slot registry"} and lines > 220:
@@ -651,7 +651,7 @@ def build_user_review_index(
     add("1. Read `Executive Summary` and `How To Review This Dossier` in the full dossier.")
     add("2. Review `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision`.")
     add("3. Review the `Completed / Deferred Matrix` for the reform scope.")
-    add("4. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/compact/migrate/retire/delete posture.")
+    add("4. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.")
     add("5. Review ambiguity and structure queues before deciding whether cleanup is complete.")
     add("6. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
     add("7. Use the `File-by-File Review Table` for a compact pass over every Docs file.")
@@ -662,14 +662,20 @@ def build_user_review_index(
     add("")
     add("- [ ] The source-truth ownership split is acceptable.")
     add("- [ ] Backlog and roadmap roles are acceptable.")
-    add("- [ ] Branch Runtime Engineering Plan lifecycle and deletion rule are acceptable.")
-    add("- [ ] Deferred deletion/fold-down candidates should remain deferred for now.")
+    add("- [ ] Branch Runtime Engineering Plan lifecycle and retirement rule are acceptable.")
+    add("- [ ] Deferred retirement/fold-down candidates should remain deferred for now.")
     add("- [ ] No additional Docs file needs immediate retirement before PR Readiness.")
     add("- [ ] Every Docs file has a clear disposition in the complete cleanup table.")
     add("- [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.")
-    add("- [ ] Structure risks have a migration, compaction, or keep-now decision.")
+    add("- [ ] Structure risks have a migration, organization, or keep-now decision.")
     add("- [ ] Validators are enough to stop the worst sprawl from returning.")
     add("- [ ] PR Readiness Stage 2 may proceed after final validation.")
+    add("")
+    add("## User Response Intake Status")
+    add("")
+    add("- USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.")
+    add("- This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.")
+    add("- Current execution model: analysis and planning only until USER approves concrete cleanup; remaining Docs reform should run in staged internal commits on this single Governance branch/PR path rather than revolving PRs.")
     add("")
     add("## Files Needing USER Decision")
     add("")
@@ -768,7 +774,7 @@ def generate() -> None:
         risk = "Low"
         if rel in {"Docs/feature_backlog.md", "Docs/prebeta_roadmap.md"}:
             risk = "Critical"
-        elif owner == "branch authority / compact receipt" and lines > 400:
+        elif owner == "branch authority / structured receipt" and lines > 400:
             risk = "High"
         elif counts["live"] + counts["pr_release_issue"] > 50 and owner not in {
             "release closeout receipt",
@@ -785,8 +791,8 @@ def generate() -> None:
             retire_candidates.append(
                 (
                     rel,
-                    "branch plan should be deleted after fold-down proves durable content migrated",
-                    "safe later after owning branch PR Readiness fold-down; not deleted in this pass",
+                    "branch plan should be retired after fold-down proves durable content migrated",
+                    "safe later after owning branch PR Readiness fold-down; not deleted by default",
                 )
             )
         file_rows.append(
@@ -1029,7 +1035,7 @@ def generate() -> None:
     add(
         "The reform direction is conservative about historical evidence: live operational truth moves "
         "to Git/GitHub/helpers, but validated historical receipts are preserved unless a focused "
-        "fold-down/deletion decision is safe."
+        "fold-down/retirement decision is safe."
     )
     add("")
     add("Start here for review: `Docs/governance_docs_reform_user_review_index.md`.")
@@ -1038,7 +1044,7 @@ def generate() -> None:
     add("")
     add("1. Start with the companion index: `Docs/governance_docs_reform_user_review_index.md`.")
     add("2. Read `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision` below.")
-    add("3. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/compact/migrate/retire/delete posture.")
+    add("3. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.")
     add("4. Review `Ambiguity Pass` and `Structure Pass` before deciding whether cleanup is complete.")
     add("5. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
     add("6. Use `File-by-File Review Table` for a compact row-by-row pass over every Docs file.")
@@ -1051,25 +1057,34 @@ def generate() -> None:
     add("- Every file has an explicit cleanup/disposition row with a consolidation target and deletion posture.")
     add("- Every file has an ambiguity risk and structure risk classification for USER review.")
     add("- Backlog, roadmap, and worktree-slot ownership rules are captured as compact pointer/status surfaces.")
-    add("- Branch Runtime Engineering Plan lifecycle is stated as active-only, fold-down, then deletion after migration.")
+    add("- Branch Runtime Engineering Plan lifecycle is stated as active-only, fold-down, then retirement after migration.")
     add("- Duplicate fact classes are mapped to their correct owner surfaces.")
     add("- Validator coverage checks dossier file count, required sections, file-by-file entries, and review index presence.")
     add("- A short user review index is generated for easier inspection before PR Readiness.")
     add("")
     add("## What Remains Deferred")
     add("")
-    add("- Historical branch records larger than the compact receipt model remain preserved until a focused fold-down pass migrates durable detail.")
-    add("- Historical Branch Runtime Engineering Plans remain queued for fold-down/deletion review until their durable content is migrated.")
+    add("- Historical branch records larger than the structured receipt model remain preserved until a focused organization pass improves current-summary and indexability without losing traceability.")
+    add("- Historical Branch Runtime Engineering Plans remain queued for fold-down/retirement review until their durable content is migrated.")
     add("- Low-risk product/reference docs remain kept unless USER approves a later retirement pass.")
     add("- GitHub-derived live-state helpers can be expanded later, but this pass does not require runtime or GitHub source mutations.")
     add("")
     add("## What Requires USER Decision")
     add("")
     add("- Whether to approve PR Readiness Stage 2 after reviewing this dossier.")
-    add("- Whether to run a later branch-plan fold-down/deletion pass for historical plans.")
-    add("- Whether to run focused compaction of oversized historical branch diaries into workstreams/family dossiers.")
+    add("- Whether to run a later branch-plan fold-down/retirement pass for historical plans.")
+    add("- Whether to run focused organization of oversized historical branch ledgers into user-readable, Codex-indexable structures.")
     add("- Whether to retire low-risk or duplicate reference docs after USER review.")
     add("- Whether to create or expand FAM-family dossiers as migration targets for bulk historical detail.")
+    add("")
+    add("## USER Review Intake Model")
+    add("")
+    add("- Durable USER response home: `Docs/governance_process_efficiency_reform_plan.md`, section `USER Review Intake - 2026-05-21`.")
+    add("- Execution posture: analysis and model maintenance only until USER approves concrete cleanup; remaining work stays on this single Governance branch and one final PR path.")
+    add("- Main model: `Docs/Main.md` should be the least-updated canonical docs index and recovery map, not an execution diary.")
+    add("- Branch plan model: Branch Runtime Engineering Plans fold down and retire after durable content migrates; deletion is not the default.")
+    add("- Branch record model: branch records may be large when they are structured traceability ledgers; the reform target is clear organization and no duplicate live state, not evidence loss.")
+    add("- Vision model: the current `Docs/orin_vision.md` surface should be evaluated as a future Nexus-wide vision contract that drives backlog planning without duplicating branch plans.")
     add("")
     add("## High-Risk Files")
     add("")
@@ -1094,7 +1109,7 @@ def generate() -> None:
     add("")
     add("## Files Needing Future Migration")
     add("")
-    add("| File | Owner | Migration / Compaction Recommendation |")
+    add("| File | Owner | Migration / Organization Recommendation |")
     add("| --- | --- | --- |")
     for row in migration_candidates[:50]:
         add(f"| `{row['rel']}` | {row['owner']} | {row['remaining']} |")
@@ -1133,8 +1148,8 @@ def generate() -> None:
         ("feature_backlog compaction", "Yes", "No", "N/A", "Docs/feature_backlog.md", "No", "governance efficiency validation"),
         ("prebeta_roadmap compaction", "Yes", "No", "N/A", "Docs/prebeta_roadmap.md", "No", "governance efficiency validation"),
         ("worktree_slots cleanup", "Yes", "No", "N/A", "Docs/worktree_slots.md", "No", "governance efficiency validation"),
-        ("branch_records cleanup", "Partial", "Yes", "Large historical records need safe fold-down into durable owners", "Docs/branch_records + workstreams/family dossiers", "Yes for bulk compaction", "branch governance validation"),
-        ("branch_plans lifecycle", "Yes", "Deletion deferred", "Durable content must be migrated first", "Docs/branch_plans + branch records + workstreams/family dossiers", "Yes before deleting historical plans", "planning fixture and governance efficiency validation"),
+        ("branch_records cleanup", "Partial", "Yes", "Large historical records need safe organization into current summary plus indexed traceability sections", "Docs/branch_records + workstreams/family dossiers", "Yes for bulk reorganization", "branch governance validation"),
+        ("branch_plans lifecycle", "Yes", "Retirement deferred", "Durable content must be migrated first", "Docs/branch_plans + branch records + workstreams/family dossiers", "Yes before retiring historical plans", "planning fixture and governance efficiency validation"),
         ("workstreams/family dossier ownership", "Yes", "Expansion deferred", "Future dossier creation should be focused by family", "Docs/workstreams", "Yes for new/expanded dossiers", "branch governance validation"),
         ("governance docs consolidation", "Yes", "No broad deletion", "Rule mirrors preserved as pointers where safe", "Main/phase/development/codex docs", "No", "governance efficiency validation"),
         ("duplicate live-state validator hardening", "Yes", "Focused future checks possible", "Some historical receipts intentionally preserve old live facts", "dev/orin_governance_efficiency_validation.py", "No", "governance efficiency validation"),
@@ -1155,8 +1170,8 @@ def generate() -> None:
         "Docs own governance intent, USER decisions, approvals, branch authority, historical interpretation, durable implementation proof, and compact pointers to owning records.",
         "Backlog owns compact feature-family identity, priority, status, family scope, package summary, and canonical pointers only.",
         "Roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, and broad feature-family checkpoints only.",
-        "Branch records own branch authority, phase history, approvals, legal carrier status, and compact current/historical receipts.",
-        "Branch plans own detailed active-branch engineering plans while active, then fold down during PR Readiness and delete after durable content is migrated and no active branch depends on them.",
+        "Branch records own branch authority, phase history, approvals, legal carrier status, and structured current/historical traceability receipts.",
+        "Branch plans own detailed active-branch engineering plans while active, then fold down during PR Readiness and retire after durable content is migrated and no active branch depends on them.",
         "Workstreams and family dossiers own durable package trace, slice trace, implementation proof, closure history, and reusable continuity.",
         "Main owns recovery routing and source-truth ownership mapping, not detailed branch execution.",
         "Worktree slots own stable slot definitions and assignment/retirement receipts, not live Git/GitHub state.",
@@ -1169,13 +1184,13 @@ def generate() -> None:
     add("| --- | --- | --- |")
     ownership_rows = (
         ("Git/GitHub/helpers", "live operational truth", "governance decisions or durable source-truth interpretation"),
-        ("Docs/Main.md", "recovery map and ownership routing", "detailed branch/release/live-state narration"),
+        ("Docs/Main.md", "least-updated canonical docs index, recovery map, and ownership routing", "detailed branch/release/live-state narration"),
         ("Docs/feature_backlog.md", "compact FAM registry and pointer layer", "Package Trace, Slice Trace, live branch/release/issue state"),
         ("Docs/prebeta_roadmap.md", "stage-breakpoint schedule outline and broad milestone checkpoints", "live latest-release, release-window, PR-window, or current branch state truth"),
         ("Docs/worktree_slots.md", "slot definitions and assignment receipts", "HEAD, dirty state, ahead/behind, PR/release state"),
         ("Docs/branch_records/index.md", "branch authority routing", "implementation checklists"),
-        ("Docs/branch_records/<branch>.md", "authority, approvals, phase history, compact receipts", "durable family implementation history after fold-down"),
-        ("Docs/branch_plans/<branch>.md", "active branch engineering plan", "permanent dossier after fold-down"),
+        ("Docs/branch_records/<branch>.md", "authority, approvals, phase history, structured traceability receipts", "volatile live state or unindexed execution diary"),
+        ("Docs/branch_plans/<branch>.md", "active branch engineering plan", "permanent active authority or family dossier after fold-down"),
         ("Docs/workstreams/<id>.md", "durable implementation and proof history", "volatile Git/GitHub live facts"),
         ("Docs/workstreams/*_family_dossier.md", "family continuity and migrated reusable detail", "active PR/worktree state"),
         ("Docs/validation_helper_registry.md", "helper inventory and responsibility", "branch-specific proof detail"),
@@ -1314,20 +1329,21 @@ def generate() -> None:
     add("")
     add(
         "Branch records own branch identity, approvals, current/historical phase status, blockers, "
-        "legal carrier posture, compact receipt, and pointers. Large historical execution diaries are "
-        "preserved as historical evidence in this pass, but future focused migration should compact "
-        "them and promote durable implementation detail to workstreams or family dossiers."
+        "legal carrier posture, structured traceability receipt, and pointers. Large historical execution "
+        "ledgers are preserved as historical evidence in this pass; future focused migration should organize "
+        "them into user-readable and Codex-indexable current summary plus historical receipt sections, then "
+        "promote reusable implementation detail to workstreams or family dossiers without losing commit/PR evidence."
     )
     add("")
-    add("## Branch Plans Lifecycle And Deletion Rule")
+    add("## Branch Plans Lifecycle And Retirement Rule")
     add("")
     add(
         "Branch Runtime Engineering Plans are canonical only while the owning branch is active. They "
         "are created/admitted during Branch Readiness Stage 2 for runtime-focused branches, used "
         "through Workstream/Hardening/Live Validation, folded down during PR Readiness Stage 1, and "
-        "deleted during or before PR Readiness Stage 2 only after durable content has been migrated "
+        "retired during or before PR Readiness Stage 2 only after durable content has been migrated "
         "to the branch receipt, workstream doc, family dossier, or other historical receipt owner. "
-        "Existing historical plans are queued for fold-down/deletion review rather than deleted in "
+        "Existing historical plans are queued for fold-down/retirement review rather than deleted in "
         "this pass because their durable content has not been fully migrated and validated file-by-file."
     )
     add("")
@@ -1336,7 +1352,7 @@ def generate() -> None:
     add("- Branch Runtime Engineering Plans are canonical active-branch planning docs while a runtime branch is active.")
     add("- Branch plans contain detailed per-seam implementation, validation, user-facing proof, future-gated items, and approval boundaries.")
     add("- Branch plans are folded down during PR Readiness Stage 1.")
-    add("- Branch plans are deleted during or before PR Readiness Stage 2 approval after durable content is migrated.")
+    add("- Branch plans are retired during or before PR Readiness Stage 2 approval after durable content is migrated.")
     add("- Durable content moves to the branch receipt, workstream doc, family dossier, or validated historical receipt owner.")
     add("- Backlog and roadmap remain compact pointer/status surfaces and must not absorb detailed branch planning.")
     add("")
@@ -1462,23 +1478,23 @@ def generate() -> None:
         add("")
     add("## Remaining Risks")
     add("")
-    add("- Many historical branch records and workstream records still contain historical live-state language. This is preserved as receipt evidence in this pass, not treated as active truth. Future focused fold-down passes can compact the largest diaries if USER wants smaller docs.")
-    add("- Existing historical Branch Runtime Engineering Plans are not deleted yet because durable content must be migrated and references validated first.")
+    add("- Many historical branch records and workstream records still contain historical live-state language. This is preserved as receipt evidence in this pass, not treated as active truth. Future focused fold-down passes can organize the largest ledgers if USER wants clearer review/indexing.")
+    add("- Existing historical Branch Runtime Engineering Plans are not retired yet because durable content must be migrated and references validated first.")
     add("- Some product/reference docs are low-risk but still need USER review before retirement because they may preserve historical design context.")
     add("")
     add("## PR Readiness Checklist")
     add("")
     add("- [ ] USER reviewed the companion index.")
-    add("- [ ] USER reviewed high-risk files and deferred deletion candidates.")
+    add("- [ ] USER reviewed high-risk files and deferred retirement candidates.")
     add("- [ ] USER accepts that no ambiguous Docs files are deleted before later focused approval.")
-    add("- [ ] USER accepts Branch Runtime Engineering Plan fold-down/deletion lifecycle.")
+    add("- [ ] USER accepts Branch Runtime Engineering Plan fold-down/retirement lifecycle.")
     add("- [ ] Validation remains green from the Governance branch.")
     add("- [ ] PR creation is separately approved.")
     add("")
     add("## Deferred USER Decisions")
     add("")
-    add("- Approve focused deletion/fold-down of historical branch plans after durable content is migrated.")
-    add("- Approve focused compaction or archival of oversized historical branch execution diaries.")
+    add("- Approve focused retirement/fold-down of historical branch plans after durable content is migrated.")
+    add("- Approve focused organization or archival of oversized historical branch execution ledgers.")
     add("- Approve creation or expansion of FAM-006 / FAM-007 family dossiers if USER wants historical branch detail moved out of branch records in bulk.")
     add("- Approve retirement of any low-risk reference docs after USER review of the file-by-file dossier.")
     add("")

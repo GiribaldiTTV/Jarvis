@@ -157,6 +157,6 @@ Retirement is not branch deletion by default. Branch deletion, worktree removal,
 
 For runtime-focused branches, the slot points to the branch authority record, and the branch authority record points to the Branch Runtime Engineering Plan under `Docs/branch_plans/<branch_slug>.md`.
 
-The Branch Runtime Engineering Plan is canonical while the branch is active. PR Readiness must produce a fold-down or retention packet deciding what remains as historical branch source truth, what becomes compact branch receipt, and what is promoted to canonical workstream or family-dossier history.
+The Branch Runtime Engineering Plan is canonical while the branch is active. PR Readiness must produce a fold-down or retirement packet deciding what durable content becomes structured branch receipt evidence, what is promoted to canonical workstream or family-dossier history, and when the plan is retired from active planning posture.
 
 Backlog and roadmap remain compact pointer/status surfaces. They should not absorb detailed active-branch execution planning.

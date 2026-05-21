@@ -4,7 +4,7 @@
 
 This dossier is the full markdown-friendly review packet for the Docs source-truth reform. It enumerates every file under `Docs/`, assigns each file a source-truth role, records what each file should and should not own, maps duplicated fact classes, and records which cleanup is complete versus deferred for USER review.
 
-The reform direction is conservative about historical evidence: live operational truth moves to Git/GitHub/helpers, but validated historical receipts are preserved unless a focused fold-down/deletion decision is safe.
+The reform direction is conservative about historical evidence: live operational truth moves to Git/GitHub/helpers, but validated historical receipts are preserved unless a focused fold-down/retirement decision is safe.
 
 Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 
@@ -12,7 +12,7 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 
 1. Start with the companion index: `Docs/governance_docs_reform_user_review_index.md`.
 2. Read `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision` below.
-3. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/compact/migrate/retire/delete posture.
+3. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.
 4. Review `Ambiguity Pass` and `Structure Pass` before deciding whether cleanup is complete.
 5. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.
 6. Use `File-by-File Review Table` for a compact row-by-row pass over every Docs file.
@@ -25,25 +25,34 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 - Every file has an explicit cleanup/disposition row with a consolidation target and deletion posture.
 - Every file has an ambiguity risk and structure risk classification for USER review.
 - Backlog, roadmap, and worktree-slot ownership rules are captured as compact pointer/status surfaces.
-- Branch Runtime Engineering Plan lifecycle is stated as active-only, fold-down, then deletion after migration.
+- Branch Runtime Engineering Plan lifecycle is stated as active-only, fold-down, then retirement after migration.
 - Duplicate fact classes are mapped to their correct owner surfaces.
 - Validator coverage checks dossier file count, required sections, file-by-file entries, and review index presence.
 - A short user review index is generated for easier inspection before PR Readiness.
 
 ## What Remains Deferred
 
-- Historical branch records larger than the compact receipt model remain preserved until a focused fold-down pass migrates durable detail.
-- Historical Branch Runtime Engineering Plans remain queued for fold-down/deletion review until their durable content is migrated.
+- Historical branch records larger than the structured receipt model remain preserved until a focused organization pass improves current-summary and indexability without losing traceability.
+- Historical Branch Runtime Engineering Plans remain queued for fold-down/retirement review until their durable content is migrated.
 - Low-risk product/reference docs remain kept unless USER approves a later retirement pass.
 - GitHub-derived live-state helpers can be expanded later, but this pass does not require runtime or GitHub source mutations.
 
 ## What Requires USER Decision
 
 - Whether to approve PR Readiness Stage 2 after reviewing this dossier.
-- Whether to run a later branch-plan fold-down/deletion pass for historical plans.
-- Whether to run focused compaction of oversized historical branch diaries into workstreams/family dossiers.
+- Whether to run a later branch-plan fold-down/retirement pass for historical plans.
+- Whether to run focused organization of oversized historical branch ledgers into user-readable, Codex-indexable structures.
 - Whether to retire low-risk or duplicate reference docs after USER review.
 - Whether to create or expand FAM-family dossiers as migration targets for bulk historical detail.
+
+## USER Review Intake Model
+
+- Durable USER response home: `Docs/governance_process_efficiency_reform_plan.md`, section `USER Review Intake - 2026-05-21`.
+- Execution posture: analysis and model maintenance only until USER approves concrete cleanup; remaining work stays on this single Governance branch and one final PR path.
+- Main model: `Docs/Main.md` should be the least-updated canonical docs index and recovery map, not an execution diary.
+- Branch plan model: Branch Runtime Engineering Plans fold down and retire after durable content migrates; deletion is not the default.
+- Branch record model: branch records may be large when they are structured traceability ledgers; the reform target is clear organization and no duplicate live state, not evidence loss.
+- Vision model: the current `Docs/orin_vision.md` surface should be evaluated as a future Nexus-wide vision contract that drives backlog planning without duplicating branch plans.
 
 ## High-Risk Files
 
@@ -52,42 +61,42 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 | `Docs/feature_backlog.md` | compact product registry | Keep compact | Critical source-truth density / migration risk |
 | `Docs/prebeta_roadmap.md` | release schedule outline | Keep compact | Critical source-truth density / migration risk |
 | `Docs/Main.md` | recovery map / source-truth router | Keep | High source-truth density / migration risk |
-| `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/codex_one_time_backlog_governance_repair.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_automation_planning.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_backlog_family_governance_reform.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_006_dashboard_release_support.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration risk |
-| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / compact receipt | Keep active standing authority | High source-truth density / migration risk |
-| `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / compact receipt | Migrate / compact receipt | High source-truth density / migration risk |
+| `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/codex_one_time_backlog_governance_repair.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_automation_planning.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_backlog_family_governance_reform.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_006_dashboard_release_support.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | High source-truth density / migration risk |
+| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / structured receipt | Keep active standing authority | High source-truth density / migration risk |
+| `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / structured receipt | Organize structured receipt | High source-truth density / migration risk |
 | `Docs/branch_records/index.md` | branch authority router | Keep | High source-truth density / migration risk |
 
 ## Files Safe To Leave For Now
@@ -108,48 +117,25 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 
 ## Files Needing Future Migration
 
-| File | Owner | Migration / Compaction Recommendation |
+| File | Owner | Migration / Organization Recommendation |
 | --- | --- | --- |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it. |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it. |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it. |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it. |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it. |
-| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it. |
-| `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_automation_planning.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_backlog_family_governance_reform.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
-| `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / compact receipt | Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers. |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it. |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it. |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it. |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it. |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it. |
+| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it. |
 
 ## Files That May Be Retired Later
 
 | File | Reason | Recommendation |
 | --- | --- | --- |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch plan should be deleted after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch plan should be deleted after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch plan should be deleted after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch plan should be deleted after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch plan should be deleted after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
-| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch plan should be deleted after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
 
 ## Audit Identity
 
@@ -173,8 +159,8 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 | feature_backlog compaction | Yes | No | N/A | Docs/feature_backlog.md | No | governance efficiency validation |
 | prebeta_roadmap compaction | Yes | No | N/A | Docs/prebeta_roadmap.md | No | governance efficiency validation |
 | worktree_slots cleanup | Yes | No | N/A | Docs/worktree_slots.md | No | governance efficiency validation |
-| branch_records cleanup | Partial | Yes | Large historical records need safe fold-down into durable owners | Docs/branch_records + workstreams/family dossiers | Yes for bulk compaction | branch governance validation |
-| branch_plans lifecycle | Yes | Deletion deferred | Durable content must be migrated first | Docs/branch_plans + branch records + workstreams/family dossiers | Yes before deleting historical plans | planning fixture and governance efficiency validation |
+| branch_records cleanup | Partial | Yes | Large historical records need safe organization into current summary plus indexed traceability sections | Docs/branch_records + workstreams/family dossiers | Yes for bulk reorganization | branch governance validation |
+| branch_plans lifecycle | Yes | Retirement deferred | Durable content must be migrated first | Docs/branch_plans + branch records + workstreams/family dossiers | Yes before retiring historical plans | planning fixture and governance efficiency validation |
 | workstreams/family dossier ownership | Yes | Expansion deferred | Future dossier creation should be focused by family | Docs/workstreams | Yes for new/expanded dossiers | branch governance validation |
 | governance docs consolidation | Yes | No broad deletion | Rule mirrors preserved as pointers where safe | Main/phase/development/codex docs | No | governance efficiency validation |
 | duplicate live-state validator hardening | Yes | Focused future checks possible | Some historical receipts intentionally preserve old live facts | dev/orin_governance_efficiency_validation.py | No | governance efficiency validation |
@@ -191,8 +177,8 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 - Docs own governance intent, USER decisions, approvals, branch authority, historical interpretation, durable implementation proof, and compact pointers to owning records.
 - Backlog owns compact feature-family identity, priority, status, family scope, package summary, and canonical pointers only.
 - Roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, and broad feature-family checkpoints only.
-- Branch records own branch authority, phase history, approvals, legal carrier status, and compact current/historical receipts.
-- Branch plans own detailed active-branch engineering plans while active, then fold down during PR Readiness and delete after durable content is migrated and no active branch depends on them.
+- Branch records own branch authority, phase history, approvals, legal carrier status, and structured current/historical traceability receipts.
+- Branch plans own detailed active-branch engineering plans while active, then fold down during PR Readiness and retire after durable content is migrated and no active branch depends on them.
 - Workstreams and family dossiers own durable package trace, slice trace, implementation proof, closure history, and reusable continuity.
 - Main owns recovery routing and source-truth ownership mapping, not detailed branch execution.
 - Worktree slots own stable slot definitions and assignment/retirement receipts, not live Git/GitHub state.
@@ -202,13 +188,13 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 | Surface | Owns | Must Not Own |
 | --- | --- | --- |
 | `Git/GitHub/helpers` | live operational truth | governance decisions or durable source-truth interpretation |
-| `Docs/Main.md` | recovery map and ownership routing | detailed branch/release/live-state narration |
+| `Docs/Main.md` | least-updated canonical docs index, recovery map, and ownership routing | detailed branch/release/live-state narration |
 | `Docs/feature_backlog.md` | compact FAM registry and pointer layer | Package Trace, Slice Trace, live branch/release/issue state |
 | `Docs/prebeta_roadmap.md` | stage-breakpoint schedule outline and broad milestone checkpoints | live latest-release, release-window, PR-window, or current branch state truth |
 | `Docs/worktree_slots.md` | slot definitions and assignment receipts | HEAD, dirty state, ahead/behind, PR/release state |
 | `Docs/branch_records/index.md` | branch authority routing | implementation checklists |
-| `Docs/branch_records/<branch>.md` | authority, approvals, phase history, compact receipts | durable family implementation history after fold-down |
-| `Docs/branch_plans/<branch>.md` | active branch engineering plan | permanent dossier after fold-down |
+| `Docs/branch_records/<branch>.md` | authority, approvals, phase history, structured traceability receipts | volatile live state or unindexed execution diary |
+| `Docs/branch_plans/<branch>.md` | active branch engineering plan | permanent active authority or family dossier after fold-down |
 | `Docs/workstreams/<id>.md` | durable implementation and proof history | volatile Git/GitHub live facts |
 | `Docs/workstreams/*_family_dossier.md` | family continuity and migrated reusable detail | active PR/worktree state |
 | `Docs/validation_helper_registry.md` | helper inventory and responsibility | branch-specific proof detail |
@@ -220,69 +206,69 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 | ---: | --- | --- | ---: | --- | --- | --- |
 | 1 | `Docs/architecture.md` | product / architecture reference | 165 | Keep | Medium | High |
 | 2 | `Docs/boot_access_design.md` | product / architecture reference | 166 | Keep | Low | High |
-| 3 | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch runtime engineering plan | 84 | Fold-down then delete candidate | Medium | High |
-| 4 | `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch runtime engineering plan | 79 | Fold-down then delete candidate | Medium | High |
-| 5 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch runtime engineering plan | 82 | Fold-down then delete candidate | Medium | High |
-| 6 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch runtime engineering plan | 250 | Fold-down then delete candidate | Medium | High |
-| 7 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch runtime engineering plan | 160 | Fold-down then delete candidate | Medium | High |
-| 8 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch runtime engineering plan | 90 | Fold-down then delete candidate | Medium | High |
+| 3 | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch runtime engineering plan | 84 | Fold-down then retire candidate | Medium | High |
+| 4 | `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch runtime engineering plan | 79 | Fold-down then retire candidate | Medium | High |
+| 5 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch runtime engineering plan | 82 | Fold-down then retire candidate | Medium | High |
+| 6 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch runtime engineering plan | 250 | Fold-down then retire candidate | Medium | High |
+| 7 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch runtime engineering plan | 160 | Fold-down then retire candidate | Medium | High |
+| 8 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch runtime engineering plan | 90 | Fold-down then retire candidate | Medium | High |
 | 9 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | branch plan inventory receipt | 46 | Keep | Medium | High |
-| 10 | `Docs/branch_plans/README.md` | branch plan standard | 87 | Keep | Medium | High |
-| 11 | `Docs/branch_records/codex_fam_007_branch_readiness.md` | branch authority / compact receipt | 188 | Keep historical receipt | Medium | High |
-| 12 | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | branch authority / compact receipt | 426 | Migrate / compact receipt | High | High |
-| 13 | `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md` | branch authority / compact receipt | 84 | Keep historical receipt | Medium | High |
-| 14 | `Docs/branch_records/codex_one_time_backlog_governance_repair.md` | branch authority / compact receipt | 224 | Keep historical receipt | High | High |
-| 15 | `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | branch authority / compact receipt | 436 | Migrate / compact receipt | High | High |
-| 16 | `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md` | branch authority / compact receipt | 279 | Keep historical receipt | Medium | High |
-| 17 | `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md` | branch authority / compact receipt | 297 | Keep historical receipt | High | High |
-| 18 | `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` | branch authority / compact receipt | 321 | Keep historical receipt | High | High |
-| 19 | `Docs/branch_records/codex_workspace_governance_foundation.md` | branch authority / compact receipt | 195 | Keep historical receipt | Medium | High |
-| 20 | `Docs/branch_records/feature_automation_planning.md` | branch authority / compact receipt | 418 | Migrate / compact receipt | High | High |
-| 21 | `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md` | branch authority / compact receipt | 145 | Keep historical receipt | Medium | High |
-| 22 | `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | branch authority / compact receipt | 205 | Keep historical receipt | High | High |
-| 23 | `Docs/branch_records/feature_backlog_family_governance_reform.md` | branch authority / compact receipt | 412 | Migrate / compact receipt | High | High |
-| 24 | `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | branch authority / compact receipt | 543 | Migrate / compact receipt | High | High |
-| 25 | `Docs/branch_records/feature_fam_006_dashboard_release_support.md` | branch authority / compact receipt | 189 | Keep historical receipt | High | High |
-| 26 | `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | branch authority / compact receipt | 615 | Migrate / compact receipt | High | High |
-| 27 | `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | branch authority / compact receipt | 699 | Migrate / compact receipt | High | High |
-| 28 | `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md` | branch authority / compact receipt | 246 | Keep historical receipt | Medium | High |
-| 29 | `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | branch authority / compact receipt | 1001 | Migrate / compact receipt | High | High |
-| 30 | `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | branch authority / compact receipt | 2564 | Migrate / compact receipt | High | High |
-| 31 | `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` | branch authority / compact receipt | 203 | Keep historical receipt | Medium | High |
-| 32 | `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | branch authority / compact receipt | 504 | Migrate / compact receipt | High | High |
-| 33 | `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | branch authority / compact receipt | 417 | Migrate / compact receipt | High | High |
-| 34 | `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | branch authority / compact receipt | 453 | Migrate / compact receipt | High | High |
-| 35 | `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | branch authority / compact receipt | 503 | Migrate / compact receipt | High | High |
-| 36 | `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch authority / compact receipt | 549 | Migrate / compact receipt | High | High |
-| 37 | `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch authority / compact receipt | 490 | Migrate / compact receipt | High | High |
-| 38 | `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | branch authority / compact receipt | 478 | Migrate / compact receipt | High | High |
-| 39 | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch authority / compact receipt | 676 | Migrate / compact receipt | High | High |
-| 40 | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch authority / compact receipt | 611 | Migrate / compact receipt | High | High |
-| 41 | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch authority / compact receipt | 579 | Migrate / compact receipt | High | High |
-| 42 | `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | branch authority / compact receipt | 490 | Migrate / compact receipt | High | High |
-| 43 | `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | branch authority / compact receipt | 517 | Migrate / compact receipt | High | High |
-| 44 | `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | branch authority / compact receipt | 531 | Migrate / compact receipt | High | High |
-| 45 | `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md` | branch authority / compact receipt | 217 | Keep historical receipt | Medium | High |
-| 46 | `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md` | branch authority / compact receipt | 297 | Keep historical receipt | High | High |
-| 47 | `Docs/branch_records/feature_fb_005_workspace_path_planning.md` | branch authority / compact receipt | 58 | Keep historical receipt | Medium | High |
-| 48 | `Docs/branch_records/feature_fb_030_orin_voice_audio_direction_refinement.md` | branch authority / compact receipt | 64 | Keep historical receipt | Medium | High |
-| 49 | `Docs/branch_records/feature_fb_030_release_readiness_canon_repair.md` | branch authority / compact receipt | 63 | Keep historical receipt | Medium | High |
-| 50 | `Docs/branch_records/feature_fb_030_successor_branch_truth_repair.md` | branch authority / compact receipt | 66 | Keep historical receipt | Medium | High |
-| 51 | `Docs/branch_records/feature_fb_042_desktop_entrypoint_runtime_refinement.md` | branch authority / compact receipt | 59 | Keep historical receipt | Medium | High |
-| 52 | `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md` | branch authority / compact receipt | 231 | Keep historical receipt | Medium | High |
-| 53 | `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md` | branch authority / compact receipt | 224 | Keep historical receipt | Medium | High |
-| 54 | `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md` | branch authority / compact receipt | 223 | Keep historical receipt | Medium | High |
-| 55 | `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md` | branch authority / compact receipt | 218 | Keep historical receipt | Medium | High |
-| 56 | `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | branch authority / compact receipt | 219 | Keep historical receipt | Medium | High |
-| 57 | `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | branch authority / compact receipt | 221 | Keep historical receipt | Medium | High |
-| 58 | `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | branch authority / compact receipt | 328 | Keep historical receipt | High | High |
-| 59 | `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | 150 | Keep historical receipt | High | High |
-| 60 | `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | 150 | Keep historical receipt | High | High |
-| 61 | `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | 243 | Keep historical receipt | High | High |
-| 62 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / compact receipt | 165 | Keep historical receipt | High | High |
-| 63 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | 177 | Keep historical receipt | High | High |
-| 64 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / compact receipt | 272 | Keep active standing authority | High | High |
-| 65 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / compact receipt | 498 | Migrate / compact receipt | High | High |
+| 10 | `Docs/branch_plans/README.md` | branch plan standard | 88 | Keep | Medium | High |
+| 11 | `Docs/branch_records/codex_fam_007_branch_readiness.md` | branch authority / structured receipt | 188 | Keep historical receipt | Medium | High |
+| 12 | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | branch authority / structured receipt | 426 | Organize structured receipt | High | High |
+| 13 | `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md` | branch authority / structured receipt | 84 | Keep historical receipt | Medium | High |
+| 14 | `Docs/branch_records/codex_one_time_backlog_governance_repair.md` | branch authority / structured receipt | 224 | Keep historical receipt | High | High |
+| 15 | `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | branch authority / structured receipt | 436 | Organize structured receipt | High | High |
+| 16 | `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md` | branch authority / structured receipt | 279 | Keep historical receipt | Medium | High |
+| 17 | `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md` | branch authority / structured receipt | 297 | Keep historical receipt | High | High |
+| 18 | `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` | branch authority / structured receipt | 321 | Keep historical receipt | High | High |
+| 19 | `Docs/branch_records/codex_workspace_governance_foundation.md` | branch authority / structured receipt | 195 | Keep historical receipt | Medium | High |
+| 20 | `Docs/branch_records/feature_automation_planning.md` | branch authority / structured receipt | 418 | Organize structured receipt | High | High |
+| 21 | `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md` | branch authority / structured receipt | 145 | Keep historical receipt | Medium | High |
+| 22 | `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | branch authority / structured receipt | 205 | Keep historical receipt | High | High |
+| 23 | `Docs/branch_records/feature_backlog_family_governance_reform.md` | branch authority / structured receipt | 412 | Organize structured receipt | High | High |
+| 24 | `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | branch authority / structured receipt | 543 | Organize structured receipt | High | High |
+| 25 | `Docs/branch_records/feature_fam_006_dashboard_release_support.md` | branch authority / structured receipt | 189 | Keep historical receipt | High | High |
+| 26 | `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | branch authority / structured receipt | 615 | Organize structured receipt | High | High |
+| 27 | `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | branch authority / structured receipt | 699 | Organize structured receipt | High | High |
+| 28 | `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md` | branch authority / structured receipt | 246 | Keep historical receipt | Medium | High |
+| 29 | `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | branch authority / structured receipt | 1001 | Organize structured receipt | High | High |
+| 30 | `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | branch authority / structured receipt | 2564 | Organize structured receipt | High | High |
+| 31 | `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` | branch authority / structured receipt | 203 | Keep historical receipt | Medium | High |
+| 32 | `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | branch authority / structured receipt | 504 | Organize structured receipt | High | High |
+| 33 | `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | branch authority / structured receipt | 417 | Organize structured receipt | High | High |
+| 34 | `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | branch authority / structured receipt | 453 | Organize structured receipt | High | High |
+| 35 | `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | branch authority / structured receipt | 503 | Organize structured receipt | High | High |
+| 36 | `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch authority / structured receipt | 549 | Organize structured receipt | High | High |
+| 37 | `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch authority / structured receipt | 490 | Organize structured receipt | High | High |
+| 38 | `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | branch authority / structured receipt | 478 | Organize structured receipt | High | High |
+| 39 | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch authority / structured receipt | 676 | Organize structured receipt | High | High |
+| 40 | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch authority / structured receipt | 611 | Organize structured receipt | High | High |
+| 41 | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch authority / structured receipt | 579 | Organize structured receipt | High | High |
+| 42 | `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | branch authority / structured receipt | 490 | Organize structured receipt | High | High |
+| 43 | `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | branch authority / structured receipt | 517 | Organize structured receipt | High | High |
+| 44 | `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | branch authority / structured receipt | 531 | Organize structured receipt | High | High |
+| 45 | `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md` | branch authority / structured receipt | 217 | Keep historical receipt | Medium | High |
+| 46 | `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md` | branch authority / structured receipt | 297 | Keep historical receipt | High | High |
+| 47 | `Docs/branch_records/feature_fb_005_workspace_path_planning.md` | branch authority / structured receipt | 58 | Keep historical receipt | Medium | High |
+| 48 | `Docs/branch_records/feature_fb_030_orin_voice_audio_direction_refinement.md` | branch authority / structured receipt | 64 | Keep historical receipt | Medium | High |
+| 49 | `Docs/branch_records/feature_fb_030_release_readiness_canon_repair.md` | branch authority / structured receipt | 63 | Keep historical receipt | Medium | High |
+| 50 | `Docs/branch_records/feature_fb_030_successor_branch_truth_repair.md` | branch authority / structured receipt | 66 | Keep historical receipt | Medium | High |
+| 51 | `Docs/branch_records/feature_fb_042_desktop_entrypoint_runtime_refinement.md` | branch authority / structured receipt | 59 | Keep historical receipt | Medium | High |
+| 52 | `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md` | branch authority / structured receipt | 231 | Keep historical receipt | Medium | High |
+| 53 | `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md` | branch authority / structured receipt | 224 | Keep historical receipt | Medium | High |
+| 54 | `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md` | branch authority / structured receipt | 223 | Keep historical receipt | Medium | High |
+| 55 | `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md` | branch authority / structured receipt | 218 | Keep historical receipt | Medium | High |
+| 56 | `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | branch authority / structured receipt | 219 | Keep historical receipt | Medium | High |
+| 57 | `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | branch authority / structured receipt | 221 | Keep historical receipt | Medium | High |
+| 58 | `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | branch authority / structured receipt | 328 | Keep historical receipt | High | High |
+| 59 | `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 150 | Keep historical receipt | High | High |
+| 60 | `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 150 | Keep historical receipt | High | High |
+| 61 | `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 243 | Keep historical receipt | High | High |
+| 62 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / structured receipt | 165 | Keep historical receipt | High | High |
+| 63 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 177 | Keep historical receipt | High | High |
+| 64 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / structured receipt | 272 | Keep active standing authority | High | High |
+| 65 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / structured receipt | 498 | Organize structured receipt | High | High |
 | 66 | `Docs/branch_records/index.md` | branch authority router | 183 | Keep | High | High |
 | 67 | `Docs/closeout_guidance.md` | release closeout receipt | 107 | Keep | Medium | High |
 | 68 | `Docs/closeout_index.md` | release closeout receipt | 71 | Keep | Low | High |
@@ -305,10 +291,10 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 | 85 | `Docs/fb_027_overlay_bug_tracker.md` | bug / issue historical tracker | 212 | Keep | Medium | High |
 | 86 | `Docs/feature_backlog.md` | compact product registry | 334 | Keep compact | Critical | High |
 | 87 | `Docs/governance_docs_full_inventory_reform_audit.md` | governance support standard | Generated self-reference | Keep | High | High |
-| 88 | `Docs/governance_docs_reform_user_review_index.md` | governance support standard | 162 | Keep | Medium | High |
-| 89 | `Docs/governance_efficiency_operating_model.md` | governance support standard | 266 | Keep | Medium | High |
+| 88 | `Docs/governance_docs_reform_user_review_index.md` | governance support standard | 156 | Keep | Medium | High |
+| 89 | `Docs/governance_efficiency_operating_model.md` | governance support standard | 280 | Keep | Medium | High |
 | 90 | `Docs/governance_intake_triage_and_digest_profiles.md` | governance support standard | 163 | Keep | Medium | High |
-| 91 | `Docs/governance_process_efficiency_reform_plan.md` | governance support standard | 489 | Keep | Medium | High |
+| 91 | `Docs/governance_process_efficiency_reform_plan.md` | governance support standard | 527 | Keep | Medium | High |
 | 92 | `Docs/incident_patterns.md` | governance support standard | 343 | Keep | Medium | High |
 | 93 | `Docs/Main.md` | recovery map / source-truth router | 588 | Keep | High | High |
 | 94 | `Docs/ncp_hardening_assessment.md` | product / architecture reference | 109 | Keep | Medium | High |
@@ -364,69 +350,69 @@ This is the full file-by-file cleanup plan. It includes every file under `Docs/`
 | --- | --- | --- | --- | --- | --- |
 | `Docs/architecture.md` | product / architecture reference | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
 | `Docs/boot_access_design.md` | product / architecture reference | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch runtime engineering plan | Fold-down then delete candidate | Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval. | Delete later after fold-down and USER-approved PR Readiness Stage 2 proof. | Yes |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch runtime engineering plan | Fold-down then delete candidate | Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval. | Delete later after fold-down and USER-approved PR Readiness Stage 2 proof. | Yes |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch runtime engineering plan | Fold-down then delete candidate | Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval. | Delete later after fold-down and USER-approved PR Readiness Stage 2 proof. | Yes |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch runtime engineering plan | Fold-down then delete candidate | Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval. | Delete later after fold-down and USER-approved PR Readiness Stage 2 proof. | Yes |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch runtime engineering plan | Fold-down then delete candidate | Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval. | Delete later after fold-down and USER-approved PR Readiness Stage 2 proof. | Yes |
-| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch runtime engineering plan | Fold-down then delete candidate | Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval. | Delete later after fold-down and USER-approved PR Readiness Stage 2 proof. | Yes |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch runtime engineering plan | Fold-down then retire candidate | Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval. | Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default. | Yes |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch runtime engineering plan | Fold-down then retire candidate | Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval. | Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default. | Yes |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch runtime engineering plan | Fold-down then retire candidate | Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval. | Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default. | Yes |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch runtime engineering plan | Fold-down then retire candidate | Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval. | Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default. | Yes |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch runtime engineering plan | Fold-down then retire candidate | Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval. | Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default. | Yes |
+| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch runtime engineering plan | Fold-down then retire candidate | Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval. | Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default. | Yes |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | branch plan inventory receipt | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
 | `Docs/branch_plans/README.md` | branch plan standard | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/codex_fam_007_branch_readiness.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/codex_one_time_backlog_governance_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/codex_workspace_governance_foundation.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_automation_planning.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_backlog_family_governance_reform.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_006_dashboard_release_support.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
-| `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_005_workspace_path_planning.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_030_orin_voice_audio_direction_refinement.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_030_release_readiness_canon_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_030_successor_branch_truth_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_042_desktop_entrypoint_runtime_refinement.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / compact receipt | Keep historical receipt | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / compact receipt | Keep active standing authority | Keep as compact historical branch receipt. | Keep; no deletion recommended in this pass. | No |
-| `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / compact receipt | Migrate / compact receipt | Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers. | Do not delete now; compact/migrate first. | No |
+| `Docs/branch_records/codex_fam_007_branch_readiness.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/codex_one_time_backlog_governance_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/codex_workspace_governance_foundation.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_automation_planning.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_backlog_family_governance_reform.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_006_dashboard_release_support.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
+| `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_005_workspace_path_planning.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_030_orin_voice_audio_direction_refinement.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_030_release_readiness_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_030_successor_branch_truth_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_042_desktop_entrypoint_runtime_refinement.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / structured receipt | Keep active standing authority | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / structured receipt | Organize structured receipt | Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail t... | Do not delete now; organize or migrate first. | No |
 | `Docs/branch_records/index.md` | branch authority router | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
 | `Docs/closeout_guidance.md` | release closeout receipt | Keep | Keep as historical release/closeout receipt archive unless USER approves closeout consolidation. | Keep; no deletion recommended in this pass. | No |
 | `Docs/closeout_index.md` | release closeout receipt | Keep | Keep as historical release/closeout receipt archive unless USER approves closeout consolidation. | Keep; no deletion recommended in this pass. | No |
@@ -454,7 +440,7 @@ This is the full file-by-file cleanup plan. It includes every file under `Docs/`
 | `Docs/governance_intake_triage_and_digest_profiles.md` | governance support standard | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
 | `Docs/governance_process_efficiency_reform_plan.md` | governance support standard | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
 | `Docs/incident_patterns.md` | governance support standard | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
-| `Docs/Main.md` | recovery map / source-truth router | Keep | Keep here as recovery/source-truth map; move full policy to owner docs. | Keep; no deletion recommended in this pass. | No |
+| `Docs/Main.md` | recovery map / source-truth router | Keep | Keep here as least-updated canonical docs index and recovery/source-truth map; move full policy to owner docs. | Keep; no deletion recommended in this pass. | No |
 | `Docs/ncp_hardening_assessment.md` | product / architecture reference | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
 | `Docs/nexus_startup_contract.md` | ChatGPT loader / prompt gate | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
 | `Docs/orchestration.md` | product / architecture reference | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
@@ -515,7 +501,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | High | `volatile-current-wording=27`; `unclear-ownership-wording=16`; `soft-commitment-wording=4`; `state-ledger-wording=76` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | Medium | `volatile-current-wording=12`; `unclear-ownership-wording=25`; `soft-commitment-wording=2`; `state-ledger-wording=26` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | Medium | `volatile-current-wording=2`; `unclear-ownership-wording=26`; `state-ledger-wording=20` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/branch_plans/README.md` | Medium | `volatile-current-wording=13`; `unclear-ownership-wording=15`; `soft-commitment-wording=3`; `state-ledger-wording=10` | Review for ambiguous current/active/latest/pending ownership language. |
+| `Docs/branch_plans/README.md` | Medium | `volatile-current-wording=14`; `unclear-ownership-wording=13`; `soft-commitment-wording=3`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/codex_fam_007_branch_readiness.md` | Medium | `volatile-current-wording=34`; `unclear-ownership-wording=13`; `soft-commitment-wording=4`; `state-ledger-wording=17` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | Medium | `volatile-current-wording=47`; `unclear-ownership-wording=22`; `soft-commitment-wording=1`; `state-ledger-wording=28` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md` | Low | `volatile-current-wording=21`; `unclear-ownership-wording=10`; `soft-commitment-wording=1`; `state-ledger-wording=8` | Low ambiguity; keep owner labels precise when edited. |
@@ -571,7 +557,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | Medium | `volatile-current-wording=45`; `unclear-ownership-wording=9`; `state-ledger-wording=29` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | High | `volatile-current-wording=93`; `unclear-ownership-wording=36`; `soft-commitment-wording=23`; `state-ledger-wording=43` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | High | `volatile-current-wording=58`; `unclear-ownership-wording=131`; `soft-commitment-wording=16`; `state-ledger-wording=158` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_records/index.md` | High | `volatile-current-wording=154`; `unclear-ownership-wording=72`; `soft-commitment-wording=24`; `state-ledger-wording=64` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_records/index.md` | High | `volatile-current-wording=155`; `unclear-ownership-wording=71`; `soft-commitment-wording=24`; `state-ledger-wording=65` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/closeout_guidance.md` | Low | `volatile-current-wording=16`; `unclear-ownership-wording=4`; `soft-commitment-wording=3`; `state-ledger-wording=9` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/closeout_index.md` | Low | `volatile-current-wording=3` | No scanner ambiguity markers found. |
 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md` | Low | `volatile-current-wording=6`; `soft-commitment-wording=1`; `state-ledger-wording=2` | No scanner ambiguity markers found. |
@@ -593,10 +579,10 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/fb_027_overlay_bug_tracker.md` | Medium | `volatile-current-wording=35`; `soft-commitment-wording=3`; `state-ledger-wording=18` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/feature_backlog.md` | High | `volatile-current-wording=45`; `unclear-ownership-wording=42`; `soft-commitment-wording=1`; `state-ledger-wording=72` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/governance_docs_full_inventory_reform_audit.md` | Low | None found. | Synthetic self-reference; review the actual generated dossier directly. |
-| `Docs/governance_docs_reform_user_review_index.md` | High | `volatile-current-wording=37`; `unclear-ownership-wording=67`; `soft-commitment-wording=9`; `state-ledger-wording=38` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/governance_efficiency_operating_model.md` | High | `volatile-current-wording=48`; `unclear-ownership-wording=25`; `soft-commitment-wording=21`; `state-ledger-wording=39` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/governance_docs_reform_user_review_index.md` | High | `volatile-current-wording=38`; `unclear-ownership-wording=37`; `soft-commitment-wording=10`; `state-ledger-wording=39` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/governance_efficiency_operating_model.md` | High | `volatile-current-wording=56`; `unclear-ownership-wording=29`; `soft-commitment-wording=33`; `state-ledger-wording=45` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/governance_intake_triage_and_digest_profiles.md` | Low | `volatile-current-wording=15`; `unclear-ownership-wording=4`; `soft-commitment-wording=3`; `state-ledger-wording=2` | Low ambiguity; keep owner labels precise when edited. |
-| `Docs/governance_process_efficiency_reform_plan.md` | High | `volatile-current-wording=77`; `unclear-ownership-wording=31`; `soft-commitment-wording=9`; `state-ledger-wording=34` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/governance_process_efficiency_reform_plan.md` | High | `volatile-current-wording=82`; `unclear-ownership-wording=41`; `soft-commitment-wording=26`; `state-ledger-wording=39` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/incident_patterns.md` | High | `volatile-current-wording=55`; `unclear-ownership-wording=20`; `soft-commitment-wording=6`; `state-ledger-wording=26` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/Main.md` | High | `volatile-current-wording=318`; `unclear-ownership-wording=129`; `soft-commitment-wording=51`; `state-ledger-wording=155` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/ncp_hardening_assessment.md` | Medium | `volatile-current-wording=13`; `unclear-ownership-wording=1`; `soft-commitment-wording=5`; `state-ledger-wording=6` | Review for ambiguous current/active/latest/pending ownership language. |
@@ -642,7 +628,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md` | High | `volatile-current-wording=82`; `unclear-ownership-wording=21`; `soft-commitment-wording=2`; `state-ledger-wording=32` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | High | `volatile-current-wording=98`; `unclear-ownership-wording=25`; `soft-commitment-wording=4`; `state-ledger-wording=58` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/workstreams/index.md` | High | `volatile-current-wording=52`; `unclear-ownership-wording=35`; `soft-commitment-wording=18`; `state-ledger-wording=37` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/worktree_slots.md` | High | `volatile-current-wording=27`; `unclear-ownership-wording=31`; `soft-commitment-wording=4`; `state-ledger-wording=29` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/worktree_slots.md` | High | `volatile-current-wording=28`; `unclear-ownership-wording=30`; `soft-commitment-wording=4`; `state-ledger-wording=30` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 
 ## Structure Pass
 
@@ -661,39 +647,39 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_plans/README.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/codex_fam_007_branch_readiness.md` | Low | Structure is acceptable for current owner category. |
-| `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
+| `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
 | `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/codex_one_time_backlog_governance_repair.md` | Low | Structure is acceptable for current owner category. |
-| `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
+| `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
 | `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/codex_workspace_governance_foundation.md` | Low | Structure is acceptable for current owner category. |
-| `Docs/branch_records/feature_automation_planning.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
+| `Docs/branch_records/feature_automation_planning.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
 | `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | Low | Structure is acceptable for current owner category. |
-| `Docs/branch_records/feature_backlog_family_governance_reform.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
+| `Docs/branch_records/feature_backlog_family_governance_reform.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
 | `Docs/branch_records/feature_fam_006_dashboard_release_support.md` | Low | Structure is acceptable for current owner category. |
-| `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
+| `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
 | `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md` | Low | Structure is acceptable for current owner category. |
-| `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
+| `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
 | `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` | Low | Structure is acceptable for current owner category. |
-| `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
-| `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
+| `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
+| `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
 | `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/feature_fb_005_workspace_path_planning.md` | Low | Structure is acceptable for current owner category. |
@@ -714,7 +700,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | Low | Structure is acceptable for current owner category. |
-| `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | High | Oversized branch receipt; compact current authority and migrate durable execution detail. |
+| `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable le... |
 | `Docs/branch_records/index.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/closeout_guidance.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/closeout_index.md` | Low | Structure is acceptable for current owner category. |
@@ -794,69 +780,69 @@ Structure risk flags files that are too long for their owner role, have too few 
 | --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `Docs/architecture.md` | 165 | Nexus Architecture | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/boot_access_design.md` | 166 | Nexus Boot Access Design | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | 84 | Branch Runtime Engineering Plan: FAM-007 Local AI Provider Execution Readiness Gates | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then delete candidate | High | Medium | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | 79 | Branch Runtime Engineering Plan: FAM-007 Local AI Provider Path and Consent Readiness | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then delete candidate | Medium | Medium | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | 82 | Branch Runtime Engineering Plan - FAM-007 Local AI Provider Setup and Consent Flow Readiness | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then delete candidate | Medium | Medium | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | 250 | Branch Runtime Engineering Plan: FAM-007 Local AI Provider Setup Contract Readiness | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then delete candidate | High | Low | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | 160 | Branch Runtime Engineering Plan: FAM-007 Local AI Provider Setup Implementation Foundation | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then delete candidate | High | Low | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
-| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | 90 | Branch Runtime Engineering Plan - Repo-Wide High-Risk Source Owner Marker Adoption | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then delete candidate | Medium | Medium | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | 84 | Branch Runtime Engineering Plan: FAM-007 Local AI Provider Execution Readiness Gates | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then retire candidate | High | Medium | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | 79 | Branch Runtime Engineering Plan: FAM-007 Local AI Provider Path and Consent Readiness | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then retire candidate | Medium | Medium | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | 82 | Branch Runtime Engineering Plan - FAM-007 Local AI Provider Setup and Consent Flow Readiness | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then retire candidate | Medium | Medium | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | 250 | Branch Runtime Engineering Plan: FAM-007 Local AI Provider Setup Contract Readiness | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then retire candidate | High | Low | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | 160 | Branch Runtime Engineering Plan: FAM-007 Local AI Provider Setup Implementation Foundation | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then retire candidate | High | Low | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
+| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | 90 | Branch Runtime Engineering Plan - Repo-Wide High-Risk Source Owner Marker Adoption | branch runtime engineering plan | active branch engineering plan | per-seam checklists, deltas, proof, approval boundaries while active | No direct edit in this branch; classified and governed by this dossier. | At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/wo... | Fold-down then retire candidate | Medium | Medium | Yes | Yes | Yes | Planning fixture validator checks required plan structure; future PR Readiness should enforce... | _Add notes here._ |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | 46 | Source Owner Marker Inventory - Repo-Wide First Pass | branch plan inventory receipt | branch-specific inventory evidence | inventory rows and marker evidence while receipt needs it | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/branch_plans/README.md` | 87 | Branch Runtime Engineering Plans | branch plan standard | branch runtime engineering plan standard | required plan markers and lifecycle | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/branch_records/codex_fam_007_branch_readiness.md` | 188 | Branch Authority Record: codex/fam-007-branch-readiness | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | 426 | Branch Authority Record: codex/fb-037-release-debt-packaging | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | Medium | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md` | 84 | Branch Authority Record: codex/no-active-branch-docs-governance-refinement | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/codex_one_time_backlog_governance_repair.md` | 224 | One-Time Backlog Governance Repair Branch | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | 436 | Branch Authority Record: codex/v1.6.13-prebeta-post-merge-closeout-hardening | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md` | 279 | Branch Authority Record: codex/v1.6.13-prebeta-post-release-canon-closure | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md` | 297 | Branch Authority Record: codex/v1.6.13-prebeta-pr112-source-truth-closeout | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` | 321 | Branch Authority Record: codex/v1.6.13-prebeta-release-packaging | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/codex_workspace_governance_foundation.md` | 195 | Branch Authority Record: codex/workspace-governance-foundation | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_automation_planning.md` | 418 | Branch Authority Record: feature/automation-planning | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md` | 145 | Branch Authority Record: feature/automation-planning-post-merge-canon-repair | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | 205 | Branch Authority Record: feature/automation-planning-post-merge-closeout-repair | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_backlog_family_governance_reform.md` | 412 | Branch Authority Record: feature/backlog-family-governance-reform | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | 543 | Branch Authority Record: feature/fam-006-dashboard-ia-controls-followthrough | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_006_dashboard_release_support.md` | 189 | Branch Authority Record: feature/fam-006-dashboard-release-support | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | 615 | Branch Authority Record: feature/fam-006-dashboard-render-layout-hardening | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | 699 | Branch Authority Record: feature/fam-006-dashboard-settings-panel | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md` | 246 | Branch Authority Record: feature/fam-006-issue-readiness-governance-repair | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | 1001 | Branch Authority Record: feature/fam-006-monitor-groups-sensor-configuration | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | 2564 | Branch Authority Record: feature/fam-006-monitoring-hud-product-surface | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` | 203 | FAM-006 Element Validation Ledger | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | 504 | Branch Authority Record: feature/fam-006-sensor-hud-provider-governance | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | 417 | Branch Authority Record: feature/fam-007-local-ai-foundation-readiness | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | 453 | Branch Authority Record: feature/fam-007-local-ai-foundation-runtime-continuation | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | 503 | Branch Authority Record: feature/fam-007-local-ai-provider-activation-foundation | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | 549 | Branch Authority Record: feature/fam-007-local-ai-provider-execution-readiness-gates | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | 490 | Branch Authority Record: feature/fam-007-local-ai-provider-path-and-consent-readiness | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | 478 | Branch Authority Record: feature/fam-007-local-ai-provider-runtime-readiness | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | 676 | Branch Record: feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | 611 | Branch Record: feature/fam-007-local-ai-provider-setup-contract-readiness | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | 579 | Branch Record: feature/fam-007-local-ai-provider-setup-implementation-foundation | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | 490 | Branch Authority Record: feature/fam-007-local-ai-runtime-expansion | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | 517 | Branch Authority Record: feature/fam-007-local-ai-runtime-foundation | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | 531 | Branch Authority Record: feature/fam-007-provider-boundary-no-provider-shell | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md` | 217 | Branch Authority Record: feature/fam-007-runtime-provider-boundary | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md` | 297 | Branch Authority Record: feature/fam-007-stage-2-readiness-admission | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_005_workspace_path_planning.md` | 58 | Branch Authority Record: feature/fb-005-workspace-path-planning | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | No | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_030_orin_voice_audio_direction_refinement.md` | 64 | Branch Authority Record: feature/fb-030-orin-voice-audio-direction-refinement | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_030_release_readiness_canon_repair.md` | 63 | Branch Authority Record: feature/fb-030-release-readiness-canon-repair | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_030_successor_branch_truth_repair.md` | 66 | Branch Authority Record: feature/fb-030-successor-branch-truth-repair | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_042_desktop_entrypoint_runtime_refinement.md` | 59 | Branch Authority Record: feature/fb-042-desktop-entrypoint-runtime-refinement | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | No | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md` | 231 | Branch Authority Record: feature/fb-043-top-level-entrypoint-handoff-refinement | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md` | 224 | Branch Authority Record: feature/fb-044-boot-desktop-handoff-outcome-refinement | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md` | 223 | Branch Authority Record: feature/fb-045-active-session-relaunch-stability | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md` | 218 | Branch Authority Record: feature/fb-046-active-session-relaunch-reacquisition | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | 219 | Branch Authority Record: feature/fb-047-active-session-relaunch-decline-preservation | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | 221 | Branch Authority Record: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeo... | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | 328 | Branch Authority Record: feature/fb-049-runtime-branch-readiness | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | 150 | Branch Authority Record: feature/pr101-post-merge-closeout-canon-repair | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | 150 | Branch Authority Record: feature/pr102-post-merge-closeout-canon-repair | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | 243 | Branch Authority Record: feature/pr103-post-merge-closeout-canon-repair | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | 165 | Branch Authority Record: feature/pr104-watcher-next-prompt-format-repair | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | 177 | Branch Authority Record: feature/pr105-post-merge-closeout-canon-repair | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | 272 | Branch Authority Record: feature/release-readiness-source-truth-intake | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | Updated in this reform branch. | Keep current markers compact and avoid cycle-ledger closeout-only PRs. | Keep active standing authority | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | 498 | Branch Authority Record: feature/repo-wide-source-owner-marker-adoption | branch authority / compact receipt | branch authority, approvals, phase history, legal carrier status, compact receipts | branch identity, phase markers, approvals, blockers, historical receipt | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should fold the long historical diary into a compact receipt and promote... | Migrate / compact receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_plans/README.md` | 88 | Branch Runtime Engineering Plans | branch plan standard | branch runtime engineering plan standard | required plan markers and lifecycle | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/branch_records/codex_fam_007_branch_readiness.md` | 188 | Branch Authority Record: codex/fam-007-branch-readiness | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | 426 | Branch Authority Record: codex/fb-037-release-debt-packaging | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | Medium | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md` | 84 | Branch Authority Record: codex/no-active-branch-docs-governance-refinement | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/codex_one_time_backlog_governance_repair.md` | 224 | One-Time Backlog Governance Repair Branch | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | 436 | Branch Authority Record: codex/v1.6.13-prebeta-post-merge-closeout-hardening | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md` | 279 | Branch Authority Record: codex/v1.6.13-prebeta-post-release-canon-closure | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md` | 297 | Branch Authority Record: codex/v1.6.13-prebeta-pr112-source-truth-closeout | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` | 321 | Branch Authority Record: codex/v1.6.13-prebeta-release-packaging | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/codex_workspace_governance_foundation.md` | 195 | Branch Authority Record: codex/workspace-governance-foundation | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_automation_planning.md` | 418 | Branch Authority Record: feature/automation-planning | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md` | 145 | Branch Authority Record: feature/automation-planning-post-merge-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | 205 | Branch Authority Record: feature/automation-planning-post-merge-closeout-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_backlog_family_governance_reform.md` | 412 | Branch Authority Record: feature/backlog-family-governance-reform | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | 543 | Branch Authority Record: feature/fam-006-dashboard-ia-controls-followthrough | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_006_dashboard_release_support.md` | 189 | Branch Authority Record: feature/fam-006-dashboard-release-support | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | 615 | Branch Authority Record: feature/fam-006-dashboard-render-layout-hardening | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | 699 | Branch Authority Record: feature/fam-006-dashboard-settings-panel | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md` | 246 | Branch Authority Record: feature/fam-006-issue-readiness-governance-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | 1001 | Branch Authority Record: feature/fam-006-monitor-groups-sensor-configuration | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` | 2564 | Branch Authority Record: feature/fam-006-monitoring-hud-product-surface | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` | 203 | FAM-006 Element Validation Ledger | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | 504 | Branch Authority Record: feature/fam-006-sensor-hud-provider-governance | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | 417 | Branch Authority Record: feature/fam-007-local-ai-foundation-readiness | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | 453 | Branch Authority Record: feature/fam-007-local-ai-foundation-runtime-continuation | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | 503 | Branch Authority Record: feature/fam-007-local-ai-provider-activation-foundation | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | 549 | Branch Authority Record: feature/fam-007-local-ai-provider-execution-readiness-gates | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | 490 | Branch Authority Record: feature/fam-007-local-ai-provider-path-and-consent-readiness | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | 478 | Branch Authority Record: feature/fam-007-local-ai-provider-runtime-readiness | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | 676 | Branch Record: feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | 611 | Branch Record: feature/fam-007-local-ai-provider-setup-contract-readiness | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | 579 | Branch Record: feature/fam-007-local-ai-provider-setup-implementation-foundation | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md` | 490 | Branch Authority Record: feature/fam-007-local-ai-runtime-expansion | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md` | 517 | Branch Authority Record: feature/fam-007-local-ai-runtime-foundation | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md` | 531 | Branch Authority Record: feature/fam-007-provider-boundary-no-provider-shell | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md` | 217 | Branch Authority Record: feature/fam-007-runtime-provider-boundary | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md` | 297 | Branch Authority Record: feature/fam-007-stage-2-readiness-admission | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_005_workspace_path_planning.md` | 58 | Branch Authority Record: feature/fb-005-workspace-path-planning | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | No | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_030_orin_voice_audio_direction_refinement.md` | 64 | Branch Authority Record: feature/fb-030-orin-voice-audio-direction-refinement | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_030_release_readiness_canon_repair.md` | 63 | Branch Authority Record: feature/fb-030-release-readiness-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_030_successor_branch_truth_repair.md` | 66 | Branch Authority Record: feature/fb-030-successor-branch-truth-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_042_desktop_entrypoint_runtime_refinement.md` | 59 | Branch Authority Record: feature/fb-042-desktop-entrypoint-runtime-refinement | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | No | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md` | 231 | Branch Authority Record: feature/fb-043-top-level-entrypoint-handoff-refinement | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md` | 224 | Branch Authority Record: feature/fb-044-boot-desktop-handoff-outcome-refinement | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md` | 223 | Branch Authority Record: feature/fb-045-active-session-relaunch-stability | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md` | 218 | Branch Authority Record: feature/fb-046-active-session-relaunch-reacquisition | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | 219 | Branch Authority Record: feature/fb-047-active-session-relaunch-decline-preservation | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | 221 | Branch Authority Record: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeo... | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | 328 | Branch Authority Record: feature/fb-049-runtime-branch-readiness | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | 150 | Branch Authority Record: feature/pr101-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | 150 | Branch Authority Record: feature/pr102-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | 243 | Branch Authority Record: feature/pr103-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | 165 | Branch Authority Record: feature/pr104-watcher-next-prompt-format-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | 177 | Branch Authority Record: feature/pr105-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | 272 | Branch Authority Record: feature/release-readiness-source-truth-intake | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | Updated in this reform branch. | Keep current markers compact and avoid cycle-ledger closeout-only PRs. | Keep active standing authority | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | 498 | Branch Authority Record: feature/repo-wide-source-owner-marker-adoption | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/index.md` | 183 | Branch Authority Records Index | branch authority router | active/historical branch authority routing | lists and rules for branch authority records | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeout_guidance.md` | 107 | Closeout Guidance | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeout_index.md` | 71 | Closeout Index | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -879,12 +865,12 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/fb_027_overlay_bug_tracker.md` | 212 | FB-027 Overlay Bug Tracker | bug / issue historical tracker | historical bug/issue evidence | closed issue context and durable historical notes | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/feature_backlog.md` | 334 | Nexus Feature Backlog | compact product registry | feature-family identity, priority, status, scope, package summary, canonical pointers | FAM registry rows and compact pointers | Updated in this reform branch. | Keep pointer-only; do not reintroduce live state or detailed trace tables. | Keep compact | High | Medium | Yes | Yes | Yes | Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan de... | _Add notes here._ |
 | `Docs/governance_docs_full_inventory_reform_audit.md` | Generated self-reference | Governance Docs Full Inventory Reform Audit | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | Self-reference is intentionally synthetic so regeneration does not change the dossier by re-s... | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/governance_docs_reform_user_review_index.md` | 162 | Nexus Docs Reform User Review Index | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Created in this review-surface repair branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/governance_efficiency_operating_model.md` | 266 | Governance Efficiency Operating Model | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/governance_docs_reform_user_review_index.md` | 156 | Nexus Docs Reform User Review Index | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Created in this review-surface repair branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/governance_efficiency_operating_model.md` | 280 | Governance Efficiency Operating Model | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_intake_triage_and_digest_profiles.md` | 163 | Governance Intake Triage And Digest Profiles | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/governance_process_efficiency_reform_plan.md` | 489 | Governance Process Efficiency Reform Plan | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/governance_process_efficiency_reform_plan.md` | 527 | Governance Process Efficiency Reform Plan | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/incident_patterns.md` | 343 | Incident Patterns | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/Main.md` | 588 | Nexus Source-Of-Truth Index | recovery map / source-truth router | highest-level recovery map and source-truth ownership map | pointers to canonical owners and compact required field names | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/Main.md` | 588 | Nexus Source-Of-Truth Index | recovery map / source-truth router | least-updated canonical docs index, recovery map, and source-truth ownership map | clear pointers to current governance/source-truth owners and a digest of each file's purpose | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/ncp_hardening_assessment.md` | 109 | NCP Hardening Assessment | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/nexus_startup_contract.md` | 632 | Nexus ChatGPT Loader Prompt Contract | ChatGPT loader / prompt gate | ChatGPT-facing startup/loader contract | loader map and prompt-generation guardrails | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/orchestration.md` | 127 | Nexus Orchestration | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -942,15 +928,15 @@ Structure risk flags files that are too long for their owner role, have too few 
 | worktree live state | git status / worktree preflight / helper output | 115 | High |
 | origin/main | git fetch + git rev-parse / helper output | 65 | Medium |
 | PR state | GitHub / watcher / gh / GraphQL output | 79 | High |
-| merge status | GitHub PR merge truth plus compact historical receipt | 112 | Medium |
+| merge status | GitHub PR merge truth plus structured historical receipt | 112 | Medium |
 | latest tag/release | GitHub Releases / tags / release validator | 86 | High |
-| release receipt | Docs/closeouts, compact branch receipt, or release body after validation | 59 | Medium |
+| release receipt | Docs/closeouts, structured branch receipt, or release body after validation | 59 | Medium |
 | release schedule outline | Docs/prebeta_roadmap.md | 81 | Medium |
 | package trace | Docs/workstreams or family dossiers | 45 | High |
 | slice trace | Docs/workstreams or family dossiers | 50 | High |
-| issue posture | GitHub issues plus compact historical receipt when needed | 26 | Medium |
+| issue posture | GitHub issues plus structured historical receipt when needed | 26 | Medium |
 | branch runtime plan | Docs/branch_plans/<branch>.md while active | 32 | Medium |
-| branch phase history | Docs/branch_records/<branch>.md compact receipt | 93 | Medium |
+| branch phase history | Docs/branch_records/<branch>.md structured receipt | 93 | Medium |
 | branch receipt | Docs/branch_records/<branch>.md | 132 | Medium |
 | workstream durable history | Docs/workstreams/<id>.md or family dossier | 127 | Medium |
 | family dossier continuity | Docs/workstreams/*_family_dossier.md | 35 | Medium |
@@ -972,15 +958,15 @@ Structure risk flags files that are too long for their owner role, have too few 
 | worktree live state | git status / worktree preflight / helper output | `Docs/Main.md`; `Docs/branch_plans/README.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; ... | `Docs/architecture.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md`; ... | High | existing validator coverage |
 | origin/main | git fetch + git rev-parse / helper output | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md`; ... | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; ... | Medium | owner-pointer review / future focused validator |
 | PR state | GitHub / watcher / gh / GraphQL output | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/workstreams/index.md`; `Docs/worktree_slots.md` | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_one_time_backlog_governance_repair.md`; ... | High | existing validator coverage |
-| merge status | GitHub PR merge truth plus compact historical receipt | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md`; `Docs/workstreams/index.md`; ... | `Docs/architecture.md`; `Docs/boot_access_design.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; ... | Medium | owner-pointer review / future focused validator |
+| merge status | GitHub PR merge truth plus structured historical receipt | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md`; `Docs/workstreams/index.md`; ... | `Docs/architecture.md`; `Docs/boot_access_design.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; ... | Medium | owner-pointer review / future focused validator |
 | latest tag/release | GitHub Releases / tags / release validator | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md`; `Docs/worktree_slots.md` | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`; ... | High | existing validator coverage |
-| release receipt | Docs/closeouts, compact branch receipt, or release body after validation | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md` | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_one_time_backlog_governance_repair.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`; ... | Medium | owner-pointer review / future focused validator |
+| release receipt | Docs/closeouts, structured branch receipt, or release body after validation | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md` | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_one_time_backlog_governance_repair.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`; ... | Medium | owner-pointer review / future focused validator |
 | release schedule outline | Docs/prebeta_roadmap.md | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md` | `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`; `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md`; `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md`; `Docs/branch_records/feature_automation_planning.md`; ... | Medium | owner-pointer review / future focused validator |
 | package trace | Docs/workstreams or family dossiers | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md`; ... | `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_one_time_backlog_governance_repair.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`; `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md`; `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md`; `Docs/branch_records/codex_workspace_governance_foundation.md`; `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`; ... | High | existing validator coverage |
 | slice trace | Docs/workstreams or family dossiers | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md`; ... | `Docs/branch_records/codex_one_time_backlog_governance_repair.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`; `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md`; `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md`; `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`; `Docs/branch_records/feature_fam_006_dashboard_release_support.md`; `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md`; ... | High | existing validator coverage |
-| issue posture | GitHub issues plus compact historical receipt when needed | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/feature_backlog.md`; `Docs/worktree_slots.md` | `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_workspace_governance_foundation.md`; `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`; `Docs/branch_records/feature_fam_006_dashboard_release_support.md`; `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md`; `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md`; `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md`; `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`; ... | Medium | owner-pointer review / future focused validator |
+| issue posture | GitHub issues plus structured historical receipt when needed | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/feature_backlog.md`; `Docs/worktree_slots.md` | `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_workspace_governance_foundation.md`; `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`; `Docs/branch_records/feature_fam_006_dashboard_release_support.md`; `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md`; `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md`; `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md`; `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`; ... | Medium | owner-pointer review / future focused validator |
 | branch runtime plan | Docs/branch_plans/<branch>.md while active | `Docs/Main.md`; `Docs/branch_plans/README.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md`; ... | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`; `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md`; ... | Medium | owner-pointer review / future focused validator |
-| branch phase history | Docs/branch_records/<branch>.md compact receipt | `Docs/Main.md`; `Docs/branch_plans/README.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; ... | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; ... | Medium | owner-pointer review / future focused validator |
+| branch phase history | Docs/branch_records/<branch>.md structured receipt | `Docs/Main.md`; `Docs/branch_plans/README.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; ... | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; ... | Medium | owner-pointer review / future focused validator |
 | branch receipt | Docs/branch_records/<branch>.md | `Docs/Main.md`; `Docs/branch_plans/README.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; ... | `Docs/architecture.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; ... | Medium | owner-pointer review / future focused validator |
 | workstream durable history | Docs/workstreams/<id>.md or family dossier | `Docs/Main.md`; `Docs/branch_plans/README.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; ... | `Docs/architecture.md`; `Docs/boot_access_design.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; ... | Medium | owner-pointer review / future focused validator |
 | family dossier continuity | Docs/workstreams/*_family_dossier.md | `Docs/Main.md`; `Docs/branch_plans/README.md`; `Docs/branch_records/index.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; `Docs/workstreams/index.md` | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; `Docs/branch_records/codex_one_time_backlog_governance_repair.md`; `Docs/branch_records/feature_backlog_family_governance_reform.md`; `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md`; `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md`; `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md`; ... | Medium | owner-pointer review / future focused validator |
@@ -1000,18 +986,18 @@ Structure risk flags files that are too long for their owner role, have too few 
 
 ## Branch Records Final Schema
 
-Branch records own branch identity, approvals, current/historical phase status, blockers, legal carrier posture, compact receipt, and pointers. Large historical execution diaries are preserved as historical evidence in this pass, but future focused migration should compact them and promote durable implementation detail to workstreams or family dossiers.
+Branch records own branch identity, approvals, current/historical phase status, blockers, legal carrier posture, structured traceability receipt, and pointers. Large historical execution ledgers are preserved as historical evidence in this pass; future focused migration should organize them into user-readable and Codex-indexable current summary plus historical receipt sections, then promote reusable implementation detail to workstreams or family dossiers without losing commit/PR evidence.
 
-## Branch Plans Lifecycle And Deletion Rule
+## Branch Plans Lifecycle And Retirement Rule
 
-Branch Runtime Engineering Plans are canonical only while the owning branch is active. They are created/admitted during Branch Readiness Stage 2 for runtime-focused branches, used through Workstream/Hardening/Live Validation, folded down during PR Readiness Stage 1, and deleted during or before PR Readiness Stage 2 only after durable content has been migrated to the branch receipt, workstream doc, family dossier, or other historical receipt owner. Existing historical plans are queued for fold-down/deletion review rather than deleted in this pass because their durable content has not been fully migrated and validated file-by-file.
+Branch Runtime Engineering Plans are canonical only while the owning branch is active. They are created/admitted during Branch Readiness Stage 2 for runtime-focused branches, used through Workstream/Hardening/Live Validation, folded down during PR Readiness Stage 1, and retired during or before PR Readiness Stage 2 only after durable content has been migrated to the branch receipt, workstream doc, family dossier, or other historical receipt owner. Existing historical plans are queued for fold-down/retirement review rather than deleted in this pass because their durable content has not been fully migrated and validated file-by-file.
 
 ## Branch Runtime Engineering Plan Lifecycle Proof
 
 - Branch Runtime Engineering Plans are canonical active-branch planning docs while a runtime branch is active.
 - Branch plans contain detailed per-seam implementation, validation, user-facing proof, future-gated items, and approval boundaries.
 - Branch plans are folded down during PR Readiness Stage 1.
-- Branch plans are deleted during or before PR Readiness Stage 2 approval after durable content is migrated.
+- Branch plans are retired during or before PR Readiness Stage 2 approval after durable content is migrated.
 - Durable content moves to the branch receipt, workstream doc, family dossier, or validated historical receipt owner.
 - Backlog and roadmap remain compact pointer/status surfaces and must not absorb detailed branch planning.
 
@@ -1064,12 +1050,12 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 
 | File | Reason | References / Replacement Owner | Recommendation |
 | --- | --- | --- | --- |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch plan should be deleted after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch plan should be deleted after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch plan should be deleted after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch plan should be deleted after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch plan should be deleted after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
-| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch plan should be deleted after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted in this pass |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch plan should be retired after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch plan should be retired after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch plan should be retired after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch plan should be retired after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch plan should be retired after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch plan should be retired after fold-down proves durable content migrated | owning branch record plus workstream/family dossier after fold-down | safe later after owning branch PR Readiness fold-down; not deleted by default |
 
 ## File-By-File Review Dossier
 
@@ -1146,11 +1132,11 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Correct owner category: branch runtime engineering plan
 - What gets recorded here: active branch engineering plan.
 - What should be recorded here: per-seam checklists, deltas, proof, approval boundaries while active.
-- What should move elsewhere: permanent family dossier after PR fold-down.
-- Migration target: permanent family dossier after PR fold-down.
-- Recommendation: Fold-down then delete candidate.
-- Consolidation target: Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval..
-- Deletion posture: Delete later after fold-down and USER-approved PR Readiness Stage 2 proof..
+- What should move elsewhere: permanent family dossier or active/live branch authority after PR fold-down.
+- Migration target: permanent family dossier or active/live branch authority after PR fold-down.
+- Recommendation: Fold-down then retire candidate.
+- Consolidation target: Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval..
+- Deletion posture: Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=22`; `unclear-ownership-wording=11`; `soft-commitment-wording=4`; `state-ledger-wording=53`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
@@ -1164,9 +1150,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Package Trace / Slice Trace markers found: None found.
 - Branch/worktree/phase markers found: `Worktree Path: `C:\Nexus Worktrees\FAM-007``; `Current Phase: `Historical released evidence after PR #172 merge and v1.7.7-prebeta release``; `Engineering Plan Status: `Historical - bounded Workstream implementation mapped the accepted plan into local-only execution-readiness state, UI, validator fixtures, source-truth pr`; `Branch Purpose: `Prepare a detailed branch-specific runtime plan for provider execution-readiness gates so future Workstream implementation can define execution state, provider pat`; `Source-Truth Delta: `Source-truth changes are expected to keep backlog and roadmap compact as pointer/status surfaces while this branch plan and the branch authority record own det`
 - Release/PR/issue markers found: `Plan Identity: `FAM-007 Local AI Provider Execution Readiness Gates runtime plan v1, admitted during controlled reconciliation after PR #171 merged Branch Runtime Engineering Plan `; `Current Phase: `Historical released evidence after PR #172 merge and v1.7.7-prebeta release``; `Engineering Plan Status: `Historical - bounded Workstream implementation mapped the accepted plan into local-only execution-readiness state, UI, validator fixtures, source-truth pr`; `Current Runtime Baseline: `PR #170 released local-only provider activation foundation state, config, schema, UI, desktop status copy, provider adapter posture, provider-visible-dat`; `Future-Gated Items: `Future-gated items remain provider SDK integration, provider/model execution, model downloads, external provider/API calls, memory indexing/retrieval/learning/`
-- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/deletion for the owning branch.
+- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/retirement for the owning branch.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it.
+- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it.
 - USER review notes: _Add notes here._
 
 ### 4. `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`
@@ -1178,11 +1164,11 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Correct owner category: branch runtime engineering plan
 - What gets recorded here: active branch engineering plan.
 - What should be recorded here: per-seam checklists, deltas, proof, approval boundaries while active.
-- What should move elsewhere: permanent family dossier after PR fold-down.
-- Migration target: permanent family dossier after PR fold-down.
-- Recommendation: Fold-down then delete candidate.
-- Consolidation target: Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval..
-- Deletion posture: Delete later after fold-down and USER-approved PR Readiness Stage 2 proof..
+- What should move elsewhere: permanent family dossier or active/live branch authority after PR fold-down.
+- Migration target: permanent family dossier or active/live branch authority after PR fold-down.
+- Recommendation: Fold-down then retire candidate.
+- Consolidation target: Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval..
+- Deletion posture: Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=23`; `unclear-ownership-wording=6`; `soft-commitment-wording=3`; `state-ledger-wording=44`
 - Ambiguity review action: Review for ambiguous current/active/latest/pending ownership language.
@@ -1196,9 +1182,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Package Trace / Slice Trace markers found: None found.
 - Branch/worktree/phase markers found: `Plan Identity: `FAM-007 Local AI Provider Path and Consent Readiness runtime plan v1, admitted during Branch Readiness Stage 2 after v1.7.7-prebeta release execution.``; `Worktree Path: `C:\Nexus Worktrees\FAM-007``; `Current Phase: `PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval``; `Engineering Plan Status: `Accepted - implemented provider path and consent readiness planning maps to local-only runtime state, Core/Desktop/ORIN UI posture, validator fixtures, so`; `Source-Truth Delta: `Source-truth changes keep backlog and roadmap compact as pointer/status surfaces while this branch plan and the branch authority record own detailed runtime pl`
 - Release/PR/issue markers found: `Current Runtime Baseline: `PR #172 released local-only provider execution-readiness gates with execution readiness state, provider path and adapter selection posture, disabled prom`; `Future-Gated Items: `Future-gated items remain provider path/setup implementation, consent collection implementation, provider SDK integration, provider/model execution, model down`; `Plan Revision History: `v1 created during Branch Readiness Stage 2 from origin/main eb8d36b4464ad560a59cfea8ddc641aa6374293f after v1.7.7-prebeta. Reconciliation revision merged or`; `PR Readiness Stage 1 Result: `Ready for Stage 2 - selected-next defer/waiver truth, pre-PR live-state truth, post-merge No Active Branch projection, Release Readiness Health Pass, `
-- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/deletion for the owning branch.
+- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/retirement for the owning branch.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it.
+- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it.
 - USER review notes: _Add notes here._
 
 ### 5. `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`
@@ -1210,11 +1196,11 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Correct owner category: branch runtime engineering plan
 - What gets recorded here: active branch engineering plan.
 - What should be recorded here: per-seam checklists, deltas, proof, approval boundaries while active.
-- What should move elsewhere: permanent family dossier after PR fold-down.
-- Migration target: permanent family dossier after PR fold-down.
-- Recommendation: Fold-down then delete candidate.
-- Consolidation target: Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval..
-- Deletion posture: Delete later after fold-down and USER-approved PR Readiness Stage 2 proof..
+- What should move elsewhere: permanent family dossier or active/live branch authority after PR fold-down.
+- Migration target: permanent family dossier or active/live branch authority after PR fold-down.
+- Recommendation: Fold-down then retire candidate.
+- Consolidation target: Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval..
+- Deletion posture: Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=22`; `unclear-ownership-wording=7`; `soft-commitment-wording=6`; `state-ledger-wording=44`
 - Ambiguity review action: Review for ambiguous current/active/latest/pending ownership language.
@@ -1228,9 +1214,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Package Trace / Slice Trace markers found: None found.
 - Branch/worktree/phase markers found: `Worktree Path: `C:\Nexus Worktrees\FAM-007``; `Current Phase: `PR Readiness Stage 1 Ready For Stage 2 - PR creation pending USER approval``; `Branch Runtime Engineering Plan: `Accepted and implemented for the bounded local-only setup and consent flow readiness Workstream; real setup flow, consent collection, SDK, provide`; `Engineering Plan Status: `Accepted - implemented setup/consent-flow readiness contracts, desktop display suppression, validator fixtures, UI telemetry, source-truth proof, H1 revie`; `Planned Runtime Delta: `The future bounded Workstream should add status-only setup flow readiness contracts, setup start eligibility, consent flow readiness contracts, setup and ex`
 - Release/PR/issue markers found: `Current Runtime Baseline: `PR #177 released local-only provider path and consent readiness state, provider selection/configuration envelope posture, distinct setup and execution co`; `Source-Truth Delta: `Docs/feature_backlog.md, Docs/prebeta_roadmap.md, the active branch authority record, this plan, and validation helper registry entries when needed must record`; `Plan Revision History: `v1 - created during Branch Readiness Stage 2 after v1.7.8-prebeta release execution from origin/main 2bd54f0e34c6759e9618f42d104d80b975ecc1c3; includes USER`
-- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/deletion for the owning branch.
+- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/retirement for the owning branch.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it.
+- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it.
 - USER review notes: _Add notes here._
 
 ### 6. `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
@@ -1242,11 +1228,11 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Correct owner category: branch runtime engineering plan
 - What gets recorded here: active branch engineering plan.
 - What should be recorded here: per-seam checklists, deltas, proof, approval boundaries while active.
-- What should move elsewhere: permanent family dossier after PR fold-down.
-- Migration target: permanent family dossier after PR fold-down.
-- Recommendation: Fold-down then delete candidate.
-- Consolidation target: Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval..
-- Deletion posture: Delete later after fold-down and USER-approved PR Readiness Stage 2 proof..
+- What should move elsewhere: permanent family dossier or active/live branch authority after PR fold-down.
+- Migration target: permanent family dossier or active/live branch authority after PR fold-down.
+- Recommendation: Fold-down then retire candidate.
+- Consolidation target: Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval..
+- Deletion posture: Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=41`; `unclear-ownership-wording=11`; `soft-commitment-wording=3`; `state-ledger-wording=84`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
@@ -1260,9 +1246,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Package Trace / Slice Trace markers found: None found.
 - Branch/worktree/phase markers found: `Worktree Path: `C:\Nexus Worktrees\FAM-007``; `Current Phase: `Historical released after PR #190 and v1.7.11-prebeta publication``; `Engineering Plan Status: Historical - implemented through Workstream Green, inspected through Hardening H1 Green, validated through Live Validation LV1 Green, folded down in PR Rea`; `Source-Truth Delta: records fresh FAM-007 branch authority, closed `v1.7.10-prebeta` release-canon drift, admitted this branch plan, folded down Workstream Green, H1 Green, LV1 Gre`; `Expected Changed Files / Surfaces: branch record, branch plan, backlog, roadmap, worktree slot receipt, validation registry, provider state, Core/Desktop renderers, ORIN visual sur`
 - Release/PR/issue markers found: `Current Phase: `Historical released after PR #190 and v1.7.11-prebeta publication``; `Engineering Plan Status: Historical - implemented through Workstream Green, inspected through Hardening H1 Green, validated through Live Validation LV1 Green, folded down in PR Rea`; `Current Runtime Baseline: PR #179 released FAM-007 setup/consent-flow readiness with provider setup future-gated, consent collection pending, provider-visible data `none`, `sentToP`; `Source-Truth Delta: records fresh FAM-007 branch authority, closed `v1.7.10-prebeta` release-canon drift, admitted this branch plan, folded down Workstream Green, H1 Green, LV1 Gre`; `USER Planning Decisions: USER approved Branch Readiness Stage 2, Workstream Entry, bounded Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1 source`
-- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/deletion for the owning branch.
+- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/retirement for the owning branch.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it.
+- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it.
 - USER review notes: _Add notes here._
 
 ### 7. `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
@@ -1274,11 +1260,11 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Correct owner category: branch runtime engineering plan
 - What gets recorded here: active branch engineering plan.
 - What should be recorded here: per-seam checklists, deltas, proof, approval boundaries while active.
-- What should move elsewhere: permanent family dossier after PR fold-down.
-- Migration target: permanent family dossier after PR fold-down.
-- Recommendation: Fold-down then delete candidate.
-- Consolidation target: Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval..
-- Deletion posture: Delete later after fold-down and USER-approved PR Readiness Stage 2 proof..
+- What should move elsewhere: permanent family dossier or active/live branch authority after PR fold-down.
+- Migration target: permanent family dossier or active/live branch authority after PR fold-down.
+- Recommendation: Fold-down then retire candidate.
+- Consolidation target: Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval..
+- Deletion posture: Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=27`; `unclear-ownership-wording=16`; `soft-commitment-wording=4`; `state-ledger-wording=76`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
@@ -1292,9 +1278,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Package Trace / Slice Trace markers found: None found.
 - Branch/worktree/phase markers found: `Worktree Path: `C:\Nexus Worktrees\FAM-007``; `Current Phase: `PR Readiness Stage 1 complete - FAM-007 setup implementation foundation``; `Engineering Plan Status: Accepted - implemented for the bounded Workstream, inspected through H1 Green, validated through LV1 Green, and PR Readiness Stage 1 source-truth repair is`; `Planned Runtime Delta: The Workstream adds local setup entry/foundation state, provider profile/config draft posture, fail-closed validation and persistence posture, local/null fal`; `Expected Changed Files / Surfaces: Expected surfaces are `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`, this plan, `Docs/feature_backlo`
 - Release/PR/issue markers found: `Source-Truth Delta: Stage 2 records `v1.7.11-prebeta` closure, PR #190 as released setup contract readiness evidence, PR #191 as release-readiness source-truth support, active FAM-`; `PR Readiness Fold-Down / Retention Checklist: PR Readiness must fold setup foundation scope into branch record/source truth, resolve selected-next or USER waiver truth, prove relea`; `PR Fold-Down Packet: Stage 1 complete - selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, `; `PR Readiness Stage 2 Next: `Pending USER approval - create the PR, validate live PR state, watcher provisioning, mergeability, checks, review state, and PR body/operator copy befor`; `- Latest public prerelease baseline: `v1.7.11-prebeta``
-- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/deletion for the owning branch.
+- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/retirement for the owning branch.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it.
+- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it.
 - USER review notes: _Add notes here._
 
 ### 8. `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`
@@ -1306,11 +1292,11 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Correct owner category: branch runtime engineering plan
 - What gets recorded here: active branch engineering plan.
 - What should be recorded here: per-seam checklists, deltas, proof, approval boundaries while active.
-- What should move elsewhere: permanent family dossier after PR fold-down.
-- Migration target: permanent family dossier after PR fold-down.
-- Recommendation: Fold-down then delete candidate.
-- Consolidation target: Fold into owning branch receipt and workstream/family dossier, then delete after PR Readiness Stage 2 approval..
-- Deletion posture: Delete later after fold-down and USER-approved PR Readiness Stage 2 proof..
+- What should move elsewhere: permanent family dossier or active/live branch authority after PR fold-down.
+- Migration target: permanent family dossier or active/live branch authority after PR fold-down.
+- Recommendation: Fold-down then retire candidate.
+- Consolidation target: Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval..
+- Deletion posture: Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=12`; `unclear-ownership-wording=25`; `soft-commitment-wording=2`; `state-ledger-wording=26`
 - Ambiguity review action: Review for ambiguous current/active/latest/pending ownership language.
@@ -1324,9 +1310,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Package Trace / Slice Trace markers found: `Branch Purpose: `Create the legal planning and authority carrier for repo-wide high-risk source owner marker adoption while keeping the Element Validation Ledger canonical and mark`
 - Branch/worktree/phase markers found: `Worktree Path: `Retired after PR #185 cleanup; historical path was C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers``; `Current Phase: `Historical Traceability``; `Branch Runtime Engineering Plan: `Implemented for bounded Workstream. The plan admits source-truth policy, high-risk surface inventory, marker-to-ledger consistency validation, mar`; `Engineering Plan Status: `Historical / folded - created during Branch Readiness Stage 2 from origin/main 26bb76becd4089d2e451d44e969939f0f074371f, completed through bounded Workstr`; `Current Runtime Baseline: `origin/main 26bb76becd4089d2e451d44e969939f0f074371f after PR #181 / v1.7.9-prebeta, with production runtime state, config, schema, desktop UI, FAM-006 h`
 - Release/PR/issue markers found: `Worktree Path: `Retired after PR #185 cleanup; historical path was C:\Nexus Worktrees\Repo-Wide-Source-Owner-Markers``; `Engineering Plan Status: `Historical / folded - created during Branch Readiness Stage 2 from origin/main 26bb76becd4089d2e451d44e969939f0f074371f, completed through bounded Workstr`; `Current Runtime Baseline: `origin/main 26bb76becd4089d2e451d44e969939f0f074371f after PR #181 / v1.7.9-prebeta, with production runtime state, config, schema, desktop UI, FAM-006 h`; `USER Planning Decisions: `USER approved Stage 1 analysis, Stage 2 setup, bounded Workstream implementation, selected FAM-006/SRCOWN marker insertion, reusable marker validator impl`; `Plan Revision History: `v5 - Historical/folded after PR #185 merge at 6643ce8d18c5e3940c1ef1c0d2b531ad7ef5d79b and USER-approved cleanup, preserving bounded Workstream implementati`
-- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/deletion for the owning branch.
+- Validator rule needed: Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/retirement for the owning branch.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then delete this plan when no active branch depends on it.
+- Remaining action needed after this branch: At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it.
 - USER review notes: _Add notes here._
 
 ### 9. `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md`
@@ -1364,7 +1350,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 10. `Docs/branch_plans/README.md`
 
 - File path: `Docs/branch_plans/README.md`
-- Line count: 87
+- Line count: 88
 - Current purpose: Branch Runtime Engineering Plans
 - Actual observed use: branch plan standard with markers live=1, pr/release/issue=1, package/slice=0, branch/worktree/phase=28, validator/helper=9.
 - Correct owner category: branch plan standard
@@ -1376,7 +1362,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
-- Ambiguity signals: `volatile-current-wording=13`; `unclear-ownership-wording=15`; `soft-commitment-wording=3`; `state-ledger-wording=10`
+- Ambiguity signals: `volatile-current-wording=14`; `unclear-ownership-wording=13`; `soft-commitment-wording=3`; `state-ledger-wording=11`
 - Ambiguity review action: Review for ambiguous current/active/latest/pending ownership language.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -1398,14 +1384,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/codex_fam_007_branch_readiness.md`
 - Line count: 188
 - Current purpose: Branch Authority Record: codex/fam-007-branch-readiness
-- Actual observed use: branch authority / compact receipt with markers live=5, pr/release/issue=15, package/slice=1, branch/worktree/phase=58, validator/helper=38.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=5, pr/release/issue=15, package/slice=1, branch/worktree/phase=58, validator/helper=38.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=34`; `unclear-ownership-wording=13`; `soft-commitment-wording=4`; `state-ledger-wording=17`
@@ -1430,20 +1416,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/codex_fb_037_release_debt_packaging.md`
 - Line count: 426
 - Current purpose: Branch Authority Record: codex/fb-037-release-debt-packaging
-- Actual observed use: branch authority / compact receipt with markers live=3, pr/release/issue=14, package/slice=1, branch/worktree/phase=79, validator/helper=65.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=3, pr/release/issue=14, package/slice=1, branch/worktree/phase=79, validator/helper=65.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=47`; `unclear-ownership-wording=22`; `soft-commitment-wording=1`; `state-ledger-wording=28`
 - Ambiguity review action: Review for ambiguous current/active/latest/pending ownership language.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, next legal phase, selected-next, worktree live state, origin/main, merge status, latest tag/release, release schedule outline, branch phase history, branch receipt, workstream durable history, family dossier continuity, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- local `main` and `origin/main` resolve to merge commit `d1277e65cf348073c73f636c8dd1b5965543f1a8``; `- updated `main` is aligned with `origin/main``; `- Missing blocker check: no missing PR Readiness blocker remains; stale canon, post-merge state, dirty branch, docs sync, next-workstream selection, and release-target marker gates`
 - Governance receipt fields found: `## Historical Pass Record Identity`; `- Backlog Registry Class: `Historical Pass Alias``; `- Historical Alias Of: `FB-027``; `- Alias Role: `Historical Pass Record``; `- Converted By Seam: `Phase 5 - Historical Pass Record Conversion / Slice R5-S3 - Convert corresponding branch records``
@@ -1454,7 +1440,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `- local `main` and `origin/main` resolve to merge commit `d1277e65cf348073c73f636c8dd1b5965543f1a8``; `- this branch is based on that merge commit and carries release-packaging commits on top of it`; `- branch merged to `main` in merge commit `1bab4b2``; `- GitHub Release publication is not supported in this environment because `gh` and API credentials are unavailable; the API lookup remains the publication proof point`; `- at branch admission, FB-037 was the current merged-unreleased release-debt owner`
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 13. `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md`
@@ -1462,14 +1448,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md`
 - Line count: 84
 - Current purpose: Branch Authority Record: codex/no-active-branch-docs-governance-refinement
-- Actual observed use: branch authority / compact receipt with markers live=1, pr/release/issue=0, package/slice=0, branch/worktree/phase=15, validator/helper=5.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=1, pr/release/issue=0, package/slice=0, branch/worktree/phase=15, validator/helper=5.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Low.
 - Ambiguity signals: `volatile-current-wording=21`; `unclear-ownership-wording=10`; `soft-commitment-wording=1`; `state-ledger-wording=8`
@@ -1494,14 +1480,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/codex_one_time_backlog_governance_repair.md`
 - Line count: 224
 - Current purpose: One-Time Backlog Governance Repair Branch
-- Actual observed use: branch authority / compact receipt with markers live=3, pr/release/issue=59, package/slice=33, branch/worktree/phase=74, validator/helper=86.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=3, pr/release/issue=59, package/slice=33, branch/worktree/phase=74, validator/helper=86.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=57`; `unclear-ownership-wording=7`; `soft-commitment-wording=5`; `state-ledger-wording=33`
@@ -1526,20 +1512,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`
 - Line count: 436
 - Current purpose: Branch Authority Record: codex/v1.6.13-prebeta-post-merge-closeout-hardening
-- Actual observed use: branch authority / compact receipt with markers live=26, pr/release/issue=141, package/slice=23, branch/worktree/phase=206, validator/helper=101.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=26, pr/release/issue=141, package/slice=23, branch/worktree/phase=206, validator/helper=101.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=140`; `unclear-ownership-wording=38`; `soft-commitment-wording=7`; `state-ledger-wording=77`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, PR state, merge status, latest tag/release, release receipt, release schedule outline, package trace, slice trace, branch phase history, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Branch Readiness Stage 2-R3 USER Waiver: `Granted on 2026-05-05 for superseded PR Stage 1 repair wording cleanup on this active carrier only``; `- PR Head: `codex/v1.6.13-prebeta-post-merge-closeout-hardening``; `- PR Final Merged Head SHA: `d4cbfcbe45c23761587608e805476414f0f30bbc``; `- PR Mergeability: `MERGEABLE / CLEAN at creation validation``; `- PR Head SHA At Creation: `864d529df0de1f25d375b46f7bd4e2c861387d03``
 - Governance receipt fields found: `# Branch Authority Record: codex/v1.6.13-prebeta-post-merge-closeout-hardening`; `- Branch: `codex/v1.6.13-prebeta-post-merge-closeout-hardening``; `- Workstream: `v1.6.13-prebeta post-merge release-support closeout and recurrence hardening``; `This branch is the USER-approved real release-support carrier for the `v1.6.13-prebeta` post-merge closeout blocker.`; `It exists because PR #111 merged the release-packaging carrier, but merged `main` still retained stale active branch-authority and PR Readiness merge-watch truth. The final record-`
@@ -1550,7 +1536,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `It exists because PR #111 merged the release-packaging carrier, but merged `main` still retained stale active branch-authority and PR Readiness merge-watch truth. The final record-`; `- Historical PR Readiness Stage: `Complete - PR #112 merged``; `- PR Readiness Stage 2 USER Approval: `Granted on 2026-05-05 for final PR execution, PR creation after validation, same-thread watcher provisioning, and same-PR Codex bot-review re`; `- PR #111 Closeout State: `Reconstructed from live GitHub truth and recorded on this carrier``; `- PR Readiness Stage 1 Readiness-Lock State: `Complete - Branch Readiness Stage 2-R3 superseded contradictory R1 wording and clarified current-branch repair, current-branch Branch `
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 16. `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`
@@ -1558,14 +1544,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/codex_v1_6_13_prebeta_post_release_canon_closure.md`
 - Line count: 279
 - Current purpose: Branch Authority Record: codex/v1.6.13-prebeta-post-release-canon-closure
-- Actual observed use: branch authority / compact receipt with markers live=8, pr/release/issue=28, package/slice=16, branch/worktree/phase=113, validator/helper=39.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=8, pr/release/issue=28, package/slice=16, branch/worktree/phase=113, validator/helper=39.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=91`; `unclear-ownership-wording=25`; `soft-commitment-wording=2`; `state-ledger-wording=32`
@@ -1590,14 +1576,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/codex_v1_6_13_prebeta_pr112_source_truth_closeout.md`
 - Line count: 297
 - Current purpose: Branch Authority Record: codex/v1.6.13-prebeta-pr112-source-truth-closeout
-- Actual observed use: branch authority / compact receipt with markers live=9, pr/release/issue=97, package/slice=15, branch/worktree/phase=107, validator/helper=47.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=9, pr/release/issue=97, package/slice=15, branch/worktree/phase=107, validator/helper=47.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=74`; `unclear-ownership-wording=59`; `soft-commitment-wording=6`; `state-ledger-wording=47`
@@ -1622,14 +1608,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md`
 - Line count: 321
 - Current purpose: Branch Authority Record: codex/v1.6.13-prebeta-release-packaging
-- Actual observed use: branch authority / compact receipt with markers live=11, pr/release/issue=69, package/slice=18, branch/worktree/phase=65, validator/helper=80.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=11, pr/release/issue=69, package/slice=18, branch/worktree/phase=65, validator/helper=80.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=53`; `unclear-ownership-wording=22`; `soft-commitment-wording=5`; `state-ledger-wording=53`
@@ -1654,14 +1640,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/codex_workspace_governance_foundation.md`
 - Line count: 195
 - Current purpose: Branch Authority Record: codex/workspace-governance-foundation
-- Actual observed use: branch authority / compact receipt with markers live=12, pr/release/issue=1, package/slice=1, branch/worktree/phase=78, validator/helper=15.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=12, pr/release/issue=1, package/slice=1, branch/worktree/phase=78, validator/helper=15.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=32`; `unclear-ownership-wording=19`; `soft-commitment-wording=3`; `state-ledger-wording=10`
@@ -1686,20 +1672,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_automation_planning.md`
 - Line count: 418
 - Current purpose: Branch Authority Record: feature/automation-planning
-- Actual observed use: branch authority / compact receipt with markers live=6, pr/release/issue=63, package/slice=2, branch/worktree/phase=118, validator/helper=55.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=6, pr/release/issue=63, package/slice=2, branch/worktree/phase=118, validator/helper=55.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=113`; `unclear-ownership-wording=34`; `soft-commitment-wording=8`; `state-ledger-wording=65`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, PR state, merge status, latest tag/release, release receipt, release schedule outline, branch phase history, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Live Validation LV1 result: complete and green. Final authority-aligned validation confirmed all eight automation records, heartbeat-versus-cron separation, operational rollback `; `- PR Readiness PR1 result: complete and green historical truth. Live PR #99 was created, merge-target canon and release-window posture were validated, runtime proof was established`; `- PR state, mergeability, head commit changes, bot-review approval, unresolved comment presence when provable`; `- Weak phase entry or exit rule check: no unresolved weakness remains after this repair; PR creation and live PR validation occurred inside PR Readiness before merge, PR-critical a`; `- Missing validator requirement check: the automation-planning validator now enforces PR1 phase admission markers, runtime-proof language, fallback containment, and lifecycle waiti`
 - Governance receipt fields found: `This branch began as a USER-approved `docs/governance` automation-planning surface so the repo could define watcher policy, cadence boundaries, activation evidence, and rollback ru`; `- Historical traceability record after PR #99 merged at `daf727e9875c0b1c4de9672e36d6dd9411411001` and the source branch was deleted.`; `- Historical Branch Readiness Seam: `Branch Readiness BR1 - Automation Planning Scope Admission``; `- BR1 result: complete and green. The automation-planning purpose is explicit from repo truth, admitted scope and out-of-scope boundaries are defined, the branch remained `docs/gov`; `- Historical Branch Readiness Seam: `Branch Readiness BR2 - PR Watcher And Recurring Monitor Policy``
@@ -1710,7 +1696,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `This branch began as a USER-approved `docs/governance` automation-planning surface so the repo could define watcher policy, cadence boundaries, activation evidence, and rollback ru`; `- Historical traceability record after PR #99 merged at `daf727e9875c0b1c4de9672e36d6dd9411411001` and the source branch was deleted.`; `- Latest Public Prerelease: `v1.6.12-prebeta``; `- Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9``; `- Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 21. `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md`
@@ -1718,14 +1704,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_automation_planning_post_merge_canon_repair.md`
 - Line count: 145
 - Current purpose: Branch Authority Record: feature/automation-planning-post-merge-canon-repair
-- Actual observed use: branch authority / compact receipt with markers live=11, pr/release/issue=31, package/slice=0, branch/worktree/phase=38, validator/helper=8.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=11, pr/release/issue=31, package/slice=0, branch/worktree/phase=38, validator/helper=8.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=49`; `unclear-ownership-wording=9`; `state-ledger-wording=26`
@@ -1750,14 +1736,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md`
 - Line count: 205
 - Current purpose: Branch Authority Record: feature/automation-planning-post-merge-closeout-repair
-- Actual observed use: branch authority / compact receipt with markers live=8, pr/release/issue=66, package/slice=0, branch/worktree/phase=66, validator/helper=19.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=8, pr/release/issue=66, package/slice=0, branch/worktree/phase=66, validator/helper=19.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=78`; `unclear-ownership-wording=17`; `state-ledger-wording=41`
@@ -1782,20 +1768,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_backlog_family_governance_reform.md`
 - Line count: 412
 - Current purpose: Branch Authority Record: feature/backlog-family-governance-reform
-- Actual observed use: branch authority / compact receipt with markers live=13, pr/release/issue=20, package/slice=0, branch/worktree/phase=175, validator/helper=137.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=13, pr/release/issue=20, package/slice=0, branch/worktree/phase=175, validator/helper=137.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=106`; `unclear-ownership-wording=25`; `soft-commitment-wording=5`; `state-ledger-wording=51`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, PR state, merge status, latest tag/release, release receipt, release schedule outline, branch phase history, branch receipt, workstream durable history, family dossier continuity, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Slice R4-S5 result: complete and green. The FB-042 and FB-027 dossier shells, routing, and shared index-template surfaces now validate cleanly as stable Phase 4 family-dossier st`; `- Slice R6-S5 result: complete and green. The final Phase 6 drift sweep found no remaining current-state family-governance drift across backlog, roadmap, branch authority, routing,`; `- Slice R7-S2 result: complete and green. Hard anti-drift checks now permanently enforce the validated FB-049 selected-next lock, the sweep-clean family-governance routing surfaces`; `- PR Readiness PR1 result: complete and green. Live PR creation, branch-clean durability, merge-target canon, next-workstream selection, release-window posture, post-merge state, a`; `- the reform branch authority record owns the active branch posture cleanly`
 - Governance receipt fields found: `This branch carries the USER-approved docs-only governance reform that converts backlog/workstream governance from the drifting continuation-pass model toward the feature-family mo`; `- Historical traceability record after PR #98 merged at `5e0a85aae6e445d57418d2341b0e3fa181b283d4`.`; `- FB-048 is `Released / Closed` historical proof in `v1.6.12-prebeta`.`; `- Historical Active Seam: `Phase 0 - Reform Readiness``; `- Branch Readiness closure result: complete and green. The branch authority record is admitted, docs-only approval and release posture are recorded, phased migration rules are in p`
@@ -1806,7 +1792,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `- Historical traceability record after PR #98 merged at `5e0a85aae6e445d57418d2341b0e3fa181b283d4`.`; `- Latest Public Prerelease: `v1.6.12-prebeta``; `- Latest Public Release Commit: `b06c359e58b47cfe26fe8c4b39ac04fde519dee9``; `- Latest Public Prerelease Publication: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.6.12-prebeta``; `- Latest Public Prerelease Title: `Pre-Beta v1.6.12``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 24. `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`
@@ -1814,20 +1800,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`
 - Line count: 543
 - Current purpose: Branch Authority Record: feature/fam-006-dashboard-ia-controls-followthrough
-- Actual observed use: branch authority / compact receipt with markers live=33, pr/release/issue=98, package/slice=5, branch/worktree/phase=153, validator/helper=154.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=33, pr/release/issue=98, package/slice=5, branch/worktree/phase=153, validator/helper=154.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=124`; `unclear-ownership-wording=35`; `soft-commitment-wording=16`; `state-ledger-wording=95`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, release schedule outline, package trace, slice trace, issue posture, branch phase history, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `It existed because PR #129 merged the first FAM-006 Dashboard issue-resolution branch for render/layout hardening, issues #125 and #126 remained open and held for Dashboard IA/cont`; `- Branch Creation: `Created in C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough from origin/main commit 96ec36e7be751d444eda8dc220bc4a035d44fca1``; `- Hardening H1 Status: `PASS - active-client H1 validation completed from C:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard IA Controls Followthrough on 2026-05-13 for #125 and`; `- Current-main reconciliation fetched and integrated `origin/main` at `36b66b4ee2926f6325d8c337af3c7df02e209802`, the merge commit for PR #131, after PR #130 and PR #131 both merge`; `- PR #132 merged on 2026-05-13 at merge commit `98b53fafd63abfe4876b718d5649b4a0df46f2a0` with final head `61f813e4609141bfa499f1515759548bcf914c33`.`
 - Governance receipt fields found: `- Backlog Record State: `Registry-only issue-resolution continuation under historical FAM-006 / PKG-006``; `This branch is the USER-approved Branch Readiness Stage 2 setup carrier and Workstream implementation carrier for the second FAM-006 Dashboard issue-resolution branch.`; `It existed because PR #129 merged the first FAM-006 Dashboard issue-resolution branch for render/layout hardening, issues #125 and #126 remained open and held for Dashboard IA/cont`; `Current authorization covered Hardening/H1 validation, PR Readiness Stage 2, PR creation, watcher/bot-review handling, merge, and post-merge historical recording for issues #125 an`; `- `Historical / No Active Branch after merge``
@@ -1838,7 +1824,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `It existed because PR #129 merged the first FAM-006 Dashboard issue-resolution branch for render/layout hardening, issues #125 and #126 remained open and held for Dashboard IA/cont`; `Current authorization covered Hardening/H1 validation, PR Readiness Stage 2, PR creation, watcher/bot-review handling, merge, and post-merge historical recording for issues #125 an`; `- `PR #132 merged after H1 visual repair/validation, bot-review repair, and PR Readiness Stage 2 execution``; `- `Dashboard IA/control follow-through PR #132 merged for issues #125 and #126; GitHub issue closeout/comment updates, release work, and raw evidence handling remain pending USER a`; `- PR Readiness Repair: `Complete - current-main sync reconciled PR #130 and PR #131 main changes, resolved Branch 1 historical-record conflicts, refreshed Branch 2 implementation/H`
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 25. `Docs/branch_records/feature_fam_006_dashboard_release_support.md`
@@ -1846,14 +1832,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_006_dashboard_release_support.md`
 - Line count: 189
 - Current purpose: Branch Authority Record: feature/fam-006-dashboard-release-support
-- Actual observed use: branch authority / compact receipt with markers live=8, pr/release/issue=71, package/slice=2, branch/worktree/phase=26, validator/helper=15.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=8, pr/release/issue=71, package/slice=2, branch/worktree/phase=26, validator/helper=15.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=42`; `unclear-ownership-wording=13`; `soft-commitment-wording=2`; `state-ledger-wording=25`
@@ -1878,20 +1864,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md`
 - Line count: 615
 - Current purpose: Branch Authority Record: feature/fam-006-dashboard-render-layout-hardening
-- Actual observed use: branch authority / compact receipt with markers live=42, pr/release/issue=71, package/slice=6, branch/worktree/phase=163, validator/helper=247.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=42, pr/release/issue=71, package/slice=6, branch/worktree/phase=163, validator/helper=247.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=99`; `unclear-ownership-wording=31`; `soft-commitment-wording=17`; `state-ledger-wording=50`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release schedule outline, package trace, slice trace, issue posture, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Stage 2 USER Approval: `Complete - cleanup, branch creation, branch authority setup, GitHub issue traceability comments, validation, commit, and push were completed before runtim`; `- PR Readiness Stage 1: `Complete - Stage 1 analysis found the branch clean, pushed, scoped to #123/#124/#127, H1 proof recorded, merge forecast clean, and Stage 2 ready after USER`; `- Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-006 Dashboard Render Layout Hardening from origin/main commit fc17a16679cb3c61b31c939da18beb2aa6d90ef2``; `- Main Reintegration: `Merged updated origin/main at PR #128 merge commit 23521ef52e39c9428006986603464289d25fb88a before final validation; FAM-007 remains candidate/planned planni`; `- Updated D-drive main was clean and aligned with origin/main at `fc17a16679cb3c61b31c939da18beb2aa6d90ef2`.`
 - Governance receipt fields found: `- Backlog Record State: `Registry-only issue-resolution continuation under historical FAM-006 / PKG-006``; `This branch is the USER-approved implementation carrier for the first FAM-006 Dashboard issue-resolution branch.`; `It exists because PR #122 merged the FAM-006 issue-readiness governance repair, the five locked FAM-006 Dashboard GitHub issues were created from updated main using summary-only ev`; `This record now preserves PR #129 merged historical evidence, issues #123/#124/#127 completed-by-PR #129 source-truth, and merged-unreleased release-debt truth. GitHub issue closeo`; `- `Historical PR package / merge-target No Active Branch projected``
@@ -1902,7 +1888,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `It exists because PR #122 merged the FAM-006 issue-readiness governance repair, the five locked FAM-006 Dashboard GitHub issues were created from updated main using summary-only ev`; `This record now preserves PR #129 merged historical evidence, issues #123/#124/#127 completed-by-PR #129 source-truth, and merged-unreleased release-debt truth. GitHub issue closeo`; `- `Merged through PR #129; Dashboard render/layout hardening issues #123, #124, and #127 are completed-by-PR #129 and merged-unreleased release debt after v1.7.0-prebeta; GitHub is`; `- PR Readiness Stage 2 Approval: `Granted by USER for final PR package sync, live PR creation, live PR metadata recording, merge-target authority projection, selected-next defer/wa`; `- Main Reintegration: `Merged updated origin/main at PR #128 merge commit 23521ef52e39c9428006986603464289d25fb88a before final validation; FAM-007 remains candidate/planned planni`
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 27. `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md`
@@ -1910,20 +1896,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md`
 - Line count: 699
 - Current purpose: Branch Authority Record: feature/fam-006-dashboard-settings-panel
-- Actual observed use: branch authority / compact receipt with markers live=42, pr/release/issue=145, package/slice=6, branch/worktree/phase=185, validator/helper=480.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=42, pr/release/issue=145, package/slice=6, branch/worktree/phase=185, validator/helper=480.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=134`; `unclear-ownership-wording=39`; `soft-commitment-wording=17`; `state-ledger-wording=163`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, package trace, slice trace, issue posture, branch phase history, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Branch Readiness Stage 2: `Complete - USER approved worktree creation from updated origin/main, branch creation, PR #133 post-merge source-truth drift repair, branch authority se`; `- Hardening H1 Status: `PASS - settings affordance, settings child-window panel, warning toggle, hit-test controls, Dashboard Close, Create Monitor, Edit Monitor, tray reopen, resi`; `- PR #142 Merge Truth: `Merged at fdcc76a8f80cf2ed91798962610f4112056a4bf6 on 2026-05-14T20:27:57Z; head c9aad9e0fe967e860b959bff59fa1314e1f932c2; base main``; `Origin/Main Freshness Check: `PASS - current origin/main is b5b83f34de16440e51b504d25a9293dae9f2ef0f after PR #141, and origin/main is an ancestor of this branch through merge comm`; `Release Candidate Anchor Projection: `Current fetched origin/main is the default release-candidate anchor unless USER explicitly selects another release target. Target commit 9cc52`
 - Governance receipt fields found: `- Historical Worktree: `Retired after release; former path C:\Nexus Worktrees\FAM-006 now hosts the active FAM-006 Monitor Groups branch feature/fam-006-monitor-groups-sensor-confi`; `- Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; implementation and Live Validation are complete; PR #142 is merged and this recor`; `- Current Delta Status: `PR #142 merged FAM-006 Dashboard settings-panel runtime work at fdcc76a8f80cf2ed91798962610f4112056a4bf6; Live Validation Stage 1 bounded repair continued `; `- Backlog Record State: `Registry-only runtime continuation under historical FAM-006 / PKG-006``; `This record preserves the USER-approved Branch Readiness Stage 2 carrier for the FAM-006 runtime-focused Dashboard settings-panel surface after PR #133 merged the release-support s`
@@ -1934,7 +1920,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `- Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; implementation and Live Validation are complete; PR #142 is merged and this recor`; `- Current Delta Status: `PR #142 merged FAM-006 Dashboard settings-panel runtime work at fdcc76a8f80cf2ed91798962610f4112056a4bf6; Live Validation Stage 1 bounded repair continued `; `This record preserves the USER-approved Branch Readiness Stage 2 carrier for the FAM-006 runtime-focused Dashboard settings-panel surface after PR #133 merged the release-support s`; `It exists because the Dashboard settings cog/settings panel remained a deferred FAM-006 Dashboard controls/settings surface after the Dashboard product-surface release and the late`; `- `Merged-Main Branch State`: `No Active Branch after PR #142 merge``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 28. `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md`
@@ -1942,14 +1928,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_006_issue_readiness_governance_repair.md`
 - Line count: 246
 - Current purpose: Branch Authority Record: feature/fam-006-issue-readiness-governance-repair
-- Actual observed use: branch authority / compact receipt with markers live=11, pr/release/issue=11, package/slice=1, branch/worktree/phase=42, validator/helper=21.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=11, pr/release/issue=11, package/slice=1, branch/worktree/phase=42, validator/helper=21.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=58`; `unclear-ownership-wording=23`; `soft-commitment-wording=6`; `state-ledger-wording=31`
@@ -1974,20 +1960,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - Line count: 1001
 - Current purpose: Branch Authority Record: feature/fam-006-monitor-groups-sensor-configuration
-- Actual observed use: branch authority / compact receipt with markers live=182, pr/release/issue=92, package/slice=8, branch/worktree/phase=321, validator/helper=559.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=182, pr/release/issue=92, package/slice=8, branch/worktree/phase=321, validator/helper=559.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=187`; `unclear-ownership-wording=61`; `soft-commitment-wording=38`; `state-ledger-wording=279`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, slice trace, issue posture, branch runtime plan, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Upstream / Creation Base: `origin/main``; `- Bounded State: `Current-main reconciliation through origin/main 2bd54f0e34c6759e9618f42d104d80b975ecc1c3 is complete for this FAM-006 branch; origin/main PR #178 v1.7.8 release-w`; `## Worktree Recovery And Stale Branch Cleanup`; `Recovery Reason: `The initial Stage 2 setup created the active Monitor Groups branch in C:\Nexus Worktrees\FAM-006-Monitor-Groups and then removed the retired settings-panel worktr`; `Retired Branch Cleanup Result: `COMPLETE - former feature/fam-006-dashboard-settings-panel worktree C:\Nexus Worktrees\FAM-006 was removed only after merge/equality proof, the remo`
 - Governance receipt fields found: `- Branch Authority State: `Historical merged evidence after PR #180; no active runtime branch authority remains on merged main``; `- Bounded State: `Current-main reconciliation through origin/main 2bd54f0e34c6759e9618f42d104d80b975ecc1c3 is complete for this FAM-006 branch; origin/main PR #178 v1.7.8 release-w`; `- GitHub Desktop-bound worktree: `FAM-006` recommended alias after USER adds or refreshes the repository in GitHub Desktop`; `Phase: `Historical Traceability``; `Stage: `Merged historical evidence after PR #180``
@@ -1998,7 +1984,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `- Branch Authority State: `Historical merged evidence after PR #180; no active runtime branch authority remains on merged main``; `- Bounded State: `Current-main reconciliation through origin/main 2bd54f0e34c6759e9618f42d104d80b975ecc1c3 is complete for this FAM-006 branch; origin/main PR #178 v1.7.8 release-w`; `Stage: `Merged historical evidence after PR #180``; `Branch Authority Marker: `Historical merged PR #180 evidence``; `PR Merged At: `2026-05-20T16:12:04Z``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 30. `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
@@ -2006,20 +1992,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`
 - Line count: 2564
 - Current purpose: Branch Authority Record: feature/fam-006-monitoring-hud-product-surface
-- Actual observed use: branch authority / compact receipt with markers live=67, pr/release/issue=141, package/slice=194, branch/worktree/phase=1131, validator/helper=2061.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=67, pr/release/issue=141, package/slice=194, branch/worktree/phase=1131, validator/helper=2061.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=774`; `unclear-ownership-wording=151`; `soft-commitment-wording=103`; `state-ledger-wording=931`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, package trace, slice trace, issue posture, branch phase history, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- PR Head SHA: `a9c97a01e82b7802d6c8341e5a695527a54c1991``; `- Updated `main` was clean and matched `origin/main` at `3c68cd881a9f6bf447f09ac0949d556e97bce4f4` when the branch was created.`; `Next Legal Analysis Candidate: `FAM-006 issue-readiness / issue-planning USER decision after bounded source-truth cleanup`. GitHub issue creation, issue-resolution branches, runtim`; `Product Vision: FAM-006 current-branch acceptance should deliver a polished Nexus/NDAI Monitoring HUD Dashboard/control panel that feels like a real product surface rather than a v`; `User-Facing Goal: the user should be able to open the Nexus/NDAI Monitoring HUD Dashboard, understand that it is the control panel, see clean settings/control content, configure mo`
 - Governance receipt fields found: `This branch is the USER-approved runtime package carrier for FAM-006 Monitoring and HUD.`; `It exists because `v1.6.13-prebeta` release execution and post-release canon closure are complete, release debt is clear, merged `main` validated as `No Active Branch`, USER-approv`; `This branch executed the admitted PKG-006 implementation slices through Workstream, repo-side Hardening, Live Validation, USER-waived/passable LV2 acceptance, and USER-approved PR `; `- `Historical / merged``; `- `Merged into main by PR #118 and released in v1.7.0-prebeta - Dashboard acceptance is USER WAIVED/PASSABLE and Overlay/display remains deferred/non-gating``
@@ -2030,7 +2016,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `This branch executed the admitted PKG-006 implementation slices through Workstream, repo-side Hardening, Live Validation, USER-waived/passable LV2 acceptance, and USER-approved PR `; `- `Merged into main by PR #118 and released in v1.7.0-prebeta - Dashboard acceptance is USER WAIVED/PASSABLE and Overlay/display remains deferred/non-gating``; `- PR Readiness Stage: `Complete / merged - PR #118 was created, validated, review-dispositioned, and merged into main on 2026-05-12. Codex review threads PRRT_kwDORwnWIs6BkNZu and `; `- PR Merge Commit: `d08eeb8cc170df849226d528066be01d1640b679``; `- PR Watcher: `fam-006-pr-118-watcher retired after merge observation``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 31. `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md`
@@ -2038,14 +2024,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md`
 - Line count: 203
 - Current purpose: FAM-006 Element Validation Ledger
-- Actual observed use: branch authority / compact receipt with markers live=7, pr/release/issue=15, package/slice=2, branch/worktree/phase=164, validator/helper=646.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=7, pr/release/issue=15, package/slice=2, branch/worktree/phase=164, validator/helper=646.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=255`; `unclear-ownership-wording=102`; `soft-commitment-wording=20`; `state-ledger-wording=161`
@@ -2070,20 +2056,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md`
 - Line count: 504
 - Current purpose: Branch Authority Record: feature/fam-006-sensor-hud-provider-governance
-- Actual observed use: branch authority / compact receipt with markers live=46, pr/release/issue=65, package/slice=4, branch/worktree/phase=141, validator/helper=365.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=46, pr/release/issue=65, package/slice=4, branch/worktree/phase=141, validator/helper=365.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=92`; `unclear-ownership-wording=30`; `soft-commitment-wording=8`; `state-ledger-wording=51`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, package trace, issue posture, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `It exists because FAM-006 Dashboard runtime work is already historical/released, the active FAM-006 worktree must not be dirtied for this planning cleanup, `main` is protected agai`; `- Stage 1: `Complete - analysis-only pass confirmed C:\Nexus Desktop AI was clean on main at origin/main and USER wanted this governance/source-truth work routed there instead of t`; `- Main Reconciliation: `Updated against origin/main through PR #138 merge before PR Stage 1 closeout``; `Waiver Basis: USER explicitly approved conducting Branch Readiness for a governance/source-truth repair branch on the normal `C:\Nexus Desktop AI` worktree and explicitly did not w`; `- `FAM-007 PR/Merge Reconciliation Hold`: `Cleared - origin/main now includes PR #138 and this branch is reconciled against that merge``
 - Governance receipt fields found: `- Backlog Record State: `Registry-only provider/source-truth extension under historical FAM-006 / PKG-006``; `This branch is the USER-approved Branch Readiness Stage 2 carrier for bounded FAM-006 Sensor HUD provider governance.`; `It exists because FAM-006 Dashboard runtime work is already historical/released, the active FAM-006 worktree must not be dirtied for this planning cleanup, `main` is protected agai`; `After FAM-007 PR #138 merged and Release Readiness Stage 1 exposed stale post-merge source-truth wording, USER also admitted this held carrier for bounded repo-wide PR Readiness go`; `This branch does not admit runtime provider implementation, LibreHardwareMonitor bundling, LibreHardwareMonitor installation, hardware polling expansion, Dashboard/Overlay runtime `
@@ -2094,7 +2080,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `After FAM-007 PR #138 merged and Release Readiness Stage 1 exposed stale post-merge source-truth wording, USER also admitted this held carrier for bounded repo-wide PR Readiness go`; `- Main Reconciliation: `Updated against origin/main through PR #138 merge before PR Stage 1 closeout``; `- Release Readiness Health Pass Governance: `Admitted - USER directed this held carrier to add a pre-merge PR Readiness health pass after FAM-007 PR #138 post-merge stale source-tr`; `- Release Work: `Blocked - no tag, GitHub Release, artifact, or release execution is admitted by this branch``; `- `FAM-007 PR/Merge Reconciliation Hold`: `Cleared - origin/main now includes PR #138 and this branch is reconciled against that merge``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 33. `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md`
@@ -2102,20 +2088,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md`
 - Line count: 417
 - Current purpose: Branch Authority Record: feature/fam-007-local-ai-foundation-readiness
-- Actual observed use: branch authority / compact receipt with markers live=17, pr/release/issue=27, package/slice=12, branch/worktree/phase=68, validator/helper=56.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=17, pr/release/issue=27, package/slice=12, branch/worktree/phase=68, validator/helper=56.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=73`; `unclear-ownership-wording=21`; `soft-commitment-wording=19`; `state-ledger-wording=48`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, package trace, slice trace, issue posture, branch phase history, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `It exists because `v1.7.0-prebeta` is published, PR #121 merged the workspace/thread identity governance foundation, PR #122 merged FAM-006 issue-readiness governance, and updated `; `- Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-007 from origin/main commit 88c11d53845f67bbf2490b8e4ce2b224bd62437b, then synced with origin/main commit fc1`; `- PR Readiness Stage 2 USER Approval: `Granted for final PR package sync, merge-target authority projection, USER-approved FAM-007 candidate/planned backlog structure only, selecte`; `- `origin/main` is validated at `fc17a16679cb3c61b31c939da18beb2aa6d90ef2` after PR #122 FAM-006 issue-readiness governance.`; `- The stale remote branch `origin/codex/fam-007-local-ai-foundation-readiness` was deleted during PR Readiness Stage 2 after verifying the `feature/` branch was pushed and source t`
 - Governance receipt fields found: `This branch is the USER-approved Branch Readiness and PR Readiness planning/source-truth carrier for FAM-007 Local AI and Capability Packs.`; `The branch digests the USER-provided `Nexus AI Product Contract v0.6.2` as planning evidence only. It records public-safe FAM-007 package shape, candidate/planned slices, blockers,`; `- Phase: `Historical Traceability``; `- Historical Branch: `feature/fam-007-local-ai-foundation-readiness``; `- Branch Readiness Stage 2 USER Approval: `Granted for branch/worktree creation, AI Product Contract v0.6.2 evidence digestion, public-safe source-truth planning updates, validatio`
@@ -2126,7 +2112,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `It exists because `v1.7.0-prebeta` is published, PR #121 merged the workspace/thread identity governance foundation, PR #122 merged FAM-006 issue-readiness governance, and updated `; `- Branch Creation: `Created at D:\Nexus Worktrees\Nexus Desktop AI FAM-007 from origin/main commit 88c11d53845f67bbf2490b8e4ce2b224bd62437b, then synced with origin/main commit fc1`; `- PR Readiness Stage 2 USER Approval: `Granted for final PR package sync, merge-target authority projection, USER-approved FAM-007 candidate/planned backlog structure only, selecte`; `- `origin/main` is validated at `fc17a16679cb3c61b31c939da18beb2aa6d90ef2` after PR #122 FAM-006 issue-readiness governance.`; `- PR Readiness Stage 2 creates the PR and provisions watcher coverage if live PR validation is green.`
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 34. `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md`
@@ -2134,20 +2120,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md`
 - Line count: 453
 - Current purpose: Branch Authority Record: feature/fam-007-local-ai-foundation-runtime-continuation
-- Actual observed use: branch authority / compact receipt with markers live=46, pr/release/issue=48, package/slice=11, branch/worktree/phase=131, validator/helper=150.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=46, pr/release/issue=48, package/slice=11, branch/worktree/phase=131, validator/helper=150.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=67`; `unclear-ownership-wording=22`; `soft-commitment-wording=6`; `state-ledger-wording=101`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, package trace, slice trace, issue posture, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `This branch was the USER-approved FAM-007 Branch Readiness Stage 2 carrier created from current `origin/main` and rebaselined again after PR #151 closed RRI-20260514-006 and return`; `It exists to restart FAM-007 on a clean, current carrier instead of silently reusing a stale empty local branch. Branch Readiness Stage 1 classified the existing `feature/fam-007-l`; `- Historical worktree note: `C:\Nexus Worktrees\FAM-007 may retain the merged branch until a later USER-approved cleanup/rebaseline path; checked-out branch existence is hygiene ev`; `- Completed Branch Readiness: `FAM-007 stale empty local branch was recreated from current origin/main with no unique-commit loss before work began``; `Remote Branch State: `No origin/feature/fam-007-local-ai-foundation-runtime-continuation branch existed before Stage 2 push``
 - Governance receipt fields found: `This branch was the USER-approved FAM-007 Branch Readiness Stage 2 carrier created from current `origin/main` and rebaselined again after PR #151 closed RRI-20260514-006 and return`; `It exists to restart FAM-007 on a clean, current carrier instead of silently reusing a stale empty local branch. Branch Readiness Stage 1 classified the existing `feature/fam-007-l`; `PR #152 merged this branch to `main` at `7f950ed20f0a8c15b45d4b1d20ba4356599bde1e` on 2026-05-15. The record is now historical traceability for FAM-007 local-only scaffold work rel`; `- Phase: `Historical Traceability``; `- Historical merge proof: `PR #152 merged feature/fam-007-local-ai-foundation-runtime-continuation into main at 7f950ed20f0a8c15b45d4b1d20ba4356599bde1e on 2026-05-15T04:28:40Z``
@@ -2158,7 +2144,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `This branch was the USER-approved FAM-007 Branch Readiness Stage 2 carrier created from current `origin/main` and rebaselined again after PR #151 closed RRI-20260514-006 and return`; `PR #152 merged this branch to `main` at `7f950ed20f0a8c15b45d4b1d20ba4356599bde1e` on 2026-05-15. The record is now historical traceability for FAM-007 local-only scaffold work rel`; `- Historical merge proof: `PR #152 merged feature/fam-007-local-ai-foundation-runtime-continuation into main at 7f950ed20f0a8c15b45d4b1d20ba4356599bde1e on 2026-05-15T04:28:40Z``; `- Merge commit: `7f950ed20f0a8c15b45d4b1d20ba4356599bde1e``; `- Merged at: `2026-05-15T04:28:40Z``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 35. `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md`
@@ -2166,20 +2152,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md`
 - Line count: 503
 - Current purpose: Branch Authority Record: feature/fam-007-local-ai-provider-activation-foundation
-- Actual observed use: branch authority / compact receipt with markers live=42, pr/release/issue=47, package/slice=4, branch/worktree/phase=225, validator/helper=178.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=42, pr/release/issue=47, package/slice=4, branch/worktree/phase=225, validator/helper=178.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=154`; `unclear-ownership-wording=33`; `soft-commitment-wording=16`; `state-ledger-wording=189`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, release schedule outline, package trace, branch runtime plan, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Current origin/main: `6e2e743fd1d8d688c8046eb0a788b1a7109e66c2``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.5-prebeta` was published. It closes the release-dependent source-truth`; `Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-provider-activation-foundation from current origin/main after v1.7.5-prebeta rele`; `Branch Authority Projection: `No Active Branch after merge; feature/fam-007-local-ai-provider-activation-foundation remains only the current PR-head candidate until PR Readiness St`; `Selected Next Current-Carrier Note: `This branch remains the active FAM-007 PR head until PR creation/merge, but no successor branch or successor Workstream is created or selected `
 - Governance receipt fields found: `- Backlog Record State: `PR-readiness merge-stable historical/no-active projection``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.5-prebeta` was published. It closes the release-dependent source-truth`; `- Phase: `Historical Traceability``; `Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-provider-activation-foundation from current origin/main after v1.7.5-prebeta rele`; `Branch Authority Marker: `Historical/no-active projection for PR readiness``
@@ -2190,7 +2176,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.5-prebeta` was published. It closes the release-dependent source-truth`; `Release Canon Closure State: `v1.7.5-prebeta published at 81701d4b351ae7bb4c146daf88a8d884f6bc7981; PR #164 through PR #168 are released in v1.7.5-prebeta``; `Release/Tag/GitHub Release/Artifact Approval Missing: `Active``; `USER approved Branch Readiness Stage 2 for the fresh FAM-007 runtime branch after `v1.7.5-prebeta` release execution. Stage 1 classified the previous FAM-007 provider-readiness bra`; `- `v1.7.5-prebeta` is recorded as the latest public prerelease.`
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 36. `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md`
@@ -2198,20 +2184,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md`
 - Line count: 549
 - Current purpose: Branch Authority Record: feature/fam-007-local-ai-provider-execution-readiness-gates
-- Actual observed use: branch authority / compact receipt with markers live=59, pr/release/issue=63, package/slice=5, branch/worktree/phase=228, validator/helper=235.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=59, pr/release/issue=63, package/slice=5, branch/worktree/phase=228, validator/helper=235.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=172`; `unclear-ownership-wording=32`; `soft-commitment-wording=20`; `state-ledger-wording=211`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, release schedule outline, package trace, slice trace, branch runtime plan, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Current origin/main: `9e33dd1216bab661c9183b73891c074acd6f5099``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.6-prebeta` was published. It closes the release-dependent source-truth`; `Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-provider-execution-readiness-gates from current origin/main after v1.7.6-prebeta `; `Fresh Branch Authority: `Active - created from current origin/main 1daf4de21cb2a6185efdbdc04795dcf6bf0c619d``; `Non-Includes: `Provider SDK integration, provider/model execution, model downloads, external calls, memory/indexing/learning/persistence/personalization, voice/Core runtime sync, s`
 - Governance receipt fields found: `- Implementation Delta Class: `runtime/user-facing, backend/runtime, developer-tooling``; `- Backlog Record State: `PR-readiness merge-stable historical/no-active projection``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.6-prebeta` was published. It closes the release-dependent source-truth`; `- Phase: `Historical Traceability``; `Stage: `Released historical evidence after PR #172 and v1.7.7-prebeta``
@@ -2222,7 +2208,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.6-prebeta` was published. It closes the release-dependent source-truth`; `Stage: `Released historical evidence after PR #172 and v1.7.7-prebeta``; `Branch Authority State: `Historical released evidence after PR #172 merge and v1.7.7-prebeta release``; `Current PR Readiness State: `Complete historically - PR #172 was created, merged, and released in v1.7.7-prebeta``; `Branch Runtime Engineering Plan: `Accepted and implemented - PR #171 reconciliation adopted the detailed Branch Runtime Engineering Plan layer and this Workstream maps it to local-`
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 37. `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`
@@ -2230,20 +2216,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`
 - Line count: 490
 - Current purpose: Branch Authority Record: feature/fam-007-local-ai-provider-path-and-consent-readiness
-- Actual observed use: branch authority / compact receipt with markers live=65, pr/release/issue=99, package/slice=5, branch/worktree/phase=227, validator/helper=196.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=65, pr/release/issue=99, package/slice=5, branch/worktree/phase=227, validator/helper=196.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=125`; `unclear-ownership-wording=33`; `soft-commitment-wording=12`; `state-ledger-wording=210`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, release schedule outline, package trace, slice trace, branch runtime plan, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Current origin/main: `36da3813d7c82f0f42bec7589e26dea03d06f6ba``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.7-prebeta` was published. It closes the release-dependent source-truth`; `Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-provider-path-and-consent-readiness from current origin/main eb8d36b4464ad560a59c`; `Controlled Rebaseline USER Approval: `Granted - USER approved reconciling this branch with current origin/main 67727cfeb21ba4b991c930861ce5920416d27e94 after PR #173 while preservi`; `Fresh Branch Authority: `Active - created from current origin/main eb8d36b4464ad560a59cfea8ddc641aa6374293f after v1.7.7-prebeta release execution``
 - Governance receipt fields found: `- Implementation Delta Class: `runtime/user-facing, backend/runtime, developer-tooling``; `- Backlog Record State: `PR-readiness merge-stable historical/no-active projection``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.7-prebeta` was published. It closes the release-dependent source-truth`; `- Phase: `Historical Traceability``; `Stage: `Merged through PR #177; historical merged-unreleased release-window evidence``
@@ -2254,7 +2240,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.7-prebeta` was published. It closes the release-dependent source-truth`; `Stage: `Merged through PR #177; historical merged-unreleased release-window evidence``; `Seam: `FAM-007 Local AI Provider Path and Consent Readiness historical merged-unreleased PR #177 evidence``; `Branch Authority State: `Historical/no-active merged-main truth after PR #177``; `Controlled Rebaseline USER Approval: `Granted - USER approved reconciling this branch with current origin/main 67727cfeb21ba4b991c930861ce5920416d27e94 after PR #173 while preservi`
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 38. `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md`
@@ -2262,20 +2248,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md`
 - Line count: 478
 - Current purpose: Branch Authority Record: feature/fam-007-local-ai-provider-runtime-readiness
-- Actual observed use: branch authority / compact receipt with markers live=49, pr/release/issue=85, package/slice=4, branch/worktree/phase=215, validator/helper=204.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=49, pr/release/issue=85, package/slice=4, branch/worktree/phase=215, validator/helper=204.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=108`; `unclear-ownership-wording=28`; `soft-commitment-wording=9`; `state-ledger-wording=182`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, release schedule outline, package trace, branch runtime plan, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Current origin/main: `81701d4b351ae7bb4c146daf88a8d884f6bc7981``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.4-prebeta` was published. It closes the release-dependent source-truth`; `Active Worktree: `None - C:\Nexus Worktrees\FAM-007 may remain checked out to historical branch until USER-approved rebaseline or cleanup``; `Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-provider-runtime-readiness from current origin/main 0cd1b0430f5634048613bffec411d`; `Runtime Workstream USER Approval: `Granted - USER approved bounded multi-seam Workstream implementation for the FAM-007 Local AI Provider Runtime Readiness and Setup Eligibility pl`
 - Governance receipt fields found: `- Backlog Record State: `Historical / released in v1.7.5-prebeta after PR #165``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.4-prebeta` was published. It closes the release-dependent source-truth`; `- Phase: `Historical Traceability``; `Stage: `Released Historical Evidence``; `Active Worktree: `None - C:\Nexus Worktrees\FAM-007 may remain checked out to historical branch until USER-approved rebaseline or cleanup``
@@ -2286,7 +2272,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `- Backlog Record State: `Historical / released in v1.7.5-prebeta after PR #165``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.4-prebeta` was published. It closes the release-dependent source-truth`; `Active Seam: `None - PR #165 is merged and this record is historical evidence``; `PR Readiness Stage 1 Repair USER Approval: `Historical - USER approved selected-next defer/waiver truth and pre-PR live-state truth before PR #165; PR creation and merge were later`; `Current PR Readiness State: `Closed by PR #165 merge - selected-next defer/waiver truth, post-merge No Active Branch projection, successor selection deferral, and pre-PR live-state`
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 39. `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`
@@ -2294,20 +2280,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`
 - Line count: 676
 - Current purpose: Branch Record: feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness
-- Actual observed use: branch authority / compact receipt with markers live=53, pr/release/issue=69, package/slice=7, branch/worktree/phase=218, validator/helper=220.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=53, pr/release/issue=69, package/slice=7, branch/worktree/phase=218, validator/helper=220.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=110`; `unclear-ownership-wording=42`; `soft-commitment-wording=23`; `state-ledger-wording=204`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, slice trace, branch runtime plan, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Branch Source: `origin/main` at `2bd54f0e34c6759e9618f42d104d80b975ecc1c3``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.8-prebeta` was published. It closes release-dependent source-truth dri`; `Provider Setup and Consent Flow Readiness means contracts, setup flow eligibility state, consent flow requirement posture, setup blocker state, provider selection/config confirmati`; `Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness from current origin/main 2bd54f0e34c675`; `- `Provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcut/installer, release, PR, merge, FAM-006 mutation, Governance mutation, branch cleanup, `
 - Governance receipt fields found: `Record State: `Projected Historical PR Readiness Stage 1 Ready``; `Status: `PR Readiness Stage 1 Ready For Stage 2 - Workstream, H1, LV1, desktop display suppression proof, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch`; `Phase: `Historical Traceability``; `Branch Authority State: `Historical projection - fresh FAM-007 runtime carrier remains local branch execution evidence until PR merge, and merged-main authority projects No Active `; `Authority Marker: `Historical Branch Evidence Projection``
@@ -2318,7 +2304,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `Status: `PR Readiness Stage 1 Ready For Stage 2 - Workstream, H1, LV1, desktop display suppression proof, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch`; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.8-prebeta` was published. It closes release-dependent source-truth dri`; `- `v1.7.8-prebeta` is recorded as the latest public prerelease.`; `- PR #173, PR #174, PR #175, PR #176, PR #177, and PR #178 are recorded as released in `v1.7.8-prebeta`.`; `- `v1.7.8-prebeta` is the latest public prerelease.`
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 40. `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
@@ -2326,20 +2312,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
 - Line count: 611
 - Current purpose: Branch Record: feature/fam-007-local-ai-provider-setup-contract-readiness
-- Actual observed use: branch authority / compact receipt with markers live=55, pr/release/issue=74, package/slice=7, branch/worktree/phase=211, validator/helper=163.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=55, pr/release/issue=74, package/slice=7, branch/worktree/phase=211, validator/helper=163.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=119`; `unclear-ownership-wording=52`; `soft-commitment-wording=11`; `state-ledger-wording=184`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree slot assignment, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, package trace, branch runtime plan, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Base / merge base: `origin/main` at `b67e59df0481091bfbeb739c4b5e1954552bb421``; `No branch-local blocker remains after PR #190 merge. Release execution, issue work, branch cleanup, successor branch creation, provider setup, consent collection, provider/model ex`; `- Fresh FAM-007 branch exists from current `origin/main`.`; `Rollback Details: Return `C:\Nexus Worktrees\FAM-007` to `origin/main` at `b67e59df0481091bfbeb739c4b5e1954552bb421` only under explicit USER-approved rollback.`; `- Non-includes: provider setup implementation, consent collection, provider SDK integration, provider/model execution, downloads, network calls, memory, learning, personalization, `
 - Governance receipt fields found: `Record State: `Historical Released Evidence``; `Phase: `Historical Traceability``; `Stage: `Released historical source-truth posture``; `- Branch Authority Marker: `Historical Branch Evidence Projection``; `- Branch Authority State: `Historical released evidence - PR #190 merged this carrier and v1.7.11-prebeta published it before the next FAM-007 carrier was selected``
@@ -2350,7 +2336,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `Status: `Released in v1.7.11-prebeta - Workstream, H1, LV1, setup contract readiness proof, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, R`; `Seam: `PR #190 released fold-down``; `- Branch Authority State: `Historical released evidence - PR #190 merged this carrier and v1.7.11-prebeta published it before the next FAM-007 carrier was selected``; `- PR Readiness Stage 2 Status: `Complete - PR #190 merged this branch into main``; `- Release Readiness Source Truth Status: `Closed - PR #190 is recorded as released FAM-007 setup contract readiness scope in v1.7.11-prebeta``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 41. `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
@@ -2358,20 +2344,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
 - Line count: 579
 - Current purpose: Branch Record: feature/fam-007-local-ai-provider-setup-implementation-foundation
-- Actual observed use: branch authority / compact receipt with markers live=47, pr/release/issue=41, package/slice=9, branch/worktree/phase=177, validator/helper=190.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=47, pr/release/issue=41, package/slice=9, branch/worktree/phase=177, validator/helper=190.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=101`; `unclear-ownership-wording=52`; `soft-commitment-wording=18`; `state-ledger-wording=164`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, package trace, slice trace, branch runtime plan, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Base / merge base: `origin/main` at `2158ff66649f9d2e045fe75c4813c19e88d06762``; `No Stage 2 setup blocker remains if validation is green. Workstream implementation, provider setup beyond the admitted local foundation, consent collection, provider SDK integratio`; `USER approved Branch Readiness Stage 1 for returning to FAM-007 runtime work, then approved Branch Readiness Stage 2 setup for the detailed setup implementation foundation carrier `; `- Fresh FAM-007 branch exists from current `origin/main`.`; `Rollback Details: Return `C:\Nexus Worktrees\FAM-007` to `origin/main` at `2158ff66649f9d2e045fe75c4813c19e88d06762` only under explicit USER-approved rollback.`
 - Governance receipt fields found: `Record State: `Historical Branch Authority Projection``; `Status: `PR Readiness Stage 1 Complete - FAM-007 setup implementation foundation validated as disabled/status-only local setup foundation telemetry with static Core/Desktop/ORIN an`; `Phase: `Historical Traceability``; `- Branch Authority Marker: `Historical Branch Evidence Projection``; `- Branch Authority State: `Historical projection for PR Readiness Stage 1 - this branch becomes merged-unreleased FAM-007 setup implementation foundation evidence after PR merge an`
@@ -2382,7 +2368,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `Status: `PR Readiness Stage 1 Complete - FAM-007 setup implementation foundation validated as disabled/status-only local setup foundation telemetry with static Core/Desktop/ORIN an`; `- Branch Authority State: `Historical projection for PR Readiness Stage 1 - this branch becomes merged-unreleased FAM-007 setup implementation foundation evidence after PR merge an`; `- Prior FAM-007 Evidence: `PR #179 setup/consent-flow readiness and PR #190 setup contract readiness are released historical evidence``; `- Latest public prerelease: `v1.7.11-prebeta``; `- Latest public prerelease URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.11-prebeta``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 42. `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md`
@@ -2390,20 +2376,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_runtime_expansion.md`
 - Line count: 490
 - Current purpose: Branch Authority Record: feature/fam-007-local-ai-runtime-expansion
-- Actual observed use: branch authority / compact receipt with markers live=28, pr/release/issue=61, package/slice=6, branch/worktree/phase=169, validator/helper=124.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=28, pr/release/issue=61, package/slice=6, branch/worktree/phase=169, validator/helper=124.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=51`; `unclear-ownership-wording=17`; `soft-commitment-wording=9`; `state-ledger-wording=143`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release schedule outline, package trace, slice trace, issue posture, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Current origin/main: `cb620709acb95f4457f317b5369bade7d9564724``; `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.3-prebeta` was published. It carried the `v1.7.3-prebeta` post-release`; `- Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-runtime-expansion from current origin/main cb620709acb95f4457f317b5369bade7d956`; `- Branch cleanup.`; `Remote Branch State: `Not present before Stage 2 setup; push creates origin/feature/fam-007-local-ai-runtime-expansion``
 - Governance receipt fields found: `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.3-prebeta` was published. It carried the `v1.7.3-prebeta` post-release`; `The branch existed because `feature/fam-007-local-ai-runtime-foundation` is historical PR #159 evidence after release, while the FAM-007 worktree needed a fresh current-main runtim`; `- Phase: `Historical Traceability``; `- Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-runtime-expansion from current origin/main cb620709acb95f4457f317b5369bade7d956`; `- Workstream Entry USER Approval: `Granted - USER approved Workstream entry for feature/fam-007-local-ai-runtime-expansion under the FAM-007 Local AI Runtime Contracts and Capabili`
@@ -2414,7 +2400,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `This branch is the USER-approved fresh FAM-007 runtime carrier created from current `origin/main` after `v1.7.3-prebeta` was published. It carried the `v1.7.3-prebeta` post-release`; `The branch existed because `feature/fam-007-local-ai-runtime-foundation` is historical PR #159 evidence after release, while the FAM-007 worktree needed a fresh current-main runtim`; `- PR Readiness Stage 2 / PR Merge: `Complete - PR #162 merged into main at 86f7f49d6fb3181096da27e51b010d0f47384fee on 2026-05-18T23:31:13Z``; `- Branch Authority State: `Historical / released in v1.7.4-prebeta after PR #162``; `- Current Stage: `Historical released PR #162 - FAM-007 Local AI Runtime Contracts and Capability Foundation``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 43. `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md`
@@ -2422,20 +2408,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_local_ai_runtime_foundation.md`
 - Line count: 517
 - Current purpose: Branch Authority Record: feature/fam-007-local-ai-runtime-foundation
-- Actual observed use: branch authority / compact receipt with markers live=32, pr/release/issue=84, package/slice=8, branch/worktree/phase=209, validator/helper=99.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=32, pr/release/issue=84, package/slice=8, branch/worktree/phase=209, validator/helper=99.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=66`; `unclear-ownership-wording=25`; `soft-commitment-wording=5`; `state-ledger-wording=128`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, release schedule outline, package trace, slice trace, issue posture, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `- Current origin/main: `ff9f48824fa1b7c452957515723f914d6c2bb399``; `This branch is the USER-approved FAM-007 carrier created from current `origin/main` after `v1.7.2-prebeta` was published. It repaired the post-release source-truth canon for PR #15`; `- Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-runtime-foundation from current origin/main in C:\Nexus Worktrees\FAM-007, repa`; `- Hardening H1 USER Approval: `Granted - USER approved Hardening H1 on feature/fam-007-local-ai-runtime-foundation for the completed local-only FAM-007 scaffold chain after reconci`; `- PR Readiness Stage 1 Repair USER Approval: `Granted - USER approved reconciling feature/fam-007-local-ai-runtime-foundation with current origin/main, preserving completed local-o`
 - Governance receipt fields found: `This branch is the USER-approved FAM-007 carrier created from current `origin/main` after `v1.7.2-prebeta` was published. It repaired the post-release source-truth canon for PR #15`; `The branch existed to avoid reusing historical FAM-007 carriers after PR #152 and to keep FAM-007 work in the dedicated `C:\Nexus Worktrees\FAM-007` worktree. This historical recor`; `- Phase: `Historical Traceability``; `- Branch Readiness Stage 2 USER Approval: `Granted - USER approved creating feature/fam-007-local-ai-runtime-foundation from current origin/main in C:\Nexus Worktrees\FAM-007, repa`; `- Workstream Entry USER Approval: `Granted - USER approved Workstream entry for the FAM-007 Local AI Runtime Foundation on feature/fam-007-local-ai-runtime-foundation, using the sa`
@@ -2446,7 +2432,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `This branch is the USER-approved FAM-007 carrier created from current `origin/main` after `v1.7.2-prebeta` was published. It repaired the post-release source-truth canon for PR #15`; `The branch existed to avoid reusing historical FAM-007 carriers after PR #152 and to keep FAM-007 work in the dedicated `C:\Nexus Worktrees\FAM-007` worktree. This historical recor`; `- PR Readiness Stage 2 USER Approval: `Granted - USER approved PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-runtime-foundation targeting main, including final va`; `- PR Stage 2 Sync: `Complete - PR #159 was created non-draft, received bot approval, and merged into main at ff9f48824fa1b7c452957515723f914d6c2bb399 on 2026-05-15T16:56:54Z``; `- Branch Authority State: `Historical / no-active after PR #159 merge``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 44. `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md`
@@ -2454,20 +2440,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md`
 - Line count: 531
 - Current purpose: Branch Authority Record: feature/fam-007-provider-boundary-no-provider-shell
-- Actual observed use: branch authority / compact receipt with markers live=17, pr/release/issue=55, package/slice=8, branch/worktree/phase=178, validator/helper=172.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=17, pr/release/issue=55, package/slice=8, branch/worktree/phase=178, validator/helper=172.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=85`; `unclear-ownership-wording=20`; `soft-commitment-wording=5`; `state-ledger-wording=201`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, package trace, slice trace, issue posture, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `It exists because PR #131 completed the runtime-specific FAM-007 readiness/governance carrier, the USER approved a fresh implementation-bearing FAM-007 branch from current `origin/`; `- Stage 2 USER Approval: `Granted - USER approved creating a separate FAM-007 worktree from current origin/main, creating feature/fam-007-provider-boundary-no-provider-shell, recor`; `- Branch Creation: `Created in a separate FAM-007 worktree from origin/main at 98b53fafd63abfe4876b718d5649b4a0df46f2a0; current GitHub Desktop FAM-007 repo/worktree is C:\Nexus Wo`; `- PR #134 Historical Merge Proof: `Merged - PR #134 merged repaired head c1b47a6b53f4286c2f60ebf5d74d9afe38dadb52 into main at 2c0b2ce6f602651cf85682e0fbfce3c3367cb509``; `- PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2 - current branch scope and validation are clean after bounded Stage 1 repair; PR creation remains blocked until explicit `
 - Governance receipt fields found: `This branch is the USER-approved FAM-007 Branch Readiness Stage 2 rebaseline and consolidated branch-material planning carrier for the provider-boundary / no-provider shell lane.`; `It exists because PR #131 completed the runtime-specific FAM-007 readiness/governance carrier, the USER approved a fresh implementation-bearing FAM-007 branch from current `origin/`; `This active record preserves the planning, selected-next reconciliation, PR #134 merged-unreleased scaffold evidence, and commit 439979fc1204c08cb82af8e95abf7023a311d0d9 as complet`; `- Phase: `Historical Traceability``; `- Stage 1 Basis: `Complete - USER approved FAM-007 selected-next focus in this thread/worktree and approved creating a fresh separate FAM-007 worktree because the GitHub Desktop FA`
@@ -2478,7 +2464,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `It exists because PR #131 completed the runtime-specific FAM-007 readiness/governance carrier, the USER approved a fresh implementation-bearing FAM-007 branch from current `origin/`; `This active record preserves the planning, selected-next reconciliation, PR #134 merged-unreleased scaffold evidence, and commit 439979fc1204c08cb82af8e95abf7023a311d0d9 as complet`; `- Carrier Restoration: `Restored from e65df058a57f3f7c8a9ddf6e64482d870e42d8d8 after PR #135 merged source-truth closure at 6f9a13d17a65a3385001b8e463113295f5463b01; current carrie`; `- Selected-Next Decision: `Granted for this thread/worktree - FAM-007 provider-boundary / no-provider shell is selected; PR #129 release-support remains separate unless USER later `; `- Branch Authority State: `Active Runtime Carrier` - PR #135 repaired merged-main closure, and USER directed the current FAM-007 branch back into runtime-branch planning instead of`
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 45. `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md`
@@ -2486,14 +2472,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_runtime_provider_boundary.md`
 - Line count: 217
 - Current purpose: Branch Authority Record: feature/fam-007-runtime-provider-boundary
-- Actual observed use: branch authority / compact receipt with markers live=13, pr/release/issue=29, package/slice=4, branch/worktree/phase=80, validator/helper=48.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=13, pr/release/issue=29, package/slice=4, branch/worktree/phase=80, validator/helper=48.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=58`; `unclear-ownership-wording=22`; `soft-commitment-wording=5`; `state-ledger-wording=29`
@@ -2518,14 +2504,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fam_007_stage_2_readiness_admission.md`
 - Line count: 297
 - Current purpose: Branch Authority Record: feature/fam-007-stage-2-readiness-admission
-- Actual observed use: branch authority / compact receipt with markers live=15, pr/release/issue=51, package/slice=13, branch/worktree/phase=95, validator/helper=44.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=15, pr/release/issue=51, package/slice=13, branch/worktree/phase=95, validator/helper=44.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=58`; `unclear-ownership-wording=27`; `soft-commitment-wording=12`; `state-ledger-wording=45`
@@ -2550,14 +2536,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_005_workspace_path_planning.md`
 - Line count: 58
 - Current purpose: Branch Authority Record: feature/fb-005-workspace-path-planning
-- Actual observed use: branch authority / compact receipt with markers live=0, pr/release/issue=2, package/slice=0, branch/worktree/phase=12, validator/helper=4.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=0, pr/release/issue=2, package/slice=0, branch/worktree/phase=12, validator/helper=4.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Low.
 - Ambiguity signals: `volatile-current-wording=6`; `unclear-ownership-wording=6`; `soft-commitment-wording=1`; `state-ledger-wording=1`
@@ -2582,14 +2568,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_030_orin_voice_audio_direction_refinement.md`
 - Line count: 64
 - Current purpose: Branch Authority Record: feature/fb-030-orin-voice-audio-direction-refinement
-- Actual observed use: branch authority / compact receipt with markers live=1, pr/release/issue=5, package/slice=0, branch/worktree/phase=18, validator/helper=0.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=1, pr/release/issue=5, package/slice=0, branch/worktree/phase=18, validator/helper=0.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Low.
 - Ambiguity signals: `volatile-current-wording=16`; `unclear-ownership-wording=7`; `state-ledger-wording=4`
@@ -2614,14 +2600,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_030_release_readiness_canon_repair.md`
 - Line count: 63
 - Current purpose: Branch Authority Record: feature/fb-030-release-readiness-canon-repair
-- Actual observed use: branch authority / compact receipt with markers live=2, pr/release/issue=5, package/slice=0, branch/worktree/phase=11, validator/helper=6.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=2, pr/release/issue=5, package/slice=0, branch/worktree/phase=11, validator/helper=6.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Low.
 - Ambiguity signals: `volatile-current-wording=12`; `unclear-ownership-wording=6`; `state-ledger-wording=4`
@@ -2646,14 +2632,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_030_successor_branch_truth_repair.md`
 - Line count: 66
 - Current purpose: Branch Authority Record: feature/fb-030-successor-branch-truth-repair
-- Actual observed use: branch authority / compact receipt with markers live=3, pr/release/issue=9, package/slice=0, branch/worktree/phase=12, validator/helper=2.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=3, pr/release/issue=9, package/slice=0, branch/worktree/phase=12, validator/helper=2.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Low.
 - Ambiguity signals: `volatile-current-wording=16`; `unclear-ownership-wording=6`; `state-ledger-wording=4`
@@ -2678,14 +2664,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_042_desktop_entrypoint_runtime_refinement.md`
 - Line count: 59
 - Current purpose: Branch Authority Record: feature/fb-042-desktop-entrypoint-runtime-refinement
-- Actual observed use: branch authority / compact receipt with markers live=0, pr/release/issue=1, package/slice=0, branch/worktree/phase=18, validator/helper=9.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=0, pr/release/issue=1, package/slice=0, branch/worktree/phase=18, validator/helper=9.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Low.
 - Ambiguity signals: `volatile-current-wording=6`; `unclear-ownership-wording=5`; `state-ledger-wording=2`
@@ -2710,14 +2696,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_043_top_level_entrypoint_handoff_refinement.md`
 - Line count: 231
 - Current purpose: Branch Authority Record: feature/fb-043-top-level-entrypoint-handoff-refinement
-- Actual observed use: branch authority / compact receipt with markers live=2, pr/release/issue=8, package/slice=1, branch/worktree/phase=44, validator/helper=70.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=2, pr/release/issue=8, package/slice=1, branch/worktree/phase=44, validator/helper=70.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Low.
 - Ambiguity signals: `volatile-current-wording=25`; `unclear-ownership-wording=7`; `soft-commitment-wording=4`; `state-ledger-wording=6`
@@ -2742,14 +2728,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_044_boot_desktop_handoff_outcome_refinement.md`
 - Line count: 224
 - Current purpose: Branch Authority Record: feature/fb-044-boot-desktop-handoff-outcome-refinement
-- Actual observed use: branch authority / compact receipt with markers live=1, pr/release/issue=8, package/slice=1, branch/worktree/phase=44, validator/helper=64.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=1, pr/release/issue=8, package/slice=1, branch/worktree/phase=44, validator/helper=64.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=24`; `unclear-ownership-wording=7`; `soft-commitment-wording=4`; `state-ledger-wording=11`
@@ -2774,14 +2760,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_045_active_session_relaunch_stability.md`
 - Line count: 223
 - Current purpose: Branch Authority Record: feature/fb-045-active-session-relaunch-stability
-- Actual observed use: branch authority / compact receipt with markers live=4, pr/release/issue=8, package/slice=1, branch/worktree/phase=50, validator/helper=86.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=4, pr/release/issue=8, package/slice=1, branch/worktree/phase=50, validator/helper=86.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=33`; `unclear-ownership-wording=12`; `soft-commitment-wording=5`; `state-ledger-wording=17`
@@ -2806,14 +2792,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_046_active_session_relaunch_reacquisition.md`
 - Line count: 218
 - Current purpose: Branch Authority Record: feature/fb-046-active-session-relaunch-reacquisition
-- Actual observed use: branch authority / compact receipt with markers live=3, pr/release/issue=9, package/slice=1, branch/worktree/phase=49, validator/helper=59.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=3, pr/release/issue=9, package/slice=1, branch/worktree/phase=49, validator/helper=59.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=30`; `unclear-ownership-wording=6`; `soft-commitment-wording=5`; `state-ledger-wording=15`
@@ -2838,14 +2824,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md`
 - Line count: 219
 - Current purpose: Branch Authority Record: feature/fb-047-active-session-relaunch-decline-preservation
-- Actual observed use: branch authority / compact receipt with markers live=4, pr/release/issue=9, package/slice=1, branch/worktree/phase=50, validator/helper=59.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=4, pr/release/issue=9, package/slice=1, branch/worktree/phase=50, validator/helper=59.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=42`; `unclear-ownership-wording=8`; `soft-commitment-wording=5`; `state-ledger-wording=12`
@@ -2870,14 +2856,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
 - Line count: 221
 - Current purpose: Branch Authority Record: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeout-truth
-- Actual observed use: branch authority / compact receipt with markers live=3, pr/release/issue=9, package/slice=1, branch/worktree/phase=49, validator/helper=107.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=3, pr/release/issue=9, package/slice=1, branch/worktree/phase=49, validator/helper=107.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=34`; `unclear-ownership-wording=8`; `soft-commitment-wording=6`; `state-ledger-wording=12`
@@ -2902,14 +2888,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md`
 - Line count: 328
 - Current purpose: Branch Authority Record: feature/fb-049-runtime-branch-readiness
-- Actual observed use: branch authority / compact receipt with markers live=10, pr/release/issue=54, package/slice=1, branch/worktree/phase=90, validator/helper=121.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=10, pr/release/issue=54, package/slice=1, branch/worktree/phase=90, validator/helper=121.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=67`; `unclear-ownership-wording=38`; `soft-commitment-wording=5`; `state-ledger-wording=47`
@@ -2934,14 +2920,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md`
 - Line count: 150
 - Current purpose: Branch Authority Record: feature/pr101-post-merge-closeout-canon-repair
-- Actual observed use: branch authority / compact receipt with markers live=6, pr/release/issue=53, package/slice=0, branch/worktree/phase=41, validator/helper=12.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=6, pr/release/issue=53, package/slice=0, branch/worktree/phase=41, validator/helper=12.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=52`; `unclear-ownership-wording=14`; `state-ledger-wording=23`
@@ -2966,14 +2952,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md`
 - Line count: 150
 - Current purpose: Branch Authority Record: feature/pr102-post-merge-closeout-canon-repair
-- Actual observed use: branch authority / compact receipt with markers live=4, pr/release/issue=54, package/slice=0, branch/worktree/phase=40, validator/helper=9.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=4, pr/release/issue=54, package/slice=0, branch/worktree/phase=40, validator/helper=9.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=50`; `unclear-ownership-wording=12`; `state-ledger-wording=22`
@@ -2998,14 +2984,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md`
 - Line count: 243
 - Current purpose: Branch Authority Record: feature/pr103-post-merge-closeout-canon-repair
-- Actual observed use: branch authority / compact receipt with markers live=10, pr/release/issue=89, package/slice=0, branch/worktree/phase=51, validator/helper=38.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=10, pr/release/issue=89, package/slice=0, branch/worktree/phase=51, validator/helper=38.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=66`; `unclear-ownership-wording=12`; `soft-commitment-wording=1`; `state-ledger-wording=37`
@@ -3030,14 +3016,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md`
 - Line count: 165
 - Current purpose: Branch Authority Record: feature/pr104-watcher-next-prompt-format-repair
-- Actual observed use: branch authority / compact receipt with markers live=7, pr/release/issue=94, package/slice=0, branch/worktree/phase=34, validator/helper=26.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=7, pr/release/issue=94, package/slice=0, branch/worktree/phase=34, validator/helper=26.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=60`; `unclear-ownership-wording=12`; `state-ledger-wording=29`
@@ -3062,14 +3048,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md`
 - Line count: 177
 - Current purpose: Branch Authority Record: feature/pr105-post-merge-closeout-canon-repair
-- Actual observed use: branch authority / compact receipt with markers live=7, pr/release/issue=66, package/slice=0, branch/worktree/phase=35, validator/helper=28.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=7, pr/release/issue=66, package/slice=0, branch/worktree/phase=35, validator/helper=28.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep historical receipt.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
 - Ambiguity signals: `volatile-current-wording=45`; `unclear-ownership-wording=9`; `state-ledger-wording=29`
@@ -3094,14 +3080,14 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 - Line count: 272
 - Current purpose: Branch Authority Record: feature/release-readiness-source-truth-intake
-- Actual observed use: branch authority / compact receipt with markers live=51, pr/release/issue=32, package/slice=2, branch/worktree/phase=212, validator/helper=99.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
+- Actual observed use: branch authority / structured receipt with markers live=51, pr/release/issue=32, package/slice=2, branch/worktree/phase=212, validator/helper=99.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
 - Recommendation: Keep active standing authority.
-- Consolidation target: Keep as compact historical branch receipt..
+- Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=93`; `unclear-ownership-wording=36`; `soft-commitment-wording=23`; `state-ledger-wording=43`
@@ -3126,20 +3112,20 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
 - Line count: 498
 - Current purpose: Branch Authority Record: feature/repo-wide-source-owner-marker-adoption
-- Actual observed use: branch authority / compact receipt with markers live=60, pr/release/issue=31, package/slice=17, branch/worktree/phase=179, validator/helper=287.
-- Correct owner category: branch authority / compact receipt
-- What gets recorded here: branch authority, approvals, phase history, legal carrier status, compact receipts.
-- What should be recorded here: branch identity, phase markers, approvals, blockers, historical receipt.
-- What should move elsewhere: durable family implementation history after fold-down.
-- Migration target: durable family implementation history after fold-down.
-- Recommendation: Migrate / compact receipt.
-- Consolidation target: Compact to branch receipt; migrate reusable implementation detail to workstreams or family dossiers..
-- Deletion posture: Do not delete now; compact/migrate first..
+- Actual observed use: branch authority / structured receipt with markers live=60, pr/release/issue=31, package/slice=17, branch/worktree/phase=179, validator/helper=287.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Organize structured receipt.
+- Consolidation target: Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers..
+- Deletion posture: Do not delete now; organize or migrate first..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=58`; `unclear-ownership-wording=131`; `soft-commitment-wording=16`; `state-ledger-wording=158`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: High.
-- Structure action: Oversized branch receipt; compact current authority and migrate durable execution detail.
+- Structure action: Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evidence, and promoted reusable lessons.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree live state, origin/main, PR state, merge status, latest tag/release, slice trace, branch runtime plan, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `PR #185 merged this branch into `main` at `6643ce8d18c5e3940c1ef1c0d2b531ad7ef5d79b` on `2026-05-20T21:42:11Z` with head `674aa4691b8ef7db9225a4e291d33871e53da78d`. After merge, US`; `Stage 1 Basis: `Complete - verified clean main at origin/main 26bb76becd4089d2e451d44e969939f0f074371f, No Active Branch source truth, selected-next None, FAM-006 historical/merged`; `Merged origin/main: `6643ce8d18c5e3940c1ef1c0d2b531ad7ef5d79b``; `Origin/Main Advanced Since Branch Creation: `YES - branch merged through PR #185``; `Branch Runtime Engineering Plan: `Historical / folded after Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness, PR #185 merge, and cleanup``
 - Governance receipt fields found: `- Backlog Record State: `Historical merged evidence``; `This branch was the USER-approved Branch Readiness Stage 2 carrier for the post-FAM-006 Repo-Wide High-Risk Source Owner Marker Adoption candidate.`; `PR #185 merged this branch into `main` at `6643ce8d18c5e3940c1ef1c0d2b531ad7ef5d79b` on `2026-05-20T21:42:11Z` with head `674aa4691b8ef7db9225a4e291d33871e53da78d`. After merge, US`; `- Phase: `Historical Traceability``; `Stage 1 Basis: `Complete - verified clean main at origin/main 26bb76becd4089d2e451d44e969939f0f074371f, No Active Branch source truth, selected-next None, FAM-006 historical/merged`
@@ -3150,7 +3136,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Release/PR/issue markers found: `The branch exists because merged `main` after PR #181 and `v1.7.9-prebeta` recorded `No Active Branch`, selected no runtime successor, and preserved Repo-Wide High-Risk Source Owne`; `PR #185 merged this branch into `main` at `6643ce8d18c5e3940c1ef1c0d2b531ad7ef5d79b` on `2026-05-20T21:42:11Z` with head `674aa4691b8ef7db9225a4e291d33871e53da78d`. After merge, US`; `PR Merge: `PR #185 merged at 6643ce8d18c5e3940c1ef1c0d2b531ad7ef5d79b``; `Origin/Main Advanced Since Branch Creation: `YES - branch merged through PR #185``; `Branch Runtime Engineering Plan: `Historical / folded after Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness, PR #185 merge, and cleanup``
 - Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
 - Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
-- Remaining action needed after this branch: Future focused pass should fold the long historical diary into a compact receipt and promote reusable detail to workstreams/family dossiers.
+- Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
 ### 66. `Docs/branch_records/index.md`
@@ -3158,7 +3144,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/index.md`
 - Line count: 183
 - Current purpose: Branch Authority Records Index
-- Actual observed use: branch authority router with markers live=51, pr/release/issue=30, package/slice=9, branch/worktree/phase=220, validator/helper=49.
+- Actual observed use: branch authority router with markers live=51, pr/release/issue=30, package/slice=9, branch/worktree/phase=220, validator/helper=50.
 - Correct owner category: branch authority router
 - What gets recorded here: active/historical branch authority routing.
 - What should be recorded here: lists and rules for branch authority records.
@@ -3168,7 +3154,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=154`; `unclear-ownership-wording=72`; `soft-commitment-wording=24`; `state-ledger-wording=64`
+- Ambiguity signals: `volatile-current-wording=155`; `unclear-ownership-wording=71`; `soft-commitment-wording=24`; `state-ledger-wording=65`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -3177,7 +3163,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Governance receipt fields found: `- the single `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, for Release Readiness digest source-truth drift intake, USER-approved `automation`; `- active `repair/dev-tooling-governance` feature branches when USER-admitted repair scope includes developer-tooling plus governance hardening`; `- USER-approved bounded issue-readiness/source-truth repair carriers that extend an existing family branch authority record without creating GitHub issues or admitting implementati`; `- preserved historical `docs/governance` or `emergency canon repair` records`; `- active branch names and active branch authority records must not use the `codex/` branch prefix; use `feature/` or another USER-approved non-`codex/` prefix, while historical `co`
 - Repetitive language found: Release/phase/branch marker repetition requires owner-pointer discipline.
 - Current-state markers found: `- active `Registry-only` backlog branches in `Branch Readiness` before a promoted canonical workstream exists`; `- active `repair/dev-tooling-governance` feature branches when USER-admitted repair scope includes developer-tooling plus governance hardening`; `- merge-target canon sync that belongs on an already-active implementation branch`; `- active branch names and active branch authority records must not use the `codex/` branch prefix; use `feature/` or another USER-approved non-`codex/` prefix, while historical `co`; `- active `Registry-only` backlog branches may use this layer during `Branch Readiness` before promotion`
-- Package Trace / Slice Trace markers found: `- package/slice governance drift blockers are named `Single-Slice Package User Approval Missing` and `Package Completion Unproven`; active branch authority records that repair pack`; `- Element Coverage is a non-identity checklist for user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/`; `- PR Readiness stage-gate governance uses `PR Readiness Stage 1 - Analysis Gate` as an analysis-first readiness-lock gate and `PR Readiness Stage 2 - Execution Gate` as the approve`; `- PR Readiness Stage 1 also requires a no-work `## Next Branch Pre-Plan` gate with `Next Branch Package Shape:`, proposed FAM/package, multiple concrete candidate slices, `Candidat`; `- Package Trace and Slice Trace detail belongs in canonical workstreams, family dossiers, active branch plans, or explicitly folded compact receipts. Backlog and roadmap must only `
+- Package Trace / Slice Trace markers found: `- package/slice governance drift blockers are named `Single-Slice Package User Approval Missing` and `Package Completion Unproven`; active branch authority records that repair pack`; `- Element Coverage is a non-identity checklist for user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/`; `- PR Readiness stage-gate governance uses `PR Readiness Stage 1 - Analysis Gate` as an analysis-first readiness-lock gate and `PR Readiness Stage 2 - Execution Gate` as the approve`; `- PR Readiness Stage 1 also requires a no-work `## Next Branch Pre-Plan` gate with `Next Branch Package Shape:`, proposed FAM/package, multiple concrete candidate slices, `Candidat`; `- Package Trace and Slice Trace detail belongs in canonical workstreams, family dossiers, active branch plans, or explicitly folded structured receipts. Backlog and roadmap must on`
 - Branch/worktree/phase markers found: `This index routes repo-owned authority records for approved branches that do not map to a promoted backlog workstream.`; `- active `Registry-only` backlog branches in `Branch Readiness` before a promoted canonical workstream exists`; `- the single `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, for Release Readiness digest source-truth drift intake, USER-approved `automation`; `- active `repair/dev-tooling-governance` feature branches when USER-admitted repair scope includes developer-tooling plus governance hardening`; `- `Docs/workstreams/` for promoted backlog-backed workstreams`
 - Release/PR/issue markers found: `- post-release validation must compare published GitHub release/tag truth and release-body format against remote repo source truth. runtime implementation remains blocked until rel`; `- The one-time `codex/one-time-backlog-governance-repair` branch is USER-admitted as `repair/dev-tooling-governance` to repair the blocker rule that allowed FB-027/PR #109 drift; i`; `- Operational PR/watcher state may live in operator output or explicit historical PR sections, but merged current-state owners and historical branch records must not retain active `; `- when USER declares legacy product naming invalid for the current product, `Legacy Product Name Drift` blocks Workstream entry or continuation while that naming remains anywhere i`; `- PR Readiness stage-gate governance uses `PR Readiness Stage 1 - Analysis Gate` as an analysis-first readiness-lock gate and `PR Readiness Stage 2 - Execution Gate` as the approve`
 - Validator rule needed: Covered by existing owner validator or future focused owner check.
@@ -3860,9 +3846,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 88. `Docs/governance_docs_reform_user_review_index.md`
 
 - File path: `Docs/governance_docs_reform_user_review_index.md`
-- Line count: 162
+- Line count: 156
 - Current purpose: Nexus Docs Reform User Review Index
-- Actual observed use: governance support standard with markers live=7, pr/release/issue=0, package/slice=0, branch/worktree/phase=26, validator/helper=12.
+- Actual observed use: governance support standard with markers live=8, pr/release/issue=0, package/slice=0, branch/worktree/phase=24, validator/helper=6.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
@@ -3872,15 +3858,15 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=37`; `unclear-ownership-wording=67`; `soft-commitment-wording=9`; `state-ledger-wording=38`
+- Ambiguity signals: `volatile-current-wording=38`; `unclear-ownership-wording=37`; `soft-commitment-wording=10`; `state-ledger-wording=39`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
 - Duplicate fact classes found: active branch authority, next legal phase, worktree live state, origin/main, release schedule outline, branch runtime plan, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules.
-- Live operational truth fields found: `This is the short review index for the full Docs source-truth reform. Use it to decide whether the long dossier is ready for PR Readiness, or whether specific files need more clean`; `- Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.`; `4. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/compact/migrate/retire/delete posture.`; `5. Review ambiguity and structure queues before deciding whether cleanup is complete.`; `- [ ] Every Docs file has a clear disposition in the complete cleanup table.`
-- Governance receipt fields found: `# Nexus Docs Reform User Review Index`; `- PR Readiness: held until USER review accepts this packet.`; `2. Review `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision`.`; `## Decision Checklist`; `- [ ] Structure risks have a migration, compaction, or keep-now decision.`
+- Live operational truth fields found: `This is the short review index for the full Docs source-truth reform. Use it to decide whether the long dossier is ready for PR Readiness, or whether specific files need more clean`; `- Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.`; `4. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.`; `5. Review ambiguity and structure queues before deciding whether cleanup is complete.`; `- [ ] Every Docs file has a clear disposition in the complete cleanup table.`
+- Governance receipt fields found: `# Nexus Docs Reform User Review Index`; `- PR Readiness: held until USER review accepts this packet.`; `2. Review `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision`.`; `## Decision Checklist`; `- [ ] Structure risks have a migration, organization, or keep-now decision.`
 - Repetitive language found: Release/phase/branch marker repetition requires owner-pointer discipline.
-- Current-state markers found: `- [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.`; `| `Docs/Main.md` | High | `volatile-current-wording=318`; `unclear-ownership-wording=129`; `soft-commitment-wording=51`; `state-ledger-wording=155` | Clarify owner, time basis, and`; `| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | `volatile-current-wording=22`; `unclear-ownership-wording=11`; `soft-commitment-wordin`; `| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | High | `volatile-current-wording=41`; `unclear-ownership-wording=11`; `soft-commitment-wording`; `| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | High | `volatile-current-wording=27`; `unclear-ownership-wording=16`; `soft-commitment-`
+- Current-state markers found: `- [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.`; `- Current execution model: analysis and planning only until USER approves concrete cleanup; remaining Docs reform should run in staged internal commits on this single Governance br`; `| `Docs/Main.md` | High | `volatile-current-wording=318`; `unclear-ownership-wording=129`; `soft-commitment-wording=51`; `state-ledger-wording=155` | Clarify owner, time basis, and`; `| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | `volatile-current-wording=22`; `unclear-ownership-wording=11`; `soft-commitment-wordin`; `| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | High | `volatile-current-wording=41`; `unclear-ownership-wording=11`; `soft-commitment-wording`
 - Package Trace / Slice Trace markers found: None found.
 - Branch/worktree/phase markers found: `This is the short review index for the full Docs source-truth reform. Use it to decide whether the long dossier is ready for PR Readiness, or whether specific files need more clean`; `- PR Readiness: held until USER review accepts this packet.`; `9. Confirm the `PR Readiness Checklist` before approving PR creation.`; `- [ ] No additional Docs file needs immediate retirement before PR Readiness.`; `- [ ] PR Readiness Stage 2 may proceed after final validation.`
 - Release/PR/issue markers found: None found.
@@ -3892,9 +3878,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 89. `Docs/governance_efficiency_operating_model.md`
 
 - File path: `Docs/governance_efficiency_operating_model.md`
-- Line count: 266
+- Line count: 280
 - Current purpose: Governance Efficiency Operating Model
-- Actual observed use: governance support standard with markers live=18, pr/release/issue=11, package/slice=10, branch/worktree/phase=43, validator/helper=40.
+- Actual observed use: governance support standard with markers live=20, pr/release/issue=11, package/slice=10, branch/worktree/phase=50, validator/helper=42.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
@@ -3904,7 +3890,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=48`; `unclear-ownership-wording=25`; `soft-commitment-wording=21`; `state-ledger-wording=39`
+- Ambiguity signals: `volatile-current-wording=56`; `unclear-ownership-wording=29`; `soft-commitment-wording=33`; `state-ledger-wording=45`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -3912,8 +3898,8 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Live operational truth fields found: `It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch d`; `| `Docs/worktree_slots.md` | stable slot IDs and intended assignment receipts | `HEAD`, dirty state, ahead/behind, PR state, latest tag, latest release |`; `Backlog and roadmap must not manually maintain latest public prerelease, latest tag, release URL, target commit, open PR state, active branch identity, review-thread state, worktre`; `Derived live truth comes from Git, GitHub, or approved helpers. Examples include current `HEAD`, `origin/main`, merge base, dirty state, branch ahead/behind state, remote ref exist`; `- raw `HEAD` or `origin/main` hash as current truth outside an operator packet or historical receipt`
 - Governance receipt fields found: `It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch d`; `- `Historical Receipt Rule:``; `| `Docs/codex_modes.md` | Codex operating posture and mode behavior | branch-local truth or release receipts |`; `| `Docs/codex_user_guide.md` | human-readable operator guide | machine-enforced current-state authority |`; `| `Docs/worktree_slots.md` | stable slot IDs and intended assignment receipts | `HEAD`, dirty state, ahead/behind, PR state, latest tag, latest release |`
 - Repetitive language found: Release/phase/branch marker repetition requires owner-pointer discipline.
-- Current-state markers found: `| `Docs/orin_task_template.md` | reusable prompt skeleton fields | current live branch facts |`; `| `Docs/codex_user_guide.md` | human-readable operator guide | machine-enforced current-state authority |`; `| `Docs/feature_backlog.md` | compact feature-family registry, status, and pointer layer | detailed active-branch execution planning |`; `| `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, and broad feature-family checkpoints | volatile Git/GitHub operational state or active release `; `| `Docs/branch_records/index.md` | active/historical branch authority routing | detailed branch implementation checklists |`
-- Package Trace / Slice Trace markers found: `- workstreams and family dossiers own durable package trace, slice trace, proof history, and reusable continuity`; `Backlog and roadmap must not contain `Package Trace:` or `Slice Trace:` sections. Those detailed ledgers belong in workstream records, family dossiers, branch plans, or compact bra`; `- `Package Trace:` or `Slice Trace:` detail inside backlog or roadmap`; `- workstreams and family dossiers own durable package trace, slice trace, proof history, reusable lessons, and family continuity`; `- promote reusable lessons, package trace, slice trace, validators, and proof history to workstreams or family dossiers`
+- Current-state markers found: `| `Docs/Main.md` | least-updated canonical docs index, source-truth layer ownership, recovery pointers, and clear digest of valid governance/source-truth files | detailed branch ex`; `| `Docs/orin_task_template.md` | reusable prompt skeleton fields | current live branch facts |`; `| `Docs/codex_user_guide.md` | human-readable operator guide | machine-enforced current-state authority |`; `| `Docs/feature_backlog.md` | compact feature-family registry, status, and pointer layer | detailed active-branch execution planning |`; `| `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, and broad feature-family checkpoints | volatile Git/GitHub operational state or active release `
+- Package Trace / Slice Trace markers found: `- workstreams and family dossiers own durable package trace, slice trace, proof history, and reusable continuity`; `Backlog and roadmap must not contain `Package Trace:` or `Slice Trace:` sections. Those detailed ledgers belong in workstream records, family dossiers, active branch plans, or stru`; `- `Package Trace:` or `Slice Trace:` detail inside backlog or roadmap`; `- workstreams and family dossiers own durable package trace, slice trace, proof history, reusable lessons, and family continuity`; `- promote reusable lessons, package trace, slice trace, validators, and proof history to workstreams or family dossiers`
 - Branch/worktree/phase markers found: `This document is the compact operating model for governance reform after the multi-worktree transition.`; `It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch d`; `| `Docs/worktree_slots.md` | stable slot IDs and intended assignment receipts | `HEAD`, dirty state, ahead/behind, PR state, latest tag, latest release |`; `| `Docs/workstreams/index.md` | canonical workstream and dossier routing | per-branch live state by inertia |`; `| `Docs/workstreams/<id>.md` | durable promoted implementation history and reusable continuity | volatile branch/PR state |`
 - Release/PR/issue markers found: `It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch d`; `| `Docs/pr_watcher_mode_contract.md` | watcher mode contract and approval default | live PR state beyond explicit watcher proof packets |`; `Backlog and roadmap must not manually maintain latest public prerelease, latest tag, release URL, target commit, open PR state, active branch identity, review-thread state, worktre`; `Derived live truth comes from Git, GitHub, or approved helpers. Examples include current `HEAD`, `origin/main`, merge base, dirty state, branch ahead/behind state, remote ref exist`; `Governance receipts are recorded after live truth is checked. Examples include USER assignment decisions, branch admission, release scope interpretation, merge closeout, watcher re`
 - Validator rule needed: Covered by existing owner validator or future focused owner check.
@@ -3956,9 +3942,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 91. `Docs/governance_process_efficiency_reform_plan.md`
 
 - File path: `Docs/governance_process_efficiency_reform_plan.md`
-- Line count: 489
+- Line count: 527
 - Current purpose: Governance Process Efficiency Reform Plan
-- Actual observed use: governance support standard with markers live=16, pr/release/issue=30, package/slice=0, branch/worktree/phase=60, validator/helper=205.
+- Actual observed use: governance support standard with markers live=16, pr/release/issue=30, package/slice=0, branch/worktree/phase=63, validator/helper=210.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
@@ -3968,7 +3954,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=77`; `unclear-ownership-wording=31`; `soft-commitment-wording=9`; `state-ledger-wording=34`
+- Ambiguity signals: `volatile-current-wording=82`; `unclear-ownership-wording=41`; `soft-commitment-wording=26`; `state-ledger-wording=39`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -4024,12 +4010,12 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Current purpose: Nexus Source-Of-Truth Index
 - Actual observed use: recovery map / source-truth router with markers live=92, pr/release/issue=68, package/slice=21, branch/worktree/phase=528, validator/helper=200.
 - Correct owner category: recovery map / source-truth router
-- What gets recorded here: highest-level recovery map and source-truth ownership map.
-- What should be recorded here: pointers to canonical owners and compact required field names.
+- What gets recorded here: least-updated canonical docs index, recovery map, and source-truth ownership map.
+- What should be recorded here: clear pointers to current governance/source-truth owners and a digest of each file's purpose.
 - What should move elsewhere: detailed branch execution, release windows, or policy prose.
 - Migration target: detailed branch execution, release windows, or policy prose.
 - Recommendation: Keep.
-- Consolidation target: Keep here as recovery/source-truth map; move full policy to owner docs..
+- Consolidation target: Keep here as least-updated canonical docs index and recovery/source-truth map; move full policy to owner docs..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
 - Ambiguity signals: `volatile-current-wording=318`; `unclear-ownership-wording=129`; `soft-commitment-wording=51`; `state-ledger-wording=155`
@@ -5440,7 +5426,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep here as slot registry; move live worktree facts to git/helper output..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=27`; `unclear-ownership-wording=31`; `soft-commitment-wording=4`; `state-ledger-wording=29`
+- Ambiguity signals: `volatile-current-wording=28`; `unclear-ownership-wording=30`; `soft-commitment-wording=4`; `state-ledger-wording=30`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5459,23 +5445,23 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 
 ## Remaining Risks
 
-- Many historical branch records and workstream records still contain historical live-state language. This is preserved as receipt evidence in this pass, not treated as active truth. Future focused fold-down passes can compact the largest diaries if USER wants smaller docs.
-- Existing historical Branch Runtime Engineering Plans are not deleted yet because durable content must be migrated and references validated first.
+- Many historical branch records and workstream records still contain historical live-state language. This is preserved as receipt evidence in this pass, not treated as active truth. Future focused fold-down passes can organize the largest ledgers if USER wants clearer review/indexing.
+- Existing historical Branch Runtime Engineering Plans are not retired yet because durable content must be migrated and references validated first.
 - Some product/reference docs are low-risk but still need USER review before retirement because they may preserve historical design context.
 
 ## PR Readiness Checklist
 
 - [ ] USER reviewed the companion index.
-- [ ] USER reviewed high-risk files and deferred deletion candidates.
+- [ ] USER reviewed high-risk files and deferred retirement candidates.
 - [ ] USER accepts that no ambiguous Docs files are deleted before later focused approval.
-- [ ] USER accepts Branch Runtime Engineering Plan fold-down/deletion lifecycle.
+- [ ] USER accepts Branch Runtime Engineering Plan fold-down/retirement lifecycle.
 - [ ] Validation remains green from the Governance branch.
 - [ ] PR creation is separately approved.
 
 ## Deferred USER Decisions
 
-- Approve focused deletion/fold-down of historical branch plans after durable content is migrated.
-- Approve focused compaction or archival of oversized historical branch execution diaries.
+- Approve focused retirement/fold-down of historical branch plans after durable content is migrated.
+- Approve focused organization or archival of oversized historical branch execution ledgers.
 - Approve creation or expansion of FAM-006 / FAM-007 family dossiers if USER wants historical branch detail moved out of branch records in bulk.
 - Approve retirement of any low-risk reference docs after USER review of the file-by-file dossier.
 
