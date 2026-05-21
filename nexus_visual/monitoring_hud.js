@@ -19,7 +19,6 @@ const monitoringHudPlacementAnchor = document.getElementById("monitoring-hud-pla
 const monitoringHudPlacementPointer = document.getElementById("monitoring-hud-placement-pointer");
 const monitoringHudResizePosture = document.getElementById("monitoring-hud-resize-posture");
 const monitoringHudOverlayProfileEditor = document.getElementById("monitoring-hud-overlay-profile-editor");
-const monitoringHudOverlayProfileActiveName = document.getElementById("monitoring-hud-overlay-profile-active-name");
 const monitoringHudOverlayProfileSelector = document.getElementById("monitoring-hud-overlay-profile-selector");
 const monitoringHudOverlayProfileToggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
 const monitoringHudOverlayProfileLabel = document.getElementById("monitoring-hud-overlay-profile-label");
@@ -1040,9 +1039,6 @@ function monitoringHudRenderOverlayProfileControls() {
   monitoringHudOverlayProfileEditor.dataset.overlayProfileCount = String(profiles.length);
   monitoringHudOverlayProfileEditor.dataset.overlayProfileProof = "selector-settings-window-create-rename-save-discard";
 
-  if (monitoringHudOverlayProfileActiveName) {
-    monitoringHudOverlayProfileActiveName.textContent = activeProfileName;
-  }
   if (monitoringHudOverlayProfileSelector) {
     monitoringHudOverlayProfileSelector.dataset.selectedProfileId = activeProfileId;
     monitoringHudOverlayProfileSelector.dataset.overlayProfileSelector = "active-profile-selector";

@@ -551,6 +551,12 @@ def validate() -> list[str]:
     _require(
         ".monitoring-hud__overlay-profile-panel" in css
         and ".monitoring-hud__overlay-profile-dropdown" in css
+        and ".monitoring-hud__bounded-dropdown.monitoring-hud__overlay-profile-dropdown" in css
+        and "grid-template-columns: max-content minmax(219px, 1fr)" in css
+        and "width: min(219px, 100%)" in css
+        and "min-width: min(189px, 100%)" in css
+        and "<span>Overlay Profile</span>" in html
+        and 'id="monitoring-hud-overlay-profile-active-name"' not in html
         and ".monitoring-hud__overlay-profile-actions" in css
         and ".monitoring-hud__overlay-profile-window-actions" in css
         and "data-overlay-profile-option" in html
@@ -558,7 +564,7 @@ def validate() -> list[str]:
         and "monitoringHudSetOverlayProfileDropdownOpen" in js
         and "monitoringHudOpenChildWindow(\"overlay-profile-settings\")" in js
         and "monitoringHudSaveOverlayProfileDraft" in js,
-        "HUD must render SLC-038 Overlay Profile controls as a Nexus-styled selector plus settings-window create/rename/save/discard UI",
+        "HUD must render SLC-038 Overlay Profile controls as a Nexus-styled right-sized selector without a redundant dashboard active-profile line plus settings-window create/rename/save/discard UI",
         failures,
     )
     _require(
