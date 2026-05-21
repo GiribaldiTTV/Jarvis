@@ -12,11 +12,11 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
 
-Current Phase: `Branch Readiness Stage 2 complete - FAM-007 consent collection foundation`
+Current Phase: `Workstream implementation complete - FAM-007 consent collection foundation`
 
 Branch Runtime Engineering Plan: Accepted - this plan is present for the FAM-007 consent collection foundation carrier.
 
-Engineering Plan Status: Accepted for Workstream Entry analysis; Workstream implementation remains pending USER approval.
+Engineering Plan Status: Accepted - Workstream Green after bounded consent collection foundation implementation; Hardening H1 remains pending USER approval.
 
 Current Runtime Baseline: Released FAM-007 state includes setup/consent-flow readiness, setup contract readiness, and setup implementation foundation evidence through PR #192 and `v1.7.12-prebeta`, with provider-visible data none, sentToProvider false, canAcceptPrompts false, prompt/model execution disabled, downloads and network blocked, memory disabled, voice/Core sync gated, desktop readiness display suppression preserved, and provider-state validation coverage in `dev/orin_ai_provider_state_validation.py`.
 
@@ -24,7 +24,7 @@ Branch Purpose: Move FAM-007 from local setup implementation foundation toward a
 
 Planned Runtime Delta: The Workstream may add consent foundation state/schema, setup consent and execution consent readiness, consent eligibility/blocker/reason/provenance fields, audit/data visibility posture, future consent handoff markers, Core/Desktop/ORIN status proof, validator fixtures, and source-truth fold-down while preserving actual capture, provider setup, SDK/model execution, downloads, network, memory, and voice/Core sync as future USER decisions.
 
-Implemented Runtime Delta: `Pending - Stage 2 setup only`
+Implemented Runtime Delta: `Complete - local-only consent collection foundation state/schema, eligibility, blockers, reason codes, provenance, approval status, capture-surface posture, audit/data visibility proof, persistence/validation gates, future consent capture handoff, Core/Desktop/ORIN status proof, and provider-state validator fixtures are implemented without actual consent capture or provider execution.`
 
 User-Facing Delta: The future Workstream may add truthful disabled/status-only consent readiness copy if admitted. This branch plan does not authorize actual consent capture, provider setup, prompt acceptance, provider/model execution, provider-visible data, downloads, network calls, memory, voice/Core sync, or functional-AI claims.
 
@@ -54,7 +54,7 @@ FAM / Shared-Surface Overlap Forecast: FAM-006 is a later PR/merge reconciliatio
 
 Open Questions: USER must later decide whether actual consent collection should be enabled in a separate branch, whether visible consent UI should be expanded, and when provider setup/execution proof is strong enough for a v1.8.0-prebeta release decision.
 
-USER Planning Decisions: USER approved Branch Readiness Stage 1, selected consent collection foundation as the next FAM-007 successor, and approved Stage 2 setup in the FAM-007 worktree. Workstream implementation, actual consent capture, provider setup, SDK/model work, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, and v1.8.0 execution remain pending.
+USER Planning Decisions: USER approved Branch Readiness Stage 1, selected consent collection foundation as the next FAM-007 successor, approved Stage 2 setup in the FAM-007 worktree, approved Workstream Entry, and approved bounded Workstream implementation. Actual consent capture, provider setup, SDK/model work, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, and v1.8.0 execution remain pending.
 
 Plan Revision History: v1 created during Branch Readiness Stage 2 from `origin/main` at `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`, after `v1.7.12-prebeta` publication and release-canon closure.
 
@@ -76,7 +76,7 @@ Runtime Implementation Approval: Pending - Workstream implementation begins only
 
 ## Plan Status
 
-Branch Readiness Stage 2 is complete for `feature/fam-007-local-ai-provider-consent-collection-foundation`. The plan is current for Workstream Entry review; actual consent capture and provider setup begin only after later USER approval.
+Workstream implementation is complete for `feature/fam-007-local-ai-provider-consent-collection-foundation`. The plan is current for Hardening H1 review; actual consent capture and provider setup begin only after later USER approval.
 
 ## Branch Identity
 
@@ -132,7 +132,7 @@ Project-Wide Vision Alignment: Consent foundation supports the broader modular, 
 
 Branch-Specific Vision Alignment: This branch owns consent foundation planning and future implementation scaffolding only; it does not own provider setup completion, execution, memory, voice/Core sync, shortcut/installer work, or v1.8.0 release execution.
 
-USER Vision Questions: USER prefers detailed branches with higher quality; the remaining Workstream Entry question is how much visible consent status proof should be included without enabling capture.
+USER Vision Questions: USER prefers detailed branches with higher quality; Hardening H1 should verify that visible consent status proof stays truthful without enabling capture.
 
 Codex Product Interpretation: Consent collection must be built as an explicit, auditable prerequisite rather than inferred from setup state or provider availability.
 
@@ -140,11 +140,11 @@ Codex Implementation Recommendation: Implement consent foundation state/schema, 
 
 Codex Additional Recommendations: Keep setup consent and execution consent separate; avoid storing secrets or prompt data; keep copy local-only and future-gated.
 
-USER/ChatGPT Review Checkpoint: Workstream Entry should review this plan before implementation begins.
+USER/ChatGPT Review Checkpoint: Hardening H1 should review this implementation before LV1 begins.
 
 Full Feature Element Breakdown: consent foundation state, setup consent posture, execution consent posture, capture eligibility, blockers/reasons, provenance, audit posture, provider-visible data posture, local-only handoff, status copy, validator fixtures, release fold-down.
 
-Current Branch vs Future Package Boundaries: Current branch may establish consent foundation contracts and future implementation scaffolding; future packages own actual capture, provider setup completion, SDK/model execution, memory, voice/Core sync, shortcuts/installers, and functional-AI proof.
+Current Branch vs Future Package Boundaries: Current branch establishes consent foundation contracts, status proof, fixtures, and future implementation scaffolding; future packages own actual capture, provider setup completion, SDK/model execution, memory, voice/Core sync, shortcuts/installers, and functional-AI proof.
 
 Affected Surfaces: branch record, branch plan, backlog, roadmap, worktree slots, validation helper registry, provider state, desktop/Core renderers, ORIN surfaces, and provider-state validator.
 
@@ -152,8 +152,8 @@ Data/Control Model: Consent readiness remains local and status-only until later 
 
 Expected User-Facing Outcomes: Users eventually see truthful consent readiness/status without being told that consent is collected or AI is operational before those branches exist.
 
-Acceptance Criteria: Stage 2 accepts source-truth setup only. Later implementation must prove consent foundation state, UI/status copy integrity when visible, no provider-visible data, disabled prompt/model execution, blocked downloads/network/memory, and voice/Core gating.
+Acceptance Criteria: Workstream implementation must prove consent foundation state, UI/status copy integrity, no provider-visible data, disabled prompt/model execution, blocked downloads/network/memory, voice/Core gating, and static validator coverage.
 
 ## Next Legal Phase
 
-`Workstream Entry`
+`Hardening H1 after USER approval`

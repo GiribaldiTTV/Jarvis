@@ -118,6 +118,12 @@
       data-setup-foundation-validation="setup-foundation-validation-fail-closed"
       data-setup-foundation-persistence="setup-foundation-persistence-disabled"
       data-setup-foundation-gate="setup-foundation-gate-blocked"
+      data-consent-collection-foundation="consent_collection_unavailable"
+      data-consent-collection-blocker="consent_collection_consent_flow_required"
+      data-consent-collection-approval="consent-collection-approval-missing"
+      data-consent-collection-validation="consent-collection-validation-fail-closed"
+      data-consent-collection-persistence="consent-persistence-disabled"
+      data-consent-collection-gate="consent-collection-gate-blocked"
       data-provider-setup-handoff="provider-setup-handoff-future-gated"
       data-data-classification-posture="data-classification-local-only"
       data-audit-envelope="audit-envelope-planned-no-collection"
@@ -239,6 +245,10 @@
       <div id="ai-provider-status-setup-foundation-validation" class="ai-provider-status__setup-foundation-validation">Setup foundation validation: fail-closed</div>
       <div id="ai-provider-status-setup-foundation-persistence" class="ai-provider-status__setup-foundation-persistence">Setup foundation persistence: disabled; no provider credentials stored</div>
       <div id="ai-provider-status-setup-foundation-handoff" class="ai-provider-status__setup-foundation-handoff">Setup foundation handoff: future provider setup implementation gated</div>
+      <div id="ai-provider-status-consent-collection-foundation" class="ai-provider-status__consent-collection-foundation">Consent collection foundation: unavailable</div>
+      <div id="ai-provider-status-consent-collection-blocker" class="ai-provider-status__consent-collection-blocker">Consent collection blocker: consent flow readiness required</div>
+      <div id="ai-provider-status-consent-collection-audit" class="ai-provider-status__consent-collection-audit">Consent collection audit: required before capture; no consent stored</div>
+      <div id="ai-provider-status-consent-collection-handoff" class="ai-provider-status__consent-collection-handoff">Consent collection handoff: future capture branch gated</div>
       <div id="ai-provider-status-setup-consent" class="ai-provider-status__setup-consent">Setup consent: required before provider setup</div>
       <div id="ai-provider-status-execution-consent" class="ai-provider-status__execution-consent">Execution consent: required before prompt/model execution</div>
       <div id="ai-provider-status-consent-schema" class="ai-provider-status__consent-schema">provider-consent-readiness-state.v1; provider-consent-readiness-config.v1; Consent config: safe default local-only</div>
