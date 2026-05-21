@@ -562,7 +562,7 @@ Validator/helper posture:
 
 Status:
 - Planning Status: `Planning / USER review only`.
-- Implementation Status: `Marker-first governance scaffolding implemented on 2026-05-21; heavy historical enforcement remains pending USER decision`.
+- Implementation Status: `Marker-first governance scaffolding implemented on 2026-05-21; multi-item ledger repair implemented on 2026-05-21; heavy historical enforcement remains pending USER decision`.
 - This section records the recommended model, implementation targets, and implementation record. It does not by itself authorize Codex to mutate branch plans, create new UFD records outside an approved branch plan, rename files, or treat proposed feedback as accepted branch scope.
 - Future Codex packets should treat this section as planning evidence and implementation history; binding UFD guidance lives in the owning governance docs, templates, fixtures, and validators updated by the implementation commit.
 
@@ -587,6 +587,8 @@ Future implementation target files:
 
 Recommended model:
 - Active full-detail feedback belongs in the active Branch Runtime Engineering Plan at `Docs/branch_plans/<branch_slug>.md`.
+- The active branch plan owns one UFD ledger with `UFD Ledger Status:`, `UFD Ledger Owner:`, `Open UFD Count:`, `Blocking UFD Count:`, and `Fold-Down Status:` at section level.
+- Each meaningful feedback item lives in a repeatable `### UFD Item: UFD-<scope>-YYYYMMDD-NNN` block.
 - Every meaningful USER feedback item should have one stable ID, one full-detail active owner, one disposition state, one USER decision state, one current/future branch impact classification, and one fold-down target.
 - Branch records carry compact feedback status and a pointer to the active branch plan.
 - Backlog carries compact future-candidate pointers only after USER accepts the future-work disposition.
@@ -613,18 +615,31 @@ Split-state recommendation:
 
 | Field | Purpose | Allowed planning values |
 | --- | --- | --- |
+| `UFD Ledger Status:` | State of the whole active feedback ledger. | Open; Queued; Blocking; Closed; Folded Down; Deferred; Superseded; Pending; Complete; Not Required; Not Applicable |
+| `Fold-Down Status:` | State of PR Readiness migration for the whole ledger. | Pending; Required; Complete; Folded; Retired; Historical; Not Required; Not Applicable |
 | `Disposition Type:` | What kind of feedback item this is. | Current Branch Requirement; Current Seam Blocker; Current Seam Non-Blocking Queue; Branch Plan Revision Required; Future Branch Candidate; Family Vision Update Candidate; Nexus Vision Update Candidate; Backlog Pointer Candidate; Branch Receipt Item; Workstream / Family Dossier Item; Rejected / No Action |
 | `USER Decision State:` | Whether USER has accepted the disposition. | Proposed by Codex; Recommended by ChatGPT; Accepted by USER; Revised by USER; Rejected by USER; Deferred by USER; Deferred With Waiver; Superseded; Needs USER Decision |
 | `Workstream Severity:` | How much it affects implementation continuity. | Level 1 Non-Blocking; Level 2 Seam-Blocking; Level 3 Workstream-Breaking |
 | `Owner Class:` | Which source-truth layer owns the durable fact. | Branch Plan; Branch Record; Backlog Pointer; Roadmap Pointer; Nexus Vision; Family Vision / Dossier; Workstream Doc; Governance Receipt; No Durable Owner Needed |
-| `Status:` | Current handling state for the feedback item. | Open; Queued; Blocking; Closed; Folded Down; Deferred; Superseded |
+| `Status:` | Current handling state for one feedback item. | Open; Queued; Blocking; Closed; Folded Down; Deferred; Superseded |
 
 Owner-class guardrail:
 - `No Durable Owner Needed` may be used only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with reason recorded in the active branch plan or return digest.
 
+Minimum UFD ledger record:
+- `USER Feedback Disposition Required:`
+- `UFD Ledger Status:`
+- `UFD Ledger Owner:`
+- `Open UFD Count:`
+- `Blocking UFD Count:`
+- `Fold-Down Status:`
+
 Minimum UFD record:
+- `### UFD Item: UFD-<scope>-YYYYMMDD-NNN`
 - `Feedback ID:`
 - `Feedback Summary:`
+- `Feedback Source:`
+- `Feedback Phase:`
 - `Disposition Type:`
 - `USER Decision State:`
 - `Owner Class:`
@@ -634,10 +649,11 @@ Minimum UFD record:
 - `Fold-Down Target:`
 
 Full UFD record:
+- `### UFD Item: UFD-<scope>-YYYYMMDD-NNN`
 - `Feedback ID:`
 - `Feedback Summary:`
-- `Source:` chat, USER file, User Test Summary, ChatGPT review, GitHub review, validation result, or live proof.
-- `Date / Phase:`
+- `Feedback Source:` chat, USER file, User Test Summary, ChatGPT review, GitHub review, validation result, or live proof.
+- `Feedback Phase:`
 - `Affected Branch / Seam:`
 - `Original Feedback Location:`
 - `Disposition Type:`

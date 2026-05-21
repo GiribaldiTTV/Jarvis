@@ -232,7 +232,9 @@ USER Feedback Disposition (UFD) preserves meaningful USER feedback without creat
 
 The active Branch Runtime Engineering Plan is the full-detail owner for UFD items while the branch is active. Branch records, backlog, roadmap, workstream docs, family dossiers, Nexus Vision, and family vision owners may carry compact UFD pointers or folded outcomes only when they are the correct owner for the final disposition.
 
-Every meaningful feedback item should have one UFD ID, one canonical owner file, one USER decision state, one disposition type, one status, one Workstream severity, and one fold-down target. UFD IDs use `UFD-<scope>-YYYYMMDD-NNN`; `FBK-*` is not allowed because it collides visually with historical `FB-###` workstream records.
+The branch plan keeps one ledger-level owner through `UFD Ledger Owner:`, one `UFD Ledger Status:`, `Open UFD Count:`, `Blocking UFD Count:`, and `Fold-Down Status:`. Each meaningful feedback item lives in a repeatable `### UFD Item: UFD-<scope>-YYYYMMDD-NNN` block.
+
+Every meaningful feedback item should have one UFD ID, one canonical owner file, one USER decision state, one disposition type, one item status, one Workstream severity, and one fold-down target. UFD IDs use `UFD-<scope>-YYYYMMDD-NNN`; `FBK-*` is not allowed because it collides visually with historical `FB-###` workstream records.
 
 Meaningful feedback requires UFD disposition when it affects branch scope, accepted vision, user-facing behavior, runtime behavior, validation proof, future work, reusable product standards, approval boundaries, or a USER decision. Minor comments, acknowledgements, typo-level notes, duplicate remarks, or non-actionable conversation may close without durable UFD only when Codex records the no-action reason.
 
@@ -240,7 +242,7 @@ Pointer locations may carry UFD ID, short title, canonical owner, compact status
 
 At PR Readiness, each UFD item must be migrated, deferred with waiver, rejected/no-action with reason, closed, or explicitly carried to a future owner. Fold-down must preserve a lookup path from every UFD ID to its final owner after branch-plan fold-down and retirement.
 
-Initial validator support is marker-first. It validates UFD IDs, required owner/status/decision markers, `No Durable Owner Needed` guardrails, and fold-down lookup posture. Natural-language duplicate feedback detection remains report-only until approved fixtures, false-positive review, and USER approval make it safe to block.
+Initial validator support is marker-first. It validates UFD ledger markers, repeated UFD item blocks, UFD IDs, required owner/status/decision markers, `No Durable Owner Needed` guardrails, count consistency, and fold-down lookup posture. Natural-language duplicate feedback detection remains report-only until approved fixtures, false-positive review, and USER approval make it safe to block.
 
 ## USER Review Integration Decisions
 

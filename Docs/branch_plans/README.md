@@ -131,12 +131,23 @@ Meaningful feedback requires a UFD item when it affects branch scope, accepted v
 
 Minor comments, acknowledgements, typo-level notes, duplicate remarks, or non-actionable conversation may close with no durable UFD item only when Codex records the no-action reason in the active branch plan or return digest.
 
-Minimum UFD markers:
+Minimum UFD ledger markers:
 
 - USER Feedback Disposition Required:
-- UFD Status:
+- UFD Ledger Status:
+- UFD Ledger Owner:
+- Open UFD Count:
+- Blocking UFD Count:
+- Fold-Down Status:
+
+Each meaningful feedback item uses a repeatable `### UFD Item: UFD-<scope>-YYYYMMDD-NNN` block.
+
+Minimum UFD item markers:
+
 - Feedback ID:
 - Feedback Summary:
+- Feedback Source:
+- Feedback Phase:
 - Disposition Type:
 - USER Decision State:
 - Owner Class:
@@ -144,6 +155,7 @@ Minimum UFD markers:
 - Workstream Severity:
 - Status:
 - Fold-Down Target:
+- Pointer Locations:
 
 Allowed UFD decision states:
 
@@ -157,7 +169,21 @@ Allowed UFD decision states:
 - Superseded
 - Needs USER Decision
 
-Allowed UFD status values:
+Allowed UFD ledger status values:
+
+- Open
+- Queued
+- Blocking
+- Closed
+- Folded Down
+- Deferred
+- Superseded
+- Pending
+- Complete
+- Not Required
+- Not Applicable
+
+Allowed UFD item status values:
 
 - Open
 - Queued

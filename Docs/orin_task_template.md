@@ -84,8 +84,20 @@ PR Fold-Down Packet:
 USER Feedback Disposition Required:
 [Yes / No / not applicable]
 
-UFD Status:
+UFD Ledger Status:
 [Open / Queued / Blocking / Closed / Folded Down / Deferred / Superseded / not applicable]
+
+UFD Ledger Owner:
+[Docs/branch_plans/<branch_slug>.md / not applicable]
+
+Open UFD Count:
+[0 / count / not applicable]
+
+Blocking UFD Count:
+[0 / count / not applicable]
+
+Fold-Down Status:
+[Pending / Complete / not applicable]
 
 PR Readiness Stage:
 [PR Readiness Stage 1 - Analysis Gate / PR Readiness Stage 2 - Execution Gate / not applicable]
@@ -901,8 +913,14 @@ If the phase is `Branch Readiness` and the current stage is `Branch Readiness St
 - Engineering Plan Status:
 - PR Fold-Down Packet:
 - USER Feedback Disposition Required:
-- UFD Status:
+- UFD Ledger Status:
+- UFD Ledger Owner:
+- Open UFD Count:
+- Blocking UFD Count:
+- Fold-Down Status:
 - Feedback ID:
+- Feedback Source:
+- Feedback Phase:
 - Canonical Owner File:
 - Fold-Down Target:
 - USER Engineering Planning Review:
