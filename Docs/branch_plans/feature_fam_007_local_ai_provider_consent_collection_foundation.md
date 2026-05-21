@@ -12,11 +12,11 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
 
-Current Phase: `Workstream implementation complete - FAM-007 consent collection foundation`
+Current Phase: `Hardening`
 
 Branch Runtime Engineering Plan: Accepted - this plan is present for the FAM-007 consent collection foundation carrier.
 
-Engineering Plan Status: Accepted - Workstream Green after bounded consent collection foundation implementation; Hardening H1 remains pending USER approval.
+Engineering Plan Status: Accepted - implemented through Workstream Green, inspected through Hardening H1 Green, and ready for Live Validation LV1 after USER approval.
 
 Current Runtime Baseline: Released FAM-007 state includes setup/consent-flow readiness, setup contract readiness, and setup implementation foundation evidence through PR #192 and `v1.7.12-prebeta`, with provider-visible data none, sentToProvider false, canAcceptPrompts false, prompt/model execution disabled, downloads and network blocked, memory disabled, voice/Core sync gated, desktop readiness display suppression preserved, and provider-state validation coverage in `dev/orin_ai_provider_state_validation.py`.
 
@@ -30,7 +30,7 @@ User-Facing Delta: The future Workstream may add truthful disabled/status-only c
 
 User-Facing Runtime Delta: The future Workstream may show truthful disabled/status-only consent readiness if admitted. It must not imply that consent has been captured, provider setup is complete, prompts can be sent, models can run, provider-visible data exists, memory is active, or functional AI is operational.
 
-Source-Truth Delta: Stage 2 records `v1.7.12-prebeta` closure, PR #192 as released setup implementation foundation evidence, active FAM-007 branch authority, Product Definition Plan fields, Runtime Branch Engineering Contract fields, this Branch Runtime Engineering Plan, bounded seam admission, FAM-006/Governance/Compact-AI overlap posture, and future-gated approval boundaries.
+Source-Truth Delta: Stage 2 records `v1.7.12-prebeta` closure, PR #192 as released setup implementation foundation evidence, active FAM-007 branch authority, Product Definition Plan fields, Runtime Branch Engineering Contract fields, this Branch Runtime Engineering Plan, bounded seam admission, FAM-006/Governance/Compact-AI overlap posture, future-gated approval boundaries, and H1 Green / LV1-next posture.
 
 State / Config / Schema Delta: Planned implementation may introduce consent foundation schema, setup consent readiness, execution consent readiness, capture eligibility, blockers, reason codes, provenance markers, audit status, provider-visible-data posture, local-only handoff fields, and schema versioning, but it must not store consent grants, credentials, secrets, prompts for provider use, memory indexes, or model artifacts.
 
@@ -52,15 +52,15 @@ Approval-Boundary Audit: Stage 2 may record source truth and admit a future Work
 
 FAM / Shared-Surface Overlap Forecast: FAM-006 is a later PR/merge reconciliation risk only; Governance is standing intake context and must not be mutated here; Compact-AI has protected unique commits and remains preserved; shared source-truth and ORIN/Core/Desktop surfaces require careful PR readiness reconciliation if other lanes advance before this branch merges.
 
-Open Questions: USER must later decide whether actual consent collection should be enabled in a separate branch, whether visible consent UI should be expanded, and when provider setup/execution proof is strong enough for a v1.8.0-prebeta release decision.
+Open Questions: USER must later decide whether to approve Live Validation LV1, whether actual consent collection should be enabled in a separate branch, whether visible consent UI should be expanded, and when provider setup/execution proof is strong enough for a v1.8.0-prebeta release decision.
 
-USER Planning Decisions: USER approved Branch Readiness Stage 1, selected consent collection foundation as the next FAM-007 successor, approved Stage 2 setup in the FAM-007 worktree, approved Workstream Entry, and approved bounded Workstream implementation. Actual consent capture, provider setup, SDK/model work, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, and v1.8.0 execution remain pending.
+USER Planning Decisions: USER approved Branch Readiness Stage 1, selected consent collection foundation as the next FAM-007 successor, approved Stage 2 setup in the FAM-007 worktree, approved Workstream Entry, approved bounded Workstream implementation, and approved Hardening H1. Live Validation LV1, actual consent capture, provider setup, SDK/model work, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, and v1.8.0 execution remain pending.
 
-Plan Revision History: v1 created during Branch Readiness Stage 2 from `origin/main` at `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`, after `v1.7.12-prebeta` publication and release-canon closure.
+Plan Revision History: v2 - Hardening H1 folded down H1 Green posture, validator proof, desktop readiness display suppression continuity, approval-boundary integrity, and LV1-next handoff after Workstream completion; v1 created during Branch Readiness Stage 2 from `origin/main` at `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`, after `v1.7.12-prebeta` publication and release-canon closure.
 
 Plan-To-Implementation Traceability Table: Planned consent state maps to provider-state implementation and fixtures; planned provenance/audit posture maps to local-only validation proof; planned UI/status proof maps to Core/Desktop/ORIN status surfaces; planned setup/execution consent boundaries map to future-gated handoff; planned continuation criteria map to H1, LV1, PR Readiness, and Release Readiness fold-down.
 
-Hardening Comparison Checklist: Required after Workstream implementation; H1 must compare actual consent state, schema, eligibility, provenance/audit, UI/status proof, setup/execution boundaries, no-execution posture, source truth, branch plan, Runtime Branch Engineering Contract, and overlap posture against this plan.
+Hardening Comparison Checklist: Complete - H1 compared actual consent state, schema, eligibility, provenance/audit, UI/status proof, setup/execution boundaries, no-execution posture, source truth, branch plan, Runtime Branch Engineering Contract, and overlap posture against this plan and found no remaining H1 blocker.
 
 Live Validation Proof Or Waiver Checklist: LV1 must classify the branch from repo truth, prove static/runtime validator state when consent remains disabled/status-only, capture user-facing proof or waiver for any visible consent surface, and keep provider-visible data none, prompt execution disabled, downloads/network/memory blocked, and voice/Core sync gated.
 
@@ -68,15 +68,15 @@ PR Readiness Fold-Down / Retention Checklist: PR Readiness must fold consent fou
 
 Release Readiness Public-Scope Translation Checklist: Release Readiness must describe this branch as consent collection foundation only, exclude actual consent capture, provider setup, provider SDK/model execution, functional AI, memory, voice/Core, downloads/network, and v1.8.0 execution unless later USER-approved proof changes that scope.
 
-USER Planning Review: Accepted for Branch Readiness Stage 2 setup.
+USER Planning Review: Complete through Hardening H1; USER may approve, change, defer, or reject Live Validation LV1 before the next phase.
 
 PR Fold-Down Packet: Pending - PR Readiness must decide selected-next/defer truth, pre-PR live-state, post-merge projection, release-window posture, branch-authority historical projection, and Stage 2 approval boundary.
 
-Runtime Implementation Approval: Pending - Workstream implementation begins only after later USER approval.
+Runtime Implementation Approval: Granted for the bounded consent collection foundation Workstream only; actual consent capture, provider setup, SDK/model execution, and provider/runtime execution remain pending USER decisions.
 
 ## Plan Status
 
-Workstream implementation is complete for `feature/fam-007-local-ai-provider-consent-collection-foundation`. The plan is current for Hardening H1 review; actual consent capture and provider setup begin only after later USER approval.
+Workstream implementation and Hardening H1 are complete for `feature/fam-007-local-ai-provider-consent-collection-foundation`. The plan is current for Live Validation LV1 review; actual consent capture and provider setup begin only after later USER approval.
 
 ## Branch Identity
 
@@ -132,7 +132,7 @@ Project-Wide Vision Alignment: Consent foundation supports the broader modular, 
 
 Branch-Specific Vision Alignment: This branch owns consent foundation planning and future implementation scaffolding only; it does not own provider setup completion, execution, memory, voice/Core sync, shortcut/installer work, or v1.8.0 release execution.
 
-USER Vision Questions: USER prefers detailed branches with higher quality; Hardening H1 should verify that visible consent status proof stays truthful without enabling capture.
+USER Vision Questions: USER prefers detailed branches with higher quality; H1 verified that visible consent status proof stays truthful without enabling capture, and LV1 should validate the disabled/status-only proof path.
 
 Codex Product Interpretation: Consent collection must be built as an explicit, auditable prerequisite rather than inferred from setup state or provider availability.
 
@@ -140,7 +140,7 @@ Codex Implementation Recommendation: Implement consent foundation state/schema, 
 
 Codex Additional Recommendations: Keep setup consent and execution consent separate; avoid storing secrets or prompt data; keep copy local-only and future-gated.
 
-USER/ChatGPT Review Checkpoint: Hardening H1 should review this implementation before LV1 begins.
+USER/ChatGPT Review Checkpoint: Live Validation LV1 should validate this H1-green implementation before PR Readiness begins.
 
 Full Feature Element Breakdown: consent foundation state, setup consent posture, execution consent posture, capture eligibility, blockers/reasons, provenance, audit posture, provider-visible data posture, local-only handoff, status copy, validator fixtures, release fold-down.
 
@@ -152,8 +152,14 @@ Data/Control Model: Consent readiness remains local and status-only until later 
 
 Expected User-Facing Outcomes: Users eventually see truthful consent readiness/status without being told that consent is collected or AI is operational before those branches exist.
 
-Acceptance Criteria: Workstream implementation must prove consent foundation state, UI/status copy integrity, no provider-visible data, disabled prompt/model execution, blocked downloads/network/memory, voice/Core gating, and static validator coverage.
+Acceptance Criteria: Workstream implementation proves consent foundation state, UI/status copy integrity, no provider-visible data, disabled prompt/model execution, blocked downloads/network/memory, voice/Core gating, static validator coverage, and H1 Green plan-vs-implementation posture.
+
+## Hardening H1 Result
+
+Hardening H1 Result: `Green - implementation matches the admitted Branch Runtime Engineering Plan, Product Definition Plan, Runtime Branch Engineering Contract, and Workstream seam map. Consent collection state/schema, capture preconditions and eligibility, provenance/audit/data visibility contract, consent UI/status proof, future handoff planning, setup/execution consent boundary alignment, Core/Desktop/ORIN status proof, desktop readiness display suppression continuity, validator fixtures, UI copy integrity, functional-AI/v1.8.0 pending criteria, approval boundaries, and overlap posture were inspected and validated.`
+
+H1 Repairs Applied: `Source-truth fold-down only - this plan, the branch record, backlog/roadmap current-state pointers, and the worktree slot receipt were updated from Workstream Green / H1-next to H1 Green / LV1-next. No actual consent capture, provider setup, SDK/model execution, runtime behavior beyond the admitted foundation, production UI behavior, PR, merge, release, cleanup, FAM-006, Governance, or Compact-AI mutation was performed.`
 
 ## Next Legal Phase
 
-`Hardening H1 after USER approval`
+`Live Validation LV1 after USER approval`
