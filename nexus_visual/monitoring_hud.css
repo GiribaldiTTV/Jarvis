@@ -909,7 +909,7 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__overlay-profile-heading {
   display: grid;
-  grid-template-columns: minmax(0, 0.48fr) minmax(0, 1fr);
+  grid-template-columns: max-content minmax(0, 0.95fr) minmax(132px, 1fr);
   gap: 8px;
   align-items: center;
 }
@@ -934,7 +934,7 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__overlay-profile-dropdown {
-  justify-self: stretch;
+  justify-self: end;
   width: 100%;
   min-width: 0;
 }
