@@ -19,8 +19,8 @@ The branch exists to admit the Overlay Profile runtime foundation as the next FA
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
-- Stage Detail: `Follow-up returned USER UTS Hardening H1 Green for Overlay Profile manager, Manage Monitors assignment/status, Dashboard button parity, and source-list sensor settings IA repair; refreshed LV1 / UTS next`
+- Phase: `Live Validation`
+- Stage Detail: `Refreshed LV1 technical proof and UTS handoff Green for Overlay Profile manager, Manage Monitors assignment/status, Dashboard button parity, source-list sensor settings IA, Dashboard resize/minimum-edge preservation, and focused proof quality; USER_TEST_REQUIRED pending returned USER review`
 
 ## Phase Status
 
@@ -28,7 +28,7 @@ Branch Authority Marker: `Active Branch`
 Active Branch: `feature/fam-006-overlay-profile-runtime-foundation`
 Stage 1 Basis: `Complete - FAM-006 worktree restored, current-main aligned at b67e59df0481091bfbeb739c4b5e1954552bb421, source truth verified No Active Branch / USER decision gate, and FAM-006 Overlay Profile Runtime Foundation recommended as the USER-gated successor candidate`
 Stage 2 USER Approval: `Granted - USER approved branch/worktree rebinding, branch authority record, branch plan, compact source-truth pointers, package/slice admission, validation planning, and v1.7.10 closure-drift carry-forward for this setup only`
-Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible profile controls, bounded SLC-039 settings-window monitor membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, SLC-040 H1, bounded SLC-041 validator/live-proof readiness implementation, SLC-041 Hardening H1, LV1 technical proof/UTS handoff, returned USER UTS digest recording, Branch Readiness Stage 2 returned-UTS repair setup, bounded returned-UTS Workstream implementation, follow-up returned-UTS digest/setup recording, bounded follow-up returned-UTS Workstream implementation, and follow-up H1 only; refreshed LV1/UTS, PR creation, merge, release, issue mutation, and branch cleanup remain pending USER decisions`
+Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible profile controls, bounded SLC-039 settings-window monitor membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, SLC-040 H1, bounded SLC-041 validator/live-proof readiness implementation, SLC-041 Hardening H1, LV1 technical proof/UTS handoff, returned USER UTS digest recording, Branch Readiness Stage 2 returned-UTS repair setup, bounded returned-UTS Workstream implementation, follow-up returned-UTS digest/setup recording, bounded follow-up returned-UTS Workstream implementation, follow-up H1, and refreshed LV1 technical proof/UTS handoff only; returned USER UTS digest, PR Readiness, PR creation, merge, release, issue mutation, and branch cleanup remain pending USER decisions`
 Current Branch: `feature/fam-006-overlay-profile-runtime-foundation`
 Current Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `b67e59df0481091bfbeb739c4b5e1954552bb421`
@@ -41,9 +41,9 @@ v1.7.10 Closure-Drift Setup: `Carried into this Branch Readiness Stage 2 setup a
 v1.7.11 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair after v1.7.11-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.11-prebeta while preserving branch-local Overlay Profile authority`
 v1.7.12 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair after v1.7.12-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.12-prebeta while preserving branch-local Overlay Profile authority and PR #192 as current-main FAM-007 context`
 Branch Runtime Engineering Plan: `Accepted - detailed setup/runtime planning is present at Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md`
-Engineering Plan Status: `Accepted - follow-up returned-UTS Workstream implementation and H1 are Green: NDAI-styled Overlay Profile filter/profile dropdowns, manager default Create/Edit/select flow, profile delete danger action, Dashboard Manage Monitors button parity, clickable Assigned Overlay status/assignment surface, removal of the user-facing Enabled for Overlay checkbox where assignment supersedes it, and source-list sensor settings IA with Polling Rate override disclaimer are implemented, validator-backed, and active-client proofed. Prior digest: Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_temporary_reference_20260521.md. Prior setup: Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_repair_setup_20260521.md. Follow-up digest: Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_uts_reference_20260521.md. Follow-up setup: Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md. H1 evidence includes active-client self-QA manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_114738_371\monitoring_hud_live_client_interaction_manifest.json.`
+Engineering Plan Status: `Accepted - follow-up returned-UTS Workstream implementation, H1, and refreshed LV1 technical proof/UTS handoff are Green: NDAI-styled Overlay Profile filter/profile dropdowns, manager default Create/Edit/select flow, profile delete danger action, Dashboard Manage Monitors button parity, clickable Assigned Overlay status/assignment surface, removal of the user-facing Enabled for Overlay checkbox where assignment supersedes it, and source-list sensor settings IA with Polling Rate override disclaimer are implemented, validator-backed, and active-client proofed. Prior digest: Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_temporary_reference_20260521.md. Prior setup: Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_repair_setup_20260521.md. Follow-up digest: Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_uts_reference_20260521.md. Follow-up setup: Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md. H1 evidence includes active-client self-QA manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_114738_371\monitoring_hud_live_client_interaction_manifest.json. Refreshed LV1 evidence includes human-client manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_120112_098\human_client_manifest.json and active-client focused manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_120557_633\monitoring_hud_live_client_interaction_manifest.json.`
 SLC-041 Workstream Implementation: `SLC-041 validation/live-proof Workstream implementation Green - focused WebView proof is acceptance evidence, full desktop screenshots are context only, formal UTS export remains Live Validation Stage 1 only, and proof-chain readiness now spans SLC-037 state, SLC-038 selector/settings controls, SLC-039 membership mapping, compact returned-UTS Manage Monitors context, and returned-UTS selector-first/search-filter repair proof.`
-PR Fold-Down Packet: `Blocked by follow-up returned USER UTS REPAIR; refreshed LV1/UTS PASS or waiver with reason is required before PR Readiness, PR creation, merge, and release-scope translation`
+PR Fold-Down Packet: `Blocked by USER_TEST_REQUIRED; returned refreshed LV1/UTS PASS or waiver with reason is required before PR Readiness, PR creation, merge, and release-scope translation`
 
 ## Branch Class
 
@@ -109,7 +109,7 @@ Backlog-Split Reason: `None`
 
 Branch Completion Goal: `Complete the Overlay Profile runtime foundation as one coherent FAM-006 successor branch: overlay profile state, selection/editing entry points, monitor-to-overlay-profile mapping, Dashboard / Manage Monitors integration, focused validators, live proof, H1, LV1, PR Readiness, PR creation, and merge when separately approved.`
 
-Known Future-Dependent Blockers: `Follow-up H1, refreshed LV1/UTS, PR creation, merge, release execution, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, and AI Product work require later USER decisions.`
+Known Future-Dependent Blockers: `Returned refreshed UTS review, PR Readiness, PR creation, merge, release execution, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, and AI Product work require later USER decisions.`
 
 Branch Closure Rule: `This branch may close only after the admitted Overlay Profile foundation seams are implemented, hardened, live-validated or waived with reason, PR-ready, PR-created, and merged under separate USER approvals; otherwise it remains active or stops at the relevant blocker.`
 
@@ -117,9 +117,9 @@ Branch Closure Rule: `This branch may close only after the admitted Overlay Prof
 
 Backlog Completion State: `In Progress`
 
-Remaining Implementable Work: `Follow-up H1, refreshed LV1/UTS, and later USER-approved PR seams remain; SLC-037 implementation/H1, SLC-038 Workstream implementation/H1, compact layout/settings-window repair, selector-width repair, v1.7.11 closure-drift repair, SLC-039 Workstream implementation/H1, SLC-040 Workstream implementation/H1, bounded SLC-041 Workstream implementation, SLC-041 Hardening H1, real shortcut human-client precheck, active-client LV1 proof, formal UTS refresh, returned USER UTS digest recording, returned-UTS repair setup, returned-UTS Workstream implementation, follow-up returned-UTS repair setup, and follow-up returned-UTS Workstream implementation are complete.`
+Remaining Implementable Work: `Returned refreshed USER UTS review/digest and later USER-approved PR seams remain; SLC-037 implementation/H1, SLC-038 Workstream implementation/H1, compact layout/settings-window repair, selector-width repair, v1.7.11 closure-drift repair, SLC-039 Workstream implementation/H1, SLC-040 Workstream implementation/H1, bounded SLC-041 Workstream implementation, SLC-041 Hardening H1, real shortcut human-client precheck, active-client LV1 proof, formal UTS refresh, returned USER UTS digest recording, returned-UTS repair setup, returned-UTS Workstream implementation, follow-up returned-UTS repair setup, follow-up returned-UTS Workstream implementation, follow-up H1, and refreshed LV1 technical proof/UTS handoff are complete.`
 
-Future-Dependent Blockers: `Follow-up H1, refreshed LV1/UTS, PR Readiness, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
+Future-Dependent Blockers: `Returned refreshed UTS review/digest, PR Readiness, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
 
 Completion Status: `Red`
 
@@ -135,15 +135,15 @@ Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Inactive - follow-up returned-UTS Workstream implementation is complete; Hardening H1 approval is required before refreshed LV1, PR Readiness, or later runtime seams.`
+Continuation Execution Latch: `Inactive - refreshed LV1 technical proof and UTS handoff are complete; returned USER UTS review is required before PR Readiness or later runtime seams.`
 
 Stop Basis: `Workstream Green`
 
-Next Active Seam: `Hardening H1 - follow-up returned-UTS Overlay Profile manager, Manage Monitors assignment/status, and source-list sensor settings IA repair`
+Next Active Seam: `Returned USER UTS review digest - refreshed LV1 handoff`
 
-Stop Condition: `Follow-up returned-UTS Workstream implementation is complete and validation-green; stop for Hardening H1 before refreshed LV1/UTS or PR Readiness.`
+Stop Condition: `Refreshed LV1 technical proof and UTS handoff are complete and validation-green; stop for returned USER UTS review before PR Readiness.`
 
-Continuation Action: `Stop at phase boundary until USER admits refreshed LV1/UTS; do not run PR Readiness or later runtime seams without separate USER approval.`
+Continuation Action: `Stop at phase boundary until USER returns refreshed UTS PASS/FAIL/WAIVED results; do not run PR Readiness or later runtime seams without separate USER approval.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -155,7 +155,7 @@ Bounded Seam Default: `One active seam at a time; bounded is not one-seam Workst
 
 ## Bounded State
 
-Bounded State: `Active - follow-up returned-UTS Workstream implementation and H1 Green / feature/fam-006-overlay-profile-runtime-foundation / C:\Nexus Worktrees\FAM-006 / technical proof and formal UTS handoff complete / prior and follow-up USER UTS digests recorded / no refreshed LV1, PR Readiness, or later runtime mutation until USER approval`
+Bounded State: `Active - refreshed LV1 technical proof and UTS handoff Green / feature/fam-006-overlay-profile-runtime-foundation / C:\Nexus Worktrees\FAM-006 / focused proof and formal UTS handoff complete / USER_TEST_REQUIRED pending returned refreshed UTS review / no PR Readiness or later runtime mutation until USER approval`
 
 Expected Worktree Root: `C:\Nexus Worktrees\FAM-006`
 
@@ -251,11 +251,11 @@ Sensor Settings IA Follow-Up Scope: `Admit bounded repair planning for moving ge
 
 Follow-Up Validator Planning: `Validators/live helpers must cover NDAI filter/profile dropdown styling, max-five menu/list targets, disabled Edit until profile selection, Edit opening selected profile settings, Delete danger confirmation, Manage Monitors button parity screenshot proof, Assigned Overlay clickable status/assignment surface, Enabled for Overlay checkbox removal, source-list sensor settings entry points and Polling Rate override disclaimer where implemented, plus existing Dashboard, Overlay Profile state, Monitor Groups, Source Filter, Polling Rate, Source Picker, dirty guard, and Sensor Command Center preservation.`
 
-Follow-Up Next Legal Phase: `Refreshed LV1 / UTS recheck for the follow-up returned-UTS repair.`
+Follow-Up Next Legal Phase: `Returned USER UTS review digest for the refreshed LV1 handoff.`
 
 ## Workstream Implementation - Follow-Up Returned UTS Overlay Profile / Manage Monitors Repair
 
-Implementation Status: `Workstream and H1 Green - bounded follow-up returned-UTS repair is implemented and pressure-tested in FAM-006 HUD runtime, focused proof helpers, HUD validators, and source truth. Refreshed LV1/UTS is the next legal phase.`
+Implementation Status: `Workstream, H1, and refreshed LV1 technical proof/UTS handoff Green - bounded follow-up returned-UTS repair is implemented and pressure-tested in FAM-006 HUD runtime, focused proof helpers, HUD validators, source truth, and real-client LV1 proof. Returned USER UTS review is the next legal phase.`
 
 Overlay Profile Manager Result: `Overlay Profile Settings now defaults to a selector-first/create-first manager state with Create Overlay Profile visible, Edit Overlay Profile disabled until the user explicitly selects a profile, a right-side NDAI-styled profile selector dropdown with max-five visible options and NDAI scrollbar styling, selected-profile details opened through Edit, and Delete Overlay Profile guarded by a danger confirmation.`
 
@@ -270,6 +270,14 @@ Source Settings IA Result: `Sensor-specific settings moved toward Source list en
 Concept Boundary Result: `Overlay Profile assignment remains distinct from Monitor Group organization and Recording Profile runtime. Warning Notifications remains a settings concept, Provider Readiness remains readiness/status/future capability, and Sensor Library / Source Picker discovery remains separate from Overlay Profile management.`
 
 Validation Trace: `HUD surface validation and HUD internal sandbox validation now assert the follow-up manager workflow, NDAI dropdown/filter styling, max-five visible menu targets, profile delete confirmation, Dashboard Manage Monitors parity, clickable Assigned Overlay assignment window, Enabled for Overlay removal, source-list sensor settings entry points, Polling Rate override disclaimer, and existing FAM-006 preservation.`
+
+## Refreshed Live Validation Stage 1 / UTS - Follow-Up Returned UTS Repair
+
+Refreshed LV1 Result: `USER_TEST_REQUIRED - technical proof is Green and formal USER review is pending. Real USER-facing red shortcut / tray human-client precheck passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_120112_098\human_client_manifest.json. Active-client live validation and focused WebView interaction self-QA passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_120557_633\monitoring_hud_live_client_interaction_manifest.json. Formal UTS handoff was refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt.`
+
+Focused Proof Result: `PASS - focused proof artifacts are under C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_120557_633\live_client_interaction\. Reviewable artifacts include Overlay Profile manager context/settings states, Dashboard minimum-size bottom-edge proof, Manage Monitors close hover/hitbox proof, Source Filter and Polling Rate dropdown proof, unsaved guard Save/Discard proof, delete confirmation proof, empty-state recovery proof, and 100-monitor / 1200-source stress proof. Full-desktop screenshots were copied under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_120557_633\ for context only. Screenshot/frame-sequence proof was sufficient; video capture was not required.`
+
+UTS Handoff Status: `USER_TEST_REQUIRED - USER must return PASS, FAIL, or WAIVED_WITH_REASON for the refreshed UTS before PR Readiness can resume.`
 
 ## Later-Phase Expectations
 
@@ -287,7 +295,7 @@ Non-Includes: `Recording Profile runtime, tray recording controls, local recordi
 
 ## Active Seam
 
-Active seam: `Follow-up returned-UTS Workstream implementation complete - next Hardening H1 must pressure-test Overlay Profile manager default Create/Edit/select flow, NDAI dropdowns with max-five visible targets, profile delete, Manage Monitors button parity, clickable Assigned Overlay status/assignment surface, Enabled for Overlay checkbox removal, and source-list sensor settings IA within FAM-006 boundaries.`
+Active seam: `Follow-up returned-UTS refreshed LV1 technical proof and UTS handoff complete - USER_TEST_REQUIRED pending returned USER review before PR Readiness can resume.`
 
 ## Workstream Implementation - SLC-037 Overlay Profile Data/State Foundation
 
@@ -481,7 +489,7 @@ Codex Additional Recommendations: `Recommend keeping the first runtime pass narr
 
 USER Critique Loop: `USER can critique whether the profile editor belongs in Dashboard, Manage Monitors, or a child window, whether selection copy is understandable, whether the visual hierarchy is clear, and whether focused proof captures the real interactive state rather than full-desktop context.`
 
-USER Decision Ledger: `USER approved FAM-006 worktree restoration, Stage 1 successor analysis, Branch Readiness Stage 2 setup, bounded runtime seams through SLC-041, H1 gates, LV1 technical proof/UTS handoff, returned UTS digest recording, Branch Readiness Stage 2 returned-UTS repair setup, bounded returned-UTS Workstream implementation, follow-up returned-UTS repair setup, bounded follow-up returned-UTS Workstream implementation, and follow-up H1. Pending decisions include refreshed LV1/UTS, PR Readiness, PR creation, merge, release, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording, export/share, provider/model work, broad theme/skin work, FAM-007, Governance mutation, Compact-AI, Repo-Wide marker expansion, and AI Product work.`
+USER Decision Ledger: `USER approved FAM-006 worktree restoration, Stage 1 successor analysis, Branch Readiness Stage 2 setup, bounded runtime seams through SLC-041, H1 gates, LV1 technical proof/UTS handoff, returned UTS digest recording, Branch Readiness Stage 2 returned-UTS repair setup, bounded returned-UTS Workstream implementation, follow-up returned-UTS repair setup, bounded follow-up returned-UTS Workstream implementation, follow-up H1, and refreshed LV1 technical proof/UTS handoff. Pending decisions include returned USER UTS review/digest, PR Readiness, PR creation, merge, release, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording, export/share, provider/model work, broad theme/skin work, FAM-007, Governance mutation, Compact-AI, Repo-Wide marker expansion, and AI Product work.`
 
 Deferred Ideas / Future Package Ledger: `Recording Profile runtime, local recording output, tray recording controls, export/share/import, overlay display acceptance beyond this foundation, detailed overlay visual themes, bulk profile packs, provider expansion, external telemetry parity, FAM-007, AI Product, and app-wide backup/restore remain deferred.`
 
@@ -529,17 +537,17 @@ Engineering Contract Status: `Accepted for SLC-037 implementation/H1, bounded SL
 
 USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup, SLC-037 Workstream/H1, SLC-038 Workstream Entry/implementation/H1, SLC-039 Workstream Entry, bounded SLC-039 implementation/H1, SLC-040 Workstream Entry, bounded SLC-040 implementation/H1, SLC-041 Workstream Entry, bounded SLC-041 implementation, SLC-041 H1, and LV1 technical proof/UTS handoff`
 
-Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible selection/editing controls, bounded SLC-039 monitor-to-overlay-profile membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, SLC-040 H1, SLC-041 Workstream Entry, bounded SLC-041 validator/live-proof readiness implementation, SLC-041 H1, LV1 technical proof/UTS handoff, returned USER UTS digest recording, Branch Readiness Stage 2 returned-UTS repair setup, bounded returned-UTS Workstream implementation, follow-up returned-UTS repair setup, bounded follow-up returned-UTS Workstream implementation, and follow-up H1 only; refreshed LV1/UTS, PR Readiness, and later seams remain pending USER decisions`
+Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible selection/editing controls, bounded SLC-039 monitor-to-overlay-profile membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, SLC-040 H1, SLC-041 Workstream Entry, bounded SLC-041 validator/live-proof readiness implementation, SLC-041 H1, LV1 technical proof/UTS handoff, returned USER UTS digest recording, Branch Readiness Stage 2 returned-UTS repair setup, bounded returned-UTS Workstream implementation, follow-up returned-UTS repair setup, bounded follow-up returned-UTS Workstream implementation, follow-up H1, and refreshed LV1 technical proof/UTS handoff only; returned USER UTS digest, PR Readiness, and later seams remain pending USER decisions`
 
 Branch Purpose: `Prepare the FAM-006 Overlay Profile Runtime Foundation successor branch with source truth, branch plan, package/slice admission, runtime boundaries, validation planning, and future focused proof requirements before any runtime implementation starts.`
 
 Branch Runtime Engineering Plan: `Accepted - Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md carries the detailed Branch Runtime Engineering Plan for this branch`
 
-Current Runtime Baseline: `FAM-006 Dashboard and Monitor Groups / Sensor Command Center are released historical evidence. Monitor Groups organize configured monitors; Overlay Profile now has SLC-037 data/state foundation, SLC-038 Dashboard visible selection/editing entry controls, SLC-039 settings-window monitor membership mapping, SLC-040 Manage Monitors read-only context, returned-UTS Workstream implementation at 98800f05, and follow-up returned-UTS Workstream/H1 Green. Refreshed LV1/UTS is required before PR Readiness; Recording Profile runtime and Overlay/display acceptance remain deferred/non-gating.`
+Current Runtime Baseline: `FAM-006 Dashboard and Monitor Groups / Sensor Command Center are released historical evidence. Monitor Groups organize configured monitors; Overlay Profile now has SLC-037 data/state foundation, SLC-038 Dashboard visible selection/editing entry controls, SLC-039 settings-window monitor membership mapping, SLC-040 Manage Monitors read-only context, returned-UTS Workstream implementation at 98800f05, follow-up returned-UTS Workstream/H1 Green, and refreshed LV1 technical proof/UTS handoff Green. Returned USER UTS review is required before PR Readiness; Recording Profile runtime and Overlay/display acceptance remain deferred/non-gating.`
 
 Planned Runtime Delta: `SLC-037 added the Overlay Profile state foundation. SLC-038 added a compact Dashboard selector plus Overlay Profile Settings child-window create/rename/save/discard entry controls. SLC-039 added settings-window monitor-to-overlay-profile membership mapping while keeping Monitor Group organization separate. SLC-040 added bounded Dashboard / Manage Monitors read-only integration. SLC-041 adds validator/live-proof readiness only without adding recording, export/share, provider expansion, broad theming behavior, or new product UI.`
 
-User-Facing Runtime Delta: `Users can now select the active Overlay Profile from the compact Dashboard HUD control surface, open Overlay Profile Settings to create a profile, choose an existing profile before editing, rename and edit selected profile details, delete profiles through a danger confirmation, use NDAI-styled profile/filter dropdowns, assign/unassign Overlay Profiles from Manage Monitors through a compact Assigned Overlay status window, and open source-list sensor Settings with Polling Rate override guidance. Follow-up H1 and refreshed LV1/UTS remain required before PR Readiness.`
+User-Facing Runtime Delta: `Users can now select the active Overlay Profile from the compact Dashboard HUD control surface, open Overlay Profile Settings to create a profile, choose an existing profile before editing, rename and edit selected profile details, delete profiles through a danger confirmation, use NDAI-styled profile/filter dropdowns, assign/unassign Overlay Profiles from Manage Monitors through a compact Assigned Overlay status window, and open source-list sensor Settings with Polling Rate override guidance. Follow-up H1 and refreshed LV1 technical proof/UTS handoff are Green; returned USER UTS review remains required before PR Readiness.`
 
 State / Config / Schema Delta: `Plan overlayProfileId, overlay profile name, selected monitor references, layout/display mode metadata where admitted, active overlay profile selection, dirty/clean editor state, and persistence boundaries. Recording profile state, recording output state, export/share state, provider state, and theme/skin state remain excluded.`
 
@@ -575,7 +583,7 @@ Future Runtime Validation: `HUD surface validation`; `HUD internal sandbox valid
 
 ## Blockers
 
-Active Blockers: `Follow-up Returned USER UTS Repair Validation Required - LV1 technical proof and UTS handoff passed, returned USER review remains REPAIR, prior repair setup and Workstream implementation are complete, and follow-up Workstream implementation plus H1 are Green; PR Readiness is blocked pending refreshed LV1/UTS PASS or waiver with reason`
+Active Blockers: `USER_TEST_REQUIRED - refreshed LV1 technical proof and UTS handoff are Green after follow-up returned-UTS Workstream/H1; returned USER review is pending, and PR Readiness is blocked until USER returns PASS or provides an explicit waiver with reason`
 
 ## Entry Basis
 
@@ -603,30 +611,30 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 
 ## Next Legal Phase
 
-Next Legal Phase: `Workstream`
+Next Legal Phase: `Live Validation`
 
-Next Legal Phase Detail: `Refreshed LV1 / UTS recheck for the follow-up returned-UTS Overlay Profile manager, Manage Monitors assignment/status, Dashboard button parity, and source-list sensor settings IA repair`
+Next Legal Phase Detail: `Returned USER UTS review digest for the refreshed LV1 handoff; PR Readiness may resume only after USER returns PASS or waiver with reason`
 
 ## Next Legal Phase Digest
 
-Current Phase: `Workstream`
+Current Phase: `Live Validation`
 
-Stage Detail: `Follow-up returned USER UTS H1 Green`
+Stage Detail: `Refreshed LV1 technical proof and UTS handoff Green - USER_TEST_REQUIRED pending returned USER review`
 
-Next Legal Phase: `Live Validation Stage 1 / UTS`
+Next Legal Phase: `Live Validation`
 
-Next Legal Phase Detail: `Run refreshed LV1 / UTS recheck for the follow-up returned-UTS Overlay Profile manager, Manage Monitors assignment/status, Dashboard button parity, and source-list sensor settings IA repair`
+Next Legal Phase Detail: `Digest returned USER UTS results for the follow-up returned-UTS Overlay Profile manager, Manage Monitors assignment/status, Dashboard button parity, source-list sensor settings IA, Dashboard resize/minimum-edge, focused proof quality, and control reliability checks`
 
-Why This Phase Is Next: `Returned-UTS Workstream implementation and follow-up H1 are Green; refreshed LV1/UTS must now confirm the user-facing path before PR Readiness can resume.`
+Why This Phase Is Next: `Refreshed LV1 technical proof passed through the governed real shortcut/client path and focused active-client helper; formal UTS was refreshed and now requires USER return before PR Readiness can resume.`
 
-Approval Required: `Refreshed LV1/UTS approval; later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams`
+Approval Required: `USER must return the refreshed UTS with PASS/FAIL/WAIVED results or provide a waiver reason; later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams`
 
-Exact USER Approval Text: `Approve refreshed Live Validation Stage 1 / UTS recheck for the follow-up returned-UTS Overlay Profile / Manage Monitors repair on feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006. Codex may validate through the real USER-facing shortcut/client path; capture focused proof for NDAI-styled Overlay Profile filter/profile dropdowns with max-five visible menu targets and NDAI scrollbars, default manager state with Create plus disabled Edit until profile selection, Edit opening selected profile settings, profile Delete with danger confirmation, Dashboard Manage Monitors button visual parity with Overlay Profile Settings, clickable Assigned Overlay status/assignment surface, removal of the user-facing Enabled for Overlay checkbox where assignment supersedes it, source-list sensor settings entry points with Polling Rate default/override disclaimer where current runtime supports it, Dashboard resize/minimum-edge preservation, focused proof quality, UTS handoff, validation, and bounded source-truth/result updates if validation is green. Do not implement Recording Profile runtime, tray recording, export/share, provider/model work, broad theme/skin work, FAM-007 work, Governance mutation, Compact-AI work, PR creation, merge, release, issue mutation, branch cleanup, or sibling-worktree changes without separate approval.`
+Exact USER Approval Text: `Return the completed refreshed FAM-006 User Test Summary for feature/fam-006-overlay-profile-runtime-foundation, marking each step PASS, FAIL, or WAIVED with notes. Codex may digest the returned UTS, classify the result, update source truth, run required validation, and proceed only to the next legal phase allowed by the result. PR Readiness, PR creation, merge, release, issue mutation, artifacts, branch cleanup, and sibling-worktree changes remain separate USER decisions.`
 
-Allowed Scope: `Refreshed LV1/UTS recheck only; PR Readiness remains next only after LV1/UTS PASS or waiver with reason`
+Allowed Scope: `Returned USER UTS result digest only; PR Readiness remains blocked until refreshed LV1/UTS receives USER PASS or waiver with reason`
 
 Explicit Exclusions: `PR Readiness, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 mutation, Governance mutation, Compact-AI mutation, stale branch cleanup, PR creation, merge, release, issues, artifacts, raw evidence handling`
 
-Validation Required: `LV1 identity checks, real USER-facing shortcut/client validation, focused WebView proof, governed UTS generation only after human-client precheck PASS or USER waiver, branch governance/source-truth checks, HUD surface validation, HUD internal sandbox validation, git diff checks, compileall, and bundled Node syntax check where available`
+Validation Required: `Returned UTS digest checks, branch governance/source-truth checks, HUD surface validation, HUD internal sandbox validation, git diff checks, compileall, and bundled Node syntax check where available`
 
 Stop Conditions: `Stop if worktree/branch identity mismatches, origin/main advances and needs rebaseline, source truth contradicts the branch plan, H1 requires broader runtime work outside SLC-041 proof readiness, validation fails, or another USER decision is required`
