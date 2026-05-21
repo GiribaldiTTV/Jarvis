@@ -16,7 +16,7 @@ Current Phase: `Hardening`
 
 Branch Runtime Engineering Plan: Accepted - this plan is present for the FAM-007 setup contract readiness carrier.
 
-Engineering Plan Status: Accepted - implemented through Workstream Green, inspected through Hardening H1 Green, and ready for Live Validation LV1 after USER approval.
+Engineering Plan Status: Accepted - implemented through Workstream Green, inspected through Hardening H1 Green, validated through Live Validation LV1 Green, and ready for PR Readiness Stage 1 after USER approval.
 
 Current Runtime Baseline: PR #179 released FAM-007 setup/consent-flow readiness with provider setup future-gated, consent collection pending, provider-visible data `none`, `sentToProvider=false`, `canAcceptPrompts=false`, prompt/model execution disabled, downloads blocked, network egress blocked, memory/indexing disabled, and voice/Core sync gated.
 
@@ -26,7 +26,7 @@ Planned Runtime Delta: setup contract state/schema, provider profile/config requ
 
 User-Facing Delta: Core/Desktop/ORIN setup contract status proof is status-only and validator-visible; the long desktop AI-owned readiness display remains hidden/suppressed by default and copy does not imply provider setup, consent collection, prompt acceptance, or functional AI.
 
-Source-Truth Delta: records fresh FAM-007 branch authority, closed `v1.7.10-prebeta` release-canon drift, admitted this branch plan, folded down Workstream Green and H1 Green posture, and preserved FAM-006/Governance/Compact-AI overlap as later reconciliation context only.
+Source-Truth Delta: records fresh FAM-007 branch authority, closed `v1.7.10-prebeta` release-canon drift, admitted this branch plan, folded down Workstream Green, H1 Green, and LV1 Green posture, and preserved FAM-006/Governance/Compact-AI overlap as later reconciliation context only.
 
 State / Config / Schema Delta: setup contract readiness fields, setup precondition fields, setup approval fields, provider profile/config requirement fields, consent prerequisite fields, provenance/reason/schema markers, and future handoff markers are implemented as local-only/static contract state.
 
@@ -48,23 +48,23 @@ Approval-Boundary Audit: Stage 2 and the planned Workstream may define contracts
 
 FAM / Shared-Surface Overlap Forecast: FAM-006 dirty shared docs are later PR/merge reconciliation risk only; Governance is standing intake context only; Compact-AI has protected unique commits and must not be mutated by this branch; FAM-007 owns only this localized branch/worktree path.
 
-Open Questions: USER must decide whether to approve Live Validation LV1; future questions include when real provider setup, consent collection, provider SDK/model work, or functional-AI proof should be admitted.
+Open Questions: USER must decide whether to approve PR Readiness Stage 1; future questions include when real provider setup, consent collection, provider SDK/model work, or functional-AI proof should be admitted.
 
-USER Planning Decisions: USER approved Branch Readiness Stage 2, Workstream Entry, bounded Workstream implementation, and Hardening H1 for this branch; USER decisions remain pending for LV1, PR creation, merge, release, cleanup, provider setup, consent collection, SDK/model execution, and future functional-AI work.
+USER Planning Decisions: USER approved Branch Readiness Stage 2, Workstream Entry, bounded Workstream implementation, Hardening H1, and Live Validation LV1 for this branch; USER decisions remain pending for PR Readiness Stage 1, PR creation, merge, release, cleanup, provider setup, consent collection, SDK/model execution, and future functional-AI work.
 
-Plan Revision History: v2 - Hardening H1 folded down H1 Green posture, validator proof, desktop readiness display suppression continuity, approval-boundary integrity, and LV1-next handoff after Workstream completion; v1 created during Branch Readiness Stage 2 from `origin/main` at `b67e59df0481091bfbeb739c4b5e1954552bb421`, carrying `v1.7.10-prebeta` canon closure and PR #179 FAM-007 released evidence.
+Plan Revision History: v3 - Live Validation LV1 recorded disabled/status-only classification, static validator/source-truth proof, User Test Summary waiver, desktop readiness display suppression continuity, and PR Readiness Stage 1 as the next legal phase; v2 - Hardening H1 folded down H1 Green posture, validator proof, desktop readiness display suppression continuity, approval-boundary integrity, and LV1-next handoff after Workstream completion; v1 created during Branch Readiness Stage 2 from `origin/main` at `b67e59df0481091bfbeb739c4b5e1954552bb421`, carrying `v1.7.10-prebeta` canon closure and PR #179 FAM-007 released evidence.
 
 Plan-To-Implementation Traceability Table: planned setup contract state maps to provider-state implementation and fixtures; planned profile/config requirements map to metadata/config envelope proof; planned consent prerequisites map to setup/execution consent posture; planned UI proof maps to Core/Desktop/ORIN copy if touched; planned continuation criteria map to H1/LV1/PR Readiness proof.
 
 Hardening Comparison Checklist: Complete - H1 compared actual files, fields, fixtures, UI copy, approval boundaries, source truth, branch plan, Runtime Branch Engineering Contract, and overlap posture against this plan and found no remaining H1 blocker.
 
-Live Validation Proof Or Waiver Checklist: LV1 must classify source/static/status-only behavior, prove no provider setup, no consent collection, no prompt acceptance, no provider-visible data, no downloads, no network egress, no memory indexing, and no voice/Core sync, or record a source-truth-supported waiver for non-UI changes.
+Live Validation Proof Or Waiver Checklist: Complete - LV1 classified this branch as disabled/status-only setup contract readiness scaffolding, proved no provider setup, no consent collection, no prompt acceptance, no provider-visible data, no downloads, no network egress, no memory indexing, and no voice/Core sync, and recorded a source-truth-supported User Test Summary waiver.
 
 PR Readiness Fold-Down / Retention Checklist: PR Readiness must retain or fold this plan into branch record/source truth, clear stale active-branch wording, prove selected-next or waiver truth, prove no-release-debt posture, and preserve pending USER decisions.
 
 Release Readiness Public-Scope Translation Checklist: release readiness must describe this branch as setup contract readiness/status-only scaffolding; it must not claim provider setup, consent collection, SDK/model execution, functional AI, or `v1.8.0-prebeta` execution.
 
-USER Planning Review: Complete through Hardening H1; USER may approve, change, defer, or reject Live Validation LV1 before the next phase.
+USER Planning Review: Complete through Live Validation LV1; USER may approve, change, defer, or reject PR Readiness Stage 1 before the next phase.
 
 PR Fold-Down Packet: Pending
 
@@ -72,7 +72,7 @@ Runtime Implementation Approval: Granted for the bounded setup contract readines
 
 ## Plan Status
 
-Branch Readiness Stage 2 admitted this plan for `feature/fam-007-local-ai-provider-setup-contract-readiness`; the bounded Workstream implementation and Hardening H1 are complete and the branch is ready for Live Validation LV1 after USER approval.
+Branch Readiness Stage 2 admitted this plan for `feature/fam-007-local-ai-provider-setup-contract-readiness`; the bounded Workstream implementation, Hardening H1, and Live Validation LV1 are complete and the branch is ready for PR Readiness Stage 1 after USER approval.
 
 ## Branch Identity
 
@@ -88,7 +88,7 @@ This branch advances FAM-007 by defining provider setup contract readiness. It d
 
 ## Runtime Branch Engineering Contract
 
-- USER Engineering Planning Review: complete through Workstream Entry, bounded implementation, and Hardening H1; LV1 approval pending.
+- USER Engineering Planning Review: complete through Workstream Entry, bounded implementation, Hardening H1, and Live Validation LV1; PR Readiness Stage 1 approval pending.
 - Runtime Implementation Approval: granted for bounded setup contract readiness implementation only.
 - Current Runtime Baseline: released FAM-007 setup/consent-flow readiness from PR #179; provider setup future-gated; consent collection pending; provider-visible data `none`; `sentToProvider=false`; `canAcceptPrompts=false`; provider/model execution disabled.
 - Planned Runtime Delta: setup contract state/schema, setup handoff criteria, provider profile/config requirements, consent prerequisites, approval gate posture, validator fixtures, and status/proof expectations.
@@ -176,7 +176,7 @@ Provider Setup Contract Readiness is the FAM-007 layer after setup/consent-flow 
 
 ## Workstream Implementation Result
 
-Workstream Completion State: `Green - bounded setup contract readiness implementation complete; Hardening H1 inspected the implementation and is Green`.
+Workstream Completion State: `Green - bounded setup contract readiness implementation complete; Hardening H1 and Live Validation LV1 are Green`.
 
 Seam Family 1 - Provider Setup Contract State and Schema: `Green - setup contract readiness state, eligibility, blocker, reason, provenance, schema versioning, config schema, approval status, gate state, and future handoff fields are centralized in desktop/ai_provider_state.py`.
 
@@ -199,6 +199,14 @@ Validator Proof: `dev/orin_ai_provider_state_validation.py` covers default setup
 Hardening H1 Result: `Green - implementation matches the admitted Branch Runtime Engineering Plan, Product Definition Plan, Runtime Branch Engineering Contract, and Workstream seam map. Setup contract state/schema, provider profile/config requirements, setup preconditions, setup and execution consent prerequisites, handoff/approval gates, Core/Desktop/ORIN status proof, desktop readiness display suppression continuity, validator fixtures, UI copy integrity, functional-AI/v1.8.0 pending criteria, approval boundaries, and overlap posture were inspected and validated.`
 
 H1 Repairs Applied: `Source-truth fold-down only - this plan, the branch record, backlog/roadmap current-state pointers, and the worktree slot receipt were updated from Workstream Green / H1-next to H1 Green / LV1-next. No provider setup, consent collection, SDK/model execution, runtime behavior, production UI behavior, PR, merge, release, cleanup, FAM-006, Governance, or Compact-AI mutation was performed.`
+
+## Live Validation LV1 Result
+
+Live Validation LV1 Result: `Green - LV1 classified this branch as disabled/status-only local setup contract readiness scaffolding, used static Core/Desktop/ORIN source-truth plus provider-state validator proof as the applicable User Test Summary substitute, proved desktop readiness display suppression continuity, and confirmed provider setup, consent collection, prompt/provider/model execution, downloads, network, memory/indexing/learning/personalization, voice/Core sync, shortcut, installer, release, PR, and merge work remain unapproved.`
+
+User Test Summary Result: `WAIVED - no user-operated provider setup, consent collection, prompt, model, setup, shortcut, installer, network, memory, or voice/Core path is enabled; static validator/source-truth proof is the applicable substitute.`
+
+LV1 Repairs Applied: `Source-truth fold-down only - this plan, the branch record, backlog/roadmap current-state pointers, and the worktree slot receipt were updated from H1 Green / LV1-next to LV1 Green / PR Readiness Stage 1-next. No provider setup, consent collection, SDK/model execution, runtime behavior, production UI behavior, PR, merge, release, cleanup, FAM-006, Governance, or Compact-AI mutation was performed.`
 
 ## Validation Plan
 
@@ -234,8 +242,8 @@ This Workstream adds setup contract readiness fixtures in `dev/orin_ai_provider_
 
 ## Next Legal Phase
 
-Live Validation LV1 after USER approval.
+PR Readiness Stage 1 after USER approval.
 
 ## Exact USER Decision Needed
 
-Approve Live Validation LV1 for `FAM-007 Local AI Provider Setup Contract Readiness`.
+Approve PR Readiness Stage 1 for `FAM-007 Local AI Provider Setup Contract Readiness`.
