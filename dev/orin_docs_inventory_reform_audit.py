@@ -505,9 +505,8 @@ def build_user_review_index(
     add("")
     add("- Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`")
     add(f"- Docs files covered: {docs_count}")
-    add(f"- Generated from Governance HEAD: `{head}`")
-    add(f"- origin/main at generation: `{origin_main}`")
-    add(f"- merge base at generation: `{merge_base}`")
+    add("- Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.")
+    add("- Generated hash fields: intentionally not maintained in this docs review index.")
     add("- Runtime/FAM/Compact-AI mutation: none.")
     add("- PR Readiness: held until USER review accepts this packet.")
     add("")
@@ -571,7 +570,11 @@ def build_user_review_index(
 
 def generate() -> None:
     files = sorted(
-        [path for path in DOCS.rglob("*") if path.is_file() and path != INDEX],
+        [
+            path
+            for path in DOCS.rglob("*")
+            if path.is_file() and path not in {AUDIT, INDEX}
+        ],
         key=lambda p: p.as_posix().lower(),
     )
     changed = set(git_output("diff", "--name-only", "origin/main...HEAD").splitlines())
@@ -670,7 +673,7 @@ def generate() -> None:
     )
 
     index_text = build_user_review_index(
-        docs_count=len(file_rows) + 1,
+        docs_count=len(file_rows) + 2,
         head=head,
         origin_main=origin_main,
         merge_base=merge_base,
@@ -720,6 +723,48 @@ def generate() -> None:
             "release_markers": snippets(index_text, PATTERNS["pr_release_issue"]),
         }
     )
+    audit_rel = AUDIT.relative_to(ROOT).as_posix()
+    audit_owner = owner_for(audit_rel)
+    audit_owns, audit_should_record, audit_should_move = OWNER_DESCRIPTIONS[audit_owner]
+    audit_action, audit_completed, audit_remaining = action_for(
+        audit_rel, audit_owner, 0, changed
+    )
+    file_rows.append(
+        {
+            "rel": audit_rel,
+            "lines": "Generated self-reference",
+            "owner": audit_owner,
+            "action": audit_action,
+            "risk": "High",
+            "confidence": "High",
+            "counts": {
+                "live": 0,
+                "pr_release_issue": 0,
+                "package_slice": 0,
+                "branch_phase": 0,
+                "validator": 1,
+            },
+            "title": "Governance Docs Full Inventory Reform Audit",
+            "owns": audit_owns,
+            "should_record": audit_should_record,
+            "should_move": audit_should_move,
+            "completed": audit_completed,
+            "remaining": (
+                "Self-reference is intentionally synthetic so regeneration does not "
+                "change the dossier by re-scanning its previous generated output."
+            ),
+            "duplicate_classes": ["helper responsibility"],
+            "live_fields": [],
+            "receipt_fields": [
+                "Generated review dossier; content is reviewed through the real file, not self-scanned."
+            ],
+            "current_markers": [],
+            "trace_markers": [],
+            "branch_markers": [],
+            "release_markers": [],
+        }
+    )
+    fact_map["helper responsibility"].add(audit_rel)
     file_rows = sorted(file_rows, key=lambda row: str(row["rel"]).lower())
     high_risk = sorted(
         [row for row in file_rows if row["risk"] in {"High", "Critical"}],
@@ -856,9 +901,8 @@ def generate() -> None:
     add("- Audit Type: Full `Docs/` source-truth inventory, cleanup, and restructuring dossier.")
     add("- Audit Workspace: `C:\\Nexus Worktrees\\Governance`")
     add("- Audit Branch: `feature/release-readiness-source-truth-intake`")
-    add(f"- Audit HEAD: `{head}`")
-    add(f"- Audit origin/main: `{origin_main}`")
-    add(f"- Audit Merge Base: `{merge_base}`")
+    add("- Audit Git Proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.")
+    add("- Audit Hash Policy: exact live Git hashes are intentionally not maintained in this docs review surface.")
     add(f"- Audit File Count: {len(file_rows)} files under `Docs/`")
     add(f"- Manifest Files Enumerated: {len(file_rows)}")
     add("- Manifest Match: PASS - filesystem enumeration and dossier manifest counts match.")

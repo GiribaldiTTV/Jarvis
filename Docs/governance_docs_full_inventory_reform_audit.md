@@ -152,9 +152,8 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 - Audit Type: Full `Docs/` source-truth inventory, cleanup, and restructuring dossier.
 - Audit Workspace: `C:\Nexus Worktrees\Governance`
 - Audit Branch: `feature/release-readiness-source-truth-intake`
-- Audit HEAD: `ff96f2c7451733e01770d755c0da70de47a40708`
-- Audit origin/main: `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`
-- Audit Merge Base: `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`
+- Audit Git Proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
+- Audit Hash Policy: exact live Git hashes are intentionally not maintained in this docs review surface.
 - Audit File Count: 137 files under `Docs/`
 - Manifest Files Enumerated: 137
 - Manifest Match: PASS - filesystem enumeration and dossier manifest counts match.
@@ -301,8 +300,8 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 | 84 | `Docs/development_rules.md` | Codex execution rule mirror | 1055 | Keep | High | High |
 | 85 | `Docs/fb_027_overlay_bug_tracker.md` | bug / issue historical tracker | 212 | Keep | Medium | High |
 | 86 | `Docs/feature_backlog.md` | compact product registry | 334 | Keep compact | Critical | High |
-| 87 | `Docs/governance_docs_full_inventory_reform_audit.md` | governance support standard | 4091 | Keep | High | High |
-| 88 | `Docs/governance_docs_reform_user_review_index.md` | governance support standard | 112 | Keep | Medium | High |
+| 87 | `Docs/governance_docs_full_inventory_reform_audit.md` | governance support standard | Generated self-reference | Keep | High | High |
+| 88 | `Docs/governance_docs_reform_user_review_index.md` | governance support standard | 111 | Keep | Medium | High |
 | 89 | `Docs/governance_efficiency_operating_model.md` | governance support standard | 266 | Keep | Medium | High |
 | 90 | `Docs/governance_intake_triage_and_digest_profiles.md` | governance support standard | 163 | Keep | Medium | High |
 | 91 | `Docs/governance_process_efficiency_reform_plan.md` | governance support standard | 489 | Keep | Medium | High |
@@ -443,8 +442,8 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 | `Docs/development_rules.md` | 1055 | Nexus Development Rules | Codex execution rule mirror | developer-facing execution rules and compact governance mirrors | execution reminders and pointers to owners | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/fb_027_overlay_bug_tracker.md` | 212 | FB-027 Overlay Bug Tracker | bug / issue historical tracker | historical bug/issue evidence | closed issue context and durable historical notes | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/feature_backlog.md` | 334 | Nexus Feature Backlog | compact product registry | feature-family identity, priority, status, scope, package summary, canonical pointers | FAM registry rows and compact pointers | Updated in this reform branch. | Keep pointer-only; do not reintroduce live state or detailed trace tables. | Keep compact | Yes | Yes | Yes | Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan de... | _Add notes here._ |
-| `Docs/governance_docs_full_inventory_reform_audit.md` | 4091 | Governance Docs Full Inventory Reform Audit | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/governance_docs_reform_user_review_index.md` | 112 | Nexus Docs Reform User Review Index | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Created in this review-surface repair branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/governance_docs_full_inventory_reform_audit.md` | Generated self-reference | Governance Docs Full Inventory Reform Audit | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | Self-reference is intentionally synthetic so regeneration does not change the dossier by re-s... | Keep | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/governance_docs_reform_user_review_index.md` | 111 | Nexus Docs Reform User Review Index | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Created in this review-surface repair branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_efficiency_operating_model.md` | 266 | Governance Efficiency Operating Model | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_intake_triage_and_digest_profiles.md` | 163 | Governance Intake Triage And Digest Profiles | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_process_efficiency_reform_plan.md` | 489 | Governance Process Efficiency Reform Plan | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -499,31 +498,31 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 
 | Fact Class | Correct Owner | Files Where Detected | Risk |
 | --- | --- | ---: | --- |
-| active branch authority | Docs/branch_records/index.md and active branch authority record | 103 | Medium |
-| current branch status | Git/GitHub/helper-derived truth plus active branch authority record receipt | 50 | Medium |
-| next legal phase | active branch authority record or phase packet | 92 | Medium |
-| selected-next | Branch/PR Readiness packet and owning branch record only when USER-approved | 87 | Medium |
-| worktree slot assignment | Docs/worktree_slots.md assignment receipt | 15 | Medium |
-| worktree live state | git status / worktree preflight / helper output | 116 | High |
-| origin/main | git fetch + git rev-parse / helper output | 66 | Medium |
-| PR state | GitHub / watcher / gh / GraphQL output | 80 | High |
-| merge status | GitHub PR merge truth plus compact historical receipt | 113 | Medium |
-| latest tag/release | GitHub Releases / tags / release validator | 87 | High |
-| release receipt | Docs/closeouts, compact branch receipt, or release body after validation | 60 | Medium |
-| release sequencing | Docs/prebeta_roadmap.md | 83 | Medium |
-| package trace | Docs/workstreams or family dossiers | 46 | High |
-| slice trace | Docs/workstreams or family dossiers | 51 | High |
-| issue posture | GitHub issues plus compact historical receipt when needed | 27 | Medium |
-| branch runtime plan | Docs/branch_plans/<branch>.md while active | 33 | Medium |
-| branch phase history | Docs/branch_records/<branch>.md compact receipt | 94 | Medium |
-| branch receipt | Docs/branch_records/<branch>.md | 133 | Medium |
-| workstream durable history | Docs/workstreams/<id>.md or family dossier | 128 | Medium |
-| family dossier continuity | Docs/workstreams/*_family_dossier.md | 36 | Medium |
-| validator registry | Docs/validation_helper_registry.md | 74 | Medium |
+| active branch authority | Docs/branch_records/index.md and active branch authority record | 102 | Medium |
+| current branch status | Git/GitHub/helper-derived truth plus active branch authority record receipt | 49 | Medium |
+| next legal phase | active branch authority record or phase packet | 91 | Medium |
+| selected-next | Branch/PR Readiness packet and owning branch record only when USER-approved | 86 | Medium |
+| worktree slot assignment | Docs/worktree_slots.md assignment receipt | 14 | Medium |
+| worktree live state | git status / worktree preflight / helper output | 115 | High |
+| origin/main | git fetch + git rev-parse / helper output | 65 | Medium |
+| PR state | GitHub / watcher / gh / GraphQL output | 79 | High |
+| merge status | GitHub PR merge truth plus compact historical receipt | 112 | Medium |
+| latest tag/release | GitHub Releases / tags / release validator | 86 | High |
+| release receipt | Docs/closeouts, compact branch receipt, or release body after validation | 59 | Medium |
+| release sequencing | Docs/prebeta_roadmap.md | 82 | Medium |
+| package trace | Docs/workstreams or family dossiers | 45 | High |
+| slice trace | Docs/workstreams or family dossiers | 50 | High |
+| issue posture | GitHub issues plus compact historical receipt when needed | 26 | Medium |
+| branch runtime plan | Docs/branch_plans/<branch>.md while active | 32 | Medium |
+| branch phase history | Docs/branch_records/<branch>.md compact receipt | 93 | Medium |
+| branch receipt | Docs/branch_records/<branch>.md | 132 | Medium |
+| workstream durable history | Docs/workstreams/<id>.md or family dossier | 127 | Medium |
+| family dossier continuity | Docs/workstreams/*_family_dossier.md | 35 | Medium |
+| validator registry | Docs/validation_helper_registry.md | 73 | Medium |
 | helper responsibility | Docs/validation_helper_registry.md | 125 | Medium |
-| phase rules | Docs/phase_governance.md | 123 | Medium |
-| prompt/Codex mode rules | Docs/orin_task_template.md / Docs/codex_modes.md with owner pointers | 119 | Medium |
-| release note/public body rules | Docs/phase_governance.md and dev/orin_release_body_validation.py | 102 | Medium |
+| phase rules | Docs/phase_governance.md | 122 | Medium |
+| prompt/Codex mode rules | Docs/orin_task_template.md / Docs/codex_modes.md with owner pointers | 118 | Medium |
+| release note/public body rules | Docs/phase_governance.md and dev/orin_release_body_validation.py | 101 | Medium |
 
 ## Duplicate Truth Map
 
@@ -533,7 +532,7 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 | current branch status | Git/GitHub/helper-derived truth plus active branch authority record receipt | `Docs/Main.md`; `Docs/branch_plans/README.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; ... | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md`; `Docs/branch_records/codex_workspace_governance_foundation.md`; `Docs/branch_records/feature_automation_planning.md`; `Docs/branch_records/feature_backlog_family_governance_reform.md`; `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md`; `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md`; `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md`; ... | Medium | owner-pointer review / future focused validator |
 | next legal phase | active branch authority record or phase packet | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/orin_task_template.md`; `Docs/workstreams/index.md` | `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; `Docs/branch_records/codex_no_active_branch_docs_governance_refinement.md`; `Docs/branch_records/codex_one_time_backlog_governance_repair.md`; ... | Medium | owner-pointer review / future focused validator |
 | selected-next | Branch/PR Readiness packet and owning branch record only when USER-approved | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/workstreams/index.md` | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; `Docs/branch_records/codex_one_time_backlog_governance_repair.md`; ... | Medium | owner-pointer review / future focused validator |
-| worktree slot assignment | Docs/worktree_slots.md assignment receipt | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/orin_task_template.md`; `Docs/worktree_slots.md` | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_records/feature_release_readiness_source_truth_intake.md`; `Docs/governance_docs_full_inventory_reform_audit.md`; `Docs/governance_efficiency_operating_model.md`; `Docs/governance_process_efficiency_reform_plan.md`; `Docs/nexus_startup_contract.md`; `Docs/phase_governance.md`; `Docs/validation_helper_registry.md` | Medium | owner-pointer review / future focused validator |
+| worktree slot assignment | Docs/worktree_slots.md assignment receipt | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/orin_task_template.md`; `Docs/worktree_slots.md` | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_records/feature_release_readiness_source_truth_intake.md`; `Docs/governance_efficiency_operating_model.md`; `Docs/governance_process_efficiency_reform_plan.md`; `Docs/nexus_startup_contract.md`; `Docs/phase_governance.md`; `Docs/validation_helper_registry.md` | Medium | owner-pointer review / future focused validator |
 | worktree live state | git status / worktree preflight / helper output | `Docs/Main.md`; `Docs/branch_plans/README.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; ... | `Docs/architecture.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md`; ... | High | existing validator coverage |
 | origin/main | git fetch + git rev-parse / helper output | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/codex_user_guide.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/prebeta_roadmap.md`; ... | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_fb_037_release_debt_packaging.md`; ... | Medium | owner-pointer review / future focused validator |
 | PR state | GitHub / watcher / gh / GraphQL output | `Docs/Main.md`; `Docs/branch_records/index.md`; `Docs/codex_modes.md`; `Docs/development_rules.md`; `Docs/feature_backlog.md`; `Docs/orin_task_template.md`; `Docs/workstreams/index.md`; `Docs/worktree_slots.md` | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/branch_records/codex_fam_007_branch_readiness.md`; `Docs/branch_records/codex_one_time_backlog_governance_repair.md`; ... | High | existing validator coverage |
@@ -2791,34 +2790,34 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 87. `Docs/governance_docs_full_inventory_reform_audit.md`
 
 - File path: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Line count: 4091
+- Line count: Generated self-reference
 - Current purpose: Governance Docs Full Inventory Reform Audit
-- Actual observed use: governance support standard with markers live=749, pr/release/issue=842, package/slice=695, branch/worktree/phase=3214, validator/helper=2069.
+- Actual observed use: governance support standard with markers live=0, pr/release/issue=0, package/slice=0, branch/worktree/phase=0, validator/helper=1.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
 - What should move elsewhere: branch-specific blocker narrative.
 - Migration target: branch-specific blocker narrative.
 - Recommendation: Keep.
-- Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree slot assignment, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, release sequencing, package trace, slice trace, issue posture, branch runtime plan, branch phase history, branch receipt, workstream durable history, family dossier continuity, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
-- Live operational truth fields found: `This dossier is the full markdown-friendly review packet for the Docs source-truth reform. It enumerates every file under `Docs/`, assigns each file a source-truth role, records wh`; `- Audit Type: Full `Docs/` source-truth inventory, cleanup, and restructuring dossier.`; `- Audit HEAD: `ff96f2c7451733e01770d755c0da70de47a40708``; `- Audit origin/main: `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0``; `- Audit Merge Base: `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0``
-- Governance receipt fields found: `This dossier is the full markdown-friendly review packet for the Docs source-truth reform. It enumerates every file under `Docs/`, assigns each file a source-truth role, records wh`; `The reform direction is conservative about historical evidence: live operational truth moves to Git/GitHub/helpers, but validated historical receipts are preserved unless a focused`; `Start here for review: `Docs/governance_docs_reform_user_review_index.md`.`; `1. Start with the companion index: `Docs/governance_docs_reform_user_review_index.md`.`; `2. Read `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision` below.`
-- Repetitive language found: Release/phase/branch marker repetition requires owner-pointer discipline.
-- Current-state markers found: `- Branch Runtime Engineering Plan lifecycle is stated as active-only, fold-down, then deletion after migration.`; `| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / compact receipt | Keep active standing authority | High source-truth density / migrati`; `| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate du`; `| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, migrate d`; `| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch runtime engineering plan | At PR Readiness Stage 1/2 for the owning branch, mig`
-- Package Trace / Slice Trace markers found: `- Workstreams and family dossiers own durable package trace, slice trace, implementation proof, closure history, and reusable continuity.`; `| `Docs/feature_backlog.md` | compact FAM registry and pointer layer | Package Trace, Slice Trace, live branch/release/issue state |`; `| `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` | 203 | FAM-006 Element Validation Ledger | branch authority / compact receipt | branch aut`; `| `Docs/feature_backlog.md` | 334 | Nexus Feature Backlog | compact product registry | feature-family identity, priority, status, scope, package summary, canonical pointers | FAM r`; `| `Docs/prebeta_roadmap.md` | 112 | Nexus Pre-Beta Roadmap | release sequencing posture | release sequencing and public milestone posture | release stream intent and milestone poin`
-- Branch/worktree/phase markers found: `6. Approve PR Readiness only when the `PR Readiness Checklist` is acceptable.`; `- Backlog, roadmap, and worktree-slot ownership rules are captured as compact pointer/status surfaces.`; `- A short user review index is generated for easier inspection before PR Readiness.`; `- Whether to approve PR Readiness Stage 2 after reviewing this dossier.`; `- Whether to run focused compaction of oversized historical branch diaries into workstreams/family dossiers.`
-- Release/PR/issue markers found: `| `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / compact receipt | Keep historical receipt | High source-truth density / migration ri`; `- Release / Tag / GitHub Release / Issue Work: none.`; `| 62 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / compact receipt | 165 | Keep historical receipt | High | High |`; `| 103 | `Docs/pr_watcher_mode_contract.md` | governance support standard | 83 | Keep | Medium | High |`; `| `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | 165 | Branch Authority Record: feature/pr104-watcher-next-prompt-format-repair | branch authority / com`
+- Duplicate fact classes found: helper responsibility.
+- Live operational truth fields found: None found.
+- Governance receipt fields found: `Generated review dossier; content is reviewed through the real file, not self-scanned.`
+- Repetitive language found: No major repetitive language flagged by scanner.
+- Current-state markers found: None found.
+- Package Trace / Slice Trace markers found: None found.
+- Branch/worktree/phase markers found: None found.
+- Release/PR/issue markers found: None found.
 - Validator rule needed: Covered by existing owner validator or future focused owner check.
 - Reform action completed in this branch: Updated in this reform branch.
-- Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
+- Remaining action needed after this branch: Self-reference is intentionally synthetic so regeneration does not change the dossier by re-scanning its previous generated output.
 - USER review notes: _Add notes here._
 
 ### 88. `Docs/governance_docs_reform_user_review_index.md`
 
 - File path: `Docs/governance_docs_reform_user_review_index.md`
-- Line count: 112
+- Line count: 111
 - Current purpose: Nexus Docs Reform User Review Index
-- Actual observed use: governance support standard with markers live=5, pr/release/issue=0, package/slice=0, branch/worktree/phase=22, validator/helper=11.
+- Actual observed use: governance support standard with markers live=4, pr/release/issue=0, package/slice=0, branch/worktree/phase=22, validator/helper=12.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
@@ -2826,7 +2825,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Migration target: branch-specific blocker narrative.
 - Recommendation: Keep.
 - Duplicate fact classes found: active branch authority, next legal phase, worktree live state, origin/main, release sequencing, branch runtime plan, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules.
-- Live operational truth fields found: `This is the short review index for the full Docs source-truth reform. Use it to decide whether the long dossier is ready for PR Readiness, or whether specific files need more clean`; `- Generated from Governance HEAD: `ff96f2c7451733e01770d755c0da70de47a40708``; `- origin/main at generation: `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0``; `- merge base at generation: `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0``; ``I accept the Docs reform review surface and approve PR Readiness Stage 2 / PR creation for feature/release-readiness-source-truth-intake targeting main. Merge, release work, runti`
+- Live operational truth fields found: `This is the short review index for the full Docs source-truth reform. Use it to decide whether the long dossier is ready for PR Readiness, or whether specific files need more clean`; `- Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.`; ``I accept the Docs reform review surface and approve PR Readiness Stage 2 / PR creation for feature/release-readiness-source-truth-intake targeting main. Merge, release work, runti`
 - Governance receipt fields found: `# Nexus Docs Reform User Review Index`; `- PR Readiness: held until USER review accepts this packet.`; `2. Review `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision`.`; `## Decision Checklist`; `## Files Needing USER Decision`
 - Repetitive language found: Release/phase/branch marker repetition requires owner-pointer discipline.
 - Current-state markers found: None found.

@@ -8,9 +8,8 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
 - Docs files covered: 137
-- Generated from Governance HEAD: `ff96f2c7451733e01770d755c0da70de47a40708`
-- origin/main at generation: `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`
-- merge base at generation: `4ce454cc1e951c2c7b158b912e78ab1113a2b3f0`
+- Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
+- Generated hash fields: intentionally not maintained in this docs review index.
 - Runtime/FAM/Compact-AI mutation: none.
 - PR Readiness: held until USER review accepts this packet.
 
