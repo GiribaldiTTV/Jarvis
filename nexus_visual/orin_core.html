@@ -112,6 +112,12 @@
       data-setup-contract-blocker="setup_contract_provider_path_required"
       data-setup-contract-approval="setup-contract-approval-missing"
       data-setup-contract-gate="setup-contract-gate-blocked"
+      data-setup-foundation-state="setup_foundation_unavailable"
+      data-setup-foundation-blocker="setup_foundation_setup_contract_required"
+      data-setup-foundation-approval="setup-foundation-approval-missing"
+      data-setup-foundation-validation="setup-foundation-validation-fail-closed"
+      data-setup-foundation-persistence="setup-foundation-persistence-disabled"
+      data-setup-foundation-gate="setup-foundation-gate-blocked"
       data-provider-setup-handoff="provider-setup-handoff-future-gated"
       data-data-classification-posture="data-classification-local-only"
       data-audit-envelope="audit-envelope-planned-no-collection"
@@ -228,6 +234,11 @@
       <div id="ai-provider-status-setup-contract" class="ai-provider-status__setup-contract">Setup contract readiness: unavailable</div>
       <div id="ai-provider-status-setup-contract-blocker" class="ai-provider-status__setup-contract-blocker">Setup contract blocker: provider path readiness required</div>
       <div id="ai-provider-status-setup-contract-handoff" class="ai-provider-status__setup-contract-handoff">Setup contract handoff: future setup branch gated</div>
+      <div id="ai-provider-status-setup-foundation" class="ai-provider-status__setup-foundation">Setup implementation foundation: unavailable</div>
+      <div id="ai-provider-status-setup-foundation-blocker" class="ai-provider-status__setup-foundation-blocker">Setup foundation blocker: setup contract readiness required</div>
+      <div id="ai-provider-status-setup-foundation-validation" class="ai-provider-status__setup-foundation-validation">Setup foundation validation: fail-closed</div>
+      <div id="ai-provider-status-setup-foundation-persistence" class="ai-provider-status__setup-foundation-persistence">Setup foundation persistence: disabled; no provider credentials stored</div>
+      <div id="ai-provider-status-setup-foundation-handoff" class="ai-provider-status__setup-foundation-handoff">Setup foundation handoff: future provider setup implementation gated</div>
       <div id="ai-provider-status-setup-consent" class="ai-provider-status__setup-consent">Setup consent: required before provider setup</div>
       <div id="ai-provider-status-execution-consent" class="ai-provider-status__execution-consent">Execution consent: required before prompt/model execution</div>
       <div id="ai-provider-status-consent-schema" class="ai-provider-status__consent-schema">provider-consent-readiness-state.v1; provider-consent-readiness-config.v1; Consent config: safe default local-only</div>

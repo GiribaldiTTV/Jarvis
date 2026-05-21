@@ -12,7 +12,7 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
 
-Current Phase: `Historical merged-unreleased after PR #190 - Release Readiness pending`
+Current Phase: `Historical released after PR #190 and v1.7.11-prebeta publication`
 
 Branch Runtime Engineering Plan: Accepted - this plan is present for the FAM-007 setup contract readiness carrier.
 
@@ -26,7 +26,7 @@ Planned Runtime Delta: setup contract state/schema, provider profile/config requ
 
 User-Facing Delta: Core/Desktop/ORIN setup contract status proof is status-only and validator-visible; the long desktop AI-owned readiness display remains hidden/suppressed by default and copy does not imply provider setup, consent collection, prompt acceptance, or functional AI.
 
-Source-Truth Delta: records fresh FAM-007 branch authority, closed `v1.7.10-prebeta` release-canon drift, admitted this branch plan, folded down Workstream Green, H1 Green, LV1 Green, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, and Release Window Audit posture, and preserved FAM-006/Governance/Compact-AI overlap as later reconciliation context only.
+Source-Truth Delta: records fresh FAM-007 branch authority, closed `v1.7.10-prebeta` release-canon drift, admitted this branch plan, folded down Workstream Green, H1 Green, LV1 Green, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit posture, PR #191 release-readiness support, and v1.7.11-prebeta publication, and preserved FAM-006/Governance/Compact-AI overlap as later reconciliation context only.
 
 State / Config / Schema Delta: setup contract readiness fields, setup precondition fields, setup approval fields, provider profile/config requirement fields, consent prerequisite fields, provenance/reason/schema markers, and future handoff markers are implemented as local-only/static contract state.
 
@@ -52,7 +52,7 @@ Open Questions: USER must decide whether to approve Release Readiness Stage 2 / 
 
 USER Planning Decisions: USER approved Branch Readiness Stage 2, Workstream Entry, bounded Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1 source-truth repair, PR Readiness Stage 2 / PR creation, and PR #190 merge for this branch; USER decisions remain pending for Release Readiness Stage 2, release execution, cleanup, provider setup, consent collection, SDK/model execution, and future functional-AI work.
 
-Plan Revision History: v5 - PR #190 merged and this plan is historical merged-unreleased evidence pending Release Readiness; v4 - PR Readiness Stage 1 recorded selected-next defer/waiver truth, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, and Stage 2 / PR creation as the next USER-gated phase; v3 - Live Validation LV1 recorded disabled/status-only classification, static validator/source-truth proof, User Test Summary waiver, desktop readiness display suppression continuity, and PR Readiness Stage 1 as the next legal phase; v2 - Hardening H1 folded down H1 Green posture, validator proof, desktop readiness display suppression continuity, approval-boundary integrity, and LV1-next handoff after Workstream completion; v1 created during Branch Readiness Stage 2 from `origin/main` at `b67e59df0481091bfbeb739c4b5e1954552bb421`, carrying `v1.7.10-prebeta` canon closure and PR #179 FAM-007 released evidence.
+Plan Revision History: v6 - v1.7.11-prebeta published PR #190 as released setup contract readiness evidence and this plan is historical released evidence; v5 - PR #190 merged and this plan was historical merged-unreleased evidence pending Release Readiness; v4 - PR Readiness Stage 1 recorded selected-next defer/waiver truth, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, and Stage 2 / PR creation as the next USER-gated phase; v3 - Live Validation LV1 recorded disabled/status-only classification, static validator/source-truth proof, User Test Summary waiver, desktop readiness display suppression continuity, and PR Readiness Stage 1 as the next legal phase; v2 - Hardening H1 folded down H1 Green posture, validator proof, desktop readiness display suppression continuity, approval-boundary integrity, and LV1-next handoff after Workstream completion; v1 created during Branch Readiness Stage 2 from `origin/main` at `b67e59df0481091bfbeb739c4b5e1954552bb421`, carrying `v1.7.10-prebeta` canon closure and PR #179 FAM-007 released evidence.
 
 Plan-To-Implementation Traceability Table: planned setup contract state maps to provider-state implementation and fixtures; planned profile/config requirements map to metadata/config envelope proof; planned consent prerequisites map to setup/execution consent posture; planned UI proof maps to Core/Desktop/ORIN copy if touched; planned continuation criteria map to H1/LV1/PR Readiness proof.
 
@@ -72,7 +72,7 @@ Runtime Implementation Approval: Granted for the bounded setup contract readines
 
 ## Plan Status
 
-Branch Readiness Stage 2 admitted this plan for `feature/fam-007-local-ai-provider-setup-contract-readiness`; bounded Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1, PR Readiness Stage 2, and PR #190 merge are complete. The plan is historical merged-unreleased evidence pending Release Readiness.
+Branch Readiness Stage 2 admitted this plan for `feature/fam-007-local-ai-provider-setup-contract-readiness`; bounded Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1, PR Readiness Stage 2, PR #190 merge, PR #191 release-readiness support, and v1.7.11-prebeta publication are complete. The plan is historical released evidence.
 
 ## Branch Identity
 
@@ -229,8 +229,8 @@ This Workstream adds setup contract readiness fixtures in `dev/orin_ai_provider_
 
 ## Release / Continuation Posture
 
-- `v1.7.10-prebeta` is the latest public prerelease after Stage 2 canon closure.
-- PR #182 through PR #187 are recorded as released in `v1.7.10-prebeta`.
+- `v1.7.11-prebeta` is the latest public prerelease after release publication.
+- PR #182 through PR #187 are recorded as released in `v1.7.10-prebeta`, and PR #188 through PR #191 are recorded as released in `v1.7.11-prebeta`.
 - `v1.8.0-prebeta` remains a future functional-AI jump target after separate USER approval and proof.
 
 ## Overlap And Cleanup Posture
@@ -242,7 +242,7 @@ This Workstream adds setup contract readiness fixtures in `dev/orin_ai_provider_
 
 ## Next Legal Phase
 
-Release Readiness Stage 2 preparation after PR #190 merge; release execution remains separately USER-gated.
+Historical released evidence after PR #190 merge, PR #191 release-readiness support, and v1.7.11-prebeta publication; the next FAM-007 branch is `feature/fam-007-local-ai-provider-setup-implementation-foundation`.
 
 ## Exact USER Decision Needed
 

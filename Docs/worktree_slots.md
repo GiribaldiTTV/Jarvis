@@ -167,14 +167,14 @@ Runtime slots are reusable active-work slots. Their assignment changes as branch
 - Slot ID: `runtime-active-2`
 - Role: active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: historical merged branch after PR #190; no active runtime successor selected by inertia
-- Assigned Branch: historical `feature/fam-007-local-ai-provider-setup-contract-readiness`
-- Assigned Family / Workstream: historical `FAM-007 Local AI Provider Setup Contract Readiness`
-- Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
-- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
-- USER Decision Pointer: USER-approved FAM-007 Branch Readiness Stage 2, Workstream Entry, bounded setup contract readiness implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1, PR Readiness Stage 2, and PR #190 merge after `v1.7.10-prebeta`; Release Readiness and successor branch creation remain pending USER approval
-- Active Thread Owner: Codex in `C:\Nexus Worktrees\FAM-007` for release-readiness analysis / historical branch reconciliation only
-- Thread Assignment Status: historical merged evidence; active runtime implementation is not selected
+- Assignment Status: FAM-007 LV1 Green carrier after `v1.7.11-prebeta`; PR Readiness Stage 1 complete; PR Readiness Stage 2 / PR creation pending USER approval
+- Assigned Branch: `feature/fam-007-local-ai-provider-setup-implementation-foundation`
+- Assigned Family / Workstream: FAM-007 Local AI Provider Setup Implementation Foundation
+- Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
+- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
+- USER Decision Pointer: USER-approved FAM-007 Branch Readiness Stage 1 recommendation, Stage 2 setup, Workstream Entry, bounded Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 selected-next defer/pre-PR live-state repair for this detailed carrier after PR #190, PR #191, and `v1.7.11-prebeta`; PR Readiness Stage 2 / PR creation, merge, release, cleanup, provider SDK/model work, consent collection, memory, voice/Core, shortcuts/installers, AI Product Contract import, and v1.8.0-prebeta execution remain pending USER approval
+- Active Thread Owner: Codex in `C:\Nexus Worktrees\FAM-007` for localized FAM-007 setup implementation foundation PR Readiness Stage 2 next after USER approval
+- Thread Assignment Status: PR Readiness Stage 1 complete; PR Readiness Stage 2 / PR creation is the next legal phase after USER approval
 - Worktree Ownership Ledger: FAM-007 stable runtime worktree, localized to FAM-007 branch work
 - Intended Write Set: FAM-007 branch authority/plan, shared source-truth current-branch posture, validation registry, provider state, Core/Desktop renderers, ORIN visual surfaces, FAM-007 provider validator, and no sibling worktrees
 - Same Worktree / Same Branch Collision Check: target branch was absent before creation and was created from current `origin/main`
@@ -183,7 +183,7 @@ Runtime slots are reusable active-work slots. Their assignment changes as branch
 - Off-Worktree Work Routing: FAM-006, Governance, and Compact-AI are context only and must not be mutated by this branch
 - Governance Routing Barrier: Governance mutation outside this FAM-007 path remains pending USER decision
 - New Worktree Decision Gate: no new worktree is required
-- Last Reviewed Posture: PR #190 merged; selected-next defer/waiver and post-merge No Active Branch truth are recorded, and live Git/GitHub proof remains derived operational truth for Release Readiness
+- Last Reviewed Posture: `v1.7.11-prebeta` is published and release debt is clear; PR #190 is released historical setup contract readiness evidence, and this slot now carries the setup implementation foundation branch from `origin/main` at `2158ff66649f9d2e045fe75c4813c19e88d06762` with Workstream, H1, LV1, and PR Readiness Stage 1 green
 - Operational Truth Source: Thread / Worktree Identity Preflight, `git worktree list`, `git status`, GitHub PR state, and Pre-Rebaseline Impact Audit
 
 ### runtime-active-3

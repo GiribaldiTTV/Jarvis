@@ -226,6 +226,8 @@ from desktop.ai_provider_state import (  # noqa: E402
     FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_STATE_ID,
     FAM007_PROVIDER_SETUP_CONTRACT_READINESS_MODE,
     FAM007_PROVIDER_SETUP_CONTRACT_READINESS_STATE_ID,
+    FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_MODE,
+    FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_STATE_ID,
     PROVIDER_EXECUTION_READINESS_CONFIG_SCHEMA_VERSION,
     PROVIDER_EXECUTION_READINESS_STATE_SCHEMA_VERSION,
     PROVIDER_EXECUTION_CONFIG_STATE_DEFAULT,
@@ -587,6 +589,63 @@ from desktop.ai_provider_state import (  # noqa: E402
     SETUP_CONTRACT_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF,
     SETUP_CONTRACT_GATE_BLOCKED,
     SETUP_CONTRACT_GATE_FUTURE_GATED,
+    SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION,
+    SETUP_FOUNDATION_STATE_SCHEMA_VERSION,
+    SETUP_FOUNDATION_STATE_BLOCKED_BY_CONFIG,
+    SETUP_FOUNDATION_STATE_BLOCKED_BY_EXECUTION_CONSENT,
+    SETUP_FOUNDATION_STATE_BLOCKED_BY_PROFILE,
+    SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONSENT,
+    SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONTRACT,
+    SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION,
+    SETUP_FOUNDATION_STATE_DEGRADED,
+    SETUP_FOUNDATION_STATE_DISABLED,
+    SETUP_FOUNDATION_STATE_READY_BUT_NOT_APPROVED,
+    SETUP_FOUNDATION_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+    SETUP_FOUNDATION_STATE_READY_LOCAL_DRAFT,
+    SETUP_FOUNDATION_ELIGIBILITY_BLOCKED,
+    SETUP_FOUNDATION_ELIGIBILITY_DISABLED,
+    SETUP_FOUNDATION_ELIGIBILITY_FUTURE_SETUP_BRANCH,
+    SETUP_FOUNDATION_ELIGIBILITY_LOCAL_DRAFT,
+    SETUP_FOUNDATION_ELIGIBILITY_READY_NOT_APPROVED,
+    SETUP_FOUNDATION_BLOCKER_APPROVAL_REQUIRED,
+    SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED,
+    SETUP_FOUNDATION_BLOCKER_EXECUTION_CONSENT_REQUIRED,
+    SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH,
+    SETUP_FOUNDATION_BLOCKER_PROFILE_DRAFT_REQUIRED,
+    SETUP_FOUNDATION_BLOCKER_SETUP_CONSENT_REQUIRED,
+    SETUP_FOUNDATION_BLOCKER_SETUP_CONTRACT_REQUIRED,
+    SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED,
+    SETUP_FOUNDATION_REASON_APPROVAL_MISSING,
+    SETUP_FOUNDATION_REASON_CONFIG_DRAFT_INVALID,
+    SETUP_FOUNDATION_REASON_CONFIG_DRAFT_MISSING,
+    SETUP_FOUNDATION_REASON_CONFIG_INVALID,
+    SETUP_FOUNDATION_REASON_CONFIG_MISSING,
+    SETUP_FOUNDATION_REASON_EXECUTION_CONSENT_REQUIRED,
+    SETUP_FOUNDATION_REASON_PROFILE_DRAFT_INVALID,
+    SETUP_FOUNDATION_REASON_PROFILE_DRAFT_MISSING,
+    SETUP_FOUNDATION_REASON_READY_FOR_FUTURE_SETUP_BRANCH,
+    SETUP_FOUNDATION_REASON_READY_LOCAL_DRAFT,
+    SETUP_FOUNDATION_REASON_SETUP_CONSENT_REQUIRED,
+    SETUP_FOUNDATION_REASON_SETUP_CONTRACT_REQUIRED,
+    SETUP_FOUNDATION_REASON_SETUP_ENTRY_DISABLED,
+    SETUP_FOUNDATION_REASON_VALIDATION_FAILED,
+    SETUP_FOUNDATION_PROVENANCE_APPROVAL,
+    SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT,
+    SETUP_FOUNDATION_PROVENANCE_CONSENT,
+    SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME,
+    SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT,
+    SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT,
+    SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+    SETUP_FOUNDATION_APPROVAL_STATUS_FUTURE_GATED,
+    SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+    SETUP_FOUNDATION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF,
+    SETUP_FOUNDATION_GATE_BLOCKED,
+    SETUP_FOUNDATION_GATE_FUTURE_GATED,
+    SETUP_FOUNDATION_GATE_LOCAL_DRAFT,
+    SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED,
+    SETUP_FOUNDATION_VALIDATION_STATIC_READY,
+    SETUP_FOUNDATION_PERSISTENCE_DISABLED,
+    SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
     PROVIDER_PROFILE_GATE_BLOCKED,
     PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
     CAPABILITY_GATE_BLOCKED,
@@ -625,6 +684,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_default_provider_activation_config,
     build_default_provider_execution_readiness_config,
     build_default_provider_path_consent_readiness_config,
+    build_default_provider_setup_foundation_config,
     build_fam007_foundation_readiness_state,
     build_default_provider_runtime_config,
     build_default_provider_readiness_config,
@@ -637,6 +697,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_provider_path_consent_readiness_state,
     build_provider_setup_consent_flow_readiness_state,
     build_provider_setup_contract_readiness_state,
+    build_provider_setup_implementation_foundation_state,
     build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
 )
@@ -1205,6 +1266,24 @@ def validate() -> list[str]:
         config.update(overrides)
         return config
 
+    def _setup_foundation_config(**overrides: object) -> dict[str, object]:
+        config: dict[str, object] = {
+            "schema_version": SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION,
+            "setup_entry_enabled": True,
+            "provider_profile_draft_present": True,
+            "provider_profile_draft_valid": True,
+            "provider_config_draft_present": True,
+            "provider_config_draft_valid": True,
+            "local_persistence_ready": True,
+            "validation_passed": True,
+            "setup_foundation_approved": False,
+            "setup_consent_ready": True,
+            "execution_consent_ready": True,
+            "provenance": "provider_config_draft",
+        }
+        config.update(overrides)
+        return config
+
     default_path_consent_config_snapshot = build_default_provider_path_consent_readiness_config()
     default_path_consent_snapshot = build_provider_path_consent_readiness_state(
         build_default_provider_readiness_config(),
@@ -1753,6 +1832,115 @@ def validate() -> list[str]:
         ),
         surface_role="core",
     )
+    setup_foundation_ready_contract_path_config = _path_consent_config(
+        provider_path_selected=True,
+        provider_config_present=True,
+        provider_available=True,
+        setup_consent_ready=True,
+        execution_consent_ready=True,
+        data_visibility_approved=True,
+        audit_ready=True,
+        capability_ready=True,
+        manifest_available=True,
+        manifest_valid=True,
+        safety_eval_complete=True,
+        setup_approved=True,
+        execution_approved=True,
+    )
+    setup_foundation_future_branch_path_config = dict(setup_foundation_ready_contract_path_config)
+    setup_foundation_future_branch_path_config["future_execution_branch_ready"] = True
+    default_setup_foundation_config_snapshot = build_default_provider_setup_foundation_config()
+    default_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        build_default_provider_readiness_config(),
+        surface_role="core",
+    )
+    missing_setup_foundation_config_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config=None,
+        surface_role="core",
+    )
+    invalid_setup_foundation_config_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config={
+            "schema_version": "provider-setup-implementation-foundation-config.v0",
+            "provenance": "setup_foundation_validation",
+        },
+        surface_role="core",
+    )
+    profile_missing_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config=_setup_foundation_config(provider_profile_draft_present=False),
+        surface_role="core",
+    )
+    profile_invalid_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config=_setup_foundation_config(provider_profile_draft_valid=False),
+        surface_role="core",
+    )
+    config_missing_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config=_setup_foundation_config(provider_config_draft_present=False),
+        surface_role="core",
+    )
+    config_invalid_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config=_setup_foundation_config(provider_config_draft_valid=False),
+        surface_role="core",
+    )
+    validation_failed_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config=_setup_foundation_config(validation_passed=False),
+        surface_role="core",
+    )
+    setup_consent_required_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config=_setup_foundation_config(setup_consent_ready=False),
+        surface_role="core",
+    )
+    execution_consent_required_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config=_setup_foundation_config(execution_consent_ready=False),
+        surface_role="core",
+    )
+    approval_missing_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config=_setup_foundation_config(),
+        surface_role="core",
+    )
+    ready_local_draft_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_ready_contract_path_config,
+        setup_foundation_config=_setup_foundation_config(setup_foundation_approved=True),
+        surface_role="core",
+    )
+    ready_future_branch_setup_foundation_snapshot = build_provider_setup_implementation_foundation_state(
+        execution_ready_readiness_config,
+        activation_config=execution_ready_activation_config,
+        path_consent_config=setup_foundation_future_branch_path_config,
+        setup_foundation_config=_setup_foundation_config(setup_foundation_approved=True),
+        surface_role="core",
+    )
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
@@ -1859,6 +2047,21 @@ def validate() -> list[str]:
         "policy_blocked": policy_blocked_setup_contract_snapshot.as_renderer_payload(),
         "setup_approval_missing": setup_approval_missing_setup_contract_snapshot.as_renderer_payload(),
         "ready_future_setup_branch": ready_future_setup_contract_snapshot.as_renderer_payload(),
+    }
+    setup_foundation_payloads = {
+        "default": default_setup_foundation_snapshot.as_renderer_payload(),
+        "missing_config": missing_setup_foundation_config_snapshot.as_renderer_payload(),
+        "invalid_config": invalid_setup_foundation_config_snapshot.as_renderer_payload(),
+        "profile_missing": profile_missing_setup_foundation_snapshot.as_renderer_payload(),
+        "profile_invalid": profile_invalid_setup_foundation_snapshot.as_renderer_payload(),
+        "config_missing": config_missing_setup_foundation_snapshot.as_renderer_payload(),
+        "config_invalid": config_invalid_setup_foundation_snapshot.as_renderer_payload(),
+        "validation_failed": validation_failed_setup_foundation_snapshot.as_renderer_payload(),
+        "setup_consent_required": setup_consent_required_setup_foundation_snapshot.as_renderer_payload(),
+        "execution_consent_required": execution_consent_required_setup_foundation_snapshot.as_renderer_payload(),
+        "approval_missing": approval_missing_setup_foundation_snapshot.as_renderer_payload(),
+        "ready_local_draft": ready_local_draft_setup_foundation_snapshot.as_renderer_payload(),
+        "ready_future_setup_branch": ready_future_branch_setup_foundation_snapshot.as_renderer_payload(),
     }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -4533,6 +4736,272 @@ def validate() -> list[str]:
             failures,
         )
 
+    setup_foundation_expectations = {
+        "default": (
+            SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONTRACT,
+            SETUP_FOUNDATION_ELIGIBILITY_BLOCKED,
+            SETUP_FOUNDATION_BLOCKER_SETUP_CONTRACT_REQUIRED,
+            SETUP_FOUNDATION_REASON_SETUP_CONTRACT_REQUIRED,
+            SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+            True,
+            SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED,
+            SETUP_FOUNDATION_PERSISTENCE_DISABLED,
+            SETUP_FOUNDATION_GATE_BLOCKED,
+        ),
+        "missing_config": (
+            SETUP_FOUNDATION_STATE_DISABLED,
+            SETUP_FOUNDATION_ELIGIBILITY_DISABLED,
+            SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED,
+            SETUP_FOUNDATION_REASON_CONFIG_MISSING,
+            SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_MISSING,
+            False,
+            SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED,
+            SETUP_FOUNDATION_PERSISTENCE_DISABLED,
+            SETUP_FOUNDATION_GATE_BLOCKED,
+        ),
+        "invalid_config": (
+            SETUP_FOUNDATION_STATE_DEGRADED,
+            SETUP_FOUNDATION_ELIGIBILITY_BLOCKED,
+            SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED,
+            SETUP_FOUNDATION_REASON_CONFIG_INVALID,
+            SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_INVALID,
+            False,
+            SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED,
+            SETUP_FOUNDATION_PERSISTENCE_DISABLED,
+            SETUP_FOUNDATION_GATE_BLOCKED,
+        ),
+        "profile_missing": (
+            SETUP_FOUNDATION_STATE_BLOCKED_BY_PROFILE,
+            SETUP_FOUNDATION_ELIGIBILITY_BLOCKED,
+            SETUP_FOUNDATION_BLOCKER_PROFILE_DRAFT_REQUIRED,
+            SETUP_FOUNDATION_REASON_PROFILE_DRAFT_MISSING,
+            SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED,
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+            SETUP_FOUNDATION_GATE_BLOCKED,
+        ),
+        "profile_invalid": (
+            SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION,
+            SETUP_FOUNDATION_ELIGIBILITY_BLOCKED,
+            SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED,
+            SETUP_FOUNDATION_REASON_PROFILE_DRAFT_INVALID,
+            SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED,
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+            SETUP_FOUNDATION_GATE_BLOCKED,
+        ),
+        "config_missing": (
+            SETUP_FOUNDATION_STATE_BLOCKED_BY_CONFIG,
+            SETUP_FOUNDATION_ELIGIBILITY_BLOCKED,
+            SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED,
+            SETUP_FOUNDATION_REASON_CONFIG_DRAFT_MISSING,
+            SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED,
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+            SETUP_FOUNDATION_GATE_BLOCKED,
+        ),
+        "config_invalid": (
+            SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION,
+            SETUP_FOUNDATION_ELIGIBILITY_BLOCKED,
+            SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED,
+            SETUP_FOUNDATION_REASON_CONFIG_DRAFT_INVALID,
+            SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED,
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+            SETUP_FOUNDATION_GATE_BLOCKED,
+        ),
+        "validation_failed": (
+            SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION,
+            SETUP_FOUNDATION_ELIGIBILITY_BLOCKED,
+            SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED,
+            SETUP_FOUNDATION_REASON_VALIDATION_FAILED,
+            SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED,
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+            SETUP_FOUNDATION_GATE_BLOCKED,
+        ),
+        "setup_consent_required": (
+            SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONSENT,
+            SETUP_FOUNDATION_ELIGIBILITY_BLOCKED,
+            SETUP_FOUNDATION_BLOCKER_SETUP_CONSENT_REQUIRED,
+            SETUP_FOUNDATION_REASON_SETUP_CONSENT_REQUIRED,
+            SETUP_FOUNDATION_PROVENANCE_CONSENT,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            SETUP_FOUNDATION_VALIDATION_STATIC_READY,
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+            SETUP_FOUNDATION_GATE_BLOCKED,
+        ),
+        "execution_consent_required": (
+            SETUP_FOUNDATION_STATE_BLOCKED_BY_EXECUTION_CONSENT,
+            SETUP_FOUNDATION_ELIGIBILITY_BLOCKED,
+            SETUP_FOUNDATION_BLOCKER_EXECUTION_CONSENT_REQUIRED,
+            SETUP_FOUNDATION_REASON_EXECUTION_CONSENT_REQUIRED,
+            SETUP_FOUNDATION_PROVENANCE_CONSENT,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            SETUP_FOUNDATION_VALIDATION_STATIC_READY,
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+            SETUP_FOUNDATION_GATE_BLOCKED,
+        ),
+        "approval_missing": (
+            SETUP_FOUNDATION_STATE_READY_BUT_NOT_APPROVED,
+            SETUP_FOUNDATION_ELIGIBILITY_READY_NOT_APPROVED,
+            SETUP_FOUNDATION_BLOCKER_APPROVAL_REQUIRED,
+            SETUP_FOUNDATION_REASON_APPROVAL_MISSING,
+            SETUP_FOUNDATION_PROVENANCE_APPROVAL,
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            SETUP_FOUNDATION_VALIDATION_STATIC_READY,
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+            SETUP_FOUNDATION_GATE_LOCAL_DRAFT,
+        ),
+        "ready_local_draft": (
+            SETUP_FOUNDATION_STATE_READY_LOCAL_DRAFT,
+            SETUP_FOUNDATION_ELIGIBILITY_LOCAL_DRAFT,
+            SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH,
+            SETUP_FOUNDATION_REASON_READY_LOCAL_DRAFT,
+            SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME,
+            SETUP_FOUNDATION_APPROVAL_STATUS_FUTURE_GATED,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            SETUP_FOUNDATION_VALIDATION_STATIC_READY,
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+            SETUP_FOUNDATION_GATE_FUTURE_GATED,
+        ),
+        "ready_future_setup_branch": (
+            SETUP_FOUNDATION_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+            SETUP_FOUNDATION_ELIGIBILITY_FUTURE_SETUP_BRANCH,
+            SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH,
+            SETUP_FOUNDATION_REASON_READY_FOR_FUTURE_SETUP_BRANCH,
+            SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME,
+            SETUP_FOUNDATION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            SETUP_FOUNDATION_VALIDATION_STATIC_READY,
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+            SETUP_FOUNDATION_GATE_FUTURE_GATED,
+        ),
+    }
+    _require(
+        default_setup_foundation_config_snapshot.schema_version == SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION
+        and default_setup_foundation_config_snapshot.config_valid,
+        "default setup foundation config must publish the setup foundation schema and remain valid",
+        failures,
+    )
+    for label, expectation in setup_foundation_expectations.items():
+        foundation_payload = setup_foundation_payloads[label]
+        (
+            expected_state,
+            expected_eligibility,
+            expected_blocker,
+            expected_reason,
+            expected_provenance,
+            expected_approval,
+            expected_config_state,
+            expected_config_valid,
+            expected_validation,
+            expected_persistence,
+            expected_gate,
+        ) = expectation
+        _require(
+            foundation_payload["stateId"] == FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_STATE_ID,
+            f"{label} setup-foundation fixture must use setup implementation foundation state id",
+            failures,
+        )
+        _require(
+            foundation_payload["mode"] == FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_MODE,
+            f"{label} setup-foundation fixture must use setup implementation foundation mode",
+            failures,
+        )
+        _require(
+            foundation_payload["providerSetupFoundationStateSchemaVersion"]
+            == SETUP_FOUNDATION_STATE_SCHEMA_VERSION
+            and foundation_payload["providerSetupFoundationConfigSchemaVersion"]
+            == SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION,
+            f"{label} setup-foundation fixture must publish setup foundation schemas",
+            failures,
+        )
+        _require(
+            foundation_payload["providerSetupFoundationState"] == expected_state
+            and foundation_payload["providerSetupFoundationEligibilityState"] == expected_eligibility
+            and foundation_payload["providerSetupFoundationBlockerState"] == expected_blocker
+            and foundation_payload["providerSetupFoundationReasonCode"] == expected_reason
+            and foundation_payload["providerSetupFoundationProvenance"] == expected_provenance
+            and foundation_payload["providerSetupFoundationApprovalStatus"] == expected_approval,
+            f"{label} setup-foundation fixture must publish expected setup foundation values",
+            failures,
+        )
+        _require(
+            foundation_payload["providerSetupFoundationConfigState"] == expected_config_state
+            and foundation_payload["providerSetupFoundationConfigValid"] is expected_config_valid,
+            f"{label} setup-foundation fixture must publish expected config posture",
+            failures,
+        )
+        _require(
+            foundation_payload["providerSetupFoundationValidationStatus"] == expected_validation
+            and foundation_payload["providerSetupFoundationPersistenceStatus"] == expected_persistence
+            and foundation_payload["providerSetupFoundationGateState"] == expected_gate,
+            f"{label} setup-foundation fixture must publish expected validation/persistence gates",
+            failures,
+        )
+        _require(
+            foundation_payload["localNullProviderFallbackProof"] == "local-null-provider-fallback-no-provider-calls"
+            and foundation_payload["providerSetupImplementationHandoffState"]
+            == "future-provider-setup-implementation-handoff-ready"
+            and foundation_payload["providerSetupImplementationFoldDownPosture"]
+            == "setup-implementation-foundation-fold-down-ready-for-pr-release",
+            f"{label} setup-foundation fixture must publish local/null fallback and handoff proof",
+            failures,
+        )
+        _require(
+            foundation_payload["providerVisibleData"] == "none"
+            and foundation_payload["sentToProvider"] is False
+            and foundation_payload["canAcceptPrompts"] is False,
+            f"{label} setup-foundation fixture must keep provider-visible data none and prompts disabled",
+            failures,
+        )
+        _require(
+            foundation_payload["promptSendPosture"] == PROMPT_SEND_POSTURE_DISABLED
+            and foundation_payload["modelExecutionStatus"] == MODEL_EXECUTION_STATUS_DISABLED
+            and foundation_payload["providerExecutionGateState"] == PROVIDER_EXECUTION_GATE_DISABLED,
+            f"{label} setup-foundation fixture must keep prompt/provider/model execution disabled",
+            failures,
+        )
+        _require(
+            foundation_payload["capabilityPackDownloadState"] == CAPABILITY_PACK_DOWNLOADS_BLOCKED
+            and foundation_payload["capabilityPackInstallState"] == CAPABILITY_PACK_INSTALL_BLOCKED
+            and foundation_payload["memoryIndexingState"] == MEMORY_INDEXING_DISABLED
+            and foundation_payload["networkEgressState"] == NETWORK_EGRESS_BLOCKED
+            and foundation_payload["voiceRuntimeState"] == "voice-runtime-disabled",
+            f"{label} setup-foundation fixture must keep downloads/install, memory, network, and voice gated",
+            failures,
+        )
+
     default_permissions = readiness_payloads["default"]["actionPermissionMatrix"]
     _require(
         len(default_permissions) == 9,
@@ -4823,7 +5292,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "build_provider_setup_contract_readiness_state",
+        "build_provider_setup_implementation_foundation_state",
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
@@ -4878,6 +5347,11 @@ def validate() -> list[str]:
         "setup_contract_blocker",
         "setup_contract_approval",
         "setup_contract_gate",
+        "setup_foundation",
+        "setup_foundation_blocker",
+        "setup_foundation_validation",
+        "setup_foundation_persistence",
+        "setup_foundation_gate",
         "provider_setup_handoff",
         "provider_consent_handoff",
         "desktop_readiness_display",
@@ -4988,6 +5462,12 @@ def validate() -> list[str]:
             'data-setup-contract-blocker="setup_contract_provider_path_required"',
             'data-setup-contract-approval="setup-contract-approval-missing"',
             'data-setup-contract-gate="setup-contract-gate-blocked"',
+            'data-setup-foundation-state="setup_foundation_unavailable"',
+            'data-setup-foundation-blocker="setup_foundation_setup_contract_required"',
+            'data-setup-foundation-approval="setup-foundation-approval-missing"',
+            'data-setup-foundation-validation="setup-foundation-validation-fail-closed"',
+            'data-setup-foundation-persistence="setup-foundation-persistence-disabled"',
+            'data-setup-foundation-gate="setup-foundation-gate-blocked"',
             'data-provider-setup-handoff="provider-setup-handoff-future-gated"',
             'data-data-classification-posture="data-classification-local-only"',
             'data-audit-envelope="audit-envelope-planned-no-collection"',
@@ -5161,6 +5641,16 @@ def validate() -> list[str]:
             "Setup contract blocker: provider path readiness required",
             'id="ai-provider-status-setup-contract-handoff"',
             "Setup contract handoff: future setup branch gated",
+            'id="ai-provider-status-setup-foundation"',
+            "Setup implementation foundation: unavailable",
+            'id="ai-provider-status-setup-foundation-blocker"',
+            "Setup foundation blocker: setup contract readiness required",
+            'id="ai-provider-status-setup-foundation-validation"',
+            "Setup foundation validation: fail-closed",
+            'id="ai-provider-status-setup-foundation-persistence"',
+            "Setup foundation persistence: disabled; no provider credentials stored",
+            'id="ai-provider-status-setup-foundation-handoff"',
+            "Setup foundation handoff: future provider setup implementation gated",
             'id="ai-provider-status-setup-consent"',
             "Setup consent: required before provider setup",
             'id="ai-provider-status-execution-consent"',
@@ -5227,6 +5717,11 @@ def validate() -> list[str]:
         ".ai-provider-status__setup-contract",
         ".ai-provider-status__setup-contract-blocker",
         ".ai-provider-status__setup-contract-handoff",
+        ".ai-provider-status__setup-foundation",
+        ".ai-provider-status__setup-foundation-blocker",
+        ".ai-provider-status__setup-foundation-validation",
+        ".ai-provider-status__setup-foundation-persistence",
+        ".ai-provider-status__setup-foundation-handoff",
         ".ai-provider-status__setup-consent",
         ".ai-provider-status__execution-consent",
         ".ai-provider-status__consent-schema",
@@ -5416,6 +5911,13 @@ def validate() -> list[str]:
         "providerSetupContractBlockerState",
         "providerSetupContractApprovalStatus",
         "providerSetupContractGateState",
+        "providerSetupFoundationState",
+        "providerSetupFoundationBlockerState",
+        "providerSetupFoundationApprovalStatus",
+        "providerSetupFoundationValidationStatus",
+        "providerSetupFoundationPersistenceStatus",
+        "providerSetupFoundationGateState",
+        "providerSetupImplementationHandoffState",
         "setupConsentGateState",
         "executionConsentGateState",
         "providerVisibleDataGateState",
@@ -5466,6 +5968,11 @@ def validate() -> list[str]:
         "aiProviderStatusSetupContract",
         "aiProviderStatusSetupContractBlocker",
         "aiProviderStatusSetupContractHandoff",
+        "aiProviderStatusSetupFoundation",
+        "aiProviderStatusSetupFoundationBlocker",
+        "aiProviderStatusSetupFoundationValidation",
+        "aiProviderStatusSetupFoundationPersistence",
+        "aiProviderStatusSetupFoundationHandoff",
         "aiProviderStatusSetupConsent",
         "aiProviderStatusExecutionConsent",
         "aiProviderStatusConsentSchema",

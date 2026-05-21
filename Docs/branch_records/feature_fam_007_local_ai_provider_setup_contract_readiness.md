@@ -4,11 +4,11 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-
 
 ## Record State
 
-Record State: `Historical Merged-Unreleased Evidence`
+Record State: `Historical Released Evidence`
 
 ## Status
 
-Status: `Merged in PR #190 - Workstream, H1, LV1, setup contract readiness proof, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, PR Readiness Stage 2, PR merge, and post-merge source-truth repair are recorded; release execution requires separate USER approval`
+Status: `Released in v1.7.11-prebeta - Workstream, H1, LV1, setup contract readiness proof, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, PR Readiness Stage 2, PR #190 merge, PR #191 release-readiness support, and v1.7.11 release publication are recorded`
 
 ## Canonical Branch
 
@@ -18,22 +18,22 @@ Canonical Branch: `feature/fam-007-local-ai-provider-setup-contract-readiness`
 
 Phase: `Historical Traceability`
 
-Stage: `Post-merge Release Readiness source-truth posture`
+Stage: `Released historical source-truth posture`
 
-Seam: `PR #190 merged-unreleased fold-down`
+Seam: `PR #190 released fold-down`
 
 ## Phase Status
 
 - Branch Authority Marker: `Historical Branch Evidence Projection`
 - Branch Evidence: `feature/fam-007-local-ai-provider-setup-contract-readiness`
-- Branch Authority State: `Historical merged-unreleased evidence - PR #190 merged this carrier, merged-main authority is No Active Branch for runtime/product work, and no successor runtime branch is selected by inertia`
+- Branch Authority State: `Historical released evidence - PR #190 merged this carrier and v1.7.11-prebeta published it before the next FAM-007 carrier was selected`
 - Stage 2 Status: `Complete - source truth, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, and bounded setup contract readiness Workstream admission recorded`
 - Workstream Status: `Green - setup contract readiness state/schema, profile/config requirements, preconditions, consent prerequisites, handoff gates, UI/status proof, validator fixtures, and continuation criteria implemented`
 - Hardening H1 Status: `Green - plan-vs-implementation, Branch Runtime Engineering Plan, Runtime Branch Engineering Contract, setup contract schema, provider profile/config requirements, consent prerequisites, handoff gates, Core/Desktop/ORIN status proof, desktop readiness display suppression continuity, validator fixtures, and approval boundaries inspected with no remaining H1 blocker`
 - Live Validation LV1 Status: `Green - disabled/status-only local setup contract readiness scaffold validated with static Core/Desktop/ORIN source-truth, provider-state validator proof, desktop readiness display suppression continuity, no provider-visible data, disabled prompt/model execution, blocked downloads/network, disabled memory/indexing, gated voice/Core sync, and explicit User Test Summary waiver`
 - PR Readiness Stage 1 Status: `Complete - selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, release-readiness health, release-window posture, and branch-authority historical projection were recorded before PR creation`
 - PR Readiness Stage 2 Status: `Complete - PR #190 merged this branch into main`
-- Release Readiness Source Truth Status: `Repaired - PR #190 is recorded as merged-unreleased FAM-007 setup contract readiness scope after v1.7.10-prebeta`
+- Release Readiness Source Truth Status: `Closed - PR #190 is recorded as released FAM-007 setup contract readiness scope in v1.7.11-prebeta`
 - Runtime Implementation Approval: `Granted - USER approved bounded setup contract readiness Workstream implementation; provider setup, consent collection, SDK/model execution, and runtime work remain pending USER decisions`
 
 ## Branch Class
@@ -46,8 +46,9 @@ Seam: `PR #190 merged-unreleased fold-down`
 - Worktree: `C:\Nexus Worktrees\FAM-007`
 - Base / merge base: `origin/main` at `b67e59df0481091bfbeb739c4b5e1954552bb421`
 - Release closure carried into setup: `v1.7.10-prebeta`
+- Release publication after merge: `v1.7.11-prebeta`
 - Release tag commit: `fe65c3bb6d11439c1ab93c82239b76a6de1b8782`
-- Release URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.10-prebeta`
+- Release URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.11-prebeta`
 - Released PR window recorded for closure: PR #182 through PR #187
 - Prior FAM-007 released evidence: PR #179, `feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness`
 
@@ -76,9 +77,9 @@ Rollback Details: Return `C:\Nexus Worktrees\FAM-007` to `origin/main` at `b67e5
 
 ## Next Legal Phase
 
-`Release Readiness`
+`Branch Readiness`
 
-Next Legal Phase Detail: Release Readiness Stage 2 preparation for the `v1.7.11-prebeta` candidate after PR #190 merge and source-truth repair; release execution remains a separate USER decision.
+Next Legal Phase Detail: `v1.7.11-prebeta` release execution is complete for PR #190; USER approved the next FAM-007 Branch Readiness Stage 2 carrier `feature/fam-007-local-ai-provider-setup-implementation-foundation`.
 
 ## Bounded State
 
@@ -184,7 +185,7 @@ Complete the FAM-007 setup contract readiness carrier after `v1.7.10-prebeta` re
 
 ## Target End-State
 
-This branch is historical merged-unreleased PR #190 evidence with setup contract readiness state/schema, profile/config requirements, setup preconditions, consent prerequisites, handoff gates, UI/status proof, validator fixtures, source truth, validation, PR creation, and merge complete; release execution remains a separate USER decision.
+This branch is historical released PR #190 evidence with setup contract readiness state/schema, profile/config requirements, setup preconditions, consent prerequisites, handoff gates, UI/status proof, validator fixtures, source truth, validation, PR creation, merge, PR #191 release-readiness support, and v1.7.11 publication complete.
 
 ## Backlog Completion Strategy
 
@@ -297,7 +298,7 @@ Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Wor
 
 ## Active Seam
 
-Active seam: `None - historical merged-unreleased evidence after PR #190 merge`
+Active seam: `None - historical released evidence after PR #190 merge and v1.7.11-prebeta publication`
 
 Goal: Preserve setup contract readiness proof for Release Readiness translation without admitting provider setup or execution.
 
@@ -338,8 +339,8 @@ Non-Includes: Provider setup implementation, consent collection, SDK/model execu
 
 - Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
 - Branch Runtime Engineering Plan: Accepted - present at `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
-- Branch Runtime Engineering Plan Status: implemented through bounded Workstream, H1 Green, LV1 Green, PR Readiness Stage 1 fold-down, PR Readiness Stage 2, and PR #190 merge; historical merged-unreleased until release.
-- Engineering Plan Status: Historical merged-unreleased after PR #190; release/public-scope translation pending Release Readiness.
+- Branch Runtime Engineering Plan Status: implemented through bounded Workstream, H1 Green, LV1 Green, PR Readiness Stage 1 fold-down, PR Readiness Stage 2, PR #190 merge, PR #191 release-readiness support, and v1.7.11-prebeta publication; historical released evidence.
+- Engineering Plan Status: Historical released after PR #190 and v1.7.11-prebeta publication.
 - PR Fold-Down Packet: Complete - PR #190 merged this branch and the plan is retained as historical branch evidence.
 
 ## Workstream Admission
@@ -583,9 +584,9 @@ Release Window Scope Boundary: `Provider setup implementation, consent collectio
 
 ## Release Canon Closure
 
-- Latest Public Prerelease Recorded In Source Truth: `v1.7.10-prebeta`.
+- Latest Public Prerelease Recorded In Source Truth: `v1.7.11-prebeta`.
 - Latest Public Release Commit: `fe65c3bb6d11439c1ab93c82239b76a6de1b8782`.
-- Latest Public Release URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.10-prebeta`.
+- Latest Public Release URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.11-prebeta`.
 - Published Release Pending Canon Closure: None.
 - Released PR Window: PR #182 through PR #187.
 - Post-Release Canon Closure Drift: closed by this Stage 2 setup.
@@ -606,4 +607,4 @@ Release Readiness Stage 2, release execution, provider setup implementation, con
 
 ## Exact USER Decision Needed
 
-Approve Release Readiness Stage 2 preparation for the `v1.7.11-prebeta` candidate after PR #190, then decide separately whether to execute the release.
+Use this record as released historical evidence for the active FAM-007 setup implementation foundation Branch Readiness Stage 2 carrier.
