@@ -555,6 +555,228 @@ Validator/helper posture:
 - `dev/orin_branch_readiness_planning_fixture_validation.py` proves valid accepted vision, invalid proposed-only assumptions, and invalid blocking open vision questions through fixtures.
 - Heavy enforcement against historical branch records remains deferred so old receipts are not broken by a new model.
 
+## USER Feedback Disposition Implementation Plan - 2026-05-21
+
+Scope:
+- Plan the USER Feedback Disposition model before implementation.
+- Preserve meaningful USER feedback without creating another permanent feedback ledger.
+- Keep this as planning/source-truth model work only until USER separately approves source-rule, validator, fixture, or template edits.
+- Add repo naming / governance taxonomy reform planning so feedback IDs, phase labels, workstream labels, and file names become easier for USER, ChatGPT, and Codex to call consistently.
+
+Recommended model:
+- Active full-detail feedback belongs in the active Branch Runtime Engineering Plan at `Docs/branch_plans/<branch_slug>.md`.
+- Every meaningful USER feedback item should have one stable ID, one full-detail active owner, one disposition state, one USER decision state, one current/future branch impact classification, and one fold-down target.
+- Branch records carry compact feedback status and a pointer to the active branch plan.
+- Backlog carries compact future-candidate pointers only after USER accepts the future-work disposition.
+- Roadmap carries no feedback detail unless the accepted feedback changes release-stage breakpoint or public milestone sequencing.
+- Worktree slots carry no feedback detail.
+- Nexus Vision and family vision/family dossier owners receive only accepted reusable standards, not branch-local unresolved feedback.
+- Workstream docs and family dossiers receive folded durable outcomes, proof history, branch lessons, package trace, slice trace, and reusable continuity during PR Readiness fold-down.
+
+Feedback ID recommendation:
+- Use `UFD-<scope>-YYYYMMDD-NNN` for USER Feedback Disposition IDs.
+- Do not use `FBK-*`; it collides visually with historical `FB-###` records and could be misread as a backlog identity.
+- Scope examples: `UFD-FAM006-20260521-001`, `UFD-FAM007-20260521-001`, `UFD-GOV-20260521-001`, `UFD-NEXUS-20260521-001`.
+- The ID is the compact pointer used by branch records, backlog, roadmap, workstreams, family dossiers, and PR fold-down receipts. Full feedback text should not be copied into each pointer location.
+
+Split-state recommendation:
+
+| Field | Purpose | Allowed planning values |
+| --- | --- | --- |
+| `Disposition Type:` | What kind of feedback item this is. | Current Branch Requirement; Current Seam Blocker; Current Seam Non-Blocking Queue; Branch Plan Revision Required; Future Branch Candidate; Family Vision Update Candidate; Nexus Vision Update Candidate; Backlog Pointer Candidate; Branch Receipt Item; Workstream / Family Dossier Item; Rejected / No Action |
+| `USER Decision State:` | Whether USER has accepted the disposition. | Proposed by Codex; Recommended by ChatGPT; Accepted by USER; Revised by USER; Rejected by USER; Deferred by USER; Deferred With Waiver; Superseded; Needs USER Decision |
+| `Workstream Severity:` | How much it affects implementation continuity. | Level 1 Non-Blocking; Level 2 Seam-Blocking; Level 3 Workstream-Breaking |
+| `Owner Class:` | Which source-truth layer owns the durable fact. | Branch Plan; Branch Record; Backlog Pointer; Roadmap Pointer; Nexus Vision; Family Vision / Dossier; Workstream Doc; Governance Receipt; No Durable Owner Needed |
+
+Required feedback item fields:
+- `Feedback ID:`
+- `Feedback Summary:`
+- `Source:` chat, USER file, User Test Summary, ChatGPT review, GitHub review, validation result, or live proof.
+- `Date / Phase:`
+- `Affected Branch / Seam:`
+- `Original Feedback Location:`
+- `Disposition Type:`
+- `Proposed Disposition:`
+- `Accepted Disposition:`
+- `USER Decision State:`
+- `Workstream Severity:`
+- `Canonical Owner File:`
+- `Pointer Locations:`
+- `Current Branch Impact:`
+- `Future Branch Impact:`
+- `Codex Recommendation:`
+- `ChatGPT Critique / Review:`
+- `Follow-Up Required:`
+- `Fold-Down Target:`
+- `Final Owner After PR Readiness:`
+
+Fold-down receipt rule:
+- PR Readiness Stage 1 must compare all open feedback items against the accepted branch plan and accepted Branch Vision Contract Snapshot.
+- PR Readiness Stage 2 may proceed only when every meaningful feedback item is migrated, deferred with waiver, rejected/no-action with reason, closed, or explicitly carried to a future owner.
+- The fold-down receipt should include `Feedback ID`, original owner, final disposition, final owner, USER decision, proof or migration reference, branch-plan retirement/deletion eligibility, and remaining open items.
+- Branch plan deletion remains a separate USER decision. The default post-PR outcome is folded/retired posture, not deletion.
+
+Validator/helper implementation posture:
+- Initial implementation should add source-truth rule text, branch-plan template markers, fixture examples, and marker-based validator scaffolding.
+- Heavy enforcement against historical branch records is deferred because old receipts contain many historical feedback/disposition phrases that were not created under this model.
+- False-positive-prone duplicate full-text detection should be report-only until fixtures prove the pattern.
+
+### Repo Naming / Governance Taxonomy Reform Addendum
+
+Purpose:
+- Make governance names easy for USER to call, easy for Codex to follow, easy for validators to report, and hard to confuse with backlog IDs, branch IDs, feedback IDs, or historical records.
+- Reduce ambiguity that causes drift, especially around phase/stage/seam/slice/package/workstream/family and live-state/current-state language.
+- Produce naming recommendations only. Bulk rename execution, file moves, directory moves, historical rewrites, and validator enforcement remain pending USER decisions.
+
+Naming inventory:
+
+| Term / Label | Current meaning / context | Correct intended meaning | Ambiguity risk | Recommended future name / usage | Owner documentation | Migration priority | USER decision needed |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Phase | Lifecycle state in phase governance. | Top-level lifecycle state. | Medium: sometimes used for substeps. | Keep `Phase`; define once. | `Docs/phase_governance.md`, `Docs/Main.md` | Low | No |
+| Stage | Ordered sub-step inside a phase. | Stage 1 analysis vs Stage 2 execution/setup. | Medium: sometimes confused with release stage. | Keep `Stage`; always pair with phase name. | `Docs/phase_governance.md` | Low | No |
+| Seam | Bounded execution checkpoint inside Workstream. | Workstream execution lane/checkpoint. | High: sometimes treated as final branch scope. | Keep `Seam`; define as bounded checkpoint, not automatic stop. | `Docs/Main.md`, `Docs/phase_governance.md` | Medium | No |
+| Slice | Traceable deliverable unit inside a package. | Smaller admitted implementation unit. | High: overlaps seam in conversation. | Keep `Slice`; require `Slice = deliverable`, `Seam = execution checkpoint`. | `Docs/workstreams/index.md` | Medium | No |
+| Workstream | Phase name and durable doc family. | Build/implementation phase; also promoted work record. | High: process and file owner share name. | Keep canonical `Workstream`; use `Workstream Doc` for files. | `Docs/workstreams/index.md` | Medium | No |
+| Package | Grouped delivery scope under one family. | Branch/release package of related slices. | Medium: can sound like installer package. | Keep `Package`; expand as `Feature Package` at first use. | `Docs/feature_backlog.md` | Medium | No |
+| Family | Long-lived product area. | Broad feature family. | Medium: FAM IDs can look temporary. | Keep `Family`; expand `FAM` at first use. | `Docs/feature_backlog.md` | Low | No |
+| Backlog Item | Product registry entry. | Broad selectable family/package identity. | Medium: legacy FB rows are historical only. | Use `Backlog Family` for FAM records; `historical trace` for old FB rows. | `Docs/feature_backlog.md` | Medium | No |
+| Branch Authority Record | Branch legal control surface. | Branch authority, approvals, phase history, compact receipt. | Low/Medium: often shortened to branch record. | Keep; allow `Branch Record` as alias after first use. | `Docs/branch_records/index.md` | Low | No |
+| Branch Runtime Engineering Plan | Active detailed branch plan. | Runtime-focused active execution blueprint. | Medium: long name. | Keep formal name; alias `Branch Plan` after first use. | `Docs/branch_plans/README.md` | Low | No |
+| Branch Plan | Short alias. | Alias for Branch Runtime Engineering Plan when context is clear. | Medium: could mean any plan. | Use only after formal name is introduced. | `Docs/branch_plans/README.md` | Medium | No |
+| Branch Receipt | Folded historical branch evidence. | Compact/structured historical branch trace. | Medium: not consistently defined. | Define as `Structured Branch Receipt`. | `Docs/branch_records/index.md` | Medium | No |
+| Worktree Slot | Stable workspace role assignment. | Intended lane assignment, not live state. | Low/Medium. | Keep; always say slot does not equal active authority. | `Docs/worktree_slots.md` | Low | No |
+| Governance Receipt | Historical interpretation after validation. | Recorded decision/evidence, not live truth. | Medium. | Keep; define beside derived live truth. | `Docs/governance_efficiency_operating_model.md` | Low | No |
+| Runtime Branch Engineering Contract | Engineering intent contract. | Branch-wide runtime baseline/delta/proof contract. | Medium: overlaps branch plan. | Keep; state contract = intent, plan = execution blueprint. | `Docs/phase_governance.md` | Low | No |
+| Vision Contract | Product/design intent layer. | USER-accepted product/design standard. | Medium: can sound like new file. | Keep; use `Nexus Vision`, `Family Vision`, or `Branch Vision Snapshot` by scope. | `Docs/branch_plans/README.md` | Medium | Future file decision |
+| Branch Vision Snapshot | Branch-specific accepted vision. | Snapshot inside active branch plan. | Low. | Use `Branch Vision Contract Snapshot` formally. | `Docs/branch_plans/README.md` | Low | No |
+| USER Feedback Disposition | Feedback routing model. | Item-level classification and final owner proof. | New term. | Use `USER Feedback Disposition (UFD)` with ID glossary. | This plan; future branch-plan README update | High | Implementation approval |
+| USER Decision Ledger | Planning decision record. | USER decisions, waivers, rejects, accepts. | Medium: could duplicate UFD. | Keep; UFD items link to it rather than copy. | `Docs/phase_governance.md` | Medium | No |
+| Assumption Ledger | Design assumption states. | Codex/ChatGPT/USER assumption decision states. | Medium. | Use `Design Assumption Ledger`. | `Docs/branch_plans/README.md` | Low | No |
+| Vision Question Digest | Packet for design uncertainty. | Question packet when vision/design uncertainty blocks or affects work. | Low. | Keep. | `Docs/branch_plans/README.md` | Low | No |
+| Branch Plan Revision Packet | Controlled plan change packet. | Required when accepted scope/vision changes. | Low. | Keep. | `Docs/branch_plans/README.md` | Low | No |
+| Hardening | Stabilization/proof phase. | Repo-side stabilization and plan comparison. | Medium for USER. | Keep canonical; optional alias `Stabilize`. | `Docs/phase_governance.md` | Low | No |
+| Live Validation | User-observable validation phase. | Live/static proof, UTS, waiver posture. | Medium. | Keep canonical; optional alias `User Proof`. | `Docs/phase_governance.md` | Low | No |
+| PR Readiness | Merge-readiness phase. | Stage 1 analysis and Stage 2 PR execution/watch. | Medium. | Keep canonical; aliases `Merge Readiness Audit` and `PR Execution / Watch`. | `Docs/phase_governance.md` | Low | No |
+| Release Readiness | Release validation phase. | File-frozen release candidate validation. | Medium: confused with release execution. | Keep; always separate from `Release Execution`. | `Docs/phase_governance.md` | Low | No |
+| Branch Readiness | Branch planning/setup phase. | Stage 1 analysis, Stage 2 setup/admission. | Medium. | Keep; aliases `Plan Review` and `Setup / Admission`. | `Docs/phase_governance.md` | Low | No |
+| RRI | Standing governance intake cycle ID. | Release Readiness / governance intake cycle. | High: acronym is opaque. | Keep `RRI-*`; expand as `Release Readiness Intake` or `Governance Intake Cycle` at first use. | `Docs/branch_records/index.md` | Medium | Maybe rename later |
+| UTS | User Test Summary. | USER validation questionnaire / returned proof. | Medium. | Keep; expand at first use in prompts. | `Docs/user_test_summary_guidance.md` | Low | No |
+| SLC | Slice shorthand. | Slice ID or source-owner ledger row depending context. | High collision risk. | Avoid in new USER-facing prose; use `Slice` unless source-owner marker ID requires `SLC`. | `Docs/workstreams/index.md`, source-owner inventory | High | No for prose, yes for ID migration |
+| PKG | Package shorthand. | Package ID. | Medium. | Keep in tables; expand `Package` at first use. | `Docs/feature_backlog.md` | Low | No |
+| FAM | Feature Family shorthand. | Long-lived feature family ID. | Low/Medium. | Keep; expand `Feature Family (FAM)` at first use. | `Docs/feature_backlog.md` | Low | No |
+| FB | Legacy backlog/workstream shorthand. | Historical trace only. | High: conflicts with future feedback IDs. | Preserve historical `FB-###`; never use for new feedback IDs or live backlog identities. | `Docs/feature_backlog.md`, `Docs/workstreams/index.md` | High | No |
+| LV | Live Validation shorthand. | Live Validation stage shorthand, often LV1/LV2. | Medium. | Use `Live Validation LV1` at first use. | `Docs/phase_governance.md` | Low | No |
+| H1 | Hardening pass shorthand. | Hardening stage/pass evidence. | Medium. | Use `Hardening H1` at first use. | `Docs/phase_governance.md` | Low | No |
+| PR | Pull Request. | GitHub pull request evidence only. | Low/Medium. | Keep; never use PR number as backlog/workstream identity. | `Docs/Main.md` | Low | No |
+| Release Window | Set of merged PRs since last release. | Derived release inventory for Release Readiness. | Medium: can become live ledger. | Keep; derive from GitHub/helper, record only historical receipt. | `Docs/prebeta_roadmap.md` | Medium | No |
+| Current State | Often means live state or compact decision surface. | Avoid as owner unless clearly historical/current-summary. | High. | Prefer `Current Summary`, `Decision Surface`, or derived live truth. | `Docs/governance_efficiency_operating_model.md` | High | No |
+| Active Branch | Legal current branch authority. | Active branch authorized by branch record, not slot or git alone. | High. | Use `Active Branch Authority` when legal meaning matters. | `Docs/branch_records/index.md` | High | No |
+| Selected Next | USER-approved next branch/workstream posture. | Future selected work, not active branch by inertia. | High. | Use `Selected Next Workstream` or `Selected Next: Deferred/Waived`. | `Docs/phase_governance.md` | High | No |
+| No Active Branch | Merged-main runtime/implementation idle posture. | No runtime/implementation/release/repair carrier active; standing governance may still exist. | High. | Keep with explicit standing-governance exception. | `Docs/branch_records/index.md` | High | No |
+
+File naming analysis:
+
+| Category | Preferred naming pattern | Preserve | Phase out later | Migration risk | USER decision needed |
+| --- | --- | --- | --- | --- | --- |
+| Top-level Docs files | `Docs/<clear_topic>.md`; noun phrase matching owner role. | `Docs/Main.md`, `Docs/phase_governance.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`. | Ambiguous old one-off topic files only after reference scan. | Medium because many prompts reference exact paths. | Yes for deletion/rename. |
+| Branch records | `Docs/branch_records/<branch_slug>.md`. | Historical `codex_*` and `feature_*` records as receipts. | New active `codex/` naming; active repair-only naming by inertia. | High for historical links. | Yes for historical rewrites. |
+| Branch plans | `Docs/branch_plans/<branch_slug>.md`. | Existing active/historical plans until fold-down review. | Permanent branch-specific plan sprawl after fold-down. | Medium. | Yes before deletion. |
+| Workstream docs | `Docs/workstreams/FB-XXX_slug.md` for historical/promoted records. | Existing FB historical trace names. | New live FB IDs. | High; legacy evidence paths. | Yes for rename. |
+| Family dossiers | `Docs/workstreams/FB-XXX_slug_family_dossier.md` until a future family-dossier directory is approved. | Existing family dossiers. | Mixing dossier and workstream meaning in text. | Medium. | Yes for directory split. |
+| Validators/helpers | `dev/orin_<domain>_<capability>_validation.py`, `_audit.py`, `_harness.py`, `_helper.py`. | Existing reusable helper names. | Seam-number helper names unless temporary with consolidation target. | Low/Medium. | No for new names, yes for bulk rename. |
+| Fixtures | `dev/fixtures/<domain>/<valid_or_invalid>_<scenario>.md`. | Existing branch readiness fixture names. | Opaque fixture names without expected result. | Low. | No for new fixtures. |
+| README/index files | `README.md` for local standard; `index.md` for routing table. | `Docs/branch_plans/README.md`, `Docs/workstreams/index.md`, `Docs/branch_records/index.md`. | README carrying live branch state. | Low. | No. |
+
+Governance label hierarchy recommendation:
+- `Phase`: top-level lifecycle state: Branch Readiness, Workstream, Hardening, Live Validation, PR Readiness, Release Readiness, Release Execution, Post-Release Carry-Forward.
+- `Stage`: ordered sub-step inside a phase: Stage 1 analysis; Stage 2 setup/execution.
+- `Workstream`: implementation/build phase and promoted durable work record. When referencing files, say `Workstream Doc`.
+- `Package`: delivery scope under one feature family.
+- `Slice`: deliverable unit inside a package.
+- `Seam`: bounded execution/proof checkpoint inside Workstream; not automatically the whole branch scope.
+- `Branch Record`: legal authority and structured branch receipt.
+- `Branch Plan`: active Branch Runtime Engineering Plan after first formal use.
+- `Dossier`: durable family-level continuity surface, not active branch authority.
+- `Receipt`: historical/validated interpretation, not live operational truth.
+
+Acronym policy:
+- Keep with first-use expansion: `FAM`, `PKG`, `UTS`, `LV`, `H1`, `PR`.
+- Keep but mark historical-only: `FB`.
+- Keep but expand aggressively: `RRI`.
+- Avoid in new USER-facing prose unless table/ID context requires it: `SLC`.
+- Add new: `UFD` for USER Feedback Disposition IDs only.
+- Acronym glossary should live in `Docs/Main.md` as the recovery pointer and in the detailed owner docs (`Docs/feature_backlog.md`, `Docs/phase_governance.md`, `Docs/branch_plans/README.md`, `Docs/workstreams/index.md`) for context-specific definitions.
+
+User-facing process names:
+- Keep canonical names and add friendly aliases only as presentation aids:
+  - `Branch Readiness Stage 1` = `Plan Review`
+  - `Branch Readiness Stage 2` = `Setup / Admission`
+  - `Workstream Entry` = `Build Entry`
+  - `Seam Execution` = `Bounded Build Seam`
+  - `Hardening H1` = `Stabilize H1`
+  - `Live Validation LV1` = `User Proof LV1`
+  - `PR Readiness Stage 1` = `Merge Readiness Audit`
+  - `PR Readiness Stage 2` = `PR Execution / Watch`
+  - `Release Readiness Stage 1` = `Release Validation`
+  - `Release Readiness Stage 2` = `Release Preparation`
+  - `Release Execution` = `Publish Release`
+  - `Post-Release Carry-Forward` = `Next-Branch Carry-Forward`
+- Validators should continue to use canonical names until USER approves any canonical enum rename.
+
+Codex prompt naming standard:
+- Every prompt should name exact worktree, exact branch, exact phase, exact stage if applicable, exact source-truth owner, allowed mutation surfaces, pending USER decisions, validation commands, stop/report conditions, and exact return packet fields.
+- If a friendly alias is used, include the canonical name next to it on first use.
+- Do not say `current state` without naming whether it means derived live truth, current summary, decision surface, or historical receipt.
+- Do not say `branch plan` without naming the file path when mutation or validation is in scope.
+- Do not say `feedback` without classifying whether it is UFD current-branch, future-candidate, reusable-vision, no-action, or needs USER decision.
+
+Validator output naming standard:
+- Validator messages should include severity, source-truth owner, fact class, phase/stage affected, exact blocking marker, exact repair owner, and exact USER decision needed when human approval is required.
+- Recommended shape: `BLOCKED: <owner file>: <fact class>: <phase/stage>: <condition>; repair owner=<owner>; USER decision=<needed or none>`.
+- Avoid ambiguous messages such as `current state missing`; prefer `Active Branch Authority marker missing from branch record` or `Derived live truth attempted in backlog`.
+
+Index / README documentation standard:
+- `Docs/Main.md`: glossary pointer, acronym first-use map, source-truth owner map, canonical/friendly phase alias table.
+- `Docs/codex_user_guide.md`: USER-facing explanation and examples.
+- `Docs/phase_governance.md`: canonical lifecycle names and validator-backed markers.
+- `Docs/branch_plans/README.md`: Branch Runtime Engineering Plan, UFD ledger, Branch Vision Snapshot, fold-down fields.
+- `Docs/workstreams/index.md`: package/slice/seam/workstream/dossier naming.
+- `Docs/branch_records/index.md`: branch authority, branch receipt, active/no-active/selected-next naming.
+- `Docs/validation_helper_registry.md`: helper and validator naming standard.
+- `Docs/worktree_slots.md`: slot naming and assignment-vs-authority distinction.
+
+Staged naming migration plan:
+
+| Stage | Work | Risk | Approval |
+| --- | --- | --- | --- |
+| N1 | Add glossary and taxonomy sections to owner docs. | Low. | Future source-edit approval. |
+| N2 | Update Codex User Guide and templates with canonical name plus friendly alias rules. | Low/Medium. | Future source-edit approval. |
+| N3 | Add validator wording standard and report-only taxonomy checks. | Medium. | Future validator approval. |
+| N4 | Add fixture coverage for UFD IDs and ambiguous-name failures. | Low. | Future fixture approval. |
+| N5 | Rename or collapse ambiguous top-level Docs files after reference scan. | High. | Separate USER decision per file group. |
+| N6 | Consider directory split for family dossiers only if workstreams folder remains confusing after glossary update. | High. | Separate USER decision. |
+| N7 | Historical compatibility pass for old FB/codex records; preserve old names as receipts. | High. | Separate USER decision. |
+
+Naming reform acceptance checklist:
+- Each term has one intended meaning.
+- Each term has one owner doc.
+- Each acronym is expanded at first use.
+- Each process label fits phase/stage/seam/slice/package/family hierarchy.
+- Each file name matches its ownership role.
+- Codex prompts can call the term consistently.
+- Validator output can report the term clearly.
+- USER can understand and invoke the term without knowing internal history.
+- Migration risk and rollback risk are documented.
+- Historical compatibility is preserved for old branch, PR, release, and FB evidence.
+
+Naming decisions still needing USER approval:
+- Whether `RRI` should be re-expanded or renamed in public governance packets.
+- Whether to create a dedicated acronym glossary section in `Docs/Main.md` or keep glossary entries distributed across owner docs.
+- Whether to split family dossiers out of `Docs/workstreams/` later.
+- Whether any top-level context docs should be renamed, collapsed, or deleted.
+- Whether validator output should adopt severity prefixes globally.
+- Whether friendly aliases should appear in final response packets by default or only in USER-facing guides.
+
 ## Next Legal Phase
 
 - Recommended next phase: USER review of the updated Docs reform dossier and review index.
