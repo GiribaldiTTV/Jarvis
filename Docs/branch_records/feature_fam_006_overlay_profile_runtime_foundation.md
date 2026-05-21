@@ -20,7 +20,7 @@ The branch exists to admit the Overlay Profile runtime foundation as the next FA
 ## Current Phase
 
 - Phase: `Workstream`
-- Stage Detail: `SLC-040 Dashboard / Manage Monitors integration Workstream implementation Green; SLC-040 Hardening H1 next`
+- Stage Detail: `SLC-040 Dashboard / Manage Monitors integration H1 Green; SLC-041 Workstream Entry analysis next`
 
 ## Phase Status
 
@@ -28,7 +28,7 @@ Branch Authority Marker: `Active Branch`
 Active Branch: `feature/fam-006-overlay-profile-runtime-foundation`
 Stage 1 Basis: `Complete - FAM-006 worktree restored, current-main aligned at b67e59df0481091bfbeb739c4b5e1954552bb421, source truth verified No Active Branch / USER decision gate, and FAM-006 Overlay Profile Runtime Foundation recommended as the USER-gated successor candidate`
 Stage 2 USER Approval: `Granted - USER approved branch/worktree rebinding, branch authority record, branch plan, compact source-truth pointers, package/slice admission, validation planning, and v1.7.10 closure-drift carry-forward for this setup only`
-Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible profile controls, bounded SLC-039 settings-window monitor membership mapping, and bounded SLC-040 Dashboard / Manage Monitors integration only; SLC-040 H1, SLC-041 live proof beyond this seam, PR creation, merge, release, issue mutation, and branch cleanup remain pending USER decisions`
+Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible profile controls, bounded SLC-039 settings-window monitor membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, and SLC-040 H1 only; SLC-041 live proof beyond this seam, PR creation, merge, release, issue mutation, and branch cleanup remain pending USER decisions`
 Current Branch: `feature/fam-006-overlay-profile-runtime-foundation`
 Current Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `b67e59df0481091bfbeb739c4b5e1954552bb421`
@@ -41,8 +41,8 @@ v1.7.10 Closure-Drift Setup: `Carried into this Branch Readiness Stage 2 setup a
 v1.7.11 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair after v1.7.11-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.11-prebeta while preserving branch-local Overlay Profile authority`
 v1.7.12 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair after v1.7.12-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.12-prebeta while preserving branch-local Overlay Profile authority and PR #192 as current-main FAM-007 context`
 Branch Runtime Engineering Plan: `Accepted - detailed setup/runtime planning is present at Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md`
-Engineering Plan Status: `SLC-040 Workstream Green - Overlay Profile state/schema foundation, 300px-to-450px Dashboard selector, Overlay Profile Settings child-window create/rename/save/discard controls, editable settings-window monitor membership mapping, Manage Monitors read-only Overlay Profile context, settings-route proof, persistence proof, focused live proof, and concept-boundary validation are present; SLC-040 Hardening H1 is next`
-PR Fold-Down Packet: `Pending SLC-040 H1, SLC-041 live-proof seam, Live Validation LV1 after the current user-facing seam chain is ready, PR Readiness, PR creation, merge, and release-scope translation`
+Engineering Plan Status: `SLC-040 H1 Green - Overlay Profile state/schema foundation, 300px-to-450px Dashboard selector, Overlay Profile Settings child-window create/rename/save/discard controls, editable settings-window monitor membership mapping, Manage Monitors read-only Overlay Profile context, settings-route proof, persistence proof, focused live proof, and concept-boundary validation are present; SLC-041 Workstream Entry analysis is next`
+PR Fold-Down Packet: `Pending SLC-041 live-proof seam, Live Validation LV1 after the current user-facing seam chain is ready, PR Readiness, PR creation, merge, and release-scope translation`
 
 ## Branch Class
 
@@ -108,7 +108,7 @@ Backlog-Split Reason: `None`
 
 Branch Completion Goal: `Complete the Overlay Profile runtime foundation as one coherent FAM-006 successor branch: overlay profile state, selection/editing entry points, monitor-to-overlay-profile mapping, Dashboard / Manage Monitors integration, focused validators, live proof, H1, LV1, PR Readiness, PR creation, and merge when separately approved.`
 
-Known Future-Dependent Blockers: `SLC-040 H1, SLC-041 live proof beyond this seam, LV1, PR creation, merge, release execution, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, and AI Product work require later USER decisions.`
+Known Future-Dependent Blockers: `SLC-041 live proof beyond this seam, LV1, PR creation, merge, release execution, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, and AI Product work require later USER decisions.`
 
 Branch Closure Rule: `This branch may close only after the admitted Overlay Profile foundation seams are implemented, hardened, live-validated or waived with reason, PR-ready, PR-created, and merged under separate USER approvals; otherwise it remains active or stops at the relevant blocker.`
 
@@ -116,9 +116,9 @@ Branch Closure Rule: `This branch may close only after the admitted Overlay Prof
 
 Backlog Completion State: `In Progress`
 
-Remaining Implementable Work: `SLC-040 H1 and later USER-approved implementation seams remain; SLC-037 implementation/H1, SLC-038 Workstream implementation/H1, compact layout/settings-window repair, selector-width repair, v1.7.11 closure-drift repair, SLC-039 Workstream implementation/H1, and SLC-040 Workstream implementation are green after validation.`
+Remaining Implementable Work: `SLC-041 and later USER-approved implementation/proof seams remain; SLC-037 implementation/H1, SLC-038 Workstream implementation/H1, compact layout/settings-window repair, selector-width repair, v1.7.11 closure-drift repair, SLC-039 Workstream implementation/H1, and SLC-040 Workstream implementation/H1 are green after validation.`
 
-Future-Dependent Blockers: `SLC-040 H1, SLC-041 validation/live proof beyond this seam, PR Readiness, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
+Future-Dependent Blockers: `SLC-041 validation/live proof beyond this seam, PR Readiness, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
 
 Completion Status: `Red`
 
@@ -134,15 +134,15 @@ Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Inactive - Workstream is green; Hardening phase-boundary stop is required before USER may admit SLC-040 Hardening H1.`
+Continuation Execution Latch: `Inactive - SLC-040 H1 is green; phase-boundary stop is required before USER may admit SLC-041 Workstream Entry analysis.`
 
 Stop Basis: `Workstream Green`
 
-Next Active Seam: `SLC-040 Dashboard / Manage Monitors integration Hardening H1 - SLC-040 Workstream implementation is complete`
+Next Active Seam: `SLC-041 validation and live desktop proof Workstream Entry analysis - SLC-040 Hardening H1 is complete`
 
-Stop Condition: `SLC-040 Workstream implementation is complete and validated as far as current Codex authority allows.`
+Stop Condition: `SLC-040 Hardening H1 is complete and validated as far as current Codex authority allows.`
 
-Continuation Action: `Stop at phase boundary until USER admits SLC-040 Hardening H1; do not implement SLC-041 broader live proof or later runtime seams without separate USER approval.`
+Continuation Action: `Stop at phase boundary until USER admits SLC-041 Workstream Entry analysis; do not implement SLC-041 broader live proof or later runtime seams without separate USER approval.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -154,7 +154,7 @@ Bounded Seam Default: `One active seam at a time; bounded is not one-seam Workst
 
 ## Bounded State
 
-Bounded State: `Active - Workstream implementation / feature/fam-006-overlay-profile-runtime-foundation / C:\Nexus Worktrees\FAM-006 / SLC-040 Dashboard / Manage Monitors integration only / no SLC-041 or later SLC runtime expansion until USER approval`
+Bounded State: `Active - H1 source-truth posture / feature/fam-006-overlay-profile-runtime-foundation / C:\Nexus Worktrees\FAM-006 / SLC-040 Dashboard / Manage Monitors integration H1 only / no SLC-041 or later SLC runtime expansion until USER approval`
 
 Expected Worktree Root: `C:\Nexus Worktrees\FAM-006`
 
@@ -220,7 +220,7 @@ Non-Includes: `Recording Profile runtime, tray recording controls, local recordi
 
 ## Active Seam
 
-Active seam: `SLC-040 Workstream Green - compact Dashboard Overlay Profile selector, Overlay Profile Settings child-window create/rename/save/discard/membership controls, and Manage Monitors read-only Overlay Profile context/settings route are present and validation-backed; SLC-040 Hardening H1 is next.`
+Active seam: `SLC-040 H1 Green - compact Dashboard Overlay Profile selector, Overlay Profile Settings child-window create/rename/save/discard/membership controls, and Manage Monitors read-only Overlay Profile context/settings route are present, pressure-tested, and validation-backed; SLC-041 Workstream Entry analysis is next.`
 
 ## Workstream Implementation - SLC-037 Overlay Profile Data/State Foundation
 
@@ -250,7 +250,7 @@ H1 Scope Confirmation: `No visible Overlay Profile editor UI was introduced; SLC
 
 ## Workstream Implementation - SLC-038 Overlay Profile Selection/Editing Controls
 
-Implementation Status: `Workstream + H1 Green - bounded SLC-038 visible controls are present in Dashboard HUD runtime, state bridge, proof validators, and source truth; SLC-039 Workstream implementation/H1 and SLC-040 Workstream implementation are now present, with SLC-040 H1 next.`
+Implementation Status: `Workstream + H1 Green - bounded SLC-038 visible controls are present in Dashboard HUD runtime, state bridge, proof validators, and source truth; SLC-039 Workstream implementation/H1 and SLC-040 Workstream implementation/H1 are now present, with SLC-041 Workstream Entry analysis next.`
 
 Overlay Profile Selector Result: `Dashboard HUD now renders a compact Nexus-styled active Overlay Profile selector with bounded option menu, open/hover/reset/select behavior, activeOverlayProfileId updates, and persistence through the existing HUD state architecture.`
 
@@ -264,7 +264,7 @@ Read-Only Details Result: `The SLC-038 panel shows active profile name, monitor 
 
 ## Workstream Implementation - SLC-039 Monitor-To-Overlay-Profile Mapping
 
-Implementation Status: `Workstream + H1 Green - bounded SLC-039 membership mapping is present in the Overlay Profile Settings child window; SLC-040 Workstream implementation is now present, with SLC-040 H1 next.`
+Implementation Status: `Workstream + H1 Green - bounded SLC-039 membership mapping is present in the Overlay Profile Settings child window; SLC-040 Workstream implementation/H1 is now present, with SLC-041 Workstream Entry analysis next.`
 
 Membership Mapping Result: `Existing Monitor Groups are rendered as editable membership rows in Overlay Profile Settings. Toggling a row edits the active profile draft only, and Save Profile persists monitorIds through the existing Overlay Profile state architecture.`
 
@@ -288,7 +288,7 @@ Hardening H1 Result: `Green - SLC-039 settings-window monitor membership mapping
 
 ## Workstream Implementation - SLC-040 Dashboard / Manage Monitors Integration
 
-Implementation Status: `Workstream Green - bounded SLC-040 Dashboard / Manage Monitors integration is present in HUD runtime, focused proof helpers, validators, UTS wording, and source truth; SLC-040 Hardening H1 is next.`
+Implementation Status: `Workstream + H1 Green - bounded SLC-040 Dashboard / Manage Monitors integration is present in HUD runtime, focused proof helpers, validators, UTS wording, and source truth; SLC-041 Workstream Entry analysis is next.`
 
 Manage Monitors Context Result: `The selected monitor detail pane now shows read-only Overlay Profile context: active profile name, selected-monitor included/excluded state, mapped monitor count, and display mode. The context is marked data-overlay-profile-integration=slc-040-readonly-manage-context and data-overlay-profile-mutation=blocked-readonly-manage-context.`
 
@@ -298,7 +298,11 @@ Concept Boundary Result: `Manage Monitors remains the Monitor Group / Sensor Com
 
 Validation Trace: `HUD surface validation, HUD internal sandbox validation, desktop renderer live self-QA expectations, UTS wording, and validation helper registry now cover SLC-040 Manage Monitors read-only Overlay Profile context and settings-route proof.`
 
-H1 Evidence Basis: `Rerun validation passed git diff checks, branch governance validation, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, HUD surface validation, HUD internal sandbox validation with manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260521_044921_manifest.json, live interaction self-QA with manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_044933_869\monitoring_hud_live_client_interaction_manifest.json, compileall, bundled Node syntax check for nexus_visual/monitoring_hud.js, runtime-fam006 validation-suite recommendation review, and pre-rebaseline audit. Full desktop screenshots from the live helper are context only and were not used as acceptance-critical proof.`
+## Hardening H1 - SLC-040 Dashboard / Manage Monitors Integration
+
+Hardening H1 Result: `Green - SLC-040 Manage Monitors read-only Overlay Profile context, selected-monitor included/excluded state, mapped monitor count, display mode, Open Overlay Profile Settings route, selected-monitor highlight in Overlay Profile Settings, no duplicate membership editor in Manage Monitors, concept-boundary preservation, and existing Dashboard / Sensor Command Center behavior passed pressure-test validation.`
+
+H1 Evidence Basis: `Rerun validation passed git diff checks, branch governance validation, worktree-confinement gate, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, HUD surface validation, HUD internal sandbox validation with manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260521_060701_manifest.json, live interaction self-QA with manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_060713_805\monitoring_hud_live_client_interaction_manifest.json, focused local screenshot C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_060713_805\live_client_interaction\03_overlay_profile_manage_context.png, compileall, bundled Node syntax check for nexus_visual\monitoring_hud.js, and runtime-fam006 validation-suite recommendation review. Full desktop screenshots from the live helper are context only and were not used as acceptance-critical proof.`
 
 H1 Scope Confirmation: `No SLC-040 deeper Dashboard / Manage Monitors integration, SLC-041 live-proof expansion beyond focused H1 proof, profile duplicate/delete shell, Recording Profile runtime, tray recording controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, artifact handling, sibling-worktree mutation, or branch cleanup was introduced.`
 
@@ -422,11 +426,11 @@ Planning Completion Waiver: `Not required - Stage 2 records concrete Product Def
 
 ## Runtime Branch Engineering Contract
 
-Engineering Contract Status: `Accepted for SLC-037 implementation/H1, bounded SLC-038 Workstream implementation/H1, bounded SLC-039 Workstream implementation/H1, and bounded SLC-040 Workstream implementation`
+Engineering Contract Status: `Accepted for SLC-037 implementation/H1, bounded SLC-038 Workstream implementation/H1, bounded SLC-039 Workstream implementation/H1, and bounded SLC-040 Workstream implementation/H1`
 
-USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup, SLC-037 Workstream/H1, SLC-038 Workstream Entry/implementation/H1, SLC-039 Workstream Entry, bounded SLC-039 implementation/H1, SLC-040 Workstream Entry, and bounded SLC-040 implementation`
+USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup, SLC-037 Workstream/H1, SLC-038 Workstream Entry/implementation/H1, SLC-039 Workstream Entry, bounded SLC-039 implementation/H1, SLC-040 Workstream Entry, bounded SLC-040 implementation, and SLC-040 H1`
 
-Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible selection/editing controls, bounded SLC-039 monitor-to-overlay-profile membership mapping, and bounded SLC-040 Dashboard / Manage Monitors integration only; SLC-040 H1 and later seams remain pending USER decisions`
+Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible selection/editing controls, bounded SLC-039 monitor-to-overlay-profile membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, and SLC-040 H1 only; SLC-041 and later seams remain pending USER decisions`
 
 Branch Purpose: `Prepare the FAM-006 Overlay Profile Runtime Foundation successor branch with source truth, branch plan, package/slice admission, runtime boundaries, validation planning, and future focused proof requirements before any runtime implementation starts.`
 
@@ -472,7 +476,7 @@ Future Runtime Validation: `HUD surface validation`; `HUD internal sandbox valid
 
 ## Blockers
 
-Active Blockers: `SLC-040 Hardening H1 pending USER decision after SLC-040 Workstream implementation Green`
+Active Blockers: `SLC-041 Workstream Entry analysis pending USER decision after SLC-040 Hardening H1 Green`
 
 ## Entry Basis
 
@@ -502,28 +506,28 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 
 Next Legal Phase: `Workstream`
 
-Next Legal Phase Detail: `SLC-040 Hardening H1 for Dashboard / Manage Monitors integration`
+Next Legal Phase Detail: `SLC-041 Workstream Entry analysis for validation and live desktop proof`
 
 ## Next Legal Phase Digest
 
 Current Phase: `Workstream`
 
-Stage Detail: `SLC-040 Dashboard / Manage Monitors integration Workstream implementation Green; SLC-040 Hardening H1 next`
+Stage Detail: `SLC-040 Dashboard / Manage Monitors integration H1 Green; SLC-041 Workstream Entry analysis next`
 
 Next Legal Phase: `Workstream`
 
-Next Legal Phase Detail: `SLC-040 Hardening H1 for Dashboard / Manage Monitors integration`
+Next Legal Phase Detail: `SLC-041 Workstream Entry analysis for validation and live desktop proof`
 
-Why This Phase Is Next: `SLC-040 Manage Monitors read-only Overlay Profile context and settings-route integration is implemented, validation-backed, and source-truth aligned; the next bounded phase is Hardening H1 for that SLC-040 integration.`
+Why This Phase Is Next: `SLC-040 Manage Monitors read-only Overlay Profile context and settings-route integration is implemented, H1 pressure-tested, validation-backed, and source-truth aligned; the next bounded phase is SLC-041 Workstream Entry analysis for focused validation and live desktop proof.`
 
-Approval Required: `USER approval for SLC-040 Hardening H1 and later separate approval for SLC-041 live proof or additional runtime seams`
+Approval Required: `USER approval for SLC-041 Workstream Entry analysis and later separate approval for SLC-041 live proof implementation or additional runtime seams`
 
-Exact USER Approval Text: `Approve SLC-040 Hardening H1 for Dashboard / Manage Monitors Overlay Profile integration on feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006. Codex may verify repo/worktree identity and current-main freshness, verify the SLC-040 Workstream implementation commit is present, pressure-test Manage Monitors read-only Overlay Profile context, selected-monitor included/excluded state, mapped monitor count, display mode, Open Overlay Profile Settings route, selected monitor context highlighting in Overlay Profile Settings, no duplicate membership editor in Manage Monitors, concept boundaries, existing Dashboard / Sensor Command Center behavior, validators, focused proof, and source truth; apply bounded H1 repairs inside SLC-040 scope if defects are found; run validation; commit and push if validation is green. Do not implement SLC-041 live proof, profile duplicate/delete, Recording Profile runtime, provider work, PRs, merge, release, issue mutation, cleanup, or sibling-worktree changes without separate approval.`
+Exact USER Approval Text: `Approve SLC-041 Workstream Entry analysis for Overlay Profile validation and live desktop proof on feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006. Codex may verify repo/worktree identity and current-main freshness, verify SLC-040 Workstream implementation and H1 source truth are present, inspect the branch plan, validators, live helpers, focused proof artifacts, Dashboard / Manage Monitors / Overlay Profile Settings surfaces, and source-truth authority, define the bounded SLC-041 validation/live-proof seam, identify required validator/helper/source-truth updates, focused proof requirements, UTS/LV1 boundaries, affected files, package/slice fit, and return exact implementation approval text. Do not implement SLC-041 runtime/proof changes, profile duplicate/delete, Recording Profile runtime, provider work, PRs, merge, release, issue mutation, cleanup, or sibling-worktree changes without separate approval.`
 
-Allowed Scope: `SLC-040 Hardening H1 only`
+Allowed Scope: `SLC-041 Workstream Entry analysis only`
 
-Explicit Exclusions: `SLC-041 live proof, profile duplicate/delete, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 mutation, Governance mutation, Compact-AI mutation, stale branch cleanup, PR creation, merge, release, issues, artifacts, raw evidence handling`
+Explicit Exclusions: `SLC-041 implementation/live proof mutation, profile duplicate/delete, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 mutation, Governance mutation, Compact-AI mutation, stale branch cleanup, PR creation, merge, release, issues, artifacts, raw evidence handling`
 
-Validation Required: `SLC-040 H1 identity checks, source-truth inspection, runtime/proof surface inspection, HUD surface validation, HUD internal sandbox validation, live focused proof where available, compileall, and branch governance validation`
+Validation Required: `SLC-041 Workstream Entry identity checks, source-truth inspection, runtime/proof surface inspection, validator/helper planning review, and branch governance/source-truth checks where safe/read-only`
 
 Stop Conditions: `Stop if worktree/branch identity mismatches, origin/main advances and needs rebaseline, source truth contradicts the branch plan, H1 requires broader runtime work outside SLC-040, validation fails, or another USER decision is required`
