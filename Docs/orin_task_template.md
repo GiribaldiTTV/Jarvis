@@ -918,11 +918,10 @@ If the phase is `Branch Readiness` and the current stage is `Branch Readiness St
 - Open UFD Count:
 - Blocking UFD Count:
 - Fold-Down Status:
-- Feedback ID:
-- Feedback Source:
-- Feedback Phase:
-- Canonical Owner File:
-- Fold-Down Target:
+- UFD Items:
+  | Feedback ID | Disposition Type | USER Decision State | Workstream Severity | Status | Canonical Owner File | Fold-Down Target |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | [UFD-<scope>-YYYYMMDD-NNN / none] | [type] | [state] | [severity] | [status] | [Docs/... owner] | [target] |
 - USER Engineering Planning Review:
 - Runtime Implementation Approval:
 - Current Runtime Baseline:

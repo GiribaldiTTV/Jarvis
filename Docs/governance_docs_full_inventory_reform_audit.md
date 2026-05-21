@@ -350,7 +350,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 96 | `Docs/orchestration.md` | product / architecture reference | 127 | Keep | Medium | High |
 | 97 | `Docs/orin_display_naming_guidance.md` | product / architecture reference | 125 | Keep | Low | High |
 | 98 | `Docs/orin_interaction_architecture.md` | product / architecture reference | 268 | Keep | Medium | High |
-| 99 | `Docs/orin_task_template.md` | prompt template | 1058 | Keep | High | High |
+| 99 | `Docs/orin_task_template.md` | prompt template | 1057 | Keep | High | High |
 | 100 | `Docs/orin_vision.md` | product / architecture reference | 221 | Keep | Low | High |
 | 101 | `Docs/ownership_ip_plan.md` | product / architecture reference | 112 | Keep | Medium | High |
 | 102 | `Docs/phase_governance.md` | normative phase governance | 2584 | Keep | High | High |
@@ -638,7 +638,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/orchestration.md` | Low | `volatile-current-wording=13`; `soft-commitment-wording=2`; `state-ledger-wording=2` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/orin_display_naming_guidance.md` | Low | `volatile-current-wording=5`; `soft-commitment-wording=12`; `state-ledger-wording=3` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/orin_interaction_architecture.md` | Medium | `volatile-current-wording=18`; `unclear-ownership-wording=1`; `soft-commitment-wording=32`; `state-ledger-wording=8` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/orin_task_template.md` | High | `volatile-current-wording=273`; `unclear-ownership-wording=92`; `soft-commitment-wording=46`; `state-ledger-wording=167` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/orin_task_template.md` | High | `volatile-current-wording=273`; `unclear-ownership-wording=93`; `soft-commitment-wording=46`; `state-ledger-wording=171` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/orin_vision.md` | Medium | `volatile-current-wording=16`; `unclear-ownership-wording=9`; `soft-commitment-wording=41`; `state-ledger-wording=10` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/ownership_ip_plan.md` | Medium | `volatile-current-wording=15`; `unclear-ownership-wording=3`; `soft-commitment-wording=9`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/phase_governance.md` | High | `volatile-current-wording=751`; `unclear-ownership-wording=289`; `soft-commitment-wording=172`; `state-ledger-wording=391` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -924,7 +924,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/orchestration.md` | 127 | Nexus Orchestration | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/orin_display_naming_guidance.md` | 125 | ORIN Display Naming Guidance | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/orin_interaction_architecture.md` | 268 | ORIN Interaction Architecture | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/orin_task_template.md` | 1058 | ORIN Task Template | prompt template | reusable prompt packet skeleton | fields prompts should include and owner pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/orin_task_template.md` | 1057 | ORIN Task Template | prompt template | reusable prompt packet skeleton | fields prompts should include and owner pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/orin_vision.md` | 221 | Nexus / ORIN Vision | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/ownership_ip_plan.md` | 112 | Ownership And IP Protection Plan | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/phase_governance.md` | 2584 | Nexus Phase Governance | normative phase governance | canonical phase names, gates, blockers, proof hierarchy, phase transitions | normative phase rules and machine-facing blocker names | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -4246,9 +4246,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 99. `Docs/orin_task_template.md`
 
 - File path: `Docs/orin_task_template.md`
-- Line count: 1058
+- Line count: 1057
 - Current purpose: ORIN Task Template
-- Actual observed use: prompt template with markers live=65, pr/release/issue=52, package/slice=19, branch/worktree/phase=364, validator/helper=206.
+- Actual observed use: prompt template with markers live=65, pr/release/issue=52, package/slice=19, branch/worktree/phase=365, validator/helper=206.
 - Correct owner category: prompt template
 - What gets recorded here: reusable prompt packet skeleton.
 - What should be recorded here: fields prompts should include and owner pointers.
@@ -4258,7 +4258,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=273`; `unclear-ownership-wording=92`; `soft-commitment-wording=46`; `state-ledger-wording=167`
+- Ambiguity signals: `volatile-current-wording=273`; `unclear-ownership-wording=93`; `soft-commitment-wording=46`; `state-ledger-wording=171`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.

@@ -4270,7 +4270,8 @@ USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
         "USER Feedback Disposition Required:",
         "UFD Ledger Status:",
         "UFD Ledger Owner:",
-        "Feedback ID:",
+        "UFD Items:",
+        "| Feedback ID |",
     ),
 }
 
@@ -8339,9 +8340,14 @@ def _validate_user_feedback_disposition(
     )
 
     ledger_owner = _extract_marker_value(ufd_section, "UFD Ledger Owner:").strip()
+    normalized_ledger_owner = ledger_owner.replace("\\", "/")
     require(
-        ledger_owner.startswith("Docs/"),
-        f"{source_path}: UFD Ledger Owner must point to the active Docs/ branch plan",
+        normalized_ledger_owner.startswith("Docs/branch_plans/")
+        and normalized_ledger_owner.endswith(".md"),
+        (
+            f"{source_path}: UFD Ledger Owner must point to the active "
+            "Docs/branch_plans/<branch_slug>.md branch plan"
+        ),
     )
 
     fold_down_status = _normalized_planning_value(
