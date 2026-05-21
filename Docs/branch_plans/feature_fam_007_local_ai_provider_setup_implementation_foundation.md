@@ -12,17 +12,19 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
 
-Current Phase: `Branch Readiness Stage 2 - fresh FAM-007 carrier setup from v1.7.11-prebeta main`
+Current Phase: `Workstream implementation - FAM-007 setup implementation foundation`
 
 Branch Runtime Engineering Plan: Accepted - this plan is present for the FAM-007 setup implementation foundation carrier.
 
-Engineering Plan Status: Accepted for Stage 2 setup; Workstream implementation remains pending USER approval and must not begin from this plan alone.
+Engineering Plan Status: Accepted - implemented for the bounded Workstream; H1 review remains pending before LV1 or PR Readiness.
 
 Current Runtime Baseline: Released FAM-007 state already includes provider readiness, activation, execution-readiness, provider path/consent readiness, setup/consent-flow readiness, and setup contract readiness, with provider-visible data none, sentToProvider false, canAcceptPrompts false, prompt/model execution disabled, downloads and network blocked, memory disabled, voice/Core sync gated, desktop readiness display suppression preserved, and validation helper coverage in `dev/orin_ai_provider_state_validation.py`.
 
 Branch Purpose: Move FAM-007 from setup contract planning toward a local provider setup implementation foundation that can create a safe setup entry point, provider profile/config write-path foundation, validation envelope, and status proof while preserving consent collection and provider/model execution as future USER decisions.
 
-Planned Runtime Delta: The admitted Workstream should add local setup entry state, profile/config draft persistence, fail-closed config validation, setup handoff state, local/null fallback behavior, Core/Desktop/ORIN status mapping, validator fixtures, and source-truth fold-down without enabling provider SDK calls, prompt routing, model execution, model downloads, network egress, memory indexing, or voice/Core runtime sync.
+Planned Runtime Delta: The Workstream adds local setup entry/foundation state, provider profile/config draft posture, fail-closed validation and persistence posture, local/null fallback proof, future setup implementation handoff, Core/Desktop/ORIN status telemetry, validator fixtures, and source-truth fold-down without enabling provider SDK calls, prompt routing, model execution, model downloads, network egress, memory indexing, or voice/Core runtime sync.
+
+Implemented Runtime Delta: The planned runtime delta is implemented as local-only setup foundation state/schema, telemetry, and validator fixtures with real provider setup still future-gated.
 
 User-Facing Delta: Users should see truthful setup-foundation posture or a disabled/status-only setup entry that explains local setup is not complete, consent collection and execution remain future-gated, provider-visible data remains none, and functional AI is not yet operational; any visible copy must stay short, accurate, and consistent with desktop readiness display suppression.
 
@@ -30,7 +32,7 @@ Source-Truth Delta: Stage 2 records `v1.7.11-prebeta` closure, PR #190 as releas
 
 State / Config / Schema Delta: Planned implementation may introduce setup-entry state, profile/config draft fields, validation result fields, schema/provenance markers, local/null fallback persistence posture, setup approval flags, setup handoff markers, and audit/status fields, but it must not store secrets, provider credentials, consent grants, prompts for provider use, memory indexes, or model artifacts.
 
-Validator / Helper Delta: Future Workstream implementation must extend `dev/orin_ai_provider_state_validation.py` and the runtime-fam007 suite with fixtures for default disabled setup, profile missing, config missing, invalid config, fail-closed persistence, local/null fallback, setup entry status mapping, provider-visible-data none, prompt execution disabled, downloads/network/memory/voice gates, and desktop readiness display suppression continuity.
+Validator / Helper Delta: `dev/orin_ai_provider_state_validation.py` now covers default setup foundation, missing/invalid setup foundation config, profile missing/invalid, config missing/invalid, validation failed, setup consent required, execution consent required, approval missing, local-draft ready, future-setup-branch ready, fail-closed persistence, local/null fallback, setup status mapping, provider-visible-data none, prompt execution disabled, downloads/network/memory/voice gates, and desktop readiness display suppression continuity.
 
 Expected Changed Files / Surfaces: Expected surfaces are `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`, this plan, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/worktree_slots.md`, `Docs/validation_helper_registry.md`, `desktop/ai_provider_state.py`, `desktop/desktop_renderer.py`, `desktop/core_visualization_renderer.py`, `nexus_visual/orin_core.*`, and `dev/orin_ai_provider_state_validation.py`; sibling worktrees and non-FAM-007 branches are excluded.
 
@@ -48,7 +50,7 @@ Approval-Boundary Audit: Stage 2 may record source truth and admit a future Work
 
 FAM / Shared-Surface Overlap Forecast: FAM-006 is a later PR/merge reconciliation risk only; Governance is standing intake context and must not be mutated here; Compact-AI has protected unique commits and remains preserved; shared source-truth and ORIN/Core/Desktop surfaces require careful PR readiness reconciliation if other lanes advance before this branch merges.
 
-Open Questions: USER must later decide whether to approve Workstream implementation, how far local setup foundation may go without consent collection, when real provider setup can start, when SDK/model execution is admissible, and when functional-AI proof is strong enough for a v1.8.0-prebeta release decision.
+Open Questions: USER must later decide when H1, LV1, PR creation, real provider setup beyond the local foundation, consent collection, SDK/model execution, and functional-AI proof are admissible, and when that proof is strong enough for a v1.8.0-prebeta release decision.
 
 USER Planning Decisions: USER approved Branch Readiness Stage 1, selected the detailed setup implementation foundation successor, approved Stage 2 setup in the FAM-007 worktree, and kept Workstream implementation, PR creation, merge, release, provider SDK/model work, consent collection, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, and v1.8.0 execution pending.
 
@@ -64,15 +66,25 @@ PR Readiness Fold-Down / Retention Checklist: PR Readiness must fold setup found
 
 Release Readiness Public-Scope Translation Checklist: Release Readiness must describe this branch as local provider setup implementation foundation only, exclude consent collection, provider SDK/model execution, functional AI, memory, voice/Core, downloads/network, and v1.8.0 execution unless later USER-approved proof changes that scope.
 
-USER Planning Review: Accepted for Branch Readiness Stage 2 setup; Workstream Entry analysis and Workstream implementation require later USER approval.
+USER Planning Review: Accepted for Branch Readiness Stage 2 setup, Workstream Entry, and bounded Workstream implementation.
 
 PR Fold-Down Packet: Pending until PR Readiness decides retention, compaction, or promotion after Workstream, H1, and LV1 are green.
 
-Runtime Implementation Approval: Pending USER approval for Workstream implementation; Stage 2 setup alone does not authorize implementation.
+Runtime Implementation Approval: USER-approved bounded Workstream implementation is complete; provider setup beyond the local foundation remains pending USER approval.
 
 ## Plan Status
 
-Branch Readiness Stage 2 admits this plan for `feature/fam-007-local-ai-provider-setup-implementation-foundation`. The plan is current for setup only, and Workstream implementation begins only after Workstream Entry analysis plus later USER approval.
+Workstream implementation is green for `feature/fam-007-local-ai-provider-setup-implementation-foundation`. The plan is current for H1 review; provider setup beyond the local foundation begins only after later USER approval.
+
+## Workstream Green Fold-Down
+
+Workstream Status: `Green - bounded setup implementation foundation complete`
+
+Implementation Summary: Central provider state now publishes `provider_setup_foundation_*` / `providerSetupFoundation*` setup foundation fields, schema versions, config/profile draft posture, validation and persistence posture, local/null fallback proof, approval status, future setup handoff, and fold-down posture. Core/Desktop/ORIN receive hidden telemetry rows and data attributes while the long desktop AI-owned readiness display remains suppressed by default.
+
+Safety Summary: Provider-visible data remains `none`, `sentToProvider=false`, `canAcceptPrompts=false`, prompt/provider/model execution remains disabled, downloads/install remain blocked, network/external calls remain blocked, memory/indexing/learning/personalization remains disabled or deferred, and voice/Core sync remains gated.
+
+Next Legal Phase: `Hardening H1`
 
 ## Branch Identity
 

@@ -94,6 +94,11 @@ const aiProviderStatusProviderApprovals = document.getElementById("ai-provider-s
 const aiProviderStatusSetupContract = document.getElementById("ai-provider-status-setup-contract");
 const aiProviderStatusSetupContractBlocker = document.getElementById("ai-provider-status-setup-contract-blocker");
 const aiProviderStatusSetupContractHandoff = document.getElementById("ai-provider-status-setup-contract-handoff");
+const aiProviderStatusSetupFoundation = document.getElementById("ai-provider-status-setup-foundation");
+const aiProviderStatusSetupFoundationBlocker = document.getElementById("ai-provider-status-setup-foundation-blocker");
+const aiProviderStatusSetupFoundationValidation = document.getElementById("ai-provider-status-setup-foundation-validation");
+const aiProviderStatusSetupFoundationPersistence = document.getElementById("ai-provider-status-setup-foundation-persistence");
+const aiProviderStatusSetupFoundationHandoff = document.getElementById("ai-provider-status-setup-foundation-handoff");
 const aiProviderStatusSetupConsent = document.getElementById("ai-provider-status-setup-consent");
 const aiProviderStatusExecutionConsent = document.getElementById("ai-provider-status-execution-consent");
 const aiProviderStatusConsentSchema = document.getElementById("ai-provider-status-consent-schema");
@@ -424,6 +429,22 @@ let aiProviderState = {
   providerSetupContractApprovalLabel: "Setup contract approval: USER approval missing",
   providerSetupContractGateState: "setup-contract-gate-blocked",
   futureSetupBranchHandoffState: "future-provider-setup-branch-handoff-ready-for-contract",
+  providerSetupFoundationState: "setup_foundation_unavailable",
+  providerSetupFoundationLabel: "Setup implementation foundation: unavailable",
+  providerSetupFoundationEligibilityState: "setup_foundation_eligibility_unavailable",
+  providerSetupFoundationEligibilityLabel: "Setup foundation eligibility: unavailable",
+  providerSetupFoundationBlockerState: "setup_foundation_setup_contract_required",
+  providerSetupFoundationBlockerLabel: "Setup foundation blocker: setup contract readiness required",
+  providerSetupFoundationReasonCode: "setup_foundation_default_unavailable",
+  providerSetupFoundationReasonLabel: "Setup foundation reason: local-only safe default",
+  providerSetupFoundationApprovalStatus: "setup-foundation-approval-missing",
+  providerSetupFoundationApprovalLabel: "Setup foundation approval: USER approval missing",
+  providerSetupFoundationGateState: "setup-foundation-gate-blocked",
+  providerSetupFoundationValidationStatus: "setup-foundation-validation-fail-closed",
+  providerSetupFoundationValidationLabel: "Setup foundation validation: fail-closed",
+  providerSetupFoundationPersistenceStatus: "setup-foundation-persistence-disabled",
+  providerSetupFoundationPersistenceLabel: "Setup foundation persistence: disabled; no provider credentials stored",
+  providerSetupImplementationHandoffState: "future-provider-setup-implementation-handoff-ready",
   providerSetupHandoffPosture: "provider-setup-handoff-future-gated",
   providerSetupHandoffLabel: "Provider setup handoff: future-gated",
   providerConsentHandoffPosture: "provider-consent-handoff-future-gated",
@@ -1678,6 +1699,17 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.setupContractReason = state.providerSetupContractReasonCode || "unknown";
   aiProviderStatus.dataset.setupContractApproval = state.providerSetupContractApprovalStatus || "unknown";
   aiProviderStatus.dataset.setupContractGate = state.providerSetupContractGateState || "unknown";
+  aiProviderStatus.dataset.setupFoundationState = state.providerSetupFoundationState || "unknown";
+  aiProviderStatus.dataset.setupFoundationEligibility =
+    state.providerSetupFoundationEligibilityState || "unknown";
+  aiProviderStatus.dataset.setupFoundationBlocker = state.providerSetupFoundationBlockerState || "unknown";
+  aiProviderStatus.dataset.setupFoundationReason = state.providerSetupFoundationReasonCode || "unknown";
+  aiProviderStatus.dataset.setupFoundationApproval = state.providerSetupFoundationApprovalStatus || "unknown";
+  aiProviderStatus.dataset.setupFoundationValidation =
+    state.providerSetupFoundationValidationStatus || "unknown";
+  aiProviderStatus.dataset.setupFoundationPersistence =
+    state.providerSetupFoundationPersistenceStatus || "unknown";
+  aiProviderStatus.dataset.setupFoundationGate = state.providerSetupFoundationGateState || "unknown";
   aiProviderStatus.dataset.providerSetupHandoff = state.providerSetupHandoffPosture || "unknown";
   aiProviderStatus.dataset.providerConsentHandoff = state.providerConsentHandoffPosture || "unknown";
   aiProviderStatus.dataset.providerPathHandoff = state.providerPathHandoffPosture || "unknown";
@@ -2031,6 +2063,28 @@ function renderAIProviderState() {
   if (aiProviderStatusSetupContractHandoff) {
     aiProviderStatusSetupContractHandoff.textContent =
       `${state.providerSetupContractApprovalLabel || "Setup contract approval: USER approval missing"}; ${state.futureSetupBranchHandoffState || "future-provider-setup-branch-handoff-ready-for-contract"}`;
+  }
+  if (aiProviderStatusSetupFoundation) {
+    aiProviderStatusSetupFoundation.textContent =
+      state.providerSetupFoundationLabel || "Setup implementation foundation: unavailable";
+  }
+  if (aiProviderStatusSetupFoundationBlocker) {
+    aiProviderStatusSetupFoundationBlocker.textContent =
+      state.providerSetupFoundationBlockerLabel ||
+      "Setup foundation blocker: setup contract readiness required";
+  }
+  if (aiProviderStatusSetupFoundationValidation) {
+    aiProviderStatusSetupFoundationValidation.textContent =
+      state.providerSetupFoundationValidationLabel || "Setup foundation validation: fail-closed";
+  }
+  if (aiProviderStatusSetupFoundationPersistence) {
+    aiProviderStatusSetupFoundationPersistence.textContent =
+      state.providerSetupFoundationPersistenceLabel ||
+      "Setup foundation persistence: disabled; no provider credentials stored";
+  }
+  if (aiProviderStatusSetupFoundationHandoff) {
+    aiProviderStatusSetupFoundationHandoff.textContent =
+      `${state.providerSetupFoundationApprovalLabel || "Setup foundation approval: USER approval missing"}; ${state.providerSetupImplementationHandoffState || "future-provider-setup-implementation-handoff-ready"}`;
   }
   if (aiProviderStatusSetupConsent) {
     aiProviderStatusSetupConsent.textContent =
