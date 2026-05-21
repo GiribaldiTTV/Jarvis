@@ -493,6 +493,43 @@
                   <strong>Provider Readiness</strong>
                   <span>Readiness/status and future capability only; not an assignable sensor.</span>
                 </div>
+                <div
+                  class="monitoring-hud__monitor-overlay-profile-context"
+                  id="monitoring-hud-monitor-overlay-profile-context"
+                  data-overlay-profile-integration="slc-040-readonly-manage-context"
+                  data-overlay-profile-membership-state="unknown"
+                  data-overlay-profile-mutation="blocked-readonly-manage-context"
+                  aria-label="Selected monitor Overlay Profile context"
+                >
+                  <div class="monitoring-hud__overlay-profile-context-heading">
+                    <span>Overlay Profile</span>
+                    <strong id="monitoring-hud-monitor-overlay-profile-name">Default Overlay Profile</strong>
+                  </div>
+                  <div class="monitoring-hud__overlay-profile-context-grid">
+                    <div class="monitoring-hud__state-row">
+                      <span>Selected monitor</span>
+                      <strong id="monitoring-hud-monitor-overlay-profile-selected-state">Included</strong>
+                    </div>
+                    <div class="monitoring-hud__state-row">
+                      <span>Membership</span>
+                      <strong id="monitoring-hud-monitor-overlay-profile-count">2 mapped</strong>
+                    </div>
+                    <div class="monitoring-hud__state-row">
+                      <span>Display mode</span>
+                      <strong id="monitoring-hud-monitor-overlay-profile-display-mode">Monitor cards</strong>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    id="monitoring-hud-monitor-overlay-profile-settings"
+                    class="monitoring-hud__hub-action monitoring-hud__hub-action--compact"
+                    data-control="manage-overlay-profile-settings"
+                    data-child-window-target="overlay-profile-settings"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                  >Open Overlay Profile Settings</button>
+                  <small>Monitor Groups configure sources. Overlay Profiles choose which configured monitors appear in overlay display.</small>
+                </div>
                 <div class="monitoring-hud__child-field monitoring-hud__child-field--inline" data-control-row="polling-rate-inline" data-polling-rate-hitbox="toggle-only">
                   <span>Polling Rate</span>
                   <div class="monitoring-hud__bounded-dropdown" id="monitoring-hud-monitor-polling-rate-control" data-bounded-dropdown="polling-rate" data-selected-value="1000" data-dropdown-open="false" data-hovered-value="">

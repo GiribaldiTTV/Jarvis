@@ -490,7 +490,7 @@ Expected: The Dashboard shows a compact Overlay Profile control surface. The sel
 USER Result / Notes:
 
 Step 4 - Manage Monitors List And Create
-Expected: Manage Monitors appears as a compact Sensor Command Center: the left list is action-light, row/icon selection opens the right detail pane, and Create stays reachable from the command surface.
+Expected: Manage Monitors appears as a compact Sensor Command Center: the left list is action-light, row/icon selection opens the right detail pane, and Create stays reachable from the command surface. The selected monitor detail pane shows read-only Overlay Profile context with active profile name, whether the selected monitor is included, mapped monitor count, and display mode. The Open Overlay Profile Settings button routes to the existing Overlay Profile Settings window without adding a second membership editor inside Manage Monitors.
 USER Result / Notes:
 
 Step 5 - Edit Monitor Settings
@@ -518,7 +518,7 @@ Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse 
 USER Result / Notes:
 
 Step 11 - Dashboard, Overlay Profile, And Manage Monitors Control Reliability
-Expected: Dashboard Settings, window-level Close, Warning Notifications, Manage Monitors, Overlay Profile selector, Overlay Profile Settings, settings-window Create Overlay/Save Profile/Discard/name input/membership checkboxes, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, in-window Create Monitor, Save Monitor, footer Discard, delete-confirmation Cancel, dirty-guard Save/Discard, Source Filter, Polling Rate, Display mode buttons, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states. The main Dashboard Monitor Groups card should not show a Create Monitor button.
+Expected: Dashboard Settings, window-level Close, Warning Notifications, Manage Monitors, Overlay Profile selector, Overlay Profile Settings, Manage Monitors Open Overlay Profile Settings route, settings-window Create Overlay/Save Profile/Discard/name input/membership checkboxes, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, in-window Create Monitor, Save Monitor, footer Discard, delete-confirmation Cancel, dirty-guard Save/Discard, Source Filter, Polling Rate, Display mode buttons, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states. The main Dashboard Monitor Groups card should not show a Create Monitor button.
 Regression checkpoints include: Step 7 - #137 Dashboard Rounded Corners On Light Background; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 USER Result / Notes:
 

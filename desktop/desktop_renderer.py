@@ -10159,10 +10159,66 @@ class DesktopRuntimeWindow(QWidget):
                 if (toggle && toggle.getAttribute("aria-expanded") === "true") toggle.click();
                 if (window.runMonitoringHudOverlayProfileStateProof) window.runMonitoringHudOverlayProfileStateProof();
                 if (window.runMonitoringHudOverlayProfileControlsProof) window.runMonitoringHudOverlayProfileControlsProof();
-                if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("overlay-profile-settings");
+                if (window.runMonitoringHudOverlayProfileIntegrationProof) window.runMonitoringHudOverlayProfileIntegrationProof();
+                if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
                 """
             )
-            QTimer.singleShot(delay(300), step_overlay_profile_capture_clean)
+            QTimer.singleShot(delay(300), step_overlay_profile_capture_manage_context)
+
+        def step_overlay_profile_capture_manage_context():
+            capture("03_overlay_profile_manage_context")
+            self._run_javascript_with_result(
+                """
+                (function() {
+                    try {
+                        if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
+                        const integrationProof = window.runMonitoringHudOverlayProfileIntegrationProof
+                            ? window.runMonitoringHudOverlayProfileIntegrationProof()
+                            : { passed: false, missing: "integration-proof" };
+                        if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
+                        const context = document.getElementById("monitoring-hud-monitor-overlay-profile-context");
+                        const manageWindow = document.getElementById("monitoring-hud-edit-monitor-window");
+                        const routeButton = document.getElementById("monitoring-hud-monitor-overlay-profile-settings");
+                        return JSON.stringify({
+                            ok: Boolean(integrationProof.passed && context && manageWindow && routeButton),
+                            integrationProofPassed: Boolean(integrationProof.passed),
+                            integrationProof: integrationProof,
+                            manageWindowOpen: manageWindow ? manageWindow.hidden === false : false,
+                            contextVisible: context ? context.getBoundingClientRect().height > 20 : false,
+                            contextMode: context ? context.dataset.overlayProfileIntegration : "",
+                            contextMutation: context ? context.dataset.overlayProfileMutation : "",
+                            routeButtonVisible: routeButton ? routeButton.getBoundingClientRect().width > 24 : false
+                        });
+                    } catch (err) {
+                        return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                    }
+                })();
+                """,
+                lambda result: handle_overlay_profile_manage_context_result(result),
+            )
+
+        def handle_overlay_profile_manage_context_result(result):
+            try:
+                parsed = json.loads(result) if isinstance(result, str) else result
+            except Exception:
+                parsed = {"ok": False, "raw": str(result)}
+            if not isinstance(parsed, dict):
+                parsed = {"ok": False, "raw": str(parsed)}
+            add_step(
+                "SLC-040 Manage Monitors read-only Overlay Profile context and route proof prepared",
+                bool(parsed.get("ok"))
+                and parsed.get("integrationProofPassed") is True
+                and parsed.get("manageWindowOpen") is True
+                and parsed.get("contextVisible") is True
+                and parsed.get("contextMode") == "slc-040-readonly-manage-context"
+                and parsed.get("contextMutation") == "blocked-readonly-manage-context"
+                and parsed.get("routeButtonVisible") is True,
+                parsed,
+            )
+            if not parsed.get("ok"):
+                finish("FAIL", "SLC-040 Manage Monitors Overlay Profile integration proof failed before focused screenshot")
+                return
+            QTimer.singleShot(delay(250), step_overlay_profile_capture_clean)
 
         def step_overlay_profile_capture_clean():
             capture("03_overlay_profile_settings_window_create_clean")
@@ -10176,6 +10232,9 @@ class DesktopRuntimeWindow(QWidget):
                         const controlsProof = window.runMonitoringHudOverlayProfileControlsProof
                             ? window.runMonitoringHudOverlayProfileControlsProof()
                             : { passed: false, missing: "controls-proof" };
+                        const integrationProof = window.runMonitoringHudOverlayProfileIntegrationProof
+                            ? window.runMonitoringHudOverlayProfileIntegrationProof()
+                            : { passed: false, missing: "integration-proof" };
                         if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("overlay-profile-settings");
                         const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
                         if (input) {
@@ -10191,7 +10250,9 @@ class DesktopRuntimeWindow(QWidget):
                             ok: Boolean(stateProof.passed && controlsProof.passed && selector && settingsButton && settingsWindow && input),
                             stateProofPassed: Boolean(stateProof.passed),
                             controlsProofPassed: Boolean(controlsProof.passed),
+                            integrationProofPassed: Boolean(integrationProof.passed),
                             controlsProof: controlsProof,
+                            integrationProof: integrationProof,
                             settingsWindowOpen: settingsWindow ? settingsWindow.hidden === false : false,
                             settingsButtonExpanded: settingsButton ? settingsButton.getAttribute("aria-expanded") === "true" : false,
                             dropdownClosed: selector ? selector.dataset.dropdownOpen !== "true" : false,
@@ -10222,6 +10283,7 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("settingsWindowOpen") is True
                 and parsed.get("settingsButtonExpanded") is True
                 and parsed.get("dropdownClosed") is True
+                and parsed.get("integrationProofPassed") is True
                 and parsed.get("saveEnabled") is True
                 and parsed.get("discardEnabled") is True
                 and parsed.get("membership") == "editable-slc-039-mapping",
@@ -10249,6 +10311,9 @@ class DesktopRuntimeWindow(QWidget):
                 const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
                 if (toggle && toggle.getAttribute("aria-expanded") === "true") toggle.click();
                 if (window.monitoringHudCloseChildWindow) window.monitoringHudCloseChildWindow({ force: true });
+                if (window.monitoringHudRenderControls) window.monitoringHudRenderControls();
+                const settings = document.getElementById("monitoring-hud-settings-action");
+                if (settings && settings.scrollIntoView) settings.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
                 """
             )
             QTimer.singleShot(delay(250), step_settings_panel)

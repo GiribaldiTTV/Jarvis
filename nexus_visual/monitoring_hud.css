@@ -1038,6 +1038,13 @@ body.desktop-mode #monitoring-hud > * {
     0 0 16px rgba(80, 230, 255, 0.10);
 }
 
+.monitoring-hud__overlay-profile-membership-row--context {
+  border-color: rgba(126, 248, 218, 0.58);
+  box-shadow:
+    0 0 0 1px rgba(229, 255, 251, 0.10) inset,
+    0 0 18px rgba(80, 230, 255, 0.14);
+}
+
 .monitoring-hud__overlay-profile-membership-row input {
   grid-row: 1 / span 2;
   width: 17px;
@@ -1086,6 +1093,57 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__overlay-profile-panel small {
   color: rgba(169, 207, 219, 0.78);
+}
+
+.monitoring-hud__monitor-overlay-profile-context {
+  display: grid;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(6, 34, 52, 0.68), rgba(3, 18, 32, 0.60)),
+    rgba(6, 28, 48, 0.42);
+}
+
+.monitoring-hud__overlay-profile-context-heading {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.42fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+}
+
+.monitoring-hud__overlay-profile-context-heading span {
+  color: rgba(145, 202, 218, 0.82);
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__overlay-profile-context-heading strong,
+.monitoring-hud__overlay-profile-context-grid strong {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(157, 246, 218, 0.92);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-hud__overlay-profile-context-grid {
+  display: grid;
+  gap: 0;
+}
+
+.monitoring-hud__monitor-overlay-profile-context .monitoring-hud__hub-action {
+  justify-self: end;
+  min-height: 32px;
+  white-space: nowrap;
+}
+
+.monitoring-hud__monitor-overlay-profile-context small {
+  color: rgba(169, 207, 219, 0.78);
+  line-height: 1.35;
 }
 
 #monitoring-hud-monitor-list-summary {
