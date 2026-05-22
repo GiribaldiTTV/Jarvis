@@ -557,6 +557,14 @@ $ShortVideoFrameRoot = Join-Path $LogRoot "short_video_frames"
 $ShortVideoPath = Join-Path $LogRoot "human_client_short_video.mp4"
 $ManifestPath = Join-Path $LogRoot "human_client_manifest.json"
 $LatestManifestPath = Join-Path $RootDir "dev\logs\fam_006_human_client_validation\latest_manifest.json"
+$UserScreenshotsRoot = Join-Path $env:USERPROFILE "OneDrive\Pictures\Screenshots"
+if (-not (Test-Path -LiteralPath $UserScreenshotsRoot)) {
+    $PicturesRoot = [Environment]::GetFolderPath("MyPictures")
+    $UserScreenshotsRoot = Join-Path $PicturesRoot "Screenshots"
+}
+$UserEvidenceRoot = Join-Path $UserScreenshotsRoot "Nexus Desktop AI\fam_006_human_client_validation\$Stamp"
+$UserContextScreenshotRoot = Join-Path $UserEvidenceRoot "context_desktop_screenshots"
+$UserElementScreenshotRoot = Join-Path $UserEvidenceRoot "focused_element_screenshots"
 $DefaultDesktopShortcutPath = Join-Path $env:USERPROFILE "OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk"
 $DesktopShortcutPath = if ($env:NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH) {
     $env:NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH
@@ -565,6 +573,8 @@ $DesktopShortcutPath = if ($env:NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH) {
 }
 
 New-Item -ItemType Directory -Force -Path $ScreenshotRoot | Out-Null
+New-Item -ItemType Directory -Force -Path $UserContextScreenshotRoot | Out-Null
+New-Item -ItemType Directory -Force -Path $UserElementScreenshotRoot | Out-Null
 
 $script:Steps = New-Object System.Collections.Generic.List[object]
 $script:Artifacts = New-Object System.Collections.Generic.List[object]
@@ -574,6 +584,7 @@ $script:CleanupNotes = New-Object System.Collections.Generic.List[string]
 $script:ShortVideoProof = [ordered]@{
     status = "NOT_REQUESTED"
     path = ""
+    userInspectablePath = ""
     frameCount = 0
     sourceRoot = $ScreenshotRoot
     proofClass = "short-video-or-frame-sequence"
@@ -663,6 +674,39 @@ function Add-Artifact {
     $script:Artifacts.Add([ordered]@{ label = $Label; path = $Path }) | Out-Null
 }
 
+function ConvertTo-SafeEvidenceName {
+    param([string]$Value)
+    $safe = ($Value -replace "[^A-Za-z0-9_-]", "_").Trim("_")
+    if ([string]::IsNullOrWhiteSpace($safe)) {
+        return "unnamed_element"
+    }
+    return $safe.ToLowerInvariant()
+}
+
+function Add-UserInspectableScreenshotEvidence {
+    param(
+        [string]$Label,
+        [string]$SourcePath,
+        [string]$ProofKind
+    )
+
+    $safe = ConvertTo-SafeEvidenceName -Value $Label
+    if ($ProofKind -eq "focused-element") {
+        $destination = Join-Path $UserElementScreenshotRoot ("element_{0}.png" -f $safe)
+    }
+    else {
+        $destination = Join-Path $UserContextScreenshotRoot ("context_{0}.png" -f $safe)
+    }
+    Copy-Item -LiteralPath $SourcePath -Destination $destination -Force
+    $script:Artifacts.Add([ordered]@{
+        label = if ($ProofKind -eq "focused-element") { "user_inspectable_element_$safe" } else { "user_inspectable_context_$safe" }
+        path = $destination
+        sourcePath = $SourcePath
+        proofClass = if ($ProofKind -eq "focused-element") { "focused-per-element-screenshot" } else { "full-desktop-context-screenshot" }
+    }) | Out-Null
+    return $destination
+}
+
 function Capture-VirtualScreenshot {
     param([string]$Label)
 
@@ -676,6 +720,7 @@ function Capture-VirtualScreenshot {
     $graphics.Dispose()
     $bitmap.Dispose()
     Add-Artifact -Label $Label -Path $path
+    Add-UserInspectableScreenshotEvidence -Label $Label -SourcePath $path -ProofKind "desktop-context" | Out-Null
     return $path
 }
 
@@ -708,6 +753,7 @@ function Capture-RectScreenshot {
     $graphics.Dispose()
     $bitmap.Dispose()
     Add-Artifact -Label $Label -Path $path
+    Add-UserInspectableScreenshotEvidence -Label $Label -SourcePath $path -ProofKind "focused-element" | Out-Null
     return $path
 }
 
@@ -736,6 +782,7 @@ function New-HumanClientShortVideoProof {
             status = "FAIL"
             reason = "ffmpeg.exe unavailable; LV1 human-client proof requires durable short video or ordered frame-sequence evidence"
             path = ""
+            userInspectablePath = ""
             frameCount = 0
             sourceRoot = $ScreenshotRoot
             proofClass = "short-video-or-frame-sequence"
@@ -748,6 +795,7 @@ function New-HumanClientShortVideoProof {
             status = "FAIL"
             reason = "fewer than two human-client screenshot frames available for short video proof"
             path = ""
+            userInspectablePath = ""
             frameCount = [int]$pngs.Count
             sourceRoot = $ScreenshotRoot
             proofClass = "short-video-or-frame-sequence"
@@ -768,6 +816,7 @@ function New-HumanClientShortVideoProof {
             status = "FAIL"
             reason = "no same-size human-client screenshot frame group was large enough for short video proof"
             path = ""
+            userInspectablePath = ""
             frameCount = 0
             sourceRoot = $ScreenshotRoot
             proofClass = "short-video-or-frame-sequence"
@@ -788,6 +837,7 @@ function New-HumanClientShortVideoProof {
             status = "FAIL"
             reason = "ffmpeg failed to encode human-client short video proof"
             path = $ShortVideoPath
+            userInspectablePath = ""
             frameCount = [int]$selectedGroup.Count
             sourceRoot = $ScreenshotRoot
             proofClass = "short-video-or-frame-sequence"
@@ -795,10 +845,14 @@ function New-HumanClientShortVideoProof {
     }
 
     Add-Artifact -Label "mandatory_human_client_short_video_proof" -Path $ShortVideoPath
+    $userShortVideoPath = Join-Path $UserEvidenceRoot "human_client_short_video.mp4"
+    Copy-Item -LiteralPath $ShortVideoPath -Destination $userShortVideoPath -Force
+    Add-Artifact -Label "user_inspectable_human_client_short_video_proof" -Path $userShortVideoPath
     [ordered]@{
         status = "PASS"
         reason = "durable human-client short video proof generated from ordered same-size screenshot frames"
         path = $ShortVideoPath
+        userInspectablePath = $userShortVideoPath
         frameCount = [int]$selectedGroup.Count
         sourceRoot = $ScreenshotRoot
         proofClass = "short-video-or-frame-sequence"
@@ -3287,6 +3341,9 @@ function Save-Manifest {
         finishedAt = (Get-Date).ToUniversalTime().ToString("o")
         desktopShortcutPath = $DesktopShortcutPath
         logRoot = $LogRoot
+        userInspectableEvidenceRoot = $UserEvidenceRoot
+        userInspectableContextScreenshotRoot = $UserContextScreenshotRoot
+        userInspectableElementScreenshotRoot = $UserElementScreenshotRoot
         runtimeLog = $script:RuntimeLogPath
         formalUtsTouched = $false
         shortcutResolution = $script:ShortcutResolution
@@ -3298,6 +3355,8 @@ function Save-Manifest {
             activeClientScreenshotProof = "supporting-only"
             liveHumanMouseTrayProof = $Status
             liveHumanMouseWindowProof = $Status
+            focusedPerElementScreenshotProof = if ((@(Get-ChildItem -LiteralPath $UserElementScreenshotRoot -Filter "element_*.png" -File -ErrorAction SilentlyContinue)).Count -gt 0) { "PASS" } else { "PENDING" }
+            fullDesktopContextScreenshotProof = if ((@(Get-ChildItem -LiteralPath $UserContextScreenshotRoot -Filter "context_*.png" -File -ErrorAction SilentlyContinue)).Count -gt 0) { "PASS" } else { "PENDING" }
             shortVideoOrFrameSequenceProof = $script:ShortVideoProof.status
         }
         shortVideoProof = $script:ShortVideoProof
@@ -3338,7 +3397,7 @@ try {
     $env:NEXUS_MONITORING_HUD_STATE_PATH = (Join-Path $LogRoot "monitoring_hud_state.json")
     $env:NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS = "15000"
 
-    Start-Process -FilePath $DesktopShortcutPath -WindowStyle Hidden
+    Start-Process -FilePath $DesktopShortcutPath
     Add-Step -Id "shortcut_launch_requested" -Title "Launch through desktop shortcut" -Status "PASS" -Detail "Started $DesktopShortcutPath"
 
     if (-not (Wait-ForRuntimeLog -TimeoutSeconds $StartupTimeoutSeconds)) {

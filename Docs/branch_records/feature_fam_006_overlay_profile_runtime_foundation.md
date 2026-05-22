@@ -672,7 +672,7 @@ Future Runtime Validation: `HUD surface validation`; `HUD internal sandbox valid
 
 ## Blockers
 
-Active Blockers: `USER_TEST_REQUIRED - the returned-UTS issue repair has refreshed LV1 technical proof PASS with mandatory screenshot plus short-video/frame-sequence proof, and the formal UTS handoff is refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt. PR Readiness is blocked until returned USER UTS PASS or explicit waiver with reason is recorded.`
+Active Blockers: `USER_TEST_REQUIRED - the returned-UTS issue repair has refreshed LV1 technical proof PASS with the real user-facing desktop launcher as the primary path, mandatory OneDrive per-element screenshot proof, short-video/frame-sequence proof, and the formal UTS handoff refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt. PR Readiness is blocked until returned USER UTS PASS or explicit waiver with reason is recorded.`
 
 ## Entry Basis
 
@@ -702,13 +702,13 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 
 Next Legal Phase: `Live Validation`
 
-Next Legal Phase Detail: `Canonical phase remains Live Validation in USER_TEST_REQUIRED posture. Bounded returned-UTS issue Workstream implementation and H1 are Green, refreshed LV1 technical proof is PASS with real shortcut proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_213244_514\human_client_manifest.json and active-client proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_213606_168\monitoring_hud_live_client_interaction_manifest.json, and PR Readiness remains blocked until returned USER PASS or waiver.`
+Next Legal Phase Detail: `Canonical phase remains Live Validation in USER_TEST_REQUIRED posture. Bounded returned-UTS issue Workstream implementation and H1 are Green, refreshed LV1 technical proof is PASS with primary real shortcut proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_215945_249\human_client_manifest.json and supporting per-element active-client proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_220614_907\monitoring_hud_live_client_interaction_manifest.json. USER-inspectable per-element screenshots are under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_220614_907\focused_element_screenshots\. PR Readiness remains blocked until returned USER PASS or waiver.`
 
 ## Next Legal Phase Digest
 
 Current Phase: `Live Validation`
 
-Stage Detail: `Refreshed LV1 technical proof is PASS after governance repair requiring mandatory screenshots plus short video/frame-sequence proof. Formal UTS handoff is refreshed and awaiting USER review.`
+Stage Detail: `Refreshed LV1 technical proof is PASS after governance repair requiring the real user-facing desktop launcher as primary LV1 path, mandatory detailed per-element screenshots copied to the USER-inspectable OneDrive screenshots folder with element names in the filenames, and short video/frame-sequence proof. Formal UTS handoff is refreshed and awaiting USER review.`
 
 Next Legal Phase: `Live Validation`
 
@@ -718,7 +718,7 @@ Why This Phase Is Next: `Returned USER review classified the prior LV1/UTS as RE
 
 Approval Required: `USER must complete the refreshed UTS review and return PASS, REPAIR items, or an explicit waiver with reason. Later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams.`
 
-Exact USER Approval Text: `Review C:\Users\anden\OneDrive\Desktop\User Test Summary.txt for the refreshed FAM-006 LV1 handoff, using the focused screenshot and short-video proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_213244_514\human_client_manifest.json and C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_213606_168\monitoring_hud_live_client_interaction_manifest.json, then return PASS, REPAIR items, or an explicit waiver with reason.`
+Exact USER Approval Text: `Review C:\Users\anden\OneDrive\Desktop\User Test Summary.txt for the refreshed FAM-006 LV1 handoff, using the primary real-launcher human-client proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_215945_249\human_client_manifest.json, the USER-inspectable human-client evidence folder at C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_human_client_validation\20260521_215945_249\, and the supporting named per-element screenshot folder at C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_220614_907\focused_element_screenshots\, then return PASS, REPAIR items, or an explicit waiver with reason.`
 
 Allowed Scope: `USER UTS review/digest only. Workstream implementation, H1, governance proof repair, and refreshed LV1 technical proof are complete; PR Readiness and later phases remain blocked until separately approved.`
 

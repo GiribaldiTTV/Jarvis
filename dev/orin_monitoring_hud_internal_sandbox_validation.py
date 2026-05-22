@@ -206,6 +206,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "WS35 dashboard-specific proof refresh and Live Validation UTS boundary",
         "SLC-041 Overlay Profile focused validation/live-proof readiness",
         "Historical WS18-WS30 markers remain supporting repair evidence",
+        "focused_element_screenshots",
+        "direct-runtime active-client proof",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
     for needle in (
@@ -1431,6 +1433,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Move-DashboardAwayFromTrayMenuIfNeeded",
         "dashboard_repositioned_clear_of_tray_menu_for_cleanup",
         "Capture-RectScreenshot",
+        "UserElementScreenshotRoot",
+        "Add-UserInspectableScreenshotEvidence",
+        "focused-per-element-screenshot",
+        "context_desktop_screenshots",
+        "focused_element_screenshots",
         "Capture-DashboardLocalScreenshot",
         "Capture-DashboardRightEdgeScreenshot",
         "New-HumanClientShortVideoProof",

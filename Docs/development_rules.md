@@ -445,13 +445,14 @@ That means:
 - no PR-ready without user-facing desktop-shortcut validation:
   - for relevant desktop user-facing workstreams, `User-Facing Shortcut Live Validation Gate` must pass or be explicitly waived before PR Readiness can report green
   - the active authority record must declare `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before User Test Summary handoff
-  - helper-only, direct-runtime, synthetic, or harness evidence may support Live Validation, but it does not replace the final user-facing shortcut gate when that shortcut path is feasible
+  - helper-only, direct-runtime, WebView-only, sandbox/offscreen, synthetic, active-client direct-runtime, or harness evidence may support Live Validation, but it does not replace the final user-facing shortcut gate when that shortcut path is feasible
 - no PR-ready without Codex live-client self-QA:
   - for relevant desktop user-facing workstreams, `Codex Live Client Self-QA Gate` must pass or be explicitly waived before User Test Summary handoff and PR Readiness
   - the active authority record must declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:` so quality, usability, interaction behavior, and NDAI uniformity are not collapsed into marker proof
   - the active authority record must also declare `Codex Visual Adjudication:`, `Visual Artifact Review Scope:`, `Product Vision Alignment:`, `Per-Element Visual Verdicts:`, `Helper Marker Limitation:`, `Unacceptable UI Findings:`, and `LV1 Handoff Disposition:` for desktop UI Live Validation; helper PASS, marker PASS, screenshot existence, and manifest existence cannot clear visual acceptability by themselves
   - interactive user-facing UI must be exercised in the launched live client; screenshot-only, marker-only, or launched-but-not-driven proof cannot clear this gate
   - desktop UI Live Validation requires both reviewable screenshots and short video or ordered frame-sequence proof for acceptance-critical interactive/transient states; the video/frame proof must be a durable artifact referenced by the manifest, not a prose claim
+  - desktop UI Live Validation requires detailed focused per-element screenshots in addition to context screenshots; every acceptance-critical element/state screenshot must be copied to `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\`, include the element label/name and state/action in the PNG filename, and be enumerated in the manifest; full-desktop screenshots are context only and cannot clear per-element visual acceptance
   - desktop UI proof must include an active foreground/user-observable client mode; hidden, too-fast, or blink-through helper evidence is supporting automation evidence only
   - while `Codex Live Client Self-QA Pending` remains active, do not hand off the feature as ready for USER acceptance
 - no PR-ready with `User Test Summary Results Pending`:

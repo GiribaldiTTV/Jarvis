@@ -37,6 +37,13 @@ $script:ShortVideoProof = [ordered]@{
     sourceRoot = ""
     proofClass = "short-video-or-frame-sequence"
 }
+$script:PerElementScreenshotProof = [ordered]@{
+    status = "NOT_REQUESTED"
+    root = ""
+    count = 0
+    proofClass = "focused-per-element-screenshot"
+    screenshots = @()
+}
 
 function Step([object]$Paths, [string]$Message) {
     $script:LastProgressAt = Get-Date
@@ -81,10 +88,13 @@ function New-Paths {
         $userScreenshotsRoot = Join-Path $picturesRoot "Screenshots"
     }
     $screenshotEvidenceRoot = Join-Path $userScreenshotsRoot "Nexus Desktop AI\fam_006_monitoring_hud_live_validation\$artifactLeaf"
+    $elementScreenshotEvidenceRoot = Join-Path $screenshotEvidenceRoot "focused_element_screenshots"
     New-Item -ItemType Directory -Force -Path $screenshotEvidenceRoot | Out-Null
+    New-Item -ItemType Directory -Force -Path $elementScreenshotEvidenceRoot | Out-Null
     [pscustomobject]@{
         Root = $ArtifactRoot
         ScreenshotEvidenceRoot = $screenshotEvidenceRoot
+        ElementScreenshotEvidenceRoot = $elementScreenshotEvidenceRoot
         RuntimeLog = Join-Path $ArtifactRoot "runtime_log.txt"
         StdoutLog = Join-Path $ArtifactRoot "stdout.txt"
         StderrLog = Join-Path $ArtifactRoot "stderr.txt"
@@ -101,6 +111,89 @@ function New-Paths {
         ShortVideoEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_lv1_short_video.mp4"
         UserTestSummary = Join-Path $env:USERPROFILE "OneDrive\Desktop\User Test Summary.txt"
         AbortSignal = Join-Path $ArtifactRoot "startup_abort.signal"
+    }
+}
+
+function ConvertTo-SafeScreenshotName([string]$Value) {
+    $safe = ($Value -replace "[^A-Za-z0-9_-]", "_").Trim("_")
+    if ([string]::IsNullOrWhiteSpace($safe)) {
+        return "unnamed_element"
+    }
+    return $safe.ToLowerInvariant()
+}
+
+function Copy-FocusedElementScreenshotsToUserEvidence {
+    param(
+        [object]$Paths,
+        [int]$MinimumScreenshots = 12
+    )
+
+    $contextNames = @(
+        "initial_live_client_visible",
+        "dashboard_standalone_virtual_desktop_travel",
+        "final_anchored_live_client",
+        "full_virtual_desktop",
+        "desktop_before_launch",
+        "desktop_after_launch"
+    )
+
+    if (-not (Test-Path -LiteralPath $Paths.InteractionEvidenceRoot)) {
+        return [ordered]@{
+            status = "FAIL"
+            root = $Paths.ElementScreenshotEvidenceRoot
+            count = 0
+            reason = "interaction evidence root missing; LV1 focused per-element screenshots missing"
+            proofClass = "focused-per-element-screenshot"
+            screenshots = @()
+        }
+    }
+
+    New-Item -ItemType Directory -Force -Path $Paths.ElementScreenshotEvidenceRoot | Out-Null
+    $screenshots = @()
+    $pngs = @(Get-ChildItem -LiteralPath $Paths.InteractionEvidenceRoot -Filter "*.png" -File | Sort-Object Name)
+    foreach ($png in $pngs) {
+        $baseName = [System.IO.Path]::GetFileNameWithoutExtension($png.Name)
+        $lowerName = $baseName.ToLowerInvariant()
+        $isContext = $false
+        foreach ($context in $contextNames) {
+            if ($lowerName.Contains($context)) {
+                $isContext = $true
+                break
+            }
+        }
+        if ($isContext) { continue }
+
+        $elementName = ConvertTo-SafeScreenshotName $baseName
+        $destinationName = "element_{0}.png" -f $elementName
+        $destination = Join-Path $Paths.ElementScreenshotEvidenceRoot $destinationName
+        Copy-Item -LiteralPath $png.FullName -Destination $destination -Force
+        $screenshots += [pscustomobject]@{
+            elementLabel = $elementName
+            stateOrAction = $baseName
+            proofClass = "focused-per-element-screenshot"
+            sourcePath = $png.FullName
+            userInspectablePath = $destination
+        }
+    }
+
+    if ($screenshots.Count -lt $MinimumScreenshots) {
+        return [ordered]@{
+            status = "FAIL"
+            root = $Paths.ElementScreenshotEvidenceRoot
+            count = $screenshots.Count
+            reason = "only $($screenshots.Count) focused per-element screenshot(s) copied; minimum is $MinimumScreenshots"
+            proofClass = "focused-per-element-screenshot"
+            screenshots = $screenshots
+        }
+    }
+
+    [ordered]@{
+        status = "PASS"
+        root = $Paths.ElementScreenshotEvidenceRoot
+        count = $screenshots.Count
+        reason = "focused UI screenshots were copied to the USER-inspectable OneDrive screenshots folder with element labels in each filename"
+        proofClass = "focused-per-element-screenshot"
+        screenshots = $screenshots
     }
 }
 
@@ -377,8 +470,10 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = $manifestSeam
-        proofStandard = "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only; mandatory LV1 short video/frame-sequence proof is required for desktop UI handoff"
+        proofStandard = "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only; mandatory LV1 short video/frame-sequence proof is required for desktop UI handoff; detailed focused per-element screenshots must be copied to the USER-inspectable OneDrive screenshots folder with the element label/name in each filename; full-desktop screenshots are context only; active-client/direct-runtime proof is supporting only when the real user-facing desktop launcher is feasible"
         lv1ScreenshotAndShortVideoProofRequired = $true
+        lv1DetailedPerElementScreenshotsRequired = $true
+        lv1RealUserFacingDesktopLauncherRequired = [bool]$PrepareLiveValidationUserTestSummary
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
         dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
         dashboardOnlyAcceptanceBaseline = "ws31-dashboard-control-panel"
@@ -399,6 +494,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             seam = "SLC-041 Overlay Profile validation and live desktop proof"
             focusedWebViewProofRequired = $true
             fullDesktopScreenshotsAreContextOnly = $true
+            perElementUserInspectableScreenshotsRequired = $true
+            realUserFacingDesktopLauncherIsPrimaryLv1Path = [bool]$PrepareLiveValidationUserTestSummary
             formalUserTestSummaryBoundary = "Live Validation Stage 1 only after human-client precheck PASS or USER waiver"
             workstreamAndHardeningNoUtsExport = -not [bool]$PrepareLiveValidationUserTestSummary
             proofChain = @(
@@ -414,8 +511,11 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             beforeLaunchFullVirtualDesktopScreenshot = [bool]$script:BeforeScreenshotPath
             afterLaunchFullVirtualDesktopScreenshot = [bool]$script:ScreenshotPath
             shortVideoOrFrameSequenceProof = $script:ShortVideoProof
+            perElementUserInspectableScreenshots = $script:PerElementScreenshotProof
             userInspectableScreenshotFolder = [bool]$Paths.ScreenshotEvidenceRoot
+            userInspectableElementScreenshotFolder = $Paths.ElementScreenshotEvidenceRoot
             activeUserFacingClient = [bool]$ActiveUserFacingClient
+            activeClientProofClassification = "supporting-only-for-LV1-when-real-shortcut-launcher-is-feasible"
             interactionSelfQA = $script:InteractionManifestStatus
             dashboardOnlyCurrentInterfaceGate = $true
             overlayAcceptanceDeferredNonGating = $true
@@ -439,6 +539,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         userInspectableBeforeLaunchScreenshot = $script:BeforeScreenshotEvidencePath
         screenshot = $script:ScreenshotPath
         screenshotEvidenceRoot = $Paths.ScreenshotEvidenceRoot
+        elementScreenshotEvidenceRoot = $Paths.ElementScreenshotEvidenceRoot
+        perElementUserInspectableScreenshots = $script:PerElementScreenshotProof
         userInspectableScreenshot = $script:ScreenshotEvidencePath
         afterLaunchScreenshot = $script:ScreenshotPath
         userInspectableAfterLaunchScreenshot = $script:ScreenshotEvidencePath
@@ -588,8 +690,8 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $precheckTopChromeClose = Format-ShortcutPrecheckLine @("dashboard_top_chrome_close_hides_dashboard", "dashboard_reopens_after_top_chrome_close") "LV1 cannot claim unrestricted green handoff for Dashboard window-level Close unless the visible Close control hides only the Dashboard and tray reopen works or USER waiver."
     $precheckHudPersistence = Format-ShortcutPrecheckLine @("hud_feature_enabled_state_persisted") "LV1 cannot claim unrestricted green handoff for HUD Feature state persistence without USER waiver."
     $precheckHumanClientRun = Format-ShortcutPrecheckLine @("launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "dashboard_first_open_stability_sequence", "dashboard_settings_opens_with_real_mouse", "dashboard_top_chrome_close_hides_dashboard", "ncp_tray_icon_left_click_opens", "ncp_tray_icon_left_click_closes", "ncp_create_custom_task_clickable_with_dashboard_open", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff without real-human client precheck coverage or USER waiver."
-    $activeClientPrecheck = "Codex Precheck: PASS through proven equivalent active-client live helper path - equivalence evidence: same active branch runtime, active foreground desktop client, PASS manifest, PASS interaction self-QA, and before/after full-desktop screenshots at $($Paths.Root)."
-    $visualScreenshotPrecheck = "Codex Precheck: PASS through proven equivalent active-client screenshot/manifest path - equivalence evidence: PASS live helper manifest, USER-inspectable screenshot folder, and interaction manifest at $($Paths.Root). USER visual confirmation is still required."
+    $activeClientPrecheck = "Codex Precheck: PASS as supporting live-helper evidence only - LV1 primary path remains the real user-facing desktop launcher/human-client manifest; direct-runtime or active-client helper proof cannot replace that path when the shortcut is feasible."
+    $visualScreenshotPrecheck = "Codex Precheck: PASS as supporting focused screenshot evidence only - detailed per-element screenshots are exported to the USER-inspectable OneDrive screenshot folder and full-desktop screenshots are context only. USER visual confirmation is still required."
     $deferredBoundaryPrecheck = "Codex Precheck: PASS through source-truth, static validation, sandbox validation, and active-client manifest boundary proof - USER is not being asked to accept deferred/future scope."
 
     # Keep the desktop UTS as a short USER questionnaire; detailed ledger/proof
@@ -614,6 +716,8 @@ Codex Precheck Summary
 - Human-client proof: PASS at dev/logs/fam_006_human_client_validation/latest_manifest.json.
 - Live proof root for this handoff: $($Paths.Root)
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
+- USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
+- Screenshot rule: review the detailed `element_<label>_<state>.png` screenshots; full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
 - Overlay/display release acceptance is deferred and non-gating.
 
 Step 1 - Launch From Red FAM-006 Shortcut
@@ -837,13 +941,18 @@ try {
         Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY"
         Wait-Marker $paths "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY"
         Step $paths "interaction self-QA manifest PASS: $($paths.InteractionManifest)"
+        $script:PerElementScreenshotProof = Copy-FocusedElementScreenshotsToUserEvidence -Paths $paths
+        if ($script:PerElementScreenshotProof.status -ne "PASS") {
+            throw "LV1 focused per-element screenshots missing or failed: $($script:PerElementScreenshotProof.reason)"
+        }
+        Step $paths "copied mandatory LV1 focused per-element screenshots to USER-inspectable folder: $($script:PerElementScreenshotProof.root)"
     }
 
     Step $paths "settling Dashboard-first client before full-desktop screenshot"
     Start-Sleep -Milliseconds 1500
     Capture-Screen $paths "after_launch"
     if ($effectiveRunInteractionSelfQA -or $PrepareLiveValidationUserTestSummary) {
-        $script:ShortVideoProof = New-ShortVideoProof -Paths $paths -SourceRoots @($paths.InteractionEvidenceRoot, $paths.Root) -MinimumFrames 5
+        $script:ShortVideoProof = New-ShortVideoProof -Paths $paths -SourceRoots @($paths.ElementScreenshotEvidenceRoot, $paths.InteractionEvidenceRoot, $paths.Root) -MinimumFrames 5
         if ($script:ShortVideoProof.status -ne "PASS") {
             throw "LV1 short video/frame-sequence proof missing or failed: $($script:ShortVideoProof.reason)"
         }
