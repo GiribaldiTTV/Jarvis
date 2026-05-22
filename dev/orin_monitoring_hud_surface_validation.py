@@ -236,6 +236,9 @@ def validate() -> list[str]:
         "sourceSettingsFocusNoGold",
         "rowTitleTabsInspected",
         "responsiveWindowContract",
+        "Dropdown / Selection Volume Stress Addendum",
+        "null-state proof",
+        "100+ item state",
         "buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling",
     ):
         _require_contains(helper_registry, needle, "FAM-006 HUD visual inspection helper registry", failures)
@@ -266,7 +269,7 @@ def validate() -> list[str]:
         ".monitoring-hud__source-settings-body:focus-visible",
         ".monitoring-hud input[type=\"checkbox\"]:checked.is-hovered",
         ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown",
-        "grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(220px, 0.86fr)",
+        "flex: 0 0 clamp(220px, 30%, 240px)",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
     for needle in (
@@ -772,9 +775,14 @@ def validate() -> list[str]:
         and "largeProfileFixture" in js
         and "profileDropdownMaxFiveStress" in js
         and "profileDropdownNDAIScrollbar" in js
+        and "dropdownNullStress" in js
+        and "dropdownHighVolumeStress" in js
+        and "dropdownStressSurfaceCount" in js
         and "deleteConfirmationVisualReviewable" in js
         and "detailActionsVisualReviewable" in js
         and "visualStressProfileCount" in renderer
+        and "dropdownNullStress" in renderer
+        and "dropdownHighVolumeStress" in renderer
         and "visualVisibleProfileOptions" in renderer
         and "deleteConfirmationVisualReviewable" in renderer
         and "detailActionsVisualReviewable" in renderer
@@ -786,18 +794,19 @@ def validate() -> list[str]:
         failures,
     )
     _require(
-        "grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(220px, 0.86fr)" in css
+        "display: flex;" in css
+        and "flex-wrap: nowrap;" in css
+        and "flex: 0 0 clamp(220px, 30%, 240px)" in css
         and "width: min(900px, calc(100% - 8px))" in css
         and "min-width: min(720px, calc(100% - 8px))" in css
         and "min-width: min(220px, 100%)" in css
-        and "max-width: min(280px, 100%)" in css
+        and "max-width: min(240px, 100%)" in css
         and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css
-        and "max-width: min(280px, 100%);" in css
-        and "grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(220px, 0.86fr)" in css
-        and "grid-template-columns: minmax(136px, 1fr) minmax(136px, 1fr) minmax(210px, 0.8fr)" in css
-        and "@media (max-width: 420px)" in css
-        and "max-height: 178px;" in css
-        and "max-height: 206px;" in css
+        and "max-width: min(220px, 100%)" in css
+        and "@media (max-width: 360px)" in css
+        and "max-height: 160px;" in css
+        and "min-height: 26px;" in css
+        and "box-sizing: border-box;" in css
         and "min-height: 152px;" in css
         and 'data-overlay-profile-detail-state="open"' in css
         and "max-height: 132px;" in css

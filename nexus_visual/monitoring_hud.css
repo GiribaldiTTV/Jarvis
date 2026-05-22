@@ -1168,8 +1168,8 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__overlay-profile-manager-row {
-  display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(220px, 0.86fr);
+  display: flex;
+  flex-wrap: nowrap;
   gap: 12px;
   align-items: center;
   position: relative;
@@ -1178,6 +1178,7 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__overlay-profile-manager-row > .monitoring-hud__hub-action {
+  flex: 1 1 0;
   min-width: 0;
   justify-content: center;
   text-align: center;
@@ -1185,16 +1186,17 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
+  flex: 0 0 clamp(220px, 30%, 240px);
   justify-self: stretch;
-  width: 100%;
+  width: clamp(220px, 30%, 240px);
   min-width: min(220px, 100%);
-  max-width: min(280px, 100%);
+  max-width: min(240px, 100%);
   z-index: 5;
 }
 
 .monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown {
   min-width: 0;
-  max-width: min(280px, 100%);
+  max-width: min(240px, 100%);
 }
 
 .monitoring-hud__hub-action[data-control="overlay-profile-edit-selected"][data-control-state="editable"] {
@@ -1298,12 +1300,13 @@ body.desktop-mode #monitoring-hud > * {
   width: 100%;
   min-width: 100%;
   max-width: 100%;
-  max-height: 206px;
+  max-height: 160px;
   scrollbar-color: rgba(117, 228, 255, 0.58) rgba(3, 16, 28, 0.82);
 }
 
 .monitoring-hud__overlay-profile-window-dropdown .monitoring-hud__bounded-dropdown-option {
-  min-height: 36px;
+  min-height: 26px;
+  padding: 5px 12px;
   white-space: nowrap;
 }
 
@@ -2305,6 +2308,7 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__source-filter-option,
 .monitoring-hud__bounded-dropdown-option {
+  box-sizing: border-box;
   width: 100%;
   border-radius: 7px;
   padding: 7px 14px;
@@ -2767,32 +2771,42 @@ body.desktop-mode #monitoring-hud > * {
 
 @media (max-width: 880px) {
   .monitoring-hud__overlay-profile-manager-row {
-    grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(220px, 0.86fr);
     gap: 10px;
     padding: 12px;
   }
 
   .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
+    flex-basis: 220px;
+    width: 220px;
     min-width: 0;
-    max-width: min(280px, 100%);
+    max-width: min(220px, 100%);
   }
 }
 
 @media (max-width: 760px) {
-  .monitoring-hud__overlay-profile-manager-row {
-    grid-template-columns: minmax(136px, 1fr) minmax(136px, 1fr) minmax(210px, 0.8fr);
+  .monitoring-hud__overlay-profile-manager-row > .monitoring-hud__hub-action {
+    font-size: 11px;
+    letter-spacing: 0.06em;
   }
 }
 
 @media (max-width: 520px) {
-  .monitoring-hud__overlay-profile-manager-row {
-    grid-template-columns: minmax(118px, 1fr) minmax(118px, 1fr) minmax(190px, 0.72fr);
+  .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
+    flex-basis: 190px;
+    width: 190px;
+    max-width: min(190px, 100%);
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 360px) {
   .monitoring-hud__overlay-profile-manager-row {
-    grid-template-columns: 1fr;
+    flex-wrap: wrap;
+  }
+
+  .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
   }
 }
 

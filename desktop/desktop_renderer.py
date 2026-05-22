@@ -10382,6 +10382,10 @@ class DesktopRuntimeWindow(QWidget):
                             largeProfileFixture: Boolean(controlsProof.largeProfileFixture),
                             profileDropdownMaxFiveStress: Boolean(controlsProof.profileDropdownMaxFiveStress),
                             profileDropdownNDAIScrollbar: Boolean(controlsProof.profileDropdownNDAIScrollbar),
+                            dropdownNullStress: Boolean(controlsProof.dropdownNullStress),
+                            dropdownHighVolumeStress: Boolean(controlsProof.dropdownHighVolumeStress),
+                            dropdownStressSurfaceCount: Number(controlsProof.dropdownStressSurfaceCount || 0),
+                            dropdownStressProof: controlsProof.dropdownStressProof || {},
                             editDisabledWithoutSelection: edit ? edit.disabled : false,
                             createVisible: Boolean(create),
                             saveDisabledDefault: save ? save.disabled : false,
@@ -10425,8 +10429,8 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("settingsButtonExpanded") is True
                 and parsed.get("dropdownClosed") is True
                 and parsed.get("managerRowPolicy") == "create-edit-compact-selector-same-row"
-                and float(parsed.get("managerSelectorWidth") or 0) >= 210
-                and float(parsed.get("managerSelectorWidth") or 0) <= 300
+                and float(parsed.get("managerSelectorWidth") or 0) >= 190
+                and float(parsed.get("managerSelectorWidth") or 0) <= 240
                 and parsed.get("managerSelectorSameRow") is True
                 and parsed.get("managerSelectorStandardFootprint") is True
                 and parsed.get("managerSelectorMenuUnclipped") is True
@@ -10435,6 +10439,9 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("largeProfileFixture") is True
                 and parsed.get("profileDropdownMaxFiveStress") is True
                 and parsed.get("profileDropdownNDAIScrollbar") is True
+                and parsed.get("dropdownNullStress") is True
+                and parsed.get("dropdownHighVolumeStress") is True
+                and int(parsed.get("dropdownStressSurfaceCount") or 0) >= 2
                 and parsed.get("integrationProofPassed") is True
                 and parsed.get("editDisabledWithoutSelection") is True
                 and parsed.get("createVisible") is True
@@ -10505,7 +10512,7 @@ class DesktopRuntimeWindow(QWidget):
                         if (!monitoringHudControlState.overlayProfiles) {
                             monitoringHudControlState.overlayProfiles = {};
                         }
-                        for (let index = 1; index <= 14; index += 1) {
+                        for (let index = 1; index <= 124; index += 1) {
                             const stressId = `visual-proof-overlay-profile-${index}`;
                             monitoringHudControlState.overlayProfiles[stressId] = {
                                 id: stressId,
@@ -10567,12 +10574,12 @@ class DesktopRuntimeWindow(QWidget):
                 bool(parsed.get("ok"))
                 and parsed.get("selectorOpen") is True
                 and parsed.get("menuVisible") is True
-                and int(parsed.get("visualStressProfileCount") or 0) >= 15
+                and int(parsed.get("visualStressProfileCount") or 0) >= 100
                 and int(parsed.get("visualVisibleProfileOptions") or 0) == 5
                 and bool(parsed.get("hoveredProfileId"))
                 and parsed.get("labelReadable") is True
-                and float(parsed.get("selectorWidth") or 0) >= 210
-                and float(parsed.get("selectorWidth") or 0) <= 300
+                and float(parsed.get("selectorWidth") or 0) >= 190
+                and float(parsed.get("selectorWidth") or 0) <= 240
                 and abs(float(parsed.get("menuWidth") or 0) - float(parsed.get("selectorWidth") or 0)) <= 2,
                 parsed,
             )

@@ -4473,6 +4473,9 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     largeProfileFixture: false,
     profileDropdownMaxFiveStress: false,
     profileDropdownNDAIScrollbar: false,
+    dropdownNullStress: false,
+    dropdownHighVolumeStress: false,
+    dropdownStressSurfaceCount: 0,
     editDisabledUntilSelection: false,
     editOpensSelectedSettings: false,
     createVisible: Boolean(monitoringHudOverlayProfileCreate),
@@ -4587,8 +4590,8 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
         && selectorRect.right <= rowRect.right + 1
       );
       const standardFootprint = Boolean(
-        selectorRect.width >= 210
-        && selectorRect.width <= 300
+        selectorRect.width >= 190
+        && selectorRect.width <= 240
         && insideRow
       );
       const wasOpen = selector.dataset.dropdownOpen === "true";
@@ -4663,8 +4666,8 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
         && compactMeasurement.standardFootprint
         && wideMeasurement.menuUnclipped
         && compactMeasurement.menuUnclipped
-        && wideMeasurement.selectorWidth <= 300
-        && compactMeasurement.selectorWidth <= 300
+        && wideMeasurement.selectorWidth <= 240
+        && compactMeasurement.selectorWidth <= 240
         && compactMeasurement.selectorWidth <= wideMeasurement.selectorWidth + 2
       );
       proof.windowSelectorCompactMeasurements = {
@@ -4708,9 +4711,120 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       monitoringHudOverlayProfileWindow
       && monitoringHudOverlayProfileWindow.dataset.overlayProfileVisualRepair === "manager-selector-same-row-compact-unclipped-proof"
     );
+    const inspectWindowDropdownVolume = (label) => {
+      if (typeof monitoringHudRenderControls === "function") {
+        monitoringHudRenderControls();
+      }
+      if (typeof monitoringHudOpenChildWindow === "function") {
+        monitoringHudOpenChildWindow("overlay-profile-settings");
+      }
+      if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
+        monitoringHudSetOverlayProfileWindowDropdownOpen(true);
+      }
+      const selector = monitoringHudOverlayProfileWindowSelector;
+      const menu = monitoringHudOverlayProfileWindowMenu;
+      const row = selector && selector.closest
+        ? selector.closest("[data-overlay-profile-manager-row]")
+        : null;
+      const create = monitoringHudOverlayProfileCreate;
+      const edit = monitoringHudOverlayProfileEditSelected;
+      const windowRect = monitoringHudOverlayProfileWindow
+        ? monitoringHudOverlayProfileWindow.getBoundingClientRect()
+        : { left: 0, top: 0, right: 0, bottom: 0 };
+      const selectorRect = selector
+        ? selector.getBoundingClientRect()
+        : { left: 0, right: 0, top: 0, bottom: 0, width: 0, height: 0 };
+      const menuRect = menu
+        ? menu.getBoundingClientRect()
+        : { left: 0, right: 0, top: 0, bottom: 0, width: 0, height: 0 };
+      const createRect = create
+        ? create.getBoundingClientRect()
+        : { top: 0, right: 0, height: 0 };
+      const editRect = edit
+        ? edit.getBoundingClientRect()
+        : { top: 0, right: 0, height: 0 };
+      const selectorCenterY = selectorRect.top + (selectorRect.height / 2);
+      const createCenterY = createRect.top + (createRect.height / 2);
+      const editCenterY = editRect.top + (editRect.height / 2);
+      const rowTopDelta = Math.max(
+        Math.abs(selectorCenterY - createCenterY),
+        Math.abs(selectorCenterY - editCenterY)
+      );
+      const options = menu
+        ? Array.from(menu.querySelectorAll("[data-overlay-profile-window-option]"))
+        : [];
+      const visibleOptions = options.filter((option) => {
+        const optionRect = option.getBoundingClientRect();
+        return Boolean(
+          menuRect.height > 0
+          && optionRect.top >= menuRect.top - 1
+          && optionRect.bottom <= menuRect.bottom + 1
+        );
+      });
+      const sameRow = Boolean(
+        selector
+        && create
+        && edit
+        && row
+        && rowTopDelta <= 9
+        && selectorRect.left >= editRect.right - 2
+      );
+      const standardFootprint = Boolean(selectorRect.width >= 190 && selectorRect.width <= 240);
+      const menuUnclipped = Boolean(
+        menu
+        && !menu.hidden
+        && menuRect.width >= Math.max(180, selectorRect.width - 2)
+        && menuRect.width <= selectorRect.width + 2
+        && menuRect.left >= windowRect.left - 1
+        && menuRect.right <= windowRect.right + 1
+        && menuRect.top >= windowRect.top - 1
+        && menuRect.bottom <= windowRect.bottom + 1
+      );
+      const maxFiveVisible = Boolean(options.length <= 5 || visibleOptions.length <= 5);
+      const scrollsWhenStressed = Boolean(
+        options.length <= 5
+        || (menu && menu.scrollHeight > menu.clientHeight + 1)
+      );
+      return {
+        label,
+        optionCount: options.length,
+        visibleOptionCount: visibleOptions.length,
+        sameRow,
+        standardFootprint,
+        menuUnclipped,
+        maxFiveVisible,
+        scrollsWhenStressed,
+        selectorWidth: Math.round(selectorRect.width),
+        menuWidth: Math.round(menuRect.width),
+        menuBottom: Math.round(menuRect.bottom),
+        windowBottom: Math.round(windowRect.bottom),
+        rowTopDelta: Math.round(rowTopDelta)
+      };
+    };
+    const volumeStateBefore = JSON.stringify(monitoringHudControlState);
+    const volumeSelectedBefore = monitoringHudOverlayProfileWindowSelectedId;
+    const volumeDetailBefore = monitoringHudOverlayProfileDetailOpen;
+    monitoringHudControlState.overlayProfiles = {};
+    monitoringHudControlState.activeOverlayProfileId = "";
+    monitoringHudControlState.overlayProfileDefaultDeletedByUser = true;
+    monitoringHudOverlayProfileWindowSelectedId = "";
+    monitoringHudOverlayProfileDetailOpen = false;
+    const nullDropdownProof = inspectWindowDropdownVolume("overlay-profile-window-null");
+    monitoringHudControlState = JSON.parse(volumeStateBefore);
+    monitoringHudOverlayProfileWindowSelectedId = volumeSelectedBefore;
+    monitoringHudOverlayProfileDetailOpen = volumeDetailBefore;
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    monitoringHudRenderControls();
+    monitoringHudOpenChildWindow("overlay-profile-settings");
+    proof.dropdownNullStress = Boolean(
+      nullDropdownProof.optionCount === 0
+      && nullDropdownProof.sameRow
+      && nullDropdownProof.standardFootprint
+      && nullDropdownProof.menuUnclipped
+    );
     const stressProfileIds = [];
     const stressMonitorIds = monitoringHudStableMonitorIds(monitoringHudControlState.cards || {});
-    for (let index = 1; index <= 14; index += 1) {
+    for (let index = 1; index <= 124; index += 1) {
       const stressId = `stress-overlay-profile-${index}`;
       stressProfileIds.push(stressId);
       monitoringHudControlState.overlayProfiles[stressId] = {
@@ -4749,7 +4863,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       monitoringHudOverlayProfileWindowMenu
       && monitoringHudOverlayProfileWindowMenu.scrollHeight > monitoringHudOverlayProfileWindowMenu.clientHeight + 1
     );
-    proof.largeProfileFixture = stressOptions.length >= 15;
+    proof.largeProfileFixture = stressOptions.length >= 100;
     proof.profileDropdownNDAIScrollbar = Boolean(
       monitoringHudOverlayProfileWindowMenu
       && monitoringHudOverlayProfileWindowMenu.classList.contains("monitoring-hud__nexus-scroll-pane")
@@ -4764,6 +4878,20 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       && stressMenuScrollable
       && (stressMenuStyle.overflowY === "auto" || stressMenuStyle.overflowY === "scroll")
     );
+    const highVolumeDropdownProof = inspectWindowDropdownVolume("overlay-profile-window-125");
+    proof.dropdownHighVolumeStress = Boolean(
+      highVolumeDropdownProof.optionCount >= 100
+      && highVolumeDropdownProof.sameRow
+      && highVolumeDropdownProof.standardFootprint
+      && highVolumeDropdownProof.menuUnclipped
+      && highVolumeDropdownProof.maxFiveVisible
+      && highVolumeDropdownProof.scrollsWhenStressed
+    );
+    proof.dropdownStressSurfaceCount = 2;
+    proof.dropdownStressProof = {
+      null: nullDropdownProof,
+      highVolume: highVolumeDropdownProof
+    };
     if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
       monitoringHudSetOverlayProfileWindowDropdownOpen(false);
     }
@@ -4911,6 +5039,9 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     && proof.largeProfileFixture
     && proof.profileDropdownMaxFiveStress
     && proof.profileDropdownNDAIScrollbar
+    && proof.dropdownNullStress
+    && proof.dropdownHighVolumeStress
+    && proof.dropdownStressSurfaceCount >= 2
     && proof.editDisabledUntilSelection
     && proof.editOpensSelectedSettings
     && proof.createVisible
@@ -5728,8 +5859,8 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
         && selectorRect.right <= rowRect.right + 1
       );
       const standardFootprint = Boolean(
-        selectorRect.width >= 210
-        && selectorRect.width <= 300
+        selectorRect.width >= 190
+        && selectorRect.width <= 240
         && insideRow
       );
       const wasOpen = selector.dataset.dropdownOpen === "true";
@@ -5806,8 +5937,8 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       && compactMeasurement.standardFootprint
       && wideMeasurement.menuUnclipped
       && compactMeasurement.menuUnclipped
-      && wideMeasurement.selectorWidth <= 300
-      && compactMeasurement.selectorWidth <= 300
+      && wideMeasurement.selectorWidth <= 240
+      && compactMeasurement.selectorWidth <= 240
       && compactMeasurement.selectorWidth <= wideMeasurement.selectorWidth + 2
     );
     if (!scalesWithinRow || !responsiveCompact || !currentMeasurement.menuUnclipped) {
