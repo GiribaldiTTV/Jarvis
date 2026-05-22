@@ -15,7 +15,7 @@ This USER response rejects the latest refreshed LV1 handoff. It is not a PASS or
 
 This file is a temporary tracked issue form. It exists to prevent returned UTS feedback from being lost between digest, repair setup, implementation, H1, LV1, and PR Readiness. It must be deleted only after PR Readiness Stage 1 is green and every still-relevant detail has been rolled into the appropriate branch record, branch plan, validators, UTS checklist, backlog/roadmap pointer, or future-scope record.
 
-No Runtime Work Authorization: `This record is a digest and planning form only. It does not authorize runtime implementation, UI repair, validator mutation beyond source-truth planning, PR creation, merge, release, issue mutation, artifact handling, or sibling-worktree mutation.`
+Original Digest Authorization Boundary: `This record began as a digest and planning form only. Runtime implementation was later separately USER-approved for the bounded returned-UTS Workstream; PR creation, merge, release, issue mutation, artifact handling, sibling-worktree mutation, and future package work remain outside this form.`
 
 ## Repair Setup Approval
 
@@ -26,6 +26,16 @@ Setup Scope: `Refine issue-by-issue planning, define bounded repair disposition,
 Runtime Implementation Authorization: `NOT AUTHORIZED IN THIS SETUP PASS - no UI/CSS/JS/Python runtime repairs, PR Readiness, PR creation, merge, release, issue mutation, artifact handling, sibling-worktree changes, or future package work may occur without separate approval.`
 
 Setup Result: `ADMITTED - all returned UTS issues are accepted as planning inputs. Items are classified below as current-branch repair candidates, proof/validator governance repairs, conditional current-branch repairs, or future-gated planning items.`
+
+## Bounded Workstream Implementation Result
+
+Implementation Result: `GREEN - USER separately approved bounded returned-UTS Workstream implementation for UTS-HUD-001 through UTS-HUD-012. Current FAM-006 HUD runtime, renderer proof, surface validators, internal sandbox validators, and source truth now carry the repaired behavior. Hardening H1, refreshed LV1, and returned USER PASS or waiver remain required before PR Readiness.`
+
+Implementation Evidence: `Active-client live validation and focused interaction self-QA passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_192129_648\monitoring_hud_live_client_interaction_manifest.json with focused proof artifacts under C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_192129_648\live_client_interaction\. Internal sandbox validation passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260521_193537_manifest.json.`
+
+Implementation Scope Summary: `The repair adds HUD-wide default glow tokens and semantic hover preservation, stronger card/window background opacity to prevent grid bleed-through, minimum button text padding, checked-source hover persistence, max-five dropdown/list proof with NDAI scrollbars, selected/source hover flicker protection, effective current-HUD polling cadence proof, deterministic sensor settings controls, right-aligned Dashboard actions with Manage Data Sources / Feature Deferred copy, and dirty-change guards for current editable HUD windows.`
+
+Next Required Gate: `Hardening H1 for the returned-UTS issue repair. PR Readiness remains blocked until H1, refreshed LV1, and returned USER PASS or explicit waiver with reason are complete.`
 
 ## Evidence And Validation Standard Requested By USER
 
@@ -50,18 +60,18 @@ Helper PASS, manifest PASS, screenshot existence, or DOM presence cannot substit
 
 | ID | Area | USER Classification | Planning Status | Repair Authorization |
 | --- | --- | --- | --- | --- |
-| UTS-HUD-001 | Button default glow uniformity | REPAIR | Setup admitted | Implementation pending |
-| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Setup admitted | Implementation pending |
-| UTS-HUD-003 | Default button glow text readability | REPAIR | Setup admitted | Implementation pending |
-| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Setup admitted | Implementation pending |
-| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Setup admitted | Implementation pending |
-| UTS-HUD-006 | Checked source row hover state | REPAIR | Setup admitted | Implementation pending |
-| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Setup admitted | Implementation pending |
-| UTS-HUD-008 | Source row hover flicker | REPAIR | Setup admitted | Implementation pending |
-| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Conditional setup admitted | Implementation pending |
-| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Setup admitted | Implementation pending |
-| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Setup admitted | Implementation pending |
-| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-001 | Button default glow uniformity | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
+| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
+| UTS-HUD-003 | Default button glow text readability | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
+| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
+| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
+| UTS-HUD-006 | Checked source row hover state | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
+| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
+| UTS-HUD-008 | Source row hover flicker | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
+| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Workstream implemented for current HUD source-refresh path; H1 pending | Bounded implementation complete |
+| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
+| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
+| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Workstream implemented for current editable HUD windows; H1 pending | Bounded implementation complete |
 
 ## Repair Setup Disposition Matrix
 
@@ -123,13 +133,13 @@ Visual Adjudication Requirements:
 
 ## Source Truth And Validator Update Plan
 
-Branch Record: `Record setup approved, issue matrix admitted, implementation still pending, PR Readiness blocked, and next governed action as bounded returned-UTS Workstream implementation approval.`
+Branch Record: `Record setup approved, issue matrix admitted, bounded Workstream implementation Green, PR Readiness blocked, and next governed action as Hardening H1 for the returned-UTS repair.`
 
-Branch Plan: `Record setup approval, issue dispositions, validation/proof matrix, and temporary issue form lifecycle.`
+Branch Plan: `Record setup approval, issue dispositions, validation/proof matrix, Workstream implementation evidence, and temporary issue form lifecycle.`
 
-Backlog And Roadmap: `Remain compact pointer/status surfaces that mention returned UTS REPAIR, setup admitted, implementation pending, and PR Readiness blocked.`
+Backlog And Roadmap: `Remain compact pointer/status surfaces that mention returned UTS REPAIR, Workstream implementation Green, H1 pending, and PR Readiness blocked.`
 
-Validators And Helpers: `Next implementation must update HUD surface/internal sandbox/live/human-client helpers only as needed to prove the issue matrix. Validator changes must enforce artifact reviewability and per-issue coverage, not merely add markers.`
+Validators And Helpers: `HUD surface/internal sandbox/live helpers now prove the issue matrix with per-issue coverage and artifact reviewability gates; H1 and LV1 must pressure-test the same coverage rather than relying on generic marker presence.`
 
 UTS Handoff: `Next refreshed UTS must include UTS-HUD-001 through UTS-HUD-012 as explicit USER checklist items.`
 

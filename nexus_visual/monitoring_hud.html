@@ -246,16 +246,16 @@
             <span>03</span>
             <strong>Data Sources</strong>
           </div>
-          <p>Provider truth and setup live here. Hardware values stay hidden until a safe provider and validation route exist.</p>
+          <p>Provider truth and setup live here. Waiting for safe provider remains the data rule; Manage Data Sources is Feature Deferred.</p>
           <div class="monitoring-hud__state-row">
             <span>Status</span>
-            <strong id="monitoring-hud-adapter-status">Waiting for safe provider</strong>
+            <strong id="monitoring-hud-adapter-status">Feature Deferred</strong>
           </div>
           <div class="monitoring-hud__state-row">
             <span>Truth rule</span>
             <strong id="monitoring-hud-source-scope">Provider-first; no fake values</strong>
           </div>
-          <button type="button" class="monitoring-hud__hub-action monitoring-hud__hub-action--deferred" data-control="open-data-sources" data-child-window-target="data-sources" aria-disabled="true" disabled>Data Sources Window Deferred</button>
+          <button type="button" class="monitoring-hud__hub-action monitoring-hud__hub-action--deferred" data-control="open-data-sources" data-child-window-target="data-sources" data-feature-status="feature-deferred" aria-disabled="true" disabled>Manage Data Sources</button>
         </article>
         <article class="monitoring-hud__hub-card" data-dashboard-hub-card="readiness" data-slice="SLC-028">
           <div class="monitoring-hud__hub-card-topline">
@@ -397,6 +397,14 @@
             </div>
           </div>
           <div class="monitoring-hud__overlay-profile-detail-section" id="monitoring-hud-overlay-profile-detail-section" data-overlay-profile-detail-state="closed" hidden>
+            <div class="monitoring-hud__unsaved-guard" id="monitoring-hud-overlay-profile-unsaved-guard" data-unsaved-guard="closed" hidden>
+              <strong>Unsaved overlay profile changes</strong>
+              <span>Save changes or discard the draft before closing this profile.</span>
+              <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="save-left-discard-right">
+                <button type="button" id="monitoring-hud-overlay-profile-unsaved-save" class="monitoring-hud__hub-action" data-control="overlay-profile-unsaved-save">Save</button>
+                <button type="button" id="monitoring-hud-overlay-profile-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-unsaved-discard">Discard</button>
+              </div>
+            </div>
             <label class="monitoring-hud__child-field monitoring-hud__overlay-profile-name-field">
               Overlay profile name
               <input id="monitoring-hud-overlay-profile-name-input" type="text" value="Default Overlay Profile" autocomplete="off" maxlength="48" />
@@ -705,10 +713,10 @@
                   <div class="monitoring-hud__sensor-settings-empty" data-sensor-settings-empty="source-list-entry-points">Use each Source row's Settings button for display mode, warning, and sensor-specific Polling Rate overrides.</div>
                 </div>
                 <div class="monitoring-hud__detail-danger-zone" data-detail-actions="selected-monitor-bottom">
-                  <div class="monitoring-hud__detail-action-row" data-detail-action-row="save-discard-left-delete-right">
+                  <div class="monitoring-hud__detail-action-row" data-detail-action-row="save-left-discard-delete-right">
                     <div class="monitoring-hud__child-actions monitoring-hud__child-actions--footer" id="monitoring-hud-monitor-detail-actions" data-monitor-detail-actions="selected-monitor-footer">
                       <button type="button" id="monitoring-hud-edit-monitor-confirm" class="monitoring-hud__hub-action" data-control="confirm-edit-monitor" data-control-state="clean-disabled" aria-disabled="true" disabled>Save Monitor</button>
-                      <button type="button" id="monitoring-hud-edit-monitor-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="discard-edit-monitor" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
+                      <button type="button" id="monitoring-hud-edit-monitor-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="discard-edit-monitor" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
                     </div>
                     <button type="button" id="monitoring-hud-monitor-detail-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="detail-delete-monitor">Delete Monitor</button>
                   </div>

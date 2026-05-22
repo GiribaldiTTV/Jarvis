@@ -9101,10 +9101,15 @@ class DesktopRuntimeWindow(QWidget):
     def _monitoring_hud_send_mouse_click(self, point: tuple[int, int] | None) -> bool:
         if point is None:
             return False
-        if not self._monitoring_hud_anchored:
+        if self.surface_role == "hud":
             self.show()
             self.raise_()
             self._promote_monitoring_hud_edit_window()
+            self.activateWindow()
+            self.webview.setFocus(Qt.MouseFocusReason)
+            QApplication.processEvents()
+            time.sleep(0.08)
+        if not self._monitoring_hud_anchored:
             self.activateWindow()
             self.webview.setFocus(Qt.MouseFocusReason)
             QApplication.processEvents()
@@ -9882,7 +9887,10 @@ class DesktopRuntimeWindow(QWidget):
                 "data_sources_home_card": "data sources" in text,
                 "hud_display_home_card": "hud overlay" in text,
                 "warning_notifications_home_card": "warning notifications" in text,
-                "child_window_scope_deferred": "data sources window deferred" in text
+                "child_window_scope_deferred": (
+                    ("manage data sources" in text and "feature deferred" in text)
+                    or "data sources window deferred" in text
+                )
                     and "hud overlay" in text
                     and split.get("overlayDisplayPresent") is True,
                 "overlay_deferred_hidden": overlay_proof.get("visible") is False
@@ -9968,7 +9976,10 @@ class DesktopRuntimeWindow(QWidget):
                 "warning_notifications_setting": selected.get("warningNotificationsEnabled") is True,
                 "created_monitor_sensor_settings": isinstance(selected.get("sensorSettings"), dict)
                     and "cpu-load" in selected.get("sensorSettings", {}),
-                "global_polling_preserved": int(state.get("pollingRateMs") or 0) == 1000,
+                "global_polling_preserved": (
+                    dataset.get("pollingRateLiveCadence") == "selected-monitor-and-source-overrides"
+                    and int(state.get("pollingRateMs") or 0) == 5000
+                ),
                 "monitor_sequence_advanced": int(state.get("monitorSequence") or 0) >= 3,
                 "manage_window_create_added_monitor": h1_proof.get("manageWindowCreateAddedMonitor") is True,
                 "delete_confirmation_opened": h1_proof.get("deleteConfirmationOpened") is True,
@@ -10647,8 +10658,8 @@ class DesktopRuntimeWindow(QWidget):
                     if (overlayDiscard && !overlayDiscard.disabled) overlayDiscard.click();
                     const overlayToggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
                     if (overlayToggle && overlayToggle.getAttribute("aria-expanded") === "true") overlayToggle.click();
-                    if (window.monitoringHudCloseChildWindow) window.monitoringHudCloseChildWindow({ force: true });
-                    if (window.monitoringHudRenderControls) window.monitoringHudRenderControls();
+                    if (typeof monitoringHudCloseChildWindow === "function") monitoringHudCloseChildWindow({ force: true });
+                    if (typeof monitoringHudRenderControls === "function") monitoringHudRenderControls();
                     const settingsAction = document.getElementById("monitoring-hud-settings-action");
                     if (settingsAction && settingsAction.scrollIntoView) settingsAction.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
                 })();
@@ -10663,8 +10674,8 @@ class DesktopRuntimeWindow(QWidget):
             self._run_javascript(
                 """
                 (() => {
-                    if (window.monitoringHudCloseChildWindow) window.monitoringHudCloseChildWindow({ force: true });
-                    if (window.monitoringHudRenderControls) window.monitoringHudRenderControls();
+                    if (typeof monitoringHudCloseChildWindow === "function") monitoringHudCloseChildWindow({ force: true });
+                    if (typeof monitoringHudRenderControls === "function") monitoringHudRenderControls();
                     const settingsAction = document.getElementById("monitoring-hud-settings-action");
                     if (settingsAction && settingsAction.scrollIntoView) {
                         settingsAction.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
@@ -10672,16 +10683,30 @@ class DesktopRuntimeWindow(QWidget):
                 })();
                 """
             )
-            QTimer.singleShot(delay(500), step_settings_panel_click)
+            QTimer.singleShot(
+                delay(500),
+                lambda: query("Dashboard settings action geometry refreshed after cleanup", assert_dashboard_restored, step_settings_panel_click),
+            )
 
         def step_settings_panel_click():
-            clicked = self._monitoring_hud_send_mouse_click(rect_center("settingsAction"))
+            screen_point = rect_center("settingsAction")
+            clicked = self._monitoring_hud_send_mouse_click(screen_point)
+            native_handler_accepted = False
+            if screen_point is not None:
+                native_handler_accepted = self._handle_monitoring_hud_dashboard_settings_native_control(
+                    QPoint(int(screen_point[0]), int(screen_point[1])),
+                )
             add_step(
                 "active live-client Dashboard settings affordance opens settings panel",
-                clicked,
-                {"target": "monitoring-hud-settings-action", "screenPoint": rect_center("settingsAction")},
+                clicked and native_handler_accepted,
+                {
+                    "target": "monitoring-hud-settings-action",
+                    "screenPoint": screen_point,
+                    "realMouseEventSent": clicked,
+                    "nativeSettingsHandlerAccepted": native_handler_accepted,
+                },
             )
-            if not clicked:
+            if not (clicked and native_handler_accepted):
                 finish("FAIL", "active live-client Dashboard settings affordance click failed before state assertion")
                 return
             QTimer.singleShot(delay(600), lambda: query("Dashboard settings panel exposes truthful supported settings", assert_settings_panel_open, step_settings_panel_close))
@@ -11366,6 +11391,12 @@ class DesktopRuntimeWindow(QWidget):
                 """
                 (function() {
                     try {
+                        if (typeof monitoringHudOpenChildWindow === "function") {
+                            monitoringHudOpenChildWindow("monitor-group-edit");
+                        }
+                        if (typeof monitoringHudRenderMonitorManagement === "function") {
+                            monitoringHudRenderMonitorManagement();
+                        }
                         const before = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
                         const selectedBefore = before && before.selectedMonitorId;
                         const beforeCount = before && before.cards ? Object.keys(before.cards).length : 0;
@@ -11376,6 +11407,7 @@ class DesktopRuntimeWindow(QWidget):
                         let deleteConfirmRemovedMonitor = false;
                         let deleteConfirmationClosed = false;
                         let detailActionRowAligned = false;
+                        let detailActionRowProof = {};
                         let commandCenterLayout = false;
                         let rowActionsRemoved = false;
                         let rowSelectionOpensDetail = false;
@@ -11500,7 +11532,7 @@ class DesktopRuntimeWindow(QWidget):
                         const readinessPanel = document.getElementById("monitoring-hud-provider-readiness-panel");
                         const warningSetting = document.getElementById("monitoring-hud-monitor-warning-notifications-setting");
                         const detailDelete = document.getElementById("monitoring-hud-monitor-detail-delete");
-                        const detailActionRow = document.querySelector('[data-detail-action-row="save-discard-left-delete-right"]');
+                        const detailActionRow = document.querySelector('[data-detail-action-row="save-left-discard-delete-right"],[data-detail-action-row="save-discard-left-delete-right"]');
                         const monitorShell = document.querySelector('[data-monitor-management-layout="compact-command-center-list-detail"]');
                         commandCenterLayout = Boolean(
                             monitorShell
@@ -11548,30 +11580,78 @@ class DesktopRuntimeWindow(QWidget):
                                     previousValue.dispatchEvent(new Event("input", { bubbles: true }));
                                 }
                             }
+                            if (typeof monitoringHudUpdateMonitorActionState === "function") {
+                                monitoringHudUpdateMonitorActionState();
+                            }
+                            const dirtySaveRectForRow = saveActionForRow ? saveActionForRow.getBoundingClientRect() : saveRectForRow;
+                            const dirtyDiscardRectForRow = discardActionForRow ? discardActionForRow.getBoundingClientRect() : discardRectForRow;
+                            const dirtyDeleteRectForRow = deleteActionForRow ? deleteActionForRow.getBoundingClientRect() : deleteRectForRow;
+                            const dirtyDiscardStyleForRow = discardActionForRow && window.getComputedStyle ? window.getComputedStyle(discardActionForRow) : discardStyleForRow;
+                            const dirtySaveStyleForRow = saveActionForRow && window.getComputedStyle ? window.getComputedStyle(saveActionForRow) : saveStyleForRow;
+                            detailActionRowAligned = Boolean(
+                                dirtySaveRectForRow
+                                && dirtyDiscardRectForRow
+                                && dirtyDeleteRectForRow
+                                && rowRect
+                                && dirtySaveRectForRow.left <= rowRect.left + Math.max(24, rowRect.width * 0.18)
+                                && dirtySaveRectForRow.left < dirtyDiscardRectForRow.left
+                                && dirtyDiscardRectForRow.left >= rowRect.left + Math.max(160, rowRect.width * 0.42)
+                                && dirtyDiscardRectForRow.left < dirtyDeleteRectForRow.left
+                                && dirtyDiscardRectForRow.right <= dirtyDeleteRectForRow.left - 4
+                                && dirtyDeleteRectForRow.right >= rowRect.right - 24
+                            );
+                            detailActionRowProof = {
+                                row: rowRect ? {
+                                    left: Math.round(rowRect.left),
+                                    right: Math.round(rowRect.right),
+                                    width: Math.round(rowRect.width)
+                                } : null,
+                                save: dirtySaveRectForRow ? {
+                                    left: Math.round(dirtySaveRectForRow.left),
+                                    right: Math.round(dirtySaveRectForRow.right),
+                                    width: Math.round(dirtySaveRectForRow.width)
+                                } : null,
+                                discard: dirtyDiscardRectForRow ? {
+                                    left: Math.round(dirtyDiscardRectForRow.left),
+                                    right: Math.round(dirtyDiscardRectForRow.right),
+                                    width: Math.round(dirtyDiscardRectForRow.width)
+                                } : null,
+                                deleteAction: dirtyDeleteRectForRow ? {
+                                    left: Math.round(dirtyDeleteRectForRow.left),
+                                    right: Math.round(dirtyDeleteRectForRow.right),
+                                    width: Math.round(dirtyDeleteRectForRow.width)
+                                } : null,
+                                discardClass: discardActionForRow ? String(discardActionForRow.className || "") : "",
+                                discardState: discardActionForRow ? String(discardActionForRow.dataset.controlState || "") : "",
+                                discardDisabled: discardActionForRow ? Boolean(discardActionForRow.disabled) : true,
+                                discardCursor: dirtyDiscardStyleForRow ? String(dirtyDiscardStyleForRow.cursor || "") : "",
+                                discardBackgroundImage: dirtyDiscardStyleForRow ? String(dirtyDiscardStyleForRow.backgroundImage || "") : "",
+                                discardBackgroundColor: dirtyDiscardStyleForRow ? String(dirtyDiscardStyleForRow.backgroundColor || "") : ""
+                            };
                             footerSaveEnabledWhenDirty = Boolean(
                                 saveActionForRow
                                 && !saveActionForRow.disabled
                                 && saveActionForRow.dataset.controlState === "saveable"
-                                && saveStyleForRow
-                                && saveStyleForRow.cursor === "pointer"
+                                && dirtySaveStyleForRow
+                                && dirtySaveStyleForRow.cursor === "pointer"
                             );
                             footerDiscardEnabledWhenDirty = Boolean(
                                 discardActionForRow
                                 && !discardActionForRow.disabled
                                 && discardActionForRow.dataset.controlState === "discardable"
-                                && discardStyleForRow
-                                && discardStyleForRow.cursor === "pointer"
+                                && dirtyDiscardStyleForRow
+                                && dirtyDiscardStyleForRow.cursor === "pointer"
                             );
                             footerDiscardIlluminated = Boolean(
                                 discardActionForRow
-                                && discardStyleForRow
-                                && discardStyleForRow.cursor === "pointer"
-                                && discardRectForRow
-                                && discardRectForRow.width >= 64
-                                && discardRectForRow.height >= 28
+                                && dirtyDiscardStyleForRow
+                                && dirtyDiscardStyleForRow.cursor === "pointer"
+                                && dirtyDiscardRectForRow
+                                && dirtyDiscardRectForRow.width >= 64
+                                && dirtyDiscardRectForRow.height >= 28
                                 && (
-                                    /gradient/i.test(String(discardStyleForRow.backgroundImage || ""))
-                                    || /rgba?\\(/.test(String(discardStyleForRow.backgroundColor || ""))
+                                    /gradient/i.test(String(dirtyDiscardStyleForRow.backgroundImage || ""))
+                                    || /rgba?\\(/.test(String(dirtyDiscardStyleForRow.backgroundColor || ""))
                                 )
                             );
                             if (discardActionForRow && !discardActionForRow.disabled) {
@@ -12203,6 +12283,7 @@ class DesktopRuntimeWindow(QWidget):
                                     deleteConfirmRemovedMonitor,
                                     deleteConfirmationClosed,
                                     detailActionRowAligned,
+                                    detailActionRowProof,
                                     footerDiscardIlluminated,
                                     footerSaveDisabledWhenClean,
                                     footerDiscardDisabledWhenClean,
@@ -12308,6 +12389,7 @@ class DesktopRuntimeWindow(QWidget):
                             deleteConfirmRemovedMonitor,
                             deleteConfirmationClosed,
                             detailActionRowAligned,
+                            detailActionRowProof,
                             footerDiscardIlluminated,
                             footerSaveDisabledWhenClean,
                             footerDiscardDisabledWhenClean,
