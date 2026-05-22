@@ -18,8 +18,8 @@ body {
   --monitoring-hud-divider-line: rgba(138, 236, 255, 0.46);
   --monitoring-hud-divider-highlight: rgba(232, 250, 255, 0.12);
   --monitoring-hud-divider-shadow: rgba(20, 49, 63, 0.72);
-  --monitoring-hud-divider-glow-size: 26px;
-  --monitoring-hud-divider-glow: linear-gradient(180deg, rgba(117, 228, 255, 0.06) 0, rgba(117, 228, 255, 0.035) 12px, transparent var(--monitoring-hud-divider-glow-size));
+  --monitoring-hud-divider-glow-size: 13px;
+  --monitoring-hud-divider-glow: linear-gradient(180deg, rgba(117, 228, 255, 0.06) 0, rgba(117, 228, 255, 0.035) 6px, transparent var(--monitoring-hud-divider-glow-size));
   --monitoring-hud-surface-solid: linear-gradient(145deg, rgba(5, 20, 36, 0.985), rgba(2, 11, 22, 0.975));
   --monitoring-hud-button-neutral-bg: linear-gradient(145deg, rgba(7, 42, 62, 0.91), rgba(3, 18, 32, 0.89));
   --monitoring-hud-button-neutral-hover-bg: linear-gradient(145deg, rgba(9, 49, 70, 0.94), rgba(4, 24, 40, 0.91));
@@ -1169,7 +1169,7 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__overlay-profile-manager-row {
   display: grid;
-  grid-template-columns: minmax(210px, max-content) minmax(210px, max-content) minmax(320px, 1fr);
+  grid-template-columns: minmax(168px, 0.82fr) minmax(168px, 0.82fr) minmax(300px, 1.6fr);
   gap: 12px;
   align-items: center;
   position: relative;
@@ -2422,6 +2422,20 @@ body.desktop-mode #monitoring-hud > * {
     0 0 14px rgba(126, 248, 218, 0.32);
 }
 
+.monitoring-hud input[type="checkbox"]:checked:hover,
+.monitoring-hud input[type="checkbox"]:checked.is-hovered,
+.monitoring-hud label:hover input[type="checkbox"]:checked,
+.monitoring-hud [aria-selected="true"]:hover input[type="checkbox"]:checked,
+.monitoring-hud label.is-hovered input[type="checkbox"]:checked,
+.monitoring-hud .is-hovered input[type="checkbox"]:checked {
+  border-radius: 4px;
+  outline: 1px solid rgba(166, 255, 235, 0.88);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px rgba(126, 248, 218, 0.18),
+    0 0 14px rgba(126, 248, 218, 0.32);
+}
+
 .monitoring-hud__sensor-option:focus-visible,
 .monitoring-hud__sensor-option:focus-within {
   outline: 2px solid rgba(126, 248, 218, 0.54);
@@ -2743,22 +2757,25 @@ body.desktop-mode #monitoring-hud > * {
 
 @media (max-width: 880px) {
   .monitoring-hud__overlay-profile-manager-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
   }
 
   .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
     grid-column: 1 / -1;
     min-width: 0;
+    max-width: min(450px, 100%);
   }
 }
 
 @media (max-width: 760px) {
   .monitoring-hud__overlay-profile-manager-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 420px) {
   .monitoring-hud__overlay-profile-manager-row {
     grid-template-columns: 1fr;
   }

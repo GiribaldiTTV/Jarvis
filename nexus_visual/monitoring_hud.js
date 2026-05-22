@@ -277,6 +277,7 @@ function monitoringHudNormalizeOverlayProfileState(state) {
   const rawProfiles = monitoringHudSafeOverlayProfilesObject(targetState.overlayProfiles);
   const profiles = {};
   const migratedLegacyCards = !Object.prototype.hasOwnProperty.call(targetState, "overlayProfiles");
+  const defaultProfileDeletedByUser = Boolean(targetState.overlayProfileDefaultDeletedByUser);
 
   Object.keys(rawProfiles).forEach((profileKey) => {
     const rawProfile = rawProfiles[profileKey];
@@ -298,8 +299,8 @@ function monitoringHudNormalizeOverlayProfileState(state) {
 
   const activeProfileId = String(targetState.activeOverlayProfileId || "").trim();
   const shouldEnsureDefaultProfile = migratedLegacyCards
-    || Object.keys(profiles).length === 0
-    || activeProfileId === monitoringHudDefaultOverlayProfileId
+    || (!defaultProfileDeletedByUser && Object.keys(profiles).length === 0)
+    || (!defaultProfileDeletedByUser && activeProfileId === monitoringHudDefaultOverlayProfileId)
     || Boolean(rawProfiles[monitoringHudDefaultOverlayProfileId]);
   if (shouldEnsureDefaultProfile) {
     profiles[monitoringHudDefaultOverlayProfileId] = monitoringHudDefaultOverlayProfile(
@@ -309,9 +310,10 @@ function monitoringHudNormalizeOverlayProfileState(state) {
   }
   const fallbackProfileId = profiles[monitoringHudDefaultOverlayProfileId]
     ? monitoringHudDefaultOverlayProfileId
-    : Object.keys(profiles)[0] || monitoringHudDefaultOverlayProfileId;
+    : Object.keys(profiles)[0] || "";
   targetState.overlayProfileSchemaVersion = monitoringHudOverlayProfileSchemaVersion;
   targetState.overlayProfiles = profiles;
+  targetState.overlayProfileDefaultDeletedByUser = defaultProfileDeletedByUser && !profiles[monitoringHudDefaultOverlayProfileId];
   targetState.activeOverlayProfileId = profiles[activeProfileId] ? activeProfileId : fallbackProfileId;
   targetState.overlayProfileStateProof = {
     schemaVersion: monitoringHudOverlayProfileSchemaVersion,
@@ -320,6 +322,7 @@ function monitoringHudNormalizeOverlayProfileState(state) {
     defaultProfileMonitorIds: profiles[monitoringHudDefaultOverlayProfileId]
       ? profiles[monitoringHudDefaultOverlayProfileId].monitorIds.slice()
       : [],
+    defaultProfileDeletedByUser: Boolean(targetState.overlayProfileDefaultDeletedByUser),
     profileCount: Object.keys(profiles).length,
     legacyCardsMigrated: migratedLegacyCards,
     duplicateMonitorIdsRemoved: true,
@@ -334,7 +337,8 @@ function monitoringHudNormalizeOverlayProfileState(state) {
 function monitoringHudActiveOverlayProfile() {
   monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   return monitoringHudControlState.overlayProfiles[monitoringHudControlState.activeOverlayProfileId]
-    || monitoringHudControlState.overlayProfiles[monitoringHudDefaultOverlayProfileId];
+    || monitoringHudControlState.overlayProfiles[monitoringHudDefaultOverlayProfileId]
+    || null;
 }
 
 function monitoringHudOverlayProfileList() {
@@ -522,11 +526,15 @@ function monitoringHudClearOverlayProfileMembershipList() {
 }
 
 function monitoringHudSetOverlayProfileDraftFromActive() {
-  const activeProfile = monitoringHudActiveOverlayProfile() || {};
+  const activeProfile = monitoringHudActiveOverlayProfile();
   const cards = monitoringHudControlState.cards || {};
-  monitoringHudOverlayProfileDraftId = activeProfile.id || monitoringHudDefaultOverlayProfileId;
-  monitoringHudOverlayProfileDraftName = monitoringHudCleanOverlayProfileName(activeProfile.name, "Default Overlay Profile");
-  monitoringHudOverlayProfileDraftMonitorIds = monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, cards);
+  monitoringHudOverlayProfileDraftId = activeProfile && activeProfile.id ? activeProfile.id : "";
+  monitoringHudOverlayProfileDraftName = activeProfile
+    ? monitoringHudCleanOverlayProfileName(activeProfile.name, "Overlay Profile")
+    : "";
+  monitoringHudOverlayProfileDraftMonitorIds = activeProfile
+    ? monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, cards)
+    : [];
   if (monitoringHudOverlayProfileNameInput) {
     monitoringHudOverlayProfileNameInput.value = monitoringHudOverlayProfileDraftName;
   }
@@ -674,6 +682,9 @@ function monitoringHudCreateOverlayProfile() {
   const profileId = monitoringHudNextOverlayProfileId();
   const activeProfile = monitoringHudActiveOverlayProfile() || {};
   const profileName = monitoringHudUniqueOverlayProfileName("Overlay Profile", profileId);
+  if (profileId === monitoringHudDefaultOverlayProfileId) {
+    monitoringHudControlState.overlayProfileDefaultDeletedByUser = false;
+  }
   monitoringHudControlState.overlayProfiles[profileId] = {
     id: profileId,
     schemaVersion: monitoringHudOverlayProfileSchemaVersion,
@@ -729,8 +740,11 @@ function monitoringHudConfirmDeleteOverlayProfile() {
   const profiles = monitoringHudControlState.overlayProfiles || {};
   if (!deleteId || !profiles[deleteId]) return false;
   delete profiles[deleteId];
+  if (deleteId === monitoringHudDefaultOverlayProfileId) {
+    monitoringHudControlState.overlayProfileDefaultDeletedByUser = true;
+  }
   monitoringHudControlState.overlayProfiles = profiles;
-  monitoringHudControlState.activeOverlayProfileId = Object.keys(profiles)[0] || monitoringHudDefaultOverlayProfileId;
+  monitoringHudControlState.activeOverlayProfileId = Object.keys(profiles)[0] || "";
   monitoringHudOverlayProfileWindowSelectedId = "";
   monitoringHudOverlayProfileDetailOpen = false;
   monitoringHudPendingDeleteOverlayProfileId = "";
@@ -1419,11 +1433,13 @@ function monitoringHudRenderOverlayProfileControls() {
   if (!monitoringHudOverlayProfileEditor) return;
   monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   const profiles = monitoringHudOverlayProfileList();
-  const activeProfile = monitoringHudActiveOverlayProfile() || {};
-  const activeProfileId = activeProfile.id || monitoringHudDefaultOverlayProfileId;
-  const activeProfileName = monitoringHudCleanOverlayProfileName(activeProfile.name, "Default Overlay Profile");
+  const activeProfile = monitoringHudActiveOverlayProfile();
+  const activeProfileId = activeProfile && activeProfile.id ? activeProfile.id : "";
+  const activeProfileName = activeProfile
+    ? monitoringHudCleanOverlayProfileName(activeProfile.name, "Overlay Profile")
+    : "No profile selected";
   const cards = monitoringHudControlState.cards || {};
-  const monitorIds = monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, cards);
+  const monitorIds = activeProfile ? monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, cards) : [];
   const selectedProfile = profiles.find((profile) => profile.id === monitoringHudOverlayProfileWindowSelectedId) || null;
   const detailOpen = Boolean(monitoringHudOverlayProfileDetailOpen && selectedProfile);
   const dirty = detailOpen && monitoringHudOverlayProfileDraftDirty();
@@ -1488,7 +1504,9 @@ function monitoringHudRenderOverlayProfileControls() {
     monitoringHudOverlayProfileMonitorCount.textContent = `${monitorIds.length} mapped monitor${monitorIds.length === 1 ? "" : "s"}`;
   }
   if (monitoringHudOverlayProfileDisplayMode) {
-    monitoringHudOverlayProfileDisplayMode.textContent = monitoringHudOverlayProfileDisplayLabel(activeProfile.displayMode);
+    monitoringHudOverlayProfileDisplayMode.textContent = activeProfile
+      ? monitoringHudOverlayProfileDisplayLabel(activeProfile.displayMode)
+      : "No profile";
   }
   if (monitoringHudOverlayProfileWindow) {
     monitoringHudOverlayProfileWindow.dataset.overlayProfileWindow = "selector-first-create-first-edit-delete-settings-shell";
@@ -3191,8 +3209,8 @@ function monitoringHudSelectMonitorGroup(cardId, options = {}) {
   if (!cardId || !monitoringHudControlState.cards || !monitoringHudControlState.cards[cardId]) return false;
   if (!options.force && cardId === monitoringHudControlState.selectedMonitorId) {
     if (monitoringHudUnsavedMonitorDirty) {
-      monitoringHudUpdateMonitorDraftFromWindow();
-      if (monitoringHud) monitoringHud.dataset.sameMonitorRowDirtyClick = "no-op-draft-preserved";
+      monitoringHudShowUnsavedGuard({ type: "same-select", cardId });
+      if (monitoringHud) monitoringHud.dataset.sameMonitorRowDirtyClick = "guard-open-draft-preserved";
     }
     return false;
   }
@@ -3233,6 +3251,8 @@ function monitoringHudRunPendingGuardAction(action) {
     monitoringHudCloseChildWindow({ force: true });
   } else if (pendingAction.type === "overlay-profile-settings") {
     monitoringHudOpenOverlayProfileSettingsFromManage({ force: true, cardId: pendingAction.cardId });
+  } else if (pendingAction.type === "same-select") {
+    monitoringHudRenderMonitorManagement();
   }
 }
 
@@ -4365,6 +4385,14 @@ window.runMonitoringHudOverlayProfileStateProof = function() {
   };
   monitoringHudNormalizeOverlayProfileState(mixedState);
   const customProfile = mixedState.overlayProfiles.custom || {};
+  const deletedDefaultState = {
+    cards: legacyCards,
+    selectedMonitorId: "cpu",
+    activeOverlayProfileId: monitoringHudDefaultOverlayProfileId,
+    overlayProfileDefaultDeletedByUser: true,
+    overlayProfiles: {}
+  };
+  monitoringHudNormalizeOverlayProfileState(deletedDefaultState);
   const visibleEditorUi = Boolean(document.querySelector("#monitoring-hud-overlay-profile-editor[data-overlay-profile-editor-ui='slc-039-membership-editor']"));
   const proof = {
     passed: true,
@@ -4379,6 +4407,11 @@ window.runMonitoringHudOverlayProfileStateProof = function() {
       mixedState.overlayProfiles || {},
       monitoringHudDefaultOverlayProfileId
     ),
+    defaultDeletePersistsWithoutAutoRecreate: Boolean(
+      deletedDefaultState.overlayProfileDefaultDeletedByUser
+      && deletedDefaultState.activeOverlayProfileId === ""
+      && Object.keys(deletedDefaultState.overlayProfiles || {}).length === 0
+    ),
     customMembershipNormalized: JSON.stringify(customProfile.monitorIds || []) === JSON.stringify(["gpu", "cpu"]),
     staleMonitorIdsRemoved: !(customProfile.monitorIds || []).includes("missing"),
     duplicateMonitorIdsRemoved: (customProfile.monitorIds || []).length === 2,
@@ -4391,6 +4424,7 @@ window.runMonitoringHudOverlayProfileStateProof = function() {
     && JSON.stringify(proof.legacyDefaultMembership) === JSON.stringify(["cpu", "gpu"])
     && proof.activeProfileFallback
     && proof.defaultNotReinjectedWhenProfilesExist
+    && proof.defaultDeletePersistsWithoutAutoRecreate
     && proof.customMembershipNormalized
     && proof.staleMonitorIdsRemoved
     && proof.duplicateMonitorIdsRemoved
@@ -4429,6 +4463,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     managerDefaultState: false,
     windowSelectorVisible: Boolean(monitoringHudOverlayProfileWindowSelector && monitoringHudOverlayProfileWindowToggle && monitoringHudOverlayProfileWindowMenu),
     windowSelectorReadable: false,
+    windowSelectorScalesWithinRow: false,
     visualRepairMarker: false,
     windowDropdownMaxFive: false,
     largeProfileFixture: false,
@@ -4464,6 +4499,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     ),
     deleteConfirmationVisible: false,
     deleteConfirmationVisualReviewable: false,
+    defaultProfileDeletePersists: false,
     detailActionsVisualReviewable: false,
     profileDeleted: false,
     editableMembership: monitoringHudOverlayProfileEditor
@@ -4508,6 +4544,18 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       && monitoringHudOverlayProfileWindowSelector.getBoundingClientRect().width >= 300
       && monitoringHudOverlayProfileWindowLabel
       && monitoringHudOverlayProfileWindowLabel.scrollWidth <= monitoringHudOverlayProfileWindowLabel.clientWidth + 1
+    );
+    const selectorRect = monitoringHudOverlayProfileWindowSelector
+      ? monitoringHudOverlayProfileWindowSelector.getBoundingClientRect()
+      : { width: 0, right: 0 };
+    const managerRowRect = monitoringHudOverlayProfileWindowSelector && monitoringHudOverlayProfileWindowSelector.closest
+      ? (monitoringHudOverlayProfileWindowSelector.closest("[data-overlay-profile-manager-row]") || monitoringHudOverlayProfileWindowSelector).getBoundingClientRect()
+      : { width: 0, right: 0 };
+    proof.windowSelectorScalesWithinRow = Boolean(
+      monitoringHudOverlayProfileWindowSelector
+      && selectorRect.width >= Math.min(300, Math.max(0, managerRowRect.width - 24))
+      && selectorRect.width <= Math.min(450, managerRowRect.width) + 1
+      && selectorRect.right <= managerRowRect.right + 1
     );
     proof.visualRepairMarker = Boolean(
       monitoringHudOverlayProfileWindow
@@ -4656,6 +4704,33 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     );
     monitoringHudConfirmDeleteOverlayProfile();
     proof.profileDeleted = !((monitoringHudControlState.overlayProfiles || {})[createdId]);
+    const defaultDeleteFixtureCards = monitoringHudSafeCardsObject(monitoringHudControlState.cards || {});
+    monitoringHudControlState = {
+      cards: defaultDeleteFixtureCards,
+      selectedMonitorId: Object.keys(defaultDeleteFixtureCards)[0] || "",
+      activeOverlayProfileId: monitoringHudDefaultOverlayProfileId,
+      overlayProfileDefaultDeletedByUser: false,
+      overlayProfiles: {}
+    };
+    monitoringHudControlState.overlayProfiles[monitoringHudDefaultOverlayProfileId] = monitoringHudDefaultOverlayProfile(defaultDeleteFixtureCards);
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    monitoringHudOpenChildWindow("overlay-profile-settings");
+    const defaultDetailOpened = monitoringHudOpenOverlayProfileDetail(monitoringHudDefaultOverlayProfileId);
+    monitoringHudSetOverlayProfileDeleteConfirmation(true);
+    const defaultDeleteConfirmationOpen = Boolean(
+      monitoringHudOverlayProfileDeleteConfirmation
+      && monitoringHudOverlayProfileDeleteConfirmation.hidden === false
+      && monitoringHudPendingDeleteOverlayProfileId === monitoringHudDefaultOverlayProfileId
+    );
+    monitoringHudConfirmDeleteOverlayProfile();
+    proof.defaultProfileDeletePersists = Boolean(
+      defaultDetailOpened
+      && defaultDeleteConfirmationOpen
+      && monitoringHudControlState.overlayProfileDefaultDeletedByUser
+      && monitoringHudControlState.activeOverlayProfileId === ""
+      && !((monitoringHudControlState.overlayProfiles || {})[monitoringHudDefaultOverlayProfileId])
+      && Object.keys(monitoringHudControlState.overlayProfiles || {}).length === 0
+    );
   } finally {
     try {
       monitoringHudControlState = JSON.parse(previousState);
@@ -4679,6 +4754,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     && proof.managerDefaultState
     && proof.windowSelectorVisible
     && proof.windowSelectorReadable
+    && proof.windowSelectorScalesWithinRow
     && proof.visualRepairMarker
     && proof.windowDropdownMaxFive
     && proof.largeProfileFixture
@@ -4697,6 +4773,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     && proof.deleteDangerVisible
     && proof.deleteConfirmationVisible
     && proof.deleteConfirmationVisualReviewable
+    && proof.defaultProfileDeletePersists
     && proof.detailActionsVisualReviewable
     && proof.profileDeleted
     && proof.editableMembership
@@ -4870,7 +4947,8 @@ window.getMonitoringHudControlState = function() {
   return Object.assign({}, monitoringHudControlState, {
     cards: Object.assign({}, monitoringHudControlState.cards),
     overlayProfiles: JSON.parse(JSON.stringify(monitoringHudControlState.overlayProfiles || {})),
-    activeOverlayProfileId: monitoringHudControlState.activeOverlayProfileId || monitoringHudDefaultOverlayProfileId,
+    activeOverlayProfileId: monitoringHudControlState.activeOverlayProfileId || "",
+    overlayProfileDefaultDeletedByUser: Boolean(monitoringHudControlState.overlayProfileDefaultDeletedByUser),
     overlayProfileSchemaVersion: monitoringHudOverlayProfileSchemaVersion,
     overlayProfileStateProof: Object.assign({}, monitoringHudControlState.overlayProfileStateProof || {}),
     activeChildWindow: monitoringHudActiveChildWindow || "none",
@@ -5370,6 +5448,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
   }
   function inspectDividerGroup(name, selector) {
     const elements = Array.from(document.querySelectorAll(selector)).filter(monitoringHudVisualInspectionVisible);
+    const rootStyle = window.getComputedStyle ? window.getComputedStyle(document.documentElement) : {};
+    const dividerGlowSize = Number.parseFloat(rootStyle.getPropertyValue ? rootStyle.getPropertyValue("--monitoring-hud-divider-glow-size") : "0") || 0;
+    const dividerGlowReduced = dividerGlowSize > 0 && dividerGlowSize <= 13.1;
+    if (!dividerGlowReduced) failures.push(`${name}:divider-glow-not-reduced-50-percent`);
     const sampled = elements.slice(0, 8).map((element, index) => {
       const style = monitoringHudVisualInspectionStyleSnapshot(element);
       const hasDivider = Boolean(
@@ -5381,7 +5463,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       return { index, hasDivider, style };
     });
     if (!sampled.length) failures.push(`${name}:no-visible-divider-samples`);
-    surfaces.push({ name, selector, sampleCount: sampled.length, sampled });
+    surfaces.push({ name, selector, sampleCount: sampled.length, dividerGlowSize, dividerGlowReduced, sampled });
   }
   function inspectNoClipping(name, selector) {
     const elements = Array.from(document.querySelectorAll(selector)).filter(monitoringHudVisualInspectionVisible);
@@ -5424,6 +5506,73 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     });
     if (!sampled.length) failures.push(`${name}:no-visible-row-title-samples`);
     surfaces.push({ name, selector, sampleCount: sampled.length, sampled });
+  }
+  function inspectCheckedControlHoverAffordance(name) {
+    const elements = Array.from(document.querySelectorAll('.monitoring-hud input[type="checkbox"]:checked')).filter(monitoringHudVisualInspectionVisible);
+    const sampled = elements.slice(0, 16).map((element, index) => {
+      const host = element.closest("label,[data-source-picker-row],[aria-selected],.monitoring-hud__source-settings-warning")
+        || element.parentElement
+        || element;
+      const before = monitoringHudVisualInspectionStyleSnapshot(element);
+      const previousHostHovered = host.classList.contains("is-hovered");
+      const previousElementHovered = element.classList.contains("is-hovered");
+      host.classList.add("is-hovered");
+      element.classList.add("is-hovered");
+      const hover = monitoringHudVisualInspectionStyleSnapshot(element);
+      const hasHoverAffordance = Boolean(
+        monitoringHudVisualInspectionHasGlow(hover)
+        || String(hover.outlineStyle || "") !== "none"
+        || before.borderColor !== hover.borderColor
+        || before.boxShadow !== hover.boxShadow
+      );
+      if (!hasHoverAffordance) failures.push(`${name}:${index}:checked-hover-affordance-missing`);
+      if (!previousHostHovered) host.classList.remove("is-hovered");
+      if (!previousElementHovered) element.classList.remove("is-hovered");
+      return {
+        index,
+        hasHoverAffordance,
+        before,
+        hover,
+        hostClass: host.className || "",
+        inputName: element.getAttribute("aria-label") || element.name || element.dataset.monitorSensorInput || element.dataset.sensorWarningEnabled || ""
+      };
+    });
+    if (!sampled.length) failures.push(`${name}:no-visible-checked-controls`);
+    surfaces.push({ name, selector: '.monitoring-hud input[type="checkbox"]:checked', sampleCount: sampled.length, sampled });
+  }
+  function inspectOverlayProfileManagerScaling() {
+    const selector = monitoringHudOverlayProfileWindowSelector;
+    const row = selector && selector.closest ? selector.closest("[data-overlay-profile-manager-row]") : null;
+    if (!selector || !row || !monitoringHudVisualInspectionVisible(selector) || !monitoringHudVisualInspectionVisible(row)) {
+      failures.push("overlay-manager-scaling:missing-visible-selector-row");
+      surfaces.push({ name: "overlay-manager-scaling", selector: "#monitoring-hud-overlay-profile-window-selector", sampleCount: 0 });
+      return;
+    }
+    const selectorRect = selector.getBoundingClientRect();
+    const rowRect = row.getBoundingClientRect();
+    const scalesWithinRow = Boolean(
+      selectorRect.width >= Math.min(300, Math.max(0, rowRect.width - 24))
+      && selectorRect.width <= Math.min(450, rowRect.width) + 1
+      && selectorRect.left >= rowRect.left - 1
+      && selectorRect.right <= rowRect.right + 1
+    );
+    if (!scalesWithinRow) failures.push("overlay-manager-scaling:selector-fixed-or-overflowing");
+    surfaces.push({
+      name: "overlay-manager-scaling",
+      selector: "#monitoring-hud-overlay-profile-window-selector",
+      sampleCount: 1,
+      scalesWithinRow,
+      selectorRect: {
+        left: Math.round(selectorRect.left),
+        right: Math.round(selectorRect.right),
+        width: Math.round(selectorRect.width)
+      },
+      rowRect: {
+        left: Math.round(rowRect.left),
+        right: Math.round(rowRect.right),
+        width: Math.round(rowRect.width)
+      }
+    });
   }
   function inspectSourceSettingsFocusFrame() {
     const element = document.getElementById("monitoring-hud-source-settings-body");
@@ -5525,6 +5674,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     inspectTarget("overlay-edit-disabled", "#monitoring-hud-overlay-profile-edit-selected", { expectDisabled: true });
     inspectTarget("overlay-profile-window-toggle", "#monitoring-hud-overlay-profile-window-toggle");
     inspectTarget("overlay-profile-window-option", "[data-overlay-profile-window-option]");
+    inspectOverlayProfileManagerScaling();
     monitoringHudSetOverlayProfileWindowDropdownOpen(false);
     if (typeof monitoringHudOpenOverlayProfileDetail === "function") {
       monitoringHudOpenOverlayProfileDetail(monitoringHudDefaultOverlayProfileId);
@@ -5536,6 +5686,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     inspectTarget("overlay-save-disabled", "#monitoring-hud-overlay-profile-save", { expectDisabled: true });
     inspectTarget("overlay-discard-disabled", "#monitoring-hud-overlay-profile-discard", { expectDisabled: true });
     inspectTarget("overlay-delete-danger", "#monitoring-hud-overlay-profile-delete", { semanticRole: "danger" });
+    inspectCheckedControlHoverAffordance("overlay-checked-control-hover-affordance");
     monitoringHudSetOverlayProfileMonitorFilterOpen(false);
     monitoringHudOpenChildWindow("monitor-group-edit");
     monitoringHudRenderMonitorManagement();
@@ -5559,6 +5710,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     monitoringHudSetPollingRateDropdownOpen(false);
     inspectTarget("source-picker-row", "[data-source-picker-row]");
     inspectTarget("source-picker-settings", "[data-source-settings-open]");
+    inspectCheckedControlHoverAffordance("manage-checked-control-hover-affordance");
     const firstSettingsButton = document.querySelector("[data-source-settings-open]");
     if (firstSettingsButton) monitoringHudOpenSourceSettings(firstSettingsButton.dataset.sourceSettingsOpen || "");
     inspectTarget("source-settings-window-frame", "#monitoring-hud-source-settings-window", { requireFocus: false });
@@ -5570,6 +5722,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     inspectTarget("source-display-mode-chip", '[data-sensor-display-mode-option]:not([aria-pressed="true"])');
     inspectTarget("source-polling-toggle", "[data-source-polling-toggle]");
     inspectTarget("source-settings-close", '[data-child-window-close="sensor-source-settings"]');
+    inspectCheckedControlHoverAffordance("source-settings-checked-control-hover-affordance");
     monitoringHudOpenChildWindow("monitor-group-edit");
     monitoringHudRenderMonitorManagement();
     inspectTarget("assigned-overlay-status", "#monitoring-hud-monitor-overlay-profile-context");
@@ -5635,22 +5788,22 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     "UTS-HUD-003": ["buttonTextDeadSpacePass", "defaultButtonGlowUniformity"],
     "UTS-HUD-004": ["semanticHoverColorPreserved", "buttonRoleColorUniformity"],
     "UTS-HUD-005": ["buttonTextDeadSpacePass"],
-    "UTS-HUD-006": ["source-picker-row", "sourceRowHoverPersistence"],
+    "UTS-HUD-006": ["source-picker-row", "sourceRowHoverPersistence", "checkedControlHoverAffordance"],
     "UTS-HUD-007": ["source-filter-toggle", "source-filter-option"],
     "UTS-HUD-008": ["source-picker-row", "sourceRowHoverPersistence"],
     "UTS-HUD-009": ["polling-rate-toggle", "pollingRateLiveCadence"],
     "UTS-HUD-010": ["source-settings-window-frame", "source-display-mode-chip", "source-polling-toggle"],
     "UTS-HUD-011": ["dashboard-settings", "dashboard-data-sources-deferred"],
-    "UTS-HUD-012": ["dirtyGuardCoverage", "monitor-detail-actions-row"],
+    "UTS-HUD-012": ["dirtyGuardCoverage", "sameMonitorRowDirtyGuard", "monitor-detail-actions-row"],
     "UTS-HUD-013": ["perElementVisualInventory", "issueFormCoverageMatrix"],
-    "UTS-HUD-014": ["overlay-window-frame", "overlay-choice-panel", "overlay-manager-meta-row"],
+    "UTS-HUD-014": ["overlay-window-frame", "overlay-choice-panel", "overlay-manager-meta-row", "overlay-manager-scaling", "defaultProfileDeletePersists"],
     "UTS-HUD-015": ["dashboard-control-hub-scrollbar", "manage-monitor-list-pane"],
     "UTS-HUD-016": ["pageBreakVisualInspection", "dashboard-page-breaks", "child-window-page-breaks"],
     "UTS-HUD-017": ["buttonRoleColorUniformity", "semanticHoverColorPreserved"],
     "UTS-HUD-018": ["dashboard-row-title-tabs", "child-window-row-title-tabs", "pageBreakVisualInspection"],
     "UTS-HUD-019": ["responsive-window-contract", "sourceSettingsWindowFlow", "manage-monitor-row"],
     "UTS-HUD-020": ["source-settings-shift-focus-frame", "source-settings-body", "source-settings-warning-row"],
-    "UTS-HUD-021": ["responsive-window-contract", "visible-hud-surfaces", "dashboard-window-border"]
+    "UTS-HUD-021": ["responsive-window-contract", "visible-hud-surfaces", "dashboard-window-border", "overlay-manager-scaling"]
   };
   const proof = {
     passed: failures.length === 0,
@@ -5668,6 +5821,8 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     buttonRoleColorUniformity: failures.every((failure) => String(failure).indexOf("semantic-hover-color-drift") < 0),
     buttonTextDeadSpacePass: failures.every((failure) => String(failure).indexOf("button-dead-space-missing") < 0 && String(failure).indexOf("button-text-clipping") < 0),
     sourceRowHoverPersistence: Boolean(monitoringHudMonitorSensorAssignment && monitoringHudMonitorSensorAssignment.dataset.sourcePickerHoverPersistence),
+    checkedControlHoverAffordance: surfaces.some((surface) => surface.name === "manage-checked-control-hover-affordance" && surface.sampled && surface.sampled.every((sample) => sample.hasHoverAffordance === true))
+      && surfaces.some((surface) => surface.name === "source-settings-checked-control-hover-affordance" && surface.sampled && surface.sampled.every((sample) => sample.hasHoverAffordance === true)),
     sourceSettingsWindowFlow: "nested-source-settings-returns-to-manage-monitors",
     dirtyGuardCoverage: "monitor-and-overlay-profile-save-discard-close-guards",
     pageBreakVisualInspection: surfaces.some((surface) => surface.name === "dashboard-page-breaks")
@@ -5677,6 +5832,8 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     rowTitleTabsInspected: surfaces.some((surface) => surface.name === "dashboard-row-title-tabs")
       && surfaces.some((surface) => surface.name === "child-window-row-title-tabs"),
     responsiveWindowContract: surfaces.some((surface) => surface.name === "responsive-window-contract"),
+    overlayManagerScaling: surfaces.some((surface) => surface.name === "overlay-manager-scaling" && surface.scalesWithinRow === true),
+    dividerGlowReduced50Percent: surfaces.filter((surface) => String(surface.name || "").indexOf("page-breaks") >= 0).every((surface) => surface.dividerGlowReduced === true),
     visualInspectionScopeCovered: targets.length >= 40 && surfaces.length >= 3
   };
   if (monitoringHud) {
@@ -5770,6 +5927,25 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
       input.value = "First Click Stress Draft";
       input.dispatchEvent(new Event("input", { bubbles: true }));
     }
+    const sameRowDirtyId = monitoringHudControlState.selectedMonitorId || "";
+    if (sameRowDirtyId) {
+      activate("same-row-dirty-guard", `[data-monitor-select="${sameRowDirtyId}"]`, () => {
+        const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+        return Boolean(
+          guard
+          && !guard.hidden
+          && guard.dataset.pendingMonitorAction === "same-select"
+          && monitoringHud
+          && monitoringHud.dataset.sameMonitorRowDirtyClick === "guard-open-draft-preserved"
+        );
+      });
+      activate("same-row-dirty-discard", "#monitoring-hud-monitor-unsaved-discard", () => monitoringHudActiveChildWindow === "monitor-group-edit" && !monitoringHudUnsavedMonitorDirty);
+      const dirtyAgainInput = document.getElementById("monitoring-hud-edit-monitor-name");
+      if (dirtyAgainInput) {
+        dirtyAgainInput.value = "First Click Stress Draft";
+        dirtyAgainInput.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+    }
     activate("dirty-close", '[data-child-window-close="monitor-group-edit"]', () => {
       const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
       return Boolean(guard && !guard.hidden && guard.dataset.pendingMonitorAction === "close");
@@ -5858,6 +6034,7 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
     postRenderStatesCovered: [
       "re-render",
       "dirty-guard",
+      "same-row-dirty-guard",
       "delete-confirmation",
       "dropdown-open",
       "post-close-reopen",
@@ -5874,6 +6051,7 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
     displayModeChipStress: displayModeChipProof.passed === true,
     displayModeChipProof,
     sourceSettingsFlowStress: failures.every((failure) => String(failure).indexOf("source-settings-") !== 0),
+    sameMonitorRowDirtyGuard: failures.every((failure) => String(failure).indexOf("same-row-dirty-") !== 0),
     overlayProfileDirtyGuardStress: failures.every((failure) => String(failure).indexOf("overlay-profile-dirty-") !== 0),
     hudWideVisualInspectionMatrix: visualInspectionMatrixProof.passed === true,
     visualInspectionMatrixProof,

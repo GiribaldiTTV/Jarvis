@@ -772,8 +772,8 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $visualScreenshotPrecheck = "Codex Precheck: PASS as supporting focused screenshot evidence only - detailed per-element screenshots are exported to the USER-inspectable OneDrive screenshot folder and full-desktop screenshots are context only. USER visual confirmation is still required."
     $deferredBoundaryPrecheck = "Codex Precheck: PASS through source-truth, static validation, sandbox validation, and active-client manifest boundary proof - USER is not being asked to accept deferred/future scope."
 
-    # Keep the desktop UTS as a short USER questionnaire; detailed ledger/proof
-    # evidence stays in manifests and source truth.
+    # Keep the desktop UTS as a short USER questionnaire focused on the
+    # returned issue loop; detailed ledger/proof evidence stays in manifests.
     $content = @"
 Nexus Desktop AI - User Test Summary
 Workstream: FAM-006 Overlay Profile Runtime Foundation
@@ -784,9 +784,10 @@ Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
 
 How To Use This File
 - Launch and test from the red FAM-006 desktop shortcut.
-- For each step, write PASS, FAIL, or WAIVED plus a short note.
-- If a step FAILS, describe exactly what you saw and attach/screenshot separately if useful.
-- If a step is WAIVED, write the waiver reason.
+- This pass is focused on the returned failed issue IDs only.
+- Confirmed items from the previous returned UTS are treated as closed unless they visibly regress during this pass.
+- For each active issue below, write PASS, FAIL, or WAIVED plus a short note.
+- If an active issue FAILS, describe exactly what you saw and attach/screenshot separately if useful.
 - Return this file to Codex when complete. Codex will digest the results into source truth.
 
 Codex Precheck Summary
@@ -795,60 +796,49 @@ Codex Precheck Summary
 - Live proof root for this handoff: $($Paths.Root)
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
+- USER-inspectable short video: $($script:ShortVideoProof.userInspectablePath)
 - Screenshot rule: review the detailed `element_<label>_<state>.png` screenshots and the returned issue-form coverage matrix; full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
+- Step 7 - #137 Dashboard Rounded Corners On Light Background: preserved as precheck/source-truth evidence; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 - Overlay/display release acceptance is deferred and non-gating.
 
-Step 1 - Launch From Red FAM-006 Shortcut
-Expected: The shortcut launches the FAM-006 worktree build and the app/tray settle normally.
+Brief Issue List
+- Closed by USER confirmation: UTS-HUD-008 and UTS-HUD-011 from the latest returned pass, plus all earlier confirmed IDs unless regression appears.
+- Deferred/source-truth-carried: UTS-HUD-009 Polling Rate live provider cadence, because external/provider telemetry cadence remains outside this HUD repair.
+- Active failed issues repaired in this pass and requiring focused USER retest: UTS-HUD-006, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021.
+
+Active Issues To Test
+
+UTS-HUD-006 - Checked Source Hover State Across HUD Windows
+Expected: Checked source rows and checked HUD checkboxes in Dashboard child windows keep the checked state visible and add a clear hover border/glow without hiding the checkmark. This applies across Manage Monitors, Source Settings, Overlay Profile Settings membership rows, and current child-window checkbox surfaces.
 USER Result / Notes:
 
-Step 2 - Open Dashboard And Monitor Groups
-Expected: Enable/Open HUD Dashboard makes the Dashboard visible, and Monitor Groups opens the real Manage Monitors flow.
+UTS-HUD-012 - Same-Row Dirty Guard
+Expected: If a monitor group has unsaved edits and the user clicks the same selected monitor row again, the Save/Discard dirty guard opens, the draft is preserved, and no silent discard occurs. Close/change-state attempts still snap the guard into view.
 USER Result / Notes:
 
-Step 3 - Overlay Profile Selection And Editing
-Expected: The Dashboard shows a compact Overlay Profile control surface. The selector has a 300px minimum width, can grow with longer profile names, is capped at 450px or the available row width, displays the active profile name without a redundant static Active Profile row, opens only from its visible toggle/menu/options, and supports hover/reset/select. The main Dashboard card does not expose the profile-name text field; Overlay Profile Settings opens a separate child window that leads with Create Overlay Profile plus a disabled Edit Overlay Profile action until a profile is selected from the NDAI-styled profile dropdown. The manager selector must remain readable without clipped profile names, and focused proof must separately show default clean, profile dropdown open/hover, dirty filter-open, and delete-confirmation states. Edit opens the selected profile details, Create Overlay adds a selectable profile, Delete Overlay Profile uses a red confirmation path, editing the profile name or monitor membership enables Save Profile and a far-right red Discard, Save persists the draft name and membership, and Discard restores the saved name and membership. Visible monitors use search plus a Nexus-styled Filter dropdown, target no more than five visible rows/options before an inner NDAI-styled scrollbar, and the settings window itself should not need a normal outer scrollbar. Read-only details show monitor count and display mode. Monitor membership mapping is editable only inside Overlay Profile Settings; Monitor Groups and Recording Profiles remain separate.
+UTS-HUD-014 - Overlay Profiles Clean State, Delete, And Compact Scaling
+Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. Create, Edit, selector, and Close remain compact/readable. Selecting a profile enables Edit. Deleting the default Overlay Profile enters the red confirmation path and does not silently auto-recreate the deleted default profile. Creating a new profile still restores a valid selectable profile when the user asks for one.
 USER Result / Notes:
 
-Step 4 - Manage Monitors List And Create
-Expected: Manage Monitors appears as a compact Sensor Command Center: the left list is action-light, row/icon selection opens the right detail pane, and Create stays reachable from the command surface. The Dashboard Manage Monitors button uses the same explicit 250px Dashboard action width and 36px action height as the Overlay Profile Settings button. The selected monitor detail pane is ordered as Group name, Warning Notifications, Polling Rate, Provider Readiness, the Sensor Source card, Assigned Overlay, then per-source settings and existing content. The Sensor Source card owns the selected-source count and source Settings guidance so that description stays attached to the source picker instead of drifting below Assigned Overlay. The old Enabled for Overlay checkbox should not appear. Assigned Overlay is a single compact clickable row/button below the Sensor Source card that reports the assigned Overlay count and active-profile included/excluded state, uses the full row as the assignment/status affordance, opens an assignment/status window, and lets the user assign or unassign Overlay Profiles without adding an Open Overlay Profile Settings button, an inner Manage button, or a duplicate membership editor inside Manage Monitors.
+UTS-HUD-016 - Divider/Page-Break Uniformity
+Expected: Dashboard and child-window page-break/divider lines use the same HUD divider treatment, and the divider underglow is reduced by 50% from the prior returned pass while staying visually present and uniform.
 USER Result / Notes:
 
-Step 5 - Edit Monitor Settings
-Expected: Selecting another monitor by row/icon either opens its details or shows an unsaved-change guard with Save on the left and Discard visibly illuminated on the far right. If the detail pane was scrolled, the window should snap to the unsaved-change prompt so the prompt is visible. The dirty-guard Cancel button should not appear; Save must preserve the visible draft before continuing, and Discard must drop the draft before continuing.
+UTS-HUD-021 - HUD Sizing And Overlay Profiles Scaling
+Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager profile selector scales with the available row width, has a 300px target minimum when space allows, caps at 450px, and shrinks below that only when the window becomes narrower than the cap.
 USER Result / Notes:
 
-Step 6 - Delete Confirmation And Cancel
-Expected: Delete opens a confirmation prompt. Cancel closes the prompt and preserves the monitor in the list.
-USER Result / Notes:
-
-Step 7 - Delete Confirmation And Remove
-Expected: Delete lives in the lower right detail-pane action row. Save Monitor and Discard sit on the far left of that same row when a monitor is selected, Delete Monitor sits on the far right, Save Monitor and Discard are greyed out while clean and illuminated only when changes exist, and the delete confirmation remains near the bottom. Confirm removes only the selected monitor, the delete-confirmation Cancel button is visibly illuminated and clickable, final monitor delete shows a true empty state with Create Monitor as the primary action, and no Save Monitor / Discard or oversized action buttons appear when no monitor exists.
-USER Result / Notes:
-
-Step 8 - Truthful Sensor Availability
-Expected: Warning Notifications is a monitor/settings checkbox, Provider Readiness is readiness/status/future capability, and neither appears as an assignable sensor/source row.
-USER Result / Notes:
-
-Step 9 - Sensor Library Scale, Source Filter, And Polling Rate
-Expected: Sensor Library uses search plus a compact Nexus-styled Source Filter dropdown/facet control, clears stale hover highlights when moving between dropdown items or reopening it, shows provider > device > category > metric > instance breadcrumbs, handles duplicate/long/deferred/missing/warning sources, and Monitor/Sensor panes use Nexus-styled scrollbars. Supported source rows and their checkmarks visibly check/uncheck immediately from row click, checkbox click, and keyboard activation without perceptible half-second lag; source settings may update just after the row/checkmark state but must not delay that visible response. Each supported source row exposes a Settings action; that source settings window owns Display mode and Polling Rate controls for the source. Display mode buttons inside source settings must switch selection on the first click/key activation instead of only showing a pressed cue. Polling Rate replaces Polling Floor and opens as a compact Nexus-styled bounded dropdown with clear hover/open/selected states; Default uses the Monitor Group generalized Polling Rate, and a source-specific value overrides it. Only the visible Polling Rate toggle/menu/options should open or change the dropdown, not blank label-side row space.
-USER Result / Notes:
-
-Step 10 - Dashboard Resize And Move Smoothness
-Expected: Move, grow resize, and shrink resize repaint smoothly while the mouse is still held; when the Dashboard is reduced to its minimum size, the bottom HUD chrome edge remains visible and is not clipped; no resize-proof stripes, overlays, debug markers, or other proof artifacts should appear in the normal user-facing Dashboard UI.
-USER Result / Notes:
-
-Step 11 - Dashboard, Overlay Profile, And Manage Monitors Control Reliability
-Expected: Dashboard Settings, window-level Close, Warning Notifications, Manage Monitors, Overlay Profile selector, Overlay Profile Settings, settings-window Create Overlay/Save Profile/red Discard/name input/search/filter/membership checkboxes, NCP tray open/close, tray Exit confirmation, Manage Monitors Close, in-window Create Monitor, Save Monitor, footer red Discard, delete-confirmation Cancel, dirty-guard Save/Discard, Source Filter, Polling Rate, Display mode buttons, monitor rows, and Sensor Library source checkmarks visibly respond to hover/focus/active states and work on the first click in normal, dirty-guard, delete-confirmation, dropdown-open, source-toggle, post-close/reopen, and post-render states. The main Dashboard Monitor Groups card should not show a Create Monitor button.
-Regression checkpoints include: Step 7 - #137 Dashboard Rounded Corners On Light Background; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
-USER Result / Notes:
-
-Step 12 - Closing Additions
-Any remaining readability, placement, motion, clipping, confusion, or polish notes:
+Issue Regression Checks, If Any
+- Spot-check Source Settings display mode, warning checkbox, Rate dropdown, and return-to-Manage-Monitors flow only if retesting UTS-HUD-006 touches Source Settings.
+  USER Result / Notes:
+- Spot-check Dashboard button alignment and Manage Data Sources deferred state only if retesting compact Dashboard sizing in UTS-HUD-021.
+  USER Result / Notes:
+- Spot-check Monitor Group / Overlay Profile / Recording Profile concept separation only if Overlay Profile deletion or creation appears to mix those concepts.
+  USER Result / Notes:
 
 Final USER Result
 - PASS / FAIL / WAIVED:
-- If FAIL, what must be repaired before Live Validation can continue:
+- If FAIL, which active issue ID(s) remain:
 - If PASS, any non-blocking follow-up ideas:
 - If WAIVED, waiver reason:
 "@

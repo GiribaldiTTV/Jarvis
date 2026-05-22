@@ -757,6 +757,32 @@ Validation Required:
 USER Review Question: Confirm the preferred HUD sizing strategy after reviewing recommendations: repair responsive behavior down to the existing native minimum, raise the native minimum, or use a hybrid with screen-constrained scaling.
 Response: UTS-HUD-021: Scaleability, as discussed we need to have a look at the window sizeing and scaling of the entire UI. We want this ENTIRE HUD feature to be USER friendly and system friendly and be very scaleable and compatable with multiple and all possible builds, with that in mind, reccomendations are needed to outline a standard to adopt and for myself to remember for the strucutre of this issue so that i can remember to explain that in future vision formats.
 
+## Returned UTS Follow-Up Digest - 2026-05-22
+
+Returned USER Result: `REPAIR - no new issue IDs, but Live Validation missed failures that should have been caught before UTS`
+
+USER-confirmed closed in the latest return: `UTS-HUD-008`, `UTS-HUD-011`.
+
+Active failed issue IDs after latest return: `UTS-HUD-006`, `UTS-HUD-012`, `UTS-HUD-014`, `UTS-HUD-016`, `UTS-HUD-021`.
+
+Repair Disposition:
+- `UTS-HUD-006`: repaired by extending checked-control hover affordance to all current HUD checkbox surfaces, including checked source rows, Source Settings warning checkbox, and Overlay Profile membership rows; validator now proves `checkedControlHoverAffordance`.
+- `UTS-HUD-012`: repaired by routing same-selected-monitor dirty row clicks through the Save/Discard dirty guard instead of treating them as a no-op; validator now proves `sameMonitorRowDirtyGuard`.
+- `UTS-HUD-014`: repaired by preserving USER deletion of the default Overlay Profile instead of silently auto-recreating it; create still restores a valid selectable profile when the user asks for one; validator now proves `defaultProfileDeletePersists`.
+- `UTS-HUD-016`: repaired by reducing the shared page-break/divider underglow from 26px to 13px and requiring `dividerGlowReduced50Percent`.
+- `UTS-HUD-021`: repaired by making the Overlay Profile manager selector scale with the row, target 300px when space allows, cap at 450px, and shrink below that only when the window is narrower; validator now proves `overlayManagerScaling`.
+
+Live Validation Governance/Helper Repair:
+- The live helper now regenerates a returned-issue-focused UTS handoff instead of a generic all-step checklist during this issue-resolution loop.
+- The HUD visual inspection matrix now maps active issue IDs to exact proof gates for checked hover, same-row dirty guard, default-profile delete persistence, divider-glow depth, and Overlay Profile selector scaling.
+
+Latest Validation Evidence:
+- Human-client shortcut/tray proof: `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_135601_050\human_client_manifest.json`.
+- Refreshed LV1 proof root: `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_140024_871`.
+- USER-inspectable focused screenshots: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_140024_871\focused_element_screenshots`.
+- USER-inspectable short video: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_140024_871\monitoring_hud_lv1_short_video.mp4`.
+- Refreshed issue-focused UTS handoff: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`.
+
 ## Cross-Issue Repair Planning Requirements
 
 Repair setup must produce:
@@ -773,8 +799,8 @@ Repair setup must produce:
 
 Next Legal Phase: `USER UTS review`
 
-Returned USER review closed confirmed issues, left UTS-HUD-009 deferred/source-truth-carried, and reopened active failed issue IDs UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021. The bounded repair pass plus Live Validation governance/proof hardening are now refreshed and green. The next governed action is USER UTS review using the failed-issues-only refreshed handoff and proof at `20260522_124016_150`. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is recorded.
+Returned USER follow-up found no new issue IDs but confirmed Live Validation still missed failures. Latest USER-confirmed closed IDs are `UTS-HUD-008` and `UTS-HUD-011`; active repaired issue IDs requiring focused USER retest are now `UTS-HUD-006`, `UTS-HUD-012`, `UTS-HUD-014`, `UTS-HUD-016`, and `UTS-HUD-021`. The bounded repair pass plus Live Validation governance/proof hardening are refreshed and green at `20260522_140024_871`. The next governed action is USER UTS review using the focused issue-only handoff at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is recorded.
 
 ## Exact USER Decision Needed
 
-Review the refreshed failed-issues-only UTS handoff for `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006` and return PASS, REPAIR, STOP, or explicit waiver with reason for UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.
+Review the refreshed failed-issues-only UTS handoff for `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006` and return PASS, REPAIR, STOP, or explicit waiver with reason for `UTS-HUD-006`, `UTS-HUD-012`, `UTS-HUD-014`, `UTS-HUD-016`, and `UTS-HUD-021`. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.

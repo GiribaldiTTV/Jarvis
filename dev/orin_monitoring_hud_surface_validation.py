@@ -258,11 +258,13 @@ def validate() -> list[str]:
         "box-shadow: var(--monitoring-hud-affordance-hover-shadow)",
         "--monitoring-hud-scrollbar-size",
         "--monitoring-hud-divider-glow-size",
+        "--monitoring-hud-divider-glow-size: 13px",
         "--monitoring-hud-button-neutral-bg",
         "--monitoring-hud-surface-solid",
         "background-size: 100% var(--monitoring-hud-divider-glow-size)",
         ".monitoring-hud__source-settings-body:focus-visible",
-        "grid-template-columns: repeat(2, minmax(0, 1fr))",
+        ".monitoring-hud input[type=\"checkbox\"]:checked.is-hovered",
+        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
     for needle in (
@@ -276,9 +278,15 @@ def validate() -> list[str]:
         "issueFormCoverageMatrix",
         "buttonRoleColorUniformity",
         "sourceRowHoverPersistence",
+        "checkedControlHoverAffordance",
         "sourceSettingsFocusNoGold",
         "rowTitleTabsInspected",
         "responsiveWindowContract",
+        "overlayManagerScaling",
+        "dividerGlowReduced50Percent",
+        "sameMonitorRowDirtyGuard",
+        "defaultProfileDeletePersists",
+        "defaultDeletePersistsWithoutAutoRecreate",
         "source-settings-shift-focus-frame",
         "dashboard-row-title-tabs",
         "dirtyGuardCoverage",
@@ -767,11 +775,12 @@ def validate() -> list[str]:
         failures,
     )
     _require(
-        "grid-template-columns: minmax(210px, max-content) minmax(210px, max-content) minmax(320px, 1fr)" in css
+        "grid-template-columns: minmax(168px, 0.82fr) minmax(168px, 0.82fr) minmax(300px, 1.6fr)" in css
         and "width: min(900px, calc(100% - 8px))" in css
         and "min-width: min(720px, calc(100% - 8px))" in css
         and "min-width: min(300px, 100%)" in css
         and "max-width: min(450px, 100%)" in css
+        and "@media (max-width: 420px)" in css
         and "max-height: 178px;" in css
         and "min-height: 152px;" in css
         and 'data-overlay-profile-detail-state="open"' in css
@@ -779,7 +788,7 @@ def validate() -> list[str]:
         and "min-height: 148px;" in css
         and css.rfind(".monitoring-hud__child-window--overlay-profile") > css.rfind(".monitoring-hud__child-window {")
         and "grid-template-columns: minmax(236px, auto) minmax(0, 1fr) minmax(78px, auto)" in css
-        and "grid-template-columns: repeat(2, minmax(0, 1fr))" in css
+        and "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)" in css
         and ".monitoring-hud__unsaved-guard {\n  grid-template-columns: minmax(0, 1fr);" in css
         and ".monitoring-hud__monitor-overlay-profile-context.is-hovered" in css,
         "HUD CSS must widen the Overlay Profile manager selector and make Assigned Overlay read as an actionable status row",
