@@ -6,7 +6,7 @@
 - Worktree: `C:\Nexus Worktrees\FAM-006`
 - Workstream: `FAM-006 Overlay Profile Runtime Foundation`
 - Branch Class: `implementation`
-- Backlog Record State: `Active branch authority`
+- Backlog Record State: `Historical Branch Authority Projection`
 - Package Fit: `FAM-006 / PKG-006 runtime successor scope`
 - Primary Source-Truth Owner: `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`
 - Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md`
@@ -19,16 +19,19 @@ The branch exists to admit the Overlay Profile runtime foundation as the next FA
 
 ## Current Phase
 
-- Phase: `Live Validation`
-- Stage Detail: `USER UTS PASS returned after bounded Overlay Profiles Window selector clipping repair and refreshed LV1 technical PASS. USER-confirmed PASS issues UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021 are closed unless regression appears; UTS-HUD-009 remains deferred/source-truth-carried. Latest proof used the real user-facing desktop launcher precheck plus focused OneDrive screenshots and mandatory short video evidence, and includes null-profile plus 125-profile dropdown stress proof. PR Readiness Stage 1 is now the next legal phase.`
+- Phase: `Historical Traceability`
+- Stage Detail: `PR Readiness Stage 1 source-truth repair is complete. USER-approved selected-next defer/waiver, pre-PR no-live-PR truth, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, Governance Drift Audit, and Stage 2 approval boundary are recorded. This record is a merge-stable historical branch-authority projection; PR creation remains pending separate USER approval.`
 
 ## Phase Status
 
-Branch Authority Marker: `Active Branch`
-Active Branch: `feature/fam-006-overlay-profile-runtime-foundation`
+Branch Authority Marker: `Historical Branch Evidence Projection`
+Branch Evidence: `feature/fam-006-overlay-profile-runtime-foundation`
+Branch Authority State: `Historical projection for PR Readiness Stage 1 - this branch becomes merged-unreleased FAM-006 Overlay Profile Runtime Foundation evidence after PR merge and must not remain active branch authority on merged main`
+PR Readiness Stage 1 Status: `Complete - selected-next defer/USER waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, Governance Drift Audit, Workstream/H1/LV1 preservation, returned USER UTS PASS, and PR Readiness Stage 2 approval boundary are recorded`
+Next Active Seam: `PR Readiness Stage 2 / PR creation after USER approval`
 Stage 1 Basis: `Complete - FAM-006 worktree restored, current-main aligned at b67e59df0481091bfbeb739c4b5e1954552bb421, source truth verified No Active Branch / USER decision gate, and FAM-006 Overlay Profile Runtime Foundation recommended as the USER-gated successor candidate`
 Stage 2 USER Approval: `Granted - USER approved branch/worktree rebinding, branch authority record, branch plan, compact source-truth pointers, package/slice admission, validation planning, and v1.7.10 closure-drift carry-forward for this setup only`
-Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible profile controls, bounded SLC-039 settings-window monitor membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, SLC-040 H1, bounded SLC-041 validator/live-proof readiness implementation, SLC-041 Hardening H1, LV1 technical proof/UTS handoff, returned USER UTS digest recording, Branch Readiness Stage 2 returned-UTS repair setup, bounded returned-UTS Workstream implementation, follow-up returned-UTS digest/setup recording, bounded follow-up returned-UTS Workstream implementation, follow-up H1, refreshed LV1 technical proof/UTS handoff, bounded LV1 visual acceptability repair/H1, final refreshed LV1 proof repair, returned-UTS issue repair setup, bounded returned-UTS issue Workstream implementation, bounded returned-UTS issue H1, returned USER UTS PASS recording, and source-truth/result updates only; PR Readiness Stage 1, PR creation, merge, release, issue mutation, and branch cleanup remain pending USER decisions`
+Runtime Implementation Approval: `Granted for SLC-037 Overlay Profile data/state foundation, bounded SLC-038 visible profile controls, bounded SLC-039 settings-window monitor membership mapping, bounded SLC-040 Dashboard / Manage Monitors integration, SLC-040 H1, bounded SLC-041 validator/live-proof readiness implementation, SLC-041 Hardening H1, LV1 technical proof/UTS handoff, returned USER UTS digest recording, Branch Readiness Stage 2 returned-UTS repair setup, bounded returned-UTS Workstream implementation, follow-up returned-UTS digest/setup recording, bounded follow-up returned-UTS Workstream implementation, follow-up H1, refreshed LV1 technical proof/UTS handoff, bounded LV1 visual acceptability repair/H1, final refreshed LV1 proof repair, returned-UTS issue repair setup, bounded returned-UTS issue Workstream implementation, bounded returned-UTS issue H1, returned USER UTS PASS recording, PR Readiness Stage 1 source-truth repair, and source-truth/result updates only; PR creation, merge, release, issue mutation, and branch cleanup remain pending USER decisions`
 Current Branch: `feature/fam-006-overlay-profile-runtime-foundation`
 Current Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `b67e59df0481091bfbeb739c4b5e1954552bb421`
@@ -42,9 +45,9 @@ v1.7.11 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair afte
 v1.7.12 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair after v1.7.12-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.12-prebeta while preserving branch-local Overlay Profile authority and PR #192 as current-main FAM-007 context`
 v1.7.13 Closure-Drift Repair: `Closed by this bounded FAM-006 closure repair after v1.7.13-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.13-prebeta while preserving branch-local Overlay Profile authority and PR #193 as released/current-main FAM-007 context`
 Branch Runtime Engineering Plan: `Accepted - detailed setup/runtime planning is present at Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md`
-Engineering Plan Status: `Latest returned USER follow-up is PASS/green. USER previously closed UTS-HUD-006, UTS-HUD-012, and UTS-HUD-016 as PASS, then accepted the bounded Overlay Profiles Window repair for UTS-HUD-014 and UTS-HUD-021. USER had rejected the previous fluid-width proof because it still allowed the Profile / Select Profile dropdown to stack below Create/Edit and expand to a full-row control, then rejected the first compact repair because high-volume Profile selector proof could still clip. Bounded repair is now technical PASS and USER PASS: same-row Create/Edit/Profile placement, compact standard 220px selector/menu footprint, readable option text, unclipped menu proof, null-profile proof, 125-profile stress proof, and responsive compact measurements passed LV1 at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_153759_706\manifest.json after real shortcut precheck C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_153335_820\human_client_manifest.json. PR Readiness Stage 1 is now legal; PR creation remains a later USER decision.`
+Engineering Plan Status: `Latest returned USER follow-up is PASS/green. USER previously closed UTS-HUD-006, UTS-HUD-012, and UTS-HUD-016 as PASS, then accepted the bounded Overlay Profiles Window repair for UTS-HUD-014 and UTS-HUD-021. USER had rejected the previous fluid-width proof because it still allowed the Profile / Select Profile dropdown to stack below Create/Edit and expand to a full-row control, then rejected the first compact repair because high-volume Profile selector proof could still clip. Bounded repair is now technical PASS and USER PASS: same-row Create/Edit/Profile placement, compact standard 220px selector/menu footprint, readable option text, unclipped menu proof, null-profile proof, 125-profile stress proof, and responsive compact measurements passed LV1 at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_153759_706\manifest.json after real shortcut precheck C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_153335_820\human_client_manifest.json. PR Readiness Stage 1 source-truth repair is complete; PR Readiness Stage 2 / PR creation remains a later USER decision.`
 SLC-041 Workstream Implementation: `SLC-041 validation/live-proof Workstream implementation Green - focused WebView proof is acceptance evidence, full desktop screenshots are context only, formal UTS export remains Live Validation Stage 1 only, and proof-chain readiness now spans SLC-037 state, SLC-038 selector/settings controls, SLC-039 membership mapping, compact returned-UTS Manage Monitors context, and returned-UTS selector-first/search-filter repair proof.`
-PR Fold-Down Packet: `Pending - returned USER UTS PASS is recorded and PR Readiness Stage 1 is the next legal phase. The temporary issue form tracks UTS-HUD-001 through UTS-HUD-021 and latest technical repair/LV1 proof is USER PASS after returned UTS. PR creation, merge, and release-scope translation remain pending later USER decisions.`
+PR Fold-Down Packet: `Stage 1 complete - returned USER UTS PASS, selected-next defer/USER waiver, pre-PR no-live-PR truth, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, Governance Drift Audit, branch-authority historical projection, and Stage 2 approval boundary are recorded. Live PR metadata belongs to PR Readiness Stage 2 after USER approves PR creation.`
 
 ## Returned USER Visual Inspection Matrix Repair - 2026-05-21
 
@@ -60,7 +63,7 @@ Visual Inspection Matrix Contract: `H1 and LV1 proof must inspect the HUD elemen
 
 Validator Repair Scope: `nexus_visual/monitoring_hud.css now exposes shared affordance-glow variables; nexus_visual/monitoring_hud.js exposes runMonitoringHudVisualInspectionMatrixProof with buttonGlowUniformity, pageBreakVisualInspection, backgroundBleedClippingInspection, and scope=buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling; desktop/desktop_renderer.py requires hudWideVisualInspectionMatrix, buttonGlowUniformity, and visualInspectionScopeCovered inside interactiveControlVisualQaGate; HUD surface/internal sandbox validators source-check the contract.`
 
-PR Readiness Status: `Unblocked for PR Readiness Stage 1 after returned USER UTS PASS. Workstream repair, Hardening H1, refreshed LV1 technical proof, and formal UTS handoff are PASS for this HUD-wide visual matrix repair; PR creation remains separately USER-gated.`
+PR Readiness Status: `PR Readiness Stage 1 complete after returned USER UTS PASS. Workstream repair, Hardening H1, refreshed LV1 technical proof, formal UTS handoff, selected-next defer/no-active projection, release-health pass, release-window audit, and governance-drift audit are PASS for this HUD-wide visual matrix repair; PR Readiness Stage 2 / PR creation remains separately USER-gated.`
 
 Workstream Repair Proof: `Green - active-client live self-QA passed the HUD-wide visual inspection matrix at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_160228_031\monitoring_hud_live_client_interaction_manifest.json with hudWideVisualInspectionMatrix=true, buttonGlowUniformity=true, targetCount=36, surfaceCount=3, and scope=buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling.`
 
@@ -92,7 +95,7 @@ Workstream Proof: `Active-client live validation and focused interaction self-QA
 
 Hardening H1 Result: `Green - H1 pressure-tested UTS-HUD-001 through UTS-HUD-012 with active-client focused proof, HUD surface validation, HUD internal sandbox validation, branch governance validation, and static syntax/compile checks. H1 found no bounded runtime defect and applied no code repair. Green active-client proof: C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\monitoring_hud_live_client_interaction_manifest.json with focused artifacts under C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\live_client_interaction\.`
 
-PR Readiness Status: `Unblocked for PR Readiness Stage 1 analysis after returned USER UTS PASS. Latest refreshed LV1 technical proof is PASS; PR creation, merge, release, issue mutation, and artifact handling remain separate USER decisions.`
+PR Readiness Status: `PR Readiness Stage 1 complete after returned USER UTS PASS, selected-next defer waiver, no-live-PR truth, post-merge No Active Branch projection, release-health pass, release-window audit, and governance-drift audit. PR Readiness Stage 2 / PR creation, merge, release, issue mutation, and artifact handling remain separate USER decisions.`
 
 ## Branch Class
 
@@ -160,39 +163,39 @@ Branch Completion Goal: `Complete the Overlay Profile runtime foundation as one 
 
 Known Future-Dependent Blockers: `PR Readiness Stage 1, PR creation, merge, release execution, issue mutation, stale branch hygiene, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, and AI Product work require later USER decisions.`
 
-Branch Closure Rule: `This branch may close only after the admitted Overlay Profile foundation seams are implemented, hardened, live-validated or waived with reason, PR-ready, PR-created, and merged under separate USER approvals; otherwise it remains active or stops at the relevant blocker.`
+Branch Closure Rule: `The admitted Overlay Profile foundation seams are implemented, hardened, live-validated, returned USER UTS PASS, and PR Readiness Stage 1 source-truth repaired. The branch remains unmerged until PR Readiness Stage 2 / PR creation and later merge approval are separately granted.`
 
 ## Backlog Completion Status
 
-Backlog Completion State: `In Progress`
+Backlog Completion State: `PR Readiness Stage 1 Complete`
 
-Remaining Implementable Work: `No additional Codex-visible bounded repair remains after the latest Overlay Profiles Window selector repair and returned USER UTS PASS. The next gate is PR Readiness Stage 1, with UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021 closed by USER unless regression appears. Prior SLC-037 through SLC-041 implementation/H1, prior returned-UTS repairs, visual matrix repairs, and LV1 proofs remain preserved as historical supporting evidence where not superseded.`
+Remaining Implementable Work: `No additional Codex-visible bounded repair remains after the latest Overlay Profiles Window selector repair, returned USER UTS PASS, and PR Readiness Stage 1 source-truth repair. The next gate is PR Readiness Stage 2 / PR creation after USER approval, with UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021 closed by USER unless regression appears. Prior SLC-037 through SLC-041 implementation/H1, returned-UTS repairs, visual matrix repairs, and LV1 proofs remain preserved as historical supporting evidence where not superseded.`
 
-Future-Dependent Blockers: `PR Readiness Stage 1, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
+Future-Dependent Blockers: `PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
 
-Completion Status: `Red`
+Completion Status: `Green - Stage 1 ready for Stage 2 after USER approval`
 
 ## Seam Continuation Decision
 
-Seam Status: `In Progress`
+Seam Status: `PR Readiness Stage 1 Complete`
 
-Slice Status: `In Progress`
+Slice Status: `Complete through PR Readiness Stage 1`
 
-Completion Status: `Red`
+Completion Status: `Green`
 
-Waiver Status: `None`
+Waiver Status: `Selected-next defer/USER waiver granted for this PR-readiness pass`
 
 Continue Decision: `Stop`
 
 Continuation Execution Latch: `Inactive - named blocker recorded; current response must report the blocker-clearing Workstream action before later bounded execution continues.`
 
-Stop Basis: `Named Blocker`
+Stop Basis: `Stage 2 approval boundary`
 
-Next Active Seam: `Workstream blocker-clearing returned-UTS issue repair and proof-governance repair`
+Next Active Seam: `PR Readiness Stage 2 / PR creation after USER approval`
 
-Stop Condition: `Returned USER UTS issues are closed by USER PASS; PR Readiness Stage 1 is now legal. PR creation and later release/merge actions remain blocked until separate USER approval.`
+Stop Condition: `PR Readiness Stage 1 is complete and durable; PR creation and later release/merge actions remain blocked until separate USER approval.`
 
-Continuation Action: `Report blocker-clearing action: perform bounded returned-UTS repair, proof-governance hardening, H1, and refreshed LV1 after the named blocker is cleared.`
+Continuation Action: `Proceed to PR Readiness Stage 2 / PR creation only after explicit USER approval; Stage 2 must validate live PR state, watcher provisioning, mergeability, checks, review state, and PR body/operator copy.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -204,7 +207,7 @@ Bounded Seam Default: `One active seam at a time; bounded is not one-seam Workst
 
 ## Bounded State
 
-Bounded State: `Active - returned USER UTS result is PASS after refreshed LV1 technical proof PASS and Codex Visual Adjudication PASS / feature/fam-006-overlay-profile-runtime-foundation / C:\Nexus Worktrees\FAM-006 / temporary issue form records UTS-HUD-001 through UTS-HUD-021 with latest UTS-HUD-014 and UTS-HUD-021 closure / PR Readiness Stage 1 is the next legal phase`
+Bounded State: `Historical projection - returned USER UTS result is PASS after refreshed LV1 technical proof PASS and Codex Visual Adjudication PASS / feature/fam-006-overlay-profile-runtime-foundation / C:\Nexus Worktrees\FAM-006 / temporary issue form records UTS-HUD-001 through UTS-HUD-021 with latest UTS-HUD-014 and UTS-HUD-021 closure / PR Readiness Stage 1 source-truth repair complete / PR Readiness Stage 2 is the next USER-gated seam`
 
 Expected Worktree Root: `C:\Nexus Worktrees\FAM-006`
 
@@ -348,7 +351,7 @@ Visual Governance Gap Reference: `Docs/branch_plans/feature_fam_006_overlay_prof
 
 ## Bounded LV1 Visual Acceptability Workstream Repair
 
-Implementation Status: `Green - bounded repair implementation, Hardening H1, refreshed LV1 technical proof, Codex Visual Adjudication PASS, formal UTS refresh, and returned USER UTS PASS are validation-green. PR Readiness Stage 1 is the next legal motion.`
+Implementation Status: `Green - bounded repair implementation, Hardening H1, refreshed LV1 technical proof, Codex Visual Adjudication PASS, formal UTS refresh, returned USER UTS PASS, and PR Readiness Stage 1 source-truth repair are validation-green. PR Readiness Stage 2 / PR creation is the next legal motion after USER approval.`
 
 Repair Scope Result: `Repaired the Overlay Profile manager selector row to honor the 300px-to-450px selector policy, corrected focused proof sequencing so the clean Overlay Profile manager screenshot is captured only after the settings child window is visible, restored the Manage Monitors Assigned Overlay row to one full-row clickable button with no separate Manage pill, moved that row below the Sensor Source card, kept the selected-source count/settings guidance attached to the Sensor Source card, strengthened row-only assignment affordance proof, and made the unsaved guard Save-left / Discard-right layout prove far-right illuminated Discard.`
 
@@ -366,7 +369,7 @@ Focused Proof Result: `PASS - final focused proof artifacts are under C:\Nexus W
 
 In-Run Repair Result: `REPAIR_APPLIED - an intermediate LV1 rerun at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_151541_063\monitoring_hud_live_client_interaction_manifest.json failed because the new deleteConfirmationVisualReviewable gate caught a non-reviewable Overlay Profile delete-confirmation proof. The bounded repair compacted the detail-open manager state, raised the settings-window max-height, scrolled delete confirmation into view, and required detailActionsVisualReviewable plus deleteConfirmationVisualReviewable before the focused proof can pass.`
 
-UTS Handoff Status: `RETURNED_USER_PASS - the UTS file was refreshed for USER review, USER initially returned REPAIR, the issue-form repair path completed, and USER returned UTS green. PR Readiness Stage 1 is now legal.`
+UTS Handoff Status: `RETURNED_USER_PASS - the UTS file was refreshed for USER review, USER initially returned REPAIR, the issue-form repair path completed, USER returned UTS green, and PR Readiness Stage 1 source-truth repair is complete. PR Readiness Stage 2 / PR creation is now the next USER-gated step.`
 
 ## Later-Phase Expectations
 
@@ -672,7 +675,7 @@ Future Runtime Validation: `HUD surface validation`; `HUD internal sandbox valid
 
 ## Blockers
 
-Active Blockers: `PR_READINESS_STAGE_1_PENDING - the returned-UTS issue repair has refreshed LV1 technical proof PASS with the real user-facing desktop launcher as the primary path, mandatory OneDrive per-element screenshot proof, short-video/frame-sequence proof, and returned USER UTS PASS. Current LV1 evidence root is C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_153759_706 with USER-inspectable screenshots under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_153759_706\focused_element_screenshots\. PR creation and later release/merge actions remain blocked until separate USER approval.`
+Active Blockers: `PR_READINESS_EXECUTION_USER_APPROVAL_MISSING - PR Readiness Stage 1 source-truth repair is complete and validation-green. The returned-UTS issue repair has refreshed LV1 technical proof PASS with the real user-facing desktop launcher as the primary path, mandatory OneDrive per-element screenshot proof, short-video/frame-sequence proof, and returned USER UTS PASS. Current LV1 evidence root is C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_153759_706 with USER-inspectable screenshots under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_153759_706\focused_element_screenshots\. PR creation and later release/merge actions remain blocked until separate USER approval.`
 
 ## Entry Basis
 
@@ -698,32 +701,254 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 - Setup commit is pushed.
 - Next legal phase is returned for USER approval.
 
+## PR Readiness Stage 1 Analysis Packet
+
+- Current PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
+- Repository Mutation Status: `Source-truth repair only - no PR creation, watcher provisioning, merge, release, issue mutation, artifact handling, branch cleanup, sibling-worktree mutation, or runtime behavior change was performed`
+- Planned PR Title: `FAM-006 Overlay Profile Runtime Foundation`
+- Planned Base Branch: `main`
+- Planned Head Branch: `feature/fam-006-overlay-profile-runtime-foundation`
+- Planned PR Summary: `Merge the FAM-006 Overlay Profile Runtime Foundation after SLC-037 through SLC-041 implementation, Hardening H1, focused LV1 proof, returned USER UTS PASS, and PR Readiness Stage 1 source-truth repair.`
+- User-Facing Next Workstream Block: `USER approved selected-next defer/waiver for this PR-readiness pass; no successor runtime branch is selected or created by inertia.`
+- Required Post-Merge Path: `After merge, merged-main source truth projects No Active Branch / USER decision gate until a later USER-approved Branch Readiness decision selects a successor lane. This branch becomes historical merged-unreleased FAM-006 Overlay Profile Runtime Foundation evidence until later Release Readiness and release execution.`
+- Ranked Runtime FAM Candidates: `Deferred by USER waiver for this PR-readiness pass. Still-open candidates remain backlog-governed and require later Branch Readiness: FAM-002 Desktop Interface, FAM-003 Interaction and Actions, FAM-005 External Integrations, FAM-008 Packaging and Install Experience, FAM-009 Workspace and Data, and FAM-010 Safety and Privacy.`
+- Recommended Next Package: `Deferred by USER waiver for this PR-readiness pass.`
+- Recommended Next Package USER Waiver: `Granted - USER approved selected-next defer/waiver and no successor branch creation for this PR-readiness pass.`
+- Package-Size / Single-Slice Drift Review: `PASS - no new package or branch is admitted here; future package shape must be checked in later Branch Readiness.`
+- Element Coverage Review: `PASS - FAM-006 HUD element coverage is preserved in branch proof; future candidates must perform their own Element Coverage review before admission.`
+- Release-Debt Impact: `This implementation PR becomes merged-unreleased release-window scope after PR merge; no release execution is authorized by PR Readiness Stage 1.`
+- Release-Debt Handling Status: `PASS - merged-unreleased scope owner is this branch/PR after merge until later USER-approved Release Readiness and release execution.`
+- Selected-Next / No-Release-Debt Handling Status: `PASS - selected-next successor selection is explicitly deferred by USER waiver; post-merge No Active Branch projection is recorded; release execution remains a later USER decision.`
+- Required Current-Branch Source-Truth Sync: `Complete - branch authority, branch plan, backlog, roadmap, index, post-merge projection, Release Readiness Health Pass, Release Window Audit, and Governance Drift Audit are synced for Stage 1.`
+- Planned Merge-Target Canon Updates: `Stage 2 / PR merge should carry this record as historical/no-active projection, not active branch authority; merged main should not retain an active FAM-006 runtime carrier unless USER later selects one.`
+- Origin/Main Freshness Check: `PASS`
+- Branch Creation Base: `b67e59df0481091bfbeb739c4b5e1954552bb421`
+- Current origin/main: `b3cb321cc525028354e6dbd290c774c3f09ecad4`
+- Origin/Main Advanced Since Branch Creation: `YES - current origin/main advanced after setup, but the branch has already reconciled current main; origin/main is the merge base and an ancestor of HEAD.`
+- Origin/Main Changed Files: `Docs/Main.md; Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md; Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md; Docs/branch_records/feature_automation_planning.md; Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md; Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md; Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md; Docs/branch_records/feature_release_readiness_source_truth_intake.md; Docs/branch_records/index.md; Docs/codex_modes.md; Docs/codex_user_guide.md; Docs/development_rules.md; Docs/feature_backlog.md; Docs/incident_patterns.md; Docs/orin_task_template.md; Docs/phase_governance.md; Docs/pr_watcher_mode_contract.md; Docs/prebeta_roadmap.md; Docs/validation_helper_registry.md; Docs/worktree_slots.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/automation_observability_report.py; dev/orin_ai_provider_state_validation.py; dev/orin_branch_governance_validation.py; nexus_visual/orin_core.css; nexus_visual/orin_core.html; nexus_visual/orin_core.js; nexus_visual/orin_core_desktop.html`
+- Branch Changed Files: `Docs/Main.md; Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md; Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_uts_reference_20260521.md; Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_lv1_visual_governance_gap_reference_20260521.md; Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md; Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_repair_setup_20260521.md; Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_temporary_reference_20260521.md; Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_visual_inspection_matrix_repair_reference_20260521.md; Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md; Docs/branch_records/index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; desktop/monitoring_hud_state.py; desktop/desktop_renderer.py; dev/orin_monitoring_hud_human_client_validation.ps1; dev/orin_monitoring_hud_internal_sandbox_validation.py; dev/orin_monitoring_hud_live_validation.ps1; dev/orin_monitoring_hud_surface_validation.py; nexus_visual/monitoring_hud.css; nexus_visual/monitoring_hud.html; nexus_visual/monitoring_hud.js plus current-main governance/FAM-007 context already reconciled into this branch`
+- Reconciliation Required: `NO - origin/main is already the merge base and ancestor of HEAD`
+- Reconciliation File List: `None`
+- Reconciliation Recommendation: `No rebaseline required before PR Readiness Stage 2; rerun freshness checks if origin/main advances before PR creation.`
+- Reconciliation Mutation Status: `Analysis-only during Stage 1; no rebaseline, merge, rebase, fast-forward, branch switch, or conflict resolution was performed.`
+- Planned Next Branch Block: `Deferred by USER waiver; no successor branch is created before this PR.`
+- Planned Watcher Provisioning: `Stage 2 only after USER approval; watcher provisioning and live PR validation are not part of Stage 1.`
+- Planned Validation Commands: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_branch_governance_validation.py --pr-readiness-gate; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python dev\orin_source_owner_marker_validation.py; python dev\orin_monitoring_hud_surface_validation.py; python dev\orin_monitoring_hud_internal_sandbox_validation.py; python -m compileall -q dev desktop nexus_visual`
+- Expected Files To Change: `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md; Docs/branch_records/index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
+- Stage 1 Repairs Made: `Recorded pre-PR live-state markers, selected-next defer/USER waiver, post-merge No Active Branch projection, merged-unreleased release-window posture, Release Readiness Health Pass, Release Window Audit, Governance Drift Audit, and branch-authority historical projection.`
+- Stage 1 Repair Validation: `Green - required validators passed after this repair.`
+- Release Readiness Health Pass: `PASS`
+- Release Candidate Anchor Projection: `origin/main b3cb321cc525028354e6dbd290c774c3f09ecad4 plus this branch after PR merge`
+- Release Window Contributor Inventory: `Projected contributor after merge: FAM-006 Overlay Profile Runtime Foundation; latest published baseline is v1.7.13-prebeta at b3cb321cc525028354e6dbd290c774c3f09ecad4.`
+- Governance Ledger Fallback: `Not required - Stage 1 found no unresolved governance drift requiring the standing Governance intake lane.`
+- Branch Readiness Fallback: `Not required - current branch remains the legal carrier for Stage 1 source-truth repair; future successor selection is deferred by USER waiver.`
+- Stage 1 Outcome: `Stage 1 Ready For Stage 2`
+- Stage 2 Sync Plan: `Stage 2 must verify this durable Stage 1 projection, create the PR only after USER approval, validate live PR state, provision watcher proof, validate mergeability/checks/review state, and stop before merge unless USER approves merge.`
+- Drift Findings: `No unresolved Stage 1 drift remains after this source-truth repair. Earlier Live Validation proof-governance drift is recorded and repaired in the branch plan and validation helper history.`
+- Blockers And Waivers Needed: `PR Readiness Execution User Approval Missing remains active until USER explicitly approves Stage 2 / PR creation. Selected-next successor selection is waived/deferred for this PR-readiness pass.`
+- Release Window Audit Posture: `PASS`
+- Rollback Plan: `If Stage 2 is not approved, keep this branch and record in historical projection posture; do not delete branches, worktrees, artifacts, issues, or sibling worktrees without later USER approval.`
+- Next Legal Phase: `PR Readiness`
+- Stage 2 Green-Light Decision Needed: `Approve PR Readiness Stage 2 execution to create the PR, validate the live PR, provision the watcher, and return the PR execution packet without merging unless separately approved.`
+
+Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
+
+PR Creation Approval: Pending USER approval
+
+Stage 2 PR Creation: Pending USER approval
+
+Next Workstream User Waiver: Granted - USER approved selected-next defer/waiver for this PR-readiness pass.
+
+Selected-Next Defer User Waiver: Granted
+
+No Successor Runtime Branch By Inertia: USER-waived
+
+Backlog Addition User Approval Missing: Cleared for this PR-readiness pass by USER-approved selected-next defer/waiver; no new backlog identity, backlog split, runtime package admission, successor branch, branch cleanup, or selected-next successor is created before PR creation.
+
+## Origin/Main Freshness Check
+
+Origin/Main Freshness Check: `PASS - origin/main was fetched and is the merge base for this PR Readiness Stage 1 repair.`
+
+Branch Creation Base: `b67e59df0481091bfbeb739c4b5e1954552bb421`
+
+Current origin/main: `b3cb321cc525028354e6dbd290c774c3f09ecad4`
+
+Origin/Main Advanced Since Branch Creation: `YES - current main advanced through reconciled PR #189 through PR #193 context, but current HEAD already contains origin/main and origin/main is behind zero from this branch.`
+
+Reconciliation Required: `NO`
+
+Reconciliation File List: `None`
+
+Reconciliation Recommendation: `No current-main reconciliation is required before PR Readiness Stage 2 unless origin/main advances again.`
+
+Reconciliation Mutation Status: `Analysis-only during Stage 1; no current-main mutation was performed.`
+
+Historical Branch Ref Posture: `PASS - historical FAM-006 Monitor Groups branch remains released PR #180 evidence; stale remote branch hygiene remains separate USER-gated cleanup.`
+
+## Post-Merge State
+
+Repo State: `No Active Branch / USER decision gate`
+
+No Active Branch: Projected after merge until a later USER-approved Branch Readiness decision selects the next governed lane.
+
+Selected Next Workstream: None - USER-approved selected-next defer/waiver recorded for this PR-readiness pass.
+
+Selected Next Implementation Branch: Not created - successor branch selection and branch creation are deferred to later USER-approved Branch Readiness after merge and Release Readiness.
+
+Successor Selection Status: `Deferred by USER-approved selected-next waiver; no successor runtime branch is created by inertia.`
+
+Current Carrier Branch: `None after PR merge; feature/fam-006-overlay-profile-runtime-foundation becomes historical merged-unreleased FAM-006 evidence.`
+
+Branch Authority Cleanup Projection: `PASS - this branch authority record is indexed as historical/no-active projection before Stage 2, and merged main must not retain active FAM-006 branch authority after merge.`
+
+Merged-Unreleased Scope Posture: `Projected - after PR merge and before later release execution, this branch should be tracked as merged-unreleased FAM-006 Overlay Profile Runtime Foundation evidence only.`
+
+Watcher / Live PR State Projection: `PASS - no live PR exists before Stage 2; PR watcher provisioning and live PR metadata belong to PR Readiness Stage 2 after USER approves PR creation.`
+
+Branch Cleanup Plan: `Deferred - no branch deletion, worktree deletion, stable worktree rebinding, or GitHub Desktop cleanup is authorized by this Stage 1 repair.`
+
+FAM Overlap Routing: `PASS - FAM-007, Governance, Compact-AI, Repo-Wide source-owner marker expansion, and main remain separate lanes; this branch does not mutate sibling worktrees.`
+
+Governance Intake Routing: `PASS - no separate Governance intake is required before Stage 2; if Release Readiness later finds stale active-authority or selected-next drift after merge, route the digest to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake.`
+
+Release Candidate Anchor Projection: `origin/main b3cb321cc525028354e6dbd290c774c3f09ecad4 plus this branch after PR merge.`
+
+Release Window Contributor Inventory: `Projected contributor after merge: FAM-006 Overlay Profile Runtime Foundation. Released baseline: v1.7.13-prebeta at b3cb321cc525028354e6dbd290c774c3f09ecad4.`
+
+Projected Post-Merge Validation: `Release Readiness should validate branch authority fold-down, release-window inventory, no-active-branch projection, selected-next defer truth, HUD source-truth consistency, HUD validators, source-owner marker validation, release body validation, branch governance, and compileall before any release execution.`
+
+## Next Workstream
+
+Recommended Next Workstream: `Deferred by USER waiver for this PR-readiness pass.`
+
+Candidate Work To Be Done: `Future work may include Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 continuation, Governance work, Repo-Wide source-owner marker expansion, Compact-AI work, or another backlog-governed FAM/package candidate; none is selected or created here.`
+
+User-Facing Output: `No new user-facing output is admitted by this PR-readiness repair; this branch remains the completed FAM-006 Overlay Profile Runtime Foundation candidate awaiting PR Stage 2.`
+
+Candidate Slices: `Deferred - later Branch Readiness must define any successor slices.`
+
+Dependencies / Blockers: `Successor branch selection, branch creation, package admission, runtime implementation, release execution, issue work, and cleanup remain pending USER decisions.`
+
+Validation Needs: `Any successor must rerun Branch Readiness, branch governance, release-readiness health gate, source-owner marker validation, package-specific validators, compileall, and any live/static proof required by repo truth.`
+
+Release Impact: `None in this Stage 1 repair; this branch becomes merged-unreleased release-window scope only after PR Stage 2 creates and merges a PR.`
+
+Selection-Truth Status: `Deferred by USER-approved selected-next waiver for this PR-readiness pass.`
+
+Branch-Creation Status: `Not created - successor branch creation remains a pending USER decision.`
+
+Next Workstream User Waiver: Granted - USER approved selected-next defer/waiver for this PR-readiness pass.
+
+## Next Branch Pre-Plan
+
+Next Branch Package Shape: `Deferred - no successor branch/package is admitted in this PR Readiness Stage 1 repair.`
+
+Proposed FAM / Package: `Deferred - future Branch Readiness must select the next governed lane from current origin/main.`
+
+Candidate Work To Be Done: `Future candidates may include HUD Recording Profile, FAM-007 provider/setup execution, workspace/data, interaction/actions, desktop interface, packaging/install, safety/privacy, or governance/dev-tooling work depending on USER direction.`
+
+Single-Slice Drift Review: `PASS - no new branch/package is created here; Branch Readiness must re-check package shape and single-slice risk before any successor is admitted.`
+
+Family Organization Review: `PASS - FAM-006, FAM-007, Governance, Repo-Wide source-owner marker, and Compact-AI boundaries remain separate.`
+
+Element Coverage Review: `PASS - future branches must carry their own Element Coverage review; this PR Readiness repair does not admit a new element surface.`
+
+Dependencies / Blockers: `Later successor selection must inspect current origin/main, open FAM/package posture, release-window state, sibling-worktree overlap, and pending USER decisions.`
+
+Validation / Live-Test Needs: `Later successor selection must declare static or live proof requirements before implementation.`
+
+Branch Creation Status: `Not created - branch creation is blocked until later USER-approved Branch Readiness.`
+
+USER Approvals Required: `Successor branch selection, Branch Readiness Stage 2 setup, package admission, runtime implementation, PR creation, merge, Release Readiness, release execution, issue work, artifacts, and cleanup remain pending USER decisions.`
+
+## Release Readiness Health Pass
+
+Release Readiness Health Pass: PASS
+
+Post-Merge Branch Authority Projection: `PASS - this branch record is indexed as historical/no-active PR-readiness projection, and merged main must not retain active FAM-006 branch authority after merge.`
+
+Stale Active Branch Wording Scan: `PASS - projected phase and post-merge truth no longer declare this branch as active branch authority.`
+
+Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - PR Readiness Stage 1 is complete; PR Readiness Stage 2 / PR creation remains separately USER-gated and belongs to live Stage 2 output.`
+
+Merged-Unreleased Scope Posture: `PASS - after PR merge, this implementation branch becomes merged-unreleased FAM-006 Overlay Profile Runtime Foundation release-window scope until later USER-approved Release Readiness and release execution.`
+
+Release Execution Gate: `PASS - no release, tag, GitHub Release, artifact, raw evidence upload, or issue closeout is authorized by PR Readiness Stage 1.`
+
+Watcher / Live PR State Projection: `PASS - no live PR exists before Stage 2; watcher and live PR state belong to PR Readiness Stage 2 after USER approves PR creation.`
+
+Branch Cleanup Plan: `PASS - deferred; no branch deletion, worktree cleanup, stale remote update, or GitHub Desktop cleanup is authorized before later USER-approved cleanup.`
+
+Branch Cleanup Execution Gate: `PASS - cleanup remains blocked until later USER approval and no-unique-commit-loss proof.`
+
+FAM Overlap Routing: `PASS - FAM-007 and Governance remain separate lanes; this branch does not mutate sibling worktrees.`
+
+Release Candidate Anchor Projection: `PASS - origin/main b3cb321cc525028354e6dbd290c774c3f09ecad4 plus this branch after PR merge; Release Readiness must recalculate if origin/main advances before release preparation.`
+
+Release Window Contributor Inventory: `PASS - projected contributor after merge: FAM-006 Overlay Profile Runtime Foundation. v1.7.13-prebeta remains the released baseline.`
+
+Governance Intake Routing: `PASS - no separate Governance intake is required before Stage 2; after merge, any stale active-authority, selected-next, release-window, or no-active-branch drift must route to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake.`
+
+Projected Post-Merge Validation: `PASS - run branch governance, release-readiness health gate, release body, AI provider state, source-owner marker, HUD surface/internal sandbox validators, runtime-fam006 validation suite recommendation, compileall, and diff checks from updated main before any release execution.`
+
+## Governance Drift Audit
+
+Governance Drift Found: `No unresolved drift - earlier Live Validation proof-governance misses were repaired before this Stage 1 pass, and the PR-readiness drift found here is source-truth-only selected-next/pre-PR/post-merge projection drift now repaired on the current legal carrier.`
+
+Drift Type: `PR Readiness Stage 1 source-truth projection drift; no runtime/UI defect and no separate Governance carrier required before Stage 2.`
+
+Why Current Canon Failed To Prevent It: `The branch remained in Live Validation posture after USER returned UTS PASS, so the pre-PR live-state markers, selected-next defer waiver, post-merge No Active Branch projection, Release Readiness Health Pass, and Release Window Audit were not durable before the Stage 1 gate was run.`
+
+Required Canon Changes: `Record Stage 1 analysis packet, selected-next defer/waiver, pre-PR no-live-PR truth, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, Governance Drift Audit, and historical/no-active branch-authority projection.`
+
+Whether The Drift Blocks Merge: `No after this repair; Stage 2 / PR creation remains blocked only by missing USER approval.`
+
+Whether User Confirmation Is Required: `Complete for Stage 1 - USER approved the bounded source-truth repair. Separate USER approval is still required for PR Readiness Stage 2 / PR creation, merge, release, issue work, artifacts, cleanup, and any successor branch.`
+
+## Release Window Audit
+
+Release Window Audit: PASS
+
+Window Scope: `Projected merged-unreleased FAM-006 Overlay Profile Runtime Foundation after PR merge; latest released baseline is v1.7.13-prebeta at b3cb321cc525028354e6dbd290c774c3f09ecad4.`
+
+Known Window Blockers Reviewed: `Returned USER UTS PASS, UTS-HUD-001 through UTS-HUD-021 issue-form closure/defer posture, Overlay Profile selector clipping repair, Live Validation proof governance, current-main PR #193 context, FAM-007 separation, and selected-next defer/no-active projection.`
+
+Remaining Known Release Blockers: None for PR Readiness Stage 1; release execution remains a pending USER decision.
+
+Another Pre-Release Repair PR Required: NO
+
+Release Window Split Waiver: None
+
+Release Window Split Waiver Reason: `Not required - no known blocker requires a separate pre-release repair PR before this branch can enter Stage 2 after USER approval.`
+
+Release Window Exclusions: `Release execution, tag/GitHub Release/artifact work, issue closeout, branch cleanup, successor branch creation, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Compact-AI mutation, AI Product Contract import, and Private Dev ORIN import remain pending USER decisions.`
+
 ## Next Legal Phase
 
-Next Legal Phase: `Live Validation`
+Next Legal Phase: `PR Readiness`
 
-Next Legal Phase Detail: `Canonical phase remains Live Validation until USER explicitly admits PR Readiness Stage 1, because Backlog Completion State remains In Progress. Bounded Overlay Profiles Window selector clipping repair, validation, governance proof standards, refreshed LV1 technical proof, and returned USER UTS PASS are Green. Current primary real shortcut proof is C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_153335_820\human_client_manifest.json. Current LV1 proof is C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_153759_706\monitoring_hud_live_client_interaction_manifest.json. USER-inspectable per-element screenshots are under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_153759_706\focused_element_screenshots\. Mandatory short video proof is C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_153759_706\monitoring_hud_lv1_short_video.mp4. PR Readiness Stage 1 is the next USER decision; PR creation remains a later USER decision.`
+Next Legal Phase Detail: `PR Readiness Stage 1 is complete and validation-green. The next legal phase is PR Readiness Stage 2 / PR creation after explicit USER approval. Stage 2 must create and validate the live PR, provision watcher proof, validate mergeability/checks/review state, and return the PR execution packet without merging unless separately approved.`
 
 ## Next Legal Phase Digest
 
-Current Phase: `Live Validation`
+Current Phase: `Historical Traceability`
 
 Stage Detail: `Refreshed LV1 technical proof is PASS after governance repair requiring the real user-facing desktop launcher as primary LV1 path, mandatory detailed per-element screenshots copied to the USER-inspectable OneDrive screenshots folder with element names in the filenames, and short video/frame-sequence proof. Current proof uses focused element screenshots and a mandatory short video from C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_153759_706\, including null-profile and 125-profile selector stress proof. Formal UTS handoff returned USER PASS/green; failed issues UTS-HUD-014 and UTS-HUD-021 are closed unless regression appears.`
 
-Next Legal Phase: `Live Validation`
+Next Legal Phase: `PR Readiness`
 
-Next Legal Phase Detail: `Current posture is Live Validation complete / PR Readiness Stage 1 eligible after bounded returned-UTS repair, refreshed LV1 technical PASS, and returned USER UTS PASS. USER may next approve PR Readiness Stage 1 analysis to inspect origin/main freshness, branch authority, validation evidence, source-truth fold-down, release-scope truth, pending decisions, and PR Readiness blockers without creating a PR.`
+Next Legal Phase Detail: `Current posture is PR Readiness Stage 1 complete / Stage 2 eligible after bounded Stage 1 source-truth repair, selected-next defer waiver, pre-PR no-live-PR truth, post-merge No Active Branch projection, release-health proof, and returned USER UTS PASS. USER may next approve PR Readiness Stage 2 execution to create and validate the PR.`
 
-Why This Phase Is Next: `Returned USER review is now PASS/green after the temporary issue form tracked UTS-HUD-001 through UTS-HUD-021. The latest Codex-visible visual, interaction, clipping, scrollbar, focus, scaling, and proof-coverage issues have been repaired/revalidated and accepted by USER; PR Readiness Stage 1 is now the legal gate.`
+Why This Phase Is Next: `Stage 1 resolved the PR-readiness blockers that were still source-truth-only: pre-PR live-state truth, selected-next defer/no-active projection, release-window posture, and branch-authority historical projection. Stage 2 is the next gated step because PR creation has not occurred.`
 
-Approval Required: `USER approval is required to run PR Readiness Stage 1. Later separate approval is required for PR creation, merge, release, or additional runtime seams.`
+Approval Required: `USER approval is required to run PR Readiness Stage 2 / PR creation. Later separate approval is required for merge, release, issue work, artifacts, cleanup, or additional runtime seams.`
 
-Exact USER Approval Text: `Current USER waiver authorizes Codex to continue in bounded fashion until returned-UTS repair is green and the branch is back at UTS-ready posture.`
+Exact USER Approval Text: `Approve PR Readiness Stage 2 execution for feature/fam-006-overlay-profile-runtime-foundation: create the PR from feature/fam-006-overlay-profile-runtime-foundation to main, validate live PR state, provision watcher proof, validate mergeability/checks/review state, and return the PR execution packet without merging unless separately approved.`
 
-Allowed Scope: `Bounded returned-UTS repair for the issue form, directly supporting Live Validation governance/proof hardening, H1, refreshed LV1, and source-truth updates. PR Readiness and later phases remain blocked until separately approved.`
+Allowed Scope: `PR Readiness Stage 2 only after USER approval: final freshness checks, PR creation, live PR validation, watcher provisioning/routing proof, PR body/operator validation, and source-truth updates only if required by Stage 2 validation.`
 
-Explicit Exclusions: `PR Readiness, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 mutation, Governance mutation, Compact-AI mutation, stale branch cleanup, PR creation, merge, release, issues, artifacts, raw evidence handling`
+Explicit Exclusions: `PR merge, release execution, tag/GitHub Release/artifact work, issue mutation, branch cleanup, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 mutation, Governance mutation, Compact-AI mutation, stale branch cleanup, AI Product work, and raw evidence handling`
 
-Validation Required: `Already completed for refreshed LV1: real shortcut human-client proof, active-client focused proof with mandatory short video, issue-focused UTS handoff export, branch governance/source-truth checks, HUD surface validation, HUD internal sandbox validation, git diff checks, compileall, bundled Node syntax check where applicable, focused screenshots, frame/video-style proof, high-volume stress proof, and per-issue visual adjudication for active returned items UTS-HUD-014 and UTS-HUD-021 plus regression confirmation for USER-closed UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, and UTS-HUD-016.`
+Validation Required: `Before Stage 2: rerun freshness checks if origin/main advances. During Stage 2: validate live PR state, watcher provisioning/routing, mergeability, checks, review state, PR body/operator copy, branch governance, release-readiness health gate, PR readiness gate, release body, AI provider state, source-owner marker validation, HUD surface/internal sandbox validators, compileall, and diff checks.`
 
-Stop Conditions: `Stop if worktree/branch identity mismatches, origin/main advances and needs rebaseline, source truth contradicts the branch plan, validation fails, repair setup would require runtime implementation without USER approval, or another USER decision is required.`
+Stop Conditions: `Stop if worktree/branch identity mismatches, origin/main advances and requires rebaseline, PR creation or watcher provisioning fails, live PR state is not inspectable, mergeability/checks/review state is blocked, validation fails, bot review requires same-PR repair, or merge/release/issue/artifact/cleanup approval is required.`
