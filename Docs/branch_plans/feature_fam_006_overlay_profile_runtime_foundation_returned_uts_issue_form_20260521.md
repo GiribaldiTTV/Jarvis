@@ -29,13 +29,15 @@ Setup Result: `ADMITTED - all returned UTS issues are accepted as planning input
 
 ## Bounded Workstream Implementation Result
 
-Implementation Result: `GREEN - USER separately approved bounded returned-UTS Workstream implementation for UTS-HUD-001 through UTS-HUD-012. Current FAM-006 HUD runtime, renderer proof, surface validators, internal sandbox validators, and source truth now carry the repaired behavior. Hardening H1, refreshed LV1, and returned USER PASS or waiver remain required before PR Readiness.`
+Implementation Result: `GREEN - USER separately approved bounded returned-UTS Workstream implementation for UTS-HUD-001 through UTS-HUD-012. Current FAM-006 HUD runtime, renderer proof, surface validators, internal sandbox validators, and source truth now carry the repaired behavior. Hardening H1 is Green; refreshed LV1 and returned USER PASS or waiver remain required before PR Readiness.`
 
 Implementation Evidence: `Active-client live validation and focused interaction self-QA passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_192129_648\monitoring_hud_live_client_interaction_manifest.json with focused proof artifacts under C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_192129_648\live_client_interaction\. Internal sandbox validation passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_internal_sandbox\20260521_193537_manifest.json.`
 
 Implementation Scope Summary: `The repair adds HUD-wide default glow tokens and semantic hover preservation, stronger card/window background opacity to prevent grid bleed-through, minimum button text padding, checked-source hover persistence, max-five dropdown/list proof with NDAI scrollbars, selected/source hover flicker protection, effective current-HUD polling cadence proof, deterministic sensor settings controls, right-aligned Dashboard actions with Manage Data Sources / Feature Deferred copy, and dirty-change guards for current editable HUD windows.`
 
-Next Required Gate: `Hardening H1 for the returned-UTS issue repair. PR Readiness remains blocked until H1, refreshed LV1, and returned USER PASS or explicit waiver with reason are complete.`
+Hardening H1 Result: `GREEN - H1 pressure-tested UTS-HUD-001 through UTS-HUD-012 with active-client focused proof, HUD surface validation, HUD internal sandbox validation, branch governance validation, and static syntax/compile checks. H1 found no bounded runtime defect and applied no code repair. Green active-client proof: C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\monitoring_hud_live_client_interaction_manifest.json with focused artifacts under C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\live_client_interaction\.`
+
+Next Required Gate: `Refreshed Live Validation Stage 1 / UTS recheck for the returned-UTS issue repair. PR Readiness remains blocked until refreshed LV1 and returned USER PASS or explicit waiver with reason are complete.`
 
 ## Evidence And Validation Standard Requested By USER
 
@@ -60,18 +62,18 @@ Helper PASS, manifest PASS, screenshot existence, or DOM presence cannot substit
 
 | ID | Area | USER Classification | Planning Status | Repair Authorization |
 | --- | --- | --- | --- | --- |
-| UTS-HUD-001 | Button default glow uniformity | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
-| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
-| UTS-HUD-003 | Default button glow text readability | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
-| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
-| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
-| UTS-HUD-006 | Checked source row hover state | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
-| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
-| UTS-HUD-008 | Source row hover flicker | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
-| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Workstream implemented for current HUD source-refresh path; H1 pending | Bounded implementation complete |
-| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
-| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Workstream implemented; H1 pending | Bounded implementation complete |
-| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Workstream implemented for current editable HUD windows; H1 pending | Bounded implementation complete |
+| UTS-HUD-001 | Button default glow uniformity | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-003 | Default button glow text readability | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-006 | Checked source row hover state | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-008 | Source row hover flicker | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Workstream + H1 Green for current HUD source-refresh path; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Workstream + H1 Green for current editable HUD windows; LV1 pending | Bounded implementation and H1 complete |
 
 ## Repair Setup Disposition Matrix
 
@@ -137,7 +139,7 @@ Branch Record: `Record setup approved, issue matrix admitted, bounded Workstream
 
 Branch Plan: `Record setup approval, issue dispositions, validation/proof matrix, Workstream implementation evidence, and temporary issue form lifecycle.`
 
-Backlog And Roadmap: `Remain compact pointer/status surfaces that mention returned UTS REPAIR, Workstream implementation Green, H1 pending, and PR Readiness blocked.`
+Backlog And Roadmap: `Remain compact pointer/status surfaces that mention returned UTS REPAIR, Workstream implementation Green, H1 Green, refreshed LV1 pending, and PR Readiness blocked.`
 
 Validators And Helpers: `HUD surface/internal sandbox/live helpers now prove the issue matrix with per-issue coverage and artifact reviewability gates; H1 and LV1 must pressure-test the same coverage rather than relying on generic marker presence.`
 
@@ -483,10 +485,10 @@ Repair setup must produce:
 
 ## Recommended Next Legal Phase
 
-Next Legal Phase: `Live Validation returned-UTS Workstream implementation approval`
+Next Legal Phase: `Refreshed Live Validation Stage 1 / UTS recheck`
 
-The setup phase is admitted by USER approval. The next governed action is bounded Workstream implementation approval for the returned-UTS issue matrix. Runtime implementation remains blocked until that approval is explicit.
+The setup phase, bounded Workstream implementation, and Hardening H1 are Green for the returned-UTS issue matrix. The next governed action is refreshed Live Validation Stage 1 / UTS recheck through the real user-facing client path. PR Readiness remains blocked until refreshed LV1 and returned USER PASS or explicit waiver with reason are recorded.
 
 ## Exact USER Decision Needed
 
-Approve bounded returned-UTS Workstream implementation for `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006`, using `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md` as the governing temporary issue form. Codex may implement the current-branch repairs and conditional UTS-HUD-009 disposition defined in the Repair Setup Disposition Matrix, update directly supporting validators/helpers/source truth/UTS wording, capture focused proof according to the Validation And Proof Matrix, run required validation, and commit/push if green. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and any telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.
+Approve refreshed Live Validation Stage 1 / UTS recheck for the bounded returned-UTS issue repair on `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006`, using this temporary issue form and H1 proof at `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\monitoring_hud_live_client_interaction_manifest.json` as the baseline. Codex may validate through the real user-facing shortcut/client path, capture focused proof for UTS-HUD-001 through UTS-HUD-012, refresh the UTS checklist/handoff, update directly supporting source truth/results, run required validation, and commit/push if green. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and any telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.
