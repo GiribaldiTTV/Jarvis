@@ -7,7 +7,7 @@ Recorded At Head: `b33d38de0aa5d631afa2ed63a3f83274262c3b35`
 Current Main Basis: `b3cb321cc525028354e6dbd290c774c3f09ecad4`
 Desktop Shortcut: `C:\Users\anden\OneDrive\Desktop\FAM-006 UTS Issue Form.lnk`
 Latest USER Evidence Intake Head: `581c5e7be99c82597289d0b2cb93b3b0a1a2ace9`
-Latest Technical Proof Head: `581c5e7be99c82597289d0b2cb93b3b0a1a2ace9 plus current bounded repair diff and refreshed LV1 proof 20260522_034305_935`
+Latest Technical Proof Head: `e38558f320743a37135ab17c73f47664215ed5fa plus current bounded failed-UTS repair diff and refreshed LV1 proof 20260522_124016_150`
 
 ## Governance Classification
 
@@ -43,9 +43,11 @@ Refreshed LV1 Result: `TECHNICAL PASS / USER_TEST_REQUIRED - the prior 20260521_
 
 Returned USER Review Result - 2026-05-22: `TECHNICAL PASS / USER_TEST_REQUIRED after bounded repair - USER returned responses in this temporary issue form and attached evidence files. The bounded repair addressed the current visual, interaction, clipping, scrollbar, divider, focus, state-stability, evidence-coverage, and sizing-proof blockers for UTS-HUD-008, UTS-HUD-010.6, UTS-HUD-011, UTS-HUD-013, UTS-HUD-014, UTS-HUD-015, UTS-HUD-016, and UTS-HUD-018 through UTS-HUD-021. UTS-HUD-009 remains explicitly deferred/source-truth-carried rather than current-branch telemetry-provider implementation. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason.`
 
-Current Bounded Repair / Refreshed LV1 Result - 2026-05-22: `TECHNICAL PASS / USER_TEST_REQUIRED - repo-wide Live Validation governance now fails closed before UTS when Codex-visible desktop UI defects remain; HUD runtime/validators now cover UTS-HUD-018 row-title tab proof, UTS-HUD-019 window/state-stability coverage, UTS-HUD-020 Source Settings no-gold focus proof, and UTS-HUD-021 responsive window contract proof. Real user-facing shortcut precheck passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_033627_969\human_client_manifest.json. Refreshed LV1 proof passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_034305_935\manifest.json with interaction manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_034305_935\monitoring_hud_live_client_interaction_manifest.json, 48 named focused screenshots under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_034305_935\focused_element_screenshots\, mandatory short video C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_034305_935\monitoring_hud_lv1_short_video.mp4, and refreshed UTS handoff at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt.`
+Latest Returned USER UTS Digest - 2026-05-22: `USER returned focused UTS results. USER-confirmed PASS/CLOSED issue IDs are UTS-HUD-001, UTS-HUD-002, UTS-HUD-003, UTS-HUD-004, UTS-HUD-005, UTS-HUD-007, UTS-HUD-010, UTS-HUD-010.1, UTS-HUD-010.2, UTS-HUD-010.3, UTS-HUD-010.4, UTS-HUD-010.5, UTS-HUD-010.6, UTS-HUD-010.7, UTS-HUD-013, UTS-HUD-015, UTS-HUD-017, UTS-HUD-018, UTS-HUD-019, and UTS-HUD-020. UTS-HUD-009 remains USER-confirmed deferred/source-truth-carried. Active failed issue IDs for bounded repair are UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021.`
 
-Next Required Gate: `USER UTS review. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is complete.`
+Current Bounded Repair / Refreshed LV1 Result - 2026-05-22 12:43 PT: `TECHNICAL PASS / USER_TEST_REQUIRED - the active failed returned-UTS issue set was repaired and revalidated. Repairs include stronger checked-source hover border/glow, Source Settings DOM preservation during telemetry refresh to stop Display Mode/Polling Rate pulse, Dashboard Overlay Profile Settings right-alignment, same-selected-monitor dirty-click no-op draft preservation, default Overlay Profile editable/delete-path support with safe fallback normalization, normal Manage Monitors detail-footer divider styling, compact Overlay Profile manager row scaling, and updated validator expectations for the 300px-to-450px selector policy. Real user-facing shortcut precheck passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_123514_633\human_client_manifest.json. Refreshed LV1 proof passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_124016_150\manifest.json with interaction manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_124016_150\monitoring_hud_live_client_interaction_manifest.json, 48 named focused screenshots under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_124016_150\focused_element_screenshots\, mandatory short video C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_124016_150\monitoring_hud_lv1_short_video.mp4, and a failed-issues-only UTS handoff at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt.`
+
+Next Required Gate: `USER UTS review focused on UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is complete.`
 
 ## Evidence And Validation Standard Requested By USER
 
@@ -109,27 +111,27 @@ Latest Screenshot Findings:
 
 | ID | Area | USER Classification | Planning Status | Repair Authorization |
 | --- | --- | --- | --- | --- |
-| UTS-HUD-001 | Button default glow uniformity | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-003 | Default button glow text readability | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-006 | Checked source row hover state | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-008 | Source row hover flicker | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-009 | Polling Rate must affect live source collection rate | DEFERRED_WITH_SOURCE_TRUTH | USER accepted/carries future telemetry-provider cadence behavior; current HUD proof remains truthful for this branch | Future-gated beyond current HUD source-refresh scope |
-| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-013 | LV1 evidence coverage and per-element screenshot matrix | REPAIR | Governance/proof repair + 48 focused OneDrive screenshots PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-014 | Overlay Profiles clean-state layout, hierarchy, color/glow, and empty-space failure | REPAIR | Focused element proof refreshed; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-015 | Scrollbar size/style uniformity across nested HUD scroll regions | REPAIR | Focused scrollbar proof refreshed; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-016 | Page-break/divider underglow uniformity across Dashboard cards and HUD Overlay rows | REPAIR | Focused divider proof refreshed; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-017 | HUD-wide button color/glow uniformity across all default/hover/focus states | REPAIR | Visual matrix PASS after latest repair; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-018 | Row-title indentation/alignment against page breaks | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-019 | Transient window/surface disappearance during group switching | REPAIR | Bounded state-stability/window-contract proof added; refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-020 | Source Settings Shift key gold focus border | REPAIR | Bounded no-gold focus repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-021 | HUD scalability/window-size/responsive contract | REPAIR | Bounded responsive-window contract proof + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-001 | Button default glow uniformity | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-002 | Background grid bleed-through on cards/windows | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-003 | Default button glow text readability | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-004 | Hover glow must preserve semantic button color | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-005 | Button text-to-border dead-space standard | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-006 | Checked source row hover state | REPAIR | Bounded failed-UTS repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Active retest |
+| UTS-HUD-007 | Manage Monitors filter max-five menu target | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-008 | Source row hover flicker / Source Settings pulse | REPAIR | Bounded failed-UTS repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Active retest |
+| UTS-HUD-009 | Polling Rate must affect live source collection rate | DEFERRED_WITH_SOURCE_TRUTH | USER confirmed/carries future telemetry-provider cadence behavior; current HUD proof remains truthful for this branch | Future-gated beyond current HUD source-refresh scope |
+| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Bounded failed-UTS repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Active retest |
+| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Bounded same-row dirty-click repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Active retest |
+| UTS-HUD-013 | LV1 evidence coverage and per-element screenshot matrix | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-014 | Overlay Profiles clean-state layout, hierarchy, color/glow, and empty-space failure | REPAIR | Bounded failed-UTS repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Active retest |
+| UTS-HUD-015 | Scrollbar size/style uniformity across nested HUD scroll regions | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-016 | Page-break/divider underglow uniformity across Dashboard cards and HUD Overlay rows | REPAIR | Bounded failed-UTS repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Active retest |
+| UTS-HUD-017 | HUD-wide button color/glow uniformity across all default/hover/focus states | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-018 | Row-title indentation/alignment against page breaks | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-019 | Transient window/surface disappearance during group switching | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-020 | Source Settings Shift key gold focus border | USER_CONFIRMED_PASS | CLOSED unless regression appears | Bounded continuation complete |
+| UTS-HUD-021 | HUD scalability/window-size/responsive contract | REPAIR | Bounded failed-UTS repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Active retest |
 
 ## Repair Setup Disposition Matrix
 
@@ -159,7 +161,7 @@ Latest Screenshot Findings:
 
 ## Implementation Boundary For Next Approval
 
-Current-Branch Repair Candidates: `Bounded continuation repaired and revalidated the current UTS-HUD-008, UTS-HUD-010.6, UTS-HUD-011, UTS-HUD-013, UTS-HUD-014, UTS-HUD-015, UTS-HUD-016, UTS-HUD-018, UTS-HUD-019, UTS-HUD-020, and UTS-HUD-021 blockers. UTS-HUD-012 remains accepted as a HUD-wide standard and is covered by the refreshed proof. Current gate is USER UTS review.`
+Current-Branch Repair Candidates: `Bounded continuation repaired and revalidated the active failed USER-returned issue set: UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021. USER-confirmed PASS issues are closed unless regression appears. Current gate is failed-issues-only USER UTS review.`
 
 Conditional Current-Branch Repair Candidate: `UTS-HUD-009 may be implemented only if current FAM-006 HUD source-refresh architecture owns live cadence. If actual external telemetry/provider collection is outside this branch, implementation must make the current UI truthful and future-gate the deeper runtime collector work.`
 
@@ -208,7 +210,7 @@ Backlog And Roadmap: `Remain compact pointer/status surfaces that mention return
 
 Validators And Helpers: `HUD surface/internal sandbox/live helpers now prove the issue matrix with per-issue coverage and artifact reviewability gates; H1 and LV1 must pressure-test the same coverage rather than relying on generic marker presence.`
 
-UTS Handoff: `Next refreshed UTS must include UTS-HUD-001 through UTS-HUD-012 as explicit USER checklist items.`
+UTS Handoff: `Next refreshed UTS must focus on active failed/repaired issues UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021, with a short regression section for previously confirmed items only if they visibly regress.`
 
 Temporary File Lifecycle: `Keep this form until PR Readiness Stage 1 is green, then delete only after all surviving details are folded into durable source truth.`
 
@@ -771,8 +773,8 @@ Repair setup must produce:
 
 Next Legal Phase: `USER UTS review`
 
-Returned USER review reopened the branch, and the bounded repair pass plus repo-wide Live Validation governance/proof hardening are now refreshed and green. The next governed action is USER UTS review using the refreshed handoff and proof at `20260522_034305_935`. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is recorded.
+Returned USER review closed confirmed issues, left UTS-HUD-009 deferred/source-truth-carried, and reopened active failed issue IDs UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021. The bounded repair pass plus Live Validation governance/proof hardening are now refreshed and green. The next governed action is USER UTS review using the failed-issues-only refreshed handoff and proof at `20260522_124016_150`. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is recorded.
 
 ## Exact USER Decision Needed
 
-Review the refreshed UTS handoff for `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006` and return PASS, REPAIR, STOP, or explicit waiver with reason for the tracked UTS-HUD-001 through UTS-HUD-021 issue form. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.
+Review the refreshed failed-issues-only UTS handoff for `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006` and return PASS, REPAIR, STOP, or explicit waiver with reason for UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.

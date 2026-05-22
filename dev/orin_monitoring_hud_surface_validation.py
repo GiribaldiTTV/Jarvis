@@ -770,7 +770,7 @@ def validate() -> list[str]:
         "grid-template-columns: minmax(210px, max-content) minmax(210px, max-content) minmax(320px, 1fr)" in css
         and "width: min(900px, calc(100% - 8px))" in css
         and "min-width: min(720px, calc(100% - 8px))" in css
-        and "min-width: min(320px, 100%)" in css
+        and "min-width: min(300px, 100%)" in css
         and "max-width: min(450px, 100%)" in css
         and "max-height: 178px;" in css
         and "min-height: 152px;" in css

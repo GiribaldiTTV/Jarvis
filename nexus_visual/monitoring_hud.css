@@ -1178,7 +1178,7 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__overlay-profile-manager-row > .monitoring-hud__hub-action {
-  min-width: 210px;
+  min-width: 0;
   justify-content: center;
   text-align: center;
   white-space: nowrap;
@@ -1187,9 +1187,16 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
   justify-self: stretch;
   width: 100%;
-  min-width: min(320px, 100%);
+  min-width: min(300px, 100%);
   max-width: min(450px, 100%);
   z-index: 5;
+}
+
+.monitoring-hud__hub-action[data-control="overlay-profile-edit-selected"][data-control-state="editable"] {
+  border-color: rgba(122, 232, 255, 0.34);
+  background: var(--monitoring-hud-button-neutral-bg);
+  color: rgba(229, 249, 255, 0.94);
+  box-shadow: var(--monitoring-hud-affordance-default-shadow);
 }
 
 .monitoring-hud__overlay-profile-manager-meta {
@@ -1398,6 +1405,8 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__overlay-profile-actions .monitoring-hud__hub-action {
+  grid-column: 3;
+  justify-self: end;
   min-height: 32px;
   white-space: nowrap;
 }
@@ -2090,7 +2099,11 @@ body.desktop-mode #monitoring-hud > * {
   gap: 8px;
   margin-top: auto;
   padding-top: 4px;
-  border-top: 1px solid rgba(255, 132, 132, 0.10);
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  background: var(--monitoring-hud-divider-glow);
+  background-repeat: no-repeat;
+  background-size: 100% var(--monitoring-hud-divider-glow-size);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
 }
 
 .monitoring-hud__detail-action-row {
@@ -2388,13 +2401,25 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__sensor-option[aria-selected="true"]:hover,
 .monitoring-hud__sensor-option[aria-selected="true"].is-hovered,
 .monitoring-hud__sensor-option[aria-selected="true"].is-pressed {
-  border-color: rgba(150, 255, 230, 0.58);
+  border-color: rgba(150, 255, 230, 0.72);
   background:
     radial-gradient(circle at 0% 0%, rgba(126, 248, 218, 0.24), transparent 54%),
     linear-gradient(145deg, rgba(8, 58, 70, 0.82), rgba(4, 30, 48, 0.76));
   box-shadow:
+    0 0 0 1px rgba(162, 255, 235, 0.24) inset,
     var(--monitoring-hud-affordance-hover-shadow),
     var(--monitoring-hud-affordance-selected-shadow);
+}
+
+.monitoring-hud__sensor-option[aria-selected="true"]:hover input,
+.monitoring-hud__sensor-option[aria-selected="true"].is-hovered input,
+.monitoring-hud__sensor-option[aria-selected="true"].is-pressed input {
+  border-radius: 4px;
+  outline: 1px solid rgba(166, 255, 235, 0.88);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px rgba(126, 248, 218, 0.18),
+    0 0 14px rgba(126, 248, 218, 0.32);
 }
 
 .monitoring-hud__sensor-option:focus-visible,
@@ -2710,10 +2735,6 @@ body.desktop-mode #monitoring-hud > * {
     grid-template-columns: 1fr;
   }
 
-  .monitoring-hud__overlay-profile-manager-row {
-    grid-template-columns: 1fr;
-  }
-
   .monitoring-hud__monitor-list-pane,
   .monitoring-hud__monitor-detail-pane {
     max-height: none;
@@ -2732,6 +2753,12 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 @media (max-width: 760px) {
+  .monitoring-hud__overlay-profile-manager-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
   .monitoring-hud__overlay-profile-manager-row {
     grid-template-columns: 1fr;
   }
