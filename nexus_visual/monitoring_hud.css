@@ -1192,6 +1192,11 @@ body.desktop-mode #monitoring-hud > * {
   z-index: 5;
 }
 
+.monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .monitoring-hud__hub-action[data-control="overlay-profile-edit-selected"][data-control-state="editable"] {
   border-color: rgba(122, 232, 255, 0.34);
   background: var(--monitoring-hud-button-neutral-bg);
@@ -2765,7 +2770,7 @@ body.desktop-mode #monitoring-hud > * {
   .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
     grid-column: 1 / -1;
     min-width: 0;
-    max-width: min(450px, 100%);
+    max-width: 100%;
   }
 }
 

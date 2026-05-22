@@ -792,7 +792,7 @@ How To Use This File
 
 Codex Precheck Summary
 - Red shortcut/worktree validation: PASS through the governed FAM-006 desktop shortcut.
-- Human-client proof: PASS at dev/logs/fam_006_human_client_validation/latest_manifest.json.
+- Human-client proof: PASS at $precheckManifestPath.
 - Live proof root for this handoff: $($Paths.Root)
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
@@ -802,34 +802,22 @@ Codex Precheck Summary
 - Overlay/display release acceptance is deferred and non-gating.
 
 Brief Issue List
-- Closed by USER confirmation: UTS-HUD-008 and UTS-HUD-011 from the latest returned pass, plus all earlier confirmed IDs unless regression appears.
+- Closed by USER confirmation: UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, and UTS-HUD-016 from returned passes, plus all earlier confirmed IDs unless regression appears.
 - Deferred/source-truth-carried: UTS-HUD-009 Polling Rate live provider cadence, because external/provider telemetry cadence remains outside this HUD repair.
-- Active failed issues repaired in this pass and requiring focused USER retest: UTS-HUD-006, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021.
+- Active failed issues repaired in this pass and requiring focused USER retest: UTS-HUD-014 and UTS-HUD-021.
 
 Active Issues To Test
 
-UTS-HUD-006 - Checked Source Hover State Across HUD Windows
-Expected: Checked source rows and checked HUD checkboxes in Dashboard child windows keep the checked state visible and add a clear hover border/glow without hiding the checkmark. This applies across Manage Monitors, Source Settings, Overlay Profile Settings membership rows, and current child-window checkbox surfaces.
-USER Result / Notes:
-
-UTS-HUD-012 - Same-Row Dirty Guard
-Expected: If a monitor group has unsaved edits and the user clicks the same selected monitor row again, the Save/Discard dirty guard opens, the draft is preserved, and no silent discard occurs. Close/change-state attempts still snap the guard into view.
-USER Result / Notes:
-
 UTS-HUD-014 - Overlay Profiles Clean State, Delete, And Compact Scaling
-Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. Create, Edit, selector, and Close remain compact/readable. Selecting a profile enables Edit. Deleting the default Overlay Profile enters the red confirmation path and does not silently auto-recreate the deleted default profile. Creating a new profile still restores a valid selectable profile when the user asks for one.
-USER Result / Notes:
-
-UTS-HUD-016 - Divider/Page-Break Uniformity
-Expected: Dashboard and child-window page-break/divider lines use the same HUD divider treatment, and the divider underglow is reduced by 50% from the prior returned pass while staying visually present and uniform.
+Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. Create, Edit, selector, and Close remain compact/readable. Selecting a profile enables Edit. Deleting the default Overlay Profile enters the red confirmation path and does not silently auto-recreate the deleted default profile. Creating a new profile still restores a valid selectable profile when the user asks for one. The Profile / Select Profile dropdown must scale with the Overlay Profiles window instead of holding one fixed pixel width.
 USER Result / Notes:
 
 UTS-HUD-021 - HUD Sizing And Overlay Profiles Scaling
-Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager profile selector scales with the available row width, has a 300px target minimum when space allows, caps at 450px, and shrinks below that only when the window becomes narrower than the cap.
+Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager Profile / Select Profile dropdown scales with the available window/row width, visibly changes width between normal and compact legal sizes, stays inside the row, and remains readable without a fixed-width plateau.
 USER Result / Notes:
 
 Issue Regression Checks, If Any
-- Spot-check Source Settings display mode, warning checkbox, Rate dropdown, and return-to-Manage-Monitors flow only if retesting UTS-HUD-006 touches Source Settings.
+- Spot-check checked-source hover, same-row dirty guard, and divider underglow only if retesting Overlay Profiles reveals an obvious regression in those previously closed areas.
   USER Result / Notes:
 - Spot-check Dashboard button alignment and Manage Data Sources deferred state only if retesting compact Dashboard sizing in UTS-HUD-021.
   USER Result / Notes:

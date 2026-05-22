@@ -43,11 +43,11 @@ Refreshed LV1 Result: `TECHNICAL PASS / USER_TEST_REQUIRED - the prior 20260521_
 
 Returned USER Review Result - 2026-05-22: `TECHNICAL PASS / USER_TEST_REQUIRED after bounded repair - USER returned responses in this temporary issue form and attached evidence files. The bounded repair addressed the current visual, interaction, clipping, scrollbar, divider, focus, state-stability, evidence-coverage, and sizing-proof blockers for UTS-HUD-008, UTS-HUD-010.6, UTS-HUD-011, UTS-HUD-013, UTS-HUD-014, UTS-HUD-015, UTS-HUD-016, and UTS-HUD-018 through UTS-HUD-021. UTS-HUD-009 remains explicitly deferred/source-truth-carried rather than current-branch telemetry-provider implementation. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason.`
 
-Latest Returned USER UTS Digest - 2026-05-22: `USER returned focused UTS results. USER-confirmed PASS/CLOSED issue IDs are UTS-HUD-001, UTS-HUD-002, UTS-HUD-003, UTS-HUD-004, UTS-HUD-005, UTS-HUD-007, UTS-HUD-010, UTS-HUD-010.1, UTS-HUD-010.2, UTS-HUD-010.3, UTS-HUD-010.4, UTS-HUD-010.5, UTS-HUD-010.6, UTS-HUD-010.7, UTS-HUD-013, UTS-HUD-015, UTS-HUD-017, UTS-HUD-018, UTS-HUD-019, and UTS-HUD-020. UTS-HUD-009 remains USER-confirmed deferred/source-truth-carried. Active failed issue IDs for bounded repair are UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021.`
+Previous Returned USER UTS Digest - 2026-05-22: `USER returned focused UTS results. USER-confirmed PASS/CLOSED issue IDs were UTS-HUD-001, UTS-HUD-002, UTS-HUD-003, UTS-HUD-004, UTS-HUD-005, UTS-HUD-007, UTS-HUD-010, UTS-HUD-010.1, UTS-HUD-010.2, UTS-HUD-010.3, UTS-HUD-010.4, UTS-HUD-010.5, UTS-HUD-010.6, UTS-HUD-010.7, UTS-HUD-013, UTS-HUD-015, UTS-HUD-017, UTS-HUD-018, UTS-HUD-019, and UTS-HUD-020. UTS-HUD-009 remains USER-confirmed deferred/source-truth-carried. That prior repair pass active failed issue IDs were UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021; later returned review narrowed active issues to UTS-HUD-014 and UTS-HUD-021 only.`
 
-Current Bounded Repair / Refreshed LV1 Result - 2026-05-22 12:43 PT: `TECHNICAL PASS / USER_TEST_REQUIRED - the active failed returned-UTS issue set was repaired and revalidated. Repairs include stronger checked-source hover border/glow, Source Settings DOM preservation during telemetry refresh to stop Display Mode/Polling Rate pulse, Dashboard Overlay Profile Settings right-alignment, same-selected-monitor dirty-click no-op draft preservation, default Overlay Profile editable/delete-path support with safe fallback normalization, normal Manage Monitors detail-footer divider styling, compact Overlay Profile manager row scaling, and updated validator expectations for the 300px-to-450px selector policy. Real user-facing shortcut precheck passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_123514_633\human_client_manifest.json. Refreshed LV1 proof passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_124016_150\manifest.json with interaction manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_124016_150\monitoring_hud_live_client_interaction_manifest.json, 48 named focused screenshots under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_124016_150\focused_element_screenshots\, mandatory short video C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_124016_150\monitoring_hud_lv1_short_video.mp4, and a failed-issues-only UTS handoff at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt.`
+Current Bounded Repair / Refreshed LV1 Result - 2026-05-22 14:30 PT: `TECHNICAL PASS / USER_TEST_REQUIRED - the remaining active failed returned-UTS issue set is now limited to UTS-HUD-014 and UTS-HUD-021, both pointing at the Overlay Profiles Window Profile / Select Profile dropdown scaling. USER-confirmed PASS/CLOSED issue IDs now include UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, and UTS-HUD-016 unless regression appears. The bounded repair removes the Overlay Profiles Window selector fixed-width plateau and adds proof that the selector visibly changes width between normal and compact legal sizes. Real user-facing shortcut precheck passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_142517_773\human_client_manifest.json. Refreshed LV1 proof passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_142805_339\manifest.json with interaction manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_142805_339\monitoring_hud_live_client_interaction_manifest.json, 48 named focused screenshots under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_142805_339\focused_element_screenshots\, mandatory short video C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_142805_339\monitoring_hud_lv1_short_video.mp4, and a failed-issues-only UTS handoff at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt.`
 
-Next Required Gate: `USER UTS review focused on UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is complete.`
+Next Required Gate: `USER UTS review focused only on UTS-HUD-014 and UTS-HUD-021, with regression checks for previously closed items only if visible regression appears. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is complete.`
 
 ## Evidence And Validation Standard Requested By USER
 
@@ -161,7 +161,7 @@ Latest Screenshot Findings:
 
 ## Implementation Boundary For Next Approval
 
-Current-Branch Repair Candidates: `Bounded continuation repaired and revalidated the active failed USER-returned issue set: UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021. USER-confirmed PASS issues are closed unless regression appears. Current gate is failed-issues-only USER UTS review.`
+Current-Branch Repair Candidates: `Bounded continuation repaired and revalidated the active failed USER-returned issue set. Latest USER-confirmed PASS issues UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, and UTS-HUD-016 are closed unless regression appears. Current active retest gate is limited to UTS-HUD-014 and UTS-HUD-021, both tied to Overlay Profiles Window selector scaling.`
 
 Conditional Current-Branch Repair Candidate: `UTS-HUD-009 may be implemented only if current FAM-006 HUD source-refresh architecture owns live cadence. If actual external telemetry/provider collection is outside this branch, implementation must make the current UI truthful and future-gate the deeper runtime collector work.`
 
@@ -210,7 +210,7 @@ Backlog And Roadmap: `Remain compact pointer/status surfaces that mention return
 
 Validators And Helpers: `HUD surface/internal sandbox/live helpers now prove the issue matrix with per-issue coverage and artifact reviewability gates; H1 and LV1 must pressure-test the same coverage rather than relying on generic marker presence.`
 
-UTS Handoff: `Next refreshed UTS must focus on active failed/repaired issues UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, UTS-HUD-014, UTS-HUD-016, and UTS-HUD-021, with a short regression section for previously confirmed items only if they visibly regress.`
+UTS Handoff: `Next refreshed UTS must focus on active failed/repaired issues UTS-HUD-014 and UTS-HUD-021 only, with a short regression section for previously confirmed items only if they visibly regress.`
 
 Temporary File Lifecycle: `Keep this form until PR Readiness Stage 1 is green, then delete only after all surviving details are folded into durable source truth.`
 
@@ -761,9 +761,9 @@ Response: UTS-HUD-021: Scaleability, as discussed we need to have a look at the 
 
 Returned USER Result: `REPAIR - no new issue IDs, but Live Validation missed failures that should have been caught before UTS`
 
-USER-confirmed closed in the latest return: `UTS-HUD-008`, `UTS-HUD-011`.
+USER-confirmed closed in that return: `UTS-HUD-008`, `UTS-HUD-011`.
 
-Active failed issue IDs after latest return: `UTS-HUD-006`, `UTS-HUD-012`, `UTS-HUD-014`, `UTS-HUD-016`, `UTS-HUD-021`.
+Active failed issue IDs after that return: `UTS-HUD-006`, `UTS-HUD-012`, `UTS-HUD-014`, `UTS-HUD-016`, `UTS-HUD-021`; later returned review closed UTS-HUD-006, UTS-HUD-012, and UTS-HUD-016, leaving only UTS-HUD-014 and UTS-HUD-021 active.
 
 Repair Disposition:
 - `UTS-HUD-006`: repaired by extending checked-control hover affordance to all current HUD checkbox surfaces, including checked source rows, Source Settings warning checkbox, and Overlay Profile membership rows; validator now proves `checkedControlHoverAffordance`.
@@ -783,6 +783,29 @@ Latest Validation Evidence:
 - USER-inspectable short video: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_140024_871\monitoring_hud_lv1_short_video.mp4`.
 - Refreshed issue-focused UTS handoff: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`.
 
+## Returned UTS Final Narrowing Digest - 2026-05-22
+
+Returned USER Result: `REPAIR - no new issue IDs; all remaining failures are isolated to the Overlay Profiles Window Profile / Select Profile dropdown scaling.`
+
+USER-confirmed closed in the latest return: `UTS-HUD-006`, `UTS-HUD-012`, `UTS-HUD-016`. Previously closed `UTS-HUD-008` and `UTS-HUD-011` remain closed unless regression appears. `UTS-HUD-009` remains deferred/source-truth-carried.
+
+Active failed issue IDs after latest return: `UTS-HUD-014`, `UTS-HUD-021`.
+
+Repair Disposition:
+- `UTS-HUD-014`: repaired by removing the fixed-width plateau from the Overlay Profiles Window manager Profile / Select Profile dropdown and proving it remains readable, bounded, and delete/create-safe in the Overlay Profiles clean-state flow.
+- `UTS-HUD-021`: repaired by adding a fluid-width proof that measures the Profile / Select Profile dropdown at wide and compact Overlay Profiles Window widths; latest proof records wide selector width `687px` and compact selector width `527px` with `windowSelectorFluidWidthDelta=true`.
+
+Live Validation Governance/Helper Repair:
+- The visual matrix now fails if the Overlay Profiles Window selector merely fits in-row while holding a fixed width; it must prove `windowSelectorFluidWidthDelta` / `fluidWidthDelta`.
+- The live helper now exports a failed-issues-only UTS focused on `UTS-HUD-014` and `UTS-HUD-021`, with previously passed items closed unless regression appears.
+
+Latest Validation Evidence:
+- Human-client shortcut/tray proof: `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_142517_773\human_client_manifest.json`.
+- Refreshed LV1 proof root: `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_142805_339`.
+- USER-inspectable focused screenshots: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_142805_339\focused_element_screenshots`.
+- USER-inspectable short video: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_142805_339\monitoring_hud_lv1_short_video.mp4`.
+- Refreshed issue-focused UTS handoff: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`.
+
 ## Cross-Issue Repair Planning Requirements
 
 Repair setup must produce:
@@ -799,8 +822,8 @@ Repair setup must produce:
 
 Next Legal Phase: `USER UTS review`
 
-Returned USER follow-up found no new issue IDs but confirmed Live Validation still missed failures. Latest USER-confirmed closed IDs are `UTS-HUD-008` and `UTS-HUD-011`; active repaired issue IDs requiring focused USER retest are now `UTS-HUD-006`, `UTS-HUD-012`, `UTS-HUD-014`, `UTS-HUD-016`, and `UTS-HUD-021`. The bounded repair pass plus Live Validation governance/proof hardening are refreshed and green at `20260522_140024_871`. The next governed action is USER UTS review using the focused issue-only handoff at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is recorded.
+Returned USER follow-up narrowed remaining failures to the Overlay Profiles Window. Latest USER-confirmed closed IDs are `UTS-HUD-006`, `UTS-HUD-008`, `UTS-HUD-011`, `UTS-HUD-012`, and `UTS-HUD-016`; active repaired issue IDs requiring focused USER retest are now only `UTS-HUD-014` and `UTS-HUD-021`. The bounded repair pass plus Live Validation governance/proof hardening are refreshed and green at `20260522_142805_339`. The next governed action is USER UTS review using the focused issue-only handoff at `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is recorded.
 
 ## Exact USER Decision Needed
 
-Review the refreshed failed-issues-only UTS handoff for `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006` and return PASS, REPAIR, STOP, or explicit waiver with reason for `UTS-HUD-006`, `UTS-HUD-012`, `UTS-HUD-014`, `UTS-HUD-016`, and `UTS-HUD-021`. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.
+Review the refreshed failed-issues-only UTS handoff for `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006` and return PASS, REPAIR, STOP, or explicit waiver with reason for `UTS-HUD-014` and `UTS-HUD-021`. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.

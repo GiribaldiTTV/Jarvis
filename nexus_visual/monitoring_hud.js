@@ -4464,6 +4464,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     windowSelectorVisible: Boolean(monitoringHudOverlayProfileWindowSelector && monitoringHudOverlayProfileWindowToggle && monitoringHudOverlayProfileWindowMenu),
     windowSelectorReadable: false,
     windowSelectorScalesWithinRow: false,
+    windowSelectorFluidWidthDelta: false,
     visualRepairMarker: false,
     windowDropdownMaxFive: false,
     largeProfileFixture: false,
@@ -4554,9 +4555,53 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     proof.windowSelectorScalesWithinRow = Boolean(
       monitoringHudOverlayProfileWindowSelector
       && selectorRect.width >= Math.min(300, Math.max(0, managerRowRect.width - 24))
-      && selectorRect.width <= Math.min(450, managerRowRect.width) + 1
+      && selectorRect.width <= managerRowRect.width + 1
       && selectorRect.right <= managerRowRect.right + 1
     );
+    if (monitoringHudOverlayProfileWindow && monitoringHudOverlayProfileWindowSelector) {
+      const previousWindowStyle = monitoringHudOverlayProfileWindow.getAttribute("style") || "";
+      const availableWidth = Math.max(460, Math.min(820, (window.innerWidth || 900) - 56));
+      const compactWidth = Math.max(420, Math.min(availableWidth - 160, 620));
+      const measureSelectorAtWidth = (width) => {
+        monitoringHudOverlayProfileWindow.style.width = `${Math.round(width)}px`;
+        monitoringHudOverlayProfileWindow.style.minWidth = "0";
+        monitoringHudOverlayProfileWindow.style.maxWidth = "none";
+        const measuredSelector = monitoringHudOverlayProfileWindowSelector.getBoundingClientRect();
+        const measuredRow = managerRowRect && monitoringHudOverlayProfileWindowSelector.closest
+          ? (monitoringHudOverlayProfileWindowSelector.closest("[data-overlay-profile-manager-row]") || monitoringHudOverlayProfileWindowSelector).getBoundingClientRect()
+          : { width: 0 };
+        return {
+          selectorWidth: measuredSelector.width,
+          rowWidth: measuredRow.width
+        };
+      };
+      const wideMeasurement = measureSelectorAtWidth(availableWidth);
+      const compactMeasurement = measureSelectorAtWidth(compactWidth);
+      proof.windowSelectorFluidWidthDelta = Boolean(
+        wideMeasurement.selectorWidth > 0
+        && compactMeasurement.selectorWidth > 0
+        && wideMeasurement.rowWidth > compactMeasurement.rowWidth
+        && wideMeasurement.selectorWidth > compactMeasurement.selectorWidth + 36
+        && compactMeasurement.selectorWidth <= compactMeasurement.rowWidth + 1
+      );
+      proof.windowSelectorFluidMeasurements = {
+        wide: {
+          windowWidth: Math.round(availableWidth),
+          rowWidth: Math.round(wideMeasurement.rowWidth),
+          selectorWidth: Math.round(wideMeasurement.selectorWidth)
+        },
+        compact: {
+          windowWidth: Math.round(compactWidth),
+          rowWidth: Math.round(compactMeasurement.rowWidth),
+          selectorWidth: Math.round(compactMeasurement.selectorWidth)
+        }
+      };
+      if (previousWindowStyle) {
+        monitoringHudOverlayProfileWindow.setAttribute("style", previousWindowStyle);
+      } else {
+        monitoringHudOverlayProfileWindow.removeAttribute("style");
+      }
+    }
     proof.visualRepairMarker = Boolean(
       monitoringHudOverlayProfileWindow
       && monitoringHudOverlayProfileWindow.dataset.overlayProfileVisualRepair === "manager-selector-readable-uniform-glow-proof"
@@ -4755,6 +4800,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     && proof.windowSelectorVisible
     && proof.windowSelectorReadable
     && proof.windowSelectorScalesWithinRow
+    && proof.windowSelectorFluidWidthDelta
     && proof.visualRepairMarker
     && proof.windowDropdownMaxFive
     && proof.largeProfileFixture
@@ -5552,16 +5598,60 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     const rowRect = row.getBoundingClientRect();
     const scalesWithinRow = Boolean(
       selectorRect.width >= Math.min(300, Math.max(0, rowRect.width - 24))
-      && selectorRect.width <= Math.min(450, rowRect.width) + 1
+      && selectorRect.width <= rowRect.width + 1
       && selectorRect.left >= rowRect.left - 1
       && selectorRect.right <= rowRect.right + 1
     );
-    if (!scalesWithinRow) failures.push("overlay-manager-scaling:selector-fixed-or-overflowing");
+    const previousWindowStyle = monitoringHudOverlayProfileWindow ? (monitoringHudOverlayProfileWindow.getAttribute("style") || "") : "";
+    const measureSelectorAtWidth = (width) => {
+      if (!monitoringHudOverlayProfileWindow) return { selectorWidth: 0, rowWidth: 0 };
+      monitoringHudOverlayProfileWindow.style.width = `${Math.round(width)}px`;
+      monitoringHudOverlayProfileWindow.style.minWidth = "0";
+      monitoringHudOverlayProfileWindow.style.maxWidth = "none";
+      const measuredSelector = selector.getBoundingClientRect();
+      const measuredRow = row.getBoundingClientRect();
+      return {
+        selectorWidth: measuredSelector.width,
+        rowWidth: measuredRow.width
+      };
+    };
+    const availableWidth = Math.max(460, Math.min(820, (window.innerWidth || 900) - 56));
+    const compactWidth = Math.max(420, Math.min(availableWidth - 160, 620));
+    const wideMeasurement = measureSelectorAtWidth(availableWidth);
+    const compactMeasurement = measureSelectorAtWidth(compactWidth);
+    if (monitoringHudOverlayProfileWindow) {
+      if (previousWindowStyle) {
+        monitoringHudOverlayProfileWindow.setAttribute("style", previousWindowStyle);
+      } else {
+        monitoringHudOverlayProfileWindow.removeAttribute("style");
+      }
+    }
+    const fluidWidthDelta = Boolean(
+      wideMeasurement.selectorWidth > 0
+      && compactMeasurement.selectorWidth > 0
+      && wideMeasurement.rowWidth > compactMeasurement.rowWidth
+      && wideMeasurement.selectorWidth > compactMeasurement.selectorWidth + 36
+      && compactMeasurement.selectorWidth <= compactMeasurement.rowWidth + 1
+    );
+    if (!scalesWithinRow || !fluidWidthDelta) failures.push("overlay-manager-scaling:selector-fixed-or-overflowing");
     surfaces.push({
       name: "overlay-manager-scaling",
       selector: "#monitoring-hud-overlay-profile-window-selector",
       sampleCount: 1,
       scalesWithinRow,
+      fluidWidthDelta,
+      fluidMeasurements: {
+        wide: {
+          windowWidth: Math.round(availableWidth),
+          rowWidth: Math.round(wideMeasurement.rowWidth),
+          selectorWidth: Math.round(wideMeasurement.selectorWidth)
+        },
+        compact: {
+          windowWidth: Math.round(compactWidth),
+          rowWidth: Math.round(compactMeasurement.rowWidth),
+          selectorWidth: Math.round(compactMeasurement.selectorWidth)
+        }
+      },
       selectorRect: {
         left: Math.round(selectorRect.left),
         right: Math.round(selectorRect.right),

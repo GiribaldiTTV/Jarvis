@@ -264,6 +264,7 @@ def validate() -> list[str]:
         "background-size: 100% var(--monitoring-hud-divider-glow-size)",
         ".monitoring-hud__source-settings-body:focus-visible",
         ".monitoring-hud input[type=\"checkbox\"]:checked.is-hovered",
+        ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown",
         "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
@@ -283,6 +284,8 @@ def validate() -> list[str]:
         "rowTitleTabsInspected",
         "responsiveWindowContract",
         "overlayManagerScaling",
+        "windowSelectorFluidWidthDelta",
+        "fluidWidthDelta",
         "dividerGlowReduced50Percent",
         "sameMonitorRowDirtyGuard",
         "defaultProfileDeletePersists",
@@ -780,6 +783,8 @@ def validate() -> list[str]:
         and "min-width: min(720px, calc(100% - 8px))" in css
         and "min-width: min(300px, 100%)" in css
         and "max-width: min(450px, 100%)" in css
+        and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css
+        and "max-width: 100%;" in css
         and "@media (max-width: 420px)" in css
         and "max-height: 178px;" in css
         and "min-height: 152px;" in css
