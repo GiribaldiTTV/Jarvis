@@ -809,11 +809,11 @@ Brief Issue List
 Active Issues To Test
 
 UTS-HUD-014 - Overlay Profiles Clean State, Delete, And Compact Scaling
-Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. Create, Edit, selector, and Close remain compact/readable. Selecting a profile enables Edit. Deleting the default Overlay Profile enters the red confirmation path and does not silently auto-recreate the deleted default profile. Creating a new profile still restores a valid selectable profile when the user asks for one. The Profile / Select Profile dropdown must scale with the Overlay Profiles window instead of holding one fixed pixel width.
+Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. Create, Edit, Profile / Select Profile, and Close remain compact/readable. The Profile / Select Profile control stays on the same row as Create and Edit, uses the standard compact dropdown footprint, and its menu opens without clipping. Selecting a profile enables Edit. Deleting the default Overlay Profile enters the red confirmation path and does not silently auto-recreate the deleted default profile. Creating a new profile still restores a valid selectable profile when the user asks for one.
 USER Result / Notes:
 
 UTS-HUD-021 - HUD Sizing And Overlay Profiles Scaling
-Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager Profile / Select Profile dropdown scales with the available window/row width, visibly changes width between normal and compact legal sizes, stays inside the row, and remains readable without a fixed-width plateau.
+Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager Profile / Select Profile dropdown remains in the same row as Create and Edit, stays within the compact standard dropdown width range instead of becoming a full-row control, remains usable at compact legal window widths, and opens an unclipped NDAI-styled menu.
 USER Result / Notes:
 
 Issue Regression Checks, If Any

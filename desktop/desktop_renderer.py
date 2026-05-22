@@ -10374,6 +10374,11 @@ class DesktopRuntimeWindow(QWidget):
                             managerSelectorWidth: managerSelector ? managerSelector.getBoundingClientRect().width : 0,
                             managerToggleWidth: managerToggle ? managerToggle.getBoundingClientRect().width : 0,
                             managerLabelReadable: managerLabel ? managerLabel.scrollWidth <= managerLabel.clientWidth + 1 : false,
+                            managerSelectorSameRow: Boolean(controlsProof.windowSelectorSameRow),
+                            managerSelectorStandardFootprint: Boolean(controlsProof.windowSelectorStandardFootprint),
+                            managerSelectorMenuUnclipped: Boolean(controlsProof.windowSelectorMenuUnclipped),
+                            managerSelectorResponsiveCompact: Boolean(controlsProof.windowSelectorResponsiveCompact),
+                            managerSelectorCompactMeasurements: controlsProof.windowSelectorCompactMeasurements || {},
                             largeProfileFixture: Boolean(controlsProof.largeProfileFixture),
                             profileDropdownMaxFiveStress: Boolean(controlsProof.profileDropdownMaxFiveStress),
                             profileDropdownNDAIScrollbar: Boolean(controlsProof.profileDropdownNDAIScrollbar),
@@ -10416,11 +10421,16 @@ class DesktopRuntimeWindow(QWidget):
                 "Follow-up returned-UTS Overlay Profile manager selector/filter/delete proof prepared",
                 bool(parsed.get("ok"))
                 and parsed.get("settingsWindowOpen") is True
-                and parsed.get("settingsWindowVisualRepair") == "manager-selector-readable-uniform-glow-proof"
+                and parsed.get("settingsWindowVisualRepair") == "manager-selector-same-row-compact-unclipped-proof"
                 and parsed.get("settingsButtonExpanded") is True
                 and parsed.get("dropdownClosed") is True
-                and parsed.get("managerRowPolicy") == "create-edit-wide-selector"
-                and float(parsed.get("managerSelectorWidth") or 0) >= 300
+                and parsed.get("managerRowPolicy") == "create-edit-compact-selector-same-row"
+                and float(parsed.get("managerSelectorWidth") or 0) >= 210
+                and float(parsed.get("managerSelectorWidth") or 0) <= 300
+                and parsed.get("managerSelectorSameRow") is True
+                and parsed.get("managerSelectorStandardFootprint") is True
+                and parsed.get("managerSelectorMenuUnclipped") is True
+                and parsed.get("managerSelectorResponsiveCompact") is True
                 and parsed.get("managerLabelReadable") is True
                 and parsed.get("largeProfileFixture") is True
                 and parsed.get("profileDropdownMaxFiveStress") is True
@@ -10534,7 +10544,8 @@ class DesktopRuntimeWindow(QWidget):
                             visualVisibleProfileOptions: visibleProfileOptions,
                             hoveredProfileId: selector && selector.dataset ? String(selector.dataset.hoveredProfileId || "") : "",
                             labelReadable: label ? label.scrollWidth <= label.clientWidth + 1 : false,
-                            selectorWidth: selector ? selector.getBoundingClientRect().width : 0
+                            selectorWidth: selector ? selector.getBoundingClientRect().width : 0,
+                            menuWidth: menu ? menu.getBoundingClientRect().width : 0
                         });
                     } catch (err) {
                         return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
@@ -10560,7 +10571,9 @@ class DesktopRuntimeWindow(QWidget):
                 and int(parsed.get("visualVisibleProfileOptions") or 0) == 5
                 and bool(parsed.get("hoveredProfileId"))
                 and parsed.get("labelReadable") is True
-                and float(parsed.get("selectorWidth") or 0) >= 300,
+                and float(parsed.get("selectorWidth") or 0) >= 210
+                and float(parsed.get("selectorWidth") or 0) <= 300
+                and abs(float(parsed.get("menuWidth") or 0) - float(parsed.get("selectorWidth") or 0)) <= 2,
                 parsed,
             )
             if not parsed.get("ok"):

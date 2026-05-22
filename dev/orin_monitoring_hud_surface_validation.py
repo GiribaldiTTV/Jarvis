@@ -250,6 +250,7 @@ def validate() -> list[str]:
         "--monitoring-hud-affordance-safe-shadow",
         ".monitoring-hud__source-filter-option.is-hovered",
         ".monitoring-hud__bounded-dropdown-option.is-hovered",
+        "box-sizing: border-box",
         ".monitoring-hud__bounded-dropdown-toggle:not(:disabled):not([aria-disabled=\"true\"]).is-hovered",
         ".monitoring-hud__hub-action:not(:disabled):not([aria-disabled=\"true\"]).is-hovered",
         ".monitoring-hud__sensor-option.is-hovered",
@@ -265,7 +266,7 @@ def validate() -> list[str]:
         ".monitoring-hud__source-settings-body:focus-visible",
         ".monitoring-hud input[type=\"checkbox\"]:checked.is-hovered",
         ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown",
-        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)",
+        "grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(220px, 0.86fr)",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
     for needle in (
@@ -284,8 +285,11 @@ def validate() -> list[str]:
         "rowTitleTabsInspected",
         "responsiveWindowContract",
         "overlayManagerScaling",
-        "windowSelectorFluidWidthDelta",
-        "fluidWidthDelta",
+        "windowSelectorSameRow",
+        "windowSelectorStandardFootprint",
+        "windowSelectorMenuUnclipped",
+        "windowSelectorResponsiveCompact",
+        "selector-stacked-oversized-or-clipped",
         "dividerGlowReduced50Percent",
         "sameMonitorRowDirtyGuard",
         "defaultProfileDeletePersists",
@@ -734,8 +738,8 @@ def validate() -> list[str]:
         and "data-overlay-profile-option" in html
         and "data-child-window=\"overlay-profile-settings\"" in html
         and 'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"' in html
-        and 'data-overlay-profile-visual-repair="manager-selector-readable-uniform-glow-proof"' in html
-        and 'data-overlay-profile-manager-row="create-edit-wide-selector"' in html
+        and 'data-overlay-profile-visual-repair="manager-selector-same-row-compact-unclipped-proof"' in html
+        and 'data-overlay-profile-manager-row="create-edit-compact-selector-same-row"' in html
         and 'data-overlay-profile-visible-monitor-target="max-five"' in html
         and 'data-scrollbar-style="ndai-native"' in html
         and 'data-overlay-profile-route="assigned-overlay-status-window"' in html
@@ -758,6 +762,10 @@ def validate() -> list[str]:
         and "monitoringHudToggleOverlayAssignment" in js
         and "monitoringHudOpenSourceSettings" in js
         and "windowSelectorReadable" in js
+        and "windowSelectorSameRow" in js
+        and "windowSelectorStandardFootprint" in js
+        and "windowSelectorMenuUnclipped" in js
+        and "windowSelectorResponsiveCompact" in js
         and "manageContextRowAffordanceVisible" in js
         and "manageContextBelowSensorSource" in js
         and "sensorSourceSummaryPlacement" in js
@@ -778,25 +786,27 @@ def validate() -> list[str]:
         failures,
     )
     _require(
-        "grid-template-columns: minmax(168px, 0.82fr) minmax(168px, 0.82fr) minmax(300px, 1.6fr)" in css
+        "grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(220px, 0.86fr)" in css
         and "width: min(900px, calc(100% - 8px))" in css
         and "min-width: min(720px, calc(100% - 8px))" in css
-        and "min-width: min(300px, 100%)" in css
-        and "max-width: min(450px, 100%)" in css
+        and "min-width: min(220px, 100%)" in css
+        and "max-width: min(280px, 100%)" in css
         and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css
-        and "max-width: 100%;" in css
+        and "max-width: min(280px, 100%);" in css
+        and "grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(220px, 0.86fr)" in css
+        and "grid-template-columns: minmax(136px, 1fr) minmax(136px, 1fr) minmax(210px, 0.8fr)" in css
         and "@media (max-width: 420px)" in css
         and "max-height: 178px;" in css
+        and "max-height: 206px;" in css
         and "min-height: 152px;" in css
         and 'data-overlay-profile-detail-state="open"' in css
         and "max-height: 132px;" in css
         and "min-height: 148px;" in css
         and css.rfind(".monitoring-hud__child-window--overlay-profile") > css.rfind(".monitoring-hud__child-window {")
         and "grid-template-columns: minmax(236px, auto) minmax(0, 1fr) minmax(78px, auto)" in css
-        and "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)" in css
         and ".monitoring-hud__unsaved-guard {\n  grid-template-columns: minmax(0, 1fr);" in css
         and ".monitoring-hud__monitor-overlay-profile-context.is-hovered" in css,
-        "HUD CSS must widen the Overlay Profile manager selector and make Assigned Overlay read as an actionable status row",
+        "HUD CSS must keep the Overlay Profile manager selector compact/same-row/unclipped and make Assigned Overlay read as an actionable status row",
         failures,
     )
     _require(
