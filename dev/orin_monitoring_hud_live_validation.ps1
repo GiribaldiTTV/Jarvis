@@ -144,6 +144,10 @@ function Get-HudIssueIdsForElementLabel {
         "UTS-HUD-015" = @("scrollbar")
         "UTS-HUD-016" = @("divider", "page_break")
         "UTS-HUD-017" = @("button", "glow", "color", "uniform")
+        "UTS-HUD-018" = @("row_title", "row-title", "page_break", "divider", "tab")
+        "UTS-HUD-019" = @("state_stability", "surface_stability", "group_switch", "responsive_window", "window_contract", "open_state", "window_create_clean", "window_display_mode_buttons")
+        "UTS-HUD-020" = @("source_settings", "shift", "focus", "gold", "warning")
+        "UTS-HUD-021" = @("scalability", "window_size", "minimum", "responsive", "scale")
     }
     foreach ($issueId in $issueRules.Keys) {
         foreach ($keyword in $issueRules[$issueId]) {
@@ -218,7 +222,8 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
     $allIssueIds = @(
         "UTS-HUD-001", "UTS-HUD-002", "UTS-HUD-003", "UTS-HUD-004", "UTS-HUD-005", "UTS-HUD-006",
         "UTS-HUD-007", "UTS-HUD-008", "UTS-HUD-009", "UTS-HUD-010", "UTS-HUD-011", "UTS-HUD-012",
-        "UTS-HUD-013", "UTS-HUD-014", "UTS-HUD-015", "UTS-HUD-016", "UTS-HUD-017"
+        "UTS-HUD-013", "UTS-HUD-014", "UTS-HUD-015", "UTS-HUD-016", "UTS-HUD-017",
+        "UTS-HUD-018", "UTS-HUD-019", "UTS-HUD-020", "UTS-HUD-021"
     )
     $issueCoverage = @()
     foreach ($issueId in $allIssueIds) {

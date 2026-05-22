@@ -7,7 +7,7 @@ Recorded At Head: `b33d38de0aa5d631afa2ed63a3f83274262c3b35`
 Current Main Basis: `b3cb321cc525028354e6dbd290c774c3f09ecad4`
 Desktop Shortcut: `C:\Users\anden\OneDrive\Desktop\FAM-006 UTS Issue Form.lnk`
 Latest USER Evidence Intake Head: `581c5e7be99c82597289d0b2cb93b3b0a1a2ace9`
-Latest Technical Proof Head: `581c5e7be99c82597289d0b2cb93b3b0a1a2ace9 plus current bounded repair diff`
+Latest Technical Proof Head: `581c5e7be99c82597289d0b2cb93b3b0a1a2ace9 plus current bounded repair diff and refreshed LV1 proof 20260522_034305_935`
 
 ## Governance Classification
 
@@ -41,6 +41,10 @@ Hardening H1 Result: `GREEN - H1 pressure-tested UTS-HUD-001 through UTS-HUD-012
 
 Refreshed LV1 Result: `TECHNICAL PASS / USER_TEST_REQUIRED - the prior 20260521_220614_907 proof was superseded after USER screenshot review. A failed repair attempt at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_232401_791\monitoring_hud_live_client_interaction_manifest.json exposed the remaining HUD-wide visual inspection matrix issue. The bounded repair corrected passive-surface versus interactive-control proof handling, added default glow/dead-space styling for search fields and monitor rows, right-aligned Dashboard group-card actions, and refreshed LV1 through the real user-facing desktop path. Current PASS proof: real shortcut human-client validation at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_234345_653\human_client_manifest.json; live-client LV1 PASS at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_233121_920\manifest.json; interaction manifest PASS at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_233121_920\monitoring_hud_live_client_interaction_manifest.json; 48 named per-element screenshots copied to C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_233121_920\focused_element_screenshots\; mandatory short video copied to C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_233121_920\monitoring_hud_lv1_short_video.mp4; formal UTS handoff refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt.`
 
+Returned USER Review Result - 2026-05-22: `TECHNICAL PASS / USER_TEST_REQUIRED after bounded repair - USER returned responses in this temporary issue form and attached evidence files. The bounded repair addressed the current visual, interaction, clipping, scrollbar, divider, focus, state-stability, evidence-coverage, and sizing-proof blockers for UTS-HUD-008, UTS-HUD-010.6, UTS-HUD-011, UTS-HUD-013, UTS-HUD-014, UTS-HUD-015, UTS-HUD-016, and UTS-HUD-018 through UTS-HUD-021. UTS-HUD-009 remains explicitly deferred/source-truth-carried rather than current-branch telemetry-provider implementation. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason.`
+
+Current Bounded Repair / Refreshed LV1 Result - 2026-05-22: `TECHNICAL PASS / USER_TEST_REQUIRED - repo-wide Live Validation governance now fails closed before UTS when Codex-visible desktop UI defects remain; HUD runtime/validators now cover UTS-HUD-018 row-title tab proof, UTS-HUD-019 window/state-stability coverage, UTS-HUD-020 Source Settings no-gold focus proof, and UTS-HUD-021 responsive window contract proof. Real user-facing shortcut precheck passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_033627_969\human_client_manifest.json. Refreshed LV1 proof passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_034305_935\manifest.json with interaction manifest C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_034305_935\monitoring_hud_live_client_interaction_manifest.json, 48 named focused screenshots under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_034305_935\focused_element_screenshots\, mandatory short video C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_034305_935\monitoring_hud_lv1_short_video.mp4, and refreshed UTS handoff at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt.`
+
 Next Required Gate: `USER UTS review. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is complete.`
 
 ## Evidence And Validation Standard Requested By USER
@@ -53,6 +57,8 @@ Helper PASS, manifest PASS, screenshot existence, or DOM presence cannot substit
 
 Latest USER Evidence-Governance Correction: `REPAIR - USER rejected the prior LV1 proof because detailed per-element screenshots were not stored as real USER-inspectable images under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI and because full-desktop screenshots were overused as proof. USER also restated that LV1 must run through the USER-facing desktop launcher with no sandbox/offscreen/direct-runtime substitute as the primary path. This issue form now treats missing OneDrive per-element screenshots, filenames without element labels/names, dev\logs-only images, and helper/direct-runtime proof presented as the USER path as Live Validation blockers.`
 
+Latest USER Live Validation Governance Correction - 2026-05-22: `REPAIR - USER clarified that these misses are not only FAM-006 defects. Repo-wide Live Validation governance must require Codex to find, repair, rerun proof, and return to UTS-ready posture for Codex-visible desktop UI defects before UTS handoff. Future branches must inherit this requirement; UTS is USER acceptance review, not the defect-discovery mechanism for obvious visual, interaction, scaling, flicker, clipping, or proof-coverage failures.`
+
 Updated LV1 Evidence Requirement: `Every acceptance-critical HUD element/state must have a detailed focused screenshot copied to C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\ with the element label/name and state/action in the PNG filename. Full desktop screenshots are locator/context evidence only. The human-client shortcut manifest is the primary LV1 path when the desktop launcher is feasible; active-client/WebView/direct-runtime proof is supporting coverage only.`
 
 Latest USER Screenshot Review - 2026-05-21 22:19 PT: `REPAIR - USER inspected element_03_overlay_profile_settings_window_create_clean.png, element_11_100_monitor_list_scrollbar_and_1200_source_picker.png, and pythonw_fVh44Y5uQA.png and reported that visible UI issues remain. This intake reopens UTS-HUD-001 through UTS-HUD-012 for acceptance planning and adds UTS-HUD-013 through UTS-HUD-017.`
@@ -61,12 +67,31 @@ Latest USER Screenshot Evidence:
 - `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_220614_907\focused_element_screenshots\element_03_overlay_profile_settings_window_create_clean.png`
 - `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_220614_907\focused_element_screenshots\element_11_100_monitor_list_scrollbar_and_1200_source_picker.png`
 - `C:\Users\anden\OneDrive\Pictures\Screenshots\pythonw_fVh44Y5uQA.png`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\Overlay Profiles UTS-HUD-014.mp4`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\Source Settings UTS-HUD-008.mp4`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\Source Settings UTS-HUD-020.png`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\Manage Monitors - UTS-HUD-015.png`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\Dashboard UTS-HUD-011.png`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\HUD Dashhboard UTS-HUD-011.png`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\HUD Dashboard - UTS-HUD-018.png`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\HUD Dashboard - UTS-HUD-016.png`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\Manage Monitors UTS-HUD-010.6.png`
 
 Latest Screenshot Findings:
 - `Overlay Profiles clean-state failure`: Create/Edit/Profile selector controls are visually crowded and misaligned; the disabled Edit control, selector label, selector button, Close button, and panel boundaries do not share a coherent color/glow/padding system; the panel uses too much empty height; blurred underlying content and divider treatment reduce clarity.
 - `Manage Monitors source-picker proof failure`: Scrollbar sizes/styles do not match across visible nested scroll regions; the screenshot does not prove the max-five/dropdown/list standard in an element-by-element way; source rows, settings buttons, checkbox hover, and panel dividers require per-element proof rather than one broad capture.
 - `Dashboard HUD Overlay card failure`: Divider/page-break underglow is not uniform across Overlay Profile, Monitors, and Display rows inside the HUD Overlay card; button color/glow treatment differs across Close, Settings, Profile selector, Overlay Profile Settings, and Manage Monitors controls.
 - `Evidence coverage failure`: The 17 per-element screenshots are not enough for this HUD branch. Every user-facing element down to Dashboard border, card backgrounds, dividers, button default/hover/focus/active/disabled states, dropdowns, rows, checkboxes, scrollbars, and page-break glows must have named screenshot evidence and a PASS/REPAIR verdict before UTS.
+- `2026-05-22 UTS-HUD-008 remaining flicker`: USER video reports remaining periodic flicker in the Monitor Groups column and its buttons, plus Source Settings display-mode buttons.
+- `2026-05-22 UTS-HUD-010.6 remaining divider color`: USER screenshot shows the Source Settings warning page break/divider is red/gold and should match the normal Dashboard page-break token.
+- `2026-05-22 UTS-HUD-011 remaining Dashboard action alignment`: USER screenshots show Overlay Profile Settings and Manage Data Sources actions still need right-aligned group-card action treatment and consistent disabled/deferred button formatting.
+- `2026-05-22 UTS-HUD-014 remaining Overlay Profiles clipped-open failure`: USER video shows Overlay Profiles opening clipped/off-window, with selector and Close button inaccessible until Dashboard resize temporarily forces layout recalculation.
+- `2026-05-22 UTS-HUD-015 remaining scrollbar mismatch`: USER screenshot shows the Manage Monitors list scrollbar size/style does not match the other HUD scrollbars.
+- `2026-05-22 UTS-HUD-016 remaining divider underglow mismatch`: USER screenshot shows the same Dashboard HUD Overlay dividers remain visual outliers, with glow scaling by row height instead of a uniform small glow from the divider line.
+- `2026-05-22 UTS-HUD-018 row-title alignment issue`: USER reports row titles align too tightly with page-break lines and need a tab/indent or comparable spacing treatment.
+- `2026-05-22 UTS-HUD-019 transient surface disappearance`: USER observed Manage Monitors/group switching causing a child/window surface to disappear for a fraction of a second and return; the issue is currently intermittent/not reproducible but requires state hardening from Dashboard through child windows.
+- `2026-05-22 UTS-HUD-020 Source Settings shift-focus gold border`: USER screenshot shows pressing Shift in Source Settings creates a gold focus border around the settings content; Tab traversal itself is non-gating, but the unexpected gold border is a visual defect.
+- `2026-05-22 UTS-HUD-021 HUD scalability/window-size contract`: USER requests a full HUD sizing/scaling standard and recommendations so allowed window sizes, default sizes, minimum sizes, common 1080p/scaled displays, and future vision remain user-friendly and system-friendly.
 
 ## Temporary Issue Lifecycle
 
@@ -78,6 +103,7 @@ Latest Screenshot Findings:
 6. H1 must pressure-test each fixed issue with focused screenshots and, where needed, frame/video-style proof.
 7. LV1 must rerun real shortcut/client validation and produce a UTS checklist that includes these issue IDs.
 8. PR Readiness Stage 1 may delete this temporary form only after all surviving information is folded into durable source truth.
+9. Repo-wide Live Validation governance must prevent this pattern from recurring on future branches by failing closed when Codex-visible defects remain and by routing approved defects into a bounded repair/rerun loop before UTS handoff.
 
 ## Issue Index
 
@@ -91,7 +117,7 @@ Latest Screenshot Findings:
 | UTS-HUD-006 | Checked source row hover state | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
 | UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
 | UTS-HUD-008 | Source row hover flicker | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
-| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-009 | Polling Rate must affect live source collection rate | DEFERRED_WITH_SOURCE_TRUTH | USER accepted/carries future telemetry-provider cadence behavior; current HUD proof remains truthful for this branch | Future-gated beyond current HUD source-refresh scope |
 | UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
 | UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
 | UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
@@ -100,6 +126,10 @@ Latest Screenshot Findings:
 | UTS-HUD-015 | Scrollbar size/style uniformity across nested HUD scroll regions | REPAIR | Focused scrollbar proof refreshed; USER_TEST_REQUIRED | Bounded continuation complete |
 | UTS-HUD-016 | Page-break/divider underglow uniformity across Dashboard cards and HUD Overlay rows | REPAIR | Focused divider proof refreshed; USER_TEST_REQUIRED | Bounded continuation complete |
 | UTS-HUD-017 | HUD-wide button color/glow uniformity across all default/hover/focus states | REPAIR | Visual matrix PASS after latest repair; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-018 | Row-title indentation/alignment against page breaks | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-019 | Transient window/surface disappearance during group switching | REPAIR | Bounded state-stability/window-contract proof added; refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-020 | Source Settings Shift key gold focus border | REPAIR | Bounded no-gold focus repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-021 | HUD scalability/window-size/responsive contract | REPAIR | Bounded responsive-window contract proof + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
 
 ## Repair Setup Disposition Matrix
 
@@ -122,10 +152,14 @@ Latest Screenshot Findings:
 | UTS-HUD-015 | Current-branch repair candidate | Define a HUD scrollbar sizing/style contract for outer windows, nested panes, source lists, monitor lists, profile lists, and dropdown menus; repair mismatches where current UI violates that contract. | Focused screenshots of every visible scrollbar class with dimensions/style verdicts, plus overflow stress for 5, 20, 100, and 1200-item fixtures where applicable. |
 | UTS-HUD-016 | Current-branch repair candidate | Normalize page-break/divider underglow/haze tokens across Dashboard cards, Overlay Profile, Monitors, Display, Manage Monitors sections, Overlay Profiles settings sections, source settings sections, and confirmation/dirty-guard blocks. | Per-divider screenshots named by section and state; comparison sheet/table must identify token match, underglow extent, color, opacity, and whether grid/background bleed affects the divider. |
 | UTS-HUD-017 | Current-branch repair candidate | Establish a HUD-wide button role color/glow contract for Close, Settings, Profile selector, Overlay Profile Settings, Manage Monitors, Create, Edit, Save, Discard, Delete, Cancel, blocked/deferred buttons, dropdown toggles, chips, and row-buttons. | Matrix screenshots for default, hover, active, focus-visible, disabled, selected/open, danger, safe-cancel, blocked/deferred, and warning/on states; each button must have text padding and no center-haze failure. |
+| UTS-HUD-018 | Current-branch repair candidate | Add a consistent row-title indentation/tab/spacing rule so labels do not visually collide with page-break/divider lines. | Focused screenshots for every state row/page-break title before and after repair, including HUD Overlay, Monitor Groups, Source Settings, and dirty/delete rows. |
+| UTS-HUD-019 | Current-branch hardening candidate | Audit and harden Dashboard-to-child-window render/state transitions so switching monitor groups or child surfaces cannot briefly disappear/flicker even under rapid state changes. | Frame-sequence/video proof while switching groups/windows repeatedly, plus state-stability assertions for active child windows and selected monitor group. |
+| UTS-HUD-020 | Current-branch repair candidate | Remove or normalize the Source Settings Shift-triggered gold focus border so keyboard modifier/focus states use the HUD-wide focus role without unintended warning/gold treatment. | Focused screenshot/video proof pressing Shift, Tab, click, and close paths in Source Settings; no unexpected gold border unless an intentional warning state is active. |
+| UTS-HUD-021 | Current-branch planning + possible bounded repair candidate | Define HUD-wide sizing/scaling contract: default size, minimum usable size, maximum/screen-constrained behavior, 1080p/scaling posture, inner-scroll ownership, and responsive breakpoint expectations before runtime changes. | Recommendation packet plus proof at default, native minimum, proposed usable minimum, 1080p/scaled constraints, child-window open states, and high-volume list states. |
 
 ## Implementation Boundary For Next Approval
 
-Current-Branch Repair Candidates: `UTS-HUD-001, UTS-HUD-002, UTS-HUD-003, UTS-HUD-004, UTS-HUD-005, UTS-HUD-006, UTS-HUD-007, UTS-HUD-008, UTS-HUD-010, UTS-HUD-011, and current editable portions of UTS-HUD-012.`
+Current-Branch Repair Candidates: `Bounded continuation repaired and revalidated the current UTS-HUD-008, UTS-HUD-010.6, UTS-HUD-011, UTS-HUD-013, UTS-HUD-014, UTS-HUD-015, UTS-HUD-016, UTS-HUD-018, UTS-HUD-019, UTS-HUD-020, and UTS-HUD-021 blockers. UTS-HUD-012 remains accepted as a HUD-wide standard and is covered by the refreshed proof. Current gate is USER UTS review.`
 
 Conditional Current-Branch Repair Candidate: `UTS-HUD-009 may be implemented only if current FAM-006 HUD source-refresh architecture owns live cadence. If actual external telemetry/provider collection is outside this branch, implementation must make the current UI truthful and future-gate the deeper runtime collector work.`
 
@@ -202,6 +236,7 @@ Validation Required:
 - At least one dark/backdrop and grid-adjacent screenshot for bleed-through risk.
 
 USER Review Question: Confirm that default button glow may vary by semantic role only if the rules are visibly consistent and readable.
+Response: Confirmed, also i this item is
 
 ### UTS-HUD-002 - Background Grid Bleed-Through On Cards And Windows
 
@@ -225,6 +260,7 @@ Validation Required:
 - Screenshot set must include default, hover, dropdown-open, confirmation, and dirty states where applicable.
 
 USER Review Question: Confirm that decorative grid may remain visible only outside content-bearing cards/panels/windows.
+Response: Confirmed, also this item i have confirmed its fixed.
 
 ### UTS-HUD-003 - Default Button Glow Center Must Preserve Text Readability
 
@@ -246,6 +282,7 @@ Validation Required:
 - Visual proof that center fill remains stable and text stays legible.
 
 USER Review Question: Confirm that hover may intensify the control but default state should keep most glow on the border.
+Response: Agreed, and can confirm that i tested all buttons and i like the current state.
 
 ### UTS-HUD-004 - Hover Glow Must Preserve Semantic Button Color
 
@@ -267,6 +304,7 @@ Validation Required:
 - Keyboard focus proof for same semantic colors.
 
 USER Review Question: Confirm the final semantic color map before implementation.
+Response: I believe you understand the semantic color map, and its been implemented to my satisfaction. Thank you
 
 ### UTS-HUD-005 - Button Text-To-Border Dead Space Requirement
 
@@ -289,6 +327,7 @@ Validation Required:
 - Proof that glow/border does not reduce the effective text buffer.
 
 USER Review Question: Confirm whether long action labels should prefer wider buttons over label shortening.
+Response: I think that this is a complex issue, overall i think that what we should do is, design from my default monitor setup that i currently have, and then have the UI scale accordingly? But honestly im really not smart enough to answer this question, I think i need you to make reccomendations on this. Please include in your digest your suggestion and i will approve your change your suggestion, unless you give multiple reccomendations then i will choose accordingly.
 
 ### UTS-HUD-006 - Checked Source Row Hover State
 
@@ -309,6 +348,7 @@ Validation Required:
 - First-click proof that row hover does not interfere with checkbox or settings button activation.
 
 USER Review Question: Confirm checked-hover should be visually distinct but still clearly checked.
+Response: Confirmed, also i can confirm that the current implemntation is satisfactory, and i accept it as the standard format.
 
 ### UTS-HUD-007 - Manage Monitors Filter Max-Five Menu Target
 
@@ -331,6 +371,7 @@ Validation Required:
 - Smaller-window exception proof if fewer than five are visible due to viewport constraints.
 
 USER Review Question: Confirm the max-five rule applies to every HUD dropdown/list unless source truth records an exception.
+Response: Confirmed, but this depends and should depend on the referenced window size proportional to the menu, so adaptability and functionality are more important than fitting more things in one area, we have scroll bars for a reason.
 
 ### UTS-HUD-008 - Source Row Hover Flicker
 
@@ -352,6 +393,7 @@ Validation Required:
 - Stress proof with many sources and active polling.
 
 USER Review Question: Confirm frame-sequence proof is required for this issue because static screenshots cannot prove flicker absence.
+Response: Approved, IDK how youll capture it, but the interval seems to be consistent at 1 second intervals. See attached video, the flicker is now onlyt visible in two places, the Monitors Column(which should be labeled as "Monitor Groups") and the buttons in them, as well as inside Source Settings for the Display mode buttons only. See attached video labled UTS-HUD-008
 
 ### UTS-HUD-009 - Polling Rate Must Affect Live Source Collection
 
@@ -375,6 +417,7 @@ Validation Required:
 - Default/override proof.
 
 USER Review Question: Confirm whether this must be implemented now or can be explicitly deferred with truthful UI status.
+Response: Yes this can be deffered, and make sure that the source truth has this recoreded as an item that needs to be addressed during that point.
 
 ### UTS-HUD-010 - Sensor Settings Window Click/State/Dropdown/Window Flow
 
@@ -400,6 +443,7 @@ Validation Required:
 - Parent-window preservation proof: close/back/save/discard from sensor settings returns to Manage Monitors without requiring reopen.
 
 USER Review Question: Confirm whether the preferred UX is a Manage Monitors subview, a child window that keeps Manage Monitors open, or a redesigned flow decided in repair setup.
+Response: Preferred UX would be Child window that keeps Manage Monitors Open but this rule wouldnt jsut apply to these specific windows though, i would want the UX to meet reliability, and functionality standards that maintain the realism and immersion of the program. If you reccomend a redesigned flow, please make reccomendations unless the current implementation flow is sufficent and meets the overall vision for the entire project.
 
 #### UTS-HUD-010.1 - Display Mode Cannot Switch
 
@@ -408,6 +452,7 @@ Observation: In the display mode card, the user cannot switch between display mo
 Planning Actions: Trace click handler, selected-state commit, rerender, and disabled/stale state. Ensure first-click and keyboard activation both change selected mode.
 
 Validation Required: Row/button click proof, keyboard proof, persistence proof, and repeated first-click stress.
+Response: This issue has been resolved good job.
 
 #### UTS-HUD-010.2 - Warning State Checkbox Cannot Be Clicked
 
@@ -416,6 +461,7 @@ Observation: User cannot click the warning state checkbox.
 Planning Actions: Verify whether this is an enabled current control or future/deferred placeholder. If current, repair click/state/persistence. If future, disable truthfully with deferred copy.
 
 Validation Required: Click/keyboard toggle proof or clear deferred-disabled proof.
+Response: This issue has been solved, but i want to make sure that the implementation of the warnign notifcations future branch has a record that their exists multiple already enable or disable options for warning notifications so that it doesnt forget to connect things. Heirarchy for Warnings is individual sensor state, than the monitor group level. If turned off at the monitor group the individual settings will be ignored, so think of the one inside the general area to be the on and off for the entire group, and the one inside each sensor to be the singular on off, so if 1 of the sensors has it unchecked (off) than that one sensor, regardless of on or off status for the generalized area setting, will not report that warning state.
 
 #### UTS-HUD-010.3 - Rate Dropdown Disappears After Opening
 
@@ -424,6 +470,7 @@ Observation: Pressing the Rate dropdown makes it disappear about a second later.
 Planning Actions: Investigate refresh/rerender timeout, blur handling, focus trap, and click-away logic. Prevent data refresh from closing active dropdowns.
 
 Validation Required: Frame-sequence proof holding dropdown open for several seconds during source refresh.
+Response: this issue has been solved, good job.
 
 #### UTS-HUD-010.4 - Rate Dropdown Clips And Cannot Scroll
 
@@ -432,6 +479,7 @@ Observation: Dropdown is clipped by the window edge and cannot scroll.
 Planning Actions: Repair dropdown layer, placement, max-height, overflow, and scroll-pane styling.
 
 Validation Required: Focused screenshot proving no clipping, max-five target where applicable, and NDAI scrollbar.
+Response: This issue has been solved
 
 #### UTS-HUD-010.5 - Increase Default Sensor Settings Window Size
 
@@ -440,6 +488,7 @@ Observation: Default window size should prepare for warning settings.
 Planning Actions: Define default/min/max window dimensions for current settings plus warning section placeholder.
 
 Validation Required: Focused screenshot at default and minimum supported size showing no clipping or outer scrollbar unless unavoidable.
+Response: This issue has been solved.
 
 #### UTS-HUD-010.6 - Warning Settings Page Break And Future Plan
 
@@ -448,6 +497,7 @@ Observation: Add a page break for `Enable Warning Notifications for this sensor`
 Planning Actions: Define current checkbox copy, page break, future warning-settings placeholder, and default/override precedence without implementing unapproved future notification runtime.
 
 Validation Required: Focused proof of warning section divider/page break, checkbox/default copy, and future-scope boundary.
+Response:Page break has been added, but its red, it should be the same color as all the other page breaks in the dashbord. See attached picture labeled UTS-HUD-010.6
 
 #### UTS-HUD-010.7 - Nested Window Flow Closes Manage Monitors
 
@@ -456,6 +506,7 @@ Observation: Opening another window inside Manage Monitors closes Manage Monitor
 Planning Actions: Redesign or repair parent/child ownership so Manage Monitors remains available. Define close/back/save/discard return paths.
 
 Validation Required: Proof that opening sensor settings preserves Manage Monitors, and every exit path returns to the prior Manage Monitors context.
+Response: This issue has been solved, but i think it created some UI issues which will be documented below. Good job fixing this one though.
 
 ### UTS-HUD-011 - Dashboard Button Alignment And Data Sources Copy/Status
 
@@ -478,6 +529,7 @@ Validation Required:
 - First-click blocked/deferred proof that it does not start unapproved behavior.
 
 USER Review Question: Confirm the desired exact order of actions in the Dashboard row.
+Response: the order isnt what im looking for, what i want is for the Overlay Profile Settings button to be alligned to the right, just like the Manage Monitors button is. Additionally, i want the Manage Data Sources button to be the same format as all the other buttons, same glow effects ect ect, and aligned right but still have the button greyed out and disabled for now until that feature is implemented, but there is no reason you can fix the buttons layout now. See the 2 attached pictures labeled UTS-HUD-011
 
 ### UTS-HUD-012 - HUD-Wide Dirty-Change Confirmation Rule
 
@@ -501,12 +553,213 @@ Validation Required:
 - Reopen proof confirms state outcome.
 
 USER Review Question: Confirm this rule should become a HUD-wide standard before PR Readiness.
+Response: Confirmed this should be a HUD wide rule before PR readiness.
+
+### UTS-HUD-013 - LV1 Evidence Coverage And Per-Element Screenshot Matrix
+
+USER Observation: Prior Live Validation evidence did not inspect every finite user-facing element with named, focused, USER-inspectable screenshots and video/frame proof where required.
+
+Intent: Live Validation must prove visual and functional acceptance element by element, not through broad full-desktop screenshots, DOM markers, helper PASS, or screenshot existence alone.
+
+Likely Surfaces: Live Validation helpers, human-client validation helper, desktop_renderer focused screenshot capture, OneDrive screenshot export, visual manifest, issue-form coverage matrix, branch governance/source-truth rules.
+
+Planning Actions:
+- Require every current HUD user-facing element/state to have a named focused screenshot or required video/frame proof.
+- Copy focused proof to the USER-inspectable OneDrive Nexus Desktop AI screenshots directory.
+- Map each issue ID to proof artifacts.
+- Keep full-desktop screenshots as context/locator evidence only.
+- Fail validation when any acceptance-critical element lacks focused evidence or visual adjudication.
+
+Validation Required:
+- Per-element screenshot inventory with issue-ID mapping.
+- Proof that screenshot filenames include element label/name and state/action.
+- Proof that focused screenshots live under the OneDrive screenshots folder.
+- Manifest failure behavior when proof is missing or only full-desktop context is present.
+
+USER Review Question: Confirm whether the latest LV1 evidence coverage is sufficient, or list any missing element/state screenshots or videos needed before UTS can pass.
+Response: The intent behind this, is during the planning phase when the planning document for the branch implementation is created. All elements that were created are to be inspected using a screenshot. Even if the screenshot would be identical, the user can infer for now. In the future governance and planning changes, the dev version will have each element labeld or maybe even mouse over change color with a tooltip that lists that elements title or assigned name so the USER and CODEX can properly inventory and inspect ALL elements that it created to improve the process flow for identifying issues. So for now, we just take photos just like you did, and like i did, that are as precise and as small as needed to derive the context based on the name of the picture file in order to arrive at what the intended element is. As for the current state of what im responding to, all i see are 3 screenshots, and those screenshots do not properly identify the elements that you were inspecting and validating during this branch. For example, because i brought up all these issues, now what you would do is take individual screenshots or videos or whatever you need to do for each issue item that covers that Issues element and ensures it meets the intended endstate. So you would have a total of 17 pictures maybe, depends on the issue or the element in question.
+
+### UTS-HUD-014 - Overlay Profiles Clean-State Layout, Hierarchy, Color/Glow, And Empty-Space Failure
+
+USER Observation: The Overlay Profiles clean-state window previously showed layout, hierarchy, color/glow, and empty-space problems that made the selector-first flow feel unclear and visually unfinished.
+
+Intent: Overlay Profiles should open as a clear select-or-create manager: Create Overlay Profile, disabled Edit Overlay Profile until a profile is selected, readable NDAI profile selector, consistent spacing, consistent glow/color roles, and room for future profile settings.
+
+Likely Surfaces: Overlay Profile Settings child window, profile selector, Create/Edit actions, disabled states, profile metadata row, panel dividers, empty-state copy, child-window CSS, focused screenshots.
+
+Planning Actions:
+- Validate the clean-state hierarchy and selector-first flow.
+- Confirm Create/Edit/selector/Close/panel dividers/empty-state text share consistent spacing, alignment, padding, color, and glow roles.
+- Confirm profile names remain readable within the current width contract.
+- Confirm the layout leaves space for future profile settings without dead-looking empty space.
+
+Validation Required:
+- Focused screenshots for clean state, selector open/hover, disabled Edit, Create path, Close default/hover, panel border/dividers, empty-state text, and compact/normal responsive sizes.
+- USER visual acceptance or REPAIR notes for any remaining hierarchy/layout failure.
+
+USER Review Question: Confirm whether the Overlay Profiles clean-state manager is now visually and functionally acceptable, or list the remaining layout/hierarchy/color/glow failures.
+Response: Reference video named UTS-HUD-014, in it you will see what the Overlay Profiles Window Looks like upon first opening the HUD. You can clearly see the majority of the Profile selector button(dropwdown) is cut off, you also can't see the close button, and we havent hardwired the ESC key to be a back key so the only way to close the window (because if you close the HUD and re-open it, it opens with the same window open) is to resize the entire dashboard window to include the entire window, and as seen in the video, once you do that you can than resize back down and the window will now scale accordingly, kind of but that fix is only temporary until you close the entire NDAI and reopen it then the issue is back again.
+
+### UTS-HUD-015 - Scrollbar Size/Style Uniformity Across Nested HUD Scroll Regions
+
+USER Observation: Scrollbar sizes/styles did not match across nested HUD scroll regions.
+
+Intent: HUD-owned scrollbars should look and behave like one NDAI-native system across outer Dashboard regions, child windows, nested panes, monitor lists, source lists, profile lists, dropdowns, and high-volume fixture states.
+
+Likely Surfaces: Dashboard control hub, Manage Monitors list/detail panes, Sensor Library source list, Overlay Profile visible monitor list, profile dropdown/list, source filter, polling/rate dropdowns, child windows, CSS scrollbar tokens, high-volume fixtures.
+
+Planning Actions:
+- Define and validate one HUD scrollbar size/style contract.
+- Apply max-five visible option/list behavior where appropriate and use scrollbars beyond that limit.
+- Preserve readability and usability at 5, 20, 100, and high-volume fixture states where supported.
+- Ensure Windows/native default scrollbars do not appear inside HUD-owned visual surfaces.
+
+Validation Required:
+- Focused screenshots for every visible scrollbar class.
+- Overflow stress proof for supported high-volume states.
+- USER visual acceptance or REPAIR notes for mismatched scrollbar size/style.
+
+USER Review Question: Confirm whether HUD scrollbar sizing/style is uniform and acceptable, or list any specific scroll region that still differs.
+Response: It is not uniformed, see attached photo named UTS-HUD-015. You will see that one is not the same size as any of the other ones.
+
+### UTS-HUD-016 - Page-Break / Divider Underglow Uniformity
+
+USER Observation: Page breaks/dividers and underglow/haze effects were not uniform across Dashboard cards and HUD Overlay rows, especially Overlay Profile, Monitors, and Display rows.
+
+Intent: Divider lines and their light/glow effect should use a single readable visual language across equivalent HUD sections without background bleed-through, color mismatch, or inconsistent visual weight.
+
+Likely Surfaces: Dashboard card rows, HUD Overlay card rows, Monitor Groups card rows, Display rows, Manage Monitors sections, Overlay Profile Settings sections, source settings sections, confirmation/dirty-guard blocks, divider CSS tokens, focused screenshots.
+
+Planning Actions:
+- Compare divider line, haze/glow extent, color, opacity, and spacing across every relevant HUD section.
+- Normalize equivalent section dividers to one token set.
+- Confirm divider glow does not harm readability or show background bleed-through.
+
+Validation Required:
+- Per-divider screenshots named by section/state.
+- Comparison/adjudication that the line, underglow, color, opacity, and spacing match where they should.
+- USER visual acceptance or REPAIR notes for mismatched dividers.
+
+USER Review Question: Confirm whether page-break/divider underglow is now uniform, or identify the exact sections that still do not match.
+Response: See attached image named UTS-HUD-016, as you can see in the picture the same ones that i identified before are still outliers and are still sticking out compared to the other rows. i think the uniformity is scaling with the total height of the entire row, but what we want is the glow growth to extend from the Pagebreak line and not grow, it should maintain a minimal underglow size and it should be uniformed. Addituionally, the Pagebreak ive already annotated before in Monitors Group that is above the Save, discard, delete button isnt correct either, so do a full pass on all of them.
+
+### UTS-HUD-017 - HUD-Wide Button Color/Glow Role Uniformity
+
+USER Observation: Button default/hover/focus/active color and glow roles previously differed across Close, Settings, profile selector, Overlay Profile Settings, Manage Monitors, and other HUD controls.
+
+Intent: Every HUD button and button-like control should follow a consistent role-based color/glow contract, while preserving semantic intent for danger, warning/on, safe-cancel, primary, selected/open, disabled, and blocked/deferred controls.
+
+Likely Surfaces: Close, Settings, Profile selector, Overlay Profile Settings, Manage Monitors, Create, Edit, Save, Discard, Delete, Cancel, blocked/deferred buttons, dropdown toggles, chips, row-buttons, source settings buttons, CSS button tokens, focused screenshots.
+
+Planning Actions:
+- Validate role-based default, hover, active, focus-visible, disabled, selected/open, danger, safe-cancel, blocked/deferred, and warning/on states.
+- Confirm hover/focus/active states do not force unrelated green/primary coloring onto danger, warning, close, discard, delete, cancel, or blocked/deferred controls.
+- Confirm default glow remains border-biased and does not reduce text readability.
+- Confirm text padding prevents clipping across long labels.
+
+Validation Required:
+- Matrix screenshots across button roles and states.
+- USER visual acceptance or REPAIR notes for any non-uniform button color/glow behavior.
+
+USER Review Question: Confirm whether HUD-wide button color/glow roles are now uniform and acceptable, or list the specific controls/states that still differ.
+Response: Confirmed, good job!
+
+### UTS-HUD-018 - Row-Title Indentation And Page-Break Alignment
+
+USER Observation: Row titles line up too tightly with page-break/divider lines and feel visually odd.
+
+Intent: Row titles should read as labels attached to their row content, not as text sitting directly on the divider. Equivalent HUD row-title patterns should use a consistent tab, inset, or spacing treatment.
+
+Likely Surfaces: Dashboard HUD Overlay rows, Monitor Groups card rows, Manage Monitors form rows, Source Settings sections, Overlay Profiles rows, dirty/delete action rows, and any card section using the same divider/title pattern.
+
+Planning Actions:
+- Inventory every current row-title/page-break pairing.
+- Define one spacing/inset rule for equivalent row titles.
+- Preserve readability at default, compact, and minimum supported sizes.
+- Avoid adding excess vertical height or creating inconsistent divider glow.
+
+Validation Required:
+- Focused before/after screenshots for each row-title/page-break class.
+- Visual verdict that row titles have consistent inset/spacing and do not visually collide with divider lines.
+- Regression proof for Dashboard, Manage Monitors, Overlay Profiles, and Source Settings.
+
+USER Review Question: Confirm whether a consistent row-title inset/tab treatment resolves the visual weirdness without making the UI feel bulky.
+Response: UTS-HUD-018: The Row titles need to have a tab or somethign added, i dont like how its lines up with the page breaks. It feels weird.
+
+### UTS-HUD-019 - Transient Window/Surface Disappearance During Group Switching
+
+USER Observation: While switching monitor groups, a window/surface briefly disappeared and returned. USER cannot currently reproduce it consistently, but wants state hardening across the Dashboard and child windows.
+
+Intent: HUD windows and child surfaces should remain visually stable during rapid group switches, state changes, rerenders, and nested child-window interactions. No surface should blink away unless the user explicitly closed it.
+
+Likely Surfaces: Dashboard child-window host, Manage Monitors selected-group rerender path, Source Settings child window, Overlay Profiles child window, active child-window state, selectedMonitorId transitions, state save/load/rerender hooks, and visual proof helpers.
+
+Planning Actions:
+- Audit Dashboard-to-child-window render/state transitions.
+- Stress rapid monitor-group switching while child windows are open and closed.
+- Confirm active child windows preserve identity and size/placement across selected-group state changes.
+- Add state-stability assertions where validators can observe open/visible windows.
+- Capture short video or ordered frame proof for repeated switch cycles.
+
+Validation Required:
+- Frame-sequence/video proof during repeated group switching and nested window operations.
+- Manifest assertions that expected child windows remain open and visible until explicit close.
+- Focused screenshots before and after state transitions.
+
+USER Review Question: Confirm whether repeated transition hardening and video proof are sufficient for an intermittent visual disappearance issue when no exact reproduction path remains.
+Response: UTS-HUD-019: as discussed, for some reason i was expierencing some UI rendering bugs where i was switching groups and the window would disapear for a fraction of a second and then come back, i cant repeat this issue anymore idk why, but i would feel comfortable if you went through each window surface from the dashboard up and hardened the state of things so that hopefully this wont happen.
+
+### UTS-HUD-020 - Source Settings Shift-Key Gold Focus Border
+
+USER Observation: Pressing Shift inside Source Settings creates a gold border that appears only in that window. Tab traversal itself is not important to the USER, but the unexpected gold border is a visual defect.
+
+Intent: Keyboard modifier/focus states in Source Settings should use the same HUD focus role as the rest of the system. Gold/warning treatment should appear only for intentional warning or danger semantics, not for a Shift key state.
+
+Likely Surfaces: Source Settings child window, display-mode section focus handling, warning section styling, focus-visible CSS, keydown/keyup handlers, and focused proof helper.
+
+Planning Actions:
+- Identify whether the gold border comes from browser focus-visible, keydown class state, warning section class reuse, or stale selected/focused styling.
+- Normalize Source Settings keyboard/focus states to HUD-wide focus tokens.
+- Preserve clickable/tappable behavior for display mode, warning checkbox, rate dropdown, and Done.
+- Ensure the fix does not remove required accessibility focus cues.
+
+Validation Required:
+- Focused screenshot/video proof for Shift, Tab, mouse click, display-mode selection, warning checkbox toggle, rate dropdown open/close, and Done.
+- Visual verdict that no unintended gold border appears.
+- Proof that intentional warning/danger styling still exists where semantically required.
+
+USER Review Question: Confirm whether the Source Settings focus state should keep a subtle NDAI focus cue but never the unexpected gold border.
+Response: UTS-HUD-020: If you go into a sensors settings, and press shift, this gold border will apear, its only in this window. This does bring up another thing, Tab does seem to work to change from selectable elements to the next. not somethign that needs to be vvalidated as i dont care if that works or not.
+
+### UTS-HUD-021 - HUD Scalability And Window-Size Contract
+
+USER Observation: Reducing the HUD Dashboard window to minimum size breaks or makes the UI unusable. USER wants a standard that keeps the entire HUD feature user-friendly and system-friendly across different monitor sizes, scaling settings, and future feature growth.
+
+Intent: The HUD must define a realistic default size, supported minimum usable size, maximum/screen-constrained behavior, responsive breakpoints, inner-scroll ownership, and 1080p/scaled-display posture. If native minimum size is too small for usability, the branch must either repair responsive behavior or raise the minimum with explicit compatibility reasoning.
+
+Likely Surfaces: Dashboard window default/minimum sizing, desktop renderer placement/resizing, HUD CSS responsive constraints, child-window placement, overlay profiles window, Manage Monitors window, source settings window, scroll ownership, and high-volume fixtures.
+
+Planning Actions:
+- Record current default open size and native enforced minimum.
+- Define proposed supported usable minimum and any screen-size exceptions.
+- Decide which containers may scroll and which must not introduce whole-window scrollbars.
+- Stress default size, native minimum, proposed supported minimum, 1080p display constraints, scaled display assumptions, child windows, and high-volume monitor/source/profile states.
+- Convert the sizing decision into branch source truth and validator expectations before PR readiness.
+
+Validation Required:
+- Recommendation packet with default, native minimum, proposed usable minimum, and max/screen-constrained behavior.
+- Focused screenshots at default size, native minimum, proposed usable minimum, and 1080p/scaled constraints.
+- Proof that only intended inner lists scroll unless the window-size contract records an exception.
+- Regression proof for Dashboard, Manage Monitors, Overlay Profiles, Source Settings, and high-volume lists.
+
+USER Review Question: Confirm the preferred HUD sizing strategy after reviewing recommendations: repair responsive behavior down to the existing native minimum, raise the native minimum, or use a hybrid with screen-constrained scaling.
+Response: UTS-HUD-021: Scaleability, as discussed we need to have a look at the window sizeing and scaling of the entire UI. We want this ENTIRE HUD feature to be USER friendly and system friendly and be very scaleable and compatable with multiple and all possible builds, with that in mind, reccomendations are needed to outline a standard to adopt and for myself to remember for the strucutre of this issue so that i can remember to explain that in future vision formats.
 
 ## Cross-Issue Repair Planning Requirements
 
 Repair setup must produce:
 
-- A one-by-one disposition for UTS-HUD-001 through UTS-HUD-012.
+- A one-by-one disposition for UTS-HUD-001 through UTS-HUD-021.
 - A USER-readable design-intent summary before runtime edits.
 - A list of current-branch repairs versus future-gated items.
 - A validation matrix listing exact screenshots and frame/video proof per issue.
@@ -516,10 +769,10 @@ Repair setup must produce:
 
 ## Recommended Next Legal Phase
 
-Next Legal Phase: `Refreshed Live Validation Stage 1 / UTS recheck`
+Next Legal Phase: `USER UTS review`
 
-The setup phase, bounded Workstream implementation, and Hardening H1 are Green for the returned-UTS issue matrix. The next governed action is refreshed Live Validation Stage 1 / UTS recheck through the real user-facing client path. PR Readiness remains blocked until refreshed LV1 and returned USER PASS or explicit waiver with reason are recorded.
+Returned USER review reopened the branch, and the bounded repair pass plus repo-wide Live Validation governance/proof hardening are now refreshed and green. The next governed action is USER UTS review using the refreshed handoff and proof at `20260522_034305_935`. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is recorded.
 
 ## Exact USER Decision Needed
 
-Approve refreshed Live Validation Stage 1 / UTS recheck for the bounded returned-UTS issue repair on `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006`, using this temporary issue form and H1 proof at `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\monitoring_hud_live_client_interaction_manifest.json` as the baseline. Codex may validate through the real user-facing shortcut/client path, capture focused proof for UTS-HUD-001 through UTS-HUD-012, refresh the UTS checklist/handoff, update directly supporting source truth/results, run required validation, and commit/push if green. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and any telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.
+Review the refreshed UTS handoff for `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006` and return PASS, REPAIR, STOP, or explicit waiver with reason for the tracked UTS-HUD-001 through UTS-HUD-021 issue form. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.

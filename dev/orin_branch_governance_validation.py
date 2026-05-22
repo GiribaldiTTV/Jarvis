@@ -3327,6 +3327,21 @@ LIVE_VALIDATION_STALL_PHRASES = (
     "last confirmed",
 )
 
+LIVE_VALIDATION_AUTO_REPAIR_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+LIVE_VALIDATION_AUTO_REPAIR_PHRASES = (
+    "codex-visible `repair` or `stop`",
+    "bounded repair/rerun loop",
+    "user acceptance",
+    "real user-facing desktop launcher",
+)
+
 LIVE_VALIDATION_HELPER_CONTRACTS = {
     Path("dev/orin_launcher_live_window_audit.ps1"): (
         "NoProgressTimeoutSeconds",
@@ -17489,6 +17504,15 @@ def main() -> int:
             require(
                 required_phrase in lower_text,
                 f"{relative_path}: Live Validation no-progress/stall guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in LIVE_VALIDATION_AUTO_REPAIR_DOCS:
+        text = _read_text(relative_path)
+        lower_text = text.casefold()
+        for required_phrase in LIVE_VALIDATION_AUTO_REPAIR_PHRASES:
+            require(
+                required_phrase in lower_text,
+                f"{relative_path}: Live Validation automatic repair/rerun guidance is missing '{required_phrase}'",
             )
 
     for relative_path, required_phrases in LIVE_VALIDATION_HELPER_CONTRACTS.items():

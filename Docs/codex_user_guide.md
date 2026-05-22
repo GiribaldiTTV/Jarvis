@@ -602,7 +602,9 @@ If results have not been returned yet, the correct prompt/output posture is:
 - automated validators and live helper evidence may be green
 - if shortcut validation has not passed or been waived, `User-Facing Shortcut Validation Pending` remains the hard blocker before User Test Summary handoff
 - relevant desktop workstreams must record `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before treating Live Validation as final green
+- relevant desktop UI Live Validation must use the real user-facing desktop launcher declared for the UTS path when feasible; sandbox/offscreen/direct-runtime/WebView/helper launches are supporting evidence only and cannot replace that launcher gate
 - relevant desktop UI Live Validation must create a per-element visual inventory and USER-inspectable focused screenshots under `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\`; filenames must include the element label/name plus state/action, full-desktop screenshots are context only, and returned USER issue IDs must map to proof artifacts and visual verdicts
+- relevant desktop UI Live Validation must not return a UTS handoff while Codex-visible `REPAIR` or `STOP` findings remain; Codex owns the pre-UTS defect-discovery burden and must either complete the bounded repair/rerun loop when approved or return `BLOCKED` / `REPAIR` with exact approval needed. UTS is USER acceptance review, not Codex defect discovery.
 - returned USER UTS, screenshot, or video issues that block acceptance must remain in a temporary issue form until PR Readiness Stage 1 folds the resolved truth into durable source truth; the issue form must not be deleted while any issue lacks proof, disposition, or USER-verifiable status
 - User Test Summary is exclusive to Live Validation Stage 1.
 - `User Test Summary Results Pending` remains the hard blocker

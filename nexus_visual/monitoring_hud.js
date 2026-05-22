@@ -5150,6 +5150,8 @@ function monitoringHudVisualInspectionStyleSnapshot(element) {
     backgroundImage: style.backgroundImage,
     boxShadow: style.boxShadow,
     outlineStyle: style.outlineStyle,
+    outlineColor: style.outlineColor,
+    borderLeftColor: style.borderLeftColor,
     paddingLeft: style.paddingLeft,
     paddingRight: style.paddingRight,
     transform: style.transform,
@@ -5383,6 +5385,86 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     if (!sampled.length) failures.push(`${name}:no-visible-clipping-samples`);
     surfaces.push({ name, selector, sampleCount: sampled.length, sampled });
   }
+  function inspectRowTitleInset(name, selector) {
+    const elements = Array.from(document.querySelectorAll(selector)).filter(monitoringHudVisualInspectionVisible);
+    const sampled = elements.slice(0, 12).map((element, index) => {
+      const style = monitoringHudVisualInspectionStyleSnapshot(element);
+      const paddingLeft = Number.parseFloat(style.paddingLeft || "0") || 0;
+      const hasTab = Boolean(
+        paddingLeft >= 8
+        && String(style.borderLeftColor || "").indexOf("rgba(0, 0, 0, 0)") < 0
+      );
+      if (!hasTab) failures.push(`${name}:${index}:row-title-tab-missing`);
+      return { index, hasTab, style };
+    });
+    if (!sampled.length) failures.push(`${name}:no-visible-row-title-samples`);
+    surfaces.push({ name, selector, sampleCount: sampled.length, sampled });
+  }
+  function inspectSourceSettingsFocusFrame() {
+    const element = document.getElementById("monitoring-hud-source-settings-body");
+    if (!element) {
+      failures.push("source-settings-shift-focus-frame:missing");
+      return;
+    }
+    if (typeof element.focus === "function") element.focus({ preventScroll: true });
+    const style = monitoringHudVisualInspectionStyleSnapshot(element);
+    const outline = `${style.outlineStyle || ""} ${style.outlineColor || ""}`.toLowerCase();
+    const noGoldFocus = Boolean(
+      style.outlineStyle === "none"
+      || (
+        outline.indexOf("255, 193") < 0
+        && outline.indexOf("255, 214") < 0
+        && outline.indexOf("gold") < 0
+        && outline.indexOf("yellow") < 0
+      )
+    );
+    if (!noGoldFocus) failures.push("source-settings-shift-focus-frame:gold-focus-outline");
+    surfaces.push({
+      name: "source-settings-shift-focus-frame",
+      selector: "#monitoring-hud-source-settings-body",
+      sampleCount: 1,
+      noGoldFocus,
+      style
+    });
+  }
+  function inspectResponsiveWindowContract() {
+    const elements = Array.from(document.querySelectorAll(".monitoring-hud__child-window:not([hidden])")).filter(monitoringHudVisualInspectionVisible);
+    const sampled = elements.map((element, index) => {
+      const rect = element.getBoundingClientRect();
+      const withinViewport = Boolean(
+        rect.left >= -1
+        && rect.top >= -1
+        && rect.right <= window.innerWidth + 1
+        && rect.bottom <= window.innerHeight + 1
+      );
+      const style = window.getComputedStyle ? window.getComputedStyle(element) : {};
+      const overflowY = String(style.overflowY || "");
+      const noOuterScrollbarNeeded = Boolean(
+        !["auto", "scroll"].includes(overflowY)
+        || element.scrollHeight <= element.clientHeight + 2
+      );
+      if (!withinViewport) failures.push(`responsive-window-contract:${index}:viewport-clipping`);
+      if (!noOuterScrollbarNeeded) failures.push(`responsive-window-contract:${index}:outer-window-scrollbar-needed`);
+      return {
+        index,
+        windowClass: element.className,
+        withinViewport,
+        noOuterScrollbarNeeded,
+        rect: {
+          left: Math.round(rect.left),
+          top: Math.round(rect.top),
+          right: Math.round(rect.right),
+          bottom: Math.round(rect.bottom),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height)
+        },
+        clientHeight: element.clientHeight,
+        scrollHeight: element.scrollHeight
+      };
+    });
+    if (!sampled.length) failures.push("responsive-window-contract:no-open-window-sample");
+    surfaces.push({ name: "responsive-window-contract", selector: ".monitoring-hud__child-window:not([hidden])", sampleCount: sampled.length, sampled });
+  }
   try {
     if (monitoringHud) {
       monitoringHud.dataset.hudWideVisualInspectionMatrix = "running";
@@ -5397,6 +5479,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     inspectTarget("dashboard-data-sources-card", '[data-dashboard-hub-card="data-sources"]', { requireFocus: false });
     inspectTarget("dashboard-readiness-card", '[data-dashboard-hub-card="readiness"]', { requireFocus: false });
     inspectTarget("dashboard-data-sources-deferred", '[data-control="open-data-sources"]', { expectDisabled: true });
+    inspectRowTitleInset("dashboard-row-title-tabs", ".monitoring-hud__state-row > span, .monitoring-hud__overlay-profile-heading > span");
     monitoringHudSetOverlayProfileDropdownOpen(true);
     inspectTarget("dashboard-close", "#monitoring-hud-dashboard-close-action");
     inspectTarget("dashboard-settings", "#monitoring-hud-settings-action");
@@ -5411,6 +5494,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     inspectTarget("overlay-window-frame", "#monitoring-hud-overlay-profile-window", { requireFocus: false });
     inspectTarget("overlay-choice-panel", ".monitoring-hud__overlay-profile-choice-panel", { requireFocus: false });
     inspectTarget("overlay-manager-meta-row", ".monitoring-hud__overlay-profile-manager-meta", { requireFocus: false });
+    inspectResponsiveWindowContract();
     inspectTarget("overlay-window-close", '[data-child-window-close="overlay-profile-settings"]');
     inspectTarget("overlay-create", "#monitoring-hud-overlay-profile-create");
     inspectTarget("overlay-edit-disabled", "#monitoring-hud-overlay-profile-edit-selected", { expectDisabled: true });
@@ -5456,6 +5540,8 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     inspectTarget("source-settings-summary", ".monitoring-hud__source-settings-summary", { requireFocus: false });
     inspectTarget("source-settings-body", "#monitoring-hud-source-settings-body", { requireFocus: false });
     inspectTarget("source-settings-warning-row", ".monitoring-hud__source-settings-warning", { requireFocus: false });
+    inspectSourceSettingsFocusFrame();
+    inspectResponsiveWindowContract();
     inspectTarget("source-display-mode-chip", '[data-sensor-display-mode-option]:not([aria-pressed="true"])');
     inspectTarget("source-polling-toggle", "[data-source-polling-toggle]");
     inspectTarget("source-settings-close", '[data-child-window-close="sensor-source-settings"]');
@@ -5474,6 +5560,8 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     inspectDividerGroup("dashboard-page-breaks", ".monitoring-hud__state-row, .monitoring-hud__overlay-profile-panel");
     monitoringHudOpenChildWindow("dashboard-settings");
     inspectDividerGroup("child-window-page-breaks", ".monitoring-hud__setting-row");
+    inspectRowTitleInset("child-window-row-title-tabs", ".monitoring-hud__setting-row > span, .monitoring-hud__source-settings-polling > span");
+    inspectResponsiveWindowContract();
     inspectNoClipping("visible-hud-surfaces", "#monitoring-hud, .monitoring-hud__card, .monitoring-hud__child-window:not([hidden])");
   } catch (err) {
     failures.push(`exception:${String(err && err.message ? err.message : err)}`);
@@ -5533,7 +5621,11 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     "UTS-HUD-014": ["overlay-window-frame", "overlay-choice-panel", "overlay-manager-meta-row"],
     "UTS-HUD-015": ["dashboard-control-hub-scrollbar", "manage-monitor-list-pane"],
     "UTS-HUD-016": ["pageBreakVisualInspection", "dashboard-page-breaks", "child-window-page-breaks"],
-    "UTS-HUD-017": ["buttonRoleColorUniformity", "semanticHoverColorPreserved"]
+    "UTS-HUD-017": ["buttonRoleColorUniformity", "semanticHoverColorPreserved"],
+    "UTS-HUD-018": ["dashboard-row-title-tabs", "child-window-row-title-tabs", "pageBreakVisualInspection"],
+    "UTS-HUD-019": ["responsive-window-contract", "sourceSettingsWindowFlow", "manage-monitor-row"],
+    "UTS-HUD-020": ["source-settings-shift-focus-frame", "source-settings-body", "source-settings-warning-row"],
+    "UTS-HUD-021": ["responsive-window-contract", "visible-hud-surfaces", "dashboard-window-border"]
   };
   const proof = {
     passed: failures.length === 0,
@@ -5556,6 +5648,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     pageBreakVisualInspection: surfaces.some((surface) => surface.name === "dashboard-page-breaks")
       && surfaces.some((surface) => surface.name === "child-window-page-breaks"),
     backgroundBleedClippingInspection: surfaces.some((surface) => surface.name === "visible-hud-surfaces"),
+    sourceSettingsFocusNoGold: surfaces.some((surface) => surface.name === "source-settings-shift-focus-frame" && surface.noGoldFocus === true),
+    rowTitleTabsInspected: surfaces.some((surface) => surface.name === "dashboard-row-title-tabs")
+      && surfaces.some((surface) => surface.name === "child-window-row-title-tabs"),
+    responsiveWindowContract: surfaces.some((surface) => surface.name === "responsive-window-contract"),
     visualInspectionScopeCovered: targets.length >= 40 && surfaces.length >= 3
   };
   if (monitoringHud) {

@@ -20,7 +20,7 @@ The branch exists to admit the Overlay Profile runtime foundation as the next FA
 ## Current Phase
 
 - Phase: `Live Validation`
-- Stage Detail: `USER_TEST_REQUIRED after USER-approved bounded continuation repaired the reopened HUD visual/proof gaps and refreshed LV1 technical proof. UTS-HUD-001 through UTS-HUD-017 remain tracked in the temporary issue form until PR Readiness fold-down. Current real shortcut human-client proof is C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_234345_653\human_client_manifest.json. Current LV1 PASS is C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_233121_920\manifest.json with 48 named per-element screenshots under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_233121_920\focused_element_screenshots\ and short video proof.`
+- Stage Detail: `USER_TEST_REQUIRED after bounded returned-UTS repair and refreshed LV1 technical PASS. UTS-HUD-001 through UTS-HUD-021 are tracked in the temporary issue form. Latest proof used the real user-facing desktop launcher precheck plus focused OneDrive screenshots and mandatory short video evidence. Returned USER PASS or waiver remains required before PR Readiness.`
 
 ## Phase Status
 
@@ -42,9 +42,9 @@ v1.7.11 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair afte
 v1.7.12 Closure-Drift Repair: `Closed by the bounded FAM-006 closure repair after v1.7.12-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.12-prebeta while preserving branch-local Overlay Profile authority and PR #192 as current-main FAM-007 context`
 v1.7.13 Closure-Drift Repair: `Closed by this bounded FAM-006 closure repair after v1.7.13-prebeta publication; latest public prerelease/source-truth posture now points at v1.7.13-prebeta while preserving branch-local Overlay Profile authority and PR #193 as released/current-main FAM-007 context`
 Branch Runtime Engineering Plan: `Accepted - detailed setup/runtime planning is present at Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md`
-Engineering Plan Status: `USER-approved bounded continuation returned the branch to USER_TEST_REQUIRED after refreshed LV1 technical PASS. UTS-HUD-001 through UTS-HUD-017 are admitted into the temporary issue form and now have current technical proof coverage. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is recorded. PR creation, merge, release, issue mutation, and branch cleanup remain pending later USER decisions.`
+Engineering Plan Status: `Returned USER review reopened the branch as REPAIR and UTS-HUD-001 through UTS-HUD-021 are admitted into the temporary issue form. Bounded repair and proof hardening are now complete for flicker, divider color/glow, Dashboard button alignment, per-element evidence coverage, Overlay Profiles clipped-open behavior, scrollbar mismatch, row-title alignment, intermittent surface disappearance proof, Source Settings focus color, and HUD scalability/window-size contract. PR Readiness remains blocked until returned USER PASS or waiver are recorded.`
 SLC-041 Workstream Implementation: `SLC-041 validation/live-proof Workstream implementation Green - focused WebView proof is acceptance evidence, full desktop screenshots are context only, formal UTS export remains Live Validation Stage 1 only, and proof-chain readiness now spans SLC-037 state, SLC-038 selector/settings controls, SLC-039 membership mapping, compact returned-UTS Manage Monitors context, and returned-UTS selector-first/search-filter repair proof.`
-PR Fold-Down Packet: `Blocked. The temporary issue form tracks UTS-HUD-001 through UTS-HUD-017 and current LV1 technical proof is PASS. PR Readiness, PR creation, merge, and release-scope translation remain pending USER decisions after returned USER PASS or waiver with reason is recorded.`
+PR Fold-Down Packet: `Blocked. The temporary issue form tracks UTS-HUD-001 through UTS-HUD-021 and latest technical repair/LV1 proof is USER_TEST_REQUIRED. PR Readiness, PR creation, merge, and release-scope translation remain pending until returned USER PASS or waiver with reason is recorded.`
 
 ## Returned USER Visual Inspection Matrix Repair - 2026-05-21
 
@@ -68,7 +68,7 @@ Hardening H1 Proof: `Green - active-client H1 proof passed at C:\Nexus Worktrees
 
 Refreshed LV1 / UTS Proof: `HISTORICAL PASS / SUPERSEDED_BY_RETURNED_UTS_REPAIR - real USER-facing red shortcut / tray human-client precheck passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_162419_073\human_client_manifest.json with 48 PASS steps. Active-client live validation and focused interaction self-QA passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_162836_146\monitoring_hud_live_client_interaction_manifest.json with visualInspectionMatrixProof.passed=true, buttonGlowUniformity=true, targetCount=36, surfaceCount=3, no matrix failures, and scope=buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling. Formal UTS handoff refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt. The returned USER result is now REPAIR and is tracked in the temporary issue form.`
 
-Recommended Phase After LV1 Technical Pass: `Completed - returned USER UTS result digest is REPAIR, issue repair setup is approved, and bounded Workstream implementation plus H1 are Green. Next governed action is refreshed LV1 / UTS recheck. PR Readiness remains blocked until refreshed LV1 and returned USER PASS or explicit waiver with reason are recorded.`
+Recommended Phase After LV1 Technical Pass: `USER_TEST_REQUIRED - latest returned USER UTS review expanded the issue form to UTS-HUD-001 through UTS-HUD-021. Bounded repair plus Live Validation governance/proof hardening are now refreshed and green; PR Readiness remains blocked until returned USER PASS or waiver.`
 
 ## Returned USER UTS Issue Form - 2026-05-21
 
@@ -80,7 +80,7 @@ Desktop Review Shortcut: `C:\Users\anden\OneDrive\Desktop\FAM-006 UTS Issue Form
 
 Returned UTS Digest: `USER rejected the refreshed LV1 handoff because validation still did not inspect every finite visual and functional HUD detail to the required standard. The returned issue set covers default/non-hover button glow uniformity, card/window grid bleed-through, border-only default glow and text readability, semantic hover color preservation, button text-to-border padding, checked source hover state, max-five dropdown behavior, source hover flicker, actual Polling Rate live collection cadence, sensor settings click/state/dropdown/window-flow defects, Dashboard action alignment/copy/status, HUD-wide dirty-change confirmation behavior, per-element screenshot coverage failure, Overlay Profiles clean-state layout failure, scrollbar-size/style mismatch, page-break/divider underglow mismatch, and HUD-wide button color/glow role mismatch.`
 
-Issue IDs: `UTS-HUD-001 default glow uniformity; UTS-HUD-002 grid bleed-through; UTS-HUD-003 default glow center readability; UTS-HUD-004 semantic hover color; UTS-HUD-005 button dead-space/padding; UTS-HUD-006 checked source hover; UTS-HUD-007 Manage Monitors filter max-five; UTS-HUD-008 source hover flicker; UTS-HUD-009 live Polling Rate behavior; UTS-HUD-010 sensor settings click/state/dropdown/window flow including 10.1 through 10.7; UTS-HUD-011 Dashboard button alignment/Data Sources copy/status; UTS-HUD-012 HUD-wide dirty-change guard; UTS-HUD-013 LV1 evidence coverage/per-element screenshot matrix; UTS-HUD-014 Overlay Profiles clean-state layout/hierarchy/color/glow failure; UTS-HUD-015 scrollbar size/style uniformity; UTS-HUD-016 page-break/divider underglow uniformity; UTS-HUD-017 HUD-wide button color/glow role uniformity.`
+Issue IDs: `UTS-HUD-001 default glow uniformity; UTS-HUD-002 grid bleed-through; UTS-HUD-003 default glow center readability; UTS-HUD-004 semantic hover color; UTS-HUD-005 button dead-space/padding; UTS-HUD-006 checked source hover; UTS-HUD-007 Manage Monitors filter max-five; UTS-HUD-008 source hover flicker; UTS-HUD-009 live Polling Rate behavior deferred/source-truth-carried where outside current provider telemetry scope; UTS-HUD-010 sensor settings click/state/dropdown/window flow including 10.1 through 10.7; UTS-HUD-011 Dashboard button alignment/Data Sources copy/status; UTS-HUD-012 HUD-wide dirty-change guard; UTS-HUD-013 LV1 evidence coverage/per-element screenshot matrix; UTS-HUD-014 Overlay Profiles clean-state layout/hierarchy/color/glow failure; UTS-HUD-015 scrollbar size/style uniformity; UTS-HUD-016 page-break/divider underglow uniformity; UTS-HUD-017 HUD-wide button color/glow role uniformity; UTS-HUD-018 row-title indentation/alignment; UTS-HUD-019 transient window/surface disappearance state-stability proof; UTS-HUD-020 Source Settings Shift no-gold focus posture; UTS-HUD-021 HUD scalability/window-size contract.`
 
 Work Authorization Boundary: `This latest digest and issue-form update does not authorize runtime implementation. USER explicitly stated not to take the returned issue list as work authorization. PR Readiness, PR creation, merge, release, issue mutation, artifact handling, sibling worktree mutation, future package work, and runtime repairs remain separate USER decisions.`
 
@@ -92,7 +92,7 @@ Workstream Proof: `Active-client live validation and focused interaction self-QA
 
 Hardening H1 Result: `Green - H1 pressure-tested UTS-HUD-001 through UTS-HUD-012 with active-client focused proof, HUD surface validation, HUD internal sandbox validation, branch governance validation, and static syntax/compile checks. H1 found no bounded runtime defect and applied no code repair. Green active-client proof: C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\monitoring_hud_live_client_interaction_manifest.json with focused artifacts under C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\live_client_interaction\.`
 
-PR Readiness Status: `Blocked until refreshed LV1 and returned USER UTS PASS or explicit waiver with reason are complete.`
+PR Readiness Status: `Blocked until returned USER UTS PASS or explicit waiver with reason is complete. Latest refreshed LV1 technical proof is PASS.`
 
 ## Branch Class
 
@@ -166,7 +166,7 @@ Branch Closure Rule: `This branch may close only after the admitted Overlay Prof
 
 Backlog Completion State: `In Progress`
 
-Remaining Implementable Work: `Bounded LV1 visual acceptability repair implementation, H1, refreshed LV1 technical proof, Codex Visual Adjudication PASS, formal UTS refresh, returned USER UTS digest, returned-UTS issue setup, bounded returned-UTS Workstream implementation, and returned-UTS issue H1 are complete; refreshed LV1 / UTS recheck is next, and later USER-approved PR seams remain. SLC-037 implementation/H1, SLC-038 Workstream implementation/H1, compact layout/settings-window repair, selector-width repair, v1.7.11 closure-drift repair, SLC-039 Workstream implementation/H1, SLC-040 Workstream implementation/H1, bounded SLC-041 Workstream implementation, SLC-041 Hardening H1, real shortcut human-client precheck, active-client LV1 proof, formal UTS refresh, returned USER UTS digest recording, returned-UTS repair setup, returned-UTS Workstream implementation, follow-up returned-UTS repair setup, follow-up returned-UTS Workstream implementation, follow-up H1, refreshed LV1 technical proof/UTS handoff, returned refreshed LV1 visual-governance repair setup, bounded LV1 visual acceptability Workstream repair, bounded LV1 visual acceptability H1, final refreshed LV1 technical proof, HUD-wide visual inspection matrix Workstream repair, and HUD-wide visual inspection matrix H1 are complete.`
+Remaining Implementable Work: `Current remaining implementable work is the bounded returned-UTS repair for UTS-HUD-008, UTS-HUD-010.6, UTS-HUD-011, UTS-HUD-013, UTS-HUD-014, UTS-HUD-015, UTS-HUD-016, and UTS-HUD-018 through UTS-HUD-021, plus repo-wide Live Validation governance/proof hardening so future desktop UI branches fail closed and repair/rerun before UTS when Codex-visible defects remain. Prior SLC-037 through SLC-041 implementation/H1, prior returned-UTS repairs, visual matrix repairs, and LV1 proofs remain preserved as historical supporting evidence where not superseded.`
 
 Future-Dependent Blockers: `Returned refreshed UTS review/digest, PR Readiness, PR creation, merge, release-scope translation, Recording Profile runtime, tray recording controls, export/share behavior, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance mutation, Repo-Wide source-owner marker expansion, Compact-AI work, stale remote FAM-006 branch hygiene, branch deletion, release execution, GitHub issue mutation, and artifact/raw evidence handling remain pending USER decisions.`
 
@@ -174,25 +174,25 @@ Completion Status: `Red`
 
 ## Seam Continuation Decision
 
-Seam Status: `Green`
+Seam Status: `In Progress`
 
-Slice Status: `Green`
+Slice Status: `In Progress`
 
-Completion Status: `Green`
+Completion Status: `Red`
 
 Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Inactive - Hardening H1 is Green; phase-boundary stop is required before USER may admit refreshed Live Validation LV1.`
+Continuation Execution Latch: `Inactive - named blocker recorded; current response must report the blocker-clearing Workstream action before later bounded execution continues.`
 
-Stop Basis: `Hardening H1 Green`
+Stop Basis: `Named Blocker`
 
-Next Active Seam: `Live Validation LV1 - refreshed HUD-wide visual inspection matrix recheck`
+Next Active Seam: `Workstream blocker-clearing returned-UTS issue repair and proof-governance repair`
 
-Stop Condition: `Hardening H1 validation green; stop at the Hardening-to-Live Validation phase boundary unless USER admits refreshed LV1.`
+Stop Condition: `Returned USER UTS issues remain open in the temporary issue form; PR Readiness and UTS-ready handoff stay blocked until repair, H1, refreshed LV1, and USER PASS or waiver.`
 
-Continuation Action: `Report H1 Green and stop at phase boundary; do not run PR Readiness, LV1, or later runtime seams until USER admits the next phase.`
+Continuation Action: `Report blocker-clearing action: perform bounded returned-UTS repair, proof-governance hardening, H1, and refreshed LV1 after the named blocker is cleared.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -702,25 +702,25 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 
 Next Legal Phase: `Live Validation`
 
-Next Legal Phase Detail: `Canonical phase remains Live Validation in USER_TEST_REQUIRED posture. Bounded returned-UTS issue Workstream implementation, H1, governance repair, latest visual-matrix repair, and refreshed LV1 technical proof are Green. Current primary real shortcut proof is C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_234345_653\human_client_manifest.json. Current LV1 proof is C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_233121_920\monitoring_hud_live_client_interaction_manifest.json. USER-inspectable per-element screenshots are under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_233121_920\focused_element_screenshots\. PR Readiness remains blocked until returned USER PASS or waiver.`
+Next Legal Phase Detail: `Canonical phase remains Live Validation in USER_TEST_REQUIRED posture. Bounded returned-UTS repair, H1/validation, governance repair, latest visual-matrix repair, and refreshed LV1 technical proof are Green. Current primary real shortcut proof is C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260522_033627_969\human_client_manifest.json. Current LV1 proof is C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_034305_935\monitoring_hud_live_client_interaction_manifest.json. USER-inspectable per-element screenshots are under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_034305_935\focused_element_screenshots\. Mandatory short video proof is C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260522_034305_935\monitoring_hud_lv1_short_video.mp4. PR Readiness remains blocked until returned USER PASS or waiver.`
 
 ## Next Legal Phase Digest
 
 Current Phase: `Live Validation`
 
-Stage Detail: `Refreshed LV1 technical proof is PASS after governance repair requiring the real user-facing desktop launcher as primary LV1 path, mandatory detailed per-element screenshots copied to the USER-inspectable OneDrive screenshots folder with element names in the filenames, and short video/frame-sequence proof. Current proof uses 48 focused element screenshots and a mandatory short video from C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_233121_920\. Formal UTS handoff is refreshed and awaiting USER review.`
+Stage Detail: `Refreshed LV1 technical proof is PASS after governance repair requiring the real user-facing desktop launcher as primary LV1 path, mandatory detailed per-element screenshots copied to the USER-inspectable OneDrive screenshots folder with element names in the filenames, and short video/frame-sequence proof. Current proof uses 48 focused element screenshots and a mandatory short video from C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260522_034305_935\. Formal UTS handoff is refreshed and awaiting USER review.`
 
 Next Legal Phase: `Live Validation`
 
-Next Legal Phase Detail: `Current posture is USER_TEST_REQUIRED inside Live Validation. The setup-approved bounded Workstream implementation and H1 are Green, refreshed LV1 technical proof is PASS, and PR Readiness remains blocked until returned USER PASS or waiver.`
+Next Legal Phase Detail: `Current posture is USER_TEST_REQUIRED after bounded returned-UTS repair and refreshed LV1 technical PASS through the real user-facing launcher plus focused OneDrive screenshots/video proof. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason.`
 
-Why This Phase Is Next: `Returned USER review classified the prior LV1/UTS as REPAIR and expanded the temporary issue form to UTS-HUD-001 through UTS-HUD-017. The bounded Workstream implementation, H1, governance proof repair, latest visual-matrix repair, and refreshed LV1 are now complete; the remaining Live Validation gate is USER review of the refreshed UTS.`
+Why This Phase Is Next: `Returned USER review classified the prior LV1/UTS as REPAIR and expanded the temporary issue form to UTS-HUD-001 through UTS-HUD-021. The latest Codex-visible visual, interaction, clipping, scrollbar, focus, scaling, and proof-coverage issues have been repaired/revalidated; USER acceptance review is now the legal gate.`
 
-Approval Required: `USER must complete the refreshed UTS review and return PASS, REPAIR items, or an explicit waiver with reason. Later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams.`
+Approval Required: `No additional approval is needed for the already-waived bounded continuation through returned-UTS repair back to UTS-ready posture. Later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams.`
 
-Exact USER Approval Text: `Review C:\Users\anden\OneDrive\Desktop\User Test Summary.txt for the refreshed FAM-006 LV1 handoff, using the primary real-launcher human-client proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_234345_653\human_client_manifest.json and the named per-element screenshot folder at C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_233121_920\focused_element_screenshots\, then return PASS, REPAIR items, or an explicit waiver with reason.`
+Exact USER Approval Text: `Current USER waiver authorizes Codex to continue in bounded fashion until returned-UTS repair is green and the branch is back at UTS-ready posture.`
 
-Allowed Scope: `USER UTS review/digest only. Workstream implementation, H1, governance proof repair, and refreshed LV1 technical proof are complete; PR Readiness and later phases remain blocked until separately approved.`
+Allowed Scope: `Bounded returned-UTS repair for the issue form, directly supporting Live Validation governance/proof hardening, H1, refreshed LV1, and source-truth updates. PR Readiness and later phases remain blocked until separately approved.`
 
 Explicit Exclusions: `PR Readiness, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 mutation, Governance mutation, Compact-AI mutation, stale branch cleanup, PR creation, merge, release, issues, artifacts, raw evidence handling`
 

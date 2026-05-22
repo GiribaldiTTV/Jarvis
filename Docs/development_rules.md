@@ -445,7 +445,7 @@ That means:
 - no PR-ready without user-facing desktop-shortcut validation:
   - for relevant desktop user-facing workstreams, `User-Facing Shortcut Live Validation Gate` must pass or be explicitly waived before PR Readiness can report green
   - the active authority record must declare `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` before User Test Summary handoff
-  - helper-only, direct-runtime, WebView-only, sandbox/offscreen, synthetic, active-client direct-runtime, or harness evidence may support Live Validation, but it does not replace the final user-facing shortcut gate when that shortcut path is feasible
+  - helper-only, direct-runtime, WebView-only, sandbox/offscreen, synthetic, active-client direct-runtime, or harness evidence may support Live Validation, but it does not replace the final real user-facing desktop launcher or shortcut gate when that launcher path is feasible
 - no PR-ready without Codex live-client self-QA:
   - for relevant desktop user-facing workstreams, `Codex Live Client Self-QA Gate` must pass or be explicitly waived before User Test Summary handoff and PR Readiness
   - the active authority record must declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:` so quality, usability, interaction behavior, and NDAI uniformity are not collapsed into marker proof
@@ -871,6 +871,8 @@ For bounded multi-seam Workstream execution, User Test Summary strategy handling
 - before User Test Summary handoff in desktop UI Live Validation, prove the per-element visual inventory, issue-form coverage matrix, USER-inspectable OneDrive focused screenshot folder, and every named focused screenshot path; missing inventory rows, missing issue coverage, missing element-labeled filenames, broad desktop-only proof, or `dev\logs`-only images are `REPAIR`
 - if the relevant desktop UI is interactive, exercise the same live-client interactions Codex would ask the USER to test and record the evidence before handoff
 - if the relevant desktop UI has hover, dropdown, scroll, resize, flicker, clipping, dirty-guard, confirmation, click-routing, or transient state behavior, LV1 must capture both focused screenshots and short video or ordered frame-sequence proof for those states before exporting the UTS; missing video/frame proof is a `REPAIR` result, not a waiverable Codex shortcut
+- before exporting or refreshing a desktop UI UTS handoff, Codex must clear every unwaived Codex-visible `REPAIR` or `STOP` finding from the visual adjudication record, per-element inventory, issue-form matrix, interaction proof, and shortcut/human-client evidence; the UTS handoff is for USER acceptance, not for discovering defects Codex could already see
+- when Live Validation discovers a current-branch UI/UX/interaction defect and approval covers bounded continuation, Codex must use the bounded repair/rerun loop: record the defect, repair it, rerun focused proof and required validators, update source truth, and then rerun Live Validation before returning to UTS; when approval does not cover the repair, return `BLOCKED` or `REPAIR` with exact approval needed instead of handing off a known-bad UTS
 - digest returned user evidence in `Live Validation Stage 1` before recommending Stage 2 advancement
 - route returned evidence back to `Workstream` for in-scope user-facing branch work, to `Hardening` for defects or validation gaps, or to backlog/defer handling for new feature requests
 

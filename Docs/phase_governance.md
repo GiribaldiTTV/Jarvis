@@ -1165,7 +1165,7 @@ For relevant desktop user-facing workstreams, Live Validation may use validators
 Those evidence layers are supporting proof, not final green by themselves.
 
 Before User Test Summary handoff, the final Live Validation closeout must launch and exercise the branch through the same user-facing desktop shortcut or equivalent user entrypoint that the user is expected to use.
-For desktop UI Live Validation, no sandbox/offscreen/direct-runtime path can be the primary LV1 path when the user-facing launcher is feasible. Direct runtime launches, WebView harnesses, helper launches, and active-client probes are supporting evidence only; they cannot be called the USER path, cannot replace the declared desktop launcher, and cannot clear UTS handoff by themselves.
+For desktop UI Live Validation, no sandbox/offscreen/direct-runtime path can be the primary LV1 path when the user-facing launcher is feasible. Direct runtime launches, WebView harnesses, helper launches, and active-client probes are supporting evidence only; they cannot be called the USER path, cannot replace the real user-facing desktop launcher declared for UTS, and cannot clear UTS handoff by themselves.
 For Nexus Desktop AI, the default desktop shortcut path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares an explicit equivalent.
 
 Named blocker:
@@ -1253,6 +1253,9 @@ Required proof:
 - validators, markers, screenshots, and manifests are treated as supporting evidence, not a replacement for Codex's visual/usability judgment
 - desktop UI Live Validation must include a failure-seeking visual adjudication pass before UTS handoff; Codex must inspect the focused proof images one by one, compare them against the Product Definition Plan, Runtime Branch Engineering Contract, latest USER vision/UTS feedback, active temporary issue form, and package-level UI/UX intent, and record artifact-by-artifact `PASS`, `REPAIR`, `STOP`, or `WAIVED_WITH_REASON` verdicts for all inventoried elements/states
 - helper PASS, marker PASS, screenshot existence, manifest existence, or USER execution waiver cannot clear visual acceptability; clipped text, unclear workflow hierarchy, weak hover/click affordance, non-uniform button glow/color, non-uniform divider/page-break haze, background bleed-through, scrollbar mismatch, missing open/disabled/danger/empty/error proof, native/basic controls where Nexus styling is required, or package-vision mismatch must route LV1 back to Workstream or Hardening before USER handoff unless USER gives an explicit visual waiver with reason
+- desktop UI Live Validation owns the defect-discovery burden before UTS: Codex must not return a User Test Summary handoff while any unwaived Codex-visible `REPAIR` or `STOP` finding remains in the per-element visual inventory, issue-form coverage matrix, interaction proof, or visual adjudication record
+- if Live Validation discovers a current-branch UI/UX/interaction defect and current approval covers bounded continuation, Codex must enter the bounded repair/rerun loop automatically: record the finding, patch the approved surface, rerun focused proof, rerun required validation, update source truth, and only then regenerate the UTS handoff; if approval does not cover the repair, Codex must return `BLOCKED` or `REPAIR` with the exact approval needed rather than asking the USER to find the same defect manually
+- the UTS handoff is a USER acceptance review, not a substitute for Codex visual QA; a Live Validation packet that relies on the USER to enumerate obvious clipped, misaligned, flickering, unresponsive, non-uniform, or unusable elements is not green
 
 Routing:
 
