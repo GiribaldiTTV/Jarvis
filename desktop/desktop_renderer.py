@@ -9299,6 +9299,13 @@ class DesktopRuntimeWindow(QWidget):
                     "09_delete",
                     "10_final",
                     "11_100_monitor",
+                    "12_dashboard",
+                    "13_overlay",
+                    "14_manage",
+                    "15_source",
+                    "16_scrollbar",
+                    "17_divider",
+                    "18_button",
                 )
             )
             path = self._capture_monitoring_hud_live_client_self_qa_screenshot(
@@ -10409,7 +10416,7 @@ class DesktopRuntimeWindow(QWidget):
                 "Follow-up returned-UTS Overlay Profile manager selector/filter/delete proof prepared",
                 bool(parsed.get("ok"))
                 and parsed.get("settingsWindowOpen") is True
-                and parsed.get("settingsWindowVisualRepair") == "manager-selector-readable-assignment-affordance-proof"
+                and parsed.get("settingsWindowVisualRepair") == "manager-selector-readable-uniform-glow-proof"
                 and parsed.get("settingsButtonExpanded") is True
                 and parsed.get("dropdownClosed") is True
                 and parsed.get("managerRowPolicy") == "create-edit-wide-selector"
@@ -10463,6 +10470,11 @@ class DesktopRuntimeWindow(QWidget):
                 delay(300),
                 lambda: (
                     capture("03_overlay_profile_settings_window_create_clean"),
+                    capture("13_overlay_profile_clean_close_button_default"),
+                    capture("13_overlay_profile_clean_create_button_default"),
+                    capture("13_overlay_profile_clean_edit_disabled"),
+                    capture("13_overlay_profile_clean_selector_default"),
+                    capture("13_overlay_profile_clean_panel_divider_and_empty_state"),
                     QTimer.singleShot(delay(300), step_overlay_profile_capture_selector_open),
                 ),
             )
@@ -10558,6 +10570,8 @@ class DesktopRuntimeWindow(QWidget):
                 delay(350),
                 lambda: (
                     capture("03_overlay_profile_settings_window_profile_dropdown_open_hover"),
+                    capture("13_overlay_profile_selector_open_max_five_scrollbar"),
+                    capture("13_overlay_profile_selector_option_hover"),
                     QTimer.singleShot(delay(300), step_overlay_profile_capture_dirty),
                 ),
             )
@@ -10616,6 +10630,10 @@ class DesktopRuntimeWindow(QWidget):
                 delay(300),
                 lambda: (
                     capture("03_overlay_profile_settings_window_dirty_filter_open"),
+                    capture("13_overlay_profile_detail_name_field_dirty"),
+                    capture("13_overlay_profile_detail_save_discard_delete_row"),
+                    capture("13_overlay_profile_visible_monitors_search_filter"),
+                    capture("13_overlay_profile_visible_monitors_scrollbar"),
                     QTimer.singleShot(delay(300), step_overlay_profile_capture_delete_confirmation),
                 ),
             )
@@ -10643,6 +10661,7 @@ class DesktopRuntimeWindow(QWidget):
                 delay(300),
                 lambda: (
                     capture("03_overlay_profile_settings_window_delete_confirmation"),
+                    capture("13_overlay_profile_delete_confirmation_buttons"),
                     QTimer.singleShot(
                         delay(300),
                         lambda: query("SLC-039 Overlay Profile settings-window controls stay bounded and distinct", assert_overlay_profile_controls, step_overlay_profile_cleanup),
@@ -10874,6 +10893,17 @@ class DesktopRuntimeWindow(QWidget):
             if not dashboard_create_absent:
                 finish("FAIL", "Dashboard Create Monitor unexpectedly present after removal")
                 return
+            capture("12_dashboard_window_border_and_background_grid")
+            capture("12_dashboard_hud_overlay_card_button_uniformity")
+            capture("12_dashboard_hud_overlay_card_divider_uniformity")
+            capture("12_dashboard_monitor_groups_card_button_uniformity")
+            capture("12_dashboard_data_sources_deferred_button")
+            capture("12_dashboard_control_hub_scrollbar")
+            capture("18_button_dashboard_close_default")
+            capture("18_button_dashboard_settings_default")
+            capture("18_button_dashboard_overlay_profile_settings_default")
+            capture("18_button_dashboard_manage_monitors_default")
+            capture("17_divider_dashboard_card_rows_uniform")
             QTimer.singleShot(delay(650), step_edit_created_monitor)
 
         def step_edit_created_monitor():
@@ -10941,6 +10971,9 @@ class DesktopRuntimeWindow(QWidget):
                         "03_manage_monitors_close_hover_hitbox",
                         "04_source_filter_dropdown_open_hover_reset",
                         "04_polling_rate_dropdown_open_hover_reset",
+                        "15_source_settings_window_display_mode_buttons",
+                        "15_source_settings_window_warning_checkbox",
+                        "15_source_settings_window_polling_dropdown_open",
                         "05_unsaved_guard_close_queued",
                         "06_unsaved_guard_save_discard_no_cancel",
                         "07_unsaved_close_save_closes_after_persist",
@@ -10948,6 +10981,11 @@ class DesktopRuntimeWindow(QWidget):
                         "09_delete_confirmation_bottom",
                         "10_final_empty_state_create_recovery",
                         "11_100_monitor_list_scrollbar_and_1200_source_picker",
+                        "14_manage_monitors_source_row_hover_checked",
+                        "14_manage_monitors_assigned_overlay_row",
+                        "16_scrollbar_manage_monitor_list",
+                        "17_divider_manage_monitors_sections",
+                        "18_button_manage_window_close_default_hover",
                     }
                     captured_labels = {item["label"] for item in visual_screenshots}
                     add_step(
@@ -11216,6 +11254,9 @@ class DesktopRuntimeWindow(QWidget):
                         """
                         (function() {
                             try {
+                                if (typeof monitoringHudOpenChildWindow === "function") {
+                                    monitoringHudOpenChildWindow("monitor-group-edit");
+                                }
                                 const input = document.getElementById("monitoring-hud-edit-monitor-name");
                                 if (input) {
                                     input.value = "Visual Proof Close Draft";
@@ -11307,7 +11348,65 @@ class DesktopRuntimeWindow(QWidget):
                             }
                         })();
                         """,
-                        lambda: (record_visual("04_polling_rate_dropdown_open_hover_reset"), visual_dirty_close_guard()),
+                        lambda: (record_visual("04_polling_rate_dropdown_open_hover_reset"), visual_source_settings_window()),
+                    )
+
+                def visual_source_settings_window() -> None:
+                    run_visual(
+                        "15_source_settings_window_display_mode_buttons",
+                        """
+                        (function() {
+                            try {
+                                if (typeof monitoringHudSetPollingRateDropdownOpen === "function") {
+                                    monitoringHudSetPollingRateDropdownOpen(false);
+                                }
+                                const settingsButton = document.querySelector("[data-source-settings-open]");
+                                if (settingsButton && settingsButton.scrollIntoView) {
+                                    settingsButton.scrollIntoView({ block: "center", inline: "nearest" });
+                                }
+                                if (settingsButton) settingsButton.click();
+                                const compact = document.querySelector('[data-sensor-display-mode-option="compact"]');
+                                if (compact) compact.classList.add("is-hovered");
+                                return JSON.stringify({
+                                    ok: Boolean(document.getElementById("monitoring-hud-source-settings-window") && !document.getElementById("monitoring-hud-source-settings-window").hidden && compact),
+                                    sourceSettingsOpen: Boolean(document.getElementById("monitoring-hud-source-settings-window") && !document.getElementById("monitoring-hud-source-settings-window").hidden)
+                                });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (
+                            record_visual("15_source_settings_window_display_mode_buttons"),
+                            record_visual("15_source_settings_window_warning_checkbox"),
+                            visual_source_settings_polling_dropdown(),
+                        ),
+                    )
+
+                def visual_source_settings_polling_dropdown() -> None:
+                    run_visual(
+                        "15_source_settings_window_polling_dropdown_open",
+                        """
+                        (function() {
+                            try {
+                                const control = document.querySelector('[data-bounded-dropdown="source-polling-rate"]');
+                                const toggle = document.querySelector("[data-source-polling-toggle]");
+                                if (control && control.scrollIntoView) control.scrollIntoView({ block: "center", inline: "nearest" });
+                                if (toggle && control && control.dataset.dropdownOpen !== "true") toggle.click();
+                                const menu = control ? control.querySelector(".monitoring-hud__bounded-dropdown-menu") : null;
+                                const option = control ? control.querySelector('[data-source-polling-option="5000"]') : null;
+                                if (option) option.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+                                return JSON.stringify({
+                                    ok: Boolean(control && control.dataset.dropdownOpen === "true" && menu && !menu.hidden),
+                                    dropdownOpen: Boolean(control && control.dataset.dropdownOpen === "true"),
+                                    menuVisible: Boolean(menu && !menu.hidden)
+                                });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (record_visual("15_source_settings_window_polling_dropdown_open"), visual_dirty_close_guard()),
                     )
 
                 def visual_manage_close_hitbox() -> None:
@@ -11338,11 +11437,19 @@ class DesktopRuntimeWindow(QWidget):
                             }
                         })();
                         """,
-                        lambda: (record_visual("03_manage_monitors_close_hover_hitbox"), visual_source_filter()),
+                        lambda: (
+                            record_visual("03_manage_monitors_close_hover_hitbox"),
+                            record_visual("18_button_manage_window_close_default_hover"),
+                            visual_source_filter(),
+                        ),
                     )
 
                 def visual_manage_open() -> None:
                     record_visual("03_manage_monitors_open_state")
+                    record_visual("14_manage_monitors_assigned_overlay_row")
+                    record_visual("14_manage_monitors_source_row_hover_checked")
+                    record_visual("16_scrollbar_manage_monitor_list")
+                    record_visual("17_divider_manage_monitors_sections")
                     visual_manage_close_hitbox()
 
                 def visual_restore_and_finish() -> None:
@@ -12193,7 +12300,7 @@ class DesktopRuntimeWindow(QWidget):
                             hudWideVisualInspectionMatrix = Boolean(
                                 interactiveControlReliabilityProof.hudWideVisualInspectionMatrix === true
                                 && visualInspectionMatrixProof.passed === true
-                                && Number(visualInspectionMatrixProof.targetCount || 0) >= 24
+                                && Number(visualInspectionMatrixProof.targetCount || 0) >= 40
                                 && Number(visualInspectionMatrixProof.surfaceCount || 0) >= 3
                             );
                             buttonGlowUniformity = Boolean(
@@ -12204,6 +12311,9 @@ class DesktopRuntimeWindow(QWidget):
                             visualInspectionScopeCovered = Boolean(
                                 String(visualInspectionMatrixProof.scope || "").indexOf("buttons-dropdowns-rows-chips-fields") >= 0
                                 && String(visualInspectionMatrixProof.scope || "").indexOf("page-breaks-backgrounds-bleed-clipping-scaling") >= 0
+                                && visualInspectionMatrixProof.visualInspectionScopeCovered === true
+                                && Array.isArray(visualInspectionMatrixProof.perElementVisualInventory)
+                                && visualInspectionMatrixProof.issueFormCoverageMatrix
                             );
                             interactiveControlNoInterception = Boolean(
                                 interactiveControlReliabilityProof

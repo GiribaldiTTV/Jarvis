@@ -14,10 +14,15 @@ body {
 }
 
 :root {
+  --monitoring-hud-scrollbar-size: 8px;
   --monitoring-hud-divider-line: rgba(138, 236, 255, 0.46);
   --monitoring-hud-divider-highlight: rgba(232, 250, 255, 0.12);
   --monitoring-hud-divider-shadow: rgba(20, 49, 63, 0.72);
   --monitoring-hud-divider-glow: linear-gradient(180deg, rgba(117, 228, 255, 0.06), transparent 58%);
+  --monitoring-hud-surface-solid: linear-gradient(145deg, rgba(5, 20, 36, 0.985), rgba(2, 11, 22, 0.975));
+  --monitoring-hud-button-neutral-bg: linear-gradient(145deg, rgba(7, 42, 62, 0.91), rgba(3, 18, 32, 0.89));
+  --monitoring-hud-button-neutral-hover-bg: linear-gradient(145deg, rgba(9, 49, 70, 0.94), rgba(4, 24, 40, 0.91));
+  --monitoring-hud-button-neutral-active-bg: linear-gradient(145deg, rgba(7, 40, 57, 0.98), rgba(3, 18, 32, 0.96));
   --monitoring-hud-affordance-default-shadow:
     0 0 0 1px rgba(232, 251, 255, 0.07) inset,
     0 0 0 1px rgba(99, 225, 255, 0.08);
@@ -90,8 +95,8 @@ body.desktop-mode #monitoring-hud {
 }
 
 body.desktop-mode .monitoring-hud__control-hub::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: var(--monitoring-hud-scrollbar-size);
+  height: var(--monitoring-hud-scrollbar-size);
 }
 
 body.desktop-mode .monitoring-hud__control-hub::-webkit-scrollbar-track {
@@ -125,8 +130,8 @@ body.desktop-mode .monitoring-hud__child-window {
 
 body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar,
 body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: var(--monitoring-hud-scrollbar-size);
+  height: var(--monitoring-hud-scrollbar-size);
 }
 
 body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar-track,
@@ -381,7 +386,7 @@ body.desktop-mode #monitoring-hud > * {
   min-width: max-content;
   border: 1px solid rgba(122, 232, 255, 0.26);
   border-radius: 999px;
-  background: linear-gradient(145deg, rgba(7, 42, 62, 0.9), rgba(3, 18, 32, 0.88));
+  background: var(--monitoring-hud-button-neutral-bg);
   color: rgba(235, 252, 255, 0.96);
   font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
   font-size: 12px;
@@ -402,22 +407,22 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__chrome-button {
   width: 100%;
-  padding: 8px 14px;
-  border-color: rgba(126, 248, 218, 0.38);
-  background: linear-gradient(145deg, rgba(7, 57, 63, 0.86), rgba(5, 30, 48, 0.82));
+  padding: 8px 18px;
+  border-color: rgba(122, 232, 255, 0.32);
+  background: var(--monitoring-hud-button-neutral-bg);
 }
 
 .monitoring-hud__chrome-button--settings {
-  border-color: rgba(112, 216, 255, 0.42);
-  background: linear-gradient(145deg, rgba(9, 55, 88, 0.88), rgba(5, 31, 54, 0.82));
+  border-color: rgba(122, 232, 255, 0.32);
+  background: var(--monitoring-hud-button-neutral-bg);
 }
 
 .monitoring-hud__chrome-button--close {
   width: auto;
   min-width: 76px;
   padding: 8px 18px;
-  border-color: rgba(122, 232, 255, 0.26);
-  background: linear-gradient(145deg, rgba(7, 42, 62, 0.9), rgba(3, 18, 32, 0.88));
+  border-color: rgba(122, 232, 255, 0.32);
+  background: var(--monitoring-hud-button-neutral-bg);
   font-size: 12px;
   letter-spacing: 0.08em;
 }
@@ -457,9 +462,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud input[type="text"]:not(:disabled).is-hovered,
 .monitoring-hud select:not(:disabled):hover {
   border-color: rgba(126, 248, 218, 0.56);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.20), transparent 58%),
-    linear-gradient(145deg, rgba(12, 67, 84, 0.92), rgba(4, 30, 49, 0.88));
+  background: var(--monitoring-hud-button-neutral-hover-bg);
   color: rgba(241, 255, 252, 0.99);
   box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
@@ -470,9 +473,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__bounded-dropdown-toggle:not(:disabled):not([aria-disabled="true"]).is-hovered,
 .monitoring-hud__mode-chip:not(:disabled):not([aria-disabled="true"]).is-hovered {
   border-color: rgba(126, 248, 218, 0.56);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.20), transparent 58%),
-    linear-gradient(145deg, rgba(12, 67, 84, 0.92), rgba(4, 30, 49, 0.88));
+  background: var(--monitoring-hud-button-neutral-hover-bg);
   color: rgba(241, 255, 252, 0.99);
   box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
@@ -483,9 +484,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud [role="button"]:not([aria-disabled="true"]).is-pressed {
   transform: translateY(1px);
   border-color: rgba(163, 255, 228, 0.72);
-  background:
-    radial-gradient(circle at 50% 100%, rgba(126, 248, 218, 0.22), transparent 60%),
-    linear-gradient(145deg, rgba(8, 54, 64, 0.98), rgba(3, 20, 36, 0.94));
+  background: var(--monitoring-hud-button-neutral-active-bg);
   box-shadow: var(--monitoring-hud-affordance-active-shadow);
 }
 
@@ -616,7 +615,7 @@ body.desktop-mode #monitoring-hud > * {
   min-width: max-content;
   border: 1px solid rgba(117, 228, 255, 0.22);
   border-radius: 999px;
-  background: rgba(6, 28, 48, 0.76);
+  background: var(--monitoring-hud-button-neutral-bg);
   color: rgba(229, 249, 255, 0.94);
   font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
   font-size: 12px;
@@ -662,15 +661,15 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__control-button[data-control="create-monitor"],
 .monitoring-hud__hub-action[data-control="create-monitor"] {
-  border-color: rgba(112, 216, 255, 0.42);
-  background: linear-gradient(145deg, rgba(9, 55, 88, 0.88), rgba(5, 31, 54, 0.82));
+  border-color: rgba(122, 232, 255, 0.32);
+  background: var(--monitoring-hud-button-neutral-bg);
 }
 
 .monitoring-hud__control-button[data-control="edit-monitor"],
 .monitoring-hud__hub-action[data-control="edit-monitor"],
 .monitoring-hud__hub-action[data-control="open-data-sources"] {
-  border-color: rgba(126, 248, 218, 0.34);
-  background: linear-gradient(145deg, rgba(7, 57, 63, 0.82), rgba(5, 30, 48, 0.78));
+  border-color: rgba(122, 232, 255, 0.32);
+  background: var(--monitoring-hud-button-neutral-bg);
 }
 
 .monitoring-hud__dashboard-paired-action,
@@ -861,6 +860,14 @@ body.desktop-mode #monitoring-hud > * {
   overflow: hidden;
 }
 
+.monitoring-hud__card-board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(2, 10, 20, 0.20);
+}
+
 .monitoring-hud__control-hub,
 .monitoring-hud__monitor-selector {
   margin-top: 16px;
@@ -896,6 +903,8 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__hub-card {
+  position: relative;
+  isolation: isolate;
   display: flex;
   min-width: 0;
   min-height: 0;
@@ -906,8 +915,8 @@ body.desktop-mode #monitoring-hud > * {
   border: 1px solid rgba(116, 240, 255, 0.13);
   border-radius: 20px;
   background:
-    radial-gradient(circle at 18% 12%, rgba(116, 240, 255, 0.07), transparent 34%),
-    linear-gradient(145deg, rgba(5, 22, 38, 0.96), rgba(2, 12, 24, 0.94));
+    radial-gradient(circle at 18% 12%, rgba(116, 240, 255, 0.055), transparent 34%),
+    var(--monitoring-hud-surface-solid);
   background-size: auto, auto;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
 }
@@ -965,11 +974,12 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__hub-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
 }
 
 .monitoring-hud__hub-action {
-  padding: 8px 16px;
+  padding: 8px 20px;
 }
 
 .monitoring-hud__hub-action:disabled,
@@ -1016,7 +1026,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__overlay-profile-panel {
   display: grid;
   gap: 9px;
-  padding-top: 10px;
+  padding: 8px 0 0;
   border-top: 1px solid var(--monitoring-hud-divider-line);
   box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
   background: var(--monitoring-hud-divider-glow);
@@ -1076,16 +1086,16 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__overlay-profile-manager-row {
   display: grid;
-  grid-template-columns: minmax(220px, auto) minmax(170px, auto) minmax(300px, 1fr);
-  gap: 10px;
+  grid-template-columns: minmax(236px, max-content) minmax(236px, max-content) minmax(360px, 1fr);
+  gap: 12px;
   align-items: center;
   position: relative;
   z-index: 4;
-  padding: 12px;
+  padding: 14px;
 }
 
 .monitoring-hud__overlay-profile-manager-row > .monitoring-hud__hub-action {
-  min-width: 220px;
+  min-width: 236px;
   justify-content: center;
   text-align: center;
   white-space: nowrap;
@@ -1094,7 +1104,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
   justify-self: stretch;
   width: 100%;
-  min-width: min(300px, 100%);
+  min-width: min(360px, 100%);
   max-width: min(450px, 100%);
   z-index: 5;
 }
@@ -1104,8 +1114,11 @@ body.desktop-mode #monitoring-hud > * {
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 8px;
   align-items: center;
-  padding: 9px 10px;
-  border-top: 1px solid rgba(117, 228, 255, 0.12);
+  min-height: 54px;
+  padding: 9px 12px;
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  background: var(--monitoring-hud-divider-glow);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
   color: rgba(172, 215, 228, 0.80);
   font-size: 11px;
   font-weight: 680;
@@ -1140,8 +1153,9 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__child-window--overlay-profile {
-  width: min(760px, calc(100% - 24px));
-  max-height: min(740px, calc(100% - 24px));
+  width: min(900px, calc(100% - 24px));
+  min-width: min(760px, calc(100% - 24px));
+  max-height: min(720px, calc(100% - 24px));
   overflow: hidden;
   grid-template-rows: auto auto auto minmax(0, auto) auto auto;
 }
@@ -1149,15 +1163,15 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__overlay-profile-choice-panel {
   display: grid;
   gap: 0;
-  min-height: 250px;
+  min-height: 152px;
   border: 1px solid rgba(117, 228, 255, 0.14);
   border-radius: 8px;
   position: relative;
   z-index: 3;
   overflow: visible;
   background:
-    linear-gradient(145deg, rgba(7, 31, 50, 0.58), rgba(3, 18, 32, 0.52)),
-    rgba(6, 28, 48, 0.34);
+    linear-gradient(145deg, rgba(7, 31, 50, 0.86), rgba(3, 18, 32, 0.82)),
+    rgba(6, 28, 48, 0.58);
 }
 
 .monitoring-hud__overlay-profile-membership-heading {
@@ -1186,7 +1200,7 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__overlay-profile-window-dropdown .monitoring-hud__bounded-dropdown-menu,
 .monitoring-hud__overlay-profile-filter-dropdown .monitoring-hud__bounded-dropdown-menu {
-  max-height: 248px;
+  max-height: 243px;
   scrollbar-color: rgba(117, 228, 255, 0.58) rgba(3, 16, 28, 0.82);
 }
 
@@ -1594,10 +1608,17 @@ body.desktop-mode #monitoring-hud > * {
   width: min(520px, calc(100% - 24px));
 }
 
-.monitoring-hud__child-window--overlay-profile {
+.monitoring-hud__child-window--sensor-settings {
   width: min(760px, calc(100% - 24px));
-  min-width: min(680px, calc(100% - 24px));
-  max-height: min(740px, calc(100% - 24px));
+  min-width: min(640px, calc(100% - 24px));
+  max-height: min(720px, calc(100% - 24px));
+  overflow: visible;
+}
+
+.monitoring-hud__child-window--overlay-profile {
+  width: min(900px, calc(100% - 24px));
+  min-width: min(760px, calc(100% - 24px));
+  max-height: min(720px, calc(100% - 24px));
   overflow: hidden;
   grid-template-rows: auto auto auto minmax(0, auto) auto auto;
 }
@@ -1729,7 +1750,8 @@ body.desktop-mode #monitoring-hud > * {
   font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
   font-size: 12px;
   font-weight: 650;
-  padding: 8px 10px;
+  padding: 8px 12px;
+  box-shadow: var(--monitoring-hud-affordance-default-shadow);
 }
 
 .monitoring-hud__native-select-proxy {
@@ -1807,10 +1829,11 @@ body.desktop-mode #monitoring-hud > * {
   gap: 4px;
   align-items: start;
   min-height: 54px;
-  padding: 7px 8px;
+  padding: 9px 12px;
   border: 1px solid rgba(117, 228, 255, 0.14);
   border-radius: 8px;
   background: rgba(6, 28, 48, 0.54);
+  box-shadow: var(--monitoring-hud-affordance-default-shadow);
   cursor: pointer;
   user-select: none;
 }
@@ -2098,7 +2121,7 @@ body.desktop-mode #monitoring-hud > * {
   min-height: 30px;
   border: 1px solid rgba(117, 228, 255, 0.18);
   border-radius: 999px;
-  background: rgba(6, 28, 48, 0.70);
+  background: var(--monitoring-hud-button-neutral-bg);
   color: rgba(229, 249, 255, 0.90);
   font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
   font-size: 11px;
@@ -2189,7 +2212,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__bounded-dropdown-option:hover,
 .monitoring-hud__bounded-dropdown-option.is-hovered {
   border-color: rgba(126, 248, 218, 0.42);
-  background: rgba(10, 57, 66, 0.86);
+  background: var(--monitoring-hud-button-neutral-hover-bg);
   color: rgba(238, 255, 249, 0.98);
   box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
@@ -2205,9 +2228,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__source-filter-dropdown[data-filter-open="true"] .monitoring-hud__source-filter-toggle,
 .monitoring-hud__bounded-dropdown[data-dropdown-open="true"] .monitoring-hud__bounded-dropdown-toggle {
   border-color: rgba(126, 248, 218, 0.56);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.20), transparent 58%),
-    linear-gradient(145deg, rgba(12, 67, 84, 0.92), rgba(4, 30, 49, 0.88));
+  background: var(--monitoring-hud-button-neutral-hover-bg);
   box-shadow:
     var(--monitoring-hud-affordance-hover-shadow);
 }
@@ -2368,7 +2389,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__source-settings-button:focus-visible,
 .monitoring-hud__source-settings-button.is-pressed {
   border-color: rgba(126, 248, 218, 0.46);
-  background: linear-gradient(145deg, rgba(7, 57, 63, 0.86), rgba(5, 30, 48, 0.80));
+  background: var(--monitoring-hud-button-neutral-hover-bg);
   box-shadow: var(--monitoring-hud-affordance-hover-shadow);
 }
 

@@ -546,6 +546,36 @@ public static class CodexHumanClientWin32 {
 
         return result;
     }
+
+    public static long GetVisibleWindowHandleForProcessByTitle(int processId, string expectedTitle) {
+        long result = 0;
+        EnumWindows(delegate(IntPtr hWnd, IntPtr lParam) {
+            if (result != 0) {
+                return true;
+            }
+
+            uint windowProcessId;
+            GetWindowThreadProcessId(hWnd, out windowProcessId);
+            if (windowProcessId != (uint)processId || !IsWindowVisible(hWnd)) {
+                return true;
+            }
+
+            StringBuilder title = new StringBuilder(512);
+            GetWindowText(hWnd, title, title.Capacity);
+            if (title.ToString() != expectedTitle) {
+                return true;
+            }
+
+            RECT rect;
+            if (GetWindowRect(hWnd, out rect) && rect.Right > rect.Left && rect.Bottom > rect.Top) {
+                result = hWnd.ToInt64();
+            }
+
+            return true;
+        }, IntPtr.Zero);
+
+        return result;
+    }
 }
 "@
 
@@ -2995,6 +3025,46 @@ function Wait-ForVisibleRuntimeWindowByTitle {
     return @()
 }
 
+function Wait-ForVisibleRuntimeWindowHandleByTitle {
+    param([string]$Title, [int]$TimeoutSeconds = 5)
+
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        $runtimeProcesses = Find-ProcessesForLogRoot
+        foreach ($process in $runtimeProcesses) {
+            $handle = [CodexHumanClientWin32]::GetVisibleWindowHandleForProcessByTitle([int]$process.ProcessId, $Title)
+            if ($handle -ne 0) {
+                return [long]$handle
+            }
+        }
+        Start-Sleep -Milliseconds 120
+    }
+
+    return 0
+}
+
+function Send-VisibleRuntimeDialogDecision {
+    param([string]$Title, [string]$ButtonName, [object[]]$DialogRect)
+
+    $handle = Wait-ForVisibleRuntimeWindowHandleByTitle -Title $Title -TimeoutSeconds 2
+    if ($handle -ne 0) {
+        [CodexHumanClientWin32]::BringWindowToTop([IntPtr]$handle) | Out-Null
+        [CodexHumanClientWin32]::SetForegroundWindow([IntPtr]$handle) | Out-Null
+        Start-Sleep -Milliseconds 180
+    }
+
+    $vk = if ($ButtonName -eq "Yes") { [byte]0x59 } else { [byte]0x4E }
+    Send-Key $vk
+    return @{
+        button = $ButtonName
+        clicked = @()
+        buttonRect = @()
+        fallback = "dialog-window-handle-key-accelerator"
+        dialogHandle = $handle
+        dialogRect = $DialogRect
+    }
+}
+
 function Click-VisibleRuntimeDialogButton {
     param([string]$Title, [string]$ButtonName, [int]$TimeoutSeconds = 5)
 
@@ -3140,16 +3210,13 @@ function Click-VisibleRuntimeDialogButton {
     }
 
     if ($lastDialogRect.Count -eq 4 -and $ButtonName -in @("Yes", "No")) {
-        $x = if ($ButtonName -eq "Yes") { [int]($lastDialogRect[2] - 146) } else { [int]($lastDialogRect[2] - 61) }
-        $y = [int]($lastDialogRect[3] - 29)
-        [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
-        Start-Sleep -Milliseconds 150
-        [CodexHumanClientWin32]::SendLeftClick()
+        $vk = if ($ButtonName -eq "Yes") { [byte]0x59 } else { [byte]0x4E }
+        Send-Key $vk
         return @{
             button = $ButtonName
-            clicked = @($x, $y)
+            clicked = @()
             buttonRect = @()
-            fallback = "dialog-rect-coordinate-click"
+            fallback = "dialog-key-accelerator"
             dialogRect = $lastDialogRect
         }
     }
@@ -3865,7 +3932,7 @@ try {
     $confirmShot = Capture-VirtualScreenshot "09_exit_confirmation_prompt"
     Add-Step -Id "tray_exit_confirmation_visible" -Title "Tray Exit NDAI shows visible confirmation" -Status "PASS" -Detail "Visible confirmation marker emitted; top-level dialog rect=($($dialogRect -join ',')); prompt screenshot captured before timeout." -Evidence @{ screenshot = $confirmShot; trayClick = $exitEvidence; marker = $dialogVisibleMarker; dialogRect = $dialogRect }
 
-    $noEvidence = Click-ScreenPoint -X ([int]($dialogRect[2] - 82)) -Y ([int]($dialogRect[3] - 33)) -Label "Confirm shutdown No button"
+    $noEvidence = Send-VisibleRuntimeDialogDecision -Title "Confirm shutdown" -ButtonName "No" -DialogRect $dialogRect
     $cancelled = Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_CANCELLED|source=tray_menu" -TimeoutSeconds 3
     if (-not $cancelled) {
         $cancelled = Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_TIMEOUT|source=tray_menu" -TimeoutSeconds $ExitConfirmationTimeoutSeconds
@@ -3887,7 +3954,7 @@ try {
     }
     Add-Step -Id "tray_exit_accept_prompt_visible" -Title "Tray Exit accept path shows visible confirmation" -Status "PASS" -Detail "Visible confirmation marker emitted; top-level dialog rect=($($acceptDialogRect -join ',')); prompt screenshot captured before accepting shutdown." -Evidence @{ screenshot = $acceptPromptShot; trayClick = $exitAcceptEvidence; marker = $dialogVisibleMarker; dialogRect = $acceptDialogRect }
 
-    $yesEvidence = Click-ScreenPoint -X ([int]($acceptDialogRect[2] - 161)) -Y ([int]($acceptDialogRect[3] - 33)) -Label "Confirm shutdown Yes button"
+    $yesEvidence = Send-VisibleRuntimeDialogDecision -Title "Confirm shutdown" -ButtonName "Yes" -DialogRect $acceptDialogRect
     $accepted = Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_ACCEPTED|source=tray_menu" -TimeoutSeconds 4
     $shutdownRequested = Wait-ForRuntimeMarker -Marker "RENDERER_MAIN|SHUTDOWN_REQUESTED" -TimeoutSeconds 4
     $runtimeExited = Wait-ForRuntimeExit -TimeoutSeconds 8

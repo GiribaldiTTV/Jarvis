@@ -229,6 +229,8 @@ def validate() -> list[str]:
         "semanticHoverColorPreserved",
         "buttonTextDeadSpacePass",
         "visualInspectionScopeCovered",
+        "perElementVisualInventory",
+        "issueFormCoverageMatrix",
         "pageBreakVisualInspection",
         "backgroundBleedClippingInspection",
         "buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling",
@@ -251,6 +253,9 @@ def validate() -> list[str]:
         ".monitoring-hud__sensor-option.is-pressed",
         ".monitoring-hud__monitor-manage-row:hover",
         "box-shadow: var(--monitoring-hud-affordance-hover-shadow)",
+        "--monitoring-hud-scrollbar-size",
+        "--monitoring-hud-button-neutral-bg",
+        "--monitoring-hud-surface-solid",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
     for needle in (
@@ -260,6 +265,9 @@ def validate() -> list[str]:
         "defaultButtonGlowUniformity",
         "semanticHoverColorPreserved",
         "buttonTextDeadSpacePass",
+        "perElementVisualInventory",
+        "issueFormCoverageMatrix",
+        "buttonRoleColorUniformity",
         "sourceRowHoverPersistence",
         "dirtyGuardCoverage",
         "pageBreakVisualInspection",
@@ -278,8 +286,10 @@ def validate() -> list[str]:
         "hudWideVisualInspectionMatrix",
         "buttonGlowUniformity",
         "visualInspectionScopeCovered",
-        "targetCount || 0) >= 24",
+        "targetCount || 0) >= 40",
         "surfaceCount || 0) >= 3",
+        "perElementVisualInventory",
+        "issueFormCoverageMatrix",
     ):
         _require_contains(renderer, needle, "FAM-006 HUD-wide visual inspection renderer gate", failures)
 
@@ -701,7 +711,7 @@ def validate() -> list[str]:
         and "data-overlay-profile-option" in html
         and "data-child-window=\"overlay-profile-settings\"" in html
         and 'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"' in html
-        and 'data-overlay-profile-visual-repair="manager-selector-readable-assignment-affordance-proof"' in html
+        and 'data-overlay-profile-visual-repair="manager-selector-readable-uniform-glow-proof"' in html
         and 'data-overlay-profile-manager-row="create-edit-wide-selector"' in html
         and 'data-overlay-profile-visible-monitor-target="max-five"' in html
         and 'data-scrollbar-style="ndai-native"' in html
@@ -745,11 +755,11 @@ def validate() -> list[str]:
         failures,
     )
     _require(
-        "grid-template-columns: minmax(220px, auto) minmax(170px, auto) minmax(300px, 1fr)" in css
-        and "width: min(760px, calc(100% - 24px))" in css
-        and "min-width: min(680px, calc(100% - 24px))" in css
+        "grid-template-columns: minmax(236px, max-content) minmax(236px, max-content) minmax(360px, 1fr)" in css
+        and "width: min(900px, calc(100% - 24px))" in css
+        and "min-width: min(760px, calc(100% - 24px))" in css
         and "max-height: 178px;" in css
-        and "min-height: 250px;" in css
+        and "min-height: 152px;" in css
         and 'data-overlay-profile-detail-state="open"' in css
         and "max-height: 132px;" in css
         and "min-height: 148px;" in css
@@ -1095,7 +1105,8 @@ def validate() -> list[str]:
         "clip-path: inset(0 round 28px);",
         "scrollbar-width: thin;",
         "scrollbar-color: rgba(108, 232, 255, 0.58) transparent;",
-        "width: 6px;",
+        "--monitoring-hud-scrollbar-size: 8px;",
+        "width: var(--monitoring-hud-scrollbar-size);",
         "margin: 10px 0 14px;",
         "border: 1px solid rgba(4, 17, 32, 0.72);",
         "background-clip: padding-box;",
@@ -1985,6 +1996,10 @@ def validate() -> list[str]:
         "Copy-FocusedElementScreenshotsToUserEvidence",
         "perElementUserInspectableScreenshots",
         "lv1DetailedPerElementScreenshotsRequired",
+        "per-element visual inventory",
+        "issueFormCoverageMatrix",
+        "Get-HudIssueIdsForElementLabel",
+        "minimum is $MinimumScreenshots",
         "lv1RealUserFacingDesktopLauncherRequired",
         "focused_element_screenshots",
         "LV1 focused per-element screenshots missing or failed",

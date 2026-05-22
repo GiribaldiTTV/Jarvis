@@ -6,12 +6,14 @@ Worktree: `C:\Nexus Worktrees\FAM-006`
 Recorded At Head: `b33d38de0aa5d631afa2ed63a3f83274262c3b35`
 Current Main Basis: `b3cb321cc525028354e6dbd290c774c3f09ecad4`
 Desktop Shortcut: `C:\Users\anden\OneDrive\Desktop\FAM-006 UTS Issue Form.lnk`
+Latest USER Evidence Intake Head: `581c5e7be99c82597289d0b2cb93b3b0a1a2ace9`
+Latest Technical Proof Head: `581c5e7be99c82597289d0b2cb93b3b0a1a2ace9 plus current bounded repair diff`
 
 ## Governance Classification
 
-Returned User Test Summary Result: `REPAIR`
+Returned User Test Summary Result: `USER_TEST_REQUIRED after refreshed LV1 technical PASS`
 
-This USER response rejects the latest refreshed LV1 handoff. It is not a PASS or waiver. PR Readiness remains blocked until every issue below is admitted into repair planning, the USER validates the proposed repair intent, implementation is separately approved, H1 and refreshed LV1 prove the repairs with reviewable visual evidence, and returned USER UTS results are PASS or explicitly waived with reason.
+The latest USER response reopened the refreshed LV1 handoff and required bounded continuation until the branch returned to a UTS-ready posture. The bounded repair updated governance/proof standards for all future branches, tightened HUD-wide visual proof, repaired the latest live visual-matrix failure, and refreshed LV1 through the real user-facing desktop path. PR Readiness remains blocked until returned USER UTS results are PASS or explicitly waived with reason.
 
 This file is a temporary tracked issue form. It exists to prevent returned UTS feedback from being lost between digest, repair setup, implementation, H1, LV1, and PR Readiness. It must be deleted only after PR Readiness Stage 1 is green and every still-relevant detail has been rolled into the appropriate branch record, branch plan, validators, UTS checklist, backlog/roadmap pointer, or future-scope record.
 
@@ -37,7 +39,7 @@ Implementation Scope Summary: `The repair adds HUD-wide default glow tokens and 
 
 Hardening H1 Result: `GREEN - H1 pressure-tested UTS-HUD-001 through UTS-HUD-012 with active-client focused proof, HUD surface validation, HUD internal sandbox validation, branch governance validation, and static syntax/compile checks. H1 found no bounded runtime defect and applied no code repair. Green active-client proof: C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\monitoring_hud_live_client_interaction_manifest.json with focused artifacts under C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\live_client_interaction\.`
 
-Refreshed LV1 Result: `TECHNICAL PASS / USER_TEST_REQUIRED - governance was repaired to make the real user-facing desktop launcher the primary LV1 path and to require detailed OneDrive per-element screenshots plus short video/frame-sequence proof for desktop UI Live Validation. Real shortcut human-client proof passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_215945_249\human_client_manifest.json with USER-inspectable evidence under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_human_client_validation\20260521_215945_249\. Supporting active-client focused proof passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_220614_907\monitoring_hud_live_client_interaction_manifest.json with 17 named per-element screenshots under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_220614_907\focused_element_screenshots\ and short video at C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_220614_907\monitoring_hud_lv1_short_video.mp4. Formal UTS handoff refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt.`
+Refreshed LV1 Result: `TECHNICAL PASS / USER_TEST_REQUIRED - the prior 20260521_220614_907 proof was superseded after USER screenshot review. A failed repair attempt at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_232401_791\monitoring_hud_live_client_interaction_manifest.json exposed the remaining HUD-wide visual inspection matrix issue. The bounded repair corrected passive-surface versus interactive-control proof handling, added default glow/dead-space styling for search fields and monitor rows, right-aligned Dashboard group-card actions, and refreshed LV1 through the real user-facing desktop path. Current PASS proof: real shortcut human-client validation at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_234345_653\human_client_manifest.json; live-client LV1 PASS at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_233121_920\manifest.json; interaction manifest PASS at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_233121_920\monitoring_hud_live_client_interaction_manifest.json; 48 named per-element screenshots copied to C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_233121_920\focused_element_screenshots\; mandatory short video copied to C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_233121_920\monitoring_hud_lv1_short_video.mp4; formal UTS handoff refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt.`
 
 Next Required Gate: `USER UTS review. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is complete.`
 
@@ -52,6 +54,19 @@ Helper PASS, manifest PASS, screenshot existence, or DOM presence cannot substit
 Latest USER Evidence-Governance Correction: `REPAIR - USER rejected the prior LV1 proof because detailed per-element screenshots were not stored as real USER-inspectable images under C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI and because full-desktop screenshots were overused as proof. USER also restated that LV1 must run through the USER-facing desktop launcher with no sandbox/offscreen/direct-runtime substitute as the primary path. This issue form now treats missing OneDrive per-element screenshots, filenames without element labels/names, dev\logs-only images, and helper/direct-runtime proof presented as the USER path as Live Validation blockers.`
 
 Updated LV1 Evidence Requirement: `Every acceptance-critical HUD element/state must have a detailed focused screenshot copied to C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\ with the element label/name and state/action in the PNG filename. Full desktop screenshots are locator/context evidence only. The human-client shortcut manifest is the primary LV1 path when the desktop launcher is feasible; active-client/WebView/direct-runtime proof is supporting coverage only.`
+
+Latest USER Screenshot Review - 2026-05-21 22:19 PT: `REPAIR - USER inspected element_03_overlay_profile_settings_window_create_clean.png, element_11_100_monitor_list_scrollbar_and_1200_source_picker.png, and pythonw_fVh44Y5uQA.png and reported that visible UI issues remain. This intake reopens UTS-HUD-001 through UTS-HUD-012 for acceptance planning and adds UTS-HUD-013 through UTS-HUD-017.`
+
+Latest USER Screenshot Evidence:
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_220614_907\focused_element_screenshots\element_03_overlay_profile_settings_window_create_clean.png`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260521_220614_907\focused_element_screenshots\element_11_100_monitor_list_scrollbar_and_1200_source_picker.png`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\pythonw_fVh44Y5uQA.png`
+
+Latest Screenshot Findings:
+- `Overlay Profiles clean-state failure`: Create/Edit/Profile selector controls are visually crowded and misaligned; the disabled Edit control, selector label, selector button, Close button, and panel boundaries do not share a coherent color/glow/padding system; the panel uses too much empty height; blurred underlying content and divider treatment reduce clarity.
+- `Manage Monitors source-picker proof failure`: Scrollbar sizes/styles do not match across visible nested scroll regions; the screenshot does not prove the max-five/dropdown/list standard in an element-by-element way; source rows, settings buttons, checkbox hover, and panel dividers require per-element proof rather than one broad capture.
+- `Dashboard HUD Overlay card failure`: Divider/page-break underglow is not uniform across Overlay Profile, Monitors, and Display rows inside the HUD Overlay card; button color/glow treatment differs across Close, Settings, Profile selector, Overlay Profile Settings, and Manage Monitors controls.
+- `Evidence coverage failure`: The 17 per-element screenshots are not enough for this HUD branch. Every user-facing element down to Dashboard border, card backgrounds, dividers, button default/hover/focus/active/disabled states, dropdowns, rows, checkboxes, scrollbars, and page-break glows must have named screenshot evidence and a PASS/REPAIR verdict before UTS.
 
 ## Temporary Issue Lifecycle
 
@@ -68,18 +83,23 @@ Updated LV1 Evidence Requirement: `Every acceptance-critical HUD element/state m
 
 | ID | Area | USER Classification | Planning Status | Repair Authorization |
 | --- | --- | --- | --- | --- |
-| UTS-HUD-001 | Button default glow uniformity | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-003 | Default button glow text readability | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-006 | Checked source row hover state | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-008 | Source row hover flicker | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Workstream + H1 Green for current HUD source-refresh path; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
-| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Workstream + H1 Green for current editable HUD windows; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-001 | Button default glow uniformity | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-003 | Default button glow text readability | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-006 | Checked source row hover state | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-008 | Source row hover flicker | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Bounded repair + refreshed LV1 technical PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-013 | LV1 evidence coverage and per-element screenshot matrix | REPAIR | Governance/proof repair + 48 focused OneDrive screenshots PASS; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-014 | Overlay Profiles clean-state layout, hierarchy, color/glow, and empty-space failure | REPAIR | Focused element proof refreshed; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-015 | Scrollbar size/style uniformity across nested HUD scroll regions | REPAIR | Focused scrollbar proof refreshed; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-016 | Page-break/divider underglow uniformity across Dashboard cards and HUD Overlay rows | REPAIR | Focused divider proof refreshed; USER_TEST_REQUIRED | Bounded continuation complete |
+| UTS-HUD-017 | HUD-wide button color/glow uniformity across all default/hover/focus states | REPAIR | Visual matrix PASS after latest repair; USER_TEST_REQUIRED | Bounded continuation complete |
 
 ## Repair Setup Disposition Matrix
 
@@ -97,6 +117,11 @@ Updated LV1 Evidence Requirement: `Every acceptance-critical HUD element/state m
 | UTS-HUD-010 | Current-branch repair candidate | Repair sensor settings click routing, display-mode state changes, warning checkbox truth, Rate dropdown persistence/placement/scrolling, default size, warning section boundary, and Manage Monitors parent preservation. | First-click stress, dropdown hold proof, clipping proof, parent-window preservation proof, and subissue-specific screenshots. |
 | UTS-HUD-011 | Current-branch repair candidate | Right-align Dashboard actions, relabel Data Sources to Manage Data Sources, keep it blocked, and show Feature Deferred status. | Dashboard focused proof with action order, blocked/deferred behavior, and copy/status. |
 | UTS-HUD-012 | Current-branch rule plus future standard | Apply dirty-change guard to all current HUD editable windows and record the rule for future editable windows. | Dirty prompt screenshots, snap-into-view proof, Save/Discard outcome proof, and navigation/close interception proof. |
+| UTS-HUD-013 | Proof-governance repair candidate | Replace broad representative screenshot proof with a mandatory exhaustive element inventory and evidence manifest. Every current user-facing HUD element must have an element ID/name, role, state list, named screenshot(s), optional video/frame proof, and Codex visual verdict. | One screenshot per element/state class at minimum; video/frame proof for transient states; manifest must fail if any required element lacks evidence or if the image is full-desktop only. |
+| UTS-HUD-014 | Current-branch repair candidate | Redesign or repair Overlay Profiles clean-state manager layout so Create/Edit/selector/Close/panel dividers/empty space align with the admitted selector-first product vision and share consistent spacing, color, padding, and glow roles. | Focused screenshots for the clean state, selector open state, disabled Edit state, Create path, Close default/hover, panel border, row dividers, empty-state text, and responsive compact/normal sizes. |
+| UTS-HUD-015 | Current-branch repair candidate | Define a HUD scrollbar sizing/style contract for outer windows, nested panes, source lists, monitor lists, profile lists, and dropdown menus; repair mismatches where current UI violates that contract. | Focused screenshots of every visible scrollbar class with dimensions/style verdicts, plus overflow stress for 5, 20, 100, and 1200-item fixtures where applicable. |
+| UTS-HUD-016 | Current-branch repair candidate | Normalize page-break/divider underglow/haze tokens across Dashboard cards, Overlay Profile, Monitors, Display, Manage Monitors sections, Overlay Profiles settings sections, source settings sections, and confirmation/dirty-guard blocks. | Per-divider screenshots named by section and state; comparison sheet/table must identify token match, underglow extent, color, opacity, and whether grid/background bleed affects the divider. |
+| UTS-HUD-017 | Current-branch repair candidate | Establish a HUD-wide button role color/glow contract for Close, Settings, Profile selector, Overlay Profile Settings, Manage Monitors, Create, Edit, Save, Discard, Delete, Cancel, blocked/deferred buttons, dropdown toggles, chips, and row-buttons. | Matrix screenshots for default, hover, active, focus-visible, disabled, selected/open, danger, safe-cancel, blocked/deferred, and warning/on states; each button must have text padding and no center-haze failure. |
 
 ## Implementation Boundary For Next Approval
 

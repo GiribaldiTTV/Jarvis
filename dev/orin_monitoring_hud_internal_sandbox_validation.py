@@ -254,6 +254,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "semanticHoverColorPreserved",
         "buttonTextDeadSpacePass",
         "visualInspectionScopeCovered",
+        "perElementVisualInventory",
+        "issueFormCoverageMatrix",
         "pageBreakVisualInspection",
         "backgroundBleedClippingInspection",
         "buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling",
@@ -276,6 +278,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__sensor-option.is-pressed",
         ".monitoring-hud__monitor-manage-row:hover",
         "box-shadow: var(--monitoring-hud-affordance-hover-shadow)",
+        "--monitoring-hud-scrollbar-size",
+        "--monitoring-hud-button-neutral-bg",
+        "--monitoring-hud-surface-solid",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
     for needle in (
@@ -285,6 +290,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         "defaultButtonGlowUniformity",
         "semanticHoverColorPreserved",
         "buttonTextDeadSpacePass",
+        "perElementVisualInventory",
+        "issueFormCoverageMatrix",
+        "buttonRoleColorUniformity",
         "sourceRowHoverPersistence",
         "dirtyGuardCoverage",
         "pageBreakVisualInspection",
@@ -303,8 +311,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         "hudWideVisualInspectionMatrix",
         "buttonGlowUniformity",
         "visualInspectionScopeCovered",
-        "targetCount || 0) >= 24",
+        "targetCount || 0) >= 40",
         "surfaceCount || 0) >= 3",
+        "perElementVisualInventory",
+        "issueFormCoverageMatrix",
     ):
         _require_contains(renderer, needle, "FAM-006 HUD-wide visual inspection renderer gate", failures)
 
@@ -693,7 +703,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "data-overlay-profile-option" in html
         and "data-child-window=\"overlay-profile-settings\"" in html
         and 'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"' in html
-        and 'data-overlay-profile-visual-repair="manager-selector-readable-assignment-affordance-proof"' in html
+        and 'data-overlay-profile-visual-repair="manager-selector-readable-uniform-glow-proof"' in html
         and 'data-overlay-profile-manager-row="create-edit-wide-selector"' in html
         and 'data-overlay-profile-visible-monitor-target="max-five"' in html
         and 'data-scrollbar-style="ndai-native"' in html
@@ -737,11 +747,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         failures,
     )
     _require(
-        "grid-template-columns: minmax(220px, auto) minmax(170px, auto) minmax(300px, 1fr)" in css
-        and "width: min(760px, calc(100% - 24px))" in css
-        and "min-width: min(680px, calc(100% - 24px))" in css
+        "grid-template-columns: minmax(236px, max-content) minmax(236px, max-content) minmax(360px, 1fr)" in css
+        and "width: min(900px, calc(100% - 24px))" in css
+        and "min-width: min(760px, calc(100% - 24px))" in css
         and "max-height: 178px;" in css
-        and "min-height: 250px;" in css
+        and "min-height: 152px;" in css
         and 'data-overlay-profile-detail-state="open"' in css
         and "max-height: 132px;" in css
         and "min-height: 148px;" in css
@@ -1048,7 +1058,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar",
         "body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar",
         'body.desktop-mode #monitoring-hud[data-live-resize-active="true"][data-resize-proof-visuals="test-visible"] .monitoring-hud__chrome',
-        "width: 6px;",
+        "--monitoring-hud-scrollbar-size: 8px;",
+        "width: var(--monitoring-hud-scrollbar-size);",
         "margin: 10px 0 14px;",
         'body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"]',
         "scrollbar-gutter: stable;",

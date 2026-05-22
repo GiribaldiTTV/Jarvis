@@ -122,10 +122,47 @@ function ConvertTo-SafeScreenshotName([string]$Value) {
     return $safe.ToLowerInvariant()
 }
 
+function Get-HudIssueIdsForElementLabel {
+    param([string]$ElementName)
+    $lowerName = $ElementName.ToLowerInvariant()
+    $matches = New-Object System.Collections.Generic.List[string]
+    $issueRules = [ordered]@{
+        "UTS-HUD-001" = @("button", "glow", "close", "settings", "profile", "manage", "create", "edit", "save", "discard", "delete", "cancel")
+        "UTS-HUD-002" = @("background", "grid", "card", "window", "panel")
+        "UTS-HUD-003" = @("button", "selector", "dropdown")
+        "UTS-HUD-004" = @("warning", "discard", "delete", "cancel", "hover")
+        "UTS-HUD-005" = @("button", "create", "selector", "dropdown")
+        "UTS-HUD-006" = @("source_row", "source-picker", "source_picker", "checked")
+        "UTS-HUD-007" = @("filter", "dropdown", "max_five")
+        "UTS-HUD-008" = @("source_row", "source-picker", "source_picker", "hover")
+        "UTS-HUD-009" = @("polling", "rate")
+        "UTS-HUD-010" = @("source_settings", "display_mode", "warning_checkbox")
+        "UTS-HUD-011" = @("dashboard", "data_sources", "manage_monitors")
+        "UTS-HUD-012" = @("unsaved", "guard", "discard", "save")
+        "UTS-HUD-013" = @("dashboard", "overlay", "manage", "source", "scrollbar", "divider", "button")
+        "UTS-HUD-014" = @("overlay_profile", "clean", "selector", "choice_panel")
+        "UTS-HUD-015" = @("scrollbar")
+        "UTS-HUD-016" = @("divider", "page_break")
+        "UTS-HUD-017" = @("button", "glow", "color", "uniform")
+    }
+    foreach ($issueId in $issueRules.Keys) {
+        foreach ($keyword in $issueRules[$issueId]) {
+            if ($lowerName.Contains($keyword)) {
+                $matches.Add($issueId)
+                break
+            }
+        }
+    }
+    if ($matches.Count -eq 0) {
+        $matches.Add("UTS-HUD-013")
+    }
+    return @($matches)
+}
+
 function Copy-FocusedElementScreenshotsToUserEvidence {
     param(
         [object]$Paths,
-        [int]$MinimumScreenshots = 12
+        [int]$MinimumScreenshots = 48
     )
 
     $contextNames = @(
@@ -167,14 +204,33 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         $destinationName = "element_{0}.png" -f $elementName
         $destination = Join-Path $Paths.ElementScreenshotEvidenceRoot $destinationName
         Copy-Item -LiteralPath $png.FullName -Destination $destination -Force
+        $issueIds = @(Get-HudIssueIdsForElementLabel -ElementName $elementName)
         $screenshots += [pscustomobject]@{
             elementLabel = $elementName
             stateOrAction = $baseName
             proofClass = "focused-per-element-screenshot"
+            issueIds = $issueIds
             sourcePath = $png.FullName
             userInspectablePath = $destination
         }
     }
+
+    $allIssueIds = @(
+        "UTS-HUD-001", "UTS-HUD-002", "UTS-HUD-003", "UTS-HUD-004", "UTS-HUD-005", "UTS-HUD-006",
+        "UTS-HUD-007", "UTS-HUD-008", "UTS-HUD-009", "UTS-HUD-010", "UTS-HUD-011", "UTS-HUD-012",
+        "UTS-HUD-013", "UTS-HUD-014", "UTS-HUD-015", "UTS-HUD-016", "UTS-HUD-017"
+    )
+    $issueCoverage = @()
+    foreach ($issueId in $allIssueIds) {
+        $covered = @($screenshots | Where-Object { @($_.issueIds) -contains $issueId })
+        $issueCoverage += [pscustomobject]@{
+            issueId = $issueId
+            status = if ($covered.Count -gt 0) { "PASS" } else { "FAIL" }
+            screenshotCount = [int]$covered.Count
+            screenshots = @($covered | Select-Object -ExpandProperty userInspectablePath)
+        }
+    }
+    $missingIssueCoverage = @($issueCoverage | Where-Object { $_.status -ne "PASS" })
 
     if ($screenshots.Count -lt $MinimumScreenshots) {
         return [ordered]@{
@@ -183,6 +239,21 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
             count = $screenshots.Count
             reason = "only $($screenshots.Count) focused per-element screenshot(s) copied; minimum is $MinimumScreenshots"
             proofClass = "focused-per-element-screenshot"
+            perElementVisualInventory = $screenshots
+            issueFormCoverageMatrix = $issueCoverage
+            screenshots = $screenshots
+        }
+    }
+
+    if ($missingIssueCoverage.Count -gt 0) {
+        return [ordered]@{
+            status = "FAIL"
+            root = $Paths.ElementScreenshotEvidenceRoot
+            count = $screenshots.Count
+            reason = "focused screenshots missing issue-form coverage for: $(@($missingIssueCoverage | Select-Object -ExpandProperty issueId) -join ', ')"
+            proofClass = "focused-per-element-screenshot"
+            perElementVisualInventory = $screenshots
+            issueFormCoverageMatrix = $issueCoverage
             screenshots = $screenshots
         }
     }
@@ -191,8 +262,10 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         status = "PASS"
         root = $Paths.ElementScreenshotEvidenceRoot
         count = $screenshots.Count
-        reason = "focused UI screenshots were copied to the USER-inspectable OneDrive screenshots folder with element labels in each filename"
+        reason = "focused UI screenshots were copied to the USER-inspectable OneDrive screenshots folder with element labels in each filename and mapped to the returned UTS issue form"
         proofClass = "focused-per-element-screenshot"
+        perElementVisualInventory = $screenshots
+        issueFormCoverageMatrix = $issueCoverage
         screenshots = $screenshots
     }
 }
@@ -470,7 +543,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = $manifestSeam
-        proofStandard = "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only; mandatory LV1 short video/frame-sequence proof is required for desktop UI handoff; detailed focused per-element screenshots must be copied to the USER-inspectable OneDrive screenshots folder with the element label/name in each filename; full-desktop screenshots are context only; active-client/direct-runtime proof is supporting only when the real user-facing desktop launcher is feasible"
+        proofStandard = "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only; mandatory LV1 short video/frame-sequence proof is required for desktop UI handoff; detailed focused per-element screenshots must be copied to the USER-inspectable OneDrive screenshots folder with the element label/name in each filename; per-element visual inventory and returned issue-form coverage matrix are required; full-desktop screenshots are context only; active-client/direct-runtime proof is supporting only when the real user-facing desktop launcher is feasible"
         lv1ScreenshotAndShortVideoProofRequired = $true
         lv1DetailedPerElementScreenshotsRequired = $true
         lv1RealUserFacingDesktopLauncherRequired = [bool]$PrepareLiveValidationUserTestSummary
@@ -717,7 +790,7 @@ Codex Precheck Summary
 - Live proof root for this handoff: $($Paths.Root)
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
-- Screenshot rule: review the detailed `element_<label>_<state>.png` screenshots; full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
+- Screenshot rule: review the detailed `element_<label>_<state>.png` screenshots and the returned issue-form coverage matrix; full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
 - Overlay/display release acceptance is deferred and non-gating.
 
 Step 1 - Launch From Red FAM-006 Shortcut

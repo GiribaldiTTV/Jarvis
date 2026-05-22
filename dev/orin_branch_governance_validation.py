@@ -4497,6 +4497,9 @@ CODEX_VISUAL_ADJUDICATION_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
 CODEX_VISUAL_ADJUDICATION_CLEAR_VALUES = ("PASS", "WAIVED")
 CODEX_VISUAL_ADJUDICATION_REQUIRED_MARKERS = (
     "Visual Artifact Review Scope:",
+    "Per-Element Visual Inventory:",
+    "Issue Form Coverage Matrix:",
+    "OneDrive Focused Screenshot Proof:",
     "Product Vision Alignment:",
     "Per-Element Visual Verdicts:",
     "Helper Marker Limitation:",
