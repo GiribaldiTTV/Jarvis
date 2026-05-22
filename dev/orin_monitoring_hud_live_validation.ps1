@@ -29,6 +29,14 @@ $script:ScreenshotEvidencePath = ""
 $script:InteractionManifestStatus = "NOT_REQUESTED"
 $script:BeforeScreenshotPath = ""
 $script:BeforeScreenshotEvidencePath = ""
+$script:ShortVideoProof = [ordered]@{
+    status = "NOT_REQUESTED"
+    path = ""
+    userInspectablePath = ""
+    frameCount = 0
+    sourceRoot = ""
+    proofClass = "short-video-or-frame-sequence"
+}
 
 function Step([object]$Paths, [string]$Message) {
     $script:LastProgressAt = Get-Date
@@ -88,6 +96,9 @@ function New-Paths {
         ScreenshotEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_full_virtual_desktop_after_launch.png"
         InteractionManifest = Join-Path $ArtifactRoot "monitoring_hud_live_client_interaction_manifest.json"
         InteractionEvidenceRoot = Join-Path $ArtifactRoot "live_client_interaction"
+        ShortVideoFrameRoot = Join-Path $ArtifactRoot "short_video_frames"
+        ShortVideo = Join-Path $ArtifactRoot "monitoring_hud_lv1_short_video.mp4"
+        ShortVideoEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_lv1_short_video.mp4"
         UserTestSummary = Join-Path $env:USERPROFILE "OneDrive\Desktop\User Test Summary.txt"
         AbortSignal = Join-Path $ArtifactRoot "startup_abort.signal"
     }
@@ -153,6 +164,116 @@ function Capture-Screen([object]$Paths, [string]$Label = "after_launch") {
     finally {
         $graphics.Dispose()
         $bitmap.Dispose()
+    }
+}
+
+function Get-PngInfo([string]$Path) {
+    Add-Type -AssemblyName System.Drawing
+    $image = [System.Drawing.Image]::FromFile($Path)
+    try {
+        [pscustomobject]@{
+            Path = (Resolve-Path -LiteralPath $Path).Path
+            Width = [int]$image.Width
+            Height = [int]$image.Height
+            Area = [int]($image.Width * $image.Height)
+        }
+    }
+    finally {
+        $image.Dispose()
+    }
+}
+
+function New-ShortVideoProof {
+    param(
+        [object]$Paths,
+        [string[]]$SourceRoots,
+        [int]$MinimumFrames = 5
+    )
+
+    $ffmpeg = Get-Command ffmpeg.exe -ErrorAction SilentlyContinue
+    if (-not $ffmpeg -or -not $ffmpeg.Source) {
+        return [ordered]@{
+            status = "FAIL"
+            reason = "ffmpeg.exe unavailable; LV1 requires durable short video or ordered frame-sequence proof"
+            path = ""
+            userInspectablePath = ""
+            frameCount = 0
+            sourceRoot = ""
+            proofClass = "short-video-or-frame-sequence"
+        }
+    }
+
+    $pngs = @()
+    foreach ($root in $SourceRoots) {
+        if ($root -and (Test-Path -LiteralPath $root)) {
+            $pngs += @(Get-ChildItem -LiteralPath $root -Filter "*.png" -File | Sort-Object FullName)
+        }
+    }
+    if ($pngs.Count -lt 2) {
+        return [ordered]@{
+            status = "FAIL"
+            reason = "fewer than two PNG frames available for short video proof"
+            path = ""
+            userInspectablePath = ""
+            frameCount = [int]$pngs.Count
+            sourceRoot = ($SourceRoots -join ";")
+            proofClass = "short-video-or-frame-sequence"
+        }
+    }
+
+    $infos = @()
+    foreach ($png in $pngs) {
+        try { $infos += @(Get-PngInfo -Path $png.FullName) } catch {}
+    }
+    $groups = @($infos | Group-Object { "$($_.Width)x$($_.Height)" } | Sort-Object @{ Expression = { $_.Count }; Descending = $true }, @{ Expression = { ($_.Group | Select-Object -First 1).Area }; Descending = $true })
+    $selectedGroup = $groups | Where-Object { $_.Count -ge $MinimumFrames } | Select-Object -First 1
+    if (-not $selectedGroup) {
+        $selectedGroup = $groups | Where-Object { $_.Count -ge 2 } | Select-Object -First 1
+    }
+    if (-not $selectedGroup) {
+        return [ordered]@{
+            status = "FAIL"
+            reason = "no same-size PNG frame group was large enough for ffmpeg video proof"
+            path = ""
+            userInspectablePath = ""
+            frameCount = 0
+            sourceRoot = ($SourceRoots -join ";")
+            proofClass = "short-video-or-frame-sequence"
+        }
+    }
+
+    Remove-Item -LiteralPath $Paths.ShortVideoFrameRoot -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Force -Path $Paths.ShortVideoFrameRoot | Out-Null
+    $index = 1
+    foreach ($frame in @($selectedGroup.Group | Sort-Object Path)) {
+        Copy-Item -LiteralPath $frame.Path -Destination (Join-Path $Paths.ShortVideoFrameRoot ("frame_{0:0000}.png" -f $index)) -Force
+        $index += 1
+    }
+
+    & $ffmpeg.Source -y -loglevel error -framerate 2 -i (Join-Path $Paths.ShortVideoFrameRoot "frame_%04d.png") -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2,format=yuv420p" -movflags +faststart $Paths.ShortVideo
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $Paths.ShortVideo)) {
+        return [ordered]@{
+            status = "FAIL"
+            reason = "ffmpeg failed to encode LV1 short video proof"
+            path = $Paths.ShortVideo
+            userInspectablePath = ""
+            frameCount = [int]$selectedGroup.Count
+            sourceRoot = ($SourceRoots -join ";")
+            proofClass = "short-video-or-frame-sequence"
+        }
+    }
+
+    Copy-Item -LiteralPath $Paths.ShortVideo -Destination $Paths.ShortVideoEvidence -Force
+    [ordered]@{
+        status = "PASS"
+        reason = "durable LV1 short video proof generated from ordered same-size screenshot frames"
+        path = $Paths.ShortVideo
+        userInspectablePath = $Paths.ShortVideoEvidence
+        frameCount = [int]$selectedGroup.Count
+        sourceRoot = ($SourceRoots -join ";")
+        proofClass = "short-video-or-frame-sequence"
+        ffmpeg = $ffmpeg.Source
+        frameRoot = $Paths.ShortVideoFrameRoot
     }
 }
 
@@ -256,7 +377,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = $manifestSeam
-        proofStandard = "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only"
+        proofStandard = "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only; mandatory LV1 short video/frame-sequence proof is required for desktop UI handoff"
+        lv1ScreenshotAndShortVideoProofRequired = $true
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
         dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
         dashboardOnlyAcceptanceBaseline = "ws31-dashboard-control-panel"
@@ -291,6 +413,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         dashboardSpecificProof = [pscustomobject]@{
             beforeLaunchFullVirtualDesktopScreenshot = [bool]$script:BeforeScreenshotPath
             afterLaunchFullVirtualDesktopScreenshot = [bool]$script:ScreenshotPath
+            shortVideoOrFrameSequenceProof = $script:ShortVideoProof
             userInspectableScreenshotFolder = [bool]$Paths.ScreenshotEvidenceRoot
             activeUserFacingClient = [bool]$ActiveUserFacingClient
             interactionSelfQA = $script:InteractionManifestStatus
@@ -328,6 +451,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         interactionManifest = $Paths.InteractionManifest
         interactionManifestStatus = $script:InteractionManifestStatus
         interactionEvidenceRoot = $Paths.InteractionEvidenceRoot
+        shortVideoProof = $script:ShortVideoProof
         revisedOverlayProof = [pscustomobject]@{
             beforeLaunchFullVirtualDesktopScreenshot = [bool]$script:BeforeScreenshotPath
             afterLaunchFullVirtualDesktopScreenshot = [bool]$script:ScreenshotPath
@@ -718,6 +842,14 @@ try {
     Step $paths "settling Dashboard-first client before full-desktop screenshot"
     Start-Sleep -Milliseconds 1500
     Capture-Screen $paths "after_launch"
+    if ($effectiveRunInteractionSelfQA -or $PrepareLiveValidationUserTestSummary) {
+        $script:ShortVideoProof = New-ShortVideoProof -Paths $paths -SourceRoots @($paths.InteractionEvidenceRoot, $paths.Root) -MinimumFrames 5
+        if ($script:ShortVideoProof.status -ne "PASS") {
+            throw "LV1 short video/frame-sequence proof missing or failed: $($script:ShortVideoProof.reason)"
+        }
+        Step $paths "generated mandatory LV1 short video proof: $($script:ShortVideoProof.path)"
+        Step $paths "copied mandatory LV1 user-inspectable short video proof: $($script:ShortVideoProof.userInspectablePath)"
+    }
     $script:ManifestStatus = "PASS"
     $exitCode = 0
 }

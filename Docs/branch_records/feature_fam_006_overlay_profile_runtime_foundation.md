@@ -672,7 +672,7 @@ Future Runtime Validation: `HUD surface validation`; `HUD internal sandbox valid
 
 ## Blockers
 
-Active Blockers: `Returned USER UTS REPAIR - the latest USER review found visual/detail validation and functional HUD issues tracked in Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md. Bounded Workstream implementation and H1 are Green; PR Readiness is blocked until refreshed LV1 and returned USER PASS or explicit waiver with reason are complete.`
+Active Blockers: `USER_TEST_REQUIRED - the returned-UTS issue repair has refreshed LV1 technical proof PASS with mandatory screenshot plus short-video/frame-sequence proof, and the formal UTS handoff is refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt. PR Readiness is blocked until returned USER UTS PASS or explicit waiver with reason is recorded.`
 
 ## Entry Basis
 
@@ -702,28 +702,28 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 
 Next Legal Phase: `Live Validation`
 
-Next Legal Phase Detail: `Canonical phase remains Live Validation while returned UTS is REPAIR. Bounded returned-UTS issue Workstream implementation and H1 are Green, and the next governed action inside this phase latch is refreshed Live Validation Stage 1 / UTS recheck for UTS-HUD-001 through UTS-HUD-012. PR Readiness remains blocked.`
+Next Legal Phase Detail: `Canonical phase remains Live Validation in USER_TEST_REQUIRED posture. Bounded returned-UTS issue Workstream implementation and H1 are Green, refreshed LV1 technical proof is PASS with real shortcut proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_213244_514\human_client_manifest.json and active-client proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_213606_168\monitoring_hud_live_client_interaction_manifest.json, and PR Readiness remains blocked until returned USER PASS or waiver.`
 
 ## Next Legal Phase Digest
 
 Current Phase: `Live Validation`
 
-Stage Detail: `Returned USER UTS result is REPAIR and is tracked in the temporary issue form.`
+Stage Detail: `Refreshed LV1 technical proof is PASS after governance repair requiring mandatory screenshots plus short video/frame-sequence proof. Formal UTS handoff is refreshed and awaiting USER review.`
 
 Next Legal Phase: `Live Validation`
 
-Next Legal Phase Detail: `Current returned UTS classification remains REPAIR, so the canonical phase remains Live Validation. The setup-approved bounded Workstream implementation and H1 are Green, and the next governed action is refreshed LV1 / UTS recheck; PR Readiness remains blocked until refreshed LV1 and returned USER PASS or waiver.`
+Next Legal Phase Detail: `Current posture is USER_TEST_REQUIRED inside Live Validation. The setup-approved bounded Workstream implementation and H1 are Green, refreshed LV1 technical proof is PASS, and PR Readiness remains blocked until returned USER PASS or waiver.`
 
-Why This Phase Is Next: `Returned USER review classified the latest LV1/UTS as REPAIR and added twelve tracked HUD visual/functional issue groups. The bounded Workstream implementation and H1 are Green, so refreshed LV1 must now validate the repair/proof matrix through the real user-facing path before PR Readiness.`
+Why This Phase Is Next: `Returned USER review classified the prior LV1/UTS as REPAIR and added twelve tracked HUD visual/functional issue groups. The bounded Workstream implementation, H1, governance proof repair, and refreshed LV1 are now complete; the remaining Live Validation gate is USER review of the refreshed UTS.`
 
-Approval Required: `USER must approve refreshed Live Validation Stage 1 / UTS recheck for the bounded returned-UTS issue repair. Later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams.`
+Approval Required: `USER must complete the refreshed UTS review and return PASS, REPAIR items, or an explicit waiver with reason. Later separate approval is required for PR Readiness, PR creation, merge, release, or additional runtime seams.`
 
-Exact USER Approval Text: `Approve refreshed Live Validation Stage 1 / UTS recheck for the bounded returned-UTS issue repair on feature/fam-006-overlay-profile-runtime-foundation in C:\Nexus Worktrees\FAM-006, using Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md and H1 proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\monitoring_hud_live_client_interaction_manifest.json as the baseline. Codex may validate through the real user-facing shortcut/client path, capture focused proof for UTS-HUD-001 through UTS-HUD-012, refresh the UTS checklist/handoff, update directly supporting source truth/results, run required validation, and commit/push if green. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and any telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.`
+Exact USER Approval Text: `Review C:\Users\anden\OneDrive\Desktop\User Test Summary.txt for the refreshed FAM-006 LV1 handoff, using the focused screenshot and short-video proof at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_213244_514\human_client_manifest.json and C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_213606_168\monitoring_hud_live_client_interaction_manifest.json, then return PASS, REPAIR items, or an explicit waiver with reason.`
 
-Allowed Scope: `Refreshed LV1 / UTS recheck for the bounded returned-UTS issue repair only after USER approval. Workstream implementation and H1 are complete; PR Readiness and later phases remain blocked until separately approved.`
+Allowed Scope: `USER UTS review/digest only. Workstream implementation, H1, governance proof repair, and refreshed LV1 technical proof are complete; PR Readiness and later phases remain blocked until separately approved.`
 
 Explicit Exclusions: `PR Readiness, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 mutation, Governance mutation, Compact-AI mutation, stale branch cleanup, PR creation, merge, release, issues, artifacts, raw evidence handling`
 
-Validation Required: `Branch governance/source-truth checks, HUD surface validation, HUD internal sandbox validation, active-client focused proof, git diff checks, compileall, bundled Node syntax check where applicable, focused screenshots, frame/video-style proof, high-volume stress proof, and per-issue visual adjudication for UTS-HUD-001 through UTS-HUD-012.`
+Validation Required: `Already completed for refreshed LV1: real shortcut human-client proof with mandatory short video, active-client focused proof with mandatory short video, UTS handoff export, branch governance/source-truth checks, HUD surface validation, HUD internal sandbox validation, git diff checks, compileall, bundled Node syntax check where applicable, focused screenshots, frame/video-style proof, high-volume stress proof, and per-issue visual adjudication for UTS-HUD-001 through UTS-HUD-012.`
 
 Stop Conditions: `Stop if worktree/branch identity mismatches, origin/main advances and needs rebaseline, source truth contradicts the branch plan, validation fails, repair setup would require runtime implementation without USER approval, or another USER decision is required.`

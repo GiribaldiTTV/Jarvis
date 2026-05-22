@@ -37,7 +37,9 @@ Implementation Scope Summary: `The repair adds HUD-wide default glow tokens and 
 
 Hardening H1 Result: `GREEN - H1 pressure-tested UTS-HUD-001 through UTS-HUD-012 with active-client focused proof, HUD surface validation, HUD internal sandbox validation, branch governance validation, and static syntax/compile checks. H1 found no bounded runtime defect and applied no code repair. Green active-client proof: C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\monitoring_hud_live_client_interaction_manifest.json with focused artifacts under C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_202230_146\live_client_interaction\.`
 
-Next Required Gate: `Refreshed Live Validation Stage 1 / UTS recheck for the returned-UTS issue repair. PR Readiness remains blocked until refreshed LV1 and returned USER PASS or explicit waiver with reason are complete.`
+Refreshed LV1 Result: `TECHNICAL PASS / USER_TEST_REQUIRED - governance was repaired to make screenshots plus short video/frame-sequence proof mandatory for desktop UI Live Validation. Real shortcut human-client proof passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_213244_514\human_client_manifest.json with C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_human_client_validation\20260521_213244_514\human_client_short_video.mp4. Active-client focused proof passed at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_213606_168\monitoring_hud_live_client_interaction_manifest.json with C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260521_213606_168\monitoring_hud_lv1_short_video.mp4. Formal UTS handoff refreshed at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt.`
+
+Next Required Gate: `USER UTS review. PR Readiness remains blocked until returned USER PASS or explicit waiver with reason is complete.`
 
 ## Evidence And Validation Standard Requested By USER
 
@@ -62,18 +64,18 @@ Helper PASS, manifest PASS, screenshot existence, or DOM presence cannot substit
 
 | ID | Area | USER Classification | Planning Status | Repair Authorization |
 | --- | --- | --- | --- | --- |
-| UTS-HUD-001 | Button default glow uniformity | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-003 | Default button glow text readability | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-006 | Checked source row hover state | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-008 | Source row hover flicker | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Workstream + H1 Green for current HUD source-refresh path; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Workstream + H1 Green; LV1 pending | Bounded implementation and H1 complete |
-| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Workstream + H1 Green for current editable HUD windows; LV1 pending | Bounded implementation and H1 complete |
+| UTS-HUD-001 | Button default glow uniformity | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-003 | Default button glow text readability | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-006 | Checked source row hover state | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-008 | Source row hover flicker | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Workstream + H1 Green for current HUD source-refresh path; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Workstream + H1 Green; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
+| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Workstream + H1 Green for current editable HUD windows; LV1 technical PASS; USER_TEST_REQUIRED | Bounded implementation, H1, and LV1 technical proof complete |
 
 ## Repair Setup Disposition Matrix
 

@@ -451,6 +451,7 @@ That means:
   - the active authority record must declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:` so quality, usability, interaction behavior, and NDAI uniformity are not collapsed into marker proof
   - the active authority record must also declare `Codex Visual Adjudication:`, `Visual Artifact Review Scope:`, `Product Vision Alignment:`, `Per-Element Visual Verdicts:`, `Helper Marker Limitation:`, `Unacceptable UI Findings:`, and `LV1 Handoff Disposition:` for desktop UI Live Validation; helper PASS, marker PASS, screenshot existence, and manifest existence cannot clear visual acceptability by themselves
   - interactive user-facing UI must be exercised in the launched live client; screenshot-only, marker-only, or launched-but-not-driven proof cannot clear this gate
+  - desktop UI Live Validation requires both reviewable screenshots and short video or ordered frame-sequence proof for acceptance-critical interactive/transient states; the video/frame proof must be a durable artifact referenced by the manifest, not a prose claim
   - desktop UI proof must include an active foreground/user-observable client mode; hidden, too-fast, or blink-through helper evidence is supporting automation evidence only
   - while `Codex Live Client Self-QA Pending` remains active, do not hand off the feature as ready for USER acceptance
 - no PR-ready with `User Test Summary Results Pending`:
@@ -866,6 +867,7 @@ For bounded multi-seam Workstream execution, User Test Summary strategy handling
 - before User Test Summary handoff in Live Validation, run the `Codex Live Client Self-QA Gate` for relevant desktop user-facing workstreams and record `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:`
 - before User Test Summary handoff in desktop UI Live Validation, run `Codex Visual Adjudication:` and record artifact-by-artifact PASS / REPAIR / STOP / WAIVED_WITH_REASON verdicts against the Product Definition Plan, Runtime Branch Engineering Contract, latest USER vision, and package UI/UX intent
 - if the relevant desktop UI is interactive, exercise the same live-client interactions Codex would ask the USER to test and record the evidence before handoff
+- if the relevant desktop UI has hover, dropdown, scroll, resize, flicker, clipping, dirty-guard, confirmation, click-routing, or transient state behavior, LV1 must capture both focused screenshots and short video or ordered frame-sequence proof for those states before exporting the UTS; missing video/frame proof is a `REPAIR` result, not a waiverable Codex shortcut
 - digest returned user evidence in `Live Validation Stage 1` before recommending Stage 2 advancement
 - route returned evidence back to `Workstream` for in-scope user-facing branch work, to `Hardening` for defects or validation gaps, or to backlog/defer handling for new feature requests
 
