@@ -17,6 +17,16 @@ This file is a temporary tracked issue form. It exists to prevent returned UTS f
 
 No Runtime Work Authorization: `This record is a digest and planning form only. It does not authorize runtime implementation, UI repair, validator mutation beyond source-truth planning, PR creation, merge, release, issue mutation, artifact handling, or sibling-worktree mutation.`
 
+## Repair Setup Approval
+
+Setup Approval Status: `APPROVED - USER approved Live Validation returned-UTS issue repair setup after commit f7fc6e8af1599f89c4f3cbdd794fd94be67f3027.`
+
+Setup Scope: `Refine issue-by-issue planning, define bounded repair disposition, define validation/proof matrix, update directly supporting source truth, run validation, and commit/push if green.`
+
+Runtime Implementation Authorization: `NOT AUTHORIZED IN THIS SETUP PASS - no UI/CSS/JS/Python runtime repairs, PR Readiness, PR creation, merge, release, issue mutation, artifact handling, sibling-worktree changes, or future package work may occur without separate approval.`
+
+Setup Result: `ADMITTED - all returned UTS issues are accepted as planning inputs. Items are classified below as current-branch repair candidates, proof/validator governance repairs, conditional current-branch repairs, or future-gated planning items.`
+
 ## Evidence And Validation Standard Requested By USER
 
 The USER expects Hardening and Live Validation to inspect every finite visual and functional detail with reviewable evidence, including focused screenshots and video/frame-sequence proof where motion, flicker, dropdown persistence, clipping, or transient state matters.
@@ -40,18 +50,90 @@ Helper PASS, manifest PASS, screenshot existence, or DOM presence cannot substit
 
 | ID | Area | USER Classification | Planning Status | Repair Authorization |
 | --- | --- | --- | --- | --- |
-| UTS-HUD-001 | Button default glow uniformity | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-003 | Default button glow text readability | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-006 | Checked source row hover state | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-008 | Source row hover flicker | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Needs USER-reviewed repair plan | Not authorized |
-| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Needs USER-reviewed repair plan | Not authorized |
+| UTS-HUD-001 | Button default glow uniformity | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-002 | Background grid bleed-through on cards/windows | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-003 | Default button glow text readability | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-004 | Hover glow must preserve semantic button color | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-005 | Button text-to-border dead-space standard | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-006 | Checked source row hover state | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-007 | Manage Monitors filter max-five menu target | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-008 | Source row hover flicker | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-009 | Polling Rate must affect live source collection rate | REPAIR | Conditional setup admitted | Implementation pending |
+| UTS-HUD-010 | Sensor settings window click/state/dropdown/window flow | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-011 | Dashboard button alignment and Data Sources copy/status | REPAIR | Setup admitted | Implementation pending |
+| UTS-HUD-012 | HUD-wide dirty-change confirmation rule | REPAIR | Setup admitted | Implementation pending |
+
+## Repair Setup Disposition Matrix
+
+| ID | Disposition | Bounded Implementation Intent | Required Proof |
+| --- | --- | --- | --- |
+| UTS-HUD-001 | Current-branch repair candidate | Establish one HUD button default-glow token system by semantic role. | Default/hover/focus screenshots for every button role. |
+| UTS-HUD-002 | Current-branch repair candidate | Ensure cards, panels, dropdowns, and child windows block unreadable grid bleed-through. | Focused before/after-style screenshots for Dashboard cards and every active HUD child window. |
+| UTS-HUD-003 | Current-branch repair candidate | Make default/non-hover glow border-biased so text center remains readable. | Per-button default-state text readability screenshots at normal and compact widths. |
+| UTS-HUD-004 | Current-branch repair candidate | Preserve semantic colors on hover/focus for danger, warning/on, close, discard, delete, cancel, blocked, and primary controls. | Semantic role screenshot set showing hover does not force unrelated green/primary color. |
+| UTS-HUD-005 | Current-branch repair candidate | Define and apply minimum button text-to-border padding, with overflow/wrap/width rules for long labels. | Clipping/padding proof for long labels, especially Create Overlay Profile and dropdown toggles. |
+| UTS-HUD-006 | Current-branch repair candidate | Add additive hover/focus state for checked, unchecked, blocked, and warning source rows without hiding checked state. | Focused row-state proof plus first-click stress for row, checkbox, and settings affordance. |
+| UTS-HUD-007 | Current-branch repair candidate | Enforce max-five visible dropdown/list targets with NDAI scrollbar where space allows. | Open-menu screenshots for every HUD dropdown/list with more than five options. |
+| UTS-HUD-008 | Current-branch repair candidate | Prevent timed refresh/rerender from flashing source-row hover state. | Five-second frame-sequence/video-style proof on checked, unchecked, and blocked rows during refresh. |
+| UTS-HUD-009 | Conditional current-branch repair | If current HUD source-refresh architecture owns cadence, connect Polling Rate to effective refresh cadence; otherwise make the UI truthfully deferred and record the runtime telemetry seam needed. | Measured cadence proof when implemented, or focused deferred-status proof plus source-truth rationale if future-gated. |
+| UTS-HUD-010 | Current-branch repair candidate | Repair sensor settings click routing, display-mode state changes, warning checkbox truth, Rate dropdown persistence/placement/scrolling, default size, warning section boundary, and Manage Monitors parent preservation. | First-click stress, dropdown hold proof, clipping proof, parent-window preservation proof, and subissue-specific screenshots. |
+| UTS-HUD-011 | Current-branch repair candidate | Right-align Dashboard actions, relabel Data Sources to Manage Data Sources, keep it blocked, and show Feature Deferred status. | Dashboard focused proof with action order, blocked/deferred behavior, and copy/status. |
+| UTS-HUD-012 | Current-branch rule plus future standard | Apply dirty-change guard to all current HUD editable windows and record the rule for future editable windows. | Dirty prompt screenshots, snap-into-view proof, Save/Discard outcome proof, and navigation/close interception proof. |
+
+## Implementation Boundary For Next Approval
+
+Current-Branch Repair Candidates: `UTS-HUD-001, UTS-HUD-002, UTS-HUD-003, UTS-HUD-004, UTS-HUD-005, UTS-HUD-006, UTS-HUD-007, UTS-HUD-008, UTS-HUD-010, UTS-HUD-011, and current editable portions of UTS-HUD-012.`
+
+Conditional Current-Branch Repair Candidate: `UTS-HUD-009 may be implemented only if current FAM-006 HUD source-refresh architecture owns live cadence. If actual external telemetry/provider collection is outside this branch, implementation must make the current UI truthful and future-gate the deeper runtime collector work.`
+
+Future-Gated Items: `New Recording Profile runtime, tray recording controls, export/share, provider/model execution, broad theme/skin work, FAM-007 work, Governance mutation, Compact-AI work, AI Product work, and any telemetry architecture not already owned by the FAM-006 HUD source-refresh path.`
+
+Implementation Must Not: `Create PRs, merge, release, mutate GitHub issues, delete this temporary issue form, change sibling worktrees, change unrelated families, or use helper PASS without artifact-by-artifact visual judgment.`
+
+## Validation And Proof Matrix
+
+Required Artifact Root: `dev\logs\fam_006_monitoring_hud_live_validation\<timestamp>\live_client_interaction\`
+
+Required Artifact Naming Pattern: `uts_hud_<issue-id>_<surface>_<state-or-action>.<png|json|mp4|frames.txt>`
+
+Static Screenshot Requirements:
+- `UTS-HUD-001` through `UTS-HUD-005`: every HUD button role in default, hover, focus-visible, disabled, danger, safe-cancel, selected, open, and blocked/deferred states where supported.
+- `UTS-HUD-002`: every Dashboard card and every active HUD child window/panel/dropdown/confirmation over grid/background.
+- `UTS-HUD-006` and `UTS-HUD-008`: checked, unchecked, blocked, warning, hover, focus, and active source rows.
+- `UTS-HUD-007`: Source Filter, Overlay Profile filter, profile selector, Polling Rate, Rate dropdown, and any bounded list with more than five options.
+- `UTS-HUD-010`: display mode card, warning checkbox/section, Rate dropdown open state, sensor settings window at default/minimum size, and Manage Monitors parent context.
+- `UTS-HUD-011`: Dashboard action row and Manage Data Sources blocked/deferred status.
+- `UTS-HUD-012`: dirty prompt for every current editable HUD window, including prompt-visible and post-action outcome states.
+
+Frame Or Video-Style Requirements:
+- `UTS-HUD-008`: pointer held over source rows for at least five seconds during active refresh, with no hover flicker.
+- `UTS-HUD-010.3`: Rate dropdown remains open for several seconds during refresh and closes only through valid user action.
+- `UTS-HUD-010.7`: opening/closing sensor settings preserves or returns to Manage Monitors context.
+- `UTS-HUD-012`: prompt snaps into view when close/navigation/state-switch is attempted from a scrolled edit surface.
+
+Stress Requirements:
+- Use high-volume overlay, monitor, source, dropdown-option, and sensor settings fixtures where helper support exists.
+- Cover at least one large monitor/source state, one large profile list, one large dropdown/list state, repeated first-click activation for each repaired control, and keyboard activation where the control supports it.
+- Validate scaling at normal, minimum supported, and compact-but-legal window sizes.
+
+Visual Adjudication Requirements:
+- Codex must inspect every focused artifact and record PASS/REPAIR per issue ID.
+- Helper PASS, DOM markers, screenshot existence, or manifest existence cannot clear an issue without visual judgment.
+- Full-desktop screenshots are locator/context only; focused UI proof is acceptance evidence.
+
+## Source Truth And Validator Update Plan
+
+Branch Record: `Record setup approved, issue matrix admitted, implementation still pending, PR Readiness blocked, and next governed action as bounded returned-UTS Workstream implementation approval.`
+
+Branch Plan: `Record setup approval, issue dispositions, validation/proof matrix, and temporary issue form lifecycle.`
+
+Backlog And Roadmap: `Remain compact pointer/status surfaces that mention returned UTS REPAIR, setup admitted, implementation pending, and PR Readiness blocked.`
+
+Validators And Helpers: `Next implementation must update HUD surface/internal sandbox/live/human-client helpers only as needed to prove the issue matrix. Validator changes must enforce artifact reviewability and per-issue coverage, not merely add markers.`
+
+UTS Handoff: `Next refreshed UTS must include UTS-HUD-001 through UTS-HUD-012 as explicit USER checklist items.`
+
+Temporary File Lifecycle: `Keep this form until PR Readiness Stage 1 is green, then delete only after all surviving details are folded into durable source truth.`
 
 ## Issue Details And Proposed Planning
 
@@ -391,10 +473,10 @@ Repair setup must produce:
 
 ## Recommended Next Legal Phase
 
-Next Legal Phase: `Live Validation returned-UTS issue repair setup`
+Next Legal Phase: `Live Validation returned-UTS Workstream implementation approval`
 
-This next phase should admit the returned USER UTS result as `REPAIR`, review this temporary User Issue Form with the USER, define the bounded repair plan and validation/proof matrix, and stop before runtime implementation unless USER separately approves implementation.
+The setup phase is admitted by USER approval. The next governed action is bounded Workstream implementation approval for the returned-UTS issue matrix. Runtime implementation remains blocked until that approval is explicit.
 
 ## Exact USER Decision Needed
 
-Approve Live Validation returned-UTS issue repair setup for `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006`, using `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md` as the temporary tracked issue form. Codex may admit the returned UTS result as `REPAIR`, refine issue-by-issue planning, define the bounded repair/validation/proof matrix, update directly supporting source truth, run validation, and commit/push setup changes if green. Do not implement runtime UI repairs, create PRs, merge, release, mutate GitHub issues, handle artifacts, touch sibling worktrees, or expand into Recording Profile, tray recording, export/share, provider/model, broad theme/skin, FAM-007, Governance, Compact-AI, or AI Product work without separate approval.
+Approve bounded returned-UTS Workstream implementation for `feature/fam-006-overlay-profile-runtime-foundation` in `C:\Nexus Worktrees\FAM-006`, using `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md` as the governing temporary issue form. Codex may implement the current-branch repairs and conditional UTS-HUD-009 disposition defined in the Repair Setup Disposition Matrix, update directly supporting validators/helpers/source truth/UTS wording, capture focused proof according to the Validation And Proof Matrix, run required validation, and commit/push if green. PR Readiness, PR creation, merge, release, GitHub issue mutation, artifact upload/import, sibling-worktree changes, Recording Profile runtime, tray recording, export/share, provider/model execution, broad theme/skin work, FAM-007, Governance, Compact-AI, AI Product work, and any telemetry/provider architecture outside the current FAM-006 HUD source-refresh path remain separate USER decisions.
