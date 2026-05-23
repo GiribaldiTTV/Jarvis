@@ -8,7 +8,9 @@ does not depend on manually browsing the worktree. It never edits repo files.
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
+import stat
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -31,6 +33,18 @@ def _safe_target(desktop: Path, folder_name: str) -> Path:
     if target == desktop_resolved or desktop_resolved not in target.parents:
         raise ValueError(f"Refusing to write outside Desktop: {target}")
     return target
+
+
+def _clear_readonly(function, path: str, _exc_info) -> None:
+    os.chmod(path, stat.S_IWRITE | stat.S_IREAD | stat.S_IEXEC)
+    function(path)
+
+
+def _clear_target(target: Path) -> None:
+    try:
+        shutil.rmtree(target, onexc=_clear_readonly)
+    except TypeError:
+        shutil.rmtree(target, onerror=_clear_readonly)
 
 
 def _copy_file(relative_file: str, target: Path) -> tuple[str, str]:
@@ -75,7 +89,7 @@ def build_bundle(
     desktop = _desktop_path()
     target = _safe_target(desktop, folder_name)
     if clear and target.exists():
-        shutil.rmtree(target)
+        _clear_target(target)
     target.mkdir(parents=True, exist_ok=True)
 
     copied = [_copy_file(file_name, target) for file_name in files]
