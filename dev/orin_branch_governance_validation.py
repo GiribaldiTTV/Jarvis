@@ -5478,6 +5478,13 @@ BOT_REVIEW_SIGNAL_STATUS_PENDING = "Pending"
 BOT_REVIEW_SIGNAL_STATUS_APPROVED = "Approved"
 BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED = "Comment addressed"
 BOT_REVIEW_BOT_LOGIN = "chatgpt-codex-connector[bot]"
+BOT_REVIEW_GREEN_COMMENT_PHRASES = (
+    "didn't find any major issues",
+    "did not find any major issues",
+    "no major issues",
+    "looks good",
+    "chef's kiss",
+)
 BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
     "Docs/Main.md",
     "Docs/closeout_guidance.md",
@@ -14548,6 +14555,13 @@ def _bot_login_matches(login: str) -> bool:
     return "codex" in lowered and "connector" in lowered and "bot" in lowered
 
 
+def _bot_review_comment_is_green_signal(body: str) -> bool:
+    lowered = body.casefold()
+    if any(phrase in lowered for phrase in BOT_REVIEW_GREEN_COMMENT_PHRASES):
+        return True
+    return "codex review:" in lowered and "major issues" in lowered and "didn" in lowered
+
+
 def _github_rest_review_decision(
     repository_full_name: str,
     pr_number: int,
@@ -14747,6 +14761,7 @@ def _github_pr_bot_signal_for_live_pr(
             return signal, f"{source_name} lookup failed: {payload_error}"
         for item in payload or []:
             actor = str(((item.get("user") or {}).get("login")) or "")
+            body = str(item.get("body") or "")
             created_at = str(
                 item.get("submitted_at")
                 or item.get("created_at")
@@ -14754,6 +14769,15 @@ def _github_pr_bot_signal_for_live_pr(
             )
             created_time = _parse_iso8601_timestamp(created_at)
             if _bot_login_matches(actor) and created_time is not None:
+                if _bot_review_comment_is_green_signal(body):
+                    approval_candidate = {
+                        "time": created_time,
+                        "timestamp": created_at,
+                        "actor": actor,
+                    }
+                    if latest_approval is None or created_time >= latest_approval["time"]:
+                        latest_approval = approval_candidate
+                    continue
                 if latest_comment is None or created_time >= latest_comment["time"]:
                     latest_comment = {
                         "time": created_time,

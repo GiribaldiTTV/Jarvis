@@ -227,6 +227,18 @@ def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
         "Rebaseline helper no-overlap matrix did not return Not Applicable",
     )
     require(
+        governance._bot_review_comment_is_green_signal(
+            "Codex Review: Didn't find any major issues. Chef's kiss."
+        ),
+        "Governance validator did not recognize Codex green review comment as a bot-review signal",
+    )
+    require(
+        not governance._bot_review_comment_is_green_signal(
+            "Here are some automated review suggestions for this pull request."
+        ),
+        "Governance validator treated a Codex suggestion comment as a green bot-review signal",
+    )
+    require(
         rebaseline._overlap_intent_missing_status("PASS").startswith("No -"),
         "Rebaseline helper did not return non-blocking intent-missing status for PASS",
     )
