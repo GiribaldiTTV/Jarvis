@@ -210,7 +210,7 @@ Use these for workflow posture, prompt framing, lifecycle rules, and execution s
 - `Docs/governance_intake_triage_and_digest_profiles.md`
 
 Repo-wide validation-helper rules also live in this governance layer.
-Broad governance reform uses the `Governance Intake Triage Packet` and smallest legal `Digest Profile` standard from `Docs/governance_intake_triage_and_digest_profiles.md`.
+Broad governance reform uses the `Governance Intake Triage Packet`, smallest legal `Digest Profile`, and `Digest Non-Compaction Rule` standards from `Docs/governance_intake_triage_and_digest_profiles.md`; selecting a focused profile must not compact the digest ever.
 When a governance change risks duplicating policy or live state, use the governance efficiency operating model instead of creating another current-state owner.
 When Codex asks USER to inspect repo files or approve a review packet, the `USER Review Desktop Bundle Rule` in `Docs/governance_efficiency_operating_model.md` requires a Desktop folder with copied relevant files and a `START_HERE.md` review guide.
 Use `Docs/nexus_startup_contract.md` as the compact ChatGPT/new-chat loader map only.

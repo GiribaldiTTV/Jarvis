@@ -70,7 +70,7 @@ The post-audit reform model has one owner per active fact class:
 - roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, and broad feature-family checkpoints
 - worktree slots own reusable slot definitions and intended assignment receipts
 - branch records own branch authority, approvals, phase history, and structured branch traceability receipts
-- branch plans own detailed active runtime-branch engineering plans, full active USER Feedback Disposition items, and retire after fold-down
+- branch plans own detailed active runtime-branch engineering plans, full active USER Feedback Disposition items, USER-reviewable Element-to-Phase Proof Matrix planning, and retire after fold-down
 - branch plans own full active Branch Change Intent Ledger evidence when rebaseline overlap exists; branch records receive compact fold-down receipts only when durable evidence remains useful
 - workstreams and family dossiers own durable package trace, slice trace, proof history, and reusable continuity
 - Git, GitHub, and approved helpers own live operational truth
@@ -173,7 +173,7 @@ Branch records, branch plans, and workstreams are related but not interchangeabl
 Use this split:
 
 - branch records own branch authority, approvals, phase history, blockers, legal next phase, and structured branch traceability receipts
-- branch plans own detailed active runtime planning while the branch is active
+- branch plans own detailed active runtime planning, Element-to-Phase Proof Matrix planning, and current element proof-path mapping while the branch is active
 - workstreams and family dossiers own durable package trace, slice trace, proof history, reusable lessons, and family continuity
 
 At PR Readiness, every runtime-focused branch needs a fold-down or retirement decision:
@@ -279,6 +279,8 @@ The Desktop bundle must:
 - preserve repo-relative paths inside the bundle so copied files remain traceable to source truth
 - be refreshed when the underlying review files change
 - never replace source-truth files, commit artifacts, validation proof, or branch authority records
+
+For Workstream Entry, the Desktop bundle is required before USER green-lights implementation when the branch has runtime, user-facing, source-truth, helper/validator, or workflow impact. The bundle must copy the branch vision, active Branch Runtime Engineering Plan or Branch Engineering Plan, Element-to-Phase Proof Matrix owner, branch authority record, relevant Nexus/family vision files, UFD/change-intent surfaces when applicable, and any other source-truth files the USER needs to inspect. The Workstream Entry digest must report the folder path and copied files.
 
 For governance review or PR-readiness review, the Desktop bundle should be self-checking: `Bundle File Count:` reports the actual file count present in the bundle after copy plus `START_HERE.md`, `Copied File Count:` counts copied repo files only, `Expected File Count:` must match the intended copied repo-file count, and `Extra Bundle File Count:` reports stale or unrelated files that remain when a bundle is refreshed without `--clear`. Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation. If the Desktop path cannot be discovered or the folder cannot be created, stop with `USER Review Desktop Bundle Missing` and return the exact blocker plus the copy command or helper command USER can run.
 

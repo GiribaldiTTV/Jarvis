@@ -69,6 +69,18 @@ INVALID_REBASELINE_OVERLAP_FIXTURE_HIGH_IMPACT_FIXTURE = (
 VALID_REBASELINE_OVERLAP_FIXTURE_LOW_IMPACT_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_overlap_fixture_low_impact.md"
 )
+VALID_ELEMENT_TO_PHASE_MATRIX_FIXTURE = (
+    FIXTURE_DIR / "valid_element_to_phase_proof_matrix.md"
+)
+INVALID_ELEMENT_TO_PHASE_MISSING_HARDENING_FIXTURE = (
+    FIXTURE_DIR / "invalid_element_to_phase_missing_hardening.md"
+)
+INVALID_ELEMENT_TO_PHASE_MISSING_LIVE_VALIDATION_FIXTURE = (
+    FIXTURE_DIR / "invalid_element_to_phase_missing_live_validation.md"
+)
+VALID_ELEMENT_TO_PHASE_DEFERRED_FUTURE_FIXTURE = (
+    FIXTURE_DIR / "valid_element_to_phase_deferred_future.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -108,6 +120,10 @@ EXPECTED_REBASELINE_FALLBACK_ONLY_FAILURE_SNIPPET = (
 )
 EXPECTED_REBASELINE_FIXTURE_HIGH_IMPACT_FAILURE_SNIPPET = (
     "Regression / Gating Impact Medium, High, or Unknown blocks fixture/test overlap"
+)
+EXPECTED_ELEMENT_MATRIX_HARDENING_FAILURE_SNIPPET = "Hardening Proof Plan"
+EXPECTED_ELEMENT_MATRIX_LIVE_VALIDATION_FAILURE_SNIPPET = (
+    "Live Validation Proof / Waiver Plan"
 )
 
 
@@ -191,6 +207,17 @@ def _validate_branch_change_intent_text(text: str) -> list[str]:
         require,
         "<branch-change-intent-fixture>",
         text,
+    )
+    return failures
+
+
+def _validate_element_to_phase_matrix_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_element_to_phase_proof_matrix(
+        require,
+        "<element-to-phase-proof-matrix-fixture>",
+        text,
+        require_matrix=True,
     )
     return failures
 
@@ -392,6 +419,10 @@ def validate() -> list[str]:
         VALID_REBASELINE_OVERLAP_LOW_RISK_WARN_FIXTURE,
         INVALID_REBASELINE_OVERLAP_FIXTURE_HIGH_IMPACT_FIXTURE,
         VALID_REBASELINE_OVERLAP_FIXTURE_LOW_IMPACT_FIXTURE,
+        VALID_ELEMENT_TO_PHASE_MATRIX_FIXTURE,
+        INVALID_ELEMENT_TO_PHASE_MISSING_HARDENING_FIXTURE,
+        INVALID_ELEMENT_TO_PHASE_MISSING_LIVE_VALIDATION_FIXTURE,
+        VALID_ELEMENT_TO_PHASE_DEFERRED_FUTURE_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -646,6 +677,46 @@ def validate() -> list[str]:
         failures.append(
             "Valid low-impact fixture/test Rebaseline Overlap Intent fixture unexpectedly failed: "
             + "; ".join(low_impact_fixture_failures[:5])
+        )
+
+    valid_matrix_failures = _validate_element_to_phase_matrix_text(
+        VALID_ELEMENT_TO_PHASE_MATRIX_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_matrix_failures:
+        failures.append(
+            "Valid Element-to-Phase Proof Matrix fixture unexpectedly failed: "
+            + "; ".join(valid_matrix_failures[:5])
+        )
+
+    missing_hardening_failures = _validate_element_to_phase_matrix_text(
+        INVALID_ELEMENT_TO_PHASE_MISSING_HARDENING_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_ELEMENT_MATRIX_HARDENING_FAILURE_SNIPPET not in "\n".join(
+        missing_hardening_failures
+    ):
+        failures.append(
+            "Invalid Element-to-Phase Proof Matrix fixture did not reject missing "
+            "Hardening proof path"
+        )
+
+    missing_live_validation_failures = _validate_element_to_phase_matrix_text(
+        INVALID_ELEMENT_TO_PHASE_MISSING_LIVE_VALIDATION_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_ELEMENT_MATRIX_LIVE_VALIDATION_FAILURE_SNIPPET not in "\n".join(
+        missing_live_validation_failures
+    ):
+        failures.append(
+            "Invalid Element-to-Phase Proof Matrix fixture did not reject missing "
+            "Live Validation proof or waiver path"
+        )
+
+    deferred_future_matrix_failures = _validate_element_to_phase_matrix_text(
+        VALID_ELEMENT_TO_PHASE_DEFERRED_FUTURE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if deferred_future_matrix_failures:
+        failures.append(
+            "Valid deferred/future Element-to-Phase Proof Matrix fixture unexpectedly failed: "
+            + "; ".join(deferred_future_matrix_failures[:5])
         )
 
     failures.extend(_validate_rebaseline_overlap_helper_matrix())

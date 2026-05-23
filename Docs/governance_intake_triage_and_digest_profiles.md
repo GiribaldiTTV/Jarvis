@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This standard keeps governance repair efficient. It prevents broad governance requests from turning into mixed-scope rewrites, and it keeps Codex output as small as the phase legally allows while preserving exact worktree, branch, validation, and next-phase proof.
+This standard keeps governance repair efficient. It prevents broad governance requests from turning into mixed-scope rewrites, and it keeps Codex output focused on the legally required packet while preserving exact worktree, branch, validation, and next-phase proof.
 
 ## Scope
 
@@ -24,6 +24,14 @@ Codex must choose the smallest digest profile that satisfies repo governance for
 - Do not paste broad protective rule lists when a source-truth pointer and exact blocker are enough.
 - Do not put Codex phase-handoff text, `Next Legal Phase`, `Exact USER Decision Needed`, or `::git-*` directives into GitHub PR bodies or public release bodies.
 - Use a `Full Audit Packet` only when the USER explicitly asks for a broad audit, root-cause analysis, or reform plan.
+
+## Digest Non-Compaction Rule
+
+Do not compact the digest ever.
+
+Profile selection may choose the correct packet shape, but it must not shrink, collapse, summarize away, omit, or replace required digest fields, USER-requested review detail, blocker detail, validation proof, file lists, decision matrices, changed-surface evidence, or exact next-decision wording. Any digest means any Decision Packet, Return Digest, Validation Digest, Full Audit Packet, Delta Digest, phase digest, review digest, evidence digest, User Test Summary digest, rebaseline digest, Desktop review digest, or future repo-defined digest label.
+
+When a USER asks for a full digest, review digest, complete breakdown, file-by-file packet, line-referenced packet, or any other explicitly detailed output, Codex must return that complete digest even if a smaller profile would otherwise be legal. A concise summary may be added before or after the digest, but it cannot replace or compact the digest.
 
 ## Governance Intake Triage Packet
 

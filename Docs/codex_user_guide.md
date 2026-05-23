@@ -266,6 +266,8 @@ For tracked work, that means:
 
 `Pre-Rebaseline Impact Audit` is required before any worktree, branch, neutral-main folder, or standing governance lane baselines itself to newer `origin/main`. No Baseline By Inertia: a clean tree, behind status, or fast-forward-only path is not enough. Report `Incoming Main Change Set:`, `Incoming Changed Files:`, `Current Worktree Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Shared Surface / Worktree Overlap Forecast:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` first, then wait for USER approval before merge/rebase/fast-forward/branch-switch mutation.
 
+Any governance digest profile selected from `Docs/governance_intake_triage_and_digest_profiles.md` must obey the `Digest Non-Compaction Rule`: do not compact the digest ever. A focused profile may avoid replaying unrelated policy, but it must preserve every required field and USER-requested review detail for that digest.
+
 Promoted workstream docs remain the place to read branch-local feature state, evidence, active seams, artifact history, and branch-local reuse notes.
 Repo-wide lifecycle rules such as phases, stop-loss, timeout governance, and proof authority come from `Docs/phase_governance.md`.
 Repo-wide validation-helper rules and the desktop UI audit rule also come from `Docs/phase_governance.md`.
