@@ -1,0 +1,121 @@
+# Branch Runtime Engineering Plan - FAM-006 Overlay Display Acceptance Foundation
+
+Branch: `feature/fam-006-overlay-display-acceptance-foundation`
+Worktree Path: `C:\Nexus Worktrees\FAM-006`
+Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`
+Created From: `origin/main` at `a42b7e50eb012722b140f3874dbf50826bd797c8`
+Current Plan Phase: `Branch Readiness Stage 2 setup`
+Runtime Implementation Approval: `Not granted`
+
+## Branch Runtime Engineering Plan
+
+Plan Identity: `FAM-006 Overlay Display Acceptance Foundation`
+Owning Branch: `feature/fam-006-overlay-display-acceptance-foundation`
+Worktree Path: `C:\Nexus Worktrees\FAM-006`
+Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`
+Current Phase: `Branch Readiness`
+Branch Runtime Engineering Plan: `Accepted Stage 2 setup plan for the next FAM-006 successor branch; runtime implementation is pending Workstream approval.`
+Engineering Plan Status: `Accepted`
+Current Runtime Baseline: `Released FAM-006 Dashboard, Sensor Command Center, Monitor Groups, and Overlay Profile Runtime Foundation with historical visual-governance closure.`
+Branch Purpose: `Prepare the overlay display acceptance successor lane so later seams can prove profile-aware HUD Overlay display behavior without broad theme/skin or Recording Profile scope.`
+Planned Runtime Delta: `No runtime delta in setup; later seams may add display bridge, active-profile display behavior, Dashboard/Overlay independence proof, and Live Validation readiness.`
+User-Facing Delta: `None during setup; later Workstream must define exact visible display acceptance changes before implementation.`
+Source-Truth Delta: `Stage 2 adds branch authority, branch plan, and compact backlog/roadmap pointers for the new FAM-006 successor lane.`
+State / Config / Schema Delta: `No state/config/schema field changes in setup; future display metadata must be additive, migration-safe, and separate from Recording Profile.`
+Validator / Helper Delta: `No new helper in setup; future seams may update FAM-006 HUD surface/internal/live/human-client validators while preserving Codex Visual Adjudication and dropdown/list stress gates.`
+Expected Changed Files / Surfaces: `Setup touches branch record, branch plan, backlog, and roadmap. Future implementation may touch nexus_visual/monitoring_hud.js, nexus_visual/monitoring_hud.html, nexus_visual/monitoring_hud.css, desktop renderer/state/control/placement surfaces, and FAM-006 validators/helpers.`
+Workstream / Seam Map: `SLC-042 baseline/state bridge; SLC-043 active profile display behavior; SLC-044 Dashboard/Overlay independence and visual acceptance; SLC-045 validation/live proof and UTS handoff readiness.`
+Per-Seam Implementation Checklist: `SLC-042 choose bridge/baseline seam; SLC-043 implement display behavior if approved; SLC-044 harden Dashboard/Overlay independence; SLC-045 complete validation/live proof readiness.`
+Per-Seam Validation Checklist: `Each seam must run diff checks, governance as needed, HUD surface/internal validators when touched, compileall, syntax/runtime checks as supported, and focused proof helpers where user-facing behavior changes.`
+Per-Seam User-Facing Proof Checklist: `Future user-facing seams must capture focused per-element screenshots, short video/frame-sequence proof, null/high-volume stress proof for variable lists/dropdowns, and Codex Visual Adjudication before UTS.`
+Future-Gated Items: `Recording Profile runtime, tray recording, export/share/import, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007, Governance mutation, Compact-AI, stale branch cleanup, PR creation, merge, release, issues, and artifacts remain pending USER decisions.`
+Approval-Boundary Audit: `Stage 2 setup only is approved; runtime implementation and all future-gated work are blocked until separately approved.`
+FAM / Shared-Surface Overlap Forecast: `FAM-006 HUD surfaces are expected; FAM-007/provider surfaces, Governance worktree, Compact-AI, and Repo-Wide markers are sibling context only.`
+Open Questions: `Workstream Entry must decide whether SLC-042 starts with display-state bridge proof only or a small visible display acceptance surface.`
+USER Planning Decisions: `USER approved Stage 2 setup from current origin/main and did not approve runtime implementation, PR creation, merge, release, issue mutation, artifacts, cleanup, or sibling-worktree mutation.`
+Plan Revision History: `v1 - Stage 2 setup created from origin/main a42b7e50eb012722b140f3874dbf50826bd797c8.`
+Plan-To-Implementation Traceability Table: `No implementation commits yet; future commits must map changed files and validators to SLC-042 through SLC-045 rows before H1.`
+Hardening Comparison Checklist: `Future H1 must compare implementation against planned runtime, state/schema, user-facing, validation, and boundary deltas.`
+Live Validation Proof Or Waiver Checklist: `Future LV1 must use real user-facing launcher proof where feasible, OneDrive focused screenshots, short video/frame-sequence proof, visual adjudication, and USER_TEST_REQUIRED until returned review.`
+PR Readiness Fold-Down / Retention Checklist: `Pending - PR Readiness will decide what active plan detail folds into durable historical source truth.`
+Release Readiness Public-Scope Translation Checklist: `Pending - release wording must describe only validated user-facing display acceptance, not future-gated recording/theme/provider work.`
+USER Planning Review: `Accepted for Stage 2 setup; Workstream Entry approval is required next.`
+PR Fold-Down Packet: `Pending`
+Runtime Implementation Approval: `Pending USER approval`
+
+## Purpose
+
+This plan admits the next FAM-006 runtime successor after the released Overlay Profile Runtime Foundation. The branch will prepare, then later implement only after USER approval, an Overlay Display Acceptance Foundation that proves the HUD Overlay display path can rely on active Overlay Profile state while preserving Monitor Groups, Sensor Command Center, Recording Profile boundaries, and the visual-validation hardening learned from the historical Overlay Profile lane.
+
+## Historical Closure Carry-Forward
+
+Historical Overlay Profile Repairs: `Closed / PASS`
+Historical Evidence Basis: `feature_fam_006_overlay_profile_runtime_foundation records Codex Visual Adjudication PASS, HUD-wide visual inspection matrix PASS, mandatory OneDrive focused per-element screenshots, short video/frame-sequence proof, returned USER UTS PASS, null-profile proof, 125-profile stress proof, and dropdown/list clipping repairs.`
+Carry-Forward Rule: `Those repairs are baseline requirements for this branch. They are not reopened unless regression appears, and future LV1 cannot clear without the same artifact-by-artifact visual adjudication discipline for current surfaces.`
+
+## Package And Slice Admission
+
+Family: `FAM-006 - Monitoring and HUD`
+Package: `PKG-006 - Monitoring and HUD`
+Package Posture: `Released baseline / open successor branch`
+
+| Slice | Admission State | Purpose | Current Status |
+| --- | --- | --- | --- |
+| `SLC-042` Overlay display acceptance baseline and state bridge | Admitted | Inspect and admit the smallest display-acceptance baseline that can consume active Overlay Profile state without changing broad HUD skins or Recording Profile behavior. | Planned |
+| `SLC-043` Active Overlay Profile display behavior | Admitted | Prove the visible overlay display path reacts to active Overlay Profile state and remains deterministic across null and high-volume profile/member states. | Planned |
+| `SLC-044` Dashboard / Overlay display independence and visual acceptance | Admitted | Prove Dashboard, Overlay display, and Monitor Groups stay visually and functionally independent while sharing approved state. | Planned |
+| `SLC-045` Validation/live proof and UTS handoff readiness | Admitted | Extend focused validators/live proof as needed, run H1/LV1, and prepare USER-facing UTS only after Codex Visual Adjudication passes. | Planned |
+
+Single-Slice Package User Approval: `Not required - this branch admits multiple concrete slices under FAM-006 / PKG-006.`
+Package Completion State: `Open / not package-complete`
+
+## Product Definition Plan
+
+Project-Wide Vision Alignment: `The HUD should be trustworthy, compact, visually uniform, and validated with real user-facing proof rather than helper-only marks. Overlay display acceptance is part of making the monitoring surface feel like a real product rather than a disconnected settings demo.`
+Branch-Specific Vision Alignment: `The branch should convert historical Overlay Profile state into accepted display behavior while preserving the hard-earned UI quality rules from returned USER review: readable controls, unclipped selectors, NDAI scrollbars, no grid bleed-through, uniform button states, and per-element proof.`
+System Concept Model: `Overlay Profile is a state/config profile. Overlay display is the rendered display behavior. Monitor Groups configure monitors and sources. Recording Profile is future runtime scope. Dashboard is the entry and status surface.`
+Entity / Profile Model: `Overlay Profile, active Overlay Profile, overlay display state/read model, monitor membership read model, HUD Overlay display card/window, Dashboard state, validation artifact, and USER issue/UTS result are separate entities from Monitor Group and Recording Profile.`
+User Workflow Model: `A user should be able to open Dashboard, understand which Overlay Profile is active, open or observe HUD Overlay display behavior, and trust that the displayed overlay matches the selected profile and remains readable under scale.`
+Scale / Data Volume Model: `Every variable dropdown/list/selection surface introduced or touched later must receive null-state and high-volume stress proof. Overlay/profile surfaces should assume 0 profiles, 1 profile, and 100+ profiles; monitor/source surfaces should assume 0 and 100+ where legal.`
+Configuration And State Model: `SLC-037 Overlay Profile persisted state remains canonical. Any new display acceptance state must be additive, normalized, migration-safe, and clearly separated from Recording Profile state.`
+Expected User-Facing Outcomes: `No user-facing runtime delta in Stage 2 setup. Later user-facing outcomes should be accepted HUD Overlay display behavior that is profile-aware, responsive, and visually adjudicated before UTS.`
+Codex Additional Recommendations: `Start with SLC-042 as an analysis and baseline proof seam before expanding render behavior. The branch should avoid redesigning the entire HUD, even if visual polish rules are preserved.`
+USER Critique Loop: `USER has repeatedly identified visual defects missed by validation. This plan treats visual proof as a product requirement, not a courtesy artifact.`
+USER Decision Ledger: `USER approved Stage 2 setup. USER has not approved runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling, FAM-007, Governance mutation, Recording Profile runtime, tray recording, export/share, provider/model work, or broad theme/skin work.`
+Deferred Ideas / Future Package Ledger: `Recording Profile, tray recording, export/share/import, visual theme/skin packs, profile duplication/deletion expansion beyond existing released baseline, layout personalization, provider telemetry parity, FAM-007, Compact-AI, and AI Product remain future-gated.`
+Planning Adequacy Review: `Adequate for Stage 2 setup and Workstream Entry; implementation details must be selected in Workstream Entry before runtime mutation.`
+Rejected Shallow Plan: `Rejected: reuse old overlay/deferred markers or helper screenshots as acceptance. Acceptance must prove the actual display path and user-visible behavior.`
+Alternatives And Tradeoffs Reviewed: `A broad HUD redesign would risk scope creep; a Recording Profile branch would violate pending decisions; a narrow Overlay Display Acceptance Foundation follows the released FAM-006 sequence.`
+Whole-System Interaction Map: `Dashboard -> active Overlay Profile -> HUD Overlay display -> proof/validation -> USER UTS. Manage Monitors and Sensor Command Center are preservation surfaces.`
+Minimum Viable vs Full System Boundary: `Minimum viable branch proves overlay display acceptance foundation. Full system includes recording/export/theme/provider integrations and remains outside this branch.`
+Open Questions / USER Decision Points: `Which exact SLC-042 runtime seam is first, whether display acceptance starts as read-only proof or a visible display bridge, and what focused proof set is required for UTS must be answered in Workstream Entry.`
+
+## Runtime Branch Engineering Contract
+
+USER Engineering Planning Review: `Accepted for Stage 2 setup`
+Runtime Implementation Approval: `Not granted`
+Current Runtime Baseline: `Released FAM-006 Dashboard, Sensor Command Center, Monitor Groups, and Overlay Profile Runtime Foundation with historical visual-governance closure.`
+Planned Runtime Delta: `No runtime change in setup. Future seams may add overlay display acceptance baseline, state bridge, display rendering proof, and visual acceptance proof.`
+User-Facing Runtime Delta: `None in setup. Future Workstream must define exact visible changes before implementation.`
+State / Config / Schema Delta: `None in setup. Any future schema/state work must preserve Overlay Profile, Monitor Group, and Recording Profile separation.`
+Validator / Helper Delta: `None in setup. Future implementation may update FAM-006 HUD surface/internal/live/human-client validators, but must preserve Codex Visual Adjudication, per-element screenshots, short-video proof, and dropdown/list stress gates.`
+Expected Changed Files / Surfaces: `Likely future surfaces include nexus_visual/monitoring_hud.js, nexus_visual/monitoring_hud.html, nexus_visual/monitoring_hud.css, desktop/desktop_renderer.py, desktop/monitoring_hud_state.py, desktop/monitoring_hud_controls.py, desktop/monitoring_hud_placement.py, dev/orin_monitoring_hud_surface_validation.py, dev/orin_monitoring_hud_internal_sandbox_validation.py, dev/orin_monitoring_hud_live_validation.ps1, and dev/orin_monitoring_hud_human_client_validation.ps1.`
+Approval-Boundary Audit: `Only Stage 2 source-truth setup is approved. Runtime behavior remains blocked.`
+Future-Gated Items: `Recording Profile runtime, tray recording controls, export/share/import, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007, Governance worktree mutation, Compact-AI, Repo-Wide markers, stale branch cleanup, PR creation, merge, release, issue mutation, artifacts/raw evidence handling.`
+Workstream Seam Map: `SLC-042 baseline/state bridge; SLC-043 active profile display behavior; SLC-044 Dashboard/Overlay independence and visual acceptance; SLC-045 validation/live proof and UTS handoff readiness.`
+Proof Expectations: `Identity/freshness proof, H1 pressure tests, LV1 real user-facing desktop launcher proof where applicable, per-element focused screenshots in OneDrive, mandatory short video/frame-sequence proof, Codex Visual Adjudication, null/high-volume stress proof for variable selectors/lists, unclipped/responsive geometry proof, and preservation proof for existing FAM-006 surfaces.`
+Risk Forecast: `Visual false-green, selector/list clipping, overlay display and Dashboard state coupling, Recording Profile boundary drift, broad theme/skin creep, and stale source-truth carry-forward are primary risks.`
+Recommendations And Alternatives: `Prefer Workstream Entry to choose a small first SLC-042 seam and leave SLC-043 render behavior until the baseline bridge and proof method are clear.`
+Plan Version / Revision Status: `v1 - Stage 2 setup.`
+Plan-To-Implementation Traceability: `No implementation commits yet. Future implementation must update the active slice row, this traceability field, the branch authority record, and validation evidence.`
+
+## Validation Plan
+
+Stage 2 Validation: `git diff --check; git diff --cached --check after staging; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --worktree-confinement-gate; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python -m compileall -q desktop dev nexus_visual`
+Future Workstream Validation: `Use validation-suite recommendations plus FAM-006 HUD surface/internal/live/human-client validators as required by changed files and source truth.`
+
+## Stage 2 Setup Exit
+
+Exit Criteria: `Branch record, branch plan, compact backlog/roadmap pointers, worktree binding proof, validation, commit, and push are complete.`
+Next Legal Phase: `Workstream Entry analysis`
+Exact USER Approval Text: `Approve Workstream Entry analysis for FAM-006 Overlay Display Acceptance Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-overlay-display-acceptance-foundation to inspect source truth and runtime surfaces, select the first bounded SLC-042 implementation seam, define affected files, validators, proof requirements, and return the implementation approval packet without runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, or broad theme/skin work.`
