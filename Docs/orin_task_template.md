@@ -29,7 +29,7 @@ If anything in the request conflicts with those docs, call it out explicitly bef
 
 - Use `C:\Nexus Desktop AI\Docs\Main.md` as the routing index for selecting the correct authority baseline.
 - Preserve the Main-first loader chain: load Main first, then follow it to phase governance, execution posture docs, project/family vision, active branch plan, branch record, workstream record, helper registry, and task-specific owners.
-- The default prompt baseline should usually be `development_rules.md`, `Main.md`, `phase_governance.md`, the directly relevant authority docs, and the evidence inputs needed to validate live truth.
+- The default prompt baseline is `development_rules.md`, `Main.md`, `phase_governance.md`, the directly relevant authority docs, and the evidence inputs needed to validate live truth; any narrower prompt baseline must state the source-truth reason.
 - If a canonical workstream, rebaseline, or consolidated design doc exists for the active question, prefer that authority doc over a stack of superseded slice docs.
 - Include prior closeout docs and older slice docs only when they are still materially relevant to the specific task.
 - Treat canonical workstream docs as branch-local feature-state, evidence, validation-contract, and active-seam references.
@@ -359,7 +359,7 @@ Element-to-Phase Proof Matrix Status:
 [Required / Present / Accepted / Not Required with reason / Blocked / not applicable]
 
 Element-to-Phase Proof Matrix Owner:
-[active Branch Runtime Engineering Plan path / branch record / workstream doc / not applicable]
+[active Docs/branch_plans/<branch_slug>.md before implementation / folded branch record or workstream owner after PR Readiness fold-down / not applicable with reason]
 
 Element-to-Phase Proof Matrix Summary:
 [planned/current elements mapped to Workstream implementation, Workstream proof, Hardening proof, Live Validation proof or waiver, UTS / USER acceptance path, future/deferred boundary, USER decision state, and source owner / ledger owner]

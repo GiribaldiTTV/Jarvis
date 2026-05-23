@@ -493,6 +493,34 @@ ELEMENT_TO_PHASE_MATRIX_REQUIRED_MARKERS = (
     "Element Coverage Owner:",
     "Element Validation Ledger Owner:",
 )
+ELEMENT_TO_PHASE_MATRIX_MARKER_ALLOWED_PREFIXES = {
+    "Matrix Status:": (
+        "required",
+        "present",
+        "accepted",
+        "blocked",
+        "folded",
+        "historical",
+        "not required with reason",
+    ),
+    "USER Review Status:": (
+        "pending",
+        "accepted",
+        "revised",
+        "waived",
+        "needs user decision",
+    ),
+    "Open Element Questions:": (
+        "none",
+        "queued",
+        "blocking",
+        "deferred with waiver",
+    ),
+}
+ELEMENT_TO_PHASE_MATRIX_OWNER_MARKERS = (
+    "Element Coverage Owner:",
+    "Element Validation Ledger Owner:",
+)
 ELEMENT_TO_PHASE_MATRIX_COLUMNS = (
     "Element ID",
     "Element / Surface",
@@ -8486,6 +8514,38 @@ def _validate_element_to_phase_proof_matrix(
                 f"a real value for '{marker}'"
             ),
         )
+        normalized_marker_value = _normalized_planning_value(value)
+        allowed_prefixes = ELEMENT_TO_PHASE_MATRIX_MARKER_ALLOWED_PREFIXES.get(marker)
+        if allowed_prefixes:
+            require(
+                any(
+                    normalized_marker_value == allowed
+                    or normalized_marker_value.startswith(f"{allowed} ")
+                    or normalized_marker_value.startswith(f"{allowed} -")
+                    for allowed in allowed_prefixes
+                ),
+                (
+                    f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} "
+                    f"marker '{marker}' must start with one of: "
+                    f"{', '.join(allowed_prefixes)}"
+                ),
+            )
+        if marker in ELEMENT_TO_PHASE_MATRIX_OWNER_MARKERS:
+            require(
+                (
+                    value.startswith("Docs/")
+                    or value.startswith("dev/")
+                    or "source-truth owner" in normalized_marker_value
+                    or "branch runtime engineering plan" in normalized_marker_value
+                    or "branch engineering plan" in normalized_marker_value
+                    or "element validation ledger" in normalized_marker_value
+                ),
+                (
+                    f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} "
+                    f"marker '{marker}' must name a concrete source-truth owner "
+                    "or repo-relative owner path"
+                ),
+            )
 
     table_lines = [
         line.strip()
@@ -8542,8 +8602,18 @@ def _validate_element_to_phase_proof_matrix(
         f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} requires at least one element row",
     )
 
+    seen_element_ids: set[str] = set()
     for row in rows:
         element_id = row.get("Element ID", "").strip() or "<missing element id>"
+        normalized_element_id = _normalized_planning_value(element_id)
+        require(
+            normalized_element_id not in seen_element_ids,
+            (
+                f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} row "
+                f"{element_id} duplicates an Element ID already used in the matrix"
+            ),
+        )
+        seen_element_ids.add(normalized_element_id)
         for column in ELEMENT_TO_PHASE_MATRIX_COLUMNS:
             value = row.get(column, "").strip()
             require(

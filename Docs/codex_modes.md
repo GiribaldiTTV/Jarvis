@@ -130,7 +130,7 @@ In Analysis mode, Codex must not:
 
 ### Expected Outputs
 
-Analysis mode should usually return:
+Default Analysis mode return packets include:
 
 - validated current truth
 - key drift findings
@@ -227,7 +227,7 @@ In Workflow mode, Codex must not:
 
 ### Expected Outputs
 
-Workflow mode should usually return:
+Default Workflow mode return packets include:
 
 - changes applied
 - exact governed state markers: `Seam Status`, `Slice Status`, `Completion Status`, `Blockers`, `Waiver Status`, `Continue Decision`, `Continuation Execution Latch`, `Stop Basis`, and `Next Legal Phase`

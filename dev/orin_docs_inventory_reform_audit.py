@@ -465,6 +465,12 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
                 completed,
                 "Keep current markers compact and avoid cycle-ledger closeout-only PRs.",
             )
+        if rel == "Docs/branch_records/feature_vision_update_decision_matrix.md":
+            return (
+                "Keep active bounded repair authority until PR fold-down",
+                completed,
+                "Move to historical/no-active posture or otherwise make merge-stable before PR green.",
+            )
         if lines > 400:
             return (
                 "Organize structured receipt",
@@ -947,6 +953,14 @@ def generate() -> None:
         key=lambda p: p.as_posix().lower(),
     )
     changed = set(git_output("diff", "--name-only", "origin/main...HEAD").splitlines())
+    changed.update(git_output("diff", "--name-only").splitlines())
+    changed.update(git_output("diff", "--cached", "--name-only").splitlines())
+    for status_line in git_output("status", "--porcelain").splitlines():
+        path_text = status_line[3:].strip()
+        if " -> " in path_text:
+            path_text = path_text.split(" -> ", 1)[1].strip()
+        if path_text:
+            changed.add(path_text.replace("\\", "/"))
     head = git_output("rev-parse", "HEAD")
     origin_main = git_output("rev-parse", "origin/main")
     merge_base = git_output("merge-base", "HEAD", "origin/main")

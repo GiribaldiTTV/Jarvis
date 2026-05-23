@@ -61,11 +61,11 @@ The matrix extends the active Branch Runtime Engineering Plan and points to the 
 
 Matrix markers:
 
-- Matrix Status:
-- USER Review Status:
-- Open Element Questions:
-- Element Coverage Owner:
-- Element Validation Ledger Owner:
+- Matrix Status: allowed values are `Required`, `Present`, `Accepted`, `Blocked`, `Folded`, `Historical`, or `Not Required with reason`
+- USER Review Status: allowed values are `Pending`, `Accepted`, `Revised`, `Waived`, or `Needs USER Decision`
+- Open Element Questions: allowed values are `None`, `Queued`, `Blocking`, or `Deferred With Waiver`
+- Element Coverage Owner: must name the active `Docs/branch_plans/<branch_slug>.md` owner before implementation, or a concrete folded source-truth owner after PR Readiness
+- Element Validation Ledger Owner: must name the concrete Element Validation Ledger owner path or source-truth owner
 
 Required table shape:
 
@@ -74,7 +74,7 @@ Required table shape:
 
 Allowed `Element Classification` values are `Planned`, `Created`, `Touched`, `Affected`, `Deferred`, `Future`, `Dependency-Only`, and `Non-Gating Supporting`.
 
-Every planned/current created/touched/affected user-facing, runtime, UI, provider, validation/helper, source-truth, or workflow element must name a Workstream implementation path, Workstream proof path, Hardening proof path, Live Validation proof or waiver path, and UTS / USER acceptance path before Workstream Entry. Future/deferred/dependency-only/non-gating elements must name the boundary that keeps them out of current release gating. Missing or incomplete matrix coverage blocks Workstream entry or continuation on `Element-to-Phase Proof Matrix Missing` or `Element-to-Phase Proof Path Missing`.
+Every planned/current created/touched/affected user-facing, runtime, UI, provider, validation/helper, source-truth, or workflow element must name a Workstream implementation path, Workstream proof path, Hardening proof path, Live Validation proof or waiver path, and UTS / USER acceptance path before Workstream implementation begins or resumes. Future/deferred/dependency-only/non-gating elements must name the boundary that keeps them out of current release gating. Element IDs must be unique inside the matrix. Missing or incomplete matrix coverage blocks Workstream entry or continuation on `Element-to-Phase Proof Matrix Missing` or `Element-to-Phase Proof Path Missing`.
 
 ## Workstream Entry Review Bundle
 

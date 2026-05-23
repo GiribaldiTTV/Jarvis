@@ -3,9 +3,9 @@
 ## Element-to-Phase Proof Matrix
 
 Matrix Status: Accepted with future-boundary rows for Workstream Entry review.
-USER Review Status: USER green-light pending for current work; future rows are non-gating.
-Open Element Questions: Future execution questions remain queued outside current release gating.
-Element Coverage Owner: Active Branch Runtime Engineering Plan fixture.
+USER Review Status: Pending - USER green-light pending for current work; future rows are non-gating.
+Open Element Questions: Queued - future execution questions remain queued outside current release gating.
+Element Coverage Owner: Docs/branch_plans/feature_fam_000_runtime_plan_fixture.md.
 Element Validation Ledger Owner: Docs/branch_records/feature_fam_000_runtime_plan_fixture.md.
 
 | Element ID | Element / Surface | Element Classification | Workstream Implementation Plan | Workstream Proof Plan | Hardening Proof Plan | Live Validation Proof / Waiver Plan | UTS / USER Acceptance Path | Future / Deferred Boundary | USER Decision State | Source Owner / Ledger Owner |

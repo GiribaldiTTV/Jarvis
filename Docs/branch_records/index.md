@@ -35,6 +35,7 @@ Do not use this layer to replace:
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
 - USER-approved workspace-resilience or dev-tooling governance foundation carriers may exist only to clear a recorded multi-worktree/thread-safety blocker before future branch work; they do not authorize runtime implementation, package admission, release work, issue work, AI Product Contract import, or future standalone governance branches.
+- USER-approved bounded governance/source-truth repair carriers may use the `repair/dev-tooling-governance` branch class only when the active repair changes governance docs plus validator, helper, fixture, review-bundle, or dev-tooling proof surfaces. They require an exact active branch authority record, must keep runtime/release/FAM mutation blocked, and must move to historical/no-active posture or otherwise become merge-stable before PR green. This route does not replace the single standing governance intake branch and is not permission to create docs/governance branches by inertia.
 - USER-approved bounded issue-readiness/source-truth repair carriers may exist only to reconcile existing family/branch-record evidence into issue-ready source truth; they do not authorize GitHub issue creation, issue-resolution branches, runtime implementation, package admission, release work, FAM-007/local AI work, AI Product Contract import, or future standalone governance branches.
 - If release publication exposes release-dependent canon drift, the drift must be recorded for the next legitimate runtime-focused branch's `Branch Readiness Stage 1` and repaired in `Branch Readiness Stage 2` before implementation begins.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
@@ -129,6 +130,7 @@ Do not use this layer to replace:
 ## Active Branch Authority Records
 
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
+- `Docs/branch_records/feature_vision_update_decision_matrix.md`
 
 ## Historical Branch Authority Records
 
