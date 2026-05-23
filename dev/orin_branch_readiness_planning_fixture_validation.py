@@ -233,6 +233,12 @@ def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
         "Governance validator did not recognize Codex green review comment as a bot-review signal",
     )
     require(
+        governance._bot_review_comment_is_green_signal(
+            "Codex Review: Didn\u2019t find any major issues. Chef\u2019s kiss."
+        ),
+        "Governance validator did not normalize smart apostrophes in Codex green review comments",
+    )
+    require(
         not governance._bot_review_comment_is_green_signal(
             "Here are some automated review suggestions for this pull request."
         ),

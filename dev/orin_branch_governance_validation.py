@@ -14553,7 +14553,12 @@ def _bot_login_matches(login: str) -> bool:
 
 
 def _bot_review_comment_is_green_signal(body: str) -> bool:
-    lead_summary = body.casefold().split("<details", 1)[0]
+    lead_summary = (
+        body.casefold()
+        .replace("\u2018", "'")
+        .replace("\u2019", "'")
+        .split("<details", 1)[0]
+    )
     has_green_phrase = any(
         phrase in lead_summary
         for phrase in BOT_REVIEW_GREEN_COMMENT_PHRASES
