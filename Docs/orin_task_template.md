@@ -370,6 +370,12 @@ Workstream Entry Review Bundle:
 Workstream Entry Review Files:
 [branch vision, active branch plan, branch authority record, Nexus/family vision, matrix, UFD/change-intent, source-truth owner, validator/helper, fixture, or planning files copied for USER inspection]
 
+Workstream Entry Whole-Package Analysis:
+[required / present / not required with reason / blocked on Workstream Entry Whole-Package Analysis Missing]
+
+Workstream Entry Whole-Package Summary:
+[all admitted slices/seams, completion strategy, first-seam recommendation, seam dependency map, future-gated boundaries, preservation surfaces, validation plan, Hardening H1 expectations, Live Validation LV1 expectations, visual/user-facing proof requirements, UTS handoff criteria, and exact implementation approval text]
+
 Dev Toolkit Interface Review Mode Disposition:
 [callable in dev-only review mode / deferred to named repo-wide adoption branch-package / not-applicable with reason]
 
@@ -575,7 +581,7 @@ Use this section when the branch matters to the task:
 - milestone value: [why this branch or docs program is worth completing]
 - same-branch follow-through: [dependent work that still belongs on this branch before readiness]
 - branch posture: [fresh branch from updated main / continue approved active branch / release packaging branch / No Active Branch / protected-main drift repair on legal branch surface]
-- branch-level plan: [objective, target end-state, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, and first seam or seam sequence]
+- branch-level plan: [objective, target end-state, admitted slices/seams, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase needs, whole-package completion strategy, and first seam or seam sequence]
 
 If a lane was already closed, merged, or released, the next workstream should start from updated `main` on a fresh branch.
 
@@ -867,6 +873,8 @@ Every phase digest must include `Next Legal Phase` as its own output field, even
 Every digest must stay complete for its selected profile and for any USER-requested review scope. Do not compact the digest ever; a short summary may accompany the digest but cannot replace, shrink, or omit the governed digest content.
 
 Formal Next Legal Phase Digest is required whenever the packet stops for USER approval. Include `Current Phase:`, `Next Legal Phase:`, `Why This Phase Is Next:`, `Approval Required:`, `Exact USER Approval Text:`, `Allowed Scope:`, `Explicit Exclusions:`, `Validation Required:`, `Stop Conditions:`, `USER Plan Review Gate:`, `USER Inspection Files:`, `Review Required Because:`, `Implementation Blocker:`, and `Review Waiver Reason:`. Do not compact this digest into one-line next-step language; it must say whether USER may accept, revise, waive, or reject the plan, and it must name exact inspection files or review waiver reason.
+
+When Workstream Entry is the next legal phase for a runtime branch with multiple admitted slices or seams, the approval text must request whole-package analysis before implementation approval. Required pattern: analyze the full admitted Workstream package, define the Workstream completion path, Hardening H1 proof expectations, Live Validation LV1 proof expectations, UTS handoff criteria, and select the first bounded implementation seam. This authorizes analysis only until USER separately approves implementation.
 
 If relevant, also include:
 

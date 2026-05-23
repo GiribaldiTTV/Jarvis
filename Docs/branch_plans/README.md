@@ -93,6 +93,27 @@ The bundle should copy the branch vision and planning files the USER needs to in
 
 The digest must report the review folder path, copied files, source branch, source HEAD, validation summary, exact Workstream green-light decision requested, and pending USER decisions. Missing bundle proof blocks Workstream entry on `Workstream Entry Review Bundle Missing`.
 
+## Workstream Entry Whole-Package Analysis Gate
+
+Runtime-focused branch plans with multiple admitted slices or seams must support whole-package Workstream Entry analysis before implementation begins or resumes.
+
+The active Branch Runtime Engineering Plan must let the Workstream Entry packet identify:
+
+- all admitted slices/seams
+- completion strategy for the whole Workstream package
+- first-seam recommendation
+- seam dependency map
+- future-gated or non-included scope
+- preservation surfaces
+- validation plan
+- Hardening H1 expectations
+- Live Validation LV1 expectations
+- visual/user-facing proof requirements
+- UTS handoff criteria
+- exact implementation approval text
+
+First-seam selection alone is not enough. A Workstream Entry packet may recommend the first bounded implementation seam, but it must also prove that seam fits the full admitted branch package and does not create drift against later admitted seams. Missing whole-package analysis blocks Workstream entry on `Workstream Entry Whole-Package Analysis Missing`. This gate plans Hardening and Live Validation obligations; it does not authorize executing Hardening, Live Validation, UTS handoff, PR creation, merge, release work, or runtime implementation without the separately legal phase approval.
+
 ## Vision Contract Snapshot Markers
 
 Runtime/user-facing branches that affect product behavior, UI/UX, workflow hierarchy, visual standards, setup/activation behavior, provider/model/memory/voice/Core behavior, acceptance criteria, or any design assumption must include a Branch Vision Contract Snapshot before Workstream implementation.
@@ -308,7 +329,7 @@ Branch Readiness Stage 2 creates or admits `Docs/branch_plans/<branch_slug>.md`,
 
 Branch Readiness Stage 2 also creates or admits the `Element-to-Phase Proof Matrix` when the branch creates, touches, affects, defers, or preserves product/runtime/UI/source-truth elements. Workstream Entry must return that matrix, or a concrete summary of it, for USER review before implementation begins or resumes.
 
-Workstream Entry reads the plan and returns the first seam design packet before implementation. Each seam updates plan-to-implementation traceability with planned item, changed files, validator proof, user-facing proof, and future-gated decisions.
+Workstream Entry reads the plan and returns whole-package analysis plus the first-seam design packet before implementation. Each seam updates plan-to-implementation traceability with planned item, changed files, validator proof, user-facing proof, and future-gated decisions.
 
 Workstream seam closeout updates the matrix with implemented, skipped, deferred, or future-gated status. Hardening compares actual implementation against the matrix. Live Validation compares observed behavior, user-facing proof, UTS posture, and waiver posture against the matrix. PR Readiness folds durable matrix outcomes into the branch record, workstream doc, family dossier, or Element Validation Ledger owner.
 

@@ -571,6 +571,7 @@ That means:
 
 - prompts may name a seam chain and active seam, but source-of-truth and validation decide continuation
 - Branch Readiness should plan the branch objective, target end-state, expected seam families, risk classes, validation contract, User Test Summary strategy, later-phase needs, and first seam sequence
+- Workstream Entry for a runtime branch with multiple admitted slices or seams must analyze the whole admitted Workstream package before recommending the first implementation seam. The packet must report all admitted slices/seams, completion strategy, first-seam recommendation, seam dependency map, future-gated boundaries, preservation surfaces, validation plan, Hardening H1 expectations, Live Validation LV1 expectations, visual/user-facing proof requirements, UTS handoff criteria, and exact implementation approval text. A first-seam-only packet blocks on `Workstream Entry Whole-Package Analysis Missing`.
 - Workstream may execute multiple planned seams in one pass when they share the same workstream, phase, branch class, approved scope, and subsystem family or tightly coupled implementation, validation, or governance chain
 - each seam is still analyzed, bounded, executed, validated, recorded, and judged before the next seam starts
 - Hardening and Live Validation may continue through constrained validation or evidence-digestion seams only when their phase rules allow it

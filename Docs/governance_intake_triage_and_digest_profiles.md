@@ -33,6 +33,8 @@ Profile selection may choose the correct packet shape, but it must not shrink, c
 
 When a USER asks for a full digest, review digest, complete breakdown, file-by-file packet, line-referenced packet, or any other explicitly detailed output, Codex must return that complete digest even if a smaller profile would otherwise be legal. A concise summary may be added before or after the digest, but it cannot replace or compact the digest.
 
+Forwarded Digest Non-Compaction Rule: when Codex produces a digest intended to be forwarded to another branch, worktree, governance lane, PR watcher, Release Readiness lane, or future Codex thread, the digest must be complete and non-lossy. It must include repo/worktree identity, branch, HEAD or relevant commits, phase, source-truth owners, decision state, blockers, validation state, what happened, what went wrong, recommended governance/source-truth changes, exact USER decision needed, and explicit exclusions. Codex may organize the digest, but must not compress it into minimal bullets or omit operational details for brevity.
+
 ## Governance Intake Triage Packet
 
 Before a broad non-release governance repair mutates source truth, Codex must either cite an already accepted triage packet or return this packet:

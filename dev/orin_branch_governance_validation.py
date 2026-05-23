@@ -3447,6 +3447,94 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
     ),
 }
 
+WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Workstream Entry Whole-Package Analysis Gate",
+        "all admitted slices/seams",
+        "completion strategy",
+        "Hardening H1 expectations",
+        "Live Validation LV1 expectations",
+        "UTS handoff criteria",
+        "Workstream Entry Whole-Package Analysis Missing",
+        "does not authorize executing those phases",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "Workstream Entry Whole-Package Analysis Gate",
+        "all admitted slices/seams",
+        "completion strategy for the whole Workstream package",
+        "Hardening H1 expectations",
+        "Live Validation LV1 expectations",
+        "UTS handoff criteria",
+        "Workstream Entry Whole-Package Analysis Missing",
+    ),
+    Path("Docs/branch_records/index.md"): (
+        "Workstream Entry Whole-Package Analysis Gate",
+        "all admitted slices/seams",
+        "Hardening H1 expectations",
+        "Live Validation LV1 expectations",
+        "UTS handoff criteria",
+        "Workstream Entry Whole-Package Analysis Missing",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Runtime Workstream Entry with multiple admitted slices or seams",
+        "whole-package analysis before first-seam implementation",
+        "Workstream Entry Whole-Package Analysis Missing",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Workstream Entry for a runtime branch with multiple admitted slices or seams",
+        "all admitted slices/seams",
+        "completion strategy",
+        "Hardening H1 expectations",
+        "Live Validation LV1 expectations",
+        "UTS handoff criteria",
+        "Workstream Entry Whole-Package Analysis Missing",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Workstream Entry Whole-Package Analysis:",
+        "Workstream Entry Whole-Package Summary:",
+        "all admitted slices/seams",
+        "Hardening H1 expectations",
+        "Live Validation LV1 expectations",
+        "UTS handoff criteria",
+        "This authorizes analysis only",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Workstream Entry whole-package analysis",
+        "first-seam implementation",
+        "Workstream Entry Whole-Package Analysis Missing",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "whole-package analysis before first-seam implementation approval",
+        "first-seam-only handoff is not enough",
+    ),
+    Path("Docs/governance_efficiency_operating_model.md"): (
+        "whole-package analysis status",
+        "multiple slices or seams are admitted",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "Workstream Entry Whole-Package Analysis Gate",
+        "Formal Next Legal Phase Digest non-compaction",
+        "Forwarded Digest Non-Compaction Rule",
+    ),
+}
+
+FORWARDED_DIGEST_NON_COMPACTION_REQUIRED_PHRASES = {
+    Path("Docs/governance_intake_triage_and_digest_profiles.md"): (
+        "Forwarded Digest Non-Compaction Rule",
+        "another branch, worktree, governance lane, PR watcher, Release Readiness lane, or future Codex thread",
+        "repo/worktree identity",
+        "HEAD or relevant commits",
+        "what happened",
+        "what went wrong",
+        "exact USER decision needed",
+        "must not compress it into minimal bullets",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "Forwarded Digest Non-Compaction Rule",
+        "governance validator",
+    ),
+}
+
 WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/codex_modes.md"),
@@ -19099,6 +19187,22 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: Main-first loader chain guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Workstream Entry whole-package analysis guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in FORWARDED_DIGEST_NON_COMPACTION_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: forwarded digest non-compaction guidance is missing '{required_phrase}'",
             )
 
     for relative_path in BRANCH_READINESS_STAGE_GATE_DOCS:
