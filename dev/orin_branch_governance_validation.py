@@ -2704,6 +2704,8 @@ STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_docs_inventory_reform_audit.py",
     "dev/automation_observability_report.py",
     "dev/orin_ai_provider_state_validation.py",
+    "dev/orin_monitoring_hud_internal_sandbox_validation.py",
+    "dev/orin_monitoring_hud_surface_validation.py",
     "dev/orin_pr_body_quality_audit.py",
     "dev/orin_release_body_validation.py",
 }
