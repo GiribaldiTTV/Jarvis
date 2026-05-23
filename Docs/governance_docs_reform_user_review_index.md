@@ -7,7 +7,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 ## Review Proof
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Docs files covered: 161
+- Docs files covered: 163
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
 - Runtime/FAM/Compact-AI mutation: none.
@@ -104,6 +104,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_temporary_reference_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_visual_inspection_matrix_repair_reference_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
@@ -123,6 +124,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | High | `volatile-current-wording=85`; `unclear-ownership-wording=13`; `soft-commitment-wording=2`; `state-ledger-wording=94` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md` | High | `volatile-current-wording=133`; `unclear-ownership-wording=21`; `soft-commitment-wording=72`; `state-ledger-wording=223` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | High | `volatile-current-wording=46`; `unclear-ownership-wording=15`; `soft-commitment-wording=13`; `state-ledger-wording=98` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | High | `volatile-current-wording=22`; `unclear-ownership-wording=11`; `soft-commitment-wording=12`; `state-ledger-wording=65` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | `volatile-current-wording=22`; `unclear-ownership-wording=11`; `soft-commitment-wording=4`; `state-ledger-wording=53` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | High | `volatile-current-wording=41`; `unclear-ownership-wording=11`; `soft-commitment-wording=3`; `state-ledger-wording=84` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | High | `volatile-current-wording=27`; `unclear-ownership-wording=16`; `soft-commitment-wording=4`; `state-ledger-wording=76` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -134,7 +136,6 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_records/feature_automation_planning.md` | High | `volatile-current-wording=113`; `unclear-ownership-wording=34`; `soft-commitment-wording=8`; `state-ledger-wording=65` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | High | `volatile-current-wording=78`; `unclear-ownership-wording=17`; `state-ledger-wording=41` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_backlog_family_governance_reform.md` | High | `volatile-current-wording=106`; `unclear-ownership-wording=25`; `soft-commitment-wording=5`; `state-ledger-wording=51` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | High | `volatile-current-wording=124`; `unclear-ownership-wording=35`; `soft-commitment-wording=16`; `state-ledger-wording=95` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 
 ## Structure Review Queue
 
@@ -157,9 +158,9 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
+| `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_runtime_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 
 ## High-Risk Review Queue
 
