@@ -444,6 +444,8 @@ Exact USER Approval Text: `Approve Workstream Entry analysis for feature/fam-007
 
 USER Plan Review Gate: `Workstream Entry is the USER-verifiable engineering design review for the branch plan created in Stage 2; USER may accept, change, waive, or reject the implementation design before any runtime work begins.`
 
+USER Inspection Files: `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`; `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`; `Docs/validation_helper_registry.md`; `Docs/worktree_slots.md`; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`
+
 Implementation Blocker: `Runtime implementation remains blocked until Workstream Entry returns an accepted implementation packet or source truth records an explicit USER waiver/change decision.`
 
 Allowed Scope: `Analysis-only Workstream Entry design packet.`
