@@ -4,11 +4,11 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-
 
 ## Record State
 
-Record State: `Active Branch Authority`
+Record State: `Historical Branch Authority Projection`
 
 ## Status
 
-Status: `Live Validation LV1 Green - local consent capture/write-path implementation foundation is validated as disabled/status-only local consent telemetry with static Core/Desktop/ORIN source truth, provider-state validator proof, desktop readiness display suppression continuity, User Test Summary waiver, and local-only safety posture recorded; ready for PR Readiness Stage 1 after USER approval.`
+Status: `PR Readiness Stage 1 Ready For Stage 2 - local consent capture/write-path implementation foundation is validated as disabled/status-only local consent telemetry with static Core/Desktop/ORIN source truth, provider-state validator proof, desktop readiness display suppression continuity, User Test Summary waiver, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, and Release Window Audit recorded; PR Readiness Stage 2 / PR creation remains pending USER approval.`
 
 ## Canonical Branch
 
@@ -16,29 +16,29 @@ Canonical Branch: `feature/fam-007-local-ai-provider-consent-collection-implemen
 
 ## Current Phase
 
-Phase: `Live Validation`
+Phase: `Historical Traceability`
 
-Stage: `Live Validation LV1 Green`
+Stage: `PR Readiness Stage 1 Ready For Stage 2`
 
 Seam: `FAM-007 Local AI Provider Consent Collection Implementation Foundation`
 
 ## Phase Status
 
-- Branch Authority Marker: `Active Branch Authority`
-- Branch Authority Type: `Active Branch`
-- Active Branch: `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
+- Branch Authority Marker: `Historical Branch Evidence Projection`
+- Branch Authority Type: `Historical Projection`
+- Branch Evidence Branch: `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
 - Branch Evidence: `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
-- Branch Authority State: `Active FAM-007 runtime carrier for bounded Workstream implementation`
+- Branch Authority State: `Historical projection for PR Readiness Stage 1 - this branch becomes merged-unreleased FAM-007 consent capture/write-path implementation foundation evidence after PR merge and must not remain active branch authority on merged main`
 - Stage 2 Status: `Complete after source-truth setup, branch plan creation, validation, commit, and push`
 - Workstream Status: `Green - all admitted consent capture/write-path foundation seams are implemented and validated for closeout`
 - Hardening H1 Status: `Green - H1 compared the completed implementation against the admitted Workstream plan, Branch Runtime Engineering Plan, Product Definition Plan, Runtime Branch Engineering Contract, source truth, validator fixtures, setup/execution consent separation, consent record schema/storage boundary, provenance/audit/no-secrets posture, local-only safety boundaries, hidden telemetry UI proof, desktop readiness display suppression continuity, and overlap posture with no remaining H1 blocker`
 - Live Validation LV1 Status: `Green - static Core/Desktop/ORIN source truth plus dev/orin_ai_provider_state_validation.py prove disabled/status-only local consent capture/write-path telemetry, provider-visible data none, sentToProvider=false, canAcceptPrompts=false, prompt/model/provider execution disabled, downloads/install blocked, network egress blocked, memory/indexing/learning/personalization disabled or deferred, voice/Core sync gated, and desktop readiness display suppression continuity`
 - User Test Summary Status: `WAIVED - no user-operated consent capture UI or live client path is admitted; static validator proof is the source-truth-supported substitute`
-- PR Readiness Stage 1 Status: `Pending USER approval`
+- PR Readiness Stage 1 Status: `Complete - selected-next defer/USER waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, Workstream/H1/LV1 preservation, static LV1 waiver, and PR Readiness Stage 2 approval boundary are recorded`
 - Prior FAM-007 Evidence: `PR #193 FAM-007 consent collection foundation is merged and released evidence from v1.7.13-prebeta; PR #192 setup implementation foundation remains released evidence from v1.7.12-prebeta; PR #190 setup contract readiness and PR #179 setup/consent-flow readiness remain released historical evidence`
 - Consent Collection Implementation State: `Implemented - local consent capture transition/write-path snapshot fields, local record normalization, consent record storage-boundary schema, durable-storage-deferred posture, local-only revocation/reset model, setup/execution consent separation, audit/no-secrets proof, UI hidden-telemetry proof, future provider setup handoff, functional-AI/v1.8.0 continuation criteria, and validator fixtures are present`
 - Provider Execution State: `Blocked - provider setup completion, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product import, and v1.8.0-prebeta execution remain pending USER decisions`
-- Next Active Seam: `PR Readiness Stage 1 after Live Validation LV1 Green phase-boundary USER approval`
+- Next Active Seam: `PR Readiness Stage 2 / PR creation after USER approval`
 
 ## Branch Class
 
@@ -90,7 +90,7 @@ Write Target: `C:\Nexus Worktrees\FAM-007` on `feature/fam-007-local-ai-provider
 
 Non-Includes: `Runtime work beyond this hardened local consent foundation, user-operated consent capture UX, durable consent persistence beyond local snapshot proof, provider setup completion, provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/GitHub Release/artifact work, issue work, FAM-006 mutation, Governance mutation outside this branch path, Compact-AI mutation, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 
-Pending USER Decisions: `PR Readiness Stage 1, PR creation, merge, release/tag/GitHub Release/artifact work, issue work, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
+Pending USER Decisions: `PR Readiness Stage 2 / PR creation, merge, release/tag/GitHub Release/artifact work, issue work, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 
 ## Blockers
 
@@ -225,15 +225,15 @@ Status: `Complete - functional-AI and v1.8.0 continuation criteria remain pendin
 
 ## Active Seam
 
-Active seam: `PR Readiness Stage 1 phase-boundary handoff after Live Validation LV1 Green`
+Active seam: `PR Readiness Stage 1 merge-stable projection complete`
 
-Goal: Stop at the Live Validation LV1 Green phase boundary and prepare PR Readiness Stage 1 to analyze PR eligibility, selected-next/defer truth, pre-PR live-state posture, release-window posture, and active branch fold-down.
+Goal: Preserve PR Readiness Stage 1 analysis and prepare PR Readiness Stage 2 to create the PR only after USER approval.
 
-Scope: Live Validation LV1 closeout only; PR Readiness Stage 1 begins only after USER admission.
+Scope: PR Readiness Stage 1 source-truth fold-down only; PR creation begins only after Stage 2 USER approval.
 
 Non-Includes: Provider setup completion, provider execution, PR creation, merge, release execution, cleanup, sibling worktree mutation, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta execution.
 
-Next Active Seam: `PR Readiness Stage 1 after USER approval`
+Next Active Seam: `PR Readiness Stage 2 / PR creation after USER approval`
 
 ## Seam Continuation Decision
 
@@ -341,7 +341,7 @@ Implementation Sequence Proposal: First implement local state/schema and write p
 
 Planning Blockers: No admitted Workstream implementation blocker remains if validation is green; provider setup completion and provider/model execution remain separate future blockers.
 
-USER Decisions Needed: USER must approve PR Readiness Stage 1, PR creation, merge, release execution, provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product import, Private Dev ORIN import, and v1.8.0 execution.
+USER Decisions Needed: USER must approve PR Readiness Stage 2 / PR creation, merge, release execution, provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product import, Private Dev ORIN import, and v1.8.0 execution.
 
 Planning Packet Status: `Complete`
 
@@ -459,13 +459,201 @@ User Test Summary Waiver Reason: `No user-operated local consent capture path is
 
 User Test Summary Handoff: `Not generated - formal UTS export is waived for this disabled/status-only local consent telemetry branch.`
 
-## PR Readiness Stage 1 Handoff
+## PR Readiness Stage 1 Analysis Packet
 
-PR Readiness Stage 1 Handoff: `Pending USER approval after LV1 Green`
+PR Readiness Stage 1 USER Approval: `Granted - USER approved PR Readiness Stage 1 analysis for this FAM-007 consent collection implementation foundation branch after LV1 Green.`
 
-PR Readiness Stage 1 Scope: `Analyze branch/worktree identity, origin/main freshness, Workstream/H1/LV1 posture, selected-next or USER-approved defer truth, post-merge no-active-branch projection, successor branch posture, release-window posture, active branch authority, historical branch refs, pre-PR live state, changed-file scope, FAM-006/Governance/Compact-AI overlap, source-owner marker posture, validation posture, and PR eligibility.`
+PR Readiness Stage 1 Repair USER Approval: `Granted - USER approved bounded Stage 1 source-truth repair if needed, including selected-next defer/waiver truth, pre-PR live-state truth, post-merge No Active Branch projection, successor selection deferment, validation, commit, and push. PR creation, watcher provisioning, merge, Release Readiness, release execution, issue work, branch cleanup, provider setup completion, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcut/installer, FAM-006 mutation, Governance mutation, Compact-AI mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain separate USER decisions.`
 
-PR Creation State: `Pending later Stage 2 USER decision; no PR creation is authorized by LV1 or PR Readiness Stage 1.`
+PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2 - Workstream Green, H1 Green, LV1 Green, Branch Runtime Engineering Plan, Runtime Branch Engineering Contract, Product Definition Plan, static LV1 proof, desktop readiness display suppression continuity, local-only safety posture, selected-next defer/waiver truth, pre-PR live-state, post-merge No Active Branch projection, release-window posture, and Stage 2 approval boundary are recorded before PR creation is requested.`
+
+Planned PR Title: `FAM-007 Local AI Provider Consent Collection Implementation Foundation`
+
+Planned PR Base: `main`
+
+Planned PR Head: `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
+
+Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
+
+PR Creation Approval: Pending USER approval
+
+Stage 2 PR Creation: Pending USER approval
+
+Workstream Completion State: `Green - bounded FAM-007 consent capture/write-path implementation foundation, H1, LV1, validator proof, desktop readiness display suppression continuity, and PR Readiness Stage 1 source-truth repair are complete.`
+
+Post-Merge Branch Authority Projection: `After merge, this branch becomes historical merged-unreleased FAM-007 consent capture/write-path implementation foundation evidence. It must not remain active branch authority on merged main.`
+
+Post-Merge No Active Branch Projection: `After merge, merged-main source truth should project No Active Branch until a later USER-approved Branch Readiness decision selects a successor lane.`
+
+Next Workstream User Waiver: Granted - USER approved selected-next defer/waiver for this PR-readiness pass.
+
+Selected-Next Defer User Waiver: Granted
+
+No Successor Runtime Branch By Inertia: USER-waived
+
+Selected Next Workstream: None - USER-approved selected-next defer/waiver for this PR-readiness pass.
+
+Selected Next Implementation Branch: Not created - successor branch selection and branch creation are deferred to later USER-approved Branch Readiness after merge and Release Readiness.
+
+Successor Selection: `Deferred - later USER-approved Branch Readiness must decide whether provider setup completion, provider SDK/adapter work, prompt/model execution proof, durable consent persistence, user-operated consent UX, or another FAM-007 lane is next.`
+
+## Origin/Main Freshness Check
+
+Origin/Main Freshness Check: `PASS - origin/main was fetched and remains at the branch merge base for this PR Readiness Stage 1 repair.`
+
+Branch Creation Base: `a42b7e50eb012722b140f3874dbf50826bd797c8`
+
+Current origin/main: `6681131c974d99945c494c0e4ff3c436f9347422`
+
+Origin/Main Advanced Since Branch Creation: `YES - branch was reconciled with Governance PR #200 before Workstream Entry and now has merge base origin/main at 6681131c974d99945c494c0e4ff3c436f9347422; no new incoming main changes are present for this PR Readiness Stage 1 pass.`
+
+Origin/Main Changed Files: `None since the accepted rebaseline base 6681131c974d99945c494c0e4ff3c436f9347422`
+
+Branch Changed Files: `Docs/branch_plans/README.md; Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md; Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md; Docs/branch_records/index.md; Docs/feature_backlog.md; Docs/governance_docs_full_inventory_reform_audit.md; Docs/governance_docs_reform_user_review_index.md; Docs/phase_governance.md; Docs/prebeta_roadmap.md; Docs/validation_helper_registry.md; Docs/worktree_slots.md; desktop/ai_provider_state.py; dev/orin_ai_provider_state_validation.py.`
+
+Reconciliation Required: `NO - no incoming main changes exist after the accepted Governance PR #200 rebaseline.`
+
+Reconciliation File List: `None`
+
+Reconciliation Recommendation: `No rebaseline required before PR Readiness Stage 2; rerun freshness checks if origin/main advances before PR creation.`
+
+Reconciliation Mutation Status: `Reconciliation remains analysis-only with no file fixes during Stage 1; this pass records PR-readiness source-truth markers only and does not rebaseline or accept incoming main active-branch blocks by inertia.`
+
+Historical Branch Ref Posture: `PASS - prior FAM-007 branches remain released historical evidence. This branch projects to historical merged-unreleased evidence after PR merge and released evidence only after a later Release Readiness and release execution decision.`
+
+UTS And LV1 Waiver Posture: `PASS - LV1 classified this branch as disabled/status-only local consent capture/write-path implementation foundation; static Core/Desktop/ORIN source truth plus dev/orin_ai_provider_state_validation.py is the applicable proof path.`
+
+Release Readiness Health Pass: `PASS - no release execution is authorized here; this branch preserves release-window/no-release-debt posture for later Release Readiness after merge.`
+
+Release Window Audit: `PASS - current public release baseline is v1.7.15-prebeta, origin/main includes Governance PR #200 at 6681131c974d99945c494c0e4ff3c436f9347422, and this branch is the next unreleased FAM-007 consent capture/write-path implementation foundation candidate only after PR creation/merge.`
+
+Runtime/UI Behavior Posture: `Local-only status/telemetry foundation remains disabled/status-only. Provider setup completion, provider SDK/model execution, downloads, network egress, memory, voice/Core sync, shortcut/installer, durable consent persistence beyond local snapshot proof, and functional AI remain blocked.`
+
+Desktop Readiness Display Suppression Continuity: `Green - long desktop AI-owned readiness display remains hidden/suppressed by default while validator-visible telemetry remains available.`
+
+Provider-Visible Data Posture: `None - sentToProvider=false and canAcceptPrompts=false remain validator-proved.`
+
+Changed File Scope: `Docs/branch_plans/README.md; Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md; Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md; Docs/branch_records/index.md; Docs/feature_backlog.md; Docs/governance_docs_full_inventory_reform_audit.md; Docs/governance_docs_reform_user_review_index.md; Docs/phase_governance.md; Docs/prebeta_roadmap.md; Docs/validation_helper_registry.md; Docs/worktree_slots.md; desktop/ai_provider_state.py; dev/orin_ai_provider_state_validation.py.`
+
+## Post-Merge State
+
+Backlog Addition User Approval Missing: Cleared for this PR-readiness pass by USER-approved selected-next defer/waiver; no new backlog identity, backlog split, runtime package admission, successor branch, branch cleanup, or selected-next successor is created before PR creation.
+
+No Active Branch: Projected after merge until a later USER-approved Branch Readiness decision selects the next governed lane.
+
+Selected Next Workstream: None - selected-next defer/USER waiver recorded for this PR-readiness pass.
+
+Selected Next Implementation Branch: Not created - successor branch selection is deferred to later USER-approved Branch Readiness after merge and Release Readiness.
+
+Branch Authority Cleanup Projection: `PASS - branch authority should fold down from active carrier to historical merged-unreleased evidence after merge; no branch deletion or worktree cleanup is authorized.`
+
+Merged-Unreleased Scope Posture: `Projected - after PR merge and before a later release, this branch should be tracked as merged-unreleased FAM-007 consent capture/write-path implementation foundation evidence only.`
+
+Watcher / Live PR State Projection: `PASS - no live PR exists before Stage 2; PR watcher provisioning and live PR metadata belong to PR Readiness Stage 2 after USER approves PR creation.`
+
+Branch Cleanup Plan: `Deferred - no branch deletion, worktree deletion, stable worktree rebinding, or GitHub Desktop cleanup is authorized by this PR Readiness Stage 1 repair.`
+
+FAM Overlap Routing: `PASS - FAM-006 remains a separate lane with later PR/merge reconciliation risk only; this branch does not mutate FAM-006.`
+
+Governance Intake Routing: `PASS - Governance remains a separate standing intake lane; this branch does not mutate Governance.`
+
+Release Candidate Anchor Projection: `origin/main` at `6681131c974d99945c494c0e4ff3c436f9347422` plus this branch after PR merge.
+
+Release Window Contributor Inventory: `Projected contributor after merge: FAM-007 Local AI Provider Consent Collection Implementation Foundation. Released baseline: v1.7.15-prebeta with post-release Governance PR #200 on main.`
+
+Projected Post-Merge Validation: `Release Readiness should validate branch authority fold-down, release-window inventory, no active branch projection, source-truth consistency, runtime safety posture, and selected-next defer truth before any release execution.`
+
+## Next Workstream
+
+Recommended Next Workstream: `Deferred by USER waiver for this PR-readiness pass.`
+
+Candidate Work To Be Done: `Future candidate work may include provider setup completion, provider SDK/adapter boundary, prompt/model execution proof, provider-visible-data behavior proof, durable consent persistence, user-operated consent UX, capability/download path, memory/indexing/personalization path, voice/Core sync path, or another repo-supported FAM slice; none is selected or created by this PR-readiness repair.`
+
+User-Facing Output: `No new user-facing output is admitted here; this PR-readiness repair keeps the consent capture/write-path implementation foundation disabled/status-only and local-only while preserving provider setup and provider execution work for later Branch Readiness.`
+
+Candidate Slices: `Provider setup completion; provider SDK/adapter boundary; prompt/model execution proof; durable consent persistence; user-operated consent UX; functional-AI readiness toward v1.8.0-prebeta.`
+
+Dependencies / Blockers: `Provider setup completion, SDK/model execution, model downloads, network/external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, release execution, and successor branch creation remain pending USER decisions.`
+
+Validation Needs: `Any successor must rerun Branch Readiness, branch governance, release-readiness health, provider-state validation, runtime-fam007 validation suite, source-owner marker validation, rebaseline audit, compileall, and any successor-specific live/static proof required by repo truth.`
+
+Release Impact: `This branch has no release execution authority; future Release Readiness must translate consent capture/write-path implementation foundation as local-only/disabled provider posture and must not claim provider setup completion, functional AI, or provider/model execution.`
+
+Selection-Truth Status: `Deferred by USER-approved selected-next waiver for this PR-readiness pass.`
+
+Branch-Creation Status: `Not created - successor branch creation remains a pending USER decision.`
+
+Next Workstream User Waiver: Granted - USER approved selected-next defer/waiver for this PR-readiness pass.
+
+## Next Branch Pre-Plan
+
+Next Branch Package Shape: `Deferred - FAM-007 remains package-incomplete, but successor branch selection is explicitly deferred by USER waiver; later Branch Readiness should analyze the next detailed FAM-007 consent/setup/execution slice or any USER-reordered FAM candidate from current origin/main.`
+
+Proposed FAM / Package: `Deferred - likely FAM-007 / PKG-007 continuation, subject to later USER-approved Branch Readiness.`
+
+Candidate Work To Be Done: `Future provider setup completion, provider SDK/adapter boundary, prompt/model execution proof, durable consent persistence, user-operated consent UX, memory/indexing/personalization, voice/Core sync, shortcut/installer work, or functional-AI readiness may be analyzed later; no candidate is selected here.`
+
+Single-Slice Drift Review: `PASS - no new branch/package is created here; Branch Readiness must re-check package shape and single-slice risk before any successor is admitted.`
+
+Family Organization Review: `PASS - no family/package drift is introduced; this branch remains under FAM-007 / PKG-007 as consent capture/write-path implementation foundation evidence after merge.`
+
+Element Coverage Review: `PASS - Element coverage remains proof metadata only and does not create a new backlog identity, package, slice, release driver, or successor branch.`
+
+Dependencies / Blockers: `Later successor selection must inspect current origin/main, FAM-006/Governance overlap, Compact-AI preservation, v1.8.0 direction, and pending provider setup/execution approvals.`
+
+Validation / Live-Test Needs: `Later successor selection must declare static or live proof requirements before implementation.`
+
+Branch Creation Status: `Not created - branch creation is blocked until later USER-approved Branch Readiness.`
+
+USER Approvals Required: `Successor branch selection, Branch Readiness Stage 2 setup, provider setup completion, SDK/model execution, prompt/model execution, release readiness, release execution, and cleanup remain pending USER decisions.`
+
+PR Readiness Stage 1 Repairs Made: `Source-truth repair only - recorded selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, release-window posture, PR fold-down posture, and Stage 2 approval boundary; no runtime beyond the admitted foundation, provider setup completion, provider/model execution, release, issue, FAM-006, Governance, Compact-AI, branch cleanup, or PR creation work was performed.`
+
+## Release Readiness Health Pass
+
+Release Readiness Health Pass: PASS
+
+Post-Merge Branch Authority Projection: `PASS - this branch is projected as historical merged-unreleased FAM-007 consent capture/write-path implementation foundation evidence after merge and must not remain active branch authority on merged main.`
+
+Stale Active Branch Wording Scan: `PASS - current-state owners are updated for PR Readiness Stage 1 complete / Stage 2 pending posture and post-merge No Active Branch projection.`
+
+Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - PR Readiness Stage 1 is no longer pending; PR Readiness Stage 2 / PR creation remains pending USER approval.`
+
+Merged-Unreleased Scope Posture: `PASS - this branch is the only current FAM-007 merged-unreleased candidate if PR Stage 2 creates the PR and the PR later merges; release execution remains a separate USER decision.`
+
+Release Execution Gate: `PASS - no release, tag, GitHub Release, artifact, or issue closeout is authorized by this PR Readiness Stage 1 repair.`
+
+Watcher / Live PR State Projection: `PASS - no live PR exists before Stage 2; watcher and live PR state belong to Stage 2 operator output and must not be projected into merged-main current-state truth after merge.`
+
+Branch Cleanup Plan: `PASS - deferred; no branch deletion, worktree cleanup, or GitHub Desktop cleanup is authorized before later USER-approved cleanup.`
+
+Branch Cleanup Execution Gate: `PASS - cleanup execution is blocked until later USER-approved cleanup/rebinding analysis.`
+
+FAM Overlap Routing: `PASS - FAM-006 remains a separate lane with later shared-surface reconciliation risk only; this branch does not mutate FAM-006.`
+
+Governance Intake Routing: `PASS - Governance remains the standing intake lane with later reconciliation risk only; no separate Governance repair is required before PR Stage 2.`
+
+Release Candidate Anchor Projection: `PASS - origin/main 6681131c974d99945c494c0e4ff3c436f9347422 plus this branch after PR merge; Release Readiness must recalculate if origin/main advances before release preparation.`
+
+Release Window Contributor Inventory: `PASS - projected contributor after merge: FAM-007 Local AI Provider Consent Collection Implementation Foundation. Current baseline is v1.7.15-prebeta plus post-release Governance PR #200.`
+
+Projected Post-Merge Validation: `PASS - run branch governance, release-readiness health gate, governance efficiency, release body, provider-state, source-owner marker, branch-readiness planning fixture, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, compileall, and diff checks after PR merge or before Release Readiness.`
+
+## Release Window Audit
+
+Release Window Audit: PASS
+
+Remaining Known Release Blockers: None for PR Readiness Stage 1; release execution remains a pending USER decision.
+
+Another Pre-Release Repair PR Required: NO
+
+Release Window Split Waiver: None
+
+Release Split Waiver Reason: `Not required - no release-window split waiver is needed because there are no known release blockers for this projected PR scope.`
+
+## Governance Drift Audit
+
+Governance Drift Found: `NO - PR Readiness Stage 1 source-truth repair records selected-next defer/waiver truth, post-merge No Active Branch projection, branch-authority historical/no-active indexing, Release Readiness Health Pass, and Release Window Audit without requiring a separate Governance carrier before PR creation.`
 
 ## Release Baseline And Prior Evidence
 
@@ -542,30 +730,30 @@ Required Validation:
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Live Validation`
+Current Phase: `PR Readiness Stage 1`
 
 Next Legal Phase: `PR Readiness`
 
-Why This Phase Is Next: `Live Validation LV1 is Green after static Core/Desktop/ORIN source truth plus dev/orin_ai_provider_state_validation.py proved the completed local consent capture/write-path implementation foundation remains disabled/status-only local consent telemetry with provider-visible data none, sentToProvider=false, canAcceptPrompts=false, prompt/model/provider execution disabled, downloads/install blocked, network egress blocked, memory/indexing/learning/personalization disabled or deferred, voice/Core sync gated, desktop readiness display suppression continuity, and a source-truth-supported User Test Summary waiver.`
+Why This Phase Is Next: `The bounded Workstream is implemented, H1 compared implementation against the branch plan, Runtime Branch Engineering Contract, Product Definition Plan, and source truth, LV1 validated the disabled/status-only consent capture/write-path implementation foundation with static Core/Desktop/ORIN source truth and provider-state validator proof, and PR Readiness Stage 1 recorded selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, release-window posture, and PR creation approval boundary.`
 
-Approval Required: `USER approval to perform PR Readiness Stage 1 for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007.`
+Approval Required: `USER approval`
 
-Exact USER Approval Text: `Approve PR Readiness Stage 1 analysis for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@6681131c974d99945c494c0e4ff3c436f9347422. Scope: inspect branch/worktree identity, origin/main freshness, Workstream Green, Hardening H1 Green, Live Validation LV1 Green, Branch Runtime Engineering Plan, Product Definition Plan, Runtime Branch Engineering Contract, setup/consent capture proof, static LV1 and User Test Summary waiver posture, desktop readiness display suppression continuity, local-only safety posture, selected-next or USER-approved defer truth, post-merge No Active Branch projection, successor branch posture, release-window posture, active branch authority, historical branch refs, pre-PR live-state posture, changed-file scope, FAM-006/Governance/Compact-AI overlap, source-owner marker posture, validation posture, and PR eligibility; apply bounded Stage 1 source-truth repairs if needed; keep PR creation, merge, release execution, provider setup completion, SDK/model execution, downloads/external calls, memory/learning/personalization behavior, voice/Core sync, shortcuts/installers, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution pending.`
+Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007. Scope: create the PR against main, validate live PR state, mergeability, checks, review state, PR body/source-truth fold-down, watcher provisioning, and PR metadata; do not merge, release, clean branches/worktrees, implement provider setup completion, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, or mutate sibling lanes.`
 
-USER Plan Review Gate: `Workstream Entry, H1, and LV1 are complete; PR Readiness Stage 1 is analysis-only and will report any selected-next/defer, pre-PR live-state, or source-truth repair needs before Stage 2 PR creation can be approved.`
+USER Plan Review Gate: `PR Readiness Stage 1 is complete; USER may inspect the PR Readiness Stage 1 Analysis Packet, branch plan, changed-file scope, validation results, and Stage 2 approval boundary before authorizing PR creation.`
 
 USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/validation_helper_registry.md; desktop/ai_provider_state.py; dev/orin_ai_provider_state_validation.py.`
 
-Review Required Because: `PR Readiness Stage 1 decides whether the branch is eligible for Stage 2 PR creation or needs bounded source-truth repair first.`
+Review Required Because: `PR Readiness Stage 2 creates the live PR and starts watcher/live metadata obligations.`
 
-Review Waiver Reason: `Not waived - USER may inspect the listed files before admitting PR Readiness Stage 1; PR creation remains blocked until Stage 2 approval.`
+Review Waiver Reason: `Not waived - USER may inspect the listed files before admitting PR Readiness Stage 2; merge and release remain blocked after PR creation.`
 
-Implementation Blocker: `No Workstream, H1, or LV1 blocker remains; PR Readiness Stage 1 requires USER approval and PR creation remains blocked until a later Stage 2 decision.`
+Implementation Blocker: `No Workstream, H1, LV1, or PR Readiness Stage 1 blocker remains; PR creation remains blocked until Stage 2 USER approval.`
 
-Allowed Scope: `Next phase is PR Readiness Stage 1 analysis only if USER approves.`
+Allowed Scope: `Create the PR against main, validate live PR state, mergeability, checks, review state, PR body/source-truth fold-down, watcher provisioning, and PR metadata; do not merge.`
 
-Explicit Exclusions: `Runtime work beyond this hardened local consent foundation, user-operated consent capture UX, durable consent persistence beyond local snapshot proof, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifact work, issue work, branch/worktree cleanup, cross-lane mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
+Explicit Exclusions: `No merge, release, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, cleanup, FAM-006 mutation, Governance mutation outside this branch, Compact-AI mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 
-Validation Required: `Diff checks, branch governance, PR-readiness gate, release health, governance efficiency, release body, source-owner marker, branch-readiness planning fixture validation, FAM-007 provider-state validation, runtime-fam007 suite, worktree rebaseline audit, compileall, and any PR Readiness Stage 1 checks required by changed files.`
+Validation Required: `PR-readiness gate, live PR metadata checks after PR creation, diff checks, branch governance validation, release-readiness health gate, governance efficiency validation, release body validation, AI provider state validation, source-owner marker validation, branch-readiness planning fixture validation, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, and compileall as applicable.`
 
-Stop Conditions: `Stop if origin/main advances and reconciliation is needed, source truth points to another carrier, FAM-006/Governance/Compact-AI posture creates a direct sequencing decision, PR Readiness requires PR creation or merge, or Stage 1 would require work outside its approved scope.`
+Stop Conditions: `Stop if origin/main advances, source truth points to another carrier, FAM-006/Governance/Compact-AI creates a sequencing blocker, validation fails, PR creation cannot complete, live PR metadata contradicts source truth, or any step would require merge, release, runtime/provider implementation, cleanup, or sibling-lane mutation.`
