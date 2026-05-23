@@ -5,6 +5,7 @@
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
 This layer sits under the branch authority record. It does not replace the branch authority record, backlog, roadmap, or canonical workstream doc.
+Codex reaches this layer through the Main-first loader chain: load `Docs/Main.md`, then the governing phase/vision/branch authority owners, then the active branch plan for branch-local engineering detail.
 
 ## Ownership Model
 

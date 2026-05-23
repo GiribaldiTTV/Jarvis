@@ -102,6 +102,8 @@ Allowed compact non-live markers:
 
 Canonical docs and context docs are distinct. `Docs/Main.md` is the highest-level canonical docs index: it should be updated rarely, point to the current valid governance/source-truth files, and explain each file's intended purpose clearly enough to recover the system. Context docs may preserve historical evidence, workstream detail, branch receipts, product reasoning, or implementation lessons, but they must point back to their canonical owner and must not pretend to be the top-level source of current governance law.
 
+Main-first loader chain: `Docs/Main.md` routes Codex to the owning source-truth files. Context docs and review bundles may point to Main and the relevant owner, but they must not become alternate first loaders or duplicate detailed policy that belongs in phase governance, vision owners, branch plans, branch records, or helper registries.
+
 Prohibited duplication by default:
 
 - raw `HEAD` or `origin/main` hash as current truth outside an operator packet or historical receipt

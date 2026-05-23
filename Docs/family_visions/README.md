@@ -3,6 +3,7 @@
 ## Purpose
 
 `Docs/family_visions/` owns durable product-direction records for broad Nexus feature families when the backlog needs more than a compact pointer but less than an active branch plan.
+Codex reaches family vision through the Main-first loader chain: `Docs/Main.md` routes to `Docs/nexus_vision.md` for project-wide vision, then to the relevant family vision record, then to the active branch plan for branch-local snapshots and implementation proof.
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 

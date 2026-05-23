@@ -3352,7 +3352,6 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
 }
 
 NEXT_LEGAL_PHASE_DIGEST_DOCS = (
-    Path("Docs/Main.md"),
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
     Path("Docs/codex_modes.md"),
@@ -3371,9 +3370,82 @@ NEXT_LEGAL_PHASE_DIGEST_REQUIRED_PHRASES = (
     "Explicit Exclusions:",
     "Validation Required:",
     "Stop Conditions:",
+    "USER Plan Review Gate:",
+    "USER Inspection Files:",
+    "Review Required Because:",
+    "Implementation Blocker:",
+    "Review Waiver Reason:",
     "Next Legal Phase Digest Missing",
     "Next Safe Move",
+    "must not be compacted",
+    "accept, revise, waive, or reject",
 )
+
+NEXT_LEGAL_PHASE_DIGEST_POINTER_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "Formal Next Legal Phase Digest",
+        "Docs/phase_governance.md",
+        "Next Legal Phase Digest Missing",
+        "must not duplicate the full digest-field policy",
+    ),
+}
+
+MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "Main-First Loader Chain",
+        "Docs/nexus_vision.md",
+        "Docs/family_visions/",
+        "Docs/branch_plans/<branch_slug>.md",
+        "Context docs may explain",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Main is the first repo loader and routing index",
+        "Nexus Vision",
+        "family vision",
+        "active branch plan",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Main is the first repo loader and routing index",
+        "Nexus Vision",
+        "family vision",
+        "active branch plans",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Main is the first repo loader and source-truth router",
+        "Docs/nexus_vision.md",
+        "Docs/family_visions/",
+        "active branch plan",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Generated prompts must preserve the Main-first loader chain",
+        "Docs/Main.md",
+        "Docs/nexus_vision.md",
+        "Docs/family_visions/",
+        "Docs/branch_plans/<branch_slug>.md",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Preserve the Main-first loader chain",
+        "project/family vision",
+        "active branch plan",
+        "Docs/nexus_vision.md",
+        "Docs/family_visions/",
+    ),
+    Path("Docs/governance_efficiency_operating_model.md"): (
+        "Main-first loader chain",
+        "owning source-truth files",
+        "alternate first loaders",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "Main-first loader chain",
+        "active branch plan",
+        "branch-local engineering detail",
+    ),
+    Path("Docs/family_visions/README.md"): (
+        "Main-first loader chain",
+        "Docs/nexus_vision.md",
+        "active branch plan",
+    ),
+}
 
 WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -19011,6 +19083,22 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: Next Legal Phase Digest guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in NEXT_LEGAL_PHASE_DIGEST_POINTER_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Next Legal Phase Digest routing pointer is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Main-first loader chain guidance is missing '{required_phrase}'",
             )
 
     for relative_path in BRANCH_READINESS_STAGE_GATE_DOCS:

@@ -11,6 +11,7 @@ It does not replace the owning canon documents, and it must not define or overri
 Codex may read this file as a compact loader map, but Codex execution authority comes only from the owning source-of-truth documents after they are loaded.
 Local ChatGPT custom instructions should stay compact; this repo loader/source-truth may hold longer ChatGPT-facing continuity rules, review memory, and prompt-generation guardrails.
 Do not paste this loader doc into Codex prompts. Codex prompts should load `Docs/Main.md` and the owning canon for execution authority, using this loader only when prompt generation, new-chat bootstrapping, or loader/source-truth drift review is actually in scope.
+Generated prompts must preserve the Main-first loader chain: load `Docs/Main.md` first, then the directly relevant owner docs, including `Docs/nexus_vision.md`, `Docs/family_visions/`, and `Docs/branch_plans/<branch_slug>.md` when product, design, vision, or branch planning is in scope.
 Seam workflow logic is intentionally out of scope for this contract.
 When seam behavior matters, route to `Docs/phase_governance.md`, `Docs/codex_modes.md`, and the active workstream record.
 
