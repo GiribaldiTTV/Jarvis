@@ -5481,9 +5481,6 @@ BOT_REVIEW_BOT_LOGIN = "chatgpt-codex-connector[bot]"
 BOT_REVIEW_GREEN_COMMENT_PHRASES = (
     "didn't find any major issues",
     "did not find any major issues",
-    "no major issues",
-    "looks good",
-    "chef's kiss",
 )
 BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
     "Docs/Main.md",
@@ -14556,10 +14553,14 @@ def _bot_login_matches(login: str) -> bool:
 
 
 def _bot_review_comment_is_green_signal(body: str) -> bool:
-    lowered = body.casefold()
-    if any(phrase in lowered for phrase in BOT_REVIEW_GREEN_COMMENT_PHRASES):
-        return True
-    return "codex review:" in lowered and "major issues" in lowered and "didn" in lowered
+    lead_summary = body.casefold().split("<details", 1)[0]
+    has_green_phrase = any(
+        phrase in lead_summary
+        for phrase in BOT_REVIEW_GREEN_COMMENT_PHRASES
+    )
+    if not has_green_phrase:
+        return False
+    return not re.search(r"\b(but|however|except|although|though|unless)\b", lead_summary)
 
 
 def _github_rest_review_decision(
