@@ -8661,6 +8661,14 @@ def _validate_user_feedback_disposition(
     seen_feedback_ids: set[str] = set()
     seen_feedback_summaries: dict[str, str] = {}
 
+    def _normalized_feedback_summary_key(value: str) -> str:
+        folded = value.casefold()
+        alnum_text = "".join(ch if ch.isalnum() else " " for ch in folded)
+        normalized = re.sub(r"\s+", " ", alnum_text).strip()
+        if normalized:
+            return normalized
+        return re.sub(r"\s+", " ", folded).strip()
+
     for item_match in item_matches:
         heading_id = item_match.group(1).strip()
         item_block = item_match.group(2).strip()
@@ -8699,11 +8707,7 @@ def _validate_user_feedback_disposition(
         )
 
         feedback_summary = _extract_marker_value(item_block, "Feedback Summary:").strip()
-        normalized_feedback_summary = re.sub(
-            r"\s+",
-            " ",
-            re.sub(r"[^a-z0-9]+", " ", feedback_summary.casefold()),
-        ).strip()
+        normalized_feedback_summary = _normalized_feedback_summary_key(feedback_summary)
         require(
             normalized_feedback_summary not in seen_feedback_summaries,
             (

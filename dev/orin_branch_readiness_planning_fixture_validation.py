@@ -39,6 +39,9 @@ INVALID_BLOCKING_BRANCH_VISION_CONTRACT_FIXTURE = (
 VALID_USER_FEEDBACK_DISPOSITION_FIXTURE = (
     FIXTURE_DIR / "valid_user_feedback_disposition.md"
 )
+VALID_USER_FEEDBACK_UNICODE_SUMMARY_FIXTURE = (
+    FIXTURE_DIR / "valid_user_feedback_unicode_summary.md"
+)
 INVALID_USER_FEEDBACK_NO_OWNER_FIXTURE = (
     FIXTURE_DIR / "invalid_user_feedback_no_durable_owner.md"
 )
@@ -379,6 +382,7 @@ def validate() -> list[str]:
         INVALID_PROPOSED_BRANCH_VISION_CONTRACT_FIXTURE,
         INVALID_BLOCKING_BRANCH_VISION_CONTRACT_FIXTURE,
         VALID_USER_FEEDBACK_DISPOSITION_FIXTURE,
+        VALID_USER_FEEDBACK_UNICODE_SUMMARY_FIXTURE,
         INVALID_USER_FEEDBACK_NO_OWNER_FIXTURE,
         INVALID_USER_FEEDBACK_BAD_ID_FIXTURE,
         VALID_REBASELINE_OVERLAP_INTENT_FIXTURE,
@@ -543,6 +547,15 @@ def validate() -> list[str]:
         failures.append(
             "Valid USER Feedback Disposition fixture unexpectedly failed: "
             + "; ".join(valid_ufd_failures[:5])
+        )
+
+    valid_unicode_ufd_failures = _validate_user_feedback_disposition_text(
+        VALID_USER_FEEDBACK_UNICODE_SUMMARY_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_unicode_ufd_failures:
+        failures.append(
+            "Valid USER Feedback Disposition Unicode summary fixture unexpectedly failed: "
+            + "; ".join(valid_unicode_ufd_failures[:5])
         )
 
     no_owner_ufd_failures = _validate_user_feedback_disposition_text(

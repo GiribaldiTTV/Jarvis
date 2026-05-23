@@ -377,7 +377,6 @@ def _branch_plan_requires_retirement_index_row(text: str) -> bool:
         "retired",
         "merged",
         "cleanup",
-        "complete",
         "pr readiness stage 1 result",
     )
     if any(
