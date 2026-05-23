@@ -44,6 +44,12 @@ INVALID_USER_FEEDBACK_NO_OWNER_FIXTURE = (
 INVALID_USER_FEEDBACK_BAD_ID_FIXTURE = (
     FIXTURE_DIR / "invalid_user_feedback_bad_id.md"
 )
+VALID_REBASELINE_OVERLAP_INTENT_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_overlap_intent.md"
+)
+INVALID_REBASELINE_OVERLAP_UNKNOWN_HIGH_RISK_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_overlap_unknown_high_risk.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -74,6 +80,9 @@ EXPECTED_UFD_NO_OWNER_FAILURE_SNIPPET = (
     "No Durable Owner Needed requires No-Action Reason"
 )
 EXPECTED_UFD_BAD_ID_FAILURE_SNIPPET = "Feedback ID must use the UFD-* namespace"
+EXPECTED_REBASELINE_UNKNOWN_RISK_FAILURE_SNIPPET = (
+    "Semantic Merge Risk Unknown is blocked for high-risk overlap surfaces"
+)
 
 
 def _collect_failures():
@@ -150,6 +159,16 @@ def _validate_user_feedback_disposition_text(text: str) -> list[str]:
     return failures
 
 
+def _validate_branch_change_intent_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_branch_change_intent_ledger(
+        require,
+        "<branch-change-intent-fixture>",
+        text,
+    )
+    return failures
+
+
 def _validate_compact_backlog_text(text: str) -> list[str]:
     failures, require = _collect_failures()
     governance._validate_branch_runtime_backlog_compactness(
@@ -192,6 +211,8 @@ def validate() -> list[str]:
         VALID_USER_FEEDBACK_DISPOSITION_FIXTURE,
         INVALID_USER_FEEDBACK_NO_OWNER_FIXTURE,
         INVALID_USER_FEEDBACK_BAD_ID_FIXTURE,
+        VALID_REBASELINE_OVERLAP_INTENT_FIXTURE,
+        INVALID_REBASELINE_OVERLAP_UNKNOWN_HIGH_RISK_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -366,6 +387,26 @@ def validate() -> list[str]:
         failures.append(
             "Invalid USER Feedback Disposition bad-ID fixture did not reject "
             "non-UFD feedback ID namespace"
+        )
+
+    valid_overlap_failures = _validate_branch_change_intent_text(
+        VALID_REBASELINE_OVERLAP_INTENT_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_overlap_failures:
+        failures.append(
+            "Valid Rebaseline Overlap Intent fixture unexpectedly failed: "
+            + "; ".join(valid_overlap_failures[:5])
+        )
+
+    invalid_overlap_failures = _validate_branch_change_intent_text(
+        INVALID_REBASELINE_OVERLAP_UNKNOWN_HIGH_RISK_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_REBASELINE_UNKNOWN_RISK_FAILURE_SNIPPET not in "\n".join(
+        invalid_overlap_failures
+    ):
+        failures.append(
+            "Invalid Rebaseline Overlap Intent fixture did not reject Unknown "
+            "semantic merge risk for a high-risk overlap surface"
         )
 
     return failures

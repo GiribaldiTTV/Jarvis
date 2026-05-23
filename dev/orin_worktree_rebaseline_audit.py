@@ -45,6 +45,20 @@ HIGH_RISK_SOURCE_TRUTH_FILES = {
     "Docs/validation_helper_registry.md",
 }
 
+HIGH_RISK_SURFACE_CLASSES = {
+    "governance/source-truth",
+    "runtime",
+    "desktop/UI",
+    "Core visual",
+    "validator/helper",
+    "fixture/test",
+    "configuration/state/schema",
+    "release/public-output",
+    "prompt/template",
+    "automation/watcher",
+    "build/packaging",
+}
+
 
 def _run_git(args: list[str], cwd: Path, *, check: bool = False) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
@@ -127,6 +141,82 @@ def _classify_files(files: list[str]) -> tuple[list[str], list[str], list[str]]:
         if normalized == "main.py" or normalized.startswith(RUNTIME_PREFIXES):
             runtime.append(normalized)
     return sorted(set(source_truth)), sorted(set(runtime)), sorted(set(high_risk))
+
+
+def _surface_class(file_name: str) -> str:
+    normalized = file_name.replace("\\", "/")
+    if normalized.startswith(("Docs/branch_records/", "Docs/branch_plans/")):
+        return "governance/source-truth"
+    if normalized.startswith("Docs/") and normalized.endswith((".md", ".txt")):
+        if normalized in {
+            "Docs/orin_task_template.md",
+            "Docs/nexus_startup_contract.md",
+            "Docs/codex_user_guide.md",
+            "Docs/codex_modes.md",
+        }:
+            return "prompt/template"
+        if normalized in HIGH_RISK_SOURCE_TRUTH_FILES:
+            return "governance/source-truth"
+        return "documentation/reference"
+    if normalized.startswith("dev/fixtures/"):
+        return "fixture/test"
+    if normalized.startswith("dev/") or normalized.endswith((".ps1", ".bat", ".cmd")):
+        return "validator/helper"
+    if normalized.startswith("desktop/"):
+        return "desktop/UI"
+    if normalized.startswith("Core/"):
+        return "Core visual"
+    if normalized == "main.py" or normalized.startswith(("Audio/", "nexus_visual/")):
+        return "runtime"
+    if normalized.startswith((".github/", "scripts/")):
+        return "automation/watcher"
+    if normalized.endswith((".json", ".toml", ".yaml", ".yml", ".ini")):
+        return "configuration/state/schema"
+    if normalized.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".ico", ".mp4", ".wav")):
+        return "asset/media"
+    return "documentation/reference"
+
+
+def _overlap_file_result(file_name: str) -> str:
+    surface_class = _surface_class(file_name)
+    if surface_class in HIGH_RISK_SURFACE_CLASSES:
+        return "BLOCKED"
+    return "WARN"
+
+
+def _overall_overlap_gate_result(overlap_files: list[str]) -> str:
+    if not overlap_files:
+        return "Not Applicable"
+    if any(_overlap_file_result(file_name) == "BLOCKED" for file_name in overlap_files):
+        return "BLOCKED"
+    return "WARN"
+
+
+def _overlap_detail_lines(overlap_files: list[str]) -> list[str]:
+    if not overlap_files:
+        return ["- None"]
+    lines: list[str] = []
+    for file_name in overlap_files:
+        surface_class = _surface_class(file_name)
+        per_file_result = _overlap_file_result(file_name)
+        lines.extend(
+            [
+                f"- File: `{file_name}`",
+                f"  - Surface Class: `{surface_class}`",
+                "  - Incoming Change Summary: `Review incoming diff from merge_base..target_ref`",
+                "  - Current Branch Change Summary: `Review branch/worktree diff from merge_base..HEAD plus dirty files`",
+                "  - Branch Change Intent Present: `Review active Branch Change Intent Ledger`",
+                "  - Incoming Intent Evidence Present: `Review branch record, PR body, commit messages, source-owner markers, helper registry, fixtures, or workstream/family dossier`",
+                "  - Fallback Evidence: `Available for classification only; not a compatibility bypass`",
+                f"  - Risk: `{'High-risk surface requires intent evidence' if per_file_result == 'BLOCKED' else 'Lower-risk overlap requires USER-visible recommendation'}`",
+                f"  - Per-File Result: `{per_file_result}`",
+                "  - Recommended Resolution: `Inspect intent evidence before mutation`",
+                "  - Resolution Owner: `USER Decision until branch-owned intent evidence is proven`",
+                "  - Validation Required: `Run phase-required validation after any overlap-intent repair and before mutation`",
+                "  - USER Decision Needed: `Approve repair/waiver/defer/sequencing before rebaseline mutation`",
+            ]
+        )
+    return lines
 
 
 def _worktree_rows(root: Path) -> list[dict[str, str]]:
@@ -248,6 +338,8 @@ def build_report(cwd: Path, target_ref: str) -> str:
     else:
         incoming_files = _git_lines(["diff", "--name-only", f"HEAD..{target_ref}"], root)
         branch_files = _git_lines(["diff", "--name-only", f"{target_ref}..HEAD"], root)
+    current_branch_worktree_files = sorted(set(branch_files).union(current_changed_files))
+    rebaseline_overlap_files = sorted(set(incoming_files).intersection(current_branch_worktree_files))
     source_truth_files, runtime_files, high_risk_files = _classify_files(incoming_files)
     target_is_descendant = _is_ancestor(root, head, target_sha)
     head_is_descendant = _is_ancestor(root, target_sha, head)
@@ -261,6 +353,19 @@ def build_report(cwd: Path, target_ref: str) -> str:
         high_risk_files=high_risk_files,
         runtime_files=runtime_files,
     )
+    overlap_gate_result = _overall_overlap_gate_result(rebaseline_overlap_files)
+    if overlap_gate_result == "BLOCKED":
+        recommendation_state = "Blocked"
+        recommendation = (
+            "Rebaseline Overlap Intent Gate found high-risk overlapping files; "
+            "inspect Branch Change Intent Ledger evidence before mutation."
+        )
+    elif overlap_gate_result == "WARN":
+        recommendation_state = "USER decision required"
+        recommendation = (
+            "Rebaseline Overlap Intent Gate found lower-risk overlapping files; "
+            "return the overlap packet and get USER approval before mutation."
+        )
     sibling_rows = []
     overlap_files: set[str] = set()
     incoming_set = set(incoming_files)
@@ -305,6 +410,13 @@ def build_report(cwd: Path, target_ref: str) -> str:
         *[f"  - {commit}" for commit in incoming_commits[:30]],
         f"- Incoming Changed Files: `{', '.join(incoming_files) if incoming_files else 'None'}`",
         f"- Branch Changed Files: `{', '.join(branch_files) if branch_files else 'None'}`",
+        f"- Rebaseline Overlap Files: `{', '.join(rebaseline_overlap_files) if rebaseline_overlap_files else 'None'}`",
+        f"- Rebaseline Overlap Intent Gate: `{'Not Applicable' if not rebaseline_overlap_files else 'Required - inspect Branch Change Intent Ledger before mutation'}`",
+        f"- Overall Overlap Gate Result: `{overlap_gate_result}`",
+        f"- Rebaseline Overlap Failure Procedure: `{'Not Applicable' if not rebaseline_overlap_files else 'Required - freeze mutation and classify every overlapping file PASS/WARN/BLOCKED'}`",
+        f"- Rebaseline Overlap Intent Missing: `{'No' if not rebaseline_overlap_files else 'BLOCKED until branch-owned intent evidence is proven, waived, deferred by USER decision, or sequencing changes'}`",
+        "- Overlap File Details:",
+        *_overlap_detail_lines(rebaseline_overlap_files),
         f"- Incoming Runtime / Source-Truth Risk: `{'; '.join(source_truth_risk)}`",
         f"- Shared Surface / Worktree Overlap Forecast: `{', '.join(sorted(overlap_files)) if overlap_files else 'No incoming/local dirty-file overlap detected across sibling worktrees.'}`",
         "- Sibling Worktree Snapshot:",
@@ -313,7 +425,7 @@ def build_report(cwd: Path, target_ref: str) -> str:
         f"- Recommendation Only: `YES - no fetch, merge, rebase, checkout, reset, or file mutation was performed.`",
         f"- Rebaseline Recommendation: `{recommendation_state} - {recommendation}`",
         f"- Rebaseline Mutation Approval: `Pending USER approval for exact worktree, branch, target commit, and operation type.`",
-        f"- Rebaseline Mutation Status: `Not started - helper is report-only.`",
+        f"- Rebaseline Mutation Status: `{'Blocked - Rebaseline Overlap Intent Missing pending branch-owned evidence review.' if overlap_gate_result == 'BLOCKED' else 'Not started - helper is report-only.'}`",
         "",
         "Current-Main Reconciliation Identity Guard:",
         *[f"- {line}" for line in identity_guard],

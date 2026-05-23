@@ -50,7 +50,7 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, and broad feature-family checkpoints | volatile Git/GitHub operational state or active release ledger fields |
 | `Docs/branch_records/index.md` | active/historical branch authority routing | detailed branch implementation checklists |
 | `Docs/branch_records/<branch>.md` | branch authority, phase history, approvals, legal next phase, compact UFD pointer/status markers, structured traceability receipt | volatile live state, unindexed execution diaries, full feedback text, or reusable family-level implementation history after promotion |
-| `Docs/branch_plans/<branch>.md` | active runtime branch engineering plan, USER Feedback Disposition full-detail owner while active, per-seam checklist, plan-to-implementation traceability while active | permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger after retirement |
+| `Docs/branch_plans/<branch>.md` | active runtime branch engineering plan, non-runtime Branch Engineering Plan when overlap intent evidence is required, USER Feedback Disposition full-detail owner while active, Branch Change Intent Ledger owner for `Rebaseline Overlap Files:`, per-seam checklist, plan-to-implementation traceability while active | permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger after retirement |
 | `Docs/workstreams/index.md` | canonical workstream and dossier routing | per-branch live state by inertia |
 | `Docs/workstreams/<id>.md` | durable promoted implementation history and reusable continuity | volatile branch/PR state |
 | `Docs/validation_helper_registry.md` | durable helper inventory, statuses, reuse/consolidation decisions | workstream evidence details already owned by branch/workstream docs |
@@ -69,6 +69,7 @@ The post-audit reform model has one owner per active fact class:
 - worktree slots own reusable slot definitions and intended assignment receipts
 - branch records own branch authority, approvals, phase history, and structured branch traceability receipts
 - branch plans own detailed active runtime-branch engineering plans, full active USER Feedback Disposition items, and retire after fold-down
+- branch plans own full active Branch Change Intent Ledger evidence when rebaseline overlap exists; branch records receive compact fold-down receipts only when durable evidence remains useful
 - workstreams and family dossiers own durable package trace, slice trace, proof history, and reusable continuity
 - Git, GitHub, and approved helpers own live operational truth
 

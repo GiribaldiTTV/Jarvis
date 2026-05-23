@@ -219,6 +219,41 @@ The fold-down receipt must preserve a lookup path from every UFD ID to its final
 
 Branch records carry compact UFD status and pointers only. Backlog carries future-candidate pointers only after USER accepts the future-work disposition. Nexus Vision and family vision owners receive only accepted reusable standards, not branch-local unresolved feedback.
 
+## Branch Change Intent Ledger
+
+`Branch Change Intent Ledger` is required when `Pre-Rebaseline Impact Audit` reports non-empty `Rebaseline Overlap Files:` for the active branch/worktree. It preserves why the branch touched an overlapping file before Codex accepts incoming `origin/main` changes.
+
+Runtime branches keep this ledger inside the Branch Runtime Engineering Plan. Non-runtime branches with overlap must admit or update the smallest source-truth-supported Branch Engineering Plan under `Docs/branch_plans/<branch_slug>.md` before rebaseline mutation can proceed.
+
+Each overlapping file uses a repeatable block:
+
+### Changed Surface: <path>
+
+- Surface Class:
+- Change Intent:
+- Why This File Was Touched:
+- Owned Behavior / Fact Class:
+- Canonical Owner / Source Owner:
+- Resolution Owner:
+- Shared Surface:
+- Overlap Risk:
+- Expected Conflict Risk:
+- Semantic Merge Risk:
+- Conflict Resolution Rule:
+- Rebaseline Handling:
+- Validation Proof:
+- Fallback Evidence:
+- USER Decision / Waiver:
+- Fold-Down Target:
+
+`Surface Class:` values are `governance/source-truth`, `runtime`, `desktop/UI`, `Core visual`, `validator/helper`, `fixture/test`, `configuration/state/schema`, `release/public-output`, `prompt/template`, `automation/watcher`, `build/packaging`, `documentation/reference`, or `asset/media`.
+
+`Semantic Merge Risk:` values are `None`, `Low`, `Medium`, `High`, or `Unknown`. For high-risk surface classes, `Unknown` is `BLOCKED` until evidence or USER decision resolves it.
+
+`Resolution Owner:` values are `Current Branch`, `Incoming/Folded Owner`, `Originating Lane`, `Standing Governance`, `USER Decision`, or `Future Branch`.
+
+When overlap evidence is missing, weak, stale, or conflicting, Codex must run `Rebaseline Overlap Failure Procedure` and return a packet with `Overall Overlap Gate Result:`, per-file `Per-File Result: PASS / WARN / BLOCKED`, `Recommended Resolution:`, `Validation Required:`, `USER Decision Needed:`, and `Rebaseline Mutation Status:`. Fallback evidence supports classification and USER decision-making only; after the effective point it cannot produce `PASS` without branch-owned change-intent evidence.
+
 ## Lifecycle
 
 Branch Readiness Stage 1 proposes the plan requirements and returns the USER planning-review decision needed.

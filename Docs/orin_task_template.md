@@ -120,6 +120,30 @@ Incoming Main Change Set:
 Incoming Changed Files:
 [complete incoming file list from current HEAD or branch creation base to origin/main / None]
 
+Current Worktree Changed Files:
+[staged, unstaged, untracked, or current-worktree changed files / None]
+
+Branch Changed Files:
+[complete current branch file list from merge_base..HEAD / None]
+
+Rebaseline Overlap Files:
+[intersection of incoming changed files and current branch/worktree changed files / None]
+
+Rebaseline Overlap Intent Gate:
+[Not Applicable / PASS / WARN / BLOCKED]
+
+Overall Overlap Gate Result:
+[Not Applicable / PASS / WARN / BLOCKED]
+
+Branch Change Intent Ledger:
+[present at Docs/branch_plans/<branch_slug>.md / missing / not applicable]
+
+Rebaseline Overlap Failure Procedure:
+[Not Applicable / required packet returned / blocker repaired and rerun pending]
+
+Rebaseline Overlap Intent Missing:
+[No / BLOCKED with overlapping file list and exact USER decision needed]
+
 Incoming Runtime / Source-Truth Risk:
 [runtime/provider/UI/source-truth/validator/shared-surface risk classification / None]
 

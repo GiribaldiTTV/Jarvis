@@ -624,6 +624,69 @@ USER_FEEDBACK_DISPOSITION_SEVERITY_TERMS = (
     "seam-blocking",
     "workstream-breaking",
 )
+BRANCH_CHANGE_INTENT_HEADING = "Branch Change Intent Ledger"
+BRANCH_CHANGE_INTENT_ITEM_HEADING_RE = r"(?ms)^### Changed Surface:\s*([^\n]+)\n(.*?)(?=^### Changed Surface:|\Z)"
+BRANCH_CHANGE_INTENT_MARKERS = (
+    "Surface Class:",
+    "Change Intent:",
+    "Why This File Was Touched:",
+    "Owned Behavior / Fact Class:",
+    "Canonical Owner / Source Owner:",
+    "Resolution Owner:",
+    "Shared Surface:",
+    "Overlap Risk:",
+    "Expected Conflict Risk:",
+    "Semantic Merge Risk:",
+    "Conflict Resolution Rule:",
+    "Rebaseline Handling:",
+    "Validation Proof:",
+    "Fallback Evidence:",
+    "USER Decision / Waiver:",
+    "Fold-Down Target:",
+)
+BRANCH_CHANGE_INTENT_SURFACE_CLASSES = (
+    "governance/source-truth",
+    "runtime",
+    "desktop/ui",
+    "core visual",
+    "validator/helper",
+    "fixture/test",
+    "configuration/state/schema",
+    "release/public-output",
+    "prompt/template",
+    "automation/watcher",
+    "build/packaging",
+    "documentation/reference",
+    "asset/media",
+)
+BRANCH_CHANGE_INTENT_HIGH_RISK_CLASSES = (
+    "governance/source-truth",
+    "runtime",
+    "desktop/ui",
+    "core visual",
+    "validator/helper",
+    "fixture/test",
+    "configuration/state/schema",
+    "release/public-output",
+    "prompt/template",
+    "automation/watcher",
+    "build/packaging",
+)
+BRANCH_CHANGE_INTENT_SEMANTIC_RISK_VALUES = (
+    "none",
+    "low",
+    "medium",
+    "high",
+    "unknown",
+)
+BRANCH_CHANGE_INTENT_RESOLUTION_OWNERS = (
+    "current branch",
+    "incoming/folded owner",
+    "originating lane",
+    "standing governance",
+    "user decision",
+    "future branch",
+)
 RUNTIME_ENGINEERING_DETAIL_TERMS = {
     "Current Runtime Baseline:": (
         "state",
@@ -3831,11 +3894,27 @@ PRE_REBASELINE_IMPACT_AUDIT_PHRASES = (
     "No Baseline By Inertia",
     "Incoming Main Change Set",
     "Incoming Changed Files",
+    "Current Worktree Changed Files",
+    "Branch Changed Files",
+    "Rebaseline Overlap Files",
+    "Rebaseline Overlap Intent Gate",
+    "Branch Change Intent Ledger",
+    "Rebaseline Overlap Intent Missing",
     "Incoming Runtime / Source-Truth Risk",
     "Validation Before Rebaseline",
     "Recommendation Only",
     "Rebaseline Mutation Approval",
     "Rebaseline Mutation Status",
+)
+
+PRE_REBASELINE_HELPER_PHRASES = (
+    "Rebaseline Overlap Files:",
+    "Rebaseline Overlap Intent Gate:",
+    "Overall Overlap Gate Result:",
+    "Rebaseline Overlap Failure Procedure:",
+    "Rebaseline Overlap Intent Missing:",
+    "Per-File Result:",
+    "Fallback Evidence:",
 )
 
 RELEASE_READINESS_HEALTH_GATE_DOCS = (
@@ -8201,6 +8280,124 @@ def _validate_branch_runtime_engineering_plan(
     )
     if f"## {USER_FEEDBACK_DISPOSITION_HEADING}" in text:
         _validate_user_feedback_disposition(require, source_path, text)
+    if f"## {BRANCH_CHANGE_INTENT_HEADING}" in text:
+        _validate_branch_change_intent_ledger(require, source_path, text)
+
+
+def _validate_branch_change_intent_ledger(
+    require,
+    source_path: str,
+    text: str,
+) -> None:
+    require(
+        f"## {BRANCH_CHANGE_INTENT_HEADING}" in text,
+        (
+            f"{source_path}: rebaseline overlap planning is missing "
+            f"'## {BRANCH_CHANGE_INTENT_HEADING}'"
+        ),
+    )
+    ledger_section = _section(text, BRANCH_CHANGE_INTENT_HEADING)
+    item_matches = list(re.finditer(BRANCH_CHANGE_INTENT_ITEM_HEADING_RE, ledger_section))
+    require(
+        bool(item_matches),
+        f"{source_path}: Branch Change Intent Ledger requires at least one Changed Surface block",
+    )
+
+    for item_match in item_matches:
+        changed_surface = item_match.group(1).strip()
+        item_block = item_match.group(2).strip()
+        require(
+            bool(changed_surface),
+            f"{source_path}: Changed Surface heading must name the overlapping file path",
+        )
+        for marker in BRANCH_CHANGE_INTENT_MARKERS:
+            require(
+                marker in item_block,
+                f"{source_path}: Changed Surface {changed_surface} is missing '{marker}'",
+            )
+            value = _extract_marker_value(item_block, marker)
+            require(
+                bool(value),
+                (
+                    f"{source_path}: Changed Surface {changed_surface} must give "
+                    f"a real value for '{marker}'"
+                ),
+            )
+
+        surface_class = _normalized_planning_value(
+            _extract_marker_value(item_block, "Surface Class:")
+        )
+        semantic_risk = _normalized_planning_value(
+            _extract_marker_value(item_block, "Semantic Merge Risk:")
+        )
+        resolution_owner = _normalized_planning_value(
+            _extract_marker_value(item_block, "Resolution Owner:")
+        )
+        fallback_evidence = _normalized_planning_value(
+            _extract_marker_value(item_block, "Fallback Evidence:")
+        )
+        validation_proof = _normalized_planning_value(
+            _extract_marker_value(item_block, "Validation Proof:")
+        )
+        user_decision = _normalized_planning_value(
+            _extract_marker_value(item_block, "USER Decision / Waiver:")
+        )
+
+        require(
+            surface_class in BRANCH_CHANGE_INTENT_SURFACE_CLASSES,
+            (
+                f"{source_path}: Changed Surface {changed_surface} Surface Class "
+                "must use the approved Rebaseline Overlap Intent Gate class list"
+            ),
+        )
+        require(
+            semantic_risk in BRANCH_CHANGE_INTENT_SEMANTIC_RISK_VALUES,
+            (
+                f"{source_path}: Changed Surface {changed_surface} Semantic Merge Risk "
+                "must be None, Low, Medium, High, or Unknown"
+            ),
+        )
+        require(
+            resolution_owner in BRANCH_CHANGE_INTENT_RESOLUTION_OWNERS,
+            (
+                f"{source_path}: Changed Surface {changed_surface} Resolution Owner "
+                "must be Current Branch, Incoming/Folded Owner, Originating Lane, "
+                "Standing Governance, USER Decision, or Future Branch"
+            ),
+        )
+        if surface_class in BRANCH_CHANGE_INTENT_HIGH_RISK_CLASSES:
+            require(
+                semantic_risk != "unknown",
+                (
+                    f"{source_path}: Changed Surface {changed_surface} Semantic Merge "
+                    "Risk Unknown is blocked for high-risk overlap surfaces"
+                ),
+            )
+        require(
+            "fallback only" not in fallback_evidence
+            and not (
+                "compatibility bypass" in fallback_evidence
+                and "not a compatibility bypass" not in fallback_evidence
+            ),
+            (
+                f"{source_path}: Changed Surface {changed_surface} Fallback Evidence "
+                "cannot be used as a compatibility bypass"
+            ),
+        )
+        require(
+            "validation" in validation_proof or "not run" in validation_proof,
+            (
+                f"{source_path}: Changed Surface {changed_surface} Validation Proof "
+                "must name required validation or the reason validation has not run yet"
+            ),
+        )
+        require(
+            any(term in user_decision for term in ("user", "waiver", "approved", "pending", "not required")),
+            (
+                f"{source_path}: Changed Surface {changed_surface} USER Decision / "
+                "Waiver must preserve the USER decision boundary"
+            ),
+        )
 
 
 def _validate_branch_vision_contract_snapshot(
@@ -18426,6 +18623,13 @@ def main() -> int:
                 required_phrase in text,
                 f"{relative_path}: Pre-Rebaseline Impact Audit guidance is missing '{required_phrase}'",
             )
+
+    pre_rebaseline_helper_text = _read_text(Path("dev/orin_worktree_rebaseline_audit.py"))
+    for required_phrase in PRE_REBASELINE_HELPER_PHRASES:
+        require(
+            required_phrase in pre_rebaseline_helper_text,
+            f"dev/orin_worktree_rebaseline_audit.py: report-only helper is missing '{required_phrase}'",
+        )
 
     for relative_path in CURRENT_MAIN_RECONCILIATION_IDENTITY_DOCS:
         text = _read_text(relative_path)
