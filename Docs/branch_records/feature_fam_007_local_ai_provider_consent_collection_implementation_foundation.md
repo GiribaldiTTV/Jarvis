@@ -442,6 +442,10 @@ Approval Required: `USER approval to perform Workstream Entry analysis for featu
 
 Exact USER Approval Text: `Approve Workstream Entry analysis for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007. Scope: inspect the admitted FAM-007 Local AI Provider Consent Collection Implementation Foundation plan, define the bounded local consent capture/write-path implementation design, validation fixtures, UI/status proof, approval boundaries, FAM-006/Governance overlap posture, and exact implementation decision needed. Do not implement runtime changes, create a PR, merge, release, clean branches/worktrees, mutate FAM-006/Governance/Compact-AI, integrate SDK/model execution, make downloads/external calls, enable memory/voice/Core sync, import AI Product/Private Dev ORIN, or execute v1.8.0-prebeta.`
 
+USER Plan Review Gate: `Workstream Entry is the USER-verifiable engineering design review for the branch plan created in Stage 2; USER may accept, change, waive, or reject the implementation design before any runtime work begins.`
+
+Implementation Blocker: `Runtime implementation remains blocked until Workstream Entry returns an accepted implementation packet or source truth records an explicit USER waiver/change decision.`
+
 Allowed Scope: `Analysis-only Workstream Entry design packet.`
 
 Explicit Exclusions: `Runtime implementation, actual consent capture, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifact work, issue work, branch/worktree cleanup, cross-lane mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`

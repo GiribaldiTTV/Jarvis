@@ -113,7 +113,7 @@ Do not use this layer to replace:
   - `## Exit Criteria`
   - `## Rollback Target`
   - `## Next Legal Phase`
-- `Formal Next Legal Phase Digest` is required for every phase packet that stops for USER approval. The digest must include `Current Phase:`, `Next Legal Phase:`, `Why This Phase Is Next:`, `Approval Required:`, `Exact USER Approval Text:`, `Allowed Scope:`, `Explicit Exclusions:`, `Validation Required:`, and `Stop Conditions:`. Missing fields block on `Next Legal Phase Digest Missing`; `Next Safe Move` is not a replacement.
+- `Formal Next Legal Phase Digest` is required for every phase packet that stops for USER approval. The digest must include `Current Phase:`, `Next Legal Phase:`, `Why This Phase Is Next:`, `Approval Required:`, `Exact USER Approval Text:`, `Allowed Scope:`, `Explicit Exclusions:`, `Validation Required:`, and `Stop Conditions:`. When the completed phase creates or updates a plan that USER must inspect before implementation, the digest must also include `USER Plan Review Gate:` and `Implementation Blocker:` so the USER can see whether the next phase is plan review, implementation, or a waiver/change decision; Stage 2 setup complete is not implementation approval. Missing fields block on `Next Legal Phase Digest Missing`; `Next Safe Move` is not a replacement.
 - branch authority records should also explain:
   - why the branch exists
   - why it cannot or should not ride on an active implementation branch
