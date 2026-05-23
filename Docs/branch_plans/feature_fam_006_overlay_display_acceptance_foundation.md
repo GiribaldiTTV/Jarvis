@@ -109,6 +109,28 @@ Recommendations And Alternatives: `Prefer Workstream Entry to choose a small fir
 Plan Version / Revision Status: `v1 - Stage 2 setup.`
 Plan-To-Implementation Traceability: `No implementation commits yet. Future implementation must update the active slice row, this traceability field, the branch authority record, and validation evidence.`
 
+## Branch Change Intent Ledger
+
+### Changed Surface: Docs/branch_records/index.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `FAM-006 intentionally edits the branch authority router only to add Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md under Active Branch Authority Records for the approved FAM-006 successor branch.`
+- Why This File Was Touched: `Branch Readiness Stage 2 setup created and bound feature/fam-006-overlay-display-acceptance-foundation in C:\Nexus Worktrees\FAM-006, so the active branch authority index needed a compact pointer to the new FAM-006 authority record.`
+- Owned Behavior / Fact Class: `Active branch authority routing for the FAM-006 Overlay Display Acceptance Foundation branch; not runtime behavior, release state, PR state, issue state, or sibling-worktree ownership.`
+- Canonical Owner / Source Owner: `Docs/branch_records/index.md owns active/historical branch authority routing; this branch plan owns the overlap intent evidence for the FAM-006 branch-local edit.`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES - origin/main / PR #200 also edits Docs/branch_records/index.md for current-main governance/source-truth rules and the active feature_vision_update_decision_matrix pointer.`
+- Overlap Risk: `High - branch authority router edits can accidentally drop active branch records or incoming governance rules if reconciled by inertia.`
+- Expected Conflict Risk: `Medium - both branches edit the Active Branch Authority Records area, but the expected final state should preserve both active pointers and the incoming governance rule additions.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming PR #200 governance additions, preserve the active Docs/branch_records/feature_vision_update_decision_matrix.md pointer, and preserve the active Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md pointer. Do not accept incoming current-main active-branch identity as FAM-006 identity; origin/main is context, not identity.`
+- Rebaseline Handling: `After this ledger repair is committed and pushed, rerun the Pre-Rebaseline Impact Audit. If the overlap gate clears, USER may approve a governed non-rewrite merge/reconciliation of origin/main into feature/fam-006-overlay-display-acceptance-foundation.`
+- Validation Proof: `Before rebaseline mutation, run the Pre-Rebaseline Impact Audit with this branch plan path plus git diff checks, branch governance validation, worktree-confinement validation, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, and compileall.`
+- Fallback Evidence: `Current diffs show the FAM-006 branch adds only its active authority pointer, while PR #200 adds governance/source-truth rules and the feature_vision_update_decision_matrix active pointer; fallback evidence supports classification only and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved this bounded Branch Change Intent Ledger repair only; rebaseline merge/rebase mutation remains pending separate USER decision.`
+- Fold-Down Target: `Keep this overlap-intent evidence in the active branch plan until PR Readiness fold-down decides retention, compaction, or historical projection.`
+
 ## Validation Plan
 
 Stage 2 Validation: `git diff --check; git diff --cached --check after staging; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --worktree-confinement-gate; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python -m compileall -q desktop dev nexus_visual`
