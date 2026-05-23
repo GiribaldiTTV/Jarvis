@@ -147,7 +147,7 @@ Rebaseline Overlap Failure Procedure:
 [Not Applicable / required packet returned / blocker repaired and rerun pending]
 
 Rebaseline Overlap Intent Missing:
-[No / BLOCKED with overlapping file list and exact USER decision needed]
+[No / WARN with USER-visible recommendation / BLOCKED with overlapping file list and exact USER decision needed]
 
 Incoming Runtime / Source-Truth Risk:
 [runtime/provider/UI/source-truth/validator/shared-surface risk classification / None]

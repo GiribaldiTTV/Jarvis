@@ -387,7 +387,7 @@ Historical GitHub tags, release titles, old branch records, and prior evidence m
 
 The consolidated governance reform PR may complete the policy, pointer, and validator scaffolding for all reform categories in `Docs/governance_process_efficiency_reform_plan.md`.
 
-For `RRI-20260521-001`, the USER direction is one single final PR with staged internal commits rather than revolving PRs. Analysis, model updates, and planning refinements may continue on the standing Governance branch until USER accepts the reform review surface; cleanup execution remains bounded by this model and PR Readiness stays held until USER approval.
+For `RRI-20260521-001` and related USER-approved bounded governance/source-truth repair carriers, the USER direction is one single final PR with staged internal commits rather than revolving PRs. Analysis, model updates, and planning refinements may continue on the currently approved Governance worktree carrier until USER accepts the reform review surface; cleanup execution remains bounded by this model and PR Readiness stays held until USER approval.
 
 It must not perform broad historical migration, branch deletion, worktree cleanup, runtime mutation, release execution, or FAM lane mutation. Those remain separate USER decisions.
 
