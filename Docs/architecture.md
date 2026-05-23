@@ -156,7 +156,7 @@ And it should continue to preserve this boundary rule:
 
 ## Relationship To Other Canon Layers
 
-- use `Docs/orin_vision.md` for product intent and release-stage meaning
+- use `Docs/nexus_vision.md` for product intent and release-stage meaning
 - use `Docs/orchestration.md` for orchestration-specific philosophy and current behavior boundaries
 - use `Docs/boot_access_design.md` for future boot and access planning
 - use `Docs/workstreams/...` for workstream execution and closure history

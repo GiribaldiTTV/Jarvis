@@ -212,6 +212,7 @@ Use these for workflow posture, prompt framing, lifecycle rules, and execution s
 Repo-wide validation-helper rules also live in this governance layer.
 Broad governance reform uses the `Governance Intake Triage Packet` and smallest legal `Digest Profile` standard from `Docs/governance_intake_triage_and_digest_profiles.md`.
 When a governance change risks duplicating policy or live state, use the governance efficiency operating model instead of creating another current-state owner.
+When Codex asks USER to inspect repo files or approve a review packet, the `USER Review Desktop Bundle Rule` in `Docs/governance_efficiency_operating_model.md` requires a Desktop folder with copied relevant files and a `START_HERE.md` review guide.
 Use `Docs/nexus_startup_contract.md` as the compact ChatGPT/new-chat loader map only.
 Do not treat it as execution authority.
 Use `Docs/phase_governance.md` for the exact phase enum, blocker rules, branch classes, phase resolver, validation helper contract, proof hierarchy, default-budget closeout rule, and desktop UI audit rule instead of recreating those rules inside a workstream doc.
@@ -221,11 +222,12 @@ Use `Docs/phase_governance.md` for the exact phase enum, blocker rules, branch c
 Use these for current product posture, architecture boundaries, and release-stage meaning:
 
 - `Docs/architecture.md`
-- `Docs/orin_vision.md`
+- `Docs/nexus_vision.md`
+- `Docs/family_visions/`
 - `Docs/orchestration.md`
 
 These remain authoritative for their layer even where older naming or path references still need later normalization.
-When a task depends on future post-Beta AI behavior, privacy posture, local-vs-external execution boundaries, or AI/UI identity, route to `Docs/orin_vision.md` rather than duplicating that intent in roadmap or workstream docs.
+When a task depends on future post-Beta AI behavior, privacy posture, local-vs-external execution boundaries, or AI/UI identity, route first to `Docs/nexus_vision.md` for project-wide vision and then to `Docs/family_visions/` for family-specific durable direction rather than duplicating that intent in roadmap, backlog, or workstream docs.
 
 ### Registry And Sequencing
 
@@ -375,7 +377,7 @@ These are reference layers, not active workstream or roadmap owners.
 - require the exact prompt contract from `Docs/phase_governance.md` before phase-sensitive execution
 - prefer index docs for historical or high-cardinality layers
 - do not treat a local-only document as canonical just because it exists in the workspace
-- keep future post-Beta AI behavior, privacy, and execution intent in `Docs/orin_vision.md` until a later selected workstream turns part of it into execution truth
+- keep future post-Beta AI behavior, privacy, and execution intent in `Docs/nexus_vision.md` until a later selected workstream turns part of it into execution truth
 - do not create duplicate authority by making backlog, roadmap, and workstream docs all carry the same execution story
 - do not treat workstream docs as the owner of repo-wide phase, timeout, stop-loss, proof-authority, validation-helper, or desktop UI audit rules; those belong to `Docs/phase_governance.md`
 - keep historical Nexus material preserved, but mark it as historical rather than current reality

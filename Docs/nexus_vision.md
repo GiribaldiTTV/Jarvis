@@ -1,8 +1,8 @@
-# Nexus / ORIN Vision
+# Nexus Vision Contract
 
 ## Purpose
 
-This document defines product intent for Nexus Desktop AI and the ORIN assistant layer.
+This document is the project-wide product vision contract for Nexus Desktop AI and the ORIN assistant layer.
 
 It does not own:
 
@@ -10,8 +10,12 @@ It does not own:
 - backlog identity
 - roadmap sequencing
 - phase governance, proof ownership, or validation stop-loss rules
+- family-specific implementation detail
+- active branch execution plans
 
 Use it for product direction, experience intent, and release-stage meaning.
+
+Family-specific vision records live under `Docs/family_visions/` when a broad feature family needs durable USER-reviewed product direction. Active branch plans still own the Branch Vision Contract Snapshot and implementation checklist for the current branch only.
 
 ## Core Product Goal
 

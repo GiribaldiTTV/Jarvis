@@ -18,7 +18,7 @@ It does not own rollout sequencing, workstream status, repo-wide identifier chan
 This document is a reference layer under:
 
 - `Docs/Main.md` for routing
-- `Docs/orin_vision.md` for product and persona identity
+- `Docs/nexus_vision.md` for product and persona identity
 - `Docs/architecture.md` and `Docs/orchestration.md` for boundary truth
 - backlog, roadmap, and workstream docs for tracked work and sequencing
 

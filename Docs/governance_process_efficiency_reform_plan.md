@@ -141,7 +141,7 @@ Implementation record:
 ### 2026-05-21 Planning Amendment - Rebaseline Overlap Intent Gate
 
 Status:
-- Planning / USER review and future implementation target.
+- Implemented source-truth/helper/fixture scaffold.
 - This amendment strengthens Category 5 without creating a new global live-state ledger.
 - Effective point: this rule becomes binding for active or re-entering branches after the Governance reform PR merges and each active worktree rebaselines to that updated `origin/main`.
 - Fallback evidence supports PASS / WARN / BLOCKED classification and USER decision-making. It does not automatically waive missing Branch Change Intent Ledger evidence.
@@ -157,7 +157,7 @@ Trigger:
   - branch changed files from `merge_base..HEAD`;
   - staged, unstaged, and untracked worktree files when applicable; and
   - any current-worktree changed files reported by the Pre-Rebaseline Impact Audit.
-- `Rebaseline Overlap Files:` means the intersection of incoming changed files and current branch/worktree changed files. Future helper output must compute and report this field rather than requiring Codex to manually compare two lists.
+- `Rebaseline Overlap Files:` means the intersection of incoming changed files and current branch/worktree changed files. `dev/orin_worktree_rebaseline_audit.py` computes and reports this field rather than requiring Codex to manually compare two lists.
 
 Covered surface classes:
 - `governance/source-truth`
@@ -295,26 +295,26 @@ Resolution paths:
 - Defer rebaseline until sibling branch/PR sequencing is resolved.
 - Route to standing Governance when the current branch cannot legally own the repair.
 
-Future implementation targets:
+Implemented and future-extension targets:
 - `Docs/governance_process_efficiency_reform_plan.md`
 - `Docs/branch_plans/README.md`
 - `Docs/phase_governance.md`
 - `Docs/governance_efficiency_operating_model.md`
 - `Docs/orin_task_template.md`
 - `Docs/validation_helper_registry.md`
-- `Docs/branch_records/index.md` if compact fold-down receipt wording is needed
+- `Docs/branch_records/index.md` if future compact fold-down receipt wording is needed
 - `dev/orin_branch_governance_validation.py`
 - `dev/orin_governance_efficiency_validation.py`
 - `dev/orin_branch_readiness_planning_fixture_validation.py`
 - `dev/orin_worktree_rebaseline_audit.py`
-- branch-readiness planning fixtures for:
+- branch-readiness planning fixtures cover:
   - valid overlap intent;
   - invalid missing high-risk intent;
   - invalid fallback-only PASS after the Effective Point; and
   - valid low-risk WARN with fallback evidence;
   - fixture/test high regression or gating impact; and
   - fixture/test low regression or gating impact.
-- `dev/orin_worktree_rebaseline_audit.py` must compute and report `Rebaseline Overlap Files:` from incoming files intersected with branch/worktree changed files.
+- `dev/orin_worktree_rebaseline_audit.py` computes and reports `Rebaseline Overlap Files:` from incoming files intersected with branch/worktree changed files and parses branch-plan ledger evidence through `--branch-plan-path` or branch-plan resolution.
 
 Implementation guard:
 - Do not implement this as backlog, roadmap, worktree-slot, or `Docs/Main.md` live-state tracking.
@@ -346,7 +346,7 @@ Implementation record:
 - Focused pass admitted `Docs/worktree_slots.md` as the stable worktree slot registry.
 - `Docs/Main.md` now distinguishes derived live truth from governance receipts and routes worktree slot ownership through `Docs/worktree_slots.md`.
 - `Docs/branch_records/index.md` records that slot assignment does not equal active branch authority.
-- Hard validator enforcement, helper implementation, backlog/roadmap migration or shrink work, duplicate-live-state detection, and shared-surface ownership enforcement remain deferred to later USER-approved reform passes.
+- Marker-first helper/validator enforcement is implemented for worktree slot routing, Pre-Rebaseline Impact Audit, Rebaseline Overlap Files, Branch Change Intent Ledger evidence, backlog/roadmap compact-pointer posture, and duplicate live-state sprawl where source truth is machine-checkable. Broad historical rewrites, destructive file deletion, and natural-language semantic conflict blocking remain separate USER-approved reform passes.
 
 ## Category 6: Standing Governance Intake Simplification
 
@@ -647,9 +647,9 @@ Implementation record:
 - Governance source-truth pointers added to `Docs/phase_governance.md`, `Docs/development_rules.md`, `Docs/codex_modes.md`, `Docs/orin_task_template.md`, `Docs/Main.md`, `Docs/branch_records/index.md`, and `Docs/validation_helper_registry.md`.
 - Validator source-check owner: `dev/orin_branch_governance_validation.py`.
 
-## Remaining Deferred Execution Decisions
+## Remaining External Execution Decisions
 
-The consolidated pass records the governance model for the remaining categories, but these physical migrations remain separate USER decisions:
+The consolidated pass records the governance model. After the deferred-reform completion pass, these work classes remain outside this governance/source-truth cleanup and still require separate USER approval:
 
 - large historical branch-record migration or archival
 - direct modular split of `dev/orin_branch_governance_validation.py`
@@ -663,6 +663,9 @@ Resolved by prior or consolidated reform passes:
 - validation runner recommendation helper exists as `dev/orin_validation_suite.py`
 - watcher approval default and watcher mode contract are recorded
 - governance efficiency operating model exists as `Docs/governance_efficiency_operating_model.md`
+- `Docs/nexus_vision.md` is the project-wide Nexus Vision contract after reference migration from the former `Docs/orin_vision.md` path
+- `Docs/family_visions/` exists as the durable family vision owner layer
+- `Docs/branch_plans/retirement_index.md` records historical branch-plan retirement posture without deleting useful planning evidence
 
 ## USER Review Intake - 2026-05-21
 
@@ -681,8 +684,8 @@ USER response integration matrix:
 | Branch plans should fold down and be retired, not deleted by default. | Planning evidence has value after merge, but it must stop acting like active authority. | Branch plans are canonical only while active; after PR Readiness they fold down, migrate durable content, and get explicit retired posture unless USER later approves deletion. | `Docs/branch_plans/README.md`, operating model, branch record index, audit dossier. | The review packet must list branch plans as fold-down/retirement candidates, not automatic delete candidates. | Planning fixture/governance efficiency validation should preserve fold-down/retirement wording and reject stale active plan authority. |
 | Branch receipts may be large for traceability. Compaction for traceability is bad. | The defect is duplicate live state and poor organization, not evidence volume. | Branch records become structured traceability receipts: current summary, indexed historical sections, commit/PR/release evidence, changed-surface map, validation proof, and pointers to promoted durable owners. | `Docs/branch_records/index.md`, operating model, audit dossier. | Large branch records are organized or queued for organization, not blindly compressed. Evidence needed for future bug/rollback analysis is preserved. | Validator wording must distinguish "sprawl/live-state duplication" from legitimate historical receipt evidence. |
 | Safe files should be deleted when proven safe or collapsed into current tracked files. | Delete/retire decisions require reference scan, replacement owner, and USER acceptance when ambiguous. | Every Docs file gets a disposition row: keep, organize, migrate, retire, delete candidate, or USER decision needed. | Audit dossier and generated review index. | The branch may identify delete/retire candidates now, but ambiguous deletion stays deferred until USER review. | Inventory helper must keep a full cleanup/disposition table and retirement/delete candidate table. |
-| `Docs/orin_vision.md` should become/reframe as Nexus Vision and drive planning. | Product vision should be a durable product contract, not a branch execution plan. | Create a Product Vision Contract model: vision drives backlog planning and Branch Readiness recommendations; branch plans explain implementation/proof. | Operating model, audit dossier, future focused vision pass. | This pass records the decision and queues safe rename/reframe analysis; it does not rename without a focused reference update. | Future validation should prevent vision content from duplicating branch-plan implementation detail. |
-| Each backlog family may need USER-reviewed vision discussion. | Family vision belongs above branch plans and should shape plan recommendations. | Backlog points to vision/family owners where needed; it does not absorb long vision/planning narratives. | Backlog, future family dossier/vision surfaces, operating model. | Dossier must record this as a future model requirement and not treat backlog compaction as erasing product intent. | Future backlog sprawl checks should allow compact vision pointers, not full branch planning. |
+| `Docs/nexus_vision.md` should become/reframe as Nexus Vision and drive planning. | Product vision should be a durable product contract, not a branch execution plan. | Product Vision Contract model implemented: vision drives backlog planning and Branch Readiness recommendations; branch plans explain implementation/proof. | `Docs/nexus_vision.md`, operating model, audit dossier. | Reference migration completed from the former `Docs/orin_vision.md` path. | Validation prevents stale path references and keeps vision out of branch-plan implementation detail. |
+| Each backlog family may need USER-reviewed vision discussion. | Family vision belongs above branch plans and should shape plan recommendations. | Backlog points to `Docs/family_visions/` owners without absorbing long vision/planning narratives. | Backlog, roadmap, family vision records, operating model. | Family vision owner layer created and linked from backlog/roadmap. | Backlog sprawl checks allow compact vision pointers, not full branch planning. |
 
 Corrected analysis:
 - The earlier review surface underweighted the USER responses because it recorded them as a receipt, not as requirements that reshape the model. This section is the durable correction.
@@ -701,7 +704,7 @@ Single-PR staged execution plan for this branch:
 | R3 | Backlog/roadmap enforcement model | Keep backlog as product registry/pointers and roadmap as release-stage breakpoint outline. | Harden generated schemas and validators; migrate only safe duplicated planning text already approved. | Backlog/roadmap sprawl checks stay green. |
 | R4 | Branch plan lifecycle model | Keep detailed active planning but prevent stale active authority after completion. | Fold-down/retirement rules and candidate queues; no deletion without USER review. | Branch plan candidates appear as retirement candidates, not automatic deletion. |
 | R5 | Structured branch receipt model | Preserve traceability without duplicate live-state chaos. | Define receipt schema and queue high-risk records for organization. | High-risk/structure queues identify oversized records and their organization action. |
-| R6 | Vision contract planning | Treat `Docs/orin_vision.md` as future Nexus Vision contract candidate. | Record rename/reframe analysis and future approval need; do not rename yet. | Operating model and dossier carry Product Vision Contract language. |
+| R6 | Vision contract implementation | Treat `Docs/nexus_vision.md` as the Nexus Vision contract and `Docs/family_visions/` as the family vision owner layer. | Reference migration, Nexus Vision reframe, and family vision creation completed. | Operating model and dossier carry Product Vision Contract language. |
 | R7 | Safe file disposition review | Identify keep/collapse/migrate/retire/delete posture for every Docs file. | Generate full disposition table and USER decision list. | Manifest count matches filesystem enumeration and every file has a review row. |
 | R8 | Validator and review-surface hardening | Make the corrected review model regeneration-safe. | Update helper/validator sections and regenerate audit/index. | Validation passes and generator output is stable. |
 | R9 | Final USER review hold | Stop before PR Readiness until USER accepts the complete reform surface. | Report results only. | Next legal phase remains USER review, not PR creation by inertia. |
@@ -712,13 +715,12 @@ Disposition changes from USER review:
 - Main: from "general source-truth doc" to "least-updated canonical docs index and recovery map."
 - Backlog: from "current status plus detailed trace" to "compact product registry, status, family scope, package summary, and pointers."
 - Roadmap: from "release/current-state record" to "release-stage schedule outline, public milestone posture, and broad feature breakpoints."
-- Vision: from "low-risk product reference" to "future Nexus Vision contract candidate that drives backlog and branch planning."
+- Vision: from "low-risk product reference" to "Nexus Vision contract plus family vision records that drive backlog and branch planning."
 - Safe/low-risk docs: from "safe to leave" to "reference-scan before delete/collapse, with replacement owner recorded."
 
 Deferred decisions:
-- Whether to rename `Docs/orin_vision.md` to a Nexus vision file and update all references.
 - Whether to create a global governance/source-truth file index beyond the generated dossier and existing `Docs/Main.md`.
-- Which historical branch plans should be retired first after fold-down proof.
+- Which historical branch plans should be deleted after retirement proof and reference scans.
 - Which oversized branch records should be reorganized first into structured receipt format.
 - Which low-risk reference docs should be deleted, collapsed, or retained.
 
@@ -727,11 +729,11 @@ Deferred decisions:
 Scope:
 - Implement the approved Vision Contract / Vision-to-Plan governance model on this Governance carrier.
 - Keep implementation limited to source-truth rules, branch-plan lifecycle updates, packet templates, assumption decision-state markers, USER Vision Green markers, fixture examples, and validator/helper scaffolding.
-- Preserve `Docs/orin_vision.md` rename/reframe, broad family vision file creation, PR creation, merge, runtime work, FAM-006/FAM-007 mutation, release work, issue work, branch cleanup, and heavy validator enforcement against historical records as pending USER decisions.
+- Nexus Vision rename/reframe and broad family vision file creation are implemented in the deferred-reform completion pass. PR creation, merge, runtime work, FAM-006/FAM-007 mutation, release work, issue work, branch cleanup, and destructive historical deletion remain separate USER decisions.
 
 Implementation model:
 - Vision Contract complements the Branch Runtime Engineering Plan rather than replacing it.
-- Nexus Vision remains the project-wide product intent layer; optional family vision should live in a family dossier or later USER-approved family vision file only when the feature family is broad enough.
+- Nexus Vision remains the project-wide product intent layer at `Docs/nexus_vision.md`; family vision lives under `Docs/family_visions/` when feature-family direction is broad enough to justify durable ownership.
 - Branch Vision Contract Snapshot belongs inside the active branch plan so accepted branch-specific vision is close to the seams, files, validators, and proof it governs.
 - Codex and ChatGPT recommendations remain proposed until USER accepts, revises, rejects, defers, waives, or supersedes them.
 - `USER Vision Green: Yes` is the Workstream continuity lock: after it is recorded, Codex continues on the accepted plan unless a Level 2 seam-blocking or Level 3 workstream-breaking question appears.
@@ -745,18 +747,18 @@ Validator/helper posture:
 ## USER Feedback Disposition Implementation Plan - 2026-05-21
 
 Status:
-- Planning Status: `Planning / USER review only`.
-- Implementation Status: `Marker-first governance scaffolding implemented on 2026-05-21; multi-item ledger repair implemented on 2026-05-21; heavy historical enforcement remains pending USER decision`.
+- Planning Status: `Implemented source-truth scaffold and historical planning record`.
+- Implementation Status: `Marker-first governance scaffolding implemented on 2026-05-21; multi-item ledger repair implemented on 2026-05-21; exact-normalized duplicate Feedback Summary blocking and branch-plan retirement-index enforcement implemented in deferred-reform completion; broader fuzzy semantic duplicate detection remains human-review territory unless future fixtures prove it safe`.
 - This section records the recommended model, implementation targets, and implementation record. It does not by itself authorize Codex to mutate branch plans, create new UFD records outside an approved branch plan, rename files, or treat proposed feedback as accepted branch scope.
 - Future Codex packets should treat this section as planning evidence and implementation history; binding UFD guidance lives in the owning governance docs, templates, fixtures, and validators updated by the implementation commit.
 
 Scope:
-- Plan the USER Feedback Disposition model before implementation.
+- Maintain the USER Feedback Disposition model and its implemented marker-first source-truth scaffold.
 - Preserve meaningful USER feedback without creating another permanent feedback ledger.
-- Keep this as planning/source-truth model work only until USER separately approves source-rule, validator, fixture, or template edits.
-- Add repo naming / governance taxonomy reform planning so feedback IDs, phase labels, workstream labels, and file names become easier for USER, ChatGPT, and Codex to call consistently.
+- Keep new UFD items branch-plan-owned unless USER separately approves a specific branch plan or source-truth disposition pass.
+- Preserve repo naming / governance taxonomy reform planning so feedback IDs, phase labels, workstream labels, and file names stay easy for USER, ChatGPT, and Codex to call consistently.
 
-Future implementation target files:
+Implemented and future-extension target files:
 - `Docs/branch_plans/README.md`
 - `Docs/phase_governance.md`
 - `Docs/governance_efficiency_operating_model.md`
@@ -881,7 +883,7 @@ Codex implementation guard:
 Purpose:
 - Make governance names easy for USER to call, easy for Codex to follow, easy for validators to report, and hard to confuse with backlog IDs, branch IDs, feedback IDs, or historical records.
 - Reduce ambiguity that causes drift, especially around phase/stage/seam/slice/package/workstream/family and live-state/current-state language.
-- Produce naming recommendations only. Bulk rename execution, file moves, directory moves, historical rewrites, and validator enforcement remain pending USER decisions.
+- Produce naming recommendations and record the completed safe vision rename/family-vision owner migration. Further bulk file moves, directory moves outside `Docs/family_visions/`, historical rewrites, and destructive rename/delete execution remain separate USER decisions unless this plan names a validated no-loss path.
 
 Canonical names versus friendly aliases:
 - Canonical names are used by validators, source truth, Codex packets, branch records, branch plans, helper output, and commit/PR metadata.
@@ -911,7 +913,7 @@ Naming inventory:
 | Runtime Branch Engineering Contract | Engineering intent contract. | Branch-wide runtime baseline/delta/proof contract. | Medium: overlaps branch plan. | Keep; state contract = intent, plan = execution blueprint. | `Docs/phase_governance.md` | Low | No |
 | Vision Contract | Product/design intent layer. | USER-accepted product/design standard. | Medium: can sound like new file. | Keep; use `Nexus Vision`, `Family Vision`, or `Branch Vision Snapshot` by scope. | `Docs/branch_plans/README.md` | Medium | Future file decision |
 | Branch Vision Snapshot | Branch-specific accepted vision. | Snapshot inside active branch plan. | Low. | Use `Branch Vision Contract Snapshot` formally. | `Docs/branch_plans/README.md` | Low | No |
-| USER Feedback Disposition | Feedback routing model. | Item-level classification and final owner proof. | New term. | Use `USER Feedback Disposition (UFD)` with ID glossary. | This plan; future branch-plan README update | High | Implementation approval |
+| USER Feedback Disposition | Feedback routing model. | Item-level classification and final owner proof. | Implemented governance term. | Use `USER Feedback Disposition (UFD)` with ID glossary. | `Docs/branch_plans/README.md`; this plan | High | No |
 | USER Decision Ledger | Planning decision record. | USER decisions, waivers, rejects, accepts. | Medium: could duplicate UFD. | Keep; UFD items link to it rather than copy. | `Docs/phase_governance.md` | Medium | No |
 | Assumption Ledger | Design assumption states. | Codex/ChatGPT/USER assumption decision states. | Medium. | Use `Design Assumption Ledger`. | `Docs/branch_plans/README.md` | Low | No |
 | Vision Question Digest | Packet for design uncertainty. | Question packet when vision/design uncertainty blocks or affects work. | Low. | Keep. | `Docs/branch_plans/README.md` | Low | No |
@@ -945,7 +947,7 @@ ID namespace policy:
 | `PKG-*` | Feature Package under one family. | Live package namespace. | Expand as `Package` at first use. |
 | `SLC-*` | Slice or source-owner marker slice row where historically required. | Avoid in new prose; preserve where existing source-owner records require it. | Prefer `Slice` in USER-facing text. |
 | `FB-*` | Legacy backlog/workstream trace. | Historical-only. | Never use for new live backlog items or feedback IDs. |
-| `UFD-*` | USER Feedback Disposition item. | Proposed future feedback namespace. | Never use `FBK-*`; UFD is not a backlog item. |
+| `UFD-*` | USER Feedback Disposition item. | Implemented feedback namespace. | Never use `FBK-*`; UFD is not a backlog item. |
 | `RRI-*` | Standing governance / Release Readiness Intake cycle. | Existing governance intake namespace. | Expand at first use; do not use for release IDs. |
 | `PR #*` | GitHub pull request number. | GitHub evidence only. | PR number is never a backlog, workstream, package, or feedback identity. |
 | `feature/*`, `repair/*`, `codex/*` | Git branch/ref namespace. | Branch/ref identity only. | Never use as feature, package, feedback, workstream, release, or vision identity. |
@@ -1042,7 +1044,7 @@ This table is a compact addendum to the complete Docs manifest in `Docs/governan
 | `Docs/pr_watcher_mode_contract.md` | PR watcher mode contract and watcher approval/default behavior. | Yes | Yes | Yes | No source-truth miss found. | No repair. |
 | `Docs/user_test_summary_guidance.md` | User Test Summary guidance and UTS artifact expectations. | Yes | Yes | Yes | No source-truth miss found. | No repair. |
 | `Docs/governance_intake_triage_and_digest_profiles.md` | Governance intake triage and digest profile standard. | Yes | Yes | Yes | No source-truth miss found. | No repair. |
-| `Docs/orin_vision.md` | Current product/architecture vision reference and future Nexus Vision candidate. | Yes | Yes | Yes | Rename/reframe remains a pending USER decision, not a miss. | Deferred; no rename or broad vision migration in this pass. |
+| `Docs/nexus_vision.md` | Project-wide Nexus Vision contract. | Yes | Yes | Yes | Rename/reframe completed from the former `Docs/orin_vision.md` path. | Keep; family-specific vision now routes through `Docs/family_visions/`. |
 | `Docs/validation_helper_registry.md` | Helper/validator responsibility registry. | Yes | Yes | Yes | No source-truth miss found. | No repair. |
 
 Staged naming migration plan:
@@ -1050,9 +1052,9 @@ Staged naming migration plan:
 | Stage | Work | Risk | Approval |
 | --- | --- | --- | --- |
 | N1 | Add glossary and taxonomy sections to owner docs. | Low. | Future source-edit approval. |
-| N2 | Update Codex User Guide and templates with canonical name plus friendly alias rules. | Low/Medium. | Future source-edit approval. |
-| N3 | Add validator wording standard and report-only taxonomy checks. | Medium. | Future validator approval. |
-| N4 | Add fixture coverage for UFD IDs and ambiguous-name failures. | Low. | Future fixture approval. |
+| N2 | Update Codex User Guide and templates with canonical name plus friendly alias rules. | Low/Medium. | Partially implemented through current owner docs; further guide examples remain future-safe. |
+| N3 | Add validator wording standard and report-only taxonomy checks. | Medium. | Implemented for stale vision path, family vision pointers, and branch-plan retirement index; broader global severity prefixes remain future. |
+| N4 | Add fixture coverage for UFD IDs and ambiguous-name failures. | Low. | UFD ID fixtures implemented; broader taxonomy failure fixtures remain future-safe. |
 | N5 | Rename or collapse ambiguous top-level Docs files after reference scan. | High. | Separate USER decision per file group. |
 | N6 | Consider directory split for family dossiers only if workstreams folder remains confusing after glossary update. | High. | Separate USER decision. |
 | N7 | Historical compatibility pass for old FB/codex records; preserve old names as receipts. | High. | Separate USER decision. |

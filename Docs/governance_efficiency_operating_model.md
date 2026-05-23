@@ -48,6 +48,8 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/worktree_slots.md` | stable slot IDs and intended assignment receipts | `HEAD`, dirty state, ahead/behind, PR state, latest tag, latest release |
 | `Docs/feature_backlog.md` | compact feature-family registry, status, and pointer layer | detailed active-branch execution planning |
 | `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, and broad feature-family checkpoints | volatile Git/GitHub operational state or active release ledger fields |
+| `Docs/nexus_vision.md` | project-wide product vision contract, long-term standards, and durable product direction | active branch implementation plans or family-specific execution ledgers |
+| `Docs/family_visions/` | family-specific durable product direction and reusable USER-accepted standards | active branch authority, live state, or per-seam implementation checklists |
 | `Docs/branch_records/index.md` | active/historical branch authority routing | detailed branch implementation checklists |
 | `Docs/branch_records/<branch>.md` | branch authority, phase history, approvals, legal next phase, compact UFD pointer/status markers, structured traceability receipt | volatile live state, unindexed execution diaries, full feedback text, or reusable family-level implementation history after promotion |
 | `Docs/branch_plans/<branch>.md` | active runtime branch engineering plan, non-runtime Branch Engineering Plan when overlap intent evidence is required, USER Feedback Disposition full-detail owner while active, Branch Change Intent Ledger owner for `Rebaseline Overlap Files:`, per-seam checklist, plan-to-implementation traceability while active | permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger after retirement |
@@ -187,11 +189,13 @@ Historical receipts may preserve PRs, tags, releases, and commit hashes when the
 
 ## Product Vision Contract Model
 
-`Docs/orin_vision.md` is currently classified as product/architecture reference, but the USER review direction is to evolve it into a Nexus-wide vision contract. Future focused cleanup should evaluate renaming or reframing it as a Nexus vision surface and updating references safely.
+`Docs/nexus_vision.md` is the Nexus-wide product vision contract. It was promoted from the former `Docs/orin_vision.md` path after focused reference migration so Branch Readiness has a stable project-wide vision owner.
 
 The vision contract should drive backlog-family planning and Branch Readiness recommendations. A backlog item may need its own family-level vision record or vision section when the product intent is not obvious, but that vision is not a branch plan and should not duplicate per-seam implementation detail. The vision explains what outcome the plan must satisfy; the Branch Runtime Engineering Plan explains how the active branch intends to implement and prove it.
 
 Vision records should support USER/Codex back-and-forth. They may grow as implementation teaches the project, but changes should be explicit USER-reviewed product intent, not accidental branch-local drift.
+
+Family vision records live under `Docs/family_visions/` and receive reusable vision updates folded down from PR Readiness only after USER acceptance. Backlog and roadmap point to those records; they do not copy full family vision narratives.
 
 ## Vision-To-Plan Interaction Loop
 
@@ -199,8 +203,8 @@ The Vision Contract layer complements Branch Runtime Engineering Plans. It does 
 
 Use this layer when product/design assumptions would otherwise become implementation truth by Codex inference:
 
-- Nexus Vision owns project-wide principles, long-term standards, and durable product direction.
-- Family Vision owns broad feature-family direction only when the family is large enough to justify a durable owner.
+- Nexus Vision owns project-wide principles, long-term standards, and durable product direction through `Docs/nexus_vision.md`.
+- Family Vision owns broad feature-family direction through `Docs/family_visions/` when the family is large enough to justify a durable owner.
 - Branch Vision Contract Snapshot lives inside the active Branch Engineering Plan and records the USER-accepted branch-specific vision state.
 - Branch Engineering Plan translates the accepted snapshot into seams, files, validators, proof, and stop conditions.
 - Vision Question Digest is the required packet when product/design uncertainty affects planning or execution.
@@ -243,7 +247,7 @@ Pointer locations may carry UFD ID, short title, canonical owner, compact status
 
 At PR Readiness, each UFD item must be migrated, deferred with waiver, rejected/no-action with reason, closed, or explicitly carried to a future owner. Fold-down must preserve a lookup path from every UFD ID to its final owner after branch-plan fold-down and retirement.
 
-Initial validator support is marker-first. It validates UFD ledger markers, repeated UFD item blocks, UFD IDs, required owner/status/decision markers, `No Durable Owner Needed` guardrails, count consistency, and fold-down lookup posture. Natural-language duplicate feedback detection remains report-only until approved fixtures, false-positive review, and USER approval make it safe to block.
+Initial validator support is marker-first. It validates UFD ledger markers, repeated UFD item blocks, UFD IDs, required owner/status/decision markers, `No Durable Owner Needed` guardrails, count consistency, fold-down lookup posture, and exact-normalized duplicate `Feedback Summary:` entries inside one active UFD ledger. Broader fuzzy semantic duplicate or conflict detection remains human-review territory unless future fixtures and false-positive review prove it safe.
 
 ## USER Review Integration Decisions
 
@@ -258,9 +262,25 @@ Required decisions from that intake:
 - Treat branch records as structured traceability receipts that may remain large when they preserve useful debugging, rollback, commit, PR, release, validation, and changed-surface evidence.
 - Do not use "compaction" to erase traceability. The reform target is duplicate live-state removal, clearer organization, and owner routing.
 - Delete or collapse low-risk/reference docs only after a reference scan, replacement owner, and USER acceptance prove the move is safe.
-- Evaluate `Docs/orin_vision.md` as a future Nexus Vision contract surface that drives backlog-family planning and Branch Readiness recommendations without duplicating branch plans.
+- Use `Docs/nexus_vision.md` as the Nexus Vision contract surface that drives backlog-family planning and Branch Readiness recommendations without duplicating branch plans.
+- Use `Docs/family_visions/` for family-specific durable product direction while keeping backlog and roadmap compact.
 
 The generated review dossier and index must expose these decisions through a USER response integration matrix, a single-PR staged execution plan, and explicit disposition changes. PR Readiness must stay held while USER is still correcting this model.
+
+## USER Review Desktop Bundle Rule
+
+When Codex asks USER to inspect repo files, review a generated dossier, approve a planning packet, or compare a source-truth reform surface, Codex must create or refresh a USER-facing review bundle folder on the user's Desktop.
+
+The Desktop bundle must:
+
+- live under the discovered Desktop path, preferring `C:\Users\<user>\OneDrive\Desktop` when available and `C:\Users\<user>\Desktop` otherwise
+- include a `START_HERE.md` file with `Review Purpose:`, source repo, `Source Branch:`, `Source HEAD:`, upstream, `origin/main:`, `Validation Summary:`, `Review Order`, `Exact USER Decision This Bundle Supports:`, `Pending USER Decisions`, copied source paths, explicit bundle/copy file counts, and an extra-file count for stale artifacts left in non-cleared folders
+- copy only the files relevant to the requested review, not the whole repo or unrelated artifacts
+- preserve repo-relative paths inside the bundle so copied files remain traceable to source truth
+- be refreshed when the underlying review files change
+- never replace source-truth files, commit artifacts, validation proof, or branch authority records
+
+For governance review or PR-readiness review, the Desktop bundle should be self-checking: `Bundle File Count:` reports the actual file count present in the bundle after copy plus `START_HERE.md`, `Copied File Count:` counts copied repo files only, `Expected File Count:` must match the intended copied repo-file count, and `Extra Bundle File Count:` reports stale or unrelated files that remain when a bundle is refreshed without `--clear`. Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation. If the Desktop path cannot be discovered or the folder cannot be created, stop with `USER Review Desktop Bundle Missing` and return the exact blocker plus the copy command or helper command USER can run.
 
 ## Standing Governance Ledger Compaction
 

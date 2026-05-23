@@ -190,7 +190,7 @@ Codex Implementation Recommendation: do not implement in this branch; later work
 USER/ChatGPT Review Checkpoint: USER and ChatGPT accepted the AI Product Contract v0.6.2 as a stable planning baseline; this branch records a public-safe digest only and does not import the contract wholesale.
 Full Feature Element Breakdown: candidate/planned elements are local AI shell/no-provider behavior, provider boundary, privacy/provider state, hardware/power routing, model/capability-pack lifecycle, data/memory/context/consent/audit/secrets, Windows resilience, ORIN/ARIA persona shell/progress presence/Core-voice sync planning, and validation/eval/abuse proof gates.
 Current Branch vs Future Package Boundaries: current branch records source-truth planning, blockers, proof gates, acceptance criteria, and candidate/planned slice shape only; future admitted packages may implement providers, model loading, memory/indexing, setup, voice/Core sync, beta learning, or Dev ORIN surfaces.
-Affected Surfaces: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/orin_vision.md`, `Docs/branch_records/index.md`, and this branch authority record; future runtime surfaces are planning references only.
+Affected Surfaces: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/nexus_vision.md`, `Docs/branch_records/index.md`, and this branch authority record; future runtime surfaces are planning references only.
 Data/Control Model: candidate architecture separates ORIN/ARIA shell, provider router, local/LAN/external/test providers, context manager, memory manager, safety gate, capability-pack manager, and Windows/hardware profiler responsibilities.
 Branch Reach / Package-Size Review: candidate `PKG-007` is intentionally multi-slice because provider choice, hardware safety, privacy state, model lifecycle, memory/context, Windows resilience, and proof gates are coupled foundation decisions.
 Why Branch Is Large Enough: a single narrow slice would either overpromise AI behavior without safety/provider boundaries or create a model connector before privacy, hardware, update, and no-provider rules exist.
@@ -394,7 +394,7 @@ Future user-facing AI surfaces must define a real User Test Summary checklist du
 
 Seam 1: FAM-007 local AI foundation planning/source-truth setup.
 Goal: record the public-safe local AI foundation package shape, candidate/planned slice structure, blockers, proof gates, and acceptance criteria.
-Scope: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/orin_vision.md`, `Docs/branch_records/index.md`, and this branch authority record.
+Scope: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/nexus_vision.md`, `Docs/branch_records/index.md`, and this branch authority record.
 Non-Includes: package admission, implementation, runtime code edits, local model/provider work, AI Product Contract full import, GitHub issue creation, PR merge, release/tag/artifact work, old `C:\` folder mutation, Workspace Runtime Isolation Stage 2, or `codex/ai-llm-lab` mutation.
 
 ## Historical Seam

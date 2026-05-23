@@ -20,7 +20,7 @@ This document is downstream of:
 
 - `Docs/architecture.md` for desktop/runtime ownership boundaries
 - `Docs/phase_governance.md` for governed execution and closeout posture
-- `Docs/orin_vision.md` for product identity and release-stage framing
+- `Docs/nexus_vision.md` for product identity and release-stage framing
 - `Docs/orchestration.md` for runtime behavior and orchestration boundaries
 - `Docs/boot_access_design.md` for future pre-desktop trust and access boundaries
 - `Docs/feature_backlog.md` for tracked identity

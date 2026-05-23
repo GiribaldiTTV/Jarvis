@@ -200,8 +200,8 @@ WS-1 inventoried the current identity, persona-option, and licensing source-of-t
 ### Current Identity Source-Of-Truth Surfaces
 
 - Routing and canon ownership lives in `Docs/Main.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and this workstream record. Those surfaces own current-truth routing, identity registry state, branch-local execution truth, and release-debt posture.
-- Current product and repo identity surfaces say `Nexus Desktop AI` is the repository, product, and tooling-shell identity. That wording is aligned across `README.md`, `Docs/orin_vision.md`, `Docs/orin_display_naming_guidance.md`, and `Docs/ownership_ip_plan.md`.
-- Current persona identity surfaces say `ORIN` is the shipped pre-Beta persona. That wording is aligned across `README.md`, `Docs/orin_vision.md`, `Docs/orin_display_naming_guidance.md`, `Docs/ownership_ip_plan.md`, and the released-persona gate in `assistant_personas.py`.
+- Current product and repo identity surfaces say `Nexus Desktop AI` is the repository, product, and tooling-shell identity. That wording is aligned across `README.md`, `Docs/nexus_vision.md`, `Docs/orin_display_naming_guidance.md`, and `Docs/ownership_ip_plan.md`.
+- Current persona identity surfaces say `ORIN` is the shipped pre-Beta persona. That wording is aligned across `README.md`, `Docs/nexus_vision.md`, `Docs/orin_display_naming_guidance.md`, `Docs/ownership_ip_plan.md`, and the released-persona gate in `assistant_personas.py`.
 - Runtime presentation surfaces already carrying the current identity include `desktop/orin_desktop_launcher.pyw`, `desktop/orin_desktop_main.py`, `desktop/orin_diagnostics.pyw`, `main.py`, and `nexus_visual/orin_core*.html`. Those files present `Nexus Desktop AI`, `ORIN`, or the full ORIN expansion in current runtime-visible contexts.
 - `README.md` is a valid identity-orientation surface, but it is not a reliable release-truth owner because its `Latest public prerelease` line is stale at `v1.2.9-prebeta`. Release truth remains owned by backlog, roadmap, merged-unreleased release-debt canon, and later release packaging records.
 - Preserved historical or compatibility identity surfaces remain real and must be inventoried, not guessed away. `Docs/architecture.md` explicitly preserves Nexus historical context, while current runtime code still carries Nexus-named mutexes, relaunch events, history filenames, harness environment flags, prompt class names, comments, and some fallback messages.
@@ -236,7 +236,7 @@ WS-2 defines the boundary vocabulary that separates canonical current identity, 
 
 ### Canonical Vs Historical Identity Boundary Framing
 
-- Canonical current identity surfaces are the docs and registries that intentionally define present product truth: `Docs/Main.md`, the backlog/workstream record-state surfaces, `README.md` identity orientation, `Docs/orin_vision.md`, `Docs/orin_display_naming_guidance.md`, `Docs/ownership_ip_plan.md`, and the released-persona gate in `assistant_personas.py`.
+- Canonical current identity surfaces are the docs and registries that intentionally define present product truth: `Docs/Main.md`, the backlog/workstream record-state surfaces, `README.md` identity orientation, `Docs/nexus_vision.md`, `Docs/orin_display_naming_guidance.md`, `Docs/ownership_ip_plan.md`, and the released-persona gate in `assistant_personas.py`.
 - Runtime presentation surfaces are downstream implementations that display the current identity to the user or operator, such as launcher labels, tray labels, diagnostics titles, ORIN visual titles, and boot-harness subtitles. They should follow canonical identity surfaces but do not own naming policy by themselves.
 - Historical-preserved surfaces are older Nexus releases, closeouts, historical docs, and historical notes explicitly marked as preserved context. They remain valid history and should not be rewritten as if they were current product truth.
 - Compatibility artifact surfaces are still-real technical identifiers that retain Nexus naming for continuity, such as mutex names, event names, environment flags, history filenames, class names, or fallback prompts. Their presence does not weaken current Nexus / ORIN truth, but they also are not silently admitted for renaming by this branch.
@@ -481,7 +481,7 @@ Continuation Action: rerun file-frozen Release Readiness for the inherited `v1.6
 - `Docs/workstreams/index.md`
 - `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
 - `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md`
-- `Docs/orin_vision.md`
+- `Docs/nexus_vision.md`
 - `Docs/orin_display_naming_guidance.md`
 - `Docs/ownership_ip_plan.md`
 - `Docs/phase_governance.md`

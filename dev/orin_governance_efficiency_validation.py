@@ -16,6 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 OPERATING_MODEL = Path("Docs/governance_efficiency_operating_model.md")
 DOCS_INVENTORY_AUDIT = Path("Docs/governance_docs_full_inventory_reform_audit.md")
 DOCS_REFORM_REVIEW_INDEX = Path("Docs/governance_docs_reform_user_review_index.md")
+NEXUS_VISION = Path("Docs/nexus_vision.md")
+FAMILY_VISION_INDEX = Path("Docs/family_visions/README.md")
+BRANCH_PLAN_RETIREMENT_INDEX = Path("Docs/branch_plans/retirement_index.md")
+USER_REVIEW_BUNDLE_HELPER = Path("dev/orin_user_review_bundle.py")
 
 REQUIRED_MODEL_PHRASES = (
     "Rule ID And Owner Model",
@@ -31,6 +35,7 @@ REQUIRED_MODEL_PHRASES = (
     "Vision-To-Plan Interaction Loop",
     "USER Feedback Disposition Model",
     "USER Review Integration Decisions",
+    "USER Review Desktop Bundle Rule",
     "Standing Governance Ledger Compaction",
     "Release Ownership UX",
     "Public Language Mapping",
@@ -44,6 +49,9 @@ POINTER_REQUIREMENTS = {
     Path("Docs/Main.md"): (
         "Docs/governance_efficiency_operating_model.md",
         "governance efficiency operating model",
+        "Docs/nexus_vision.md",
+        "Docs/family_visions/",
+        "USER Review Desktop Bundle Rule",
     ),
     Path("Docs/phase_governance.md"): (
         "Docs/governance_efficiency_operating_model.md",
@@ -59,6 +67,7 @@ POINTER_REQUIREMENTS = {
     ),
     Path("Docs/validation_helper_registry.md"): (
         "dev/orin_governance_efficiency_validation.py",
+        "dev/orin_user_review_bundle.py",
         "governance efficiency operating model",
     ),
     Path("Docs/branch_records/index.md"): (
@@ -72,6 +81,7 @@ POINTER_REQUIREMENTS = {
         "PR Fold-Down Packet:",
         "USER Feedback Disposition",
         "No-Action Reason:",
+        "Docs/branch_plans/retirement_index.md",
     ),
     Path("Docs/workstreams/index.md"): (
         "Docs Source-Truth Reform Model: Compact Pointer Layer",
@@ -173,6 +183,35 @@ BRANCH_PLAN_README_REQUIRED = (
     "USER Feedback Disposition",
     "UFD-<scope>-YYYYMMDD-NNN",
     "No-Action Reason:",
+    "Docs/branch_plans/retirement_index.md",
+)
+
+EXPECTED_FAMILY_VISION_FILES = (
+    Path("Docs/family_visions/FAM-001_boot_interface.md"),
+    Path("Docs/family_visions/FAM-002_desktop_interface.md"),
+    Path("Docs/family_visions/FAM-003_interaction_and_actions.md"),
+    Path("Docs/family_visions/FAM-004_voice_and_audio.md"),
+    Path("Docs/family_visions/FAM-005_external_integrations.md"),
+    Path("Docs/family_visions/FAM-006_monitoring_and_hud.md"),
+    Path("Docs/family_visions/FAM-007_local_ai_and_capability_packs.md"),
+    Path("Docs/family_visions/FAM-008_packaging_and_install_experience.md"),
+    Path("Docs/family_visions/FAM-009_workspace_and_data.md"),
+    Path("Docs/family_visions/FAM-010_safety_and_privacy.md"),
+)
+
+USER_REVIEW_BUNDLE_REQUIRED_FIELDS = (
+    "Review Purpose:",
+    "Source Branch:",
+    "Source HEAD:",
+    "origin/main:",
+    "Bundle File Count:",
+    "Expected File Count:",
+    "Copied File Count:",
+    "Extra Bundle File Count:",
+    "Validation Summary:",
+    "Review Order",
+    "Exact USER Decision This Bundle Supports:",
+    "Pending USER Decisions",
 )
 
 WORKSTREAM_INDEX_REQUIRED = (
@@ -198,7 +237,7 @@ AUDIT_REQUIRED_SECTIONS = (
     "## Executive Summary",
     "## How To Review This Dossier",
     "## What Was Completed",
-    "## What Remains Deferred",
+    "## What Remains External",
     "## What Requires USER Decision",
     "## USER Review Intake Model",
     "## USER Response Integration Matrix",
@@ -208,7 +247,7 @@ AUDIT_REQUIRED_SECTIONS = (
     "## Files Safe To Leave For Now",
     "## Files Needing Future Migration",
     "## Files That May Be Retired Later",
-    "## Completed / Deferred Matrix",
+    "## Completed / External Decision Matrix",
     "## Source-Truth Ownership Map",
     "## Complete Docs Manifest",
     "## Complete Docs Cleanup / Disposition Table",
@@ -290,6 +329,74 @@ def _docs_file_count() -> int:
     return sum(1 for path in docs_root.rglob("*") if path.is_file())
 
 
+def _all_text_files() -> list[Path]:
+    candidates: list[Path] = []
+    for root_name in ("Docs", "dev"):
+        root = ROOT / root_name
+        if not root.exists():
+            continue
+        for path in root.rglob("*"):
+            if path.is_file() and path.suffix.lower() in {".md", ".py", ".ps1", ".txt"}:
+                candidates.append(path)
+    readme = ROOT / "README.md"
+    if readme.is_file():
+        candidates.append(readme)
+    return candidates
+
+
+def _non_historical_stale_vision_refs() -> list[str]:
+    offenders: list[str] = []
+    allowed_context = "former `Docs/orin_vision.md` path"
+    for path in _all_text_files():
+        relative = path.relative_to(ROOT)
+        if relative == Path("dev/orin_governance_efficiency_validation.py"):
+            continue
+        text = path.read_text(encoding="utf-8")
+        for line_number, line in enumerate(text.splitlines(), start=1):
+            if "Docs/orin_vision.md" in line and allowed_context not in line:
+                offenders.append(f"{relative}:{line_number}")
+    return offenders
+
+
+def _branch_plan_requires_retirement_index_row(text: str) -> bool:
+    """Return true only for plans that declare folded/historical posture.
+
+    Active branches are allowed to carry active branch plans before PR
+    Readiness fold-down; the retirement index should not force those plans to
+    become historical by inertia.
+    """
+
+    status_lines = [
+        line
+        for line in text.splitlines()
+        if re.match(r"(?i)^\s*(?:Engineering Plan Status|Plan Status):", line)
+    ]
+    historical_markers = (
+        "historical",
+        "folded",
+        "retired",
+        "merged",
+        "cleanup",
+        "pr readiness stage 1 result",
+    )
+    if any(
+        marker in line.casefold()
+        for line in status_lines
+        for marker in historical_markers
+    ):
+        return True
+
+    global_retirement_markers = (
+        "retired after",
+        "historical / folded",
+        "historical -",
+        "merged in pr #",
+        "branch cleanup",
+        "folded down",
+    )
+    return any(marker in text.casefold() for marker in global_retirement_markers)
+
+
 def validate() -> list[str]:
     failures: list[str] = []
 
@@ -302,6 +409,23 @@ def validate() -> list[str]:
                 failures.append(
                     f"{OPERATING_MODEL}: missing required section or phrase {phrase!r}"
                 )
+        desktop_bundle_section = _section(model_text, "## USER Review Desktop Bundle Rule")
+        for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
+            if phrase not in desktop_bundle_section:
+                failures.append(
+                    f"{OPERATING_MODEL}: USER Review Desktop Bundle Rule missing "
+                    f"required START_HERE metadata field {phrase!r}"
+                )
+
+    bundle_helper_text = _read(USER_REVIEW_BUNDLE_HELPER)
+    if not bundle_helper_text:
+        failures.append(f"{USER_REVIEW_BUNDLE_HELPER}: missing USER review bundle helper")
+    else:
+        for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
+            if phrase not in bundle_helper_text:
+                failures.append(
+                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE metadata field {phrase!r}"
+                )
 
     for path, required_phrases in POINTER_REQUIREMENTS.items():
         text = _read(path)
@@ -311,6 +435,54 @@ def validate() -> list[str]:
         for phrase in required_phrases:
             if phrase not in text:
                 failures.append(f"{path}: missing governance efficiency pointer {phrase!r}")
+
+    if not (ROOT / NEXUS_VISION).is_file():
+        failures.append(f"{NEXUS_VISION}: missing Nexus Vision contract")
+    else:
+        vision_text = _read(NEXUS_VISION)
+        for phrase in (
+            "Nexus Vision Contract",
+            "project-wide product vision contract",
+            "Docs/family_visions/",
+        ):
+            if phrase not in vision_text:
+                failures.append(f"{NEXUS_VISION}: missing vision contract phrase {phrase!r}")
+
+    if not (ROOT / FAMILY_VISION_INDEX).is_file():
+        failures.append(f"{FAMILY_VISION_INDEX}: missing family vision index")
+    else:
+        family_index_text = _read(FAMILY_VISION_INDEX)
+        for family_path in EXPECTED_FAMILY_VISION_FILES:
+            if not (ROOT / family_path).is_file():
+                failures.append(f"{family_path}: missing family vision record")
+            if str(family_path).replace("\\", "/") not in family_index_text:
+                failures.append(
+                    f"{FAMILY_VISION_INDEX}: missing family vision pointer {family_path}"
+                )
+
+    stale_vision_refs = _non_historical_stale_vision_refs()
+    if stale_vision_refs:
+        failures.append(
+            "stale Docs/orin_vision.md references remain outside former-path migration "
+            f"context: {', '.join(stale_vision_refs[:10])}"
+        )
+
+    if not (ROOT / BRANCH_PLAN_RETIREMENT_INDEX).is_file():
+        failures.append(f"{BRANCH_PLAN_RETIREMENT_INDEX}: missing branch plan retirement index")
+    else:
+        retirement_text = _read(BRANCH_PLAN_RETIREMENT_INDEX)
+        branch_plan_root = ROOT / "Docs" / "branch_plans"
+        for branch_plan in sorted(branch_plan_root.glob("*.md")):
+            relative = branch_plan.relative_to(ROOT)
+            if relative in {Path("Docs/branch_plans/README.md"), BRANCH_PLAN_RETIREMENT_INDEX}:
+                continue
+            branch_plan_text = branch_plan.read_text(encoding="utf-8")
+            if not _branch_plan_requires_retirement_index_row(branch_plan_text):
+                continue
+            if str(relative).replace("\\", "/") not in retirement_text:
+                failures.append(
+                    f"{BRANCH_PLAN_RETIREMENT_INDEX}: missing retired plan row for {relative}"
+                )
 
     audit_text = _read(DOCS_INVENTORY_AUDIT)
     if not audit_text:

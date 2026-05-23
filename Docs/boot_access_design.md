@@ -158,7 +158,7 @@ This planning layer should preserve:
 ## Relationship To Other Canon Layers
 
 - use `Docs/architecture.md` for current system boundaries
-- use `Docs/orin_vision.md` for product intent
+- use `Docs/nexus_vision.md` for product intent
 - use `Docs/orchestration.md` for current launcher-stack behavior
 - use `Docs/orin_interaction_architecture.md` for future interaction-system planning
 - use `Docs/feature_backlog.md` for tracked item identity
