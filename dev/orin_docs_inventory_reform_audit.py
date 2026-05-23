@@ -934,13 +934,20 @@ def build_user_review_index(
     add("- [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.")
     add("- [ ] Structure risks have a migration, organization, or keep-now decision.")
     add("- [ ] Validators are enough to stop the worst sprawl from returning.")
-    add("- [ ] PR Readiness Stage 2 may proceed after final validation.")
+    add(
+        "- [ ] PR Readiness Stage 1 analysis may proceed after final validation and USER "
+        "acceptance; PR Readiness Stage 2 / PR creation remains a separate USER decision."
+    )
     add("")
     add("## User Response Intake Status")
     add("")
     add("- USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.")
     add("- This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.")
-    add("- Current execution model: this deferred-completion pass updates source truth and review artifacts on the standing Governance branch; PR creation remains separately USER-gated.")
+    add(
+        "- Current execution model: this deferred-completion pass updates source truth and "
+        f"review artifacts on the USER-approved bounded governance/source-truth repair branch "
+        f"`{branch}` in `C:\\Nexus Worktrees\\Governance`; PR creation remains separately USER-gated."
+    )
     add("- PR Readiness remains held until validation is green and USER separately approves PR creation.")
     add("")
     add("## USER Response Integration Summary")

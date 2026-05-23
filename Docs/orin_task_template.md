@@ -356,7 +356,7 @@ Element Validation Ledger Owner:
 [canonical workstream doc / active branch authority record / companion file with owning-record pointer / not applicable]
 
 Element-to-Phase Proof Matrix Status:
-[Required / Present / Accepted / Not Required with reason / Blocked / not applicable]
+[Required / Present / Accepted / Blocked / Folded / Historical / Not Required with reason]
 
 Element-to-Phase Proof Matrix Owner:
 [active Docs/branch_plans/<branch_slug>.md before implementation / folded branch record or workstream owner after PR Readiness fold-down / not applicable with reason]

@@ -41,13 +41,13 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 - [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.
 - [ ] Structure risks have a migration, organization, or keep-now decision.
 - [ ] Validators are enough to stop the worst sprawl from returning.
-- [ ] PR Readiness Stage 2 may proceed after final validation.
+- [ ] PR Readiness Stage 1 analysis may proceed after final validation and USER acceptance; PR Readiness Stage 2 / PR creation remains a separate USER decision.
 
 ## User Response Intake Status
 
 - USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.
 - This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.
-- Current execution model: this deferred-completion pass updates source truth and review artifacts on the standing Governance branch; PR creation remains separately USER-gated.
+- Current execution model: this deferred-completion pass updates source truth and review artifacts on the USER-approved bounded governance/source-truth repair branch `feature/vision-update-decision-matrix` in `C:\Nexus Worktrees\Governance`; PR creation remains separately USER-gated.
 - PR Readiness remains held until validation is green and USER separately approves PR creation.
 
 ## USER Response Integration Summary
