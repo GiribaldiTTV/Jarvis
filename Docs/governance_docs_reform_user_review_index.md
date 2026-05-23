@@ -113,6 +113,8 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 
 ## Ambiguity Review Queue
 
+Queue Status: Future USER-gated organization queue; not a PR blocker unless validator output identifies an active failure.
+
 | File | Ambiguity Risk | Signals | Action |
 | --- | --- | --- | --- |
 | `Docs/Main.md` | High | `volatile-current-wording=321`; `unclear-ownership-wording=131`; `soft-commitment-wording=51`; `state-ledger-wording=158` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -135,6 +137,8 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | High | `volatile-current-wording=124`; `unclear-ownership-wording=35`; `soft-commitment-wording=16`; `state-ledger-wording=95` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 
 ## Structure Review Queue
+
+Queue Status: Future USER-gated organization queue; not a PR blocker unless validator output identifies an active failure.
 
 | File | Structure Risk | Action |
 | --- | --- | --- |
@@ -204,7 +208,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | family vision | Keep as family vision owner | Low |
 | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | family vision | Keep as family vision owner | Low |
 | `Docs/family_visions/FAM-010_safety_and_privacy.md` | family vision | Keep as family vision owner | Low |
-| `Docs/nexus_vision.md` | product / architecture reference | Keep | Low |
+| `Docs/nexus_vision.md` | Nexus Vision Contract | Keep as project-wide vision owner | Low |
 | `Docs/orin_display_naming_guidance.md` | product / architecture reference | Keep | Low |
 | `Docs/workspace_layout_plan.md` | product / architecture reference | Keep | Low |
 | `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md` | workstream durable history | Keep / normalize durable history | Low |

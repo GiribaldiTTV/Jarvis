@@ -19,6 +19,7 @@ DOCS_REFORM_REVIEW_INDEX = Path("Docs/governance_docs_reform_user_review_index.m
 NEXUS_VISION = Path("Docs/nexus_vision.md")
 FAMILY_VISION_INDEX = Path("Docs/family_visions/README.md")
 BRANCH_PLAN_RETIREMENT_INDEX = Path("Docs/branch_plans/retirement_index.md")
+USER_REVIEW_BUNDLE_HELPER = Path("dev/orin_user_review_bundle.py")
 
 REQUIRED_MODEL_PHRASES = (
     "Rule ID And Owner Model",
@@ -198,6 +199,20 @@ EXPECTED_FAMILY_VISION_FILES = (
     Path("Docs/family_visions/FAM-010_safety_and_privacy.md"),
 )
 
+USER_REVIEW_BUNDLE_REQUIRED_FIELDS = (
+    "Review Purpose:",
+    "Source Branch:",
+    "Source HEAD:",
+    "origin/main:",
+    "Bundle File Count:",
+    "Expected File Count:",
+    "Copied File Count:",
+    "Validation Summary:",
+    "Review Order",
+    "Exact USER Decision This Bundle Supports:",
+    "Pending USER Decisions",
+)
+
 WORKSTREAM_INDEX_REQUIRED = (
     "workstreams and family dossiers own durable package trace, slice trace",
     "workstreams and family dossiers must not mirror live Git/GitHub state",
@@ -353,6 +368,23 @@ def validate() -> list[str]:
             if phrase not in model_text:
                 failures.append(
                     f"{OPERATING_MODEL}: missing required section or phrase {phrase!r}"
+                )
+        desktop_bundle_section = _section(model_text, "## USER Review Desktop Bundle Rule")
+        for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
+            if phrase not in desktop_bundle_section:
+                failures.append(
+                    f"{OPERATING_MODEL}: USER Review Desktop Bundle Rule missing "
+                    f"required START_HERE metadata field {phrase!r}"
+                )
+
+    bundle_helper_text = _read(USER_REVIEW_BUNDLE_HELPER)
+    if not bundle_helper_text:
+        failures.append(f"{USER_REVIEW_BUNDLE_HELPER}: missing USER review bundle helper")
+    else:
+        for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
+            if phrase not in bundle_helper_text:
+                failures.append(
+                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE metadata field {phrase!r}"
                 )
 
     for path, required_phrases in POINTER_REQUIREMENTS.items():

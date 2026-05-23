@@ -25,5 +25,5 @@ Local AI and capability packs should make Nexus feel smarter while preserving lo
 
 - Project vision: `Docs/nexus_vision.md`
 - Backlog registry: `Docs/feature_backlog.md`
-- Current durable receipt: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
+- Durable receipt pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
 - Provider-state validator: `dev/orin_ai_provider_state_validation.py`

@@ -257,6 +257,11 @@ OWNER_DESCRIPTIONS = {
         "USER-accepted reusable family standards and future package boundaries",
         "active branch implementation checklists or live operational state",
     ),
+    "Nexus Vision Contract": (
+        "project-wide vision contract",
+        "USER-accepted project-wide product principles, long-term standards, and durable product direction",
+        "branch implementation checklists, live operational state, or family-specific execution ledgers",
+    ),
     "release closeout receipt": (
         "historical release/closeout receipt",
         "validated release interpretation and closure summary",
@@ -377,6 +382,8 @@ def owner_for(rel: str) -> str:
         return "family vision index"
     if rel.startswith("Docs/family_visions/"):
         return "family vision"
+    if rel == "Docs/nexus_vision.md":
+        return "Nexus Vision Contract"
     if rel.startswith("Docs/closeouts/") or rel in {
         "Docs/closeout_index.md",
         "Docs/closeout_guidance.md",
@@ -395,7 +402,6 @@ def owner_for(rel: str) -> str:
     if rel in {
         "Docs/architecture.md",
         "Docs/boot_access_design.md",
-        "Docs/nexus_vision.md",
         "Docs/orin_interaction_architecture.md",
         "Docs/orin_display_naming_guidance.md",
         "Docs/orchestration.md",
@@ -506,6 +512,12 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
             completed,
             "Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.",
         )
+    if owner == "Nexus Vision Contract":
+        return (
+            "Keep as project-wide vision owner",
+            completed,
+            "Keep as project-wide product vision contract; route family-specific durable direction to family vision records and active implementation detail to branch plans.",
+        )
     if owner == "unknown docs reference":
         return (
             "USER review needed",
@@ -559,6 +571,8 @@ def consolidation_target_for(row: dict[str, object]) -> str:
         return "Keep as family vision router; use to find durable family vision records."
     if owner == "family vision":
         return "Keep as family-specific product vision owner; move active implementation detail to branch plans and durable proof to workstreams/branch receipts."
+    if owner == "Nexus Vision Contract":
+        return "Keep as project-wide product vision contract; route family-specific direction to Docs/family_visions/ and active execution detail to branch plans."
     if owner == "release closeout receipt":
         return "Keep as historical release/closeout receipt archive unless USER approves closeout consolidation."
     if owner in {
@@ -575,6 +589,7 @@ def consolidation_target_for(row: dict[str, object]) -> str:
         "branch authority router",
         "workstream index",
         "product / architecture reference",
+        "Nexus Vision Contract",
         "bug / issue historical tracker",
     }:
         return "Keep unless a focused USER-approved consolidation pass names a replacement owner."
@@ -865,6 +880,8 @@ def build_user_review_index(
     add("")
     add("## Ambiguity Review Queue")
     add("")
+    add("Queue Status: Future USER-gated organization queue; not a PR blocker unless validator output identifies an active failure.")
+    add("")
     add("| File | Ambiguity Risk | Signals | Action |")
     add("| --- | --- | --- | --- |")
     for row in ambiguity_queue[:18]:
@@ -877,6 +894,8 @@ def build_user_review_index(
         add("| None | N/A | N/A | N/A |")
     add("")
     add("## Structure Review Queue")
+    add("")
+    add("Queue Status: Future USER-gated organization queue; not a PR blocker unless validator output identifies an active failure.")
     add("")
     add("| File | Structure Risk | Action |")
     add("| --- | --- | --- |")
@@ -1413,6 +1432,8 @@ def generate() -> None:
     add("")
     add("## Ambiguity Pass")
     add("")
+    add("Queue Status: Future USER-gated organization queue; not a PR blocker unless validator output identifies an active failure.")
+    add("")
     add("Ambiguity risk flags wording that often causes source-truth drift, especially `current`, `active`, `latest`, `next`, `pending`, unclear ownership words, soft commitments, and state-ledger language. High or medium ambiguity is not automatically wrong for historical receipts, but it is a review target.")
     add("")
     add("| File | Ambiguity Risk | Ambiguity Signals | Required Review Action |")
@@ -1425,6 +1446,8 @@ def generate() -> None:
         )
     add("")
     add("## Structure Pass")
+    add("")
+    add("Queue Status: Future USER-gated organization queue; not a PR blocker unless validator output identifies an active failure.")
     add("")
     add("Structure risk flags files that are too long for their owner role, have too few headings, or mix current summary with historical detail in a way that can hide drift.")
     add("")

@@ -25,5 +25,5 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 
 - Project vision: `Docs/nexus_vision.md`
 - Backlog registry: `Docs/feature_backlog.md`
-- Current durable receipt: `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`
+- Durable receipt pointer: `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`
 - Element ledger: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md`
