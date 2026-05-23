@@ -1037,6 +1037,38 @@ CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY = "consent-capture-local-snapshot-em
 CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED = (
     "consent-capture-durable-persistence-deferred"
 )
+CONSENT_RECORD_STORAGE_BOUNDARY_SCHEMA_VERSION = (
+    "provider-consent-record-storage-boundary.v1"
+)
+CONSENT_RECORD_STORAGE_BOUNDARY_LOCAL_SNAPSHOT_ONLY = (
+    "consent-record-storage-local-snapshot-only"
+)
+CONSENT_RECORD_DURABLE_STORAGE_DEFERRED = "consent-record-durable-storage-deferred"
+CONSENT_RECORD_REVOCATION_MODEL_LOCAL_ONLY = "consent-record-revocation-local-only"
+CONSENT_RECORD_RESET_MODEL_LOCAL_ONLY = "consent-record-reset-local-only"
+CONSENT_RECORD_NO_SECRETS_POSTURE_READY = "consent-record-no-secrets-ready"
+CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED = "consent-record-provider-payload-excluded"
+CONSENT_CAPTURE_AUDIT_SCHEMA_VERSION = "provider-consent-capture-audit.v1"
+CONSENT_CAPTURE_AUDIT_STATUS_LOCAL_PROOF = "consent-capture-audit-local-proof"
+CONSENT_CAPTURE_AUDIT_STATUS_BLOCKED = "consent-capture-audit-blocked"
+CONSENT_CAPTURE_SETUP_EXECUTION_SEPARATION_READY = (
+    "setup-execution-consent-separation-ready"
+)
+CONSENT_CAPTURE_UI_STATUS_PROOF_HIDDEN_TELEMETRY = (
+    "consent-capture-ui-status-hidden-telemetry"
+)
+CONSENT_CAPTURE_DESKTOP_DISPLAY_SUPPRESSED = (
+    "consent-capture-desktop-display-suppressed"
+)
+CONSENT_CAPTURE_PROVIDER_SETUP_HANDOFF_READY = (
+    "consent-capture-provider-setup-handoff-ready"
+)
+CONSENT_CAPTURE_FUNCTIONAL_AI_CRITERIA_PENDING = (
+    "consent-capture-functional-ai-criteria-pending"
+)
+CONSENT_CAPTURE_V18_CONTINUATION_PENDING = (
+    "consent-capture-v1.8.0-continuation-pending"
+)
 CAPABILITY_PACK_ELIGIBILITY_UNKNOWN = "capability-pack-eligibility-unknown"
 CAPABILITY_PACK_ELIGIBILITY_BLOCKED = "capability-pack-eligibility-blocked"
 CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED = "capability-pack-eligibility-future-gated"
@@ -2124,6 +2156,54 @@ class AIProviderStateSnapshot:
     consent_capture_durable_persistence_status: str = (
         CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED
     )
+    consent_record_storage_boundary_schema_version: str = (
+        CONSENT_RECORD_STORAGE_BOUNDARY_SCHEMA_VERSION
+    )
+    consent_record_storage_boundary_state: str = (
+        CONSENT_RECORD_STORAGE_BOUNDARY_LOCAL_SNAPSHOT_ONLY
+    )
+    consent_record_storage_boundary_label: str = (
+        "Consent record storage boundary: local snapshot only"
+    )
+    consent_record_durable_storage_state: str = CONSENT_RECORD_DURABLE_STORAGE_DEFERRED
+    consent_record_durable_storage_label: str = (
+        "Consent record durable storage: deferred"
+    )
+    consent_record_revocation_model_state: str = CONSENT_RECORD_REVOCATION_MODEL_LOCAL_ONLY
+    consent_record_revocation_model_label: str = (
+        "Consent revocation model: local-only snapshot revocation"
+    )
+    consent_record_reset_model_state: str = CONSENT_RECORD_RESET_MODEL_LOCAL_ONLY
+    consent_record_reset_model_label: str = (
+        "Consent reset model: local-only snapshot reset"
+    )
+    consent_record_no_secrets_posture: str = CONSENT_RECORD_NO_SECRETS_POSTURE_READY
+    consent_record_provider_payload_posture: str = CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED
+    consent_capture_audit_schema_version: str = CONSENT_CAPTURE_AUDIT_SCHEMA_VERSION
+    consent_capture_audit_status: str = CONSENT_CAPTURE_AUDIT_STATUS_BLOCKED
+    consent_capture_audit_label: str = "Consent capture audit: blocked until local proof"
+    setup_execution_consent_separation_state: str = (
+        CONSENT_CAPTURE_SETUP_EXECUTION_SEPARATION_READY
+    )
+    setup_execution_consent_separation_label: str = (
+        "Setup and execution consent remain separated"
+    )
+    consent_capture_ui_status_proof_state: str = (
+        CONSENT_CAPTURE_UI_STATUS_PROOF_HIDDEN_TELEMETRY
+    )
+    consent_capture_ui_status_proof_label: str = (
+        "Consent capture UI proof: hidden telemetry only"
+    )
+    consent_capture_desktop_display_state: str = CONSENT_CAPTURE_DESKTOP_DISPLAY_SUPPRESSED
+    consent_capture_provider_setup_handoff_state: str = (
+        CONSENT_CAPTURE_PROVIDER_SETUP_HANDOFF_READY
+    )
+    consent_capture_functional_ai_criteria_state: str = (
+        CONSENT_CAPTURE_FUNCTIONAL_AI_CRITERIA_PENDING
+    )
+    consent_capture_v18_continuation_state: str = (
+        CONSENT_CAPTURE_V18_CONTINUATION_PENDING
+    )
     consent_capture_provider_visible_data: str = "none"
     consent_capture_sent_to_provider: bool = False
     consent_capture_can_accept_prompts: bool = False
@@ -2709,6 +2789,62 @@ class AIProviderStateSnapshot:
             ),
             "consent_capture_durable_persistence_status": (
                 self.consent_capture_durable_persistence_status
+            ),
+            "consent_record_storage_boundary_schema_version": (
+                self.consent_record_storage_boundary_schema_version
+            ),
+            "consent_record_storage_boundary_state": (
+                self.consent_record_storage_boundary_state
+            ),
+            "consent_record_storage_boundary_label": (
+                self.consent_record_storage_boundary_label
+            ),
+            "consent_record_durable_storage_state": (
+                self.consent_record_durable_storage_state
+            ),
+            "consent_record_durable_storage_label": (
+                self.consent_record_durable_storage_label
+            ),
+            "consent_record_revocation_model_state": (
+                self.consent_record_revocation_model_state
+            ),
+            "consent_record_revocation_model_label": (
+                self.consent_record_revocation_model_label
+            ),
+            "consent_record_reset_model_state": self.consent_record_reset_model_state,
+            "consent_record_reset_model_label": self.consent_record_reset_model_label,
+            "consent_record_no_secrets_posture": self.consent_record_no_secrets_posture,
+            "consent_record_provider_payload_posture": (
+                self.consent_record_provider_payload_posture
+            ),
+            "consent_capture_audit_schema_version": (
+                self.consent_capture_audit_schema_version
+            ),
+            "consent_capture_audit_status": self.consent_capture_audit_status,
+            "consent_capture_audit_label": self.consent_capture_audit_label,
+            "setup_execution_consent_separation_state": (
+                self.setup_execution_consent_separation_state
+            ),
+            "setup_execution_consent_separation_label": (
+                self.setup_execution_consent_separation_label
+            ),
+            "consent_capture_ui_status_proof_state": (
+                self.consent_capture_ui_status_proof_state
+            ),
+            "consent_capture_ui_status_proof_label": (
+                self.consent_capture_ui_status_proof_label
+            ),
+            "consent_capture_desktop_display_state": (
+                self.consent_capture_desktop_display_state
+            ),
+            "consent_capture_provider_setup_handoff_state": (
+                self.consent_capture_provider_setup_handoff_state
+            ),
+            "consent_capture_functional_ai_criteria_state": (
+                self.consent_capture_functional_ai_criteria_state
+            ),
+            "consent_capture_v18_continuation_state": (
+                self.consent_capture_v18_continuation_state
             ),
             "consent_capture_provider_visible_data": (
                 self.consent_capture_provider_visible_data
@@ -3301,6 +3437,60 @@ class AIProviderStateSnapshot:
             ),
             "consentCaptureDurablePersistenceStatus": (
                 self.consent_capture_durable_persistence_status
+            ),
+            "consentRecordStorageBoundarySchemaVersion": (
+                self.consent_record_storage_boundary_schema_version
+            ),
+            "consentRecordStorageBoundaryState": (
+                self.consent_record_storage_boundary_state
+            ),
+            "consentRecordStorageBoundaryLabel": (
+                self.consent_record_storage_boundary_label
+            ),
+            "consentRecordDurableStorageState": (
+                self.consent_record_durable_storage_state
+            ),
+            "consentRecordDurableStorageLabel": (
+                self.consent_record_durable_storage_label
+            ),
+            "consentRecordRevocationModelState": (
+                self.consent_record_revocation_model_state
+            ),
+            "consentRecordRevocationModelLabel": (
+                self.consent_record_revocation_model_label
+            ),
+            "consentRecordResetModelState": self.consent_record_reset_model_state,
+            "consentRecordResetModelLabel": self.consent_record_reset_model_label,
+            "consentRecordNoSecretsPosture": self.consent_record_no_secrets_posture,
+            "consentRecordProviderPayloadPosture": (
+                self.consent_record_provider_payload_posture
+            ),
+            "consentCaptureAuditSchemaVersion": self.consent_capture_audit_schema_version,
+            "consentCaptureAuditStatus": self.consent_capture_audit_status,
+            "consentCaptureAuditLabel": self.consent_capture_audit_label,
+            "setupExecutionConsentSeparationState": (
+                self.setup_execution_consent_separation_state
+            ),
+            "setupExecutionConsentSeparationLabel": (
+                self.setup_execution_consent_separation_label
+            ),
+            "consentCaptureUiStatusProofState": (
+                self.consent_capture_ui_status_proof_state
+            ),
+            "consentCaptureUiStatusProofLabel": (
+                self.consent_capture_ui_status_proof_label
+            ),
+            "consentCaptureDesktopDisplayState": (
+                self.consent_capture_desktop_display_state
+            ),
+            "consentCaptureProviderSetupHandoffState": (
+                self.consent_capture_provider_setup_handoff_state
+            ),
+            "consentCaptureFunctionalAiCriteriaState": (
+                self.consent_capture_functional_ai_criteria_state
+            ),
+            "consentCaptureV18ContinuationState": (
+                self.consent_capture_v18_continuation_state
             ),
             "consentCaptureProviderVisibleData": (
                 self.consent_capture_provider_visible_data
@@ -7158,6 +7348,16 @@ def _provider_consent_capture_write_path_fields(
         CONSENT_CAPTURE_WRITE_STATUS_RESET_LOCAL:
             "Consent write path: reset local snapshot only",
     }
+    audit_status = (
+        CONSENT_CAPTURE_AUDIT_STATUS_LOCAL_PROOF
+        if snapshot_status == CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY
+        else CONSENT_CAPTURE_AUDIT_STATUS_BLOCKED
+    )
+    audit_label = (
+        "Consent capture audit: local snapshot proof ready"
+        if audit_status == CONSENT_CAPTURE_AUDIT_STATUS_LOCAL_PROOF
+        else "Consent capture audit: blocked until local proof"
+    )
 
     return {
         "consent_capture_transition_schema_version": (
@@ -7181,6 +7381,60 @@ def _provider_consent_capture_write_path_fields(
         "consent_capture_local_snapshot_status": snapshot_status,
         "consent_capture_durable_persistence_status": (
             CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED
+        ),
+        "consent_record_storage_boundary_schema_version": (
+            CONSENT_RECORD_STORAGE_BOUNDARY_SCHEMA_VERSION
+        ),
+        "consent_record_storage_boundary_state": (
+            CONSENT_RECORD_STORAGE_BOUNDARY_LOCAL_SNAPSHOT_ONLY
+        ),
+        "consent_record_storage_boundary_label": (
+            "Consent record storage boundary: local snapshot only"
+        ),
+        "consent_record_durable_storage_state": CONSENT_RECORD_DURABLE_STORAGE_DEFERRED,
+        "consent_record_durable_storage_label": (
+            "Consent record durable storage: deferred pending USER-approved storage work"
+        ),
+        "consent_record_revocation_model_state": (
+            CONSENT_RECORD_REVOCATION_MODEL_LOCAL_ONLY
+        ),
+        "consent_record_revocation_model_label": (
+            "Consent revocation model: local-only snapshot revocation"
+        ),
+        "consent_record_reset_model_state": CONSENT_RECORD_RESET_MODEL_LOCAL_ONLY,
+        "consent_record_reset_model_label": (
+            "Consent reset model: local-only snapshot reset"
+        ),
+        "consent_record_no_secrets_posture": CONSENT_RECORD_NO_SECRETS_POSTURE_READY,
+        "consent_record_provider_payload_posture": (
+            CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED
+        ),
+        "consent_capture_audit_schema_version": CONSENT_CAPTURE_AUDIT_SCHEMA_VERSION,
+        "consent_capture_audit_status": audit_status,
+        "consent_capture_audit_label": audit_label,
+        "setup_execution_consent_separation_state": (
+            CONSENT_CAPTURE_SETUP_EXECUTION_SEPARATION_READY
+        ),
+        "setup_execution_consent_separation_label": (
+            "Setup and execution consent remain separate local record flags"
+        ),
+        "consent_capture_ui_status_proof_state": (
+            CONSENT_CAPTURE_UI_STATUS_PROOF_HIDDEN_TELEMETRY
+        ),
+        "consent_capture_ui_status_proof_label": (
+            "Consent capture UI proof: hidden telemetry only; no user-operable surface"
+        ),
+        "consent_capture_desktop_display_state": (
+            CONSENT_CAPTURE_DESKTOP_DISPLAY_SUPPRESSED
+        ),
+        "consent_capture_provider_setup_handoff_state": (
+            CONSENT_CAPTURE_PROVIDER_SETUP_HANDOFF_READY
+        ),
+        "consent_capture_functional_ai_criteria_state": (
+            CONSENT_CAPTURE_FUNCTIONAL_AI_CRITERIA_PENDING
+        ),
+        "consent_capture_v18_continuation_state": (
+            CONSENT_CAPTURE_V18_CONTINUATION_PENDING
         ),
         "consent_capture_provider_visible_data": "none",
         "consent_capture_sent_to_provider": False,
@@ -7302,7 +7556,7 @@ def build_provider_consent_collection_implementation_foundation_state(
             "Consent capture write-path foundation is local-only; provider setup and execution remain pending USER approval"
         ),
         provider_next_action_label=(
-            "Next: Seam 2 consent capture record schema/storage boundary remains pending USER approval"
+            "Next: hardening validates local-only consent capture before provider setup remains future-gated"
         ),
         interaction_label="Consent capture write-path foundation only",
         interaction_disabled_reason=(

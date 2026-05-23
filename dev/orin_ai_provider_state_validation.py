@@ -748,6 +748,22 @@ from desktop.ai_provider_state import (  # noqa: E402
     CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY,
     CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
     CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED,
+    CONSENT_RECORD_STORAGE_BOUNDARY_SCHEMA_VERSION,
+    CONSENT_RECORD_STORAGE_BOUNDARY_LOCAL_SNAPSHOT_ONLY,
+    CONSENT_RECORD_DURABLE_STORAGE_DEFERRED,
+    CONSENT_RECORD_REVOCATION_MODEL_LOCAL_ONLY,
+    CONSENT_RECORD_RESET_MODEL_LOCAL_ONLY,
+    CONSENT_RECORD_NO_SECRETS_POSTURE_READY,
+    CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED,
+    CONSENT_CAPTURE_AUDIT_SCHEMA_VERSION,
+    CONSENT_CAPTURE_AUDIT_STATUS_LOCAL_PROOF,
+    CONSENT_CAPTURE_AUDIT_STATUS_BLOCKED,
+    CONSENT_CAPTURE_SETUP_EXECUTION_SEPARATION_READY,
+    CONSENT_CAPTURE_UI_STATUS_PROOF_HIDDEN_TELEMETRY,
+    CONSENT_CAPTURE_DESKTOP_DISPLAY_SUPPRESSED,
+    CONSENT_CAPTURE_PROVIDER_SETUP_HANDOFF_READY,
+    CONSENT_CAPTURE_FUNCTIONAL_AI_CRITERIA_PENDING,
+    CONSENT_CAPTURE_V18_CONTINUATION_PENDING,
     PROVIDER_PROFILE_GATE_BLOCKED,
     PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
     CAPABILITY_GATE_BLOCKED,
@@ -5796,6 +5812,60 @@ def validate() -> list[str]:
             capture_payload["consentCaptureDurablePersistenceStatus"]
             == CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED,
             f"{label} consent-capture fixture must defer durable persistence",
+            failures,
+        )
+        expected_audit_status = (
+            CONSENT_CAPTURE_AUDIT_STATUS_LOCAL_PROOF
+            if expected_snapshot_status == CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY
+            else CONSENT_CAPTURE_AUDIT_STATUS_BLOCKED
+        )
+        _require(
+            capture_payload["consentRecordStorageBoundarySchemaVersion"]
+            == CONSENT_RECORD_STORAGE_BOUNDARY_SCHEMA_VERSION
+            and capture_payload["consentRecordStorageBoundaryState"]
+            == CONSENT_RECORD_STORAGE_BOUNDARY_LOCAL_SNAPSHOT_ONLY
+            and capture_payload["consentRecordDurableStorageState"]
+            == CONSENT_RECORD_DURABLE_STORAGE_DEFERRED,
+            f"{label} consent-capture fixture must publish storage boundary proof",
+            failures,
+        )
+        _require(
+            capture_payload["consentRecordRevocationModelState"]
+            == CONSENT_RECORD_REVOCATION_MODEL_LOCAL_ONLY
+            and capture_payload["consentRecordResetModelState"]
+            == CONSENT_RECORD_RESET_MODEL_LOCAL_ONLY
+            and capture_payload["consentRecordNoSecretsPosture"]
+            == CONSENT_RECORD_NO_SECRETS_POSTURE_READY
+            and capture_payload["consentRecordProviderPayloadPosture"]
+            == CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED,
+            f"{label} consent-capture fixture must publish revocation/no-secrets proof",
+            failures,
+        )
+        _require(
+            capture_payload["consentCaptureAuditSchemaVersion"]
+            == CONSENT_CAPTURE_AUDIT_SCHEMA_VERSION
+            and capture_payload["consentCaptureAuditStatus"] == expected_audit_status,
+            f"{label} consent-capture fixture must publish audit proof posture",
+            failures,
+        )
+        _require(
+            capture_payload["setupExecutionConsentSeparationState"]
+            == CONSENT_CAPTURE_SETUP_EXECUTION_SEPARATION_READY
+            and capture_payload["consentCaptureUiStatusProofState"]
+            == CONSENT_CAPTURE_UI_STATUS_PROOF_HIDDEN_TELEMETRY
+            and capture_payload["consentCaptureDesktopDisplayState"]
+            == CONSENT_CAPTURE_DESKTOP_DISPLAY_SUPPRESSED,
+            f"{label} consent-capture fixture must publish UI/suppression proof",
+            failures,
+        )
+        _require(
+            capture_payload["consentCaptureProviderSetupHandoffState"]
+            == CONSENT_CAPTURE_PROVIDER_SETUP_HANDOFF_READY
+            and capture_payload["consentCaptureFunctionalAiCriteriaState"]
+            == CONSENT_CAPTURE_FUNCTIONAL_AI_CRITERIA_PENDING
+            and capture_payload["consentCaptureV18ContinuationState"]
+            == CONSENT_CAPTURE_V18_CONTINUATION_PENDING,
+            f"{label} consent-capture fixture must publish handoff and v1.8.0 criteria proof",
             failures,
         )
         _require(
