@@ -6,8 +6,8 @@ Branch Creation Base: `origin/main` at `a42b7e50eb012722b140f3874dbf50826bd797c8
 Current origin/main: `6681131c974d99945c494c0e4ff3c436f9347422`
 Origin/Main Advanced Since Branch Creation: `YES - reconciled by governed non-rewrite merge after Branch Change Intent Ledger evidence cleared the Pre-Rebaseline Impact Audit overlap gate.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md`
-Branch Runtime Engineering Plan: `Active - Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, bounded SLC-042 runtime implementation/proof closure, and bounded SLC-043 active display implementation are complete pending final validation/commit; SLC-044 is the next continuation seam after green closure.`
-Engineering Plan Status: `Active Workstream continuation - branch authority, plan, compact pointer surfaces, validation plan, historical closure carry-forward, worktree binding, SLC-042 proof closure, SLC-043 implementation, and SLC-044 seam routing are admitted.`
+Branch Runtime Engineering Plan: `Active - Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, bounded SLC-042 runtime implementation/proof closure, bounded SLC-043 active display implementation, and bounded SLC-044 Dashboard / Overlay independence implementation are complete pending final validation/commit; SLC-045 is next after green closure.`
+Engineering Plan Status: `Active Workstream continuation - branch authority, plan, compact pointer surfaces, validation plan, historical closure carry-forward, worktree binding, SLC-042 proof closure, SLC-043 implementation, SLC-044 implementation, and SLC-045 seam routing are admitted.`
 
 ## Branch Identity
 
@@ -30,11 +30,11 @@ Canonical Branch: `feature/fam-006-overlay-display-acceptance-foundation`
 ## Current Phase
 
 Phase: `Workstream`
-Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof closure are complete; bounded SLC-043 active Overlay Profile display behavior is implemented and under validation/source-truth closure; source truth keeps the branch in Workstream for SLC-044 and SLC-045.`
+Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof closure are complete; bounded SLC-043 active Overlay Profile display behavior and bounded SLC-044 Dashboard / Overlay independence are implemented and under validation/source-truth closure; source truth keeps the branch in Workstream for SLC-045.`
 
 ## Phase Status
 
-Phase Status: `Active Branch - SLC-042 Workstream implementation/proof closure and SLC-043 active display implementation are complete pending final validation/commit; SLC-044 is the next bounded Workstream continuation seam after green SLC-043 closure.`
+Phase Status: `Active Branch - SLC-042 proof closure, SLC-043 active display, and SLC-044 independence implementation are complete pending final validation/commit; SLC-045 is the next bounded Workstream continuation seam after green SLC-044 closure.`
 Authority State: `Active Branch`
 Bounded State: `Granted for bounded multi-seam Workstream execution across admitted SLC-042 through SLC-045; PR/release and future-gated work remain blocked until later USER approval.`
 
@@ -82,7 +82,7 @@ Entity / Profile Model: `Entities include Overlay Profile, activeOverlayProfileI
 User Workflow Model: `A future user opens Dashboard, verifies active Overlay Profile status, opens or views HUD Overlay display behavior, and sees overlay output that matches admitted profile state without accidental Monitor Group or Recording Profile coupling.`
 Scale / Data Volume Model: `Planning must retain the high-volume discipline introduced by the historical Overlay Profile repairs: null state and 100+ profile/group/source/monitor stress proof for variable selectors/lists, max-five visible list/menu policy where admitted, NDAI scrollbars, and unclipped responsive geometry.`
 Configuration And State Model: `SLC-037 Overlay Profile state is the baseline. SLC-042 adds overlay display acceptance bridge/proof metadata and dataset state only; it does not add Recording Profile state, Monitor Group ownership, or broad theme/skin configuration.`
-Expected User-Facing Outcomes: `SLC-042 remains behavior-neutral for visible editing controls while proving the HUD Overlay display can read active Overlay Profile state; SLC-043 adds a compact active-profile status strip and deterministic active-profile display behavior without profile editing, Recording Profile, or broad theme/skin scope.`
+Expected User-Facing Outcomes: `SLC-042 remains behavior-neutral for visible editing controls while proving the HUD Overlay display can read active Overlay Profile state; SLC-043 adds a compact active-profile status strip and deterministic active-profile display behavior; SLC-044 proves Dashboard and Overlay display remain visually/functionally independent while sharing approved state, without profile editing, Recording Profile, or broad theme/skin scope.`
 Current Branch vs Future Package Boundaries: `Current branch owns overlay display acceptance foundation only; future package work owns Recording Profile runtime, tray recording, export/share/import, broad theme/skin systems, provider/model work, and FAM-007.`
 Affected Surfaces: `Likely future surfaces include HUD overlay display rendering, Dashboard overlay status/entry points, Overlay Profile state bridge, desktop renderer integration, FAM-006 validators, and focused live proof helpers.`
 Data/Control Model: `Data flows from persisted Overlay Profile state and activeOverlayProfileId into a display-read bridge; controls must not mutate Recording Profile or Monitor Group ownership unless a later seam explicitly admits that behavior.`
@@ -116,11 +116,11 @@ Engineering Contract Status: `Accepted for Workstream; bounded SLC-042 runtime e
 USER Engineering Planning Review: `Accepted for Stage 2 setup, Workstream Entry review, and bounded SLC-042 implementation`
 Runtime Implementation Approval: `Granted by USER for bounded multi-seam Workstream execution across admitted SLC-042 through SLC-045`
 Branch Purpose: `Prepare the FAM-006 Overlay Display Acceptance Foundation successor to prove profile-aware HUD Overlay display behavior in later seams while preserving existing monitoring/HUD source truth.`
-Current Runtime Baseline: `FAM-006 Dashboard, Sensor Command Center, Monitor Groups, and Overlay Profile Runtime Foundation are released historical evidence. Overlay Profile state and selection/editing/membership proof are historical green. SLC-042 display bridge/proof is complete; SLC-043 active display behavior is implemented pending final validation/commit.`
-Planned Runtime Delta: `SLC-042 adds a HUD Overlay display acceptance state/proof bridge: active profile membership drives rendered overlay-card proof, stale overlay cards are removed, null profile state renders zero cards, high-volume membership renders deterministically, and renderer proof emits MONITORING_HUD_OVERLAY_DISPLAY_ACCEPTANCE_BRIDGE_READY. SLC-043 adds a visible active-profile display status strip, SLC-043 proof helper, and MONITORING_HUD_ACTIVE_OVERLAY_PROFILE_DISPLAY_READY renderer proof.`
+Current Runtime Baseline: `FAM-006 Dashboard, Sensor Command Center, Monitor Groups, and Overlay Profile Runtime Foundation are released historical evidence. Overlay Profile state and selection/editing/membership proof are historical green. SLC-042 display bridge/proof is complete; SLC-043 active display behavior is implemented; SLC-044 Dashboard / Overlay independence is implemented pending final validation/commit.`
+Planned Runtime Delta: `SLC-042 adds a HUD Overlay display acceptance state/proof bridge: active profile membership drives rendered overlay-card proof, stale overlay cards are removed, null profile state renders zero cards, high-volume membership renders deterministically, and renderer proof emits MONITORING_HUD_OVERLAY_DISPLAY_ACCEPTANCE_BRIDGE_READY. SLC-043 adds a visible active-profile display status strip, SLC-043 proof helper, and MONITORING_HUD_ACTIVE_OVERLAY_PROFILE_DISPLAY_READY renderer proof. SLC-044 adds Dashboard / Overlay independence proof markers, proof helper, and MONITORING_HUD_DASHBOARD_OVERLAY_INDEPENDENCE_READY renderer proof.`
 User-Facing Runtime Delta: `SLC-042 adds no new visible editor controls; existing Dashboard, Manage Monitors, Sensor Command Center, and released Overlay Profile controls are preservation surfaces.`
 State / Config / Schema Delta: `SLC-042 adds bridge/proof metadata only through HUD page state and renderer signal payloads; it does not change persisted Overlay Profile schema, Monitor Group schema, or Recording Profile state.`
-Validator / Helper Delta: `FAM-006 HUD surface and internal sandbox validators now assert the SLC-042 proof hook, SLC-043 active-display proof hook, state bridge markers, renderer signals, null-state proof, high-volume proof, stale-card removal proof, and non-recording/non-theme boundary proof. SLC-042/SLC-043 JavaScript syntax proof is closed through bundled Codex runtime Node at C:\Users\anden\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe after local node.exe returned Access is denied.`
+Validator / Helper Delta: `FAM-006 HUD surface and internal sandbox validators now assert the SLC-042 proof hook, SLC-043 active-display proof hook, SLC-044 Dashboard / Overlay independence proof hook, state bridge markers, renderer signals, null-state proof, high-volume proof, stale-card removal proof, visual acceptance baseline proof, and non-recording/non-theme boundary proof. SLC-042 through SLC-044 JavaScript syntax proof is closed through bundled Codex runtime Node at C:\Users\anden\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe after local node.exe returned Access is denied.`
 Expected Changed Files / Surfaces: `Branch record, branch plan, backlog, roadmap in setup. Active Workstream implementation may touch nexus_visual/monitoring_hud.js, nexus_visual/monitoring_hud.html, nexus_visual/monitoring_hud.css, desktop/desktop_renderer.py, desktop/monitoring_hud_state.py, desktop/monitoring_hud_controls.py, desktop/monitoring_hud_placement.py, and FAM-006 validators/helpers within the admitted SLC-042 through SLC-045 package.`
 Approval-Boundary Audit: `Stage 2 setup may mutate source-truth setup surfaces only. Runtime implementation, PR creation, merge, release, issue mutation, artifact/raw evidence handling, stale branch cleanup, sibling worktrees, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain blocked.`
 Future-Gated Items: `Recording Profile runtime; tray recording controls; export/share/import; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007; Governance worktree mutation; Repo-Wide-Source-Owner-Markers work; Compact-AI work; stale remote FAM-006 branch cleanup; PR creation; merge; release; issue mutation; artifacts/raw evidence handling.`
@@ -129,7 +129,7 @@ Proof Expectations: `Future proof must include real user-facing desktop launcher
 Risk Forecast: `High-risk surfaces include overlay display visibility, responsive window geometry, dropdown/list clipping, Dashboard/Overlay state coupling, stale profile references, and visual validation false-green risk.`
 Recommendations And Alternatives: `Recommend the safer option of proving a state/read bridge before larger render changes; the larger alternative is a visible render seam, which should wait unless Workstream Entry proves it is already bounded.`
 Plan Version / Revision Status: `v1 - Stage 2 setup created from current origin/main a42b7e50eb012722b140f3874dbf50826bd797c8.`
-Plan-To-Implementation Traceability: `Planned SLC-042 deltas were an overlay display acceptance baseline and active-profile state bridge with validator proof; actual SLC-042 implementation updates nexus_visual/monitoring_hud.html, nexus_visual/monitoring_hud.js, desktop/desktop_renderer.py, dev/orin_monitoring_hud_surface_validation.py, dev/orin_monitoring_hud_internal_sandbox_validation.py, this branch record, and the branch plan. Planned SLC-043 deltas were active Overlay Profile display behavior with null/stale/high-volume proof; actual SLC-043 implementation adds the overlay display active-profile status strip, active-display proof helper, renderer signal, validator coverage, this branch record, and the branch plan. Planned-vs-actual comparison shows no persisted schema change, no Recording Profile runtime, no Monitor Group ownership change, and no broad theme/skin work. JavaScript proof uses bundled Codex runtime Node --check for nexus_visual/monitoring_hud.js after local node.exe Access is denied. Later SLC-044 through SLC-045 rows remain pending after green SLC-043 closure.`
+Plan-To-Implementation Traceability: `Planned SLC-042 deltas were an overlay display acceptance baseline and active-profile state bridge with validator proof; actual SLC-042 implementation updates nexus_visual/monitoring_hud.html, nexus_visual/monitoring_hud.js, desktop/desktop_renderer.py, dev/orin_monitoring_hud_surface_validation.py, dev/orin_monitoring_hud_internal_sandbox_validation.py, this branch record, and the branch plan. Planned SLC-043 deltas were active Overlay Profile display behavior with null/stale/high-volume proof; actual SLC-043 implementation adds the overlay display active-profile status strip, active-display proof helper, renderer signal, validator coverage, this branch record, and the branch plan. Planned SLC-044 deltas were Dashboard / Overlay independence and visual acceptance; actual SLC-044 implementation adds Dashboard/Overlay independence markers, proof helper, renderer signal, validator coverage, this branch record, and the branch plan. Planned-vs-actual comparison shows no persisted schema change, no Recording Profile runtime, no Monitor Group ownership change, and no broad theme/skin work. JavaScript proof uses bundled Codex runtime Node --check for nexus_visual/monitoring_hud.js after local node.exe Access is denied. SLC-045 remains pending after green SLC-044 closure.`
 
 ## Planning-Loop Guardrail
 
@@ -140,7 +140,7 @@ Planning-Loop Bypass Reason: `None`
 
 ## Admitted Implementation Slice
 
-Admitted Implementation Slice: `SLC-042 through SLC-045 are admitted for the Overlay Display Acceptance Foundation package; SLC-042 implementation/proof closure is complete and SLC-043 active display behavior is implemented pending final validation/commit.`
+Admitted Implementation Slice: `SLC-042 through SLC-045 are admitted for the Overlay Display Acceptance Foundation package; SLC-042 implementation/proof closure, SLC-043 active display behavior, and SLC-044 Dashboard / Overlay independence are implemented pending final validation/commit for SLC-044.`
 
 ## Slice Continuation Policy
 
@@ -215,7 +215,7 @@ Branch Closure Rule: `Do not claim package-complete until admitted slices are im
 ## Backlog Completion Status
 
 Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Remaining bounded seams / admitted slices after green SLC-043 closure: SLC-044 Dashboard / Overlay display independence and visual acceptance; SLC-045 validation/live proof and UTS handoff readiness.`
+Remaining Implementable Work: `Remaining bounded seams / admitted slices after green SLC-044 closure: SLC-045 validation/live proof and UTS handoff readiness.`
 Future-Dependent Blockers: `Recording Profile runtime; tray recording controls; export/share/import; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007; Governance worktree mutation; PR creation; merge; release; issue mutation; artifacts/raw evidence handling; stale branch cleanup.`
 Completion Status: `In Progress`
 
@@ -228,12 +228,12 @@ Waiver Status: `None`
 Continue Decision: `Continue`
 Continuation Execution Latch: `Active - final response is prohibited and the next seam must execute in the same bounded Workstream run until Workstream Green, a real named blocker, validation failure, current-main reconciliation blocker, source-truth conflict, or USER stop.`
 Stop Basis: `None`
-Next Active Seam: `SLC-044 Dashboard / Overlay display independence and visual acceptance after green SLC-043 validation/commit`
-Stop Condition: `Do not stop after SLC-043 or before SLC-044 unless validation fails, origin/main requires reconciliation, source truth conflicts, USER stops, or a real named blocker appears.`
-Continuation Action: `Close SLC-043 with validation/commit, then execute SLC-044 Dashboard / Overlay display independence and visual acceptance as the next bounded Workstream seam.`
+Next Active Seam: `SLC-045 validation/live proof and UTS handoff readiness after green SLC-044 validation/commit`
+Stop Condition: `Do not stop after SLC-044 or before SLC-045 unless validation fails, origin/main requires reconciliation, source truth conflicts, USER stops, or a real named blocker appears.`
+Continuation Action: `Close SLC-044 with validation/commit, then execute SLC-045 validation/live proof and UTS handoff readiness as the next bounded Workstream seam.`
 Single-Seam Workstream Waiver: `None`
 Single-Seam Or Single-Slice Waiver Authority: `USER only may waive single-seam/single-slice Workstream behavior; Codex cannot infer single-seam/single-slice authority.`
-Single-Seam Or Single-Slice Workstream Blocker: `One seam or one slice is a blocker unless a USER waiver exists; this package remains multi-slice with SLC-044 through SLC-045 visible after green SLC-043 closure.`
+Single-Seam Or Single-Slice Workstream Blocker: `One seam or one slice is a blocker unless a USER waiver exists; this package remains multi-slice with SLC-045 visible after green SLC-044 closure.`
 Bounded Seam Default: `Bounded means one active seam at a time and is not one-seam Workstream authority.`
 
 ## Expected Seam Families And Risk Classes
@@ -261,7 +261,7 @@ Seam 4: `SLC-045 Validation/live proof and UTS handoff readiness`
 
 ## Active Seam
 
-Active seam: `SLC-043 active Overlay Profile display behavior implemented and in validation/source-truth closure; SLC-044 is next after green commit.`
+Active seam: `SLC-044 Dashboard / Overlay display independence and visual acceptance implemented and in validation/source-truth closure; SLC-045 is next after green commit.`
 
 ## Validation Plan
 
@@ -276,16 +276,16 @@ Proof Closure Status: `Closed for SLC-042 validation/proof closure; no runtime i
 ## Next Legal Phase
 
 Next Legal Phase: `Workstream`
-Next Legal Phase Detail: `Backlog completion remains in Workstream because SLC-044 through SLC-045 remain admitted and incomplete after SLC-043 validation/commit. Source truth selects SLC-044 Dashboard / Overlay display independence and visual acceptance as the next bounded implementation seam after green SLC-043 closure.`
+Next Legal Phase Detail: `Backlog completion remains in Workstream because SLC-045 remains admitted and incomplete after SLC-044 validation/commit. Source truth selects SLC-045 validation/live proof and UTS handoff readiness as the next bounded implementation seam after green SLC-044 closure.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Workstream / bounded SLC-043 implementation validation`
+Current Phase: `Workstream / bounded SLC-044 implementation validation`
 Next Legal Phase: `Workstream`
-Why This Phase Is Next: `SLC-042 implementation and JavaScript proof closure are complete, SLC-043 is implemented pending validation/commit, SLC-044 through SLC-045 remain admitted and incomplete, and Workstream cannot legally advance to Hardening while implementable same-branch seams remain.`
+Why This Phase Is Next: `SLC-042 implementation and JavaScript proof closure are complete, SLC-043 is implemented, SLC-044 is implemented pending validation/commit, SLC-045 remains admitted and incomplete, and Workstream cannot legally advance to Hardening while implementable same-branch seams remain.`
 Approval Required: `No additional per-seam USER approval required while bounded Workstream continuation remains green`
-Exact USER Approval Text: `No per-seam approval request is required; after green SLC-043 validation/commit, continue bounded Workstream execution into SLC-044 Dashboard / Overlay display independence and visual acceptance, preserving Overlay Profile / Monitor Group / Recording Profile separation, preserving existing Dashboard / Manage Monitors / Sensor Command Center behavior, proving Dashboard and Overlay display stay independent while sharing approved active-profile state, proving visual acceptance without broad theme/skin scope, running required validation including bundled runtime JavaScript syntax proof if local node.exe is blocked, committing and pushing if green, and continuing through admitted Workstream seams until Workstream Green or a real stop condition without Hardening H1 execution, PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, or Governance worktree mutation.`
-Allowed Scope: `Bounded Workstream implementation inside the admitted multi-seam Workstream package; SLC-044 after green SLC-043 closure`
+Exact USER Approval Text: `No per-seam approval request is required; after green SLC-044 validation/commit, continue bounded Workstream execution into SLC-045 validation/live proof and UTS handoff readiness, preserving Overlay Profile / Monitor Group / Recording Profile separation, preserving existing Dashboard / Manage Monitors / Sensor Command Center behavior, proving validators and proof helpers cover SLC-042 through SLC-044, preparing LV1/UTS readiness without executing Hardening H1, LV1, PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, or Governance worktree mutation.`
+Allowed Scope: `Bounded Workstream implementation inside the admitted multi-seam Workstream package; SLC-045 after green SLC-044 closure`
 Explicit Exclusions: `Runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, and broad theme/skin work.`
 Validation Required: `Identity, source-truth, runtime-surface inspection, HUD surface/internal validators, branch governance, worktree confinement after commit, release-readiness health gate, validation suite, diff checks, compileall, and supported JS syntax/runtime checks including bundled runtime Node when needed.`
-Stop Conditions: `Stop if worktree identity differs, origin/main advances and requires reconciliation, source truth selects a different phase, SLC-044 requires excluded work, concept separation cannot be preserved, or validation fails.`
+Stop Conditions: `Stop if worktree identity differs, origin/main advances and requires reconciliation, source truth selects a different phase, SLC-045 requires excluded work, concept separation cannot be preserved, or validation fails.`

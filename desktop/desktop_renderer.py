@@ -5787,6 +5787,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_overlay_profile_signature = None
         self._monitoring_hud_overlay_display_acceptance_signature = None
         self._monitoring_hud_active_overlay_profile_display_signature = None
+        self._monitoring_hud_dashboard_overlay_independence_signature = None
         self._monitoring_hud_overlay_profiles = {}
         self._monitoring_hud_active_overlay_profile_id = "default-overlay-profile"
         self._monitoring_hud_overlay_profile_default_deleted_by_user = False
@@ -12923,6 +12924,32 @@ class DesktopRuntimeWindow(QWidget):
                     non_theme_scope=bool(active_overlay_profile_display_proof.get("nonThemeScope")),
                 )
                 active_overlay_profile_display_changed = True
+        dashboard_overlay_independence_proof = state.get("dashboardOverlayIndependenceProof")
+        dashboard_overlay_independence_signature = json.dumps(
+            dashboard_overlay_independence_proof if isinstance(dashboard_overlay_independence_proof, dict) else {},
+            sort_keys=True,
+        )
+        dashboard_overlay_independence_changed = False
+        if dashboard_overlay_independence_signature != self._monitoring_hud_dashboard_overlay_independence_signature:
+            self._monitoring_hud_dashboard_overlay_independence_signature = dashboard_overlay_independence_signature
+            if isinstance(dashboard_overlay_independence_proof, dict):
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_DASHBOARD_OVERLAY_INDEPENDENCE_READY",
+                    package="PKG-006",
+                    slice=str(dashboard_overlay_independence_proof.get("slice") or "SLC-044"),
+                    seam="Workstream",
+                    independence_marker_ready=bool(dashboard_overlay_independence_proof.get("independenceMarkerReady")),
+                    dashboard_and_overlay_roles_distinct=bool(dashboard_overlay_independence_proof.get("dashboardAndOverlayRolesDistinct")),
+                    dashboard_configures_overlay_without_owning_display=bool(dashboard_overlay_independence_proof.get("dashboardConfiguresOverlayWithoutOwningDisplay")),
+                    active_profile_shared_state_visible_in_overlay=bool(dashboard_overlay_independence_proof.get("activeProfileSharedStateVisibleInOverlay")),
+                    dashboard_acceptance_remains_ready=bool(dashboard_overlay_independence_proof.get("dashboardAcceptanceRemainsReady")),
+                    overlay_acceptance_remains_non_gating=bool(dashboard_overlay_independence_proof.get("overlayAcceptanceRemainsNonGating")),
+                    monitor_groups_remain_preservation_surface=bool(dashboard_overlay_independence_proof.get("monitorGroupsRemainPreservationSurface")),
+                    visual_acceptance_baseline_ready=bool(dashboard_overlay_independence_proof.get("visualAcceptanceBaselineReady")),
+                    non_recording_scope=bool(dashboard_overlay_independence_proof.get("nonRecordingScope")),
+                    non_theme_scope=bool(dashboard_overlay_independence_proof.get("nonThemeScope")),
+                )
+                dashboard_overlay_independence_changed = True
         monitor_signature_parts = []
         enabled_count = 0
         for card_id in sorted(str(key) for key in cards.keys()):

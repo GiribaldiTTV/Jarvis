@@ -3454,6 +3454,8 @@ function monitoringHudRenderOverlayDisplay() {
   monitoringHudOverlayDisplay.dataset.activeOverlayProfileDisplayBehavior = "slc-043-active-profile-display";
   monitoringHudOverlayDisplay.dataset.activeOverlayProfileDisplaySlice = "SLC-043";
   monitoringHudOverlayDisplay.dataset.activeOverlayProfileDisplayProof = monitoringHudOverlayDisplay.dataset.activeOverlayProfileDisplayProof || "pending";
+  monitoringHudOverlayDisplay.dataset.dashboardOverlayIndependence = "slc-044-dashboard-overlay-independent";
+  monitoringHudOverlayDisplay.dataset.dashboardOverlayIndependenceProof = monitoringHudOverlayDisplay.dataset.dashboardOverlayIndependenceProof || "pending";
   monitoringHudOverlayDisplay.dataset.overlayProfileState = "slc-039-membership-mapping";
   monitoringHudOverlayDisplay.dataset.overlayProfileSchemaVersion = String(monitoringHudOverlayProfileSchemaVersion);
   monitoringHudOverlayDisplay.dataset.activeOverlayProfileId = String(monitoringHudControlState.activeOverlayProfileId || "");
@@ -3562,6 +3564,8 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness";
     monitoringHud.dataset.monitorGroupModel = "configurable-groups-sensor-assignment";
     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-visual-rendering";
+    monitoringHud.dataset.dashboardOverlayIndependence = "slc-044-dashboard-overlay-independent";
+    monitoringHud.dataset.dashboardOverlayIndependenceProof = monitoringHud.dataset.dashboardOverlayIndependenceProof || "pending";
     monitoringHud.dataset.monitorSensorAssignment = "sensor-library-source-picker";
     monitoringHud.dataset.sourceClassification = "settings-readiness-outside-assignable-sensors";
     monitoringHud.dataset.interactiveControlAffordance = "normal-hover-active-focus-visible-disabled-open-selected";
@@ -4756,6 +4760,128 @@ window.runMonitoringHudActiveOverlayProfileDisplayProof = function() {
   return proof;
 };
 
+window.runMonitoringHudDashboardOverlayIndependenceProof = function() {
+  const previousState = JSON.stringify(monitoringHudControlState);
+  let proof = {
+    passed: false,
+    package: "PKG-006",
+    slice: "SLC-044",
+    seam: "Dashboard / Overlay display independence and visual acceptance",
+    independenceMarkerReady: false,
+    dashboardAndOverlayRolesDistinct: false,
+    dashboardConfiguresOverlayWithoutOwningDisplay: false,
+    activeProfileSharedStateVisibleInOverlay: false,
+    dashboardAcceptanceRemainsReady: false,
+    overlayAcceptanceRemainsNonGating: false,
+    monitorGroupsRemainPreservationSurface: false,
+    visualAcceptanceBaselineReady: false,
+    monitorGroupBoundary: true,
+    recordingProfileBoundary: true,
+    nonRecordingScope: true,
+    nonThemeScope: true
+  };
+  try {
+    monitoringHudControlState.cards = {
+      "slc044-dashboard": Object.assign(monitoringHudCardDefaults("slc044-dashboard"), {
+        id: "slc044-dashboard",
+        title: "SLC-044 Dashboard Monitor",
+        enabled: true,
+        sensors: ["cpu-load"],
+        pollingRateMs: 1000
+      }),
+      "slc044-overlay": Object.assign(monitoringHudCardDefaults("slc044-overlay"), {
+        id: "slc044-overlay",
+        title: "SLC-044 Overlay Monitor",
+        enabled: true,
+        sensors: [],
+        pollingRateMs: 1000
+      })
+    };
+    monitoringHudControlState.overlayProfileDefaultDeletedByUser = false;
+    monitoringHudControlState.overlayProfiles = {
+      "slc044-shared": {
+        id: "slc044-shared",
+        name: "SLC-044 Shared Display Profile",
+        monitorIds: ["slc044-dashboard", "slc044-overlay"],
+        displayMode: "monitor-cards"
+      }
+    };
+    monitoringHudControlState.activeOverlayProfileId = "slc044-shared";
+    monitoringHudRenderControls();
+    const split = window.getMonitoringHudSurfaceSplitState ? window.getMonitoringHudSurfaceSplitState() : {};
+    const acceptance = window.getMonitoringHudDashboardAcceptanceState ? window.getMonitoringHudDashboardAcceptanceState() : {};
+    const isolation = window.getMonitoringHudIsolationState ? window.getMonitoringHudIsolationState() : {};
+    const dashboardSnapshot = monitoringHudVisualInspectionStyleSnapshot(monitoringHud);
+    const overlayStatusSnapshot = monitoringHudVisualInspectionStyleSnapshot(monitoringHudOverlayProfileDisplayStatus);
+    proof.independenceMarkerReady = monitoringHud
+      && monitoringHud.dataset.dashboardOverlayIndependence === "slc-044-dashboard-overlay-independent"
+      && monitoringHudOverlayDisplay
+      && monitoringHudOverlayDisplay.dataset.dashboardOverlayIndependence === "slc-044-dashboard-overlay-independent";
+    proof.dashboardAndOverlayRolesDistinct = split.dashboardSurfaceRole === "dashboard-configuration-surface"
+      && split.overlayDisplaySurfaceRole === "edgeless-overlay-display"
+      && split.dashboardSurfaceRole !== split.overlayDisplaySurfaceRole;
+    proof.dashboardConfiguresOverlayWithoutOwningDisplay = split.dashboardConfigures === "monitoring-hud-minimal"
+      && split.dashboardMonitorCardPolicy === "overlay-display-owns-visual-rendering"
+      && split.dashboardDecouplingProof === "core-overlay-independent";
+    proof.activeProfileSharedStateVisibleInOverlay = monitoringHudOverlayDisplay
+      && monitoringHudOverlayDisplay.dataset.activeOverlayProfileId === "slc044-shared"
+      && monitoringHudOverlayDisplay.dataset.activeOverlayProfileMonitorCount === "2"
+      && monitoringHudOverlayDisplay.dataset.overlayRenderedMonitorCount === "2"
+      && monitoringHudOverlayProfileDisplayName
+      && monitoringHudOverlayProfileDisplayName.textContent === "SLC-044 Shared Display Profile";
+    proof.dashboardAcceptanceRemainsReady = acceptance.dashboardAcceptanceBaselineReady === true
+      && acceptance.dashboardStandaloneMovementReady === true
+      && acceptance.dashboardSettingsContentReady === true
+      && acceptance.dashboardProviderTruthReady === true;
+    proof.overlayAcceptanceRemainsNonGating = acceptance.overlayAcceptanceNonGating === true
+      && isolation.overlayAcceptanceNonGating === true;
+    proof.monitorGroupsRemainPreservationSurface = split.monitorGroupModel === "configurable-groups-sensor-assignment"
+      && split.monitorSensorAssignment === "sensor-library-source-picker"
+      && split.monitorManagement === "sensor-command-center-list-detail-source-picker";
+    proof.visualAcceptanceBaselineReady = monitoringHudVisualInspectionVisible(monitoringHud)
+      && monitoringHudVisualInspectionVisible(monitoringHudOverlayProfileDisplayStatus)
+      && dashboardSnapshot.rect.width > 100
+      && overlayStatusSnapshot.rect.width > 120
+      && monitoringHudVisualInspectionHasGlow(overlayStatusSnapshot);
+    proof.monitorGroupBoundary = split.monitorGroupModel === "configurable-groups-sensor-assignment";
+    proof.recordingProfileBoundary = monitoringHudOverlayDisplay.dataset.recordingProfileState === "recording-profile-state-absent-future-gated";
+    proof.nonRecordingScope = proof.recordingProfileBoundary;
+    proof.nonThemeScope = !/theme|skin/i.test([
+      monitoringHud.dataset.dashboardOverlayIndependence || "",
+      monitoringHudOverlayDisplay.dataset.dashboardOverlayIndependence || "",
+      monitoringHudOverlayDisplay.dataset.overlayDisplayAcceptancePolicy || ""
+    ].join(" "));
+    proof.passed = proof.independenceMarkerReady
+      && proof.dashboardAndOverlayRolesDistinct
+      && proof.dashboardConfiguresOverlayWithoutOwningDisplay
+      && proof.activeProfileSharedStateVisibleInOverlay
+      && proof.dashboardAcceptanceRemainsReady
+      && proof.overlayAcceptanceRemainsNonGating
+      && proof.monitorGroupsRemainPreservationSurface
+      && proof.visualAcceptanceBaselineReady
+      && proof.monitorGroupBoundary
+      && proof.recordingProfileBoundary
+      && proof.nonRecordingScope
+      && proof.nonThemeScope;
+  } finally {
+    try {
+      monitoringHudControlState = JSON.parse(previousState);
+      monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+      monitoringHudRenderControls();
+    } catch (_err) {}
+  }
+  monitoringHudControlState.dashboardOverlayIndependenceProof = proof;
+  if (monitoringHud) {
+    monitoringHud.dataset.dashboardOverlayIndependenceProof = proof.passed ? "pass" : "fail";
+    monitoringHud.dataset.dashboardOverlayIndependence = "slc-044-dashboard-overlay-independent";
+  }
+  if (monitoringHudOverlayDisplay) {
+    monitoringHudOverlayDisplay.dataset.dashboardOverlayIndependenceProof = proof.passed ? "pass" : "fail";
+    monitoringHudOverlayDisplay.dataset.dashboardOverlayIndependence = "slc-044-dashboard-overlay-independent";
+  }
+  return proof;
+};
+
 window.runMonitoringHudOverlayProfileControlsProof = function() {
   const previousState = JSON.stringify(monitoringHudControlState);
   const previousDraftId = monitoringHudOverlayProfileDraftId;
@@ -5547,6 +5673,7 @@ window.getMonitoringHudControlState = function() {
     overlayProfileStateProof: Object.assign({}, monitoringHudControlState.overlayProfileStateProof || {}),
     overlayDisplayAcceptanceProof: Object.assign({}, monitoringHudControlState.overlayDisplayAcceptanceProof || {}),
     activeOverlayProfileDisplayProof: Object.assign({}, monitoringHudControlState.activeOverlayProfileDisplayProof || {}),
+    dashboardOverlayIndependenceProof: Object.assign({}, monitoringHudControlState.dashboardOverlayIndependenceProof || {}),
     activeChildWindow: monitoringHudActiveChildWindow || "none",
     interactiveControlReliabilityProof: Object.assign({}, monitoringHudReliableActivationState, {
       attempts: monitoringHudReliableActivationState.attempts.slice(-40)
