@@ -6,10 +6,6 @@ Docs Source-Truth Reform Model: Compact Pointer Layer.
 
 This layer sits under the branch authority record. It does not replace the branch authority record, backlog, roadmap, or canonical workstream doc.
 
-## Phase Digest Relationship
-
-Branch Runtime Engineering Plans may be compacted or folded down only when governance explicitly allows it. Formal Next Legal Phase Digests are different: they are USER-facing approval-control packets and must never be compacted, abbreviated, summarized away, or replaced by a short next-step line. When a phase creates or updates a plan that USER must inspect before implementation, the digest must name `USER Plan Review Gate:`, `USER Inspection Files:`, and `Implementation Blocker:`. When review is not required, it must name `USER Plan Review Gate: Not required` and `Review Waiver Reason:`.
-
 ## Ownership Model
 
 - Backlog entries remain compact registry, status, and pointer surfaces.
