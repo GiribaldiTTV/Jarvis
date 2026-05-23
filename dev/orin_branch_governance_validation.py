@@ -5,6 +5,7 @@ import re
 import sqlite3
 import subprocess
 import sys
+from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib import error as urllib_error
@@ -8478,6 +8479,12 @@ def _markdown_table_cells(line: str) -> list[str]:
     return [cell.strip() for cell in line.strip().strip("|").split("|")]
 
 
+def _is_markdown_table_separator(cells: Sequence[str]) -> bool:
+    return bool(cells) and all(
+        bool(cell) and "-" in cell and set(cell) <= {"-", ":"} for cell in cells
+    )
+
+
 def _element_matrix_requires_active_coverage(normalized_status: str) -> bool:
     return not any(term in normalized_status for term in ("folded", "historical", "retired"))
 
@@ -8584,7 +8591,7 @@ def _validate_element_to_phase_proof_matrix(
     rows: list[dict[str, str]] = []
     for line in table_lines[header_index + 1 :]:
         cells = _markdown_table_cells(line)
-        if not cells or all(set(cell) <= {"-"} for cell in cells if cell):
+        if not cells or _is_markdown_table_separator(cells):
             continue
         if len(cells) != len(header):
             require(
