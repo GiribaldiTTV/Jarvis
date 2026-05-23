@@ -160,6 +160,128 @@ Expected User-Facing Outcomes: Users eventually see truthful local consent state
 
 Acceptance Criteria: Workstream implementation, if later approved, must prove local consent capture/write-path behavior, fail-closed validation, no provider-visible data, disabled prompt/model execution, blocked downloads/network/memory, voice/Core gating, desktop readiness display suppression continuity, H1 Green, LV1 Green, and PR readiness fold-down.
 
+## Branch Change Intent Ledger
+
+### Changed Surface: Docs/branch_plans/README.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `FAM-007 touched branch-plan lifecycle wording during Stage 2 setup and digest-clarity repair/revert history before Governance PR #200 merged.`
+- Why This File Was Touched: `The FAM-007 lane needed Stage 2 closeout language that made the next plan-review gate visible after branch setup.`
+- Owned Behavior / Fact Class: `FAM-007 owns only its branch-local Stage 2 and Workstream Entry planning posture; Governance PR #200 owns shared Branch Runtime Engineering Plan template, Element-to-Phase Proof Matrix, Workstream Entry review bundle, and whole-package gate rules.`
+- Canonical Owner / Source Owner: `Docs/branch_plans/README.md with Governance PR #200 as incoming shared governance owner; FAM-007 branch-local details remain in this plan and its branch record.`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES - branch-plan template and branch-local plan routing surface.`
+- Overlap Risk: `Governance-rule drift if FAM-007 keeps older Stage 2 digest wording over PR #200's broader Workstream Entry and matrix rules.`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Low`
+- Conflict Resolution Rule: `Prefer Governance PR #200 shared template/rule wording; preserve FAM-007-specific plan path, branch identity, and implementation-boundary facts only in FAM-007 branch-local files.`
+- Rebaseline Handling: `Accept incoming shared governance-rule content and keep FAM-007 branch-local successor evidence in the active branch plan and branch record.`
+- Validation Proof: `Run rebaseline audit validation, branch governance validation, release-readiness health validation, governance efficiency validation, branch-readiness planning fixture validation, and runtime-fam007 validation recommendations after reconciliation.`
+- Fallback Evidence: `FAM-007 branch record and this Branch Runtime Engineering Plan record the branch-local authority; Governance PR #200 branch record records incoming shared governance intent. Not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved this overlap-resolution policy: Governance PR #200 owns shared governance-rule wording while FAM-007 preserves branch-local facts.`
+- Fold-Down Target: `PR Readiness fold-down for this FAM-007 branch after Workstream/H1/LV1; shared governance wording remains owned by merged main governance source truth.`
+
+### Changed Surface: Docs/branch_records/index.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `FAM-007 registered its active branch authority and earlier plan-review gate clarification before Governance PR #200 changed branch-record index governance.`
+- Why This File Was Touched: `The FAM-007 Stage 2 setup needed the active branch authority record indexed for the current runtime carrier.`
+- Owned Behavior / Fact Class: `FAM-007 owns the active branch record pointer for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation; Governance PR #200 owns shared branch-class, digest, Workstream Entry, and governance repair routing rules.`
+- Canonical Owner / Source Owner: `Docs/branch_records/index.md for branch authority routing; Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md for FAM-007 branch-local authority.`
+- Resolution Owner: `USER Decision`
+- Shared Surface: `YES - branch authority index plus shared governance rules.`
+- Overlap Risk: `Active branch pointer could be dropped or Governance PR #200's source-truth routing could be overwritten by stale FAM-007 wording.`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Low`
+- Conflict Resolution Rule: `Preserve Governance PR #200 shared governance-rule/index changes and preserve the FAM-007 active branch authority pointer if current source truth still names this branch as active.`
+- Rebaseline Handling: `Merge both: incoming governance rules remain authoritative; FAM-007 active branch record remains listed until this branch reaches PR fold-down or another USER-approved state change.`
+- Validation Proof: `Run rebaseline audit validation, branch governance validation, release-readiness health validation, governance efficiency validation, branch-readiness planning fixture validation, and source-owner marker validation after reconciliation.`
+- Fallback Evidence: `FAM-007 branch record, worktree slot receipt, and live git identity prove this branch remains active. Not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved preserving FAM-007 branch-local authority while treating Governance PR #200 as authoritative for shared governance rules.`
+- Fold-Down Target: `FAM-007 PR Readiness will retire or fold down active branch authority; governance index rules remain in shared source truth.`
+
+### Changed Surface: Docs/phase_governance.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `FAM-007 touched phase digest wording during a branch-local clarity repair/revert path before Governance PR #200 merged a broader governance-owned fix.`
+- Why This File Was Touched: `The FAM-007 lane exposed a digest clarity gap around USER plan review gates and implementation blockers.`
+- Owned Behavior / Fact Class: `Governance PR #200 owns phase digest non-compaction, Workstream Entry review bundle, Element-to-Phase Proof Matrix, whole-package Workstream Entry gate, and vision update matrix rules; FAM-007 owns only the branch-local fact that implementation remains blocked until Workstream Entry/implementation approval.`
+- Canonical Owner / Source Owner: `Docs/phase_governance.md with Governance PR #200 as authoritative shared-rule owner.`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES - repo-wide phase governance.`
+- Overlap Risk: `High if branch-local wording overwrites the governance-owned phase rules or weakens the broader PR #200 gate set.`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Low`
+- Conflict Resolution Rule: `Prefer Governance PR #200 for repo-wide governance text; retain FAM-007 implementation blocker only in branch-local record/plan if needed.`
+- Rebaseline Handling: `Accept incoming Governance PR #200 phase governance; do not reintroduce FAM-007-only governance wording into shared phase rules.`
+- Validation Proof: `Run branch governance validation, release-readiness health validation, governance efficiency validation, branch-readiness planning fixture validation, source-owner marker validation, and compileall after reconciliation.`
+- Fallback Evidence: `Governance PR #200 branch record names phase-digest and Workstream Entry hardening as its purpose. Not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved Governance PR #200 as authoritative for shared governance-rule content.`
+- Fold-Down Target: `Merged main phase governance; FAM-007 branch record keeps only branch-local approval boundaries.`
+
+### Changed Surface: Docs/validation_helper_registry.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `FAM-007 added planned provider-state validator coverage for the consent collection implementation foundation branch; Governance PR #200 expanded shared validator/helper responsibilities.`
+- Why This File Was Touched: `Stage 2 setup needed the FAM-007 consent collection implementation foundation validator row before Workstream implementation could be planned safely.`
+- Owned Behavior / Fact Class: `FAM-007 owns its provider/consent validator registration row; Governance PR #200 owns shared helper registry wording for digest non-compaction, Workstream Entry whole-package gate, Element-to-Phase matrix, review bundles, fixtures, and governance validator ownership.`
+- Canonical Owner / Source Owner: `Docs/validation_helper_registry.md with mixed ownership: FAM-007 provider-state row plus Governance PR #200 shared validator/helper registry rules.`
+- Resolution Owner: `USER Decision`
+- Shared Surface: `YES - repo-wide helper registry with branch-specific validator row.`
+- Overlap Risk: `FAM-007 validator row could be lost, or PR #200 helper/fixture ownership could be overwritten by stale branch wording.`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Low`
+- Conflict Resolution Rule: `Preserve both Governance PR #200 shared helper registry updates and the FAM-007 consent collection implementation foundation validator row.`
+- Rebaseline Handling: `Conflict-aware merge: incoming governance helper ownership stays authoritative; FAM-007 row remains as branch-local validator fact.`
+- Validation Proof: `Run branch governance validation, release-readiness health validation, governance efficiency validation, branch-readiness planning fixture validation, source-owner marker validation, FAM-007 provider-state validation, and compileall after reconciliation.`
+- Fallback Evidence: `FAM-007 branch record and Branch Runtime Engineering Plan require provider-state validator coverage for the consent collection implementation foundation. Not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved preserving FAM-007 provider/consent validation facts while accepting Governance PR #200 shared validator changes.`
+- Fold-Down Target: `Validation helper registry remains shared source truth; branch-specific row folds down during PR Readiness if this branch changes validator responsibilities.`
+
+### Changed Surface: Docs/governance_docs_full_inventory_reform_audit.md
+
+- Surface Class: `documentation/reference`
+- Change Intent: `FAM-007 carried regenerated/current inventory reference changes from Stage 2 setup context before Governance PR #200 regenerated or updated the docs inventory reform audit.`
+- Why This File Was Touched: `The file is a generated/reference docs inventory surface affected by source-truth reform and branch setup changes.`
+- Owned Behavior / Fact Class: `Governance tooling owns the generated inventory/reference content; FAM-007 owns only branch-local source-truth files that may appear in that inventory.`
+- Canonical Owner / Source Owner: `dev/orin_docs_inventory_reform_audit.py and Governance PR #200 generated inventory source truth.`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES - generated/reference inventory surface.`
+- Overlap Risk: `Low-to-medium generated-doc churn; accepting stale branch output could hide PR #200's current docs inventory review.`
+- Expected Conflict Risk: `Low`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `None`
+- Conflict Resolution Rule: `Prefer Governance PR #200 generated/reference inventory output; preserve FAM-007 branch-local files themselves rather than stale inventory text.`
+- Rebaseline Handling: `Accept incoming generated/reference inventory or regenerate intentionally only if current repo tooling requires it after merge.`
+- Validation Proof: `Run governance efficiency validation, branch governance validation, branch-readiness planning fixture validation, and docs inventory tooling only if current source truth requires regeneration.`
+- Fallback Evidence: `Incoming Governance PR #200 includes docs inventory reform audit changes and helper registry ownership for the audit generator. Not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved treating generated inventory/review-index overlap according to current repo tooling and Governance PR #200 authority.`
+- Fold-Down Target: `Generated/reference governance inventory on merged main.`
+
+### Changed Surface: Docs/governance_docs_reform_user_review_index.md
+
+- Surface Class: `documentation/reference`
+- Change Intent: `FAM-007 carried reference review-index updates from Stage 2 setup context before Governance PR #200 updated the docs reform USER review index.`
+- Why This File Was Touched: `The file is a generated/reference USER review index for source-truth reform and was affected by branch setup and governance reform context.`
+- Owned Behavior / Fact Class: `Governance tooling owns generated review-index content; FAM-007 owns only branch-local branch record, branch plan, and validator facts that may be referenced by the index.`
+- Canonical Owner / Source Owner: `dev/orin_docs_inventory_reform_audit.py and Governance PR #200 generated review-index source truth.`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES - generated/reference review-index surface.`
+- Overlap Risk: `Low generated/reference drift if stale FAM-007 text overwrites PR #200's current review-index output.`
+- Expected Conflict Risk: `Low`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `None`
+- Conflict Resolution Rule: `Prefer Governance PR #200 generated/reference review-index output; preserve FAM-007 branch-local files and facts outside this generated surface.`
+- Rebaseline Handling: `Accept incoming generated/reference index or regenerate intentionally only if current repo tooling requires it after merge.`
+- Validation Proof: `Run governance efficiency validation, branch governance validation, branch-readiness planning fixture validation, and docs inventory tooling only if current source truth requires regeneration.`
+- Fallback Evidence: `Incoming Governance PR #200 includes docs reform review-index changes and generator ownership. Not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved treating generated inventory/review-index overlap according to current repo tooling and Governance PR #200 authority.`
+- Fold-Down Target: `Generated/reference governance review index on merged main.`
+
 ## Next Legal Phase
 
 `Workstream Entry analysis after USER approval`
