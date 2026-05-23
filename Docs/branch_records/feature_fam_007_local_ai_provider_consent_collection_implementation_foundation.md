@@ -8,7 +8,7 @@ Record State: `Active Branch Authority`
 
 ## Status
 
-Status: `Workstream Green - local consent capture/write-path implementation foundation is implemented across all admitted seams and ready for Hardening H1 after USER approval.`
+Status: `Hardening H1 Green - local consent capture/write-path implementation foundation has been inspected against the admitted Workstream plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, source truth, validators, UI/status proof, approval boundaries, and overlap posture; ready for Live Validation LV1 after USER approval.`
 
 ## Canonical Branch
 
@@ -16,9 +16,9 @@ Canonical Branch: `feature/fam-007-local-ai-provider-consent-collection-implemen
 
 ## Current Phase
 
-Phase: `Workstream`
+Phase: `Hardening`
 
-Stage: `Workstream Green`
+Stage: `Hardening H1 Green`
 
 Seam: `FAM-007 Local AI Provider Consent Collection Implementation Foundation`
 
@@ -31,10 +31,12 @@ Seam: `FAM-007 Local AI Provider Consent Collection Implementation Foundation`
 - Branch Authority State: `Active FAM-007 runtime carrier for bounded Workstream implementation`
 - Stage 2 Status: `Complete after source-truth setup, branch plan creation, validation, commit, and push`
 - Workstream Status: `Green - all admitted consent capture/write-path foundation seams are implemented and validated for closeout`
+- Hardening H1 Status: `Green - H1 compared the completed implementation against the admitted Workstream plan, Branch Runtime Engineering Plan, Product Definition Plan, Runtime Branch Engineering Contract, source truth, validator fixtures, setup/execution consent separation, consent record schema/storage boundary, provenance/audit/no-secrets posture, local-only safety boundaries, hidden telemetry UI proof, desktop readiness display suppression continuity, and overlap posture with no remaining H1 blocker`
+- Live Validation LV1 Status: `Pending USER approval`
 - Prior FAM-007 Evidence: `PR #193 FAM-007 consent collection foundation is merged and released evidence from v1.7.13-prebeta; PR #192 setup implementation foundation remains released evidence from v1.7.12-prebeta; PR #190 setup contract readiness and PR #179 setup/consent-flow readiness remain released historical evidence`
 - Consent Collection Implementation State: `Implemented - local consent capture transition/write-path snapshot fields, local record normalization, consent record storage-boundary schema, durable-storage-deferred posture, local-only revocation/reset model, setup/execution consent separation, audit/no-secrets proof, UI hidden-telemetry proof, future provider setup handoff, functional-AI/v1.8.0 continuation criteria, and validator fixtures are present`
 - Provider Execution State: `Blocked - provider setup completion, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product import, and v1.8.0-prebeta execution remain pending USER decisions`
-- Next Active Seam: `Hardening H1 after Workstream Green phase-boundary USER approval`
+- Next Active Seam: `Live Validation LV1 after Hardening H1 Green phase-boundary USER approval`
 
 ## Branch Class
 
@@ -84,13 +86,13 @@ Allowed Scope: `Current Workstream approval covers the admitted FAM-007 consent 
 
 Write Target: `C:\Nexus Worktrees\FAM-007` on `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
 
-Non-Includes: `Runtime implementation, actual consent capture, provider setup completion, provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/GitHub Release/artifact work, issue work, FAM-006 mutation, Governance mutation outside this branch path, Compact-AI mutation, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
+Non-Includes: `Runtime work beyond this hardened local consent foundation, user-operated consent capture UX, durable consent persistence beyond local snapshot proof, provider setup completion, provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/GitHub Release/artifact work, issue work, FAM-006 mutation, Governance mutation outside this branch path, Compact-AI mutation, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 
-Pending USER Decisions: `Hardening H1, LV1, PR creation, merge, release/tag/GitHub Release/artifact work, issue work, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
+Pending USER Decisions: `LV1, PR creation, merge, release/tag/GitHub Release/artifact work, issue work, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 
 ## Blockers
 
-No Workstream implementation blocker remains if validation is green. Provider setup completion, provider/model execution, downloads, network/API calls, memory/learning/personalization, voice/Core sync, shortcuts/installers, release/PR/merge, cleanup, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending USER decisions.
+No Workstream or Hardening H1 blocker remains if validation is green. Provider setup completion, provider/model execution, downloads, network/API calls, memory/learning/personalization, voice/Core sync, shortcuts/installers, release/PR/merge, cleanup, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending USER decisions.
 
 ## Entry Basis
 
@@ -221,15 +223,15 @@ Status: `Complete - functional-AI and v1.8.0 continuation criteria remain pendin
 
 ## Active Seam
 
-Active seam: `Hardening H1 phase-boundary handoff after Workstream Green`
+Active seam: `Live Validation LV1 phase-boundary handoff after Hardening H1 Green`
 
-Goal: Stop at the Workstream Green phase boundary and prepare H1 to compare implementation against this plan, PDP, RBEC, BREP, source truth, validators, and approval boundaries.
+Goal: Stop at the Hardening H1 Green phase boundary and prepare LV1 to validate the completed local consent capture/write-path implementation foundation as disabled/status-only local consent telemetry.
 
-Scope: Workstream Green closeout only; Hardening H1 begins only after USER admission.
+Scope: Hardening H1 closeout only; Live Validation LV1 begins only after USER admission.
 
 Non-Includes: Provider setup completion, provider execution, PR creation, merge, release execution, cleanup, sibling worktree mutation, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta execution.
 
-Next Active Seam: `Hardening H1 after USER approval`
+Next Active Seam: `Live Validation LV1 after USER approval`
 
 ## Seam Continuation Decision
 
@@ -243,15 +245,15 @@ Waiver Status: None
 
 Continue Decision: Stop
 
-Continuation Execution Latch: Inactive - Workstream is Green; phase-boundary stop is required before USER may admit Hardening H1.
+Continuation Execution Latch: Inactive - Hardening H1 is Green; phase-boundary stop is required before USER may admit Live Validation LV1.
 
-Stop Basis: Workstream Green
+Stop Basis: Hardening H1 Green
 
-Next Active Seam: Hardening H1.
+Next Active Seam: Live Validation LV1.
 
-Stop Condition: Workstream Green phase boundary.
+Stop Condition: Hardening H1 Green phase boundary.
 
-Continuation Action: Stop at phase boundary; USER must admit Hardening H1 before H1 inspection or repair begins, while provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, PR creation, merge, release execution, cleanup, and sibling-worktree mutation remain excluded.
+Continuation Action: Stop at phase boundary; USER must admit Live Validation LV1 before LV1 inspection or repair begins, while provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, PR creation, merge, release execution, cleanup, and sibling-worktree mutation remain excluded.
 
 Single-Seam Workstream Waiver: None
 
@@ -337,7 +339,7 @@ Implementation Sequence Proposal: First implement local state/schema and write p
 
 Planning Blockers: No admitted Workstream implementation blocker remains if validation is green; provider setup completion and provider/model execution remain separate future blockers.
 
-USER Decisions Needed: USER must approve Hardening H1, LV1, PR creation, merge, release execution, provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product import, Private Dev ORIN import, and v1.8.0 execution.
+USER Decisions Needed: USER must approve LV1, PR creation, merge, release execution, provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product import, Private Dev ORIN import, and v1.8.0 execution.
 
 Planning Packet Status: `Complete`
 
@@ -349,7 +351,7 @@ User Test Summary Strategy: `Completed Workstream uses source-truth-supported st
 
 ## Runtime Branch Engineering Contract
 
-Engineering Contract Status: `Accepted for Stage 2 setup; implementation approval remains pending.`
+Engineering Contract Status: `Accepted and H1-reviewed for the completed Workstream; provider setup completion and provider/model execution approvals remain pending.`
 
 USER Engineering Planning Review: `Complete via accepted Workstream Entry and USER correction that bounded Workstream execution continues until Workstream Green.`
 
@@ -359,15 +361,15 @@ Branch Purpose: `Move FAM-007 from disabled/status-only consent foundation towar
 
 Current Runtime Baseline: `Released FAM-007 state includes setup/consent-flow readiness, setup contract readiness, setup implementation foundation, and disabled/status-only consent collection foundation evidence through PR #193. Provider-visible data remains none, sentToProvider=false, canAcceptPrompts=false, prompt/model execution disabled, downloads/network blocked, memory disabled or deferred, voice/Core sync gated, and desktop readiness display suppression preserved.`
 
-Planned Runtime Delta: `Future Workstream may implement local consent capture/write-path foundation, consent record schema, setup/execution consent separation, provenance/audit posture, fail-closed validation, local-only UI/status proof, and future provider setup/execution handoff.`
+Planned Runtime Delta: `Completed Workstream implements local consent capture/write-path foundation, consent record schema, setup/execution consent separation, provenance/audit posture, fail-closed validation, local-only UI/status proof, and future provider setup/execution handoff.`
 
-User-Facing Runtime Delta: `Future Workstream may add truthful local consent capture/status proof if admitted; it must not imply provider setup completion, provider/model execution, prompt acceptance, network activity, memory activity, voice/Core sync, or functional AI.`
+User-Facing Runtime Delta: `Completed Workstream exposes truthful local consent capture/status proof as hidden telemetry only; it does not imply provider setup completion, provider/model execution, prompt acceptance, network activity, memory activity, voice/Core sync, or functional AI.`
 
-State / Config / Schema Delta: `Future Workstream may add consent capture state, local consent record schema, schema versioning, setup consent and execution consent status, provenance, audit markers, revocation/reset posture, reason/blocker codes, provider profile/config references, and future handoff fields.`
+State / Config / Schema Delta: `Completed Workstream adds consent capture state, local consent record schema, schema versioning, setup consent and execution consent status, provenance, audit markers, revocation/reset posture, reason/blocker codes, provider profile/config references, and future handoff fields.`
 
-Validator / Helper Delta: `dev/orin_ai_provider_state_validation.py should extend existing FAM-007 consent foundation coverage for local consent capture/write-path fixtures, fail-closed validation, setup/execution consent separation, provider-visible-data none, prompt/model execution disabled, downloads/network/memory/voice gates, and desktop readiness display suppression continuity.`
+Validator / Helper Delta: `dev/orin_ai_provider_state_validation.py extends existing FAM-007 consent foundation coverage for local consent capture/write-path fixtures, fail-closed validation, setup/execution consent separation, provider-visible-data none, prompt/model execution disabled, downloads/network/memory/voice gates, and desktop readiness display suppression continuity.`
 
-Expected Changed Files / Surfaces: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`, `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`, compact current-state pointer docs, `Docs/validation_helper_registry.md`, `desktop/ai_provider_state.py`, `desktop/desktop_renderer.py`, `desktop/core_visualization_renderer.py`, `nexus_visual/orin_core.*`, and `dev/orin_ai_provider_state_validation.py` if Workstream implementation is later approved.
+Expected Changed Files / Surfaces: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`, `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`, compact current-state pointer docs, `Docs/validation_helper_registry.md`, `desktop/ai_provider_state.py`, `desktop/desktop_renderer.py`, `desktop/core_visualization_renderer.py`, `nexus_visual/orin_core.*`, and `dev/orin_ai_provider_state_validation.py`.
 
 Approval-Boundary Audit: `Stage 2 records planning and branch authority only. Actual runtime implementation, consent capture, provider setup completion, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, PR creation, merge, release, issue work, cleanup, cross-lane mutation, AI Product import, Private Dev ORIN import, and v1.8.0 execution remain pending USER decisions.`
 
@@ -389,9 +391,9 @@ Plan-To-Implementation Traceability: `Each admitted Workstream seam must map to 
 
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
 
-Branch Runtime Engineering Plan: `Accepted for Stage 2 setup and Workstream Entry; completed Workstream implementation maps to the plan and is ready for H1 review.`
+Branch Runtime Engineering Plan: `Accepted for Stage 2 setup and Workstream Entry; completed Workstream implementation maps to the plan and passed H1 review.`
 
-Engineering Plan Status: `Accepted / implementation pending`
+Engineering Plan Status: `Accepted / Workstream complete / H1 Green`
 
 PR Fold-Down Packet: `Pending - PR Readiness will decide selected-next/defer, release-window, active-authority cleanup, PR metadata, and release fold-down after Workstream, H1, and LV1 are complete.`
 
@@ -413,7 +415,17 @@ Admitted Seam Families:
 6. Validator Fixtures, Fail-Closed Behavior, and Future Provider Setup Handoff.
 7. Functional-AI / v1.8.0 Continuation Criteria.
 
-Implementation Gate: `Closed at Workstream Green phase boundary; Hardening H1 begins only after USER approval.`
+Implementation Gate: `Closed at Workstream Green phase boundary; Hardening H1 is Green and Live Validation LV1 begins only after USER approval.`
+
+## Hardening H1 Record
+
+Hardening H1 Result: `Green - H1 compared the implemented consent capture/write-path foundation, local consent record schema/storage boundary, durable-storage-deferred posture, local-only revocation/reset model, setup/execution consent separation, provenance/audit/no-secrets posture, provider-visible-data/no-execution posture, hidden Core/Desktop/ORIN telemetry, desktop readiness display suppression continuity, validator fixtures, UI copy, source truth, approval boundaries, FAM-006/Governance overlap, and Compact-AI preservation posture against the admitted Workstream plan, Branch Runtime Engineering Plan, Product Definition Plan, and Runtime Branch Engineering Contract. No remaining H1 blocker was found.`
+
+H1 Validation Posture: `Green - H1 keeps provider-visible data none, sentToProvider=false, canAcceptPrompts=false, prompt/model execution disabled, downloads/install blocked, network egress blocked, memory/indexing/learning/personalization inactive, voice/Core sync gated, and provider setup completion pending USER decision.`
+
+H1 Repair Scope: `Source-truth fold-down only - branch record and branch plan now record Hardening H1 Green and route the next legal phase to Live Validation LV1.`
+
+Next Handoff: `Live Validation LV1 should classify this branch as a disabled/status-only local consent capture/write-path implementation foundation, prove static Core/Desktop/ORIN source truth plus provider-state validator evidence, preserve desktop readiness display suppression continuity, and confirm provider-visible-data none, sentToProvider=false, canAcceptPrompts=false, prompt/model execution disabled, downloads/network/memory/voice gates, no user-operable consent UI, no provider setup completion, and no functional AI.`
 
 ## Release Baseline And Prior Evidence
 
@@ -439,7 +451,7 @@ Compact-AI Preservation Posture: `Preserved as historical released/salvaged evid
 
 ## Assigned Worktree Confinement
 
-Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 Stage 2 setup`
+Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 Hardening H1`
 
 Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
 
@@ -451,7 +463,7 @@ Same Worktree / Same Branch Collision Check: `PASS at Stage 2 setup - target bra
 
 Dirty Worktree Collision Check: `PASS at Stage 2 setup - worktree clean before source-truth edits`
 
-Dirty Worktree Recovery Packet: `Not required unless worktree becomes dirty outside this approved setup`
+Dirty Worktree Recovery Packet: `Not required unless worktree becomes dirty outside this approved phase`
 
 Off-Worktree Work Routing: `Route FAM-006, Governance, Compact-AI, neutral main, or parked-worktree mutation requests back to the owning lane`
 
@@ -486,28 +498,34 @@ Required Validation:
 
 ## Next Legal Phase
 
-`Hardening`
+`Live Validation`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Workstream`
+Current Phase: `Hardening`
 
-Next Legal Phase: `Hardening H1`
+Next Legal Phase: `Live Validation`
 
-Why This Phase Is Next: `The admitted Workstream is Green after local consent capture/write-path, storage boundary, revocation/reset, setup/execution separation, provenance/audit/no-secrets, hidden-telemetry UI proof, validator fixtures, handoff, and functional-AI/v1.8.0 continuation criteria were implemented and validated.`
+Why This Phase Is Next: `Hardening H1 is Green after comparing the completed local consent capture/write-path implementation foundation against the branch plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, source truth, validators, UI/status proof, desktop readiness display suppression continuity, approval boundaries, and overlap posture.`
 
-Approval Required: `USER approval to perform Hardening H1 for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007.`
+Approval Required: `USER approval to perform Live Validation LV1 for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007.`
 
-Exact USER Approval Text: `Approve Hardening H1 for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@6681131c974d99945c494c0e4ff3c436f9347422. Scope: inspect completed FAM-007 Local AI Provider Consent Collection Implementation Foundation Workstream, compare implementation against the branch plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, source truth, validators, consent capture/write path, consent record schema/storage boundary, revocation/reset model, setup/execution consent separation, provenance/audit/no-secrets posture, hidden-telemetry UI proof, desktop readiness display suppression continuity, approval boundaries, FAM-006/Governance overlap, and Compact-AI preservation; apply H1-scope repairs if needed; keep PR creation, merge, release execution, provider setup completion, SDK/model execution, downloads/external calls, memory/learning/personalization, voice/Core sync, shortcuts/installers, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution pending.`
+Exact USER Approval Text: `Approve Live Validation LV1 for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@6681131c974d99945c494c0e4ff3c436f9347422. Scope: validate the completed and hardened FAM-007 local consent capture/write-path implementation foundation as disabled/status-only local consent telemetry; inspect static Core/Desktop/ORIN source truth plus dev/orin_ai_provider_state_validation.py proof, provider-visible data none, sentToProvider=false, canAcceptPrompts=false, prompt/model/provider execution disabled, downloads/install blocked, network egress blocked, memory/indexing/learning/personalization disabled or deferred, voice/Core sync gated, desktop readiness display suppression continuity, User Test Summary/static waiver posture, FAM-006/Governance overlap, and Compact-AI preservation; apply LV1-scope repairs if needed; keep PR creation, merge, release execution, provider setup completion, SDK/model execution, downloads/external calls, memory/learning/personalization behavior, voice/Core sync, shortcuts/installers, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution pending.`
 
-USER Plan Review Gate: `Satisfied by Workstream Entry and completed Workstream source truth; H1 review inspects plan-vs-implementation before LV1 or PR readiness.`
+USER Plan Review Gate: `H1 plan-vs-implementation review is complete; LV1 is validation only and does not require a new Workstream plan review unless it finds drift.`
 
-Implementation Blocker: `No admitted Workstream implementation blocker remains; Hardening H1 requires USER approval at the phase boundary.`
+USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md; desktop/ai_provider_state.py; dev/orin_ai_provider_state_validation.py; Docs/validation_helper_registry.md.`
 
-Allowed Scope: `Next phase is Hardening H1 only if USER approves.`
+Review Required Because: `LV1 validates static/runtime-visible posture after H1 Green before PR Readiness.`
 
-Explicit Exclusions: `Runtime implementation, actual consent capture, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifact work, issue work, branch/worktree cleanup, cross-lane mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
+Review Waiver Reason: `Not waived - USER may inspect the listed files before admitting LV1; no new Workstream plan review is required because H1 completed plan-vs-implementation review.`
 
-Validation Required: `Diff checks, branch governance, release health, governance efficiency, release body, source-owner marker, branch-readiness planning fixture validation, FAM-007 provider-state validation, runtime-fam007 suite, worktree rebaseline audit, compileall, and any H1-specific checks required by changed files.`
+Implementation Blocker: `No admitted Workstream or H1 blocker remains; Live Validation LV1 requires USER approval at the phase boundary.`
 
-Stop Conditions: `Stop if origin/main advances and reconciliation is needed, source truth points to another carrier, FAM-006/Governance/Compact-AI posture creates a direct sequencing decision, or H1 would require work outside its approved scope.`
+Allowed Scope: `Next phase is Live Validation LV1 only if USER approves.`
+
+Explicit Exclusions: `Runtime work beyond this hardened local consent foundation, user-operated consent capture UX, durable consent persistence beyond local snapshot proof, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifact work, issue work, branch/worktree cleanup, cross-lane mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
+
+Validation Required: `Diff checks, branch governance, release health, governance efficiency, release body, source-owner marker, branch-readiness planning fixture validation, FAM-007 provider-state validation, runtime-fam007 suite, worktree rebaseline audit, compileall, and any LV1-specific checks required by changed files.`
+
+Stop Conditions: `Stop if origin/main advances and reconciliation is needed, source truth points to another carrier, FAM-006/Governance/Compact-AI posture creates a direct sequencing decision, or LV1 would require work outside its approved scope.`
