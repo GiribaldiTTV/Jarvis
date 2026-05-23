@@ -1,3 +1,4 @@
+/* NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM006-HUD; ledger=SRCOWN-FIRSTPASS-FAM006-HUD-008; surface=monitoring-hud-dashboard-styles; status=shared */
 html,
 body {
   width: 100%;
@@ -10,6 +11,52 @@ body {
 body {
   color: rgba(233, 249, 255, 0.96);
   font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+}
+
+:root {
+  --monitoring-hud-scrollbar-size: 8px;
+  --monitoring-hud-divider-line: rgba(138, 236, 255, 0.46);
+  --monitoring-hud-divider-highlight: rgba(232, 250, 255, 0.12);
+  --monitoring-hud-divider-shadow: rgba(20, 49, 63, 0.72);
+  --monitoring-hud-divider-glow-size: 13px;
+  --monitoring-hud-divider-glow: linear-gradient(180deg, rgba(117, 228, 255, 0.06) 0, rgba(117, 228, 255, 0.035) 6px, transparent var(--monitoring-hud-divider-glow-size));
+  --monitoring-hud-surface-solid: linear-gradient(145deg, rgba(5, 20, 36, 0.985), rgba(2, 11, 22, 0.975));
+  --monitoring-hud-button-neutral-bg: linear-gradient(145deg, rgba(7, 42, 62, 0.91), rgba(3, 18, 32, 0.89));
+  --monitoring-hud-button-neutral-hover-bg: linear-gradient(145deg, rgba(9, 49, 70, 0.94), rgba(4, 24, 40, 0.91));
+  --monitoring-hud-button-neutral-active-bg: linear-gradient(145deg, rgba(7, 40, 57, 0.98), rgba(3, 18, 32, 0.96));
+  --monitoring-hud-affordance-default-shadow:
+    0 0 0 1px rgba(232, 251, 255, 0.07) inset,
+    0 0 0 1px rgba(99, 225, 255, 0.08);
+  --monitoring-hud-affordance-default-danger-shadow:
+    0 0 0 1px rgba(255, 232, 232, 0.08) inset,
+    0 0 0 1px rgba(255, 112, 112, 0.10);
+  --monitoring-hud-affordance-default-warning-shadow:
+    0 0 0 1px rgba(255, 246, 218, 0.08) inset,
+    0 0 0 1px rgba(255, 214, 108, 0.10);
+  --monitoring-hud-affordance-default-safe-shadow:
+    0 0 0 1px rgba(239, 255, 252, 0.08) inset,
+    0 0 0 1px rgba(126, 248, 218, 0.10);
+  --monitoring-hud-affordance-hover-shadow:
+    0 0 0 1px rgba(233, 255, 251, 0.08) inset,
+    0 0 18px rgba(86, 236, 255, 0.18),
+    0 0 10px rgba(103, 255, 210, 0.12);
+  --monitoring-hud-affordance-active-shadow:
+    0 0 0 1px rgba(233, 255, 251, 0.10) inset,
+    0 0 10px rgba(103, 255, 210, 0.16);
+  --monitoring-hud-affordance-focus-shadow:
+    0 0 0 1px rgba(233, 255, 251, 0.10) inset,
+    0 0 0 4px rgba(90, 255, 214, 0.14),
+    0 0 18px rgba(86, 236, 255, 0.16);
+  --monitoring-hud-affordance-selected-shadow:
+    0 0 0 1px rgba(229, 255, 251, 0.08) inset,
+    0 0 16px rgba(80, 230, 255, 0.10);
+  --monitoring-hud-affordance-danger-shadow:
+    0 0 0 1px rgba(255, 232, 232, 0.10) inset,
+    0 0 20px rgba(255, 112, 112, 0.18);
+  --monitoring-hud-affordance-safe-shadow:
+    0 0 0 1px rgba(239, 255, 252, 0.15) inset,
+    0 0 28px rgba(87, 236, 214, 0.36),
+    0 10px 22px rgba(0, 0, 0, 0.26);
 }
 
 #monitoring-hud {
@@ -49,8 +96,8 @@ body.desktop-mode #monitoring-hud {
 }
 
 body.desktop-mode .monitoring-hud__control-hub::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: var(--monitoring-hud-scrollbar-size);
+  height: var(--monitoring-hud-scrollbar-size);
 }
 
 body.desktop-mode .monitoring-hud__control-hub::-webkit-scrollbar-track {
@@ -75,8 +122,137 @@ body.desktop-mode .monitoring-hud__control-hub::-webkit-scrollbar-corner {
   background: transparent;
 }
 
+body.desktop-mode .monitoring-hud__nexus-scroll-pane,
+body.desktop-mode .monitoring-hud__child-window,
+body.desktop-mode .monitoring-hud__monitor-list-pane,
+body.desktop-mode .monitoring-hud__monitor-detail-pane,
+body.desktop-mode .monitoring-hud__monitor-manage-list,
+body.desktop-mode .monitoring-hud__sensor-assignment,
+body.desktop-mode .monitoring-hud__sensor-preview,
+body.desktop-mode .monitoring-hud__sensor-settings,
+body.desktop-mode .monitoring-hud__source-filter-menu,
+body.desktop-mode .monitoring-hud__bounded-dropdown-menu,
+body.desktop-mode .monitoring-hud__overlay-profile-membership-list,
+body.desktop-mode .monitoring-hud__overlay-assignment-list {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(108, 232, 255, 0.56) rgba(5, 18, 31, 0.14);
+}
+
+body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__monitor-list-pane::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__monitor-detail-pane::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__monitor-manage-list::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__sensor-assignment::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__sensor-preview::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__sensor-settings::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__source-filter-menu::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__bounded-dropdown-menu::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__overlay-profile-membership-list::-webkit-scrollbar,
+body.desktop-mode .monitoring-hud__overlay-assignment-list::-webkit-scrollbar {
+  width: var(--monitoring-hud-scrollbar-size);
+  height: var(--monitoring-hud-scrollbar-size);
+}
+
+body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__monitor-list-pane::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__monitor-detail-pane::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__monitor-manage-list::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__sensor-assignment::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__sensor-preview::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__sensor-settings::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__source-filter-menu::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__bounded-dropdown-menu::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__overlay-profile-membership-list::-webkit-scrollbar-track,
+body.desktop-mode .monitoring-hud__overlay-assignment-list::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(5, 18, 31, 0.10);
+}
+
+body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__monitor-list-pane::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__monitor-detail-pane::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__monitor-manage-list::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__sensor-assignment::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__sensor-preview::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__sensor-settings::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__source-filter-menu::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__bounded-dropdown-menu::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__overlay-profile-membership-list::-webkit-scrollbar-thumb,
+body.desktop-mode .monitoring-hud__overlay-assignment-list::-webkit-scrollbar-thumb {
+  border: 1px solid rgba(4, 17, 32, 0.72);
+  border-radius: 999px;
+  background-clip: padding-box;
+  background: linear-gradient(180deg, rgba(121, 239, 255, 0.62), rgba(99, 255, 202, 0.42));
+  box-shadow: 0 0 6px rgba(88, 225, 255, 0.12);
+}
+
+body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__monitor-list-pane::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__monitor-detail-pane::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__monitor-manage-list::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__sensor-assignment::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__sensor-preview::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__sensor-settings::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__source-filter-menu::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__bounded-dropdown-menu::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__overlay-profile-membership-list::-webkit-scrollbar-thumb:hover,
+body.desktop-mode .monitoring-hud__overlay-assignment-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(184, 250, 255, 0.88), rgba(112, 255, 210, 0.64));
+}
+
+body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__monitor-list-pane::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__monitor-detail-pane::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__monitor-manage-list::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__sensor-assignment::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__sensor-preview::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__sensor-settings::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__source-filter-menu::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__bounded-dropdown-menu::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__overlay-profile-membership-list::-webkit-scrollbar-corner,
+body.desktop-mode .monitoring-hud__overlay-assignment-list::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"] {
   will-change: auto;
+}
+
+body.desktop-mode #monitoring-hud[data-live-resize-active="true"][data-resize-proof-visuals="test-visible"] .monitoring-hud__chrome {
+  background-position:
+    var(--monitoring-hud-live-resize-proof-x, 0px) 0,
+    0 var(--monitoring-hud-live-resize-proof-y, 0px),
+    center;
+}
+
+.monitoring-hud__chrome::after {
+  content: "";
+  position: absolute;
+  display: none;
+  inset: 8px;
+  z-index: 40;
+  border-radius: 22px;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(115deg, transparent 0%, rgba(159, 247, 255, 0.72) 34%, transparent 58%),
+    radial-gradient(circle at 72% 18%, rgba(99, 255, 202, 0.56), transparent 30%);
+  background-size: 180px 100%, 150px 150px;
+  background-position:
+    var(--monitoring-hud-live-resize-proof-x, 0px) 0,
+    var(--monitoring-hud-live-resize-proof-y, 0px) 0;
+  box-shadow: 0 0 0 1px rgba(130, 242, 255, 0.28) inset;
+}
+
+body.desktop-mode #monitoring-hud[data-live-resize-active="true"][data-resize-proof-visuals="test-visible"] .monitoring-hud__chrome::after {
+  display: block;
+  opacity: var(--monitoring-hud-live-resize-proof-alpha, 0.42);
 }
 
 body.desktop-mode #monitoring-hud-minimal {
@@ -268,9 +444,10 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__chrome-button,
 .monitoring-hud__child-window-close {
   min-height: 34px;
+  min-width: max-content;
   border: 1px solid rgba(122, 232, 255, 0.26);
   border-radius: 999px;
-  background: linear-gradient(145deg, rgba(7, 42, 62, 0.9), rgba(3, 18, 32, 0.88));
+  background: var(--monitoring-hud-button-neutral-bg);
   color: rgba(235, 252, 255, 0.96);
   font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
   font-size: 12px;
@@ -278,26 +455,35 @@ body.desktop-mode #monitoring-hud > * {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
+  box-shadow: var(--monitoring-hud-affordance-default-shadow);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
 .monitoring-hud__chrome-button {
   width: 100%;
-  padding: 8px 14px;
-  border-color: rgba(126, 248, 218, 0.38);
-  background: linear-gradient(145deg, rgba(7, 57, 63, 0.86), rgba(5, 30, 48, 0.82));
+  padding: 8px 18px;
+  border-color: rgba(122, 232, 255, 0.32);
+  background: var(--monitoring-hud-button-neutral-bg);
 }
 
 .monitoring-hud__chrome-button--settings {
-  border-color: rgba(112, 216, 255, 0.42);
-  background: linear-gradient(145deg, rgba(9, 55, 88, 0.88), rgba(5, 31, 54, 0.82));
+  border-color: rgba(122, 232, 255, 0.32);
+  background: var(--monitoring-hud-button-neutral-bg);
 }
 
 .monitoring-hud__chrome-button--close {
   width: auto;
   min-width: 76px;
-  padding: 8px 14px;
-  border-color: rgba(122, 232, 255, 0.26);
-  background: linear-gradient(145deg, rgba(7, 42, 62, 0.9), rgba(3, 18, 32, 0.88));
+  padding: 8px 18px;
+  border-color: rgba(122, 232, 255, 0.32);
+  background: var(--monitoring-hud-button-neutral-bg);
   font-size: 12px;
   letter-spacing: 0.08em;
 }
@@ -310,6 +496,73 @@ body.desktop-mode #monitoring-hud > * {
   box-shadow:
     0 0 0 1px rgba(230, 251, 255, 0.05) inset,
     0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.monitoring-hud button:not(:disabled):not([aria-disabled="true"]),
+.monitoring-hud [role="button"]:not([aria-disabled="true"]),
+.monitoring-hud input:not(:disabled),
+.monitoring-hud select:not(:disabled) {
+  pointer-events: auto;
+}
+
+.monitoring-hud button,
+.monitoring-hud [role="button"],
+.monitoring-hud input,
+.monitoring-hud select {
+  box-sizing: border-box;
+}
+
+.monitoring-hud button:not(:disabled):not([aria-disabled="true"]):hover,
+.monitoring-hud button:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud [role="button"]:not([aria-disabled="true"]):hover,
+.monitoring-hud [role="button"]:not([aria-disabled="true"]).is-hovered,
+.monitoring-hud input[type="checkbox"]:not(:disabled):hover,
+.monitoring-hud input[type="search"]:not(:disabled):hover,
+.monitoring-hud input[type="search"]:not(:disabled).is-hovered,
+.monitoring-hud input[type="text"]:not(:disabled):hover,
+.monitoring-hud input[type="text"]:not(:disabled).is-hovered,
+.monitoring-hud select:not(:disabled):hover {
+  border-color: rgba(126, 248, 218, 0.56);
+  background: var(--monitoring-hud-button-neutral-hover-bg);
+  color: rgba(241, 255, 252, 0.99);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
+}
+
+.monitoring-hud__control-button:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud__hub-action:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud__source-filter-toggle:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud__bounded-dropdown-toggle:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud__mode-chip:not(:disabled):not([aria-disabled="true"]).is-hovered {
+  border-color: rgba(126, 248, 218, 0.56);
+  background: var(--monitoring-hud-button-neutral-hover-bg);
+  color: rgba(241, 255, 252, 0.99);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
+}
+
+.monitoring-hud button:not(:disabled):not([aria-disabled="true"]):active,
+.monitoring-hud button:not(:disabled):not([aria-disabled="true"]).is-pressed,
+.monitoring-hud [role="button"]:not([aria-disabled="true"]):active,
+.monitoring-hud [role="button"]:not([aria-disabled="true"]).is-pressed {
+  transform: translateY(1px);
+  border-color: rgba(163, 255, 228, 0.72);
+  background: var(--monitoring-hud-button-neutral-active-bg);
+  box-shadow: var(--monitoring-hud-affordance-active-shadow);
+}
+
+.monitoring-hud button:focus-visible,
+.monitoring-hud [role="button"]:focus-visible,
+.monitoring-hud input:focus-visible,
+.monitoring-hud select:focus-visible {
+  outline: 2px solid rgba(126, 248, 218, 0.78);
+  outline-offset: 2px;
+  box-shadow: var(--monitoring-hud-affordance-focus-shadow);
+}
+
+.monitoring-hud button:disabled,
+.monitoring-hud button[aria-disabled="true"],
+.monitoring-hud input:disabled,
+.monitoring-hud select:disabled {
+  opacity: 0.72;
 }
 
 .monitoring-hud__summary {
@@ -386,6 +639,15 @@ body.desktop-mode #monitoring-hud > * {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+  justify-content: flex-end;
+}
+
+.monitoring-hud__surface-role-actions .monitoring-hud__mode-pill {
+  order: 1;
+}
+
+.monitoring-hud__surface-role-actions .monitoring-hud__chrome-button--settings {
+  order: 2;
 }
 
 .monitoring-hud__surface-role-actions .monitoring-hud__chrome-button {
@@ -411,19 +673,30 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__control-button,
 .monitoring-hud__hub-action {
   min-height: 38px;
+  min-width: max-content;
   border: 1px solid rgba(117, 228, 255, 0.22);
   border-radius: 999px;
-  background: rgba(6, 28, 48, 0.76);
+  background: var(--monitoring-hud-button-neutral-bg);
   color: rgba(229, 249, 255, 0.94);
   font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
   font-size: 12px;
   font-weight: 720;
   letter-spacing: 0.09em;
   text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--monitoring-hud-affordance-default-shadow);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
 .monitoring-hud__control-button {
-  padding: 9px 14px;
+  padding: 9px 18px;
 }
 
 .monitoring-hud__toolbar-label {
@@ -449,21 +722,135 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__control-button[data-control="create-monitor"],
 .monitoring-hud__hub-action[data-control="create-monitor"] {
-  border-color: rgba(112, 216, 255, 0.42);
-  background: linear-gradient(145deg, rgba(9, 55, 88, 0.88), rgba(5, 31, 54, 0.82));
+  border-color: rgba(122, 232, 255, 0.32);
+  background: var(--monitoring-hud-button-neutral-bg);
 }
 
 .monitoring-hud__control-button[data-control="edit-monitor"],
 .monitoring-hud__hub-action[data-control="edit-monitor"],
 .monitoring-hud__hub-action[data-control="open-data-sources"] {
-  border-color: rgba(126, 248, 218, 0.34);
-  background: linear-gradient(145deg, rgba(7, 57, 63, 0.82), rgba(5, 30, 48, 0.78));
+  border-color: rgba(122, 232, 255, 0.32);
+  background: var(--monitoring-hud-button-neutral-bg);
+}
+
+.monitoring-hud__dashboard-paired-action,
+.monitoring-hud__hub-action--dashboard-entry,
+.monitoring-hud__hub-action[data-control="overlay-profile-open-settings"] {
+  box-sizing: border-box;
+  width: 250px;
+  max-width: 100%;
+  height: 36px;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .monitoring-hud__hub-action--secondary {
   border-color: rgba(149, 176, 194, 0.24);
   background: rgba(12, 29, 42, 0.54);
   color: rgba(176, 204, 214, 0.78);
+}
+
+.monitoring-hud__hub-action[data-control="unsaved-discard-monitor"] {
+  border-color: rgba(255, 168, 116, 0.54);
+  background: linear-gradient(145deg, rgba(104, 42, 18, 0.90), rgba(46, 20, 16, 0.84));
+  color: rgba(255, 236, 224, 0.98);
+  box-shadow: var(--monitoring-hud-affordance-default-danger-shadow);
+}
+
+.monitoring-hud__hub-action--danger,
+.monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"],
+.monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"],
+.monitoring-hud__hub-action[data-control="confirm-delete-monitor"] {
+  border-color: rgba(255, 132, 132, 0.46);
+  background: linear-gradient(145deg, rgba(96, 24, 34, 0.88), rgba(42, 16, 26, 0.80));
+  color: rgba(255, 232, 232, 0.96);
+  box-shadow: var(--monitoring-hud-affordance-default-danger-shadow);
+}
+
+.monitoring-hud__hub-action--danger:hover,
+.monitoring-hud__hub-action--danger:focus-visible,
+.monitoring-hud__hub-action--danger.is-hovered,
+.monitoring-hud__hub-action--danger.is-pressed,
+.monitoring-hud button.monitoring-hud__hub-action--danger:not(:disabled):not([aria-disabled="true"]):hover,
+.monitoring-hud button.monitoring-hud__hub-action--danger:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud button.monitoring-hud__hub-action--danger:not(:disabled):not([aria-disabled="true"]):active,
+.monitoring-hud button.monitoring-hud__hub-action--danger:not(:disabled):not([aria-disabled="true"]).is-pressed,
+.monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"]:hover,
+.monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"]:focus-visible,
+.monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"].is-hovered,
+.monitoring-hud__hub-action[data-control="overlay-profile-discard"][data-control-state="discardable"].is-pressed,
+.monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"]:hover,
+.monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"]:focus-visible,
+.monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"].is-hovered,
+.monitoring-hud__hub-action[data-control="discard-edit-monitor"][data-control-state="discardable"].is-pressed,
+.monitoring-hud__hub-action[data-control="confirm-delete-monitor"]:hover,
+.monitoring-hud__hub-action[data-control="confirm-delete-monitor"]:focus-visible,
+.monitoring-hud__hub-action[data-control="confirm-delete-monitor"].is-hovered,
+.monitoring-hud__hub-action[data-control="confirm-delete-monitor"].is-pressed {
+  border-color: rgba(255, 170, 170, 0.74);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 132, 132, 0.24), transparent 60%),
+    linear-gradient(145deg, rgba(122, 31, 42, 0.94), rgba(53, 18, 28, 0.88));
+  color: rgba(255, 244, 244, 1);
+  box-shadow: var(--monitoring-hud-affordance-danger-shadow);
+}
+
+.monitoring-hud__hub-action--safe-cancel,
+.monitoring-hud__hub-action[data-control="cancel-delete-monitor"] {
+  border-color: rgba(126, 248, 218, 0.68);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.20), transparent 58%),
+    linear-gradient(145deg, rgba(10, 79, 82, 0.94), rgba(4, 35, 52, 0.90));
+  color: rgba(238, 255, 252, 1);
+  box-shadow: var(--monitoring-hud-affordance-default-safe-shadow);
+}
+
+.monitoring-hud__hub-action--safe-cancel:hover,
+.monitoring-hud__hub-action--safe-cancel:focus-visible,
+.monitoring-hud__hub-action--safe-cancel.is-hovered,
+.monitoring-hud__hub-action--safe-cancel.is-pressed,
+.monitoring-hud button.monitoring-hud__hub-action--safe-cancel:not(:disabled):not([aria-disabled="true"]):hover,
+.monitoring-hud button.monitoring-hud__hub-action--safe-cancel:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud button.monitoring-hud__hub-action--safe-cancel:not(:disabled):not([aria-disabled="true"]):active,
+.monitoring-hud button.monitoring-hud__hub-action--safe-cancel:not(:disabled):not([aria-disabled="true"]).is-pressed,
+.monitoring-hud__hub-action[data-control="cancel-delete-monitor"]:hover,
+.monitoring-hud__hub-action[data-control="cancel-delete-monitor"]:focus-visible,
+.monitoring-hud__hub-action[data-control="cancel-delete-monitor"].is-hovered,
+.monitoring-hud__hub-action[data-control="cancel-delete-monitor"].is-pressed {
+  border-color: rgba(165, 255, 234, 0.86);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.30), transparent 60%),
+    linear-gradient(145deg, rgba(12, 94, 92, 0.98), rgba(5, 45, 62, 0.94));
+  color: rgba(246, 255, 253, 1);
+  box-shadow: var(--monitoring-hud-affordance-safe-shadow);
+}
+
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"] {
+  border-color: rgba(117, 228, 255, 0.50);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(117, 228, 255, 0.16), transparent 58%),
+    linear-gradient(145deg, rgba(12, 73, 105, 0.90), rgba(6, 40, 70, 0.82));
+  color: rgba(239, 253, 255, 0.98);
+  box-shadow:
+    0 0 0 1px rgba(239, 253, 255, 0.08) inset,
+    0 0 18px rgba(84, 218, 255, 0.14);
+}
+
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"]:hover,
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"]:focus-visible,
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"].is-hovered,
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"][data-control-state="saveable"].is-pressed {
+  border-color: rgba(150, 242, 255, 0.72);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(117, 228, 255, 0.26), transparent 60%),
+    linear-gradient(145deg, rgba(14, 87, 119, 0.94), rgba(6, 48, 78, 0.88));
+  box-shadow:
+    0 0 0 1px rgba(239, 253, 255, 0.12) inset,
+    0 0 22px rgba(84, 218, 255, 0.22);
 }
 
 .monitoring-hud__control-button[data-control="warning-notifications"],
@@ -473,9 +860,29 @@ body.desktop-mode #monitoring-hud > * {
   border-color: rgba(255, 214, 108, 0.42);
   background: linear-gradient(145deg, rgba(82, 59, 13, 0.84), rgba(43, 31, 14, 0.76));
   color: rgba(255, 246, 218, 0.96);
+  box-shadow: var(--monitoring-hud-affordance-default-warning-shadow);
+}
+
+.monitoring-hud__control-button[data-control="warning-notifications"]:hover,
+.monitoring-hud__control-button[data-control="warning-notifications"]:focus-visible,
+.monitoring-hud__control-button[data-control="warning-notifications"].is-hovered,
+.monitoring-hud__control-button[data-control="warning-notifications"].is-pressed,
+.monitoring-hud button.monitoring-hud__control-button[data-control="warning-notifications"]:not(:disabled):not([aria-disabled="true"]):hover,
+.monitoring-hud button.monitoring-hud__control-button[data-control="warning-notifications"]:not(:disabled):not([aria-disabled="true"]).is-hovered,
+.monitoring-hud button.monitoring-hud__control-button[data-control="warning-notifications"]:not(:disabled):not([aria-disabled="true"]):active,
+.monitoring-hud button.monitoring-hud__control-button[data-control="warning-notifications"]:not(:disabled):not([aria-disabled="true"]).is-pressed,
+.monitoring-hud__hub-action[data-control="warning-notifications"]:hover,
+.monitoring-hud__hub-action[data-control="warning-notifications"]:focus-visible,
+.monitoring-hud__hub-action[data-control="warning-notifications"].is-hovered,
+.monitoring-hud__hub-action[data-control="warning-notifications"].is-pressed {
+  border-color: rgba(255, 226, 132, 0.70);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 214, 108, 0.22), transparent 60%),
+    linear-gradient(145deg, rgba(96, 70, 16, 0.92), rgba(51, 36, 16, 0.84));
+  color: rgba(255, 250, 232, 1);
   box-shadow:
-    0 0 0 1px rgba(255, 246, 218, 0.04) inset,
-    0 5px 12px rgba(255, 204, 86, 0.10);
+    0 0 0 1px rgba(255, 246, 218, 0.10) inset,
+    0 0 20px rgba(255, 204, 86, 0.22);
 }
 
 .monitoring-hud__control-button[data-control="anchor-toggle"],
@@ -514,6 +921,14 @@ body.desktop-mode #monitoring-hud > * {
   overflow: hidden;
 }
 
+.monitoring-hud__card-board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(2, 10, 20, 0.20);
+}
+
 .monitoring-hud__control-hub,
 .monitoring-hud__monitor-selector {
   margin-top: 16px;
@@ -549,6 +964,8 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__hub-card {
+  position: relative;
+  isolation: isolate;
   display: flex;
   min-width: 0;
   min-height: 0;
@@ -559,11 +976,9 @@ body.desktop-mode #monitoring-hud > * {
   border: 1px solid rgba(116, 240, 255, 0.13);
   border-radius: 20px;
   background:
-    linear-gradient(90deg, rgba(117, 228, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(rgba(117, 228, 255, 0.03) 1px, transparent 1px),
-    radial-gradient(circle at 18% 12%, rgba(116, 240, 255, 0.08), transparent 34%),
-    rgba(4, 16, 29, 0.68);
-  background-size: 20px 20px, 20px 20px, auto, auto;
+    radial-gradient(circle at 18% 12%, rgba(116, 240, 255, 0.055), transparent 34%),
+    var(--monitoring-hud-surface-solid);
+  background-size: auto, auto;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
 }
 
@@ -620,11 +1035,12 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__hub-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
 }
 
 .monitoring-hud__hub-action {
-  padding: 8px 12px;
+  padding: 8px 20px;
 }
 
 .monitoring-hud__hub-action:disabled,
@@ -634,6 +1050,7 @@ body.desktop-mode #monitoring-hud > * {
   border-color: rgba(149, 176, 194, 0.24);
   background: rgba(12, 29, 42, 0.54);
   color: rgba(176, 204, 214, 0.70);
+  box-shadow: 0 0 0 1px rgba(176, 204, 214, 0.05) inset;
 }
 
 .monitoring-hud__state-row {
@@ -642,7 +1059,26 @@ body.desktop-mode #monitoring-hud > * {
   gap: 8px;
   align-items: start;
   padding: 8px 0;
-  border-top: 1px solid rgba(119, 221, 255, 0.08);
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
+  background: var(--monitoring-hud-divider-glow);
+}
+
+.monitoring-hud__state-row,
+.monitoring-hud__overlay-profile-panel,
+.monitoring-hud__overlay-profile-manager-meta,
+.monitoring-hud__setting-row,
+.monitoring-hud__source-settings-polling,
+.monitoring-hud__source-settings-warning {
+  background-repeat: no-repeat;
+  background-size: 100% var(--monitoring-hud-divider-glow-size);
+}
+
+.monitoring-hud__state-row > span,
+.monitoring-hud__setting-row > span,
+.monitoring-hud__source-settings-polling > span {
+  padding-left: 8px;
+  border-left: 2px solid rgba(117, 228, 255, 0.30);
 }
 
 .monitoring-hud__state-row span {
@@ -665,6 +1101,426 @@ body.desktop-mode #monitoring-hud > * {
   gap: 4px;
 }
 
+.monitoring-hud__overlay-profile-panel {
+  display: grid;
+  gap: 9px;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
+  background: var(--monitoring-hud-divider-glow);
+}
+
+.monitoring-hud__overlay-profile-heading {
+  display: grid;
+  grid-template-columns: max-content minmax(300px, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.monitoring-hud__overlay-profile-heading span,
+.monitoring-hud__overlay-profile-name-field {
+  color: rgba(145, 202, 218, 0.82);
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__overlay-profile-heading > span {
+  padding-left: 8px;
+  border-left: 2px solid rgba(117, 228, 255, 0.30);
+}
+
+.monitoring-hud__overlay-profile-heading strong {
+  min-width: 0;
+  color: rgba(157, 246, 218, 0.93);
+  font-size: 12px;
+  font-weight: 760;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-hud__bounded-dropdown.monitoring-hud__overlay-profile-dropdown {
+  justify-self: end;
+  width: max-content;
+  min-width: min(300px, 100%);
+  max-width: min(450px, 100%);
+}
+
+.monitoring-hud__overlay-profile-dropdown .monitoring-hud__bounded-dropdown-menu {
+  width: 100%;
+  max-width: 100%;
+}
+
+.monitoring-hud__overlay-profile-window-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.monitoring-hud__overlay-profile-window-actions-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-self: start;
+}
+
+.monitoring-hud__overlay-profile-manager-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  align-items: center;
+  position: relative;
+  z-index: 4;
+  padding: 14px;
+}
+
+.monitoring-hud__overlay-profile-manager-row > .monitoring-hud__hub-action {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
+  flex: 0 0 clamp(220px, 30%, 240px);
+  justify-self: stretch;
+  width: clamp(220px, 30%, 240px);
+  min-width: min(220px, 100%);
+  max-width: min(240px, 100%);
+  z-index: 5;
+}
+
+.monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown {
+  min-width: 0;
+  max-width: min(240px, 100%);
+}
+
+.monitoring-hud__hub-action[data-control="overlay-profile-edit-selected"][data-control-state="editable"] {
+  border-color: rgba(122, 232, 255, 0.34);
+  background: var(--monitoring-hud-button-neutral-bg);
+  color: rgba(229, 249, 255, 0.94);
+  box-shadow: var(--monitoring-hud-affordance-default-shadow);
+}
+
+.monitoring-hud__overlay-profile-manager-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 54px;
+  padding: 9px 12px;
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  background: var(--monitoring-hud-divider-glow);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
+  color: rgba(172, 215, 228, 0.80);
+  font-size: 11px;
+  font-weight: 680;
+}
+
+.monitoring-hud__overlay-profile-manager-meta strong {
+  color: rgba(157, 246, 218, 0.9);
+  font-size: 11px;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.monitoring-hud__overlay-profile-detail-section {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+
+.monitoring-hud__overlay-profile-detail-section[hidden] {
+  display: none;
+}
+
+.monitoring-hud__overlay-profile-membership {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(117, 228, 255, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(7, 31, 50, 0.66), rgba(3, 18, 32, 0.58)),
+    rgba(6, 28, 48, 0.44);
+}
+
+.monitoring-hud__child-window--overlay-profile {
+  width: min(900px, calc(100% - 8px));
+  min-width: min(720px, calc(100% - 8px));
+  max-height: min(720px, calc(100% - 8px));
+  overflow: hidden;
+  grid-template-rows: auto auto auto minmax(0, auto) auto auto;
+}
+
+.monitoring-hud__overlay-profile-choice-panel {
+  display: grid;
+  gap: 0;
+  min-height: 152px;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  position: relative;
+  z-index: 3;
+  overflow: visible;
+  background:
+    linear-gradient(145deg, rgba(7, 31, 50, 0.86), rgba(3, 18, 32, 0.82)),
+    rgba(6, 28, 48, 0.58);
+}
+
+.monitoring-hud__overlay-profile-membership-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.monitoring-hud__overlay-profile-membership-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(132px, 0.32fr);
+  gap: 8px;
+  align-items: end;
+}
+
+.monitoring-hud__overlay-profile-filter-field {
+  min-width: 132px;
+}
+
+.monitoring-hud__overlay-profile-filter-dropdown {
+  justify-self: stretch;
+  min-width: 146px;
+  width: 100%;
+}
+
+.monitoring-hud__overlay-profile-window-dropdown .monitoring-hud__bounded-dropdown-menu,
+.monitoring-hud__overlay-profile-filter-dropdown .monitoring-hud__bounded-dropdown-menu {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  max-height: 160px;
+  scrollbar-color: rgba(117, 228, 255, 0.58) rgba(3, 16, 28, 0.82);
+}
+
+.monitoring-hud__overlay-profile-window-dropdown .monitoring-hud__bounded-dropdown-option {
+  min-height: 26px;
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+
+.monitoring-hud__overlay-profile-membership-heading span {
+  color: rgba(145, 202, 218, 0.82);
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__overlay-profile-membership-heading strong {
+  color: rgba(157, 246, 218, 0.9);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.monitoring-hud__overlay-profile-membership-list {
+  display: grid;
+  gap: 7px;
+  max-height: 206px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.monitoring-hud__overlay-profile-membership-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 8px;
+  align-items: start;
+  padding: 9px;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.58);
+  color: rgba(229, 249, 255, 0.92);
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
+}
+
+.monitoring-hud__overlay-profile-membership-row:hover,
+.monitoring-hud__overlay-profile-membership-row:focus-within {
+  border-color: rgba(126, 248, 218, 0.32);
+  background:
+    linear-gradient(145deg, rgba(7, 42, 62, 0.70), rgba(3, 18, 32, 0.66)),
+    rgba(6, 28, 48, 0.58);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
+}
+
+.monitoring-hud__overlay-profile-membership-row[aria-selected="true"] {
+  border-color: rgba(126, 248, 218, 0.46);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(126, 248, 218, 0.18), transparent 52%),
+    linear-gradient(145deg, rgba(7, 48, 62, 0.76), rgba(4, 26, 44, 0.72));
+  box-shadow: var(--monitoring-hud-affordance-selected-shadow);
+}
+
+.monitoring-hud__overlay-profile-membership-row--context {
+  border-color: rgba(126, 248, 218, 0.58);
+  box-shadow:
+    0 0 0 1px rgba(229, 255, 251, 0.10) inset,
+    0 0 18px rgba(80, 230, 255, 0.14);
+}
+
+.monitoring-hud__overlay-profile-membership-row input {
+  grid-row: 1 / span 2;
+  width: 17px;
+  height: 17px;
+  accent-color: rgba(126, 248, 218, 0.9);
+  cursor: pointer;
+}
+
+.monitoring-hud__overlay-profile-membership-row strong {
+  color: rgba(232, 250, 255, 0.94);
+  font-size: 12px;
+  font-weight: 740;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-hud__overlay-profile-membership-row small {
+  grid-column: 2;
+  color: rgba(172, 215, 228, 0.78);
+  font-size: 11px;
+  font-weight: 620;
+  line-height: 1.28;
+}
+
+.monitoring-hud__overlay-profile-detail-grid {
+  display: grid;
+  gap: 0;
+}
+
+.monitoring-hud__overlay-profile-name-field {
+  gap: 6px;
+}
+
+.monitoring-hud__overlay-profile-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+}
+
+.monitoring-hud__overlay-profile-actions .monitoring-hud__hub-action {
+  grid-column: 3;
+  justify-self: end;
+  min-height: 32px;
+  white-space: nowrap;
+}
+
+.monitoring-hud__overlay-profile-panel small {
+  color: rgba(169, 207, 219, 0.78);
+}
+
+.monitoring-hud__monitor-overlay-profile-context {
+  display: grid;
+  gap: 9px;
+  padding: 10px 14px;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(6, 34, 52, 0.68), rgba(3, 18, 32, 0.60)),
+    rgba(6, 28, 48, 0.42);
+  color: rgba(229, 249, 255, 0.92);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.monitoring-hud__monitor-overlay-profile-context--compact {
+  grid-template-columns: minmax(236px, auto) minmax(0, 1fr) minmax(78px, auto);
+  gap: 8px;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+.monitoring-hud__monitor-overlay-profile-context:hover,
+.monitoring-hud__monitor-overlay-profile-context:focus-visible,
+.monitoring-hud__monitor-overlay-profile-context.is-hovered,
+.monitoring-hud__monitor-overlay-profile-context.is-pressed {
+  border-color: rgba(126, 248, 218, 0.42);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 248, 218, 0.12), transparent 58%),
+    linear-gradient(145deg, rgba(7, 45, 62, 0.76), rgba(3, 20, 34, 0.70));
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
+}
+
+.monitoring-hud__overlay-profile-context-heading {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.42fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+}
+
+.monitoring-hud__monitor-overlay-profile-context--compact .monitoring-hud__overlay-profile-context-heading {
+  grid-template-columns: max-content max-content;
+  align-items: center;
+}
+
+.monitoring-hud__overlay-profile-context-heading span {
+  color: rgba(145, 202, 218, 0.82);
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__overlay-profile-context-heading strong,
+.monitoring-hud__overlay-profile-context-grid strong {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(157, 246, 218, 0.92);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-hud__monitor-overlay-profile-context--compact > span {
+  color: rgba(172, 215, 228, 0.80);
+  font-size: 11px;
+  font-weight: 650;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-hud__overlay-profile-context-grid {
+  display: grid;
+  gap: 0;
+}
+
+.monitoring-hud__monitor-overlay-profile-context .monitoring-hud__hub-action {
+  justify-self: end;
+  min-height: 32px;
+  white-space: nowrap;
+}
+
+.monitoring-hud__monitor-overlay-profile-context small {
+  color: rgba(169, 207, 219, 0.78);
+  line-height: 1.35;
+}
+
 #monitoring-hud-monitor-list-summary {
   min-width: 220px;
   flex: 1 1 260px;
@@ -678,10 +1534,12 @@ body.desktop-mode #monitoring-hud > * {
   inset: 0;
   z-index: 40;
   display: grid;
+  box-sizing: border-box;
   place-items: center;
-  padding: 22px;
+  padding: clamp(10px, 1.8vw, 18px);
   background: rgba(1, 8, 16, 0.72);
   backdrop-filter: blur(10px);
+  overflow: hidden;
   pointer-events: auto;
 }
 
@@ -700,16 +1558,17 @@ body.desktop-mode #monitoring-hud > * {
   border: 1px solid rgba(122, 232, 255, 0.26);
   border-radius: 8px;
   background:
-    linear-gradient(90deg, rgba(117, 228, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(rgba(117, 228, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(145deg, rgba(5, 23, 39, 0.98), rgba(2, 10, 20, 0.98));
-  background-size: 20px 20px, 20px 20px, auto;
+    radial-gradient(circle at 18% 10%, rgba(116, 240, 255, 0.08), transparent 34%),
+    linear-gradient(145deg, rgba(5, 23, 39, 0.985), rgba(2, 10, 20, 0.985));
+  background-size: auto, auto;
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.52),
     0 0 0 1px rgba(230, 251, 255, 0.05) inset;
 }
 
 .monitoring-hud__child-window-header {
+  position: relative;
+  z-index: 4;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -737,8 +1596,11 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__child-window-close {
+  position: relative;
+  z-index: 5;
   padding: 8px 12px;
   flex: 0 0 auto;
+  pointer-events: auto;
 }
 
 .monitoring-hud__child-field {
@@ -805,11 +1667,93 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__child-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+}
+
+.monitoring-hud__child-actions.monitoring-hud__overlay-profile-window-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.monitoring-hud__child-actions--confirm {
+  justify-content: space-between;
+  width: 100%;
+}
+
+.monitoring-hud__child-actions--guard {
+  display: grid;
+  grid-template-columns: minmax(max-content, auto) minmax(32px, 1fr) minmax(max-content, auto);
+  justify-self: stretch;
+  justify-content: stretch;
+  justify-items: stretch;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.monitoring-hud__child-actions--guard [data-control="unsaved-save-monitor"] {
+  grid-column: 1;
+  justify-self: start;
+}
+
+.monitoring-hud__child-actions--guard [data-control="unsaved-discard-monitor"] {
+  grid-column: 3;
+  justify-self: end;
+  min-width: 96px;
+}
+
+.monitoring-hud__child-actions--confirm [data-control="cancel-delete-monitor"] {
+  margin-left: auto;
 }
 
 .monitoring-hud__child-window--settings {
   width: min(520px, calc(100% - 24px));
+}
+
+.monitoring-hud__child-window--sensor-settings {
+  width: min(760px, calc(100% - 24px));
+  min-width: min(640px, calc(100% - 24px));
+  max-height: min(720px, calc(100% - 24px));
+  overflow: visible;
+}
+
+.monitoring-hud__child-window--overlay-profile {
+  width: min(900px, calc(100% - 8px));
+  min-width: min(720px, calc(100% - 8px));
+  max-height: min(720px, calc(100% - 8px));
+  overflow: hidden;
+  grid-template-rows: auto auto auto minmax(0, auto) auto auto;
+}
+
+.monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-choice-panel {
+  min-height: 148px;
+}
+
+.monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-manager-row {
+  padding: 10px 12px;
+}
+
+.monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-manager-meta {
+  padding: 8px 10px;
+}
+
+.monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-membership-list {
+  max-height: 132px;
+}
+
+.monitoring-hud__child-window--monitor-management {
+  width: min(920px, calc(100% - 24px));
+  min-width: min(680px, calc(100% - 24px));
+  min-height: min(660px, calc(100% - 24px));
+  height: min(760px, calc(100% - 24px));
+  max-height: min(820px, calc(100% - 24px));
+  overflow: hidden;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  resize: both;
 }
 
 .monitoring-hud__settings-grid {
@@ -824,7 +1768,9 @@ body.desktop-mode #monitoring-hud > * {
   gap: 8px;
   align-items: start;
   padding: 8px 0;
-  border-top: 1px solid rgba(119, 221, 255, 0.08);
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
+  background: var(--monitoring-hud-divider-glow);
 }
 
 .monitoring-hud__setting-row span {
@@ -846,6 +1792,1022 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__setting-toggle {
   justify-content: flex-start;
+}
+
+.monitoring-hud__child-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(117, 228, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(3, 14, 27, 0.42);
+}
+
+.monitoring-hud__child-toolbar--compact {
+  gap: 8px;
+  padding: 7px 8px;
+}
+
+.monitoring-hud__child-toolbar--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.monitoring-hud__child-toolbar span {
+  color: rgba(145, 202, 218, 0.86);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__search-field,
+.monitoring-hud__filter-field {
+  display: grid;
+  gap: 5px;
+  min-width: min(220px, 100%);
+  color: rgba(139, 233, 255, 0.86);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__search-field--compact {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-width: min(280px, 100%);
+}
+
+.monitoring-hud__search-field input,
+.monitoring-hud__filter-field select {
+  min-height: 34px;
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(117, 228, 255, 0.20);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.76);
+  color: rgba(232, 250, 255, 0.94);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 8px 12px;
+  box-shadow: var(--monitoring-hud-affordance-default-shadow);
+}
+
+.monitoring-hud__native-select-proxy {
+  position: absolute;
+  width: 1px !important;
+  height: 1px !important;
+  min-height: 1px !important;
+  margin: 0;
+  padding: 0 !important;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+.monitoring-hud__monitor-management-shell {
+  display: grid;
+  grid-template-columns: minmax(178px, 0.30fr) minmax(0, 1fr);
+  gap: 12px;
+  min-height: 0;
+}
+
+.monitoring-hud__monitor-list-pane,
+.monitoring-hud__monitor-detail-pane {
+  min-width: 0;
+  min-height: 0;
+  max-height: min(610px, calc(100vh - 188px));
+  overflow: auto;
+  border: 1px solid rgba(117, 228, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(3, 14, 27, 0.30);
+}
+
+.monitoring-hud__monitor-list-pane {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 8px;
+}
+
+.monitoring-hud__monitor-detail-pane {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+}
+
+.monitoring-hud__monitor-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.monitoring-hud__monitor-list-header span {
+  color: rgba(139, 233, 255, 0.84);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__monitor-manage-list {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  grid-auto-rows: max-content;
+  min-height: 0;
+  overflow: auto;
+}
+
+.monitoring-hud__monitor-manage-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  align-items: start;
+  min-height: 54px;
+  padding: 9px 12px;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.54);
+  box-shadow: var(--monitoring-hud-affordance-default-shadow);
+  cursor: pointer;
+  user-select: none;
+}
+
+.monitoring-hud__monitor-manage-row:focus-visible {
+  outline: 2px solid rgba(126, 248, 218, 0.62);
+  outline-offset: 2px;
+}
+
+.monitoring-hud__monitor-manage-row:hover {
+  border-color: rgba(117, 228, 255, 0.34);
+  background: rgba(10, 44, 67, 0.68);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
+}
+
+.monitoring-hud__monitor-manage-row:active,
+.monitoring-hud__monitor-manage-row.is-pressed {
+  transform: translateY(1px);
+  border-color: rgba(126, 248, 218, 0.58);
+  background:
+    linear-gradient(145deg, rgba(7, 57, 63, 0.82), rgba(5, 30, 48, 0.76)),
+    rgba(6, 28, 48, 0.54);
+  box-shadow: var(--monitoring-hud-affordance-active-shadow);
+}
+
+.monitoring-hud__monitor-manage-row[aria-current="true"] {
+  border-color: rgba(126, 248, 218, 0.42);
+  background:
+    linear-gradient(145deg, rgba(7, 57, 63, 0.72), rgba(5, 30, 48, 0.68)),
+    rgba(6, 28, 48, 0.54);
+  box-shadow: var(--monitoring-hud-affordance-selected-shadow);
+}
+
+.monitoring-hud__monitor-manage-row strong,
+.monitoring-hud__delete-confirmation strong {
+  display: block;
+  color: rgba(234, 253, 255, 0.95);
+  font-size: 13px;
+  font-weight: 780;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__monitor-manage-row span,
+.monitoring-hud__delete-confirmation span {
+  display: block;
+  margin-top: 3px;
+  color: rgba(172, 215, 228, 0.84);
+  font-size: 12px;
+  font-weight: 620;
+  line-height: 1.3;
+}
+
+.monitoring-hud__delete-confirmation,
+.monitoring-hud__unsaved-guard {
+  display: grid;
+  gap: 9px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.monitoring-hud__delete-confirmation {
+  border: 1px solid rgba(255, 132, 132, 0.26);
+  background: rgba(58, 18, 26, 0.34);
+}
+
+.monitoring-hud__unsaved-guard {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 214, 108, 0.24);
+  background: rgba(70, 52, 12, 0.30);
+}
+
+.monitoring-hud__delete-confirmation[hidden],
+.monitoring-hud__unsaved-guard[hidden] {
+  display: none;
+}
+
+.monitoring-hud__empty-state {
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px dashed rgba(117, 228, 255, 0.22);
+  border-radius: 8px;
+  color: rgba(181, 218, 229, 0.86);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.monitoring-hud__monitor-detail-empty {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 10px;
+  min-height: 180px;
+  padding: 16px;
+}
+
+.monitoring-hud__monitor-detail-empty strong {
+  color: rgba(229, 249, 255, 0.96);
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.monitoring-hud__monitor-detail-empty span {
+  max-width: 42ch;
+  color: rgba(181, 218, 229, 0.84);
+  font-size: 12px;
+  font-weight: 620;
+  line-height: 1.35;
+}
+
+.monitoring-hud__empty-state-action {
+  justify-self: start;
+  min-width: 150px;
+  max-height: 44px;
+  align-self: center;
+  border-color: rgba(117, 228, 255, 0.48);
+  background: linear-gradient(145deg, rgba(12, 73, 105, 0.92), rgba(6, 40, 70, 0.84));
+  color: rgba(239, 253, 255, 0.98);
+  box-shadow: 0 0 18px rgba(84, 218, 255, 0.12);
+}
+
+.monitoring-hud__empty-state[hidden] {
+  display: none;
+}
+
+.monitoring-hud__monitor-settings-panel {
+  display: grid;
+  gap: 11px;
+  min-width: 0;
+  padding: 0;
+}
+
+.monitoring-hud__child-field--inline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(112px, auto);
+  gap: 10px;
+  align-items: center;
+}
+
+.monitoring-hud__child-field--inline[data-polling-rate-hitbox="toggle-only"] {
+  pointer-events: none;
+}
+
+.monitoring-hud__child-field--inline[data-polling-rate-hitbox="toggle-only"] .monitoring-hud__bounded-dropdown,
+.monitoring-hud__child-field--inline[data-polling-rate-hitbox="toggle-only"] .monitoring-hud__bounded-dropdown * {
+  pointer-events: auto;
+}
+
+.monitoring-hud__child-field--inline select {
+  justify-self: end;
+  width: min(132px, 100%);
+}
+
+.monitoring-hud__child-field--inline .monitoring-hud__native-select-proxy {
+  justify-self: end;
+  width: 1px !important;
+}
+
+.monitoring-hud__detail-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.monitoring-hud__detail-danger-zone {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  background: var(--monitoring-hud-divider-glow);
+  background-repeat: no-repeat;
+  background-size: 100% var(--monitoring-hud-divider-glow-size);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
+}
+
+.monitoring-hud__detail-action-row {
+  display: grid;
+  grid-template-columns: auto minmax(24px, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.monitoring-hud__detail-action-row > .monitoring-hud__child-actions--footer {
+  display: contents;
+}
+
+.monitoring-hud__detail-action-row [data-control="confirm-edit-monitor"] {
+  grid-column: 1;
+  justify-self: start;
+}
+
+.monitoring-hud__detail-action-row [data-control="discard-edit-monitor"] {
+  grid-column: 3;
+  justify-self: end;
+}
+
+.monitoring-hud__detail-action-row > [data-control="detail-delete-monitor"] {
+  grid-column: 4;
+  justify-self: end;
+}
+
+.monitoring-hud__detail-danger-zone .monitoring-hud__delete-confirmation {
+  justify-self: end;
+  width: min(420px, 100%);
+}
+
+.monitoring-hud__child-actions--footer {
+  justify-content: flex-start;
+  align-items: center;
+  align-self: start;
+}
+
+.monitoring-hud__child-actions--footer[hidden] {
+  display: none;
+}
+
+.monitoring-hud__child-actions--footer .monitoring-hud__hub-action {
+  max-height: 44px;
+  align-self: center;
+}
+
+.monitoring-hud__monitor-detail-empty[hidden],
+.monitoring-hud__monitor-settings-panel[hidden] {
+  display: none;
+}
+
+.monitoring-hud__readiness-panel {
+  display: grid;
+  gap: 4px;
+  padding: 9px;
+  border: 1px solid rgba(148, 190, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(11, 24, 45, 0.42);
+  color: rgba(185, 215, 235, 0.86);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.monitoring-hud__readiness-panel strong {
+  color: rgba(220, 243, 255, 0.92);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__sensor-library {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(117, 228, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(3, 14, 27, 0.36);
+}
+
+.monitoring-hud__sensor-library-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(146px, auto);
+  gap: 8px;
+  align-items: center;
+}
+
+.monitoring-hud__sensor-library-toolbar--inline {
+  grid-template-columns: minmax(220px, 1fr) minmax(146px, auto);
+}
+
+.monitoring-hud__source-filter-dropdown {
+  position: relative;
+  justify-self: end;
+  min-width: 142px;
+  width: min(164px, 100%);
+}
+
+.monitoring-hud__bounded-dropdown {
+  position: relative;
+  justify-self: end;
+  min-width: 126px;
+  width: min(146px, 100%);
+}
+
+.monitoring-hud__source-filter-toggle,
+.monitoring-hud__source-filter-option,
+.monitoring-hud__bounded-dropdown-toggle,
+.monitoring-hud__bounded-dropdown-option,
+.monitoring-hud__mode-chip {
+  min-height: 30px;
+  border: 1px solid rgba(117, 228, 255, 0.18);
+  border-radius: 999px;
+  background: var(--monitoring-hud-button-neutral-bg);
+  color: rgba(229, 249, 255, 0.90);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--monitoring-hud-affordance-default-shadow);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
+}
+
+.monitoring-hud__source-filter-toggle,
+.monitoring-hud__bounded-dropdown-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  border-radius: 8px;
+  padding: 7px 14px;
+  text-align: left;
+}
+
+.monitoring-hud__source-filter-toggle span,
+.monitoring-hud__bounded-dropdown-toggle span {
+  color: rgba(139, 233, 255, 0.80);
+  font-size: 10px;
+}
+
+.monitoring-hud__source-filter-toggle strong,
+.monitoring-hud__bounded-dropdown-toggle strong {
+  min-width: 0;
+  color: rgba(232, 250, 255, 0.96);
+  font-size: 11px;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-hud__source-filter-menu,
+.monitoring-hud__bounded-dropdown-menu {
+  position: absolute;
+  box-sizing: border-box;
+  z-index: 8;
+  top: calc(100% + 5px);
+  right: 0;
+  display: grid;
+  gap: 4px;
+  width: min(190px, 78vw);
+  max-height: 178px;
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid rgba(117, 228, 255, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(5, 26, 43, 0.98), rgba(2, 12, 24, 0.98));
+  box-shadow:
+    0 18px 34px rgba(0, 0, 0, 0.36),
+    0 0 0 1px rgba(230, 251, 255, 0.05) inset;
+}
+
+.monitoring-hud__source-filter-menu[hidden],
+.monitoring-hud__bounded-dropdown-menu[hidden] {
+  display: none;
+}
+
+.monitoring-hud__source-filter-option,
+.monitoring-hud__bounded-dropdown-option {
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: 7px;
+  padding: 7px 14px;
+  text-align: left;
+}
+
+.monitoring-hud__mode-chip {
+  padding: 7px 14px;
+}
+
+.monitoring-hud__source-filter-option:hover,
+.monitoring-hud__source-filter-option.is-hovered,
+.monitoring-hud__bounded-dropdown-option:hover,
+.monitoring-hud__bounded-dropdown-option.is-hovered {
+  border-color: rgba(126, 248, 218, 0.42);
+  background: var(--monitoring-hud-button-neutral-hover-bg);
+  color: rgba(238, 255, 249, 0.98);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
+}
+
+.monitoring-hud__source-filter-option[aria-selected="true"],
+.monitoring-hud__bounded-dropdown-option[aria-selected="true"],
+.monitoring-hud__mode-chip[aria-pressed="true"] {
+  border-color: rgba(126, 248, 218, 0.46);
+  background: linear-gradient(145deg, rgba(7, 57, 63, 0.88), rgba(5, 30, 48, 0.82));
+  box-shadow: var(--monitoring-hud-affordance-selected-shadow);
+}
+
+.monitoring-hud__source-filter-dropdown[data-filter-open="true"] .monitoring-hud__source-filter-toggle,
+.monitoring-hud__bounded-dropdown[data-dropdown-open="true"] .monitoring-hud__bounded-dropdown-toggle {
+  border-color: rgba(126, 248, 218, 0.56);
+  background: var(--monitoring-hud-button-neutral-hover-bg);
+  box-shadow:
+    var(--monitoring-hud-affordance-hover-shadow);
+}
+
+.monitoring-hud__bounded-dropdown[data-control-disabled="true"] {
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.monitoring-hud__sensor-result-summary {
+  grid-column: 1 / -1;
+  color: rgba(145, 202, 218, 0.86);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__sensor-assignment {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  min-width: 0;
+  max-height: 260px;
+  overflow: auto;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid rgba(117, 228, 255, 0.12);
+  border-radius: 8px;
+}
+
+.monitoring-hud__sensor-assignment legend {
+  padding: 0 4px;
+  color: rgba(139, 233, 255, 0.86);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__sensor-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 4px 8px;
+  align-items: start;
+  padding: 9px;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.58);
+  color: rgba(229, 249, 255, 0.92);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  transition:
+    border-color 80ms ease,
+    background-color 80ms ease,
+    box-shadow 80ms ease,
+    color 80ms ease,
+    transform 80ms ease;
+}
+
+.monitoring-hud__sensor-option:hover,
+.monitoring-hud__sensor-option.is-hovered,
+.monitoring-hud__sensor-option.is-pressed {
+  border-color: rgba(126, 248, 218, 0.32);
+  background:
+    linear-gradient(145deg, rgba(7, 42, 62, 0.70), rgba(3, 18, 32, 0.66)),
+    rgba(6, 28, 48, 0.58);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
+}
+
+.monitoring-hud__sensor-option[aria-selected="true"]:hover,
+.monitoring-hud__sensor-option[aria-selected="true"].is-hovered,
+.monitoring-hud__sensor-option[aria-selected="true"].is-pressed {
+  border-color: rgba(150, 255, 230, 0.72);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(126, 248, 218, 0.24), transparent 54%),
+    linear-gradient(145deg, rgba(8, 58, 70, 0.82), rgba(4, 30, 48, 0.76));
+  box-shadow:
+    0 0 0 1px rgba(162, 255, 235, 0.24) inset,
+    var(--monitoring-hud-affordance-hover-shadow),
+    var(--monitoring-hud-affordance-selected-shadow);
+}
+
+.monitoring-hud__sensor-option[aria-selected="true"]:hover input,
+.monitoring-hud__sensor-option[aria-selected="true"].is-hovered input,
+.monitoring-hud__sensor-option[aria-selected="true"].is-pressed input {
+  border-radius: 4px;
+  outline: 1px solid rgba(166, 255, 235, 0.88);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px rgba(126, 248, 218, 0.18),
+    0 0 14px rgba(126, 248, 218, 0.32);
+}
+
+.monitoring-hud input[type="checkbox"]:checked:hover,
+.monitoring-hud input[type="checkbox"]:checked.is-hovered,
+.monitoring-hud label:hover input[type="checkbox"]:checked,
+.monitoring-hud [aria-selected="true"]:hover input[type="checkbox"]:checked,
+.monitoring-hud label.is-hovered input[type="checkbox"]:checked,
+.monitoring-hud .is-hovered input[type="checkbox"]:checked {
+  border-radius: 4px;
+  outline: 1px solid rgba(166, 255, 235, 0.88);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px rgba(126, 248, 218, 0.18),
+    0 0 14px rgba(126, 248, 218, 0.32);
+}
+
+.monitoring-hud__sensor-option:focus-visible,
+.monitoring-hud__sensor-option:focus-within {
+  outline: 2px solid rgba(126, 248, 218, 0.54);
+  outline-offset: 2px;
+  box-shadow: var(--monitoring-hud-affordance-focus-shadow);
+}
+
+.monitoring-hud__sensor-option[aria-selected="true"] {
+  border-color: rgba(126, 248, 218, 0.46);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(126, 248, 218, 0.18), transparent 52%),
+    linear-gradient(145deg, rgba(7, 48, 62, 0.76), rgba(4, 26, 44, 0.72));
+  box-shadow: var(--monitoring-hud-affordance-selected-shadow);
+}
+
+.monitoring-hud__sensor-option input {
+  grid-row: 1 / span 3;
+  width: 17px;
+  height: 17px;
+  accent-color: rgba(126, 248, 218, 0.9);
+  cursor: pointer;
+}
+
+.monitoring-hud__sensor-option small {
+  grid-column: 2 / span 3;
+  color: rgba(172, 215, 228, 0.78);
+  font-size: 11px;
+  font-weight: 620;
+  line-height: 1.28;
+}
+
+.monitoring-hud__source-meta {
+  grid-column: 2 / span 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: rgba(145, 202, 218, 0.82);
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__source-status {
+  align-self: start;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: rgba(214, 247, 255, 0.88);
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__source-settings-button {
+  grid-column: 4;
+  align-self: start;
+  min-height: 26px;
+  border: 1px solid rgba(117, 228, 255, 0.22);
+  border-radius: 999px;
+  padding: 4px 14px;
+  background: rgba(7, 43, 62, 0.72);
+  color: rgba(229, 249, 255, 0.92);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--monitoring-hud-affordance-default-shadow);
+}
+
+.monitoring-hud__source-settings-button:hover,
+.monitoring-hud__source-settings-button:focus-visible,
+.monitoring-hud__source-settings-button.is-pressed {
+  border-color: rgba(126, 248, 218, 0.46);
+  background: var(--monitoring-hud-button-neutral-hover-bg);
+  box-shadow: var(--monitoring-hud-affordance-hover-shadow);
+}
+
+.monitoring-hud__source-settings-button:disabled,
+.monitoring-hud__source-settings-button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.monitoring-hud__sensor-option--disabled {
+  color: rgba(176, 204, 214, 0.66);
+  cursor: not-allowed;
+  background: rgba(12, 29, 42, 0.42);
+}
+
+.monitoring-hud__sensor-option--disabled input {
+  cursor: not-allowed;
+}
+
+.monitoring-hud__sensor-preview {
+  max-height: 94px;
+  overflow: auto;
+  padding: 9px;
+  border: 1px solid rgba(117, 228, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.46);
+  color: rgba(181, 218, 229, 0.86);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.36;
+}
+
+.monitoring-hud__child-note[hidden] {
+  display: none;
+}
+
+.monitoring-hud__sensor-settings {
+  display: grid;
+  gap: 8px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.monitoring-hud__sensor-settings--source-entry {
+  max-height: none;
+  overflow: visible;
+}
+
+.monitoring-hud__sensor-settings--source-entry[hidden] {
+  display: none;
+}
+
+.monitoring-hud__sensor-settings-row,
+.monitoring-hud__sensor-settings-empty {
+  display: grid;
+  gap: 7px;
+  padding: 9px;
+  border: 1px solid rgba(117, 228, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.50);
+  color: rgba(181, 218, 229, 0.86);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.monitoring-hud__sensor-settings-row strong {
+  color: rgba(234, 253, 255, 0.95);
+  font-size: 12px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__sensor-settings-row label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.monitoring-hud__mode-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.monitoring-hud__mode-chip-group > span {
+  width: 100%;
+  color: rgba(139, 233, 255, 0.86);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__sensor-settings-row select {
+  min-height: 32px;
+  border: 1px solid rgba(117, 228, 255, 0.20);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.76);
+  color: rgba(232, 250, 255, 0.94);
+  font-family: "Bahnschrift", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.monitoring-hud__child-window--overlay-assignment,
+.monitoring-hud__child-window--sensor-settings {
+  width: min(680px, calc(100% - 24px));
+  min-width: min(580px, calc(100% - 24px));
+  max-height: min(660px, calc(100% - 24px));
+}
+
+.monitoring-hud__child-window--sensor-settings {
+  overflow: visible;
+}
+
+.monitoring-hud__overlay-assignment-status,
+.monitoring-hud__source-settings-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.46);
+  color: rgba(181, 218, 229, 0.86);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.monitoring-hud__overlay-assignment-status strong,
+.monitoring-hud__source-settings-summary strong {
+  color: rgba(157, 246, 218, 0.92);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.monitoring-hud__overlay-assignment-list {
+  display: grid;
+  gap: 8px;
+  max-height: 228px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.monitoring-hud__overlay-assignment-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(6, 28, 48, 0.54);
+}
+
+.monitoring-hud__overlay-assignment-row[data-overlay-assignment-state="assigned"] {
+  border-color: rgba(126, 248, 218, 0.38);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(126, 248, 218, 0.16), transparent 54%),
+    rgba(6, 28, 48, 0.58);
+}
+
+.monitoring-hud__overlay-assignment-row strong {
+  display: block;
+  color: rgba(234, 253, 255, 0.95);
+  font-size: 12px;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.monitoring-hud__overlay-assignment-row span {
+  display: block;
+  margin-top: 3px;
+  color: rgba(172, 215, 228, 0.78);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.monitoring-hud__source-settings-body {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(117, 228, 255, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(6, 28, 48, 0.90), rgba(3, 18, 32, 0.88));
+  overflow: visible;
+}
+
+.monitoring-hud__source-settings-body:focus,
+.monitoring-hud__source-settings-body:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.monitoring-hud__source-settings-polling {
+  padding-top: 8px;
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
+  background: var(--monitoring-hud-divider-glow);
+}
+
+.monitoring-hud__source-settings-warning {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-top: 9px;
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
+  background: var(--monitoring-hud-divider-glow);
+  color: rgba(181, 218, 229, 0.86);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.monitoring-hud__source-settings-warning-note {
+  flex-basis: 100%;
+  color: rgba(172, 215, 228, 0.78);
+  font-size: 11px;
+  font-weight: 620;
+  line-height: 1.32;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 760px) {
+  .monitoring-hud__monitor-management-shell,
+  .monitoring-hud__sensor-library-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .monitoring-hud__monitor-list-pane,
+  .monitoring-hud__monitor-detail-pane {
+    max-height: none;
+  }
+}
+
+@media (max-width: 880px) {
+  .monitoring-hud__overlay-profile-manager-row {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
+    flex-basis: 220px;
+    width: 220px;
+    min-width: 0;
+    max-width: min(220px, 100%);
+  }
+}
+
+@media (max-width: 760px) {
+  .monitoring-hud__overlay-profile-manager-row > .monitoring-hud__hub-action {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+}
+
+@media (max-width: 520px) {
+  .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
+    flex-basis: 190px;
+    width: 190px;
+    max-width: min(190px, 100%);
+  }
+}
+
+@media (max-width: 360px) {
+  .monitoring-hud__overlay-profile-manager-row {
+    flex-wrap: wrap;
+  }
+
+  .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .monitoring-hud__grid,
@@ -1295,10 +3257,15 @@ body.desktop-mode #monitoring-hud > * {
 
 @media (max-width: 760px), (max-height: 620px) {
   body.desktop-mode #monitoring-hud {
-    top: 12px;
-    right: 12px;
-    width: calc(100vw - 24px);
-    height: calc(100vh - 24px);
+    /* Keep the visible chrome edge aligned with the frameless native window at the Qt minimum size. */
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    min-height: 0;
+    max-height: 100vh;
   }
 
   .monitoring-hud__title {

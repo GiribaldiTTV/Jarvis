@@ -24,7 +24,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md` were treated as lane truth without first proving the automation's configured cwd, worktree role, branch, `HEAD`, and `origin/main`
 - fix pattern:
-  run `dev/automation_observability_report.py`, classify stale or wrong-lane automation reports as `Automation CWD Worktree Mismatch`, and let only `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED` findings enter a bounded repair seam. Lane-sensitive prompts for active branch, PR Readiness, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance must be rebound to the intended worktree or reported as stale evidence instead of mutating canon. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree automation safety repair under `RRI-YYYYMMDD-NNN`, `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, and `Return Digest`.
+  run `dev/automation_observability_report.py`, classify stale or wrong-lane automation reports as `Automation CWD Worktree Mismatch`, and let only `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED` findings enter a bounded repair seam. Lane-sensitive prompts for active branch, PR Readiness, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance must be rebound to the intended worktree or reported as stale evidence instead of mutating canon. Background-observability-only automations cannot clear watcher runtime proof, merge verification, release readiness, or same-PR repair proof, and stale historical toolchain-path memory remains `REVIEW_INFO` unless current source truth still owns the referenced path. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree automation safety repair under `RRI-YYYYMMDD-NNN`, `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, and `Return Digest`.
 - validation pattern:
   run `python dev\automation_observability_report.py` and `python dev\orin_branch_governance_validation.py`; the report must surface missing/stale/wrong configured cwd as a blocker candidate and the governance validator must require the automation/worktree contract across the source-truth homes
 - source references:
@@ -100,7 +100,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - symptom:
   an implementation workstream is merged or squash-merged, but canon still represents it as an active PR Readiness branch and Release Readiness must rediscover the release target, scope, artifacts, or release-debt owner
 - layer:
-  merge-target canon, roadmap release posture, workstreams index, and branch governance validation
+  merge-target canon, roadmap stage-breakpoint/checkpoint posture, workstreams index, and branch governance validation
 - root-cause pattern:
   PR Readiness recorded future post-merge prose but did not leave machine-checkable merged-unreleased release-debt fields in the exact post-merge shape that `main` needs after merge
 - fix pattern:

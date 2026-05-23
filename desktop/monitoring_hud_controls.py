@@ -86,7 +86,7 @@ def build_monitoring_hud_controls_visibility_contract(
         tray_path="Task tray enables/disables HUD feature and opens/closes Dashboard; Overlay anchor controls deferred",
         snap_state="enabled" if snap_enabled else "disabled",
         polling_rate_ms=str(max(1000, int(polling_rate_ms or 1000))),
-        monitor_management="Dashboard creates, edits, enables, disables, and sets polling for monitor groups",
+        monitor_management="Dashboard Sensor Command Center uses compact monitor selection, detail-pane delete, Nexus source-filter dropdown/facets, supported-source assignment, and monitor polling controls",
         overlay_mode_controls="Overlay display and anchor/unanchor controls are deferred/non-gating",
         warning_controls="Visual badge, text label, and color state only; no audio or screen flash",
     )

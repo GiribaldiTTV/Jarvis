@@ -5,8 +5,7 @@
 **DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; a prompt-level request not to commit is not enough to stop durability. The only exceptions are a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker; when that self-imposed blocker is lifted, Codex must automatically commit and push.**
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
-**Release Readiness Candidate Anchor: require `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:`; default to current fetched `origin/main` unless USER explicitly selects another release target; historical PR merge commits are audit evidence only unless USER selects a historical commit as the release target, and missing anchor fields block as `Release Candidate Anchor Missing`.**
-**Release Window Aggregation Ownership: merge order does not decide release ownership; require `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, and `FAM Contributor Routing:` so multiple FAM/worktree contributors in the selected target release as an aggregated release window unless USER selects a narrower target.**
+**Release Readiness anchor and aggregation rules are owned by `Docs/phase_governance.md`. Prompt templates should route to that owner instead of repeating the full rule text.**
 
 You are working inside the Nexus Desktop AI project as an implementation and analysis partner.
 
@@ -45,7 +44,7 @@ Do not paste `Docs/nexus_startup_contract.md` into Codex prompts; Codex prompts 
 Prompt-generation review must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice/package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval while branch creation and runtime package admission remain separately blocked, separate release-execution approval, and the Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback.
 PR Readiness Stage 1 is the Stage 2 readiness-lock gate. Stage 1 must analyze next-workstream/package hierarchy, release-debt impact, release-debt handling status, selected-next / no-release-debt handling status, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size risk, single-slice drift risk, Element Coverage risk, required current-branch source-truth sync, Stage 2 sync plan, PR title/base/head/summary, watcher plan, blockers, and USER decisions before Stage 2 can begin. Stage 1 selected-next/no-release-debt handling is complete only when the next selected branch/workstream is recorded in source truth before PR creation or an explicit USER waiver says no next branch/workstream is selected, release target/floor semantics and Release Window Audit are resolved when relevant, branch-authority cleanup is durable, stale-canon risk is cleared, and any unavoidable release debt has an explicit USER decision, named owner, and real-carrier plan before Stage 2; otherwise Stage 1 must stop on `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required` instead of reporting Stage 2-ready. Allowed Stage 1 outcomes are `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, and `Stage 1 USER Waiver Required`. Bounded Stage 1 repair/sync may mutate durable source truth only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair. Stage 2 begins only after `Stage 1 Ready For Stage 2` plus explicit USER approval and owns final PR execution only: final PR package sync, commit/push if needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch.
 Stage 2 owns final PR execution only after the readiness-lock outcome is green. Stage 2 final handoff cannot be green until bot-review closeout is verified. Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active. Use the same-PR Codex bot-review repair loop for actionable bot comments, and remember that Watcher configuration is not runtime proof. Apply the PR Watcher Mode Contract from `Docs/pr_watcher_mode_contract.md`: `Silent Monitor`, `Verify Once`, `Repair Mode`, or `Blocked Mode`, with `Watcher Health Proof:` in Stage 2 final handoff.
-Automation Observability is a multi-worktree evidence gate, not a source-truth shortcut. When a prompt asks Codex to inspect or act on automations, use `dev/automation_observability_report.py` over Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`; only `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED` findings may enter a bounded repair seam. Lane-sensitive automation prompts must declare a configured cwd and prove the intended worktree, branch, `HEAD`, and `origin/main`; otherwise report `Automation CWD Worktree Mismatch`. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree safety repair, and USER-approved `phase-gate governance intake` may use it only for repeatable non-runtime phase-gate miss prevention, under `RRI-YYYYMMDD-NNN`, operational `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, `Return Digest`, and `Neutral Main Workspace Rebaseline`. The standing Governance branch must not require a dedicated closeout PR solely to clear cycle-ledger wording.
+Automation Observability is a multi-worktree evidence gate, not a source-truth shortcut. When a prompt asks Codex to inspect or act on automations, use `dev/automation_observability_report.py` over Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`; only `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED` findings may enter a bounded repair seam. Lane-sensitive automation prompts must declare a configured cwd and prove the intended worktree, branch, `HEAD`, and `origin/main`; otherwise report `Automation CWD Worktree Mismatch`. Background-observability-only automations are advisory, cannot clear PR watcher runtime proof, merge verification, or release-readiness gates, and stale historical toolchain-path reports remain `REVIEW_INFO` unless current source truth still owns the referenced path. USER-approved `automation/worktree governance intake` may use the `Standing Governance Intake Branch` only for non-runtime multi-worktree safety repair, and USER-approved `phase-gate governance intake` may use it only for repeatable non-runtime phase-gate miss prevention, under `RRI-YYYYMMDD-NNN`, operational `One Active Cycle`, `Sync Rule`, `Waiting For Governance Intake`, `Return Digest`, and `Neutral Main Workspace Rebaseline`. The standing Governance branch must not require a dedicated closeout PR solely to clear cycle-ledger wording.
 
 ## Current Project State
 
@@ -82,6 +81,24 @@ Engineering Plan Status:
 PR Fold-Down Packet:
 [Pending / Complete / not applicable]
 
+USER Feedback Disposition Required:
+[Yes / No / not applicable]
+
+UFD Ledger Status:
+[Open / Queued / Blocking / Closed / Folded Down / Deferred / Superseded / not applicable]
+
+UFD Ledger Owner:
+[Docs/branch_plans/<branch_slug>.md / not applicable]
+
+Open UFD Count:
+[0 / count / not applicable]
+
+Blocking UFD Count:
+[0 / count / not applicable]
+
+Fold-Down Status:
+[Pending / Complete / not applicable]
+
 PR Readiness Stage:
 [PR Readiness Stage 1 - Analysis Gate / PR Readiness Stage 2 - Execution Gate / not applicable]
 
@@ -102,6 +119,33 @@ Incoming Main Change Set:
 
 Incoming Changed Files:
 [complete incoming file list from current HEAD or branch creation base to origin/main / None]
+
+Current Worktree Changed Files:
+[staged, unstaged, untracked, or current-worktree changed files / None]
+
+Branch Changed Files:
+[complete current branch file list from merge_base..HEAD / None]
+
+Rebaseline Overlap Files:
+[intersection of incoming changed files and current branch/worktree changed files / None]
+
+Rebaseline Overlap Intent Gate:
+[Not Applicable / PASS / WARN / BLOCKED]
+
+Overall Overlap Gate Result:
+[Not Applicable / PASS / WARN / BLOCKED]
+
+Branch Change Intent Ledger:
+[present at Docs/branch_plans/<branch_slug>.md / missing / not applicable]
+
+Regression / Gating Impact:
+[None / Low / Medium / High / Unknown / not applicable]
+
+Rebaseline Overlap Failure Procedure:
+[Not Applicable / required packet returned / blocker repaired and rerun pending]
+
+Rebaseline Overlap Intent Missing:
+[No / BLOCKED with overlapping file list and exact USER decision needed]
 
 Incoming Runtime / Source-Truth Risk:
 [runtime/provider/UI/source-truth/validator/shared-surface risk classification / None]
@@ -171,6 +215,36 @@ Bounded State:
 
 Assigned Worktree Confinement:
 [Required / not applicable]
+
+Active Thread Owner:
+[fill in the single Codex thread or lane owner for this worktree/branch]
+
+Thread Assignment Status:
+[assigned active owner / waiting read-only / unassigned / collision blocked]
+
+Worktree Ownership Ledger:
+[branch authority record, Branch Runtime Engineering Plan, or approved helper output that records owner and write set]
+
+Intended Write Set:
+[exact files/surfaces this thread may mutate]
+
+Same Worktree / Same Branch Collision Check:
+[Clear / Blocked on Parallel Worktree Coordination Missing with evidence]
+
+Dirty Worktree Collision Check:
+[Clean / owner claimed / dirty unowned and blocked]
+
+Dirty Worktree Recovery Packet:
+[Required when target worktree is dirty before ownership is clear: freeze mutation, inventory dirty files, identify owning thread per file, USER approves preserve/discard, resume with one active owner / not applicable]
+
+Off-Worktree Work Routing:
+[Required when requested work is outside the assigned worktree or active branch scope: route packet to C:\Nexus Worktrees\Governance / clear]
+
+Governance Routing Barrier:
+[Clear / blocked and routed to Governance with expected worktree, actual worktree, expected branch, actual branch, requested work, owning lane if known, dirty files, recommendation, and next legal phase]
+
+New Worktree Decision Gate:
+[USER-approved exact worktree/thread/branch activation / pending / not applicable]
 
 Expected Worktree Root:
 [fill in assigned worktree root, or not applicable]
@@ -298,6 +372,7 @@ If repo state is steady-state `No Active Branch`, do not start implementation by
 If `Bounded State` is missing, stale, or ambiguous, stop on `Bounded State Missing` before mutation.
 Broad work requests do not authorize implementation. `Continue`, `complete all`, `all remaining work`, `finish the branch`, or similar wording may execute only when repo source truth resolves it to one exact active bounded seam.
 If execution needs wider scope than the bounded state allows, stop on `Bounded State Waiver Missing` unless `Bounded State User Waiver: Granted` names the branch/worktree, phase, slice/seam, relaxed bound, allowed extra seams/slices/files, expiration or stop condition, required validation, and still-pending USER decisions.
+If another active thread owns the same worktree or branch, stop on `Parallel Worktree Coordination Missing` and return a routing packet. If the target worktree is dirty before this thread owns it, stop for a `Dirty Worktree Recovery Packet`; do not clean, stash, reset, overwrite, commit, or continue by inference. If the requested work belongs outside the assigned worktree or active branch scope, stop on `Governance Routing Barrier` and route the packet to the standing Governance lane; do not self-activate a sibling worktree or create a new one by convenience.
 Do not open a governance-only branch or between-branch canon repair lane.
 Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
@@ -366,6 +441,11 @@ If a required User Test Summary handoff is outstanding, use `User Test Summary R
 Live Validation green requires an exact `## User Test Summary` state before final green.
 For relevant desktop user-facing Live Validation, apply the `User-Facing Shortcut Live Validation Gate` / `desktop-shortcut` blocker path before User Test Summary handoff: declare `User-Facing Shortcut Path:`, record `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`, and keep `User-Facing Shortcut Validation Pending` as a blocker until the declared desktop shortcut or equivalent user entrypoint is passable or explicitly waived.
 For relevant desktop user-facing Live Validation, apply the `Codex Live Client Self-QA Gate` before User Test Summary handoff: declare `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:`, and keep `Codex Live Client Self-QA Pending` as a blocker until Codex has inspected and exercised the launched client like a user or an explicit waiver is recorded.
+For relevant desktop UI Live Validation, also apply `Codex Visual Adjudication:` before User Test Summary handoff: record `Visual Artifact Review Scope:`, `Product Vision Alignment:`, `Per-Element Visual Verdicts:`, `Helper Marker Limitation:`, `Unacceptable UI Findings:`, and `LV1 Handoff Disposition:`. Helper PASS, marker PASS, screenshot existence, and manifest existence cannot clear visual acceptability without artifact-by-artifact product-vision verdicts.
+For relevant desktop UI Live Validation, create a per-element visual inventory and USER-inspectable focused screenshots for every current user-facing window, border/frame, card, row, page break/divider, background treatment, scrollbar, button, dropdown, checkbox, input, chip, status field, confirmation, empty/error/deferred state, supported state/action, and USER-named issue element under `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\`; filenames must include the element label/name plus state/action, full-desktop screenshots are context only, and the manifest must include an issue-form coverage matrix when returned USER issues exist.
+For relevant desktop UI Live Validation, use the real user-facing desktop launcher declared for the UTS path when feasible; sandbox/offscreen/direct-runtime/WebView/helper launches are supporting evidence only and cannot replace that launcher gate.
+For relevant desktop UI Live Validation, do not export or refresh the UTS handoff while any unwaived Codex-visible `REPAIR` or `STOP` remains in visual adjudication, per-element inventory, issue-form coverage, focused screenshots/video, shortcut proof, or interaction proof. If bounded continuation approval covers the defect, use the bounded repair/rerun loop: repair it, rerun focused proof and validation, update source truth, and return to UTS only after the defect is green. If approval does not cover it, return `BLOCKED` or `REPAIR` with exact approval needed. UTS is USER acceptance review, not a substitute for Codex finding obvious visual or functional defects.
+Returned USER UTS, screenshot, or video issues that block acceptance must remain in a temporary issue form until PR Readiness Stage 1 folds resolved truth into durable source truth; the issue form must carry issue ID/name, planned disposition, validation/photo/video requirement, proof artifact path, and USER-verifiable status.
 If the user-facing work is interactive, screenshot-only, marker-only, or launched-but-not-driven proof cannot clear the self-QA gate; Codex must record the same visible interaction checks it would ask the USER to perform.
 For desktop UI, use an active foreground/user-observable client mode; hidden, too-fast, or blink-through helper evidence is supporting automation evidence only.
 
@@ -699,6 +779,7 @@ If the artifact is not updated, the final output must explain why the update was
 For relevant desktop Live Validation Stage 1 runs, the execution pass must also export or refresh:
 
 - `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+- `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\element_<label>_<state>.png`
 
 unless the final output explicitly explains why the desktop export was not relevant or was intentionally skipped.
 
@@ -796,6 +877,12 @@ If the phase is `PR Readiness`, the final response must include:
 - Planned Merge-Target Canon Updates:
 - Planned Next Branch Block:
 - Planned Watcher Provisioning:
+- Pre-PR Live State:
+- PR Creation Approval:
+- Stage 2 PR Creation:
+- No Successor Runtime Branch By Inertia:
+- Selected-Next Defer User Waiver:
+- Post-Merge No Active Branch Projection:
 - Planned Validation Commands:
 - Expected Files To Change:
 - Stage 1 Repairs Made:
@@ -858,6 +945,16 @@ If the phase is `Branch Readiness` and the current stage is `Branch Readiness St
 - Branch Runtime Engineering Plan Path:
 - Engineering Plan Status:
 - PR Fold-Down Packet:
+- USER Feedback Disposition Required:
+- UFD Ledger Status:
+- UFD Ledger Owner:
+- Open UFD Count:
+- Blocking UFD Count:
+- Fold-Down Status:
+- UFD Items:
+  | Feedback ID | Disposition Type | USER Decision State | Workstream Severity | Status | Canonical Owner File | Fold-Down Target |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | [UFD-<scope>-YYYYMMDD-NNN / none] | [type] | [state] | [severity] | [status] | [Docs/... owner] | [target] |
 - USER Engineering Planning Review:
 - Runtime Implementation Approval:
 - Current Runtime Baseline:

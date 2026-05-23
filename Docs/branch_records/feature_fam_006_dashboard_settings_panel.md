@@ -3,7 +3,7 @@
 ## Branch Identity
 
 - Branch: `feature/fam-006-dashboard-settings-panel`
-- Worktree: `C:\Nexus Worktrees\FAM-006`
+- Historical Worktree: `Retired after release; former path C:\Nexus Worktrees\FAM-006 now hosts the active FAM-006 Monitor Groups branch feature/fam-006-monitor-groups-sensor-configuration`
 - Workstream: `FAM-006 Dashboard Settings Panel`
 - Branch Class: `implementation`
 - Runtime Carrier Status: `USER-approved FAM-006 runtime-focused Dashboard settings-panel carrier; implementation and Live Validation are complete; PR #142 is merged and this record is historical / merged-unreleased until release execution`
@@ -74,7 +74,7 @@ Release Execution Gate: `PASS - release execution, tags, GitHub Release, artifac
 
 Watcher / Live PR State Projection: `PASS - watcher and live PR state belong to PR execution output only and are not projected into merged main.`
 
-Branch Cleanup Plan: `PASS - cleanup is deferred until after merge verification; no branch deletion or worktree removal is authorized by this record.`
+Branch Cleanup Plan: `COMPLETE - after PR #142 release closure and successor FAM-006 branch validation, the retired feature/fam-006-dashboard-settings-panel worktree was removed, the remote branch was deleted, and the local stale branch was deleted. The stable C:\Nexus Worktrees\FAM-006 path now hosts feature/fam-006-monitor-groups-sensor-configuration.`
 
 FAM Overlap Routing: `PASS - FAM-007, provider/model/memory/shortcut/installer work, Overlay/display acceptance, external telemetry parity, AI Product Contract import, and Private Dev ORIN import remain separate pending USER decisions.`
 
@@ -155,12 +155,12 @@ Backlog-Split Reason: `None`
 
 ## Exit Criteria
 
-- Worktree `C:\Nexus Worktrees\FAM-006` exists and is clean on `feature/fam-006-dashboard-settings-panel`.
+- Former worktree `C:\Nexus Worktrees\FAM-006` existed and was clean on `feature/fam-006-dashboard-settings-panel` during PR #142 and release validation; it is now retired and the stable path is reassigned to the active FAM-006 Monitor Groups branch.
 - Branch is created from updated `origin/main` at `228f18e73faabf6ffb6e3b9a5cf32d2f92cd3060`.
 - Source truth records PR #133 as merged/historical and no longer treats release-support as the active FAM-006 carrier.
 - Source truth projects this branch as historical / merge-stable after PR merge while preserving it as the FAM-006 settings-panel runtime carrier evidence.
 - PR #129, PR #132, and PR #142 remain merged-unreleased FAM-006 Dashboard release debt.
-- #123, #127, #137, and #140 remain open / In Work and eligible for USER-approved closeout after PR #142; #124, #125, and #126 remain closed / fixed and must preserve that posture.
+- #123, #124, #125, #126, #127, #137, and #140 are closed / fixed or completed with release traceability preserved after USER-approved GitHub issue cleanup.
 - FAM-007, provider/model/memory/shortcut/installer work, release execution, artifacts, raw evidence handling, AI Product Contract import, and Private Dev ORIN import remain pending USER decisions.
 - Validation passes.
 - Branch is committed and pushed.
@@ -183,11 +183,11 @@ Create the FAM-006 Dashboard settings-panel runtime-focused carrier from updated
 
 ## Target End-State
 
-- The FAM-006 settings-panel worktree and branch exist from updated `origin/main`.
+- The FAM-006 settings-panel worktree and branch existed from updated `origin/main` through PR #142, v1.7.1-prebeta release, and release-closure validation; after successor branch validation they were retired as stale merged branch/worktree state.
 - Branch authority is historical / merge-stable for merged `main` after PR #142.
 - Release-support source truth is historical after PR #133 merge.
 - PR #129, PR #132, and PR #142 remain merged-unreleased release debt.
-- Issues #123, #127, #137, and #140 remain open / In Work and eligible for USER-approved closeout after PR #142; #124, #125, and #126 remain closed / fixed and should be preserved.
+- Issues #123, #124, #125, #126, #127, #137, and #140 are closed / fixed or completed with release traceability preserved.
 - Runtime implementation is bounded to the Dashboard settings cog/settings panel surface and remains separate from FAM-007, provider/model/memory/shortcut/installer, Overlay/display acceptance, external telemetry parity, issue closeout, release execution, raw evidence handling, and PR creation. After merge, the implementation is merged-unreleased release debt until USER approves release execution.
 
 ## Product Definition Plan
@@ -228,7 +228,7 @@ Implementation Sequence Proposal: `Implemented settings entry/panel, updated val
 
 Planning Blockers: `GitHub Issue Closeout Approval Missing`; `Release Execution Approval Missing`; `Raw Evidence Import Decision Pending`; `FAM-007 / Local AI Authority Missing`; `Provider/Model/Memory/Shortcut/Installer Approval Missing`; `AI Product Contract Import Approval Missing`; `PR Creation Approval Missing`.
 
-USER Decisions Needed: `Approve Hardening next, approve Live Validation only as a later separate phase if needed, approve PR Readiness/PR creation later, approve GitHub issue closeout/comments, approve release execution/tags/releases/artifacts, approve raw evidence handling, and approve any FAM-007/provider/model/memory/shortcut/installer work separately.`
+USER Decisions Needed: `Approve any future branch/worktree cleanup for active branches after their closure, approve release execution/tags/releases/artifacts beyond v1.7.1-prebeta if needed, approve raw evidence handling, and approve any FAM-007/provider/model/memory/shortcut/installer work separately.`
 
 Planning Packet Status: Complete
 
@@ -295,9 +295,9 @@ Release Target: `v1.7.1-prebeta`
 
 Release Floor: `patch prerelease`
 
-Issue Closeout Plan: `#123`, `#127`, `#137`, and `#140` remain open / In Work and are eligible for USER-approved closeout after PR #142; `#124`, `#125`, and `#126` are already closed / fixed and should preserve that posture. Summary-only GitHub comments and issue closure require later USER approval.
+Issue Closeout Plan: `#123`, `#124`, `#125`, `#126`, `#127`, `#137`, and `#140` are closed / fixed or completed with release traceability preserved after USER-approved GitHub issue cleanup.
 
-Release Readiness Issue Thread Cleanup Gate: `Required during Release Readiness after USER approval - GitHub issue threads #123, #127, #137, and #140 must receive appropriate closeout/traceability updates before release execution can be treated as complete, while #124, #125, and #126 preserve their closed / fixed posture. Each issue update should summarize what solved the issue, name the solving PR/branch/proof path, preserve any known limitations or waivers, and link the release-support/source-truth evidence. This gate records the requirement only; posting comments, changing issue state, or closing issues remains a future USER approval checkpoint.`
+Release Readiness Issue Thread Cleanup Gate: `Complete for the v1.7.1-prebeta FAM-006 issue set. GitHub issue threads #123, #124, #125, #126, #127, #137, and #140 preserve solving PR/branch/proof traceability and closed/fixed or completed posture.`
 
 Raw Evidence Policy: raw screenshots, videos, and UTS exports remain local/external unless USER later approves upload, import, or linking.
 
@@ -305,11 +305,11 @@ Raw Evidence Policy: raw screenshots, videos, and UTS exports remain local/exter
 
 USER Waiver: USER confirmed FAM-006 and FAM-007 are assigned to two different worktrees and are not cross-editing repo files in the same worktree.
 
-FAM-006 Assigned Worktree: `C:\Nexus Worktrees\FAM-006`
+FAM-006 Assigned Worktree: `C:\Nexus Worktrees\FAM-006` now hosts the active FAM-006 Monitor Groups branch; this settings-panel record is historical.
 
 FAM-007 Assigned Worktree: `C:\Nexus Worktrees\FAM-007`
 
-Coordination Rule: FAM-006 work in this branch must stay in the FAM-006 settings-panel worktree and must not edit the FAM-007 worktree. FAM-007 remains separate context only for same-file overlap awareness and merge sequencing.
+Coordination Rule: historical settings-panel proof remains in this record; new FAM-006 work must use the active FAM-006 worktree and branch selected by current source truth, currently `C:\Nexus Worktrees\FAM-006` on `feature/fam-006-monitor-groups-sensor-configuration`, and must not edit the FAM-007 worktree. FAM-007 remains separate context only for same-file overlap awareness and merge sequencing.
 
 Same-File Overlap Result: overlap exists in repo-wide source-truth owners such as backlog, roadmap, branch-record index, and governance validators. The USER waiver permits the separate worktrees while requiring each branch to validate, push, and reconcile current main before PR or merge actions.
 
@@ -341,7 +341,7 @@ Runtime implementation and Hardening did not generate or digest UTS. In the sepa
 
 - Live Validation is admitted and has repaired red user-facing shortcut PASS plus refreshed formal UTS handoff generated. Refreshed returned UTS results are digested as PASS; PR Readiness remains a separate later USER decision.
 - PR creation remains a later USER decision after implementation/validation.
-- GitHub issue closeout/comments for #123, #127, #137, and #140 remain pending USER approval; #124, #125, and #126 remain closed / fixed.
+- GitHub issue closeout/comments for #123, #124, #125, #126, #127, #137, and #140 are complete for the v1.7.1-prebeta FAM-006 issue set.
 - Release execution, tags, GitHub Releases, artifacts, and raw evidence handling remain pending USER approval.
 - FAM-007 local AI/provider work remains in its own lane and worktree.
 

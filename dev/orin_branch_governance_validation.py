@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=branch-governance-validator; status=shared
 import json
 import os
 import re
@@ -483,6 +484,216 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_COMPACTNESS_FORBIDDEN_MARKERS = (
     "Live Validation Proof Or Waiver Checklist:",
     "PR Readiness Fold-Down / Retention Checklist:",
     "Release Readiness Public-Scope Translation Checklist:",
+)
+BRANCH_VISION_CONTRACT_HEADING = "Branch Vision Contract Snapshot"
+BRANCH_VISION_CONTRACT_REQUIRED_MARKERS = (
+    "Vision Contract Required:",
+    "Vision Contract Requirement Reason:",
+    "Branch Vision Snapshot Status:",
+    "Open Vision Questions:",
+    "USER Vision Green:",
+    "Implementation Scope:",
+    "Seam Map:",
+    "Stop Conditions:",
+    "Design Assumption Ledger:",
+    "Vision Question Queue:",
+    "Question Severity Policy:",
+    "Vision-to-Implementation Traceability:",
+    "Branch Plan Revision Packet:",
+)
+BRANCH_VISION_SAFE_STATE_TERMS = (
+    "accepted by user",
+    "accepted",
+    "revised by user",
+    "revised",
+    "deferred with waiver",
+    "waived",
+    "not required",
+)
+BRANCH_VISION_UNSAFE_STATE_TERMS = (
+    "proposed by codex",
+    "recommended by chatgpt",
+    "needs user decision",
+    "pending user",
+    "unanswered",
+    "blocking",
+)
+BRANCH_VISION_TRACEABILITY_TERMS = (
+    "vision",
+    "branch",
+    "seam",
+    "file",
+    "validator",
+    "proof",
+)
+USER_FEEDBACK_DISPOSITION_HEADING = "USER Feedback Disposition"
+USER_FEEDBACK_DISPOSITION_LEDGER_MARKERS = (
+    "USER Feedback Disposition Required:",
+    "UFD Ledger Status:",
+    "UFD Ledger Owner:",
+    "Open UFD Count:",
+    "Blocking UFD Count:",
+    "Fold-Down Status:",
+)
+USER_FEEDBACK_DISPOSITION_ITEM_MARKERS = (
+    "Feedback ID:",
+    "Feedback Summary:",
+    "Feedback Source:",
+    "Feedback Phase:",
+    "Disposition Type:",
+    "USER Decision State:",
+    "Owner Class:",
+    "Canonical Owner File:",
+    "Workstream Severity:",
+    "Status:",
+    "Fold-Down Target:",
+    "Pointer Locations:",
+)
+USER_FEEDBACK_DISPOSITION_ALLOWED_STATES = (
+    "proposed by codex",
+    "recommended by chatgpt",
+    "accepted by user",
+    "revised by user",
+    "rejected by user",
+    "deferred by user",
+    "deferred with waiver",
+    "superseded",
+    "needs user decision",
+)
+USER_FEEDBACK_DISPOSITION_ALLOWED_STATUSES = (
+    "open",
+    "queued",
+    "blocking",
+    "closed",
+    "folded down",
+    "deferred",
+    "superseded",
+)
+USER_FEEDBACK_DISPOSITION_LEDGER_STATUSES = (
+    *USER_FEEDBACK_DISPOSITION_ALLOWED_STATUSES,
+    "pending",
+    "complete",
+    "not required",
+    "not applicable",
+)
+USER_FEEDBACK_DISPOSITION_FOLD_DOWN_STATUSES = (
+    "pending",
+    "complete",
+    "required",
+    "folded",
+    "folded down",
+    "retired",
+    "historical",
+    "not required",
+    "not applicable",
+)
+USER_FEEDBACK_DISPOSITION_OWNER_CLASSES = (
+    "branch plan",
+    "branch record",
+    "backlog pointer",
+    "roadmap pointer",
+    "nexus vision",
+    "family vision",
+    "dossier",
+    "workstream doc",
+    "governance receipt",
+    "no durable owner needed",
+)
+USER_FEEDBACK_DISPOSITION_TYPES = (
+    "current branch requirement",
+    "current seam blocker",
+    "current seam non-blocking queue",
+    "branch plan revision required",
+    "future branch candidate",
+    "family vision update candidate",
+    "nexus vision update candidate",
+    "backlog pointer candidate",
+    "branch receipt item",
+    "workstream / family dossier item",
+    "workstream",
+    "family dossier",
+    "rejected / no action",
+    "rejected",
+    "no action",
+)
+USER_FEEDBACK_DISPOSITION_SEVERITY_TERMS = (
+    "level 1",
+    "level 2",
+    "level 3",
+    "non-blocking",
+    "seam-blocking",
+    "workstream-breaking",
+)
+BRANCH_CHANGE_INTENT_HEADING = "Branch Change Intent Ledger"
+BRANCH_CHANGE_INTENT_ITEM_HEADING_RE = r"(?ms)^### Changed Surface:\s*([^\n]+)\n(.*?)(?=^### Changed Surface:|\Z)"
+BRANCH_CHANGE_INTENT_MARKERS = (
+    "Surface Class:",
+    "Change Intent:",
+    "Why This File Was Touched:",
+    "Owned Behavior / Fact Class:",
+    "Canonical Owner / Source Owner:",
+    "Resolution Owner:",
+    "Shared Surface:",
+    "Overlap Risk:",
+    "Expected Conflict Risk:",
+    "Semantic Merge Risk:",
+    "Regression / Gating Impact:",
+    "Conflict Resolution Rule:",
+    "Rebaseline Handling:",
+    "Validation Proof:",
+    "Fallback Evidence:",
+    "USER Decision / Waiver:",
+    "Fold-Down Target:",
+)
+BRANCH_CHANGE_INTENT_SURFACE_CLASSES = (
+    "governance/source-truth",
+    "runtime",
+    "desktop/ui",
+    "core visual",
+    "validator/helper",
+    "fixture/test",
+    "configuration/state/schema",
+    "release/public-output",
+    "prompt/template",
+    "automation/watcher",
+    "build/packaging",
+    "documentation/reference",
+    "asset/media",
+)
+BRANCH_CHANGE_INTENT_HIGH_RISK_CLASSES = (
+    "governance/source-truth",
+    "runtime",
+    "desktop/ui",
+    "core visual",
+    "validator/helper",
+    "fixture/test",
+    "configuration/state/schema",
+    "release/public-output",
+    "prompt/template",
+    "automation/watcher",
+    "build/packaging",
+)
+BRANCH_CHANGE_INTENT_SEMANTIC_RISK_VALUES = (
+    "none",
+    "low",
+    "medium",
+    "high",
+    "unknown",
+)
+BRANCH_CHANGE_INTENT_REGRESSION_GATING_VALUES = (
+    "none",
+    "low",
+    "medium",
+    "high",
+    "unknown",
+)
+BRANCH_CHANGE_INTENT_RESOLUTION_OWNERS = (
+    "current branch",
+    "incoming/folded owner",
+    "originating lane",
+    "standing governance",
+    "user decision",
+    "future branch",
 )
 RUNTIME_ENGINEERING_DETAIL_TERMS = {
     "Current Runtime Baseline:": (
@@ -2468,6 +2679,74 @@ VALIDATION_SUITE_SOURCE_PHRASES = (
     "git diff",
     "rationale",
 )
+GOVERNANCE_EFFICIENCY_OPERATING_MODEL = Path(
+    "Docs/governance_efficiency_operating_model.md"
+)
+GOVERNANCE_EFFICIENCY_VALIDATION_HELPER = Path(
+    "dev/orin_governance_efficiency_validation.py"
+)
+GOVERNANCE_EFFICIENCY_DOCS = (
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/validation_helper_registry.md"),
+    Path("Docs/governance_process_efficiency_reform_plan.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/branch_records/feature_release_readiness_source_truth_intake.md"),
+)
+GOVERNANCE_EFFICIENCY_OPERATING_MODEL_PHRASES = (
+    "Rule ID And Owner Model",
+    "Source-Truth Ownership Matrix",
+    "Docs Source-Truth Reform Model",
+    "Derived Live Truth Versus Historical Receipt",
+    "Duplicate Live-State Guard",
+    "Current Summary And Historical Appendix Split",
+    "Phase Alias UX",
+    "Branch Planning UX Standard",
+    "Standing Governance Ledger Compaction",
+    "Release Ownership UX",
+    "Public Language Mapping",
+    "Validator Modularization Boundary",
+    "Validation Runner And Registry Query Rule",
+    "Naming Drift Scan Rule",
+    "Reform Pass Completion Model",
+)
+GOVERNANCE_EFFICIENCY_POINTER_PHRASES = (
+    "Docs/governance_efficiency_operating_model.md",
+    "governance efficiency",
+)
+GOVERNANCE_EFFICIENCY_SOURCE_PHRASES = (
+    "governance efficiency validation",
+    "REQUIRED_MODEL_PHRASES",
+    "POINTER_REQUIREMENTS",
+    "BACKLOG_ROADMAP_COMPACTNESS_FORBIDDEN",
+    "report-only",
+)
+DOCS_SOURCE_TRUTH_REFORM_MARKER = "Docs Source-Truth Reform Model: Compact Pointer Layer"
+POINTER_ONLY_FORBIDDEN_MARKERS = (
+    "Package Trace:",
+    "Slice Trace:",
+    "Latest Public Prerelease Recorded In Source Truth:",
+    "Latest Public Prerelease:",
+    "Latest Public Release Commit:",
+    "Latest Public Prerelease Publication:",
+    "Merged-Unreleased PRs:",
+)
+COMPACT_BACKLOG_REQUIRED_FIELDS = (
+    "Status",
+    "Record State",
+    "Registry Class",
+    "Family Anchor",
+    "Priority",
+    "Family Scope",
+    "Package Summary",
+    "Package Admission State",
+    "Admitted Slice Count",
+    "Package Completion State",
+    "Single-Slice Package User Approval",
+    "Canonical Detail Owner",
+)
 CURRENT_DECISION_SURFACE_DOCS = (
     Path("Docs/feature_backlog.md"),
     Path("Docs/prebeta_roadmap.md"),
@@ -2492,8 +2771,12 @@ STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_readiness_planning_fixture_validation.py",
     "dev/orin_worktree_rebaseline_audit.py",
     "dev/orin_validation_suite.py",
+    "dev/orin_governance_efficiency_validation.py",
+    "dev/orin_docs_inventory_reform_audit.py",
     "dev/automation_observability_report.py",
     "dev/orin_ai_provider_state_validation.py",
+    "dev/orin_monitoring_hud_internal_sandbox_validation.py",
+    "dev/orin_monitoring_hud_surface_validation.py",
     "dev/orin_pr_body_quality_audit.py",
     "dev/orin_release_body_validation.py",
 }
@@ -2553,6 +2836,16 @@ ASSIGNED_WORKTREE_CONFINEMENT_DOCS = (
 )
 ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
     "Assigned Worktree Confinement",
+    "Active Thread Owner",
+    "Thread Assignment Status",
+    "Worktree Ownership Ledger",
+    "Intended Write Set",
+    "Same Worktree / Same Branch Collision Check",
+    "Dirty Worktree Collision Check",
+    "Dirty Worktree Recovery Packet",
+    "Off-Worktree Work Routing",
+    "Governance Routing Barrier",
+    "New Worktree Decision Gate",
     "Worktree Escape User Waiver: Granted",
     "Worktree Escape User Waiver Missing",
     "Expected Worktree Root:",
@@ -2562,6 +2855,16 @@ ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
 )
 ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
     "Assigned Worktree Confinement",
+    "Active Thread Owner",
+    "Thread Assignment Status",
+    "Worktree Ownership Ledger",
+    "Intended Write Set",
+    "Same Worktree / Same Branch Collision Check",
+    "Dirty Worktree Collision Check",
+    "Dirty Worktree Recovery Packet",
+    "Off-Worktree Work Routing",
+    "Governance Routing Barrier",
+    "New Worktree Decision Gate",
     "Expected Worktree Root",
     "Actual Worktree Root",
     "No Cross-Worktree Mutation",
@@ -2998,6 +3301,30 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
     ),
 }
 
+NEXT_LEGAL_PHASE_DIGEST_DOCS = (
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+NEXT_LEGAL_PHASE_DIGEST_REQUIRED_PHRASES = (
+    "Formal Next Legal Phase Digest",
+    "Next Legal Phase Digest",
+    "Current Phase:",
+    "Next Legal Phase:",
+    "Why This Phase Is Next:",
+    "Approval Required:",
+    "Exact USER Approval Text:",
+    "Allowed Scope:",
+    "Explicit Exclusions:",
+    "Validation Required:",
+    "Stop Conditions:",
+    "Next Legal Phase Digest Missing",
+    "Next Safe Move",
+)
+
 WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/codex_modes.md"),
@@ -3236,6 +3563,21 @@ LIVE_VALIDATION_STALL_PHRASES = (
     "10s",
     "no-progress",
     "last confirmed",
+)
+
+LIVE_VALIDATION_AUTO_REPAIR_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+LIVE_VALIDATION_AUTO_REPAIR_PHRASES = (
+    "codex-visible `repair` or `stop`",
+    "bounded repair/rerun loop",
+    "user acceptance",
+    "real user-facing desktop launcher",
 )
 
 LIVE_VALIDATION_HELPER_CONTRACTS = {
@@ -3560,11 +3902,29 @@ PRE_REBASELINE_IMPACT_AUDIT_PHRASES = (
     "No Baseline By Inertia",
     "Incoming Main Change Set",
     "Incoming Changed Files",
+    "Current Worktree Changed Files",
+    "Branch Changed Files",
+    "Rebaseline Overlap Files",
+    "Rebaseline Overlap Intent Gate",
+    "Branch Change Intent Ledger",
+    "Rebaseline Overlap Intent Missing",
     "Incoming Runtime / Source-Truth Risk",
     "Validation Before Rebaseline",
     "Recommendation Only",
     "Rebaseline Mutation Approval",
     "Rebaseline Mutation Status",
+)
+
+PRE_REBASELINE_HELPER_PHRASES = (
+    "Rebaseline Overlap Files:",
+    "Branch Change Intent Ledger Path:",
+    "Rebaseline Overlap Intent Gate:",
+    "Overall Overlap Gate Result:",
+    "Rebaseline Overlap Failure Procedure:",
+    "Rebaseline Overlap Intent Missing:",
+    "Per-File Result:",
+    "Regression / Gating Impact:",
+    "Fallback Evidence:",
 )
 
 RELEASE_READINESS_HEALTH_GATE_DOCS = (
@@ -3845,6 +4205,21 @@ STALE_BRANCH_CLEANUP_PHRASES = (
     "Branch Readiness Stage 2 - Execution Gate",
 )
 
+STABLE_WORKTREE_PATH_PRESERVATION_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/branch_records/index.md"),
+)
+
+STABLE_WORKTREE_PATH_PRESERVATION_PHRASES = (
+    "Stable Worktree Path Preservation Gate:",
+    "Stable Worktree Path:",
+    "Replacement Binding Path:",
+    "Stable Worktree Path At Risk",
+)
+
 BRANCH_READINESS_CARRIER_LIFECYCLE_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -3962,6 +4337,47 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
         "Per-Seam Implementation Checklist:",
         "PR Readiness Fold-Down / Retention Checklist:",
         "Release Readiness Public-Scope Translation Checklist:",
+    ),
+}
+
+USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "USER Feedback Disposition",
+        "Docs/branch_plans/<branch_slug>.md",
+        "compact UFD pointers",
+    ),
+    Path("Docs/phase_governance.md"): (
+        "USER Feedback Disposition:",
+        "UFD Ledger Status:",
+        "### UFD Item: UFD-<scope>-YYYYMMDD-NNN",
+        "Feedback ID:",
+        "No Durable Owner Needed",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "USER Feedback Disposition Markers",
+        "Minimum UFD ledger markers",
+        "### UFD Item: UFD-<scope>-YYYYMMDD-NNN",
+        "UFD IDs use `UFD-<scope>-YYYYMMDD-NNN`",
+        "No-Action Reason:",
+        "fold-down receipt must preserve a lookup path",
+    ),
+    Path("Docs/governance_efficiency_operating_model.md"): (
+        "USER Feedback Disposition Model",
+        "UFD Ledger Owner:",
+        "full active USER Feedback Disposition items",
+        "Natural-language duplicate feedback detection remains report-only",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "USER Feedback Disposition scaffolding",
+        "marker-first",
+        "No Durable Owner Needed",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "USER Feedback Disposition Required:",
+        "UFD Ledger Status:",
+        "UFD Ledger Owner:",
+        "UFD Items:",
+        "| Feedback ID |",
     ),
 }
 
@@ -4183,6 +4599,8 @@ PR_WATCHER_MODE_CONTRACT_PHRASES = (
     "Delivery Route Proof:",
     "Runtime Proof:",
     "Next Watcher Posture:",
+    "Reliability Degradation",
+    "Background Observability",
 )
 
 PR_WATCHER_OUTPUT_CONTRACT_SOURCE = Path("dev/pr_same_thread_watcher.py")
@@ -4281,6 +4699,10 @@ AUTOMATION_OBSERVABILITY_SOURCE_PHRASES = (
     "memory.md",
     "configured cwd",
     "Lane-sensitive automation runs from neutral main",
+    "neutral_main_background_observability_prompt",
+    "fresh main equality before reporting blockers",
+    "LEGACY_TOOLCHAIN_RUNTIME_FINDING_MARKERS",
+    "legacy_toolchain_runtime_finding_is_retired",
     "BLOCKER_CANDIDATE",
     "REVIEW_REQUIRED",
     "--strict",
@@ -4378,6 +4800,23 @@ CODEX_LIVE_CLIENT_SELF_QA_REQUIRED_MARKERS = (
     "Platform Uniformity Check:",
     "NDAI Naming Check:",
     "Cleanup Check:",
+)
+
+CODEX_VISUAL_ADJUDICATION_BLOCKER = "Codex Visual Adjudication Repair Pending"
+CODEX_VISUAL_ADJUDICATION_RESULT_LABEL = "Codex Visual Adjudication:"
+CODEX_VISUAL_ADJUDICATION_WAIVER_REASON_LABEL = "Codex Visual Adjudication Waiver Reason:"
+CODEX_VISUAL_ADJUDICATION_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
+CODEX_VISUAL_ADJUDICATION_CLEAR_VALUES = ("PASS", "WAIVED")
+CODEX_VISUAL_ADJUDICATION_REQUIRED_MARKERS = (
+    "Visual Artifact Review Scope:",
+    "Per-Element Visual Inventory:",
+    "Issue Form Coverage Matrix:",
+    "OneDrive Focused Screenshot Proof:",
+    "Product Vision Alignment:",
+    "Per-Element Visual Verdicts:",
+    "Helper Marker Limitation:",
+    "Unacceptable UI Findings:",
+    "LV1 Handoff Disposition:",
 )
 
 RELEASE_READINESS_TARGET_DOCS = (
@@ -5015,6 +5454,12 @@ AUTOMATION_PLANNING_RUNTIME_PROOF_REQUIRED_PHRASES = (
     "If the preferred Codex heartbeat remains `ACTIVE` without run evidence, keep the owning phase blocked until native run evidence exists or a bounded fallback watcher is activated.",
     "Any bounded fallback watcher must be target-scoped to the live PR, phase-scoped to `PR Readiness`, read-only, and self-terminating or explicitly deleted when the PR becomes `merged` or `closed` or the branch leaves `PR Readiness`.",
     "`Release Window Sentinel` and `Post-Merge Closure Watch` may remain durable read-only waiting monitors outside their owned windows, but they must not create merge, release, or green authority by themselves.",
+    "## Automation Reliability Disposition",
+    "Toolchain Availability Watch Current Disposition: `Background observability only`",
+    "Automation Drift Audit Current Disposition: `Background observability only`",
+    "Legacy Runtime Path Expectation: `dev/i/runtime/service.py is retired historical automation truth, not current source truth`",
+    "Current Source-Truth Requirement: `No current governance rule requires dev/i/runtime/service.py unless a future branch reintroduces it explicitly`",
+    "Stale Automation Memory Handling: `Historical toolchain-path findings remain REVIEW_INFO unless current source truth still owns the referenced path`",
     "PR Readiness PR1 runtime-proof status:",
     "$CODEX_HOME/automations/pr99-heartbeat-watch/automation.toml",
     "$CODEX_HOME/watchers/pr99-watch.ps1",
@@ -5033,6 +5478,10 @@ BOT_REVIEW_SIGNAL_STATUS_PENDING = "Pending"
 BOT_REVIEW_SIGNAL_STATUS_APPROVED = "Approved"
 BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED = "Comment addressed"
 BOT_REVIEW_BOT_LOGIN = "chatgpt-codex-connector[bot]"
+BOT_REVIEW_GREEN_COMMENT_PHRASES = (
+    "didn't find any major issues",
+    "did not find any major issues",
+)
 BOT_REVIEW_COMMENT_CLOSEOUT_ALLOWED_FILES = {
     "Docs/Main.md",
     "Docs/closeout_guidance.md",
@@ -5853,6 +6302,150 @@ def _parse_family_slice_rows(block: str) -> list[dict[str, str]]:
     for match in pattern.finditer(block):
         rows.append({key: value.strip() for key, value in match.groupdict().items()})
     return rows
+
+
+def _docs_source_truth_reform_active(backlog_text: str, roadmap_text: str) -> bool:
+    return DOCS_SOURCE_TRUTH_REFORM_MARKER in backlog_text and DOCS_SOURCE_TRUTH_REFORM_MARKER in roadmap_text
+
+
+def _validate_docs_source_truth_reform_model(
+    require,
+    *,
+    backlog_text: str,
+    roadmap_text: str,
+    index_text: str,
+    main_text: str,
+    backlog_entries: list[dict[str, str]],
+) -> None:
+    combined_pointer_text = "\n".join((backlog_text, roadmap_text))
+    for path_name, text in (
+        ("Docs/feature_backlog.md", backlog_text),
+        ("Docs/prebeta_roadmap.md", roadmap_text),
+    ):
+        require(
+            DOCS_SOURCE_TRUTH_REFORM_MARKER in text,
+            f"{path_name}: missing compact pointer-layer reform marker",
+        )
+        for marker in POINTER_ONLY_FORBIDDEN_MARKERS:
+            require(
+                marker not in text,
+                (
+                    f"{path_name}: pointer-only surface must not carry live-state "
+                    f"or detailed trace marker '{marker}'"
+                ),
+            )
+        require(
+            not re.search(r"\b[0-9a-f]{40}\b", text),
+            f"{path_name}: pointer-only surface must not pin exact commit hashes",
+        )
+
+    require(
+        DOCS_SOURCE_TRUTH_REFORM_MARKER in main_text,
+        "Docs/Main.md: compact pointer-layer reform routing is missing",
+    )
+    require(
+        "Git/GitHub/helpers as live operational truth" in main_text,
+        "Docs/Main.md: derived live truth owner is missing from compact reform routing",
+    )
+    require(
+        "Docs/workstreams/index.md" in backlog_text,
+        "Docs/feature_backlog.md: compact registry must point to workstream routing",
+    )
+    require(
+        "Docs/branch_records/index.md" in backlog_text,
+        "Docs/feature_backlog.md: compact registry must point to branch authority routing",
+    )
+    require(
+        "Docs/branch_plans/" in backlog_text,
+        "Docs/feature_backlog.md: compact registry must point to branch runtime plans",
+    )
+    require(
+        "Use GitHub Releases for the authoritative public release list" in roadmap_text,
+        "Docs/prebeta_roadmap.md: roadmap must route live release truth to GitHub Releases",
+    )
+
+    live_family_ids = [entry["id"] for entry in backlog_entries]
+    require(
+        live_family_ids == list(FRESH_FAMILY_TAXONOMY),
+        (
+            "Docs/feature_backlog.md: compact family registry must keep the fresh FAM "
+            f"namespace in ascending order: {', '.join(FRESH_FAMILY_TAXONOMY)}"
+        ),
+    )
+    for entry in backlog_entries:
+        expected_family = FRESH_FAMILY_TAXONOMY.get(entry["id"])
+        require(
+            bool(expected_family),
+            f"Docs/feature_backlog.md: unexpected compact family id {entry['id']}",
+        )
+        if not expected_family:
+            continue
+        require(
+            entry["title"] == expected_family["title"],
+            (
+                "Docs/feature_backlog.md: compact family entry "
+                f"{entry['id']} must use broad title `{expected_family['title']}`"
+            ),
+        )
+        for field in COMPACT_BACKLOG_REQUIRED_FIELDS:
+            require(
+                bool(_extract_colon_value(entry["block"], field)),
+                f"Docs/feature_backlog.md: compact family entry {entry['id']} is missing `{field}:`",
+            )
+        require(
+            expected_family["package"] in entry["block"],
+            (
+                "Docs/feature_backlog.md: compact family entry "
+                f"{entry['id']} must cite package {expected_family['package']}"
+            ),
+        )
+        if expected_family["legacy"]:
+            for legacy_id in expected_family["legacy"]:
+                require(
+                    legacy_id in entry["block"] or legacy_id in combined_pointer_text,
+                    (
+                        "Docs/feature_backlog.md: compact family entry "
+                        f"{entry['id']} is missing historical trace for {legacy_id}"
+                    ),
+                )
+        else:
+            require(
+                "no legacy fb trace" in entry["block"].casefold()
+                or "repo vision trace only" in entry["block"].casefold()
+                or entry["id"] == "FAM-007",
+                (
+                    "Docs/feature_backlog.md: compact family entry "
+                    f"{entry['id']} must state no legacy FB trace or cite repo vision trace"
+                ),
+            )
+
+    for required_phrase in (
+        "Former standalone historical pass backlog entries now live here as family traceability only.",
+        "Historical Family Pass Aliases",
+        "Historical Support, Architecture, And Governance Lanes",
+        "Historical Implemented Registry-Only Items",
+    ):
+        require(
+            required_phrase in backlog_text,
+            f"Docs/feature_backlog.md: compact historical pointer section is missing '{required_phrase}'",
+        )
+    for trace_id in CONSOLIDATED_TRACE_BACKLOG_IDS:
+        require(
+            f"### [ID: {trace_id}]" not in backlog_text,
+            f"Docs/feature_backlog.md: legacy {trace_id} must not be parseable after compaction",
+        )
+        require(
+            f"`{trace_id}`" in backlog_text,
+            f"Docs/feature_backlog.md: legacy trace {trace_id} must remain discoverable as compact history",
+        )
+    for required_path in (
+        "Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md",
+        "Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md",
+    ):
+        require(
+            required_path in index_text and required_path in backlog_text,
+            f"{required_path}: family dossier must be routed by workstream index and backlog pointer",
+        )
 
 
 def _is_admitted_slice(row: dict[str, str]) -> bool:
@@ -7697,6 +8290,556 @@ def _validate_branch_runtime_engineering_plan(
         (
             f"{source_path}: Runtime Implementation Approval must preserve the "
             "implementation approval boundary"
+        ),
+    )
+    if f"## {USER_FEEDBACK_DISPOSITION_HEADING}" in text:
+        _validate_user_feedback_disposition(require, source_path, text)
+    if f"## {BRANCH_CHANGE_INTENT_HEADING}" in text:
+        _validate_branch_change_intent_ledger(require, source_path, text)
+
+
+def _validate_branch_change_intent_ledger(
+    require,
+    source_path: str,
+    text: str,
+) -> None:
+    require(
+        f"## {BRANCH_CHANGE_INTENT_HEADING}" in text,
+        (
+            f"{source_path}: rebaseline overlap planning is missing "
+            f"'## {BRANCH_CHANGE_INTENT_HEADING}'"
+        ),
+    )
+    ledger_section = _section(text, BRANCH_CHANGE_INTENT_HEADING)
+    item_matches = list(re.finditer(BRANCH_CHANGE_INTENT_ITEM_HEADING_RE, ledger_section))
+    require(
+        bool(item_matches),
+        f"{source_path}: Branch Change Intent Ledger requires at least one Changed Surface block",
+    )
+
+    for item_match in item_matches:
+        changed_surface = item_match.group(1).strip()
+        item_block = item_match.group(2).strip()
+        require(
+            bool(changed_surface),
+            f"{source_path}: Changed Surface heading must name the overlapping file path",
+        )
+        for marker in BRANCH_CHANGE_INTENT_MARKERS:
+            require(
+                marker in item_block,
+                f"{source_path}: Changed Surface {changed_surface} is missing '{marker}'",
+            )
+            value = _extract_marker_value(item_block, marker)
+            require(
+                bool(value),
+                (
+                    f"{source_path}: Changed Surface {changed_surface} must give "
+                    f"a real value for '{marker}'"
+                ),
+            )
+
+        surface_class = _normalized_planning_value(
+            _extract_marker_value(item_block, "Surface Class:")
+        )
+        semantic_risk = _normalized_planning_value(
+            _extract_marker_value(item_block, "Semantic Merge Risk:")
+        )
+        regression_impact = _normalized_planning_value(
+            _extract_marker_value(item_block, "Regression / Gating Impact:")
+        )
+        resolution_owner = _normalized_planning_value(
+            _extract_marker_value(item_block, "Resolution Owner:")
+        )
+        fallback_evidence = _normalized_planning_value(
+            _extract_marker_value(item_block, "Fallback Evidence:")
+        )
+        validation_proof = _normalized_planning_value(
+            _extract_marker_value(item_block, "Validation Proof:")
+        )
+        user_decision = _normalized_planning_value(
+            _extract_marker_value(item_block, "USER Decision / Waiver:")
+        )
+
+        require(
+            surface_class in BRANCH_CHANGE_INTENT_SURFACE_CLASSES,
+            (
+                f"{source_path}: Changed Surface {changed_surface} Surface Class "
+                "must use the approved Rebaseline Overlap Intent Gate class list"
+            ),
+        )
+        require(
+            semantic_risk in BRANCH_CHANGE_INTENT_SEMANTIC_RISK_VALUES,
+            (
+                f"{source_path}: Changed Surface {changed_surface} Semantic Merge Risk "
+                "must be None, Low, Medium, High, or Unknown"
+            ),
+        )
+        require(
+            regression_impact in BRANCH_CHANGE_INTENT_REGRESSION_GATING_VALUES,
+            (
+                f"{source_path}: Changed Surface {changed_surface} Regression / "
+                "Gating Impact must be None, Low, Medium, High, or Unknown"
+            ),
+        )
+        require(
+            resolution_owner in BRANCH_CHANGE_INTENT_RESOLUTION_OWNERS,
+            (
+                f"{source_path}: Changed Surface {changed_surface} Resolution Owner "
+                "must be Current Branch, Incoming/Folded Owner, Originating Lane, "
+                "Standing Governance, USER Decision, or Future Branch"
+            ),
+        )
+        if surface_class in BRANCH_CHANGE_INTENT_HIGH_RISK_CLASSES:
+            require(
+                semantic_risk != "unknown",
+                (
+                    f"{source_path}: Changed Surface {changed_surface} Semantic Merge "
+                    "Risk Unknown is blocked for high-risk overlap surfaces"
+                ),
+            )
+        if surface_class == "fixture/test":
+            require(
+                regression_impact not in {"medium", "high", "unknown"},
+                (
+                    f"{source_path}: Changed Surface {changed_surface} Regression / "
+                    "Gating Impact Medium, High, or Unknown blocks fixture/test overlap"
+                ),
+            )
+        require(
+            "fallback only" not in fallback_evidence
+            and not (
+                "compatibility bypass" in fallback_evidence
+                and "not a compatibility bypass" not in fallback_evidence
+            ),
+            (
+                f"{source_path}: Changed Surface {changed_surface} Fallback Evidence "
+                "cannot be used as a compatibility bypass"
+            ),
+        )
+        require(
+            "validation" in validation_proof or "not run" in validation_proof,
+            (
+                f"{source_path}: Changed Surface {changed_surface} Validation Proof "
+                "must name required validation or the reason validation has not run yet"
+            ),
+        )
+        require(
+            any(term in user_decision for term in ("user", "waiver", "approved", "pending", "not required")),
+            (
+                f"{source_path}: Changed Surface {changed_surface} USER Decision / "
+                "Waiver must preserve the USER decision boundary"
+            ),
+        )
+
+
+def _validate_branch_vision_contract_snapshot(
+    require,
+    source_path: str,
+    text: str,
+) -> None:
+    require(
+        f"## {BRANCH_VISION_CONTRACT_HEADING}" in text,
+        (
+            f"{source_path}: user-facing or runtime branch planning is missing "
+            f"'## {BRANCH_VISION_CONTRACT_HEADING}'"
+        ),
+    )
+
+    vision_section = _section(text, BRANCH_VISION_CONTRACT_HEADING)
+    for marker in BRANCH_VISION_CONTRACT_REQUIRED_MARKERS:
+        require(
+            marker in vision_section,
+            f"{source_path}: {BRANCH_VISION_CONTRACT_HEADING} is missing '{marker}'",
+        )
+        value = _extract_marker_value(vision_section, marker)
+        require(
+            bool(value),
+            (
+                f"{source_path}: {BRANCH_VISION_CONTRACT_HEADING} must give "
+                f"a real value for '{marker}'"
+            ),
+        )
+
+    required = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Vision Contract Required:")
+    )
+    status = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Branch Vision Snapshot Status:")
+    )
+    open_questions = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Open Vision Questions:")
+    )
+    user_green = _normalized_planning_value(
+        _extract_marker_value(vision_section, "USER Vision Green:")
+    )
+    assumption_ledger = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Design Assumption Ledger:")
+    )
+    severity_policy = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Question Severity Policy:")
+    )
+    traceability = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Vision-to-Implementation Traceability:")
+    )
+    revision_packet = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Branch Plan Revision Packet:")
+    )
+
+    is_required = "yes" in required or "required" in required
+    if is_required:
+        require(
+            any(term in status for term in BRANCH_VISION_SAFE_STATE_TERMS),
+            (
+                f"{source_path}: Branch Vision Snapshot Status must be accepted, "
+                "revised, deferred with waiver, waived, or not required before "
+                "implementation-safe planning"
+            ),
+        )
+        require(
+            any(term in user_green for term in ("yes", "green", "accepted", "waived")),
+            (
+                f"{source_path}: USER Vision Green must be Yes/Green/Accepted "
+                "or explicitly waived before implementation-safe planning"
+            ),
+        )
+
+    require(
+        not any(term in status for term in BRANCH_VISION_UNSAFE_STATE_TERMS),
+        (
+            f"{source_path}: Branch Vision Snapshot Status cannot stay Proposed, "
+            "Recommended, Pending, Blocking, or Needs USER Decision for "
+            "implementation-safe planning"
+        ),
+    )
+    require(
+        "blocking" not in open_questions
+        and "needs user" not in open_questions
+        and "unanswered" not in open_questions,
+        (
+            f"{source_path}: Open Vision Questions must be None, queued "
+            "non-blocking, or Deferred With Waiver before implementation-safe planning"
+        ),
+    )
+    require(
+        any(term in assumption_ledger for term in ("accepted by user", "revised by user", "deferred with waiver", "waived", "not required")),
+        (
+            f"{source_path}: Design Assumption Ledger must show USER-accepted, "
+            "USER-revised, USER-deferred-with-waiver, waived, or not-required "
+            "decision state; Codex or ChatGPT recommendations alone are not safe"
+        ),
+    )
+    require(
+        (
+            "level 1" in severity_policy
+            and "level 2" in severity_policy
+            and "level 3" in severity_policy
+        )
+        or (
+            "non-blocking" in severity_policy
+            and "seam-blocking" in severity_policy
+            and "workstream-breaking" in severity_policy
+        ),
+        (
+            f"{source_path}: Question Severity Policy must distinguish Level 1 "
+            "non-blocking, Level 2 seam-blocking, and Level 3 workstream-breaking "
+            "vision questions"
+        ),
+    )
+    for term in BRANCH_VISION_TRACEABILITY_TERMS:
+        require(
+            term in traceability,
+            (
+                f"{source_path}: Vision-to-Implementation Traceability must map "
+                f"accepted vision to branch/seam/files/validator/proof; missing {term!r}"
+            ),
+        )
+    require(
+        "user" in revision_packet and "decision" in revision_packet,
+        (
+            f"{source_path}: Branch Plan Revision Packet must require USER "
+            "decision when accepted vision or implementation scope changes"
+        ),
+    )
+
+
+def _validate_user_feedback_disposition(
+    require,
+    source_path: str,
+    text: str,
+) -> None:
+    require(
+        f"## {USER_FEEDBACK_DISPOSITION_HEADING}" in text,
+        (
+            f"{source_path}: meaningful-feedback planning is missing "
+            f"'## {USER_FEEDBACK_DISPOSITION_HEADING}'"
+        ),
+    )
+    ufd_section = _section(text, USER_FEEDBACK_DISPOSITION_HEADING)
+
+    for marker in USER_FEEDBACK_DISPOSITION_LEDGER_MARKERS:
+        require(
+            marker in ufd_section,
+            f"{source_path}: {USER_FEEDBACK_DISPOSITION_HEADING} is missing '{marker}'",
+        )
+        value = _extract_marker_value(ufd_section, marker)
+        require(
+            bool(value),
+            (
+                f"{source_path}: {USER_FEEDBACK_DISPOSITION_HEADING} must give "
+                f"a real value for '{marker}'"
+            ),
+        )
+
+    ledger_status = _normalized_planning_value(
+        _extract_marker_value(ufd_section, "UFD Ledger Status:")
+    )
+    require(
+        any(term in ledger_status for term in USER_FEEDBACK_DISPOSITION_LEDGER_STATUSES),
+        (
+            f"{source_path}: UFD Ledger Status must be Open, Queued, Blocking, Closed, "
+            "Folded Down, Deferred, Superseded, Pending, Complete, Not Required, "
+            "or Not Applicable"
+        ),
+    )
+
+    ledger_owner = _extract_marker_value(ufd_section, "UFD Ledger Owner:").strip()
+    normalized_ledger_owner = ledger_owner.replace("\\", "/")
+    require(
+        normalized_ledger_owner.startswith("Docs/branch_plans/")
+        and normalized_ledger_owner.endswith(".md"),
+        (
+            f"{source_path}: UFD Ledger Owner must point to the active "
+            "Docs/branch_plans/<branch_slug>.md branch plan"
+        ),
+    )
+
+    fold_down_status = _normalized_planning_value(
+        _extract_marker_value(ufd_section, "Fold-Down Status:")
+    )
+    require(
+        any(
+            term in fold_down_status
+            for term in USER_FEEDBACK_DISPOSITION_FOLD_DOWN_STATUSES
+        ),
+        (
+            f"{source_path}: Fold-Down Status must be Pending, Required, Complete, "
+            "Folded, Retired, Historical, Not Required, or Not Applicable"
+        ),
+    )
+
+    def _marker_count(marker: str) -> int:
+        value = _extract_marker_value(ufd_section, marker)
+        match = re.search(r"\d+", value)
+        require(bool(match), f"{source_path}: {marker} must contain a numeric count")
+        return int(match.group(0)) if match else -1
+
+    declared_open_count = _marker_count("Open UFD Count:")
+    declared_blocking_count = _marker_count("Blocking UFD Count:")
+
+    item_matches = list(
+        re.finditer(
+            r"(?ms)^### UFD Item:\s*(UFD-[^\n]+)\n(.*?)(?=^### UFD Item:|\Z)",
+            ufd_section,
+        )
+    )
+    required_value = _normalized_planning_value(
+        _extract_marker_value(ufd_section, "USER Feedback Disposition Required:")
+    )
+    requires_items = (
+        "yes" in required_value
+        or declared_open_count > 0
+        or declared_blocking_count > 0
+    )
+    require(
+        item_matches or not requires_items,
+        f"{source_path}: UFD ledger requires at least one '### UFD Item: UFD-*' block",
+    )
+
+    open_items = 0
+    blocking_items = 0
+    seen_feedback_ids: set[str] = set()
+
+    for item_match in item_matches:
+        heading_id = item_match.group(1).strip()
+        item_block = item_match.group(2).strip()
+        normalized_heading_id = heading_id.casefold()
+        require(
+            normalized_heading_id.startswith("ufd-"),
+            f"{source_path}: UFD item heading must use the UFD-* namespace",
+        )
+        require(
+            normalized_heading_id not in seen_feedback_ids,
+            f"{source_path}: duplicate UFD item heading {heading_id}",
+        )
+        seen_feedback_ids.add(normalized_heading_id)
+
+        for marker in USER_FEEDBACK_DISPOSITION_ITEM_MARKERS:
+            require(marker in item_block, f"{source_path}: {heading_id} is missing '{marker}'")
+            value = _extract_marker_value(item_block, marker)
+            require(
+                bool(value),
+                f"{source_path}: {heading_id} must give a real value for '{marker}'",
+            )
+
+        feedback_id = _extract_marker_value(item_block, "Feedback ID:").strip()
+        normalized_feedback_id = feedback_id.casefold()
+        require(
+            normalized_feedback_id.startswith("ufd-"),
+            f"{source_path}: Feedback ID must use the UFD-* namespace",
+        )
+        require(
+            not normalized_feedback_id.startswith("fbk-"),
+            f"{source_path}: Feedback ID must not use FBK-* because it collides with FB-*",
+        )
+        require(
+            normalized_feedback_id == normalized_heading_id,
+            f"{source_path}: Feedback ID must match UFD item heading {heading_id}",
+        )
+
+        disposition_type = _normalized_planning_value(
+            _extract_marker_value(item_block, "Disposition Type:")
+        )
+        require(
+            any(term in disposition_type for term in USER_FEEDBACK_DISPOSITION_TYPES),
+            (
+                f"{source_path}: {heading_id} Disposition Type must be a recognized "
+                "UFD disposition such as Current Branch Requirement, Future Branch "
+                "Candidate, Branch Receipt Item, Workstream / Family Dossier Item, "
+                "or Rejected / No Action"
+            ),
+        )
+
+        decision_state = _normalized_planning_value(
+            _extract_marker_value(item_block, "USER Decision State:")
+        )
+        require(
+            any(term in decision_state for term in USER_FEEDBACK_DISPOSITION_ALLOWED_STATES),
+            (
+                f"{source_path}: {heading_id} USER Decision State must be Proposed "
+                "by Codex, Recommended by ChatGPT, Accepted/Revised/Rejected/Deferred "
+                "by USER, Deferred With Waiver, Superseded, or Needs USER Decision"
+            ),
+        )
+
+        owner_class = _normalized_planning_value(
+            _extract_marker_value(item_block, "Owner Class:")
+        )
+        require(
+            any(term in owner_class for term in USER_FEEDBACK_DISPOSITION_OWNER_CLASSES),
+            f"{source_path}: {heading_id} Owner Class must name a recognized UFD owner class",
+        )
+
+        canonical_owner = _extract_marker_value(item_block, "Canonical Owner File:").strip()
+        no_durable_owner = "no durable owner needed" in owner_class
+        if no_durable_owner:
+            no_action_reason = _extract_marker_value(item_block, "No-Action Reason:")
+            require(
+                bool(no_action_reason),
+                (
+                    f"{source_path}: No Durable Owner Needed requires No-Action Reason "
+                    "so meaningful-looking feedback is not silently dropped"
+                ),
+            )
+        else:
+            require(
+                canonical_owner.startswith("Docs/"),
+                (
+                    f"{source_path}: {heading_id} Canonical Owner File must point to "
+                    "a Docs/ owner unless Owner Class is No Durable Owner Needed"
+                ),
+            )
+
+        severity = _normalized_planning_value(
+            _extract_marker_value(item_block, "Workstream Severity:")
+        )
+        require(
+            any(term in severity for term in USER_FEEDBACK_DISPOSITION_SEVERITY_TERMS),
+            (
+                f"{source_path}: {heading_id} Workstream Severity must distinguish "
+                "Level 1 non-blocking, Level 2 seam-blocking, or Level 3 "
+                "workstream-breaking"
+            ),
+        )
+
+        status = _normalized_planning_value(_extract_marker_value(item_block, "Status:"))
+        require(
+            any(term in status for term in USER_FEEDBACK_DISPOSITION_ALLOWED_STATUSES),
+            (
+                f"{source_path}: {heading_id} Status must be Open, Queued, Blocking, "
+                "Closed, Folded Down, Deferred, or Superseded"
+            ),
+        )
+        if any(term in status for term in ("open", "queued", "blocking", "deferred")):
+            open_items += 1
+        if "blocking" in status:
+            blocking_items += 1
+
+        fold_down_target = _normalized_planning_value(
+            _extract_marker_value(item_block, "Fold-Down Target:")
+        )
+        require(
+            any(
+                term in fold_down_target
+                for term in (
+                    "docs/",
+                    "branch record",
+                    "branch receipt",
+                    "workstream",
+                    "dossier",
+                    "nexus vision",
+                    "family vision",
+                    "backlog pointer",
+                    "governance receipt",
+                    "no durable owner needed",
+                )
+            ),
+            f"{source_path}: {heading_id} Fold-Down Target must name the final UFD owner or no-action posture",
+        )
+
+        no_action_text = f"{disposition_type} {status} {owner_class} {fold_down_target}"
+        if any(
+            term in no_action_text
+            for term in (
+                "no action",
+                "no durable",
+                "duplicate",
+                "superseded",
+                "non-actionable",
+            )
+        ):
+            no_action_reason = _extract_marker_value(item_block, "No-Action Reason:")
+            require(
+                bool(no_action_reason),
+                (
+                    f"{source_path}: {heading_id} no-action, no-durable, duplicate, "
+                    "superseded, or non-actionable posture requires No-Action Reason"
+                ),
+            )
+
+        pointer_locations = _extract_marker_value(item_block, "Pointer Locations:")
+        normalized_pointers = _normalized_planning_value(pointer_locations)
+        require(
+            "full feedback text" not in normalized_pointers
+            and "full decision history" not in normalized_pointers
+            and "live implementation state" not in normalized_pointers,
+            (
+                f"{source_path}: {heading_id} Pointer Locations may carry UFD ID, "
+                "short title, canonical owner, compact status, and fold-down status only"
+            ),
+        )
+
+    require(
+        declared_open_count == open_items,
+        (
+            f"{source_path}: Open UFD Count {declared_open_count} does not match "
+            f"open/queued/blocking/deferred UFD item count {open_items}"
+        ),
+    )
+    require(
+        declared_blocking_count == blocking_items,
+        (
+            f"{source_path}: Blocking UFD Count {declared_blocking_count} does not "
+            f"match blocking UFD item count {blocking_items}"
         ),
     )
 
@@ -9771,6 +10914,32 @@ def _parse_codex_live_client_self_qa_waiver_reason(text: str) -> str:
     )
 
 
+def _codex_visual_adjudication_section(text: str) -> str:
+    return _section(text, "Codex Visual Adjudication")
+
+
+def _has_codex_visual_adjudication(text: str) -> bool:
+    return bool(_codex_visual_adjudication_section(text))
+
+
+def _parse_codex_visual_adjudication_state(text: str) -> str:
+    section = _codex_visual_adjudication_section(text)
+    matches = re.findall(
+        rf"{re.escape(CODEX_VISUAL_ADJUDICATION_RESULT_LABEL)}\s*`?([A-Za-z]+)`?",
+        section,
+    )
+    if not matches:
+        return ""
+    return matches[-1].strip().upper()
+
+
+def _parse_codex_visual_adjudication_waiver_reason(text: str) -> str:
+    return _extract_marker_value(
+        _codex_visual_adjudication_section(text),
+        CODEX_VISUAL_ADJUDICATION_WAIVER_REASON_LABEL,
+    )
+
+
 def _has_user_test_summary(text: str) -> bool:
     return bool(_user_test_summary_section(text))
 
@@ -9791,6 +10960,23 @@ def _requires_user_facing_shortcut_gate(text: str) -> bool:
         "user-facing",
     )
     return any(marker in section_lower for marker in desktop_surface_markers)
+
+
+def _requires_codex_visual_adjudication_gate(text: str) -> bool:
+    text_lower = text.casefold()
+    if "disabled/status-only" in text_lower and "waived" in text_lower:
+        return False
+    visual_markers = (
+        "focused proof",
+        "focused screenshot",
+        "webview",
+        "dashboard",
+        "hud",
+        "visual quality",
+        "user-facing",
+        "screenshot",
+    )
+    return any(marker in text_lower for marker in visual_markers)
 
 
 def _collect_active_index_paths(text: str) -> set[str]:
@@ -13366,6 +14552,22 @@ def _bot_login_matches(login: str) -> bool:
     return "codex" in lowered and "connector" in lowered and "bot" in lowered
 
 
+def _bot_review_comment_is_green_signal(body: str) -> bool:
+    lead_summary = (
+        body.casefold()
+        .replace("\u2018", "'")
+        .replace("\u2019", "'")
+        .split("<details", 1)[0]
+    )
+    has_green_phrase = any(
+        phrase in lead_summary
+        for phrase in BOT_REVIEW_GREEN_COMMENT_PHRASES
+    )
+    if not has_green_phrase:
+        return False
+    return not re.search(r"\b(but|however|except|although|though|unless)\b", lead_summary)
+
+
 def _github_rest_review_decision(
     repository_full_name: str,
     pr_number: int,
@@ -13565,6 +14767,7 @@ def _github_pr_bot_signal_for_live_pr(
             return signal, f"{source_name} lookup failed: {payload_error}"
         for item in payload or []:
             actor = str(((item.get("user") or {}).get("login")) or "")
+            body = str(item.get("body") or "")
             created_at = str(
                 item.get("submitted_at")
                 or item.get("created_at")
@@ -13572,6 +14775,15 @@ def _github_pr_bot_signal_for_live_pr(
             )
             created_time = _parse_iso8601_timestamp(created_at)
             if _bot_login_matches(actor) and created_time is not None:
+                if _bot_review_comment_is_green_signal(body):
+                    approval_candidate = {
+                        "time": created_time,
+                        "timestamp": created_at,
+                        "actor": actor,
+                    }
+                    if latest_approval is None or created_time >= latest_approval["time"]:
+                        latest_approval = approval_candidate
+                    continue
                 if latest_comment is None or created_time >= latest_comment["time"]:
                     latest_comment = {
                         "time": created_time,
@@ -14032,7 +15244,45 @@ def _run_next_workstream_gate(
                 "selected-next defer user waiver: granted",
                 "selected-next user waiver: granted",
                 "user-approved selected-next defer",
+                "no successor runtime branch by inertia: user-waived",
+                "no successor runtime branch by inertia: granted",
             )
+        )
+
+    def source_only_no_successor_defer_exists() -> bool:
+        normalized_record = active_branch_record_text.casefold()
+        explicit_no_successor = any(
+            marker in normalized_record
+            for marker in (
+                "no successor runtime branch by inertia: user-waived",
+                "no successor runtime branch by inertia: granted",
+                "selected no runtime successor",
+            )
+        )
+        source_only_posture = any(
+            marker in normalized_record
+            for marker in (
+                "source-only",
+                "docs-only",
+                "source-truth",
+                "dev-only source comments",
+            )
+        )
+        pre_pr_or_stage1_pending = any(
+            marker in normalized_record
+            for marker in (
+                "pr creation approval missing",
+                "pr readiness stage 1 pending",
+                "pr readiness stage 1 remains pending",
+                "pr readiness stage 1 approval",
+            )
+        )
+        return (
+            explicit_no_successor
+            and "no active branch" in normalized_record
+            and source_only_posture
+            and pre_pr_or_stage1_pending
+            and "successor selection user approval: granted" not in normalized_record
         )
 
     def explicitly_records_no_selected_next(blocker: str) -> bool:
@@ -14061,6 +15311,8 @@ def _run_next_workstream_gate(
                         f"{not_closed_entries}"
                     ),
                 )
+                return
+            if source_only_no_successor_defer_exists():
                 return
             if explicitly_records_no_selected_next(BACKLOG_ADDITION_USER_APPROVAL_BLOCKER):
                 if successor_selection_defer_waiver_exists():
@@ -15385,15 +16637,43 @@ def _pre_pr_stage1_state_allows_missing_live_pr(
 ) -> bool:
     normalized_record = active_branch_record_text.casefold()
     normalized_error = pr_error.casefold()
-    return (
-        "pre-pr live state:" in normalized_record
-        and "no live pr" in normalized_record
-        and "pr readiness stage 2" in normalized_record
-        and "pr creation approval missing" in normalized_record
-        and (
-            "no pull requests found" in normalized_error
-            or "no open pull request" in normalized_error
+    no_pr_error = (
+        "no pull requests found" in normalized_error
+        or "no open pull request" in normalized_error
+    )
+    stage1_context_recorded = any(
+        marker in normalized_record
+        for marker in (
+            "pr readiness stage 1",
+            "stage 1 ready for stage 2",
+            "stage 1 user waiver required",
         )
+    )
+    pre_pr_state_recorded = (
+        (
+            "pre-pr live state:" in normalized_record
+            and "no live pr" in normalized_record
+        )
+        or "pre-pr live state: `no live pr`" in normalized_record
+        or (
+            "pr creation approval missing" in normalized_record
+            and "live pr state: `open`" not in normalized_record
+        )
+    )
+    creation_pending_recorded = any(
+        marker in normalized_record
+        for marker in (
+            "pr creation approval missing",
+            "pr creation approval: pending",
+            "stage 2 pr creation: pending",
+            "pr readiness execution user approval missing",
+        )
+    )
+    return (
+        no_pr_error
+        and stage1_context_recorded
+        and pre_pr_state_recorded
+        and creation_pending_recorded
     )
 
 
@@ -16281,6 +17561,54 @@ def _run_worktree_confinement_gate(require) -> None:
             f"{record_path}: Assigned Worktree Confinement is missing '{marker}:'",
         )
 
+    owner_state = _extract_marker_value(confinement, "Active Thread Owner")
+    assignment_state = _extract_marker_value(confinement, "Thread Assignment Status")
+    ledger_state = _extract_marker_value(confinement, "Worktree Ownership Ledger")
+    write_set = _extract_marker_value(confinement, "Intended Write Set")
+    same_worktree_state = _extract_marker_value(
+        confinement, "Same Worktree / Same Branch Collision Check"
+    )
+    dirty_collision_state = _extract_marker_value(
+        confinement, "Dirty Worktree Collision Check"
+    )
+    recovery_packet = _extract_marker_value(confinement, "Dirty Worktree Recovery Packet")
+    off_worktree_routing = _extract_marker_value(confinement, "Off-Worktree Work Routing")
+    governance_barrier = _extract_marker_value(confinement, "Governance Routing Barrier")
+    new_worktree_gate = _extract_marker_value(confinement, "New Worktree Decision Gate")
+    for marker, value in (
+        ("Active Thread Owner", owner_state),
+        ("Thread Assignment Status", assignment_state),
+        ("Worktree Ownership Ledger", ledger_state),
+        ("Intended Write Set", write_set),
+        ("Same Worktree / Same Branch Collision Check", same_worktree_state),
+        ("Dirty Worktree Collision Check", dirty_collision_state),
+        ("Dirty Worktree Recovery Packet", recovery_packet),
+        ("Off-Worktree Work Routing", off_worktree_routing),
+        ("Governance Routing Barrier", governance_barrier),
+        ("New Worktree Decision Gate", new_worktree_gate),
+    ):
+        normalized_value = value.casefold()
+        require(
+            bool(value)
+            and "unknown" not in normalized_value
+            and "not checked" not in normalized_value
+            and "not recorded" not in normalized_value,
+            f"{record_path}: Assigned Worktree Confinement '{marker}:' must be explicit before mutation",
+        )
+
+    tracked_status = _git_status_porcelain(tracked_only=True)
+    if tracked_status:
+        normalized_dirty = dirty_collision_state.casefold()
+        require(
+            "owner claimed" in normalized_dirty
+            or "current owner" in normalized_dirty
+            or "no unowned" in normalized_dirty,
+            (
+                "Dirty Worktree Collision Check must name the active owner before "
+                f"continuing with dirty tracked files: {tracked_status}"
+            ),
+        )
+
     if expected_root and actual_root:
         roots_match = _normalized_local_path(expected_root) == _normalized_local_path(actual_root)
         waiver_state = _extract_marker_value(confinement, "Worktree Escape User Waiver")
@@ -16701,6 +18029,7 @@ def main() -> int:
     main_text = _read_text(Path("Docs/Main.md"))
     development_rules_text = _read_text(Path("Docs/development_rules.md"))
     main_canonical_workstream_routes = _subsection(main_text, "Canonical Workstream Records")
+    compact_source_truth_reform = _docs_source_truth_reform_active(backlog_text, roadmap_text)
 
     def require(condition: bool, message: str) -> None:
         nonlocal checks
@@ -16856,19 +18185,67 @@ def main() -> int:
                 f"{relative_path}: validation suite helper guidance is missing '{required_phrase}'",
             )
 
-    for relative_path in CURRENT_DECISION_SURFACE_DOCS:
+    efficiency_model_text = _read_text(GOVERNANCE_EFFICIENCY_OPERATING_MODEL)
+    require(
+        bool(efficiency_model_text),
+        f"{GOVERNANCE_EFFICIENCY_OPERATING_MODEL}: governance efficiency operating model is missing",
+    )
+    for required_phrase in GOVERNANCE_EFFICIENCY_OPERATING_MODEL_PHRASES:
+        require(
+            required_phrase in efficiency_model_text,
+            (
+                f"{GOVERNANCE_EFFICIENCY_OPERATING_MODEL}: governance efficiency "
+                f"operating model is missing '{required_phrase}'"
+            ),
+        )
+
+    efficiency_source = _read_text(GOVERNANCE_EFFICIENCY_VALIDATION_HELPER)
+    require(
+        bool(efficiency_source),
+        f"{GOVERNANCE_EFFICIENCY_VALIDATION_HELPER}: governance efficiency validator is missing",
+    )
+    for required_phrase in GOVERNANCE_EFFICIENCY_SOURCE_PHRASES:
+        require(
+            required_phrase in efficiency_source,
+            (
+                f"{GOVERNANCE_EFFICIENCY_VALIDATION_HELPER}: governance efficiency "
+                f"validator source is missing '{required_phrase}'"
+            ),
+        )
+
+    for relative_path in GOVERNANCE_EFFICIENCY_DOCS:
         text = _read_text(relative_path)
-        for required_phrase in CURRENT_DECISION_SURFACE_PHRASES:
+        lower_text = text.casefold()
+        for required_phrase in GOVERNANCE_EFFICIENCY_POINTER_PHRASES:
             require(
-                required_phrase in text,
-                f"{relative_path}: Current Decision Surface is missing '{required_phrase}'",
+                required_phrase.casefold() in lower_text,
+                (
+                    f"{relative_path}: governance efficiency operating model pointer "
+                    f"is missing '{required_phrase}'"
+                ),
             )
-    for relative_path in CURRENT_DECISION_SURFACE_POINTER_DOCS:
-        text = _read_text(relative_path)
-        for required_phrase in ("Current Decision Surface", "Latest Public Prerelease Recorded In Source Truth:"):
+
+    if not compact_source_truth_reform:
+        for relative_path in CURRENT_DECISION_SURFACE_DOCS:
+            text = _read_text(relative_path)
+            for required_phrase in CURRENT_DECISION_SURFACE_PHRASES:
+                require(
+                    required_phrase in text,
+                    f"{relative_path}: Current Decision Surface is missing '{required_phrase}'",
+                )
+        for relative_path in CURRENT_DECISION_SURFACE_POINTER_DOCS:
+            text = _read_text(relative_path)
+            for required_phrase in ("Current Decision Surface", "Latest Public Prerelease Recorded In Source Truth:"):
+                require(
+                    required_phrase in text,
+                    f"{relative_path}: Current Decision Surface pointer is missing '{required_phrase}'",
+                )
+    else:
+        for relative_path in CURRENT_DECISION_SURFACE_DOCS:
+            text = _read_text(relative_path)
             require(
-                required_phrase in text,
-                f"{relative_path}: Current Decision Surface pointer is missing '{required_phrase}'",
+                DOCS_SOURCE_TRUTH_REFORM_MARKER in text,
+                f"{relative_path}: compact pointer-layer source-truth marker is missing",
             )
 
     for relative_path in ASSIGNED_WORKTREE_CONFINEMENT_DOCS:
@@ -16916,6 +18293,153 @@ def main() -> int:
             required_phrase in fam007_record_text,
             f"{fam007_record_path}: FAM-007 bounded-state lock is missing '{required_phrase}'",
         )
+
+    fam006_monitor_groups_record_path = Path(
+        "Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md"
+    )
+    fam006_monitor_groups_record_text = _read_text(fam006_monitor_groups_record_path)
+    for required_phrase in (
+        "## Sensor Library And Profile Planning Admission",
+        "Sensor Library = all available or planned data sources",
+        "Monitor = one configured tracked item",
+        "Monitor Group = organization/configuration collection",
+        "Overlay Profile = selected monitors plus layout visible on overlay",
+        "Recording Profile = selected monitors or sensors logged to file",
+        "Monitor Groups do not own overlay visibility, recording selection, or recording output behavior",
+        "Sensor Library must support searchable and filterable source discovery",
+        "Manage Monitors must scale to hundreds of monitors and thousands of data sources",
+        "Active Overlay Only",
+        "Active Monitor Group",
+        "All Enabled Monitors",
+        "Custom Recording Profile",
+        "Selected Sensors",
+        "Start Recording",
+        "Stop Recording",
+        "Open Recordings Folder",
+        "Recording Settings",
+        "CSV data plus JSON metadata and sensor manifest",
+        "profile name",
+        "hardware snapshot",
+        "event markers during recording",
+        "auto-record triggers",
+        "Save Last 5 Minutes",
+        "Recordings are saved locally by default",
+        "enabled, visible, recorded, warning-enabled, or hidden independently",
+        "no runtime recording, Overlay Profile UI, tray recording controls, export/share behavior",
+        "returned USER UTS FAIL",
+        "## Returned UTS FAIL Repair Setup Admission",
+        "Repair Setup Status: `ADMITTED - Branch Readiness Stage 2`",
+        "current-main reconciliation is complete",
+        "Dashboard resize/move live render smoothness",
+        "shrink and grow resize visual continuity",
+        "during-drag frame, pixel-signature, or video-style proof before mouse release",
+        "Manage Monitors scalable split layout",
+        "Nexus-styled scrollbars in child windows, monitor list, detail pane, sensor tree, sensor result list, and sensor preview/details pane",
+        "large-monitor and large-source fixtures",
+        "PR Readiness remains blocked pending repair implementation",
+        "## Returned Refreshed UTS FAIL Sensor Command Center Repair Setup Admission",
+        "Returned Refreshed UTS Classification",
+        "Visible Resize-Proof Contamination Setup",
+        "proof-only visible artifacts",
+        "Invisible / Test-Gated Resize Proof Setup",
+        "invisible/test-gated",
+        "Sensor Command Center Setup",
+        "compact action-light monitor list",
+        "row/icon selection",
+        "right-side detail panel",
+        "detail-pane Delete",
+        "Save / Discard / Cancel guard",
+        "final-monitor delete",
+        "true empty state",
+        "Sensor Library / Source Picker Setup",
+        "dropdown/facets",
+        "Warning Notifications classified as a monitor/settings checkbox",
+        "Provider Readiness classified as readiness/status/future capability",
+        "provider > device > category > metric > instance",
+        "source status metadata",
+        "Dropdown Repair And Proof Setup",
+        "open, hover, close, reopen",
+        "Large Fixture / Edge Case Proof Setup",
+        "100+ monitors",
+        "1,000+ sources",
+        "duplicate source names",
+        "long monitor names",
+        "long source names",
+        "deferred sources",
+        "missing sources",
+        "source classification",
+        "Future Workflow Preservation",
+        "## Refreshed LV1 Interactive Control Visual QA Repair Setup Admission",
+        "Interactive Control Visual QA Gate",
+        "All user-facing interactable controls must pass code inspection and focused visual inspection",
+        "buttons, user-facing dropdowns, checkboxes, selectable rows, search fields, filter controls, scrollbars, close controls, delete confirmations, empty-state actions, source-picker controls",
+        "Code Inspection Requirement",
+        "Focused Visual Inspection Requirement",
+        "Empty-State Repair Scope",
+        "Save Monitor and Discard must not appear as valid actions",
+        "Create Monitor must be the primary recovery action",
+        "reject manifest-only or DOM-only PASS when focused screenshots show invalid interactive controls",
+        "## Refreshed LV1 Dashboard Right-Edge Rediscovery Repair Setup Admission",
+        "post-corner right-edge resize cursor rediscovery",
+        "Initial right-edge hit-test passed with rightEdge10px=htright",
+        "rightOutside=True / htright / size-west-east / offset=1",
+        "corner resize passed and changed the Dashboard from 780x1060 to 860x1130",
+        "Dashboard element, native/root handle, bounding rect, DPI/scale context, virtual desktop bounds, and visible-edge coordinates",
+        "Diagnostic Sweep Planning",
+        "x/y sample coordinates, offset from visible edge, cursor kind, native hit-test result, root/window handle at point, expected Dashboard handle, bounding rect, virtual desktop bounds, timing, and settle state",
+        "Post-Resize Settle Planning",
+        "geometry stable, rounded mask applied, WebView visible, active resize state cleared, and cursor reset",
+        "Manage Monitors focused LV1 states remain pending recheck",
+    ):
+        require(
+            required_phrase in fam006_monitor_groups_record_text,
+            (
+                f"{fam006_monitor_groups_record_path}: FAM-006 Monitor Groups "
+                f"profile planning admission is missing '{required_phrase}'"
+            ),
+        )
+    if not compact_source_truth_reform:
+        for current_state_path, current_state_text in (
+            (Path("Docs/feature_backlog.md"), backlog_text),
+            (Path("Docs/prebeta_roadmap.md"), roadmap_text),
+        ):
+            for required_phrase in (
+                "Sensor Library",
+                "Sensor Command Center",
+                "visible resize-proof contamination",
+                "invisible/test-gated",
+                "Warning Notifications",
+                "Provider Readiness",
+                "Overlay Profile",
+                "Recording Profile",
+                "returned USER UTS FAIL",
+                "interactive-control visual QA",
+                "right-edge resize rediscovery",
+                "PR Readiness remains blocked",
+            ):
+                require(
+                    required_phrase in current_state_text,
+                    (
+                        f"{current_state_path}: FAM-006 Monitor Groups profile planning "
+                        f"sync is missing '{required_phrase}'"
+                    ),
+                )
+    else:
+        for required_phrase in (
+            "Sensor Library",
+            "Sensor Command Center",
+            "Warning Notifications",
+            "Provider Readiness",
+            "Overlay Profile",
+            "Recording Profile",
+        ):
+            require(
+                required_phrase in fam006_monitor_groups_record_text,
+                (
+                    f"{fam006_monitor_groups_record_path}: compact backlog/roadmap reform "
+                    f"requires FAM-006 detail to remain in the branch record; missing '{required_phrase}'"
+                ),
+            )
 
     for relative_path in INTERFACE_RELEASE_BOUNDARY_DOCS:
         text = _read_text(relative_path)
@@ -16980,6 +18504,11 @@ def main() -> int:
             )
 
     for relative_path, required_phrases in AUTOMATION_RUNTIME_PROOF_CURRENT_STATE_REQUIRED_PHRASES.items():
+        if compact_source_truth_reform and relative_path in {
+            Path("Docs/feature_backlog.md"),
+            Path("Docs/prebeta_roadmap.md"),
+        }:
+            continue
         text = _read_text(relative_path)
         for required_phrase in required_phrases:
             require(
@@ -17027,6 +18556,15 @@ def main() -> int:
             require(
                 required_phrase in lower_text,
                 f"{relative_path}: Live Validation no-progress/stall guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in LIVE_VALIDATION_AUTO_REPAIR_DOCS:
+        text = _read_text(relative_path)
+        lower_text = text.casefold()
+        for required_phrase in LIVE_VALIDATION_AUTO_REPAIR_PHRASES:
+            require(
+                required_phrase in lower_text,
+                f"{relative_path}: Live Validation automatic repair/rerun guidance is missing '{required_phrase}'",
             )
 
     for relative_path, required_phrases in LIVE_VALIDATION_HELPER_CONTRACTS.items():
@@ -17144,6 +18682,13 @@ def main() -> int:
                 f"{relative_path}: Pre-Rebaseline Impact Audit guidance is missing '{required_phrase}'",
             )
 
+    pre_rebaseline_helper_text = _read_text(Path("dev/orin_worktree_rebaseline_audit.py"))
+    for required_phrase in PRE_REBASELINE_HELPER_PHRASES:
+        require(
+            required_phrase in pre_rebaseline_helper_text,
+            f"dev/orin_worktree_rebaseline_audit.py: report-only helper is missing '{required_phrase}'",
+        )
+
     for relative_path in CURRENT_MAIN_RECONCILIATION_IDENTITY_DOCS:
         text = _read_text(relative_path)
         for required_phrase in CURRENT_MAIN_RECONCILIATION_IDENTITY_PHRASES:
@@ -17171,6 +18716,14 @@ def main() -> int:
                 f"{relative_path}: stale branch cleanup governance is missing '{required_phrase}'",
             )
 
+    for relative_path in STABLE_WORKTREE_PATH_PRESERVATION_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in STABLE_WORKTREE_PATH_PRESERVATION_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: stable worktree path preservation governance is missing '{required_phrase}'",
+            )
+
     for relative_path in BRANCH_READINESS_CARRIER_LIFECYCLE_DOCS:
         text = _read_text(relative_path)
         for required_phrase in BRANCH_READINESS_CARRIER_LIFECYCLE_PHRASES:
@@ -17188,6 +18741,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness Stage 1 readiness-lock guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path in NEXT_LEGAL_PHASE_DIGEST_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in NEXT_LEGAL_PHASE_DIGEST_REQUIRED_PHRASES:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Next Legal Phase Digest guidance is missing '{required_phrase}'",
             )
 
     for relative_path in BRANCH_READINESS_STAGE_GATE_DOCS:
@@ -17224,6 +18785,17 @@ def main() -> int:
                 required_phrase in text,
                 (
                     f"{relative_path}: Branch Runtime Engineering Plan guidance "
+                    f"is missing '{required_phrase}'"
+                ),
+            )
+
+    for relative_path, required_phrases in USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                (
+                    f"{relative_path}: USER Feedback Disposition guidance "
                     f"is missing '{required_phrase}'"
                 ),
             )
@@ -17300,6 +18872,11 @@ def main() -> int:
     for relative_path, required_phrases in (
         SOURCE_OWNER_MARKER_ADOPTION_NEXT_BRANCH_REQUIRED_PHRASES.items()
     ):
+        if compact_source_truth_reform and relative_path in {
+            Path("Docs/feature_backlog.md"),
+            Path("Docs/prebeta_roadmap.md"),
+        }:
+            continue
         text = _read_text(relative_path)
         for required_phrase in required_phrases:
             require(
@@ -17637,68 +19214,78 @@ def main() -> int:
             )
 
     backlog_entries = _parse_backlog_sections(backlog_text)
-    _validate_consolidated_backlog_source_truth(
-        require,
-        backlog_text=backlog_text,
-        main_text=main_text,
-        development_rules_text=development_rules_text,
-        phase_governance_text=phase_governance_text,
-        backlog_entries=backlog_entries,
-    )
-    _validate_backlog_family_reform_bootstrap(
-        require,
-        current_branch=current_git_branch,
-        backlog_text=backlog_text,
-        index_text=index_text,
-        backlog_entries=backlog_entries,
-    )
-    _validate_backlog_family_reform_seam_truth(
-        require,
-        current_branch=current_git_branch,
-        backlog_entries=backlog_entries,
-        backlog_text=backlog_text,
-        roadmap_text=roadmap_text,
-    )
-    _validate_automation_planning_phase_truth(
-        require,
-        current_branch=current_git_branch,
-        backlog_text=backlog_text,
-        roadmap_text=roadmap_text,
-    )
-    _validate_automation_planning_runtime_truth(
-        require,
-        current_branch=current_git_branch,
-        backlog_text=backlog_text,
-        roadmap_text=roadmap_text,
-    )
-    _validate_automation_closeout_repair_phase_truth(
-        require,
-        current_branch=current_git_branch,
-    )
-    _validate_pr101_closeout_canon_repair_phase_truth(
-        require,
-        current_branch=current_git_branch,
-    )
-    _validate_pr102_closeout_canon_repair_phase_truth(
-        require,
-        current_branch=current_git_branch,
-    )
-    _validate_pr103_closeout_canon_repair_phase_truth(
-        require,
-        current_branch=current_git_branch,
-    )
-    _validate_backlog_family_dossier_shell(
-        require,
-        current_branch=current_git_branch,
-        backlog_entries=backlog_entries,
-        roadmap_text=roadmap_text,
-        index_text=index_text,
-        main_text=main_text,
-    )
-    _validate_backlog_family_historical_pass_records(
-        require,
-        current_branch=current_git_branch,
-    )
+    if compact_source_truth_reform:
+        _validate_docs_source_truth_reform_model(
+            require,
+            backlog_text=backlog_text,
+            roadmap_text=roadmap_text,
+            index_text=index_text,
+            main_text=main_text,
+            backlog_entries=backlog_entries,
+        )
+    else:
+        _validate_consolidated_backlog_source_truth(
+            require,
+            backlog_text=backlog_text,
+            main_text=main_text,
+            development_rules_text=development_rules_text,
+            phase_governance_text=phase_governance_text,
+            backlog_entries=backlog_entries,
+        )
+        _validate_backlog_family_reform_bootstrap(
+            require,
+            current_branch=current_git_branch,
+            backlog_text=backlog_text,
+            index_text=index_text,
+            backlog_entries=backlog_entries,
+        )
+        _validate_backlog_family_reform_seam_truth(
+            require,
+            current_branch=current_git_branch,
+            backlog_entries=backlog_entries,
+            backlog_text=backlog_text,
+            roadmap_text=roadmap_text,
+        )
+        _validate_automation_planning_phase_truth(
+            require,
+            current_branch=current_git_branch,
+            backlog_text=backlog_text,
+            roadmap_text=roadmap_text,
+        )
+        _validate_automation_planning_runtime_truth(
+            require,
+            current_branch=current_git_branch,
+            backlog_text=backlog_text,
+            roadmap_text=roadmap_text,
+        )
+        _validate_automation_closeout_repair_phase_truth(
+            require,
+            current_branch=current_git_branch,
+        )
+        _validate_pr101_closeout_canon_repair_phase_truth(
+            require,
+            current_branch=current_git_branch,
+        )
+        _validate_pr102_closeout_canon_repair_phase_truth(
+            require,
+            current_branch=current_git_branch,
+        )
+        _validate_pr103_closeout_canon_repair_phase_truth(
+            require,
+            current_branch=current_git_branch,
+        )
+        _validate_backlog_family_dossier_shell(
+            require,
+            current_branch=current_git_branch,
+            backlog_entries=backlog_entries,
+            roadmap_text=roadmap_text,
+            index_text=index_text,
+            main_text=main_text,
+        )
+        _validate_backlog_family_historical_pass_records(
+            require,
+            current_branch=current_git_branch,
+        )
     for entry in backlog_entries:
         post_release_truth_count = _count_field_occurrences(entry["block"], "Post-Release Truth")
         require(
@@ -17711,7 +19298,7 @@ def main() -> int:
     _run_open_backlog_selection_governance(require, backlog_entries)
     latest_public_prerelease = _latest_public_prerelease(roadmap_text)
     highest_known_prebeta_tag = _highest_known_prebeta_tag()
-    if highest_known_prebeta_tag:
+    if highest_known_prebeta_tag and not compact_source_truth_reform:
         has_recorded_post_release_closure_drift = _post_release_closure_drift_is_recorded(
             backlog_text,
             roadmap_text,
@@ -17776,7 +19363,7 @@ def main() -> int:
             f"{FB038_CANONICAL_PATH}: released-state canon must record release title '{FB038_RELEASE_TITLE}'",
         )
 
-    if highest_known_prebeta_tag:
+    if highest_known_prebeta_tag and not compact_source_truth_reform:
         expected_latest_title = _expected_prebeta_release_title(highest_known_prebeta_tag)
         latest_release_owner_entries = [
             entry
@@ -18090,20 +19677,21 @@ def main() -> int:
             f"{fb041_path}: Status must be Released after v1.3.1-prebeta release",
         )
 
-    fb041_roadmap_section = _roadmap_section_for_id(roadmap_text, "FB-041")
-    require(
-        bool(fb041_roadmap_section),
-        "Docs/prebeta_roadmap.md: FB-041 release section is missing",
-    )
-    if fb041_roadmap_section:
+    if not compact_source_truth_reform:
+        fb041_roadmap_section = _roadmap_section_for_id(roadmap_text, "FB-041")
         require(
-            fb041_path in fb041_roadmap_section,
-            "Docs/prebeta_roadmap.md: FB-041 release section must cite the canonical workstream doc",
+            bool(fb041_roadmap_section),
+            "Docs/prebeta_roadmap.md: FB-041 release section is missing",
         )
-        require(
-            "release state: `released`" in fb041_roadmap_section,
-            "Docs/prebeta_roadmap.md: FB-041 release state must be `released`",
-        )
+        if fb041_roadmap_section:
+            require(
+                fb041_path in fb041_roadmap_section,
+                "Docs/prebeta_roadmap.md: FB-041 release section must cite the canonical workstream doc",
+            )
+            require(
+                "release state: `released`" in fb041_roadmap_section,
+                "Docs/prebeta_roadmap.md: FB-041 release state must be `released`",
+            )
 
     for entry in promoted_entries:
         workstream_id = entry["id"]
@@ -18534,6 +20122,100 @@ def main() -> int:
                             f"{canonical_path}: PR Readiness requires "
                             f"{CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} PASS or WAIVED; "
                             f"current value is {self_qa_result}"
+                        ),
+                    )
+
+        if current_phase in {"Live Validation", "PR Readiness"} and _requires_codex_visual_adjudication_gate(
+            workstream_text
+        ):
+            require(
+                _has_codex_visual_adjudication(workstream_text),
+                (
+                    f"{canonical_path}: active desktop UI '{current_phase}' workstream must include "
+                    "an exact '## Codex Visual Adjudication' section before User Test Summary handoff"
+                ),
+            )
+            visual_adjudication_section = _codex_visual_adjudication_section(workstream_text)
+            visual_adjudication_result = _parse_codex_visual_adjudication_state(workstream_text)
+            require(
+                bool(visual_adjudication_result),
+                (
+                    f"{canonical_path}: active desktop UI '{current_phase}' workstream must declare "
+                    f"'{CODEX_VISUAL_ADJUDICATION_RESULT_LABEL}'"
+                ),
+            )
+            if visual_adjudication_result:
+                require(
+                    visual_adjudication_result in CODEX_VISUAL_ADJUDICATION_RESULT_VALUES,
+                    (
+                        f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} "
+                        f"'{visual_adjudication_result}' must be one of "
+                        f"{', '.join(CODEX_VISUAL_ADJUDICATION_RESULT_VALUES)}"
+                    ),
+                )
+                for marker in CODEX_VISUAL_ADJUDICATION_REQUIRED_MARKERS:
+                    require(
+                        marker in visual_adjudication_section,
+                        (
+                            f"{canonical_path}: Codex Visual Adjudication section is missing "
+                            f"'{marker}'"
+                        ),
+                    )
+                if visual_adjudication_result == "PENDING":
+                    require(
+                        CODEX_VISUAL_ADJUDICATION_BLOCKER in blockers,
+                        (
+                            f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} PENDING "
+                            f"requires '{CODEX_VISUAL_ADJUDICATION_BLOCKER}' under Blockers"
+                        ),
+                    )
+                    require(
+                        next_legal_phase == current_phase,
+                        (
+                            f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} PENDING "
+                            f"must keep Next Legal Phase at '{current_phase}' until visual adjudication is digested"
+                        ),
+                    )
+                if visual_adjudication_result == "FAIL":
+                    require(
+                        CODEX_VISUAL_ADJUDICATION_BLOCKER in blockers,
+                        (
+                            f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} FAIL "
+                            f"requires '{CODEX_VISUAL_ADJUDICATION_BLOCKER}' under Blockers"
+                        ),
+                    )
+                if visual_adjudication_result in CODEX_VISUAL_ADJUDICATION_CLEAR_VALUES:
+                    require(
+                        CODEX_VISUAL_ADJUDICATION_BLOCKER not in blockers,
+                        (
+                            f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_BLOCKER} must clear after "
+                            f"{CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} {visual_adjudication_result}"
+                        ),
+                    )
+                if visual_adjudication_result == "WAIVED":
+                    require(
+                        bool(_parse_codex_visual_adjudication_waiver_reason(workstream_text)),
+                        (
+                            f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} WAIVED "
+                            f"requires '{CODEX_VISUAL_ADJUDICATION_WAIVER_REASON_LABEL}'"
+                        ),
+                    )
+                uts_result_for_visual_adjudication = _parse_uts_result_state(workstream_text)
+                if uts_result_for_visual_adjudication in UTS_CLEAR_RESULT_VALUES:
+                    require(
+                        visual_adjudication_result in CODEX_VISUAL_ADJUDICATION_CLEAR_VALUES,
+                        (
+                            f"{canonical_path}: {UTS_RESULT_LABEL} {uts_result_for_visual_adjudication} "
+                            f"requires {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} PASS or WAIVED first"
+                        ),
+                    )
+                if current_phase == "PR Readiness":
+                    require(
+                        visual_adjudication_result in CODEX_VISUAL_ADJUDICATION_CLEAR_VALUES,
+                        (
+                            f"{canonical_path}: PR Readiness requires "
+                            f"{CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} PASS or WAIVED; "
+                            f"current value is {visual_adjudication_result}"
                         ),
                     )
 

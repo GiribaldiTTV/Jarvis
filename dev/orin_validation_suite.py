@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=VALIDATOR-HELPER; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=validation-suite-recommendation-helper; status=shared
 from __future__ import annotations
 
 import argparse
@@ -41,6 +42,10 @@ PHASE_COMMANDS: dict[str, tuple[ValidationCommand, ...]] = {
         ValidationCommand(
             r"python dev\orin_branch_readiness_planning_fixture_validation.py",
             "proves Branch Readiness planning-quality fixtures still catch shallow plans",
+        ),
+        ValidationCommand(
+            r"python dev\orin_governance_efficiency_validation.py",
+            "proves governance efficiency ownership, compact-pointer, and backlog/roadmap compactness rules",
         ),
     ),
     "branch-readiness": (
@@ -109,15 +114,28 @@ ALWAYS_USEFUL_COMMANDS = (
 
 
 def _run_git_diff_names() -> tuple[str, ...]:
-    result = subprocess.run(
+    commands = (
         ["git", "diff", "--name-only", "origin/main...HEAD"],
-        cwd=ROOT,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        check=False,
+        ["git", "diff", "--name-only"],
+        ["git", "diff", "--name-only", "--cached"],
+        ["git", "ls-files", "--others", "--exclude-standard"],
     )
-    return tuple(line.strip().replace("/", "\\") for line in result.stdout.splitlines() if line.strip())
+    names: list[str] = []
+    for command in commands:
+        result = subprocess.run(
+            command,
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        names.extend(
+            line.strip().replace("/", "\\")
+            for line in result.stdout.splitlines()
+            if line.strip()
+        )
+    return tuple(dict.fromkeys(names))
 
 
 def _dedupe(commands: list[ValidationCommand]) -> list[ValidationCommand]:
@@ -143,6 +161,13 @@ def _surface_commands(changed_files: tuple[str, ...]) -> tuple[ValidationCommand
             ValidationCommand(
                 r"python dev\orin_branch_governance_validation.py --release-readiness-health-gate",
                 "shared source-truth files changed, so release-readiness health must be rechecked",
+            )
+        )
+    if "source_owner_marker" in normalized or "source-owner" in normalized:
+        commands.append(
+            ValidationCommand(
+                r"python dev\orin_source_owner_marker_validation.py",
+                "checks source-owner marker syntax, ledger linkage, shared-surface coverage, and protected Compact-AI posture",
             )
         )
     return tuple(commands)

@@ -1,3 +1,4 @@
+/* NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=SRCOWN-FIRSTPASS-FAM007-AI-007; surface=orin-core-provider-status-styles; status=shared */
 html, body {
   margin: 0;
   padding: 0;
@@ -439,6 +440,11 @@ body {
   line-height: 1.25;
 }
 
+.ai-provider-status[hidden],
+.ai-provider-status[data-display-visibility="suppressed-by-default"] {
+  display: none !important;
+}
+
 .ai-provider-status__topline {
   display: flex;
   align-items: center;
@@ -531,6 +537,32 @@ body {
 .ai-provider-status__execution-schema,
 .ai-provider-status__execution-approval,
 .ai-provider-status__provider-path,
+.ai-provider-status__provider-path-readiness,
+.ai-provider-status__provider-path-eligibility,
+.ai-provider-status__provider-path-blocker,
+.ai-provider-status__provider-path-reason,
+.ai-provider-status__provider-path-schema,
+.ai-provider-status__provider-profile,
+.ai-provider-status__provider-config-envelope,
+.ai-provider-status__provider-approvals,
+.ai-provider-status__setup-contract,
+.ai-provider-status__setup-contract-blocker,
+.ai-provider-status__setup-contract-handoff,
+.ai-provider-status__setup-foundation,
+.ai-provider-status__setup-foundation-blocker,
+.ai-provider-status__setup-foundation-validation,
+.ai-provider-status__setup-foundation-persistence,
+.ai-provider-status__setup-foundation-handoff,
+.ai-provider-status__consent-collection-foundation,
+.ai-provider-status__consent-collection-blocker,
+.ai-provider-status__consent-collection-audit,
+.ai-provider-status__consent-collection-handoff,
+.ai-provider-status__setup-consent,
+.ai-provider-status__execution-consent,
+.ai-provider-status__consent-schema,
+.ai-provider-status__path-data-visibility,
+.ai-provider-status__path-audit,
+.ai-provider-status__path-future-gates,
 .ai-provider-status__adapter-selection,
 .ai-provider-status__prompt-gates,
 .ai-provider-status__model-execution,
@@ -638,6 +670,32 @@ body {
 .ai-provider-status__execution-schema,
 .ai-provider-status__execution-approval,
 .ai-provider-status__provider-path,
+.ai-provider-status__provider-path-readiness,
+.ai-provider-status__provider-path-eligibility,
+.ai-provider-status__provider-path-blocker,
+.ai-provider-status__provider-path-reason,
+.ai-provider-status__provider-path-schema,
+.ai-provider-status__provider-profile,
+.ai-provider-status__provider-config-envelope,
+.ai-provider-status__provider-approvals,
+.ai-provider-status__setup-contract,
+.ai-provider-status__setup-contract-blocker,
+.ai-provider-status__setup-contract-handoff,
+.ai-provider-status__setup-foundation,
+.ai-provider-status__setup-foundation-blocker,
+.ai-provider-status__setup-foundation-validation,
+.ai-provider-status__setup-foundation-persistence,
+.ai-provider-status__setup-foundation-handoff,
+.ai-provider-status__consent-collection-foundation,
+.ai-provider-status__consent-collection-blocker,
+.ai-provider-status__consent-collection-audit,
+.ai-provider-status__consent-collection-handoff,
+.ai-provider-status__setup-consent,
+.ai-provider-status__execution-consent,
+.ai-provider-status__consent-schema,
+.ai-provider-status__path-data-visibility,
+.ai-provider-status__path-audit,
+.ai-provider-status__path-future-gates,
 .ai-provider-status__adapter-selection,
 .ai-provider-status__prompt-gates,
 .ai-provider-status__model-execution,

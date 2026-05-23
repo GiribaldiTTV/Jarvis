@@ -83,6 +83,8 @@ The audit packet must include:
 - `Incoming Main Change Set:`
 - `Incoming Changed Files:`
 - `Current Worktree Changed Files:`
+- `Branch Changed Files:`
+- `Rebaseline Overlap Files:`
 - `Incoming Runtime / Source-Truth Risk:`
 - `Shared Surface / Worktree Overlap Forecast:`
 - `Validation Before Rebaseline:`
@@ -91,6 +93,12 @@ The audit packet must include:
 - `Rebaseline Mutation Status:`
 
 `Recommendation Only:` must state that the pass reports findings and does not mutate the branch/worktree. `Rebaseline Mutation Approval:` must be `Pending` until the USER approves the exact worktree, branch, target commit, and operation type. `Rebaseline Mutation Status:` must remain `Not started` or `Blocked` until approval exists. If the worktree is dirty, if incoming files touch runtime/provider/UI/source-truth/validator surfaces, if sibling worktrees share files, or if validation fails, the next legal lane is a reported reconciliation decision rather than automatic baseline.
+
+`Rebaseline Overlap Files:` is the intersection of incoming changed files and the current branch/worktree changed files. Current branch/worktree changed files means branch changed files from `merge_base..HEAD` plus staged, unstaged, untracked, or current-worktree changed files when present. When this field is `None`, `Rebaseline Overlap Intent Gate` reports `Not Applicable` and the normal Pre-Rebaseline Impact Audit still controls mutation approval. When this field names any file, Codex must freeze rebaseline mutation, classify every overlapping file, and inspect branch-owned intent before recommending merge, rebase, fast-forward, conflict resolution, or acceptance.
+
+`Rebaseline Overlap Intent Gate` uses the active branch plan as the full-detail owner. Runtime branches use the Branch Runtime Engineering Plan shape. Non-runtime branches with `Rebaseline Overlap Files:` must admit or update an active Branch Engineering Plan under `Docs/branch_plans/<branch_slug>.md` before rebaseline mutation can proceed. The required section is `Branch Change Intent Ledger`; each `Changed Surface: <path>` block records `Surface Class:`, `Change Intent:`, `Why This File Was Touched:`, `Owned Behavior / Fact Class:`, `Canonical Owner / Source Owner:`, `Resolution Owner:`, `Shared Surface:`, `Overlap Risk:`, `Expected Conflict Risk:`, `Semantic Merge Risk:`, `Regression / Gating Impact:`, `Conflict Resolution Rule:`, `Rebaseline Handling:`, `Validation Proof:`, `Fallback Evidence:`, `USER Decision / Waiver:`, and `Fold-Down Target:`. `Regression / Gating Impact:` uses `None`, `Low`, `Medium`, `High`, or `Unknown`; fixture/test overlap with `Medium`, `High`, or `Unknown` impact blocks until evidence or USER decision resolves it.
+
+`Rebaseline Overlap Failure Procedure` triggers when an overlapping file has missing, weak, stale, or conflicting intent evidence. The packet must include `Overall Overlap Gate Result:`, `Rebaseline Overlap Files:`, per-file `File:`, `Surface Class:`, incoming and current branch change summaries, `Branch Change Intent Present:`, `Incoming Intent Evidence Present:`, `Fallback Evidence:`, `Risk:`, `Per-File Result: PASS / WARN / BLOCKED`, `Recommended Resolution:`, `Resolution Owner:`, `Validation Required:`, `USER Decision Needed:`, and `Rebaseline Mutation Status:`. `Overall Overlap Gate Result:` is the highest per-file severity. Any `BLOCKED` file keeps mutation blocked by `Rebaseline Overlap Intent Missing` until repaired, waived, deferred by USER decision, or sequencing changes. Fallback evidence supports classification and USER decision-making only; after the effective point, fallback evidence alone cannot produce `PASS`.
 
 When the USER approves the recommendation, the rebaseline operation must still be constrained to the approved operation type, usually `git merge --ff-only origin/main` for neutral/main or standing-governance sync and an explicit merge/rebase/recreate strategy for active implementation branches. After the operation, `Current-Main Reconciliation Identity Guard` must prove origin/main stayed context, not identity, before validation, commit, push, PR Readiness, Release Readiness, or handoff.
 
@@ -124,6 +132,12 @@ It may be:
 
 `Post-Release Canon Repair` is not a normal branch phase and is not a governance-only branch.
 Codex must not use direct-main repair; `main` is protected and file-frozen for Codex work.
+
+## Phase Alias UX Boundary
+
+`Docs/governance_efficiency_operating_model.md` owns the governance efficiency operating model's human-facing alias map for phase names. The canonical phase names remain unchanged for source truth, validators, branch records, prompt contracts, and phase resolvers.
+
+Aliases such as `Plan Review`, `Build`, `User Proof`, or `Release Validation` may explain a phase to the USER, but they must not replace canonical phase markers in repo files.
 
 ## Cross-Phase Rules
 
@@ -240,7 +254,7 @@ The ledger is canonical only inside the existing authority owner:
 - Large active ledger: optional companion file with canonical pointer from the owning workstream doc or branch authority record.
 - Family dossier: aggregate or historical trace only.
 - Feature backlog: identity and registry only.
-- Roadmap: sequencing only.
+- Roadmap: stage-breakpoint schedule outline and broad milestone checkpoints only.
 - Validation helper registry: helper inventory only.
 - Element Coverage: non-identity checklist only.
 
@@ -491,6 +505,31 @@ Branch Runtime Engineering Plan:
 - Workstream Entry reads the plan, each seam updates traceability, Hardening compares actual implementation against it, Live Validation records proof or waiver posture, PR Readiness produces the `PR Fold-Down Packet:`, and Release Readiness translates the plan into public scope without internal governance jargon
 - a missing or shallow Branch Runtime Engineering Plan keeps runtime implementation blocked on Branch Readiness planning until USER accepts, revises, or explicitly waives the plan boundary
 
+USER Feedback Disposition:
+
+- meaningful USER feedback during Branch Readiness, Workstream, Hardening, Live Validation, or PR Readiness must be classified through `USER Feedback Disposition` when it affects branch scope, accepted vision, user-facing behavior, runtime behavior, validation proof, future work, reusable product standards, approval boundaries, or a USER decision
+- the active Branch Runtime Engineering Plan owns full UFD detail while the branch is active; branch records, backlog, roadmap, Nexus Vision, family vision, workstream docs, and family dossiers may carry compact pointers or folded outcomes only when they are the correct owner for the final disposition
+- UFD ledger markers include `USER Feedback Disposition Required:`, `UFD Ledger Status:`, `UFD Ledger Owner:`, `Open UFD Count:`, `Blocking UFD Count:`, and `Fold-Down Status:`
+- each meaningful feedback item uses a repeatable `### UFD Item: UFD-<scope>-YYYYMMDD-NNN` block with `Feedback ID:`, `Feedback Summary:`, `Feedback Source:`, `Feedback Phase:`, `Disposition Type:`, `USER Decision State:`, `Owner Class:`, `Canonical Owner File:`, `Workstream Severity:`, `Status:`, `Fold-Down Target:`, and `Pointer Locations:`
+- Codex may recommend UFD disposition, owner, severity, and no-action posture, but USER decision controls accepted branch scope; Codex and ChatGPT recommendations remain proposed until USER accepts, revises, rejects, defers, waives, or supersedes them
+- pointer locations may carry only UFD ID, short title, canonical owner, compact status, and fold-down status; full feedback text, full decision history, and live implementation state stay with the active branch plan until PR Readiness fold-down
+- `No Durable Owner Needed` is valid only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with `No-Action Reason:` recorded in the active branch plan or return digest
+- UFD IDs use `UFD-<scope>-YYYYMMDD-NNN`; do not use `FBK-*` because it collides visually with historical `FB-###` workstream records
+
+Vision Contract / Vision-to-Plan loop:
+
+- runtime/user-facing branches must not silently convert Codex or ChatGPT design recommendations into implementation truth
+- Nexus Vision owns project-wide product principles; optional family vision or family dossier sections own broad feature-family direction only when the family is large enough; the active branch plan owns the Branch Vision Contract Snapshot for branch-specific accepted vision
+- `Vision Contract Required:` is `Yes` for user-facing UI/UX behavior changes, runtime behavior changes, workflow hierarchy changes, visual standard changes, setup/activation behavior changes, provider/model/memory/voice/Core behavior, returned UTS that changes target behavior, broad family planning, ambiguous acceptance criteria, conflicting prior source truth, or any Codex recommendation that would otherwise become product/design truth
+- `Vision Contract Required:` may be `No` only for mechanical docs-only repair, validator-only repair with no product/runtime/user-facing impact, release-body formatting repair, source-truth typo/format repair, or branch metadata repair, and the reason must be recorded
+- valid design assumption states are `Proposed by Codex`, `Recommended by ChatGPT`, `Accepted by USER`, `Revised by USER`, `Rejected by USER`, `Deferred by USER`, `Deferred With Waiver`, `Superseded`, and `Needs USER Decision`; only `Accepted by USER`, `Revised by USER`, or `Deferred With Waiver` are implementation-safe for product/runtime/user-facing behavior
+- before Workstream implementation, a required Branch Vision Contract Snapshot must record `Branch Vision Snapshot Status: Accepted`, `Open Vision Questions: None` or `Deferred With Waiver`, `USER Vision Green: Yes`, accepted implementation scope, accepted seam map, accepted stop conditions, a design assumption ledger, a vision question queue, and vision-to-implementation traceability
+- after USER Vision Green, Codex should preserve the accepted plan during implementation; new Level 1 non-blocking questions are queued, Level 2 seam-blocking questions pause only the affected seam and require a Vision Question Digest, and Level 3 workstream-breaking questions require a Branch Plan Revision Packet before affected scope continues
+- accepted assumptions expire or require review when branch scope changes, returned UTS changes the accepted target, family vision changes, source truth contradicts prior assumptions, new user-facing behavior appears, or implementation would apply an old decision to a new family/surface
+- Hardening compares implementation against accepted vision and accepted branch plan; Live Validation compares observed user-facing behavior against accepted vision and accepted branch plan; PR Readiness folds reusable vision updates into Nexus Vision, family vision/family dossier, workstream docs, structured branch receipts, or validated historical receipts without creating permanent branch-specific vision-file sprawl
+- Vision Question Digest must include question, why it matters, affected branch/seam, current accepted vision, Codex recommendation, alternatives, risk of each option, whether work can continue without the answer, recommended USER decision, and exact USER decision needed
+- Branch Plan Revision Packet must include current accepted plan, discovered issue, why current plan is insufficient, proposed revision, affected seams, files/surfaces affected, validation impact, current Workstream versus future branch routing, Codex recommendation, and exact USER decision needed
+
 Required active authority markers for implementation branches in `Branch Readiness`, `Workstream`, `Hardening`, `Live Validation`, `PR Readiness`, or merged-unreleased release-debt truth:
 
 - `## Admitted Implementation Slice`
@@ -570,6 +609,10 @@ Silent phase skipping is prohibited.
 
 Branch admission is class-sensitive.
 
+### Family-Scoped Branch Readiness Candidate Rule
+
+When Branch Readiness is scoped to a specific feature family or assigned lane, candidate selection must stay inside that family or lane unless USER explicitly approves cross-family routing. Codex may inspect other families only for same-file overlap, dependency, conflict, pending-decision, or sequencing context. If no legal in-family carrier is selected or admissible, Codex must return `STOP / USER DECISION REQUIRED` with the exact in-family decision needed instead of selecting another family's branch.
+
 `implementation`
 
 - the full repo-level admission gate must pass before the branch may enter `Branch Readiness`
@@ -613,7 +656,7 @@ This gate is mandatory when a branch would:
 - become the latest released or merged-unreleased implementation milestone
 - change the current rebaseline or closeout baseline
 - change the current closeout-index pointer
-- change backlog, roadmap, or workstream-index release posture
+- change backlog status, roadmap stage-breakpoint/checkpoint posture, or workstream-index release posture
 - change `Docs/Main.md` routing for the current baseline
 
 When this gate applies, the branch must already contain the required release-facing canon updates before PR creation is allowed:
@@ -837,7 +880,7 @@ Hard blockers:
 - `User Test Summary Results Pending`:
   Live Validation and PR Readiness cannot be green while a user-facing workstream has a required User Test Summary handoff outstanding and returned results have not been submitted, waived, digested into the active authority record, and reevaluated. Workstream must not list this blocker as the reason to stop implementation; unresolved product work belongs to `Backlog Completion Unproven`, named implementation blockers, or the next bounded Workstream seam.
 - `PR Creation Pending`:
-  PR Readiness package-ready is not PR Readiness green. PR Readiness cannot be green until the GitHub PR exists for the current head branch and base branch.
+  PR Readiness package-ready is not PR Readiness green. PR Readiness Stage 1 may record `Pre-PR Live State: No live PR`, `PR Creation Approval: Pending USER approval`, and `Stage 2 PR Creation: Pending USER approval` while it is still analyzing and repairing pre-PR posture; that state is lawful only before Stage 2 approval and must not be reported as PR-ready green. PR Readiness cannot be green until Stage 2 has USER approval and the GitHub PR exists for the current head branch and base branch.
 - `PR Validation Pending`:
   PR Readiness cannot be green until the existing PR has been validated as open, non-draft, conflict-free, aligned to the merge-target canon, and clear of unresolved Codex comments/issues or requested changes.
 - `PR State Unknown`:
@@ -847,6 +890,8 @@ Hard blockers:
   This preserves the existing analysis-first blocker repair gate inside the readiness lock.
 - `PR Readiness Stage 1 Repair Pending`:
   When PR Readiness Stage 1 finds repo drift, source-truth drift, validator drift, branch-authority drift, or a PR-readiness blocker that can be repaired on the current branch, Stage 1 records `PR Readiness Stage 1 Repair Required` and must remain in Stage 1 until the repair is complete. Stage 1 repair/sync may mutate, stage, commit, and push the active branch only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that bounded PR-readiness repair work; Stage 1 specifically owns selected-next branch/workstream truth or USER waiver, merge-target `No Active Branch` projection only when explicitly waived, no-release-debt posture, any unavoidable merged-unreleased release-debt owner contract, and active-branch-authority cleanup when those items are found, and they must not be deferred to Stage 2 as planned sync. Stage 1 still cannot create a PR, provision a watcher, create a branch, admit a package, waive single-slice rules, create a tag, create release artifacts, draft or publish a GitHub Release, or execute a release. Stage 1 may encode selected-next truth only when USER explicitly approves that selected-next sync, and it still must leave branch creation plus runtime package admission blocked for Branch Readiness.
+- `No Successor Runtime Branch By Inertia`:
+  Source-only, docs-only, governance, validator, or repo-wide support branches must not invent the next runtime carrier merely to satisfy selected-next gates. When USER explicitly approves no successor runtime branch by inertia, Stage 1 must record `No Successor Runtime Branch By Inertia: USER-waived`, `Selected-Next Defer User Waiver: Granted`, and a post-merge `No Active Branch` projection. That waiver clears the selected-next blocker only for the current non-runtime/support branch; it does not create, select, or admit a runtime successor.
 - `Stage 1 USER Waiver Required`:
   PR Readiness Stage 1 may request an explicit USER waiver for a required next-workstream/package recommendation or other Stage 1 review item only when repo truth allows a waiver. Without the waiver, Stage 1 remains active and Stage 2 cannot begin.
 - `Next Workstream User Waiver Missing`:
@@ -882,6 +927,7 @@ Hard blockers:
 - `Automation Observability Review Pending`:
   standing automations report into Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`; those reports become source-of-truth work only after `dev/automation_observability_report.py` or a live automation report classifies them as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`. Informational green or waiting reports remain `REVIEW_INFO` unless contradicted by repo truth. Any admitted automation finding must enter a bounded repair seam before repo canon changes.
   Multi-worktree automation must also prove its configured cwd, git root, worktree role, branch, `HEAD`, and `origin/main` posture before a report may influence active-lane truth. `Automation CWD Worktree Mismatch` is the blocker when a standing automation runs from a missing, stale, neutral-main, parked, or wrong-lane worktree for the prompt it is carrying. Lane-sensitive prompts that mention active branch, PR Readiness, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance cannot run from stale neutral main as if it were an assigned FAM or Governance lane. Automation memory is evidence only; stale `$CODEX_HOME/automations/*/memory.md`, Codex automation run/inbox summaries, or historical prompt assumptions must report `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`, not mutate canon directly.
+  Background-observability-only automations cannot clear phase gates, bot-review gates, PR merge verification, release readiness, or same-PR repair proof. A stale historical toolchain-path report is `REVIEW_INFO` unless a current source-truth owner still declares that exact path active; otherwise the repair is to update the automation contract, not to recreate old files by inertia.
 - `PR Readiness Scope Missed`:
   PR Readiness cannot be green if branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, or release-debt routing is incomplete or being deferred to Release Readiness, updated `main`, or a later governance-only branch
 - `Release Window Audit Incomplete`:
@@ -905,6 +951,8 @@ If the normal governance validator passes but the PR-specific gate reports dirty
 - `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2 and only when Stage 1 reports `Stage 1 Ready For Stage 2`. Stage 2 owns final PR execution only: verifying durable Stage 1 projection, commit/push only for bounded operator metadata if legally needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch.
 
 The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, release-debt impact, release-debt handling status, selected-next / no-release-debt handling status, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size / single-slice drift review, Element Coverage review, required current-branch source-truth sync, completed merge-target canon updates when repairable drift is found, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected Stage 2 execution work, Stage 1 repairs made, Stage 1 repair validation, Governance Ledger fallback status, Branch Readiness fallback status, Stage 2 execution plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER. It may repair Stage 1 PR-readiness blockers on the current branch, but it must not perform Stage 2 or create the PR/watcher. It may encode selected-next truth only when USER explicitly approves selected-next sync, and branch creation plus runtime package admission must stay blocked for Branch Readiness. PR creation is blocked while any Stage 1 blocker, Stage 1 repair item, next-workstream hierarchy item, branch-shape review item, merge-target authority projection item, no-release-debt posture, unavoidable release-debt owner contract, selected-next truth or USER waiver, or Stage 2 execution prerequisite remains unresolved.
+
+When the active branch plan contains UFD items, PR Readiness Stage 1 must include a USER Feedback Disposition fold-down review. Every `Feedback ID:` must be implemented, rejected/no-action with reason, deferred with waiver, folded into the structured branch receipt, promoted to Nexus/family vision when reusable, carried as a backlog future-candidate pointer only after USER acceptance, or assigned to a named future owner. The fold-down receipt must preserve a lookup path from each UFD ID to its final owner before the branch plan can retire from active planning posture.
 
 `PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
 
@@ -942,7 +990,7 @@ The owning branch/workstream authority record must include:
 
 Passing posture means exact post-merge branch-authority projection is recorded, no stale active branch wording lands on `main`, no stale PR creation / PR Readiness Stage 2 pending wording lands on `main`, merged scope is recorded as merged-unreleased when release execution is not being performed, release execution/tag/GitHub Release/artifact work remains gated, watcher/live PR state stays out of merged-main source truth, branch cleanup plan is known, FAM overlap is either non-blocking or routed to the owning lane, release-candidate anchor and release-window contributors are unambiguous, any post-merge source-truth blocker routing says `Governance Intake Routing: send this to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake`, selected-next or successor truth is not stale, release-window/release-floor posture is resolved, and projected post-merge main would pass validation without a later source-truth repair.
 
-Branch cleanup is planning-only until Branch Readiness owns a new branch/worktree target. `Branch Cleanup Plan:` records stale/old branch refs, retired worktrees, or GitHub Desktop repository entries that may need cleanup after merge. `Branch Cleanup Execution Gate:` must say cleanup is blocked in Release Readiness and may execute only during the next `Branch Readiness Stage 2 - Execution Gate` that creates or validates the next branch/worktree target. Multi-worktree cleanup must not delete a branch checked out by any worktree, remove a worktree before its replacement target is validated, or leave a GitHub Desktop-bound worktree without a valid branch target; stale/old branch cleanup waits until the replacement branch/worktree is created, Desktop is bound to the intended folder, and `git worktree list` proves no checked-out branch will be orphaned.
+Branch cleanup is planning-only until Branch Readiness owns a new branch/worktree target. `Branch Cleanup Plan:` records stale/old branch refs, retired worktrees, or GitHub Desktop repository entries that may need cleanup after merge. `Branch Cleanup Execution Gate:` must say cleanup is blocked in Release Readiness and may execute only during the next `Branch Readiness Stage 2 - Execution Gate` that creates or validates the next branch/worktree target. Multi-worktree cleanup must not delete a branch checked out by any worktree, remove a worktree before its replacement target is validated, or leave a GitHub Desktop-bound worktree without a valid branch target; stale/old branch cleanup waits until the replacement branch/worktree is created, Desktop is bound to the intended folder, and `git worktree list` proves no checked-out branch will be orphaned. `Stable Worktree Path Preservation Gate:` is mandatory when cleanup touches a family-stable or GitHub Desktop-bound folder path: record `Stable Worktree Path:`, `Replacement Binding Path:`, and the preservation method, and block on `Stable Worktree Path At Risk` unless the stable folder path remains the active repository target before the retired worktree or branch is removed.
 
 `PR Readiness GREEN` requires all `PR package ready` conditions plus:
 
@@ -1021,7 +1069,7 @@ Selected-next truth and active branch authority are different states. PR Readine
 
 `Origin/Main Freshness Check` is required during PR Readiness Stage 1 before Stage 2 can begin. Stage 1 must compare `Branch Creation Base:` to `Current origin/main:` and report whether `Origin/Main Advanced Since Branch Creation:` is `YES` or `NO`. When `origin/main` advanced, Stage 1 must list `Origin/Main Changed Files:` from `git diff --name-only <branch-creation-base>..origin/main`, list `Branch Changed Files:` from `git diff --name-only <branch-creation-base>..HEAD`, decide `Reconciliation Required: YES / NO`, and, when reconciliation is needed, output a complete `Reconciliation File List:` plus `Reconciliation Recommendation:`. The `Reconciliation Mutation Status:` must be analysis-only with no file fixes during Stage 1. If changed upstream files/data need review and the packet is missing or incomplete, `Origin Main Reconciliation Packet Required` blocks Stage 2 and PR creation.
 
-`Pre-Rebaseline Impact Audit` is required before any same-branch current-main reconciliation operation actually mutates local branch state. `Origin/Main Freshness Check` identifies whether upstream advanced before PR Stage 2; `Pre-Rebaseline Impact Audit` is the operation-level proof that reports `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before Codex may run a fast-forward, merge, rebase, conflict resolution, or branch switch.
+`Pre-Rebaseline Impact Audit` is required before any same-branch current-main reconciliation operation actually mutates local branch state. `Origin/Main Freshness Check` identifies whether upstream advanced before PR Stage 2; `Pre-Rebaseline Impact Audit` is the operation-level proof that reports `Incoming Main Change Set:`, `Incoming Changed Files:`, `Current Worktree Changed Files:`, `Branch Changed Files:`, `Rebaseline Overlap Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before Codex may run a fast-forward, merge, rebase, conflict resolution, or branch switch. Any non-empty `Rebaseline Overlap Files:` value triggers the `Rebaseline Overlap Intent Gate` and must resolve or explicitly block on `Rebaseline Overlap Intent Missing` before mutation.
 
 `Current-Main Reconciliation Identity Guard` is required whenever a multi-worktree branch rebases, fast-forwards, or merges current `origin/main`. origin/main is context, not identity. The assigned worktree must preserve and reassert its own branch-local authority before validation, commit, push, PR readiness, release readiness, or handoff. The reconciliation digest must include `Assigned Worktree Branch Identity:`, `Branch-Local Authority Reassertion:`, `Incoming Main Active-Branch Blocks Accepted: NO`, and `Sibling Worktree Identity Preservation:`. Passing posture means the active worktree's expected branch, actual branch, authority record, current-state owner files, and GitHub Desktop-bound worktree are named explicitly; incoming `origin/main` branch/current-workstream/selected-next blocks are treated as context unless they are the assigned branch's own authority; `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` reassert the active worktree's branch-local authority after conflict resolution; sibling worktrees such as FAM-006, FAM-007, Governance, or neutral `main` are not switched, deleted, or mutated; and no reconciliation commit lands with another worktree's active branch/current workstream identity copied into the assigned lane. If this guard fails during Branch Readiness, PR Readiness, or a same-branch rebaseline, stop on `Worktree Branch Identity Drift` and repair source truth inside the assigned worktree before committing. If Release Readiness discovers the failure after merge, the output digest must say `Governance Intake Routing: send this to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake`.
 
@@ -1152,6 +1200,7 @@ For relevant desktop user-facing workstreams, Live Validation may use validators
 Those evidence layers are supporting proof, not final green by themselves.
 
 Before User Test Summary handoff, the final Live Validation closeout must launch and exercise the branch through the same user-facing desktop shortcut or equivalent user entrypoint that the user is expected to use.
+For desktop UI Live Validation, no sandbox/offscreen/direct-runtime path can be the primary LV1 path when the user-facing launcher is feasible. Direct runtime launches, WebView harnesses, helper launches, and active-client probes are supporting evidence only; they cannot be called the USER path, cannot replace the real user-facing desktop launcher declared for UTS, and cannot clear UTS handoff by themselves.
 For Nexus Desktop AI, the default desktop shortcut path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares an explicit equivalent.
 
 Named blocker:
@@ -1173,7 +1222,7 @@ Required proof:
 - startup reaches the expected ready state
 - the user-visible entry surface introduced or changed by the branch is visible or intentionally documented where the user must look for it
 - relevant runtime markers, UI/manual readback, persisted-state checks, and cleanup evidence match the branch validation contract
-- helper-only, direct-Python, or harness-only evidence is not treated as a substitute for this final shortcut gate when the shortcut path is feasible
+- helper-only, direct-Python, WebView-only, sandbox/offscreen, active-client direct-runtime, or harness-only evidence is not treated as a substitute for this final shortcut gate when the shortcut path is feasible
 
 Lift condition:
 
@@ -1206,6 +1255,13 @@ Machine-checkable authority-record markers:
 - `Live Client Entry Path:`
 - `Evidence Screenshot:`
 - `Visual Quality:`
+- `Codex Visual Adjudication:`
+- `Visual Artifact Review Scope:`
+- `Product Vision Alignment:`
+- `Per-Element Visual Verdicts:`
+- `Helper Marker Limitation:`
+- `Unacceptable UI Findings:`
+- `LV1 Handoff Disposition:`
 - `Interaction Manifest:`
 - `Interaction Evidence Root:`
 - `Live Interaction Evidence:`
@@ -1224,8 +1280,17 @@ Required proof:
 - desktop UI proof must provide an active foreground/user-observable validation path; a fast hidden or blink-through helper run may support automation but cannot be the only Codex live-client self-QA evidence
 - desktop UI Live Validation must capture the full virtual desktop by default when placement, multi-monitor behavior, window separation, clipping, or frame-of-reference matters; primary-monitor-only screenshots are supporting detail only and cannot clear those proof needs
 - screenshots used for Live Validation closeout must be copied into `C:\Users\anden\OneDrive\Pictures\Screenshots\<project-or-validation-lane>\<timestamp>\` or the active USER-declared screenshots folder, and the raw image path must be surfaced in the Codex chat/handoff for USER inspection; `dev/logs` copies alone are not enough when visual proof is part of the gate
+- desktop UI Live Validation must also create a per-element visual inventory for the active user-facing surface, including every current user-facing window, border/frame, card, row, page break/divider, background treatment, scrollbar, button, dropdown, checkbox, input, chip, status field, confirmation, empty/error/deferred state, and every issue-specific element named by USER feedback
+- desktop UI Live Validation must create detailed focused screenshots for each inventory element and supported state/action, copy them into `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\`, and name each PNG with the element label/name plus state or action, such as `element_<label>_<state>.png`; a full desktop screenshot is locator/context proof only and cannot satisfy this per-element gate
+- returned USER UTS or screenshot/video issues must be preserved in a temporary issue form until PR Readiness Stage 1 folds the resolved truth into the active authority, branch plan, backlog, roadmap, validators, and release-scope handoff; the issue form must list the issue, planned repair/disposition, expected proof, validation artifact path, per-element screenshot/video requirement, and USER-verifiable status
+- the LV1 manifest must enumerate the USER-inspectable per-element screenshot folder, every per-element screenshot path, the per-element visual inventory, any issue-form IDs covered by each artifact, and a PASS / REPAIR / STOP / WAIVED_WITH_REASON verdict for each element; missing inventory rows, missing element labels, missing issue-form coverage, missing OneDrive copies, screenshots stored only under `dev\logs`, or only full-desktop screenshots must return `REPAIR` before UTS handoff
 - platform uniformity is reviewed across current NDAI naming, visual language, copy tone, and surrounding user-facing surfaces touched by the branch
 - validators, markers, screenshots, and manifests are treated as supporting evidence, not a replacement for Codex's visual/usability judgment
+- desktop UI Live Validation must include a failure-seeking visual adjudication pass before UTS handoff; Codex must inspect the focused proof images one by one, compare them against the Product Definition Plan, Runtime Branch Engineering Contract, latest USER vision/UTS feedback, active temporary issue form, and package-level UI/UX intent, and record artifact-by-artifact `PASS`, `REPAIR`, `STOP`, or `WAIVED_WITH_REASON` verdicts for all inventoried elements/states
+- helper PASS, marker PASS, screenshot existence, manifest existence, or USER execution waiver cannot clear visual acceptability; clipped text, unclear workflow hierarchy, weak hover/click affordance, non-uniform button glow/color, non-uniform divider/page-break haze, background bleed-through, scrollbar mismatch, missing open/disabled/danger/empty/error proof, native/basic controls where Nexus styling is required, or package-vision mismatch must route LV1 back to Workstream or Hardening before USER handoff unless USER gives an explicit visual waiver with reason
+- desktop UI Live Validation owns the defect-discovery burden before UTS: Codex must not return a User Test Summary handoff while any unwaived Codex-visible `REPAIR` or `STOP` finding remains in the per-element visual inventory, issue-form coverage matrix, interaction proof, or visual adjudication record
+- if Live Validation discovers a current-branch UI/UX/interaction defect and current approval covers bounded continuation, Codex must enter the bounded repair/rerun loop automatically: record the finding, patch the approved surface, rerun focused proof, rerun required validation, update source truth, and only then regenerate the UTS handoff; if approval does not cover the repair, Codex must return `BLOCKED` or `REPAIR` with the exact approval needed rather than asking the USER to find the same defect manually
+- the UTS handoff is a USER acceptance review, not a substitute for Codex visual QA; a Live Validation packet that relies on the USER to enumerate obvious clipped, misaligned, flickering, unresponsive, non-uniform, or unusable elements is not green
 
 Routing:
 
@@ -1622,6 +1687,7 @@ Required output for any “what phase are we in?” or “what’s next?” answ
 - `Plan To Reach That Phase`
 
 Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.
+Formal Next Legal Phase Digest is required whenever a phase packet stops for USER approval. The response must include a `Next Legal Phase Digest` with `Current Phase:`, `Next Legal Phase:`, `Why This Phase Is Next:`, `Approval Required:`, `Exact USER Approval Text:`, `Allowed Scope:`, `Explicit Exclusions:`, `Validation Required:`, and `Stop Conditions:`. Missing fields block on `Next Legal Phase Digest Missing`; `Next Safe Move` or informal recommendations cannot replace the digest.
 If a blocker exists, do not recommend a later phase or next-lane execution.
 If repo truth is a steady-state `No Active Branch`, do not invent an implementation branch by inertia; either report that no branch should open yet or name the explicitly approved non-implementation branch class that may legally begin.
 
@@ -2054,9 +2120,9 @@ Branch Readiness uses two internal stage gates without changing the canonical ph
 
 The `## Branch Readiness Stage 1 Analysis Packet` must include governed state markers, FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, product vision, project-wide vision alignment, branch-specific vision alignment, USER vision questions, `USER Vision Question Packet`, Codex product interpretation, Codex implementation recommendation, Codex additional recommendations, USER/ChatGPT review checkpoint, USER critique loop, USER decision ledger, full feature element breakdown, system concept model, entity/profile model, user workflow model, scale/data-volume model, configuration/state model, whole-system interaction map, minimum viable vs full-system boundary, current branch vs future package boundaries, affected surfaces, branch reach, why the branch is large enough, why it should not split into tiny branches, expected user-facing outcomes, acceptance criteria, screenshot and User Test Summary proof expectations, implementation sequence proposal, rejected shallow plan, alternatives/tradeoffs reviewed, open USER decision points, deferred ideas/future-package ledger, validation plan, `Stale Branch Cleanup Plan:`, expected docs sync, blockers and waivers, rollback path, `Branch Readiness Planning Incomplete` blocker review, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER.
 
-`Carrier Lifecycle Decision` is required in Branch Readiness Stage 1 for any requested branch/worktree. Stage 1 must classify the carrier with `Carrier Lifecycle Classification:` as exactly one of `Fresh current branch`, `Stale empty local branch`, `Stale branch with unique commits`, `Historical merged branch`, `Wrong carrier/worktree`, or `Active remote/open PR branch`; it must report `Remote Branch State:`, `Unique Branch Diff:`, `Origin/Main Ancestry:`, `Origin/Main Advanced Since Branch Creation:`, `Open PR State:`, `Worktree Checkout State:`, `Recommended Stage 2 Carrier Action:`, `Stale Branch Cleanup Plan:`, `Branch Cleanup Execution Gate:`, `Recreate From Current origin/main:`, and `No Unique Commit Loss Proof:`. Stage 1 analyzes only; when it finds a stale empty local branch that is behind `origin/main`, has no unique commits, and has no governing open PR, the recommendation is to create/recreate the fresh carrier from current `origin/main` during Stage 2 rather than silently reusing stale branch identity.
+`Carrier Lifecycle Decision` is required in Branch Readiness Stage 1 for any requested branch/worktree. Stage 1 must classify the carrier with `Carrier Lifecycle Classification:` as exactly one of `Fresh current branch`, `Stale empty local branch`, `Stale branch with unique commits`, `Historical merged branch`, `Wrong carrier/worktree`, or `Active remote/open PR branch`; it must report `Remote Branch State:`, `Unique Branch Diff:`, `Origin/Main Ancestry:`, `Origin/Main Advanced Since Branch Creation:`, `Open PR State:`, `Worktree Checkout State:`, `Recommended Stage 2 Carrier Action:`, `Stale Branch Cleanup Plan:`, `Branch Cleanup Execution Gate:`, `Stable Worktree Path:`, `Replacement Binding Path:`, `Recreate From Current origin/main:`, and `No Unique Commit Loss Proof:`. Stage 1 analyzes only; when it finds a stale empty local branch that is behind `origin/main`, has no unique commits, and has no governing open PR, the recommendation is to create/recreate the fresh carrier from current `origin/main` during Stage 2 rather than silently reusing stale branch identity. Stage 2 must stop on `Stable Worktree Path At Risk` if cleanup would remove a family-stable folder before the replacement branch/worktree is bound there.
 
-`Stale Branch Cleanup Plan:` is required when Release Readiness, PR Readiness, or multi-worktree preflight identified old/stale branches, retired worktrees, or stale GitHub Desktop entries. Stage 1 analyzes only. The cleanup itself belongs to `Branch Readiness Stage 2 - Execution Gate` alongside branch/worktree creation or validation, because every Git repository and GitHub Desktop-bound worktree must keep a valid branch target until the replacement target is ready.
+`Stale Branch Cleanup Plan:` is required when Release Readiness, PR Readiness, or multi-worktree preflight identified old/stale branches, retired worktrees, or stale GitHub Desktop entries. Stage 1 analyzes only. The cleanup itself belongs to `Branch Readiness Stage 2 - Execution Gate` alongside branch/worktree creation or validation, because every Git repository and GitHub Desktop-bound worktree must keep a valid branch target until the replacement target is ready. If cleanup touches a stable family alias such as a durable FAM worktree folder, `Stable Worktree Path Preservation Gate:` must prove `Stable Worktree Path:` and `Replacement Binding Path:` before cleanup proceeds.
 
 For broad implementation family packages, Branch Readiness planning is not complete until the planning packet records USER vision inputs or explicit unanswered-question blockers, project-wide vision alignment, branch-specific vision alignment, Codex product interpretation, Codex implementation recommendation, Codex additional recommendations, USER/ChatGPT review checkpoint, USER critique loop, USER decision ledger, full feature element breakdown, system concept model, entity/profile model, user workflow model, scale/data-volume model, configuration/state model, whole-system interaction map, minimum viable versus full-system boundary, alternatives/tradeoffs reviewed, rejected shallow plan, current-branch versus future-package boundaries, affected files/surfaces, branch reach/package-size proof, expected user-facing outcomes, acceptance criteria, screenshot/live/User Test Summary proof requirements for user-facing work, implementation sequence proposal, deferred ideas/future-package ledger, open USER decision points, and USER decisions needed. Marker-only planning, a one-screen/simple-system plan, scaffold-only proof, or Codex self-assessment that the plan is "simple enough" is insufficient. The same planning proof remains required if the active implementation branch has already moved into Workstream, Hardening, Live Validation, or PR Readiness; later phases must route back to Branch Readiness instead of continuing with shallow planning debt.
 
@@ -2069,6 +2135,8 @@ Supporting dependency repairs may ride the current branch only when source truth
 When USER input is needed, Codex must output a structured `USER Vision Question Packet`. Each question must include question ID, category, decision needed, why this matters, feature area affected, Codex recommendation, why Codex recommends it, alternatives/options, tradeoffs/risks, current-branch impact, future-package impact, safe default if USER is unsure, whether the answer is required before implementation, whether USER may waive/defer it, and exact response format requested. Required categories for user-facing family packages are product goal/user outcome, visual identity/style, layout/placement, information hierarchy, data/source model, controls/settings model, fail-safe/no-data/degraded behavior, interaction model, accessibility/readability, privacy/security boundaries, performance constraints, validation proof standard, User Test Summary acceptance criteria, current-branch versus future-package boundaries, and release impact.
 
 When USER input needs a durable user-editable handoff, Codex must generate or refresh a USER-facing `User Vision Input.txt` desktop artifact. The artifact must present each decision with Codex's recommendation, rationale, options, tradeoffs, current-branch impact, future-package impact, proof impact, and three answer paths: accept Codex recommendation; change recommendation with USER-written changes; or defer/future-package/waive with USER-written reason. This artifact is USER input only and not repo source truth. Codex recommendations, default options, and unanswered prompts must not be treated as USER-approved answers. Repo source truth may record artifact generation and blockers, but USER answers enter repo source truth only after a later USER-approved digest pass reads and summarizes the completed artifact.
+
+For runtime/user-facing branches, the accepted USER answers become the Branch Vision Contract Snapshot inside the active Branch Engineering Plan. Workstream implementation may proceed only when required vision questions are answered, explicitly deferred with waiver, or classified as Level 1 non-blocking queue items. Codex recommendations and ChatGPT recommendations remain proposed until USER accepts, revises, rejects, defers, or waives them.
 
 Allowed planning loop: Branch Readiness Stage 1 analyzes planning sufficiency; USER/ChatGPT reviews the packet; Branch Readiness Stage 2 may repair/source-sync the planning packet after USER approval; Branch Readiness Stage 1 revalidates planning sufficiency; the loop repeats until planning is complete or explicitly USER-waived. Workstream entry or continuation is blocked while `Branch Readiness Planning Incomplete` or any of its planning blockers remain active.
 
@@ -2152,6 +2220,8 @@ Forbidden:
 Required evidence:
 
 - approved execution boundary
+- accepted Branch Vision Contract Snapshot or recorded not-required reason when the branch is runtime/user-facing
+- no blocking open vision questions unless they are deferred with USER waiver
 - implementation delta classification and planning-loop guardrail markers
 - admitted implementation slice
 - direct verification of the changed behavior or docs
@@ -2193,6 +2263,7 @@ Required evidence:
 
 - validator results
 - runtime results when relevant
+- plan-vs-vision comparison when a Branch Vision Contract Snapshot is required
 - explicit distinction between product defects, harness defects, environment issues, and canon or contract drift
 
 Exit:
@@ -2225,6 +2296,7 @@ Required evidence:
 
 - required interactive or manual evidence
 - required UI audit evidence when applicable
+- vision-vs-observed-behavior comparison or waiver when a Branch Vision Contract Snapshot is required
 - evidence digestion into the authority record
 
 Exit:
@@ -2269,6 +2341,7 @@ Forbidden:
 Required evidence:
 
 - branch-local proof complete
+- accepted vision and accepted branch plan satisfied, revised, waived, or folded down with explicit receipt when a Branch Vision Contract Snapshot is required
 - required user-facing desktop shortcut validation digested, passing or explicitly waived, and no `User-Facing Shortcut Validation Pending` blocker
 - required User Test Summary results digested, passing or explicitly waived, and no `User Test Summary Results Pending` blocker
 - merge-target canon completeness gate passed
@@ -2320,6 +2393,7 @@ Forbidden:
 Required evidence:
 
 - merged or legitimately merge-ready truth
+- public release language translates accepted user-facing vision/scope and excludes future-gated vision items when a Branch Vision Contract Snapshot is part of the release window
 - `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:` for the selected release candidate
 - `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, and `FAM Contributor Routing:` for the selected release candidate
 - explicit `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches
@@ -2339,13 +2413,23 @@ Before meaningful repo work, file mutation, phase entry, branch/worktree creatio
 
 When relevant, the lock must also verify runtime/process ownership and GitHub Desktop folder binding.
 
-Assigned parallel worktree mode is allowed when USER explicitly assigns different Codex threads to different active branch worktrees. The default limit is two active branch worktrees. Each assigned worktree must have one owning thread, one branch, one write target, and one source-truth owner set. A third active branch worktree, unknown owner, unknown write target, or overlapping same-file/source-truth-owner mutation is `Parallel Worktree Coordination Missing` until USER routes the work.
+Assigned parallel worktree mode is allowed when USER explicitly assigns different Codex threads to different active branch worktrees. The default limit is two active branch worktrees. Each assigned worktree must have one owning thread, one branch, one write target, one worktree ownership ledger, one intended write set, and one source-truth owner set. A third active branch worktree, unknown active thread owner, unknown write target, missing worktree ownership ledger, same-worktree/same-branch collision, dirty-worktree ownership ambiguity, or overlapping same-file/source-truth-owner mutation is `Parallel Worktree Coordination Missing` until USER routes the work.
 
 An assigned thread may also be in `Waiting For Updated Main` posture. This is valid when that thread is in Release Readiness analysis, Branch Readiness Stage 1 analysis, or another file-freeze analysis state and is waiting for a different branch to merge before creating or continuing its branch. A waiting thread is not an active mutation carrier; it must remain read-only, must not create a branch from stale source truth, and must rerun preflight after `origin/main` updates.
 
 Before mutation in assigned parallel worktree mode, each thread must report:
 
 - assigned thread / worktree owner
+- Active Thread Owner:
+- Thread Assignment Status:
+- Worktree Ownership Ledger:
+- Intended Write Set:
+- Same Worktree / Same Branch Collision Check:
+- Dirty Worktree Collision Check:
+- Dirty Worktree Recovery Packet:
+- Off-Worktree Work Routing:
+- Governance Routing Barrier:
+- New Worktree Decision Gate:
 - expected path, git root, branch, upstream, `HEAD`, and `origin/main`
 - worktree role and phase/seam
 - intended write target and source-truth owner
@@ -2356,11 +2440,13 @@ Before mutation in assigned parallel worktree mode, each thread must report:
 - GitHub Desktop binding when Desktop is used
 - waiting status if the assigned lane has no created branch yet and is blocked on updated `origin/main`
 
-Only one related Git operation should run at a time where practical, and only one interactive desktop validation may run at a time. If a branch needs a shared source-truth file already being edited by the other assigned worktree, stop and surface the coordination decision before patching.
+Only one related Git operation should run at a time where practical, and only one interactive desktop validation may run at a time. If a branch needs a shared source-truth file already being edited by the other assigned worktree, or if two Codex threads target the same worktree/branch, stop and surface the coordination decision before patching.
 
 If the active folder, branch, upstream, worktree role, phase/seam, write target, runtime/process owner, or GitHub Desktop binding does not match the requested work, `Thread / Worktree Identity Mismatch` blocks entry and Codex must return a routing packet instead of mutating files.
 
 The routing packet must include expected workspace, actual workspace, expected branch, actual branch, expected write target, actual write target, expected phase/seam, actual repo state, mismatch evidence, and safest next correction.
+
+If the requested work belongs outside the assigned worktree, outside the active branch scope, or to another active lane, Codex must stop on `Governance Routing Barrier` and route the packet to `C:\Nexus Worktrees\Governance` on `feature/release-readiness-source-truth-intake`. Governance decides whether the work belongs to the current owner, an existing worktree/thread, a new worktree/thread, or a USER waiver. New worktree/thread creation, activation, reassignment, and GitHub Desktop repo binding remain blocked on `New Worktree Decision Gate` until USER approves the exact path, branch, owner, and validation route.
 
 ### Assigned Worktree Confinement
 
@@ -2369,6 +2455,16 @@ Assigned Worktree Confinement is mandatory once a thread is assigned to a specif
 Every assigned branch authority record must carry:
 
 - Assigned Worktree Confinement: Required
+- Active Thread Owner:
+- Thread Assignment Status:
+- Worktree Ownership Ledger:
+- Intended Write Set:
+- Same Worktree / Same Branch Collision Check:
+- Dirty Worktree Collision Check:
+- Dirty Worktree Recovery Packet:
+- Off-Worktree Work Routing:
+- Governance Routing Barrier:
+- New Worktree Decision Gate:
 - Expected Worktree Root:
 - Actual Worktree Root:
 - No Cross-Worktree Mutation: Required
@@ -2376,7 +2472,11 @@ Every assigned branch authority record must carry:
 - Worktree Escape User Waiver: Granted only when USER explicitly names the expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path
 - Worktree Escape User Waiver Missing: Blocks mutation, branch/worktree changes, runtime launch, shortcut/provider/model actions, PR/release actions, and GitHub Desktop handoff outside the assigned worktree
 
-Read-only identity checks may inspect `git worktree list`, remotes, branch names, and GitHub Desktop binding evidence from the assigned root. Any write, branch switch, cleanup, runtime launch, shortcut edit, or helper execution against a sibling worktree or parked clone is `No Cross-Worktree Mutation` scope and must stop on `Worktree Escape User Waiver Missing` unless the USER grants the waiver in clear text.
+Read-only identity checks may inspect `git worktree list`, remotes, branch names, dirty-file inventory, and GitHub Desktop binding evidence from the assigned root. Any write, branch switch, cleanup, runtime launch, shortcut edit, or helper execution against a sibling worktree or parked clone is `No Cross-Worktree Mutation` scope and must stop on `Worktree Escape User Waiver Missing` unless the USER grants the waiver in clear text.
+
+Dirty worktree collision recovery is mandatory when a target worktree is dirty before a new owner claims it. Freeze mutation, inventory dirty files, identify which thread owns each file, preserve or discard only with USER approval, and resume with exactly one active owner recorded in the worktree ownership ledger.
+
+Off-worktree work routing is mandatory when a branch thread discovers work that does not belong to its assigned worktree or active branch. The discovering thread reports the issue, expected/actual identity, dirty-file risk, likely owning lane, and recommendation, then waits. It must not self-activate a sibling worktree, take over another active thread's branch, or create a new worktree by convenience.
 
 The active thread must run or report the equivalent of `python dev\orin_branch_governance_validation.py --worktree-confinement-gate` before Stage 2 execution, phase entry, branch/worktree creation, commit, push, PR work, release work, runtime validation, or GitHub Desktop handoff when the assigned branch record declares a worktree.
 
@@ -2430,7 +2530,7 @@ Allowed:
 - one cycle ID format: `RRI-YYYYMMDD-NNN`
 - `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
 - `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
-- `Pre-Rebaseline Impact Audit`: before the standing branch or neutral main workspace fast-forwards to updated `origin/main`, report the incoming change set, changed files, runtime/source-truth risk, validation before rebaseline, recommendation only posture, approval status, and mutation status
+- `Pre-Rebaseline Impact Audit`: before the standing branch or neutral main workspace fast-forwards to updated `origin/main`, report the incoming change set, incoming changed files, current worktree changed files, branch changed files, `Rebaseline Overlap Files:`, runtime/source-truth risk, validation before rebaseline, recommendation only posture, approval status, mutation status, and `Rebaseline Overlap Intent Gate` result when overlap exists
 - `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR bot-review repair on the standing governance PR
 - source-truth/governance/validator drift repair named by the intake digest
 - a post-merge `Return Digest` to the originating worktree/thread with concrete originating branch/worktree identity copied from the accepted intake and `Neutral Main Workspace Rebaseline:` proof for `C:\Nexus Desktop AI`

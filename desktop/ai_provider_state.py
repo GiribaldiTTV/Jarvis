@@ -1,3 +1,4 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=SRCOWN-FIRSTPASS-FAM007-AI-007; surface=provider-state-contract; status=shared
 """Provider/no-provider and foundation-readiness state contract for FAM-007.
 
 This module owns local-only FAM-007 scaffolds. It does not load models, call
@@ -25,6 +26,15 @@ LOCAL_HARDWARE_CAPABILITY_STATE_ID = "hardware-gpu-cpu-capability-planning"
 FAM007_FOUNDATION_READINESS_STATE_ID = "fam007-foundation-readiness-scaffold"
 LOCAL_AI_RUNTIME_FOUNDATION_STATE_ID = "local-ai-runtime-foundation-provider-boundary"
 FAM007_EXECUTION_READINESS_STATE_ID = "fam007-execution-readiness-gates"
+FAM007_PROVIDER_PATH_CONSENT_READINESS_STATE_ID = "fam007-provider-path-consent-readiness"
+FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_STATE_ID = "fam007-provider-setup-consent-flow-readiness"
+FAM007_PROVIDER_SETUP_CONTRACT_READINESS_STATE_ID = "fam007-provider-setup-contract-readiness"
+FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_STATE_ID = (
+    "fam007-provider-setup-implementation-foundation"
+)
+FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_STATE_ID = (
+    "fam007-provider-consent-collection-foundation"
+)
 
 NO_PROVIDER_MODE = "no-provider"
 NO_PROVIDER_AVAILABILITY = "disabled"
@@ -41,6 +51,16 @@ LOCAL_AI_RUNTIME_FOUNDATION_MODE = "runtime-foundation-provider-boundary"
 LOCAL_AI_RUNTIME_FOUNDATION_AVAILABILITY = "disabled"
 FAM007_EXECUTION_READINESS_MODE = "execution-readiness-gates"
 FAM007_EXECUTION_READINESS_AVAILABILITY = "disabled"
+FAM007_PROVIDER_PATH_CONSENT_READINESS_MODE = "provider-path-consent-readiness"
+FAM007_PROVIDER_PATH_CONSENT_READINESS_AVAILABILITY = "disabled"
+FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_MODE = "provider-setup-consent-flow-readiness"
+FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_AVAILABILITY = "disabled"
+FAM007_PROVIDER_SETUP_CONTRACT_READINESS_MODE = "provider-setup-contract-readiness"
+FAM007_PROVIDER_SETUP_CONTRACT_READINESS_AVAILABILITY = "disabled"
+FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_MODE = "provider-setup-implementation-foundation"
+FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_AVAILABILITY = "disabled"
+FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_MODE = "provider-consent-collection-foundation"
+FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_AVAILABILITY = "disabled"
 NO_PROVIDER_ID = "no-provider"
 NO_PROVIDER_FALLBACK_SELECTION = "fallback-no-provider"
 PROVIDER_CONSENT_REQUIRED = "required-before-provider"
@@ -389,6 +409,574 @@ FUNCTIONAL_AI_RELEASE_GATE_PENDING = "functional-ai-release-gate-pending"
 FUNCTIONAL_AI_RELEASE_GATE_READY_FUTURE_VERSION = "functional-ai-release-gate-ready-future-version"
 V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI = "v1.8.0-prebeta-release-gate-pending-functional-ai"
 V18_RELEASE_GATE_READY_FUTURE_VERSION = "v1.8.0-prebeta-release-gate-ready-future-version"
+PROVIDER_PATH_READINESS_STATE_SCHEMA_VERSION = "provider-path-readiness-state.v1"
+PROVIDER_PATH_READINESS_CONFIG_SCHEMA_VERSION = "provider-path-readiness-config.v1"
+PROVIDER_PATH_READINESS_CONFIG_MIGRATION_POSTURE = "safe-defaults-no-provider-path-migration"
+PROVIDER_PATH_READINESS_STATE_UNKNOWN = "provider_path_unknown"
+PROVIDER_PATH_READINESS_STATE_UNAVAILABLE = "provider_path_unavailable"
+PROVIDER_PATH_READINESS_STATE_DISABLED = "provider_path_disabled"
+PROVIDER_PATH_READINESS_STATE_UNSELECTED = "provider_path_unselected"
+PROVIDER_PATH_READINESS_STATE_SELECTION_REQUIRED = "provider_path_selection_required"
+PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_POLICY = "provider_path_blocked_by_policy"
+PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_CONSENT = "provider_path_blocked_by_consent"
+PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_CAPABILITY = "provider_path_blocked_by_capability"
+PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_MANIFEST = "provider_path_blocked_by_manifest"
+PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_SAFETY = "provider_path_blocked_by_safety"
+PROVIDER_PATH_READINESS_STATE_READY_FUTURE_GATED = "provider_path_ready_future_gated"
+PROVIDER_PATH_READINESS_STATE_READY_BUT_NOT_APPROVED = "provider_path_ready_but_not_approved"
+PROVIDER_PATH_READINESS_STATE_DEGRADED = "provider_path_degraded"
+PROVIDER_PATH_READINESS_STATE_READY_FOR_FUTURE_EXECUTION_BRANCH = (
+    "provider_path_ready_for_future_execution_branch"
+)
+PROVIDER_PATH_ELIGIBILITY_UNAVAILABLE = "provider_path_eligibility_unavailable"
+PROVIDER_PATH_ELIGIBILITY_DISABLED = "provider_path_eligibility_disabled"
+PROVIDER_PATH_ELIGIBILITY_BLOCKED = "provider_path_eligibility_blocked"
+PROVIDER_PATH_ELIGIBILITY_SELECTION_REQUIRED = "provider_path_eligibility_selection_required"
+PROVIDER_PATH_ELIGIBILITY_FUTURE_GATED = "provider_path_eligibility_future_gated"
+PROVIDER_PATH_ELIGIBILITY_READY_NOT_APPROVED = "provider_path_eligibility_ready_not_approved"
+PROVIDER_PATH_ELIGIBILITY_FUTURE_EXECUTION_BRANCH = "provider_path_eligibility_future_execution_branch"
+PROVIDER_PATH_BLOCKER_NONE = "none"
+PROVIDER_PATH_BLOCKER_EXECUTION_READINESS_REQUIRED = "execution_readiness_required"
+PROVIDER_PATH_BLOCKER_SELECTION_REQUIRED = "provider_selection_required"
+PROVIDER_PATH_BLOCKER_CONFIG_REQUIRED = "provider_config_required"
+PROVIDER_PATH_BLOCKER_CONFIG_INVALID = "provider_config_invalid"
+PROVIDER_PATH_BLOCKER_SETUP_CONSENT_REQUIRED = "setup_consent_required"
+PROVIDER_PATH_BLOCKER_EXECUTION_CONSENT_REQUIRED = "execution_consent_required"
+PROVIDER_PATH_BLOCKER_DATA_VISIBILITY_REQUIRED = "provider_visible_data_required"
+PROVIDER_PATH_BLOCKER_CAPABILITY_REQUIRED = "capability_required"
+PROVIDER_PATH_BLOCKER_MANIFEST_REQUIRED = "manifest_required"
+PROVIDER_PATH_BLOCKER_SAFETY_EVAL_REQUIRED = "safety_eval_required"
+PROVIDER_PATH_BLOCKER_POLICY_BLOCKED = "policy_blocked"
+PROVIDER_PATH_BLOCKER_SETUP_APPROVAL_REQUIRED = "setup_approval_required"
+PROVIDER_PATH_BLOCKER_EXECUTION_APPROVAL_REQUIRED = "execution_approval_required"
+PROVIDER_PATH_BLOCKER_VERSION_JUMP_REQUIRED = "version_jump_required"
+PROVIDER_PATH_REASON_DEFAULT_UNAVAILABLE = "provider_path_default_unavailable"
+PROVIDER_PATH_REASON_CONFIG_MISSING_FAIL_CLOSED = "provider_path_config_missing_fail_closed"
+PROVIDER_PATH_REASON_CONFIG_INVALID_FAIL_CLOSED = "provider_path_config_invalid_fail_closed"
+PROVIDER_PATH_REASON_EXECUTION_READINESS_UNAVAILABLE = "provider_path_execution_readiness_unavailable"
+PROVIDER_PATH_REASON_UNSELECTED = "provider_path_unselected"
+PROVIDER_PATH_REASON_CONFIG_MISSING = "provider_path_config_missing"
+PROVIDER_PATH_REASON_CONFIG_INVALID = "provider_path_config_invalid"
+PROVIDER_PATH_REASON_SETUP_CONSENT_REQUIRED = "provider_path_setup_consent_required"
+PROVIDER_PATH_REASON_EXECUTION_CONSENT_REQUIRED = "provider_path_execution_consent_required"
+PROVIDER_PATH_REASON_DATA_VISIBILITY_BLOCKED = "provider_path_data_visibility_blocked"
+PROVIDER_PATH_REASON_CAPABILITY_MISSING = "provider_path_capability_missing"
+PROVIDER_PATH_REASON_MANIFEST_MISSING = "provider_path_manifest_missing"
+PROVIDER_PATH_REASON_SAFETY_BLOCKED = "provider_path_safety_blocked"
+PROVIDER_PATH_REASON_POLICY_BLOCKED = "provider_path_policy_blocked"
+PROVIDER_PATH_REASON_SETUP_APPROVAL_MISSING = "provider_path_setup_approval_missing"
+PROVIDER_PATH_REASON_EXECUTION_APPROVAL_MISSING = "provider_path_execution_approval_missing"
+PROVIDER_PATH_REASON_READY_FOR_FUTURE_EXECUTION_BRANCH = "provider_path_ready_for_future_execution_branch"
+PROVIDER_PATH_REASON_FUNCTIONAL_AI_FUTURE_VERSION = "provider_path_functional_ai_future_version"
+PROVIDER_PATH_PROVENANCE_DEFAULT_CONFIG = "default_config"
+PROVIDER_PATH_PROVENANCE_LOCAL_CONFIG = "local_config"
+PROVIDER_PATH_PROVENANCE_EXECUTION_READINESS_STATE = "execution_readiness_state"
+PROVIDER_PATH_PROVENANCE_PROVIDER_SELECTION_CONTRACT = "provider_selection_contract"
+PROVIDER_PATH_PROVENANCE_PROVIDER_CONFIG_CONTRACT = "provider_config_contract"
+PROVIDER_PATH_PROVENANCE_CONSENT_STATE = "consent_state"
+PROVIDER_PATH_PROVENANCE_DATA_VISIBILITY_CONTRACT = "data_visibility_contract"
+PROVIDER_PATH_PROVENANCE_CAPABILITY_CONTRACT = "capability_contract"
+PROVIDER_PATH_PROVENANCE_MANIFEST_STATE = "manifest_state"
+PROVIDER_PATH_PROVENANCE_SAFETY_EVAL = "safety_eval"
+PROVIDER_PATH_PROVENANCE_AUDIT_POLICY = "audit_policy"
+PROVIDER_PATH_PROVENANCE_FUTURE_RUNTIME_CHECK = "future_runtime_check"
+PROVIDER_PATH_PROVENANCE_VALIDATOR_FIXTURE = "validator_fixture"
+PROVIDER_PATH_CONFIG_STATE_DEFAULT = "default_config"
+PROVIDER_PATH_CONFIG_STATE_MISSING = "missing_config"
+PROVIDER_PATH_CONFIG_STATE_INVALID = "invalid_config"
+PROVIDER_PATH_CONFIG_STATE_LOCAL = "local_config"
+PROVIDER_PATH_APPROVAL_STATUS_MISSING = "provider-path-approval-missing"
+PROVIDER_PATH_APPROVAL_STATUS_FUTURE_GATED = "provider-path-approval-future-gated"
+PROVIDER_PATH_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF = "provider-path-approval-ready-for-future-proof"
+PROVIDER_CONFIG_ENVELOPE_STATUS_MISSING = "provider-config-missing"
+PROVIDER_CONFIG_ENVELOPE_STATUS_INVALID = "provider-config-invalid"
+PROVIDER_CONFIG_ENVELOPE_STATUS_LOCAL_ONLY_READY = "provider-config-local-only-ready"
+PROVIDER_PROFILE_METADATA_CONTRACT_VERSION = "provider-profile-metadata.v1"
+PROVIDER_PROFILE_ID_LOCAL_NULL = "local-null-provider-profile"
+PROVIDER_PROFILE_KIND_NULL_LOCAL = "null-local-provider"
+PROVIDER_PROFILE_SOURCE_LOCAL_SCAFFOLD = "local-readiness-scaffold"
+PROVIDER_SDK_REQUIREMENT_PENDING_APPROVAL = "sdk-integration-pending-user-approval"
+PROVIDER_NETWORK_REQUIREMENT_BLOCKED = "network-requirement-blocked"
+PROVIDER_AVAILABILITY_UNAVAILABLE = "provider-availability-unavailable"
+PROVIDER_AVAILABILITY_READY_FUTURE_GATED = "provider-availability-ready-future-gated"
+PROVIDER_SETUP_APPROVAL_STATUS_MISSING = "provider-setup-approval-missing"
+PROVIDER_SETUP_APPROVAL_STATUS_FUTURE_GATED = "provider-setup-approval-future-gated"
+PROVIDER_EXECUTION_APPROVAL_STATUS_PROVIDER_PATH_MISSING = "provider-execution-approval-missing"
+LOCAL_NULL_PROVIDER_FALLBACK_ACTIVE = "local-null-provider-fallback-active"
+FUTURE_SDK_HANDOFF_MARKER = "future-sdk-handoff-marker"
+FUTURE_PROVIDER_SETUP_HANDOFF_MARKER = "future-provider-setup-handoff-marker"
+CONSENT_READINESS_STATE_SCHEMA_VERSION = "provider-consent-readiness-state.v1"
+CONSENT_READINESS_CONFIG_SCHEMA_VERSION = "provider-consent-readiness-config.v1"
+CONSENT_READINESS_CONFIG_MIGRATION_POSTURE = "safe-defaults-no-consent-collection-migration"
+CONSENT_READINESS_STATE_UNKNOWN = "consent_unknown"
+CONSENT_READINESS_STATE_UNAVAILABLE = "consent_unavailable"
+CONSENT_READINESS_STATE_DISABLED = "consent_disabled"
+CONSENT_READINESS_STATE_NOT_REQUIRED_FOR_LOCAL_STATUS = "consent_not_required_for_local_status"
+CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_SETUP = "consent_required_for_provider_setup"
+CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_EXECUTION = "consent_required_for_provider_execution"
+CONSENT_READINESS_STATE_BLOCKED_BY_POLICY = "consent_blocked_by_policy"
+CONSENT_READINESS_STATE_BLOCKED_BY_DATA_VISIBILITY = "consent_blocked_by_data_visibility"
+CONSENT_READINESS_STATE_BLOCKED_BY_AUDIT_REQUIREMENTS = "consent_blocked_by_audit_requirements"
+CONSENT_READINESS_STATE_READY_FUTURE_GATED = "consent_ready_future_gated"
+CONSENT_READINESS_STATE_READY_BUT_NOT_COLLECTED = "consent_ready_but_not_collected"
+CONSENT_READINESS_STATE_DEGRADED = "consent_degraded"
+CONSENT_BLOCKER_NONE = "none"
+CONSENT_BLOCKER_SETUP_REQUIRED = "setup_consent_required"
+CONSENT_BLOCKER_EXECUTION_REQUIRED = "execution_consent_required"
+CONSENT_BLOCKER_POLICY = "consent_policy_blocked"
+CONSENT_BLOCKER_DATA_VISIBILITY = "data_visibility_blocked"
+CONSENT_BLOCKER_AUDIT_REQUIREMENTS = "audit_requirements_blocked"
+CONSENT_BLOCKER_COLLECTION_NOT_APPROVED = "consent_collection_not_approved"
+CONSENT_REASON_SETUP_REQUIRED = "consent_setup_required"
+CONSENT_REASON_EXECUTION_REQUIRED = "consent_execution_required"
+CONSENT_REASON_POLICY_BLOCKED = "consent_policy_blocked"
+CONSENT_REASON_DATA_VISIBILITY_BLOCKED = "consent_data_visibility_blocked"
+CONSENT_REASON_AUDIT_REQUIREMENTS_BLOCKED = "consent_audit_requirements_blocked"
+CONSENT_REASON_READY_BUT_NOT_COLLECTED = "consent_ready_but_not_collected"
+CONSENT_PROVENANCE_DEFAULT_CONFIG = "default_config"
+CONSENT_PROVENANCE_PROVIDER_PATH_CONTRACT = "provider_path_contract"
+CONSENT_PROVENANCE_DATA_VISIBILITY_CONTRACT = "data_visibility_contract"
+CONSENT_PROVENANCE_AUDIT_POLICY = "audit_policy"
+CONSENT_PROVENANCE_FUTURE_COLLECTION = "future_consent_collection"
+SETUP_CONSENT_HANDOFF_FUTURE_GATED = "setup-consent-handoff-future-gated"
+EXECUTION_CONSENT_HANDOFF_FUTURE_GATED = "execution-consent-handoff-future-gated"
+PROVIDER_VISIBLE_DATA_REQUIREMENT_NONE = "provider-visible-data-requirement-none"
+PROVIDER_VISIBLE_DATA_REQUIREMENT_BLOCKED = "provider-visible-data-requirement-blocked"
+DATA_CLASSIFICATION_POSTURE_LOCAL_ONLY = "data-classification-posture-local-only"
+AUDIT_ENVELOPE_POSTURE_PLANNED = "audit-envelope-posture-planned"
+LOCAL_ONLY_STATUS_POSTURE_ACTIVE = "local-only-status-posture-active"
+PROVIDER_SETUP_FUTURE_GATED_POSTURE = "provider-setup-future-gated"
+PROVIDER_EXECUTION_FUTURE_GATED_POSTURE = "provider-execution-future-gated"
+PROVIDER_PATH_GATE_BLOCKED = "provider-path-gate-blocked"
+PROVIDER_PATH_GATE_FUTURE_GATED = "provider-path-gate-future-gated"
+PROVIDER_CONFIG_GATE_BLOCKED = "provider-config-gate-blocked"
+PROVIDER_CONFIG_GATE_READY_FUTURE_GATED = "provider-config-gate-ready-future-gated"
+SETUP_CONSENT_GATE_REQUIRED = "setup-consent-gate-required"
+SETUP_CONSENT_GATE_READY_FUTURE_GATED = "setup-consent-gate-ready-future-gated"
+EXECUTION_CONSENT_GATE_REQUIRED = "execution-consent-gate-required"
+EXECUTION_CONSENT_GATE_READY_FUTURE_GATED = "execution-consent-gate-ready-future-gated"
+PROVIDER_VISIBLE_DATA_GATE_NONE = "provider-visible-data-gate-none"
+PROVIDER_VISIBLE_DATA_GATE_BLOCKED = "provider-visible-data-gate-blocked"
+AUDIT_GATE_PLANNED = "audit-gate-planned"
+AUDIT_GATE_READY_FUTURE_GATED = "audit-gate-ready-future-gated"
+
+SETUP_FLOW_READINESS_STATE_SCHEMA_VERSION = "provider-setup-flow-readiness-state.v1"
+SETUP_FLOW_READINESS_CONFIG_SCHEMA_VERSION = "provider-setup-flow-readiness-config.v1"
+SETUP_FLOW_READINESS_CONFIG_MIGRATION_POSTURE = "safe-defaults-no-setup-flow-migration"
+SETUP_FLOW_STATE_UNKNOWN = "setup_flow_unknown"
+SETUP_FLOW_STATE_UNAVAILABLE = "setup_flow_unavailable"
+SETUP_FLOW_STATE_DISABLED = "setup_flow_disabled"
+SETUP_FLOW_STATE_BLOCKED_BY_PROVIDER_PATH = "setup_flow_blocked_by_provider_path"
+SETUP_FLOW_STATE_BLOCKED_BY_SETUP_CONSENT = "setup_flow_blocked_by_setup_consent"
+SETUP_FLOW_STATE_BLOCKED_BY_EXECUTION_CONSENT = "setup_flow_blocked_by_execution_consent"
+SETUP_FLOW_STATE_BLOCKED_BY_POLICY = "setup_flow_blocked_by_policy"
+SETUP_FLOW_STATE_BLOCKED_BY_CAPABILITY = "setup_flow_blocked_by_capability"
+SETUP_FLOW_STATE_BLOCKED_BY_MANIFEST = "setup_flow_blocked_by_manifest"
+SETUP_FLOW_STATE_BLOCKED_BY_SAFETY = "setup_flow_blocked_by_safety"
+SETUP_FLOW_STATE_READY_FUTURE_GATED = "setup_flow_ready_future_gated"
+SETUP_FLOW_STATE_READY_BUT_NOT_APPROVED = "setup_flow_ready_but_not_approved"
+SETUP_FLOW_STATE_DEGRADED = "setup_flow_degraded"
+SETUP_FLOW_STATE_READY_FOR_FUTURE_SETUP_BRANCH = "setup_flow_ready_for_future_setup_branch"
+SETUP_FLOW_ELIGIBILITY_UNAVAILABLE = "setup_flow_eligibility_unavailable"
+SETUP_FLOW_ELIGIBILITY_DISABLED = "setup_flow_eligibility_disabled"
+SETUP_FLOW_ELIGIBILITY_BLOCKED = "setup_flow_eligibility_blocked"
+SETUP_FLOW_ELIGIBILITY_FUTURE_GATED = "setup_flow_eligibility_future_gated"
+SETUP_FLOW_ELIGIBILITY_READY_NOT_APPROVED = "setup_flow_eligibility_ready_not_approved"
+SETUP_FLOW_ELIGIBILITY_FUTURE_SETUP_BRANCH = "setup_flow_eligibility_future_setup_branch"
+SETUP_FLOW_BLOCKER_PROVIDER_PATH_REQUIRED = "provider_path_required"
+SETUP_FLOW_BLOCKER_SETUP_CONSENT_REQUIRED = "setup_consent_required"
+SETUP_FLOW_BLOCKER_EXECUTION_CONSENT_REQUIRED = "execution_consent_required"
+SETUP_FLOW_BLOCKER_POLICY_BLOCKED = "policy_blocked"
+SETUP_FLOW_BLOCKER_CAPABILITY_REQUIRED = "capability_required"
+SETUP_FLOW_BLOCKER_MANIFEST_REQUIRED = "manifest_required"
+SETUP_FLOW_BLOCKER_SAFETY_EVAL_REQUIRED = "safety_eval_required"
+SETUP_FLOW_BLOCKER_SETUP_APPROVAL_REQUIRED = "setup_approval_required"
+SETUP_FLOW_BLOCKER_FUTURE_SETUP_BRANCH = "future_setup_branch_required"
+SETUP_FLOW_REASON_DEFAULT_UNAVAILABLE = "setup_flow_default_unavailable"
+SETUP_FLOW_REASON_PROVIDER_PATH_REQUIRED = "setup_flow_provider_path_required"
+SETUP_FLOW_REASON_SETUP_CONSENT_REQUIRED = "setup_flow_setup_consent_required"
+SETUP_FLOW_REASON_EXECUTION_CONSENT_REQUIRED = "setup_flow_execution_consent_required"
+SETUP_FLOW_REASON_POLICY_BLOCKED = "setup_flow_policy_blocked"
+SETUP_FLOW_REASON_CAPABILITY_MISSING = "setup_flow_capability_missing"
+SETUP_FLOW_REASON_MANIFEST_MISSING = "setup_flow_manifest_missing"
+SETUP_FLOW_REASON_SAFETY_BLOCKED = "setup_flow_safety_blocked"
+SETUP_FLOW_REASON_SETUP_APPROVAL_MISSING = "setup_flow_setup_approval_missing"
+SETUP_FLOW_REASON_READY_FOR_FUTURE_SETUP_BRANCH = "setup_flow_ready_for_future_setup_branch"
+SETUP_FLOW_PROVENANCE_PROVIDER_PATH = "provider_path_readiness_state"
+SETUP_FLOW_PROVENANCE_CONSENT = "consent_flow_state"
+SETUP_FLOW_PROVENANCE_CAPABILITY = "capability_contract"
+SETUP_FLOW_PROVENANCE_MANIFEST = "manifest_state"
+SETUP_FLOW_PROVENANCE_SAFETY = "safety_eval"
+SETUP_FLOW_PROVENANCE_POLICY = "audit_policy"
+SETUP_FLOW_PROVENANCE_FUTURE_RUNTIME = "future_runtime_check"
+SETUP_FLOW_APPROVAL_STATUS_MISSING = "setup-flow-approval-missing"
+SETUP_FLOW_APPROVAL_STATUS_FUTURE_GATED = "setup-flow-approval-future-gated"
+SETUP_FLOW_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF = "setup-flow-approval-ready-for-future-proof"
+
+CONSENT_FLOW_READINESS_STATE_SCHEMA_VERSION = "provider-consent-flow-readiness-state.v1"
+CONSENT_FLOW_READINESS_CONFIG_SCHEMA_VERSION = "provider-consent-flow-readiness-config.v1"
+CONSENT_FLOW_READINESS_CONFIG_MIGRATION_POSTURE = "safe-defaults-no-consent-flow-migration"
+CONSENT_FLOW_STATE_UNKNOWN = "consent_flow_unknown"
+CONSENT_FLOW_STATE_UNAVAILABLE = "consent_flow_unavailable"
+CONSENT_FLOW_STATE_DISABLED = "consent_flow_disabled"
+CONSENT_FLOW_STATE_BLOCKED_BY_POLICY = "consent_flow_blocked_by_policy"
+CONSENT_FLOW_STATE_BLOCKED_BY_DATA_VISIBILITY = "consent_flow_blocked_by_data_visibility"
+CONSENT_FLOW_STATE_BLOCKED_BY_AUDIT_REQUIREMENTS = "consent_flow_blocked_by_audit_requirements"
+CONSENT_FLOW_STATE_REQUIRED_FOR_SETUP = "consent_flow_required_for_setup"
+CONSENT_FLOW_STATE_REQUIRED_FOR_EXECUTION = "consent_flow_required_for_execution"
+CONSENT_FLOW_STATE_READY_FUTURE_GATED = "consent_flow_ready_future_gated"
+CONSENT_FLOW_STATE_READY_BUT_NOT_COLLECTED = "consent_flow_ready_but_not_collected"
+CONSENT_FLOW_STATE_DEGRADED = "consent_flow_degraded"
+CONSENT_FLOW_STATE_READY_FOR_FUTURE_CONSENT_BRANCH = "consent_flow_ready_for_future_consent_branch"
+CONSENT_FLOW_ELIGIBILITY_UNAVAILABLE = "consent_flow_eligibility_unavailable"
+CONSENT_FLOW_ELIGIBILITY_REQUIRED = "consent_flow_eligibility_required"
+CONSENT_FLOW_ELIGIBILITY_BLOCKED = "consent_flow_eligibility_blocked"
+CONSENT_FLOW_ELIGIBILITY_FUTURE_GATED = "consent_flow_eligibility_future_gated"
+CONSENT_FLOW_ELIGIBILITY_READY_NOT_COLLECTED = "consent_flow_eligibility_ready_not_collected"
+CONSENT_FLOW_ELIGIBILITY_FUTURE_CONSENT_BRANCH = "consent_flow_eligibility_future_consent_branch"
+CONSENT_FLOW_BLOCKER_SETUP_CONSENT_REQUIRED = "setup_consent_required"
+CONSENT_FLOW_BLOCKER_EXECUTION_CONSENT_REQUIRED = "execution_consent_required"
+CONSENT_FLOW_BLOCKER_POLICY_BLOCKED = "policy_blocked"
+CONSENT_FLOW_BLOCKER_DATA_VISIBILITY_REQUIRED = "data_visibility_required"
+CONSENT_FLOW_BLOCKER_AUDIT_REQUIRED = "audit_required"
+CONSENT_FLOW_BLOCKER_COLLECTION_NOT_APPROVED = "consent_collection_not_approved"
+CONSENT_FLOW_BLOCKER_FUTURE_CONSENT_BRANCH = "future_consent_branch_required"
+CONSENT_FLOW_REASON_DEFAULT_UNAVAILABLE = "consent_flow_default_unavailable"
+CONSENT_FLOW_REASON_SETUP_REQUIRED = "consent_flow_setup_required"
+CONSENT_FLOW_REASON_EXECUTION_REQUIRED = "consent_flow_execution_required"
+CONSENT_FLOW_REASON_POLICY_BLOCKED = "consent_flow_policy_blocked"
+CONSENT_FLOW_REASON_DATA_VISIBILITY_BLOCKED = "consent_flow_data_visibility_blocked"
+CONSENT_FLOW_REASON_AUDIT_REQUIREMENTS_BLOCKED = "consent_flow_audit_requirements_blocked"
+CONSENT_FLOW_REASON_READY_BUT_NOT_COLLECTED = "consent_flow_ready_but_not_collected"
+CONSENT_FLOW_REASON_READY_FOR_FUTURE_CONSENT_BRANCH = "consent_flow_ready_for_future_consent_branch"
+CONSENT_FLOW_PROVENANCE_SETUP_CONSENT = "setup_consent_state"
+CONSENT_FLOW_PROVENANCE_EXECUTION_CONSENT = "execution_consent_state"
+CONSENT_FLOW_PROVENANCE_DATA_VISIBILITY = "data_visibility_contract"
+CONSENT_FLOW_PROVENANCE_AUDIT = "audit_policy"
+CONSENT_FLOW_PROVENANCE_FUTURE_COLLECTION = "future_consent_collection"
+CONSENT_FLOW_APPROVAL_STATUS_MISSING = "consent-flow-approval-missing"
+CONSENT_FLOW_APPROVAL_STATUS_FUTURE_GATED = "consent-flow-approval-future-gated"
+CONSENT_FLOW_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF = "consent-flow-approval-ready-for-future-proof"
+PROVIDER_SETUP_HANDOFF_FUTURE_GATED = "provider-setup-handoff-future-gated"
+PROVIDER_CONSENT_HANDOFF_FUTURE_GATED = "provider-consent-handoff-future-gated"
+PROVIDER_PATH_HANDOFF_FUTURE_GATED = "provider-path-handoff-future-gated"
+CONSENT_COLLECTION_POSTURE_PENDING_APPROVAL = "consent-collection-pending-user-approval"
+DATA_VISIBILITY_CONSENT_POSTURE_NONE_REQUIRED = "data-visibility-consent-none-required"
+SETUP_FLOW_GATE_BLOCKED = "setup-flow-gate-blocked"
+SETUP_FLOW_GATE_FUTURE_GATED = "setup-flow-gate-future-gated"
+CONSENT_FLOW_GATE_REQUIRED = "consent-flow-gate-required"
+CONSENT_FLOW_GATE_FUTURE_GATED = "consent-flow-gate-future-gated"
+SETUP_APPROVAL_GATE_MISSING = "setup-approval-gate-missing"
+SETUP_APPROVAL_GATE_FUTURE_GATED = "setup-approval-gate-future-gated"
+EXECUTION_APPROVAL_GATE_MISSING = "execution-approval-gate-missing"
+EXECUTION_APPROVAL_GATE_FUTURE_GATED = "execution-approval-gate-future-gated"
+AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED = "desktop-ai-owned-readiness-display-suppressed"
+AI_PROVIDER_STATUS_DISPLAY_ABSENT_FROM_DEFAULT_DESKTOP = "desktop-ai-owned-readiness-display-absent-from-default-surface"
+
+SETUP_CONTRACT_READINESS_STATE_SCHEMA_VERSION = "provider-setup-contract-readiness-state.v1"
+SETUP_CONTRACT_READINESS_CONFIG_SCHEMA_VERSION = "provider-setup-contract-readiness-config.v1"
+SETUP_CONTRACT_READINESS_CONFIG_MIGRATION_POSTURE = "safe-defaults-no-provider-setup-contract-migration"
+SETUP_CONTRACT_STATE_UNKNOWN = "setup_contract_unknown"
+SETUP_CONTRACT_STATE_UNAVAILABLE = "setup_contract_unavailable"
+SETUP_CONTRACT_STATE_DISABLED = "setup_contract_disabled"
+SETUP_CONTRACT_STATE_BLOCKED_BY_PROVIDER_PATH = "setup_contract_blocked_by_provider_path"
+SETUP_CONTRACT_STATE_BLOCKED_BY_CONFIG = "setup_contract_blocked_by_config"
+SETUP_CONTRACT_STATE_BLOCKED_BY_SETUP_CONSENT = "setup_contract_blocked_by_setup_consent"
+SETUP_CONTRACT_STATE_BLOCKED_BY_EXECUTION_CONSENT = "setup_contract_blocked_by_execution_consent"
+SETUP_CONTRACT_STATE_BLOCKED_BY_POLICY = "setup_contract_blocked_by_policy"
+SETUP_CONTRACT_STATE_BLOCKED_BY_CAPABILITY = "setup_contract_blocked_by_capability"
+SETUP_CONTRACT_STATE_BLOCKED_BY_MANIFEST = "setup_contract_blocked_by_manifest"
+SETUP_CONTRACT_STATE_BLOCKED_BY_SAFETY = "setup_contract_blocked_by_safety"
+SETUP_CONTRACT_STATE_READY_FUTURE_GATED = "setup_contract_ready_future_gated"
+SETUP_CONTRACT_STATE_READY_BUT_NOT_APPROVED = "setup_contract_ready_but_not_approved"
+SETUP_CONTRACT_STATE_DEGRADED = "setup_contract_degraded"
+SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH = "setup_contract_ready_for_future_setup_branch"
+SETUP_CONTRACT_ELIGIBILITY_UNAVAILABLE = "setup_contract_eligibility_unavailable"
+SETUP_CONTRACT_ELIGIBILITY_DISABLED = "setup_contract_eligibility_disabled"
+SETUP_CONTRACT_ELIGIBILITY_BLOCKED = "setup_contract_eligibility_blocked"
+SETUP_CONTRACT_ELIGIBILITY_FUTURE_GATED = "setup_contract_eligibility_future_gated"
+SETUP_CONTRACT_ELIGIBILITY_READY_NOT_APPROVED = "setup_contract_eligibility_ready_not_approved"
+SETUP_CONTRACT_ELIGIBILITY_FUTURE_SETUP_BRANCH = "setup_contract_eligibility_future_setup_branch"
+SETUP_CONTRACT_BLOCKER_PROVIDER_PATH_REQUIRED = "setup_contract_provider_path_required"
+SETUP_CONTRACT_BLOCKER_CONFIG_REQUIRED = "setup_contract_config_required"
+SETUP_CONTRACT_BLOCKER_SETUP_CONSENT_REQUIRED = "setup_contract_setup_consent_required"
+SETUP_CONTRACT_BLOCKER_EXECUTION_CONSENT_REQUIRED = "setup_contract_execution_consent_required"
+SETUP_CONTRACT_BLOCKER_POLICY_BLOCKED = "setup_contract_policy_blocked"
+SETUP_CONTRACT_BLOCKER_CAPABILITY_REQUIRED = "setup_contract_capability_required"
+SETUP_CONTRACT_BLOCKER_MANIFEST_REQUIRED = "setup_contract_manifest_required"
+SETUP_CONTRACT_BLOCKER_SAFETY_EVAL_REQUIRED = "setup_contract_safety_eval_required"
+SETUP_CONTRACT_BLOCKER_SETUP_APPROVAL_REQUIRED = "setup_contract_setup_approval_required"
+SETUP_CONTRACT_BLOCKER_FUTURE_SETUP_BRANCH = "setup_contract_future_setup_branch_required"
+SETUP_CONTRACT_REASON_DEFAULT_UNAVAILABLE = "setup_contract_default_unavailable"
+SETUP_CONTRACT_REASON_PROVIDER_PATH_REQUIRED = "setup_contract_provider_path_required"
+SETUP_CONTRACT_REASON_CONFIG_MISSING = "setup_contract_config_missing"
+SETUP_CONTRACT_REASON_CONFIG_INVALID = "setup_contract_config_invalid"
+SETUP_CONTRACT_REASON_PROFILE_MISSING = "setup_contract_profile_missing"
+SETUP_CONTRACT_REASON_SETUP_CONSENT_REQUIRED = "setup_contract_setup_consent_required"
+SETUP_CONTRACT_REASON_EXECUTION_CONSENT_REQUIRED = "setup_contract_execution_consent_required"
+SETUP_CONTRACT_REASON_POLICY_BLOCKED = "setup_contract_policy_blocked"
+SETUP_CONTRACT_REASON_CAPABILITY_MISSING = "setup_contract_capability_missing"
+SETUP_CONTRACT_REASON_MANIFEST_MISSING = "setup_contract_manifest_missing"
+SETUP_CONTRACT_REASON_SAFETY_BLOCKED = "setup_contract_safety_blocked"
+SETUP_CONTRACT_REASON_SETUP_APPROVAL_MISSING = "setup_contract_setup_approval_missing"
+SETUP_CONTRACT_REASON_READY_FOR_FUTURE_SETUP_BRANCH = "setup_contract_ready_for_future_setup_branch"
+SETUP_CONTRACT_PROVENANCE_SETUP_FLOW = "setup_flow_readiness_state"
+SETUP_CONTRACT_PROVENANCE_PROVIDER_PATH = "provider_path_readiness_state"
+SETUP_CONTRACT_PROVENANCE_CONFIG = "provider_config_envelope"
+SETUP_CONTRACT_PROVENANCE_PROFILE = "provider_profile_metadata"
+SETUP_CONTRACT_PROVENANCE_CONSENT = "provider_consent_prerequisites"
+SETUP_CONTRACT_PROVENANCE_CAPABILITY = "capability_contract"
+SETUP_CONTRACT_PROVENANCE_MANIFEST = "manifest_state"
+SETUP_CONTRACT_PROVENANCE_SAFETY = "safety_eval"
+SETUP_CONTRACT_PROVENANCE_POLICY = "audit_policy"
+SETUP_CONTRACT_PROVENANCE_FUTURE_RUNTIME = "future_setup_contract_check"
+SETUP_CONTRACT_APPROVAL_STATUS_MISSING = "setup-contract-approval-missing"
+SETUP_CONTRACT_APPROVAL_STATUS_FUTURE_GATED = "setup-contract-approval-future-gated"
+SETUP_CONTRACT_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF = "setup-contract-approval-ready-for-future-proof"
+SETUP_CONTRACT_GATE_BLOCKED = "setup-contract-gate-blocked"
+SETUP_CONTRACT_GATE_FUTURE_GATED = "setup-contract-gate-future-gated"
+PROVIDER_PROFILE_GATE_BLOCKED = "provider-profile-gate-blocked"
+PROVIDER_PROFILE_GATE_READY_FUTURE_GATED = "provider-profile-gate-ready-future-gated"
+DATA_CLASSIFICATION_GATE_LOCAL_ONLY = "data-classification-gate-local-only"
+CAPABILITY_GATE_BLOCKED = "capability-gate-blocked"
+CAPABILITY_GATE_READY_FUTURE_GATED = "capability-gate-ready-future-gated"
+MANIFEST_GATE_BLOCKED = "manifest-gate-blocked"
+MANIFEST_GATE_READY_FUTURE_GATED = "manifest-gate-ready-future-gated"
+SAFETY_EVAL_GATE_BLOCKED = "safety-eval-gate-blocked"
+SAFETY_EVAL_GATE_READY_FUTURE_GATED = "safety-eval-gate-ready-future-gated"
+NETWORK_GATE_BLOCKED = "network-gate-blocked"
+MEMORY_INDEXING_GATE_BLOCKED = "memory-indexing-gate-blocked"
+VOICE_CORE_SYNC_GATE_BLOCKED = "voice-core-sync-gate-blocked"
+VERSION_JUMP_GATE_PENDING = "version-jump-gate-pending-functional-ai"
+FUTURE_SETUP_BRANCH_HANDOFF_READY = "future-provider-setup-branch-handoff-ready-for-contract"
+PROVIDER_SETUP_CONTRACT_FOLD_DOWN_READY = "setup-contract-fold-down-ready-for-pr-release"
+PROVIDER_SETUP_PREREQUISITE_POSTURE_LOCAL_ONLY = "provider-setup-prerequisites-local-only"
+PROVIDER_SETUP_VALIDATION_POSTURE_STATIC = "provider-setup-contract-static-validator-fixtures"
+PROVIDER_SETUP_UI_PROOF_POSTURE_STATUS_ONLY = "provider-setup-contract-status-only-ui-proof"
+
+SETUP_FOUNDATION_STATE_SCHEMA_VERSION = "provider-setup-implementation-foundation-state.v1"
+SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION = "provider-setup-implementation-foundation-config.v1"
+SETUP_FOUNDATION_CONFIG_MIGRATION_POSTURE = "safe-defaults-no-provider-setup-foundation-migration"
+SETUP_FOUNDATION_STATE_UNKNOWN = "setup_foundation_unknown"
+SETUP_FOUNDATION_STATE_UNAVAILABLE = "setup_foundation_unavailable"
+SETUP_FOUNDATION_STATE_DISABLED = "setup_foundation_disabled"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONTRACT = "setup_foundation_blocked_by_setup_contract"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_PROFILE = "setup_foundation_blocked_by_profile"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_CONFIG = "setup_foundation_blocked_by_config"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION = "setup_foundation_blocked_by_validation"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONSENT = "setup_foundation_blocked_by_setup_consent"
+SETUP_FOUNDATION_STATE_BLOCKED_BY_EXECUTION_CONSENT = (
+    "setup_foundation_blocked_by_execution_consent"
+)
+SETUP_FOUNDATION_STATE_READY_LOCAL_DRAFT = "setup_foundation_ready_local_draft"
+SETUP_FOUNDATION_STATE_READY_FUTURE_GATED = "setup_foundation_ready_future_gated"
+SETUP_FOUNDATION_STATE_READY_BUT_NOT_APPROVED = "setup_foundation_ready_but_not_approved"
+SETUP_FOUNDATION_STATE_DEGRADED = "setup_foundation_degraded"
+SETUP_FOUNDATION_STATE_READY_FOR_FUTURE_SETUP_BRANCH = (
+    "setup_foundation_ready_for_future_setup_branch"
+)
+SETUP_FOUNDATION_ELIGIBILITY_UNAVAILABLE = "setup_foundation_eligibility_unavailable"
+SETUP_FOUNDATION_ELIGIBILITY_DISABLED = "setup_foundation_eligibility_disabled"
+SETUP_FOUNDATION_ELIGIBILITY_BLOCKED = "setup_foundation_eligibility_blocked"
+SETUP_FOUNDATION_ELIGIBILITY_LOCAL_DRAFT = "setup_foundation_eligibility_local_draft"
+SETUP_FOUNDATION_ELIGIBILITY_FUTURE_GATED = "setup_foundation_eligibility_future_gated"
+SETUP_FOUNDATION_ELIGIBILITY_READY_NOT_APPROVED = (
+    "setup_foundation_eligibility_ready_not_approved"
+)
+SETUP_FOUNDATION_ELIGIBILITY_FUTURE_SETUP_BRANCH = (
+    "setup_foundation_eligibility_future_setup_branch"
+)
+SETUP_FOUNDATION_BLOCKER_SETUP_CONTRACT_REQUIRED = "setup_foundation_setup_contract_required"
+SETUP_FOUNDATION_BLOCKER_PROFILE_DRAFT_REQUIRED = "setup_foundation_profile_draft_required"
+SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED = "setup_foundation_config_draft_required"
+SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED = "setup_foundation_validation_required"
+SETUP_FOUNDATION_BLOCKER_SETUP_CONSENT_REQUIRED = "setup_foundation_setup_consent_required"
+SETUP_FOUNDATION_BLOCKER_EXECUTION_CONSENT_REQUIRED = (
+    "setup_foundation_execution_consent_required"
+)
+SETUP_FOUNDATION_BLOCKER_APPROVAL_REQUIRED = "setup_foundation_approval_required"
+SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH = "setup_foundation_future_setup_branch_required"
+SETUP_FOUNDATION_REASON_DEFAULT_UNAVAILABLE = "setup_foundation_default_unavailable"
+SETUP_FOUNDATION_REASON_SETUP_ENTRY_DISABLED = "setup_foundation_setup_entry_disabled"
+SETUP_FOUNDATION_REASON_SETUP_CONTRACT_REQUIRED = "setup_foundation_setup_contract_required"
+SETUP_FOUNDATION_REASON_CONFIG_MISSING = "setup_foundation_config_missing"
+SETUP_FOUNDATION_REASON_CONFIG_INVALID = "setup_foundation_config_invalid"
+SETUP_FOUNDATION_REASON_PROFILE_DRAFT_MISSING = "setup_foundation_profile_draft_missing"
+SETUP_FOUNDATION_REASON_PROFILE_DRAFT_INVALID = "setup_foundation_profile_draft_invalid"
+SETUP_FOUNDATION_REASON_CONFIG_DRAFT_MISSING = "setup_foundation_config_draft_missing"
+SETUP_FOUNDATION_REASON_CONFIG_DRAFT_INVALID = "setup_foundation_config_draft_invalid"
+SETUP_FOUNDATION_REASON_VALIDATION_FAILED = "setup_foundation_validation_failed"
+SETUP_FOUNDATION_REASON_SETUP_CONSENT_REQUIRED = "setup_foundation_setup_consent_required"
+SETUP_FOUNDATION_REASON_EXECUTION_CONSENT_REQUIRED = (
+    "setup_foundation_execution_consent_required"
+)
+SETUP_FOUNDATION_REASON_APPROVAL_MISSING = "setup_foundation_approval_missing"
+SETUP_FOUNDATION_REASON_READY_LOCAL_DRAFT = "setup_foundation_ready_local_draft"
+SETUP_FOUNDATION_REASON_READY_FOR_FUTURE_SETUP_BRANCH = (
+    "setup_foundation_ready_for_future_setup_branch"
+)
+SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT = "provider_setup_contract_state"
+SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT = "provider_profile_draft"
+SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT = "provider_config_draft"
+SETUP_FOUNDATION_PROVENANCE_VALIDATION = "setup_foundation_validation"
+SETUP_FOUNDATION_PROVENANCE_CONSENT = "provider_consent_prerequisites"
+SETUP_FOUNDATION_PROVENANCE_APPROVAL = "future_setup_approval"
+SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME = "future_provider_setup_check"
+SETUP_FOUNDATION_APPROVAL_STATUS_MISSING = "setup-foundation-approval-missing"
+SETUP_FOUNDATION_APPROVAL_STATUS_FUTURE_GATED = "setup-foundation-approval-future-gated"
+SETUP_FOUNDATION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF = (
+    "setup-foundation-approval-ready-for-future-proof"
+)
+SETUP_FOUNDATION_GATE_BLOCKED = "setup-foundation-gate-blocked"
+SETUP_FOUNDATION_GATE_LOCAL_DRAFT = "setup-foundation-gate-local-draft"
+SETUP_FOUNDATION_GATE_FUTURE_GATED = "setup-foundation-gate-future-gated"
+SETUP_FOUNDATION_SETUP_ENTRY_DISABLED = "setup-entry-disabled"
+SETUP_FOUNDATION_SETUP_ENTRY_READY_LOCAL_DRAFT = "setup-entry-ready-local-draft"
+SETUP_FOUNDATION_PROFILE_DRAFT_MISSING = "profile-draft-missing"
+SETUP_FOUNDATION_PROFILE_DRAFT_INVALID = "profile-draft-invalid"
+SETUP_FOUNDATION_PROFILE_DRAFT_READY = "profile-draft-ready-local-only"
+SETUP_FOUNDATION_CONFIG_DRAFT_MISSING = "config-draft-missing"
+SETUP_FOUNDATION_CONFIG_DRAFT_INVALID = "config-draft-invalid"
+SETUP_FOUNDATION_CONFIG_DRAFT_READY = "config-draft-ready-local-only"
+SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED = "setup-foundation-validation-fail-closed"
+SETUP_FOUNDATION_VALIDATION_STATIC_READY = "setup-foundation-validation-static-ready"
+SETUP_FOUNDATION_PERSISTENCE_DISABLED = "setup-foundation-persistence-disabled"
+SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY = "setup-foundation-persistence-local-draft-only"
+LOCAL_NULL_PROVIDER_FALLBACK_PROOF = "local-null-provider-fallback-no-provider-calls"
+FUTURE_PROVIDER_SETUP_IMPLEMENTATION_HANDOFF_READY = (
+    "future-provider-setup-implementation-handoff-ready"
+)
+PROVIDER_SETUP_IMPLEMENTATION_FOLD_DOWN_READY = (
+    "setup-implementation-foundation-fold-down-ready-for-pr-release"
+)
+CONSENT_COLLECTION_FOUNDATION_STATE_SCHEMA_VERSION = (
+    "provider-consent-collection-foundation-state.v1"
+)
+CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION = (
+    "provider-consent-collection-foundation-config.v1"
+)
+CONSENT_COLLECTION_FOUNDATION_CONFIG_MIGRATION_POSTURE = (
+    "safe-defaults-no-consent-collection-foundation-migration"
+)
+CONSENT_COLLECTION_STATE_UNKNOWN = "consent_collection_unknown"
+CONSENT_COLLECTION_STATE_UNAVAILABLE = "consent_collection_unavailable"
+CONSENT_COLLECTION_STATE_DISABLED = "consent_collection_disabled"
+CONSENT_COLLECTION_STATE_BLOCKED_BY_CONSENT_FLOW = (
+    "consent_collection_blocked_by_consent_flow"
+)
+CONSENT_COLLECTION_STATE_BLOCKED_BY_SETUP_FOUNDATION = (
+    "consent_collection_blocked_by_setup_foundation"
+)
+CONSENT_COLLECTION_STATE_BLOCKED_BY_POLICY = "consent_collection_blocked_by_policy"
+CONSENT_COLLECTION_STATE_BLOCKED_BY_DATA_VISIBILITY = (
+    "consent_collection_blocked_by_data_visibility"
+)
+CONSENT_COLLECTION_STATE_BLOCKED_BY_AUDIT = "consent_collection_blocked_by_audit"
+CONSENT_COLLECTION_STATE_READY_FUTURE_GATED = "consent_collection_ready_future_gated"
+CONSENT_COLLECTION_STATE_READY_BUT_NOT_APPROVED = (
+    "consent_collection_ready_but_not_approved"
+)
+CONSENT_COLLECTION_STATE_READY_BUT_NOT_COLLECTED = (
+    "consent_collection_ready_but_not_collected"
+)
+CONSENT_COLLECTION_STATE_READY_FOR_FUTURE_CAPTURE_BRANCH = (
+    "consent_collection_ready_for_future_capture_branch"
+)
+CONSENT_COLLECTION_STATE_DEGRADED = "consent_collection_degraded"
+CONSENT_COLLECTION_ELIGIBILITY_UNAVAILABLE = "consent_collection_eligibility_unavailable"
+CONSENT_COLLECTION_ELIGIBILITY_DISABLED = "consent_collection_eligibility_disabled"
+CONSENT_COLLECTION_ELIGIBILITY_BLOCKED = "consent_collection_eligibility_blocked"
+CONSENT_COLLECTION_ELIGIBILITY_FUTURE_GATED = (
+    "consent_collection_eligibility_future_gated"
+)
+CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_APPROVED = (
+    "consent_collection_eligibility_ready_not_approved"
+)
+CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_COLLECTED = (
+    "consent_collection_eligibility_ready_not_collected"
+)
+CONSENT_COLLECTION_ELIGIBILITY_FUTURE_CAPTURE_BRANCH = (
+    "consent_collection_eligibility_future_capture_branch"
+)
+CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED = (
+    "consent_collection_consent_flow_required"
+)
+CONSENT_COLLECTION_BLOCKER_SETUP_FOUNDATION_REQUIRED = (
+    "consent_collection_setup_foundation_required"
+)
+CONSENT_COLLECTION_BLOCKER_POLICY_BLOCKED = "consent_collection_policy_blocked"
+CONSENT_COLLECTION_BLOCKER_DATA_VISIBILITY_REQUIRED = (
+    "consent_collection_data_visibility_required"
+)
+CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED = "consent_collection_audit_required"
+CONSENT_COLLECTION_BLOCKER_APPROVAL_REQUIRED = "consent_collection_approval_required"
+CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH = (
+    "consent_collection_future_capture_branch_required"
+)
+CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE = "consent_collection_default_unavailable"
+CONSENT_COLLECTION_REASON_CONFIG_MISSING = "consent_collection_config_missing"
+CONSENT_COLLECTION_REASON_CONFIG_INVALID = "consent_collection_config_invalid"
+CONSENT_COLLECTION_REASON_CONSENT_FLOW_REQUIRED = (
+    "consent_collection_consent_flow_required"
+)
+CONSENT_COLLECTION_REASON_SETUP_FOUNDATION_REQUIRED = (
+    "consent_collection_setup_foundation_required"
+)
+CONSENT_COLLECTION_REASON_POLICY_BLOCKED = "consent_collection_policy_blocked"
+CONSENT_COLLECTION_REASON_DATA_VISIBILITY_BLOCKED = (
+    "consent_collection_data_visibility_blocked"
+)
+CONSENT_COLLECTION_REASON_AUDIT_REQUIRED = "consent_collection_audit_required"
+CONSENT_COLLECTION_REASON_APPROVAL_MISSING = "consent_collection_approval_missing"
+CONSENT_COLLECTION_REASON_READY_BUT_NOT_COLLECTED = (
+    "consent_collection_ready_but_not_collected"
+)
+CONSENT_COLLECTION_REASON_READY_FOR_FUTURE_CAPTURE_BRANCH = (
+    "consent_collection_ready_for_future_capture_branch"
+)
+CONSENT_COLLECTION_REASON_READY_FUTURE_GATED = "consent_collection_ready_future_gated"
+CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW = "consent_flow_readiness_state"
+CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION = "provider_setup_foundation_state"
+CONSENT_COLLECTION_PROVENANCE_DATA_VISIBILITY = "data_visibility_contract"
+CONSENT_COLLECTION_PROVENANCE_AUDIT = "audit_policy"
+CONSENT_COLLECTION_PROVENANCE_POLICY = "consent_collection_policy"
+CONSENT_COLLECTION_PROVENANCE_APPROVAL = "future_consent_collection_approval"
+CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE = "future_consent_capture_branch"
+CONSENT_COLLECTION_APPROVAL_STATUS_MISSING = "consent-collection-approval-missing"
+CONSENT_COLLECTION_APPROVAL_STATUS_FUTURE_GATED = (
+    "consent-collection-approval-future-gated"
+)
+CONSENT_COLLECTION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF = (
+    "consent-collection-approval-ready-for-future-proof"
+)
+CONSENT_COLLECTION_GATE_BLOCKED = "consent-collection-gate-blocked"
+CONSENT_COLLECTION_GATE_FUTURE_GATED = "consent-collection-gate-future-gated"
+CONSENT_COLLECTION_GATE_LOCAL_PROOF = "consent-collection-gate-local-proof"
+CONSENT_COLLECTION_CAPTURE_SURFACE_DISABLED = "consent-capture-surface-disabled"
+CONSENT_COLLECTION_CAPTURE_SURFACE_PLANNED = "consent-capture-surface-planned"
+CONSENT_COLLECTION_CAPTURE_SURFACE_READY_FUTURE_GATED = (
+    "consent-capture-surface-ready-future-gated"
+)
+CONSENT_COLLECTION_CAPTURE_SETUP_READY = "setup-consent-capture-ready"
+CONSENT_COLLECTION_CAPTURE_SETUP_REQUIRED = "setup-consent-capture-required"
+CONSENT_COLLECTION_CAPTURE_EXECUTION_READY = "execution-consent-capture-ready"
+CONSENT_COLLECTION_CAPTURE_EXECUTION_REQUIRED = "execution-consent-capture-required"
+CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_READY = "data-visibility-review-ready"
+CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_REQUIRED = "data-visibility-review-required"
+CONSENT_COLLECTION_AUDIT_ENVELOPE_READY = "consent-audit-envelope-ready"
+CONSENT_COLLECTION_AUDIT_ENVELOPE_REQUIRED = "consent-audit-envelope-required"
+CONSENT_COLLECTION_PROVENANCE_READY = "consent-provenance-ready"
+CONSENT_COLLECTION_PROVENANCE_REQUIRED = "consent-provenance-required"
+CONSENT_COLLECTION_PERSISTENCE_DISABLED = "consent-persistence-disabled"
+CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY = "consent-persistence-local-proof-only"
+CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED = "consent-collection-validation-fail-closed"
+CONSENT_COLLECTION_VALIDATION_STATIC_READY = "consent-collection-validation-static-ready"
+FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY = (
+    "future-consent-capture-branch-handoff-ready"
+)
+CONSENT_COLLECTION_FOLD_DOWN_READY = (
+    "consent-collection-foundation-fold-down-ready-for-pr-release"
+)
 CAPABILITY_PACK_ELIGIBILITY_UNKNOWN = "capability-pack-eligibility-unknown"
 CAPABILITY_PACK_ELIGIBILITY_BLOCKED = "capability-pack-eligibility-blocked"
 CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED = "capability-pack-eligibility-future-gated"
@@ -569,8 +1157,91 @@ PROVIDER_EXECUTION_PROVENANCE_SOURCES = (
     PROVIDER_EXECUTION_PROVENANCE_FUTURE_RUNTIME_CHECK,
     PROVIDER_EXECUTION_PROVENANCE_RELEASE_SOURCE_TRUTH,
 )
+PROVIDER_PATH_READINESS_STATES = (
+    PROVIDER_PATH_READINESS_STATE_UNKNOWN,
+    PROVIDER_PATH_READINESS_STATE_UNAVAILABLE,
+    PROVIDER_PATH_READINESS_STATE_DISABLED,
+    PROVIDER_PATH_READINESS_STATE_UNSELECTED,
+    PROVIDER_PATH_READINESS_STATE_SELECTION_REQUIRED,
+    PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_POLICY,
+    PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_CONSENT,
+    PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_CAPABILITY,
+    PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_MANIFEST,
+    PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_SAFETY,
+    PROVIDER_PATH_READINESS_STATE_READY_FUTURE_GATED,
+    PROVIDER_PATH_READINESS_STATE_READY_BUT_NOT_APPROVED,
+    PROVIDER_PATH_READINESS_STATE_DEGRADED,
+    PROVIDER_PATH_READINESS_STATE_READY_FOR_FUTURE_EXECUTION_BRANCH,
+)
+PROVIDER_PATH_REASON_CODES = (
+    PROVIDER_PATH_REASON_DEFAULT_UNAVAILABLE,
+    PROVIDER_PATH_REASON_CONFIG_MISSING_FAIL_CLOSED,
+    PROVIDER_PATH_REASON_CONFIG_INVALID_FAIL_CLOSED,
+    PROVIDER_PATH_REASON_EXECUTION_READINESS_UNAVAILABLE,
+    PROVIDER_PATH_REASON_UNSELECTED,
+    PROVIDER_PATH_REASON_CONFIG_MISSING,
+    PROVIDER_PATH_REASON_CONFIG_INVALID,
+    PROVIDER_PATH_REASON_SETUP_CONSENT_REQUIRED,
+    PROVIDER_PATH_REASON_EXECUTION_CONSENT_REQUIRED,
+    PROVIDER_PATH_REASON_DATA_VISIBILITY_BLOCKED,
+    PROVIDER_PATH_REASON_CAPABILITY_MISSING,
+    PROVIDER_PATH_REASON_MANIFEST_MISSING,
+    PROVIDER_PATH_REASON_SAFETY_BLOCKED,
+    PROVIDER_PATH_REASON_POLICY_BLOCKED,
+    PROVIDER_PATH_REASON_SETUP_APPROVAL_MISSING,
+    PROVIDER_PATH_REASON_EXECUTION_APPROVAL_MISSING,
+    PROVIDER_PATH_REASON_READY_FOR_FUTURE_EXECUTION_BRANCH,
+    PROVIDER_PATH_REASON_FUNCTIONAL_AI_FUTURE_VERSION,
+)
+PROVIDER_PATH_PROVENANCE_SOURCES = (
+    PROVIDER_PATH_PROVENANCE_DEFAULT_CONFIG,
+    PROVIDER_PATH_PROVENANCE_LOCAL_CONFIG,
+    PROVIDER_PATH_PROVENANCE_EXECUTION_READINESS_STATE,
+    PROVIDER_PATH_PROVENANCE_PROVIDER_SELECTION_CONTRACT,
+    PROVIDER_PATH_PROVENANCE_PROVIDER_CONFIG_CONTRACT,
+    PROVIDER_PATH_PROVENANCE_CONSENT_STATE,
+    PROVIDER_PATH_PROVENANCE_DATA_VISIBILITY_CONTRACT,
+    PROVIDER_PATH_PROVENANCE_CAPABILITY_CONTRACT,
+    PROVIDER_PATH_PROVENANCE_MANIFEST_STATE,
+    PROVIDER_PATH_PROVENANCE_SAFETY_EVAL,
+    PROVIDER_PATH_PROVENANCE_AUDIT_POLICY,
+    PROVIDER_PATH_PROVENANCE_FUTURE_RUNTIME_CHECK,
+    PROVIDER_PATH_PROVENANCE_VALIDATOR_FIXTURE,
+)
+CONSENT_READINESS_STATES = (
+    CONSENT_READINESS_STATE_UNKNOWN,
+    CONSENT_READINESS_STATE_UNAVAILABLE,
+    CONSENT_READINESS_STATE_DISABLED,
+    CONSENT_READINESS_STATE_NOT_REQUIRED_FOR_LOCAL_STATUS,
+    CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_SETUP,
+    CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_EXECUTION,
+    CONSENT_READINESS_STATE_BLOCKED_BY_POLICY,
+    CONSENT_READINESS_STATE_BLOCKED_BY_DATA_VISIBILITY,
+    CONSENT_READINESS_STATE_BLOCKED_BY_AUDIT_REQUIREMENTS,
+    CONSENT_READINESS_STATE_READY_FUTURE_GATED,
+    CONSENT_READINESS_STATE_READY_BUT_NOT_COLLECTED,
+    CONSENT_READINESS_STATE_DEGRADED,
+)
+CONSENT_REASON_CODES = (
+    CONSENT_REASON_SETUP_REQUIRED,
+    CONSENT_REASON_EXECUTION_REQUIRED,
+    CONSENT_REASON_POLICY_BLOCKED,
+    CONSENT_REASON_DATA_VISIBILITY_BLOCKED,
+    CONSENT_REASON_AUDIT_REQUIREMENTS_BLOCKED,
+    CONSENT_REASON_READY_BUT_NOT_COLLECTED,
+)
+CONSENT_PROVENANCE_SOURCES = (
+    CONSENT_PROVENANCE_DEFAULT_CONFIG,
+    CONSENT_PROVENANCE_PROVIDER_PATH_CONTRACT,
+    CONSENT_PROVENANCE_DATA_VISIBILITY_CONTRACT,
+    CONSENT_PROVENANCE_AUDIT_POLICY,
+    CONSENT_PROVENANCE_FUTURE_COLLECTION,
+)
 _ACTIVATION_CONFIG_OMITTED = object()
 _EXECUTION_CONFIG_OMITTED = object()
+_PATH_CONSENT_CONFIG_OMITTED = object()
+_SETUP_FOUNDATION_CONFIG_OMITTED = object()
+_CONSENT_COLLECTION_CONFIG_OMITTED = object()
 
 
 @dataclass(frozen=True)
@@ -633,6 +1304,69 @@ class AIProviderExecutionReadinessConfigSnapshot:
     policy_allows_execution: bool
     execution_approved: bool
     functional_ai_release_ready: bool
+    config_valid: bool
+    provenance: str
+
+
+@dataclass(frozen=True)
+class AIProviderPathConsentReadinessConfigSnapshot:
+    schema_version: str
+    config_state: str
+    provider_path_selected: bool
+    provider_config_present: bool
+    provider_config_valid: bool
+    provider_profile_available: bool
+    provider_available: bool
+    setup_consent_ready: bool
+    execution_consent_ready: bool
+    data_visibility_approved: bool
+    audit_ready: bool
+    capability_ready: bool
+    manifest_available: bool
+    manifest_valid: bool
+    safety_eval_complete: bool
+    policy_allows_provider_path: bool
+    setup_approved: bool
+    execution_approved: bool
+    future_execution_branch_ready: bool
+    functional_ai_release_ready: bool
+    config_valid: bool
+    provenance: str
+
+
+@dataclass(frozen=True)
+class AIProviderSetupFoundationConfigSnapshot:
+    schema_version: str
+    config_state: str
+    setup_entry_enabled: bool
+    provider_profile_draft_present: bool
+    provider_profile_draft_valid: bool
+    provider_config_draft_present: bool
+    provider_config_draft_valid: bool
+    local_persistence_ready: bool
+    validation_passed: bool
+    setup_foundation_approved: bool
+    setup_consent_ready: bool
+    execution_consent_ready: bool
+    config_valid: bool
+    provenance: str
+
+
+@dataclass(frozen=True)
+class AIProviderConsentCollectionFoundationConfigSnapshot:
+    schema_version: str
+    config_state: str
+    consent_capture_surface_enabled: bool
+    setup_consent_capture_ready: bool
+    execution_consent_capture_ready: bool
+    data_visibility_review_ready: bool
+    audit_envelope_ready: bool
+    provenance_ready: bool
+    local_persistence_ready: bool
+    validation_passed: bool
+    policy_allows_collection: bool
+    consent_collection_approved: bool
+    future_capture_branch_ready: bool
     config_valid: bool
     provenance: str
 
@@ -1014,6 +1748,292 @@ class AIProviderStateSnapshot:
     functional_ai_release_gate_label: str = "Functional-AI release gate: pending"
     v18_release_gate_state: str = V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI
     v18_release_gate_label: str = "v1.8.0-prebeta release gate: pending functional AI proof"
+    provider_path_readiness_state: str = PROVIDER_PATH_READINESS_STATE_UNAVAILABLE
+    provider_path_readiness_label: str = "Provider path readiness: unavailable"
+    provider_path_eligibility_state: str = PROVIDER_PATH_ELIGIBILITY_UNAVAILABLE
+    provider_path_eligibility_label: str = "Provider path eligibility: unavailable"
+    provider_path_blocker_state: str = PROVIDER_PATH_BLOCKER_EXECUTION_READINESS_REQUIRED
+    provider_path_blocker_label: str = "Provider path blocker: execution readiness required"
+    provider_path_reason_code: str = PROVIDER_PATH_REASON_DEFAULT_UNAVAILABLE
+    provider_path_reason_label: str = "Provider path reason: readiness only"
+    provider_path_provenance: str = PROVIDER_PATH_PROVENANCE_DEFAULT_CONFIG
+    provider_path_provenance_label: str = "Provider path provenance: default config"
+    provider_path_state_schema_version: str = PROVIDER_PATH_READINESS_STATE_SCHEMA_VERSION
+    provider_path_config_schema_version: str = PROVIDER_PATH_READINESS_CONFIG_SCHEMA_VERSION
+    provider_path_config_state: str = PROVIDER_PATH_CONFIG_STATE_DEFAULT
+    provider_path_config_label: str = "Provider path config: safe default local-only"
+    provider_path_config_migration: str = PROVIDER_PATH_READINESS_CONFIG_MIGRATION_POSTURE
+    provider_path_config_valid: bool = True
+    provider_path_approval_status: str = PROVIDER_PATH_APPROVAL_STATUS_MISSING
+    provider_path_approval_label: str = "Provider path approval: USER approval missing"
+    provider_profile_id: str = PROVIDER_PROFILE_ID_LOCAL_NULL
+    provider_profile_kind: str = PROVIDER_PROFILE_KIND_NULL_LOCAL
+    provider_profile_display_name: str = "Local/null provider profile"
+    provider_profile_source: str = PROVIDER_PROFILE_SOURCE_LOCAL_SCAFFOLD
+    provider_profile_metadata_contract_version: str = PROVIDER_PROFILE_METADATA_CONTRACT_VERSION
+    provider_profile_available: bool = False
+    provider_sdk_requirement_posture: str = PROVIDER_SDK_REQUIREMENT_PENDING_APPROVAL
+    provider_network_requirement_posture: str = PROVIDER_NETWORK_REQUIREMENT_BLOCKED
+    provider_config_status: str = PROVIDER_CONFIG_ENVELOPE_STATUS_MISSING
+    provider_availability_posture: str = PROVIDER_AVAILABILITY_UNAVAILABLE
+    provider_setup_approval_status: str = PROVIDER_SETUP_APPROVAL_STATUS_MISSING
+    provider_execution_approval_status: str = PROVIDER_EXECUTION_APPROVAL_STATUS_PROVIDER_PATH_MISSING
+    provider_visible_data_scope: str = PROVIDER_VISIBLE_DATA_REQUIREMENT_NONE
+    local_null_provider_fallback_status: str = LOCAL_NULL_PROVIDER_FALLBACK_ACTIVE
+    future_sdk_handoff_marker: str = FUTURE_SDK_HANDOFF_MARKER
+    future_provider_setup_handoff_marker: str = FUTURE_PROVIDER_SETUP_HANDOFF_MARKER
+    consent_readiness_state: str = CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_SETUP
+    consent_readiness_label: str = "Consent readiness: required before provider setup"
+    consent_state_schema_version: str = CONSENT_READINESS_STATE_SCHEMA_VERSION
+    consent_config_schema_version: str = CONSENT_READINESS_CONFIG_SCHEMA_VERSION
+    consent_config_migration: str = CONSENT_READINESS_CONFIG_MIGRATION_POSTURE
+    setup_consent_state: str = CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_SETUP
+    setup_consent_label: str = "Setup consent: required before provider setup"
+    setup_consent_blocker_state: str = CONSENT_BLOCKER_SETUP_REQUIRED
+    setup_consent_blocker_label: str = "Setup consent blocker: consent collection not approved"
+    setup_consent_reason_code: str = CONSENT_REASON_SETUP_REQUIRED
+    setup_consent_reason_label: str = "Setup consent reason: required before provider setup"
+    setup_consent_provenance: str = CONSENT_PROVENANCE_PROVIDER_PATH_CONTRACT
+    setup_consent_provenance_label: str = "Setup consent provenance: provider path contract"
+    setup_consent_handoff_state: str = SETUP_CONSENT_HANDOFF_FUTURE_GATED
+    setup_consent_handoff_label: str = "Setup consent handoff: future-gated"
+    execution_consent_state: str = CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_EXECUTION
+    execution_consent_label: str = "Execution consent: required before prompt/model execution"
+    execution_consent_blocker_state: str = CONSENT_BLOCKER_EXECUTION_REQUIRED
+    execution_consent_blocker_label: str = "Execution consent blocker: consent collection not approved"
+    execution_consent_reason_code: str = CONSENT_REASON_EXECUTION_REQUIRED
+    execution_consent_reason_label: str = "Execution consent reason: required before provider execution"
+    execution_consent_provenance: str = CONSENT_PROVENANCE_PROVIDER_PATH_CONTRACT
+    execution_consent_provenance_label: str = "Execution consent provenance: provider path contract"
+    execution_consent_handoff_state: str = EXECUTION_CONSENT_HANDOFF_FUTURE_GATED
+    execution_consent_handoff_label: str = "Execution consent handoff: future-gated"
+    provider_visible_data_requirement_state: str = PROVIDER_VISIBLE_DATA_REQUIREMENT_NONE
+    provider_visible_data_requirement_label: str = "Provider-visible data requirement: none"
+    data_classification_posture_state: str = DATA_CLASSIFICATION_POSTURE_LOCAL_ONLY
+    data_classification_posture_label: str = "Data classification posture: local-only"
+    audit_envelope_posture_state: str = AUDIT_ENVELOPE_POSTURE_PLANNED
+    audit_envelope_posture_label: str = "Audit envelope posture: planned; no collection"
+    local_only_status_posture: str = LOCAL_ONLY_STATUS_POSTURE_ACTIVE
+    local_only_status_label: str = "Local-only status: active"
+    provider_setup_future_gated_posture: str = PROVIDER_SETUP_FUTURE_GATED_POSTURE
+    provider_setup_future_gated_label: str = "Provider setup: future-gated"
+    provider_execution_future_gated_posture: str = PROVIDER_EXECUTION_FUTURE_GATED_POSTURE
+    provider_execution_future_gated_label: str = "Provider execution: disabled; future-gated"
+    provider_path_gate_state: str = PROVIDER_PATH_GATE_BLOCKED
+    provider_config_gate_state: str = PROVIDER_CONFIG_GATE_BLOCKED
+    setup_consent_gate_state: str = SETUP_CONSENT_GATE_REQUIRED
+    execution_consent_gate_state: str = EXECUTION_CONSENT_GATE_REQUIRED
+    provider_visible_data_gate_state: str = PROVIDER_VISIBLE_DATA_GATE_NONE
+    audit_gate_state: str = AUDIT_GATE_PLANNED
+    setup_flow_readiness_state: str = SETUP_FLOW_STATE_UNAVAILABLE
+    setup_flow_readiness_label: str = "Setup flow readiness: unavailable"
+    setup_flow_eligibility_state: str = SETUP_FLOW_ELIGIBILITY_UNAVAILABLE
+    setup_flow_eligibility_label: str = "Setup flow eligibility: unavailable"
+    setup_flow_blocker_state: str = SETUP_FLOW_BLOCKER_PROVIDER_PATH_REQUIRED
+    setup_flow_blocker_label: str = "Setup flow blocker: provider path readiness required"
+    setup_flow_reason_code: str = SETUP_FLOW_REASON_DEFAULT_UNAVAILABLE
+    setup_flow_reason_label: str = "Setup flow reason: setup readiness is local-only"
+    setup_flow_provenance: str = SETUP_FLOW_PROVENANCE_PROVIDER_PATH
+    setup_flow_provenance_label: str = "Setup flow provenance: provider path readiness state"
+    setup_flow_state_schema_version: str = SETUP_FLOW_READINESS_STATE_SCHEMA_VERSION
+    setup_flow_config_schema_version: str = SETUP_FLOW_READINESS_CONFIG_SCHEMA_VERSION
+    setup_flow_config_state: str = PROVIDER_PATH_CONFIG_STATE_DEFAULT
+    setup_flow_config_label: str = "Setup flow config: safe default local-only"
+    setup_flow_config_migration: str = SETUP_FLOW_READINESS_CONFIG_MIGRATION_POSTURE
+    setup_flow_config_valid: bool = True
+    setup_flow_approval_status: str = SETUP_FLOW_APPROVAL_STATUS_MISSING
+    setup_flow_approval_label: str = "Setup flow approval: USER approval missing"
+    provider_setup_handoff_posture: str = PROVIDER_SETUP_HANDOFF_FUTURE_GATED
+    provider_setup_handoff_label: str = "Provider setup handoff: future-gated"
+    provider_consent_handoff_posture: str = PROVIDER_CONSENT_HANDOFF_FUTURE_GATED
+    provider_consent_handoff_label: str = "Provider consent handoff: future-gated"
+    provider_path_handoff_posture: str = PROVIDER_PATH_HANDOFF_FUTURE_GATED
+    provider_path_handoff_label: str = "Provider path handoff: future-gated"
+    consent_flow_readiness_state: str = CONSENT_FLOW_STATE_REQUIRED_FOR_SETUP
+    consent_flow_readiness_label: str = "Consent flow readiness: required before setup"
+    consent_flow_eligibility_state: str = CONSENT_FLOW_ELIGIBILITY_REQUIRED
+    consent_flow_eligibility_label: str = "Consent flow eligibility: consent required"
+    consent_flow_blocker_state: str = CONSENT_FLOW_BLOCKER_SETUP_CONSENT_REQUIRED
+    consent_flow_blocker_label: str = "Consent flow blocker: setup consent required"
+    consent_flow_reason_code: str = CONSENT_FLOW_REASON_SETUP_REQUIRED
+    consent_flow_reason_label: str = "Consent flow reason: setup consent required"
+    consent_flow_provenance: str = CONSENT_FLOW_PROVENANCE_SETUP_CONSENT
+    consent_flow_provenance_label: str = "Consent flow provenance: setup consent state"
+    consent_flow_state_schema_version: str = CONSENT_FLOW_READINESS_STATE_SCHEMA_VERSION
+    consent_flow_config_schema_version: str = CONSENT_FLOW_READINESS_CONFIG_SCHEMA_VERSION
+    consent_flow_config_state: str = PROVIDER_PATH_CONFIG_STATE_DEFAULT
+    consent_flow_config_label: str = "Consent flow config: safe default local-only"
+    consent_flow_config_migration: str = CONSENT_FLOW_READINESS_CONFIG_MIGRATION_POSTURE
+    consent_flow_config_valid: bool = True
+    consent_flow_approval_status: str = CONSENT_FLOW_APPROVAL_STATUS_MISSING
+    consent_flow_approval_label: str = "Consent flow approval: USER approval missing"
+    consent_collection_posture: str = CONSENT_COLLECTION_POSTURE_PENDING_APPROVAL
+    consent_collection_label: str = "Consent collection: pending USER approval"
+    data_visibility_consent_posture: str = DATA_VISIBILITY_CONSENT_POSTURE_NONE_REQUIRED
+    data_visibility_consent_label: str = "Data visibility consent: none required while provider-visible data is none"
+    setup_flow_gate_state: str = SETUP_FLOW_GATE_BLOCKED
+    consent_flow_gate_state: str = CONSENT_FLOW_GATE_REQUIRED
+    setup_approval_gate_state: str = SETUP_APPROVAL_GATE_MISSING
+    execution_approval_gate_state: str = EXECUTION_APPROVAL_GATE_MISSING
+    desktop_ai_owned_readiness_display_state: str = AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED
+    desktop_ai_owned_readiness_display_label: str = "Desktop AI-owned readiness display: suppressed by default"
+    provider_setup_contract_readiness_state: str = SETUP_CONTRACT_STATE_UNAVAILABLE
+    provider_setup_contract_readiness_label: str = "Setup contract readiness: unavailable"
+    provider_setup_contract_eligibility_state: str = SETUP_CONTRACT_ELIGIBILITY_UNAVAILABLE
+    provider_setup_contract_eligibility_label: str = "Setup contract eligibility: unavailable"
+    provider_setup_contract_blocker_state: str = SETUP_CONTRACT_BLOCKER_PROVIDER_PATH_REQUIRED
+    provider_setup_contract_blocker_label: str = "Setup contract blocker: provider path readiness required"
+    provider_setup_contract_reason_code: str = SETUP_CONTRACT_REASON_DEFAULT_UNAVAILABLE
+    provider_setup_contract_reason_label: str = "Setup contract reason: setup contract is local-only"
+    provider_setup_contract_provenance: str = SETUP_CONTRACT_PROVENANCE_SETUP_FLOW
+    provider_setup_contract_provenance_label: str = "Setup contract provenance: setup flow readiness state"
+    provider_setup_contract_state_schema_version: str = SETUP_CONTRACT_READINESS_STATE_SCHEMA_VERSION
+    provider_setup_contract_config_schema_version: str = SETUP_CONTRACT_READINESS_CONFIG_SCHEMA_VERSION
+    provider_setup_contract_config_state: str = PROVIDER_PATH_CONFIG_STATE_DEFAULT
+    provider_setup_contract_config_label: str = "Setup contract config: safe default local-only"
+    provider_setup_contract_config_migration: str = SETUP_CONTRACT_READINESS_CONFIG_MIGRATION_POSTURE
+    provider_setup_contract_config_valid: bool = True
+    provider_setup_contract_approval_status: str = SETUP_CONTRACT_APPROVAL_STATUS_MISSING
+    provider_setup_contract_approval_label: str = "Setup contract approval: USER approval missing"
+    provider_setup_contract_gate_state: str = SETUP_CONTRACT_GATE_BLOCKED
+    provider_profile_gate_state: str = PROVIDER_PROFILE_GATE_BLOCKED
+    capability_gate_state: str = CAPABILITY_GATE_BLOCKED
+    manifest_gate_state: str = MANIFEST_GATE_BLOCKED
+    safety_eval_gate_state: str = SAFETY_EVAL_GATE_BLOCKED
+    network_gate_state: str = NETWORK_GATE_BLOCKED
+    memory_indexing_gate_state: str = MEMORY_INDEXING_GATE_BLOCKED
+    voice_core_sync_gate_state: str = VOICE_CORE_SYNC_GATE_BLOCKED
+    version_jump_gate_state: str = VERSION_JUMP_GATE_PENDING
+    provider_profile_required_fields: tuple[str, ...] = (
+        "provider_id",
+        "provider_kind",
+        "display_name",
+        "source",
+        "metadata_contract_version",
+    )
+    provider_config_required_fields: tuple[str, ...] = (
+        "config_status",
+        "sdk_requirement",
+        "network_requirement",
+        "setup_approval",
+        "execution_approval",
+    )
+    provider_setup_prerequisite_posture: str = PROVIDER_SETUP_PREREQUISITE_POSTURE_LOCAL_ONLY
+    provider_setup_validation_posture: str = PROVIDER_SETUP_VALIDATION_POSTURE_STATIC
+    provider_setup_ui_proof_posture: str = PROVIDER_SETUP_UI_PROOF_POSTURE_STATUS_ONLY
+    future_setup_branch_handoff_state: str = FUTURE_SETUP_BRANCH_HANDOFF_READY
+    provider_setup_contract_fold_down_posture: str = PROVIDER_SETUP_CONTRACT_FOLD_DOWN_READY
+    provider_setup_foundation_state: str = SETUP_FOUNDATION_STATE_UNAVAILABLE
+    provider_setup_foundation_label: str = "Setup implementation foundation: unavailable"
+    provider_setup_foundation_eligibility_state: str = SETUP_FOUNDATION_ELIGIBILITY_UNAVAILABLE
+    provider_setup_foundation_eligibility_label: str = "Setup foundation eligibility: unavailable"
+    provider_setup_foundation_blocker_state: str = SETUP_FOUNDATION_BLOCKER_SETUP_CONTRACT_REQUIRED
+    provider_setup_foundation_blocker_label: str = (
+        "Setup foundation blocker: setup contract readiness required"
+    )
+    provider_setup_foundation_reason_code: str = SETUP_FOUNDATION_REASON_DEFAULT_UNAVAILABLE
+    provider_setup_foundation_reason_label: str = "Setup foundation reason: local-only safe default"
+    provider_setup_foundation_provenance: str = SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT
+    provider_setup_foundation_provenance_label: str = (
+        "Setup foundation provenance: provider setup contract state"
+    )
+    provider_setup_foundation_state_schema_version: str = SETUP_FOUNDATION_STATE_SCHEMA_VERSION
+    provider_setup_foundation_config_schema_version: str = SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION
+    provider_setup_foundation_config_state: str = PROVIDER_PATH_CONFIG_STATE_DEFAULT
+    provider_setup_foundation_config_label: str = (
+        "Setup foundation config: safe default local-only"
+    )
+    provider_setup_foundation_config_migration: str = SETUP_FOUNDATION_CONFIG_MIGRATION_POSTURE
+    provider_setup_foundation_config_valid: bool = True
+    provider_setup_foundation_setup_entry_state: str = SETUP_FOUNDATION_SETUP_ENTRY_DISABLED
+    provider_setup_foundation_setup_entry_label: str = (
+        "Setup entry point: disabled until USER-approved setup work"
+    )
+    provider_setup_foundation_profile_draft_status: str = SETUP_FOUNDATION_PROFILE_DRAFT_MISSING
+    provider_setup_foundation_profile_draft_label: str = (
+        "Provider profile draft: missing local-only draft"
+    )
+    provider_setup_foundation_config_draft_status: str = SETUP_FOUNDATION_CONFIG_DRAFT_MISSING
+    provider_setup_foundation_config_draft_label: str = (
+        "Provider config draft: missing local-only draft"
+    )
+    provider_setup_foundation_validation_status: str = SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED
+    provider_setup_foundation_validation_label: str = (
+        "Setup foundation validation: fail-closed"
+    )
+    provider_setup_foundation_persistence_status: str = SETUP_FOUNDATION_PERSISTENCE_DISABLED
+    provider_setup_foundation_persistence_label: str = (
+        "Setup foundation persistence: disabled; no provider credentials stored"
+    )
+    provider_setup_foundation_approval_status: str = SETUP_FOUNDATION_APPROVAL_STATUS_MISSING
+    provider_setup_foundation_approval_label: str = "Setup foundation approval: USER approval missing"
+    provider_setup_foundation_gate_state: str = SETUP_FOUNDATION_GATE_BLOCKED
+    local_null_provider_fallback_proof: str = LOCAL_NULL_PROVIDER_FALLBACK_PROOF
+    provider_setup_implementation_handoff_state: str = FUTURE_PROVIDER_SETUP_IMPLEMENTATION_HANDOFF_READY
+    provider_setup_implementation_fold_down_posture: str = PROVIDER_SETUP_IMPLEMENTATION_FOLD_DOWN_READY
+    consent_collection_foundation_state: str = CONSENT_COLLECTION_STATE_UNAVAILABLE
+    consent_collection_foundation_label: str = "Consent collection foundation: unavailable"
+    consent_collection_eligibility_state: str = CONSENT_COLLECTION_ELIGIBILITY_UNAVAILABLE
+    consent_collection_eligibility_label: str = "Consent collection eligibility: unavailable"
+    consent_collection_blocker_state: str = CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED
+    consent_collection_blocker_label: str = (
+        "Consent collection blocker: consent flow readiness required"
+    )
+    consent_collection_reason_code: str = CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE
+    consent_collection_reason_label: str = (
+        "Consent collection reason: local-only safe default"
+    )
+    consent_collection_provenance: str = CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW
+    consent_collection_provenance_label: str = (
+        "Consent collection provenance: consent flow readiness state"
+    )
+    consent_collection_state_schema_version: str = (
+        CONSENT_COLLECTION_FOUNDATION_STATE_SCHEMA_VERSION
+    )
+    consent_collection_config_schema_version: str = (
+        CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION
+    )
+    consent_collection_config_state: str = PROVIDER_PATH_CONFIG_STATE_DEFAULT
+    consent_collection_config_label: str = (
+        "Consent collection config: safe default local-only"
+    )
+    consent_collection_config_migration: str = (
+        CONSENT_COLLECTION_FOUNDATION_CONFIG_MIGRATION_POSTURE
+    )
+    consent_collection_config_valid: bool = True
+    consent_collection_approval_status: str = CONSENT_COLLECTION_APPROVAL_STATUS_MISSING
+    consent_collection_approval_label: str = (
+        "Consent collection approval: USER approval missing"
+    )
+    consent_collection_gate_state: str = CONSENT_COLLECTION_GATE_BLOCKED
+    consent_capture_surface_state: str = CONSENT_COLLECTION_CAPTURE_SURFACE_DISABLED
+    consent_capture_surface_label: str = (
+        "Consent capture surface: disabled until USER-approved consent work"
+    )
+    setup_consent_capture_status: str = CONSENT_COLLECTION_CAPTURE_SETUP_REQUIRED
+    setup_consent_capture_label: str = "Setup consent capture: required"
+    execution_consent_capture_status: str = CONSENT_COLLECTION_CAPTURE_EXECUTION_REQUIRED
+    execution_consent_capture_label: str = "Execution consent capture: required"
+    consent_data_visibility_review_status: str = (
+        CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_REQUIRED
+    )
+    consent_data_visibility_review_label: str = (
+        "Consent data visibility review: required before capture"
+    )
+    consent_audit_envelope_status: str = CONSENT_COLLECTION_AUDIT_ENVELOPE_REQUIRED
+    consent_audit_envelope_label: str = (
+        "Consent audit envelope: required before capture"
+    )
+    consent_provenance_status: str = CONSENT_COLLECTION_PROVENANCE_REQUIRED
+    consent_provenance_label: str = "Consent provenance: required before capture"
+    consent_persistence_status: str = CONSENT_COLLECTION_PERSISTENCE_DISABLED
+    consent_persistence_label: str = "Consent persistence: disabled; no consent stored"
+    consent_collection_validation_status: str = CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED
+    consent_collection_validation_label: str = (
+        "Consent collection validation: fail-closed"
+    )
+    future_consent_capture_handoff_state: str = FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY
+    consent_collection_fold_down_posture: str = CONSENT_COLLECTION_FOLD_DOWN_READY
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -1293,6 +2313,280 @@ class AIProviderStateSnapshot:
             "functional_ai_release_gate_label": self.functional_ai_release_gate_label,
             "v18_release_gate_state": self.v18_release_gate_state,
             "v18_release_gate_label": self.v18_release_gate_label,
+            "provider_path_readiness_state": self.provider_path_readiness_state,
+            "provider_path_readiness_label": self.provider_path_readiness_label,
+            "provider_path_eligibility_state": self.provider_path_eligibility_state,
+            "provider_path_eligibility_label": self.provider_path_eligibility_label,
+            "provider_path_blocker_state": self.provider_path_blocker_state,
+            "provider_path_blocker_label": self.provider_path_blocker_label,
+            "provider_path_reason_code": self.provider_path_reason_code,
+            "provider_path_reason_label": self.provider_path_reason_label,
+            "provider_path_provenance": self.provider_path_provenance,
+            "provider_path_provenance_label": self.provider_path_provenance_label,
+            "provider_path_state_schema_version": self.provider_path_state_schema_version,
+            "provider_path_config_schema_version": self.provider_path_config_schema_version,
+            "provider_path_config_state": self.provider_path_config_state,
+            "provider_path_config_label": self.provider_path_config_label,
+            "provider_path_config_migration": self.provider_path_config_migration,
+            "provider_path_config_valid": self.provider_path_config_valid,
+            "provider_path_approval_status": self.provider_path_approval_status,
+            "provider_path_approval_label": self.provider_path_approval_label,
+            "provider_profile_id": self.provider_profile_id,
+            "provider_profile_kind": self.provider_profile_kind,
+            "provider_profile_display_name": self.provider_profile_display_name,
+            "provider_profile_source": self.provider_profile_source,
+            "provider_profile_metadata_contract_version": self.provider_profile_metadata_contract_version,
+            "provider_profile_available": self.provider_profile_available,
+            "provider_sdk_requirement_posture": self.provider_sdk_requirement_posture,
+            "provider_network_requirement_posture": self.provider_network_requirement_posture,
+            "provider_config_status": self.provider_config_status,
+            "provider_availability_posture": self.provider_availability_posture,
+            "provider_setup_approval_status": self.provider_setup_approval_status,
+            "provider_execution_approval_status": self.provider_execution_approval_status,
+            "provider_visible_data_scope": self.provider_visible_data_scope,
+            "local_null_provider_fallback_status": self.local_null_provider_fallback_status,
+            "future_sdk_handoff_marker": self.future_sdk_handoff_marker,
+            "future_provider_setup_handoff_marker": self.future_provider_setup_handoff_marker,
+            "consent_readiness_state": self.consent_readiness_state,
+            "consent_readiness_label": self.consent_readiness_label,
+            "consent_state_schema_version": self.consent_state_schema_version,
+            "consent_config_schema_version": self.consent_config_schema_version,
+            "consent_config_migration": self.consent_config_migration,
+            "setup_consent_state": self.setup_consent_state,
+            "setup_consent_label": self.setup_consent_label,
+            "setup_consent_blocker_state": self.setup_consent_blocker_state,
+            "setup_consent_blocker_label": self.setup_consent_blocker_label,
+            "setup_consent_reason_code": self.setup_consent_reason_code,
+            "setup_consent_reason_label": self.setup_consent_reason_label,
+            "setup_consent_provenance": self.setup_consent_provenance,
+            "setup_consent_provenance_label": self.setup_consent_provenance_label,
+            "setup_consent_handoff_state": self.setup_consent_handoff_state,
+            "setup_consent_handoff_label": self.setup_consent_handoff_label,
+            "execution_consent_state": self.execution_consent_state,
+            "execution_consent_label": self.execution_consent_label,
+            "execution_consent_blocker_state": self.execution_consent_blocker_state,
+            "execution_consent_blocker_label": self.execution_consent_blocker_label,
+            "execution_consent_reason_code": self.execution_consent_reason_code,
+            "execution_consent_reason_label": self.execution_consent_reason_label,
+            "execution_consent_provenance": self.execution_consent_provenance,
+            "execution_consent_provenance_label": self.execution_consent_provenance_label,
+            "execution_consent_handoff_state": self.execution_consent_handoff_state,
+            "execution_consent_handoff_label": self.execution_consent_handoff_label,
+            "provider_visible_data_requirement_state": self.provider_visible_data_requirement_state,
+            "provider_visible_data_requirement_label": self.provider_visible_data_requirement_label,
+            "data_classification_posture_state": self.data_classification_posture_state,
+            "data_classification_posture_label": self.data_classification_posture_label,
+            "audit_envelope_posture_state": self.audit_envelope_posture_state,
+            "audit_envelope_posture_label": self.audit_envelope_posture_label,
+            "local_only_status_posture": self.local_only_status_posture,
+            "local_only_status_label": self.local_only_status_label,
+            "provider_setup_future_gated_posture": self.provider_setup_future_gated_posture,
+            "provider_setup_future_gated_label": self.provider_setup_future_gated_label,
+            "provider_execution_future_gated_posture": self.provider_execution_future_gated_posture,
+            "provider_execution_future_gated_label": self.provider_execution_future_gated_label,
+            "provider_path_gate_state": self.provider_path_gate_state,
+            "provider_config_gate_state": self.provider_config_gate_state,
+            "setup_consent_gate_state": self.setup_consent_gate_state,
+            "execution_consent_gate_state": self.execution_consent_gate_state,
+            "provider_visible_data_gate_state": self.provider_visible_data_gate_state,
+            "audit_gate_state": self.audit_gate_state,
+            "setup_flow_readiness_state": self.setup_flow_readiness_state,
+            "setup_flow_readiness_label": self.setup_flow_readiness_label,
+            "setup_flow_eligibility_state": self.setup_flow_eligibility_state,
+            "setup_flow_eligibility_label": self.setup_flow_eligibility_label,
+            "setup_flow_blocker_state": self.setup_flow_blocker_state,
+            "setup_flow_blocker_label": self.setup_flow_blocker_label,
+            "setup_flow_reason_code": self.setup_flow_reason_code,
+            "setup_flow_reason_label": self.setup_flow_reason_label,
+            "setup_flow_provenance": self.setup_flow_provenance,
+            "setup_flow_provenance_label": self.setup_flow_provenance_label,
+            "setup_flow_state_schema_version": self.setup_flow_state_schema_version,
+            "setup_flow_config_schema_version": self.setup_flow_config_schema_version,
+            "setup_flow_config_state": self.setup_flow_config_state,
+            "setup_flow_config_label": self.setup_flow_config_label,
+            "setup_flow_config_migration": self.setup_flow_config_migration,
+            "setup_flow_config_valid": self.setup_flow_config_valid,
+            "setup_flow_approval_status": self.setup_flow_approval_status,
+            "setup_flow_approval_label": self.setup_flow_approval_label,
+            "provider_setup_handoff_posture": self.provider_setup_handoff_posture,
+            "provider_setup_handoff_label": self.provider_setup_handoff_label,
+            "provider_consent_handoff_posture": self.provider_consent_handoff_posture,
+            "provider_consent_handoff_label": self.provider_consent_handoff_label,
+            "provider_path_handoff_posture": self.provider_path_handoff_posture,
+            "provider_path_handoff_label": self.provider_path_handoff_label,
+            "consent_flow_readiness_state": self.consent_flow_readiness_state,
+            "consent_flow_readiness_label": self.consent_flow_readiness_label,
+            "consent_flow_eligibility_state": self.consent_flow_eligibility_state,
+            "consent_flow_eligibility_label": self.consent_flow_eligibility_label,
+            "consent_flow_blocker_state": self.consent_flow_blocker_state,
+            "consent_flow_blocker_label": self.consent_flow_blocker_label,
+            "consent_flow_reason_code": self.consent_flow_reason_code,
+            "consent_flow_reason_label": self.consent_flow_reason_label,
+            "consent_flow_provenance": self.consent_flow_provenance,
+            "consent_flow_provenance_label": self.consent_flow_provenance_label,
+            "consent_flow_state_schema_version": self.consent_flow_state_schema_version,
+            "consent_flow_config_schema_version": self.consent_flow_config_schema_version,
+            "consent_flow_config_state": self.consent_flow_config_state,
+            "consent_flow_config_label": self.consent_flow_config_label,
+            "consent_flow_config_migration": self.consent_flow_config_migration,
+            "consent_flow_config_valid": self.consent_flow_config_valid,
+            "consent_flow_approval_status": self.consent_flow_approval_status,
+            "consent_flow_approval_label": self.consent_flow_approval_label,
+            "consent_collection_posture": self.consent_collection_posture,
+            "consent_collection_label": self.consent_collection_label,
+            "data_visibility_consent_posture": self.data_visibility_consent_posture,
+            "data_visibility_consent_label": self.data_visibility_consent_label,
+            "setup_flow_gate_state": self.setup_flow_gate_state,
+            "consent_flow_gate_state": self.consent_flow_gate_state,
+            "setup_approval_gate_state": self.setup_approval_gate_state,
+            "execution_approval_gate_state": self.execution_approval_gate_state,
+            "desktop_ai_owned_readiness_display_state": self.desktop_ai_owned_readiness_display_state,
+            "desktop_ai_owned_readiness_display_label": self.desktop_ai_owned_readiness_display_label,
+            "provider_setup_contract_readiness_state": self.provider_setup_contract_readiness_state,
+            "provider_setup_contract_readiness_label": self.provider_setup_contract_readiness_label,
+            "provider_setup_contract_eligibility_state": self.provider_setup_contract_eligibility_state,
+            "provider_setup_contract_eligibility_label": self.provider_setup_contract_eligibility_label,
+            "provider_setup_contract_blocker_state": self.provider_setup_contract_blocker_state,
+            "provider_setup_contract_blocker_label": self.provider_setup_contract_blocker_label,
+            "provider_setup_contract_reason_code": self.provider_setup_contract_reason_code,
+            "provider_setup_contract_reason_label": self.provider_setup_contract_reason_label,
+            "provider_setup_contract_provenance": self.provider_setup_contract_provenance,
+            "provider_setup_contract_provenance_label": self.provider_setup_contract_provenance_label,
+            "provider_setup_contract_state_schema_version": self.provider_setup_contract_state_schema_version,
+            "provider_setup_contract_config_schema_version": self.provider_setup_contract_config_schema_version,
+            "provider_setup_contract_config_state": self.provider_setup_contract_config_state,
+            "provider_setup_contract_config_label": self.provider_setup_contract_config_label,
+            "provider_setup_contract_config_migration": self.provider_setup_contract_config_migration,
+            "provider_setup_contract_config_valid": self.provider_setup_contract_config_valid,
+            "provider_setup_contract_approval_status": self.provider_setup_contract_approval_status,
+            "provider_setup_contract_approval_label": self.provider_setup_contract_approval_label,
+            "provider_setup_contract_gate_state": self.provider_setup_contract_gate_state,
+            "provider_profile_gate_state": self.provider_profile_gate_state,
+            "capability_gate_state": self.capability_gate_state,
+            "manifest_gate_state": self.manifest_gate_state,
+            "safety_eval_gate_state": self.safety_eval_gate_state,
+            "network_gate_state": self.network_gate_state,
+            "memory_indexing_gate_state": self.memory_indexing_gate_state,
+            "voice_core_sync_gate_state": self.voice_core_sync_gate_state,
+            "version_jump_gate_state": self.version_jump_gate_state,
+            "provider_profile_required_fields": self.provider_profile_required_fields,
+            "provider_config_required_fields": self.provider_config_required_fields,
+            "provider_setup_prerequisite_posture": self.provider_setup_prerequisite_posture,
+            "provider_setup_validation_posture": self.provider_setup_validation_posture,
+            "provider_setup_ui_proof_posture": self.provider_setup_ui_proof_posture,
+            "future_setup_branch_handoff_state": self.future_setup_branch_handoff_state,
+            "provider_setup_contract_fold_down_posture": self.provider_setup_contract_fold_down_posture,
+            "provider_setup_foundation_state": self.provider_setup_foundation_state,
+            "provider_setup_foundation_label": self.provider_setup_foundation_label,
+            "provider_setup_foundation_eligibility_state": (
+                self.provider_setup_foundation_eligibility_state
+            ),
+            "provider_setup_foundation_eligibility_label": (
+                self.provider_setup_foundation_eligibility_label
+            ),
+            "provider_setup_foundation_blocker_state": self.provider_setup_foundation_blocker_state,
+            "provider_setup_foundation_blocker_label": self.provider_setup_foundation_blocker_label,
+            "provider_setup_foundation_reason_code": self.provider_setup_foundation_reason_code,
+            "provider_setup_foundation_reason_label": self.provider_setup_foundation_reason_label,
+            "provider_setup_foundation_provenance": self.provider_setup_foundation_provenance,
+            "provider_setup_foundation_provenance_label": (
+                self.provider_setup_foundation_provenance_label
+            ),
+            "provider_setup_foundation_state_schema_version": (
+                self.provider_setup_foundation_state_schema_version
+            ),
+            "provider_setup_foundation_config_schema_version": (
+                self.provider_setup_foundation_config_schema_version
+            ),
+            "provider_setup_foundation_config_state": self.provider_setup_foundation_config_state,
+            "provider_setup_foundation_config_label": self.provider_setup_foundation_config_label,
+            "provider_setup_foundation_config_migration": (
+                self.provider_setup_foundation_config_migration
+            ),
+            "provider_setup_foundation_config_valid": self.provider_setup_foundation_config_valid,
+            "provider_setup_foundation_setup_entry_state": (
+                self.provider_setup_foundation_setup_entry_state
+            ),
+            "provider_setup_foundation_setup_entry_label": (
+                self.provider_setup_foundation_setup_entry_label
+            ),
+            "provider_setup_foundation_profile_draft_status": (
+                self.provider_setup_foundation_profile_draft_status
+            ),
+            "provider_setup_foundation_profile_draft_label": (
+                self.provider_setup_foundation_profile_draft_label
+            ),
+            "provider_setup_foundation_config_draft_status": (
+                self.provider_setup_foundation_config_draft_status
+            ),
+            "provider_setup_foundation_config_draft_label": (
+                self.provider_setup_foundation_config_draft_label
+            ),
+            "provider_setup_foundation_validation_status": (
+                self.provider_setup_foundation_validation_status
+            ),
+            "provider_setup_foundation_validation_label": (
+                self.provider_setup_foundation_validation_label
+            ),
+            "provider_setup_foundation_persistence_status": (
+                self.provider_setup_foundation_persistence_status
+            ),
+            "provider_setup_foundation_persistence_label": (
+                self.provider_setup_foundation_persistence_label
+            ),
+            "provider_setup_foundation_approval_status": (
+                self.provider_setup_foundation_approval_status
+            ),
+            "provider_setup_foundation_approval_label": (
+                self.provider_setup_foundation_approval_label
+            ),
+            "provider_setup_foundation_gate_state": self.provider_setup_foundation_gate_state,
+            "local_null_provider_fallback_proof": self.local_null_provider_fallback_proof,
+            "provider_setup_implementation_handoff_state": (
+                self.provider_setup_implementation_handoff_state
+            ),
+            "provider_setup_implementation_fold_down_posture": (
+                self.provider_setup_implementation_fold_down_posture
+            ),
+            "consent_collection_foundation_state": self.consent_collection_foundation_state,
+            "consent_collection_foundation_label": self.consent_collection_foundation_label,
+            "consent_collection_eligibility_state": self.consent_collection_eligibility_state,
+            "consent_collection_eligibility_label": self.consent_collection_eligibility_label,
+            "consent_collection_blocker_state": self.consent_collection_blocker_state,
+            "consent_collection_blocker_label": self.consent_collection_blocker_label,
+            "consent_collection_reason_code": self.consent_collection_reason_code,
+            "consent_collection_reason_label": self.consent_collection_reason_label,
+            "consent_collection_provenance": self.consent_collection_provenance,
+            "consent_collection_provenance_label": self.consent_collection_provenance_label,
+            "consent_collection_state_schema_version": self.consent_collection_state_schema_version,
+            "consent_collection_config_schema_version": self.consent_collection_config_schema_version,
+            "consent_collection_config_state": self.consent_collection_config_state,
+            "consent_collection_config_label": self.consent_collection_config_label,
+            "consent_collection_config_migration": self.consent_collection_config_migration,
+            "consent_collection_config_valid": self.consent_collection_config_valid,
+            "consent_collection_approval_status": self.consent_collection_approval_status,
+            "consent_collection_approval_label": self.consent_collection_approval_label,
+            "consent_collection_gate_state": self.consent_collection_gate_state,
+            "consent_capture_surface_state": self.consent_capture_surface_state,
+            "consent_capture_surface_label": self.consent_capture_surface_label,
+            "setup_consent_capture_status": self.setup_consent_capture_status,
+            "setup_consent_capture_label": self.setup_consent_capture_label,
+            "execution_consent_capture_status": self.execution_consent_capture_status,
+            "execution_consent_capture_label": self.execution_consent_capture_label,
+            "consent_data_visibility_review_status": (
+                self.consent_data_visibility_review_status
+            ),
+            "consent_data_visibility_review_label": self.consent_data_visibility_review_label,
+            "consent_audit_envelope_status": self.consent_audit_envelope_status,
+            "consent_audit_envelope_label": self.consent_audit_envelope_label,
+            "consent_provenance_status": self.consent_provenance_status,
+            "consent_provenance_label": self.consent_provenance_label,
+            "consent_persistence_status": self.consent_persistence_status,
+            "consent_persistence_label": self.consent_persistence_label,
+            "consent_collection_validation_status": self.consent_collection_validation_status,
+            "consent_collection_validation_label": self.consent_collection_validation_label,
+            "future_consent_capture_handoff_state": self.future_consent_capture_handoff_state,
+            "consent_collection_fold_down_posture": self.consent_collection_fold_down_posture,
         }
 
     def as_renderer_payload(self) -> dict[str, object]:
@@ -1574,6 +2868,278 @@ class AIProviderStateSnapshot:
             "functionalAiReleaseGateLabel": self.functional_ai_release_gate_label,
             "v18ReleaseGateState": self.v18_release_gate_state,
             "v18ReleaseGateLabel": self.v18_release_gate_label,
+            "providerPathReadinessState": self.provider_path_readiness_state,
+            "providerPathReadinessLabel": self.provider_path_readiness_label,
+            "providerPathEligibilityState": self.provider_path_eligibility_state,
+            "providerPathEligibilityLabel": self.provider_path_eligibility_label,
+            "providerPathBlockerState": self.provider_path_blocker_state,
+            "providerPathBlockerLabel": self.provider_path_blocker_label,
+            "providerPathReasonCode": self.provider_path_reason_code,
+            "providerPathReasonLabel": self.provider_path_reason_label,
+            "providerPathProvenance": self.provider_path_provenance,
+            "providerPathProvenanceLabel": self.provider_path_provenance_label,
+            "providerPathStateSchemaVersion": self.provider_path_state_schema_version,
+            "providerPathConfigSchemaVersion": self.provider_path_config_schema_version,
+            "providerPathConfigState": self.provider_path_config_state,
+            "providerPathConfigLabel": self.provider_path_config_label,
+            "providerPathConfigMigration": self.provider_path_config_migration,
+            "providerPathConfigValid": self.provider_path_config_valid,
+            "providerPathApprovalStatus": self.provider_path_approval_status,
+            "providerPathApprovalLabel": self.provider_path_approval_label,
+            "providerProfileId": self.provider_profile_id,
+            "providerProfileKind": self.provider_profile_kind,
+            "providerProfileDisplayName": self.provider_profile_display_name,
+            "providerProfileSource": self.provider_profile_source,
+            "providerProfileMetadataContractVersion": self.provider_profile_metadata_contract_version,
+            "providerProfileAvailable": self.provider_profile_available,
+            "providerSdkRequirementPosture": self.provider_sdk_requirement_posture,
+            "providerNetworkRequirementPosture": self.provider_network_requirement_posture,
+            "providerConfigStatus": self.provider_config_status,
+            "providerAvailabilityPosture": self.provider_availability_posture,
+            "providerSetupApprovalStatus": self.provider_setup_approval_status,
+            "providerExecutionApprovalStatus": self.provider_execution_approval_status,
+            "providerVisibleDataScope": self.provider_visible_data_scope,
+            "localNullProviderFallbackStatus": self.local_null_provider_fallback_status,
+            "futureSdkHandoffMarker": self.future_sdk_handoff_marker,
+            "futureProviderSetupHandoffMarker": self.future_provider_setup_handoff_marker,
+            "consentReadinessState": self.consent_readiness_state,
+            "consentReadinessLabel": self.consent_readiness_label,
+            "consentStateSchemaVersion": self.consent_state_schema_version,
+            "consentConfigSchemaVersion": self.consent_config_schema_version,
+            "consentConfigMigration": self.consent_config_migration,
+            "setupConsentState": self.setup_consent_state,
+            "setupConsentLabel": self.setup_consent_label,
+            "setupConsentBlockerState": self.setup_consent_blocker_state,
+            "setupConsentBlockerLabel": self.setup_consent_blocker_label,
+            "setupConsentReasonCode": self.setup_consent_reason_code,
+            "setupConsentReasonLabel": self.setup_consent_reason_label,
+            "setupConsentProvenance": self.setup_consent_provenance,
+            "setupConsentProvenanceLabel": self.setup_consent_provenance_label,
+            "setupConsentHandoffState": self.setup_consent_handoff_state,
+            "setupConsentHandoffLabel": self.setup_consent_handoff_label,
+            "executionConsentState": self.execution_consent_state,
+            "executionConsentLabel": self.execution_consent_label,
+            "executionConsentBlockerState": self.execution_consent_blocker_state,
+            "executionConsentBlockerLabel": self.execution_consent_blocker_label,
+            "executionConsentReasonCode": self.execution_consent_reason_code,
+            "executionConsentReasonLabel": self.execution_consent_reason_label,
+            "executionConsentProvenance": self.execution_consent_provenance,
+            "executionConsentProvenanceLabel": self.execution_consent_provenance_label,
+            "executionConsentHandoffState": self.execution_consent_handoff_state,
+            "executionConsentHandoffLabel": self.execution_consent_handoff_label,
+            "providerVisibleDataRequirementState": self.provider_visible_data_requirement_state,
+            "providerVisibleDataRequirementLabel": self.provider_visible_data_requirement_label,
+            "dataClassificationPostureState": self.data_classification_posture_state,
+            "dataClassificationPostureLabel": self.data_classification_posture_label,
+            "auditEnvelopePostureState": self.audit_envelope_posture_state,
+            "auditEnvelopePostureLabel": self.audit_envelope_posture_label,
+            "localOnlyStatusPosture": self.local_only_status_posture,
+            "localOnlyStatusLabel": self.local_only_status_label,
+            "providerSetupFutureGatedPosture": self.provider_setup_future_gated_posture,
+            "providerSetupFutureGatedLabel": self.provider_setup_future_gated_label,
+            "providerExecutionFutureGatedPosture": self.provider_execution_future_gated_posture,
+            "providerExecutionFutureGatedLabel": self.provider_execution_future_gated_label,
+            "providerPathGateState": self.provider_path_gate_state,
+            "providerConfigGateState": self.provider_config_gate_state,
+            "setupConsentGateState": self.setup_consent_gate_state,
+            "executionConsentGateState": self.execution_consent_gate_state,
+            "providerVisibleDataGateState": self.provider_visible_data_gate_state,
+            "auditGateState": self.audit_gate_state,
+            "setupFlowReadinessState": self.setup_flow_readiness_state,
+            "setupFlowReadinessLabel": self.setup_flow_readiness_label,
+            "setupFlowEligibilityState": self.setup_flow_eligibility_state,
+            "setupFlowEligibilityLabel": self.setup_flow_eligibility_label,
+            "setupFlowBlockerState": self.setup_flow_blocker_state,
+            "setupFlowBlockerLabel": self.setup_flow_blocker_label,
+            "setupFlowReasonCode": self.setup_flow_reason_code,
+            "setupFlowReasonLabel": self.setup_flow_reason_label,
+            "setupFlowProvenance": self.setup_flow_provenance,
+            "setupFlowProvenanceLabel": self.setup_flow_provenance_label,
+            "setupFlowStateSchemaVersion": self.setup_flow_state_schema_version,
+            "setupFlowConfigSchemaVersion": self.setup_flow_config_schema_version,
+            "setupFlowConfigState": self.setup_flow_config_state,
+            "setupFlowConfigLabel": self.setup_flow_config_label,
+            "setupFlowConfigMigration": self.setup_flow_config_migration,
+            "setupFlowConfigValid": self.setup_flow_config_valid,
+            "setupFlowApprovalStatus": self.setup_flow_approval_status,
+            "setupFlowApprovalLabel": self.setup_flow_approval_label,
+            "providerSetupHandoffPosture": self.provider_setup_handoff_posture,
+            "providerSetupHandoffLabel": self.provider_setup_handoff_label,
+            "providerConsentHandoffPosture": self.provider_consent_handoff_posture,
+            "providerConsentHandoffLabel": self.provider_consent_handoff_label,
+            "providerPathHandoffPosture": self.provider_path_handoff_posture,
+            "providerPathHandoffLabel": self.provider_path_handoff_label,
+            "consentFlowReadinessState": self.consent_flow_readiness_state,
+            "consentFlowReadinessLabel": self.consent_flow_readiness_label,
+            "consentFlowEligibilityState": self.consent_flow_eligibility_state,
+            "consentFlowEligibilityLabel": self.consent_flow_eligibility_label,
+            "consentFlowBlockerState": self.consent_flow_blocker_state,
+            "consentFlowBlockerLabel": self.consent_flow_blocker_label,
+            "consentFlowReasonCode": self.consent_flow_reason_code,
+            "consentFlowReasonLabel": self.consent_flow_reason_label,
+            "consentFlowProvenance": self.consent_flow_provenance,
+            "consentFlowProvenanceLabel": self.consent_flow_provenance_label,
+            "consentFlowStateSchemaVersion": self.consent_flow_state_schema_version,
+            "consentFlowConfigSchemaVersion": self.consent_flow_config_schema_version,
+            "consentFlowConfigState": self.consent_flow_config_state,
+            "consentFlowConfigLabel": self.consent_flow_config_label,
+            "consentFlowConfigMigration": self.consent_flow_config_migration,
+            "consentFlowConfigValid": self.consent_flow_config_valid,
+            "consentFlowApprovalStatus": self.consent_flow_approval_status,
+            "consentFlowApprovalLabel": self.consent_flow_approval_label,
+            "consentCollectionPosture": self.consent_collection_posture,
+            "consentCollectionLabel": self.consent_collection_label,
+            "dataVisibilityConsentPosture": self.data_visibility_consent_posture,
+            "dataVisibilityConsentLabel": self.data_visibility_consent_label,
+            "setupFlowGateState": self.setup_flow_gate_state,
+            "consentFlowGateState": self.consent_flow_gate_state,
+            "setupApprovalGateState": self.setup_approval_gate_state,
+            "executionApprovalGateState": self.execution_approval_gate_state,
+            "desktopAiOwnedReadinessDisplayState": self.desktop_ai_owned_readiness_display_state,
+            "desktopAiOwnedReadinessDisplayLabel": self.desktop_ai_owned_readiness_display_label,
+            "providerSetupContractReadinessState": self.provider_setup_contract_readiness_state,
+            "providerSetupContractReadinessLabel": self.provider_setup_contract_readiness_label,
+            "providerSetupContractEligibilityState": self.provider_setup_contract_eligibility_state,
+            "providerSetupContractEligibilityLabel": self.provider_setup_contract_eligibility_label,
+            "providerSetupContractBlockerState": self.provider_setup_contract_blocker_state,
+            "providerSetupContractBlockerLabel": self.provider_setup_contract_blocker_label,
+            "providerSetupContractReasonCode": self.provider_setup_contract_reason_code,
+            "providerSetupContractReasonLabel": self.provider_setup_contract_reason_label,
+            "providerSetupContractProvenance": self.provider_setup_contract_provenance,
+            "providerSetupContractProvenanceLabel": self.provider_setup_contract_provenance_label,
+            "providerSetupContractStateSchemaVersion": self.provider_setup_contract_state_schema_version,
+            "providerSetupContractConfigSchemaVersion": self.provider_setup_contract_config_schema_version,
+            "providerSetupContractConfigState": self.provider_setup_contract_config_state,
+            "providerSetupContractConfigLabel": self.provider_setup_contract_config_label,
+            "providerSetupContractConfigMigration": self.provider_setup_contract_config_migration,
+            "providerSetupContractConfigValid": self.provider_setup_contract_config_valid,
+            "providerSetupContractApprovalStatus": self.provider_setup_contract_approval_status,
+            "providerSetupContractApprovalLabel": self.provider_setup_contract_approval_label,
+            "providerSetupContractGateState": self.provider_setup_contract_gate_state,
+            "providerProfileGateState": self.provider_profile_gate_state,
+            "capabilityGateState": self.capability_gate_state,
+            "manifestGateState": self.manifest_gate_state,
+            "safetyEvalGateState": self.safety_eval_gate_state,
+            "networkGateState": self.network_gate_state,
+            "memoryIndexingGateState": self.memory_indexing_gate_state,
+            "voiceCoreSyncGateState": self.voice_core_sync_gate_state,
+            "versionJumpGateState": self.version_jump_gate_state,
+            "providerProfileRequiredFields": list(self.provider_profile_required_fields),
+            "providerConfigRequiredFields": list(self.provider_config_required_fields),
+            "providerSetupPrerequisitePosture": self.provider_setup_prerequisite_posture,
+            "providerSetupValidationPosture": self.provider_setup_validation_posture,
+            "providerSetupUiProofPosture": self.provider_setup_ui_proof_posture,
+            "futureSetupBranchHandoffState": self.future_setup_branch_handoff_state,
+            "providerSetupContractFoldDownPosture": self.provider_setup_contract_fold_down_posture,
+            "providerSetupFoundationState": self.provider_setup_foundation_state,
+            "providerSetupFoundationLabel": self.provider_setup_foundation_label,
+            "providerSetupFoundationEligibilityState": (
+                self.provider_setup_foundation_eligibility_state
+            ),
+            "providerSetupFoundationEligibilityLabel": (
+                self.provider_setup_foundation_eligibility_label
+            ),
+            "providerSetupFoundationBlockerState": self.provider_setup_foundation_blocker_state,
+            "providerSetupFoundationBlockerLabel": self.provider_setup_foundation_blocker_label,
+            "providerSetupFoundationReasonCode": self.provider_setup_foundation_reason_code,
+            "providerSetupFoundationReasonLabel": self.provider_setup_foundation_reason_label,
+            "providerSetupFoundationProvenance": self.provider_setup_foundation_provenance,
+            "providerSetupFoundationProvenanceLabel": self.provider_setup_foundation_provenance_label,
+            "providerSetupFoundationStateSchemaVersion": (
+                self.provider_setup_foundation_state_schema_version
+            ),
+            "providerSetupFoundationConfigSchemaVersion": (
+                self.provider_setup_foundation_config_schema_version
+            ),
+            "providerSetupFoundationConfigState": self.provider_setup_foundation_config_state,
+            "providerSetupFoundationConfigLabel": self.provider_setup_foundation_config_label,
+            "providerSetupFoundationConfigMigration": (
+                self.provider_setup_foundation_config_migration
+            ),
+            "providerSetupFoundationConfigValid": self.provider_setup_foundation_config_valid,
+            "providerSetupFoundationSetupEntryState": (
+                self.provider_setup_foundation_setup_entry_state
+            ),
+            "providerSetupFoundationSetupEntryLabel": (
+                self.provider_setup_foundation_setup_entry_label
+            ),
+            "providerSetupFoundationProfileDraftStatus": (
+                self.provider_setup_foundation_profile_draft_status
+            ),
+            "providerSetupFoundationProfileDraftLabel": (
+                self.provider_setup_foundation_profile_draft_label
+            ),
+            "providerSetupFoundationConfigDraftStatus": (
+                self.provider_setup_foundation_config_draft_status
+            ),
+            "providerSetupFoundationConfigDraftLabel": (
+                self.provider_setup_foundation_config_draft_label
+            ),
+            "providerSetupFoundationValidationStatus": (
+                self.provider_setup_foundation_validation_status
+            ),
+            "providerSetupFoundationValidationLabel": (
+                self.provider_setup_foundation_validation_label
+            ),
+            "providerSetupFoundationPersistenceStatus": (
+                self.provider_setup_foundation_persistence_status
+            ),
+            "providerSetupFoundationPersistenceLabel": (
+                self.provider_setup_foundation_persistence_label
+            ),
+            "providerSetupFoundationApprovalStatus": (
+                self.provider_setup_foundation_approval_status
+            ),
+            "providerSetupFoundationApprovalLabel": (
+                self.provider_setup_foundation_approval_label
+            ),
+            "providerSetupFoundationGateState": self.provider_setup_foundation_gate_state,
+            "localNullProviderFallbackProof": self.local_null_provider_fallback_proof,
+            "providerSetupImplementationHandoffState": (
+                self.provider_setup_implementation_handoff_state
+            ),
+            "providerSetupImplementationFoldDownPosture": (
+                self.provider_setup_implementation_fold_down_posture
+            ),
+            "consentCollectionFoundationState": self.consent_collection_foundation_state,
+            "consentCollectionFoundationLabel": self.consent_collection_foundation_label,
+            "consentCollectionEligibilityState": self.consent_collection_eligibility_state,
+            "consentCollectionEligibilityLabel": self.consent_collection_eligibility_label,
+            "consentCollectionBlockerState": self.consent_collection_blocker_state,
+            "consentCollectionBlockerLabel": self.consent_collection_blocker_label,
+            "consentCollectionReasonCode": self.consent_collection_reason_code,
+            "consentCollectionReasonLabel": self.consent_collection_reason_label,
+            "consentCollectionProvenance": self.consent_collection_provenance,
+            "consentCollectionProvenanceLabel": self.consent_collection_provenance_label,
+            "consentCollectionStateSchemaVersion": self.consent_collection_state_schema_version,
+            "consentCollectionConfigSchemaVersion": self.consent_collection_config_schema_version,
+            "consentCollectionConfigState": self.consent_collection_config_state,
+            "consentCollectionConfigLabel": self.consent_collection_config_label,
+            "consentCollectionConfigMigration": self.consent_collection_config_migration,
+            "consentCollectionConfigValid": self.consent_collection_config_valid,
+            "consentCollectionApprovalStatus": self.consent_collection_approval_status,
+            "consentCollectionApprovalLabel": self.consent_collection_approval_label,
+            "consentCollectionGateState": self.consent_collection_gate_state,
+            "consentCaptureSurfaceState": self.consent_capture_surface_state,
+            "consentCaptureSurfaceLabel": self.consent_capture_surface_label,
+            "setupConsentCaptureStatus": self.setup_consent_capture_status,
+            "setupConsentCaptureLabel": self.setup_consent_capture_label,
+            "executionConsentCaptureStatus": self.execution_consent_capture_status,
+            "executionConsentCaptureLabel": self.execution_consent_capture_label,
+            "consentDataVisibilityReviewStatus": (
+                self.consent_data_visibility_review_status
+            ),
+            "consentDataVisibilityReviewLabel": self.consent_data_visibility_review_label,
+            "consentAuditEnvelopeStatus": self.consent_audit_envelope_status,
+            "consentAuditEnvelopeLabel": self.consent_audit_envelope_label,
+            "consentProvenanceStatus": self.consent_provenance_status,
+            "consentProvenanceLabel": self.consent_provenance_label,
+            "consentPersistenceStatus": self.consent_persistence_status,
+            "consentPersistenceLabel": self.consent_persistence_label,
+            "consentCollectionValidationStatus": self.consent_collection_validation_status,
+            "consentCollectionValidationLabel": self.consent_collection_validation_label,
+            "futureConsentCaptureHandoffState": self.future_consent_capture_handoff_state,
+            "consentCollectionFoldDownPosture": self.consent_collection_fold_down_posture,
             "canAcceptPrompts": False,
             "requiresConsent": self.consent_state == PROVIDER_CONSENT_REQUIRED,
             "sentToProvider": False,
@@ -2557,6 +4123,1247 @@ def _execution_readiness_contract_fields(
     }
 
 
+def _provider_path_consent_contract_fields(
+    *,
+    state: str,
+    reason_code: str,
+    eligibility: str,
+    blocker: str,
+    provenance: str = PROVIDER_PATH_PROVENANCE_DEFAULT_CONFIG,
+    config_state: str = PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+    config_valid: bool = True,
+    approval_status: str = PROVIDER_PATH_APPROVAL_STATUS_MISSING,
+    provider_path_selected: bool = False,
+    provider_config_present: bool = False,
+    provider_config_valid: bool = True,
+    provider_profile_available: bool = False,
+    provider_available: bool = False,
+    setup_consent_ready: bool = False,
+    execution_consent_ready: bool = False,
+    data_visibility_ready: bool = False,
+    audit_ready: bool = False,
+    capability_ready: bool = False,
+    manifest_ready: bool = False,
+    safety_ready: bool = False,
+    setup_approved: bool = False,
+    execution_approved: bool = False,
+    future_execution_branch_ready: bool = False,
+    functional_ai_release_ready: bool = False,
+) -> dict[str, object]:
+    state_labels = {
+        PROVIDER_PATH_READINESS_STATE_UNKNOWN: "Provider path readiness: unknown",
+        PROVIDER_PATH_READINESS_STATE_UNAVAILABLE: "Provider path readiness: unavailable",
+        PROVIDER_PATH_READINESS_STATE_DISABLED: "Provider path readiness: disabled",
+        PROVIDER_PATH_READINESS_STATE_UNSELECTED: "Provider path readiness: not selected",
+        PROVIDER_PATH_READINESS_STATE_SELECTION_REQUIRED: "Provider path readiness: selection required",
+        PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_POLICY: "Provider path readiness: blocked by policy",
+        PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_CONSENT: "Provider path readiness: blocked by consent",
+        PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_CAPABILITY: "Provider path readiness: blocked by capability",
+        PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_MANIFEST: "Provider path readiness: blocked by manifest",
+        PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_SAFETY: "Provider path readiness: blocked by safety/eval",
+        PROVIDER_PATH_READINESS_STATE_READY_FUTURE_GATED:
+            "Provider path readiness: ready but future-gated",
+        PROVIDER_PATH_READINESS_STATE_READY_BUT_NOT_APPROVED:
+            "Provider path readiness: ready but not approved",
+        PROVIDER_PATH_READINESS_STATE_DEGRADED: "Provider path readiness: degraded and fail-closed",
+        PROVIDER_PATH_READINESS_STATE_READY_FOR_FUTURE_EXECUTION_BRANCH:
+            "Provider path readiness: ready for future execution branch",
+    }
+    eligibility_labels = {
+        PROVIDER_PATH_ELIGIBILITY_UNAVAILABLE: "Provider path eligibility: unavailable",
+        PROVIDER_PATH_ELIGIBILITY_DISABLED: "Provider path eligibility: disabled",
+        PROVIDER_PATH_ELIGIBILITY_BLOCKED: "Provider path eligibility: blocked",
+        PROVIDER_PATH_ELIGIBILITY_SELECTION_REQUIRED:
+            "Provider path eligibility: selection required",
+        PROVIDER_PATH_ELIGIBILITY_FUTURE_GATED: "Provider path eligibility: future-gated",
+        PROVIDER_PATH_ELIGIBILITY_READY_NOT_APPROVED:
+            "Provider path eligibility: ready but USER approval missing",
+        PROVIDER_PATH_ELIGIBILITY_FUTURE_EXECUTION_BRANCH:
+            "Provider path eligibility: future execution branch",
+    }
+    blocker_labels = {
+        PROVIDER_PATH_BLOCKER_NONE: "Provider path blocker: none before future branch",
+        PROVIDER_PATH_BLOCKER_EXECUTION_READINESS_REQUIRED:
+            "Provider path blocker: execution readiness required",
+        PROVIDER_PATH_BLOCKER_SELECTION_REQUIRED:
+            "Provider path blocker: provider selection required",
+        PROVIDER_PATH_BLOCKER_CONFIG_REQUIRED: "Provider path blocker: provider config required",
+        PROVIDER_PATH_BLOCKER_CONFIG_INVALID: "Provider path blocker: provider config invalid",
+        PROVIDER_PATH_BLOCKER_SETUP_CONSENT_REQUIRED:
+            "Provider path blocker: setup consent required",
+        PROVIDER_PATH_BLOCKER_EXECUTION_CONSENT_REQUIRED:
+            "Provider path blocker: execution consent required",
+        PROVIDER_PATH_BLOCKER_DATA_VISIBILITY_REQUIRED:
+            "Provider path blocker: provider-visible data approval required",
+        PROVIDER_PATH_BLOCKER_CAPABILITY_REQUIRED: "Provider path blocker: capability required",
+        PROVIDER_PATH_BLOCKER_MANIFEST_REQUIRED: "Provider path blocker: manifest required",
+        PROVIDER_PATH_BLOCKER_SAFETY_EVAL_REQUIRED: "Provider path blocker: safety/eval required",
+        PROVIDER_PATH_BLOCKER_POLICY_BLOCKED: "Provider path blocker: policy blocked",
+        PROVIDER_PATH_BLOCKER_SETUP_APPROVAL_REQUIRED:
+            "Provider path blocker: setup approval required",
+        PROVIDER_PATH_BLOCKER_EXECUTION_APPROVAL_REQUIRED:
+            "Provider path blocker: provider execution approval required",
+        PROVIDER_PATH_BLOCKER_VERSION_JUMP_REQUIRED:
+            "Provider path blocker: v1.8.0-prebeta version jump required",
+    }
+    reason_labels = {
+        PROVIDER_PATH_REASON_DEFAULT_UNAVAILABLE: "Provider path reason: readiness only",
+        PROVIDER_PATH_REASON_CONFIG_MISSING_FAIL_CLOSED:
+            "Provider path reason: missing config failed closed",
+        PROVIDER_PATH_REASON_CONFIG_INVALID_FAIL_CLOSED:
+            "Provider path reason: invalid config failed closed",
+        PROVIDER_PATH_REASON_EXECUTION_READINESS_UNAVAILABLE:
+            "Provider path reason: execution readiness unavailable",
+        PROVIDER_PATH_REASON_UNSELECTED: "Provider path reason: provider path not selected",
+        PROVIDER_PATH_REASON_CONFIG_MISSING: "Provider path reason: provider config missing",
+        PROVIDER_PATH_REASON_CONFIG_INVALID: "Provider path reason: provider config invalid",
+        PROVIDER_PATH_REASON_SETUP_CONSENT_REQUIRED:
+            "Provider path reason: setup consent required",
+        PROVIDER_PATH_REASON_EXECUTION_CONSENT_REQUIRED:
+            "Provider path reason: execution consent required",
+        PROVIDER_PATH_REASON_DATA_VISIBILITY_BLOCKED:
+            "Provider path reason: provider-visible data approval blocked",
+        PROVIDER_PATH_REASON_CAPABILITY_MISSING: "Provider path reason: capability missing",
+        PROVIDER_PATH_REASON_MANIFEST_MISSING: "Provider path reason: manifest missing",
+        PROVIDER_PATH_REASON_SAFETY_BLOCKED: "Provider path reason: safety/eval blocked",
+        PROVIDER_PATH_REASON_POLICY_BLOCKED: "Provider path reason: policy blocked",
+        PROVIDER_PATH_REASON_SETUP_APPROVAL_MISSING:
+            "Provider path reason: setup approval missing",
+        PROVIDER_PATH_REASON_EXECUTION_APPROVAL_MISSING:
+            "Provider path reason: execution approval missing",
+        PROVIDER_PATH_REASON_READY_FOR_FUTURE_EXECUTION_BRANCH:
+            "Provider path reason: ready for future execution branch",
+        PROVIDER_PATH_REASON_FUNCTIONAL_AI_FUTURE_VERSION:
+            "Provider path reason: functional AI proof reserved for v1.8.0-prebeta",
+    }
+    provenance_labels = {
+        PROVIDER_PATH_PROVENANCE_DEFAULT_CONFIG: "Provider path provenance: default config",
+        PROVIDER_PATH_PROVENANCE_LOCAL_CONFIG: "Provider path provenance: local config",
+        PROVIDER_PATH_PROVENANCE_EXECUTION_READINESS_STATE:
+            "Provider path provenance: execution readiness state",
+        PROVIDER_PATH_PROVENANCE_PROVIDER_SELECTION_CONTRACT:
+            "Provider path provenance: provider selection contract",
+        PROVIDER_PATH_PROVENANCE_PROVIDER_CONFIG_CONTRACT:
+            "Provider path provenance: provider config contract",
+        PROVIDER_PATH_PROVENANCE_CONSENT_STATE: "Provider path provenance: consent state",
+        PROVIDER_PATH_PROVENANCE_DATA_VISIBILITY_CONTRACT:
+            "Provider path provenance: data visibility contract",
+        PROVIDER_PATH_PROVENANCE_CAPABILITY_CONTRACT:
+            "Provider path provenance: capability contract",
+        PROVIDER_PATH_PROVENANCE_MANIFEST_STATE: "Provider path provenance: manifest state",
+        PROVIDER_PATH_PROVENANCE_SAFETY_EVAL: "Provider path provenance: safety/eval",
+        PROVIDER_PATH_PROVENANCE_AUDIT_POLICY: "Provider path provenance: audit policy",
+        PROVIDER_PATH_PROVENANCE_FUTURE_RUNTIME_CHECK:
+            "Provider path provenance: future runtime check",
+        PROVIDER_PATH_PROVENANCE_VALIDATOR_FIXTURE:
+            "Provider path provenance: validator fixture",
+    }
+    config_labels = {
+        PROVIDER_PATH_CONFIG_STATE_DEFAULT: "Provider path config: safe default local-only",
+        PROVIDER_PATH_CONFIG_STATE_MISSING: "Provider path config: missing; readiness disabled",
+        PROVIDER_PATH_CONFIG_STATE_INVALID: "Provider path config: invalid; degraded fail-closed",
+        PROVIDER_PATH_CONFIG_STATE_LOCAL: "Provider path config: local-only",
+    }
+    approval_labels = {
+        PROVIDER_PATH_APPROVAL_STATUS_MISSING: "Provider path approval: USER approval missing",
+        PROVIDER_PATH_APPROVAL_STATUS_FUTURE_GATED: "Provider path approval: future-gated",
+        PROVIDER_PATH_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF:
+            "Provider path approval: ready for future proof branch",
+    }
+    normalized_state = state if state in PROVIDER_PATH_READINESS_STATES else PROVIDER_PATH_READINESS_STATE_DEGRADED
+    normalized_reason = (
+        reason_code if reason_code in PROVIDER_PATH_REASON_CODES else PROVIDER_PATH_REASON_CONFIG_INVALID_FAIL_CLOSED
+    )
+    normalized_provenance = (
+        provenance if provenance in PROVIDER_PATH_PROVENANCE_SOURCES else PROVIDER_PATH_PROVENANCE_LOCAL_CONFIG
+    )
+    normalized_config = (
+        config_state
+        if config_state
+        in {
+            PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+            PROVIDER_PATH_CONFIG_STATE_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_INVALID,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+        }
+        else PROVIDER_PATH_CONFIG_STATE_INVALID
+    )
+    provider_config_status = (
+        PROVIDER_CONFIG_ENVELOPE_STATUS_INVALID
+        if provider_config_present and not provider_config_valid
+        else PROVIDER_CONFIG_ENVELOPE_STATUS_LOCAL_ONLY_READY
+        if provider_config_present
+        else PROVIDER_CONFIG_ENVELOPE_STATUS_MISSING
+    )
+    provider_path_status = (
+        PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED if provider_path_selected else PROVIDER_PATH_STATUS_NOT_SELECTED
+    )
+    consent_readiness = (
+        CONSENT_READINESS_STATE_BLOCKED_BY_DATA_VISIBILITY
+        if setup_consent_ready and execution_consent_ready and not data_visibility_ready
+        else CONSENT_READINESS_STATE_BLOCKED_BY_AUDIT_REQUIREMENTS
+        if setup_consent_ready and execution_consent_ready and data_visibility_ready and not audit_ready
+        else CONSENT_READINESS_STATE_READY_BUT_NOT_COLLECTED
+        if setup_consent_ready and execution_consent_ready
+        else CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_EXECUTION
+        if setup_consent_ready
+        else CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_SETUP
+    )
+    setup_eligibility = (
+        PROVIDER_SETUP_ELIGIBILITY_CONFIG_REQUIRED
+        if not provider_path_selected or not provider_config_present
+        else PROVIDER_SETUP_ELIGIBILITY_BLOCKED
+        if not setup_consent_ready or not capability_ready or not manifest_ready or not safety_ready
+        else PROVIDER_SETUP_ELIGIBILITY_FUTURE_GATED
+        if not setup_approved
+        else PROVIDER_SETUP_ELIGIBILITY_EXECUTION_GATED
+    )
+    setup_blocker = (
+        PROVIDER_SETUP_BLOCKER_CONFIG_REQUIRED
+        if not provider_path_selected or not provider_config_present
+        else PROVIDER_SETUP_BLOCKER_CONSENT_REQUIRED
+        if not setup_consent_ready
+        else PROVIDER_SETUP_BLOCKER_CAPABILITY_REQUIRED
+        if not capability_ready
+        else PROVIDER_SETUP_BLOCKER_MANIFEST_REQUIRED
+        if not manifest_ready
+        else PROVIDER_SETUP_BLOCKER_POLICY_BLOCKED
+        if not safety_ready
+        else PROVIDER_SETUP_BLOCKER_SETUP_DISABLED
+    )
+    return {
+        "provider_path_readiness_state": normalized_state,
+        "provider_path_readiness_label": state_labels[normalized_state],
+        "provider_path_eligibility_state": eligibility,
+        "provider_path_eligibility_label": eligibility_labels.get(eligibility, "Provider path eligibility: blocked"),
+        "provider_path_blocker_state": blocker,
+        "provider_path_blocker_label": blocker_labels.get(blocker, "Provider path blocker: policy blocked"),
+        "provider_path_reason_code": normalized_reason,
+        "provider_path_reason_label": reason_labels[normalized_reason],
+        "provider_path_provenance": normalized_provenance,
+        "provider_path_provenance_label": provenance_labels[normalized_provenance],
+        "provider_path_state_schema_version": PROVIDER_PATH_READINESS_STATE_SCHEMA_VERSION,
+        "provider_path_config_schema_version": PROVIDER_PATH_READINESS_CONFIG_SCHEMA_VERSION,
+        "provider_path_config_state": normalized_config,
+        "provider_path_config_label": config_labels[normalized_config],
+        "provider_path_config_migration": PROVIDER_PATH_READINESS_CONFIG_MIGRATION_POSTURE,
+        "provider_path_config_valid": bool(config_valid),
+        "provider_path_approval_status": approval_status,
+        "provider_path_approval_label": approval_labels.get(approval_status, approval_labels[PROVIDER_PATH_APPROVAL_STATUS_MISSING]),
+        "provider_path_status": provider_path_status,
+        "provider_path_label": (
+            "Provider path: selected for future-gated readiness"
+            if provider_path_selected
+            else "Provider path: not selected"
+        ),
+        "provider_selection_posture": (
+            PROVIDER_SELECTION_POSTURE_SELECTED_FUTURE_GATED
+            if provider_path_selected
+            else PROVIDER_SELECTION_POSTURE_PENDING_APPROVAL
+        ),
+        "provider_selection_posture_label": (
+            "Provider selection: selected for future readiness"
+            if provider_path_selected
+            else "Provider selection: pending USER approval"
+        ),
+        "provider_profile_id": PROVIDER_PROFILE_ID_LOCAL_NULL,
+        "provider_profile_kind": PROVIDER_PROFILE_KIND_NULL_LOCAL,
+        "provider_profile_display_name": "Local/null provider profile",
+        "provider_profile_source": PROVIDER_PROFILE_SOURCE_LOCAL_SCAFFOLD,
+        "provider_profile_metadata_contract_version": PROVIDER_PROFILE_METADATA_CONTRACT_VERSION,
+        "provider_profile_available": provider_profile_available,
+        "provider_sdk_requirement_posture": PROVIDER_SDK_REQUIREMENT_PENDING_APPROVAL,
+        "provider_network_requirement_posture": PROVIDER_NETWORK_REQUIREMENT_BLOCKED,
+        "provider_config_status": provider_config_status,
+        "provider_availability_posture": (
+            PROVIDER_AVAILABILITY_READY_FUTURE_GATED if provider_available else PROVIDER_AVAILABILITY_UNAVAILABLE
+        ),
+        "provider_setup_approval_status": (
+            PROVIDER_SETUP_APPROVAL_STATUS_FUTURE_GATED
+            if setup_approved
+            else PROVIDER_SETUP_APPROVAL_STATUS_MISSING
+        ),
+        "provider_execution_approval_status": PROVIDER_EXECUTION_APPROVAL_STATUS_PROVIDER_PATH_MISSING,
+        "provider_visible_data_scope": PROVIDER_VISIBLE_DATA_REQUIREMENT_NONE,
+        "local_null_provider_fallback_status": LOCAL_NULL_PROVIDER_FALLBACK_ACTIVE,
+        "future_sdk_handoff_marker": FUTURE_SDK_HANDOFF_MARKER,
+        "future_provider_setup_handoff_marker": FUTURE_PROVIDER_SETUP_HANDOFF_MARKER,
+        "consent_readiness_state": consent_readiness,
+        "consent_readiness_label": {
+            CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_SETUP:
+                "Consent readiness: setup consent required",
+            CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_EXECUTION:
+                "Consent readiness: execution consent required",
+            CONSENT_READINESS_STATE_BLOCKED_BY_DATA_VISIBILITY:
+                "Consent readiness: blocked by provider-visible data requirements",
+            CONSENT_READINESS_STATE_BLOCKED_BY_AUDIT_REQUIREMENTS:
+                "Consent readiness: blocked by audit requirements",
+            CONSENT_READINESS_STATE_READY_BUT_NOT_COLLECTED:
+                "Consent readiness: ready but not collected",
+        }.get(consent_readiness, "Consent readiness: required before provider setup"),
+        "consent_state_schema_version": CONSENT_READINESS_STATE_SCHEMA_VERSION,
+        "consent_config_schema_version": CONSENT_READINESS_CONFIG_SCHEMA_VERSION,
+        "consent_config_migration": CONSENT_READINESS_CONFIG_MIGRATION_POSTURE,
+        "setup_consent_state": (
+            CONSENT_READINESS_STATE_READY_BUT_NOT_COLLECTED
+            if setup_consent_ready
+            else CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_SETUP
+        ),
+        "setup_consent_label": (
+            "Setup consent: ready but not collected"
+            if setup_consent_ready
+            else "Setup consent: required before provider setup"
+        ),
+        "setup_consent_blocker_state": (
+            CONSENT_BLOCKER_NONE if setup_consent_ready else CONSENT_BLOCKER_SETUP_REQUIRED
+        ),
+        "setup_consent_blocker_label": (
+            "Setup consent blocker: none before future setup approval"
+            if setup_consent_ready
+            else "Setup consent blocker: consent collection not approved"
+        ),
+        "setup_consent_reason_code": (
+            CONSENT_REASON_READY_BUT_NOT_COLLECTED if setup_consent_ready else CONSENT_REASON_SETUP_REQUIRED
+        ),
+        "setup_consent_reason_label": (
+            "Setup consent reason: ready but not collected"
+            if setup_consent_ready
+            else "Setup consent reason: required before provider setup"
+        ),
+        "setup_consent_provenance": CONSENT_PROVENANCE_PROVIDER_PATH_CONTRACT,
+        "setup_consent_provenance_label": "Setup consent provenance: provider path contract",
+        "setup_consent_handoff_state": SETUP_CONSENT_HANDOFF_FUTURE_GATED,
+        "setup_consent_handoff_label": "Setup consent handoff: future-gated",
+        "execution_consent_state": (
+            CONSENT_READINESS_STATE_READY_BUT_NOT_COLLECTED
+            if execution_consent_ready
+            else CONSENT_READINESS_STATE_REQUIRED_FOR_PROVIDER_EXECUTION
+        ),
+        "execution_consent_label": (
+            "Execution consent: ready but not collected"
+            if execution_consent_ready
+            else "Execution consent: required before prompt/model execution"
+        ),
+        "execution_consent_blocker_state": (
+            CONSENT_BLOCKER_NONE if execution_consent_ready else CONSENT_BLOCKER_EXECUTION_REQUIRED
+        ),
+        "execution_consent_blocker_label": (
+            "Execution consent blocker: none before future execution approval"
+            if execution_consent_ready
+            else "Execution consent blocker: consent collection not approved"
+        ),
+        "execution_consent_reason_code": (
+            CONSENT_REASON_READY_BUT_NOT_COLLECTED
+            if execution_consent_ready
+            else CONSENT_REASON_EXECUTION_REQUIRED
+        ),
+        "execution_consent_reason_label": (
+            "Execution consent reason: ready but not collected"
+            if execution_consent_ready
+            else "Execution consent reason: required before provider execution"
+        ),
+        "execution_consent_provenance": CONSENT_PROVENANCE_PROVIDER_PATH_CONTRACT,
+        "execution_consent_provenance_label": "Execution consent provenance: provider path contract",
+        "execution_consent_handoff_state": EXECUTION_CONSENT_HANDOFF_FUTURE_GATED,
+        "execution_consent_handoff_label": "Execution consent handoff: future-gated",
+        "provider_visible_data_requirement_state": (
+            PROVIDER_VISIBLE_DATA_REQUIREMENT_NONE
+            if data_visibility_ready or not provider_path_selected
+            else PROVIDER_VISIBLE_DATA_REQUIREMENT_BLOCKED
+        ),
+        "provider_visible_data_requirement_label": (
+            "Provider-visible data requirement: none"
+            if data_visibility_ready or not provider_path_selected
+            else "Provider-visible data requirement: blocked pending approval"
+        ),
+        "data_classification_posture_state": DATA_CLASSIFICATION_POSTURE_LOCAL_ONLY,
+        "data_classification_posture_label": "Data classification posture: local-only",
+        "audit_envelope_posture_state": AUDIT_ENVELOPE_POSTURE_PLANNED,
+        "audit_envelope_posture_label": (
+            "Audit envelope posture: ready for future proof" if audit_ready else "Audit envelope posture: planned; no collection"
+        ),
+        "local_only_status_posture": LOCAL_ONLY_STATUS_POSTURE_ACTIVE,
+        "local_only_status_label": "Local-only status: active",
+        "provider_setup_future_gated_posture": PROVIDER_SETUP_FUTURE_GATED_POSTURE,
+        "provider_setup_future_gated_label": "Provider setup: future-gated",
+        "provider_execution_future_gated_posture": PROVIDER_EXECUTION_FUTURE_GATED_POSTURE,
+        "provider_execution_future_gated_label": "Provider execution: disabled; future-gated",
+        "provider_path_gate_state": (
+            PROVIDER_PATH_GATE_FUTURE_GATED if provider_path_selected else PROVIDER_PATH_GATE_BLOCKED
+        ),
+        "provider_config_gate_state": (
+            PROVIDER_CONFIG_GATE_READY_FUTURE_GATED
+            if provider_config_present and provider_config_valid
+            else PROVIDER_CONFIG_GATE_BLOCKED
+        ),
+        "setup_consent_gate_state": (
+            SETUP_CONSENT_GATE_READY_FUTURE_GATED if setup_consent_ready else SETUP_CONSENT_GATE_REQUIRED
+        ),
+        "execution_consent_gate_state": (
+            EXECUTION_CONSENT_GATE_READY_FUTURE_GATED
+            if execution_consent_ready
+            else EXECUTION_CONSENT_GATE_REQUIRED
+        ),
+        "provider_visible_data_gate_state": (
+            PROVIDER_VISIBLE_DATA_GATE_NONE if data_visibility_ready or not provider_path_selected else PROVIDER_VISIBLE_DATA_GATE_BLOCKED
+        ),
+        "audit_gate_state": AUDIT_GATE_READY_FUTURE_GATED if audit_ready else AUDIT_GATE_PLANNED,
+        "setup_eligibility_state": setup_eligibility,
+        "setup_eligibility_label": {
+            PROVIDER_SETUP_ELIGIBILITY_CONFIG_REQUIRED:
+                "Setup eligibility: provider path/config required",
+            PROVIDER_SETUP_ELIGIBILITY_BLOCKED:
+                "Setup eligibility: blocked by consent, capability, manifest, or safety",
+            PROVIDER_SETUP_ELIGIBILITY_FUTURE_GATED:
+                "Setup eligibility: future-gated pending USER approval",
+            PROVIDER_SETUP_ELIGIBILITY_EXECUTION_GATED:
+                "Setup eligibility: complete, execution still gated",
+        }.get(setup_eligibility, "Setup eligibility: disabled"),
+        "setup_blocker_state": setup_blocker,
+        "setup_blocker_label": {
+            PROVIDER_SETUP_BLOCKER_CONFIG_REQUIRED:
+                "Setup blocker: provider path/config required",
+            PROVIDER_SETUP_BLOCKER_CONSENT_REQUIRED:
+                "Setup blocker: setup consent required",
+            PROVIDER_SETUP_BLOCKER_CAPABILITY_REQUIRED:
+                "Setup blocker: capability proof required",
+            PROVIDER_SETUP_BLOCKER_MANIFEST_REQUIRED:
+                "Setup blocker: manifest proof required",
+            PROVIDER_SETUP_BLOCKER_POLICY_BLOCKED:
+                "Setup blocker: safety/eval or policy approval required",
+            PROVIDER_SETUP_BLOCKER_SETUP_DISABLED:
+                "Setup blocker: future USER setup approval required",
+        }.get(setup_blocker, "Setup blocker: future USER approval required"),
+        "future_provider_gate_status": PROVIDER_FUTURE_GATE_STATUS_SETUP_REQUIRED,
+        "future_provider_gate_label": "Future provider gate: USER approval required before setup",
+        "provider_visible_data": "none",
+        "provider_visible_data_label": "Provider-visible data: none",
+        "provider_visible_data_detail": "No prompt, file, screen, memory, telemetry, or provider config is sent",
+        "consent_state": PROVIDER_CONSENT_REQUIRED,
+        "consent_label": "Consent required before provider setup",
+        "provider_consent_boundary_label": (
+            "Consent boundary: setup and execution consent are separate future gates"
+        ),
+        "provider_next_action_label": "Next: provider path and consent readiness remain local-only",
+        "interaction_label": "Provider path readiness only",
+        "interaction_disabled_reason": (
+            "Provider setup, consent collection, prompt routing, and model execution require later USER approval"
+        ),
+        "functional_ai_release_gate_state": (
+            FUNCTIONAL_AI_RELEASE_GATE_READY_FUTURE_VERSION
+            if functional_ai_release_ready
+            else FUNCTIONAL_AI_RELEASE_GATE_PENDING
+        ),
+        "functional_ai_release_gate_label": (
+            "Functional-AI release gate: ready for future version"
+            if functional_ai_release_ready
+            else "Functional-AI release gate: pending"
+        ),
+        "v18_release_gate_state": (
+            V18_RELEASE_GATE_READY_FUTURE_VERSION
+            if functional_ai_release_ready
+            else V18_RELEASE_GATE_PENDING_FUNCTIONAL_AI
+        ),
+        "v18_release_gate_label": (
+            "v1.8.0-prebeta release gate: ready for future version"
+            if functional_ai_release_ready
+            else "v1.8.0-prebeta release gate: pending functional AI proof"
+        ),
+    }
+
+
+def _provider_setup_consent_flow_contract_fields(path_state: AIProviderStateSnapshot) -> dict[str, object]:
+    setup_state = SETUP_FLOW_STATE_UNAVAILABLE
+    setup_eligibility = SETUP_FLOW_ELIGIBILITY_UNAVAILABLE
+    setup_blocker = SETUP_FLOW_BLOCKER_PROVIDER_PATH_REQUIRED
+    setup_reason = SETUP_FLOW_REASON_DEFAULT_UNAVAILABLE
+    setup_provenance = SETUP_FLOW_PROVENANCE_PROVIDER_PATH
+    setup_approval = SETUP_FLOW_APPROVAL_STATUS_MISSING
+    consent_state = CONSENT_FLOW_STATE_REQUIRED_FOR_SETUP
+    consent_eligibility = CONSENT_FLOW_ELIGIBILITY_REQUIRED
+    consent_blocker = CONSENT_FLOW_BLOCKER_SETUP_CONSENT_REQUIRED
+    consent_reason = CONSENT_FLOW_REASON_SETUP_REQUIRED
+    consent_provenance = CONSENT_FLOW_PROVENANCE_SETUP_CONSENT
+    consent_approval = CONSENT_FLOW_APPROVAL_STATUS_MISSING
+    setup_gate = SETUP_FLOW_GATE_BLOCKED
+    consent_gate = CONSENT_FLOW_GATE_REQUIRED
+    setup_approval_gate = SETUP_APPROVAL_GATE_MISSING
+    execution_approval_gate = EXECUTION_APPROVAL_GATE_MISSING
+
+    if path_state.provider_path_config_state == PROVIDER_PATH_CONFIG_STATE_MISSING:
+        setup_state = SETUP_FLOW_STATE_DISABLED
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_DISABLED
+        setup_reason = SETUP_FLOW_REASON_DEFAULT_UNAVAILABLE
+        setup_provenance = SETUP_FLOW_PROVENANCE_PROVIDER_PATH
+        consent_state = CONSENT_FLOW_STATE_UNAVAILABLE
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_UNAVAILABLE
+        consent_blocker = CONSENT_FLOW_BLOCKER_COLLECTION_NOT_APPROVED
+        consent_reason = CONSENT_FLOW_REASON_DEFAULT_UNAVAILABLE
+        consent_provenance = CONSENT_FLOW_PROVENANCE_FUTURE_COLLECTION
+    elif path_state.provider_path_config_state == PROVIDER_PATH_CONFIG_STATE_INVALID:
+        setup_state = SETUP_FLOW_STATE_DEGRADED
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_BLOCKED
+        setup_reason = SETUP_FLOW_REASON_POLICY_BLOCKED
+        setup_provenance = SETUP_FLOW_PROVENANCE_POLICY
+        consent_state = CONSENT_FLOW_STATE_DEGRADED
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_BLOCKED
+        consent_blocker = CONSENT_FLOW_BLOCKER_POLICY_BLOCKED
+        consent_reason = CONSENT_FLOW_REASON_POLICY_BLOCKED
+        consent_provenance = CONSENT_FLOW_PROVENANCE_AUDIT
+    elif path_state.provider_path_readiness_state in {
+        PROVIDER_PATH_READINESS_STATE_UNAVAILABLE,
+        PROVIDER_PATH_READINESS_STATE_DISABLED,
+        PROVIDER_PATH_READINESS_STATE_DEGRADED,
+    }:
+        setup_state = SETUP_FLOW_STATE_UNAVAILABLE
+    elif path_state.provider_path_readiness_state in {
+        PROVIDER_PATH_READINESS_STATE_UNSELECTED,
+        PROVIDER_PATH_READINESS_STATE_SELECTION_REQUIRED,
+    }:
+        setup_state = SETUP_FLOW_STATE_BLOCKED_BY_PROVIDER_PATH
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_BLOCKED
+        setup_reason = SETUP_FLOW_REASON_PROVIDER_PATH_REQUIRED
+    elif path_state.provider_path_readiness_state == PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_POLICY:
+        setup_state = SETUP_FLOW_STATE_BLOCKED_BY_POLICY
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_BLOCKED
+        setup_blocker = SETUP_FLOW_BLOCKER_POLICY_BLOCKED
+        setup_reason = SETUP_FLOW_REASON_POLICY_BLOCKED
+        setup_provenance = SETUP_FLOW_PROVENANCE_POLICY
+        consent_state = CONSENT_FLOW_STATE_BLOCKED_BY_POLICY
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_BLOCKED
+        consent_blocker = CONSENT_FLOW_BLOCKER_POLICY_BLOCKED
+        consent_reason = CONSENT_FLOW_REASON_POLICY_BLOCKED
+        consent_provenance = CONSENT_FLOW_PROVENANCE_AUDIT
+    elif path_state.provider_path_blocker_state == PROVIDER_PATH_BLOCKER_SETUP_CONSENT_REQUIRED:
+        setup_state = SETUP_FLOW_STATE_BLOCKED_BY_SETUP_CONSENT
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_BLOCKED
+        setup_blocker = SETUP_FLOW_BLOCKER_SETUP_CONSENT_REQUIRED
+        setup_reason = SETUP_FLOW_REASON_SETUP_CONSENT_REQUIRED
+        setup_provenance = SETUP_FLOW_PROVENANCE_CONSENT
+    elif path_state.provider_path_blocker_state == PROVIDER_PATH_BLOCKER_EXECUTION_CONSENT_REQUIRED:
+        setup_state = SETUP_FLOW_STATE_BLOCKED_BY_EXECUTION_CONSENT
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_BLOCKED
+        setup_blocker = SETUP_FLOW_BLOCKER_EXECUTION_CONSENT_REQUIRED
+        setup_reason = SETUP_FLOW_REASON_EXECUTION_CONSENT_REQUIRED
+        setup_provenance = SETUP_FLOW_PROVENANCE_CONSENT
+        consent_state = CONSENT_FLOW_STATE_REQUIRED_FOR_EXECUTION
+        consent_blocker = CONSENT_FLOW_BLOCKER_EXECUTION_CONSENT_REQUIRED
+        consent_reason = CONSENT_FLOW_REASON_EXECUTION_REQUIRED
+        consent_provenance = CONSENT_FLOW_PROVENANCE_EXECUTION_CONSENT
+    elif path_state.provider_path_blocker_state == PROVIDER_PATH_BLOCKER_DATA_VISIBILITY_REQUIRED:
+        setup_state = SETUP_FLOW_STATE_BLOCKED_BY_SETUP_CONSENT
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_BLOCKED
+        setup_blocker = SETUP_FLOW_BLOCKER_SETUP_CONSENT_REQUIRED
+        setup_reason = SETUP_FLOW_REASON_SETUP_CONSENT_REQUIRED
+        setup_provenance = SETUP_FLOW_PROVENANCE_CONSENT
+        consent_state = CONSENT_FLOW_STATE_BLOCKED_BY_DATA_VISIBILITY
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_BLOCKED
+        consent_blocker = CONSENT_FLOW_BLOCKER_DATA_VISIBILITY_REQUIRED
+        consent_reason = CONSENT_FLOW_REASON_DATA_VISIBILITY_BLOCKED
+        consent_provenance = CONSENT_FLOW_PROVENANCE_DATA_VISIBILITY
+    elif path_state.audit_gate_state == AUDIT_GATE_PLANNED:
+        setup_state = SETUP_FLOW_STATE_BLOCKED_BY_SETUP_CONSENT
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_BLOCKED
+        setup_blocker = SETUP_FLOW_BLOCKER_SETUP_CONSENT_REQUIRED
+        setup_reason = SETUP_FLOW_REASON_SETUP_CONSENT_REQUIRED
+        setup_provenance = SETUP_FLOW_PROVENANCE_CONSENT
+        consent_state = CONSENT_FLOW_STATE_BLOCKED_BY_AUDIT_REQUIREMENTS
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_BLOCKED
+        consent_blocker = CONSENT_FLOW_BLOCKER_AUDIT_REQUIRED
+        consent_reason = CONSENT_FLOW_REASON_AUDIT_REQUIREMENTS_BLOCKED
+        consent_provenance = CONSENT_FLOW_PROVENANCE_AUDIT
+    elif path_state.provider_path_blocker_state == PROVIDER_PATH_BLOCKER_CAPABILITY_REQUIRED:
+        setup_state = SETUP_FLOW_STATE_BLOCKED_BY_CAPABILITY
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_BLOCKED
+        setup_blocker = SETUP_FLOW_BLOCKER_CAPABILITY_REQUIRED
+        setup_reason = SETUP_FLOW_REASON_CAPABILITY_MISSING
+        setup_provenance = SETUP_FLOW_PROVENANCE_CAPABILITY
+        consent_state = CONSENT_FLOW_STATE_READY_BUT_NOT_COLLECTED
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_READY_NOT_COLLECTED
+        consent_blocker = CONSENT_FLOW_BLOCKER_COLLECTION_NOT_APPROVED
+        consent_reason = CONSENT_FLOW_REASON_READY_BUT_NOT_COLLECTED
+        consent_provenance = CONSENT_FLOW_PROVENANCE_FUTURE_COLLECTION
+    elif path_state.provider_path_blocker_state == PROVIDER_PATH_BLOCKER_MANIFEST_REQUIRED:
+        setup_state = SETUP_FLOW_STATE_BLOCKED_BY_MANIFEST
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_BLOCKED
+        setup_blocker = SETUP_FLOW_BLOCKER_MANIFEST_REQUIRED
+        setup_reason = SETUP_FLOW_REASON_MANIFEST_MISSING
+        setup_provenance = SETUP_FLOW_PROVENANCE_MANIFEST
+        consent_state = CONSENT_FLOW_STATE_READY_BUT_NOT_COLLECTED
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_READY_NOT_COLLECTED
+        consent_blocker = CONSENT_FLOW_BLOCKER_COLLECTION_NOT_APPROVED
+        consent_reason = CONSENT_FLOW_REASON_READY_BUT_NOT_COLLECTED
+        consent_provenance = CONSENT_FLOW_PROVENANCE_FUTURE_COLLECTION
+    elif path_state.provider_path_blocker_state == PROVIDER_PATH_BLOCKER_SAFETY_EVAL_REQUIRED:
+        setup_state = SETUP_FLOW_STATE_BLOCKED_BY_SAFETY
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_BLOCKED
+        setup_blocker = SETUP_FLOW_BLOCKER_SAFETY_EVAL_REQUIRED
+        setup_reason = SETUP_FLOW_REASON_SAFETY_BLOCKED
+        setup_provenance = SETUP_FLOW_PROVENANCE_SAFETY
+        consent_state = CONSENT_FLOW_STATE_READY_BUT_NOT_COLLECTED
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_READY_NOT_COLLECTED
+        consent_blocker = CONSENT_FLOW_BLOCKER_COLLECTION_NOT_APPROVED
+        consent_reason = CONSENT_FLOW_REASON_READY_BUT_NOT_COLLECTED
+        consent_provenance = CONSENT_FLOW_PROVENANCE_FUTURE_COLLECTION
+    elif path_state.provider_path_blocker_state == PROVIDER_PATH_BLOCKER_SETUP_APPROVAL_REQUIRED:
+        setup_state = SETUP_FLOW_STATE_READY_BUT_NOT_APPROVED
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_READY_NOT_APPROVED
+        setup_blocker = SETUP_FLOW_BLOCKER_SETUP_APPROVAL_REQUIRED
+        setup_reason = SETUP_FLOW_REASON_SETUP_APPROVAL_MISSING
+        setup_provenance = SETUP_FLOW_PROVENANCE_FUTURE_RUNTIME
+        consent_state = CONSENT_FLOW_STATE_READY_BUT_NOT_COLLECTED
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_READY_NOT_COLLECTED
+        consent_blocker = CONSENT_FLOW_BLOCKER_COLLECTION_NOT_APPROVED
+        consent_reason = CONSENT_FLOW_REASON_READY_BUT_NOT_COLLECTED
+        consent_provenance = CONSENT_FLOW_PROVENANCE_FUTURE_COLLECTION
+    elif path_state.provider_path_readiness_state == PROVIDER_PATH_READINESS_STATE_READY_FOR_FUTURE_EXECUTION_BRANCH:
+        setup_state = SETUP_FLOW_STATE_READY_FOR_FUTURE_SETUP_BRANCH
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_FUTURE_SETUP_BRANCH
+        setup_blocker = SETUP_FLOW_BLOCKER_FUTURE_SETUP_BRANCH
+        setup_reason = SETUP_FLOW_REASON_READY_FOR_FUTURE_SETUP_BRANCH
+        setup_provenance = SETUP_FLOW_PROVENANCE_FUTURE_RUNTIME
+        setup_approval = SETUP_FLOW_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF
+        consent_state = CONSENT_FLOW_STATE_READY_FOR_FUTURE_CONSENT_BRANCH
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_FUTURE_CONSENT_BRANCH
+        consent_blocker = CONSENT_FLOW_BLOCKER_FUTURE_CONSENT_BRANCH
+        consent_reason = CONSENT_FLOW_REASON_READY_FOR_FUTURE_CONSENT_BRANCH
+        consent_provenance = CONSENT_FLOW_PROVENANCE_FUTURE_COLLECTION
+        consent_approval = CONSENT_FLOW_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF
+        setup_gate = SETUP_FLOW_GATE_FUTURE_GATED
+        consent_gate = CONSENT_FLOW_GATE_FUTURE_GATED
+        setup_approval_gate = SETUP_APPROVAL_GATE_FUTURE_GATED
+        execution_approval_gate = EXECUTION_APPROVAL_GATE_FUTURE_GATED
+    else:
+        setup_state = SETUP_FLOW_STATE_READY_FUTURE_GATED
+        setup_eligibility = SETUP_FLOW_ELIGIBILITY_FUTURE_GATED
+        setup_blocker = SETUP_FLOW_BLOCKER_SETUP_APPROVAL_REQUIRED
+        setup_reason = SETUP_FLOW_REASON_SETUP_APPROVAL_MISSING
+        setup_provenance = SETUP_FLOW_PROVENANCE_FUTURE_RUNTIME
+        setup_approval = SETUP_FLOW_APPROVAL_STATUS_FUTURE_GATED
+        consent_state = CONSENT_FLOW_STATE_READY_FUTURE_GATED
+        consent_eligibility = CONSENT_FLOW_ELIGIBILITY_FUTURE_GATED
+        consent_blocker = CONSENT_FLOW_BLOCKER_COLLECTION_NOT_APPROVED
+        consent_reason = CONSENT_FLOW_REASON_READY_BUT_NOT_COLLECTED
+        consent_provenance = CONSENT_FLOW_PROVENANCE_FUTURE_COLLECTION
+        consent_approval = CONSENT_FLOW_APPROVAL_STATUS_FUTURE_GATED
+        setup_gate = SETUP_FLOW_GATE_FUTURE_GATED
+        consent_gate = CONSENT_FLOW_GATE_FUTURE_GATED
+        setup_approval_gate = SETUP_APPROVAL_GATE_FUTURE_GATED
+
+    setup_labels = {
+        SETUP_FLOW_STATE_UNAVAILABLE: "Setup flow readiness: unavailable",
+        SETUP_FLOW_STATE_DISABLED: "Setup flow readiness: disabled",
+        SETUP_FLOW_STATE_BLOCKED_BY_PROVIDER_PATH: "Setup flow readiness: blocked by provider path",
+        SETUP_FLOW_STATE_BLOCKED_BY_SETUP_CONSENT: "Setup flow readiness: blocked by setup consent",
+        SETUP_FLOW_STATE_BLOCKED_BY_EXECUTION_CONSENT:
+            "Setup flow readiness: blocked by execution consent",
+        SETUP_FLOW_STATE_BLOCKED_BY_POLICY: "Setup flow readiness: blocked by policy",
+        SETUP_FLOW_STATE_BLOCKED_BY_CAPABILITY: "Setup flow readiness: blocked by capability",
+        SETUP_FLOW_STATE_BLOCKED_BY_MANIFEST: "Setup flow readiness: blocked by manifest",
+        SETUP_FLOW_STATE_BLOCKED_BY_SAFETY: "Setup flow readiness: blocked by safety/eval",
+        SETUP_FLOW_STATE_READY_FUTURE_GATED: "Setup flow readiness: ready but future-gated",
+        SETUP_FLOW_STATE_READY_BUT_NOT_APPROVED:
+            "Setup flow readiness: ready but USER approval missing",
+        SETUP_FLOW_STATE_DEGRADED: "Setup flow readiness: degraded and fail-closed",
+        SETUP_FLOW_STATE_READY_FOR_FUTURE_SETUP_BRANCH:
+            "Setup flow readiness: ready for future setup branch",
+    }
+    setup_eligibility_labels = {
+        SETUP_FLOW_ELIGIBILITY_UNAVAILABLE: "Setup flow eligibility: unavailable",
+        SETUP_FLOW_ELIGIBILITY_DISABLED: "Setup flow eligibility: disabled",
+        SETUP_FLOW_ELIGIBILITY_BLOCKED: "Setup flow eligibility: blocked",
+        SETUP_FLOW_ELIGIBILITY_FUTURE_GATED: "Setup flow eligibility: future-gated",
+        SETUP_FLOW_ELIGIBILITY_READY_NOT_APPROVED:
+            "Setup flow eligibility: ready but USER approval missing",
+        SETUP_FLOW_ELIGIBILITY_FUTURE_SETUP_BRANCH:
+            "Setup flow eligibility: future setup branch",
+    }
+    setup_blocker_labels = {
+        SETUP_FLOW_BLOCKER_PROVIDER_PATH_REQUIRED:
+            "Setup flow blocker: provider path readiness required",
+        SETUP_FLOW_BLOCKER_SETUP_CONSENT_REQUIRED:
+            "Setup flow blocker: setup consent required",
+        SETUP_FLOW_BLOCKER_EXECUTION_CONSENT_REQUIRED:
+            "Setup flow blocker: execution consent required",
+        SETUP_FLOW_BLOCKER_POLICY_BLOCKED: "Setup flow blocker: policy blocked",
+        SETUP_FLOW_BLOCKER_CAPABILITY_REQUIRED: "Setup flow blocker: capability proof required",
+        SETUP_FLOW_BLOCKER_MANIFEST_REQUIRED: "Setup flow blocker: manifest proof required",
+        SETUP_FLOW_BLOCKER_SAFETY_EVAL_REQUIRED:
+            "Setup flow blocker: safety/eval proof required",
+        SETUP_FLOW_BLOCKER_SETUP_APPROVAL_REQUIRED:
+            "Setup flow blocker: USER setup approval required",
+        SETUP_FLOW_BLOCKER_FUTURE_SETUP_BRANCH:
+            "Setup flow blocker: future setup branch required",
+    }
+    setup_reason_labels = {
+        SETUP_FLOW_REASON_DEFAULT_UNAVAILABLE:
+            "Setup flow reason: setup readiness is local-only",
+        SETUP_FLOW_REASON_PROVIDER_PATH_REQUIRED:
+            "Setup flow reason: provider path readiness required",
+        SETUP_FLOW_REASON_SETUP_CONSENT_REQUIRED:
+            "Setup flow reason: setup consent required",
+        SETUP_FLOW_REASON_EXECUTION_CONSENT_REQUIRED:
+            "Setup flow reason: execution consent required",
+        SETUP_FLOW_REASON_POLICY_BLOCKED: "Setup flow reason: policy blocked",
+        SETUP_FLOW_REASON_CAPABILITY_MISSING: "Setup flow reason: capability proof missing",
+        SETUP_FLOW_REASON_MANIFEST_MISSING: "Setup flow reason: manifest proof missing",
+        SETUP_FLOW_REASON_SAFETY_BLOCKED: "Setup flow reason: safety/eval blocked",
+        SETUP_FLOW_REASON_SETUP_APPROVAL_MISSING:
+            "Setup flow reason: USER setup approval missing",
+        SETUP_FLOW_REASON_READY_FOR_FUTURE_SETUP_BRANCH:
+            "Setup flow reason: ready for future setup branch",
+    }
+    setup_provenance_labels = {
+        SETUP_FLOW_PROVENANCE_PROVIDER_PATH:
+            "Setup flow provenance: provider path readiness state",
+        SETUP_FLOW_PROVENANCE_CONSENT: "Setup flow provenance: consent flow state",
+        SETUP_FLOW_PROVENANCE_CAPABILITY: "Setup flow provenance: capability contract",
+        SETUP_FLOW_PROVENANCE_MANIFEST: "Setup flow provenance: manifest state",
+        SETUP_FLOW_PROVENANCE_SAFETY: "Setup flow provenance: safety/eval",
+        SETUP_FLOW_PROVENANCE_POLICY: "Setup flow provenance: audit policy",
+        SETUP_FLOW_PROVENANCE_FUTURE_RUNTIME:
+            "Setup flow provenance: future runtime check",
+    }
+    consent_labels = {
+        CONSENT_FLOW_STATE_UNAVAILABLE: "Consent flow readiness: unavailable",
+        CONSENT_FLOW_STATE_DEGRADED: "Consent flow readiness: degraded and fail-closed",
+        CONSENT_FLOW_STATE_BLOCKED_BY_POLICY: "Consent flow readiness: blocked by policy",
+        CONSENT_FLOW_STATE_BLOCKED_BY_DATA_VISIBILITY:
+            "Consent flow readiness: blocked by data visibility",
+        CONSENT_FLOW_STATE_BLOCKED_BY_AUDIT_REQUIREMENTS:
+            "Consent flow readiness: blocked by audit requirements",
+        CONSENT_FLOW_STATE_REQUIRED_FOR_SETUP: "Consent flow readiness: required before setup",
+        CONSENT_FLOW_STATE_REQUIRED_FOR_EXECUTION:
+            "Consent flow readiness: required before execution",
+        CONSENT_FLOW_STATE_READY_FUTURE_GATED:
+            "Consent flow readiness: ready but future-gated",
+        CONSENT_FLOW_STATE_READY_BUT_NOT_COLLECTED:
+            "Consent flow readiness: ready but not collected",
+        CONSENT_FLOW_STATE_READY_FOR_FUTURE_CONSENT_BRANCH:
+            "Consent flow readiness: ready for future consent branch",
+    }
+    consent_eligibility_labels = {
+        CONSENT_FLOW_ELIGIBILITY_UNAVAILABLE: "Consent flow eligibility: unavailable",
+        CONSENT_FLOW_ELIGIBILITY_REQUIRED: "Consent flow eligibility: consent required",
+        CONSENT_FLOW_ELIGIBILITY_BLOCKED: "Consent flow eligibility: blocked",
+        CONSENT_FLOW_ELIGIBILITY_FUTURE_GATED: "Consent flow eligibility: future-gated",
+        CONSENT_FLOW_ELIGIBILITY_READY_NOT_COLLECTED:
+            "Consent flow eligibility: ready but not collected",
+        CONSENT_FLOW_ELIGIBILITY_FUTURE_CONSENT_BRANCH:
+            "Consent flow eligibility: future consent branch",
+    }
+    consent_blocker_labels = {
+        CONSENT_FLOW_BLOCKER_SETUP_CONSENT_REQUIRED:
+            "Consent flow blocker: setup consent required",
+        CONSENT_FLOW_BLOCKER_EXECUTION_CONSENT_REQUIRED:
+            "Consent flow blocker: execution consent required",
+        CONSENT_FLOW_BLOCKER_POLICY_BLOCKED: "Consent flow blocker: policy blocked",
+        CONSENT_FLOW_BLOCKER_DATA_VISIBILITY_REQUIRED:
+            "Consent flow blocker: data visibility approval required",
+        CONSENT_FLOW_BLOCKER_AUDIT_REQUIRED:
+            "Consent flow blocker: audit envelope required",
+        CONSENT_FLOW_BLOCKER_COLLECTION_NOT_APPROVED:
+            "Consent flow blocker: consent collection not approved",
+        CONSENT_FLOW_BLOCKER_FUTURE_CONSENT_BRANCH:
+            "Consent flow blocker: future consent branch required",
+    }
+    consent_reason_labels = {
+        CONSENT_FLOW_REASON_DEFAULT_UNAVAILABLE:
+            "Consent flow reason: consent collection is local-only",
+        CONSENT_FLOW_REASON_SETUP_REQUIRED:
+            "Consent flow reason: setup consent required",
+        CONSENT_FLOW_REASON_EXECUTION_REQUIRED:
+            "Consent flow reason: execution consent required",
+        CONSENT_FLOW_REASON_POLICY_BLOCKED: "Consent flow reason: policy blocked",
+        CONSENT_FLOW_REASON_DATA_VISIBILITY_BLOCKED:
+            "Consent flow reason: data visibility blocked",
+        CONSENT_FLOW_REASON_AUDIT_REQUIREMENTS_BLOCKED:
+            "Consent flow reason: audit requirements blocked",
+        CONSENT_FLOW_REASON_READY_BUT_NOT_COLLECTED:
+            "Consent flow reason: ready but not collected",
+        CONSENT_FLOW_REASON_READY_FOR_FUTURE_CONSENT_BRANCH:
+            "Consent flow reason: ready for future consent branch",
+    }
+    consent_provenance_labels = {
+        CONSENT_FLOW_PROVENANCE_SETUP_CONSENT:
+            "Consent flow provenance: setup consent state",
+        CONSENT_FLOW_PROVENANCE_EXECUTION_CONSENT:
+            "Consent flow provenance: execution consent state",
+        CONSENT_FLOW_PROVENANCE_DATA_VISIBILITY:
+            "Consent flow provenance: data visibility contract",
+        CONSENT_FLOW_PROVENANCE_AUDIT: "Consent flow provenance: audit policy",
+        CONSENT_FLOW_PROVENANCE_FUTURE_COLLECTION:
+            "Consent flow provenance: future consent collection",
+    }
+    return {
+        "setup_flow_readiness_state": setup_state,
+        "setup_flow_readiness_label": setup_labels.get(setup_state, setup_labels[SETUP_FLOW_STATE_DEGRADED]),
+        "setup_flow_eligibility_state": setup_eligibility,
+        "setup_flow_eligibility_label": setup_eligibility_labels[setup_eligibility],
+        "setup_flow_blocker_state": setup_blocker,
+        "setup_flow_blocker_label": setup_blocker_labels[setup_blocker],
+        "setup_flow_reason_code": setup_reason,
+        "setup_flow_reason_label": setup_reason_labels[setup_reason],
+        "setup_flow_provenance": setup_provenance,
+        "setup_flow_provenance_label": setup_provenance_labels[setup_provenance],
+        "setup_flow_state_schema_version": SETUP_FLOW_READINESS_STATE_SCHEMA_VERSION,
+        "setup_flow_config_schema_version": SETUP_FLOW_READINESS_CONFIG_SCHEMA_VERSION,
+        "setup_flow_config_state": path_state.provider_path_config_state,
+        "setup_flow_config_label": "Setup flow config: safe default local-only",
+        "setup_flow_config_migration": SETUP_FLOW_READINESS_CONFIG_MIGRATION_POSTURE,
+        "setup_flow_config_valid": path_state.provider_path_config_valid,
+        "setup_flow_approval_status": setup_approval,
+        "setup_flow_approval_label": {
+            SETUP_FLOW_APPROVAL_STATUS_MISSING: "Setup flow approval: USER approval missing",
+            SETUP_FLOW_APPROVAL_STATUS_FUTURE_GATED: "Setup flow approval: future-gated",
+            SETUP_FLOW_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF:
+                "Setup flow approval: ready for future proof",
+        }[setup_approval],
+        "provider_setup_handoff_posture": PROVIDER_SETUP_HANDOFF_FUTURE_GATED,
+        "provider_setup_handoff_label": "Provider setup handoff: future-gated",
+        "provider_consent_handoff_posture": PROVIDER_CONSENT_HANDOFF_FUTURE_GATED,
+        "provider_consent_handoff_label": "Provider consent handoff: future-gated",
+        "provider_path_handoff_posture": PROVIDER_PATH_HANDOFF_FUTURE_GATED,
+        "provider_path_handoff_label": "Provider path handoff: future-gated",
+        "consent_flow_readiness_state": consent_state,
+        "consent_flow_readiness_label": consent_labels[consent_state],
+        "consent_flow_eligibility_state": consent_eligibility,
+        "consent_flow_eligibility_label": consent_eligibility_labels[consent_eligibility],
+        "consent_flow_blocker_state": consent_blocker,
+        "consent_flow_blocker_label": consent_blocker_labels[consent_blocker],
+        "consent_flow_reason_code": consent_reason,
+        "consent_flow_reason_label": consent_reason_labels[consent_reason],
+        "consent_flow_provenance": consent_provenance,
+        "consent_flow_provenance_label": consent_provenance_labels[consent_provenance],
+        "consent_flow_state_schema_version": CONSENT_FLOW_READINESS_STATE_SCHEMA_VERSION,
+        "consent_flow_config_schema_version": CONSENT_FLOW_READINESS_CONFIG_SCHEMA_VERSION,
+        "consent_flow_config_state": path_state.provider_path_config_state,
+        "consent_flow_config_label": "Consent flow config: safe default local-only",
+        "consent_flow_config_migration": CONSENT_FLOW_READINESS_CONFIG_MIGRATION_POSTURE,
+        "consent_flow_config_valid": path_state.provider_path_config_valid,
+        "consent_flow_approval_status": consent_approval,
+        "consent_flow_approval_label": {
+            CONSENT_FLOW_APPROVAL_STATUS_MISSING: "Consent flow approval: USER approval missing",
+            CONSENT_FLOW_APPROVAL_STATUS_FUTURE_GATED: "Consent flow approval: future-gated",
+            CONSENT_FLOW_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF:
+                "Consent flow approval: ready for future proof",
+        }[consent_approval],
+        "consent_collection_posture": CONSENT_COLLECTION_POSTURE_PENDING_APPROVAL,
+        "consent_collection_label": "Consent collection: pending USER approval",
+        "data_visibility_consent_posture": DATA_VISIBILITY_CONSENT_POSTURE_NONE_REQUIRED,
+        "data_visibility_consent_label": (
+            "Data visibility consent: none required while provider-visible data is none"
+        ),
+        "setup_flow_gate_state": setup_gate,
+        "consent_flow_gate_state": consent_gate,
+        "setup_approval_gate_state": setup_approval_gate,
+        "execution_approval_gate_state": execution_approval_gate,
+        "desktop_ai_owned_readiness_display_state": AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED,
+        "desktop_ai_owned_readiness_display_label": (
+            "Desktop AI-owned readiness display: suppressed by default"
+        ),
+    }
+
+
+def build_provider_setup_consent_flow_readiness_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    execution_config: AIProviderExecutionReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _EXECUTION_CONFIG_OMITTED
+    ),
+    path_consent_config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _PATH_CONSENT_CONFIG_OMITTED
+    ),
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve local-only setup and consent flow readiness without enabling setup."""
+
+    path_state = build_provider_path_consent_readiness_state(
+        readiness_config,
+        activation_config=activation_config,
+        execution_config=execution_config,
+        path_consent_config=path_consent_config,
+        surface_role=surface_role,
+    )
+    flow_fields = _provider_setup_consent_flow_contract_fields(path_state)
+    return replace(
+        path_state,
+        state_id=FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_STATE_ID,
+        mode=FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_MODE,
+        availability=FAM007_PROVIDER_SETUP_CONSENT_FLOW_READINESS_AVAILABILITY,
+        status_label="Setup and consent flow readiness unavailable",
+        disabled_reason=(
+            "Provider setup flow and consent collection remain disabled until later USER approval"
+        ),
+        provider_next_action_label="Next: setup and consent flow readiness remains local-only",
+        interaction_label="Setup and consent flow readiness only",
+        interaction_disabled_reason=(
+            "Provider setup, consent collection, prompt routing, and model execution require later USER approval"
+        ),
+        **flow_fields,
+    )
+
+
+def _provider_setup_contract_readiness_fields(flow_state: AIProviderStateSnapshot) -> dict[str, object]:
+    contract_state = SETUP_CONTRACT_STATE_UNAVAILABLE
+    contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_UNAVAILABLE
+    contract_blocker = SETUP_CONTRACT_BLOCKER_PROVIDER_PATH_REQUIRED
+    contract_reason = SETUP_CONTRACT_REASON_DEFAULT_UNAVAILABLE
+    contract_provenance = SETUP_CONTRACT_PROVENANCE_SETUP_FLOW
+    contract_approval = SETUP_CONTRACT_APPROVAL_STATUS_MISSING
+    contract_gate = SETUP_CONTRACT_GATE_BLOCKED
+    profile_gate = PROVIDER_PROFILE_GATE_BLOCKED
+    capability_gate = CAPABILITY_GATE_BLOCKED
+    manifest_gate = MANIFEST_GATE_BLOCKED
+    safety_gate = SAFETY_EVAL_GATE_BLOCKED
+
+    if flow_state.provider_path_config_state == PROVIDER_PATH_CONFIG_STATE_MISSING:
+        contract_state = SETUP_CONTRACT_STATE_DISABLED
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_DISABLED
+        contract_reason = SETUP_CONTRACT_REASON_DEFAULT_UNAVAILABLE
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_PROVIDER_PATH
+    elif flow_state.provider_path_config_state == PROVIDER_PATH_CONFIG_STATE_INVALID:
+        contract_state = SETUP_CONTRACT_STATE_DEGRADED
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_POLICY_BLOCKED
+        contract_reason = SETUP_CONTRACT_REASON_POLICY_BLOCKED
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_POLICY
+    elif flow_state.provider_path_config_state == PROVIDER_PATH_CONFIG_STATE_DEFAULT:
+        contract_state = SETUP_CONTRACT_STATE_UNAVAILABLE
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_UNAVAILABLE
+        contract_blocker = SETUP_CONTRACT_BLOCKER_PROVIDER_PATH_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_DEFAULT_UNAVAILABLE
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_SETUP_FLOW
+    elif (
+        flow_state.provider_path_status == PROVIDER_PATH_STATUS_SELECTED_FUTURE_GATED
+        and flow_state.provider_config_status == PROVIDER_CONFIG_ENVELOPE_STATUS_MISSING
+    ):
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_CONFIG
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_CONFIG_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_CONFIG_MISSING
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_CONFIG
+    elif flow_state.provider_config_status == PROVIDER_CONFIG_ENVELOPE_STATUS_INVALID:
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_CONFIG
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_CONFIG_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_CONFIG_INVALID
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_CONFIG
+    elif (
+        flow_state.provider_path_config_state == PROVIDER_PATH_CONFIG_STATE_LOCAL
+        and not flow_state.provider_profile_available
+    ):
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_CONFIG
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_CONFIG_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_PROFILE_MISSING
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_PROFILE
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_DISABLED:
+        contract_state = SETUP_CONTRACT_STATE_DISABLED
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_DISABLED
+        contract_reason = SETUP_CONTRACT_REASON_DEFAULT_UNAVAILABLE
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_SETUP_FLOW
+    elif (
+        flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_UNAVAILABLE
+        and flow_state.provider_path_config_state != PROVIDER_PATH_CONFIG_STATE_DEFAULT
+    ):
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_PROVIDER_PATH
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_reason = SETUP_CONTRACT_REASON_PROVIDER_PATH_REQUIRED
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_PROVIDER_PATH
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_DEGRADED:
+        contract_state = SETUP_CONTRACT_STATE_DEGRADED
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_POLICY_BLOCKED
+        contract_reason = SETUP_CONTRACT_REASON_POLICY_BLOCKED
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_POLICY
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_BLOCKED_BY_PROVIDER_PATH:
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_PROVIDER_PATH
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_reason = SETUP_CONTRACT_REASON_PROVIDER_PATH_REQUIRED
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_PROVIDER_PATH
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_BLOCKED_BY_SETUP_CONSENT:
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_SETUP_CONSENT
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_SETUP_CONSENT_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_SETUP_CONSENT_REQUIRED
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_CONSENT
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_BLOCKED_BY_EXECUTION_CONSENT:
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_EXECUTION_CONSENT
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_EXECUTION_CONSENT_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_EXECUTION_CONSENT_REQUIRED
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_CONSENT
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_BLOCKED_BY_POLICY:
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_POLICY
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_POLICY_BLOCKED
+        contract_reason = SETUP_CONTRACT_REASON_POLICY_BLOCKED
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_POLICY
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_BLOCKED_BY_CAPABILITY:
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_CAPABILITY
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_CAPABILITY_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_CAPABILITY_MISSING
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_CAPABILITY
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_BLOCKED_BY_MANIFEST:
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_MANIFEST
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_MANIFEST_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_MANIFEST_MISSING
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_MANIFEST
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_BLOCKED_BY_SAFETY:
+        contract_state = SETUP_CONTRACT_STATE_BLOCKED_BY_SAFETY
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_BLOCKED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_SAFETY_EVAL_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_SAFETY_BLOCKED
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_SAFETY
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_READY_BUT_NOT_APPROVED:
+        contract_state = SETUP_CONTRACT_STATE_READY_BUT_NOT_APPROVED
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_READY_NOT_APPROVED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_SETUP_APPROVAL_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_SETUP_APPROVAL_MISSING
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_FUTURE_RUNTIME
+    elif flow_state.setup_flow_readiness_state == SETUP_FLOW_STATE_READY_FOR_FUTURE_SETUP_BRANCH:
+        contract_state = SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_FUTURE_SETUP_BRANCH
+        contract_blocker = SETUP_CONTRACT_BLOCKER_FUTURE_SETUP_BRANCH
+        contract_reason = SETUP_CONTRACT_REASON_READY_FOR_FUTURE_SETUP_BRANCH
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_FUTURE_RUNTIME
+        contract_approval = SETUP_CONTRACT_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF
+        contract_gate = SETUP_CONTRACT_GATE_FUTURE_GATED
+        profile_gate = PROVIDER_PROFILE_GATE_READY_FUTURE_GATED
+        capability_gate = CAPABILITY_GATE_READY_FUTURE_GATED
+        manifest_gate = MANIFEST_GATE_READY_FUTURE_GATED
+        safety_gate = SAFETY_EVAL_GATE_READY_FUTURE_GATED
+    else:
+        contract_state = SETUP_CONTRACT_STATE_READY_FUTURE_GATED
+        contract_eligibility = SETUP_CONTRACT_ELIGIBILITY_FUTURE_GATED
+        contract_blocker = SETUP_CONTRACT_BLOCKER_SETUP_APPROVAL_REQUIRED
+        contract_reason = SETUP_CONTRACT_REASON_SETUP_APPROVAL_MISSING
+        contract_provenance = SETUP_CONTRACT_PROVENANCE_FUTURE_RUNTIME
+        contract_approval = SETUP_CONTRACT_APPROVAL_STATUS_FUTURE_GATED
+        contract_gate = SETUP_CONTRACT_GATE_FUTURE_GATED
+        profile_gate = PROVIDER_PROFILE_GATE_READY_FUTURE_GATED
+
+    if contract_state not in {
+        SETUP_CONTRACT_STATE_UNAVAILABLE,
+        SETUP_CONTRACT_STATE_DISABLED,
+        SETUP_CONTRACT_STATE_BLOCKED_BY_PROVIDER_PATH,
+        SETUP_CONTRACT_STATE_BLOCKED_BY_CONFIG,
+        SETUP_CONTRACT_STATE_DEGRADED,
+    }:
+        profile_gate = PROVIDER_PROFILE_GATE_READY_FUTURE_GATED
+    if contract_state in {
+        SETUP_CONTRACT_STATE_BLOCKED_BY_MANIFEST,
+        SETUP_CONTRACT_STATE_BLOCKED_BY_SAFETY,
+        SETUP_CONTRACT_STATE_BLOCKED_BY_POLICY,
+        SETUP_CONTRACT_STATE_READY_BUT_NOT_APPROVED,
+        SETUP_CONTRACT_STATE_READY_FUTURE_GATED,
+        SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+    }:
+        capability_gate = CAPABILITY_GATE_READY_FUTURE_GATED
+    if contract_state in {
+        SETUP_CONTRACT_STATE_BLOCKED_BY_SAFETY,
+        SETUP_CONTRACT_STATE_BLOCKED_BY_POLICY,
+        SETUP_CONTRACT_STATE_READY_BUT_NOT_APPROVED,
+        SETUP_CONTRACT_STATE_READY_FUTURE_GATED,
+        SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+    }:
+        manifest_gate = MANIFEST_GATE_READY_FUTURE_GATED
+    if contract_state in {
+        SETUP_CONTRACT_STATE_BLOCKED_BY_POLICY,
+        SETUP_CONTRACT_STATE_READY_BUT_NOT_APPROVED,
+        SETUP_CONTRACT_STATE_READY_FUTURE_GATED,
+        SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+    }:
+        safety_gate = SAFETY_EVAL_GATE_READY_FUTURE_GATED
+
+    contract_labels = {
+        SETUP_CONTRACT_STATE_UNAVAILABLE: "Setup contract readiness: unavailable",
+        SETUP_CONTRACT_STATE_DISABLED: "Setup contract readiness: disabled",
+        SETUP_CONTRACT_STATE_BLOCKED_BY_PROVIDER_PATH:
+            "Setup contract readiness: blocked by provider path",
+        SETUP_CONTRACT_STATE_BLOCKED_BY_CONFIG: "Setup contract readiness: blocked by config/profile",
+        SETUP_CONTRACT_STATE_BLOCKED_BY_SETUP_CONSENT:
+            "Setup contract readiness: blocked by setup consent",
+        SETUP_CONTRACT_STATE_BLOCKED_BY_EXECUTION_CONSENT:
+            "Setup contract readiness: blocked by execution consent",
+        SETUP_CONTRACT_STATE_BLOCKED_BY_POLICY: "Setup contract readiness: blocked by policy",
+        SETUP_CONTRACT_STATE_BLOCKED_BY_CAPABILITY:
+            "Setup contract readiness: blocked by capability",
+        SETUP_CONTRACT_STATE_BLOCKED_BY_MANIFEST: "Setup contract readiness: blocked by manifest",
+        SETUP_CONTRACT_STATE_BLOCKED_BY_SAFETY: "Setup contract readiness: blocked by safety/eval",
+        SETUP_CONTRACT_STATE_READY_FUTURE_GATED:
+            "Setup contract readiness: ready but future-gated",
+        SETUP_CONTRACT_STATE_READY_BUT_NOT_APPROVED:
+            "Setup contract readiness: ready but USER approval missing",
+        SETUP_CONTRACT_STATE_DEGRADED: "Setup contract readiness: degraded and fail-closed",
+        SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH:
+            "Setup contract readiness: ready for future setup branch",
+    }
+    eligibility_labels = {
+        SETUP_CONTRACT_ELIGIBILITY_UNAVAILABLE: "Setup contract eligibility: unavailable",
+        SETUP_CONTRACT_ELIGIBILITY_DISABLED: "Setup contract eligibility: disabled",
+        SETUP_CONTRACT_ELIGIBILITY_BLOCKED: "Setup contract eligibility: blocked",
+        SETUP_CONTRACT_ELIGIBILITY_FUTURE_GATED: "Setup contract eligibility: future-gated",
+        SETUP_CONTRACT_ELIGIBILITY_READY_NOT_APPROVED:
+            "Setup contract eligibility: ready but USER approval missing",
+        SETUP_CONTRACT_ELIGIBILITY_FUTURE_SETUP_BRANCH:
+            "Setup contract eligibility: future setup branch",
+    }
+    blocker_labels = {
+        SETUP_CONTRACT_BLOCKER_PROVIDER_PATH_REQUIRED:
+            "Setup contract blocker: provider path readiness required",
+        SETUP_CONTRACT_BLOCKER_CONFIG_REQUIRED:
+            "Setup contract blocker: provider profile/config proof required",
+        SETUP_CONTRACT_BLOCKER_SETUP_CONSENT_REQUIRED:
+            "Setup contract blocker: setup consent required",
+        SETUP_CONTRACT_BLOCKER_EXECUTION_CONSENT_REQUIRED:
+            "Setup contract blocker: execution consent required",
+        SETUP_CONTRACT_BLOCKER_POLICY_BLOCKED: "Setup contract blocker: policy blocked",
+        SETUP_CONTRACT_BLOCKER_CAPABILITY_REQUIRED:
+            "Setup contract blocker: capability proof required",
+        SETUP_CONTRACT_BLOCKER_MANIFEST_REQUIRED:
+            "Setup contract blocker: manifest proof required",
+        SETUP_CONTRACT_BLOCKER_SAFETY_EVAL_REQUIRED:
+            "Setup contract blocker: safety/eval proof required",
+        SETUP_CONTRACT_BLOCKER_SETUP_APPROVAL_REQUIRED:
+            "Setup contract blocker: USER setup approval required",
+        SETUP_CONTRACT_BLOCKER_FUTURE_SETUP_BRANCH:
+            "Setup contract blocker: future setup branch required",
+    }
+    reason_labels = {
+        SETUP_CONTRACT_REASON_DEFAULT_UNAVAILABLE:
+            "Setup contract reason: setup contract is local-only",
+        SETUP_CONTRACT_REASON_PROVIDER_PATH_REQUIRED:
+            "Setup contract reason: provider path readiness required",
+        SETUP_CONTRACT_REASON_CONFIG_MISSING:
+            "Setup contract reason: provider config proof missing",
+        SETUP_CONTRACT_REASON_CONFIG_INVALID:
+            "Setup contract reason: provider config proof invalid",
+        SETUP_CONTRACT_REASON_PROFILE_MISSING:
+            "Setup contract reason: provider profile proof missing",
+        SETUP_CONTRACT_REASON_SETUP_CONSENT_REQUIRED:
+            "Setup contract reason: setup consent required",
+        SETUP_CONTRACT_REASON_EXECUTION_CONSENT_REQUIRED:
+            "Setup contract reason: execution consent required",
+        SETUP_CONTRACT_REASON_POLICY_BLOCKED: "Setup contract reason: policy blocked",
+        SETUP_CONTRACT_REASON_CAPABILITY_MISSING:
+            "Setup contract reason: capability proof missing",
+        SETUP_CONTRACT_REASON_MANIFEST_MISSING:
+            "Setup contract reason: manifest proof missing",
+        SETUP_CONTRACT_REASON_SAFETY_BLOCKED:
+            "Setup contract reason: safety/eval blocked",
+        SETUP_CONTRACT_REASON_SETUP_APPROVAL_MISSING:
+            "Setup contract reason: USER setup approval missing",
+        SETUP_CONTRACT_REASON_READY_FOR_FUTURE_SETUP_BRANCH:
+            "Setup contract reason: ready for future setup branch",
+    }
+    provenance_labels = {
+        SETUP_CONTRACT_PROVENANCE_SETUP_FLOW:
+            "Setup contract provenance: setup flow readiness state",
+        SETUP_CONTRACT_PROVENANCE_PROVIDER_PATH:
+            "Setup contract provenance: provider path readiness state",
+        SETUP_CONTRACT_PROVENANCE_CONFIG:
+            "Setup contract provenance: provider config envelope",
+        SETUP_CONTRACT_PROVENANCE_PROFILE:
+            "Setup contract provenance: provider profile metadata",
+        SETUP_CONTRACT_PROVENANCE_CONSENT:
+            "Setup contract provenance: setup/execution consent prerequisites",
+        SETUP_CONTRACT_PROVENANCE_CAPABILITY:
+            "Setup contract provenance: capability contract",
+        SETUP_CONTRACT_PROVENANCE_MANIFEST:
+            "Setup contract provenance: manifest state",
+        SETUP_CONTRACT_PROVENANCE_SAFETY: "Setup contract provenance: safety/eval",
+        SETUP_CONTRACT_PROVENANCE_POLICY: "Setup contract provenance: audit policy",
+        SETUP_CONTRACT_PROVENANCE_FUTURE_RUNTIME:
+            "Setup contract provenance: future setup contract check",
+    }
+    return {
+        "provider_setup_contract_readiness_state": contract_state,
+        "provider_setup_contract_readiness_label": contract_labels[contract_state],
+        "provider_setup_contract_eligibility_state": contract_eligibility,
+        "provider_setup_contract_eligibility_label": eligibility_labels[contract_eligibility],
+        "provider_setup_contract_blocker_state": contract_blocker,
+        "provider_setup_contract_blocker_label": blocker_labels[contract_blocker],
+        "provider_setup_contract_reason_code": contract_reason,
+        "provider_setup_contract_reason_label": reason_labels[contract_reason],
+        "provider_setup_contract_provenance": contract_provenance,
+        "provider_setup_contract_provenance_label": provenance_labels[contract_provenance],
+        "provider_setup_contract_state_schema_version": SETUP_CONTRACT_READINESS_STATE_SCHEMA_VERSION,
+        "provider_setup_contract_config_schema_version": SETUP_CONTRACT_READINESS_CONFIG_SCHEMA_VERSION,
+        "provider_setup_contract_config_state": flow_state.provider_path_config_state,
+        "provider_setup_contract_config_label": "Setup contract config: safe default local-only",
+        "provider_setup_contract_config_migration": SETUP_CONTRACT_READINESS_CONFIG_MIGRATION_POSTURE,
+        "provider_setup_contract_config_valid": flow_state.provider_path_config_valid,
+        "provider_setup_contract_approval_status": contract_approval,
+        "provider_setup_contract_approval_label": {
+            SETUP_CONTRACT_APPROVAL_STATUS_MISSING:
+                "Setup contract approval: USER approval missing",
+            SETUP_CONTRACT_APPROVAL_STATUS_FUTURE_GATED:
+                "Setup contract approval: future-gated",
+            SETUP_CONTRACT_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF:
+                "Setup contract approval: ready for future proof",
+        }[contract_approval],
+        "provider_setup_contract_gate_state": contract_gate,
+        "provider_profile_gate_state": profile_gate,
+        "capability_gate_state": capability_gate,
+        "manifest_gate_state": manifest_gate,
+        "safety_eval_gate_state": safety_gate,
+        "network_gate_state": NETWORK_GATE_BLOCKED,
+        "memory_indexing_gate_state": MEMORY_INDEXING_GATE_BLOCKED,
+        "voice_core_sync_gate_state": VOICE_CORE_SYNC_GATE_BLOCKED,
+        "version_jump_gate_state": VERSION_JUMP_GATE_PENDING,
+        "provider_setup_prerequisite_posture": PROVIDER_SETUP_PREREQUISITE_POSTURE_LOCAL_ONLY,
+        "provider_setup_validation_posture": PROVIDER_SETUP_VALIDATION_POSTURE_STATIC,
+        "provider_setup_ui_proof_posture": PROVIDER_SETUP_UI_PROOF_POSTURE_STATUS_ONLY,
+        "future_setup_branch_handoff_state": FUTURE_SETUP_BRANCH_HANDOFF_READY,
+        "provider_setup_contract_fold_down_posture": PROVIDER_SETUP_CONTRACT_FOLD_DOWN_READY,
+    }
+
+
+def build_provider_setup_contract_readiness_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    execution_config: AIProviderExecutionReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _EXECUTION_CONFIG_OMITTED
+    ),
+    path_consent_config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _PATH_CONSENT_CONFIG_OMITTED
+    ),
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve local-only setup contract readiness without enabling provider setup."""
+
+    flow_state = build_provider_setup_consent_flow_readiness_state(
+        readiness_config,
+        activation_config=activation_config,
+        execution_config=execution_config,
+        path_consent_config=path_consent_config,
+        surface_role=surface_role,
+    )
+    contract_fields = _provider_setup_contract_readiness_fields(flow_state)
+    return replace(
+        flow_state,
+        state_id=FAM007_PROVIDER_SETUP_CONTRACT_READINESS_STATE_ID,
+        mode=FAM007_PROVIDER_SETUP_CONTRACT_READINESS_MODE,
+        availability=FAM007_PROVIDER_SETUP_CONTRACT_READINESS_AVAILABILITY,
+        status_label="Provider setup contract readiness unavailable",
+        disabled_reason=(
+            "Provider setup contract is status-only; setup execution remains pending USER approval"
+        ),
+        provider_next_action_label="Next: provider setup contract readiness remains local-only",
+        interaction_label="Provider setup contract readiness only",
+        interaction_disabled_reason=(
+            "Provider setup, consent collection, prompt routing, and model execution require later USER approval"
+        ),
+        **contract_fields,
+    )
+
+
 def _provider_selection_options() -> tuple[AIProviderChoiceSnapshot, ...]:
     return (
         AIProviderChoiceSnapshot(
@@ -2942,6 +5749,1096 @@ def normalize_provider_execution_readiness_config(
         provenance=provenance
         if provenance in PROVIDER_EXECUTION_PROVENANCE_SOURCES
         else PROVIDER_EXECUTION_PROVENANCE_LOCAL_CONFIG,
+    )
+
+
+def build_default_provider_path_consent_readiness_config() -> AIProviderPathConsentReadinessConfigSnapshot:
+    """Return the safe local-only default provider-path/consent readiness config."""
+
+    return AIProviderPathConsentReadinessConfigSnapshot(
+        schema_version=PROVIDER_PATH_READINESS_CONFIG_SCHEMA_VERSION,
+        config_state=PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+        provider_path_selected=False,
+        provider_config_present=False,
+        provider_config_valid=True,
+        provider_profile_available=False,
+        provider_available=False,
+        setup_consent_ready=False,
+        execution_consent_ready=False,
+        data_visibility_approved=False,
+        audit_ready=False,
+        capability_ready=False,
+        manifest_available=False,
+        manifest_valid=False,
+        safety_eval_complete=False,
+        policy_allows_provider_path=True,
+        setup_approved=False,
+        execution_approved=False,
+        future_execution_branch_ready=False,
+        functional_ai_release_ready=False,
+        config_valid=True,
+        provenance=PROVIDER_PATH_PROVENANCE_DEFAULT_CONFIG,
+    )
+
+
+def normalize_provider_path_consent_readiness_config(
+    config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None,
+) -> AIProviderPathConsentReadinessConfigSnapshot:
+    """Normalize provider-path/consent readiness config into a fail-closed local-only posture."""
+
+    if config is None:
+        return replace(
+            build_default_provider_path_consent_readiness_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_MISSING,
+            config_valid=False,
+        )
+
+    if isinstance(config, AIProviderPathConsentReadinessConfigSnapshot):
+        if config.schema_version == PROVIDER_PATH_READINESS_CONFIG_SCHEMA_VERSION and config.config_valid:
+            return config
+        return replace(
+            build_default_provider_path_consent_readiness_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=config.provenance
+            if config.provenance in PROVIDER_PATH_PROVENANCE_SOURCES
+            else PROVIDER_PATH_PROVENANCE_LOCAL_CONFIG,
+        )
+
+    if not isinstance(config, dict):
+        return replace(
+            build_default_provider_path_consent_readiness_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=PROVIDER_PATH_PROVENANCE_LOCAL_CONFIG,
+        )
+
+    schema_version = str(config.get("schema_version") or "")
+    provenance = str(config.get("provenance") or PROVIDER_PATH_PROVENANCE_LOCAL_CONFIG)
+    config_valid = bool(config.get("config_valid", True)) and schema_version == PROVIDER_PATH_READINESS_CONFIG_SCHEMA_VERSION
+    if not config_valid:
+        return replace(
+            build_default_provider_path_consent_readiness_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=provenance
+            if provenance in PROVIDER_PATH_PROVENANCE_SOURCES
+            else PROVIDER_PATH_PROVENANCE_LOCAL_CONFIG,
+        )
+
+    return AIProviderPathConsentReadinessConfigSnapshot(
+        schema_version=schema_version,
+        config_state=PROVIDER_PATH_CONFIG_STATE_LOCAL,
+        provider_path_selected=bool(config.get("provider_path_selected", False)),
+        provider_config_present=bool(config.get("provider_config_present", False)),
+        provider_config_valid=bool(config.get("provider_config_valid", True)),
+        provider_profile_available=bool(config.get("provider_profile_available", False)),
+        provider_available=bool(config.get("provider_available", False)),
+        setup_consent_ready=bool(config.get("setup_consent_ready", False)),
+        execution_consent_ready=bool(config.get("execution_consent_ready", False)),
+        data_visibility_approved=bool(config.get("data_visibility_approved", False)),
+        audit_ready=bool(config.get("audit_ready", False)),
+        capability_ready=bool(config.get("capability_ready", False)),
+        manifest_available=bool(config.get("manifest_available", False)),
+        manifest_valid=bool(config.get("manifest_valid", False)),
+        safety_eval_complete=bool(config.get("safety_eval_complete", False)),
+        policy_allows_provider_path=bool(config.get("policy_allows_provider_path", True)),
+        setup_approved=bool(config.get("setup_approved", False)),
+        execution_approved=bool(config.get("execution_approved", False)),
+        future_execution_branch_ready=bool(config.get("future_execution_branch_ready", False)),
+        functional_ai_release_ready=bool(config.get("functional_ai_release_ready", False)),
+        config_valid=True,
+        provenance=provenance
+        if provenance in PROVIDER_PATH_PROVENANCE_SOURCES
+        else PROVIDER_PATH_PROVENANCE_LOCAL_CONFIG,
+    )
+
+
+def build_default_provider_setup_foundation_config() -> AIProviderSetupFoundationConfigSnapshot:
+    """Return the safe local-only default provider setup foundation config."""
+
+    return AIProviderSetupFoundationConfigSnapshot(
+        schema_version=SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION,
+        config_state=PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+        setup_entry_enabled=False,
+        provider_profile_draft_present=False,
+        provider_profile_draft_valid=False,
+        provider_config_draft_present=False,
+        provider_config_draft_valid=False,
+        local_persistence_ready=False,
+        validation_passed=False,
+        setup_foundation_approved=False,
+        setup_consent_ready=False,
+        execution_consent_ready=False,
+        config_valid=True,
+        provenance=SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT,
+    )
+
+
+def normalize_provider_setup_foundation_config(
+    config: AIProviderSetupFoundationConfigSnapshot | dict[str, object] | None,
+) -> AIProviderSetupFoundationConfigSnapshot:
+    """Normalize setup foundation config into a fail-closed local-only posture."""
+
+    provenance_sources = {
+        SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT,
+        SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT,
+        SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT,
+        SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+        SETUP_FOUNDATION_PROVENANCE_CONSENT,
+        SETUP_FOUNDATION_PROVENANCE_APPROVAL,
+        SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME,
+    }
+
+    if config is None:
+        return replace(
+            build_default_provider_setup_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_MISSING,
+            config_valid=False,
+            provenance=SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT,
+        )
+
+    if isinstance(config, AIProviderSetupFoundationConfigSnapshot):
+        if config.schema_version == SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION and config.config_valid:
+            return config
+        return replace(
+            build_default_provider_setup_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=config.provenance
+            if config.provenance in provenance_sources
+            else SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+        )
+
+    if not isinstance(config, dict):
+        return replace(
+            build_default_provider_setup_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+        )
+
+    schema_version = str(config.get("schema_version") or "")
+    provenance = str(config.get("provenance") or SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT)
+    config_valid = bool(config.get("config_valid", True)) and schema_version == SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION
+    if not config_valid:
+        return replace(
+            build_default_provider_setup_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=provenance
+            if provenance in provenance_sources
+            else SETUP_FOUNDATION_PROVENANCE_VALIDATION,
+        )
+
+    return AIProviderSetupFoundationConfigSnapshot(
+        schema_version=schema_version,
+        config_state=PROVIDER_PATH_CONFIG_STATE_LOCAL,
+        setup_entry_enabled=bool(config.get("setup_entry_enabled", False)),
+        provider_profile_draft_present=bool(config.get("provider_profile_draft_present", False)),
+        provider_profile_draft_valid=bool(config.get("provider_profile_draft_valid", False)),
+        provider_config_draft_present=bool(config.get("provider_config_draft_present", False)),
+        provider_config_draft_valid=bool(config.get("provider_config_draft_valid", False)),
+        local_persistence_ready=bool(config.get("local_persistence_ready", False)),
+        validation_passed=bool(config.get("validation_passed", False)),
+        setup_foundation_approved=bool(config.get("setup_foundation_approved", False)),
+        setup_consent_ready=bool(config.get("setup_consent_ready", False)),
+        execution_consent_ready=bool(config.get("execution_consent_ready", False)),
+        config_valid=True,
+        provenance=provenance
+        if provenance in provenance_sources
+        else SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT,
+    )
+
+
+def _provider_setup_foundation_fields(
+    contract_state: AIProviderStateSnapshot,
+    setup_config: AIProviderSetupFoundationConfigSnapshot,
+) -> dict[str, object]:
+    foundation_state = SETUP_FOUNDATION_STATE_UNAVAILABLE
+    foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_UNAVAILABLE
+    foundation_blocker = SETUP_FOUNDATION_BLOCKER_SETUP_CONTRACT_REQUIRED
+    foundation_reason = SETUP_FOUNDATION_REASON_DEFAULT_UNAVAILABLE
+    foundation_provenance = SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT
+    foundation_approval = SETUP_FOUNDATION_APPROVAL_STATUS_MISSING
+    foundation_gate = SETUP_FOUNDATION_GATE_BLOCKED
+
+    setup_entry_state = (
+        SETUP_FOUNDATION_SETUP_ENTRY_READY_LOCAL_DRAFT
+        if setup_config.setup_entry_enabled
+        else SETUP_FOUNDATION_SETUP_ENTRY_DISABLED
+    )
+    profile_draft_status = (
+        SETUP_FOUNDATION_PROFILE_DRAFT_READY
+        if setup_config.provider_profile_draft_present and setup_config.provider_profile_draft_valid
+        else SETUP_FOUNDATION_PROFILE_DRAFT_INVALID
+        if setup_config.provider_profile_draft_present
+        else SETUP_FOUNDATION_PROFILE_DRAFT_MISSING
+    )
+    config_draft_status = (
+        SETUP_FOUNDATION_CONFIG_DRAFT_READY
+        if setup_config.provider_config_draft_present and setup_config.provider_config_draft_valid
+        else SETUP_FOUNDATION_CONFIG_DRAFT_INVALID
+        if setup_config.provider_config_draft_present
+        else SETUP_FOUNDATION_CONFIG_DRAFT_MISSING
+    )
+    persistence_status = (
+        SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY
+        if setup_config.local_persistence_ready
+        else SETUP_FOUNDATION_PERSISTENCE_DISABLED
+    )
+    validation_status = (
+        SETUP_FOUNDATION_VALIDATION_STATIC_READY
+        if setup_config.validation_passed
+        and setup_config.provider_profile_draft_present
+        and setup_config.provider_profile_draft_valid
+        and setup_config.provider_config_draft_present
+        and setup_config.provider_config_draft_valid
+        and setup_config.local_persistence_ready
+        else SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED
+    )
+
+    ready_contract_states = {
+        SETUP_CONTRACT_STATE_READY_FUTURE_GATED,
+        SETUP_CONTRACT_STATE_READY_BUT_NOT_APPROVED,
+        SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+    }
+    if setup_config.config_state == PROVIDER_PATH_CONFIG_STATE_MISSING:
+        foundation_state = SETUP_FOUNDATION_STATE_DISABLED
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_DISABLED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_CONFIG_MISSING
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT
+    elif setup_config.config_state == PROVIDER_PATH_CONFIG_STATE_INVALID:
+        foundation_state = SETUP_FOUNDATION_STATE_DEGRADED
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_CONFIG_INVALID
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_VALIDATION
+    elif contract_state.provider_setup_contract_readiness_state not in ready_contract_states:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONTRACT
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_reason = SETUP_FOUNDATION_REASON_SETUP_CONTRACT_REQUIRED
+    elif not setup_config.setup_entry_enabled:
+        foundation_state = SETUP_FOUNDATION_STATE_DISABLED
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_DISABLED
+        foundation_reason = SETUP_FOUNDATION_REASON_SETUP_ENTRY_DISABLED
+    elif not setup_config.provider_profile_draft_present:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_PROFILE
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_PROFILE_DRAFT_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_PROFILE_DRAFT_MISSING
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT
+    elif not setup_config.provider_profile_draft_valid:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_PROFILE_DRAFT_INVALID
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT
+    elif not setup_config.provider_config_draft_present:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_CONFIG
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_CONFIG_DRAFT_MISSING
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT
+    elif not setup_config.provider_config_draft_valid:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_CONFIG_DRAFT_INVALID
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT
+    elif not setup_config.local_persistence_ready or not setup_config.validation_passed:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_VALIDATION_FAILED
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_VALIDATION
+    elif not setup_config.setup_consent_ready:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONSENT
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_SETUP_CONSENT_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_SETUP_CONSENT_REQUIRED
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_CONSENT
+    elif not setup_config.execution_consent_ready:
+        foundation_state = SETUP_FOUNDATION_STATE_BLOCKED_BY_EXECUTION_CONSENT
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_BLOCKED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_EXECUTION_CONSENT_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_EXECUTION_CONSENT_REQUIRED
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_CONSENT
+    elif not setup_config.setup_foundation_approved:
+        foundation_state = SETUP_FOUNDATION_STATE_READY_BUT_NOT_APPROVED
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_READY_NOT_APPROVED
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_APPROVAL_REQUIRED
+        foundation_reason = SETUP_FOUNDATION_REASON_APPROVAL_MISSING
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_APPROVAL
+        foundation_gate = SETUP_FOUNDATION_GATE_LOCAL_DRAFT
+    elif contract_state.provider_setup_contract_readiness_state == SETUP_CONTRACT_STATE_READY_FOR_FUTURE_SETUP_BRANCH:
+        foundation_state = SETUP_FOUNDATION_STATE_READY_FOR_FUTURE_SETUP_BRANCH
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_FUTURE_SETUP_BRANCH
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH
+        foundation_reason = SETUP_FOUNDATION_REASON_READY_FOR_FUTURE_SETUP_BRANCH
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME
+        foundation_approval = SETUP_FOUNDATION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF
+        foundation_gate = SETUP_FOUNDATION_GATE_FUTURE_GATED
+    else:
+        foundation_state = SETUP_FOUNDATION_STATE_READY_LOCAL_DRAFT
+        foundation_eligibility = SETUP_FOUNDATION_ELIGIBILITY_LOCAL_DRAFT
+        foundation_blocker = SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH
+        foundation_reason = SETUP_FOUNDATION_REASON_READY_LOCAL_DRAFT
+        foundation_provenance = SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME
+        foundation_approval = SETUP_FOUNDATION_APPROVAL_STATUS_FUTURE_GATED
+        foundation_gate = SETUP_FOUNDATION_GATE_FUTURE_GATED
+
+    foundation_labels = {
+        SETUP_FOUNDATION_STATE_UNAVAILABLE: "Setup implementation foundation: unavailable",
+        SETUP_FOUNDATION_STATE_DISABLED: "Setup implementation foundation: disabled",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONTRACT:
+            "Setup implementation foundation: blocked by setup contract",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_PROFILE:
+            "Setup implementation foundation: blocked by provider profile draft",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_CONFIG:
+            "Setup implementation foundation: blocked by provider config draft",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_VALIDATION:
+            "Setup implementation foundation: validation failed closed",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_SETUP_CONSENT:
+            "Setup implementation foundation: blocked by setup consent",
+        SETUP_FOUNDATION_STATE_BLOCKED_BY_EXECUTION_CONSENT:
+            "Setup implementation foundation: blocked by execution consent",
+        SETUP_FOUNDATION_STATE_READY_LOCAL_DRAFT:
+            "Setup implementation foundation: local draft ready, future-gated",
+        SETUP_FOUNDATION_STATE_READY_FUTURE_GATED:
+            "Setup implementation foundation: ready but future-gated",
+        SETUP_FOUNDATION_STATE_READY_BUT_NOT_APPROVED:
+            "Setup implementation foundation: ready but USER approval missing",
+        SETUP_FOUNDATION_STATE_DEGRADED:
+            "Setup implementation foundation: degraded and fail-closed",
+        SETUP_FOUNDATION_STATE_READY_FOR_FUTURE_SETUP_BRANCH:
+            "Setup implementation foundation: ready for future setup branch",
+    }
+    eligibility_labels = {
+        SETUP_FOUNDATION_ELIGIBILITY_UNAVAILABLE: "Setup foundation eligibility: unavailable",
+        SETUP_FOUNDATION_ELIGIBILITY_DISABLED: "Setup foundation eligibility: disabled",
+        SETUP_FOUNDATION_ELIGIBILITY_BLOCKED: "Setup foundation eligibility: blocked",
+        SETUP_FOUNDATION_ELIGIBILITY_LOCAL_DRAFT:
+            "Setup foundation eligibility: local draft only",
+        SETUP_FOUNDATION_ELIGIBILITY_FUTURE_GATED:
+            "Setup foundation eligibility: future-gated",
+        SETUP_FOUNDATION_ELIGIBILITY_READY_NOT_APPROVED:
+            "Setup foundation eligibility: ready but USER approval missing",
+        SETUP_FOUNDATION_ELIGIBILITY_FUTURE_SETUP_BRANCH:
+            "Setup foundation eligibility: future setup branch",
+    }
+    blocker_labels = {
+        SETUP_FOUNDATION_BLOCKER_SETUP_CONTRACT_REQUIRED:
+            "Setup foundation blocker: setup contract readiness required",
+        SETUP_FOUNDATION_BLOCKER_PROFILE_DRAFT_REQUIRED:
+            "Setup foundation blocker: provider profile draft required",
+        SETUP_FOUNDATION_BLOCKER_CONFIG_DRAFT_REQUIRED:
+            "Setup foundation blocker: provider config draft required",
+        SETUP_FOUNDATION_BLOCKER_VALIDATION_REQUIRED:
+            "Setup foundation blocker: local validation proof required",
+        SETUP_FOUNDATION_BLOCKER_SETUP_CONSENT_REQUIRED:
+            "Setup foundation blocker: setup consent prerequisite required",
+        SETUP_FOUNDATION_BLOCKER_EXECUTION_CONSENT_REQUIRED:
+            "Setup foundation blocker: execution consent prerequisite required",
+        SETUP_FOUNDATION_BLOCKER_APPROVAL_REQUIRED:
+            "Setup foundation blocker: USER setup foundation approval required",
+        SETUP_FOUNDATION_BLOCKER_FUTURE_SETUP_BRANCH:
+            "Setup foundation blocker: future setup branch required",
+    }
+    reason_labels = {
+        SETUP_FOUNDATION_REASON_DEFAULT_UNAVAILABLE:
+            "Setup foundation reason: local-only safe default",
+        SETUP_FOUNDATION_REASON_SETUP_ENTRY_DISABLED:
+            "Setup foundation reason: setup entry point disabled",
+        SETUP_FOUNDATION_REASON_SETUP_CONTRACT_REQUIRED:
+            "Setup foundation reason: setup contract readiness required",
+        SETUP_FOUNDATION_REASON_CONFIG_MISSING:
+            "Setup foundation reason: config snapshot missing",
+        SETUP_FOUNDATION_REASON_CONFIG_INVALID:
+            "Setup foundation reason: config snapshot invalid",
+        SETUP_FOUNDATION_REASON_PROFILE_DRAFT_MISSING:
+            "Setup foundation reason: provider profile draft missing",
+        SETUP_FOUNDATION_REASON_PROFILE_DRAFT_INVALID:
+            "Setup foundation reason: provider profile draft invalid",
+        SETUP_FOUNDATION_REASON_CONFIG_DRAFT_MISSING:
+            "Setup foundation reason: provider config draft missing",
+        SETUP_FOUNDATION_REASON_CONFIG_DRAFT_INVALID:
+            "Setup foundation reason: provider config draft invalid",
+        SETUP_FOUNDATION_REASON_VALIDATION_FAILED:
+            "Setup foundation reason: validation failed closed",
+        SETUP_FOUNDATION_REASON_SETUP_CONSENT_REQUIRED:
+            "Setup foundation reason: setup consent prerequisite required",
+        SETUP_FOUNDATION_REASON_EXECUTION_CONSENT_REQUIRED:
+            "Setup foundation reason: execution consent prerequisite required",
+        SETUP_FOUNDATION_REASON_APPROVAL_MISSING:
+            "Setup foundation reason: USER setup approval missing",
+        SETUP_FOUNDATION_REASON_READY_LOCAL_DRAFT:
+            "Setup foundation reason: local draft ready for future proof",
+        SETUP_FOUNDATION_REASON_READY_FOR_FUTURE_SETUP_BRANCH:
+            "Setup foundation reason: ready for future setup branch",
+    }
+    provenance_labels = {
+        SETUP_FOUNDATION_PROVENANCE_SETUP_CONTRACT:
+            "Setup foundation provenance: provider setup contract state",
+        SETUP_FOUNDATION_PROVENANCE_PROFILE_DRAFT:
+            "Setup foundation provenance: provider profile draft",
+        SETUP_FOUNDATION_PROVENANCE_CONFIG_DRAFT:
+            "Setup foundation provenance: provider config draft",
+        SETUP_FOUNDATION_PROVENANCE_VALIDATION:
+            "Setup foundation provenance: local validation proof",
+        SETUP_FOUNDATION_PROVENANCE_CONSENT:
+            "Setup foundation provenance: consent prerequisites",
+        SETUP_FOUNDATION_PROVENANCE_APPROVAL:
+            "Setup foundation provenance: future setup approval",
+        SETUP_FOUNDATION_PROVENANCE_FUTURE_RUNTIME:
+            "Setup foundation provenance: future provider setup check",
+    }
+
+    return {
+        "provider_setup_foundation_state": foundation_state,
+        "provider_setup_foundation_label": foundation_labels[foundation_state],
+        "provider_setup_foundation_eligibility_state": foundation_eligibility,
+        "provider_setup_foundation_eligibility_label": eligibility_labels[foundation_eligibility],
+        "provider_setup_foundation_blocker_state": foundation_blocker,
+        "provider_setup_foundation_blocker_label": blocker_labels[foundation_blocker],
+        "provider_setup_foundation_reason_code": foundation_reason,
+        "provider_setup_foundation_reason_label": reason_labels[foundation_reason],
+        "provider_setup_foundation_provenance": foundation_provenance,
+        "provider_setup_foundation_provenance_label": provenance_labels[foundation_provenance],
+        "provider_setup_foundation_state_schema_version": SETUP_FOUNDATION_STATE_SCHEMA_VERSION,
+        "provider_setup_foundation_config_schema_version": SETUP_FOUNDATION_CONFIG_SCHEMA_VERSION,
+        "provider_setup_foundation_config_state": setup_config.config_state,
+        "provider_setup_foundation_config_label": "Setup foundation config: local-only draft envelope",
+        "provider_setup_foundation_config_migration": SETUP_FOUNDATION_CONFIG_MIGRATION_POSTURE,
+        "provider_setup_foundation_config_valid": setup_config.config_valid,
+        "provider_setup_foundation_setup_entry_state": setup_entry_state,
+        "provider_setup_foundation_setup_entry_label": {
+            SETUP_FOUNDATION_SETUP_ENTRY_DISABLED:
+                "Setup entry point: disabled until USER-approved setup work",
+            SETUP_FOUNDATION_SETUP_ENTRY_READY_LOCAL_DRAFT:
+                "Setup entry point: local draft shell ready, execution disabled",
+        }[setup_entry_state],
+        "provider_setup_foundation_profile_draft_status": profile_draft_status,
+        "provider_setup_foundation_profile_draft_label": {
+            SETUP_FOUNDATION_PROFILE_DRAFT_MISSING:
+                "Provider profile draft: missing local-only draft",
+            SETUP_FOUNDATION_PROFILE_DRAFT_INVALID:
+                "Provider profile draft: invalid local-only draft",
+            SETUP_FOUNDATION_PROFILE_DRAFT_READY:
+                "Provider profile draft: local-only draft validated",
+        }[profile_draft_status],
+        "provider_setup_foundation_config_draft_status": config_draft_status,
+        "provider_setup_foundation_config_draft_label": {
+            SETUP_FOUNDATION_CONFIG_DRAFT_MISSING:
+                "Provider config draft: missing local-only draft",
+            SETUP_FOUNDATION_CONFIG_DRAFT_INVALID:
+                "Provider config draft: invalid local-only draft",
+            SETUP_FOUNDATION_CONFIG_DRAFT_READY:
+                "Provider config draft: local-only draft validated",
+        }[config_draft_status],
+        "provider_setup_foundation_validation_status": validation_status,
+        "provider_setup_foundation_validation_label": {
+            SETUP_FOUNDATION_VALIDATION_FAIL_CLOSED:
+                "Setup foundation validation: fail-closed",
+            SETUP_FOUNDATION_VALIDATION_STATIC_READY:
+                "Setup foundation validation: static local proof ready",
+        }[validation_status],
+        "provider_setup_foundation_persistence_status": persistence_status,
+        "provider_setup_foundation_persistence_label": {
+            SETUP_FOUNDATION_PERSISTENCE_DISABLED:
+                "Setup foundation persistence: disabled; no provider credentials stored",
+            SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY:
+                "Setup foundation persistence: local draft metadata only; no secrets",
+        }[persistence_status],
+        "provider_setup_foundation_approval_status": foundation_approval,
+        "provider_setup_foundation_approval_label": {
+            SETUP_FOUNDATION_APPROVAL_STATUS_MISSING:
+                "Setup foundation approval: USER approval missing",
+            SETUP_FOUNDATION_APPROVAL_STATUS_FUTURE_GATED:
+                "Setup foundation approval: future-gated",
+            SETUP_FOUNDATION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF:
+                "Setup foundation approval: ready for future proof",
+        }[foundation_approval],
+        "provider_setup_foundation_gate_state": foundation_gate,
+        "local_null_provider_fallback_proof": LOCAL_NULL_PROVIDER_FALLBACK_PROOF,
+        "provider_setup_implementation_handoff_state": (
+            FUTURE_PROVIDER_SETUP_IMPLEMENTATION_HANDOFF_READY
+        ),
+        "provider_setup_implementation_fold_down_posture": (
+            PROVIDER_SETUP_IMPLEMENTATION_FOLD_DOWN_READY
+        ),
+    }
+
+
+def build_provider_setup_implementation_foundation_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    execution_config: AIProviderExecutionReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _EXECUTION_CONFIG_OMITTED
+    ),
+    path_consent_config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _PATH_CONSENT_CONFIG_OMITTED
+    ),
+    setup_foundation_config: AIProviderSetupFoundationConfigSnapshot | dict[str, object] | None | object = (
+        _SETUP_FOUNDATION_CONFIG_OMITTED
+    ),
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve local setup implementation foundation without running provider setup."""
+
+    contract_state = build_provider_setup_contract_readiness_state(
+        readiness_config,
+        activation_config=activation_config,
+        execution_config=execution_config,
+        path_consent_config=path_consent_config,
+        surface_role=surface_role,
+    )
+    if setup_foundation_config is _SETUP_FOUNDATION_CONFIG_OMITTED:
+        normalized_setup = build_default_provider_setup_foundation_config()
+    else:
+        normalized_setup = normalize_provider_setup_foundation_config(
+            setup_foundation_config  # type: ignore[arg-type]
+        )
+    foundation_fields = _provider_setup_foundation_fields(contract_state, normalized_setup)
+    return replace(
+        contract_state,
+        state_id=FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_STATE_ID,
+        mode=FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_MODE,
+        availability=FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_AVAILABILITY,
+        status_label=foundation_fields["provider_setup_foundation_label"],
+        disabled_reason=(
+            "Provider setup implementation foundation is local-only; real setup remains pending USER approval"
+        ),
+        provider_next_action_label="Next: local setup foundation proof remains future-gated",
+        interaction_label="Provider setup implementation foundation only",
+        interaction_disabled_reason=(
+            "Provider setup, consent collection, prompt routing, and model execution require later USER approval"
+        ),
+        **foundation_fields,
+    )
+
+
+def build_default_provider_consent_collection_foundation_config() -> (
+    AIProviderConsentCollectionFoundationConfigSnapshot
+):
+    """Return the safe local-only default consent collection foundation config."""
+
+    return AIProviderConsentCollectionFoundationConfigSnapshot(
+        schema_version=CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION,
+        config_state=PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+        consent_capture_surface_enabled=False,
+        setup_consent_capture_ready=False,
+        execution_consent_capture_ready=False,
+        data_visibility_review_ready=False,
+        audit_envelope_ready=False,
+        provenance_ready=False,
+        local_persistence_ready=False,
+        validation_passed=False,
+        policy_allows_collection=True,
+        consent_collection_approved=False,
+        future_capture_branch_ready=False,
+        config_valid=True,
+        provenance=CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+    )
+
+
+def normalize_provider_consent_collection_foundation_config(
+    config: AIProviderConsentCollectionFoundationConfigSnapshot | dict[str, object] | None,
+) -> AIProviderConsentCollectionFoundationConfigSnapshot:
+    """Normalize consent collection foundation config into a fail-closed posture."""
+
+    provenance_sources = {
+        CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW,
+        CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+        CONSENT_COLLECTION_PROVENANCE_DATA_VISIBILITY,
+        CONSENT_COLLECTION_PROVENANCE_AUDIT,
+        CONSENT_COLLECTION_PROVENANCE_POLICY,
+        CONSENT_COLLECTION_PROVENANCE_APPROVAL,
+        CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE,
+    }
+
+    if config is None:
+        return replace(
+            build_default_provider_consent_collection_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_MISSING,
+            config_valid=False,
+            provenance=CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+        )
+
+    if isinstance(config, AIProviderConsentCollectionFoundationConfigSnapshot):
+        if (
+            config.schema_version == CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION
+            and config.config_valid
+        ):
+            return config
+        return replace(
+            build_default_provider_consent_collection_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=config.provenance
+            if config.provenance in provenance_sources
+            else CONSENT_COLLECTION_PROVENANCE_AUDIT,
+        )
+
+    if not isinstance(config, dict):
+        return replace(
+            build_default_provider_consent_collection_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=CONSENT_COLLECTION_PROVENANCE_AUDIT,
+        )
+
+    schema_version = str(config.get("schema_version") or "")
+    provenance = str(config.get("provenance") or CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION)
+    config_valid = (
+        bool(config.get("config_valid", True))
+        and schema_version == CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION
+    )
+    if not config_valid:
+        return replace(
+            build_default_provider_consent_collection_foundation_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=provenance
+            if provenance in provenance_sources
+            else CONSENT_COLLECTION_PROVENANCE_AUDIT,
+        )
+
+    return AIProviderConsentCollectionFoundationConfigSnapshot(
+        schema_version=schema_version,
+        config_state=PROVIDER_PATH_CONFIG_STATE_LOCAL,
+        consent_capture_surface_enabled=bool(
+            config.get("consent_capture_surface_enabled", False)
+        ),
+        setup_consent_capture_ready=bool(config.get("setup_consent_capture_ready", False)),
+        execution_consent_capture_ready=bool(
+            config.get("execution_consent_capture_ready", False)
+        ),
+        data_visibility_review_ready=bool(config.get("data_visibility_review_ready", False)),
+        audit_envelope_ready=bool(config.get("audit_envelope_ready", False)),
+        provenance_ready=bool(config.get("provenance_ready", False)),
+        local_persistence_ready=bool(config.get("local_persistence_ready", False)),
+        validation_passed=bool(config.get("validation_passed", False)),
+        policy_allows_collection=bool(config.get("policy_allows_collection", True)),
+        consent_collection_approved=bool(config.get("consent_collection_approved", False)),
+        future_capture_branch_ready=bool(config.get("future_capture_branch_ready", False)),
+        config_valid=True,
+        provenance=provenance
+        if provenance in provenance_sources
+        else CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+    )
+
+
+def _provider_consent_collection_foundation_fields(
+    setup_foundation_state: AIProviderStateSnapshot,
+    consent_config: AIProviderConsentCollectionFoundationConfigSnapshot,
+) -> dict[str, object]:
+    collection_state = CONSENT_COLLECTION_STATE_UNAVAILABLE
+    collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_UNAVAILABLE
+    collection_blocker = CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED
+    collection_reason = CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE
+    collection_provenance = CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW
+    collection_approval = CONSENT_COLLECTION_APPROVAL_STATUS_MISSING
+    collection_gate = CONSENT_COLLECTION_GATE_BLOCKED
+
+    capture_surface_state = (
+        CONSENT_COLLECTION_CAPTURE_SURFACE_READY_FUTURE_GATED
+        if consent_config.consent_capture_surface_enabled
+        else CONSENT_COLLECTION_CAPTURE_SURFACE_DISABLED
+    )
+    setup_capture_status = (
+        CONSENT_COLLECTION_CAPTURE_SETUP_READY
+        if consent_config.setup_consent_capture_ready
+        else CONSENT_COLLECTION_CAPTURE_SETUP_REQUIRED
+    )
+    execution_capture_status = (
+        CONSENT_COLLECTION_CAPTURE_EXECUTION_READY
+        if consent_config.execution_consent_capture_ready
+        else CONSENT_COLLECTION_CAPTURE_EXECUTION_REQUIRED
+    )
+    data_visibility_status = (
+        CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_READY
+        if consent_config.data_visibility_review_ready
+        else CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_REQUIRED
+    )
+    audit_envelope_status = (
+        CONSENT_COLLECTION_AUDIT_ENVELOPE_READY
+        if consent_config.audit_envelope_ready
+        else CONSENT_COLLECTION_AUDIT_ENVELOPE_REQUIRED
+    )
+    provenance_status = (
+        CONSENT_COLLECTION_PROVENANCE_READY
+        if consent_config.provenance_ready
+        else CONSENT_COLLECTION_PROVENANCE_REQUIRED
+    )
+    persistence_status = (
+        CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY
+        if consent_config.local_persistence_ready
+        else CONSENT_COLLECTION_PERSISTENCE_DISABLED
+    )
+    validation_status = (
+        CONSENT_COLLECTION_VALIDATION_STATIC_READY
+        if consent_config.validation_passed
+        and consent_config.consent_capture_surface_enabled
+        and consent_config.setup_consent_capture_ready
+        and consent_config.execution_consent_capture_ready
+        and consent_config.data_visibility_review_ready
+        and consent_config.audit_envelope_ready
+        and consent_config.provenance_ready
+        and consent_config.local_persistence_ready
+        else CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED
+    )
+
+    ready_consent_flow_states = {
+        CONSENT_FLOW_STATE_READY_FUTURE_GATED,
+        CONSENT_FLOW_STATE_READY_BUT_NOT_COLLECTED,
+        CONSENT_FLOW_STATE_READY_FOR_FUTURE_CONSENT_BRANCH,
+    }
+    ready_setup_foundation_states = {
+        SETUP_FOUNDATION_STATE_READY_LOCAL_DRAFT,
+        SETUP_FOUNDATION_STATE_READY_FUTURE_GATED,
+        SETUP_FOUNDATION_STATE_READY_BUT_NOT_APPROVED,
+        SETUP_FOUNDATION_STATE_READY_FOR_FUTURE_SETUP_BRANCH,
+    }
+
+    if consent_config.config_state == PROVIDER_PATH_CONFIG_STATE_MISSING:
+        collection_state = CONSENT_COLLECTION_STATE_DISABLED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_DISABLED
+        collection_reason = CONSENT_COLLECTION_REASON_CONFIG_MISSING
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION
+    elif consent_config.config_state == PROVIDER_PATH_CONFIG_STATE_INVALID:
+        collection_state = CONSENT_COLLECTION_STATE_DEGRADED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_CONFIG_INVALID
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_AUDIT
+    elif not consent_config.policy_allows_collection:
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_POLICY
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_POLICY_BLOCKED
+        collection_reason = CONSENT_COLLECTION_REASON_POLICY_BLOCKED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_POLICY
+    elif setup_foundation_state.consent_flow_readiness_state not in ready_consent_flow_states:
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_CONSENT_FLOW
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_reason = CONSENT_COLLECTION_REASON_CONSENT_FLOW_REQUIRED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW
+    elif (
+        setup_foundation_state.provider_setup_foundation_state
+        not in ready_setup_foundation_states
+    ):
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_SETUP_FOUNDATION
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_SETUP_FOUNDATION_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_SETUP_FOUNDATION_REQUIRED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION
+    elif not consent_config.consent_capture_surface_enabled:
+        collection_state = CONSENT_COLLECTION_STATE_DISABLED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_DISABLED
+        collection_reason = CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION
+    elif (
+        not consent_config.setup_consent_capture_ready
+        or not consent_config.execution_consent_capture_ready
+    ):
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_CONSENT_FLOW
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_reason = CONSENT_COLLECTION_REASON_CONSENT_FLOW_REQUIRED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW
+    elif not consent_config.data_visibility_review_ready:
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_DATA_VISIBILITY
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_DATA_VISIBILITY_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_DATA_VISIBILITY_BLOCKED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_DATA_VISIBILITY
+    elif not consent_config.audit_envelope_ready or not consent_config.provenance_ready:
+        collection_state = CONSENT_COLLECTION_STATE_BLOCKED_BY_AUDIT
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_AUDIT_REQUIRED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_AUDIT
+    elif not consent_config.local_persistence_ready or not consent_config.validation_passed:
+        collection_state = CONSENT_COLLECTION_STATE_DEGRADED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_BLOCKED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_AUDIT_REQUIRED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_AUDIT
+    elif not consent_config.consent_collection_approved:
+        collection_state = CONSENT_COLLECTION_STATE_READY_BUT_NOT_APPROVED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_APPROVED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_APPROVAL_REQUIRED
+        collection_reason = CONSENT_COLLECTION_REASON_APPROVAL_MISSING
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_APPROVAL
+        collection_gate = CONSENT_COLLECTION_GATE_LOCAL_PROOF
+    elif consent_config.future_capture_branch_ready:
+        collection_state = CONSENT_COLLECTION_STATE_READY_FOR_FUTURE_CAPTURE_BRANCH
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_FUTURE_CAPTURE_BRANCH
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH
+        collection_reason = CONSENT_COLLECTION_REASON_READY_FOR_FUTURE_CAPTURE_BRANCH
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE
+        collection_approval = CONSENT_COLLECTION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF
+        collection_gate = CONSENT_COLLECTION_GATE_FUTURE_GATED
+    else:
+        collection_state = CONSENT_COLLECTION_STATE_READY_BUT_NOT_COLLECTED
+        collection_eligibility = CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_COLLECTED
+        collection_blocker = CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH
+        collection_reason = CONSENT_COLLECTION_REASON_READY_BUT_NOT_COLLECTED
+        collection_provenance = CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE
+        collection_approval = CONSENT_COLLECTION_APPROVAL_STATUS_FUTURE_GATED
+        collection_gate = CONSENT_COLLECTION_GATE_FUTURE_GATED
+
+    state_labels = {
+        CONSENT_COLLECTION_STATE_UNAVAILABLE: "Consent collection foundation: unavailable",
+        CONSENT_COLLECTION_STATE_DISABLED: "Consent collection foundation: disabled",
+        CONSENT_COLLECTION_STATE_BLOCKED_BY_CONSENT_FLOW:
+            "Consent collection foundation: blocked by consent flow",
+        CONSENT_COLLECTION_STATE_BLOCKED_BY_SETUP_FOUNDATION:
+            "Consent collection foundation: blocked by setup foundation",
+        CONSENT_COLLECTION_STATE_BLOCKED_BY_POLICY:
+            "Consent collection foundation: blocked by policy",
+        CONSENT_COLLECTION_STATE_BLOCKED_BY_DATA_VISIBILITY:
+            "Consent collection foundation: blocked by data visibility review",
+        CONSENT_COLLECTION_STATE_BLOCKED_BY_AUDIT:
+            "Consent collection foundation: blocked by audit envelope",
+        CONSENT_COLLECTION_STATE_READY_FUTURE_GATED:
+            "Consent collection foundation: ready but future-gated",
+        CONSENT_COLLECTION_STATE_READY_BUT_NOT_APPROVED:
+            "Consent collection foundation: ready but USER approval missing",
+        CONSENT_COLLECTION_STATE_READY_BUT_NOT_COLLECTED:
+            "Consent collection foundation: ready but no consent collected",
+        CONSENT_COLLECTION_STATE_READY_FOR_FUTURE_CAPTURE_BRANCH:
+            "Consent collection foundation: ready for future capture branch",
+        CONSENT_COLLECTION_STATE_DEGRADED:
+            "Consent collection foundation: degraded and fail-closed",
+    }
+    eligibility_labels = {
+        CONSENT_COLLECTION_ELIGIBILITY_UNAVAILABLE:
+            "Consent collection eligibility: unavailable",
+        CONSENT_COLLECTION_ELIGIBILITY_DISABLED:
+            "Consent collection eligibility: disabled",
+        CONSENT_COLLECTION_ELIGIBILITY_BLOCKED:
+            "Consent collection eligibility: blocked",
+        CONSENT_COLLECTION_ELIGIBILITY_FUTURE_GATED:
+            "Consent collection eligibility: future-gated",
+        CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_APPROVED:
+            "Consent collection eligibility: ready but USER approval missing",
+        CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_COLLECTED:
+            "Consent collection eligibility: ready but no consent collected",
+        CONSENT_COLLECTION_ELIGIBILITY_FUTURE_CAPTURE_BRANCH:
+            "Consent collection eligibility: future capture branch",
+    }
+    blocker_labels = {
+        CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED:
+            "Consent collection blocker: consent flow readiness required",
+        CONSENT_COLLECTION_BLOCKER_SETUP_FOUNDATION_REQUIRED:
+            "Consent collection blocker: setup foundation readiness required",
+        CONSENT_COLLECTION_BLOCKER_POLICY_BLOCKED:
+            "Consent collection blocker: policy blocks consent collection",
+        CONSENT_COLLECTION_BLOCKER_DATA_VISIBILITY_REQUIRED:
+            "Consent collection blocker: provider-visible data review required",
+        CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED:
+            "Consent collection blocker: audit/provenance proof required",
+        CONSENT_COLLECTION_BLOCKER_APPROVAL_REQUIRED:
+            "Consent collection blocker: USER consent collection approval required",
+        CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH:
+            "Consent collection blocker: future capture branch required",
+    }
+    reason_labels = {
+        CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE:
+            "Consent collection reason: local-only safe default",
+        CONSENT_COLLECTION_REASON_CONFIG_MISSING:
+            "Consent collection reason: config snapshot missing",
+        CONSENT_COLLECTION_REASON_CONFIG_INVALID:
+            "Consent collection reason: config snapshot invalid",
+        CONSENT_COLLECTION_REASON_CONSENT_FLOW_REQUIRED:
+            "Consent collection reason: consent flow readiness required",
+        CONSENT_COLLECTION_REASON_SETUP_FOUNDATION_REQUIRED:
+            "Consent collection reason: setup foundation readiness required",
+        CONSENT_COLLECTION_REASON_POLICY_BLOCKED:
+            "Consent collection reason: policy blocks collection",
+        CONSENT_COLLECTION_REASON_DATA_VISIBILITY_BLOCKED:
+            "Consent collection reason: data visibility review required",
+        CONSENT_COLLECTION_REASON_AUDIT_REQUIRED:
+            "Consent collection reason: audit/provenance proof required",
+        CONSENT_COLLECTION_REASON_APPROVAL_MISSING:
+            "Consent collection reason: USER approval missing",
+        CONSENT_COLLECTION_REASON_READY_BUT_NOT_COLLECTED:
+            "Consent collection reason: future capture not collected",
+        CONSENT_COLLECTION_REASON_READY_FOR_FUTURE_CAPTURE_BRANCH:
+            "Consent collection reason: ready for future capture branch",
+        CONSENT_COLLECTION_REASON_READY_FUTURE_GATED:
+            "Consent collection reason: ready but future-gated",
+    }
+    provenance_labels = {
+        CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW:
+            "Consent collection provenance: consent flow readiness state",
+        CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION:
+            "Consent collection provenance: provider setup foundation state",
+        CONSENT_COLLECTION_PROVENANCE_DATA_VISIBILITY:
+            "Consent collection provenance: data visibility contract",
+        CONSENT_COLLECTION_PROVENANCE_AUDIT:
+            "Consent collection provenance: audit policy",
+        CONSENT_COLLECTION_PROVENANCE_POLICY:
+            "Consent collection provenance: consent collection policy",
+        CONSENT_COLLECTION_PROVENANCE_APPROVAL:
+            "Consent collection provenance: future USER approval",
+        CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE:
+            "Consent collection provenance: future capture branch",
+    }
+
+    return {
+        "consent_collection_foundation_state": collection_state,
+        "consent_collection_foundation_label": state_labels[collection_state],
+        "consent_collection_eligibility_state": collection_eligibility,
+        "consent_collection_eligibility_label": eligibility_labels[collection_eligibility],
+        "consent_collection_blocker_state": collection_blocker,
+        "consent_collection_blocker_label": blocker_labels[collection_blocker],
+        "consent_collection_reason_code": collection_reason,
+        "consent_collection_reason_label": reason_labels[collection_reason],
+        "consent_collection_provenance": collection_provenance,
+        "consent_collection_provenance_label": provenance_labels[collection_provenance],
+        "consent_collection_state_schema_version": (
+            CONSENT_COLLECTION_FOUNDATION_STATE_SCHEMA_VERSION
+        ),
+        "consent_collection_config_schema_version": (
+            CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION
+        ),
+        "consent_collection_config_state": consent_config.config_state,
+        "consent_collection_config_label": (
+            "Consent collection config: local-only foundation envelope"
+        ),
+        "consent_collection_config_migration": (
+            CONSENT_COLLECTION_FOUNDATION_CONFIG_MIGRATION_POSTURE
+        ),
+        "consent_collection_config_valid": consent_config.config_valid,
+        "consent_collection_approval_status": collection_approval,
+        "consent_collection_approval_label": {
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING:
+                "Consent collection approval: USER approval missing",
+            CONSENT_COLLECTION_APPROVAL_STATUS_FUTURE_GATED:
+                "Consent collection approval: future-gated",
+            CONSENT_COLLECTION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF:
+                "Consent collection approval: ready for future proof",
+        }[collection_approval],
+        "consent_collection_gate_state": collection_gate,
+        "consent_capture_surface_state": capture_surface_state,
+        "consent_capture_surface_label": {
+            CONSENT_COLLECTION_CAPTURE_SURFACE_DISABLED:
+                "Consent capture surface: disabled until USER-approved consent work",
+            CONSENT_COLLECTION_CAPTURE_SURFACE_PLANNED:
+                "Consent capture surface: planned only",
+            CONSENT_COLLECTION_CAPTURE_SURFACE_READY_FUTURE_GATED:
+                "Consent capture surface: local proof ready, future-gated",
+        }[capture_surface_state],
+        "setup_consent_capture_status": setup_capture_status,
+        "setup_consent_capture_label": {
+            CONSENT_COLLECTION_CAPTURE_SETUP_READY:
+                "Setup consent capture: contract-ready, not collected",
+            CONSENT_COLLECTION_CAPTURE_SETUP_REQUIRED:
+                "Setup consent capture: required before collection",
+        }[setup_capture_status],
+        "execution_consent_capture_status": execution_capture_status,
+        "execution_consent_capture_label": {
+            CONSENT_COLLECTION_CAPTURE_EXECUTION_READY:
+                "Execution consent capture: contract-ready, not collected",
+            CONSENT_COLLECTION_CAPTURE_EXECUTION_REQUIRED:
+                "Execution consent capture: required before collection",
+        }[execution_capture_status],
+        "consent_data_visibility_review_status": data_visibility_status,
+        "consent_data_visibility_review_label": {
+            CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_READY:
+                "Consent data visibility review: local proof ready; provider-visible data remains none",
+            CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_REQUIRED:
+                "Consent data visibility review: required before capture",
+        }[data_visibility_status],
+        "consent_audit_envelope_status": audit_envelope_status,
+        "consent_audit_envelope_label": {
+            CONSENT_COLLECTION_AUDIT_ENVELOPE_READY:
+                "Consent audit envelope: local proof ready",
+            CONSENT_COLLECTION_AUDIT_ENVELOPE_REQUIRED:
+                "Consent audit envelope: required before capture",
+        }[audit_envelope_status],
+        "consent_provenance_status": provenance_status,
+        "consent_provenance_label": {
+            CONSENT_COLLECTION_PROVENANCE_READY:
+                "Consent provenance: local proof ready",
+            CONSENT_COLLECTION_PROVENANCE_REQUIRED:
+                "Consent provenance: required before capture",
+        }[provenance_status],
+        "consent_persistence_status": persistence_status,
+        "consent_persistence_label": {
+            CONSENT_COLLECTION_PERSISTENCE_DISABLED:
+                "Consent persistence: disabled; no consent stored",
+            CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY:
+                "Consent persistence: local proof only; no user consent stored",
+        }[persistence_status],
+        "consent_collection_validation_status": validation_status,
+        "consent_collection_validation_label": {
+            CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED:
+                "Consent collection validation: fail-closed",
+            CONSENT_COLLECTION_VALIDATION_STATIC_READY:
+                "Consent collection validation: static local proof ready",
+        }[validation_status],
+        "future_consent_capture_handoff_state": FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY,
+        "consent_collection_fold_down_posture": CONSENT_COLLECTION_FOLD_DOWN_READY,
+    }
+
+
+def build_provider_consent_collection_foundation_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    execution_config: AIProviderExecutionReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _EXECUTION_CONFIG_OMITTED
+    ),
+    path_consent_config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _PATH_CONSENT_CONFIG_OMITTED
+    ),
+    setup_foundation_config: AIProviderSetupFoundationConfigSnapshot | dict[str, object] | None | object = (
+        _SETUP_FOUNDATION_CONFIG_OMITTED
+    ),
+    consent_collection_config: (
+        AIProviderConsentCollectionFoundationConfigSnapshot | dict[str, object] | None | object
+    ) = _CONSENT_COLLECTION_CONFIG_OMITTED,
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve consent collection foundation without collecting consent."""
+
+    setup_foundation_state = build_provider_setup_implementation_foundation_state(
+        readiness_config,
+        activation_config=activation_config,
+        execution_config=execution_config,
+        path_consent_config=path_consent_config,
+        setup_foundation_config=setup_foundation_config,
+        surface_role=surface_role,
+    )
+    if consent_collection_config is _CONSENT_COLLECTION_CONFIG_OMITTED:
+        normalized_consent = build_default_provider_consent_collection_foundation_config()
+    else:
+        normalized_consent = normalize_provider_consent_collection_foundation_config(
+            consent_collection_config  # type: ignore[arg-type]
+        )
+    collection_fields = _provider_consent_collection_foundation_fields(
+        setup_foundation_state,
+        normalized_consent,
+    )
+    return replace(
+        setup_foundation_state,
+        state_id=FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_STATE_ID,
+        mode=FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_MODE,
+        availability=FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_AVAILABILITY,
+        status_label=collection_fields["consent_collection_foundation_label"],
+        disabled_reason=(
+            "Consent collection foundation is local-only; actual consent capture remains pending USER approval"
+        ),
+        provider_next_action_label="Next: consent collection foundation proof remains future-gated",
+        interaction_label="Consent collection foundation only",
+        interaction_disabled_reason=(
+            "Consent capture, provider setup, prompt routing, and model execution require later USER approval"
+        ),
+        **collection_fields,
     )
 
 
@@ -3956,6 +7853,306 @@ def build_provider_execution_readiness_gates_state(
             approval_status=PROVIDER_EXECUTION_APPROVAL_STATUS_FUTURE_GATED,
             **common,
         ),
+    )
+
+
+def build_provider_path_consent_readiness_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    execution_config: AIProviderExecutionReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _EXECUTION_CONFIG_OMITTED
+    ),
+    path_consent_config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _PATH_CONSENT_CONFIG_OMITTED
+    ),
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve execution-readiness gates into local-only provider path and consent readiness."""
+
+    if execution_config is _EXECUTION_CONFIG_OMITTED:
+        execution_state = build_provider_execution_readiness_gates_state(
+            readiness_config,
+            activation_config=activation_config,
+            surface_role=surface_role,
+        )
+    else:
+        execution_state = build_provider_execution_readiness_gates_state(
+            readiness_config,
+            activation_config=activation_config,
+            execution_config=execution_config,  # type: ignore[arg-type]
+            surface_role=surface_role,
+        )
+
+    if path_consent_config is _PATH_CONSENT_CONFIG_OMITTED:
+        normalized_path = build_default_provider_path_consent_readiness_config()
+    else:
+        normalized_path = normalize_provider_path_consent_readiness_config(
+            path_consent_config  # type: ignore[arg-type]
+        )
+
+    manifest_ready = bool(normalized_path.manifest_available and normalized_path.manifest_valid)
+    common = {
+        "config_state": normalized_path.config_state,
+        "config_valid": normalized_path.config_valid,
+        "provider_path_selected": normalized_path.provider_path_selected,
+        "provider_config_present": normalized_path.provider_config_present,
+        "provider_config_valid": normalized_path.provider_config_valid,
+        "provider_profile_available": normalized_path.provider_profile_available,
+        "provider_available": normalized_path.provider_available,
+        "setup_consent_ready": normalized_path.setup_consent_ready,
+        "execution_consent_ready": normalized_path.execution_consent_ready,
+        "data_visibility_ready": normalized_path.data_visibility_approved,
+        "audit_ready": normalized_path.audit_ready,
+        "capability_ready": normalized_path.capability_ready,
+        "manifest_ready": manifest_ready,
+        "safety_ready": normalized_path.safety_eval_complete,
+        "setup_approved": normalized_path.setup_approved,
+        "execution_approved": normalized_path.execution_approved,
+        "future_execution_branch_ready": normalized_path.future_execution_branch_ready,
+        "functional_ai_release_ready": normalized_path.functional_ai_release_ready,
+    }
+
+    def _with_path_fields(
+        *,
+        state: str,
+        reason_code: str,
+        eligibility: str,
+        blocker: str,
+        provenance: str,
+        approval_status: str = PROVIDER_PATH_APPROVAL_STATUS_MISSING,
+        status_label: str,
+        disabled_reason: str,
+        interaction_disabled_reason: str,
+    ) -> AIProviderStateSnapshot:
+        path_fields = _provider_path_consent_contract_fields(
+            state=state,
+            reason_code=reason_code,
+            eligibility=eligibility,
+            blocker=blocker,
+            provenance=provenance,
+            approval_status=approval_status,
+            **common,
+        )
+        path_fields["interaction_disabled_reason"] = interaction_disabled_reason
+        return replace(
+            execution_state,
+            state_id=FAM007_PROVIDER_PATH_CONSENT_READINESS_STATE_ID,
+            mode=FAM007_PROVIDER_PATH_CONSENT_READINESS_MODE,
+            availability=FAM007_PROVIDER_PATH_CONSENT_READINESS_AVAILABILITY,
+            status_label=status_label,
+            disabled_reason=disabled_reason,
+            **path_fields,
+        )
+
+    if normalized_path.config_state == PROVIDER_PATH_CONFIG_STATE_MISSING:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_DISABLED,
+            reason_code=PROVIDER_PATH_REASON_CONFIG_MISSING_FAIL_CLOSED,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_DISABLED,
+            blocker=PROVIDER_PATH_BLOCKER_CONFIG_REQUIRED,
+            provenance=normalized_path.provenance,
+            status_label="Provider path readiness disabled",
+            disabled_reason="Provider path readiness config is missing, so readiness remains disabled",
+            interaction_disabled_reason="Missing provider-path config failed closed; setup remains disabled",
+        )
+
+    if normalized_path.config_state == PROVIDER_PATH_CONFIG_STATE_INVALID:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_DEGRADED,
+            reason_code=PROVIDER_PATH_REASON_CONFIG_INVALID_FAIL_CLOSED,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_BLOCKED,
+            blocker=PROVIDER_PATH_BLOCKER_CONFIG_INVALID,
+            provenance=normalized_path.provenance,
+            status_label="Provider path readiness degraded",
+            disabled_reason="Provider path readiness config is invalid, so readiness fails closed",
+            interaction_disabled_reason="Invalid provider-path config failed closed; setup remains disabled",
+        )
+
+    if execution_state.provider_execution_readiness_state in {
+        PROVIDER_EXECUTION_READINESS_STATE_UNAVAILABLE,
+        PROVIDER_EXECUTION_READINESS_STATE_DISABLED,
+        PROVIDER_EXECUTION_READINESS_STATE_BLOCKED_BY_ACTIVATION,
+        PROVIDER_EXECUTION_READINESS_STATE_DEGRADED,
+    }:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_UNAVAILABLE,
+            reason_code=PROVIDER_PATH_REASON_EXECUTION_READINESS_UNAVAILABLE,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_UNAVAILABLE,
+            blocker=PROVIDER_PATH_BLOCKER_EXECUTION_READINESS_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_EXECUTION_READINESS_STATE,
+            status_label="Provider path readiness unavailable",
+            disabled_reason="Provider path readiness is unavailable until execution-readiness prerequisites exist",
+            interaction_disabled_reason="Provider path readiness is status-only; setup and prompts remain disabled",
+        )
+
+    if not normalized_path.provider_path_selected:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_UNSELECTED,
+            reason_code=PROVIDER_PATH_REASON_UNSELECTED,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_SELECTION_REQUIRED,
+            blocker=PROVIDER_PATH_BLOCKER_SELECTION_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_PROVIDER_SELECTION_CONTRACT,
+            status_label="Provider path readiness unselected",
+            disabled_reason="No provider path has been selected for future setup proof",
+            interaction_disabled_reason="Provider path selection requires later USER-approved setup work",
+        )
+
+    if not normalized_path.provider_config_present:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_SELECTION_REQUIRED,
+            reason_code=PROVIDER_PATH_REASON_CONFIG_MISSING,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_SELECTION_REQUIRED,
+            blocker=PROVIDER_PATH_BLOCKER_CONFIG_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_PROVIDER_CONFIG_CONTRACT,
+            status_label="Provider path readiness needs config",
+            disabled_reason="Provider configuration envelope is missing",
+            interaction_disabled_reason="Provider setup remains disabled until a future setup branch supplies config proof",
+        )
+
+    if not normalized_path.provider_config_valid:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_DEGRADED,
+            reason_code=PROVIDER_PATH_REASON_CONFIG_INVALID,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_BLOCKED,
+            blocker=PROVIDER_PATH_BLOCKER_CONFIG_INVALID,
+            provenance=PROVIDER_PATH_PROVENANCE_PROVIDER_CONFIG_CONTRACT,
+            status_label="Provider path readiness degraded",
+            disabled_reason="Provider configuration envelope is invalid",
+            interaction_disabled_reason="Invalid provider configuration keeps setup and execution disabled",
+        )
+
+    if not normalized_path.setup_consent_ready:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_CONSENT,
+            reason_code=PROVIDER_PATH_REASON_SETUP_CONSENT_REQUIRED,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_BLOCKED,
+            blocker=PROVIDER_PATH_BLOCKER_SETUP_CONSENT_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_CONSENT_STATE,
+            status_label="Provider path readiness blocked by setup consent",
+            disabled_reason="Setup consent readiness is not satisfied",
+            interaction_disabled_reason="Consent collection remains disabled until later USER approval",
+        )
+
+    if not normalized_path.execution_consent_ready:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_CONSENT,
+            reason_code=PROVIDER_PATH_REASON_EXECUTION_CONSENT_REQUIRED,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_BLOCKED,
+            blocker=PROVIDER_PATH_BLOCKER_EXECUTION_CONSENT_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_CONSENT_STATE,
+            status_label="Provider path readiness blocked by execution consent",
+            disabled_reason="Execution consent readiness is not satisfied",
+            interaction_disabled_reason="Prompt/model execution consent remains a later USER-approved gate",
+        )
+
+    if not normalized_path.data_visibility_approved:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_CONSENT,
+            reason_code=PROVIDER_PATH_REASON_DATA_VISIBILITY_BLOCKED,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_BLOCKED,
+            blocker=PROVIDER_PATH_BLOCKER_DATA_VISIBILITY_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_DATA_VISIBILITY_CONTRACT,
+            status_label="Provider path readiness blocked by data visibility",
+            disabled_reason="Provider-visible-data requirements are not approved",
+            interaction_disabled_reason="Provider-visible data remains none",
+        )
+
+    if not normalized_path.capability_ready:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_CAPABILITY,
+            reason_code=PROVIDER_PATH_REASON_CAPABILITY_MISSING,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_BLOCKED,
+            blocker=PROVIDER_PATH_BLOCKER_CAPABILITY_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_CAPABILITY_CONTRACT,
+            status_label="Provider path readiness blocked by capability",
+            disabled_reason="Capability readiness proof is missing",
+            interaction_disabled_reason="Capability downloads and model workloads remain disabled",
+        )
+
+    if not manifest_ready:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_MANIFEST,
+            reason_code=PROVIDER_PATH_REASON_MANIFEST_MISSING,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_BLOCKED,
+            blocker=PROVIDER_PATH_BLOCKER_MANIFEST_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_MANIFEST_STATE,
+            status_label="Provider path readiness blocked by manifest",
+            disabled_reason="Provider/capability manifest proof is missing",
+            interaction_disabled_reason="Install, update, and model download paths remain disabled",
+        )
+
+    if not normalized_path.safety_eval_complete:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_SAFETY,
+            reason_code=PROVIDER_PATH_REASON_SAFETY_BLOCKED,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_BLOCKED,
+            blocker=PROVIDER_PATH_BLOCKER_SAFETY_EVAL_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_SAFETY_EVAL,
+            status_label="Provider path readiness blocked by safety/eval",
+            disabled_reason="Safety/eval readiness proof is missing",
+            interaction_disabled_reason="Provider setup and execution remain disabled before safety proof",
+        )
+
+    if not normalized_path.policy_allows_provider_path:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_BLOCKED_BY_POLICY,
+            reason_code=PROVIDER_PATH_REASON_POLICY_BLOCKED,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_BLOCKED,
+            blocker=PROVIDER_PATH_BLOCKER_POLICY_BLOCKED,
+            provenance=PROVIDER_PATH_PROVENANCE_AUDIT_POLICY,
+            status_label="Provider path readiness blocked by policy",
+            disabled_reason="Policy does not allow provider path setup",
+            interaction_disabled_reason="Policy approval is required before setup readiness can advance",
+        )
+
+    if not normalized_path.setup_approved:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_READY_BUT_NOT_APPROVED,
+            reason_code=PROVIDER_PATH_REASON_SETUP_APPROVAL_MISSING,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_READY_NOT_APPROVED,
+            blocker=PROVIDER_PATH_BLOCKER_SETUP_APPROVAL_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            status_label="Provider path readiness ready but setup approval missing",
+            disabled_reason="Provider path readiness is locally satisfied, but setup approval is missing",
+            interaction_disabled_reason="Provider setup remains disabled until explicit USER approval",
+        )
+
+    if not normalized_path.execution_approved:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_READY_BUT_NOT_APPROVED,
+            reason_code=PROVIDER_PATH_REASON_EXECUTION_APPROVAL_MISSING,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_READY_NOT_APPROVED,
+            blocker=PROVIDER_PATH_BLOCKER_EXECUTION_APPROVAL_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            status_label="Provider path readiness ready but execution approval missing",
+            disabled_reason="Provider execution approval is missing",
+            interaction_disabled_reason="Provider/model execution remains disabled until explicit USER approval",
+        )
+
+    if normalized_path.future_execution_branch_ready or normalized_path.functional_ai_release_ready:
+        return _with_path_fields(
+            state=PROVIDER_PATH_READINESS_STATE_READY_FOR_FUTURE_EXECUTION_BRANCH,
+            reason_code=PROVIDER_PATH_REASON_READY_FOR_FUTURE_EXECUTION_BRANCH,
+            eligibility=PROVIDER_PATH_ELIGIBILITY_FUTURE_EXECUTION_BRANCH,
+            blocker=PROVIDER_PATH_BLOCKER_VERSION_JUMP_REQUIRED,
+            provenance=PROVIDER_PATH_PROVENANCE_FUTURE_RUNTIME_CHECK,
+            approval_status=PROVIDER_PATH_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF,
+            status_label="Provider path readiness ready for future execution branch",
+            disabled_reason="Provider path readiness is proof-only and reserved for a future execution branch",
+            interaction_disabled_reason="v1.8.0-prebeta remains pending functional-AI proof",
+        )
+
+    return _with_path_fields(
+        state=PROVIDER_PATH_READINESS_STATE_READY_FUTURE_GATED,
+        reason_code=PROVIDER_PATH_REASON_READY_FOR_FUTURE_EXECUTION_BRANCH,
+        eligibility=PROVIDER_PATH_ELIGIBILITY_FUTURE_GATED,
+        blocker=PROVIDER_PATH_BLOCKER_EXECUTION_APPROVAL_REQUIRED,
+        provenance=PROVIDER_PATH_PROVENANCE_FUTURE_RUNTIME_CHECK,
+        approval_status=PROVIDER_PATH_APPROVAL_STATUS_FUTURE_GATED,
+        status_label="Provider path readiness future-gated",
+        disabled_reason="Provider path readiness is local proof only",
+        interaction_disabled_reason="Provider setup and execution remain disabled",
     )
 
 

@@ -4,6 +4,8 @@
 
 This document is the routing index for canonical workstream records under `Docs/workstreams/`.
 
+Docs Source-Truth Reform Model: Compact Pointer Layer.
+
 Use this layer when a backlog item has been promoted and now needs:
 
 - a stable feature-state record
@@ -77,6 +79,28 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - closed workstream docs may explicitly state that no separate ongoing `UTS` artifact remains
 - family dossiers are additive lifetime traceability surfaces for feature-family anchors; they do not replace the canonical workstream docs that preserve branch-local historical proof
 - family dossiers may begin as shell-only records before pass indexes, slice/seam ledgers, validator/helper indexes, artifact indexes, or migrated historical bodies are populated
+- workstreams and family dossiers own durable package trace, slice trace, proof history, branch lessons, and reusable continuity after active branch fold-down
+- workstreams and family dossiers must not mirror live Git/GitHub state, open PR state, review-thread state, latest-release state, or worktree dirty/ahead/behind state as current operational truth
+- backlog and roadmap point to this layer for durable detail instead of copying package/slice trace tables or active execution diaries
+
+## Package And Slice Trace Ownership
+
+Package Trace and Slice Trace detail belongs here, in the relevant family dossier, in an active Branch Runtime Engineering Plan, or in an explicitly folded compact branch receipt.
+
+When PR Readiness fold-down promotes branch lessons into this layer, preserve:
+
+- package/slice IDs and admission posture
+- implemented or deferred user-facing scope
+- durable validation/proof references
+- future-gated items and approval boundaries
+- reusable implementation lessons and helper/validator references
+
+Do not promote:
+
+- live `HEAD`, `origin/main`, ahead/behind, dirty-state, PR/review, tag, or latest-release facts
+- watcher runtime state
+- stale current-phase wording from a merged branch
+- release-window PR lists that can be derived from GitHub for Release Readiness
 
 ## Broad Family Routing Overlay
 

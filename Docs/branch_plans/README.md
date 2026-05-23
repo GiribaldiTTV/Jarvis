@@ -2,12 +2,14 @@
 
 `Docs/branch_plans/<branch_slug>.md` is the source-truth home for a runtime-focused branch's active Branch Runtime Engineering Plan.
 
+Docs Source-Truth Reform Model: Compact Pointer Layer.
+
 This layer sits under the branch authority record. It does not replace the branch authority record, backlog, roadmap, or canonical workstream doc.
 
 ## Ownership Model
 
 - Backlog entries remain compact registry, status, and pointer surfaces.
-- Roadmap entries remain compact release/sequencing surfaces.
+- Roadmap entries remain compact stage-breakpoint schedule and milestone-checkpoint reference surfaces.
 - Branch authority records remain control surfaces for branch identity, phase, approvals, blockers, and legal next phase.
 - Branch Runtime Engineering Plans own detailed active-branch runtime execution planning for the current branch/worktree.
 - Canonical workstream docs and family dossiers receive durable promoted lessons only after PR Readiness fold-down decides what should survive beyond the active branch.
@@ -50,6 +52,211 @@ Runtime-focused plans must include:
 - PR Fold-Down Packet:
 - Runtime Implementation Approval:
 
+## Vision Contract Snapshot Markers
+
+Runtime/user-facing branches that affect product behavior, UI/UX, workflow hierarchy, visual standards, setup/activation behavior, provider/model/memory/voice/Core behavior, acceptance criteria, or any design assumption must include a Branch Vision Contract Snapshot before Workstream implementation.
+
+Small docs-only, metadata-only, release-body-format, typo/format, or validator-only branches may record `Vision Contract Required: No` with a reason when there is no product, runtime, or user-facing impact.
+
+Branch Vision Contract Snapshot markers:
+
+- Vision Contract Required:
+- Vision Contract Requirement Reason:
+- Branch Vision Snapshot Status:
+- Open Vision Questions:
+- USER Vision Green:
+- Implementation Scope:
+- Seam Map:
+- Stop Conditions:
+- Design Assumption Ledger:
+- Vision Question Queue:
+- Question Severity Policy:
+- Vision-to-Implementation Traceability:
+- Branch Plan Revision Packet:
+
+Allowed design assumption decision states:
+
+- Proposed by Codex
+- Recommended by ChatGPT
+- Accepted by USER
+- Revised by USER
+- Rejected by USER
+- Deferred by USER
+- Deferred With Waiver
+- Superseded
+- Needs USER Decision
+
+Only `Accepted by USER`, `Revised by USER`, or `Deferred With Waiver` design states are implementation-safe for user-facing/runtime behavior. Codex and ChatGPT recommendations remain proposed evidence until USER accepts, revises, rejects, defers, waives, or supersedes them.
+
+`USER Vision Green: Yes` means the branch may implement the accepted branch plan without repeatedly reopening broad design unless new repo truth triggers a Level 2 or Level 3 vision question.
+
+Question severity:
+
+- Level 1 - Non-blocking question: record in the vision/question queue, continue using the accepted plan, and return at the next appropriate review point.
+- Level 2 - Seam-blocking question: pause the affected seam, return a Vision Question Digest, and continue unaffected areas only when the plan and source truth support that path.
+- Level 3 - Workstream-breaking question: return a Branch Plan Revision Packet and require USER decision before continuing affected Workstream scope.
+
+Vision Question Digest fields:
+
+- Question
+- Why it matters
+- Affected branch/seam
+- Current accepted vision
+- Codex recommendation
+- Alternative options
+- Risk of each option
+- Whether work can continue without this answer
+- Recommended USER decision
+- Exact USER decision needed
+
+Branch Plan Revision Packet fields:
+
+- Current accepted plan
+- Discovered issue
+- Why current plan is insufficient
+- Proposed revision
+- Affected seams
+- Files/surfaces affected
+- Validation impact
+- Whether this stays in current Workstream
+- Whether this moves to future branch
+- Codex recommendation
+- Exact USER decision needed
+
+## USER Feedback Disposition Markers
+
+`USER Feedback Disposition` is the active branch-plan mechanism for preserving meaningful USER feedback without creating another permanent feedback ledger.
+
+Meaningful feedback requires a UFD item when it affects branch scope, accepted vision, user-facing behavior, runtime behavior, validation proof, future work, reusable product standards, approval boundaries, or a USER decision.
+
+Minor comments, acknowledgements, typo-level notes, duplicate remarks, or non-actionable conversation may close with no durable UFD item only when Codex records the no-action reason in the active branch plan or return digest.
+
+Minimum UFD ledger markers:
+
+- USER Feedback Disposition Required:
+- UFD Ledger Status:
+- UFD Ledger Owner:
+- Open UFD Count:
+- Blocking UFD Count:
+- Fold-Down Status:
+
+Each meaningful feedback item uses a repeatable `### UFD Item: UFD-<scope>-YYYYMMDD-NNN` block.
+
+Minimum UFD item markers:
+
+- Feedback ID:
+- Feedback Summary:
+- Feedback Source:
+- Feedback Phase:
+- Disposition Type:
+- USER Decision State:
+- Owner Class:
+- Canonical Owner File:
+- Workstream Severity:
+- Status:
+- Fold-Down Target:
+- Pointer Locations:
+
+Allowed UFD decision states:
+
+- Proposed by Codex
+- Recommended by ChatGPT
+- Accepted by USER
+- Revised by USER
+- Rejected by USER
+- Deferred by USER
+- Deferred With Waiver
+- Superseded
+- Needs USER Decision
+
+Allowed UFD ledger status values:
+
+- Open
+- Queued
+- Blocking
+- Closed
+- Folded Down
+- Deferred
+- Superseded
+- Pending
+- Complete
+- Not Required
+- Not Applicable
+
+Allowed UFD item status values:
+
+- Open
+- Queued
+- Blocking
+- Closed
+- Folded Down
+- Deferred
+- Superseded
+
+Allowed UFD owner classes:
+
+- Branch Plan
+- Branch Record
+- Backlog Pointer
+- Roadmap Pointer
+- Nexus Vision
+- Family Vision / Dossier
+- Workstream Doc
+- Governance Receipt
+- No Durable Owner Needed
+
+`No Durable Owner Needed` is valid only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with `No-Action Reason:` recorded in the active branch plan or return digest.
+
+Pointer locations may carry UFD ID, short title, canonical owner, compact status, and fold-down status only. They must not carry full feedback text, full decision history, or live implementation state.
+
+UFD IDs use `UFD-<scope>-YYYYMMDD-NNN`. Do not use `FBK-*`, because it collides visually with historical `FB-###` workstream records.
+
+## USER Feedback Disposition Fold-Down
+
+At PR Readiness, every UFD item must be migrated, deferred with waiver, rejected/no-action with reason, closed, or explicitly carried to a future owner.
+
+The fold-down receipt must preserve a lookup path from every UFD ID to its final owner after branch-plan fold-down and retirement.
+
+Branch records carry compact UFD status and pointers only. Backlog carries future-candidate pointers only after USER accepts the future-work disposition. Nexus Vision and family vision owners receive only accepted reusable standards, not branch-local unresolved feedback.
+
+## Branch Change Intent Ledger
+
+`Branch Change Intent Ledger` is required when `Pre-Rebaseline Impact Audit` reports non-empty `Rebaseline Overlap Files:` for the active branch/worktree. It preserves why the branch touched an overlapping file before Codex accepts incoming `origin/main` changes.
+
+Runtime branches keep this ledger inside the Branch Runtime Engineering Plan. Non-runtime branches with overlap must admit or update the smallest source-truth-supported Branch Engineering Plan under `Docs/branch_plans/<branch_slug>.md` before rebaseline mutation can proceed.
+
+Each overlapping file uses a repeatable block:
+
+### Changed Surface: <path>
+
+- Surface Class:
+- Change Intent:
+- Why This File Was Touched:
+- Owned Behavior / Fact Class:
+- Canonical Owner / Source Owner:
+- Resolution Owner:
+- Shared Surface:
+- Overlap Risk:
+- Expected Conflict Risk:
+- Semantic Merge Risk:
+- Regression / Gating Impact:
+- Conflict Resolution Rule:
+- Rebaseline Handling:
+- Validation Proof:
+- Fallback Evidence:
+- USER Decision / Waiver:
+- Fold-Down Target:
+
+`Surface Class:` values are `governance/source-truth`, `runtime`, `desktop/UI`, `Core visual`, `validator/helper`, `fixture/test`, `configuration/state/schema`, `release/public-output`, `prompt/template`, `automation/watcher`, `build/packaging`, `documentation/reference`, or `asset/media`.
+
+`Semantic Merge Risk:` values are `None`, `Low`, `Medium`, `High`, or `Unknown`. For high-risk surface classes, `Unknown` is `BLOCKED` until evidence or USER decision resolves it.
+
+`Regression / Gating Impact:` values are `None`, `Low`, `Medium`, `High`, or `Unknown`. For `fixture/test` overlap, `Medium`, `High`, or `Unknown` is `BLOCKED` because it can change validator truth, regression coverage, or release gating; `None` or `Low` may be WARN or PASS only when the ledger and fallback evidence support that classification.
+
+`Resolution Owner:` values are `Current Branch`, `Incoming/Folded Owner`, `Originating Lane`, `Standing Governance`, `USER Decision`, or `Future Branch`.
+
+When overlap evidence is missing, weak, stale, or conflicting, Codex must run `Rebaseline Overlap Failure Procedure` and return a packet with `Overall Overlap Gate Result:`, per-file `Per-File Result: PASS / WARN / BLOCKED`, `Recommended Resolution:`, `Validation Required:`, `USER Decision Needed:`, and `Rebaseline Mutation Status:`. Fallback evidence supports classification and USER decision-making only; after the effective point it cannot produce `PASS` without branch-owned change-intent evidence.
+
 ## Lifecycle
 
 Branch Readiness Stage 1 proposes the plan requirements and returns the USER planning-review decision needed.
@@ -58,13 +265,41 @@ Branch Readiness Stage 2 creates or admits `Docs/branch_plans/<branch_slug>.md`,
 
 Workstream Entry reads the plan and returns the first seam design packet before implementation. Each seam updates plan-to-implementation traceability with planned item, changed files, validator proof, user-facing proof, and future-gated decisions.
 
+If a Branch Vision Contract Snapshot is required, Workstream Entry also proves `Branch Vision Snapshot Status: Accepted`, `Open Vision Questions: None` or `Deferred With Waiver`, `USER Vision Green: Yes`, accepted implementation scope, accepted seam map, and accepted stop conditions before implementation begins.
+
+If USER feedback is meaningful to current branch scope, future branch scope, accepted vision, validation proof, or reusable product standards, Workstream Entry and later seam packets must either add or update a UFD item or state the no-action reason.
+
 Hardening compares actual implementation against the plan and records extra behavior, skipped items, UI copy integrity, validator coverage, and future-gated item checks.
+
+Hardening also compares actual behavior against the accepted Branch Vision Contract Snapshot when one is required.
+
+Hardening also checks UFD items that affect accepted scope, skipped items, user-facing behavior, validation proof, and future-gated items.
 
 Live Validation records proof or waiver posture against the plan. Disabled/status-only branches must include a static proof substitute and waiver reason.
 
-PR Readiness compares the whole branch against the plan and produces the `PR Fold-Down Packet:`. That packet decides whether the plan remains as historical branch source truth, is compacted into a branch receipt, or promotes durable lessons to a canonical workstream or family dossier.
+Live Validation compares observed user-facing behavior against accepted vision and records waiver posture when a branch is disabled/status-only or static-proof-only.
+
+Live Validation must not mark user-facing feedback accepted unless the UFD item is implemented, waived, deferred, rejected/no-action with reason, or carried to a named future owner.
+
+PR Readiness compares the whole branch against the plan and produces the `PR Fold-Down Packet:`. That packet decides what durable content moves into the structured branch receipt, what promotes to a canonical workstream or family dossier, and when the plan is retired from active planning posture.
+
+PR Readiness also folds reusable vision updates into the correct durable owner: Nexus Vision, family vision/family dossier, workstream doc, structured branch receipt, or validated historical receipt. Branch-specific snapshots should not become permanent branch-specific vision file sprawl.
 
 Release Readiness translates the plan into public release language: user-visible highlights, excluded work, future-gated capabilities, and public body wording without internal governance jargon.
+
+## Fold-Down Model
+
+Branch plans are canonical while the owning branch is active. They are not permanent backlog, roadmap, or release-state ledgers.
+
+At PR Readiness, the `PR Fold-Down Packet:` must classify plan content into one of these outcomes:
+
+- migrated into the branch authority record as a structured traceability receipt
+- promoted to a canonical workstream or family dossier because future branches should reuse it
+- retired from active planning posture because it was superseded, rejected, future-gated, or fully folded down
+
+Branch plans are not deleted by default. Deletion requires a separate USER decision after reference scans prove the plan's durable content and useful historical evidence are preserved elsewhere.
+
+Fold-down must preserve USER decisions, approval boundaries, future-gated items, validator/helper proof, user-facing proof, and plan-to-implementation traceability. It must not preserve stale active phase, live PR, latest-release, worktree dirty-state, or watcher state as current truth.
 
 ## Compact Pointer Rule
 
