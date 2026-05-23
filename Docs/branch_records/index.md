@@ -130,15 +130,16 @@ Do not use this layer to replace:
 ## Active Branch Authority Records
 
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
-- `Docs/branch_records/feature_vision_update_decision_matrix.md`
 
 ## Historical Branch Authority Records
 
 - `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`
+- `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_setup_contract_readiness.md`
 - `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
+- `Docs/branch_records/feature_vision_update_decision_matrix.md`
 - `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`

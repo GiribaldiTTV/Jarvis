@@ -15,14 +15,14 @@ It is not the standing Governance Intake Branch. The standing branch remains `fe
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- Branch Authority Marker: `Active bounded governance/source-truth repair carrier`
-- `Active Branch`: `feature/vision-update-decision-matrix`
-- Branch Authority State: `Active only for the USER-approved phase-digest, Workstream Entry, Element-to-Phase matrix, validator, fixture, and review-bundle hardening pass`
-- Bounded State: `Hardening - governance/source-truth docs, branch authority routing, task templates, validators, fixtures, and Desktop review-bundle surfaces may be repaired; runtime implementation, FAM mutation, release work, PR creation, merge, issue work, branch cleanup, successor branch creation, and file rename/delete/archive work remain separate USER decisions`
+- Branch Authority Marker: `Historical Branch Evidence Projection`
+- Branch Evidence Branch: `feature/vision-update-decision-matrix`
+- Branch Authority State: `Historical projection for merge-stable source truth - this bounded governance/source-truth repair carrier must not remain active branch authority on merged main`
+- Bounded State: `Historical projection - governance/source-truth docs, branch authority routing, task templates, validators, fixtures, and Desktop review-bundle surfaces were the bounded repair scope; runtime implementation, FAM mutation, release work, PR creation, merge, issue work, branch cleanup, successor branch creation, and file rename/delete/archive work remain separate USER decisions`
 - Standing Governance Relationship: `Does not replace feature/release-readiness-source-truth-intake; after merge this record must fold down to historical/no-active posture or otherwise be made merge-stable before PR green`
 - USER Review Status: `Pending USER review after refreshed Desktop review bundle`
 
