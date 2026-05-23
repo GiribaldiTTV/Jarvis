@@ -167,7 +167,7 @@ def _surface_commands(changed_files: tuple[str, ...]) -> tuple[ValidationCommand
         commands.append(
             ValidationCommand(
                 r"python dev\orin_source_owner_marker_validation.py",
-                "checks source-owner marker syntax, ledger linkage, shared-surface coverage, and protected Compact-AI posture",
+                "checks source-owner marker syntax, ledger linkage, shared-surface coverage, and Compact-AI preservation/fold-down posture",
             )
         )
     return tuple(commands)

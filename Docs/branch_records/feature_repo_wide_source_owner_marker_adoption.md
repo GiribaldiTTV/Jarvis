@@ -73,7 +73,7 @@ Actual Worktree Root: `Removed after PR #185 cleanup`
 
 No Cross-Worktree Mutation: `Required - do not mutate C:\Nexus Desktop AI except for branch/worktree creation already completed from main, and do not mutate C:\Nexus Worktrees\FAM-007, C:\Nexus Worktrees\Governance, or C:\Nexus Worktrees\Compact-AI-Status-Card`
 
-Compact-AI Unique Commit Protection: `Protected - Compact-AI-Status-Card remains external sibling work with unique commits 2f2354db Hide desktop AI provider status card and ac16ca37 Compact AI provider status card; salvage, PR, abandonment, mutation, or cleanup requires later USER approval.`
+Compact-AI Unique Commit Protection: `Historical protected posture - Compact-AI-Status-Card remained external sibling work with unique commits 2f2354db Hide desktop AI provider status card and ac16ca37 Compact AI provider status card until USER later approved the Compact-AI salvage branch. SRCOWN-COMPACT-AI-PRESERVE-014 now preserves the original protected posture as historical evidence while the salvage/fold-down receipt lives in Docs/branch_plans/feature_compact_ai_status_card.md and the Compact-AI PR body.`
 
 GitHub Desktop-bound worktree: `Not claimed for this branch during Stage 2 setup`
 

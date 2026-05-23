@@ -24,17 +24,17 @@ Planned Runtime Delta: `Keep the Core visual provider-status card compact, bound
 
 User-Facing Delta: `Core visual mode keeps a smaller provider status card instead of exposing the full detailed card; desktop mode hides that card so the desktop shell is not cluttered by provider readiness internals.`
 
-Source-Truth Delta: `This plan records branch-owned overlap intent for the Compact-AI branch because current origin/main introduced the Rebaseline Overlap Intent Gate after the branch was created.`
+Source-Truth Delta: `This plan records branch-owned overlap intent for the Compact-AI branch because current origin/main introduced the Rebaseline Overlap Intent Gate after the branch was created. It also folds the older Compact-AI protected unique-commit receipt forward so source truth no longer treats the salvaged commits as still waiting outside main after this PR.`
 
 State / Config / Schema Delta: `No state, config, or schema changes are planned; provider setup, activation, consent, execution, network, memory, model, and release gates remain unchanged and disabled where current source truth requires them.`
 
-Validator / Helper Delta: `The provider-state validator should prove the compact/hide CSS contract so the UI remains compact while detailed provider state remains represented in validation instead of expanded desktop UI.`
+Validator / Helper Delta: `The provider-state validator should prove the compact/hide CSS contract so the UI remains compact while detailed provider state remains represented in validation instead of expanded desktop UI. Source-owner marker validation wording should preserve Compact-AI protection as historical evidence and recognize this salvage/fold-down path.`
 
-Expected Changed Files / Surfaces: `dev/orin_ai_provider_state_validation.py; nexus_visual/orin_core.css; nexus_visual/orin_core_desktop.css; this branch plan evidence file.`
+Expected Changed Files / Surfaces: `dev/orin_ai_provider_state_validation.py; nexus_visual/orin_core.css; nexus_visual/orin_core_desktop.css; Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md; Docs/validation_helper_registry.md; dev/orin_source_owner_marker_validation.py; dev/orin_validation_suite.py; this branch plan evidence file.`
 
 Workstream / Seam Map: `Single Compact-AI salvage seam: reconcile the compact provider status card and desktop-card suppression with current origin/main after overlap evidence is recorded.`
 
-Per-Seam Implementation Checklist: `Inspect overlap; record Branch Change Intent Ledger; merge current origin/main; resolve CSS and validator conflicts by preserving compact-card behavior plus current provider-state validation requirements; validate; PR; merge after review.`
+Per-Seam Implementation Checklist: `Inspect overlap; record Branch Change Intent Ledger; merge current origin/main; resolve CSS and validator conflicts by preserving compact-card behavior plus current provider-state validation requirements; fold down the old Compact-AI protected-unique-commit receipt into a salvage/fold-down receipt; validate; PR; merge after review.`
 
 Per-Seam Validation Checklist: `Run rebaseline audit with this plan path, git diff checks, provider-state validation, branch governance validation, governance efficiency validation, source-owner marker validation, release-body validation, AI provider-state validation, and compileall as applicable after reconciliation.`
 
@@ -52,13 +52,13 @@ USER Planning Decisions: `USER approved carrying the two unique Compact-AI commi
 
 Plan Revision History: `2026-05-22 - admitted branch-owned overlap intent evidence after the rebaseline audit reported missing Branch Change Intent Ledger evidence for the preserved Compact-AI branch.`
 
-Plan-To-Implementation Traceability Table: `Compact status card -> nexus_visual/orin_core.css and nexus_visual/orin_core_desktop.css -> provider-state validator proof -> PR review and merge.`
+Plan-To-Implementation Traceability Table: `Compact status card -> nexus_visual/orin_core.css and nexus_visual/orin_core_desktop.css -> provider-state validator proof -> Compact-AI protected receipt fold-down -> source-owner marker validator wording -> PR review and merge.`
 
 Hardening Comparison Checklist: `Confirm compact status card does not imply functional AI readiness, provider execution, consent, setup, or external calls; confirm desktop mode hides the card; confirm validation still proves provider gates.`
 
 Live Validation Proof Or Waiver Checklist: `Static proof waiver accepted for this salvage path unless a visual run is requested; no provider/model execution is introduced.`
 
-PR Readiness Fold-Down / Retention Checklist: `PR body and final digest should preserve the two original commit subjects, changed files, validation proof, and this plan path as temporary overlap evidence.`
+PR Readiness Fold-Down / Retention Checklist: `PR body and final digest should preserve the two original commit subjects, changed files, validation proof, old protected posture, folded salvage posture, and this plan path as temporary overlap evidence.`
 
 Release Readiness Public-Scope Translation Checklist: `No release execution in this branch; if later released, public wording should describe compact provider-status visual cleanup only, not functional AI readiness.`
 
