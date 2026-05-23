@@ -226,6 +226,19 @@ def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
         rebaseline._overall_overlap_gate_result([]) == "Not Applicable",
         "Rebaseline helper no-overlap matrix did not return Not Applicable",
     )
+    require(
+        rebaseline._overlap_intent_missing_status("PASS").startswith("No -"),
+        "Rebaseline helper did not return non-blocking intent-missing status for PASS",
+    )
+    blocked_state, blocked_recommendation = rebaseline._apply_overlap_recommendation(
+        "Blocked",
+        "Worktree has local changes; do not baseline until the owner reviews or commits/stashes them.",
+        "WARN",
+    )
+    require(
+        blocked_state == "Blocked" and "Overlap warning also present" in blocked_recommendation,
+        "Rebaseline helper downgraded a dirty-worktree Blocked recommendation when overlap WARN was present",
+    )
 
     missing_runtime = rebaseline._assess_overlap_file("main.py", {})
     require(

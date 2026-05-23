@@ -463,6 +463,8 @@ def _legacy_path_only_overlap_result(overlap_files: list[str]) -> str:
 def _overlap_intent_missing_status(overlap_gate_result: str) -> str:
     if overlap_gate_result == "Not Applicable":
         return "No"
+    if overlap_gate_result == "PASS":
+        return "No - branch-owned overlap intent evidence passed marker-first checks"
     if overlap_gate_result == "WARN":
         return "WARN - lower-risk overlap requires USER-visible recommendation and USER approval before mutation"
     return (
@@ -477,6 +479,34 @@ def _rebaseline_mutation_status(overlap_gate_result: str) -> str:
     if overlap_gate_result == "WARN":
         return "Not started - WARN overlap requires USER approval before mutation."
     return "Not started - helper is report-only."
+
+
+def _apply_overlap_recommendation(
+    recommendation_state: str,
+    recommendation: str,
+    overlap_gate_result: str,
+) -> tuple[str, str]:
+    if overlap_gate_result == "BLOCKED":
+        return (
+            "Blocked",
+            (
+                "Rebaseline Overlap Intent Gate found high-risk overlapping files; "
+                "inspect Branch Change Intent Ledger evidence before mutation."
+            ),
+        )
+    if overlap_gate_result != "WARN":
+        return recommendation_state, recommendation
+
+    warn_recommendation = (
+        "Rebaseline Overlap Intent Gate found lower-risk overlapping files; "
+        "return the overlap packet and get USER approval before mutation."
+    )
+    if recommendation_state == "Blocked":
+        return (
+            recommendation_state,
+            f"{recommendation} Overlap warning also present: {warn_recommendation}",
+        )
+    return "USER decision required", warn_recommendation
 
 
 def _overlap_detail_lines(assessments: list[dict[str, str]]) -> list[str]:
@@ -651,18 +681,11 @@ def build_report(cwd: Path, target_ref: str, branch_plan_path: str = "") -> str:
         runtime_files=runtime_files,
     )
     overlap_gate_result = _overall_overlap_gate_result(overlap_assessments)
-    if overlap_gate_result == "BLOCKED":
-        recommendation_state = "Blocked"
-        recommendation = (
-            "Rebaseline Overlap Intent Gate found high-risk overlapping files; "
-            "inspect Branch Change Intent Ledger evidence before mutation."
-        )
-    elif overlap_gate_result == "WARN":
-        recommendation_state = "USER decision required"
-        recommendation = (
-            "Rebaseline Overlap Intent Gate found lower-risk overlapping files; "
-            "return the overlap packet and get USER approval before mutation."
-        )
+    recommendation_state, recommendation = _apply_overlap_recommendation(
+        recommendation_state,
+        recommendation,
+        overlap_gate_result,
+    )
     sibling_rows = []
     overlap_files: set[str] = set()
     incoming_set = set(incoming_files)
