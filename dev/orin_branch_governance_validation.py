@@ -5,6 +5,7 @@ import re
 import sqlite3
 import subprocess
 import sys
+from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib import error as urllib_error
@@ -484,6 +485,81 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_COMPACTNESS_FORBIDDEN_MARKERS = (
     "Live Validation Proof Or Waiver Checklist:",
     "PR Readiness Fold-Down / Retention Checklist:",
     "Release Readiness Public-Scope Translation Checklist:",
+)
+ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING = "Element-to-Phase Proof Matrix"
+ELEMENT_TO_PHASE_MATRIX_REQUIRED_MARKERS = (
+    "Matrix Status:",
+    "USER Review Status:",
+    "Open Element Questions:",
+    "Element Coverage Owner:",
+    "Element Validation Ledger Owner:",
+)
+ELEMENT_TO_PHASE_MATRIX_MARKER_ALLOWED_PREFIXES = {
+    "Matrix Status:": (
+        "required",
+        "present",
+        "accepted",
+        "blocked",
+        "folded",
+        "historical",
+        "not required with reason",
+    ),
+    "USER Review Status:": (
+        "pending",
+        "accepted",
+        "revised",
+        "waived",
+        "needs user decision",
+    ),
+    "Open Element Questions:": (
+        "none",
+        "queued",
+        "blocking",
+        "deferred with waiver",
+    ),
+}
+ELEMENT_TO_PHASE_MATRIX_OWNER_MARKERS = (
+    "Element Coverage Owner:",
+    "Element Validation Ledger Owner:",
+)
+ELEMENT_TO_PHASE_MATRIX_COLUMNS = (
+    "Element ID",
+    "Element / Surface",
+    "Element Classification",
+    "Workstream Implementation Plan",
+    "Workstream Proof Plan",
+    "Hardening Proof Plan",
+    "Live Validation Proof / Waiver Plan",
+    "UTS / USER Acceptance Path",
+    "Future / Deferred Boundary",
+    "USER Decision State",
+    "Source Owner / Ledger Owner",
+)
+ELEMENT_TO_PHASE_CURRENT_CLASS_TERMS = (
+    "planned",
+    "created",
+    "touched",
+    "affected",
+)
+ELEMENT_TO_PHASE_BOUNDARY_CLASS_TERMS = (
+    "deferred",
+    "future",
+    "dependency-only",
+    "dependency only",
+    "non-gating",
+    "non gating",
+)
+ELEMENT_TO_PHASE_DECISION_TERMS = (
+    "accepted",
+    "revised",
+    "deferred",
+    "waiver",
+    "waived",
+    "proposed",
+    "needs user",
+    "pending user",
+    "rejected",
+    "superseded",
 )
 BRANCH_VISION_CONTRACT_HEADING = "Branch Vision Contract Snapshot"
 BRANCH_VISION_CONTRACT_REQUIRED_MARKERS = (
@@ -2618,6 +2694,8 @@ GOVERNANCE_INTAKE_DIGEST_POINTER_PHRASES = (
 )
 GOVERNANCE_INTAKE_DIGEST_STANDARD_PHRASES = (
     "Smallest Legal Packet Rule",
+    "Digest Non-Compaction Rule",
+    "Do not compact the digest ever",
     "Governance Intake Triage Packet",
     "Problem Class:",
     "Source-Truth Support:",
@@ -3303,7 +3381,6 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
 }
 
 NEXT_LEGAL_PHASE_DIGEST_DOCS = (
-    Path("Docs/Main.md"),
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
     Path("Docs/codex_modes.md"),
@@ -3322,9 +3399,170 @@ NEXT_LEGAL_PHASE_DIGEST_REQUIRED_PHRASES = (
     "Explicit Exclusions:",
     "Validation Required:",
     "Stop Conditions:",
+    "USER Plan Review Gate:",
+    "USER Inspection Files:",
+    "Review Required Because:",
+    "Implementation Blocker:",
+    "Review Waiver Reason:",
     "Next Legal Phase Digest Missing",
     "Next Safe Move",
+    "must not be compacted",
+    "accept, revise, waive, or reject",
 )
+
+NEXT_LEGAL_PHASE_DIGEST_POINTER_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "Formal Next Legal Phase Digest",
+        "Docs/phase_governance.md",
+        "Next Legal Phase Digest Missing",
+        "must not duplicate the full digest-field policy",
+    ),
+}
+
+MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "Main-First Loader Chain",
+        "Docs/nexus_vision.md",
+        "Docs/family_visions/",
+        "Docs/branch_plans/<branch_slug>.md",
+        "Context docs may explain",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Main is the first repo loader and routing index",
+        "Nexus Vision",
+        "family vision",
+        "active branch plan",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Main is the first repo loader and routing index",
+        "Nexus Vision",
+        "family vision",
+        "active branch plans",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Main is the first repo loader and source-truth router",
+        "Docs/nexus_vision.md",
+        "Docs/family_visions/",
+        "active branch plan",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Generated prompts must preserve the Main-first loader chain",
+        "Docs/Main.md",
+        "Docs/nexus_vision.md",
+        "Docs/family_visions/",
+        "Docs/branch_plans/<branch_slug>.md",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Preserve the Main-first loader chain",
+        "project/family vision",
+        "active branch plan",
+        "Docs/nexus_vision.md",
+        "Docs/family_visions/",
+    ),
+    Path("Docs/governance_efficiency_operating_model.md"): (
+        "Main-first loader chain",
+        "owning source-truth files",
+        "alternate first loaders",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "Main-first loader chain",
+        "active branch plan",
+        "branch-local engineering detail",
+    ),
+    Path("Docs/family_visions/README.md"): (
+        "Main-first loader chain",
+        "Docs/nexus_vision.md",
+        "active branch plan",
+    ),
+}
+
+WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Workstream Entry Whole-Package Analysis Gate",
+        "all admitted slices/seams",
+        "completion strategy",
+        "Hardening H1 expectations",
+        "Live Validation LV1 expectations",
+        "UTS handoff criteria",
+        "Workstream Entry Whole-Package Analysis Missing",
+        "does not authorize executing those phases",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "Workstream Entry Whole-Package Analysis Gate",
+        "all admitted slices/seams",
+        "completion strategy for the whole Workstream package",
+        "Hardening H1 expectations",
+        "Live Validation LV1 expectations",
+        "UTS handoff criteria",
+        "Workstream Entry Whole-Package Analysis Missing",
+    ),
+    Path("Docs/branch_records/index.md"): (
+        "Workstream Entry Whole-Package Analysis Gate",
+        "all admitted slices/seams",
+        "Hardening H1 expectations",
+        "Live Validation LV1 expectations",
+        "UTS handoff criteria",
+        "Workstream Entry Whole-Package Analysis Missing",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Runtime Workstream Entry with multiple admitted slices or seams",
+        "whole-package analysis before first-seam implementation",
+        "Workstream Entry Whole-Package Analysis Missing",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Workstream Entry for a runtime branch with multiple admitted slices or seams",
+        "all admitted slices/seams",
+        "completion strategy",
+        "Hardening H1 expectations",
+        "Live Validation LV1 expectations",
+        "UTS handoff criteria",
+        "Workstream Entry Whole-Package Analysis Missing",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Workstream Entry Whole-Package Analysis:",
+        "Workstream Entry Whole-Package Summary:",
+        "all admitted slices/seams",
+        "Hardening H1 expectations",
+        "Live Validation LV1 expectations",
+        "UTS handoff criteria",
+        "This authorizes analysis only",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Workstream Entry whole-package analysis",
+        "first-seam implementation",
+        "Workstream Entry Whole-Package Analysis Missing",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "whole-package analysis before first-seam implementation approval",
+        "first-seam-only handoff is not enough",
+    ),
+    Path("Docs/governance_efficiency_operating_model.md"): (
+        "whole-package analysis status",
+        "multiple slices or seams are admitted",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "Workstream Entry Whole-Package Analysis Gate",
+        "Formal Next Legal Phase Digest non-compaction",
+        "Forwarded Digest Non-Compaction Rule",
+    ),
+}
+
+FORWARDED_DIGEST_NON_COMPACTION_REQUIRED_PHRASES = {
+    Path("Docs/governance_intake_triage_and_digest_profiles.md"): (
+        "Forwarded Digest Non-Compaction Rule",
+        "another branch, worktree, governance lane, PR watcher, Release Readiness lane, or future Codex thread",
+        "repo/worktree identity",
+        "HEAD or relevant commits",
+        "what happened",
+        "what went wrong",
+        "exact USER decision needed",
+        "must not compress it into minimal bullets",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "Forwarded Digest Non-Compaction Rule",
+        "governance validator",
+    ),
+}
 
 WORKSTREAM_TO_PR_DEFAULT_GUARD_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -4289,35 +4527,44 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     ),
     Path("Docs/phase_governance.md"): (
         "Branch Runtime Engineering Plan",
+        "Element-to-Phase Proof Matrix",
+        "Workstream Entry Review Bundle Missing",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
     Path("Docs/development_rules.md"): (
         "Branch Runtime Engineering Plan",
+        "USER Review Desktop Bundle",
         "Docs/branch_plans/<branch_slug>.md",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
     ),
     Path("Docs/codex_modes.md"): (
         "Branch Runtime Engineering Plan",
+        "USER Review Desktop Bundle",
         "Branch Runtime Engineering Plan Path:",
         "Engineering Plan Status:",
         "PR Fold-Down Packet:",
     ),
     Path("Docs/orin_task_template.md"): (
         "Branch Runtime Engineering Plan",
+        "Element-to-Phase Proof Matrix",
+        "Workstream Entry Review Bundle",
         "Branch Runtime Engineering Plan Path:",
         "Engineering Plan Status:",
         "PR Fold-Down Packet:",
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "Branch Runtime Engineering Plan",
+        "USER Review Desktop Bundle",
         "Docs/branch_plans/<branch_slug>.md",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
     Path("Docs/validation_helper_registry.md"): (
         "Branch Runtime Engineering Plan",
+        "Element-to-Phase Proof Matrix",
+        "Workstream Entry bundles",
         "Docs/branch_plans/<branch_slug>.md",
         "invalid backlog planning sprawl",
     ),
@@ -4334,6 +4581,8 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     ),
     Path("Docs/branch_plans/README.md"): (
         "Branch Runtime Engineering Plan",
+        "Element-to-Phase Proof Matrix",
+        "Workstream Entry Review Bundle",
         "Docs/branch_plans/<branch_slug>.md",
         "Per-Seam Implementation Checklist:",
         "PR Readiness Fold-Down / Retention Checklist:",
@@ -8226,6 +8475,227 @@ def _validate_branch_runtime_engineering_plan_substance(
         )
 
 
+def _markdown_table_cells(line: str) -> list[str]:
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+def _is_markdown_table_separator(cells: Sequence[str]) -> bool:
+    return bool(cells) and all(
+        bool(cell) and "-" in cell and set(cell) <= {"-", ":"} for cell in cells
+    )
+
+
+def _element_matrix_requires_active_coverage(normalized_status: str) -> bool:
+    return not any(term in normalized_status for term in ("folded", "historical", "retired"))
+
+
+def _validate_element_to_phase_proof_matrix(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    require_matrix: bool,
+) -> None:
+    has_matrix = f"## {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING}" in text
+    require(
+        has_matrix or not require_matrix,
+        (
+            f"{source_path}: active branch planning is missing "
+            f"'## {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING}'"
+        ),
+    )
+    if not has_matrix:
+        return
+
+    matrix_section = _section(text, ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING)
+    for marker in ELEMENT_TO_PHASE_MATRIX_REQUIRED_MARKERS:
+        require(
+            marker in matrix_section,
+            f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} is missing '{marker}'",
+        )
+        value = _extract_marker_value(matrix_section, marker)
+        require(
+            bool(value),
+            (
+                f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} must give "
+                f"a real value for '{marker}'"
+            ),
+        )
+        normalized_marker_value = _normalized_planning_value(value)
+        allowed_prefixes = ELEMENT_TO_PHASE_MATRIX_MARKER_ALLOWED_PREFIXES.get(marker)
+        if allowed_prefixes:
+            require(
+                any(
+                    normalized_marker_value == allowed
+                    or normalized_marker_value.startswith(f"{allowed} ")
+                    or normalized_marker_value.startswith(f"{allowed} -")
+                    for allowed in allowed_prefixes
+                ),
+                (
+                    f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} "
+                    f"marker '{marker}' must start with one of: "
+                    f"{', '.join(allowed_prefixes)}"
+                ),
+            )
+        if marker in ELEMENT_TO_PHASE_MATRIX_OWNER_MARKERS:
+            require(
+                (
+                    value.startswith("Docs/")
+                    or value.startswith("dev/")
+                    or "source-truth owner" in normalized_marker_value
+                    or "branch runtime engineering plan" in normalized_marker_value
+                    or "branch engineering plan" in normalized_marker_value
+                    or "element validation ledger" in normalized_marker_value
+                ),
+                (
+                    f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} "
+                    f"marker '{marker}' must name a concrete source-truth owner "
+                    "or repo-relative owner path"
+                ),
+            )
+
+    table_lines = [
+        line.strip()
+        for line in matrix_section.splitlines()
+        if line.strip().startswith("|") and line.strip().endswith("|")
+    ]
+    header_line = ""
+    for line in table_lines:
+        cells = _markdown_table_cells(line)
+        if cells and cells[0] == "Element ID":
+            header_line = line
+            break
+    require(
+        bool(header_line),
+        (
+            f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} must include "
+            "the required markdown table header"
+        ),
+    )
+    if not header_line:
+        return
+
+    header = _markdown_table_cells(header_line)
+    for column in ELEMENT_TO_PHASE_MATRIX_COLUMNS:
+        require(
+            column in header,
+            (
+                f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} table is "
+                f"missing '{column}'"
+            ),
+        )
+    if any(column not in header for column in ELEMENT_TO_PHASE_MATRIX_COLUMNS):
+        return
+
+    header_index = table_lines.index(header_line)
+    rows: list[dict[str, str]] = []
+    for line in table_lines[header_index + 1 :]:
+        cells = _markdown_table_cells(line)
+        if not cells or _is_markdown_table_separator(cells):
+            continue
+        if len(cells) != len(header):
+            require(
+                False,
+                (
+                    f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} row "
+                    "must have the same column count as the header"
+                ),
+            )
+            continue
+        rows.append(dict(zip(header, cells)))
+
+    require(
+        bool(rows),
+        f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} requires at least one element row",
+    )
+
+    seen_element_ids: set[str] = set()
+    for row in rows:
+        element_id = row.get("Element ID", "").strip() or "<missing element id>"
+        normalized_element_id = _normalized_planning_value(element_id)
+        require(
+            normalized_element_id not in seen_element_ids,
+            (
+                f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} row "
+                f"{element_id} duplicates an Element ID already used in the matrix"
+            ),
+        )
+        seen_element_ids.add(normalized_element_id)
+        for column in ELEMENT_TO_PHASE_MATRIX_COLUMNS:
+            value = row.get(column, "").strip()
+            require(
+                bool(value),
+                (
+                    f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} row "
+                    f"{element_id} must give a real value for '{column}'"
+                ),
+            )
+            normalized_value = _normalized_planning_value(value)
+            require(
+                normalized_value not in PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES,
+                (
+                    f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} row "
+                    f"{element_id} has placeholder/self-assessed value for '{column}'"
+                ),
+            )
+
+        classification = _normalized_planning_value(
+            row.get("Element Classification", "")
+        )
+        is_current = any(term in classification for term in ELEMENT_TO_PHASE_CURRENT_CLASS_TERMS)
+        is_boundary = any(term in classification for term in ELEMENT_TO_PHASE_BOUNDARY_CLASS_TERMS)
+        require(
+            is_current or is_boundary,
+            (
+                f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} row "
+                f"{element_id} Element Classification must be Planned, Created, "
+                "Touched, Affected, Deferred, Future, Dependency-Only, or "
+                "Non-Gating Supporting"
+            ),
+        )
+        if is_current:
+            for column in (
+                "Workstream Implementation Plan",
+                "Workstream Proof Plan",
+                "Hardening Proof Plan",
+                "Live Validation Proof / Waiver Plan",
+                "UTS / USER Acceptance Path",
+            ):
+                value = row.get(column, "")
+                require(
+                    _planning_word_count(value) >= BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS,
+                    (
+                        f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} row "
+                        f"{element_id} '{column}' is too shallow; every current "
+                        "planned/created/touched/affected element needs a concrete "
+                        "phase proof path"
+                    ),
+                )
+        if is_boundary:
+            boundary = row.get("Future / Deferred Boundary", "")
+            normalized_boundary = _normalized_planning_value(boundary)
+            require(
+                _planning_word_count(boundary) >= BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS
+                and any(term in normalized_boundary for term in ("future", "defer", "boundary", "non-gating", "non gating", "not current", "not release")),
+                (
+                    f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} row "
+                    f"{element_id} Future / Deferred Boundary must name the "
+                    "boundary that keeps the element out of current release gating"
+                ),
+            )
+
+        decision_state = _normalized_planning_value(row.get("USER Decision State", ""))
+        require(
+            any(term in decision_state for term in ELEMENT_TO_PHASE_DECISION_TERMS),
+            (
+                f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} row "
+                f"{element_id} USER Decision State must preserve USER decision "
+                "state such as accepted, proposed, deferred, waived, rejected, "
+                "superseded, or needs USER decision"
+            ),
+        )
+
+
 def _validate_branch_runtime_engineering_plan(
     require,
     source_path: str,
@@ -8292,6 +8762,12 @@ def _validate_branch_runtime_engineering_plan(
             f"{source_path}: Runtime Implementation Approval must preserve the "
             "implementation approval boundary"
         ),
+    )
+    _validate_element_to_phase_proof_matrix(
+        require,
+        source_path,
+        text,
+        require_matrix=_element_matrix_requires_active_coverage(normalized_status),
     )
     if f"## {USER_FEEDBACK_DISPOSITION_HEADING}" in text:
         _validate_user_feedback_disposition(require, source_path, text)
@@ -18772,6 +19248,38 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: Next Legal Phase Digest guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in NEXT_LEGAL_PHASE_DIGEST_POINTER_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Next Legal Phase Digest routing pointer is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Main-first loader chain guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Workstream Entry whole-package analysis guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in FORWARDED_DIGEST_NON_COMPACTION_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: forwarded digest non-compaction guidance is missing '{required_phrase}'",
             )
 
     for relative_path in BRANCH_READINESS_STAGE_GATE_DOCS:

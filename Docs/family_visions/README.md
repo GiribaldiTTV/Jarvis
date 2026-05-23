@@ -3,6 +3,7 @@
 ## Purpose
 
 `Docs/family_visions/` owns durable product-direction records for broad Nexus feature families when the backlog needs more than a compact pointer but less than an active branch plan.
+Codex reaches family vision through the Main-first loader chain: `Docs/Main.md` routes to `Docs/nexus_vision.md` for project-wide vision, then to the relevant family vision record, then to the active branch plan for branch-local snapshots and implementation proof.
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
@@ -47,3 +48,5 @@ Family vision records do not own:
 ## Fold-Down Rule
 
 PR Readiness may fold reusable branch vision updates into a family vision record only when the update is USER accepted, applies beyond the current branch, and does not duplicate branch-local implementation detail. Proposed or unresolved design ideas remain in the active branch plan as UFD items, question queue entries, or future-package candidates until USER decides their final owner.
+
+Use the `Vision Update Decision Matrix` in `Docs/phase_governance.md` before editing a family vision. Family vision records receive reusable USER-accepted family standards; they do not receive project-wide Nexus principles, branch-local implementation detail, proposed ideas, unresolved design questions, or live branch state.

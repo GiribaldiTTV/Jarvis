@@ -35,6 +35,7 @@ Do not use this layer to replace:
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
 - USER-approved workspace-resilience or dev-tooling governance foundation carriers may exist only to clear a recorded multi-worktree/thread-safety blocker before future branch work; they do not authorize runtime implementation, package admission, release work, issue work, AI Product Contract import, or future standalone governance branches.
+- USER-approved bounded governance/source-truth repair carriers may use the `repair/dev-tooling-governance` branch class only when the active repair changes governance docs plus validator, helper, fixture, review-bundle, or dev-tooling proof surfaces. They require an exact active branch authority record, must keep runtime/release/FAM mutation blocked, and must move to historical/no-active posture or otherwise become merge-stable before PR green. This route does not replace the single standing governance intake branch and is not permission to create docs/governance branches by inertia.
 - USER-approved bounded issue-readiness/source-truth repair carriers may exist only to reconcile existing family/branch-record evidence into issue-ready source truth; they do not authorize GitHub issue creation, issue-resolution branches, runtime implementation, package admission, release work, FAM-007/local AI work, AI Product Contract import, or future standalone governance branches.
 - If release publication exposes release-dependent canon drift, the drift must be recorded for the next legitimate runtime-focused branch's `Branch Readiness Stage 1` and repaired in `Branch Readiness Stage 2` before implementation begins.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
@@ -113,7 +114,9 @@ Do not use this layer to replace:
   - `## Exit Criteria`
   - `## Rollback Target`
   - `## Next Legal Phase`
-- `Formal Next Legal Phase Digest` is required for every phase packet that stops for USER approval. The digest must include `Current Phase:`, `Next Legal Phase:`, `Why This Phase Is Next:`, `Approval Required:`, `Exact USER Approval Text:`, `Allowed Scope:`, `Explicit Exclusions:`, `Validation Required:`, and `Stop Conditions:`. Missing fields block on `Next Legal Phase Digest Missing`; `Next Safe Move` is not a replacement.
+- `Formal Next Legal Phase Digest` is required for every phase packet that stops for USER approval. The digest must include `Current Phase:`, `Next Legal Phase:`, `Why This Phase Is Next:`, `Approval Required:`, `Exact USER Approval Text:`, `Allowed Scope:`, `Explicit Exclusions:`, `Validation Required:`, `Stop Conditions:`, `USER Plan Review Gate:`, `USER Inspection Files:`, `Review Required Because:`, `Implementation Blocker:`, and `Review Waiver Reason:`. Missing fields block on `Next Legal Phase Digest Missing`; `Next Safe Move` is not a replacement.
+- Formal Next Legal Phase Digests must not be compacted, abbreviated, summarized away, replaced by one-line next-step wording, or omitted because similar information exists elsewhere in the packet. `USER Plan Review Gate:` must say whether USER may accept, revise, waive, or reject the plan; `USER Inspection Files:` must name exact files or the Desktop review bundle when review is required; `Implementation Blocker:` must name the blocker when implementation remains unauthorized.
+- Runtime branch authority records must not use first-seam-only Workstream Entry approval language when multiple slices or seams are admitted. The next-phase or approval packet must route to the `Workstream Entry Whole-Package Analysis Gate`, require all admitted slices/seams, completion strategy, first-seam recommendation, dependency map, Hardening H1 expectations, Live Validation LV1 expectations, UTS handoff criteria, and exact implementation approval text, and block on `Workstream Entry Whole-Package Analysis Missing` when that proof is absent.
 - branch authority records should also explain:
   - why the branch exists
   - why it cannot or should not ride on an active implementation branch
@@ -127,6 +130,7 @@ Do not use this layer to replace:
 ## Active Branch Authority Records
 
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
+- `Docs/branch_records/feature_vision_update_decision_matrix.md`
 
 ## Historical Branch Authority Records
 
