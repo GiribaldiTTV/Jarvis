@@ -190,6 +190,7 @@ def _validate_static_surface(failures: list[str]) -> None:
             "Sensor Library",
             "Overlay Profile",
             "Recording Profile",
+            "Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md",
             "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md",
             "PR #194",
         ):
@@ -200,8 +201,10 @@ def _validate_static_surface(failures: list[str]) -> None:
                 failures,
             )
         for needle in (
+            "Overlay Display Acceptance Foundation successor setup is active",
             "Overlay Profile foundation evidence are released receipts",
             "future monitoring/HUD scope remains USER-gated",
+            "Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md",
             "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md",
         ):
             _require_contains(
