@@ -530,6 +530,19 @@ Vision Contract / Vision-to-Plan loop:
 - Vision Question Digest must include question, why it matters, affected branch/seam, current accepted vision, Codex recommendation, alternatives, risk of each option, whether work can continue without the answer, recommended USER decision, and exact USER decision needed
 - Branch Plan Revision Packet must include current accepted plan, discovered issue, why current plan is insufficient, proposed revision, affected seams, files/surfaces affected, validation impact, current Workstream versus future branch routing, Codex recommendation, and exact USER decision needed
 
+Vision Update Decision Matrix:
+
+| Input or update type | Active owner while unresolved or branch-local | Durable owner when USER accepted | Update trigger |
+| --- | --- | --- | --- |
+| Branch-specific design, behavior, seam, or implementation detail | Active branch plan Branch Vision Contract Snapshot, UFD item, question queue, or Branch Plan Revision Packet | Branch receipt, workstream doc, family dossier, or validated historical receipt only if PR Readiness fold-down finds durable value | Record during Branch Readiness or Workstream; fold down during PR Readiness |
+| Reusable family-level product direction or design standard | Active branch plan first, with family vision as alignment reference | `Docs/family_visions/FAM-XXX_*.md` or family dossier section | USER accepts the standard, it applies beyond one branch, and it avoids branch-local implementation detail |
+| Project-wide or cross-family product principle, long-term standard, AI/privacy/execution direction, or foundational behavior | Active branch plan or governance intake until USER acceptance and scope are clear | `Docs/nexus_vision.md` | USER accepts the standard and it affects multiple families or Nexus-wide principles |
+| Proposed, uncertain, conflicting, or ChatGPT/Codex-recommended idea | Active branch plan question queue, UFD item, assumption ledger, or Vision Question Digest | No durable owner until USER accepts, revises, defers with waiver, rejects, or supersedes it | USER decision or waiver is required before implementation-safe product/runtime/user-facing scope |
+| Future feature/package idea outside current branch scope | Active branch plan UFD/future-package queue while active | Backlog compact pointer, family dossier, or future branch plan only after accepted/deferred disposition | USER accepts future-work posture or PR Readiness assigns a named future owner |
+| Mechanical docs-only, validator-only, release-body-format, typo/format, or branch-metadata repair with no product/runtime/user-facing impact | Current repair branch plan or return digest with `Vision Contract Required: No` reason | Relevant governance receipt only if the repair creates durable interpretation | Record the not-required reason; do not promote to Nexus or family vision |
+
+Branch plan first. Family vision only when reusable and USER accepted. Nexus Vision only when project-wide or cross-family. Proposed or unresolved ideas must not be promoted to durable vision owners by Codex inference.
+
 Required active authority markers for implementation branches in `Branch Readiness`, `Workstream`, `Hardening`, `Live Validation`, `PR Readiness`, or merged-unreleased release-debt truth:
 
 - `## Admitted Implementation Slice`
