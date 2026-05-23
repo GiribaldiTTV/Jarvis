@@ -6814,6 +6814,21 @@ def build_default_provider_consent_capture_record() -> AIProviderConsentCaptureR
     )
 
 
+def _has_consent_capture_action_flags(
+    *,
+    setup_consent_granted: bool,
+    execution_consent_granted: bool,
+    revoked: bool,
+    reset_requested: bool,
+) -> bool:
+    return (
+        setup_consent_granted
+        or execution_consent_granted
+        or revoked
+        or reset_requested
+    )
+
+
 def normalize_provider_consent_capture_record(
     record: AIProviderConsentCaptureRecordSnapshot | dict[str, object] | None,
 ) -> AIProviderConsentCaptureRecordSnapshot:
@@ -6828,19 +6843,47 @@ def normalize_provider_consent_capture_record(
         return build_default_provider_consent_capture_record()
 
     if isinstance(record, AIProviderConsentCaptureRecordSnapshot):
+        normalized_provenance = (
+            record.provenance
+            if record.provenance in provenance_sources
+            else CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD
+        )
+        action_flags_present = _has_consent_capture_action_flags(
+            setup_consent_granted=record.setup_consent_granted,
+            execution_consent_granted=record.execution_consent_granted,
+            revoked=record.revoked,
+            reset_requested=record.reset_requested,
+        )
+        if (
+            record.schema_version == CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION
+            and not record.record_valid
+            and record.record_state == CONSENT_CAPTURE_RECORD_STATE_MISSING
+            and not record.local_write_requested
+            and not action_flags_present
+        ):
+            return replace(
+                build_default_provider_consent_capture_record(),
+                provenance=normalized_provenance,
+            )
         if (
             record.schema_version == CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION
             and record.record_valid
         ):
+            if action_flags_present and not record.local_write_requested:
+                return replace(
+                    build_default_provider_consent_capture_record(),
+                    record_state=CONSENT_CAPTURE_RECORD_STATE_INVALID,
+                    local_write_requested=True,
+                    record_valid=False,
+                    provenance=normalized_provenance,
+                )
             return record
         return replace(
             build_default_provider_consent_capture_record(),
             record_state=CONSENT_CAPTURE_RECORD_STATE_INVALID,
-            local_write_requested=record.local_write_requested,
+            local_write_requested=record.local_write_requested or action_flags_present,
             record_valid=False,
-            provenance=record.provenance
-            if record.provenance in provenance_sources
-            else CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD,
+            provenance=normalized_provenance,
         )
 
     if not isinstance(record, dict):
@@ -6858,18 +6901,27 @@ def normalize_provider_consent_capture_record(
     execution_consent_granted = bool(record.get("execution_consent_granted", False))
     revoked = bool(record.get("revoked", False))
     reset_requested = bool(record.get("reset_requested", False))
+    action_flags_present = _has_consent_capture_action_flags(
+        setup_consent_granted=setup_consent_granted,
+        execution_consent_granted=execution_consent_granted,
+        revoked=revoked,
+        reset_requested=reset_requested,
+    )
     local_write_requested = bool(
         record.get(
             "local_write_requested",
-            setup_consent_granted
-            or execution_consent_granted
-            or revoked
-            or reset_requested,
+            action_flags_present,
         )
+    )
+    explicit_write_request_conflict = (
+        "local_write_requested" in record
+        and not local_write_requested
+        and action_flags_present
     )
     record_valid = (
         bool(record.get("record_valid", True))
         and schema_version == CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION
+        and not explicit_write_request_conflict
     )
 
     normalized_provenance = (
@@ -6881,7 +6933,7 @@ def normalize_provider_consent_capture_record(
         return replace(
             build_default_provider_consent_capture_record(),
             record_state=CONSENT_CAPTURE_RECORD_STATE_INVALID,
-            local_write_requested=local_write_requested,
+            local_write_requested=local_write_requested or action_flags_present,
             record_valid=False,
             provenance=normalized_provenance,
         )

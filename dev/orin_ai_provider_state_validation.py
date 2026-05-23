@@ -822,6 +822,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_provider_consent_collection_foundation_state,
     build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
+    normalize_provider_consent_capture_record,
 )
 
 
@@ -2216,6 +2217,9 @@ def validate() -> list[str]:
         )
     )
     default_consent_capture_record_snapshot = build_default_provider_consent_capture_record()
+    normalized_default_consent_capture_record_snapshot = (
+        normalize_provider_consent_capture_record(default_consent_capture_record_snapshot)
+    )
     consent_capture_ready_collection_config = _consent_collection_config(
         consent_collection_approved=True
     )
@@ -2253,6 +2257,20 @@ def validate() -> list[str]:
                 "schema_version": "provider-consent-capture-local-record.v0",
                 "local_write_requested": True,
             },
+            surface_role="core",
+        )
+    )
+    conflicting_write_flag_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            consent_capture_record=_consent_capture_record(
+                local_write_requested=False,
+                setup_consent_granted=True,
+            ),
             surface_role="core",
         )
     )
@@ -2462,6 +2480,9 @@ def validate() -> list[str]:
         ),
         "not_requested": not_requested_consent_capture_snapshot.as_renderer_payload(),
         "invalid_record": invalid_consent_capture_snapshot.as_renderer_payload(),
+        "conflicting_write_flag": (
+            conflicting_write_flag_consent_capture_snapshot.as_renderer_payload()
+        ),
         "no_selection": no_selection_consent_capture_snapshot.as_renderer_payload(),
         "revoked": revoked_consent_capture_snapshot.as_renderer_payload(),
         "reset": reset_consent_capture_snapshot.as_renderer_payload(),
@@ -5694,6 +5715,17 @@ def validate() -> list[str]:
             CONSENT_CAPTURE_WRITE_REASON_RECORD_INVALID,
             CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
         ),
+        "conflicting_write_flag": (
+            CONSENT_CAPTURE_STATE_BLOCKED_BY_RECORD,
+            CONSENT_CAPTURE_RECORD_STATE_INVALID,
+            True,
+            False,
+            False,
+            CONSENT_CAPTURE_WRITE_STATUS_BLOCKED,
+            CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_INVALID,
+            CONSENT_CAPTURE_WRITE_REASON_RECORD_INVALID,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
+        ),
         "no_selection": (
             CONSENT_CAPTURE_STATE_BLOCKED_BY_RECORD,
             CONSENT_CAPTURE_RECORD_STATE_NO_CONSENT_SELECTED,
@@ -5757,6 +5789,14 @@ def validate() -> list[str]:
         == CONSENT_CAPTURE_RECORD_STATE_MISSING
         and not default_consent_capture_record_snapshot.record_valid,
         "default consent capture record must fail closed with the local record schema",
+        failures,
+    )
+    _require(
+        normalized_default_consent_capture_record_snapshot.record_state
+        == CONSENT_CAPTURE_RECORD_STATE_MISSING
+        and not normalized_default_consent_capture_record_snapshot.local_write_requested
+        and not normalized_default_consent_capture_record_snapshot.record_valid,
+        "default consent capture record must normalize as missing/not-requested",
         failures,
     )
     for label, expectation in consent_capture_expectations.items():
