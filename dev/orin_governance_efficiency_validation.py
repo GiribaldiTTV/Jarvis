@@ -207,6 +207,7 @@ USER_REVIEW_BUNDLE_REQUIRED_FIELDS = (
     "Bundle File Count:",
     "Expected File Count:",
     "Copied File Count:",
+    "Extra Bundle File Count:",
     "Validation Summary:",
     "Review Order",
     "Exact USER Decision This Bundle Supports:",
@@ -357,6 +358,47 @@ def _non_historical_stale_vision_refs() -> list[str]:
     return offenders
 
 
+def _branch_plan_requires_retirement_index_row(text: str) -> bool:
+    """Return true only for plans that declare folded/historical posture.
+
+    Active branches are allowed to carry active branch plans before PR
+    Readiness fold-down; the retirement index should not force those plans to
+    become historical by inertia.
+    """
+
+    status_lines = [
+        line
+        for line in text.splitlines()
+        if re.match(r"(?i)^\s*(?:Engineering Plan Status|Plan Status):", line)
+    ]
+    historical_markers = (
+        "historical",
+        "folded",
+        "retired",
+        "merged",
+        "cleanup",
+        "complete",
+        "pr readiness stage 1 result",
+    )
+    if any(
+        marker in line.casefold()
+        for line in status_lines
+        for marker in historical_markers
+    ):
+        return True
+
+    global_retirement_markers = (
+        "retired after",
+        "historical / folded",
+        "historical -",
+        "merged in pr #",
+        "pr #",
+        "branch cleanup",
+        "folded down",
+    )
+    return any(marker in text.casefold() for marker in global_retirement_markers)
+
+
 def validate() -> list[str]:
     failures: list[str] = []
 
@@ -435,6 +477,9 @@ def validate() -> list[str]:
         for branch_plan in sorted(branch_plan_root.glob("*.md")):
             relative = branch_plan.relative_to(ROOT)
             if relative in {Path("Docs/branch_plans/README.md"), BRANCH_PLAN_RETIREMENT_INDEX}:
+                continue
+            branch_plan_text = branch_plan.read_text(encoding="utf-8")
+            if not _branch_plan_requires_retirement_index_row(branch_plan_text):
                 continue
             if str(relative).replace("\\", "/") not in retirement_text:
                 failures.append(

@@ -274,13 +274,13 @@ When Codex asks USER to inspect repo files, review a generated dossier, approve 
 The Desktop bundle must:
 
 - live under the discovered Desktop path, preferring `C:\Users\<user>\OneDrive\Desktop` when available and `C:\Users\<user>\Desktop` otherwise
-- include a `START_HERE.md` file with `Review Purpose:`, source repo, `Source Branch:`, `Source HEAD:`, upstream, `origin/main:`, `Validation Summary:`, `Review Order`, `Exact USER Decision This Bundle Supports:`, `Pending USER Decisions`, copied source paths, and explicit bundle/copy file counts
+- include a `START_HERE.md` file with `Review Purpose:`, source repo, `Source Branch:`, `Source HEAD:`, upstream, `origin/main:`, `Validation Summary:`, `Review Order`, `Exact USER Decision This Bundle Supports:`, `Pending USER Decisions`, copied source paths, explicit bundle/copy file counts, and an extra-file count for stale artifacts left in non-cleared folders
 - copy only the files relevant to the requested review, not the whole repo or unrelated artifacts
 - preserve repo-relative paths inside the bundle so copied files remain traceable to source truth
 - be refreshed when the underlying review files change
 - never replace source-truth files, commit artifacts, validation proof, or branch authority records
 
-For governance review or PR-readiness review, the Desktop bundle should be self-checking: `Bundle File Count:` includes `START_HERE.md`, `Copied File Count:` counts copied repo files only, and `Expected File Count:` must match the intended copied repo-file count. Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation. If the Desktop path cannot be discovered or the folder cannot be created, stop with `USER Review Desktop Bundle Missing` and return the exact blocker plus the copy command or helper command USER can run.
+For governance review or PR-readiness review, the Desktop bundle should be self-checking: `Bundle File Count:` reports the actual file count present in the bundle after copy plus `START_HERE.md`, `Copied File Count:` counts copied repo files only, `Expected File Count:` must match the intended copied repo-file count, and `Extra Bundle File Count:` reports stale or unrelated files that remain when a bundle is refreshed without `--clear`. Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation. If the Desktop path cannot be discovered or the folder cannot be created, stop with `USER Review Desktop Bundle Missing` and return the exact blocker plus the copy command or helper command USER can run.
 
 ## Standing Governance Ledger Compaction
 

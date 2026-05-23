@@ -73,6 +73,10 @@ def _markdown_lines(items: list[str]) -> list[str]:
     return [f"- {item}" for item in items]
 
 
+def _bundle_files(target: Path) -> set[Path]:
+    return {path for path in target.rglob("*") if path.is_file()}
+
+
 def build_bundle(
     *,
     folder_name: str,
@@ -94,6 +98,7 @@ def build_bundle(
 
     copied = [_copy_file(file_name, target) for file_name in files]
     copied_count = len(copied)
+    copied_targets = {(target / copied_rel).resolve() for _source_rel, copied_rel in copied}
     expected_count = expected_file_count if expected_file_count is not None else copied_count
     if expected_count != copied_count:
         raise ValueError(
@@ -106,7 +111,14 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
-    bundle_file_count = copied_count + 1
+    start_here = (target / "START_HERE.md").resolve()
+    actual_bundle_files = _bundle_files(target) | {start_here}
+    extra_bundle_files = sorted(
+        path.relative_to(target).as_posix()
+        for path in actual_bundle_files
+        if path not in copied_targets and path != start_here
+    )
+    bundle_file_count = len(actual_bundle_files)
 
     readme_lines: list[str] = [
         f"# {title}",
@@ -123,6 +135,7 @@ def build_bundle(
         f"Bundle File Count: {bundle_file_count}",
         f"Expected File Count: {expected_count}",
         f"Copied File Count: {copied_count}",
+        f"Extra Bundle File Count: {len(extra_bundle_files)}",
         f"Validation Summary: {validation_summary}",
         f"Exact USER Decision This Bundle Supports: {exact_user_decision}",
         "",
@@ -133,6 +146,10 @@ def build_bundle(
         "## Review Order",
         "",
         *_markdown_lines(review_order),
+        "",
+        "## Extra Bundle Files",
+        "",
+        *_markdown_lines(extra_bundle_files),
         "",
         "## Files",
         "",
