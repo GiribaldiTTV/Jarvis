@@ -7,7 +7,8 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 ## Review Proof
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Docs files covered: 161
+- Docs files covered: 162
+- Source branch: `feature/vision-update-decision-matrix`
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
 - Runtime/FAM/Compact-AI mutation: none.
@@ -40,13 +41,13 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 - [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.
 - [ ] Structure risks have a migration, organization, or keep-now decision.
 - [ ] Validators are enough to stop the worst sprawl from returning.
-- [ ] PR Readiness Stage 2 may proceed after final validation.
+- [ ] PR Readiness Stage 1 analysis may proceed after final validation and USER acceptance; PR Readiness Stage 2 / PR creation remains a separate USER decision.
 
 ## User Response Intake Status
 
 - USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.
 - This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.
-- Current execution model: this deferred-completion pass updates source truth and review artifacts on the standing Governance branch; PR creation remains separately USER-gated.
+- Current execution model: this deferred-completion pass updates source truth and review artifacts on the USER-approved bounded governance/source-truth repair branch `feature/vision-update-decision-matrix` in `C:\Nexus Worktrees\Governance`; PR creation remains separately USER-gated.
 - PR Readiness remains held until validation is green and USER separately approves PR creation.
 
 ## USER Response Integration Summary
@@ -90,6 +91,24 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | Vision | Low-risk product reference | Nexus Vision contract plus family vision records that drive backlog and branch planning. |
 | Safe/low-risk docs | Safe to leave | Reference-scan before delete/collapse, with replacement owner and USER acceptance recorded. |
 
+## Docs Organization Cleanup Pass
+
+Cleanup Pass Status: USER requested a docs organization cleanup pass.
+Execution Boundary: non-destructive organization planning and queue clarification only. This pass does not move, rename, delete, archive, or rewrite historical files.
+Source Review Surface: `Docs/governance_docs_full_inventory_reform_audit.md`, `Docs/governance_docs_reform_user_review_index.md`, and the USER Desktop review bundle.
+Next USER Decision: choose one focused cleanup lane before any physical file or history-affecting change.
+
+| Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
+| --- | ---: | --- | --- |
+| Ambiguous ownership/current-state wording | 116 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
+| Structure and indexability risks | 31 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
+| Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
+| Retired branch plan review | 16 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
+| Low-risk reference consolidation | 20 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
+
+Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
+Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical receipt rewrites, runtime/FAM/release mutation, or archive/delete work. Those require separate exact USER approval.
+
 ## Files Needing USER Decision
 
 | File | Reason | Recommendation |
@@ -117,8 +136,8 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 | File | Ambiguity Risk | Signals | Action |
 | --- | --- | --- | --- |
-| `Docs/Main.md` | High | `volatile-current-wording=321`; `unclear-ownership-wording=131`; `soft-commitment-wording=51`; `state-ledger-wording=158` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_plans/README.md` | High | `volatile-current-wording=29`; `unclear-ownership-wording=33`; `soft-commitment-wording=9`; `state-ledger-wording=39` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/Main.md` | High | `volatile-current-wording=321`; `unclear-ownership-wording=140`; `soft-commitment-wording=54`; `state-ledger-wording=161` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/README.md` | High | `volatile-current-wording=40`; `unclear-ownership-wording=49`; `soft-commitment-wording=11`; `state-ledger-wording=53` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | High | `volatile-current-wording=30`; `unclear-ownership-wording=18`; `soft-commitment-wording=4`; `state-ledger-wording=52` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | High | `volatile-current-wording=85`; `unclear-ownership-wording=13`; `soft-commitment-wording=2`; `state-ledger-wording=94` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md` | High | `volatile-current-wording=133`; `unclear-ownership-wording=21`; `soft-commitment-wording=72`; `state-ledger-wording=223` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -215,4 +234,4 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 ## Exact USER Decision This Index Supports
 
-`I accept the corrected USER-response integration model and approve continuing the staged Docs source-truth reform on feature/release-readiness-source-truth-intake as one final Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`
+`I accept the corrected USER-response integration model and approve continuing the staged Docs source-truth reform on feature/vision-update-decision-matrix as one final Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`

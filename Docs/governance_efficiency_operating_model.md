@@ -70,7 +70,7 @@ The post-audit reform model has one owner per active fact class:
 - roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, and broad feature-family checkpoints
 - worktree slots own reusable slot definitions and intended assignment receipts
 - branch records own branch authority, approvals, phase history, and structured branch traceability receipts
-- branch plans own detailed active runtime-branch engineering plans, full active USER Feedback Disposition items, and retire after fold-down
+- branch plans own detailed active runtime-branch engineering plans, full active USER Feedback Disposition items, USER-reviewable Element-to-Phase Proof Matrix planning, and retire after fold-down
 - branch plans own full active Branch Change Intent Ledger evidence when rebaseline overlap exists; branch records receive compact fold-down receipts only when durable evidence remains useful
 - workstreams and family dossiers own durable package trace, slice trace, proof history, and reusable continuity
 - Git, GitHub, and approved helpers own live operational truth
@@ -101,6 +101,8 @@ Allowed compact non-live markers:
 - historical receipts after live truth is validated
 
 Canonical docs and context docs are distinct. `Docs/Main.md` is the highest-level canonical docs index: it should be updated rarely, point to the current valid governance/source-truth files, and explain each file's intended purpose clearly enough to recover the system. Context docs may preserve historical evidence, workstream detail, branch receipts, product reasoning, or implementation lessons, but they must point back to their canonical owner and must not pretend to be the top-level source of current governance law.
+
+Main-first loader chain: `Docs/Main.md` routes Codex to the owning source-truth files. Context docs and review bundles may point to Main and the relevant owner, but they must not become alternate first loaders or duplicate detailed policy that belongs in phase governance, vision owners, branch plans, branch records, or helper registries.
 
 Prohibited duplication by default:
 
@@ -173,7 +175,7 @@ Branch records, branch plans, and workstreams are related but not interchangeabl
 Use this split:
 
 - branch records own branch authority, approvals, phase history, blockers, legal next phase, and structured branch traceability receipts
-- branch plans own detailed active runtime planning while the branch is active
+- branch plans own detailed active runtime planning, Element-to-Phase Proof Matrix planning, and current element proof-path mapping while the branch is active
 - workstreams and family dossiers own durable package trace, slice trace, proof history, reusable lessons, and family continuity
 
 At PR Readiness, every runtime-focused branch needs a fold-down or retirement decision:
@@ -186,6 +188,29 @@ At PR Readiness, every runtime-focused branch needs a fold-down or retirement de
 Traceability compaction must not mean evidence loss. Large branch records may remain large when they are the correct historical ledger, but they should be organized for USER review and Codex indexing: current summary first, clear historical sections, commit/PR/release evidence, changed-surface map, validation proof, and links to promoted workstream/family-dossier detail. The reform target is less chaos and less duplicate live state, not smaller files at the cost of useful evidence.
 
 Historical receipts may preserve PRs, tags, releases, and commit hashes when they are evidence for a closed decision. They must not be presented as live operational truth or repeated across backlog and roadmap.
+
+## Docs Organization Cleanup Pass Rule
+
+When USER asks for a docs organization cleanup pass, the first pass is non-destructive unless USER explicitly approves exact file moves, renames, deletions, archival, or historical rewrites.
+
+The cleanup pass must use `Docs/governance_docs_full_inventory_reform_audit.md` and `Docs/governance_docs_reform_user_review_index.md` as the review surface. It should classify and prioritize cleanup lanes, preserve source-truth owners, identify replacement owners before any retirement/delete recommendation, and return a Desktop review bundle with the files USER needs to inspect.
+
+Safe cleanup planning may:
+
+- clarify queue status and cleanup lane priority
+- label oversized branch records for later structured-receipt organization
+- label retired branch plans for later reference-proof review
+- label low-risk reference docs for possible future consolidation
+- identify missing indexes, README routing gaps, and owner-map ambiguity
+
+Safe cleanup planning must not:
+
+- move, rename, delete, archive, or rewrite historical files
+- collapse historical receipts into summaries without replacement-owner proof
+- treat branch records, backlog, roadmap, worktree slots, or `Docs/Main.md` as live-state ledgers
+- mutate runtime, release, FAM, Compact-AI, issue, branch-cleanup, or worktree state
+
+The default cleanup sequence is: inventory and classify, review queue and owner routing, choose one focused cleanup lane, create a USER review bundle, then request exact USER approval before any physical file or history-affecting change.
 
 ## Product Vision Contract Model
 
@@ -280,6 +305,8 @@ The Desktop bundle must:
 - be refreshed when the underlying review files change
 - never replace source-truth files, commit artifacts, validation proof, or branch authority records
 
+For Workstream Entry, the Desktop bundle is required before USER green-lights implementation when the branch has runtime, user-facing, source-truth, helper/validator, or workflow impact. The bundle must copy the branch vision, active Branch Runtime Engineering Plan or Branch Engineering Plan, Element-to-Phase Proof Matrix owner, branch authority record, relevant Nexus/family vision files, UFD/change-intent surfaces when applicable, and any other source-truth files the USER needs to inspect. The Workstream Entry digest must report the folder path, copied files, and whole-package analysis status when multiple slices or seams are admitted.
+
 For governance review or PR-readiness review, the Desktop bundle should be self-checking: `Bundle File Count:` reports the actual file count present in the bundle after copy plus `START_HERE.md`, `Copied File Count:` counts copied repo files only, `Expected File Count:` must match the intended copied repo-file count, and `Extra Bundle File Count:` reports stale or unrelated files that remain when a bundle is refreshed without `--clear`. Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation. If the Desktop path cannot be discovered or the folder cannot be created, stop with `USER Review Desktop Bundle Missing` and return the exact blocker plus the copy command or helper command USER can run.
 
 ## Standing Governance Ledger Compaction
@@ -360,7 +387,7 @@ Historical GitHub tags, release titles, old branch records, and prior evidence m
 
 The consolidated governance reform PR may complete the policy, pointer, and validator scaffolding for all reform categories in `Docs/governance_process_efficiency_reform_plan.md`.
 
-For `RRI-20260521-001`, the USER direction is one single final PR with staged internal commits rather than revolving PRs. Analysis, model updates, and planning refinements may continue on the standing Governance branch until USER accepts the reform review surface; cleanup execution remains bounded by this model and PR Readiness stays held until USER approval.
+For `RRI-20260521-001` and related USER-approved bounded governance/source-truth repair carriers, the USER direction is one single final PR with staged internal commits rather than revolving PRs. Analysis, model updates, and planning refinements may continue on the currently approved Governance worktree carrier until USER accepts the reform review surface; cleanup execution remains bounded by this model and PR Readiness stays held until USER approval.
 
 It must not perform broad historical migration, branch deletion, worktree cleanup, runtime mutation, release execution, or FAM lane mutation. Those remain separate USER decisions.
 

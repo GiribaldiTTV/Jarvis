@@ -69,6 +69,27 @@ INVALID_REBASELINE_OVERLAP_FIXTURE_HIGH_IMPACT_FIXTURE = (
 VALID_REBASELINE_OVERLAP_FIXTURE_LOW_IMPACT_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_overlap_fixture_low_impact.md"
 )
+VALID_ELEMENT_TO_PHASE_MATRIX_FIXTURE = (
+    FIXTURE_DIR / "valid_element_to_phase_proof_matrix.md"
+)
+INVALID_ELEMENT_TO_PHASE_MISSING_HARDENING_FIXTURE = (
+    FIXTURE_DIR / "invalid_element_to_phase_missing_hardening.md"
+)
+INVALID_ELEMENT_TO_PHASE_MISSING_LIVE_VALIDATION_FIXTURE = (
+    FIXTURE_DIR / "invalid_element_to_phase_missing_live_validation.md"
+)
+VALID_ELEMENT_TO_PHASE_DEFERRED_FUTURE_FIXTURE = (
+    FIXTURE_DIR / "valid_element_to_phase_deferred_future.md"
+)
+INVALID_ELEMENT_TO_PHASE_DUPLICATE_ID_FIXTURE = (
+    FIXTURE_DIR / "invalid_element_to_phase_duplicate_id.md"
+)
+VALID_WORKSTREAM_ENTRY_WHOLE_PACKAGE_FIXTURE = (
+    FIXTURE_DIR / "valid_workstream_entry_whole_package_analysis.md"
+)
+INVALID_WORKSTREAM_ENTRY_FIRST_SEAM_ONLY_FIXTURE = (
+    FIXTURE_DIR / "invalid_workstream_entry_first_seam_only.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -108,6 +129,14 @@ EXPECTED_REBASELINE_FALLBACK_ONLY_FAILURE_SNIPPET = (
 )
 EXPECTED_REBASELINE_FIXTURE_HIGH_IMPACT_FAILURE_SNIPPET = (
     "Regression / Gating Impact Medium, High, or Unknown blocks fixture/test overlap"
+)
+EXPECTED_ELEMENT_MATRIX_HARDENING_FAILURE_SNIPPET = "Hardening Proof Plan"
+EXPECTED_ELEMENT_MATRIX_LIVE_VALIDATION_FAILURE_SNIPPET = (
+    "Live Validation Proof / Waiver Plan"
+)
+EXPECTED_ELEMENT_MATRIX_DUPLICATE_ID_FAILURE_SNIPPET = "duplicates an Element ID"
+EXPECTED_WORKSTREAM_ENTRY_FIRST_SEAM_FAILURE_SNIPPET = (
+    "Workstream Entry Whole-Package Summary must include"
 )
 
 
@@ -192,6 +221,63 @@ def _validate_branch_change_intent_text(text: str) -> list[str]:
         "<branch-change-intent-fixture>",
         text,
     )
+    return failures
+
+
+def _validate_element_to_phase_matrix_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_element_to_phase_proof_matrix(
+        require,
+        "<element-to-phase-proof-matrix-fixture>",
+        text,
+        require_matrix=True,
+    )
+    return failures
+
+
+def _validate_workstream_entry_whole_package_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    analysis = governance._extract_marker_value(
+        text, "Workstream Entry Whole-Package Analysis:"
+    )
+    summary = governance._extract_marker_value(
+        text, "Workstream Entry Whole-Package Summary:"
+    )
+    normalized_analysis = governance._normalized_planning_value(analysis)
+    normalized_summary = governance._normalized_planning_value(summary)
+
+    require(
+        bool(analysis),
+        "Workstream Entry Whole-Package Analysis marker is missing",
+    )
+    require(
+        bool(summary),
+        "Workstream Entry Whole-Package Summary marker is missing",
+    )
+    require(
+        not normalized_analysis.startswith("not required")
+        and "first-seam-only" not in normalized_analysis
+        and "first seam only" not in normalized_analysis,
+        "Workstream Entry Whole-Package Analysis cannot be waived by first-seam-only wording",
+    )
+    required_summary_phrases = (
+        "all admitted slices/seams",
+        "completion strategy",
+        "first-seam recommendation",
+        "seam dependency map",
+        "future-gated",
+        "preservation surfaces",
+        "validation plan",
+        "hardening h1",
+        "live validation lv1",
+        "uts handoff",
+        "exact implementation approval text",
+    )
+    for phrase in required_summary_phrases:
+        require(
+            phrase in normalized_summary,
+            f"Workstream Entry Whole-Package Summary must include {phrase}",
+        )
     return failures
 
 
@@ -392,6 +478,13 @@ def validate() -> list[str]:
         VALID_REBASELINE_OVERLAP_LOW_RISK_WARN_FIXTURE,
         INVALID_REBASELINE_OVERLAP_FIXTURE_HIGH_IMPACT_FIXTURE,
         VALID_REBASELINE_OVERLAP_FIXTURE_LOW_IMPACT_FIXTURE,
+        VALID_ELEMENT_TO_PHASE_MATRIX_FIXTURE,
+        INVALID_ELEMENT_TO_PHASE_MISSING_HARDENING_FIXTURE,
+        INVALID_ELEMENT_TO_PHASE_MISSING_LIVE_VALIDATION_FIXTURE,
+        VALID_ELEMENT_TO_PHASE_DEFERRED_FUTURE_FIXTURE,
+        INVALID_ELEMENT_TO_PHASE_DUPLICATE_ID_FIXTURE,
+        VALID_WORKSTREAM_ENTRY_WHOLE_PACKAGE_FIXTURE,
+        INVALID_WORKSTREAM_ENTRY_FIRST_SEAM_ONLY_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -646,6 +739,76 @@ def validate() -> list[str]:
         failures.append(
             "Valid low-impact fixture/test Rebaseline Overlap Intent fixture unexpectedly failed: "
             + "; ".join(low_impact_fixture_failures[:5])
+        )
+
+    valid_matrix_failures = _validate_element_to_phase_matrix_text(
+        VALID_ELEMENT_TO_PHASE_MATRIX_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_matrix_failures:
+        failures.append(
+            "Valid Element-to-Phase Proof Matrix fixture unexpectedly failed: "
+            + "; ".join(valid_matrix_failures[:5])
+        )
+
+    missing_hardening_failures = _validate_element_to_phase_matrix_text(
+        INVALID_ELEMENT_TO_PHASE_MISSING_HARDENING_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_ELEMENT_MATRIX_HARDENING_FAILURE_SNIPPET not in "\n".join(
+        missing_hardening_failures
+    ):
+        failures.append(
+            "Invalid Element-to-Phase Proof Matrix fixture did not reject missing "
+            "Hardening proof path"
+        )
+
+    missing_live_validation_failures = _validate_element_to_phase_matrix_text(
+        INVALID_ELEMENT_TO_PHASE_MISSING_LIVE_VALIDATION_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_ELEMENT_MATRIX_LIVE_VALIDATION_FAILURE_SNIPPET not in "\n".join(
+        missing_live_validation_failures
+    ):
+        failures.append(
+            "Invalid Element-to-Phase Proof Matrix fixture did not reject missing "
+            "Live Validation proof or waiver path"
+        )
+
+    deferred_future_matrix_failures = _validate_element_to_phase_matrix_text(
+        VALID_ELEMENT_TO_PHASE_DEFERRED_FUTURE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if deferred_future_matrix_failures:
+        failures.append(
+            "Valid deferred/future Element-to-Phase Proof Matrix fixture unexpectedly failed: "
+            + "; ".join(deferred_future_matrix_failures[:5])
+        )
+
+    duplicate_matrix_failures = _validate_element_to_phase_matrix_text(
+        INVALID_ELEMENT_TO_PHASE_DUPLICATE_ID_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_ELEMENT_MATRIX_DUPLICATE_ID_FAILURE_SNIPPET not in "\n".join(
+        duplicate_matrix_failures
+    ):
+        failures.append(
+            "Invalid Element-to-Phase Proof Matrix fixture did not reject duplicate "
+            "Element ID values"
+        )
+
+    valid_whole_package_failures = _validate_workstream_entry_whole_package_text(
+        VALID_WORKSTREAM_ENTRY_WHOLE_PACKAGE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_whole_package_failures:
+        failures.append(
+            "Valid Workstream Entry Whole-Package Analysis fixture unexpectedly failed: "
+            + "; ".join(valid_whole_package_failures[:5])
+        )
+
+    first_seam_only_failures = _validate_workstream_entry_whole_package_text(
+        INVALID_WORKSTREAM_ENTRY_FIRST_SEAM_ONLY_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_WORKSTREAM_ENTRY_FIRST_SEAM_FAILURE_SNIPPET not in "\n".join(
+        first_seam_only_failures
+    ):
+        failures.append(
+            "Invalid Workstream Entry fixture did not reject first-seam-only analysis"
         )
 
     failures.extend(_validate_rebaseline_overlap_helper_matrix())
