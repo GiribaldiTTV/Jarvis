@@ -62,7 +62,12 @@ def _copy_file(relative_file: str, target: Path) -> tuple[str, str]:
 
 def _git_output(*args: str) -> str:
     try:
-        return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+        return subprocess.check_output(
+            ["git", *args],
+            cwd=ROOT,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        ).strip()
     except Exception:
         return "UNKNOWN"
 
