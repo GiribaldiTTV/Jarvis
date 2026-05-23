@@ -5,8 +5,9 @@ This helper proves the current-branch Dashboard-first Workstream handoff without
 asking the USER for a User Test Summary during Workstream or Branch Readiness.
 It validates the bounded runtime seams for the HUD shell, controls,
 provider-truthful telemetry, no-data/degraded states, visual warnings, source
-truth, and naming sterilization. Overlay/display proof remains supporting
-evidence unless that interface is later re-admitted.
+truth, naming sterilization, and SLC-041 Overlay Profile proof-readiness.
+Overlay/display proof remains supporting evidence unless that interface is later
+re-admitted.
 """
 
 from __future__ import annotations
@@ -27,8 +28,10 @@ from desktop.monitoring_hud_controls import build_monitoring_hud_controls_visibi
 from desktop.monitoring_hud_placement import build_monitoring_hud_placement_contract
 from desktop.monitoring_hud_status import build_monitoring_hud_status_snapshot
 from desktop.monitoring_hud_state import (
+    DEFAULT_OVERLAY_PROFILE_ID,
     MONITORING_HUD_STATE_ENV,
     load_monitoring_hud_state,
+    normalize_monitoring_hud_overlay_profiles,
     save_monitoring_hud_state,
 )
 from desktop.monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
@@ -94,6 +97,16 @@ def _validate_static_surface(failures: list[str]) -> None:
     prebeta_roadmap = _read("Docs/prebeta_roadmap.md")
     helper_registry = _read("Docs/validation_helper_registry.md")
     phase_governance = _read("Docs/phase_governance.md")
+    compact_source_truth_reform = (
+        "Docs Source-Truth Reform Model: Compact Pointer Layer." in feature_backlog
+        and "Docs Source-Truth Reform Model: Compact Pointer Layer." in prebeta_roadmap
+    )
+    overlay_profile_record = _read(
+        "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md"
+    )
+    overlay_profile_plan = _read(
+        "Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md"
+    )
     core_html = _read("nexus_visual/orin_core.html")
     core_css = _read("nexus_visual/orin_core.css")
     core_desktop_html = _read("nexus_visual/orin_core_desktop.html")
@@ -172,18 +185,44 @@ def _validate_static_surface(failures: list[str]) -> None:
             "FAM-006 Monitor Groups profile planning source truth",
             failures,
         )
-    for label, text in (
-        ("FAM-006 feature backlog profile planning sync", feature_backlog),
-        ("FAM-006 pre-Beta roadmap profile planning sync", prebeta_roadmap),
-    ):
+    if compact_source_truth_reform:
         for needle in (
             "Sensor Library",
             "Overlay Profile",
             "Recording Profile",
-            "returned USER UTS FAIL",
-            "PR Readiness remains blocked",
+            "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md",
+            "PR #194",
         ):
-            _require_contains(text, needle, label, failures)
+            _require_contains(
+                feature_backlog,
+                needle,
+                "FAM-006 compact feature backlog pointer sync",
+                failures,
+            )
+        for needle in (
+            "Overlay Profile foundation evidence are released receipts",
+            "future monitoring/HUD scope remains USER-gated",
+            "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md",
+        ):
+            _require_contains(
+                prebeta_roadmap,
+                needle,
+                "FAM-006 compact pre-Beta roadmap pointer sync",
+                failures,
+            )
+    else:
+        for label, text in (
+            ("FAM-006 feature backlog profile planning sync", feature_backlog),
+            ("FAM-006 pre-Beta roadmap profile planning sync", prebeta_roadmap),
+        ):
+            for needle in (
+                "Sensor Library",
+                "Overlay Profile",
+                "Recording Profile",
+                "returned USER UTS FAIL",
+                "PR Readiness remains blocked",
+            ):
+                _require_contains(text, needle, label, failures)
     for needle in (
         "Interface Release Boundary",
         "Primary Interface Release Surface:",
@@ -195,9 +234,149 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Dashboard-first Workstream handoff posture",
         "Overlay/display deferred/non-gating classification",
         "WS35 dashboard-specific proof refresh and Live Validation UTS boundary",
+        "SLC-041 Overlay Profile focused validation/live-proof readiness",
         "Historical WS18-WS30 markers remain supporting repair evidence",
+        "focused_element_screenshots",
+        "direct-runtime active-client proof",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
+    for needle in (
+        "SLC-041 validation/live-proof Workstream implementation Green",
+        "SLC-041 Hardening H1 Green",
+        "Live Validation LV1 Result",
+        "USER_TEST_REQUIRED",
+        "focused validator and visual proof",
+        "focused WebView proof is acceptance evidence",
+        "full desktop screenshots are context only",
+        "formal UTS export remains Live Validation Stage 1 only",
+    ):
+        _require_contains(
+            overlay_profile_record,
+            needle,
+            "SLC-041 Overlay Profile branch authority",
+            failures,
+        )
+        _require_contains(
+            overlay_profile_plan,
+            needle,
+            "SLC-041 Overlay Profile branch plan",
+            failures,
+        )
+    for needle in (
+        "Returned USER Visual Inspection Matrix Repair",
+        "Button Glow Uniformity Contract",
+        "Visual Inspection Matrix Contract",
+        "HUD-Wide Visual Inspection Matrix Checklist",
+        "HUD-wide button glow uniformity and visual inspection matrix repair",
+    ):
+        _require_contains(
+            overlay_profile_record + "\n" + overlay_profile_plan,
+            needle,
+            "FAM-006 HUD-wide visual inspection repair source truth",
+            failures,
+        )
+    for needle in (
+        "FAM-006 HUD-Wide Visual Inspection Matrix Addendum",
+        "runMonitoringHudVisualInspectionMatrixProof",
+        "hudWideVisualInspectionMatrix",
+        "buttonGlowUniformity",
+        "defaultButtonGlowUniformity",
+        "semanticHoverColorPreserved",
+        "buttonTextDeadSpacePass",
+        "visualInspectionScopeCovered",
+        "perElementVisualInventory",
+        "issueFormCoverageMatrix",
+        "pageBreakVisualInspection",
+        "backgroundBleedClippingInspection",
+        "sourceSettingsFocusNoGold",
+        "rowTitleTabsInspected",
+        "responsiveWindowContract",
+        "Dropdown / Selection Volume Stress Addendum",
+        "null-state proof",
+        "100+ item state",
+        "buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling",
+    ):
+        _require_contains(helper_registry, needle, "FAM-006 HUD visual inspection helper registry", failures)
+    for needle in (
+        "--monitoring-hud-affordance-hover-shadow",
+        "--monitoring-hud-affordance-active-shadow",
+        "--monitoring-hud-affordance-focus-shadow",
+        "--monitoring-hud-affordance-default-shadow",
+        "--monitoring-hud-affordance-default-warning-shadow",
+        "--monitoring-hud-affordance-default-danger-shadow",
+        "--monitoring-hud-affordance-danger-shadow",
+        "--monitoring-hud-affordance-safe-shadow",
+        ".monitoring-hud__source-filter-option.is-hovered",
+        ".monitoring-hud__bounded-dropdown-option.is-hovered",
+        "box-sizing: border-box",
+        ".monitoring-hud__bounded-dropdown-toggle:not(:disabled):not([aria-disabled=\"true\"]).is-hovered",
+        ".monitoring-hud__hub-action:not(:disabled):not([aria-disabled=\"true\"]).is-hovered",
+        ".monitoring-hud__sensor-option.is-hovered",
+        ".monitoring-hud__sensor-option.is-pressed",
+        ".monitoring-hud__monitor-manage-row:hover",
+        "box-shadow: var(--monitoring-hud-affordance-hover-shadow)",
+        "--monitoring-hud-scrollbar-size",
+        "--monitoring-hud-divider-glow-size",
+        "--monitoring-hud-divider-glow-size: 13px",
+        "--monitoring-hud-button-neutral-bg",
+        "--monitoring-hud-surface-solid",
+        "background-size: 100% var(--monitoring-hud-divider-glow-size)",
+        ".monitoring-hud__source-settings-body:focus-visible",
+        ".monitoring-hud input[type=\"checkbox\"]:checked.is-hovered",
+        ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown",
+        "flex: 0 0 clamp(220px, 30%, 240px)",
+    ):
+        _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
+    for needle in (
+        "window.runMonitoringHudVisualInspectionMatrixProof",
+        "monitoringHudVisualInspectionStyleSnapshot",
+        "buttonGlowUniformity",
+        "defaultButtonGlowUniformity",
+        "semanticHoverColorPreserved",
+        "buttonTextDeadSpacePass",
+        "perElementVisualInventory",
+        "issueFormCoverageMatrix",
+        "buttonRoleColorUniformity",
+        "sourceRowHoverPersistence",
+        "checkedControlHoverAffordance",
+        "sourceSettingsFocusNoGold",
+        "rowTitleTabsInspected",
+        "responsiveWindowContract",
+        "overlayManagerScaling",
+        "windowSelectorSameRow",
+        "windowSelectorStandardFootprint",
+        "windowSelectorMenuUnclipped",
+        "windowSelectorResponsiveCompact",
+        "selector-stacked-oversized-or-clipped",
+        "dividerGlowReduced50Percent",
+        "sameMonitorRowDirtyGuard",
+        "defaultProfileDeletePersists",
+        "defaultDeletePersistsWithoutAutoRecreate",
+        "source-settings-shift-focus-frame",
+        "dashboard-row-title-tabs",
+        "dirtyGuardCoverage",
+        "pageBreakVisualInspection",
+        "backgroundBleedClippingInspection",
+        "monitoringHudEffectivePollingRateMs",
+        "pollingRateLiveCadence",
+        "monitoringHudSourcePollingDropdownOpenSensorId",
+        "monitoringHudOverlayProfileUnsavedGuard",
+        'element.style.transition = "none"',
+        'monitoringHudOpenChildWindow("monitor-group-edit");\n    monitoringHudRenderMonitorManagement();\n    inspectTarget("assigned-overlay-status"',
+        "buttons-dropdowns-rows-chips-fields-page-breaks-backgrounds-bleed-clipping-scaling",
+        "hudWideVisualInspectionMatrix",
+    ):
+        _require_contains(js, needle, "FAM-006 HUD-wide visual inspection proof JS", failures)
+    for needle in (
+        "hudWideVisualInspectionMatrix",
+        "buttonGlowUniformity",
+        "visualInspectionScopeCovered",
+        "targetCount || 0) >= 40",
+        "surfaceCount || 0) >= 3",
+        "perElementVisualInventory",
+        "issueFormCoverageMatrix",
+    ):
+        _require_contains(renderer, needle, "FAM-006 HUD-wide visual inspection renderer gate", failures)
 
     for label, text in (
         ("ORIN Core HTML", core_html),
@@ -314,7 +493,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-dashboard-content-polish="branch2-monitor-groups-no-dead-space"',
         'data-dashboard-layout-proof="monitor-groups-measured-no-overlap"',
         'data-dashboard-home-model="control-hub-cards-monitor-management-child-windows"',
-        'data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows"',
+        'data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"',
         'data-dashboard-close-affordance="window-level-close-button"',
         'data-dashboard-close-layout="window-level-top-right-close-pill"',
         'data-dashboard-open-badge="removed"',
@@ -337,12 +516,62 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-overlay-acceptance-policy="deferred-non-gating"',
         'data-interface-bundle-approval="not-granted"',
         'data-core-repair-classification="dependency-repair-only"',
+        'data-overlay-profile-state="slc-039-membership-mapping"',
+        'data-overlay-profile-editor="slc-039-membership-editor"',
+        'data-overlay-profile-membership="editable-slc-039-mapping"',
+        'data-overlay-profile-integration="slc-040-readonly-manage-context"',
+        'data-overlay-profile-mutation="assign-unassign-status-window"',
+        'data-overlay-profile-context-layout="single-row-readonly"',
+        'data-overlay-profile-route="assigned-overlay-status-window"',
+        'id="monitoring-hud-monitor-overlay-profile-context"',
+        'id="monitoring-hud-overlay-profile-editor"',
+        'data-overlay-profile-editor-ui="slc-039-membership-editor"',
+        'data-overlay-profile-proof="selector-settings-window-create-rename-membership-save-discard"',
+        'id="monitoring-hud-overlay-profile-selector"',
+        'data-bounded-dropdown="overlay-profile"',
+        'id="monitoring-hud-overlay-profile-toggle"',
+        'id="monitoring-hud-overlay-profile-menu"',
+        'data-overlay-profile-option="default-overlay-profile"',
+        'id="monitoring-hud-overlay-profile-open-settings"',
+        'class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__dashboard-paired-action"',
+        'data-dashboard-action-size="paired-overlay-manage-250"',
+        'data-overlay-profile-actions="settings-window-entry"',
+        'id="monitoring-hud-overlay-profile-window"',
+        'data-child-window="overlay-profile-settings"',
+        'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"',
+        'data-overlay-profile-workflow="selector-first-create-edit-delete-followup-uts-repair"',
+        'data-overlay-profile-volume-policy="max-five-visible-monitors-inner-scroll"',
+        'data-overlay-profile-selector-policy="max-five-visible-profile-options-ndai-scrollbar"',
+        'data-overlay-profile-outer-scroll-policy="no-normal-window-scrollbar"',
+        'id="monitoring-hud-overlay-profile-window-selector"',
+        'data-visible-option-target="max-five"',
+        'id="monitoring-hud-overlay-profile-edit-selected"',
+        'id="monitoring-hud-overlay-profile-name-input"',
+        'id="monitoring-hud-overlay-profile-monitor-search"',
+        'id="monitoring-hud-overlay-profile-monitor-filter"',
+        'data-bounded-dropdown="overlay-profile-monitor-filter"',
+        'id="monitoring-hud-overlay-profile-monitor-results"',
+        'id="monitoring-hud-overlay-profile-membership-list"',
+        'data-overlay-profile-membership-list="editable-monitor-membership"',
+        'data-overlay-profile-visible-monitor-target="max-five"',
+        'data-scrollbar-style="ndai-native"',
+        'id="monitoring-hud-overlay-profile-create"',
+        'id="monitoring-hud-overlay-profile-save"',
+        'id="monitoring-hud-overlay-profile-discard"',
+        'id="monitoring-hud-overlay-profile-delete"',
+        'data-overlay-profile-actions="save-left-discard-delete-right"',
+        'data-child-window="monitor-overlay-assignment"',
+        'data-overlay-assignment-window="monitor-group-overlay-status-assignment"',
+        'data-child-window="sensor-source-settings"',
+        'data-source-settings-window="source-list-sensor-settings"',
+        "Select an existing profile or create a new one first",
         'id="monitoring-hud-warning-toggle"',
         'id="monitoring-hud-settings-action"',
         'data-control="open-dashboard-settings"',
         'aria-haspopup="dialog"',
         "Settings",
         'id="monitoring-hud-edit-monitor-action"',
+        'data-control-visual-parity="overlay-profile-settings"',
         'id="monitoring-hud-monitor-list"',
         'data-dashboard-monitor-display-policy="settings-only-no-monitor-cards"',
         'data-dashboard-content="control-hub-cards"',
@@ -379,7 +608,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'id="monitoring-hud-monitor-detail-note"',
         'id="monitoring-hud-monitor-detail-actions"',
         'data-monitor-detail-actions="selected-monitor-footer"',
-        'data-detail-action-row="save-discard-left-delete-right"',
+        'data-detail-action-row="save-left-discard-delete-right"',
         'id="monitoring-hud-edit-monitor-discard"',
         'data-control="discard-edit-monitor"',
         'data-control-state="clean-disabled"',
@@ -434,11 +663,13 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Warning Notifications",
         "Readiness",
         "Waiting for safe provider",
+        "Feature Deferred",
+        "Manage Data Sources",
+        'data-feature-status="feature-deferred"',
         "Provider-first; no fake values",
         "HUD Overlay release acceptance is deferred.",
         "Deferred / non-gating",
         "Overlay settings are future branch scope",
-        "Data Sources Window Deferred",
         "Show unavailable; no fake values",
         "Dashboard configures overlay behavior",
         "Monitor Groups assign supported sources and settings. HUD Overlay owns future visual display; fake values remain blocked.",
@@ -512,6 +743,101 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "monitoringHudSetPollingRateDropdownOpen" in js
         and "monitoringHudSetPollingRateValue" in js,
         "HUD must render Polling Rate as a Nexus-styled bounded dropdown with hover/open/select behavior",
+        failures,
+    )
+    _require(
+        ".monitoring-hud__overlay-profile-panel" in css
+        and ".monitoring-hud__overlay-profile-dropdown" in css
+        and ".monitoring-hud__bounded-dropdown.monitoring-hud__overlay-profile-dropdown" in css
+        and "grid-template-columns: max-content minmax(300px, 1fr)" in css
+        and "width: max-content" in css
+        and "min-width: min(300px, 100%)" in css
+        and "max-width: min(450px, 100%)" in css
+        and ".monitoring-hud__overlay-profile-dropdown .monitoring-hud__bounded-dropdown-menu" in css
+        and "<span>Overlay Profile</span>" in html
+        and 'id="monitoring-hud-overlay-profile-active-name"' not in html
+        and ".monitoring-hud__overlay-profile-actions" in css
+        and ".monitoring-hud__overlay-profile-window-actions" in css
+        and ".monitoring-hud__overlay-profile-membership-tools" in css
+        and ".monitoring-hud__monitor-overlay-profile-context--compact" in css
+        and "data-overlay-profile-option" in html
+        and "data-child-window=\"overlay-profile-settings\"" in html
+        and 'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"' in html
+        and 'data-overlay-profile-visual-repair="manager-selector-same-row-compact-unclipped-proof"' in html
+        and 'data-overlay-profile-manager-row="create-edit-compact-selector-same-row"' in html
+        and 'data-overlay-profile-visible-monitor-target="max-five"' in html
+        and 'data-scrollbar-style="ndai-native"' in html
+        and 'data-overlay-profile-route="assigned-overlay-status-window"' in html
+        and 'data-overlay-profile-mutation="assign-unassign-status-window"' in html
+        and 'data-control="assigned-overlay-status"' in html
+        and 'data-monitor-detail-card="sensor-source"' in html
+        and 'data-sensor-source-summary-placement="attached-to-sensor-source-card"' in html
+        and 'data-monitor-detail-placement="below-sensor-source"' in html
+        and html.find('data-monitor-detail-card="sensor-source"') < html.find('data-monitor-detail-placement="below-sensor-source"')
+        and 'data-bounded-dropdown="overlay-profile-monitor-filter"' in html
+        and 'id="monitoring-hud-overlay-profile-edit-selected"' in html
+        and 'id="monitoring-hud-overlay-profile-delete"' in html
+        and 'data-child-window="monitor-overlay-assignment"' in html
+        and 'data-source-settings-window="source-list-sensor-settings"' in html
+        and "Enabled for Overlay" not in html
+        and 'data-control="manage-overlay-profile-settings"' not in html
+        and "monitoringHudSetOverlayProfileDropdownOpen" in js
+        and "monitoringHudSetOverlayProfileWindowDropdownOpen" in js
+        and "monitoringHudSetOverlayProfileMonitorFilterValue" in js
+        and "monitoringHudToggleOverlayAssignment" in js
+        and "monitoringHudOpenSourceSettings" in js
+        and "windowSelectorReadable" in js
+        and "windowSelectorSameRow" in js
+        and "windowSelectorStandardFootprint" in js
+        and "windowSelectorMenuUnclipped" in js
+        and "windowSelectorResponsiveCompact" in js
+        and "manageContextRowAffordanceVisible" in js
+        and "manageContextBelowSensorSource" in js
+        and "sensorSourceSummaryPlacement" in js
+        and "largeProfileFixture" in js
+        and "profileDropdownMaxFiveStress" in js
+        and "profileDropdownNDAIScrollbar" in js
+        and "dropdownNullStress" in js
+        and "dropdownHighVolumeStress" in js
+        and "dropdownStressSurfaceCount" in js
+        and "deleteConfirmationVisualReviewable" in js
+        and "detailActionsVisualReviewable" in js
+        and "visualStressProfileCount" in renderer
+        and "dropdownNullStress" in renderer
+        and "dropdownHighVolumeStress" in renderer
+        and "visualVisibleProfileOptions" in renderer
+        and "deleteConfirmationVisualReviewable" in renderer
+        and "detailActionsVisualReviewable" in renderer
+        and "__monitoringHudOverlayProfileDropdownVisualProofState" in renderer
+        and "selected source" in js
+        and "monitoringHudOpenChildWindow(\"overlay-profile-settings\")" in js
+        and "monitoringHudSaveOverlayProfileDraft" in js,
+        "HUD must render follow-up returned-UTS Overlay Profile manager controls, NDAI filter dropdown, profile delete, clickable assignment surface, Enabled-for-Overlay removal, and source-list sensor settings entry points",
+        failures,
+    )
+    _require(
+        "display: flex;" in css
+        and "flex-wrap: nowrap;" in css
+        and "flex: 0 0 clamp(220px, 30%, 240px)" in css
+        and "width: min(900px, calc(100% - 8px))" in css
+        and "min-width: min(720px, calc(100% - 8px))" in css
+        and "min-width: min(220px, 100%)" in css
+        and "max-width: min(240px, 100%)" in css
+        and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css
+        and "max-width: min(220px, 100%)" in css
+        and "@media (max-width: 360px)" in css
+        and "max-height: 160px;" in css
+        and "min-height: 26px;" in css
+        and "box-sizing: border-box;" in css
+        and "min-height: 152px;" in css
+        and 'data-overlay-profile-detail-state="open"' in css
+        and "max-height: 132px;" in css
+        and "min-height: 148px;" in css
+        and css.rfind(".monitoring-hud__child-window--overlay-profile") > css.rfind(".monitoring-hud__child-window {")
+        and "grid-template-columns: minmax(236px, auto) minmax(0, 1fr) minmax(78px, auto)" in css
+        and ".monitoring-hud__unsaved-guard {\n  grid-template-columns: minmax(0, 1fr);" in css
+        and ".monitoring-hud__monitor-overlay-profile-context.is-hovered" in css,
+        "HUD CSS must keep the Overlay Profile manager selector compact/same-row/unclipped and make Assigned Overlay read as an actionable status row",
         failures,
     )
     _require(
@@ -728,6 +1054,18 @@ def _validate_static_surface(failures: list[str]) -> None:
         "emptyStateProductCopy",
         "interactiveControlVisualQaGate",
         "hidden-no-monitor",
+        "03_overlay_profile_settings_window_create_clean",
+        "03_overlay_profile_settings_window_dirty",
+        "03_overlay_profile_manage_context",
+        "Follow-up returned-UTS Overlay Profile manager selector/filter/delete proof prepared",
+        "Follow-up returned-UTS Manage Monitors clickable Assigned Overlay proof prepared",
+        "ok: Boolean(integrationProof.passed && context && manageWindow && !routeButton)",
+        "contextBelowSensorSource",
+        "SLC-039 Overlay Profile settings-window controls stay bounded and distinct",
+        "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, compact Manage Monitors context, and LV1 UTS boundary",
+        '"proofSeam": "SLC-041 Overlay Profile validation and live desktop proof"',
+        "focused WebView proof is acceptance evidence; full desktop screenshots are locator/context evidence only",
+        "formalUserTestSummaryBoundary",
         "03_manage_monitors_open_state",
         "04_source_filter_dropdown_open_hover_reset",
         "05_unsaved_guard_close_queued",
@@ -757,7 +1095,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'body.desktop-mode #monitoring-hud-overlay-display[data-anchor-state="unanchored"]',
         ".monitoring-hud__toolbar",
         "z-index: 24;",
-        "0 5px 12px rgba(255, 204, 86, 0.10)",
+        "--monitoring-hud-affordance-default-warning-shadow",
         ".monitoring-hud__surface-role",
         ".monitoring-hud__config-heading",
         ".monitoring-hud__control-hub",
@@ -798,10 +1136,13 @@ def _validate_static_surface(failures: list[str]) -> None:
         "body.desktop-mode .monitoring-hud__nexus-scroll-pane::-webkit-scrollbar",
         "body.desktop-mode .monitoring-hud__child-window::-webkit-scrollbar",
         'body.desktop-mode #monitoring-hud[data-live-resize-active="true"][data-resize-proof-visuals="test-visible"] .monitoring-hud__chrome',
-        "width: 6px;",
+        "--monitoring-hud-scrollbar-size: 8px;",
+        "width: var(--monitoring-hud-scrollbar-size);",
         "margin: 10px 0 14px;",
         'body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"]',
         "scrollbar-gutter: stable;",
+        ".monitoring-hud__child-actions--guard",
+        "justify-self: stretch;",
     ):
         _require_contains(css, needle, "HUD CSS interaction surface", failures)
     minimum_size_media = re.search(
@@ -905,7 +1246,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-monitor-management-child-windows"',
         'monitoringHud.dataset.dashboardPollingPlacement = "monitor-group-editor-only"',
         'monitoringHud.dataset.dashboardProofContentPolicy = "validator-artifacts-not-home-surface"',
-        'monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows"',
+        'monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"',
         'monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning"',
         'monitoringHud.dataset.dashboardSettingsAffordance = "dashboard-ia-card-settings-button"',
         'monitoringHud.dataset.dashboardSettingsPanel = "settings-panel-child-window"',
@@ -1181,8 +1522,18 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Move-DashboardAwayFromTrayMenuIfNeeded",
         "dashboard_repositioned_clear_of_tray_menu_for_cleanup",
         "Capture-RectScreenshot",
+        "UserElementScreenshotRoot",
+        "Add-UserInspectableScreenshotEvidence",
+        "focused-per-element-screenshot",
+        "context_desktop_screenshots",
+        "focused_element_screenshots",
         "Capture-DashboardLocalScreenshot",
         "Capture-DashboardRightEdgeScreenshot",
+        "New-HumanClientShortVideoProof",
+        "human_client_short_video_proof",
+        "shortVideoOrFrameSequenceProof",
+        "human_client_short_video.mp4",
+        "Mandatory human-client short video/frame-sequence proof failed",
         "GetDpiForWindowValue",
         "Get-DashboardResizeProofContext",
         "Wait-DashboardPostResizeSettle",
@@ -1381,6 +1732,17 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
                 feature_enabled=True,
                 dashboard_visible=False,
                 source="internal_sandbox_validation",
+                monitor_ids=["cpu", "gpu"],
+                overlay_profiles={
+                    "custom-overlay": {
+                        "id": "custom-overlay",
+                        "name": "Custom Overlay Profile",
+                        "monitorIds": ["gpu", "gpu", "missing", "cpu"],
+                        "recordingProfileId": "must-not-survive",
+                        "monitorGroupId": "must-not-survive",
+                    }
+                },
+                active_overlay_profile_id="missing-overlay",
             )
             persisted_state = load_monitoring_hud_state()
             _require(saved, "HUD feature state persistence save must succeed", failures)
@@ -1392,6 +1754,118 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
             _require(
                 persisted_state.get("dashboardVisible") is False,
                 "HUD feature state persistence must allow Dashboard to stay closed on startup",
+                failures,
+            )
+            _require(
+                persisted_state.get("activeOverlayProfileId") == DEFAULT_OVERLAY_PROFILE_ID,
+                "Overlay Profile active pointer must fall back to the default profile",
+                failures,
+            )
+            default_profile = (persisted_state.get("overlayProfiles") or {}).get(DEFAULT_OVERLAY_PROFILE_ID, {})
+            _require(
+                default_profile.get("monitorIds") == ["cpu", "gpu"],
+                "Default Overlay Profile must preserve legacy monitor membership across save/load",
+                failures,
+            )
+            custom_profile = (persisted_state.get("overlayProfiles") or {}).get("custom-overlay", {})
+            _require(
+                custom_profile.get("monitorIds") == ["gpu", "cpu"],
+                "Overlay Profile normalization must remove duplicate and stale monitor ids",
+                failures,
+            )
+            _require(
+                "recordingProfileId" not in custom_profile and "monitorGroupId" not in custom_profile,
+                "Overlay Profile state must stay distinct from Recording Profile and Monitor Group fields",
+                failures,
+            )
+            normalized_legacy = normalize_monitoring_hud_overlay_profiles({}, ["cpu", "gpu"])
+            _require(
+                normalized_legacy.get("overlayProfiles", {}).get(DEFAULT_OVERLAY_PROFILE_ID, {}).get("monitorIds") == ["cpu", "gpu"],
+                "Legacy card state without overlayProfiles must create a default Overlay Profile",
+                failures,
+            )
+            normalized_deleted_default = normalize_monitoring_hud_overlay_profiles(
+                {
+                    "monitorIds": ["cpu", "gpu"],
+                    "overlayProfiles": {},
+                    "activeOverlayProfileId": "",
+                    "overlayProfileDefaultDeletedByUser": True,
+                },
+                ["cpu", "gpu"],
+            )
+            _require(
+                normalized_deleted_default.get("overlayProfiles") == {},
+                "Persisted empty Overlay Profile set must not recreate a deleted default profile",
+                failures,
+            )
+            _require(
+                normalized_deleted_default.get("activeOverlayProfileId") == "",
+                "Persisted empty Overlay Profile set must preserve an empty active profile pointer",
+                failures,
+            )
+            _require(
+                normalized_deleted_default.get("overlayProfileDefaultDeletedByUser") is True,
+                "Persisted empty Overlay Profile set must keep the default-deleted marker",
+                failures,
+            )
+            saved_deleted_default = save_monitoring_hud_state(
+                feature_enabled=True,
+                dashboard_visible=True,
+                source="internal_sandbox_deleted_default_overlay_profile",
+                monitor_ids=["cpu", "gpu"],
+                overlay_profiles={},
+                active_overlay_profile_id="",
+                overlay_profile_default_deleted_by_user=True,
+            )
+            deleted_default_state = load_monitoring_hud_state()
+            _require(saved_deleted_default, "Deleted default Overlay Profile state save must succeed", failures)
+            _require(
+                deleted_default_state.get("overlayProfiles") == {},
+                "Deleted default Overlay Profile state must remain empty across save/load",
+                failures,
+            )
+            _require(
+                deleted_default_state.get("activeOverlayProfileId") == "",
+                "Deleted default Overlay Profile state must keep empty active id across save/load",
+                failures,
+            )
+            _require(
+                deleted_default_state.get("overlayProfileDefaultDeletedByUser") is True,
+                "Deleted default Overlay Profile state must preserve the deletion marker across save/load",
+                failures,
+            )
+            saved_selection = save_monitoring_hud_state(
+                feature_enabled=True,
+                dashboard_visible=True,
+                source="internal_sandbox_slc039_membership_mapping",
+                monitor_ids=["cpu", "gpu"],
+                overlay_profiles={
+                    DEFAULT_OVERLAY_PROFILE_ID: default_profile,
+                    "custom-overlay": {
+                        "id": "custom-overlay",
+                        "name": "Focused Overlay Profile",
+                        "monitorIds": ["gpu"],
+                        "displayMode": "monitor-cards",
+                    },
+                },
+                active_overlay_profile_id="custom-overlay",
+            )
+            selected_state = load_monitoring_hud_state()
+            _require(saved_selection, "SLC-039 Overlay Profile selection save must succeed", failures)
+            _require(
+                selected_state.get("activeOverlayProfileId") == "custom-overlay",
+                "SLC-039 active Overlay Profile selection must persist across save/load",
+                failures,
+            )
+            selected_profile = (selected_state.get("overlayProfiles") or {}).get("custom-overlay", {})
+            _require(
+                selected_profile.get("name") == "Focused Overlay Profile",
+                "SLC-039 Overlay Profile rename metadata must persist across save/load",
+                failures,
+            )
+            _require(
+                selected_profile.get("monitorIds") == ["gpu"],
+                "SLC-039 Overlay Profile membership mapping must persist across save/load",
                 failures,
             )
         finally:
@@ -1418,7 +1892,19 @@ def _write_manifest(status: str, failures: list[str], contracts: dict[str, objec
         "status": status,
         "package": "PKG-006",
         "phase": "Workstream",
-        "seam": "WS33 dashboard settings content and monitor-management clarity sandbox consolidation",
+        "seam": "SLC-041 Overlay Profile validation and live desktop proof readiness",
+        "proofChain": {
+            "SLC-037": "Overlay Profile data/state foundation",
+            "SLC-038": "Dashboard selector and Overlay Profile Settings controls",
+            "SLC-039": "settings-window monitor membership mapping",
+            "SLC-040": "Manage Monitors read-only Overlay Profile context and route",
+            "SLC-041": "focused validator and live desktop proof readiness",
+        },
+        "proofBoundary": {
+            "focusedWebViewProofRequired": True,
+            "fullDesktopScreenshotsContextOnly": True,
+            "formalUtsExport": "Live Validation Stage 1 only after human-client precheck PASS or USER waiver",
+        },
         "contracts": contracts,
         "failures": failures,
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

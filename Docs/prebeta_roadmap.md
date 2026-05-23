@@ -68,8 +68,8 @@ Package/slice release blockers remain named `Single-Slice Package User Approval 
 | `FAM-003` Interaction and Actions | released shared-action/tray evidence; future interaction package remains open | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` |
 | `FAM-004` Voice and Audio | released voice/audio direction and diagnostics evidence; future voice package remains open | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` External Integrations | architecture/planning evidence exists; implementation remains future | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
-| `FAM-006` Monitoring and HUD | Dashboard / Sensor Command Center evidence preserved; future monitoring/HUD scope remains USER-gated | `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` |
-| `FAM-007` Local AI and Capability Packs | local-only provider/setup readiness sequence is in progress; provider execution and model work remain USER-gated | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` |
+| `FAM-006` Monitoring and HUD | Dashboard, Sensor Command Center, and Overlay Profile foundation evidence are released receipts; future monitoring/HUD scope remains USER-gated | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md` |
+| `FAM-007` Local AI and Capability Packs | local-only provider setup and consent readiness sequence is released through consent foundation; provider execution and model work remain USER-gated | `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md` |
 | `FAM-008` Packaging and Install Experience | future install/package milestone | `Docs/orin_vision.md` |
 | `FAM-009` Workspace and Data | released baseline; future workspace/data package remains open | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
 | `FAM-010` Safety and Privacy | future privacy/safety package | `Docs/orin_vision.md` |

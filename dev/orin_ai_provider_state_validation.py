@@ -228,6 +228,8 @@ from desktop.ai_provider_state import (  # noqa: E402
     FAM007_PROVIDER_SETUP_CONTRACT_READINESS_STATE_ID,
     FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_MODE,
     FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_STATE_ID,
+    FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_MODE,
+    FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_STATE_ID,
     PROVIDER_EXECUTION_READINESS_CONFIG_SCHEMA_VERSION,
     PROVIDER_EXECUTION_READINESS_STATE_SCHEMA_VERSION,
     PROVIDER_EXECUTION_CONFIG_STATE_DEFAULT,
@@ -646,6 +648,68 @@ from desktop.ai_provider_state import (  # noqa: E402
     SETUP_FOUNDATION_VALIDATION_STATIC_READY,
     SETUP_FOUNDATION_PERSISTENCE_DISABLED,
     SETUP_FOUNDATION_PERSISTENCE_LOCAL_DRAFT_ONLY,
+    CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION,
+    CONSENT_COLLECTION_FOUNDATION_STATE_SCHEMA_VERSION,
+    CONSENT_COLLECTION_STATE_BLOCKED_BY_AUDIT,
+    CONSENT_COLLECTION_STATE_BLOCKED_BY_CONSENT_FLOW,
+    CONSENT_COLLECTION_STATE_BLOCKED_BY_DATA_VISIBILITY,
+    CONSENT_COLLECTION_STATE_BLOCKED_BY_POLICY,
+    CONSENT_COLLECTION_STATE_BLOCKED_BY_SETUP_FOUNDATION,
+    CONSENT_COLLECTION_STATE_DEGRADED,
+    CONSENT_COLLECTION_STATE_DISABLED,
+    CONSENT_COLLECTION_STATE_READY_BUT_NOT_APPROVED,
+    CONSENT_COLLECTION_STATE_READY_BUT_NOT_COLLECTED,
+    CONSENT_COLLECTION_STATE_READY_FOR_FUTURE_CAPTURE_BRANCH,
+    CONSENT_COLLECTION_ELIGIBILITY_BLOCKED,
+    CONSENT_COLLECTION_ELIGIBILITY_DISABLED,
+    CONSENT_COLLECTION_ELIGIBILITY_FUTURE_CAPTURE_BRANCH,
+    CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_APPROVED,
+    CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_COLLECTED,
+    CONSENT_COLLECTION_BLOCKER_APPROVAL_REQUIRED,
+    CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED,
+    CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED,
+    CONSENT_COLLECTION_BLOCKER_DATA_VISIBILITY_REQUIRED,
+    CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH,
+    CONSENT_COLLECTION_BLOCKER_POLICY_BLOCKED,
+    CONSENT_COLLECTION_BLOCKER_SETUP_FOUNDATION_REQUIRED,
+    CONSENT_COLLECTION_REASON_APPROVAL_MISSING,
+    CONSENT_COLLECTION_REASON_AUDIT_REQUIRED,
+    CONSENT_COLLECTION_REASON_CONFIG_INVALID,
+    CONSENT_COLLECTION_REASON_CONFIG_MISSING,
+    CONSENT_COLLECTION_REASON_CONSENT_FLOW_REQUIRED,
+    CONSENT_COLLECTION_REASON_DATA_VISIBILITY_BLOCKED,
+    CONSENT_COLLECTION_REASON_DEFAULT_UNAVAILABLE,
+    CONSENT_COLLECTION_REASON_POLICY_BLOCKED,
+    CONSENT_COLLECTION_REASON_READY_BUT_NOT_COLLECTED,
+    CONSENT_COLLECTION_REASON_READY_FOR_FUTURE_CAPTURE_BRANCH,
+    CONSENT_COLLECTION_REASON_SETUP_FOUNDATION_REQUIRED,
+    CONSENT_COLLECTION_PROVENANCE_APPROVAL,
+    CONSENT_COLLECTION_PROVENANCE_AUDIT,
+    CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW,
+    CONSENT_COLLECTION_PROVENANCE_DATA_VISIBILITY,
+    CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE,
+    CONSENT_COLLECTION_PROVENANCE_POLICY,
+    CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+    CONSENT_COLLECTION_APPROVAL_STATUS_FUTURE_GATED,
+    CONSENT_COLLECTION_APPROVAL_STATUS_MISSING,
+    CONSENT_COLLECTION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF,
+    CONSENT_COLLECTION_GATE_BLOCKED,
+    CONSENT_COLLECTION_GATE_FUTURE_GATED,
+    CONSENT_COLLECTION_GATE_LOCAL_PROOF,
+    CONSENT_COLLECTION_CAPTURE_SURFACE_DISABLED,
+    CONSENT_COLLECTION_CAPTURE_SURFACE_READY_FUTURE_GATED,
+    CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_READY,
+    CONSENT_COLLECTION_DATA_VISIBILITY_REVIEW_REQUIRED,
+    CONSENT_COLLECTION_AUDIT_ENVELOPE_READY,
+    CONSENT_COLLECTION_AUDIT_ENVELOPE_REQUIRED,
+    CONSENT_COLLECTION_PROVENANCE_READY,
+    CONSENT_COLLECTION_PROVENANCE_REQUIRED,
+    CONSENT_COLLECTION_PERSISTENCE_DISABLED,
+    CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY,
+    CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED,
+    CONSENT_COLLECTION_VALIDATION_STATIC_READY,
+    FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY,
+    CONSENT_COLLECTION_FOLD_DOWN_READY,
     PROVIDER_PROFILE_GATE_BLOCKED,
     PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
     CAPABILITY_GATE_BLOCKED,
@@ -684,6 +748,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_default_provider_activation_config,
     build_default_provider_execution_readiness_config,
     build_default_provider_path_consent_readiness_config,
+    build_default_provider_consent_collection_foundation_config,
     build_default_provider_setup_foundation_config,
     build_fam007_foundation_readiness_state,
     build_default_provider_runtime_config,
@@ -698,6 +763,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_provider_setup_consent_flow_readiness_state,
     build_provider_setup_contract_readiness_state,
     build_provider_setup_implementation_foundation_state,
+    build_provider_consent_collection_foundation_state,
     build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
 )
@@ -1280,6 +1346,25 @@ def validate() -> list[str]:
             "setup_consent_ready": True,
             "execution_consent_ready": True,
             "provenance": "provider_config_draft",
+        }
+        config.update(overrides)
+        return config
+
+    def _consent_collection_config(**overrides: object) -> dict[str, object]:
+        config: dict[str, object] = {
+            "schema_version": CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION,
+            "consent_capture_surface_enabled": True,
+            "setup_consent_capture_ready": True,
+            "execution_consent_capture_ready": True,
+            "data_visibility_review_ready": True,
+            "audit_envelope_ready": True,
+            "provenance_ready": True,
+            "local_persistence_ready": True,
+            "validation_passed": True,
+            "policy_allows_collection": True,
+            "consent_collection_approved": False,
+            "future_capture_branch_ready": False,
+            "provenance": "future_consent_capture_branch",
         }
         config.update(overrides)
         return config
@@ -1941,6 +2026,126 @@ def validate() -> list[str]:
         setup_foundation_config=_setup_foundation_config(setup_foundation_approved=True),
         surface_role="core",
     )
+    consent_collection_ready_setup_config = _setup_foundation_config(
+        setup_foundation_approved=True
+    )
+    default_consent_collection_config_snapshot = (
+        build_default_provider_consent_collection_foundation_config()
+    )
+    default_consent_collection_snapshot = build_provider_consent_collection_foundation_state(
+        build_default_provider_readiness_config(),
+        surface_role="core",
+    )
+    missing_consent_collection_config_snapshot = (
+        build_provider_consent_collection_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=None,
+            surface_role="core",
+        )
+    )
+    invalid_consent_collection_config_snapshot = (
+        build_provider_consent_collection_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config={
+                "schema_version": "provider-consent-collection-foundation-config.v0",
+                "provenance": "audit_policy",
+            },
+            surface_role="core",
+        )
+    )
+    setup_foundation_required_consent_collection_snapshot = (
+        build_provider_consent_collection_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=build_default_provider_setup_foundation_config(),
+            consent_collection_config=_consent_collection_config(),
+            surface_role="core",
+        )
+    )
+    policy_blocked_consent_collection_snapshot = (
+        build_provider_consent_collection_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=_consent_collection_config(policy_allows_collection=False),
+            surface_role="core",
+        )
+    )
+    data_visibility_required_consent_collection_snapshot = (
+        build_provider_consent_collection_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=_consent_collection_config(
+                data_visibility_review_ready=False
+            ),
+            surface_role="core",
+        )
+    )
+    audit_required_consent_collection_snapshot = (
+        build_provider_consent_collection_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=_consent_collection_config(audit_envelope_ready=False),
+            surface_role="core",
+        )
+    )
+    validation_failed_consent_collection_snapshot = (
+        build_provider_consent_collection_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=_consent_collection_config(validation_passed=False),
+            surface_role="core",
+        )
+    )
+    approval_missing_consent_collection_snapshot = (
+        build_provider_consent_collection_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=_consent_collection_config(),
+            surface_role="core",
+        )
+    )
+    ready_not_collected_consent_collection_snapshot = (
+        build_provider_consent_collection_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=_consent_collection_config(
+                consent_collection_approved=True
+            ),
+            surface_role="core",
+        )
+    )
+    ready_future_capture_consent_collection_snapshot = (
+        build_provider_consent_collection_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=_consent_collection_config(
+                consent_collection_approved=True,
+                future_capture_branch_ready=True,
+            ),
+            surface_role="core",
+        )
+    )
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
@@ -2062,6 +2267,25 @@ def validate() -> list[str]:
         "approval_missing": approval_missing_setup_foundation_snapshot.as_renderer_payload(),
         "ready_local_draft": ready_local_draft_setup_foundation_snapshot.as_renderer_payload(),
         "ready_future_setup_branch": ready_future_branch_setup_foundation_snapshot.as_renderer_payload(),
+    }
+    consent_collection_payloads = {
+        "default": default_consent_collection_snapshot.as_renderer_payload(),
+        "missing_config": missing_consent_collection_config_snapshot.as_renderer_payload(),
+        "invalid_config": invalid_consent_collection_config_snapshot.as_renderer_payload(),
+        "setup_foundation_required": (
+            setup_foundation_required_consent_collection_snapshot.as_renderer_payload()
+        ),
+        "policy_blocked": policy_blocked_consent_collection_snapshot.as_renderer_payload(),
+        "data_visibility_required": (
+            data_visibility_required_consent_collection_snapshot.as_renderer_payload()
+        ),
+        "audit_required": audit_required_consent_collection_snapshot.as_renderer_payload(),
+        "validation_failed": validation_failed_consent_collection_snapshot.as_renderer_payload(),
+        "approval_missing": approval_missing_consent_collection_snapshot.as_renderer_payload(),
+        "ready_not_collected": ready_not_collected_consent_collection_snapshot.as_renderer_payload(),
+        "ready_future_capture": (
+            ready_future_capture_consent_collection_snapshot.as_renderer_payload()
+        ),
     }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -5002,6 +5226,247 @@ def validate() -> list[str]:
             failures,
         )
 
+    consent_collection_expectations = {
+        "default": (
+            CONSENT_COLLECTION_STATE_BLOCKED_BY_CONSENT_FLOW,
+            CONSENT_COLLECTION_ELIGIBILITY_BLOCKED,
+            CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED,
+            CONSENT_COLLECTION_REASON_CONSENT_FLOW_REQUIRED,
+            CONSENT_COLLECTION_PROVENANCE_CONSENT_FLOW,
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+            True,
+            CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED,
+            CONSENT_COLLECTION_PERSISTENCE_DISABLED,
+            CONSENT_COLLECTION_GATE_BLOCKED,
+        ),
+        "missing_config": (
+            CONSENT_COLLECTION_STATE_DISABLED,
+            CONSENT_COLLECTION_ELIGIBILITY_DISABLED,
+            CONSENT_COLLECTION_BLOCKER_CONSENT_FLOW_REQUIRED,
+            CONSENT_COLLECTION_REASON_CONFIG_MISSING,
+            CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_MISSING,
+            False,
+            CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED,
+            CONSENT_COLLECTION_PERSISTENCE_DISABLED,
+            CONSENT_COLLECTION_GATE_BLOCKED,
+        ),
+        "invalid_config": (
+            CONSENT_COLLECTION_STATE_DEGRADED,
+            CONSENT_COLLECTION_ELIGIBILITY_BLOCKED,
+            CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED,
+            CONSENT_COLLECTION_REASON_CONFIG_INVALID,
+            CONSENT_COLLECTION_PROVENANCE_AUDIT,
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_INVALID,
+            False,
+            CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED,
+            CONSENT_COLLECTION_PERSISTENCE_DISABLED,
+            CONSENT_COLLECTION_GATE_BLOCKED,
+        ),
+        "setup_foundation_required": (
+            CONSENT_COLLECTION_STATE_BLOCKED_BY_SETUP_FOUNDATION,
+            CONSENT_COLLECTION_ELIGIBILITY_BLOCKED,
+            CONSENT_COLLECTION_BLOCKER_SETUP_FOUNDATION_REQUIRED,
+            CONSENT_COLLECTION_REASON_SETUP_FOUNDATION_REQUIRED,
+            CONSENT_COLLECTION_PROVENANCE_SETUP_FOUNDATION,
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            CONSENT_COLLECTION_VALIDATION_STATIC_READY,
+            CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY,
+            CONSENT_COLLECTION_GATE_BLOCKED,
+        ),
+        "policy_blocked": (
+            CONSENT_COLLECTION_STATE_BLOCKED_BY_POLICY,
+            CONSENT_COLLECTION_ELIGIBILITY_BLOCKED,
+            CONSENT_COLLECTION_BLOCKER_POLICY_BLOCKED,
+            CONSENT_COLLECTION_REASON_POLICY_BLOCKED,
+            CONSENT_COLLECTION_PROVENANCE_POLICY,
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            CONSENT_COLLECTION_VALIDATION_STATIC_READY,
+            CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY,
+            CONSENT_COLLECTION_GATE_BLOCKED,
+        ),
+        "data_visibility_required": (
+            CONSENT_COLLECTION_STATE_BLOCKED_BY_DATA_VISIBILITY,
+            CONSENT_COLLECTION_ELIGIBILITY_BLOCKED,
+            CONSENT_COLLECTION_BLOCKER_DATA_VISIBILITY_REQUIRED,
+            CONSENT_COLLECTION_REASON_DATA_VISIBILITY_BLOCKED,
+            CONSENT_COLLECTION_PROVENANCE_DATA_VISIBILITY,
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED,
+            CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY,
+            CONSENT_COLLECTION_GATE_BLOCKED,
+        ),
+        "audit_required": (
+            CONSENT_COLLECTION_STATE_BLOCKED_BY_AUDIT,
+            CONSENT_COLLECTION_ELIGIBILITY_BLOCKED,
+            CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED,
+            CONSENT_COLLECTION_REASON_AUDIT_REQUIRED,
+            CONSENT_COLLECTION_PROVENANCE_AUDIT,
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED,
+            CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY,
+            CONSENT_COLLECTION_GATE_BLOCKED,
+        ),
+        "validation_failed": (
+            CONSENT_COLLECTION_STATE_DEGRADED,
+            CONSENT_COLLECTION_ELIGIBILITY_BLOCKED,
+            CONSENT_COLLECTION_BLOCKER_AUDIT_REQUIRED,
+            CONSENT_COLLECTION_REASON_AUDIT_REQUIRED,
+            CONSENT_COLLECTION_PROVENANCE_AUDIT,
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            CONSENT_COLLECTION_VALIDATION_FAIL_CLOSED,
+            CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY,
+            CONSENT_COLLECTION_GATE_BLOCKED,
+        ),
+        "approval_missing": (
+            CONSENT_COLLECTION_STATE_READY_BUT_NOT_APPROVED,
+            CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_APPROVED,
+            CONSENT_COLLECTION_BLOCKER_APPROVAL_REQUIRED,
+            CONSENT_COLLECTION_REASON_APPROVAL_MISSING,
+            CONSENT_COLLECTION_PROVENANCE_APPROVAL,
+            CONSENT_COLLECTION_APPROVAL_STATUS_MISSING,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            CONSENT_COLLECTION_VALIDATION_STATIC_READY,
+            CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY,
+            CONSENT_COLLECTION_GATE_LOCAL_PROOF,
+        ),
+        "ready_not_collected": (
+            CONSENT_COLLECTION_STATE_READY_BUT_NOT_COLLECTED,
+            CONSENT_COLLECTION_ELIGIBILITY_READY_NOT_COLLECTED,
+            CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH,
+            CONSENT_COLLECTION_REASON_READY_BUT_NOT_COLLECTED,
+            CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE,
+            CONSENT_COLLECTION_APPROVAL_STATUS_FUTURE_GATED,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            CONSENT_COLLECTION_VALIDATION_STATIC_READY,
+            CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY,
+            CONSENT_COLLECTION_GATE_FUTURE_GATED,
+        ),
+        "ready_future_capture": (
+            CONSENT_COLLECTION_STATE_READY_FOR_FUTURE_CAPTURE_BRANCH,
+            CONSENT_COLLECTION_ELIGIBILITY_FUTURE_CAPTURE_BRANCH,
+            CONSENT_COLLECTION_BLOCKER_FUTURE_CAPTURE_BRANCH,
+            CONSENT_COLLECTION_REASON_READY_FOR_FUTURE_CAPTURE_BRANCH,
+            CONSENT_COLLECTION_PROVENANCE_FUTURE_CAPTURE,
+            CONSENT_COLLECTION_APPROVAL_STATUS_READY_FOR_FUTURE_PROOF,
+            PROVIDER_PATH_CONFIG_STATE_LOCAL,
+            True,
+            CONSENT_COLLECTION_VALIDATION_STATIC_READY,
+            CONSENT_COLLECTION_PERSISTENCE_LOCAL_PROOF_ONLY,
+            CONSENT_COLLECTION_GATE_FUTURE_GATED,
+        ),
+    }
+    _require(
+        default_consent_collection_config_snapshot.schema_version
+        == CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION
+        and default_consent_collection_config_snapshot.config_valid,
+        "default consent collection foundation config must publish its schema and remain valid",
+        failures,
+    )
+    for label, expectation in consent_collection_expectations.items():
+        collection_payload = consent_collection_payloads[label]
+        (
+            expected_state,
+            expected_eligibility,
+            expected_blocker,
+            expected_reason,
+            expected_provenance,
+            expected_approval,
+            expected_config_state,
+            expected_config_valid,
+            expected_validation,
+            expected_persistence,
+            expected_gate,
+        ) = expectation
+        _require(
+            collection_payload["stateId"]
+            == FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_STATE_ID,
+            f"{label} consent-collection fixture must use consent collection foundation state id",
+            failures,
+        )
+        _require(
+            collection_payload["mode"] == FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_MODE,
+            f"{label} consent-collection fixture must use consent collection foundation mode",
+            failures,
+        )
+        _require(
+            collection_payload["consentCollectionStateSchemaVersion"]
+            == CONSENT_COLLECTION_FOUNDATION_STATE_SCHEMA_VERSION
+            and collection_payload["consentCollectionConfigSchemaVersion"]
+            == CONSENT_COLLECTION_FOUNDATION_CONFIG_SCHEMA_VERSION,
+            f"{label} consent-collection fixture must publish consent collection schemas",
+            failures,
+        )
+        _require(
+            collection_payload["consentCollectionFoundationState"] == expected_state
+            and collection_payload["consentCollectionEligibilityState"] == expected_eligibility
+            and collection_payload["consentCollectionBlockerState"] == expected_blocker
+            and collection_payload["consentCollectionReasonCode"] == expected_reason
+            and collection_payload["consentCollectionProvenance"] == expected_provenance
+            and collection_payload["consentCollectionApprovalStatus"] == expected_approval,
+            f"{label} consent-collection fixture must publish expected state values",
+            failures,
+        )
+        _require(
+            collection_payload["consentCollectionConfigState"] == expected_config_state
+            and collection_payload["consentCollectionConfigValid"] is expected_config_valid,
+            f"{label} consent-collection fixture must publish expected config posture",
+            failures,
+        )
+        _require(
+            collection_payload["consentCollectionValidationStatus"] == expected_validation
+            and collection_payload["consentPersistenceStatus"] == expected_persistence
+            and collection_payload["consentCollectionGateState"] == expected_gate,
+            f"{label} consent-collection fixture must publish expected proof gates",
+            failures,
+        )
+        _require(
+            collection_payload["futureConsentCaptureHandoffState"]
+            == FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY
+            and collection_payload["consentCollectionFoldDownPosture"]
+            == CONSENT_COLLECTION_FOLD_DOWN_READY,
+            f"{label} consent-collection fixture must publish future handoff/fold-down proof",
+            failures,
+        )
+        _require(
+            collection_payload["providerVisibleData"] == "none"
+            and collection_payload["sentToProvider"] is False
+            and collection_payload["canAcceptPrompts"] is False,
+            f"{label} consent-collection fixture must keep provider-visible data none and prompts disabled",
+            failures,
+        )
+        _require(
+            collection_payload["promptSendPosture"] == PROMPT_SEND_POSTURE_DISABLED
+            and collection_payload["modelExecutionStatus"] == MODEL_EXECUTION_STATUS_DISABLED
+            and collection_payload["providerExecutionGateState"] == PROVIDER_EXECUTION_GATE_DISABLED,
+            f"{label} consent-collection fixture must keep prompt/provider/model execution disabled",
+            failures,
+        )
+        _require(
+            collection_payload["capabilityPackDownloadState"] == CAPABILITY_PACK_DOWNLOADS_BLOCKED
+            and collection_payload["capabilityPackInstallState"] == CAPABILITY_PACK_INSTALL_BLOCKED
+            and collection_payload["memoryIndexingState"] == MEMORY_INDEXING_DISABLED
+            and collection_payload["networkEgressState"] == NETWORK_EGRESS_BLOCKED
+            and collection_payload["voiceRuntimeState"] == "voice-runtime-disabled",
+            f"{label} consent-collection fixture must keep downloads/install, memory, network, and voice gated",
+            failures,
+        )
+
     default_permissions = readiness_payloads["default"]["actionPermissionMatrix"]
     _require(
         len(default_permissions) == 9,
@@ -5352,6 +5817,11 @@ def validate() -> list[str]:
         "setup_foundation_validation",
         "setup_foundation_persistence",
         "setup_foundation_gate",
+        "consent_collection_foundation",
+        "consent_collection_blocker",
+        "consent_collection_validation",
+        "consent_collection_persistence",
+        "consent_collection_gate",
         "provider_setup_handoff",
         "provider_consent_handoff",
         "desktop_readiness_display",
@@ -5468,6 +5938,12 @@ def validate() -> list[str]:
             'data-setup-foundation-validation="setup-foundation-validation-fail-closed"',
             'data-setup-foundation-persistence="setup-foundation-persistence-disabled"',
             'data-setup-foundation-gate="setup-foundation-gate-blocked"',
+            'data-consent-collection-foundation="consent_collection_unavailable"',
+            'data-consent-collection-blocker="consent_collection_consent_flow_required"',
+            'data-consent-collection-approval="consent-collection-approval-missing"',
+            'data-consent-collection-validation="consent-collection-validation-fail-closed"',
+            'data-consent-collection-persistence="consent-persistence-disabled"',
+            'data-consent-collection-gate="consent-collection-gate-blocked"',
             'data-provider-setup-handoff="provider-setup-handoff-future-gated"',
             'data-data-classification-posture="data-classification-local-only"',
             'data-audit-envelope="audit-envelope-planned-no-collection"',
@@ -5651,6 +6127,14 @@ def validate() -> list[str]:
             "Setup foundation persistence: disabled; no provider credentials stored",
             'id="ai-provider-status-setup-foundation-handoff"',
             "Setup foundation handoff: future provider setup implementation gated",
+            'id="ai-provider-status-consent-collection-foundation"',
+            "Consent collection foundation: unavailable",
+            'id="ai-provider-status-consent-collection-blocker"',
+            "Consent collection blocker: consent flow readiness required",
+            'id="ai-provider-status-consent-collection-audit"',
+            "Consent collection audit: required before capture; no consent stored",
+            'id="ai-provider-status-consent-collection-handoff"',
+            "Consent collection handoff: future capture branch gated",
             'id="ai-provider-status-setup-consent"',
             "Setup consent: required before provider setup",
             'id="ai-provider-status-execution-consent"',
@@ -5722,6 +6206,10 @@ def validate() -> list[str]:
         ".ai-provider-status__setup-foundation-validation",
         ".ai-provider-status__setup-foundation-persistence",
         ".ai-provider-status__setup-foundation-handoff",
+        ".ai-provider-status__consent-collection-foundation",
+        ".ai-provider-status__consent-collection-blocker",
+        ".ai-provider-status__consent-collection-audit",
+        ".ai-provider-status__consent-collection-handoff",
         ".ai-provider-status__setup-consent",
         ".ai-provider-status__execution-consent",
         ".ai-provider-status__consent-schema",
@@ -5918,6 +6406,13 @@ def validate() -> list[str]:
         "providerSetupFoundationPersistenceStatus",
         "providerSetupFoundationGateState",
         "providerSetupImplementationHandoffState",
+        "consentCollectionFoundationState",
+        "consentCollectionBlockerState",
+        "consentCollectionApprovalStatus",
+        "consentCollectionValidationStatus",
+        "consentPersistenceStatus",
+        "consentCollectionGateState",
+        "futureConsentCaptureHandoffState",
         "setupConsentGateState",
         "executionConsentGateState",
         "providerVisibleDataGateState",
@@ -5973,6 +6468,10 @@ def validate() -> list[str]:
         "aiProviderStatusSetupFoundationValidation",
         "aiProviderStatusSetupFoundationPersistence",
         "aiProviderStatusSetupFoundationHandoff",
+        "aiProviderStatusConsentCollectionFoundation",
+        "aiProviderStatusConsentCollectionBlocker",
+        "aiProviderStatusConsentCollectionAudit",
+        "aiProviderStatusConsentCollectionHandoff",
         "aiProviderStatusSetupConsent",
         "aiProviderStatusExecutionConsent",
         "aiProviderStatusConsentSchema",

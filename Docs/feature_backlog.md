@@ -97,8 +97,8 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | `FAM-003` | Interaction and Actions | High | Open / aggregation-held | `PKG-003` released baseline / open | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` |
 | `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
-| `FAM-006` | Monitoring and HUD | High | Open / historical Dashboard and Sensor Command Center evidence preserved | `PKG-006` released baseline / open | `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` |
-| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted; current branch details live in branch authority and plan | `PKG-007` admitted / not package-complete | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` |
+| `FAM-006` | Monitoring and HUD | High | Open / released Dashboard, Sensor Command Center, and Overlay Profile foundation evidence preserved | `PKG-006` released baseline / open | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md` |
+| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted; released setup and consent foundation evidence preserved | `PKG-007` admitted / not package-complete | `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md` |
 | `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/orin_vision.md` |
 | `FAM-009` | Workspace and Data | Low | Open / deferred follow-through | `PKG-009` released baseline / open | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
 | `FAM-010` | Safety and Privacy | High | Pending architecture/package | `PKG-010` pending | `Docs/orin_vision.md` |
@@ -185,36 +185,36 @@ Historical Trace Coverage: `FB-039`, Stream Deck and external trigger planning g
 
 ### [ID: FAM-006] Monitoring and HUD
 
-Status: Open / historical Dashboard and Sensor Command Center evidence preserved
+Status: Open / released Dashboard, Sensor Command Center, and Overlay Profile Runtime Foundation evidence preserved
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: High
 Family Scope: Monitoring HUD, Dashboard, Sensor Command Center, Sensor Library, monitor configuration, Overlay Profile, Recording Profile, local telemetry presentation, and user-facing performance/health surfaces.
-Package Summary: `PKG-006` released baseline / open; detailed Monitor Groups, Sensor Library, Overlay Profile, Recording Profile, returned USER UTS FAIL, interactive-control visual QA, right-edge resize rediscovery, visible resize-proof contamination, invisible/test-gated proof, Warning Notifications, Provider Readiness, and Sensor Command Center planning live in the FAM-006 branch authority record and related workstream evidence.
+Package Summary: `PKG-006` released baseline / open; detailed Monitor Groups, Sensor Library, Overlay Profile, Recording Profile, returned USER UTS, interactive-control visual QA, right-edge resize rediscovery, visual proof, Warning Notifications, Provider Readiness, and Sensor Command Center history live in FAM-006 branch authority records and related workstream evidence.
 Package Admission State: Historical baseline / no active package admission in this backlog file
 Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
-Canonical Detail Owner: `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md`
-Historical Trace Coverage: `FB-040`, HUD surface gap, PR #118, PR #180, FAM-006 branch records.
+Canonical Detail Owner: `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`
+Historical Trace Coverage: `FB-040`, HUD surface gap, PR #118, PR #180, PR #194, FAM-006 branch records.
 
 ### [ID: FAM-007] Local AI and Capability Packs
 
-Status: Open / package admitted; current branch details live in branch authority and plan
+Status: Open / package admitted; released setup implementation and consent collection foundation evidence preserved
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: High
-Family Scope: Local AI, provider setup, provider readiness, consent posture, capability packs, model lifecycle, local-only privacy boundaries, provider-visible data, execution gates, memory/future learning boundaries, Core/Desktop AI state, and setup implementation foundation.
+Family Scope: Local AI, provider setup, provider readiness, consent posture, consent collection, capability packs, model lifecycle, local-only privacy boundaries, provider-visible data, execution gates, memory/future learning boundaries, and Core/Desktop AI state.
 Package Summary: `PKG-007` admitted with multiple historical and future-gated slices; not package-complete because provider SDK/model execution, downloads, external calls, memory/indexing/learning/personalization, voice/Core runtime sync, shortcut/installer work, capability-pack execution, and AI Product Contract import remain USER-gated.
-Package Admission State: Admitted / active detail is branch-record and branch-plan owned
-Admitted Slice Count: see `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
+Package Admission State: Admitted / detailed history is branch-record, branch-plan, workstream, or family-dossier owned
+Admitted Slice Count: see `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
 Package Completion State: Open / not package-complete
-Single-Slice Package User Approval: Not required - package history and current plan are multi-slice; future scope still requires USER approval.
-Canonical Detail Owner: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
-Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`
-Historical Trace Coverage: FAM-007 branch records, PR #138, PR #152, PR #159, PR #162, PR #165, PR #170, PR #172, PR #177, PR #179, PR #190.
+Single-Slice Package User Approval: Not required - package history is multi-slice; future scope still requires USER approval.
+Canonical Detail Owner: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
+Historical Branch Runtime Engineering Plans: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
+Historical Trace Coverage: FAM-007 branch records, PR #138, PR #152, PR #159, PR #162, PR #165, PR #170, PR #172, PR #177, PR #179, PR #190, PR #192, PR #193.
 
 ### [ID: FAM-008] Packaging and Install Experience
 
