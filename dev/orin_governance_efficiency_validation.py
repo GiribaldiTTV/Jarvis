@@ -392,7 +392,6 @@ def _branch_plan_requires_retirement_index_row(text: str) -> bool:
         "historical / folded",
         "historical -",
         "merged in pr #",
-        "pr #",
         "branch cleanup",
         "folded down",
     )
