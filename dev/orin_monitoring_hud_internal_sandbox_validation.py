@@ -1754,6 +1754,56 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
                 "Legacy card state without overlayProfiles must create a default Overlay Profile",
                 failures,
             )
+            normalized_deleted_default = normalize_monitoring_hud_overlay_profiles(
+                {
+                    "monitorIds": ["cpu", "gpu"],
+                    "overlayProfiles": {},
+                    "activeOverlayProfileId": "",
+                    "overlayProfileDefaultDeletedByUser": True,
+                },
+                ["cpu", "gpu"],
+            )
+            _require(
+                normalized_deleted_default.get("overlayProfiles") == {},
+                "Persisted empty Overlay Profile set must not recreate a deleted default profile",
+                failures,
+            )
+            _require(
+                normalized_deleted_default.get("activeOverlayProfileId") == "",
+                "Persisted empty Overlay Profile set must preserve an empty active profile pointer",
+                failures,
+            )
+            _require(
+                normalized_deleted_default.get("overlayProfileDefaultDeletedByUser") is True,
+                "Persisted empty Overlay Profile set must keep the default-deleted marker",
+                failures,
+            )
+            saved_deleted_default = save_monitoring_hud_state(
+                feature_enabled=True,
+                dashboard_visible=True,
+                source="internal_sandbox_deleted_default_overlay_profile",
+                monitor_ids=["cpu", "gpu"],
+                overlay_profiles={},
+                active_overlay_profile_id="",
+                overlay_profile_default_deleted_by_user=True,
+            )
+            deleted_default_state = load_monitoring_hud_state()
+            _require(saved_deleted_default, "Deleted default Overlay Profile state save must succeed", failures)
+            _require(
+                deleted_default_state.get("overlayProfiles") == {},
+                "Deleted default Overlay Profile state must remain empty across save/load",
+                failures,
+            )
+            _require(
+                deleted_default_state.get("activeOverlayProfileId") == "",
+                "Deleted default Overlay Profile state must keep empty active id across save/load",
+                failures,
+            )
+            _require(
+                deleted_default_state.get("overlayProfileDefaultDeletedByUser") is True,
+                "Deleted default Overlay Profile state must preserve the deletion marker across save/load",
+                failures,
+            )
             saved_selection = save_monitoring_hud_state(
                 feature_enabled=True,
                 dashboard_visible=True,

@@ -5787,6 +5787,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_overlay_profile_signature = None
         self._monitoring_hud_overlay_profiles = {}
         self._monitoring_hud_active_overlay_profile_id = "default-overlay-profile"
+        self._monitoring_hud_overlay_profile_default_deleted_by_user = False
         self._monitoring_hud_overlay_profile_monitor_ids = []
         self._monitoring_hud_active_child_window_signature = None
         self._monitoring_hud_control_sync_timer = QTimer(self)
@@ -8790,7 +8791,10 @@ class DesktopRuntimeWindow(QWidget):
             overlay_profiles=dict(getattr(self, "_monitoring_hud_overlay_profiles", {}) or {}),
             active_overlay_profile_id=str(
                 getattr(self, "_monitoring_hud_active_overlay_profile_id", "default-overlay-profile")
-                or "default-overlay-profile"
+                or ""
+            ),
+            overlay_profile_default_deleted_by_user=bool(
+                getattr(self, "_monitoring_hud_overlay_profile_default_deleted_by_user", False)
             ),
         )
 
@@ -12820,7 +12824,8 @@ class DesktopRuntimeWindow(QWidget):
         self._set_monitoring_hud_live_client_page_state(state, geometry_state)
         cards = state.get("cards") if isinstance(state.get("cards"), dict) else {}
         overlay_profiles = state.get("overlayProfiles") if isinstance(state.get("overlayProfiles"), dict) else {}
-        active_overlay_profile_id = str(state.get("activeOverlayProfileId") or "default-overlay-profile")
+        active_overlay_profile_id = str(state.get("activeOverlayProfileId") or "")
+        overlay_profile_default_deleted_by_user = bool(state.get("overlayProfileDefaultDeletedByUser"))
         overlay_profile_signature_parts = []
         for profile_id in sorted(str(key) for key in overlay_profiles.keys()):
             profile = overlay_profiles.get(profile_id) if isinstance(overlay_profiles.get(profile_id), dict) else {}
@@ -12835,6 +12840,7 @@ class DesktopRuntimeWindow(QWidget):
             ))
         overlay_profile_signature = (
             active_overlay_profile_id,
+            overlay_profile_default_deleted_by_user,
             int(state.get("overlayProfileSchemaVersion") or 0),
             tuple(overlay_profile_signature_parts),
         )
@@ -12843,6 +12849,7 @@ class DesktopRuntimeWindow(QWidget):
             self._monitoring_hud_overlay_profile_signature = overlay_profile_signature
             self._monitoring_hud_overlay_profiles = overlay_profiles
             self._monitoring_hud_active_overlay_profile_id = active_overlay_profile_id
+            self._monitoring_hud_overlay_profile_default_deleted_by_user = overlay_profile_default_deleted_by_user
             self._monitoring_hud_overlay_profile_monitor_ids = [str(key) for key in cards.keys()]
             default_profile = overlay_profiles.get("default-overlay-profile") if isinstance(overlay_profiles.get("default-overlay-profile"), dict) else {}
             default_monitor_ids = default_profile.get("monitorIds") if isinstance(default_profile.get("monitorIds"), list) else []

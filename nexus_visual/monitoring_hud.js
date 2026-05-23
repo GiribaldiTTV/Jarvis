@@ -3445,7 +3445,7 @@ function monitoringHudRenderOverlayDisplay() {
   monitoringHudOverlayDisplay.dataset.monitorCount = String(activeMonitorIds.length);
   monitoringHudOverlayDisplay.dataset.overlayProfileState = "slc-039-membership-mapping";
   monitoringHudOverlayDisplay.dataset.overlayProfileSchemaVersion = String(monitoringHudOverlayProfileSchemaVersion);
-  monitoringHudOverlayDisplay.dataset.activeOverlayProfileId = String(monitoringHudControlState.activeOverlayProfileId || monitoringHudDefaultOverlayProfileId);
+  monitoringHudOverlayDisplay.dataset.activeOverlayProfileId = String(monitoringHudControlState.activeOverlayProfileId || "");
   monitoringHudOverlayDisplay.dataset.activeOverlayProfileMonitorCount = String(activeMonitorIds.length);
   monitoringHudOverlayDisplay.dataset.overlayProfileEditor = "slc-039-membership-editor";
   monitoringHudOverlayDisplay.dataset.overlayProfileMembership = "editable-slc-039-mapping";
@@ -3603,7 +3603,7 @@ function monitoringHudRenderControls() {
   monitoringHud.dataset.pollingRateMs = String(monitoringHudControlState.pollingRateMs);
   monitoringHud.dataset.overlayProfileState = "slc-039-membership-mapping";
   monitoringHud.dataset.overlayProfileSchemaVersion = String(monitoringHudOverlayProfileSchemaVersion);
-  monitoringHud.dataset.activeOverlayProfileId = String(monitoringHudControlState.activeOverlayProfileId || monitoringHudDefaultOverlayProfileId);
+  monitoringHud.dataset.activeOverlayProfileId = String(monitoringHudControlState.activeOverlayProfileId || "");
   monitoringHud.dataset.overlayProfileEditor = "slc-039-membership-editor";
   monitoringHud.dataset.overlayProfileMembership = "editable-slc-039-mapping";
   monitoringHud.dataset.overlayProfileIntegration = "followup-assigned-overlay-status-assignment";

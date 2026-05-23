@@ -72,6 +72,8 @@ def normalize_monitoring_hud_overlay_profiles(payload=None, monitor_ids=None) ->
     source_payload = payload if isinstance(payload, dict) else {}
     allowed_monitor_ids = _stable_monitor_ids(monitor_ids or source_payload.get("monitorIds") or [])
     allowed_monitor_id_set = set(allowed_monitor_ids)
+    has_overlay_profiles_payload = "overlayProfiles" in source_payload
+    default_profile_deleted_by_user = bool(source_payload.get("overlayProfileDefaultDeletedByUser"))
     raw_profiles = source_payload.get("overlayProfiles")
     if not isinstance(raw_profiles, dict):
         raw_profiles = {}
@@ -99,22 +101,42 @@ def normalize_monitoring_hud_overlay_profiles(payload=None, monitor_ids=None) ->
             "source": str(raw_profile.get("source") or "persisted-overlay-profile-state"),
             "dirty": bool(raw_profile.get("dirty")),
         }
-    profiles[DEFAULT_OVERLAY_PROFILE_ID] = default_overlay_profile_state(
-        allowed_monitor_ids,
-        profiles.get(DEFAULT_OVERLAY_PROFILE_ID) or raw_profiles.get(DEFAULT_OVERLAY_PROFILE_ID),
-    )
     active_profile_id = str(source_payload.get("activeOverlayProfileId") or "").strip()
+    should_ensure_default_profile = (
+        not has_overlay_profiles_payload
+        or DEFAULT_OVERLAY_PROFILE_ID in raw_profiles
+        or (
+            not default_profile_deleted_by_user
+            and (
+                not profiles
+                or active_profile_id == DEFAULT_OVERLAY_PROFILE_ID
+                or active_profile_id not in profiles
+            )
+        )
+    )
+    if should_ensure_default_profile:
+        profiles[DEFAULT_OVERLAY_PROFILE_ID] = default_overlay_profile_state(
+            allowed_monitor_ids,
+            profiles.get(DEFAULT_OVERLAY_PROFILE_ID) or raw_profiles.get(DEFAULT_OVERLAY_PROFILE_ID),
+        )
     if active_profile_id not in profiles:
-        active_profile_id = DEFAULT_OVERLAY_PROFILE_ID
+        active_profile_id = DEFAULT_OVERLAY_PROFILE_ID if DEFAULT_OVERLAY_PROFILE_ID in profiles else next(iter(profiles), "")
+    default_profile = profiles.get(DEFAULT_OVERLAY_PROFILE_ID)
     return {
         "overlayProfileSchemaVersion": OVERLAY_PROFILE_SCHEMA_VERSION,
         "activeOverlayProfileId": active_profile_id,
+        "overlayProfileDefaultDeletedByUser": default_profile_deleted_by_user
+        and DEFAULT_OVERLAY_PROFILE_ID not in profiles,
         "overlayProfiles": profiles,
         "overlayProfileStateProof": {
             "schemaVersion": OVERLAY_PROFILE_SCHEMA_VERSION,
             "activeProfileId": active_profile_id,
             "defaultProfileId": DEFAULT_OVERLAY_PROFILE_ID,
-            "defaultProfileMonitorIds": list(profiles[DEFAULT_OVERLAY_PROFILE_ID]["monitorIds"]),
+            "defaultProfileMonitorIds": list(default_profile.get("monitorIds", []))
+            if isinstance(default_profile, dict)
+            else [],
+            "defaultProfileDeletedByUser": default_profile_deleted_by_user
+            and DEFAULT_OVERLAY_PROFILE_ID not in profiles,
             "profileCount": len(profiles),
             "monitorGroupBoundary": "monitor-groups-organize-configuration-only",
             "recordingProfileBoundary": "recording-profile-state-absent-future-gated",
@@ -188,6 +210,7 @@ def save_monitoring_hud_state(
     monitor_ids=None,
     overlay_profiles=None,
     active_overlay_profile_id: str = DEFAULT_OVERLAY_PROFILE_ID,
+    overlay_profile_default_deleted_by_user: bool = False,
 ) -> bool:
     path = monitoring_hud_state_path()
     payload = {
@@ -201,6 +224,7 @@ def save_monitoring_hud_state(
         "monitorIds": _stable_monitor_ids(monitor_ids or []),
         "overlayProfiles": overlay_profiles if isinstance(overlay_profiles, dict) else {},
         "activeOverlayProfileId": active_overlay_profile_id,
+        "overlayProfileDefaultDeletedByUser": bool(overlay_profile_default_deleted_by_user),
     }
     payload.update(overlay_payload)
     payload.update(normalize_monitoring_hud_overlay_profiles(overlay_payload, overlay_payload["monitorIds"]))
