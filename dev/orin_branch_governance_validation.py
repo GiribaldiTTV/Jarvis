@@ -3327,6 +3327,21 @@ LIVE_VALIDATION_STALL_PHRASES = (
     "last confirmed",
 )
 
+LIVE_VALIDATION_AUTO_REPAIR_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/codex_user_guide.md"),
+)
+
+LIVE_VALIDATION_AUTO_REPAIR_PHRASES = (
+    "codex-visible `repair` or `stop`",
+    "bounded repair/rerun loop",
+    "user acceptance",
+    "real user-facing desktop launcher",
+)
+
 LIVE_VALIDATION_HELPER_CONTRACTS = {
     Path("dev/orin_launcher_live_window_audit.ps1"): (
         "NoProgressTimeoutSeconds",
@@ -4488,6 +4503,23 @@ CODEX_LIVE_CLIENT_SELF_QA_REQUIRED_MARKERS = (
     "Platform Uniformity Check:",
     "NDAI Naming Check:",
     "Cleanup Check:",
+)
+
+CODEX_VISUAL_ADJUDICATION_BLOCKER = "Codex Visual Adjudication Repair Pending"
+CODEX_VISUAL_ADJUDICATION_RESULT_LABEL = "Codex Visual Adjudication:"
+CODEX_VISUAL_ADJUDICATION_WAIVER_REASON_LABEL = "Codex Visual Adjudication Waiver Reason:"
+CODEX_VISUAL_ADJUDICATION_RESULT_VALUES = ("PENDING", "PASS", "FAIL", "WAIVED")
+CODEX_VISUAL_ADJUDICATION_CLEAR_VALUES = ("PASS", "WAIVED")
+CODEX_VISUAL_ADJUDICATION_REQUIRED_MARKERS = (
+    "Visual Artifact Review Scope:",
+    "Per-Element Visual Inventory:",
+    "Issue Form Coverage Matrix:",
+    "OneDrive Focused Screenshot Proof:",
+    "Product Vision Alignment:",
+    "Per-Element Visual Verdicts:",
+    "Helper Marker Limitation:",
+    "Unacceptable UI Findings:",
+    "LV1 Handoff Disposition:",
 )
 
 RELEASE_READINESS_TARGET_DOCS = (
@@ -9887,6 +9919,32 @@ def _parse_codex_live_client_self_qa_waiver_reason(text: str) -> str:
     )
 
 
+def _codex_visual_adjudication_section(text: str) -> str:
+    return _section(text, "Codex Visual Adjudication")
+
+
+def _has_codex_visual_adjudication(text: str) -> bool:
+    return bool(_codex_visual_adjudication_section(text))
+
+
+def _parse_codex_visual_adjudication_state(text: str) -> str:
+    section = _codex_visual_adjudication_section(text)
+    matches = re.findall(
+        rf"{re.escape(CODEX_VISUAL_ADJUDICATION_RESULT_LABEL)}\s*`?([A-Za-z]+)`?",
+        section,
+    )
+    if not matches:
+        return ""
+    return matches[-1].strip().upper()
+
+
+def _parse_codex_visual_adjudication_waiver_reason(text: str) -> str:
+    return _extract_marker_value(
+        _codex_visual_adjudication_section(text),
+        CODEX_VISUAL_ADJUDICATION_WAIVER_REASON_LABEL,
+    )
+
+
 def _has_user_test_summary(text: str) -> bool:
     return bool(_user_test_summary_section(text))
 
@@ -9907,6 +9965,23 @@ def _requires_user_facing_shortcut_gate(text: str) -> bool:
         "user-facing",
     )
     return any(marker in section_lower for marker in desktop_surface_markers)
+
+
+def _requires_codex_visual_adjudication_gate(text: str) -> bool:
+    text_lower = text.casefold()
+    if "disabled/status-only" in text_lower and "waived" in text_lower:
+        return False
+    visual_markers = (
+        "focused proof",
+        "focused screenshot",
+        "webview",
+        "dashboard",
+        "hud",
+        "visual quality",
+        "user-facing",
+        "screenshot",
+    )
+    return any(marker in text_lower for marker in visual_markers)
 
 
 def _collect_active_index_paths(text: str) -> set[str]:
@@ -17431,6 +17506,15 @@ def main() -> int:
                 f"{relative_path}: Live Validation no-progress/stall guidance is missing '{required_phrase}'",
             )
 
+    for relative_path in LIVE_VALIDATION_AUTO_REPAIR_DOCS:
+        text = _read_text(relative_path)
+        lower_text = text.casefold()
+        for required_phrase in LIVE_VALIDATION_AUTO_REPAIR_PHRASES:
+            require(
+                required_phrase in lower_text,
+                f"{relative_path}: Live Validation automatic repair/rerun guidance is missing '{required_phrase}'",
+            )
+
     for relative_path, required_phrases in LIVE_VALIDATION_HELPER_CONTRACTS.items():
         text = _read_text(relative_path)
         for required_phrase in required_phrases:
@@ -18952,6 +19036,100 @@ def main() -> int:
                             f"{canonical_path}: PR Readiness requires "
                             f"{CODEX_LIVE_CLIENT_SELF_QA_RESULT_LABEL} PASS or WAIVED; "
                             f"current value is {self_qa_result}"
+                        ),
+                    )
+
+        if current_phase in {"Live Validation", "PR Readiness"} and _requires_codex_visual_adjudication_gate(
+            workstream_text
+        ):
+            require(
+                _has_codex_visual_adjudication(workstream_text),
+                (
+                    f"{canonical_path}: active desktop UI '{current_phase}' workstream must include "
+                    "an exact '## Codex Visual Adjudication' section before User Test Summary handoff"
+                ),
+            )
+            visual_adjudication_section = _codex_visual_adjudication_section(workstream_text)
+            visual_adjudication_result = _parse_codex_visual_adjudication_state(workstream_text)
+            require(
+                bool(visual_adjudication_result),
+                (
+                    f"{canonical_path}: active desktop UI '{current_phase}' workstream must declare "
+                    f"'{CODEX_VISUAL_ADJUDICATION_RESULT_LABEL}'"
+                ),
+            )
+            if visual_adjudication_result:
+                require(
+                    visual_adjudication_result in CODEX_VISUAL_ADJUDICATION_RESULT_VALUES,
+                    (
+                        f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} "
+                        f"'{visual_adjudication_result}' must be one of "
+                        f"{', '.join(CODEX_VISUAL_ADJUDICATION_RESULT_VALUES)}"
+                    ),
+                )
+                for marker in CODEX_VISUAL_ADJUDICATION_REQUIRED_MARKERS:
+                    require(
+                        marker in visual_adjudication_section,
+                        (
+                            f"{canonical_path}: Codex Visual Adjudication section is missing "
+                            f"'{marker}'"
+                        ),
+                    )
+                if visual_adjudication_result == "PENDING":
+                    require(
+                        CODEX_VISUAL_ADJUDICATION_BLOCKER in blockers,
+                        (
+                            f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} PENDING "
+                            f"requires '{CODEX_VISUAL_ADJUDICATION_BLOCKER}' under Blockers"
+                        ),
+                    )
+                    require(
+                        next_legal_phase == current_phase,
+                        (
+                            f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} PENDING "
+                            f"must keep Next Legal Phase at '{current_phase}' until visual adjudication is digested"
+                        ),
+                    )
+                if visual_adjudication_result == "FAIL":
+                    require(
+                        CODEX_VISUAL_ADJUDICATION_BLOCKER in blockers,
+                        (
+                            f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} FAIL "
+                            f"requires '{CODEX_VISUAL_ADJUDICATION_BLOCKER}' under Blockers"
+                        ),
+                    )
+                if visual_adjudication_result in CODEX_VISUAL_ADJUDICATION_CLEAR_VALUES:
+                    require(
+                        CODEX_VISUAL_ADJUDICATION_BLOCKER not in blockers,
+                        (
+                            f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_BLOCKER} must clear after "
+                            f"{CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} {visual_adjudication_result}"
+                        ),
+                    )
+                if visual_adjudication_result == "WAIVED":
+                    require(
+                        bool(_parse_codex_visual_adjudication_waiver_reason(workstream_text)),
+                        (
+                            f"{canonical_path}: {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} WAIVED "
+                            f"requires '{CODEX_VISUAL_ADJUDICATION_WAIVER_REASON_LABEL}'"
+                        ),
+                    )
+                uts_result_for_visual_adjudication = _parse_uts_result_state(workstream_text)
+                if uts_result_for_visual_adjudication in UTS_CLEAR_RESULT_VALUES:
+                    require(
+                        visual_adjudication_result in CODEX_VISUAL_ADJUDICATION_CLEAR_VALUES,
+                        (
+                            f"{canonical_path}: {UTS_RESULT_LABEL} {uts_result_for_visual_adjudication} "
+                            f"requires {CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} PASS or WAIVED first"
+                        ),
+                    )
+                if current_phase == "PR Readiness":
+                    require(
+                        visual_adjudication_result in CODEX_VISUAL_ADJUDICATION_CLEAR_VALUES,
+                        (
+                            f"{canonical_path}: PR Readiness requires "
+                            f"{CODEX_VISUAL_ADJUDICATION_RESULT_LABEL} PASS or WAIVED; "
+                            f"current value is {visual_adjudication_result}"
                         ),
                     )
 

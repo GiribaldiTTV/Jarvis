@@ -1165,6 +1165,7 @@ For relevant desktop user-facing workstreams, Live Validation may use validators
 Those evidence layers are supporting proof, not final green by themselves.
 
 Before User Test Summary handoff, the final Live Validation closeout must launch and exercise the branch through the same user-facing desktop shortcut or equivalent user entrypoint that the user is expected to use.
+For desktop UI Live Validation, no sandbox/offscreen/direct-runtime path can be the primary LV1 path when the user-facing launcher is feasible. Direct runtime launches, WebView harnesses, helper launches, and active-client probes are supporting evidence only; they cannot be called the USER path, cannot replace the real user-facing desktop launcher declared for UTS, and cannot clear UTS handoff by themselves.
 For Nexus Desktop AI, the default desktop shortcut path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares an explicit equivalent.
 
 Named blocker:
@@ -1186,7 +1187,7 @@ Required proof:
 - startup reaches the expected ready state
 - the user-visible entry surface introduced or changed by the branch is visible or intentionally documented where the user must look for it
 - relevant runtime markers, UI/manual readback, persisted-state checks, and cleanup evidence match the branch validation contract
-- helper-only, direct-Python, or harness-only evidence is not treated as a substitute for this final shortcut gate when the shortcut path is feasible
+- helper-only, direct-Python, WebView-only, sandbox/offscreen, active-client direct-runtime, or harness-only evidence is not treated as a substitute for this final shortcut gate when the shortcut path is feasible
 
 Lift condition:
 
@@ -1219,6 +1220,13 @@ Machine-checkable authority-record markers:
 - `Live Client Entry Path:`
 - `Evidence Screenshot:`
 - `Visual Quality:`
+- `Codex Visual Adjudication:`
+- `Visual Artifact Review Scope:`
+- `Product Vision Alignment:`
+- `Per-Element Visual Verdicts:`
+- `Helper Marker Limitation:`
+- `Unacceptable UI Findings:`
+- `LV1 Handoff Disposition:`
 - `Interaction Manifest:`
 - `Interaction Evidence Root:`
 - `Live Interaction Evidence:`
@@ -1237,8 +1245,17 @@ Required proof:
 - desktop UI proof must provide an active foreground/user-observable validation path; a fast hidden or blink-through helper run may support automation but cannot be the only Codex live-client self-QA evidence
 - desktop UI Live Validation must capture the full virtual desktop by default when placement, multi-monitor behavior, window separation, clipping, or frame-of-reference matters; primary-monitor-only screenshots are supporting detail only and cannot clear those proof needs
 - screenshots used for Live Validation closeout must be copied into `C:\Users\anden\OneDrive\Pictures\Screenshots\<project-or-validation-lane>\<timestamp>\` or the active USER-declared screenshots folder, and the raw image path must be surfaced in the Codex chat/handoff for USER inspection; `dev/logs` copies alone are not enough when visual proof is part of the gate
+- desktop UI Live Validation must also create a per-element visual inventory for the active user-facing surface, including every current user-facing window, border/frame, card, row, page break/divider, background treatment, scrollbar, button, dropdown, checkbox, input, chip, status field, confirmation, empty/error/deferred state, and every issue-specific element named by USER feedback
+- desktop UI Live Validation must create detailed focused screenshots for each inventory element and supported state/action, copy them into `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\`, and name each PNG with the element label/name plus state or action, such as `element_<label>_<state>.png`; a full desktop screenshot is locator/context proof only and cannot satisfy this per-element gate
+- returned USER UTS or screenshot/video issues must be preserved in a temporary issue form until PR Readiness Stage 1 folds the resolved truth into the active authority, branch plan, backlog, roadmap, validators, and release-scope handoff; the issue form must list the issue, planned repair/disposition, expected proof, validation artifact path, per-element screenshot/video requirement, and USER-verifiable status
+- the LV1 manifest must enumerate the USER-inspectable per-element screenshot folder, every per-element screenshot path, the per-element visual inventory, any issue-form IDs covered by each artifact, and a PASS / REPAIR / STOP / WAIVED_WITH_REASON verdict for each element; missing inventory rows, missing element labels, missing issue-form coverage, missing OneDrive copies, screenshots stored only under `dev\logs`, or only full-desktop screenshots must return `REPAIR` before UTS handoff
 - platform uniformity is reviewed across current NDAI naming, visual language, copy tone, and surrounding user-facing surfaces touched by the branch
 - validators, markers, screenshots, and manifests are treated as supporting evidence, not a replacement for Codex's visual/usability judgment
+- desktop UI Live Validation must include a failure-seeking visual adjudication pass before UTS handoff; Codex must inspect the focused proof images one by one, compare them against the Product Definition Plan, Runtime Branch Engineering Contract, latest USER vision/UTS feedback, active temporary issue form, and package-level UI/UX intent, and record artifact-by-artifact `PASS`, `REPAIR`, `STOP`, or `WAIVED_WITH_REASON` verdicts for all inventoried elements/states
+- helper PASS, marker PASS, screenshot existence, manifest existence, or USER execution waiver cannot clear visual acceptability; clipped text, unclear workflow hierarchy, weak hover/click affordance, non-uniform button glow/color, non-uniform divider/page-break haze, background bleed-through, scrollbar mismatch, missing open/disabled/danger/empty/error proof, native/basic controls where Nexus styling is required, or package-vision mismatch must route LV1 back to Workstream or Hardening before USER handoff unless USER gives an explicit visual waiver with reason
+- desktop UI Live Validation owns the defect-discovery burden before UTS: Codex must not return a User Test Summary handoff while any unwaived Codex-visible `REPAIR` or `STOP` finding remains in the per-element visual inventory, issue-form coverage matrix, interaction proof, or visual adjudication record
+- if Live Validation discovers a current-branch UI/UX/interaction defect and current approval covers bounded continuation, Codex must enter the bounded repair/rerun loop automatically: record the finding, patch the approved surface, rerun focused proof, rerun required validation, update source truth, and only then regenerate the UTS handoff; if approval does not cover the repair, Codex must return `BLOCKED` or `REPAIR` with the exact approval needed rather than asking the USER to find the same defect manually
+- the UTS handoff is a USER acceptance review, not a substitute for Codex visual QA; a Live Validation packet that relies on the USER to enumerate obvious clipped, misaligned, flickering, unresponsive, non-uniform, or unusable elements is not green
 
 Routing:
 
