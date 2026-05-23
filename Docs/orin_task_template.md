@@ -138,6 +138,9 @@ Overall Overlap Gate Result:
 Branch Change Intent Ledger:
 [present at Docs/branch_plans/<branch_slug>.md / missing / not applicable]
 
+Regression / Gating Impact:
+[None / Low / Medium / High / Unknown / not applicable]
+
 Rebaseline Overlap Failure Procedure:
 [Not Applicable / required packet returned / blocker repaired and rerun pending]
 

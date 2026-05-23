@@ -637,6 +637,7 @@ BRANCH_CHANGE_INTENT_MARKERS = (
     "Overlap Risk:",
     "Expected Conflict Risk:",
     "Semantic Merge Risk:",
+    "Regression / Gating Impact:",
     "Conflict Resolution Rule:",
     "Rebaseline Handling:",
     "Validation Proof:",
@@ -673,6 +674,13 @@ BRANCH_CHANGE_INTENT_HIGH_RISK_CLASSES = (
     "build/packaging",
 )
 BRANCH_CHANGE_INTENT_SEMANTIC_RISK_VALUES = (
+    "none",
+    "low",
+    "medium",
+    "high",
+    "unknown",
+)
+BRANCH_CHANGE_INTENT_REGRESSION_GATING_VALUES = (
     "none",
     "low",
     "medium",
@@ -3909,11 +3917,13 @@ PRE_REBASELINE_IMPACT_AUDIT_PHRASES = (
 
 PRE_REBASELINE_HELPER_PHRASES = (
     "Rebaseline Overlap Files:",
+    "Branch Change Intent Ledger Path:",
     "Rebaseline Overlap Intent Gate:",
     "Overall Overlap Gate Result:",
     "Rebaseline Overlap Failure Procedure:",
     "Rebaseline Overlap Intent Missing:",
     "Per-File Result:",
+    "Regression / Gating Impact:",
     "Fallback Evidence:",
 )
 
@@ -8330,6 +8340,9 @@ def _validate_branch_change_intent_ledger(
         semantic_risk = _normalized_planning_value(
             _extract_marker_value(item_block, "Semantic Merge Risk:")
         )
+        regression_impact = _normalized_planning_value(
+            _extract_marker_value(item_block, "Regression / Gating Impact:")
+        )
         resolution_owner = _normalized_planning_value(
             _extract_marker_value(item_block, "Resolution Owner:")
         )
@@ -8358,6 +8371,13 @@ def _validate_branch_change_intent_ledger(
             ),
         )
         require(
+            regression_impact in BRANCH_CHANGE_INTENT_REGRESSION_GATING_VALUES,
+            (
+                f"{source_path}: Changed Surface {changed_surface} Regression / "
+                "Gating Impact must be None, Low, Medium, High, or Unknown"
+            ),
+        )
+        require(
             resolution_owner in BRANCH_CHANGE_INTENT_RESOLUTION_OWNERS,
             (
                 f"{source_path}: Changed Surface {changed_surface} Resolution Owner "
@@ -8371,6 +8391,14 @@ def _validate_branch_change_intent_ledger(
                 (
                     f"{source_path}: Changed Surface {changed_surface} Semantic Merge "
                     "Risk Unknown is blocked for high-risk overlap surfaces"
+                ),
+            )
+        if surface_class == "fixture/test":
+            require(
+                regression_impact not in {"medium", "high", "unknown"},
+                (
+                    f"{source_path}: Changed Surface {changed_surface} Regression / "
+                    "Gating Impact Medium, High, or Unknown blocks fixture/test overlap"
                 ),
             )
         require(

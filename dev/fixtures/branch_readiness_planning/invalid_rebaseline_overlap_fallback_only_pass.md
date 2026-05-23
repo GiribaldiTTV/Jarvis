@@ -14,6 +14,7 @@ Shared Surface: Yes.
 Overlap Risk: Low.
 Expected Conflict Risk: Low.
 Semantic Merge Risk: Low
+Regression / Gating Impact: None
 Conflict Resolution Rule: accept based on fallback-only evidence after the effective point.
 Rebaseline Handling: continue without branch-owned ledger proof.
 Validation Proof: validation required after repair.

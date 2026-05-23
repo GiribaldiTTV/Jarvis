@@ -12,6 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import orin_branch_governance_validation as governance
+import orin_worktree_rebaseline_audit as rebaseline
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,6 +57,12 @@ INVALID_REBASELINE_OVERLAP_FALLBACK_ONLY_PASS_FIXTURE = (
 VALID_REBASELINE_OVERLAP_LOW_RISK_WARN_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_overlap_low_risk_warn.md"
 )
+INVALID_REBASELINE_OVERLAP_FIXTURE_HIGH_IMPACT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_overlap_fixture_high_impact.md"
+)
+VALID_REBASELINE_OVERLAP_FIXTURE_LOW_IMPACT_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_overlap_fixture_low_impact.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -91,6 +98,9 @@ EXPECTED_REBASELINE_UNKNOWN_RISK_FAILURE_SNIPPET = (
 )
 EXPECTED_REBASELINE_FALLBACK_ONLY_FAILURE_SNIPPET = (
     "Fallback Evidence cannot be used as a compatibility bypass"
+)
+EXPECTED_REBASELINE_FIXTURE_HIGH_IMPACT_FAILURE_SNIPPET = (
+    "Regression / Gating Impact Medium, High, or Unknown blocks fixture/test overlap"
 )
 
 
@@ -178,6 +188,116 @@ def _validate_branch_change_intent_text(text: str) -> list[str]:
     return failures
 
 
+def _runtime_overlap_ledger_text() -> str:
+    return """# Runtime Overlap Fixture
+
+## Branch Change Intent Ledger
+
+### Changed Surface: main.py
+
+Surface Class: runtime
+Change Intent: preserve runtime launch behavior while reconciling an overlapping main entrypoint change.
+Why This File Was Touched: the branch changed the runtime entrypoint for a governed behavior fix.
+Owned Behavior / Fact Class: runtime launch behavior and validation entrypoint.
+Canonical Owner / Source Owner: main.py.
+Resolution Owner: Current Branch
+Shared Surface: Yes.
+Overlap Risk: Medium.
+Expected Conflict Risk: Medium.
+Semantic Merge Risk: Medium
+Regression / Gating Impact: Low
+Conflict Resolution Rule: compare incoming runtime intent against the branch ledger and stop for USER decision when behavior changes.
+Rebaseline Handling: rerun runtime and governance validation before requesting mutation.
+Validation Proof: validation required after repair: branch governance validation and compileall.
+Fallback Evidence: fallback evidence may classify risk, but it is not a compatibility bypass.
+USER Decision / Waiver: USER approval required before mutation.
+Fold-Down Target: compact branch receipt when durable.
+"""
+
+
+def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
+    failures: list[str] = []
+
+    def require(condition: bool, message: str) -> None:
+        if not condition:
+            failures.append(message)
+
+    require(
+        rebaseline._overall_overlap_gate_result([]) == "Not Applicable",
+        "Rebaseline helper no-overlap matrix did not return Not Applicable",
+    )
+
+    missing_runtime = rebaseline._assess_overlap_file("main.py", {})
+    require(
+        missing_runtime["per_file_result"] == "BLOCKED",
+        "Rebaseline helper did not block high-risk runtime overlap with missing ledger",
+    )
+
+    runtime_entries = rebaseline._branch_change_intent_entries(_runtime_overlap_ledger_text())
+    runtime_with_ledger = rebaseline._assess_overlap_file("main.py", runtime_entries)
+    require(
+        runtime_with_ledger["branch_intent_present"] == "YES"
+        and runtime_with_ledger["per_file_result"] == "PASS",
+        "Rebaseline helper did not PASS/evidence-present high-risk runtime overlap with a valid ledger",
+    )
+
+    source_truth_missing = rebaseline._assess_overlap_file("Docs/Main.md", {})
+    require(
+        rebaseline._surface_class("Docs/Main.md") == "governance/source-truth"
+        and source_truth_missing["per_file_result"] == "BLOCKED",
+        "Rebaseline helper did not classify Docs/Main.md as blocked source-truth overlap without ledger",
+    )
+
+    low_reference_missing = rebaseline._assess_overlap_file("Docs/incident_patterns.md", {})
+    require(
+        rebaseline._surface_class("Docs/incident_patterns.md") == "documentation/reference"
+        and low_reference_missing["per_file_result"] == "WARN",
+        "Rebaseline helper did not WARN on low-risk reference overlap without ledger",
+    )
+
+    valid_entries = rebaseline._branch_change_intent_entries(
+        VALID_REBASELINE_OVERLAP_INTENT_FIXTURE.read_text(encoding="utf-8")
+    )
+    mismatch = rebaseline._assess_overlap_file("Docs/Main.md", valid_entries)
+    require(
+        mismatch["per_file_result"] == "BLOCKED",
+        "Rebaseline helper did not block branch plan ledger path mismatch",
+    )
+
+    high_impact_entries = rebaseline._branch_change_intent_entries(
+        INVALID_REBASELINE_OVERLAP_FIXTURE_HIGH_IMPACT_FIXTURE.read_text(encoding="utf-8")
+    )
+    high_impact = rebaseline._assess_overlap_file(
+        "dev/fixtures/branch_readiness_planning/valid_user_feedback_disposition.md",
+        high_impact_entries,
+    )
+    require(
+        high_impact["per_file_result"] == "BLOCKED",
+        "Rebaseline helper did not block fixture/test overlap with high regression impact",
+    )
+
+    low_impact_entries = rebaseline._branch_change_intent_entries(
+        VALID_REBASELINE_OVERLAP_FIXTURE_LOW_IMPACT_FIXTURE.read_text(encoding="utf-8")
+    )
+    low_impact = rebaseline._assess_overlap_file(
+        "dev/fixtures/branch_readiness_planning/reference_only_example.md",
+        low_impact_entries,
+    )
+    require(
+        low_impact["per_file_result"] == "PASS",
+        "Rebaseline helper did not accept fixture/test overlap with low regression impact and valid ledger",
+    )
+
+    fam_role = rebaseline._worktree_role(Path("C:/Nexus Worktrees/FAM-006"))
+    require(
+        "FAM-006 implementation lane" not in fam_role
+        and "runtime-active candidate" in fam_role,
+        "Rebaseline helper still treats FAM-006 as a permanent lane instead of a generic runtime slot",
+    )
+
+    return failures
+
+
 def _validate_compact_backlog_text(text: str) -> list[str]:
     failures, require = _collect_failures()
     governance._validate_branch_runtime_backlog_compactness(
@@ -224,6 +344,8 @@ def validate() -> list[str]:
         INVALID_REBASELINE_OVERLAP_UNKNOWN_HIGH_RISK_FIXTURE,
         INVALID_REBASELINE_OVERLAP_FALLBACK_ONLY_PASS_FIXTURE,
         VALID_REBASELINE_OVERLAP_LOW_RISK_WARN_FIXTURE,
+        INVALID_REBASELINE_OVERLAP_FIXTURE_HIGH_IMPACT_FIXTURE,
+        VALID_REBASELINE_OVERLAP_FIXTURE_LOW_IMPACT_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -439,6 +561,28 @@ def validate() -> list[str]:
             "Valid low-risk WARN Rebaseline Overlap Intent fixture unexpectedly failed: "
             + "; ".join(low_risk_warn_failures[:5])
         )
+
+    high_impact_fixture_failures = _validate_branch_change_intent_text(
+        INVALID_REBASELINE_OVERLAP_FIXTURE_HIGH_IMPACT_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_REBASELINE_FIXTURE_HIGH_IMPACT_FAILURE_SNIPPET not in "\n".join(
+        high_impact_fixture_failures
+    ):
+        failures.append(
+            "Invalid Rebaseline Overlap fixture/test fixture did not reject High "
+            "Regression / Gating Impact"
+        )
+
+    low_impact_fixture_failures = _validate_branch_change_intent_text(
+        VALID_REBASELINE_OVERLAP_FIXTURE_LOW_IMPACT_FIXTURE.read_text(encoding="utf-8")
+    )
+    if low_impact_fixture_failures:
+        failures.append(
+            "Valid low-impact fixture/test Rebaseline Overlap Intent fixture unexpectedly failed: "
+            + "; ".join(low_impact_fixture_failures[:5])
+        )
+
+    failures.extend(_validate_rebaseline_overlap_helper_matrix())
 
     return failures
 

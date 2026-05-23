@@ -239,6 +239,7 @@ Each overlapping file uses a repeatable block:
 - Overlap Risk:
 - Expected Conflict Risk:
 - Semantic Merge Risk:
+- Regression / Gating Impact:
 - Conflict Resolution Rule:
 - Rebaseline Handling:
 - Validation Proof:
@@ -249,6 +250,8 @@ Each overlapping file uses a repeatable block:
 `Surface Class:` values are `governance/source-truth`, `runtime`, `desktop/UI`, `Core visual`, `validator/helper`, `fixture/test`, `configuration/state/schema`, `release/public-output`, `prompt/template`, `automation/watcher`, `build/packaging`, `documentation/reference`, or `asset/media`.
 
 `Semantic Merge Risk:` values are `None`, `Low`, `Medium`, `High`, or `Unknown`. For high-risk surface classes, `Unknown` is `BLOCKED` until evidence or USER decision resolves it.
+
+`Regression / Gating Impact:` values are `None`, `Low`, `Medium`, `High`, or `Unknown`. For `fixture/test` overlap, `Medium`, `High`, or `Unknown` is `BLOCKED` because it can change validator truth, regression coverage, or release gating; `None` or `Low` may be WARN or PASS only when the ledger and fallback evidence support that classification.
 
 `Resolution Owner:` values are `Current Branch`, `Incoming/Folded Owner`, `Originating Lane`, `Standing Governance`, `USER Decision`, or `Future Branch`.
 

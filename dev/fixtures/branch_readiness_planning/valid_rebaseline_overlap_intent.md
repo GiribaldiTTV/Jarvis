@@ -14,6 +14,7 @@ Shared Surface: Yes - future governance and runtime branches can both touch vali
 Overlap Risk: Medium because incoming validator changes can merge cleanly while weakening a branch-local safety rule.
 Expected Conflict Risk: Medium text conflict risk when sibling branches edit the same marker lists or validation gates.
 Semantic Merge Risk: Medium
+Regression / Gating Impact: Low
 Conflict Resolution Rule: compare incoming validator intent against this branch ledger before accepting either side, preserve stricter safety when the two rules are compatible, and stop for USER decision when behavior changes.
 Rebaseline Handling: re-run the overlap gate, branch governance validation, governance efficiency validation, fixture validation, and compile proof before requesting rebaseline mutation.
 Validation Proof: validation required after any overlap-intent repair: branch governance validation, governance efficiency validation, fixture validation, and compileall.
@@ -33,6 +34,7 @@ Shared Surface: Yes - multiple planning branches can clarify guide wording.
 Overlap Risk: Low because the guide is reference-only when it does not redefine source-truth policy.
 Expected Conflict Risk: Low text conflict risk.
 Semantic Merge Risk: Low
+Regression / Gating Impact: None
 Conflict Resolution Rule: preserve canonical term pointers and reject any wording that contradicts Docs/phase_governance.md.
 Rebaseline Handling: review the overlap packet and continue only after USER approval for the exact rebaseline operation.
 Validation Proof: validation required after wording repair: branch governance validation and governance efficiency validation.

@@ -14,6 +14,7 @@ Shared Surface: Yes - reference documentation can be touched by multiple governa
 Overlap Risk: Low because the file is not a source-truth owner, prompt/template owner, validator/helper owner, branch record, branch plan, roadmap/backlog owner, or governance policy owner.
 Expected Conflict Risk: Low text conflict risk.
 Semantic Merge Risk: Low
+Regression / Gating Impact: None
 Conflict Resolution Rule: classify as WARN, present the recommendation to USER, and do not mutate until the USER approves the exact rebaseline operation.
 Rebaseline Handling: report WARN in the overlap packet and continue only after USER approval.
 Validation Proof: validation required after repair: branch governance validation and governance efficiency validation.

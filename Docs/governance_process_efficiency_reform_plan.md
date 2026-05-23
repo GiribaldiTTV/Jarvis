@@ -201,6 +201,7 @@ Shared Surface:
 Overlap Risk:
 Expected Conflict Risk:
 Semantic Merge Risk:
+Regression / Gating Impact:
 Conflict Resolution Rule:
 Rebaseline Handling:
 Validation Proof:
@@ -211,6 +212,7 @@ Fold-Down Target:
 
 Allowed values:
 - `Semantic Merge Risk:` uses `None`, `Low`, `Medium`, `High`, or `Unknown`. For high-risk surface classes, `Unknown` classifies as BLOCKED until evidence or USER decision resolves it.
+- `Regression / Gating Impact:` uses `None`, `Low`, `Medium`, `High`, or `Unknown`. For fixture/test overlap, `Medium`, `High`, or `Unknown` blocks until evidence or USER decision resolves validator truth, regression coverage, or release-gating impact.
 - `Resolution Owner:` uses `Current Branch`, `Incoming/Folded Owner`, `Originating Lane`, `Standing Governance`, `USER Decision`, or `Future Branch`.
 
 Rebaseline Overlap Failure Procedure:
@@ -260,6 +262,7 @@ Current Branch Change Summary:
 Branch Change Intent Present:
 Incoming Intent Evidence Present:
 Fallback Evidence:
+Regression / Gating Impact:
 Risk:
 Per-File Result: PASS / WARN / BLOCKED
 Recommended Resolution:
@@ -308,7 +311,9 @@ Future implementation targets:
   - valid overlap intent;
   - invalid missing high-risk intent;
   - invalid fallback-only PASS after the Effective Point; and
-  - valid low-risk WARN with fallback evidence.
+  - valid low-risk WARN with fallback evidence;
+  - fixture/test high regression or gating impact; and
+  - fixture/test low regression or gating impact.
 - `dev/orin_worktree_rebaseline_audit.py` must compute and report `Rebaseline Overlap Files:` from incoming files intersected with branch/worktree changed files.
 
 Implementation guard:

@@ -14,6 +14,7 @@ Shared Surface: Yes.
 Overlap Risk: High.
 Expected Conflict Risk: Medium.
 Semantic Merge Risk: Unknown
+Regression / Gating Impact: Low
 Conflict Resolution Rule: accept if the merge is text-clean.
 Rebaseline Handling: continue after fallback evidence.
 Validation Proof: validation required after repair.
