@@ -100,7 +100,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - symptom:
   an implementation workstream is merged or squash-merged, but canon still represents it as an active PR Readiness branch and Release Readiness must rediscover the release target, scope, artifacts, or release-debt owner
 - layer:
-  merge-target canon, roadmap release posture, workstreams index, and branch governance validation
+  merge-target canon, roadmap stage-breakpoint/checkpoint posture, workstreams index, and branch governance validation
 - root-cause pattern:
   PR Readiness recorded future post-merge prose but did not leave machine-checkable merged-unreleased release-debt fields in the exact post-merge shape that `main` needs after merge
 - fix pattern:

@@ -83,6 +83,8 @@ The audit packet must include:
 - `Incoming Main Change Set:`
 - `Incoming Changed Files:`
 - `Current Worktree Changed Files:`
+- `Branch Changed Files:`
+- `Rebaseline Overlap Files:`
 - `Incoming Runtime / Source-Truth Risk:`
 - `Shared Surface / Worktree Overlap Forecast:`
 - `Validation Before Rebaseline:`
@@ -91,6 +93,12 @@ The audit packet must include:
 - `Rebaseline Mutation Status:`
 
 `Recommendation Only:` must state that the pass reports findings and does not mutate the branch/worktree. `Rebaseline Mutation Approval:` must be `Pending` until the USER approves the exact worktree, branch, target commit, and operation type. `Rebaseline Mutation Status:` must remain `Not started` or `Blocked` until approval exists. If the worktree is dirty, if incoming files touch runtime/provider/UI/source-truth/validator surfaces, if sibling worktrees share files, or if validation fails, the next legal lane is a reported reconciliation decision rather than automatic baseline.
+
+`Rebaseline Overlap Files:` is the intersection of incoming changed files and the current branch/worktree changed files. Current branch/worktree changed files means branch changed files from `merge_base..HEAD` plus staged, unstaged, untracked, or current-worktree changed files when present. When this field is `None`, `Rebaseline Overlap Intent Gate` reports `Not Applicable` and the normal Pre-Rebaseline Impact Audit still controls mutation approval. When this field names any file, Codex must freeze rebaseline mutation, classify every overlapping file, and inspect branch-owned intent before recommending merge, rebase, fast-forward, conflict resolution, or acceptance.
+
+`Rebaseline Overlap Intent Gate` uses the active branch plan as the full-detail owner. Runtime branches use the Branch Runtime Engineering Plan shape. Non-runtime branches with `Rebaseline Overlap Files:` must admit or update an active Branch Engineering Plan under `Docs/branch_plans/<branch_slug>.md` before rebaseline mutation can proceed. The required section is `Branch Change Intent Ledger`; each `Changed Surface: <path>` block records `Surface Class:`, `Change Intent:`, `Why This File Was Touched:`, `Owned Behavior / Fact Class:`, `Canonical Owner / Source Owner:`, `Resolution Owner:`, `Shared Surface:`, `Overlap Risk:`, `Expected Conflict Risk:`, `Semantic Merge Risk:`, `Regression / Gating Impact:`, `Conflict Resolution Rule:`, `Rebaseline Handling:`, `Validation Proof:`, `Fallback Evidence:`, `USER Decision / Waiver:`, and `Fold-Down Target:`. `Regression / Gating Impact:` uses `None`, `Low`, `Medium`, `High`, or `Unknown`; fixture/test overlap with `Medium`, `High`, or `Unknown` impact blocks until evidence or USER decision resolves it.
+
+`Rebaseline Overlap Failure Procedure` triggers when an overlapping file has missing, weak, stale, or conflicting intent evidence. The packet must include `Overall Overlap Gate Result:`, `Rebaseline Overlap Files:`, per-file `File:`, `Surface Class:`, incoming and current branch change summaries, `Branch Change Intent Present:`, `Incoming Intent Evidence Present:`, `Fallback Evidence:`, `Risk:`, `Per-File Result: PASS / WARN / BLOCKED`, `Recommended Resolution:`, `Resolution Owner:`, `Validation Required:`, `USER Decision Needed:`, and `Rebaseline Mutation Status:`. `Overall Overlap Gate Result:` is the highest per-file severity. Any `BLOCKED` file keeps mutation blocked by `Rebaseline Overlap Intent Missing` until repaired, waived, deferred by USER decision, or sequencing changes. Fallback evidence supports classification and USER decision-making only; after the effective point, fallback evidence alone cannot produce `PASS`.
 
 When the USER approves the recommendation, the rebaseline operation must still be constrained to the approved operation type, usually `git merge --ff-only origin/main` for neutral/main or standing-governance sync and an explicit merge/rebase/recreate strategy for active implementation branches. After the operation, `Current-Main Reconciliation Identity Guard` must prove origin/main stayed context, not identity, before validation, commit, push, PR Readiness, Release Readiness, or handoff.
 
@@ -246,7 +254,7 @@ The ledger is canonical only inside the existing authority owner:
 - Large active ledger: optional companion file with canonical pointer from the owning workstream doc or branch authority record.
 - Family dossier: aggregate or historical trace only.
 - Feature backlog: identity and registry only.
-- Roadmap: sequencing only.
+- Roadmap: stage-breakpoint schedule outline and broad milestone checkpoints only.
 - Validation helper registry: helper inventory only.
 - Element Coverage: non-identity checklist only.
 
@@ -497,6 +505,31 @@ Branch Runtime Engineering Plan:
 - Workstream Entry reads the plan, each seam updates traceability, Hardening compares actual implementation against it, Live Validation records proof or waiver posture, PR Readiness produces the `PR Fold-Down Packet:`, and Release Readiness translates the plan into public scope without internal governance jargon
 - a missing or shallow Branch Runtime Engineering Plan keeps runtime implementation blocked on Branch Readiness planning until USER accepts, revises, or explicitly waives the plan boundary
 
+USER Feedback Disposition:
+
+- meaningful USER feedback during Branch Readiness, Workstream, Hardening, Live Validation, or PR Readiness must be classified through `USER Feedback Disposition` when it affects branch scope, accepted vision, user-facing behavior, runtime behavior, validation proof, future work, reusable product standards, approval boundaries, or a USER decision
+- the active Branch Runtime Engineering Plan owns full UFD detail while the branch is active; branch records, backlog, roadmap, Nexus Vision, family vision, workstream docs, and family dossiers may carry compact pointers or folded outcomes only when they are the correct owner for the final disposition
+- UFD ledger markers include `USER Feedback Disposition Required:`, `UFD Ledger Status:`, `UFD Ledger Owner:`, `Open UFD Count:`, `Blocking UFD Count:`, and `Fold-Down Status:`
+- each meaningful feedback item uses a repeatable `### UFD Item: UFD-<scope>-YYYYMMDD-NNN` block with `Feedback ID:`, `Feedback Summary:`, `Feedback Source:`, `Feedback Phase:`, `Disposition Type:`, `USER Decision State:`, `Owner Class:`, `Canonical Owner File:`, `Workstream Severity:`, `Status:`, `Fold-Down Target:`, and `Pointer Locations:`
+- Codex may recommend UFD disposition, owner, severity, and no-action posture, but USER decision controls accepted branch scope; Codex and ChatGPT recommendations remain proposed until USER accepts, revises, rejects, defers, waives, or supersedes them
+- pointer locations may carry only UFD ID, short title, canonical owner, compact status, and fold-down status; full feedback text, full decision history, and live implementation state stay with the active branch plan until PR Readiness fold-down
+- `No Durable Owner Needed` is valid only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with `No-Action Reason:` recorded in the active branch plan or return digest
+- UFD IDs use `UFD-<scope>-YYYYMMDD-NNN`; do not use `FBK-*` because it collides visually with historical `FB-###` workstream records
+
+Vision Contract / Vision-to-Plan loop:
+
+- runtime/user-facing branches must not silently convert Codex or ChatGPT design recommendations into implementation truth
+- Nexus Vision owns project-wide product principles; optional family vision or family dossier sections own broad feature-family direction only when the family is large enough; the active branch plan owns the Branch Vision Contract Snapshot for branch-specific accepted vision
+- `Vision Contract Required:` is `Yes` for user-facing UI/UX behavior changes, runtime behavior changes, workflow hierarchy changes, visual standard changes, setup/activation behavior changes, provider/model/memory/voice/Core behavior, returned UTS that changes target behavior, broad family planning, ambiguous acceptance criteria, conflicting prior source truth, or any Codex recommendation that would otherwise become product/design truth
+- `Vision Contract Required:` may be `No` only for mechanical docs-only repair, validator-only repair with no product/runtime/user-facing impact, release-body formatting repair, source-truth typo/format repair, or branch metadata repair, and the reason must be recorded
+- valid design assumption states are `Proposed by Codex`, `Recommended by ChatGPT`, `Accepted by USER`, `Revised by USER`, `Rejected by USER`, `Deferred by USER`, `Deferred With Waiver`, `Superseded`, and `Needs USER Decision`; only `Accepted by USER`, `Revised by USER`, or `Deferred With Waiver` are implementation-safe for product/runtime/user-facing behavior
+- before Workstream implementation, a required Branch Vision Contract Snapshot must record `Branch Vision Snapshot Status: Accepted`, `Open Vision Questions: None` or `Deferred With Waiver`, `USER Vision Green: Yes`, accepted implementation scope, accepted seam map, accepted stop conditions, a design assumption ledger, a vision question queue, and vision-to-implementation traceability
+- after USER Vision Green, Codex should preserve the accepted plan during implementation; new Level 1 non-blocking questions are queued, Level 2 seam-blocking questions pause only the affected seam and require a Vision Question Digest, and Level 3 workstream-breaking questions require a Branch Plan Revision Packet before affected scope continues
+- accepted assumptions expire or require review when branch scope changes, returned UTS changes the accepted target, family vision changes, source truth contradicts prior assumptions, new user-facing behavior appears, or implementation would apply an old decision to a new family/surface
+- Hardening compares implementation against accepted vision and accepted branch plan; Live Validation compares observed user-facing behavior against accepted vision and accepted branch plan; PR Readiness folds reusable vision updates into Nexus Vision, family vision/family dossier, workstream docs, structured branch receipts, or validated historical receipts without creating permanent branch-specific vision-file sprawl
+- Vision Question Digest must include question, why it matters, affected branch/seam, current accepted vision, Codex recommendation, alternatives, risk of each option, whether work can continue without the answer, recommended USER decision, and exact USER decision needed
+- Branch Plan Revision Packet must include current accepted plan, discovered issue, why current plan is insufficient, proposed revision, affected seams, files/surfaces affected, validation impact, current Workstream versus future branch routing, Codex recommendation, and exact USER decision needed
+
 Required active authority markers for implementation branches in `Branch Readiness`, `Workstream`, `Hardening`, `Live Validation`, `PR Readiness`, or merged-unreleased release-debt truth:
 
 - `## Admitted Implementation Slice`
@@ -623,7 +656,7 @@ This gate is mandatory when a branch would:
 - become the latest released or merged-unreleased implementation milestone
 - change the current rebaseline or closeout baseline
 - change the current closeout-index pointer
-- change backlog, roadmap, or workstream-index release posture
+- change backlog status, roadmap stage-breakpoint/checkpoint posture, or workstream-index release posture
 - change `Docs/Main.md` routing for the current baseline
 
 When this gate applies, the branch must already contain the required release-facing canon updates before PR creation is allowed:
@@ -919,6 +952,8 @@ If the normal governance validator passes but the PR-specific gate reports dirty
 
 The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, release-debt impact, release-debt handling status, selected-next / no-release-debt handling status, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size / single-slice drift review, Element Coverage review, required current-branch source-truth sync, completed merge-target canon updates when repairable drift is found, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected Stage 2 execution work, Stage 1 repairs made, Stage 1 repair validation, Governance Ledger fallback status, Branch Readiness fallback status, Stage 2 execution plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER. It may repair Stage 1 PR-readiness blockers on the current branch, but it must not perform Stage 2 or create the PR/watcher. It may encode selected-next truth only when USER explicitly approves selected-next sync, and branch creation plus runtime package admission must stay blocked for Branch Readiness. PR creation is blocked while any Stage 1 blocker, Stage 1 repair item, next-workstream hierarchy item, branch-shape review item, merge-target authority projection item, no-release-debt posture, unavoidable release-debt owner contract, selected-next truth or USER waiver, or Stage 2 execution prerequisite remains unresolved.
 
+When the active branch plan contains UFD items, PR Readiness Stage 1 must include a USER Feedback Disposition fold-down review. Every `Feedback ID:` must be implemented, rejected/no-action with reason, deferred with waiver, folded into the structured branch receipt, promoted to Nexus/family vision when reusable, carried as a backlog future-candidate pointer only after USER acceptance, or assigned to a named future owner. The fold-down receipt must preserve a lookup path from each UFD ID to its final owner before the branch plan can retire from active planning posture.
+
 `PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
 
 Live PR creation and validation facts are required for operator output and PR validation, but they are not merge-target current-state truth. Keep live PR state such as `open`, `non-draft`, `mergeable`, review-thread counts, repair-commit containment timing, blocker-clearing branch narration, and merge-target branch-head hash assertions in operator output and explicit historical PR sections only. Do not place those time-sensitive claims in merge-target current-state owner sections such as backlog or roadmap `## Current Branch Execution Posture`, `PR Readiness State:`, `Current Branch Objective:`, `Active Workstream Chain:`, or the canonical workstream merged-unreleased `## Phase Status` block.
@@ -1034,7 +1069,7 @@ Selected-next truth and active branch authority are different states. PR Readine
 
 `Origin/Main Freshness Check` is required during PR Readiness Stage 1 before Stage 2 can begin. Stage 1 must compare `Branch Creation Base:` to `Current origin/main:` and report whether `Origin/Main Advanced Since Branch Creation:` is `YES` or `NO`. When `origin/main` advanced, Stage 1 must list `Origin/Main Changed Files:` from `git diff --name-only <branch-creation-base>..origin/main`, list `Branch Changed Files:` from `git diff --name-only <branch-creation-base>..HEAD`, decide `Reconciliation Required: YES / NO`, and, when reconciliation is needed, output a complete `Reconciliation File List:` plus `Reconciliation Recommendation:`. The `Reconciliation Mutation Status:` must be analysis-only with no file fixes during Stage 1. If changed upstream files/data need review and the packet is missing or incomplete, `Origin Main Reconciliation Packet Required` blocks Stage 2 and PR creation.
 
-`Pre-Rebaseline Impact Audit` is required before any same-branch current-main reconciliation operation actually mutates local branch state. `Origin/Main Freshness Check` identifies whether upstream advanced before PR Stage 2; `Pre-Rebaseline Impact Audit` is the operation-level proof that reports `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before Codex may run a fast-forward, merge, rebase, conflict resolution, or branch switch.
+`Pre-Rebaseline Impact Audit` is required before any same-branch current-main reconciliation operation actually mutates local branch state. `Origin/Main Freshness Check` identifies whether upstream advanced before PR Stage 2; `Pre-Rebaseline Impact Audit` is the operation-level proof that reports `Incoming Main Change Set:`, `Incoming Changed Files:`, `Current Worktree Changed Files:`, `Branch Changed Files:`, `Rebaseline Overlap Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before Codex may run a fast-forward, merge, rebase, conflict resolution, or branch switch. Any non-empty `Rebaseline Overlap Files:` value triggers the `Rebaseline Overlap Intent Gate` and must resolve or explicitly block on `Rebaseline Overlap Intent Missing` before mutation.
 
 `Current-Main Reconciliation Identity Guard` is required whenever a multi-worktree branch rebases, fast-forwards, or merges current `origin/main`. origin/main is context, not identity. The assigned worktree must preserve and reassert its own branch-local authority before validation, commit, push, PR readiness, release readiness, or handoff. The reconciliation digest must include `Assigned Worktree Branch Identity:`, `Branch-Local Authority Reassertion:`, `Incoming Main Active-Branch Blocks Accepted: NO`, and `Sibling Worktree Identity Preservation:`. Passing posture means the active worktree's expected branch, actual branch, authority record, current-state owner files, and GitHub Desktop-bound worktree are named explicitly; incoming `origin/main` branch/current-workstream/selected-next blocks are treated as context unless they are the assigned branch's own authority; `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` reassert the active worktree's branch-local authority after conflict resolution; sibling worktrees such as FAM-006, FAM-007, Governance, or neutral `main` are not switched, deleted, or mutated; and no reconciliation commit lands with another worktree's active branch/current workstream identity copied into the assigned lane. If this guard fails during Branch Readiness, PR Readiness, or a same-branch rebaseline, stop on `Worktree Branch Identity Drift` and repair source truth inside the assigned worktree before committing. If Release Readiness discovers the failure after merge, the output digest must say `Governance Intake Routing: send this to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake`.
 
@@ -2101,6 +2136,8 @@ When USER input is needed, Codex must output a structured `USER Vision Question 
 
 When USER input needs a durable user-editable handoff, Codex must generate or refresh a USER-facing `User Vision Input.txt` desktop artifact. The artifact must present each decision with Codex's recommendation, rationale, options, tradeoffs, current-branch impact, future-package impact, proof impact, and three answer paths: accept Codex recommendation; change recommendation with USER-written changes; or defer/future-package/waive with USER-written reason. This artifact is USER input only and not repo source truth. Codex recommendations, default options, and unanswered prompts must not be treated as USER-approved answers. Repo source truth may record artifact generation and blockers, but USER answers enter repo source truth only after a later USER-approved digest pass reads and summarizes the completed artifact.
 
+For runtime/user-facing branches, the accepted USER answers become the Branch Vision Contract Snapshot inside the active Branch Engineering Plan. Workstream implementation may proceed only when required vision questions are answered, explicitly deferred with waiver, or classified as Level 1 non-blocking queue items. Codex recommendations and ChatGPT recommendations remain proposed until USER accepts, revises, rejects, defers, or waives them.
+
 Allowed planning loop: Branch Readiness Stage 1 analyzes planning sufficiency; USER/ChatGPT reviews the packet; Branch Readiness Stage 2 may repair/source-sync the planning packet after USER approval; Branch Readiness Stage 1 revalidates planning sufficiency; the loop repeats until planning is complete or explicitly USER-waived. Workstream entry or continuation is blocked while `Branch Readiness Planning Incomplete` or any of its planning blockers remain active.
 
 Planning blockers are planning blockers, not implementation blockers. They include `Product Vision Input Missing`, `Project-Wide Vision Alignment Missing`, `Branch-Specific Vision Alignment Missing`, `USER Vision Question Packet Missing`, `USER Vision Recommendation Missing`, `USER Vision Questions Unanswered`, `USER Vision Input Pending`, `USER Vision Input File Missing`, `USER Vision Input Answers Pending`, `USER Vision Input Digest Pending`, `System Concept Model Missing`, `Entity / Profile Model Missing`, `User Workflow Model Missing`, `Scale / Data Volume Model Missing`, `Configuration And State Model Missing`, `Expected User-Facing Outcomes Missing`, `Codex Additional Recommendations Missing`, `USER Critique Loop Missing`, `USER Decision Ledger Missing`, `Deferred Ideas / Future Package Ledger Missing`, `Planning Adequacy Review Missing`, `Rejected Shallow Plan Missing`, `Alternatives And Tradeoffs Missing`, `Whole-System Interaction Map Missing`, `Minimum Viable vs Full System Boundary Missing`, `Open Questions / USER Decision Points Missing`, `Branch Reach Unproven`, `Feature Element Breakdown Missing`, `Acceptance Criteria Missing`, `User-Facing Proof Standard Missing`, `Current Branch vs Future Package Boundary Missing`, and `Branch Readiness Planning Incomplete`. They clear only when the packet is complete and revalidated, when completed USER Vision Input answers are digested into repo source truth, or when explicit USER waiver text is recorded.
@@ -2183,6 +2220,8 @@ Forbidden:
 Required evidence:
 
 - approved execution boundary
+- accepted Branch Vision Contract Snapshot or recorded not-required reason when the branch is runtime/user-facing
+- no blocking open vision questions unless they are deferred with USER waiver
 - implementation delta classification and planning-loop guardrail markers
 - admitted implementation slice
 - direct verification of the changed behavior or docs
@@ -2224,6 +2263,7 @@ Required evidence:
 
 - validator results
 - runtime results when relevant
+- plan-vs-vision comparison when a Branch Vision Contract Snapshot is required
 - explicit distinction between product defects, harness defects, environment issues, and canon or contract drift
 
 Exit:
@@ -2256,6 +2296,7 @@ Required evidence:
 
 - required interactive or manual evidence
 - required UI audit evidence when applicable
+- vision-vs-observed-behavior comparison or waiver when a Branch Vision Contract Snapshot is required
 - evidence digestion into the authority record
 
 Exit:
@@ -2300,6 +2341,7 @@ Forbidden:
 Required evidence:
 
 - branch-local proof complete
+- accepted vision and accepted branch plan satisfied, revised, waived, or folded down with explicit receipt when a Branch Vision Contract Snapshot is required
 - required user-facing desktop shortcut validation digested, passing or explicitly waived, and no `User-Facing Shortcut Validation Pending` blocker
 - required User Test Summary results digested, passing or explicitly waived, and no `User Test Summary Results Pending` blocker
 - merge-target canon completeness gate passed
@@ -2351,6 +2393,7 @@ Forbidden:
 Required evidence:
 
 - merged or legitimately merge-ready truth
+- public release language translates accepted user-facing vision/scope and excludes future-gated vision items when a Branch Vision Contract Snapshot is part of the release window
 - `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:` for the selected release candidate
 - `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, and `FAM Contributor Routing:` for the selected release candidate
 - explicit `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches
@@ -2487,7 +2530,7 @@ Allowed:
 - one cycle ID format: `RRI-YYYYMMDD-NNN`
 - `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
 - `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
-- `Pre-Rebaseline Impact Audit`: before the standing branch or neutral main workspace fast-forwards to updated `origin/main`, report the incoming change set, changed files, runtime/source-truth risk, validation before rebaseline, recommendation only posture, approval status, and mutation status
+- `Pre-Rebaseline Impact Audit`: before the standing branch or neutral main workspace fast-forwards to updated `origin/main`, report the incoming change set, incoming changed files, current worktree changed files, branch changed files, `Rebaseline Overlap Files:`, runtime/source-truth risk, validation before rebaseline, recommendation only posture, approval status, mutation status, and `Rebaseline Overlap Intent Gate` result when overlap exists
 - `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR bot-review repair on the standing governance PR
 - source-truth/governance/validator drift repair named by the intake digest
 - a post-merge `Return Digest` to the originating worktree/thread with concrete originating branch/worktree identity copied from the accepted intake and `Neutral Main Workspace Rebaseline:` proof for `C:\Nexus Desktop AI`

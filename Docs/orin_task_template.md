@@ -5,8 +5,7 @@
 **DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; a prompt-level request not to commit is not enough to stop durability. The only exceptions are a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker; when that self-imposed blocker is lifted, Codex must automatically commit and push.**
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
-**Release Readiness Candidate Anchor: require `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, and `Candidate Includes Later Governance Repairs:`; default to current fetched `origin/main` unless USER explicitly selects another release target; historical PR merge commits are audit evidence only unless USER selects a historical commit as the release target, and missing anchor fields block as `Release Candidate Anchor Missing`.**
-**Release Window Aggregation Ownership: merge order does not decide release ownership; require `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, `Last Runtime PR:`, `Post-Runtime Governance Repairs:`, and `FAM Contributor Routing:` so multiple FAM/worktree contributors in the selected target release as an aggregated release window unless USER selects a narrower target.**
+**Release Readiness anchor and aggregation rules are owned by `Docs/phase_governance.md`. Prompt templates should route to that owner instead of repeating the full rule text.**
 
 You are working inside the Nexus Desktop AI project as an implementation and analysis partner.
 
@@ -82,6 +81,24 @@ Engineering Plan Status:
 PR Fold-Down Packet:
 [Pending / Complete / not applicable]
 
+USER Feedback Disposition Required:
+[Yes / No / not applicable]
+
+UFD Ledger Status:
+[Open / Queued / Blocking / Closed / Folded Down / Deferred / Superseded / not applicable]
+
+UFD Ledger Owner:
+[Docs/branch_plans/<branch_slug>.md / not applicable]
+
+Open UFD Count:
+[0 / count / not applicable]
+
+Blocking UFD Count:
+[0 / count / not applicable]
+
+Fold-Down Status:
+[Pending / Complete / not applicable]
+
 PR Readiness Stage:
 [PR Readiness Stage 1 - Analysis Gate / PR Readiness Stage 2 - Execution Gate / not applicable]
 
@@ -102,6 +119,33 @@ Incoming Main Change Set:
 
 Incoming Changed Files:
 [complete incoming file list from current HEAD or branch creation base to origin/main / None]
+
+Current Worktree Changed Files:
+[staged, unstaged, untracked, or current-worktree changed files / None]
+
+Branch Changed Files:
+[complete current branch file list from merge_base..HEAD / None]
+
+Rebaseline Overlap Files:
+[intersection of incoming changed files and current branch/worktree changed files / None]
+
+Rebaseline Overlap Intent Gate:
+[Not Applicable / PASS / WARN / BLOCKED]
+
+Overall Overlap Gate Result:
+[Not Applicable / PASS / WARN / BLOCKED]
+
+Branch Change Intent Ledger:
+[present at Docs/branch_plans/<branch_slug>.md / missing / not applicable]
+
+Regression / Gating Impact:
+[None / Low / Medium / High / Unknown / not applicable]
+
+Rebaseline Overlap Failure Procedure:
+[Not Applicable / required packet returned / blocker repaired and rerun pending]
+
+Rebaseline Overlap Intent Missing:
+[No / BLOCKED with overlapping file list and exact USER decision needed]
 
 Incoming Runtime / Source-Truth Risk:
 [runtime/provider/UI/source-truth/validator/shared-surface risk classification / None]
@@ -901,6 +945,16 @@ If the phase is `Branch Readiness` and the current stage is `Branch Readiness St
 - Branch Runtime Engineering Plan Path:
 - Engineering Plan Status:
 - PR Fold-Down Packet:
+- USER Feedback Disposition Required:
+- UFD Ledger Status:
+- UFD Ledger Owner:
+- Open UFD Count:
+- Blocking UFD Count:
+- Fold-Down Status:
+- UFD Items:
+  | Feedback ID | Disposition Type | USER Decision State | Workstream Severity | Status | Canonical Owner File | Fold-Down Target |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | [UFD-<scope>-YYYYMMDD-NNN / none] | [type] | [state] | [severity] | [status] | [Docs/... owner] | [target] |
 - USER Engineering Planning Review:
 - Runtime Implementation Approval:
 - Current Runtime Baseline:

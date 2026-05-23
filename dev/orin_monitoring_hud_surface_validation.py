@@ -92,6 +92,10 @@ def validate() -> list[str]:
     prebeta_roadmap = _read("Docs/prebeta_roadmap.md")
     helper_registry = _read("Docs/validation_helper_registry.md")
     phase_governance = _read("Docs/phase_governance.md")
+    compact_source_truth_reform = (
+        "Docs Source-Truth Reform Model: Compact Pointer Layer." in feature_backlog
+        and "Docs Source-Truth Reform Model: Compact Pointer Layer." in prebeta_roadmap
+    )
 
     for needle in (
         "Primary Interface Release Surface: `Monitoring HUD Dashboard / control panel`",
@@ -157,18 +161,44 @@ def validate() -> list[str]:
             "FAM-006 Monitor Groups profile planning source truth",
             failures,
         )
-    for label, text in (
-        ("FAM-006 feature backlog profile planning sync", feature_backlog),
-        ("FAM-006 pre-Beta roadmap profile planning sync", prebeta_roadmap),
-    ):
+    if compact_source_truth_reform:
         for needle in (
             "Sensor Library",
             "Overlay Profile",
             "Recording Profile",
-            "returned USER UTS FAIL",
-            "PR Readiness remains blocked",
+            "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md",
+            "PR #194",
         ):
-            _require_contains(text, needle, label, failures)
+            _require_contains(
+                feature_backlog,
+                needle,
+                "FAM-006 compact feature backlog pointer sync",
+                failures,
+            )
+        for needle in (
+            "Overlay Profile foundation evidence are released receipts",
+            "future monitoring/HUD scope remains USER-gated",
+            "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md",
+        ):
+            _require_contains(
+                prebeta_roadmap,
+                needle,
+                "FAM-006 compact pre-Beta roadmap pointer sync",
+                failures,
+            )
+    else:
+        for label, text in (
+            ("FAM-006 feature backlog profile planning sync", feature_backlog),
+            ("FAM-006 pre-Beta roadmap profile planning sync", prebeta_roadmap),
+        ):
+            for needle in (
+                "Sensor Library",
+                "Overlay Profile",
+                "Recording Profile",
+                "returned USER UTS FAIL",
+                "PR Readiness remains blocked",
+            ):
+                _require_contains(text, needle, label, failures)
     for needle in (
         "Interface Release Boundary",
         "Primary Interface Release Surface:",
