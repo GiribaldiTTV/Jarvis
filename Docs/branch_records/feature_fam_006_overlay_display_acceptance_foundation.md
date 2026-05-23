@@ -3,8 +3,8 @@
 Branch: `feature/fam-006-overlay-display-acceptance-foundation`
 Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `origin/main` at `a42b7e50eb012722b140f3874dbf50826bd797c8`
-Current origin/main: `a42b7e50eb012722b140f3874dbf50826bd797c8`
-Origin/Main Advanced Since Branch Creation: `NO`
+Current origin/main: `6681131c974d99945c494c0e4ff3c436f9347422`
+Origin/Main Advanced Since Branch Creation: `YES - reconciled by governed non-rewrite merge after Branch Change Intent Ledger evidence cleared the Pre-Rebaseline Impact Audit overlap gate.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md`
 Branch Runtime Engineering Plan: `Active - Stage 2 setup admits the FAM-006 Overlay Display Acceptance Foundation successor lane and prepares the bounded Workstream path; runtime implementation is not approved in this setup pass.`
 Engineering Plan Status: `Stage 2 setup - branch authority, plan, compact pointer surfaces, validation plan, historical closure carry-forward, and worktree binding are admitted.`
@@ -30,11 +30,11 @@ Canonical Branch: `feature/fam-006-overlay-display-acceptance-foundation`
 ## Current Phase
 
 Phase: `Branch Readiness`
-Phase Detail: `Create and bind the FAM-006 stable worktree to the USER-selected Overlay Display Acceptance Foundation branch, admit source-truth authority and plan, and prepare the Workstream Entry path without runtime implementation.`
+Phase Detail: `Branch Readiness Stage 2 setup is complete; current-main reconciliation with PR #200 governance/source-truth context is complete; the next legal phase is Workstream Entry analysis without runtime implementation.`
 
 ## Phase Status
 
-Phase Status: `Active Branch - Branch Readiness Stage 2 setup is in progress until validation, commit, and push are complete.`
+Phase Status: `Active Branch - Branch Readiness Stage 2 setup and current-main reconciliation are complete; Workstream Entry analysis is pending USER approval.`
 Authority State: `Active Branch`
 Bounded State: `Granted for Stage 2 setup only`
 
@@ -50,6 +50,16 @@ Interface Bundle User Approval: `Pending Workstream approval`
 ## Entry Basis
 
 Entry Basis: `USER approved Branch Readiness Stage 2 setup for FAM-006 in C:\Nexus Worktrees\FAM-006 from current origin/main to create/rebind feature/fam-006-overlay-display-acceptance-foundation, admit branch authority and plan, verify historical Overlay Profile visual/governance repairs remain closed, verify GitHub Desktop/worktree binding after rebind, run branch-readiness and worktree-confinement validations, and prepare the bounded Workstream path.`
+
+## Current-Main Reconciliation Identity Guard
+
+Assigned Worktree Branch Identity: `feature/fam-006-overlay-display-acceptance-foundation in C:\Nexus Worktrees\FAM-006`
+Reconciliation Target: `origin/main` at `6681131c974d99945c494c0e4ff3c436f9347422`
+Reconciliation Method: `Governed non-rewrite merge after Pre-Rebaseline Impact Audit overlap-intent gate PASS.`
+Branch-Local Authority Reassertion: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md remains the active FAM-006 branch authority record; Docs/feature_backlog.md and Docs/prebeta_roadmap.md continue to point FAM-006 to this branch.`
+Incoming Main Active-Branch Blocks Accepted: `NO - incoming PR #200 governance/source-truth and Docs/branch_records/feature_vision_update_decision_matrix.md are preserved as current-main context, not FAM-006 identity.`
+Sibling Worktree Identity Preservation: `PASS - FAM-007, Governance, neutral main, and other sibling worktrees were not switched, deleted, or mutated by the reconciliation.`
+Overlap Resolution: `Docs/branch_records/index.md preserves PR #200 governance/source-truth additions, preserves Docs/branch_records/feature_vision_update_decision_matrix.md as current-main context, preserves Docs/branch_records/feature_release_readiness_source_truth_intake.md as the standing governance intake authority, and preserves Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md as the active FAM-006 authority pointer.`
 
 Historical Predecessor: `feature/fam-006-overlay-profile-runtime-foundation`
 Historical Predecessor Status: `Merged/released historical evidence after PR #194 and later closure repairs.`
@@ -227,7 +237,7 @@ Seam 4: `SLC-045 Validation/live proof and UTS handoff readiness`
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 setup; first runtime seam pending Workstream Entry analysis.`
+Active seam: `Branch Readiness Stage 2 setup and current-main reconciliation complete; first runtime seam pending Workstream Entry analysis.`
 
 ## Validation Plan
 
@@ -236,16 +246,16 @@ Required Validation: `git diff --check; git diff --cached --check after staging;
 ## Next Legal Phase
 
 Next Legal Phase: `Workstream`
-Next Legal Phase Detail: `After Stage 2 setup commit/push, USER may approve Workstream Entry analysis to select the first bounded implementation seam for Overlay Display Acceptance Foundation. Runtime implementation remains blocked until after Workstream Entry and explicit USER approval.`
+Next Legal Phase Detail: `After Stage 2 setup and governed current-main reconciliation, USER may approve Workstream Entry analysis to inspect the full admitted Workstream package and select the first bounded implementation seam for Overlay Display Acceptance Foundation. Runtime implementation remains blocked until after Workstream Entry and explicit USER approval.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Branch Readiness Stage 2 setup`
+Current Phase: `Branch Readiness Stage 2 setup / current-main reconciliation complete`
 Next Legal Phase: `Workstream Entry analysis`
-Why This Phase Is Next: `Stage 2 setup creates and admits the new branch, but runtime work needs source-truth-backed seam selection before implementation.`
+Why This Phase Is Next: `Stage 2 setup has admitted the branch and current-main reconciliation has preserved PR #200 context, but runtime work needs source-truth-backed whole-workstream seam analysis before implementation.`
 Approval Required: `USER approval required`
-Exact USER Approval Text: `Approve Workstream Entry analysis for FAM-006 Overlay Display Acceptance Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-overlay-display-acceptance-foundation to inspect source truth and runtime surfaces, select the first bounded SLC-042 implementation seam, define affected files, validators, proof requirements, and return the implementation approval packet without runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, or broad theme/skin work.`
-Allowed Scope: `Analysis only for Workstream Entry after setup`
+Exact USER Approval Text: `Approve Workstream Entry analysis for FAM-006 Overlay Display Acceptance Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-overlay-display-acceptance-foundation to inspect source truth and runtime surfaces, analyze the full admitted Workstream package from SLC-042 through SLC-045, define the Workstream completion path, Hardening H1 expectations, Live Validation LV1 expectations, visual proof and stress-proof requirements, UTS handoff criteria, select the first bounded implementation seam, define affected files, validators, helpers, source-truth updates, and proof requirements, and return the implementation approval packet without runtime implementation, PR creation, merge to main, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, or Governance worktree mutation.`
+Allowed Scope: `Analysis only for Workstream Entry after setup and current-main reconciliation`
 Explicit Exclusions: `Runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, and broad theme/skin work.`
 Validation Required: `Identity, source-truth, branch plan, runtime-surface inspection, and Workstream seam recommendation checks.`
 Stop Conditions: `Stop if worktree identity differs, origin/main advances and requires reconciliation, source truth selects a different phase, or the first seam requires excluded work.`
