@@ -3142,6 +3142,58 @@ body.desktop-mode #monitoring-hud > * {
   text-transform: uppercase;
 }
 
+.monitoring-hud-overlay-display__profile-status {
+  position: sticky;
+  top: 10px;
+  left: max(280px, calc(100% - 420px));
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(140px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: min(390px, calc(100% - 24px));
+  min-height: 34px;
+  box-sizing: border-box;
+  margin: 10px 12px 0 auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(118, 226, 255, 0.18);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(5, 22, 36, 0.84), rgba(2, 10, 21, 0.72));
+  box-shadow:
+    0 0 0 1px rgba(230, 251, 255, 0.035) inset,
+    0 0 18px rgba(64, 218, 238, 0.10);
+  color: rgba(229, 249, 255, 0.94);
+  pointer-events: none;
+}
+
+.monitoring-hud-overlay-display__profile-status span,
+.monitoring-hud-overlay-display__profile-status em {
+  color: rgba(134, 222, 239, 0.82);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 760;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.monitoring-hud-overlay-display__profile-status strong {
+  min-width: 0;
+  color: rgba(239, 252, 255, 0.96);
+  font-size: 11px;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#monitoring-hud-overlay-display[data-overlay-display-empty="true"] .monitoring-hud-overlay-display__profile-status {
+  border-color: rgba(255, 214, 113, 0.20);
+}
+
 .monitoring-hud-overlay-display__canvas {
   position: relative;
   width: max(100%, 1440px);

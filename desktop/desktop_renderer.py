@@ -5786,6 +5786,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_monitor_management_signature = None
         self._monitoring_hud_overlay_profile_signature = None
         self._monitoring_hud_overlay_display_acceptance_signature = None
+        self._monitoring_hud_active_overlay_profile_display_signature = None
         self._monitoring_hud_overlay_profiles = {}
         self._monitoring_hud_active_overlay_profile_id = "default-overlay-profile"
         self._monitoring_hud_overlay_profile_default_deleted_by_user = False
@@ -12896,6 +12897,32 @@ class DesktopRuntimeWindow(QWidget):
                     non_theme_scope=bool(overlay_display_acceptance_proof.get("nonThemeScope")),
                 )
                 overlay_display_acceptance_changed = True
+        active_overlay_profile_display_proof = state.get("activeOverlayProfileDisplayProof")
+        active_overlay_profile_display_signature = json.dumps(
+            active_overlay_profile_display_proof if isinstance(active_overlay_profile_display_proof, dict) else {},
+            sort_keys=True,
+        )
+        active_overlay_profile_display_changed = False
+        if active_overlay_profile_display_signature != self._monitoring_hud_active_overlay_profile_display_signature:
+            self._monitoring_hud_active_overlay_profile_display_signature = active_overlay_profile_display_signature
+            if isinstance(active_overlay_profile_display_proof, dict):
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_ACTIVE_OVERLAY_PROFILE_DISPLAY_READY",
+                    package="PKG-006",
+                    slice=str(active_overlay_profile_display_proof.get("slice") or "SLC-043"),
+                    seam="Workstream",
+                    display_behavior_marker_ready=bool(active_overlay_profile_display_proof.get("displayBehaviorMarkerReady")),
+                    status_strip_reflects_active_profile=bool(active_overlay_profile_display_proof.get("statusStripReflectsActiveProfile")),
+                    active_profile_switch_updates_visible_display=bool(active_overlay_profile_display_proof.get("activeProfileSwitchUpdatesVisibleDisplay")),
+                    stale_active_profile_falls_back_deterministically=bool(active_overlay_profile_display_proof.get("staleActiveProfileFallsBackDeterministically")),
+                    null_profile_state_shows_no_active_profile=bool(active_overlay_profile_display_proof.get("nullProfileStateShowsNoActiveProfile")),
+                    high_volume_display_renders_deterministically=bool(active_overlay_profile_display_proof.get("highVolumeDisplayRendersDeterministically")),
+                    monitor_group_boundary=str(active_overlay_profile_display_proof.get("monitorGroupBoundary")),
+                    recording_profile_boundary=str(active_overlay_profile_display_proof.get("recordingProfileBoundary")),
+                    non_recording_scope=bool(active_overlay_profile_display_proof.get("nonRecordingScope")),
+                    non_theme_scope=bool(active_overlay_profile_display_proof.get("nonThemeScope")),
+                )
+                active_overlay_profile_display_changed = True
         monitor_signature_parts = []
         enabled_count = 0
         for card_id in sorted(str(key) for key in cards.keys()):
