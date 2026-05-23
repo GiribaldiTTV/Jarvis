@@ -336,6 +336,8 @@ def _all_text_files() -> list[Path]:
         if not root.exists():
             continue
         for path in root.rglob("*"):
+            if root_name == "dev" and path.relative_to(root).parts[:1] == ("logs",):
+                continue
             if path.is_file() and path.suffix.lower() in {".md", ".py", ".ps1", ".txt"}:
                 candidates.append(path)
     readme = ROOT / "README.md"
