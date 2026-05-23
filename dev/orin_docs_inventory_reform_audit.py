@@ -465,6 +465,12 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
                 completed,
                 "Keep current markers compact and avoid cycle-ledger closeout-only PRs.",
             )
+        if rel == "Docs/branch_records/feature_vision_update_decision_matrix.md":
+            return (
+                "Keep active bounded repair authority until PR fold-down",
+                completed,
+                "Move to historical/no-active posture or otherwise make merge-stable before PR green.",
+            )
         if lines > 400:
             return (
                 "Organize structured receipt",
@@ -780,9 +786,85 @@ def add_disposition_changes_from_user_review(add) -> None:
     add("")
 
 
+def add_docs_organization_cleanup_pass(
+    add,
+    *,
+    ambiguity_count: int,
+    structure_count: int,
+    migration_count: int,
+    safe_count: int,
+    retired_plan_count: int,
+) -> None:
+    add("## Docs Organization Cleanup Pass")
+    add("")
+    add("Cleanup Pass Status: USER requested a docs organization cleanup pass.")
+    add(
+        "Execution Boundary: non-destructive organization planning and queue clarification only. "
+        "This pass does not move, rename, delete, archive, or rewrite historical files."
+    )
+    add(
+        "Source Review Surface: `Docs/governance_docs_full_inventory_reform_audit.md`, "
+        "`Docs/governance_docs_reform_user_review_index.md`, and the USER Desktop review bundle."
+    )
+    add(
+        "Next USER Decision: choose one focused cleanup lane before any physical file or "
+        "history-affecting change."
+    )
+    add("")
+    add("| Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |")
+    add("| --- | ---: | --- | --- |")
+    rows = (
+        (
+            "Ambiguous ownership/current-state wording",
+            ambiguity_count,
+            "Keep queued with owner/review action visible.",
+            "Focused wording repair or source-truth owner migration.",
+        ),
+        (
+            "Structure and indexability risks",
+            structure_count,
+            "Keep queued with structure action visible.",
+            "Focused organization pass for one owner family or receipt set.",
+        ),
+        (
+            "Migration / organization candidates",
+            migration_count,
+            "Keep candidate rows visible in this dossier.",
+            "Move durable content only after replacement owner and validation proof.",
+        ),
+        (
+            "Retired branch plan review",
+            retired_plan_count,
+            "Keep retired posture and lookup paths.",
+            "Delete or archive only after reference proof and USER approval.",
+        ),
+        (
+            "Low-risk reference consolidation",
+            safe_count,
+            "Leave in place unless USER selects a consolidation lane.",
+            "Collapse/delete only after reference scan and replacement owner proof.",
+        ),
+    )
+    for lane, count, safe_action, gated_action in rows:
+        add(f"| {lane} | {count} | {safe_action} | {gated_action} |")
+    add("")
+    add(
+        "Recommended First Cleanup Lane: organize oversized historical branch records into "
+        "current-summary plus indexed historical sections, without deleting evidence or changing "
+        "source-truth ownership."
+    )
+    add(
+        "Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical receipt "
+        "rewrites, runtime/FAM/release mutation, or archive/delete work. Those require separate "
+        "exact USER approval."
+    )
+    add("")
+
+
 def build_user_review_index(
     *,
     docs_count: int,
+    branch: str,
     head: str,
     origin_main: str,
     merge_base: str,
@@ -819,6 +901,7 @@ def build_user_review_index(
     add("")
     add("- Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`")
     add(f"- Docs files covered: {docs_count}")
+    add(f"- Source branch: `{branch}`")
     add("- Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.")
     add("- Generated hash fields: intentionally not maintained in this docs review index.")
     add("- Runtime/FAM/Compact-AI mutation: none.")
@@ -851,13 +934,20 @@ def build_user_review_index(
     add("- [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.")
     add("- [ ] Structure risks have a migration, organization, or keep-now decision.")
     add("- [ ] Validators are enough to stop the worst sprawl from returning.")
-    add("- [ ] PR Readiness Stage 2 may proceed after final validation.")
+    add(
+        "- [ ] PR Readiness Stage 1 analysis may proceed after final validation and USER "
+        "acceptance; PR Readiness Stage 2 / PR creation remains a separate USER decision."
+    )
     add("")
     add("## User Response Intake Status")
     add("")
     add("- USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.")
     add("- This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.")
-    add("- Current execution model: this deferred-completion pass updates source truth and review artifacts on the standing Governance branch; PR creation remains separately USER-gated.")
+    add(
+        "- Current execution model: this deferred-completion pass updates source truth and "
+        f"review artifacts on the USER-approved bounded governance/source-truth repair branch "
+        f"`{branch}` in `C:\\Nexus Worktrees\\Governance`; PR creation remains separately USER-gated."
+    )
     add("- PR Readiness remains held until validation is green and USER separately approves PR creation.")
     add("")
     add("## USER Response Integration Summary")
@@ -869,6 +959,16 @@ def build_user_review_index(
     add("")
     add_single_pr_staged_execution_plan(add)
     add_disposition_changes_from_user_review(add)
+    add_docs_organization_cleanup_pass(
+        add,
+        ambiguity_count=len(ambiguity_queue),
+        structure_count=len(structure_queue),
+        migration_count=len(migration_candidates),
+        safe_count=len(safe_files),
+        retired_plan_count=sum(
+            1 for _rel, reason, _rec in retire_candidates if "branch plan" in reason
+        ),
+    )
     add("## Files Needing USER Decision")
     add("")
     add("| File | Reason | Recommendation |")
@@ -929,7 +1029,7 @@ def build_user_review_index(
     add("")
     add(
         "`I accept the corrected USER-response integration model and approve continuing the staged "
-        "Docs source-truth reform on feature/release-readiness-source-truth-intake as one final "
+        f"Docs source-truth reform on {branch} as one final "
         "Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/"
         "Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor "
         "branch creation remain separate decisions.`"
@@ -947,6 +1047,15 @@ def generate() -> None:
         key=lambda p: p.as_posix().lower(),
     )
     changed = set(git_output("diff", "--name-only", "origin/main...HEAD").splitlines())
+    changed.update(git_output("diff", "--name-only").splitlines())
+    changed.update(git_output("diff", "--cached", "--name-only").splitlines())
+    for status_line in git_output("status", "--porcelain").splitlines():
+        path_text = status_line[3:].strip()
+        if " -> " in path_text:
+            path_text = path_text.split(" -> ", 1)[1].strip()
+        if path_text:
+            changed.add(path_text.replace("\\", "/"))
+    branch = git_output("branch", "--show-current")
     head = git_output("rev-parse", "HEAD")
     origin_main = git_output("rev-parse", "origin/main")
     merge_base = git_output("merge-base", "HEAD", "origin/main")
@@ -1060,6 +1169,7 @@ def generate() -> None:
 
     index_text = build_user_review_index(
         docs_count=len(file_rows) + 2,
+        branch=branch,
         head=head,
         origin_main=origin_main,
         merge_base=merge_base,
@@ -1278,6 +1388,16 @@ def generate() -> None:
     add("- Whether to retire low-risk or duplicate reference docs after USER review.")
     add("- Whether to create or expand additional FAM-family dossiers as migration targets for bulk historical detail.")
     add("")
+    add_docs_organization_cleanup_pass(
+        add,
+        ambiguity_count=len(ambiguity_queue),
+        structure_count=len(structure_queue),
+        migration_count=len(migration_candidates),
+        safe_count=len(safe_files),
+        retired_plan_count=sum(
+            1 for _rel, reason, _rec in retire_candidates if "branch plan" in reason
+        ),
+    )
     add("## USER Review Intake Model")
     add("")
     add("- Durable USER response home: `Docs/governance_process_efficiency_reform_plan.md`, section `USER Review Intake - 2026-05-21`.")
@@ -1334,7 +1454,7 @@ def generate() -> None:
     add("")
     add("- Audit Type: Full `Docs/` source-truth inventory, cleanup, and restructuring dossier.")
     add("- Audit Workspace: `C:\\Nexus Worktrees\\Governance`")
-    add("- Audit Branch: `feature/release-readiness-source-truth-intake`")
+    add(f"- Audit Branch: `{branch}`")
     add("- Audit Git Proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.")
     add("- Audit Hash Policy: exact live Git hashes are intentionally not maintained in this docs review surface.")
     add(f"- Audit File Count: {len(file_rows)} files under `Docs/`")
@@ -1712,6 +1832,20 @@ def generate() -> None:
     add("## Next Legal Phase")
     add("")
     add("The next legal phase is USER review of the completed deferred-reform pass and validation proof. PR Readiness Stage 2 / PR creation remains held until USER separately approves PR creation. Merge remains separate USER approval.")
+
+    index_text = build_user_review_index(
+        docs_count=len(file_rows),
+        branch=branch,
+        head=head,
+        origin_main=origin_main,
+        merge_base=merge_base,
+        high_risk=high_risk,
+        migration_candidates=migration_candidates,
+        safe_files=safe_files,
+        ambiguity_queue=ambiguity_queue,
+        structure_queue=structure_queue,
+        retire_candidates=retire_candidates,
+    )
 
     AUDIT.write_text("\n".join(out) + "\n", encoding="utf-8")
     INDEX.write_text(index_text, encoding="utf-8")

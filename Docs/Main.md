@@ -51,6 +51,7 @@ Current local workspace roles:
 - `C:\Nexus Desktop AI` is the local main/consolidator workspace by default after workspace reconsolidation; tracked file edits on `main` remain blocked, and the folder becomes an active branch workspace only when the current branch record and Thread / Worktree Identity Preflight assign it
 - `C:\Nexus Worktrees\` is the governed local root for active branch worktrees after workspace reconsolidation; retired worktrees there are not active carriers unless a current branch record names them
 - `C:\Nexus Worktrees\Governance` is the only `Standing Governance Intake Branch` worktree; it uses `feature/release-readiness-source-truth-intake`, accepts a `Release Readiness digest` for release-blocker repair, USER-approved `automation/worktree governance intake` for non-runtime multi-worktree safety repair, and USER-approved `phase-gate governance intake` for repeatable non-runtime phase-gate miss prevention, uses `RRI-YYYYMMDD-NNN`, enforces `One Active Cycle`, requires the clean pre-intake `Sync Rule` to `origin/main`, pauses originating lanes in `Waiting For Governance Intake` or `Waiting For Updated Main`, and returns a post-merge `Return Digest` with exact originating branch, originating worktree, operating workspace, expected branch, and `Neutral Main Workspace Rebaseline:` proof copied from the accepted/closed intake instead of inferred from `C:\Nexus Desktop AI`, `C:\Nexus Worktrees\Governance`, GitHub Desktop, or current shell CWD
+- A USER-approved bounded governance/source-truth repair branch may temporarily use `C:\Nexus Worktrees\Governance` only when `Docs/branch_records/index.md` lists an active branch authority record for that exact branch. That record must define the bounded scope, source-truth owners, validation posture, and merge-stable fold-down path, and it does not replace or rename the `Standing Governance Intake Branch`.
 - `D:\Nexus Repos\Nexus Desktop AI Main` and `D:\Nexus Worktrees\` are retained fallback/historical workspace paths unless later USER-approved governance or identity preflight assigns them a current role
 - `D:\Nexus Dev ORIN\` is the private/dev workspace root; content there is evidence only unless legally imported through repo governance
 - `D:\Nexus Artifacts\` is the artifact/model/eval output root; content there is evidence only unless legally imported through repo governance
@@ -119,7 +120,7 @@ Bounded State Lock:
 
 Formal Next Legal Phase Digest:
 
-Every phase packet that stops for USER approval must include a formal `Next Legal Phase Digest` before the final answer ends. The digest is mandatory even when the next phase seems obvious from the task title. Required fields are `Current Phase:`, `Next Legal Phase:`, `Why This Phase Is Next:`, `Approval Required:`, `Exact USER Approval Text:`, `Allowed Scope:`, `Explicit Exclusions:`, `Validation Required:`, and `Stop Conditions:`. If any required field is missing, the packet is incomplete and Codex must treat the next step as `Next Legal Phase Digest Missing` until the digest is returned. `Next Safe Move` or a casual recommendation is not a substitute for this approval-ready digest.
+`Docs/phase_governance.md` owns the formal `Next Legal Phase Digest` field contract and the `Next Legal Phase Digest Missing` blocker. `Docs/Main.md` only routes Codex to that owner; it must not duplicate the full digest-field policy.
 
 ## Protected Main Law
 
@@ -157,6 +158,27 @@ Use this ownership split unless a validated source conflict requires a temporary
 - Element Validation Ledger = row-level created/touched/affected/deferred/future element proof tracking owned by the existing workstream doc or branch authority record; it is not a new standalone active source-truth layer by default
 - `Docs/nexus_startup_contract.md` = ChatGPT/new-chat loader map and prompt-generation guardrail owner, including the Nexus Prompt Gate final scrub rule; it is not Codex execution authority unless prompt generation, bootstrap continuity, or loader/source-truth drift review is in scope
 - `Docs/Main.md` = routing authority aligned to merged truth
+
+## Main-First Loader Chain
+
+`Docs/Main.md` is the first repo loader for Codex execution. Codex should load Main first, then follow this index to the directly relevant owner docs instead of treating a prompt, context doc, branch overlay, or copied review file as complete source truth.
+
+Main routes Codex to:
+
+- execution posture: `Docs/development_rules.md`, `Docs/phase_governance.md`, and `Docs/codex_modes.md`
+- ChatGPT prompt-generation guardrails: `Docs/nexus_startup_contract.md`
+- project-wide product/design vision: `Docs/nexus_vision.md`
+- reusable family vision: `Docs/family_visions/`
+- active branch authority and receipts: `Docs/branch_records/`
+- active branch vision, planning, UFD, Element-to-Phase Proof Matrix, and Branch Change Intent Ledger: `Docs/branch_plans/<branch_slug>.md`
+- workstream and family implementation history: `Docs/workstreams/`
+- digest profiles and non-compaction standards: `Docs/governance_intake_triage_and_digest_profiles.md`
+- source-truth ownership and USER review bundle rules: `Docs/governance_efficiency_operating_model.md`
+- helper and validator ownership: `Docs/validation_helper_registry.md`
+
+Context docs may explain, summarize, or point to the owners above. They must not supersede Main or the named owner. If a context doc conflicts with Main or the relevant owner, Codex must follow Main to the owner, report the conflict, and repair through the legal branch/phase instead of inferring behavior.
+
+Vision routing follows this chain: `Docs/nexus_vision.md` for project-wide vision, `Docs/family_visions/` for reusable family-level vision, and the active branch plan for the Branch Vision Contract Snapshot and implementation proof. Codex must not promote proposed product/design ideas into durable vision owners by inference.
 
 ## Analysis-First Prompt Baseline
 
@@ -210,7 +232,8 @@ Use these for workflow posture, prompt framing, lifecycle rules, and execution s
 - `Docs/governance_intake_triage_and_digest_profiles.md`
 
 Repo-wide validation-helper rules also live in this governance layer.
-Broad governance reform uses the `Governance Intake Triage Packet` and smallest legal `Digest Profile` standard from `Docs/governance_intake_triage_and_digest_profiles.md`.
+Broad governance reform uses the `Governance Intake Triage Packet`, smallest legal `Digest Profile`, and `Digest Non-Compaction Rule` standards from `Docs/governance_intake_triage_and_digest_profiles.md`; selecting a focused profile must not compact the digest ever.
+Formal Next Legal Phase Digest guidance is owned by `Docs/phase_governance.md`; use that owner for the required field contract, plan-review fields, non-compaction rule, and `Next Legal Phase Digest Missing` blocker.
 When a governance change risks duplicating policy or live state, use the governance efficiency operating model instead of creating another current-state owner.
 When Codex asks USER to inspect repo files or approve a review packet, the `USER Review Desktop Bundle Rule` in `Docs/governance_efficiency_operating_model.md` requires a Desktop folder with copied relevant files and a `START_HERE.md` review guide.
 Use `Docs/nexus_startup_contract.md` as the compact ChatGPT/new-chat loader map only.
