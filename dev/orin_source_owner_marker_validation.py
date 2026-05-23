@@ -85,8 +85,16 @@ def validate() -> list[str]:
         for token in set(FORBID) | {ledger for _, _, ledger, _, _ in expected} | {surface for _, _, _, surface, _ in expected}:
             if token.casefold() in stripped.casefold(): fails.append(f"{p}: production UI exclusion failed for {token!r}")
     branch_record = read(Path("Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md"))
-    for token in ("Compact-AI-Status-Card", "2f2354db", "ac16ca37", "protected", "SRCOWN-COMPACT-AI-PRESERVE-014"):
-        if token not in branch_record: fails.append(f"Compact-AI preservation source truth missing {token!r}")
+    for token in (
+        "Compact-AI-Status-Card",
+        "2f2354db",
+        "ac16ca37",
+        "protected",
+        "salvage",
+        "fold-down",
+        "SRCOWN-COMPACT-AI-PRESERVE-014",
+    ):
+        if token not in branch_record: fails.append(f"Compact-AI preservation/fold-down source truth missing {token!r}")
     return fails
 
 if __name__ == "__main__":

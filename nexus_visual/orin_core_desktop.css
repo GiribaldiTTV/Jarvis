@@ -31,6 +31,10 @@ body.desktop-mode #front-bloom {
   opacity: 0.18;
 }
 
+body.desktop-mode .ai-provider-status {
+  display: none;
+}
+
 #command-overlay {
   position: absolute;
   inset: 0;

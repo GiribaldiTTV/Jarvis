@@ -2292,6 +2292,7 @@ def validate() -> list[str]:
     html = _read("nexus_visual/orin_core.html")
     desktop_html = _read("nexus_visual/orin_core_desktop.html")
     css = _read("nexus_visual/orin_core.css")
+    desktop_css = _read("nexus_visual/orin_core_desktop.css")
     js = _read("nexus_visual/orin_core.js")
     branch_record = _read("Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md")
     active_activation_branch_record = _read(
@@ -6170,10 +6171,17 @@ def validate() -> list[str]:
 
     for needle in (
         'href="orin_core.css"',
+        'href="orin_core_desktop.css"',
         'src="orin_core.js"',
         'data-surface-role="core-visualization"',
     ):
         _require(needle in desktop_html, f"desktop Core HTML is missing {needle!r}", failures)
+
+    for needle in (
+        "body.desktop-mode .ai-provider-status",
+        "display: none",
+    ):
+        _require(needle in desktop_css, f"desktop Core CSS is missing {needle!r}", failures)
 
     for needle in (
         ".ai-provider-status",
@@ -6226,6 +6234,10 @@ def validate() -> list[str]:
         ".ai-provider-status__capability-eligibility",
         ".ai-provider-status__memory-contract",
         ".ai-provider-status__copy-contract",
+        ".ai-provider-status::after",
+        "max-height: min(34vh, 210px)",
+        "Details held in validation; setup and execution remain gated",
+        "body.desktop-mode .ai-provider-status",
         '.ai-provider-status[hidden]',
         '.ai-provider-status[data-display-visibility="suppressed-by-default"]',
         "display: none !important",

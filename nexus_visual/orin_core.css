@@ -416,8 +416,9 @@ body {
   z-index: 10;
   left: 22px;
   bottom: 22px;
-  width: clamp(224px, 32vw, 340px);
+  width: clamp(224px, 24vw, 300px);
   min-height: 72px;
+  max-height: min(34vh, 210px);
   box-sizing: border-box;
   padding: 12px 14px;
   border: 1px solid rgba(245, 198, 96, 0.42);
@@ -426,7 +427,17 @@ body {
   background: rgba(4, 9, 14, 0.72);
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
   color: rgba(236, 248, 255, 0.94);
+  overflow: hidden;
   pointer-events: none;
+}
+
+.ai-provider-status::after {
+  display: block;
+  margin-top: 7px;
+  color: rgba(245, 198, 96, 0.72);
+  content: "Details held in validation; setup and execution remain gated";
+  font-size: 11px;
+  line-height: 1.25;
 }
 
 .ai-provider-status[hidden],
@@ -566,7 +577,10 @@ body {
   color: rgba(214, 233, 242, 0.88);
   font-size: 12px;
   line-height: 1.35;
+  overflow: hidden;
   overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ai-provider-status__selection {
@@ -697,6 +711,80 @@ body {
   color: rgba(175, 219, 215, 0.92);
 }
 
+.ai-provider-status__selection,
+.ai-provider-status__configuration,
+.ai-provider-status__registry,
+.ai-provider-status__hardware,
+.ai-provider-status__gpu,
+.ai-provider-status__cpu,
+.ai-provider-status__power,
+.ai-provider-status__thermal,
+.ai-provider-status__model-workload,
+.ai-provider-status__hardware-detection,
+.ai-provider-status__ram,
+.ai-provider-status__disk,
+.ai-provider-status__model-metadata,
+.ai-provider-status__capability-pack,
+.ai-provider-status__capability-download,
+.ai-provider-status__capability-recommendation,
+.ai-provider-status__capability-manifest,
+.ai-provider-status__capability-integrity,
+.ai-provider-status__data-classification,
+.ai-provider-status__memory,
+.ai-provider-status__memory-contract,
+.ai-provider-status__egress,
+.ai-provider-status__audit-secrets,
+.ai-provider-status__windows,
+.ai-provider-status__offline,
+.ai-provider-status__persona,
+.ai-provider-status__voice,
+.ai-provider-status__validation,
+.ai-provider-status__abuse,
+.ai-provider-status__release-proof,
+.ai-provider-status__copy-contract,
+.ai-provider-status__fixtures,
+.ai-provider-status__visible-data-detail,
+.ai-provider-status__consent-boundary,
+.ai-provider-status__runtime,
+.ai-provider-status__runtime-reason,
+.ai-provider-status__runtime-provenance,
+.ai-provider-status__runtime-schema,
+.ai-provider-status__readiness,
+.ai-provider-status__setup-eligibility,
+.ai-provider-status__setup-blocker,
+.ai-provider-status__readiness-reason,
+.ai-provider-status__readiness-provenance,
+.ai-provider-status__readiness-schema,
+.ai-provider-status__future-gate,
+.ai-provider-status__activation,
+.ai-provider-status__activation-eligibility,
+.ai-provider-status__activation-blocker,
+.ai-provider-status__activation-reason,
+.ai-provider-status__activation-provenance,
+.ai-provider-status__activation-schema,
+.ai-provider-status__future-activation-gate,
+.ai-provider-status__adapter,
+.ai-provider-status__execution-readiness,
+.ai-provider-status__execution-eligibility,
+.ai-provider-status__execution-blocker,
+.ai-provider-status__execution-reason,
+.ai-provider-status__execution-provenance,
+.ai-provider-status__execution-schema,
+.ai-provider-status__execution-approval,
+.ai-provider-status__adapter-selection,
+.ai-provider-status__prompt-gates,
+.ai-provider-status__model-execution,
+.ai-provider-status__execution-data,
+.ai-provider-status__functional-ai,
+.ai-provider-status__functional-release,
+.ai-provider-status__capability-eligibility,
+.ai-provider-status__install-intent,
+.ai-provider-status__fallback,
+.ai-provider-status__next-action,
+.ai-provider-status__action {
+  display: none;
+}
+
 .ai-provider-status__action {
   width: 100%;
   margin-top: 9px;
@@ -725,6 +813,10 @@ body {
 .ai-provider-status[data-availability="ready"] .ai-provider-status__label,
 .ai-provider-status[data-availability="ready"] .ai-provider-status__state {
   color: rgba(183, 247, 212, 0.96);
+}
+
+body.desktop-mode .ai-provider-status {
+  display: none;
 }
 
 @media (max-width: 640px) {
