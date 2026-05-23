@@ -3431,6 +3431,7 @@ function monitoringHudRenderOverlayDisplay() {
   const cards = monitoringHudControlState.cards || {};
   const activeProfile = monitoringHudActiveOverlayProfile() || {};
   const activeMonitorIds = monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, cards);
+  const activeMonitorIdSet = new Set(activeMonitorIds);
   const overlayDeferred = monitoringHudControlState.overlayDeferred !== false;
   monitoringHudOverlayDisplay.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
   monitoringHudOverlayDisplay.dataset.visibilityState = overlayDeferred ? "hidden-deferred" : (monitoringHudControlState.visible ? "visible" : "hidden");
@@ -3443,13 +3444,23 @@ function monitoringHudRenderOverlayDisplay() {
   monitoringHudOverlayDisplay.dataset.dashboardAcceptanceRole = "supporting-future-interface-evidence";
   monitoringHudOverlayDisplay.dataset.currentBranchReleaseGate = "false";
   monitoringHudOverlayDisplay.dataset.monitorCount = String(activeMonitorIds.length);
+  monitoringHudOverlayDisplay.dataset.overlayDisplayAcceptance = "slc-042-active-profile-state-bridge";
+  monitoringHudOverlayDisplay.dataset.overlayDisplayAcceptancePolicy = "profile-aware-baseline-non-recording";
+  monitoringHudOverlayDisplay.dataset.overlayDisplayAcceptanceSlice = "SLC-042";
+  monitoringHudOverlayDisplay.dataset.overlayDisplayAcceptanceProof = monitoringHudOverlayDisplay.dataset.overlayDisplayAcceptanceProof || "pending";
   monitoringHudOverlayDisplay.dataset.overlayProfileState = "slc-039-membership-mapping";
   monitoringHudOverlayDisplay.dataset.overlayProfileSchemaVersion = String(monitoringHudOverlayProfileSchemaVersion);
   monitoringHudOverlayDisplay.dataset.activeOverlayProfileId = String(monitoringHudControlState.activeOverlayProfileId || "");
+  monitoringHudOverlayDisplay.dataset.activeOverlayProfileName = monitoringHudCleanOverlayProfileName(activeProfile.name, "Overlay Profile");
   monitoringHudOverlayDisplay.dataset.activeOverlayProfileMonitorCount = String(activeMonitorIds.length);
+  monitoringHudOverlayDisplay.dataset.activeOverlayProfileMonitorIds = activeMonitorIds.join(",");
   monitoringHudOverlayDisplay.dataset.overlayProfileEditor = "slc-039-membership-editor";
   monitoringHudOverlayDisplay.dataset.overlayProfileMembership = "editable-slc-039-mapping";
   monitoringHudOverlayDisplay.dataset.recordingProfileState = "recording-profile-state-absent-future-gated";
+  Array.from(monitoringHudOverlayCanvas.querySelectorAll("[data-overlay-monitor-card]")).forEach((node) => {
+    const cardId = String(node.dataset.overlayMonitorCard || "");
+    if (!activeMonitorIdSet.has(cardId)) node.remove();
+  });
   activeMonitorIds.forEach((cardId) => {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), cards[cardId] || {});
     const overlayLayout = Object.assign({}, layout, {
@@ -3480,6 +3491,9 @@ function monitoringHudRenderOverlayDisplay() {
         : (cardId === "cpu" ? "Provider warming" : cardId === "gpu" ? "Provider required" : "Provider route pending");
     }
   });
+  monitoringHudOverlayDisplay.dataset.overlayRenderedMonitorCount = String(
+    monitoringHudOverlayCanvas.querySelectorAll("[data-overlay-monitor-card]").length
+  );
 }
 
 function monitoringHudUpdateSurfaceSplit() {
@@ -4444,6 +4458,130 @@ window.runMonitoringHudOverlayProfileStateProof = function() {
   return proof;
 };
 
+window.runMonitoringHudOverlayDisplayAcceptanceProof = function() {
+  const previousState = JSON.stringify(monitoringHudControlState);
+  let proof = {
+    passed: false,
+    package: "PKG-006",
+    slice: "SLC-042",
+    seam: "Overlay display acceptance baseline and active-profile state bridge",
+    profileAwareBridge: false,
+    activeProfileSelectionDrivesRenderedCards: false,
+    staleOverlayCardsRemoved: false,
+    nullProfileStateRendersZeroCards: false,
+    highVolumeMembershipRendersDeterministically: false,
+    activeProfileDatasetReady: false,
+    monitorGroupBoundary: true,
+    recordingProfileBoundary: true,
+    nonRecordingScope: true,
+    nonThemeScope: true,
+    overlayAcceptancePolicy: "profile-aware-baseline-non-recording"
+  };
+  try {
+    const fixtureCards = {};
+    for (let index = 1; index <= 125; index += 1) {
+      const cardId = `slc042-monitor-${String(index).padStart(3, "0")}`;
+      fixtureCards[cardId] = Object.assign(monitoringHudCardDefaults(cardId), {
+        id: cardId,
+        title: `SLC-042 Monitor ${String(index).padStart(3, "0")}`,
+        enabled: true,
+        sensors: index % 2 === 0 ? ["cpu-load"] : [],
+        pollingRateMs: 1000
+      });
+    }
+    monitoringHudControlState.cards = fixtureCards;
+    monitoringHudControlState.overlayProfileDefaultDeletedByUser = false;
+    monitoringHudControlState.overlayProfiles = {
+      "slc042-a": {
+        id: "slc042-a",
+        name: "SLC-042 Active Profile A",
+        monitorIds: ["slc042-monitor-001", "slc042-monitor-002"],
+        displayMode: "monitor-cards"
+      },
+      "slc042-b": {
+        id: "slc042-b",
+        name: "SLC-042 Active Profile B",
+        monitorIds: ["slc042-monitor-003"],
+        displayMode: "monitor-cards"
+      }
+    };
+    monitoringHudControlState.activeOverlayProfileId = "slc042-a";
+    monitoringHudRenderOverlayDisplay();
+    const firstRenderIds = Array.from(monitoringHudOverlayCanvas.querySelectorAll("[data-overlay-monitor-card]"))
+      .map((node) => node.dataset.overlayMonitorCard);
+    monitoringHudControlState.activeOverlayProfileId = "slc042-b";
+    monitoringHudRenderOverlayDisplay();
+    const secondRenderIds = Array.from(monitoringHudOverlayCanvas.querySelectorAll("[data-overlay-monitor-card]"))
+      .map((node) => node.dataset.overlayMonitorCard);
+    proof.profileAwareBridge = monitoringHudOverlayDisplay.dataset.overlayDisplayAcceptance === "slc-042-active-profile-state-bridge";
+    proof.activeProfileSelectionDrivesRenderedCards = JSON.stringify(firstRenderIds) === JSON.stringify(["slc042-monitor-001", "slc042-monitor-002"])
+      && JSON.stringify(secondRenderIds) === JSON.stringify(["slc042-monitor-003"]);
+    proof.staleOverlayCardsRemoved = !secondRenderIds.includes("slc042-monitor-001") && !secondRenderIds.includes("slc042-monitor-002");
+    proof.activeProfileDatasetReady = monitoringHudOverlayDisplay.dataset.activeOverlayProfileId === "slc042-b"
+      && monitoringHudOverlayDisplay.dataset.activeOverlayProfileMonitorCount === "1"
+      && monitoringHudOverlayDisplay.dataset.activeOverlayProfileMonitorIds === "slc042-monitor-003"
+      && monitoringHudOverlayDisplay.dataset.overlayRenderedMonitorCount === "1";
+
+    monitoringHudControlState.overlayProfiles = {};
+    monitoringHudControlState.activeOverlayProfileId = "";
+    monitoringHudControlState.overlayProfileDefaultDeletedByUser = true;
+    monitoringHudRenderOverlayDisplay();
+    proof.nullProfileStateRendersZeroCards = monitoringHudOverlayCanvas.querySelectorAll("[data-overlay-monitor-card]").length === 0
+      && monitoringHudOverlayDisplay.dataset.overlayRenderedMonitorCount === "0";
+
+    const highVolumeIds = Object.keys(fixtureCards).slice(0, 100);
+    monitoringHudControlState.overlayProfileDefaultDeletedByUser = false;
+    monitoringHudControlState.overlayProfiles = {
+      "slc042-high-volume": {
+        id: "slc042-high-volume",
+        name: "SLC-042 High Volume Profile",
+        monitorIds: highVolumeIds.concat(["missing-monitor", highVolumeIds[0]]),
+        displayMode: "monitor-cards",
+        monitorGroupId: "must-not-survive",
+        recordingProfileId: "must-not-survive"
+      }
+    };
+    monitoringHudControlState.activeOverlayProfileId = "slc042-high-volume";
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    monitoringHudRenderOverlayDisplay();
+    const highVolumeProfile = monitoringHudControlState.overlayProfiles["slc042-high-volume"] || {};
+    const highVolumeRenderedCount = monitoringHudOverlayCanvas.querySelectorAll("[data-overlay-monitor-card]").length;
+    proof.highVolumeMembershipRendersDeterministically = highVolumeRenderedCount === 100
+      && (highVolumeProfile.monitorIds || []).length === 100
+      && !(highVolumeProfile.monitorIds || []).includes("missing-monitor");
+    proof.monitorGroupBoundary = !Object.prototype.hasOwnProperty.call(highVolumeProfile, "monitorGroupId");
+    proof.recordingProfileBoundary = !Object.prototype.hasOwnProperty.call(highVolumeProfile, "recordingProfileId");
+    proof.nonRecordingScope = monitoringHudOverlayDisplay.dataset.recordingProfileState === "recording-profile-state-absent-future-gated";
+    proof.nonThemeScope = !/theme|skin/i.test(monitoringHudOverlayDisplay.dataset.overlayDisplayAcceptancePolicy || "");
+    proof.passed = proof.profileAwareBridge
+      && proof.activeProfileSelectionDrivesRenderedCards
+      && proof.staleOverlayCardsRemoved
+      && proof.nullProfileStateRendersZeroCards
+      && proof.highVolumeMembershipRendersDeterministically
+      && proof.activeProfileDatasetReady
+      && proof.monitorGroupBoundary
+      && proof.recordingProfileBoundary
+      && proof.nonRecordingScope
+      && proof.nonThemeScope;
+  } finally {
+    try {
+      monitoringHudControlState = JSON.parse(previousState);
+      monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+      monitoringHudRenderControls();
+    } catch (_err) {}
+  }
+  monitoringHudControlState.overlayDisplayAcceptanceProof = proof;
+  if (monitoringHud) {
+    monitoringHud.dataset.overlayDisplayAcceptanceProof = proof.passed ? "pass" : "fail";
+    monitoringHud.dataset.overlayDisplayAcceptance = "slc-042-active-profile-state-bridge";
+  }
+  if (monitoringHudOverlayDisplay) {
+    monitoringHudOverlayDisplay.dataset.overlayDisplayAcceptanceProof = proof.passed ? "pass" : "fail";
+    monitoringHudOverlayDisplay.dataset.overlayDisplayAcceptance = "slc-042-active-profile-state-bridge";
+  }
+  return proof;
+};
+
 window.runMonitoringHudOverlayProfileControlsProof = function() {
   const previousState = JSON.stringify(monitoringHudControlState);
   const previousDraftId = monitoringHudOverlayProfileDraftId;
@@ -5233,6 +5371,7 @@ window.getMonitoringHudControlState = function() {
     overlayProfileDefaultDeletedByUser: Boolean(monitoringHudControlState.overlayProfileDefaultDeletedByUser),
     overlayProfileSchemaVersion: monitoringHudOverlayProfileSchemaVersion,
     overlayProfileStateProof: Object.assign({}, monitoringHudControlState.overlayProfileStateProof || {}),
+    overlayDisplayAcceptanceProof: Object.assign({}, monitoringHudControlState.overlayDisplayAcceptanceProof || {}),
     activeChildWindow: monitoringHudActiveChildWindow || "none",
     interactiveControlReliabilityProof: Object.assign({}, monitoringHudReliableActivationState, {
       attempts: monitoringHudReliableActivationState.attempts.slice(-40)

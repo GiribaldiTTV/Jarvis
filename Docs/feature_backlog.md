@@ -98,7 +98,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | `FAM-003` | Interaction and Actions | High | Open / aggregation-held | `PKG-003` released baseline / open | `Docs/family_visions/FAM-003_interaction_and_actions.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` |
 | `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/family_visions/FAM-004_voice_and_audio.md` | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/family_visions/FAM-005_external_integrations.md` | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
-| `FAM-006` | Monitoring and HUD | High | Open / Overlay Display Acceptance Foundation successor setup active; released Dashboard, Sensor Command Center, and Overlay Profile foundation evidence preserved | `PKG-006` released baseline / open | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md` |
+| `FAM-006` | Monitoring and HUD | High | Open / Overlay Display Acceptance Foundation SLC-042 implemented, H1 pending; released Dashboard, Sensor Command Center, and Overlay Profile foundation evidence preserved | `PKG-006` released baseline / open | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md` |
 | `FAM-007` | Local AI and Capability Packs | High | Open / package admitted; released setup and consent foundation evidence preserved | `PKG-007` admitted / not package-complete | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md` |
 | `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
 | `FAM-009` | Workspace and Data | Low | Open / deferred follow-through | `PKG-009` released baseline / open | `Docs/family_visions/FAM-009_workspace_and_data.md` | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
@@ -191,7 +191,7 @@ Historical Trace Coverage: `FB-039`, Stream Deck and external trigger planning g
 
 ### [ID: FAM-006] Monitoring and HUD
 
-Status: Open / Overlay Display Acceptance Foundation successor setup active; released Dashboard, Sensor Command Center, and Overlay Profile Runtime Foundation evidence preserved
+Status: Open / Overlay Display Acceptance Foundation SLC-042 implemented and H1 pending; released Dashboard, Sensor Command Center, and Overlay Profile Runtime Foundation evidence preserved
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self

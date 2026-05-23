@@ -5785,6 +5785,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_control_signature = None
         self._monitoring_hud_monitor_management_signature = None
         self._monitoring_hud_overlay_profile_signature = None
+        self._monitoring_hud_overlay_display_acceptance_signature = None
         self._monitoring_hud_overlay_profiles = {}
         self._monitoring_hud_active_overlay_profile_id = "default-overlay-profile"
         self._monitoring_hud_overlay_profile_default_deleted_by_user = False
@@ -12870,6 +12871,31 @@ class DesktopRuntimeWindow(QWidget):
                 schema_version=int(state.get("overlayProfileSchemaVersion") or 0),
             )
             overlay_profile_changed = True
+        overlay_display_acceptance_proof = state.get("overlayDisplayAcceptanceProof")
+        overlay_display_acceptance_signature = json.dumps(
+            overlay_display_acceptance_proof if isinstance(overlay_display_acceptance_proof, dict) else {},
+            sort_keys=True,
+        )
+        overlay_display_acceptance_changed = False
+        if overlay_display_acceptance_signature != self._monitoring_hud_overlay_display_acceptance_signature:
+            self._monitoring_hud_overlay_display_acceptance_signature = overlay_display_acceptance_signature
+            if isinstance(overlay_display_acceptance_proof, dict):
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_OVERLAY_DISPLAY_ACCEPTANCE_BRIDGE_READY",
+                    package="PKG-006",
+                    slice=str(overlay_display_acceptance_proof.get("slice") or "SLC-042"),
+                    seam="Workstream",
+                    profile_aware_bridge=bool(overlay_display_acceptance_proof.get("profileAwareBridge")),
+                    active_profile_selection_drives_rendered_cards=bool(overlay_display_acceptance_proof.get("activeProfileSelectionDrivesRenderedCards")),
+                    stale_overlay_cards_removed=bool(overlay_display_acceptance_proof.get("staleOverlayCardsRemoved")),
+                    null_profile_state_renders_zero_cards=bool(overlay_display_acceptance_proof.get("nullProfileStateRendersZeroCards")),
+                    high_volume_membership_renders_deterministically=bool(overlay_display_acceptance_proof.get("highVolumeMembershipRendersDeterministically")),
+                    monitor_group_boundary=str(overlay_display_acceptance_proof.get("monitorGroupBoundary")),
+                    recording_profile_boundary=str(overlay_display_acceptance_proof.get("recordingProfileBoundary")),
+                    non_recording_scope=bool(overlay_display_acceptance_proof.get("nonRecordingScope")),
+                    non_theme_scope=bool(overlay_display_acceptance_proof.get("nonThemeScope")),
+                )
+                overlay_display_acceptance_changed = True
         monitor_signature_parts = []
         enabled_count = 0
         for card_id in sorted(str(key) for key in cards.keys()):
@@ -12954,7 +12980,7 @@ class DesktopRuntimeWindow(QWidget):
 
         signature = (feature_enabled, visible, anchored, snap_enabled, polling_rate_ms)
         if signature == self._monitoring_hud_control_signature:
-            if overlay_profile_changed:
+            if overlay_profile_changed or overlay_display_acceptance_changed:
                 self._persist_monitoring_hud_feature_state(source="page_sync_overlay_profile")
             self._sync_monitoring_hud_minimal_native_overlay(source="page_sync")
             return
