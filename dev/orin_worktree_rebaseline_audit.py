@@ -192,6 +192,25 @@ def _overall_overlap_gate_result(overlap_files: list[str]) -> str:
     return "WARN"
 
 
+def _overlap_intent_missing_status(overlap_gate_result: str) -> str:
+    if overlap_gate_result == "Not Applicable":
+        return "No"
+    if overlap_gate_result == "WARN":
+        return "WARN - lower-risk overlap requires USER-visible recommendation and USER approval before mutation"
+    return (
+        "BLOCKED until branch-owned intent evidence is proven, waived, "
+        "deferred by USER decision, or sequencing changes"
+    )
+
+
+def _rebaseline_mutation_status(overlap_gate_result: str) -> str:
+    if overlap_gate_result == "BLOCKED":
+        return "Blocked - Rebaseline Overlap Intent Missing pending branch-owned evidence review."
+    if overlap_gate_result == "WARN":
+        return "Not started - WARN overlap requires USER approval before mutation."
+    return "Not started - helper is report-only."
+
+
 def _overlap_detail_lines(overlap_files: list[str]) -> list[str]:
     if not overlap_files:
         return ["- None"]
@@ -414,7 +433,7 @@ def build_report(cwd: Path, target_ref: str) -> str:
         f"- Rebaseline Overlap Intent Gate: `{'Not Applicable' if not rebaseline_overlap_files else 'Required - inspect Branch Change Intent Ledger before mutation'}`",
         f"- Overall Overlap Gate Result: `{overlap_gate_result}`",
         f"- Rebaseline Overlap Failure Procedure: `{'Not Applicable' if not rebaseline_overlap_files else 'Required - freeze mutation and classify every overlapping file PASS/WARN/BLOCKED'}`",
-        f"- Rebaseline Overlap Intent Missing: `{'No' if not rebaseline_overlap_files else 'BLOCKED until branch-owned intent evidence is proven, waived, deferred by USER decision, or sequencing changes'}`",
+        f"- Rebaseline Overlap Intent Missing: `{_overlap_intent_missing_status(overlap_gate_result)}`",
         "- Overlap File Details:",
         *_overlap_detail_lines(rebaseline_overlap_files),
         f"- Incoming Runtime / Source-Truth Risk: `{'; '.join(source_truth_risk)}`",
@@ -425,7 +444,7 @@ def build_report(cwd: Path, target_ref: str) -> str:
         f"- Recommendation Only: `YES - no fetch, merge, rebase, checkout, reset, or file mutation was performed.`",
         f"- Rebaseline Recommendation: `{recommendation_state} - {recommendation}`",
         f"- Rebaseline Mutation Approval: `Pending USER approval for exact worktree, branch, target commit, and operation type.`",
-        f"- Rebaseline Mutation Status: `{'Blocked - Rebaseline Overlap Intent Missing pending branch-owned evidence review.' if overlap_gate_result == 'BLOCKED' else 'Not started - helper is report-only.'}`",
+        f"- Rebaseline Mutation Status: `{_rebaseline_mutation_status(overlap_gate_result)}`",
         "",
         "Current-Main Reconciliation Identity Guard:",
         *[f"- {line}" for line in identity_guard],

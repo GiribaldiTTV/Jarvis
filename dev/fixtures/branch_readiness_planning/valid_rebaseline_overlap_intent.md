@@ -21,13 +21,13 @@ Fallback Evidence: fallback evidence may classify risk through commit messages, 
 USER Decision / Waiver: USER approval required before rebaseline mutation when this validator overlaps incoming main changes.
 Fold-Down Target: compact branch receipt plus helper registry note when durable overlap evidence remains useful.
 
-### Changed Surface: Docs/codex_user_guide.md
+### Changed Surface: Docs/incident_patterns.md
 
 Surface Class: documentation/reference
 Change Intent: keep human-facing guidance aligned with canonical phase and naming standards without making the guide a live-state owner.
 Why This File Was Touched: the user guide may need compact pointer language when governance terms change.
 Owned Behavior / Fact Class: user-facing explanatory reference for Codex workflow terms.
-Canonical Owner / Source Owner: Docs/codex_user_guide.md.
+Canonical Owner / Source Owner: Docs/incident_patterns.md.
 Resolution Owner: Current Branch
 Shared Surface: Yes - multiple planning branches can clarify guide wording.
 Overlap Risk: Low because the guide is reference-only when it does not redefine source-truth policy.

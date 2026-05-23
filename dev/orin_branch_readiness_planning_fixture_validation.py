@@ -50,6 +50,12 @@ VALID_REBASELINE_OVERLAP_INTENT_FIXTURE = (
 INVALID_REBASELINE_OVERLAP_UNKNOWN_HIGH_RISK_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_overlap_unknown_high_risk.md"
 )
+INVALID_REBASELINE_OVERLAP_FALLBACK_ONLY_PASS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_overlap_fallback_only_pass.md"
+)
+VALID_REBASELINE_OVERLAP_LOW_RISK_WARN_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_overlap_low_risk_warn.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -82,6 +88,9 @@ EXPECTED_UFD_NO_OWNER_FAILURE_SNIPPET = (
 EXPECTED_UFD_BAD_ID_FAILURE_SNIPPET = "Feedback ID must use the UFD-* namespace"
 EXPECTED_REBASELINE_UNKNOWN_RISK_FAILURE_SNIPPET = (
     "Semantic Merge Risk Unknown is blocked for high-risk overlap surfaces"
+)
+EXPECTED_REBASELINE_FALLBACK_ONLY_FAILURE_SNIPPET = (
+    "Fallback Evidence cannot be used as a compatibility bypass"
 )
 
 
@@ -213,6 +222,8 @@ def validate() -> list[str]:
         INVALID_USER_FEEDBACK_BAD_ID_FIXTURE,
         VALID_REBASELINE_OVERLAP_INTENT_FIXTURE,
         INVALID_REBASELINE_OVERLAP_UNKNOWN_HIGH_RISK_FIXTURE,
+        INVALID_REBASELINE_OVERLAP_FALLBACK_ONLY_PASS_FIXTURE,
+        VALID_REBASELINE_OVERLAP_LOW_RISK_WARN_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -407,6 +418,26 @@ def validate() -> list[str]:
         failures.append(
             "Invalid Rebaseline Overlap Intent fixture did not reject Unknown "
             "semantic merge risk for a high-risk overlap surface"
+        )
+
+    fallback_only_failures = _validate_branch_change_intent_text(
+        INVALID_REBASELINE_OVERLAP_FALLBACK_ONLY_PASS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_REBASELINE_FALLBACK_ONLY_FAILURE_SNIPPET not in "\n".join(
+        fallback_only_failures
+    ):
+        failures.append(
+            "Invalid Rebaseline Overlap Intent fixture did not reject fallback-only "
+            "PASS / compatibility-bypass wording after the effective point"
+        )
+
+    low_risk_warn_failures = _validate_branch_change_intent_text(
+        VALID_REBASELINE_OVERLAP_LOW_RISK_WARN_FIXTURE.read_text(encoding="utf-8")
+    )
+    if low_risk_warn_failures:
+        failures.append(
+            "Valid low-risk WARN Rebaseline Overlap Intent fixture unexpectedly failed: "
+            + "; ".join(low_risk_warn_failures[:5])
         )
 
     return failures
