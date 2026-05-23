@@ -17,7 +17,7 @@ Treat the following files as authoritative unless a direct verified implementati
 - `C:\Nexus Desktop AI\Docs\Main.md`
 - `C:\Nexus Desktop AI\Docs\phase_governance.md`
 - `C:\Nexus Desktop AI\Docs\architecture.md`
-- `C:\Nexus Desktop AI\Docs\orin_vision.md`
+- `C:\Nexus Desktop AI\Docs\nexus_vision.md`
 - `C:\Nexus Desktop AI\Docs\feature_backlog.md`
 - `C:\Nexus Desktop AI\Docs\orchestration.md`
 - `C:\Nexus Desktop AI\Docs\[relevant canonical workstream docs]`

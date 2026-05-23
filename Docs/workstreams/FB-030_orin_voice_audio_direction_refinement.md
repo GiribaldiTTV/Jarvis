@@ -394,7 +394,7 @@ Release Window Split Waiver: None
 ### Public explanatory and naming surfaces
 
 - `README.md`: current product orientation and `Audio/` ownership note.
-- `Docs/orin_vision.md`, `Docs/orin_display_naming_guidance.md`, and `Docs/ownership_ip_plan.md`: current ORIN identity, display posture, and future-option context that later voice/persona changes must respect.
+- `Docs/nexus_vision.md`, `Docs/orin_display_naming_guidance.md`, and `Docs/ownership_ip_plan.md`: current ORIN identity, display posture, and future-option context that later voice/persona changes must respect.
 
 ### Explicit non-includes for this branch-readiness pass
 
@@ -584,7 +584,7 @@ WS-1 inventories the current voice/audio trigger surfaces, playback modules, tra
 - `README.md`
   - Classification: `documentation surface`
   - Ownership: product orientation and repo-level note that `Audio/` contains voice and audio code
-- `Docs/orin_vision.md`
+- `Docs/nexus_vision.md`
   - Classification: `documentation surface`
   - Ownership: current ORIN identity context that later audible-direction changes must respect
 - `Docs/orin_display_naming_guidance.md`

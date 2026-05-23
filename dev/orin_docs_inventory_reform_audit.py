@@ -222,6 +222,11 @@ OWNER_DESCRIPTIONS = {
         "required plan markers and lifecycle",
         "branch-specific live truth",
     ),
+    "branch plan retirement index": (
+        "historical branch-plan retirement posture",
+        "retired plan list, durable lookup path, and deletion guardrails",
+        "active branch implementation detail",
+    ),
     "branch plan inventory receipt": (
         "branch-specific inventory evidence",
         "inventory rows and marker evidence while receipt needs it",
@@ -241,6 +246,16 @@ OWNER_DESCRIPTIONS = {
         "long-lived family continuity",
         "family routing, historical pass index, reusable continuity",
         "active worktree/PR state",
+    ),
+    "family vision index": (
+        "family vision routing",
+        "family vision record index, owner relationship, and fold-down rule",
+        "full family vision narratives or active branch implementation detail",
+    ),
+    "family vision": (
+        "durable family product direction",
+        "USER-accepted reusable family standards and future package boundaries",
+        "active branch implementation checklists or live operational state",
     ),
     "release closeout receipt": (
         "historical release/closeout receipt",
@@ -346,6 +361,8 @@ def owner_for(rel: str) -> str:
         return "branch authority / structured receipt"
     if rel == "Docs/branch_plans/README.md":
         return "branch plan standard"
+    if rel == "Docs/branch_plans/retirement_index.md":
+        return "branch plan retirement index"
     if rel.endswith("_inventory.md") and rel.startswith("Docs/branch_plans/"):
         return "branch plan inventory receipt"
     if rel.startswith("Docs/branch_plans/"):
@@ -356,6 +373,10 @@ def owner_for(rel: str) -> str:
         return "family dossier"
     if rel.startswith("Docs/workstreams/"):
         return "workstream durable history"
+    if rel == "Docs/family_visions/README.md":
+        return "family vision index"
+    if rel.startswith("Docs/family_visions/"):
+        return "family vision"
     if rel.startswith("Docs/closeouts/") or rel in {
         "Docs/closeout_index.md",
         "Docs/closeout_guidance.md",
@@ -374,7 +395,7 @@ def owner_for(rel: str) -> str:
     if rel in {
         "Docs/architecture.md",
         "Docs/boot_access_design.md",
-        "Docs/orin_vision.md",
+        "Docs/nexus_vision.md",
         "Docs/orin_interaction_architecture.md",
         "Docs/orin_display_naming_guidance.md",
         "Docs/orchestration.md",
@@ -451,9 +472,15 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
         )
     if owner == "branch runtime engineering plan":
         return (
-            "Fold-down then retire candidate",
+            "Retired posture indexed",
             completed,
-            "At PR Readiness Stage 1/2 for the owning branch, migrate durable content to branch receipt/workstream/family dossier, then mark this plan retired when no active branch depends on it.",
+            "Do not reuse as an active plan; deletion requires later USER approval plus reference proof that durable content remains preserved.",
+        )
+    if owner == "branch plan retirement index":
+        return (
+            "Keep as retirement index",
+            completed,
+            "Keep as the central historical branch-plan retirement posture and deletion guardrail.",
         )
     if owner == "workstream durable history":
         return (
@@ -466,6 +493,18 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
             "Keep / expand as durable owner",
             completed,
             "Use as migration target for package/slice/detail that should leave backlog, roadmap, and branch diaries.",
+        )
+    if owner == "family vision index":
+        return (
+            "Keep as family vision router",
+            completed,
+            "Keep as the compact index for family vision records and fold-down rules.",
+        )
+    if owner == "family vision":
+        return (
+            "Keep as family vision owner",
+            completed,
+            "Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.",
         )
     if owner == "unknown docs reference":
         return (
@@ -484,7 +523,9 @@ def validator_need(owner: str) -> str:
     if owner == "branch authority / structured receipt":
         return "Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable."
     if owner == "branch runtime engineering plan":
-        return "Planning fixture validator checks required plan structure; future PR Readiness should enforce fold-down/retirement for the owning branch."
+        return "Planning fixture validator checks required plan structure; governance efficiency validation requires historical plans to be represented in the retirement index."
+    if owner == "branch plan retirement index":
+        return "Governance efficiency validator requires every historical branch plan to appear in the retirement index before deletion can be considered."
     if owner in {"workstream durable history", "family dossier"}:
         return "Branch governance validator and future dossier checks should preserve durable trace ownership without treating old live facts as current."
     return "Covered by existing owner validator or future focused owner check."
@@ -503,7 +544,9 @@ def consolidation_target_for(row: dict[str, object]) -> str:
     if rel == "Docs/Main.md":
         return "Keep here as least-updated canonical docs index and recovery/source-truth map; move full policy to owner docs."
     if owner == "branch runtime engineering plan":
-        return "Fold durable content into owning branch receipt and workstream/family dossier, then retire the plan after PR Readiness Stage 2 approval."
+        return "Listed in Docs/branch_plans/retirement_index.md as historical retired posture; keep durable lookup paths in branch records/workstreams/family vision owners."
+    if owner == "branch plan retirement index":
+        return "Keep here as central retired-plan lookup; do not duplicate full branch plans in this index."
     if owner == "branch authority / structured receipt":
         if "Organize" in action:
             return "Keep traceability, but reorganize into indexed current summary plus historical receipt sections; promote reusable implementation detail to workstreams or family dossiers."
@@ -512,6 +555,10 @@ def consolidation_target_for(row: dict[str, object]) -> str:
         return "Keep as durable implementation/proof owner; normalize stale live wording only when edited."
     if owner == "family dossier":
         return "Keep or expand as durable family continuity owner."
+    if owner == "family vision index":
+        return "Keep as family vision router; use to find durable family vision records."
+    if owner == "family vision":
+        return "Keep as family-specific product vision owner; move active implementation detail to branch plans and durable proof to workstreams/branch receipts."
     if owner == "release closeout receipt":
         return "Keep as historical release/closeout receipt archive unless USER approves closeout consolidation."
     if owner in {
@@ -538,7 +585,7 @@ def deletion_posture_for(row: dict[str, object]) -> str:
     owner = str(row["owner"])
     action = str(row["action"])
     if owner == "branch runtime engineering plan":
-        return "Retire later after fold-down and USER-approved PR Readiness Stage 2 proof; do not delete by default."
+        return "Retired from active planning posture; do not delete without separate USER approval and reference proof."
     if "USER review" in action:
         return "Needs USER decision before delete/retire."
     if "Migrate" in action or "Organize" in action:
@@ -607,7 +654,7 @@ USER_RESPONSE_INTEGRATION_ROWS = (
         "Single PR / staged execution",
         "Run remaining reform as internal stages on this Governance carrier and one final PR path.",
         "This plan; generated dossier/index",
-        "R1-R9 staged execution plan; PR Readiness held until USER accepts the corrected surface.",
+        "R1-R9 staged execution plan; PR Readiness held until validation is green and USER separately approves PR creation.",
         "Required generated sections prevent the response from being flattened into a passive note.",
     ),
     (
@@ -628,7 +675,7 @@ USER_RESPONSE_INTEGRATION_ROWS = (
         "Branch plans retire, not delete by default",
         "Plans are canonical while active, then fold down, migrate durable content, and retire.",
         "Branch plan README; branch record index; dossier",
-        "Plan files become retirement candidates only after fold-down proof.",
+        "Historical plan files are indexed as retired from active planning posture; deletion remains USER-gated.",
         "Planning fixtures and governance efficiency validation preserve the lifecycle language.",
     ),
     (
@@ -647,15 +694,15 @@ USER_RESPONSE_INTEGRATION_ROWS = (
     ),
     (
         "Nexus Vision contract",
-        "`Docs/orin_vision.md` should be evaluated as a Nexus-wide vision contract.",
-        "Operating model; future vision pass",
-        "Record the model now; do not rename/reframe without focused reference update.",
-        "Future checks should keep vision out of branch-plan implementation detail.",
+        "`Docs/nexus_vision.md` is the Nexus-wide vision contract after focused reference migration.",
+        "Operating model; family vision records",
+        "Use Nexus Vision for project-wide direction and family visions for durable family direction.",
+        "Checks keep vision out of branch-plan implementation detail.",
     ),
     (
         "Backlog family vision discussion",
-        "Backlog may point to family vision owners but should not absorb long planning narratives.",
-        "Backlog; future family dossiers/vision records",
+        "Backlog points to family vision owners but does not absorb long planning narratives.",
+        "Backlog; family vision records",
         "Keep backlog compact while preserving product-intent routing.",
         "Backlog sprawl checks allow compact pointers, not detailed branch planning.",
     ),
@@ -666,22 +713,22 @@ SINGLE_PR_STAGED_EXECUTION_ROWS = (
     ("R1", "User-response model correction", "Turn USER responses into model decisions instead of passive notes.", "Update model, generator, generated dossier/index, and validator section requirements.", "Dossier/index expose integration sections."),
     ("R2", "Canonical/context taxonomy", "Make Main the least-updated canonical docs index and classify context docs.", "Update ownership language and file-by-file review categories.", "Every Docs file has owner, action, risk, and migration target."),
     ("R3", "Backlog/roadmap enforcement model", "Keep backlog as product registry/pointers and roadmap as release-stage breakpoint outline.", "Harden schemas and sprawl checks.", "Backlog/roadmap validators stay green."),
-    ("R4", "Branch plan lifecycle model", "Keep active planning detailed while preventing stale active authority after completion.", "Use fold-down/retirement candidate queues; no default deletion.", "Branch plans list as retirement candidates only."),
+    ("R4", "Branch plan lifecycle model", "Keep active planning detailed while preventing stale active authority after completion.", "Use the retirement index to mark historical plans retired from active posture; no default deletion.", "Branch plans appear in the retirement index before any deletion is considered."),
     ("R5", "Structured branch receipt model", "Preserve traceability without duplicate live-state chaos.", "Define receipt schema and queue high-risk records for organization.", "Structure queues identify records needing organization."),
-    ("R6", "Vision contract planning", "Treat `Docs/orin_vision.md` as future Nexus Vision contract candidate.", "Record rename/reframe analysis; no rename yet.", "Operating model and dossier carry Product Vision Contract language."),
+    ("R6", "Vision contract implementation", "Treat `Docs/nexus_vision.md` as the Nexus Vision contract and `Docs/family_visions/` as the family vision owner layer.", "Reference migration and family vision creation completed.", "Operating model and dossier carry Product Vision Contract language."),
     ("R7", "Safe file disposition review", "Identify keep/collapse/migrate/retire/delete posture for every Docs file.", "Generate disposition table and USER decision list.", "Manifest count matches filesystem enumeration."),
     ("R8", "Validator and review-surface hardening", "Make corrected review model regeneration-safe.", "Update helper/validator sections and regenerate audit/index.", "Validation passes and generated output is stable."),
-    ("R9", "Final USER review hold", "Stop before PR Readiness until USER accepts the complete reform surface.", "Report results only.", "Next legal phase remains USER review."),
+    ("R9", "Final USER review hold", "Stop before PR Readiness until validation is green and USER separately approves PR creation.", "Report results only.", "Next legal phase remains USER review / PR Readiness approval."),
 )
 
 
 DISPOSITION_CHANGE_ROWS = (
-    ("Branch plans", "Delete after PR Readiness", "Fold down, migrate durable content, then retire by explicit posture; deletion needs separate USER approval."),
+    ("Branch plans", "Delete after PR Readiness", "Historical plans are indexed as retired from active planning posture; deletion still needs separate USER approval and reference proof."),
     ("Branch records", "Compact receipts", "Structured traceability receipts; size is acceptable when evidence is organized and not duplicate live state."),
     ("Main", "General source-truth doc", "Least-updated canonical docs index, recovery map, and owner pointer ledger."),
     ("Backlog", "Current status plus detailed trace", "Compact product registry, family scope/status, package summary, and pointers."),
     ("Roadmap", "Release/current-state record", "Release-stage schedule outline, public milestone posture, and broad feature breakpoints."),
-    ("Vision", "Low-risk product reference", "Future Nexus Vision contract candidate that drives backlog and branch planning."),
+    ("Vision", "Low-risk product reference", "Nexus Vision contract plus family vision records that drive backlog and branch planning."),
     ("Safe/low-risk docs", "Safe to leave", "Reference-scan before delete/collapse, with replacement owner and USER acceptance recorded."),
 )
 
@@ -760,15 +807,15 @@ def build_user_review_index(
     add("- Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.")
     add("- Generated hash fields: intentionally not maintained in this docs review index.")
     add("- Runtime/FAM/Compact-AI mutation: none.")
-    add("- PR Readiness: held until USER review accepts this packet.")
+    add("- PR Readiness: held until validation is green and USER separately approves PR creation.")
     add("")
     add("## Suggested Review Order")
     add("")
     add("1. Read `Executive Summary` and `How To Review This Dossier` in the full dossier.")
-    add("2. Review `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision`.")
+    add("2. Review `What Was Completed`, `What Remains External`, and `What Requires USER Decision`.")
     add("3. Review `USER Response Integration Matrix` and confirm each response changed the model.")
-    add("4. Review `Single-PR Staged Execution Plan` before deciding whether work should continue.")
-    add("5. Review the `Completed / Deferred Matrix` for the reform scope.")
+    add("4. Review `Single-PR Staged Execution Plan` before deciding whether PR Readiness should proceed.")
+    add("5. Review the `Completed / External Decision Matrix` for the reform scope.")
     add("6. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.")
     add("7. Review ambiguity and structure queues before deciding whether cleanup is complete.")
     add("8. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
@@ -783,8 +830,8 @@ def build_user_review_index(
     add("- [ ] Remaining reform work should stay on this single Governance branch/final PR path.")
     add("- [ ] Backlog and roadmap roles are acceptable.")
     add("- [ ] Branch Runtime Engineering Plan lifecycle and retirement rule are acceptable.")
-    add("- [ ] Deferred retirement/fold-down candidates should remain deferred for now.")
-    add("- [ ] No additional Docs file needs immediate retirement before PR Readiness.")
+    add("- [ ] Historical branch plans are acceptable as retired/indexed records rather than active execution plans.")
+    add("- [ ] No Docs file should be deleted, archived, or broadly renamed before a later focused USER decision.")
     add("- [ ] Every Docs file has a clear disposition in the complete cleanup table.")
     add("- [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.")
     add("- [ ] Structure risks have a migration, organization, or keep-now decision.")
@@ -795,8 +842,8 @@ def build_user_review_index(
     add("")
     add("- USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.")
     add("- This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.")
-    add("- Current execution model: analysis and model maintenance only until USER accepts the corrected review surface; remaining Docs reform should run in staged internal commits on this single Governance branch/PR path rather than revolving PRs.")
-    add("- PR Readiness remains held while the USER is correcting the model and execution plan.")
+    add("- Current execution model: this deferred-completion pass updates source truth and review artifacts on the standing Governance branch; PR creation remains separately USER-gated.")
+    add("- PR Readiness remains held until validation is green and USER separately approves PR creation.")
     add("")
     add("## USER Response Integration Summary")
     add("")
@@ -922,8 +969,8 @@ def generate() -> None:
             retire_candidates.append(
                 (
                     rel,
-                    "branch plan should be retired after fold-down proves durable content migrated",
-                    "safe later after owning branch PR Readiness fold-down; not deleted by default",
+                    "branch plan is retired from active planning posture and preserved for lookup",
+                    "delete only after USER approval plus reference proof; do not delete by default",
                 )
             )
         file_rows.append(
@@ -1160,7 +1207,7 @@ def generate() -> None:
         "This dossier is the full markdown-friendly review packet for the Docs source-truth reform. "
         "It enumerates every file under `Docs/`, assigns each file a source-truth role, records what "
         "each file should and should not own, maps duplicated fact classes, and records which cleanup "
-        "is complete versus deferred for USER review."
+        "is complete versus external USER-gated follow-up."
     )
     add("")
     add(
@@ -1174,9 +1221,9 @@ def generate() -> None:
     add("## How To Review This Dossier")
     add("")
     add("1. Start with the companion index: `Docs/governance_docs_reform_user_review_index.md`.")
-    add("2. Read `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision` below.")
+    add("2. Read `What Was Completed`, `What Remains External`, and `What Requires USER Decision` below.")
     add("3. Review `USER Response Integration Matrix` to confirm the USER responses changed the model.")
-    add("4. Review `Single-PR Staged Execution Plan` to confirm the remaining reform path.")
+    add("4. Review `Single-PR Staged Execution Plan` to confirm PR Readiness should proceed only after validation and USER approval.")
     add("5. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.")
     add("6. Review `Ambiguity Pass` and `Structure Pass` before deciding whether cleanup is complete.")
     add("7. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.")
@@ -1196,31 +1243,31 @@ def generate() -> None:
     add("- Validator coverage checks dossier file count, required sections, file-by-file entries, and review index presence.")
     add("- A short user review index is generated for easier inspection before PR Readiness.")
     add("")
-    add("## What Remains Deferred")
+    add("## What Remains External")
     add("")
     add("- Historical branch records larger than the structured receipt model remain preserved until a focused organization pass improves current-summary and indexability without losing traceability.")
-    add("- Historical Branch Runtime Engineering Plans remain queued for fold-down/retirement review until their durable content is migrated.")
-    add("- Low-risk product/reference docs remain kept unless USER approves a later retirement pass.")
+    add("- Historical Branch Runtime Engineering Plans are indexed as retired from active planning posture; deletion remains separate USER-gated cleanup after reference proof.")
+    add("- Low-risk product/reference docs remain kept unless USER approves a later retirement/delete pass with replacement-owner proof.")
     add("- GitHub-derived live-state helpers can be expanded later, but this pass does not require runtime or GitHub source mutations.")
     add("")
     add("## What Requires USER Decision")
     add("")
     add("- Whether to approve PR Readiness Stage 2 after reviewing this dossier.")
     add("- Whether to accept the corrected USER-response model and continue staged cleanup on this single branch.")
-    add("- Whether to run a later branch-plan fold-down/retirement pass for historical plans.")
+    add("- Whether to delete any retired historical branch plans after replacement-owner and reference proof.")
     add("- Whether to run focused organization of oversized historical branch ledgers into user-readable, Codex-indexable structures.")
     add("- Whether to retire low-risk or duplicate reference docs after USER review.")
-    add("- Whether to create or expand FAM-family dossiers as migration targets for bulk historical detail.")
+    add("- Whether to create or expand additional FAM-family dossiers as migration targets for bulk historical detail.")
     add("")
     add("## USER Review Intake Model")
     add("")
     add("- Durable USER response home: `Docs/governance_process_efficiency_reform_plan.md`, section `USER Review Intake - 2026-05-21`.")
-    add("- Execution posture: analysis and model maintenance only until USER accepts the corrected review surface; remaining work stays on this single Governance branch and one final PR path.")
-    add("- PR Readiness remains held while USER is still correcting the model and execution plan.")
+    add("- Execution posture: deferred-completion source-truth maintenance on this single Governance branch; PR creation remains separately USER-gated.")
+    add("- PR Readiness remains held until validation is green and USER separately approves PR creation.")
     add("- Main model: `Docs/Main.md` should be the least-updated canonical docs index and recovery map, not an execution diary.")
     add("- Branch plan model: Branch Runtime Engineering Plans fold down and retire after durable content migrates; deletion is not the default.")
     add("- Branch record model: branch records may be large when they are structured traceability ledgers; the reform target is clear organization and no duplicate live state, not evidence loss.")
-    add("- Vision model: the current `Docs/orin_vision.md` surface should be evaluated as a future Nexus-wide vision contract that drives backlog planning without duplicating branch plans.")
+    add("- Vision model: `Docs/nexus_vision.md` is the Nexus-wide vision contract; family vision records under `Docs/family_visions/` own durable family product direction.")
     add("")
     add_user_response_integration_matrix(add)
     add_single_pr_staged_execution_plan(add)
@@ -1279,9 +1326,9 @@ def generate() -> None:
     add("- FAM-006 / FAM-007 / Compact-AI Mutation: none.")
     add("- Release / Tag / GitHub Release / Issue Work: none.")
     add("")
-    add("## Completed / Deferred Matrix")
+    add("## Completed / External Decision Matrix")
     add("")
-    add("| Reform Item | Completed In This Branch | Deferred | Reason Deferred | Future Owner | USER Decision Needed | Validator Coverage |")
+    add("| Reform Item | Completed In This Branch | External / USER-Gated Follow-Up | Reason | Future Owner | USER Decision Needed | Validator Coverage |")
     add("| --- | --- | --- | --- | --- | --- | --- |")
     matrix_rows = (
         ("USER response integration", "Yes", "No", "N/A", "Docs/governance_process_efficiency_reform_plan.md", "No", "governance efficiency validation"),
@@ -1290,8 +1337,8 @@ def generate() -> None:
         ("prebeta_roadmap compaction", "Yes", "No", "N/A", "Docs/prebeta_roadmap.md", "No", "governance efficiency validation"),
         ("worktree_slots cleanup", "Yes", "No", "N/A", "Docs/worktree_slots.md", "No", "governance efficiency validation"),
         ("branch_records cleanup", "Partial", "Yes", "Large historical records need safe organization into current summary plus indexed traceability sections", "Docs/branch_records + workstreams/family dossiers", "Yes for bulk reorganization", "branch governance validation"),
-        ("branch_plans lifecycle", "Yes", "Retirement deferred", "Durable content must be migrated first", "Docs/branch_plans + branch records + workstreams/family dossiers", "Yes before retiring historical plans", "planning fixture and governance efficiency validation"),
-        ("workstreams/family dossier ownership", "Yes", "Expansion deferred", "Future dossier creation should be focused by family", "Docs/workstreams", "Yes for new/expanded dossiers", "branch governance validation"),
+        ("branch_plans lifecycle", "Yes", "Deletion gated", "Historical plans are indexed as retired; deletion needs proof and USER approval", "Docs/branch_plans + branch records + workstreams/family dossiers", "Yes before deleting historical plans", "planning fixture and governance efficiency validation"),
+        ("workstreams/family dossier ownership", "Yes", "Expansion gated", "Future dossier expansion should be focused by family", "Docs/workstreams + Docs/family_visions", "Yes for new/expanded implementation dossiers", "branch governance validation"),
         ("governance docs consolidation", "Yes", "No broad deletion", "Rule mirrors preserved as pointers where safe", "Main/phase/development/codex docs", "No", "governance efficiency validation"),
         ("duplicate live-state validator hardening", "Yes", "Focused future checks possible", "Some historical receipts intentionally preserve old live facts", "dev/orin_governance_efficiency_validation.py", "No", "governance efficiency validation"),
         ("source owner marker validation", "Yes", "No", "N/A", "dev/orin_source_owner_marker_validation.py", "No", "source owner marker validation"),
@@ -1484,8 +1531,8 @@ def generate() -> None:
         "through Workstream/Hardening/Live Validation, folded down during PR Readiness Stage 1, and "
         "retired during or before PR Readiness Stage 2 only after durable content has been migrated "
         "to the branch receipt, workstream doc, family dossier, or other historical receipt owner. "
-        "Existing historical plans are queued for fold-down/retirement review rather than deleted in "
-        "this pass because their durable content has not been fully migrated and validated file-by-file."
+        "Existing historical plans are indexed as retired from active planning posture rather than deleted in "
+        "this pass because useful historical evidence must remain lookup-safe unless USER later approves deletion."
     )
     add("")
     add("## Branch Runtime Engineering Plan Lifecycle Proof")
@@ -1493,7 +1540,7 @@ def generate() -> None:
     add("- Branch Runtime Engineering Plans are canonical active-branch planning docs while a runtime branch is active.")
     add("- Branch plans contain detailed per-seam implementation, validation, user-facing proof, future-gated items, and approval boundaries.")
     add("- Branch plans are folded down during PR Readiness Stage 1.")
-    add("- Branch plans are retired during or before PR Readiness Stage 2 approval after durable content is migrated.")
+    add("- Branch plans are retired during or before PR Readiness Stage 2 approval after durable content is migrated or lookup-safe historical posture is recorded.")
     add("- Durable content moves to the branch receipt, workstream doc, family dossier, or validated historical receipt owner.")
     add("- Backlog and roadmap remain compact pointer/status surfaces and must not absorb detailed branch planning.")
     add("")
@@ -1620,13 +1667,13 @@ def generate() -> None:
     add("## Remaining Risks")
     add("")
     add("- Many historical branch records and workstream records still contain historical live-state language. This is preserved as receipt evidence in this pass, not treated as active truth. Future focused fold-down passes can organize the largest ledgers if USER wants clearer review/indexing.")
-    add("- Existing historical Branch Runtime Engineering Plans are not retired yet because durable content must be migrated and references validated first.")
+    add("- Existing historical Branch Runtime Engineering Plans are retired from active planning posture, but not deleted; deletion remains USER-gated after reference proof.")
     add("- Some product/reference docs are low-risk but still need USER review before retirement because they may preserve historical design context.")
     add("")
     add("## PR Readiness Checklist")
     add("")
     add("- [ ] USER reviewed the companion index.")
-    add("- [ ] USER reviewed high-risk files and deferred retirement candidates.")
+    add("- [ ] USER reviewed high-risk files and USER-gated delete/retire candidates.")
     add("- [ ] USER accepts that no ambiguous Docs files are deleted before later focused approval.")
     add("- [ ] USER accepts Branch Runtime Engineering Plan fold-down/retirement lifecycle.")
     add("- [ ] Validation remains green from the Governance branch.")
@@ -1634,14 +1681,14 @@ def generate() -> None:
     add("")
     add("## Deferred USER Decisions")
     add("")
-    add("- Approve focused retirement/fold-down of historical branch plans after durable content is migrated.")
+    add("- Approve deletion of retired historical branch plans only after durable content and references are proven preserved.")
     add("- Approve focused organization or archival of oversized historical branch execution ledgers.")
     add("- Approve creation or expansion of FAM-006 / FAM-007 family dossiers if USER wants historical branch detail moved out of branch records in bulk.")
     add("- Approve retirement of any low-risk reference docs after USER review of the file-by-file dossier.")
     add("")
     add("## Next Legal Phase")
     add("")
-    add("The next legal phase is USER review of the corrected USER-response integration model and the single-PR staged execution plan. PR Readiness Stage 2 / PR creation remains held until USER accepts the corrected review surface and separately approves PR creation. Merge remains separate USER approval.")
+    add("The next legal phase is USER review of the completed deferred-reform pass and validation proof. PR Readiness Stage 2 / PR creation remains held until USER separately approves PR creation. Merge remains separate USER approval.")
 
     AUDIT.write_text("\n".join(out) + "\n", encoding="utf-8")
     INDEX.write_text(index_text, encoding="utf-8")

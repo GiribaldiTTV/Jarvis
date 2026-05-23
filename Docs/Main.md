@@ -221,11 +221,12 @@ Use `Docs/phase_governance.md` for the exact phase enum, blocker rules, branch c
 Use these for current product posture, architecture boundaries, and release-stage meaning:
 
 - `Docs/architecture.md`
-- `Docs/orin_vision.md`
+- `Docs/nexus_vision.md`
+- `Docs/family_visions/`
 - `Docs/orchestration.md`
 
 These remain authoritative for their layer even where older naming or path references still need later normalization.
-When a task depends on future post-Beta AI behavior, privacy posture, local-vs-external execution boundaries, or AI/UI identity, route to `Docs/orin_vision.md` rather than duplicating that intent in roadmap or workstream docs.
+When a task depends on future post-Beta AI behavior, privacy posture, local-vs-external execution boundaries, or AI/UI identity, route first to `Docs/nexus_vision.md` for project-wide vision and then to `Docs/family_visions/` for family-specific durable direction rather than duplicating that intent in roadmap, backlog, or workstream docs.
 
 ### Registry And Sequencing
 
@@ -375,7 +376,7 @@ These are reference layers, not active workstream or roadmap owners.
 - require the exact prompt contract from `Docs/phase_governance.md` before phase-sensitive execution
 - prefer index docs for historical or high-cardinality layers
 - do not treat a local-only document as canonical just because it exists in the workspace
-- keep future post-Beta AI behavior, privacy, and execution intent in `Docs/orin_vision.md` until a later selected workstream turns part of it into execution truth
+- keep future post-Beta AI behavior, privacy, and execution intent in `Docs/nexus_vision.md` until a later selected workstream turns part of it into execution truth
 - do not create duplicate authority by making backlog, roadmap, and workstream docs all carry the same execution story
 - do not treat workstream docs as the owner of repo-wide phase, timeout, stop-loss, proof-authority, validation-helper, or desktop UI audit rules; those belong to `Docs/phase_governance.md`
 - keep historical Nexus material preserved, but mark it as historical rather than current reality

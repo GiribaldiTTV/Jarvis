@@ -45,6 +45,9 @@ INVALID_USER_FEEDBACK_NO_OWNER_FIXTURE = (
 INVALID_USER_FEEDBACK_BAD_ID_FIXTURE = (
     FIXTURE_DIR / "invalid_user_feedback_bad_id.md"
 )
+INVALID_USER_FEEDBACK_DUPLICATE_SUMMARY_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_feedback_duplicate_summary.md"
+)
 VALID_REBASELINE_OVERLAP_INTENT_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_overlap_intent.md"
 )
@@ -93,6 +96,7 @@ EXPECTED_UFD_NO_OWNER_FAILURE_SNIPPET = (
     "No Durable Owner Needed requires No-Action Reason"
 )
 EXPECTED_UFD_BAD_ID_FAILURE_SNIPPET = "Feedback ID must use the UFD-* namespace"
+EXPECTED_UFD_DUPLICATE_SUMMARY_FAILURE_SNIPPET = "duplicate UFD Feedback Summary"
 EXPECTED_REBASELINE_UNKNOWN_RISK_FAILURE_SNIPPET = (
     "Semantic Merge Risk Unknown is blocked for high-risk overlap surfaces"
 )
@@ -557,6 +561,17 @@ def validate() -> list[str]:
         failures.append(
             "Invalid USER Feedback Disposition bad-ID fixture did not reject "
             "non-UFD feedback ID namespace"
+        )
+
+    duplicate_summary_failures = _validate_user_feedback_disposition_text(
+        INVALID_USER_FEEDBACK_DUPLICATE_SUMMARY_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_UFD_DUPLICATE_SUMMARY_FAILURE_SNIPPET not in "\n".join(
+        duplicate_summary_failures
+    ):
+        failures.append(
+            "Invalid USER Feedback Disposition duplicate-summary fixture did not reject "
+            "duplicate meaningful feedback"
         )
 
     valid_overlap_failures = _validate_branch_change_intent_text(

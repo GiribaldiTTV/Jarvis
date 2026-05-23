@@ -4365,7 +4365,7 @@ USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
         "USER Feedback Disposition Model",
         "UFD Ledger Owner:",
         "full active USER Feedback Disposition items",
-        "Natural-language duplicate feedback detection remains report-only",
+        "exact-normalized duplicate `Feedback Summary:`",
     ),
     Path("Docs/validation_helper_registry.md"): (
         "USER Feedback Disposition scaffolding",
@@ -8658,6 +8658,7 @@ def _validate_user_feedback_disposition(
     open_items = 0
     blocking_items = 0
     seen_feedback_ids: set[str] = set()
+    seen_feedback_summaries: dict[str, str] = {}
 
     for item_match in item_matches:
         heading_id = item_match.group(1).strip()
@@ -8695,6 +8696,23 @@ def _validate_user_feedback_disposition(
             normalized_feedback_id == normalized_heading_id,
             f"{source_path}: Feedback ID must match UFD item heading {heading_id}",
         )
+
+        feedback_summary = _extract_marker_value(item_block, "Feedback Summary:").strip()
+        normalized_feedback_summary = re.sub(
+            r"\s+",
+            " ",
+            re.sub(r"[^a-z0-9]+", " ", feedback_summary.casefold()),
+        ).strip()
+        require(
+            normalized_feedback_summary not in seen_feedback_summaries,
+            (
+                f"{source_path}: duplicate UFD Feedback Summary between "
+                f"{seen_feedback_summaries.get(normalized_feedback_summary, 'another UFD item')} "
+                f"and {heading_id}; duplicate meaningful feedback must be merged, "
+                "superseded with No-Action Reason, or assigned a distinct summary"
+            ),
+        )
+        seen_feedback_summaries[normalized_feedback_summary] = heading_id
 
         disposition_type = _normalized_planning_value(
             _extract_marker_value(item_block, "Disposition Type:")

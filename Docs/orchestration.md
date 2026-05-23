@@ -121,6 +121,6 @@ Any future higher layer must consume launcher truth downstream rather than rewri
 ## Relationship To Other Canon Layers
 
 - use `Docs/architecture.md` for system-level boundaries
-- use `Docs/orin_vision.md` for product intent
+- use `Docs/nexus_vision.md` for product intent
 - use `Docs/boot_access_design.md` for future boot and access planning
 - use `Docs/workstreams/...` for promoted-lane execution and closure records

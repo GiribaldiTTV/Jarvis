@@ -81,6 +81,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | --- | --- |
 | Branch authority router | `Docs/branch_records/index.md` |
 | Branch runtime engineering plans | `Docs/branch_plans/` |
+| Family vision records | `Docs/family_visions/` |
 | Workstream routing and family dossiers | `Docs/workstreams/index.md` |
 | Stable worktree slot registry | `Docs/worktree_slots.md` |
 | Stage-breakpoint schedule posture | `Docs/prebeta_roadmap.md` |
@@ -90,18 +91,18 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 
 ### User-Facing Feature Families
 
-| FAM ID | Broad Product Family | Priority | Status | Package Posture | Canonical Detail Owner |
-| --- | --- | --- | --- | --- | --- |
-| `FAM-001` | Boot Interface | High | Open / released-baseline aggregation | `PKG-001` released baseline / open | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` |
-| `FAM-002` | Desktop Interface | Medium | Open / pending user-facing follow-through | `PKG-002` released baseline / open | `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md` |
-| `FAM-003` | Interaction and Actions | High | Open / aggregation-held | `PKG-003` released baseline / open | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` |
-| `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
-| `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
-| `FAM-006` | Monitoring and HUD | High | Open / released Dashboard, Sensor Command Center, and Overlay Profile foundation evidence preserved | `PKG-006` released baseline / open | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md` |
-| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted; released setup and consent foundation evidence preserved | `PKG-007` admitted / not package-complete | `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md` |
-| `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/orin_vision.md` |
-| `FAM-009` | Workspace and Data | Low | Open / deferred follow-through | `PKG-009` released baseline / open | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
-| `FAM-010` | Safety and Privacy | High | Pending architecture/package | `PKG-010` pending | `Docs/orin_vision.md` |
+| FAM ID | Broad Product Family | Priority | Status | Package Posture | Family Vision Owner | Canonical Detail Owner |
+| --- | --- | --- | --- | --- | --- | --- |
+| `FAM-001` | Boot Interface | High | Open / released-baseline aggregation | `PKG-001` released baseline / open | `Docs/family_visions/FAM-001_boot_interface.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` |
+| `FAM-002` | Desktop Interface | Medium | Open / pending user-facing follow-through | `PKG-002` released baseline / open | `Docs/family_visions/FAM-002_desktop_interface.md` | `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md` |
+| `FAM-003` | Interaction and Actions | High | Open / aggregation-held | `PKG-003` released baseline / open | `Docs/family_visions/FAM-003_interaction_and_actions.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` |
+| `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/family_visions/FAM-004_voice_and_audio.md` | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
+| `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/family_visions/FAM-005_external_integrations.md` | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
+| `FAM-006` | Monitoring and HUD | High | Open / released Dashboard, Sensor Command Center, and Overlay Profile foundation evidence preserved | `PKG-006` released baseline / open | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md` |
+| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted; released setup and consent foundation evidence preserved | `PKG-007` admitted / not package-complete | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md` |
+| `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
+| `FAM-009` | Workspace and Data | Low | Open / deferred follow-through | `PKG-009` released baseline / open | `Docs/family_visions/FAM-009_workspace_and_data.md` | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
+| `FAM-010` | Safety and Privacy | High | Pending architecture/package | `PKG-010` pending | `Docs/family_visions/FAM-010_safety_and_privacy.md` | `Docs/family_visions/FAM-010_safety_and_privacy.md` |
 
 ### [ID: FAM-001] Boot Interface
 
@@ -117,6 +118,7 @@ Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 Canonical Detail Owner: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+Family Vision Owner: `Docs/family_visions/FAM-001_boot_interface.md`
 Historical Trace Coverage: `FB-042`, `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`, `FB-049`, PR #86-#107.
 
 ### [ID: FAM-002] Desktop Interface
@@ -133,6 +135,7 @@ Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 Canonical Detail Owner: `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
+Family Vision Owner: `Docs/family_visions/FAM-002_desktop_interface.md`
 Historical Trace Coverage: `FB-031`, UI/UX planning release evidence.
 
 ### [ID: FAM-003] Interaction and Actions
@@ -149,6 +152,7 @@ Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 Canonical Detail Owner: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
+Family Vision Owner: `Docs/family_visions/FAM-003_interaction_and_actions.md`
 Historical Trace Coverage: `FB-027`, `FB-036`, `FB-037`, `FB-038`, `FB-041`, PR #109.
 
 ### [ID: FAM-004] Voice and Audio
@@ -165,6 +169,7 @@ Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 Canonical Detail Owner: `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
+Family Vision Owner: `Docs/family_visions/FAM-004_voice_and_audio.md`
 Historical Trace Coverage: `FB-030`, PR #108.
 
 ### [ID: FAM-005] External Integrations
@@ -181,6 +186,7 @@ Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 Canonical Detail Owner: `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`
+Family Vision Owner: `Docs/family_visions/FAM-005_external_integrations.md`
 Historical Trace Coverage: `FB-039`, Stream Deck and external trigger planning gap.
 
 ### [ID: FAM-006] Monitoring and HUD
@@ -197,6 +203,7 @@ Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 Canonical Detail Owner: `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`
+Family Vision Owner: `Docs/family_visions/FAM-006_monitoring_and_hud.md`
 Historical Trace Coverage: `FB-040`, HUD surface gap, PR #118, PR #180, PR #194, FAM-006 branch records.
 
 ### [ID: FAM-007] Local AI and Capability Packs
@@ -213,6 +220,7 @@ Admitted Slice Count: see `Docs/branch_records/feature_fam_007_local_ai_provider
 Package Completion State: Open / not package-complete
 Single-Slice Package User Approval: Not required - package history is multi-slice; future scope still requires USER approval.
 Canonical Detail Owner: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
+Family Vision Owner: `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`
 Historical Branch Runtime Engineering Plans: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
 Historical Trace Coverage: FAM-007 branch records, PR #138, PR #152, PR #159, PR #162, PR #165, PR #170, PR #172, PR #177, PR #179, PR #190, PR #192, PR #193.
 
@@ -229,7 +237,8 @@ Package Admission State: Not admitted
 Admitted Slice Count: 0
 Package Completion State: Not admitted
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
-Canonical Detail Owner: `Docs/orin_vision.md`
+Canonical Detail Owner: `Docs/family_visions/FAM-008_packaging_and_install_experience.md`
+Family Vision Owner: `Docs/family_visions/FAM-008_packaging_and_install_experience.md`
 Historical Trace Coverage: no legacy FB trace; repo vision trace only.
 
 ### [ID: FAM-009] Workspace and Data
@@ -249,6 +258,7 @@ Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 Canonical Detail Owner: `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
+Family Vision Owner: `Docs/family_visions/FAM-009_workspace_and_data.md`
 Historical Trace Coverage: `FB-005`, `FB-020`, `FB-026`, `FB-028`, workspace/data trace.
 
 ### [ID: FAM-010] Safety and Privacy
@@ -264,7 +274,8 @@ Package Admission State: Not admitted
 Admitted Slice Count: 0
 Package Completion State: Not admitted
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
-Canonical Detail Owner: `Docs/orin_vision.md`
+Canonical Detail Owner: `Docs/family_visions/FAM-010_safety_and_privacy.md`
+Family Vision Owner: `Docs/family_visions/FAM-010_safety_and_privacy.md`
 Historical Trace Coverage: no legacy FB trace; repo vision trace only.
 
 ## Historical Trace Pointers

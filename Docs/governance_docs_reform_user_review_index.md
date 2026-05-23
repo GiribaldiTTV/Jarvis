@@ -7,19 +7,19 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 ## Review Proof
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Docs files covered: 149
+- Docs files covered: 161
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
 - Runtime/FAM/Compact-AI mutation: none.
-- PR Readiness: held until USER review accepts this packet.
+- PR Readiness: held until validation is green and USER separately approves PR creation.
 
 ## Suggested Review Order
 
 1. Read `Executive Summary` and `How To Review This Dossier` in the full dossier.
-2. Review `What Was Completed`, `What Remains Deferred`, and `What Requires USER Decision`.
+2. Review `What Was Completed`, `What Remains External`, and `What Requires USER Decision`.
 3. Review `USER Response Integration Matrix` and confirm each response changed the model.
-4. Review `Single-PR Staged Execution Plan` before deciding whether work should continue.
-5. Review the `Completed / Deferred Matrix` for the reform scope.
+4. Review `Single-PR Staged Execution Plan` before deciding whether PR Readiness should proceed.
+5. Review the `Completed / External Decision Matrix` for the reform scope.
 6. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.
 7. Review ambiguity and structure queues before deciding whether cleanup is complete.
 8. Scan `High-Risk Files`, `Files Needing Future Migration`, and `Files That May Be Retired Later`.
@@ -34,8 +34,8 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 - [ ] Remaining reform work should stay on this single Governance branch/final PR path.
 - [ ] Backlog and roadmap roles are acceptable.
 - [ ] Branch Runtime Engineering Plan lifecycle and retirement rule are acceptable.
-- [ ] Deferred retirement/fold-down candidates should remain deferred for now.
-- [ ] No additional Docs file needs immediate retirement before PR Readiness.
+- [ ] Historical branch plans are acceptable as retired/indexed records rather than active execution plans.
+- [ ] No Docs file should be deleted, archived, or broadly renamed before a later focused USER decision.
 - [ ] Every Docs file has a clear disposition in the complete cleanup table.
 - [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.
 - [ ] Structure risks have a migration, organization, or keep-now decision.
@@ -46,21 +46,21 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 
 - USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.
 - This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.
-- Current execution model: analysis and model maintenance only until USER accepts the corrected review surface; remaining Docs reform should run in staged internal commits on this single Governance branch/PR path rather than revolving PRs.
-- PR Readiness remains held while the USER is correcting the model and execution plan.
+- Current execution model: this deferred-completion pass updates source truth and review artifacts on the standing Governance branch; PR creation remains separately USER-gated.
+- PR Readiness remains held until validation is green and USER separately approves PR creation.
 
 ## USER Response Integration Summary
 
 | USER Response Area | Model Decision | Execution Effect |
 | --- | --- | --- |
-| Single PR / staged execution | Run remaining reform as internal stages on this Governance carrier and one final PR path. | R1-R9 staged execution plan; PR Readiness held until USER accepts the corrected surface. |
+| Single PR / staged execution | Run remaining reform as internal stages on this Governance carrier and one final PR path. | R1-R9 staged execution plan; PR Readiness held until validation is green and USER separately approves PR creation. |
 | Main as canonical pointer ledger | `Docs/Main.md` is the least-updated canonical docs index and recovery map. | Do not add branch/release/current-state ledgers to Main. |
 | Canonical docs versus context docs | Canonical docs own law/routing; context docs preserve evidence, product reasoning, and history. | Every Docs file receives owner category, disposition, ambiguity risk, and structure risk. |
-| Branch plans retire, not delete by default | Plans are canonical while active, then fold down, migrate durable content, and retire. | Plan files become retirement candidates only after fold-down proof. |
+| Branch plans retire, not delete by default | Plans are canonical while active, then fold down, migrate durable content, and retire. | Historical plan files are indexed as retired from active planning posture; deletion remains USER-gated. |
 | Traceability compaction is dangerous | Branch records may remain large when they are structured traceability receipts. | Organize receipts instead of compressing away commit/PR/release/validation evidence. |
 | Safe docs may delete/collapse only after proof | Deletion requires reference scan, replacement owner, and USER acceptance when ambiguous. | Every Docs file gets keep/organize/migrate/retire/delete posture. |
-| Nexus Vision contract | `Docs/orin_vision.md` should be evaluated as a Nexus-wide vision contract. | Record the model now; do not rename/reframe without focused reference update. |
-| Backlog family vision discussion | Backlog may point to family vision owners but should not absorb long planning narratives. | Keep backlog compact while preserving product-intent routing. |
+| Nexus Vision contract | `Docs/nexus_vision.md` is the Nexus-wide vision contract after focused reference migration. | Use Nexus Vision for project-wide direction and family visions for durable family direction. |
+| Backlog family vision discussion | Backlog points to family vision owners but does not absorb long planning narratives. | Keep backlog compact while preserving product-intent routing. |
 
 ## Single-PR Staged Execution Plan
 
@@ -71,52 +71,52 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | R1 | User-response model correction | Turn USER responses into model decisions instead of passive notes. | Update model, generator, generated dossier/index, and validator section requirements. | Dossier/index expose integration sections. |
 | R2 | Canonical/context taxonomy | Make Main the least-updated canonical docs index and classify context docs. | Update ownership language and file-by-file review categories. | Every Docs file has owner, action, risk, and migration target. |
 | R3 | Backlog/roadmap enforcement model | Keep backlog as product registry/pointers and roadmap as release-stage breakpoint outline. | Harden schemas and sprawl checks. | Backlog/roadmap validators stay green. |
-| R4 | Branch plan lifecycle model | Keep active planning detailed while preventing stale active authority after completion. | Use fold-down/retirement candidate queues; no default deletion. | Branch plans list as retirement candidates only. |
+| R4 | Branch plan lifecycle model | Keep active planning detailed while preventing stale active authority after completion. | Use the retirement index to mark historical plans retired from active posture; no default deletion. | Branch plans appear in the retirement index before any deletion is considered. |
 | R5 | Structured branch receipt model | Preserve traceability without duplicate live-state chaos. | Define receipt schema and queue high-risk records for organization. | Structure queues identify records needing organization. |
-| R6 | Vision contract planning | Treat `Docs/orin_vision.md` as future Nexus Vision contract candidate. | Record rename/reframe analysis; no rename yet. | Operating model and dossier carry Product Vision Contract language. |
+| R6 | Vision contract implementation | Treat `Docs/nexus_vision.md` as the Nexus Vision contract and `Docs/family_visions/` as the family vision owner layer. | Reference migration and family vision creation completed. | Operating model and dossier carry Product Vision Contract language. |
 | R7 | Safe file disposition review | Identify keep/collapse/migrate/retire/delete posture for every Docs file. | Generate disposition table and USER decision list. | Manifest count matches filesystem enumeration. |
 | R8 | Validator and review-surface hardening | Make corrected review model regeneration-safe. | Update helper/validator sections and regenerate audit/index. | Validation passes and generated output is stable. |
-| R9 | Final USER review hold | Stop before PR Readiness until USER accepts the complete reform surface. | Report results only. | Next legal phase remains USER review. |
+| R9 | Final USER review hold | Stop before PR Readiness until validation is green and USER separately approves PR creation. | Report results only. | Next legal phase remains USER review / PR Readiness approval. |
 
 ## Disposition Changes From USER Review
 
 | Surface | Prior Risky Interpretation | Corrected Disposition |
 | --- | --- | --- |
-| Branch plans | Delete after PR Readiness | Fold down, migrate durable content, then retire by explicit posture; deletion needs separate USER approval. |
+| Branch plans | Delete after PR Readiness | Historical plans are indexed as retired from active planning posture; deletion still needs separate USER approval and reference proof. |
 | Branch records | Compact receipts | Structured traceability receipts; size is acceptable when evidence is organized and not duplicate live state. |
 | Main | General source-truth doc | Least-updated canonical docs index, recovery map, and owner pointer ledger. |
 | Backlog | Current status plus detailed trace | Compact product registry, family scope/status, package summary, and pointers. |
 | Roadmap | Release/current-state record | Release-stage schedule outline, public milestone posture, and broad feature breakpoints. |
-| Vision | Low-risk product reference | Future Nexus Vision contract candidate that drives backlog and branch planning. |
+| Vision | Low-risk product reference | Nexus Vision contract plus family vision records that drive backlog and branch planning. |
 | Safe/low-risk docs | Safe to leave | Reference-scan before delete/collapse, with replacement owner and USER acceptance recorded. |
 
 ## Files Needing USER Decision
 
 | File | Reason | Recommendation |
 | --- | --- | --- |
-| `Docs/branch_plans/feature_compact_ai_status_card.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_uts_reference_20260521.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_lv1_visual_governance_gap_reference_20260521.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_repair_setup_20260521.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_temporary_reference_20260521.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_visual_inspection_matrix_repair_reference_20260521.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
-| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch plan should be retired after fold-down proves durable content migrated | safe later after owning branch PR Readiness fold-down; not deleted by default |
+| `Docs/branch_plans/feature_compact_ai_status_card.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_uts_reference_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_lv1_visual_governance_gap_reference_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_repair_setup_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_temporary_reference_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_visual_inspection_matrix_repair_reference_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 
 ## Ambiguity Review Queue
 
 | File | Ambiguity Risk | Signals | Action |
 | --- | --- | --- | --- |
 | `Docs/Main.md` | High | `volatile-current-wording=321`; `unclear-ownership-wording=131`; `soft-commitment-wording=51`; `state-ledger-wording=158` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_plans/README.md` | High | `volatile-current-wording=26`; `unclear-ownership-wording=33`; `soft-commitment-wording=9`; `state-ledger-wording=38` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/README.md` | High | `volatile-current-wording=29`; `unclear-ownership-wording=33`; `soft-commitment-wording=9`; `state-ledger-wording=39` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | High | `volatile-current-wording=30`; `unclear-ownership-wording=18`; `soft-commitment-wording=4`; `state-ledger-wording=52` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | High | `volatile-current-wording=85`; `unclear-ownership-wording=13`; `soft-commitment-wording=2`; `state-ledger-wording=94` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md` | High | `volatile-current-wording=133`; `unclear-ownership-wording=21`; `soft-commitment-wording=72`; `state-ledger-wording=223` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -184,22 +184,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 
 | File | Owner | Recommendation | Risk |
 | --- | --- | --- | --- |
-| `Docs/branch_plans/feature_compact_ai_status_card.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_uts_reference_20260521.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_lv1_visual_governance_gap_reference_20260521.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_repair_setup_20260521.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_temporary_reference_20260521.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_visual_inspection_matrix_repair_reference_20260521.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
-| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch runtime engineering plan | Fold-down then retire candidate | Medium |
+| None | N/A | N/A | N/A |
 
 ## Safe To Leave For Now
 
@@ -210,12 +195,19 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | `Docs/closeouts/v1.6.0_closeout.md` | release closeout receipt | Keep | Low |
 | `Docs/closeouts/v1.9.0_closeout.md` | release closeout receipt | Keep | Low |
 | `Docs/closeouts/v2.0_closeout.md` | release closeout receipt | Keep | Low |
+| `Docs/family_visions/FAM-001_boot_interface.md` | family vision | Keep as family vision owner | Low |
+| `Docs/family_visions/FAM-002_desktop_interface.md` | family vision | Keep as family vision owner | Low |
+| `Docs/family_visions/FAM-003_interaction_and_actions.md` | family vision | Keep as family vision owner | Low |
+| `Docs/family_visions/FAM-004_voice_and_audio.md` | family vision | Keep as family vision owner | Low |
+| `Docs/family_visions/FAM-005_external_integrations.md` | family vision | Keep as family vision owner | Low |
+| `Docs/family_visions/FAM-006_monitoring_and_hud.md` | family vision | Keep as family vision owner | Low |
+| `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | family vision | Keep as family vision owner | Low |
+| `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | family vision | Keep as family vision owner | Low |
+| `Docs/family_visions/FAM-010_safety_and_privacy.md` | family vision | Keep as family vision owner | Low |
+| `Docs/nexus_vision.md` | product / architecture reference | Keep | Low |
 | `Docs/orin_display_naming_guidance.md` | product / architecture reference | Keep | Low |
-| `Docs/orin_vision.md` | product / architecture reference | Keep | Low |
 | `Docs/workspace_layout_plan.md` | product / architecture reference | Keep | Low |
 | `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md` | workstream durable history | Keep / normalize durable history | Low |
-| `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` | workstream durable history | Keep / normalize durable history | Low |
-| `Docs/workstreams/FB-034_recoverable_diagnostics.md` | workstream durable history | Keep / normalize durable history | Low |
 
 ## Exact USER Decision This Index Supports
 

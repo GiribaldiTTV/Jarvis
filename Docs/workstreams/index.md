@@ -49,6 +49,7 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - if later work continues the same user-facing feature family, preserve that continuation traceability here or in branch records instead of creating a near-duplicate backlog ID by default
 - backlog remains the identity registry and points here through `Canonical Workstream Doc`
 - roadmap consumes this layer for sequencing but does not duplicate its full execution story
+- family vision records under `Docs/family_visions/` own durable USER-accepted product direction for each family; workstream docs own implementation/proof history and may point to family vision, but must not duplicate full family vision narratives
 - repo-wide phase, timeout, proof-authority, seam, stop-loss, validation-helper, and desktop UI audit rules live in `Docs/phase_governance.md`, not in individual workstream docs
 - operator-facing PR and release output contracts live in `Docs/phase_governance.md`; workstream docs may provide the underlying implemented work, validation, release scope, and post-merge truth, but final operator PR summaries must be evidence-first and release notes remain inclusion-only copy blocks; PR Summary/GitHub PR body copy uses exactly `## Summary`, `## Branch Evidence`, and `## Validation`; Branch Evidence must not repeat Summary text through nested Summary/Purpose/Overview sections, may include concise branch-specific boundaries only when they clarify reliable branch truth, and must not include phase-digest handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, or `Stop Basis`
 - for active desktop workstreams, the default canonical repo-level `UTS` artifact is the `## User Test Summary` section inside the workstream doc unless that doc explicitly declares a different repo path
@@ -86,6 +87,8 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 ## Package And Slice Trace Ownership
 
 Package Trace and Slice Trace detail belongs here, in the relevant family dossier, in an active Branch Runtime Engineering Plan, or in an explicitly folded compact branch receipt.
+
+Family vision belongs in `Docs/family_visions/` when the durable content is product direction or reusable USER-accepted design standard rather than implementation trace/proof.
 
 When PR Readiness fold-down promotes branch lessons into this layer, preserve:
 
