@@ -189,6 +189,29 @@ Traceability compaction must not mean evidence loss. Large branch records may re
 
 Historical receipts may preserve PRs, tags, releases, and commit hashes when they are evidence for a closed decision. They must not be presented as live operational truth or repeated across backlog and roadmap.
 
+## Docs Organization Cleanup Pass Rule
+
+When USER asks for a docs organization cleanup pass, the first pass is non-destructive unless USER explicitly approves exact file moves, renames, deletions, archival, or historical rewrites.
+
+The cleanup pass must use `Docs/governance_docs_full_inventory_reform_audit.md` and `Docs/governance_docs_reform_user_review_index.md` as the review surface. It should classify and prioritize cleanup lanes, preserve source-truth owners, identify replacement owners before any retirement/delete recommendation, and return a Desktop review bundle with the files USER needs to inspect.
+
+Safe cleanup planning may:
+
+- clarify queue status and cleanup lane priority
+- label oversized branch records for later structured-receipt organization
+- label retired branch plans for later reference-proof review
+- label low-risk reference docs for possible future consolidation
+- identify missing indexes, README routing gaps, and owner-map ambiguity
+
+Safe cleanup planning must not:
+
+- move, rename, delete, archive, or rewrite historical files
+- collapse historical receipts into summaries without replacement-owner proof
+- treat branch records, backlog, roadmap, worktree slots, or `Docs/Main.md` as live-state ledgers
+- mutate runtime, release, FAM, Compact-AI, issue, branch-cleanup, or worktree state
+
+The default cleanup sequence is: inventory and classify, review queue and owner routing, choose one focused cleanup lane, create a USER review bundle, then request exact USER approval before any physical file or history-affecting change.
+
 ## Product Vision Contract Model
 
 `Docs/nexus_vision.md` is the Nexus-wide product vision contract. It was promoted from the former `Docs/orin_vision.md` path after focused reference migration so Branch Readiness has a stable project-wide vision owner.

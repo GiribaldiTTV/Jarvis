@@ -49,6 +49,24 @@ Start here for review: `Docs/governance_docs_reform_user_review_index.md`.
 - Whether to retire low-risk or duplicate reference docs after USER review.
 - Whether to create or expand additional FAM-family dossiers as migration targets for bulk historical detail.
 
+## Docs Organization Cleanup Pass
+
+Cleanup Pass Status: USER requested a docs organization cleanup pass.
+Execution Boundary: non-destructive organization planning and queue clarification only. This pass does not move, rename, delete, archive, or rewrite historical files.
+Source Review Surface: `Docs/governance_docs_full_inventory_reform_audit.md`, `Docs/governance_docs_reform_user_review_index.md`, and the USER Desktop review bundle.
+Next USER Decision: choose one focused cleanup lane before any physical file or history-affecting change.
+
+| Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
+| --- | ---: | --- | --- |
+| Ambiguous ownership/current-state wording | 116 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
+| Structure and indexability risks | 31 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
+| Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
+| Retired branch plan review | 16 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
+| Low-risk reference consolidation | 20 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
+
+Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
+Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical receipt rewrites, runtime/FAM/release mutation, or archive/delete work. Those require separate exact USER approval.
+
 ## USER Review Intake Model
 
 - Durable USER response home: `Docs/governance_process_efficiency_reform_plan.md`, section `USER Review Intake - 2026-05-21`.
@@ -201,7 +219,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 
 - Audit Type: Full `Docs/` source-truth inventory, cleanup, and restructuring dossier.
 - Audit Workspace: `C:\Nexus Worktrees\Governance`
-- Audit Branch: `feature/release-readiness-source-truth-intake`
+- Audit Branch: `feature/vision-update-decision-matrix`
 - Audit Git Proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Audit Hash Policy: exact live Git hashes are intentionally not maintained in this docs review surface.
 - Audit File Count: 162 files under `Docs/`
@@ -344,7 +362,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 76 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 177 | Keep historical receipt | High | High |
 | 77 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / structured receipt | 272 | Keep active standing authority | High | High |
 | 78 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / structured receipt | 498 | Organize structured receipt | High | High |
-| 79 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | branch authority / structured receipt | 116 | Keep active bounded repair authority until PR fold-down | Medium | High |
+| 79 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | branch authority / structured receipt | 118 | Keep active bounded repair authority until PR fold-down | Medium | High |
 | 80 | `Docs/branch_records/index.md` | branch authority router | 192 | Keep | High | High |
 | 81 | `Docs/closeout_guidance.md` | release closeout receipt | 107 | Keep | Medium | High |
 | 82 | `Docs/closeout_index.md` | release closeout receipt | 71 | Keep | Low | High |
@@ -378,8 +396,8 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 110 | `Docs/fb_027_overlay_bug_tracker.md` | bug / issue historical tracker | 212 | Keep | Medium | High |
 | 111 | `Docs/feature_backlog.md` | compact product registry | 345 | Keep compact | Critical | High |
 | 112 | `Docs/governance_docs_full_inventory_reform_audit.md` | governance support standard | Generated self-reference | Keep | High | High |
-| 113 | `Docs/governance_docs_reform_user_review_index.md` | governance support standard | 218 | Keep | Medium | High |
-| 114 | `Docs/governance_efficiency_operating_model.md` | governance support standard | 374 | Keep | Medium | High |
+| 113 | `Docs/governance_docs_reform_user_review_index.md` | governance support standard | 237 | Keep | Medium | High |
+| 114 | `Docs/governance_efficiency_operating_model.md` | governance support standard | 397 | Keep | Medium | High |
 | 115 | `Docs/governance_intake_triage_and_digest_profiles.md` | governance support standard | 173 | Keep | Medium | High |
 | 116 | `Docs/governance_process_efficiency_reform_plan.md` | governance support standard | 1091 | Keep | High | High |
 | 117 | `Docs/incident_patterns.md` | governance support standard | 343 | Keep | Medium | High |
@@ -684,7 +702,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | Medium | `volatile-current-wording=45`; `unclear-ownership-wording=9`; `state-ledger-wording=29` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | High | `volatile-current-wording=89`; `unclear-ownership-wording=40`; `soft-commitment-wording=23`; `state-ledger-wording=44` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | High | `volatile-current-wording=58`; `unclear-ownership-wording=131`; `soft-commitment-wording=16`; `state-ledger-wording=160` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_records/feature_vision_update_decision_matrix.md` | Medium | `volatile-current-wording=37`; `unclear-ownership-wording=23`; `soft-commitment-wording=2`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
+| `Docs/branch_records/feature_vision_update_decision_matrix.md` | Medium | `volatile-current-wording=37`; `unclear-ownership-wording=22`; `soft-commitment-wording=2`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/index.md` | High | `volatile-current-wording=164`; `unclear-ownership-wording=74`; `soft-commitment-wording=26`; `state-ledger-wording=72` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/closeout_guidance.md` | Low | `volatile-current-wording=16`; `unclear-ownership-wording=4`; `soft-commitment-wording=3`; `state-ledger-wording=9` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/closeout_index.md` | Low | `volatile-current-wording=3` | No scanner ambiguity markers found. |
@@ -718,8 +736,8 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/fb_027_overlay_bug_tracker.md` | Medium | `volatile-current-wording=35`; `soft-commitment-wording=3`; `state-ledger-wording=18` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/feature_backlog.md` | High | `volatile-current-wording=41`; `unclear-ownership-wording=51`; `soft-commitment-wording=1`; `state-ledger-wording=72` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/governance_docs_full_inventory_reform_audit.md` | Low | None found. | Synthetic self-reference; review the actual generated dossier directly. |
-| `Docs/governance_docs_reform_user_review_index.md` | High | `volatile-current-wording=68`; `unclear-ownership-wording=63`; `soft-commitment-wording=7`; `state-ledger-wording=71` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/governance_efficiency_operating_model.md` | High | `volatile-current-wording=67`; `unclear-ownership-wording=60`; `soft-commitment-wording=41`; `state-ledger-wording=70` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/governance_docs_reform_user_review_index.md` | High | `volatile-current-wording=73`; `unclear-ownership-wording=68`; `soft-commitment-wording=7`; `state-ledger-wording=74` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/governance_efficiency_operating_model.md` | High | `volatile-current-wording=67`; `unclear-ownership-wording=63`; `soft-commitment-wording=43`; `state-ledger-wording=73` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/governance_intake_triage_and_digest_profiles.md` | Medium | `volatile-current-wording=16`; `unclear-ownership-wording=4`; `soft-commitment-wording=6`; `state-ledger-wording=4` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/governance_process_efficiency_reform_plan.md` | High | `volatile-current-wording=167`; `unclear-ownership-wording=168`; `soft-commitment-wording=65`; `state-ledger-wording=144` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/incident_patterns.md` | High | `volatile-current-wording=55`; `unclear-ownership-wording=20`; `soft-commitment-wording=6`; `state-ledger-wording=26` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -1022,7 +1040,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | 177 | Branch Authority Record: feature/pr105-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | 272 | Branch Authority Record: feature/release-readiness-source-truth-intake | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep current markers compact and avoid cycle-ledger closeout-only PRs. | Keep active standing authority | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | 498 | Branch Authority Record: feature/repo-wide-source-owner-marker-adoption | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_vision_update_decision_matrix.md` | 116 | Branch Authority Record: feature/vision-update-decision-matrix | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | Updated in this reform branch. | Move to historical/no-active posture or otherwise make merge-stable before PR green. | Keep active bounded repair authority until PR fold-down | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_vision_update_decision_matrix.md` | 118 | Branch Authority Record: feature/vision-update-decision-matrix | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | Updated in this reform branch. | Move to historical/no-active posture or otherwise make merge-stable before PR green. | Keep active bounded repair authority until PR fold-down | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/index.md` | 192 | Branch Authority Records Index | branch authority router | active/historical branch authority routing | lists and rules for branch authority records | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeout_guidance.md` | 107 | Closeout Guidance | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeout_index.md` | 71 | Closeout Index | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -1056,8 +1074,8 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/fb_027_overlay_bug_tracker.md` | 212 | FB-027 Overlay Bug Tracker | bug / issue historical tracker | historical bug/issue evidence | closed issue context and durable historical notes | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/feature_backlog.md` | 345 | Nexus Feature Backlog | compact product registry | feature-family identity, priority, status, scope, package summary, canonical pointers | FAM registry rows and compact pointers | No direct edit in this branch; classified and governed by this dossier. | Keep pointer-only; do not reintroduce live state or detailed trace tables. | Keep compact | High | Medium | Yes | Yes | Yes | Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan de... | _Add notes here._ |
 | `Docs/governance_docs_full_inventory_reform_audit.md` | Generated self-reference | Governance Docs Full Inventory Reform Audit | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | Self-reference is intentionally synthetic so regeneration does not change the dossier by re-s... | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/governance_docs_reform_user_review_index.md` | 218 | Nexus Docs Reform User Review Index | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Created in this review-surface repair branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/governance_efficiency_operating_model.md` | 374 | Governance Efficiency Operating Model | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/governance_docs_reform_user_review_index.md` | 237 | Nexus Docs Reform User Review Index | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Created in this review-surface repair branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/governance_efficiency_operating_model.md` | 397 | Governance Efficiency Operating Model | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_intake_triage_and_digest_profiles.md` | 173 | Governance Intake Triage And Digest Profiles | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_process_efficiency_reform_plan.md` | 1091 | Governance Process Efficiency Reform Plan | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/incident_patterns.md` | 343 | Incident Patterns | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -3759,9 +3777,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 79. `Docs/branch_records/feature_vision_update_decision_matrix.md`
 
 - File path: `Docs/branch_records/feature_vision_update_decision_matrix.md`
-- Line count: 116
+- Line count: 118
 - Current purpose: Branch Authority Record: feature/vision-update-decision-matrix
-- Actual observed use: branch authority / structured receipt with markers live=13, pr/release/issue=1, package/slice=0, branch/worktree/phase=78, validator/helper=71.
+- Actual observed use: branch authority / structured receipt with markers live=15, pr/release/issue=1, package/slice=0, branch/worktree/phase=82, validator/helper=79.
 - Correct owner category: branch authority / structured receipt
 - What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
 - What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
@@ -3771,12 +3789,12 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
-- Ambiguity signals: `volatile-current-wording=37`; `unclear-ownership-wording=23`; `soft-commitment-wording=2`; `state-ledger-wording=11`
+- Ambiguity signals: `volatile-current-wording=37`; `unclear-ownership-wording=22`; `soft-commitment-wording=2`; `state-ledger-wording=11`
 - Ambiguity review action: Review for ambiguous current/active/latest/pending ownership language.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, worktree slot assignment, worktree live state, origin/main, merge status, latest tag/release, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules.
-- Live operational truth fields found: `- Bounded State: `Hardening - governance/source-truth docs, branch authority routing, task templates, validators, fixtures, and Desktop review-bundle surfaces may be repaired; runt`; `- `origin/main` at branch hardening entry is `a42b7e50eb012722b140f3874dbf50826bd797c8`; current repair commits are ahead of that baseline and require review before PR creation.`; `- Desktop USER review bundle reflects current `HEAD`, includes the relevant review files, and reports count proof.`; `- Dirty Worktree Collision Check: `Current tracked dirty files belong to this bounded hardening pass until committed or explicitly reverted by USER decision``; `- Dirty Worktree Recovery Packet: `Required if unowned dirty files appear before another thread claims this worktree``
+- Live operational truth fields found: `- Bounded State: `Hardening - governance/source-truth docs, branch authority routing, task templates, validators, fixtures, and Desktop review-bundle surfaces may be repaired; runt`; `- `origin/main` at branch hardening entry is `a42b7e50eb012722b140f3874dbf50826bd797c8`; current repair commits are ahead of that baseline and require review before PR creation.`; `- Desktop USER review bundle reflects current `HEAD`, includes the relevant review files, and reports count proof.`; `- Changed File Coverage Source: `git diff --name-only origin/main...HEAD``; `- Dirty Worktree Collision Check: `Current tracked dirty files belong to this bounded hardening pass until committed or explicitly reverted by USER decision``
 - Governance receipt fields found: `# Branch Authority Record: feature/vision-update-decision-matrix`; `- Branch: `feature/vision-update-decision-matrix``; `This USER-approved bounded governance/source-truth repair carrier exists to finish phase-digest clarity, Main-first loader routing, Workstream Entry whole-package analysis, Element`; `It is not the standing Governance Intake Branch. The standing branch remains `feature/release-readiness-source-truth-intake`; this branch is legal only because USER approved this b`; `- `Active Branch`: `feature/vision-update-decision-matrix``
 - Repetitive language found: Release/phase/branch marker repetition requires owner-pointer discipline.
 - Current-state markers found: `It is not the standing Governance Intake Branch. The standing branch remains `feature/release-readiness-source-truth-intake`; this branch is legal only because USER approved this b`; `## Current Phase`; `## Phase Status`; `- Branch Authority Marker: `Active bounded governance/source-truth repair carrier``; `- `Active Branch`: `feature/vision-update-decision-matrix``
@@ -4847,9 +4865,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 113. `Docs/governance_docs_reform_user_review_index.md`
 
 - File path: `Docs/governance_docs_reform_user_review_index.md`
-- Line count: 218
+- Line count: 237
 - Current purpose: Nexus Docs Reform User Review Index
-- Actual observed use: governance support standard with markers live=8, pr/release/issue=0, package/slice=0, branch/worktree/phase=19, validator/helper=23.
+- Actual observed use: governance support standard with markers live=14, pr/release/issue=0, package/slice=0, branch/worktree/phase=19, validator/helper=29.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
@@ -4859,13 +4877,13 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=68`; `unclear-ownership-wording=63`; `soft-commitment-wording=7`; `state-ledger-wording=71`
+- Ambiguity signals: `volatile-current-wording=73`; `unclear-ownership-wording=68`; `soft-commitment-wording=7`; `state-ledger-wording=74`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
 - Duplicate fact classes found: active branch authority, next legal phase, worktree live state, origin/main, release schedule outline, branch runtime plan, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
 - Live operational truth fields found: `This is the short review index for the full Docs source-truth reform. Use it to decide whether the long dossier is ready for PR Readiness, or whether specific files need more clean`; `- Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.`; `6. Review `Complete Docs Cleanup / Disposition Table` for every file's keep/organize/migrate/retire/delete posture.`; `7. Review ambiguity and structure queues before deciding whether cleanup is complete.`; `11. Confirm the `PR Readiness Checklist` only after the staged cleanup is accepted.`
-- Governance receipt fields found: `# Nexus Docs Reform User Review Index`; `- PR Readiness: held until validation is green and USER separately approves PR creation.`; `2. Review `What Was Completed`, `What Remains External`, and `What Requires USER Decision`.`; `3. Review `USER Response Integration Matrix` and confirm each response changed the model.`; `5. Review the `Completed / External Decision Matrix` for the reform scope.`
+- Governance receipt fields found: `# Nexus Docs Reform User Review Index`; `- Source branch: `feature/vision-update-decision-matrix``; `- PR Readiness: held until validation is green and USER separately approves PR creation.`; `2. Review `What Was Completed`, `What Remains External`, and `What Requires USER Decision`.`; `3. Review `USER Response Integration Matrix` and confirm each response changed the model.`
 - Repetitive language found: No major repetitive language flagged by scanner.
 - Current-state markers found: `- [ ] Historical branch plans are acceptable as retired/indexed records rather than active execution plans.`; `- [ ] Ambiguous ownership/current-state wording has a clear owner or deferred review action.`; `- Current execution model: this deferred-completion pass updates source truth and review artifacts on the standing Governance branch; PR creation remains separately USER-gated.`; `| Main as canonical pointer ledger | `Docs/Main.md` is the least-updated canonical docs index and recovery map. | Do not add branch/release/current-state ledgers to Main. |`; `| Branch plans retire, not delete by default | Plans are canonical while active, then fold down, migrate durable content, and retire. | Historical plan files are indexed as retired`
 - Package Trace / Slice Trace markers found: None found.
@@ -4879,9 +4897,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 114. `Docs/governance_efficiency_operating_model.md`
 
 - File path: `Docs/governance_efficiency_operating_model.md`
-- Line count: 374
+- Line count: 397
 - Current purpose: Governance Efficiency Operating Model
-- Actual observed use: governance support standard with markers live=21, pr/release/issue=11, package/slice=10, branch/worktree/phase=68, validator/helper=56.
+- Actual observed use: governance support standard with markers live=31, pr/release/issue=11, package/slice=10, branch/worktree/phase=70, validator/helper=60.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
@@ -4891,7 +4909,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=67`; `unclear-ownership-wording=60`; `soft-commitment-wording=41`; `state-ledger-wording=70`
+- Ambiguity signals: `volatile-current-wording=67`; `unclear-ownership-wording=63`; `soft-commitment-wording=43`; `state-ledger-wording=73`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.

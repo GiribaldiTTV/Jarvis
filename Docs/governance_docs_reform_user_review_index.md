@@ -8,6 +8,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
 - Docs files covered: 162
+- Source branch: `feature/vision-update-decision-matrix`
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
 - Runtime/FAM/Compact-AI mutation: none.
@@ -89,6 +90,24 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | Roadmap | Release/current-state record | Release-stage schedule outline, public milestone posture, and broad feature breakpoints. |
 | Vision | Low-risk product reference | Nexus Vision contract plus family vision records that drive backlog and branch planning. |
 | Safe/low-risk docs | Safe to leave | Reference-scan before delete/collapse, with replacement owner and USER acceptance recorded. |
+
+## Docs Organization Cleanup Pass
+
+Cleanup Pass Status: USER requested a docs organization cleanup pass.
+Execution Boundary: non-destructive organization planning and queue clarification only. This pass does not move, rename, delete, archive, or rewrite historical files.
+Source Review Surface: `Docs/governance_docs_full_inventory_reform_audit.md`, `Docs/governance_docs_reform_user_review_index.md`, and the USER Desktop review bundle.
+Next USER Decision: choose one focused cleanup lane before any physical file or history-affecting change.
+
+| Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
+| --- | ---: | --- | --- |
+| Ambiguous ownership/current-state wording | 116 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
+| Structure and indexability risks | 31 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
+| Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
+| Retired branch plan review | 16 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
+| Low-risk reference consolidation | 20 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
+
+Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
+Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical receipt rewrites, runtime/FAM/release mutation, or archive/delete work. Those require separate exact USER approval.
 
 ## Files Needing USER Decision
 
@@ -215,4 +234,4 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 ## Exact USER Decision This Index Supports
 
-`I accept the corrected USER-response integration model and approve continuing the staged Docs source-truth reform on feature/release-readiness-source-truth-intake as one final Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`
+`I accept the corrected USER-response integration model and approve continuing the staged Docs source-truth reform on feature/vision-update-decision-matrix as one final Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`
