@@ -13,7 +13,7 @@ Engineering Plan Status: `Workstream Entry review-ready - branch authority, plan
 
 - Branch: `feature/fam-006-overlay-display-acceptance-foundation`
 - Worktree: `C:\Nexus Worktrees\FAM-006`
-- Upstream: `origin/feature/fam-006-overlay-display-acceptance-foundation`; latest pushed traceability repair HEAD is `d1a35b8b18238180975cdc4a6462d7e4a2e85dd3`.
+- Upstream: `origin/feature/fam-006-overlay-display-acceptance-foundation`; live HEAD and upstream equality are derived from Git during identity preflight, not manually owned by this record.
 
 ## Record State
 
