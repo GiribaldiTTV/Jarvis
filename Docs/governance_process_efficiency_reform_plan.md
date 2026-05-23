@@ -913,7 +913,7 @@ Naming inventory:
 | Runtime Branch Engineering Contract | Engineering intent contract. | Branch-wide runtime baseline/delta/proof contract. | Medium: overlaps branch plan. | Keep; state contract = intent, plan = execution blueprint. | `Docs/phase_governance.md` | Low | No |
 | Vision Contract | Product/design intent layer. | USER-accepted product/design standard. | Medium: can sound like new file. | Keep; use `Nexus Vision`, `Family Vision`, or `Branch Vision Snapshot` by scope. | `Docs/branch_plans/README.md` | Medium | Future file decision |
 | Branch Vision Snapshot | Branch-specific accepted vision. | Snapshot inside active branch plan. | Low. | Use `Branch Vision Contract Snapshot` formally. | `Docs/branch_plans/README.md` | Low | No |
-| USER Feedback Disposition | Feedback routing model. | Item-level classification and final owner proof. | New term. | Use `USER Feedback Disposition (UFD)` with ID glossary. | This plan; future branch-plan README update | High | Implementation approval |
+| USER Feedback Disposition | Feedback routing model. | Item-level classification and final owner proof. | Implemented governance term. | Use `USER Feedback Disposition (UFD)` with ID glossary. | `Docs/branch_plans/README.md`; this plan | High | No |
 | USER Decision Ledger | Planning decision record. | USER decisions, waivers, rejects, accepts. | Medium: could duplicate UFD. | Keep; UFD items link to it rather than copy. | `Docs/phase_governance.md` | Medium | No |
 | Assumption Ledger | Design assumption states. | Codex/ChatGPT/USER assumption decision states. | Medium. | Use `Design Assumption Ledger`. | `Docs/branch_plans/README.md` | Low | No |
 | Vision Question Digest | Packet for design uncertainty. | Question packet when vision/design uncertainty blocks or affects work. | Low. | Keep. | `Docs/branch_plans/README.md` | Low | No |
@@ -947,7 +947,7 @@ ID namespace policy:
 | `PKG-*` | Feature Package under one family. | Live package namespace. | Expand as `Package` at first use. |
 | `SLC-*` | Slice or source-owner marker slice row where historically required. | Avoid in new prose; preserve where existing source-owner records require it. | Prefer `Slice` in USER-facing text. |
 | `FB-*` | Legacy backlog/workstream trace. | Historical-only. | Never use for new live backlog items or feedback IDs. |
-| `UFD-*` | USER Feedback Disposition item. | Proposed future feedback namespace. | Never use `FBK-*`; UFD is not a backlog item. |
+| `UFD-*` | USER Feedback Disposition item. | Implemented feedback namespace. | Never use `FBK-*`; UFD is not a backlog item. |
 | `RRI-*` | Standing governance / Release Readiness Intake cycle. | Existing governance intake namespace. | Expand at first use; do not use for release IDs. |
 | `PR #*` | GitHub pull request number. | GitHub evidence only. | PR number is never a backlog, workstream, package, or feedback identity. |
 | `feature/*`, `repair/*`, `codex/*` | Git branch/ref namespace. | Branch/ref identity only. | Never use as feature, package, feedback, workstream, release, or vision identity. |
