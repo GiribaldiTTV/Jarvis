@@ -212,6 +212,7 @@ Use these for workflow posture, prompt framing, lifecycle rules, and execution s
 Repo-wide validation-helper rules also live in this governance layer.
 Broad governance reform uses the `Governance Intake Triage Packet` and smallest legal `Digest Profile` standard from `Docs/governance_intake_triage_and_digest_profiles.md`.
 When a governance change risks duplicating policy or live state, use the governance efficiency operating model instead of creating another current-state owner.
+When Codex asks USER to inspect repo files or approve a review packet, the `USER Review Desktop Bundle Rule` in `Docs/governance_efficiency_operating_model.md` requires a Desktop folder with copied relevant files and a `START_HERE.md` review guide.
 Use `Docs/nexus_startup_contract.md` as the compact ChatGPT/new-chat loader map only.
 Do not treat it as execution authority.
 Use `Docs/phase_governance.md` for the exact phase enum, blocker rules, branch classes, phase resolver, validation helper contract, proof hierarchy, default-budget closeout rule, and desktop UI audit rule instead of recreating those rules inside a workstream doc.

@@ -19,6 +19,7 @@ Marker syntax: `NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=<OWNER>; ledge
 | `dev/orin_branch_governance_validation.py` | `GOV-SOURCE-TRUTH` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `branch-governance-validator` | `shared` |
 | `dev/orin_governance_efficiency_validation.py` | `GOV-SOURCE-TRUTH` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `governance-efficiency-validator` | `shared` |
 | `dev/orin_validation_suite.py` | `VALIDATOR-HELPER` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `validation-suite-recommendation-helper` | `shared` |
+| `dev/orin_user_review_bundle.py` | `GOV-SOURCE-TRUTH` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `user-review-bundle-helper` | `shared` |
 | `dev/orin_worktree_rebaseline_audit.py` | `GOV-SOURCE-TRUTH` | `SRCOWN-CLEANUP-REBINDING-013` | `worktree-rebaseline-audit-helper` | `shared` |
 | `dev/orin_branch_readiness_planning_fixture_validation.py` | `VALIDATOR-HELPER` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `branch-readiness-planning-fixture-validator` | `shared` |
 | `dev/orin_ai_provider_state_validation.py` | `FAM007-AI` | `SRCOWN-FIRSTPASS-FAM007-AI-007` | `fam007-provider-state-validator` | `shared` |

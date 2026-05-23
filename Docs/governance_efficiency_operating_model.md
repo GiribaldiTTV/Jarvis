@@ -267,6 +267,21 @@ Required decisions from that intake:
 
 The generated review dossier and index must expose these decisions through a USER response integration matrix, a single-PR staged execution plan, and explicit disposition changes. PR Readiness must stay held while USER is still correcting this model.
 
+## USER Review Desktop Bundle Rule
+
+When Codex asks USER to inspect repo files, review a generated dossier, approve a planning packet, or compare a source-truth reform surface, Codex must create or refresh a USER-facing review bundle folder on the user's Desktop.
+
+The Desktop bundle must:
+
+- live under the discovered Desktop path, preferring `C:\Users\<user>\OneDrive\Desktop` when available and `C:\Users\<user>\Desktop` otherwise
+- include a `START_HERE.md` file that names the review purpose, source repo, and copied source paths
+- copy only the files relevant to the requested review, not the whole repo or unrelated artifacts
+- preserve repo-relative paths inside the bundle so copied files remain traceable to source truth
+- be refreshed when the underlying review files change
+- never replace source-truth files, commit artifacts, validation proof, or branch authority records
+
+Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation. If the Desktop path cannot be discovered or the folder cannot be created, stop with `USER Review Desktop Bundle Missing` and return the exact blocker plus the copy command or helper command USER can run.
+
 ## Standing Governance Ledger Compaction
 
 The standing Governance record may keep one compact current cycle summary plus a latest closed cycle pointer.

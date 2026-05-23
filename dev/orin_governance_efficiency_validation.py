@@ -34,6 +34,7 @@ REQUIRED_MODEL_PHRASES = (
     "Vision-To-Plan Interaction Loop",
     "USER Feedback Disposition Model",
     "USER Review Integration Decisions",
+    "USER Review Desktop Bundle Rule",
     "Standing Governance Ledger Compaction",
     "Release Ownership UX",
     "Public Language Mapping",
@@ -49,6 +50,7 @@ POINTER_REQUIREMENTS = {
         "governance efficiency operating model",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
+        "USER Review Desktop Bundle Rule",
     ),
     Path("Docs/phase_governance.md"): (
         "Docs/governance_efficiency_operating_model.md",
@@ -64,6 +66,7 @@ POINTER_REQUIREMENTS = {
     ),
     Path("Docs/validation_helper_registry.md"): (
         "dev/orin_governance_efficiency_validation.py",
+        "dev/orin_user_review_bundle.py",
         "governance efficiency operating model",
     ),
     Path("Docs/branch_records/index.md"): (
