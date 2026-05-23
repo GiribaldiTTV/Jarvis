@@ -8,7 +8,7 @@ Record State: `Active Branch Authority`
 
 ## Status
 
-Status: `Branch Readiness Stage 2 setup complete - fresh FAM-007 carrier created from current origin/main for local consent capture/write-path implementation foundation; Workstream Entry analysis remains pending USER approval before implementation begins.`
+Status: `Workstream implementation active - Seam 1 local consent capture state transition and local write-path foundation is implemented pending final validation/commit; Seam 2 remains pending USER approval.`
 
 ## Canonical Branch
 
@@ -16,9 +16,9 @@ Canonical Branch: `feature/fam-007-local-ai-provider-consent-collection-implemen
 
 ## Current Phase
 
-Phase: `Branch Readiness`
+Phase: `Workstream`
 
-Stage: `Complete`
+Stage: `Seam 1`
 
 Seam: `FAM-007 Local AI Provider Consent Collection Implementation Foundation`
 
@@ -28,13 +28,13 @@ Seam: `FAM-007 Local AI Provider Consent Collection Implementation Foundation`
 - Branch Authority Type: `Active Branch`
 - Active Branch: `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
 - Branch Evidence: `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
-- Branch Authority State: `Active FAM-007 runtime carrier for Branch Readiness Stage 2 setup only`
+- Branch Authority State: `Active FAM-007 runtime carrier for bounded Workstream implementation`
 - Stage 2 Status: `Complete after source-truth setup, branch plan creation, validation, commit, and push`
-- Workstream Status: `Not started - Workstream Entry analysis is the next legal phase`
+- Workstream Status: `In progress - Seam 1 local consent capture state transition and local write-path foundation implemented; Seam 2 pending USER approval`
 - Prior FAM-007 Evidence: `PR #193 FAM-007 consent collection foundation is merged and released evidence from v1.7.13-prebeta; PR #192 setup implementation foundation remains released evidence from v1.7.12-prebeta; PR #190 setup contract readiness and PR #179 setup/consent-flow readiness remain released historical evidence`
-- Consent Collection Implementation State: `Pending - this Stage 2 setup admits a future bounded Workstream for actual local consent capture/write-path implementation foundation but does not implement consent capture`
+- Consent Collection Implementation State: `Seam 1 implemented - local consent capture transition/write-path snapshot fields, local record normalization, missing/invalid/no-selection/revoked/reset/captured-local-only fail-closed behavior, and validator fixtures are present; durable storage boundary and expanded revocation model remain Seam 2 pending USER approval`
 - Provider Execution State: `Blocked - provider setup completion, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product import, and v1.8.0-prebeta execution remain pending USER decisions`
-- Next Active Seam: `Workstream Entry analysis after USER approval`
+- Next Active Seam: `Seam 2 consent record schema, storage boundary, and revocation model after USER approval`
 
 ## Branch Class
 
@@ -80,17 +80,17 @@ No Unique Commit Loss Proof: `PASS - no existing target branch or unique target 
 
 ## Bounded State
 
-Allowed Scope: `Branch Readiness Stage 2 setup only: active branch authority recording, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, current release baseline recording, prior released FAM-007 evidence recording, overlap recording, worktree slot receipt, validation, commit, and push.`
+Allowed Scope: `Current approval covers Seam 1 local consent capture state transition and local write-path foundation, provider-state validator fixtures, and directly required branch-local source-truth updates. Seam 2 and all provider/model/network/memory/voice/release/PR/merge/cleanup work remain excluded.`
 
 Write Target: `C:\Nexus Worktrees\FAM-007` on `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
 
 Non-Includes: `Runtime implementation, actual consent capture, provider setup completion, provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/GitHub Release/artifact work, issue work, FAM-006 mutation, Governance mutation outside this branch path, Compact-AI mutation, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 
-Pending USER Decisions: `Workstream Entry, Workstream implementation, runtime implementation, actual consent capture, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/GitHub Release/artifact work, issue work, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
+Pending USER Decisions: `Seam 2 execution, durable consent storage-boundary expansion, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/GitHub Release/artifact work, issue work, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 
 ## Blockers
 
-No Stage 2 setup blocker remains if validation is green. Workstream Entry analysis and Workstream implementation remain pending USER approval. Runtime implementation and all provider/model/network/memory/voice/installer/release/PR/merge/cleanup actions remain blocked until separately approved.
+No Seam 1 blocker remains if validation is green. Seam 2 consent record storage-boundary work and all provider/model/network/memory/voice/installer/release/PR/merge/cleanup actions remain blocked until separately approved.
 
 ## Entry Basis
 
@@ -153,6 +153,16 @@ Known Future-Dependent Blockers: `Provider setup completion, SDK/model execution
 
 Branch Closure Rule: `This branch can close only after its admitted Workstream is implemented, hardened, live-validated or waived by source truth, PR-readied, merged, and folded down without stale active-branch or release-canon drift.`
 
+## Backlog Completion Status
+
+Backlog Completion State: In Progress
+
+Remaining Implementable Work: `Remaining bounded seams include Seam 2 consent record schema/storage boundary/revocation model, Seam 3 setup and execution consent separation, Seam 4 provenance/audit/no-secrets contract, Seam 5 Core/Desktop/ORIN proof if admitted, Seam 6 validator/handoff expansion, and Seam 7 functional-AI/v1.8.0 continuation criteria.`
+
+Future-Dependent Blockers: `Provider setup completion, SDK/model execution, downloads, network/API calls, memory/indexing/learning/personalization, voice/Core sync, shortcuts/installers, PR, merge, release, issue work, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending USER decisions.`
+
+Completion Status: Red
+
 ## Expected Seam Families And Risk Classes
 
 - Consent Capture State Transition and Local Write Path: write-path risk; no provider setup completion.
@@ -165,7 +175,7 @@ Branch Closure Rule: `This branch can close only after its admitted Workstream i
 
 ## User Test Summary Strategy
 
-User Test Summary Strategy: Workstream Entry must classify whether this branch will have a user-operated local consent capture path or a static/status-only proof path. If no user-operated path is admitted, static Core/Desktop/ORIN source truth plus `dev/orin_ai_provider_state_validation.py` remains the applicable substitute and User Test Summary may be waived by source truth.
+User Test Summary Strategy: Seam 1 remains static/validator-backed with no user-operated consent surface; static Core/Desktop/ORIN source truth plus `dev/orin_ai_provider_state_validation.py` remains the applicable substitute and User Test Summary may be waived by source truth. Later visible consent UI requires a separate USER decision.
 
 ## Later-Phase Expectations
 
@@ -175,11 +185,15 @@ Later-Phase Expectations: Workstream Entry defines exact implementation design; 
 
 Seam 1: Consent Capture State Transition and Local Write Path.
 
-Goal: Define and later implement local consent capture state transitions plus a fail-closed local write path.
+Status: `Implemented in this Workstream pass pending validation/commit.`
 
-Scope: Local consent state, write-path validation, blocker/reason/provenance fields, validator fixture planning, and approval-boundary preservation.
+Goal: Define and implement local consent capture state transitions plus a fail-closed local write path.
 
-Non-Includes: Provider setup completion, provider SDK/model execution, downloads, network calls, memory, voice/Core sync, shortcuts/installers, PR creation, merge, release, cleanup, and cross-worktree mutation.
+Scope: Local consent state, write-path validation, blocker/reason/provenance fields, local record normalization, validator fixtures, and approval-boundary preservation.
+
+Proof: `desktop/ai_provider_state.py` adds local consent capture/write-path snapshot state and `dev/orin_ai_provider_state_validation.py` adds missing, invalid, no-selection, revoked, reset, setup-only, setup+execution, and blocked-by-collection fixtures while preserving provider-visible data none and disabled execution.
+
+Non-Includes: Durable consent storage boundary expansion, provider setup completion, provider SDK/model execution, downloads, network calls, memory, voice/Core sync, shortcuts/installers, PR creation, merge, release, cleanup, and cross-worktree mutation.
 
 Seam 2: Consent Record Schema, Storage Boundary, and Revocation Model.
 
@@ -195,15 +209,47 @@ Seam 7: Functional-AI / v1.8.0 Continuation Criteria.
 
 ## Active Seam
 
-Active seam: `None - Branch Readiness Stage 2 setup is complete and Workstream Entry analysis requires USER approval`
+Active seam: `Seam 2 consent record schema, storage boundary, and revocation model - stopped by USER Seam 1-only waiver until approved`
 
-Goal: Preserve branch setup proof and proceed only to Workstream Entry analysis when USER approves.
+Goal: Preserve local consent capture/write-path proof and proceed only to Seam 2 when USER approves.
 
-Scope: Stage 2 branch authority, planning, compact pointers, slot receipt, validation, commit, and push.
+Scope: Seam 1 local consent capture transition/write-path proof, validator fixtures, source-truth update, validation, commit, and push.
 
-Non-Includes: Runtime implementation, actual consent capture, provider setup completion, provider execution, PR creation, merge, release execution, cleanup, and sibling worktree mutation.
+Non-Includes: Seam 2 storage-boundary expansion, provider setup completion, provider execution, PR creation, merge, release execution, cleanup, and sibling worktree mutation.
 
-Next Active Seam: `Workstream Entry analysis after USER approval`
+Next Active Seam: `Seam 2 consent record schema, storage boundary, and revocation model after USER approval`
+
+## Seam Continuation Decision
+
+Seam Status: Green
+
+Slice Status: Blocked
+
+Completion Status: Red
+
+Waiver Status: Approved
+
+Continue Decision: Stop
+
+Continuation Execution Latch: Inactive - USER approved this run for Seam 1 only; Seam 2 continuation is paused by USER waiver until the waiver is cleared.
+
+Stop Basis: Waiver
+
+Next Active Seam: Seam 2 consent record schema, storage boundary, and revocation model.
+
+Stop Condition: USER-approved Seam 1-only execution boundary.
+
+Continuation Action: USER approval for Seam 2 clears the waiver and resumes the Workstream on Seam 2; provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, PR creation, merge, release execution, cleanup, and sibling-worktree mutation remain excluded.
+
+Single-Seam Workstream Waiver: USER approved Seam 1-only execution for this pass and left Seam 2 as a pending USER decision.
+
+Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice Workstream stop authority.
+
+Single-Seam Or Single-Slice Workstream Blocker: One seam or one slice visible is a blocker unless USER waiver approval records the stop.
+
+Bounded Seam Default: Bounded means one active seam at a time, not one-seam Workstream authority.
+
+Remaining Implementable Work: `Remaining bounded seams include Seam 2 consent record schema/storage boundary/revocation model, Seam 3 setup and execution consent separation, Seam 4 provenance/audit/no-secrets contract, Seam 5 Core/Desktop/ORIN proof if admitted, Seam 6 validator/handoff expansion, and Seam 7 functional-AI/v1.8.0 continuation criteria.`
 
 ## Product Definition Plan
 
@@ -223,11 +269,11 @@ Codex Implementation Recommendation: Admit a bounded Workstream that implements 
 
 Codex Additional Recommendations: Recommendation: keep the first implementation pass local-only, offer the narrower state/write-path-only option if UI risk is high, use short status copy, preserve provider-visible data as none, and do not store secrets, prompts for provider use, credentials, model artifacts, or memory indexes.
 
-USER/ChatGPT Review Checkpoint: Workstream Entry should review the exact state names, local persistence/write-path boundary, revocation posture, audit/provenance fields, visible copy, and validation fixtures before implementation.
+USER/ChatGPT Review Checkpoint: Seam 1 uses the accepted Workstream Entry boundary for local state/write-path and validator proof; Seam 2 should review durable storage-boundary and expanded revocation posture before implementation.
 
 USER Critique Loop: USER may accept the Workstream Entry plan, narrow the implementation to state/write-path only, defer visible UI work, or require additional branch splitting before implementation.
 
-USER Decision Ledger: USER approved Branch Readiness Stage 2 setup only; Workstream Entry, implementation, PR creation, merge, release, cleanup, provider setup completion, model execution, and v1.8.0 execution remain pending.
+USER Decision Ledger: USER approved Workstream implementation for Seam 1 only; Seam 2 execution, PR creation, merge, release, cleanup, provider setup completion, model execution, and v1.8.0 execution remain pending.
 
 Deferred Ideas / Future Package Ledger: Provider setup completion, provider adapter/SDK boundary, prompt routing, model execution, model downloads, external provider/API calls, memory/indexing/learning/personalization, voice/Core runtime sync, capability packs, shortcuts/installers, and AI Product Contract import remain future branches.
 
@@ -253,7 +299,7 @@ Whole-System Interaction Map: FAM-007 consent state feeds later provider setup c
 
 Minimum Viable vs Full System Boundary: Minimum viable scope is local consent capture/write-path foundation and proof; full system scope includes provider setup completion, SDK/model execution, prompt routing, external/network behavior, memory, voice/Core, packaging/install, and release milestone work.
 
-Open Questions / USER Decision Points: USER decisions remain required for Workstream Entry, implementation approval, exact consent states, storage/write-path boundary, revocation posture, visible UI scope, validator fixture list, and whether the implementation should include any user-operable consent surface or remain internal foundation first.
+Open Questions / USER Decision Points: USER decisions remain required for Seam 2 consent record schema/storage boundary, expanded revocation posture, visible UI scope beyond validator-visible state, and whether later implementation should include any user-operable consent surface or remain internal foundation first.
 
 Expected User-Facing Outcomes: If later implementation is approved, users should see truthful local consent readiness/capture status without any claim that provider setup is complete, prompts can be accepted, models can run, or functional AI is available.
 
@@ -273,13 +319,13 @@ Why Not Split Into Tiny Branches: Splitting state, write path, provenance, valid
 
 Validation Proof Requirements: Workstream implementation must pass branch governance, release-health, governance efficiency, release body, source-owner marker, AI provider state, branch-readiness planning fixture, runtime-fam007 suite, rebaseline audit, compileall, and any new consent fixtures.
 
-Screenshot / Live / User Test Summary Proof Requirements: Workstream Entry must decide whether a user-operated local consent capture path exists; if visible UI is admitted, LV1 must provide live/static UI proof, otherwise record a source-truth-supported User Test Summary waiver.
+Screenshot / Live / User Test Summary Proof Requirements: Seam 1 has no user-operated local consent capture path; LV1 should use static validator evidence and record the source-truth-supported User Test Summary waiver unless a later seam admits visible UI.
 
 Implementation Sequence Proposal: First implement local state/schema and write path, then storage/revocation posture, setup/execution separation, provenance/audit/no-secrets posture, UI/status proof if admitted, validator fixtures, and fold-down.
 
-Planning Blockers: Workstream implementation remains blocked until USER approves Workstream Entry and then implementation; provider setup completion and provider/model execution remain separate blockers.
+Planning Blockers: Seam 1 implementation is approved and recorded here; Seam 2, provider setup completion, and provider/model execution remain separate blockers.
 
-USER Decisions Needed: USER must approve Workstream Entry, Workstream implementation, PR creation, merge, release execution, provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product import, Private Dev ORIN import, and v1.8.0 execution.
+USER Decisions Needed: USER must approve Seam 2 execution, PR creation, merge, release execution, provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product import, Private Dev ORIN import, and v1.8.0 execution.
 
 Planning Packet Status: `Complete`
 
@@ -287,15 +333,15 @@ Planning Revalidation Status: `PASS`
 
 Planning Completion Waiver: `None`
 
-User Test Summary Strategy: `Workstream Entry must choose live user proof or source-truth-supported static waiver based on whether the implementation admits a user-operated local consent capture path.`
+User Test Summary Strategy: `Seam 1 uses source-truth-supported static waiver because no user-operated local consent capture path is admitted.`
 
 ## Runtime Branch Engineering Contract
 
 Engineering Contract Status: `Accepted for Stage 2 setup; implementation approval remains pending.`
 
-USER Engineering Planning Review: `Required before Workstream implementation - Workstream Entry must produce and receive acceptance for the exact consent capture/write-path implementation plan.`
+USER Engineering Planning Review: `Complete for Seam 1 via accepted Workstream Entry; required again if Seam 2 scope changes the consent record schema/storage boundary beyond the admitted plan.`
 
-Runtime Implementation Approval: `Pending - this Stage 2 setup does not approve runtime implementation.`
+Runtime Implementation Approval: `Approved for Seam 1 only; Seam 2 and later runtime/product work remain pending.`
 
 Branch Purpose: `Move FAM-007 from disabled/status-only consent foundation toward local consent capture/write-path implementation foundation while preserving provider setup completion and model execution as future decisions.`
 
@@ -317,7 +363,7 @@ Future-Gated Items: `Provider setup completion, provider SDK integration, provid
 
 Workstream Seam Map: `Seam 1 - Consent Capture State Transition and Local Write Path; Seam 2 - Consent Record Schema, Storage Boundary, and Revocation Model; Seam 3 - Setup Consent / Execution Consent Capture Separation; Seam 4 - Provenance, Audit, Provider-Visible Data, and No-Secrets Contract; Seam 5 - Core/Desktop/ORIN Consent Capture UI and Status Proof; Seam 6 - Validator Fixtures, Fail-Closed Behavior, and Future Provider Setup Handoff; Seam 7 - Functional-AI / v1.8.0 Continuation Criteria.`
 
-Proof Expectations: `Workstream Entry must define static and/or local runtime proof. H1 must compare implementation to this contract. LV1 must prove local-only safety, provider-visible-data none, sentToProvider=false, canAcceptPrompts=false, prompt/model execution disabled, downloads/network/memory/voice gates, and desktop readiness display suppression continuity.`
+Proof Expectations: `H1 must compare Seam 1 implementation to this contract with validator fixture proof from dev/orin_ai_provider_state_validation.py. LV1 must prove local-only safety, provider-visible-data none, sentToProvider=false, canAcceptPrompts=false, prompt/model execution disabled, downloads/network/memory/voice gates, and desktop readiness display suppression continuity.`
 
 Risk Forecast: `consent/setup boundary blur, accidental provider-visible data, premature prompt acceptance, stale UI copy, silent consent capture, over-broad storage, network/memory side effects, validator gap, and release expectation drift.`
 
@@ -331,7 +377,7 @@ Plan-To-Implementation Traceability: `Each admitted Workstream seam must map to 
 
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
 
-Branch Runtime Engineering Plan: `Accepted for Stage 2 setup - detailed per-seam execution planning is in the branch plan and requires Workstream Entry review before implementation.`
+Branch Runtime Engineering Plan: `Accepted for Stage 2 setup and Workstream Entry; Seam 1 implementation maps to the plan and later seams remain pending USER approval.`
 
 Engineering Plan Status: `Accepted / implementation pending`
 
@@ -341,7 +387,7 @@ PR Fold-Down Packet: `Pending - PR Readiness will decide selected-next/defer, re
 
 Workstream Label: `FAM-007 Local AI Provider Consent Collection Implementation Foundation`
 
-Workstream Admission State: `Admitted for Workstream Entry analysis only`
+Workstream Admission State: `Admitted for bounded Workstream implementation; Seam 1 implemented and Seam 2 pending USER approval`
 
 Workstream Definition: `Actual local consent capture/write-path implementation foundation is the next FAM-007 layer after disabled/status-only consent collection foundation. It should implement local consent state transitions, local write-path validation, provenance/audit posture, setup/execution consent separation, local-only UI/status proof if admitted, validator fixtures, fail-closed behavior, and future provider setup/execution handoff while keeping provider setup completion and model execution pending.`
 
@@ -355,7 +401,7 @@ Admitted Seam Families:
 6. Validator Fixtures, Fail-Closed Behavior, and Future Provider Setup Handoff.
 7. Functional-AI / v1.8.0 Continuation Criteria.
 
-Implementation Gate: `Blocked until USER approves Workstream implementation after Workstream Entry analysis.`
+Implementation Gate: `Open for Seam 1 only under current USER approval; closed for Seam 2 and later work until USER approves.`
 
 ## Release Baseline And Prior Evidence
 
@@ -432,24 +478,24 @@ Required Validation:
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Branch Readiness Stage 2 setup`
+Current Phase: `Workstream`
 
-Next Legal Phase: `Workstream Entry analysis`
+Next Legal Phase: `Workstream`
 
-Why This Phase Is Next: `The branch authority, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, and bounded Workstream admission are now recorded; implementation must wait for a Workstream Entry engineering design packet and USER approval.`
+Why This Phase Is Next: `Seam 1 records local consent capture state transition/write-path foundation and validator proof; the next seam expands consent record schema, storage boundary, and revocation model, which remains a separate USER decision.`
 
-Approval Required: `USER approval to perform Workstream Entry analysis for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007.`
+Approval Required: `USER approval to execute Seam 2 for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007.`
 
-Exact USER Approval Text: `Approve Workstream Entry analysis for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007. Scope: inspect the admitted FAM-007 Local AI Provider Consent Collection Implementation Foundation plan, define the bounded local consent capture/write-path implementation design, validation fixtures, UI/status proof, approval boundaries, FAM-006/Governance overlap posture, and exact implementation decision needed. Do not implement runtime changes, create a PR, merge, release, clean branches/worktrees, mutate FAM-006/Governance/Compact-AI, integrate SDK/model execution, make downloads/external calls, enable memory/voice/Core sync, import AI Product/Private Dev ORIN, or execute v1.8.0-prebeta.`
+Exact USER Approval Text: `Approve Seam 2 Workstream implementation for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@6681131c974d99945c494c0e4ff3c436f9347422. Scope: implement consent record schema, storage boundary, and revocation model on top of the Seam 1 local consent capture/write-path foundation; update required validator fixtures and branch-local source truth; keep provider setup completion, SDK/model execution, downloads/external calls, memory/learning/personalization, voice/Core sync, shortcuts/installers, PR creation, merge, release execution, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution pending.`
 
-USER Plan Review Gate: `Workstream Entry is the USER-verifiable engineering design review for the branch plan created in Stage 2; USER may accept, change, waive, or reject the implementation design before any runtime work begins.`
+USER Plan Review Gate: `Seam 1 plan review was satisfied by Workstream Entry; USER may accept, narrow, change, or defer Seam 2 before storage-boundary work begins.`
 
-Implementation Blocker: `Runtime implementation remains blocked until Workstream Entry returns an accepted implementation packet or source truth records an explicit USER waiver/change decision.`
+Implementation Blocker: `Seam 2 and all later runtime/product work remain blocked until USER approval.`
 
-Allowed Scope: `Analysis-only Workstream Entry design packet.`
+Allowed Scope: `Next phase is Seam 2 implementation only if USER approves.`
 
 Explicit Exclusions: `Runtime implementation, actual consent capture, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifact work, issue work, branch/worktree cleanup, cross-lane mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 
-Validation Required: `Identity/freshness checks and current repo validators recommended by source truth for Workstream Entry.`
+Validation Required: `Diff checks, branch governance, release health, governance efficiency, release body, source-owner marker, branch-readiness planning fixture validation, FAM-007 provider-state validation, runtime-fam007 suite, worktree rebaseline audit, compileall, and any Seam 2-specific consent validator fixture checks.`
 
 Stop Conditions: `Stop if origin/main advances and reconciliation is needed, source truth points to another carrier, FAM-006/Governance/Compact-AI posture creates a direct sequencing decision, or implementation would be required before USER approval.`

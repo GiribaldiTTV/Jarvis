@@ -35,6 +35,9 @@ FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_STATE_ID = (
 FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_STATE_ID = (
     "fam007-provider-consent-collection-foundation"
 )
+FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_STATE_ID = (
+    "fam007-provider-consent-collection-implementation-foundation"
+)
 
 NO_PROVIDER_MODE = "no-provider"
 NO_PROVIDER_AVAILABILITY = "disabled"
@@ -60,7 +63,11 @@ FAM007_PROVIDER_SETUP_CONTRACT_READINESS_AVAILABILITY = "disabled"
 FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_MODE = "provider-setup-implementation-foundation"
 FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_AVAILABILITY = "disabled"
 FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_MODE = "provider-consent-collection-foundation"
+FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_MODE = (
+    "provider-consent-collection-implementation-foundation"
+)
 FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_AVAILABILITY = "disabled"
+FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_AVAILABILITY = "disabled"
 NO_PROVIDER_ID = "no-provider"
 NO_PROVIDER_FALLBACK_SELECTION = "fallback-no-provider"
 PROVIDER_CONSENT_REQUIRED = "required-before-provider"
@@ -977,6 +984,59 @@ FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY = (
 CONSENT_COLLECTION_FOLD_DOWN_READY = (
     "consent-collection-foundation-fold-down-ready-for-pr-release"
 )
+CONSENT_CAPTURE_TRANSITION_SCHEMA_VERSION = "provider-consent-capture-transition.v1"
+CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION = "provider-consent-capture-local-record.v1"
+CONSENT_CAPTURE_RECORD_STATE_MISSING = "consent_capture_record_missing"
+CONSENT_CAPTURE_RECORD_STATE_INVALID = "consent_capture_record_invalid"
+CONSENT_CAPTURE_RECORD_STATE_READY = "consent_capture_record_ready"
+CONSENT_CAPTURE_RECORD_STATE_REVOKED = "consent_capture_record_revoked"
+CONSENT_CAPTURE_RECORD_STATE_RESET = "consent_capture_record_reset"
+CONSENT_CAPTURE_RECORD_STATE_NO_CONSENT_SELECTED = (
+    "consent_capture_record_no_consent_selected"
+)
+CONSENT_CAPTURE_STATE_NOT_REQUESTED = "consent_capture_not_requested"
+CONSENT_CAPTURE_STATE_BLOCKED_BY_COLLECTION = "consent_capture_blocked_by_collection"
+CONSENT_CAPTURE_STATE_BLOCKED_BY_RECORD = "consent_capture_blocked_by_record"
+CONSENT_CAPTURE_STATE_CAPTURED_LOCAL_ONLY = "consent_capture_captured_local_only"
+CONSENT_CAPTURE_STATE_REVOKED_LOCAL_ONLY = "consent_capture_revoked_local_only"
+CONSENT_CAPTURE_STATE_RESET_LOCAL_ONLY = "consent_capture_reset_local_only"
+CONSENT_CAPTURE_WRITE_STATUS_BLOCKED = "consent_capture_write_blocked"
+CONSENT_CAPTURE_WRITE_STATUS_LOCAL_SNAPSHOT = (
+    "consent_capture_write_local_snapshot_only"
+)
+CONSENT_CAPTURE_WRITE_STATUS_REVOKED_LOCAL = "consent_capture_write_revoked_local_only"
+CONSENT_CAPTURE_WRITE_STATUS_RESET_LOCAL = "consent_capture_write_reset_local_only"
+CONSENT_CAPTURE_WRITE_BLOCKER_NONE = "none"
+CONSENT_CAPTURE_WRITE_BLOCKER_COLLECTION_NOT_READY = (
+    "consent_capture_collection_not_ready"
+)
+CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_MISSING = "consent_capture_record_missing"
+CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_INVALID = "consent_capture_record_invalid"
+CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_REVOKED = "consent_capture_record_revoked"
+CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_RESET = "consent_capture_record_reset"
+CONSENT_CAPTURE_WRITE_BLOCKER_NO_CONSENT_SELECTED = (
+    "consent_capture_no_consent_selected"
+)
+CONSENT_CAPTURE_WRITE_REASON_COLLECTION_NOT_READY = (
+    "consent_capture_collection_not_ready"
+)
+CONSENT_CAPTURE_WRITE_REASON_RECORD_MISSING = "consent_capture_record_missing"
+CONSENT_CAPTURE_WRITE_REASON_RECORD_INVALID = "consent_capture_record_invalid"
+CONSENT_CAPTURE_WRITE_REASON_RECORD_REVOKED = "consent_capture_record_revoked"
+CONSENT_CAPTURE_WRITE_REASON_RECORD_RESET = "consent_capture_record_reset"
+CONSENT_CAPTURE_WRITE_REASON_NO_CONSENT_SELECTED = (
+    "consent_capture_no_consent_selected"
+)
+CONSENT_CAPTURE_WRITE_REASON_CAPTURED_LOCAL_ONLY = (
+    "consent_capture_captured_local_only"
+)
+CONSENT_CAPTURE_PROVENANCE_COLLECTION_STATE = "consent_collection_state"
+CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD = "local_consent_capture_record"
+CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY = "consent-capture-local-snapshot-ready"
+CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY = "consent-capture-local-snapshot-empty"
+CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED = (
+    "consent-capture-durable-persistence-deferred"
+)
 CAPABILITY_PACK_ELIGIBILITY_UNKNOWN = "capability-pack-eligibility-unknown"
 CAPABILITY_PACK_ELIGIBILITY_BLOCKED = "capability-pack-eligibility-blocked"
 CAPABILITY_PACK_ELIGIBILITY_FUTURE_GATED = "capability-pack-eligibility-future-gated"
@@ -1242,6 +1302,7 @@ _EXECUTION_CONFIG_OMITTED = object()
 _PATH_CONSENT_CONFIG_OMITTED = object()
 _SETUP_FOUNDATION_CONFIG_OMITTED = object()
 _CONSENT_COLLECTION_CONFIG_OMITTED = object()
+_CONSENT_CAPTURE_RECORD_OMITTED = object()
 
 
 @dataclass(frozen=True)
@@ -1368,6 +1429,19 @@ class AIProviderConsentCollectionFoundationConfigSnapshot:
     consent_collection_approved: bool
     future_capture_branch_ready: bool
     config_valid: bool
+    provenance: str
+
+
+@dataclass(frozen=True)
+class AIProviderConsentCaptureRecordSnapshot:
+    schema_version: str
+    record_state: str
+    local_write_requested: bool
+    setup_consent_granted: bool
+    execution_consent_granted: bool
+    revoked: bool
+    reset_requested: bool
+    record_valid: bool
     provenance: str
 
 
@@ -2032,6 +2106,31 @@ class AIProviderStateSnapshot:
     consent_collection_validation_label: str = (
         "Consent collection validation: fail-closed"
     )
+    consent_capture_transition_schema_version: str = CONSENT_CAPTURE_TRANSITION_SCHEMA_VERSION
+    consent_capture_local_record_schema_version: str = CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION
+    consent_capture_state: str = CONSENT_CAPTURE_STATE_NOT_REQUESTED
+    consent_capture_label: str = "Consent capture: not requested"
+    consent_capture_record_state: str = CONSENT_CAPTURE_RECORD_STATE_MISSING
+    consent_capture_record_valid: bool = False
+    consent_capture_local_write_requested: bool = False
+    consent_capture_write_status: str = CONSENT_CAPTURE_WRITE_STATUS_BLOCKED
+    consent_capture_write_label: str = "Consent write path: blocked"
+    consent_capture_write_blocker: str = CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_MISSING
+    consent_capture_write_reason: str = CONSENT_CAPTURE_WRITE_REASON_RECORD_MISSING
+    consent_capture_provenance: str = CONSENT_CAPTURE_PROVENANCE_COLLECTION_STATE
+    setup_consent_captured: bool = False
+    execution_consent_captured: bool = False
+    consent_capture_local_snapshot_status: str = CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY
+    consent_capture_durable_persistence_status: str = (
+        CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED
+    )
+    consent_capture_provider_visible_data: str = "none"
+    consent_capture_sent_to_provider: bool = False
+    consent_capture_can_accept_prompts: bool = False
+    consent_capture_prompt_execution_state: str = PROMPT_EXECUTION_GATE_DISABLED
+    consent_capture_network_egress_state: str = NETWORK_EGRESS_BLOCKED
+    consent_capture_memory_state: str = MEMORY_INDEXING_DISABLED
+    consent_capture_voice_state: str = VOICE_RUNTIME_DISABLED
     future_consent_capture_handoff_state: str = FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY
     consent_collection_fold_down_posture: str = CONSENT_COLLECTION_FOLD_DOWN_READY
 
@@ -2585,6 +2684,45 @@ class AIProviderStateSnapshot:
             "consent_persistence_label": self.consent_persistence_label,
             "consent_collection_validation_status": self.consent_collection_validation_status,
             "consent_collection_validation_label": self.consent_collection_validation_label,
+            "consent_capture_transition_schema_version": (
+                self.consent_capture_transition_schema_version
+            ),
+            "consent_capture_local_record_schema_version": (
+                self.consent_capture_local_record_schema_version
+            ),
+            "consent_capture_state": self.consent_capture_state,
+            "consent_capture_label": self.consent_capture_label,
+            "consent_capture_record_state": self.consent_capture_record_state,
+            "consent_capture_record_valid": self.consent_capture_record_valid,
+            "consent_capture_local_write_requested": (
+                self.consent_capture_local_write_requested
+            ),
+            "consent_capture_write_status": self.consent_capture_write_status,
+            "consent_capture_write_label": self.consent_capture_write_label,
+            "consent_capture_write_blocker": self.consent_capture_write_blocker,
+            "consent_capture_write_reason": self.consent_capture_write_reason,
+            "consent_capture_provenance": self.consent_capture_provenance,
+            "setup_consent_captured": self.setup_consent_captured,
+            "execution_consent_captured": self.execution_consent_captured,
+            "consent_capture_local_snapshot_status": (
+                self.consent_capture_local_snapshot_status
+            ),
+            "consent_capture_durable_persistence_status": (
+                self.consent_capture_durable_persistence_status
+            ),
+            "consent_capture_provider_visible_data": (
+                self.consent_capture_provider_visible_data
+            ),
+            "consent_capture_sent_to_provider": self.consent_capture_sent_to_provider,
+            "consent_capture_can_accept_prompts": self.consent_capture_can_accept_prompts,
+            "consent_capture_prompt_execution_state": (
+                self.consent_capture_prompt_execution_state
+            ),
+            "consent_capture_network_egress_state": (
+                self.consent_capture_network_egress_state
+            ),
+            "consent_capture_memory_state": self.consent_capture_memory_state,
+            "consent_capture_voice_state": self.consent_capture_voice_state,
             "future_consent_capture_handoff_state": self.future_consent_capture_handoff_state,
             "consent_collection_fold_down_posture": self.consent_collection_fold_down_posture,
         }
@@ -3138,6 +3276,45 @@ class AIProviderStateSnapshot:
             "consentPersistenceLabel": self.consent_persistence_label,
             "consentCollectionValidationStatus": self.consent_collection_validation_status,
             "consentCollectionValidationLabel": self.consent_collection_validation_label,
+            "consentCaptureTransitionSchemaVersion": (
+                self.consent_capture_transition_schema_version
+            ),
+            "consentCaptureLocalRecordSchemaVersion": (
+                self.consent_capture_local_record_schema_version
+            ),
+            "consentCaptureState": self.consent_capture_state,
+            "consentCaptureLabel": self.consent_capture_label,
+            "consentCaptureRecordState": self.consent_capture_record_state,
+            "consentCaptureRecordValid": self.consent_capture_record_valid,
+            "consentCaptureLocalWriteRequested": (
+                self.consent_capture_local_write_requested
+            ),
+            "consentCaptureWriteStatus": self.consent_capture_write_status,
+            "consentCaptureWriteLabel": self.consent_capture_write_label,
+            "consentCaptureWriteBlocker": self.consent_capture_write_blocker,
+            "consentCaptureWriteReason": self.consent_capture_write_reason,
+            "consentCaptureProvenance": self.consent_capture_provenance,
+            "setupConsentCaptured": self.setup_consent_captured,
+            "executionConsentCaptured": self.execution_consent_captured,
+            "consentCaptureLocalSnapshotStatus": (
+                self.consent_capture_local_snapshot_status
+            ),
+            "consentCaptureDurablePersistenceStatus": (
+                self.consent_capture_durable_persistence_status
+            ),
+            "consentCaptureProviderVisibleData": (
+                self.consent_capture_provider_visible_data
+            ),
+            "consentCaptureSentToProvider": self.consent_capture_sent_to_provider,
+            "consentCaptureCanAcceptPrompts": self.consent_capture_can_accept_prompts,
+            "consentCapturePromptExecutionState": (
+                self.consent_capture_prompt_execution_state
+            ),
+            "consentCaptureNetworkEgressState": (
+                self.consent_capture_network_egress_state
+            ),
+            "consentCaptureMemoryState": self.consent_capture_memory_state,
+            "consentCaptureVoiceState": self.consent_capture_voice_state,
             "futureConsentCaptureHandoffState": self.future_consent_capture_handoff_state,
             "consentCollectionFoldDownPosture": self.consent_collection_fold_down_posture,
             "canAcceptPrompts": False,
@@ -6431,6 +6608,118 @@ def normalize_provider_consent_collection_foundation_config(
     )
 
 
+def build_default_provider_consent_capture_record() -> AIProviderConsentCaptureRecordSnapshot:
+    """Return the fail-closed local consent capture record default."""
+
+    return AIProviderConsentCaptureRecordSnapshot(
+        schema_version=CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION,
+        record_state=CONSENT_CAPTURE_RECORD_STATE_MISSING,
+        local_write_requested=False,
+        setup_consent_granted=False,
+        execution_consent_granted=False,
+        revoked=False,
+        reset_requested=False,
+        record_valid=False,
+        provenance=CONSENT_CAPTURE_PROVENANCE_COLLECTION_STATE,
+    )
+
+
+def normalize_provider_consent_capture_record(
+    record: AIProviderConsentCaptureRecordSnapshot | dict[str, object] | None,
+) -> AIProviderConsentCaptureRecordSnapshot:
+    """Normalize a local-only consent capture write request into a safe record."""
+
+    provenance_sources = {
+        CONSENT_CAPTURE_PROVENANCE_COLLECTION_STATE,
+        CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD,
+    }
+
+    if record is None:
+        return build_default_provider_consent_capture_record()
+
+    if isinstance(record, AIProviderConsentCaptureRecordSnapshot):
+        if (
+            record.schema_version == CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION
+            and record.record_valid
+        ):
+            return record
+        return replace(
+            build_default_provider_consent_capture_record(),
+            record_state=CONSENT_CAPTURE_RECORD_STATE_INVALID,
+            local_write_requested=record.local_write_requested,
+            record_valid=False,
+            provenance=record.provenance
+            if record.provenance in provenance_sources
+            else CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD,
+        )
+
+    if not isinstance(record, dict):
+        return replace(
+            build_default_provider_consent_capture_record(),
+            record_state=CONSENT_CAPTURE_RECORD_STATE_INVALID,
+            local_write_requested=True,
+            record_valid=False,
+            provenance=CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD,
+        )
+
+    schema_version = str(record.get("schema_version") or "")
+    provenance = str(record.get("provenance") or CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD)
+    setup_consent_granted = bool(record.get("setup_consent_granted", False))
+    execution_consent_granted = bool(record.get("execution_consent_granted", False))
+    revoked = bool(record.get("revoked", False))
+    reset_requested = bool(record.get("reset_requested", False))
+    local_write_requested = bool(
+        record.get(
+            "local_write_requested",
+            setup_consent_granted
+            or execution_consent_granted
+            or revoked
+            or reset_requested,
+        )
+    )
+    record_valid = (
+        bool(record.get("record_valid", True))
+        and schema_version == CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION
+    )
+
+    normalized_provenance = (
+        provenance
+        if provenance in provenance_sources
+        else CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD
+    )
+    if not record_valid:
+        return replace(
+            build_default_provider_consent_capture_record(),
+            record_state=CONSENT_CAPTURE_RECORD_STATE_INVALID,
+            local_write_requested=local_write_requested,
+            record_valid=False,
+            provenance=normalized_provenance,
+        )
+
+    if reset_requested:
+        record_state = CONSENT_CAPTURE_RECORD_STATE_RESET
+    elif revoked:
+        record_state = CONSENT_CAPTURE_RECORD_STATE_REVOKED
+    elif setup_consent_granted or execution_consent_granted:
+        record_state = CONSENT_CAPTURE_RECORD_STATE_READY
+    elif local_write_requested:
+        record_state = CONSENT_CAPTURE_RECORD_STATE_NO_CONSENT_SELECTED
+    else:
+        record_state = CONSENT_CAPTURE_RECORD_STATE_MISSING
+
+    return AIProviderConsentCaptureRecordSnapshot(
+        schema_version=schema_version,
+        record_state=record_state,
+        local_write_requested=local_write_requested,
+        setup_consent_granted=setup_consent_granted,
+        execution_consent_granted=execution_consent_granted,
+        revoked=revoked,
+        reset_requested=reset_requested,
+        record_valid=record_valid,
+        provenance=normalized_provenance,
+    )
+
+
 def _provider_consent_collection_foundation_fields(
     setup_foundation_state: AIProviderStateSnapshot,
     consent_config: AIProviderConsentCollectionFoundationConfigSnapshot,
@@ -6786,6 +7075,123 @@ def _provider_consent_collection_foundation_fields(
     }
 
 
+def _provider_consent_capture_write_path_fields(
+    collection_state: AIProviderStateSnapshot,
+    consent_record: AIProviderConsentCaptureRecordSnapshot,
+) -> dict[str, object]:
+    ready_collection_states = {
+        CONSENT_COLLECTION_STATE_READY_FUTURE_GATED,
+        CONSENT_COLLECTION_STATE_READY_BUT_NOT_APPROVED,
+        CONSENT_COLLECTION_STATE_READY_BUT_NOT_COLLECTED,
+        CONSENT_COLLECTION_STATE_READY_FOR_FUTURE_CAPTURE_BRANCH,
+    }
+    capture_state = CONSENT_CAPTURE_STATE_NOT_REQUESTED
+    write_status = CONSENT_CAPTURE_WRITE_STATUS_BLOCKED
+    write_blocker = CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_MISSING
+    write_reason = CONSENT_CAPTURE_WRITE_REASON_RECORD_MISSING
+    setup_captured = False
+    execution_captured = False
+    snapshot_status = CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY
+
+    if collection_state.consent_collection_foundation_state not in ready_collection_states:
+        capture_state = CONSENT_CAPTURE_STATE_BLOCKED_BY_COLLECTION
+        write_blocker = CONSENT_CAPTURE_WRITE_BLOCKER_COLLECTION_NOT_READY
+        write_reason = CONSENT_CAPTURE_WRITE_REASON_COLLECTION_NOT_READY
+    elif (
+        not consent_record.local_write_requested
+        or consent_record.record_state == CONSENT_CAPTURE_RECORD_STATE_MISSING
+    ):
+        capture_state = CONSENT_CAPTURE_STATE_NOT_REQUESTED
+        write_blocker = CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_MISSING
+        write_reason = CONSENT_CAPTURE_WRITE_REASON_RECORD_MISSING
+    elif (
+        not consent_record.record_valid
+        or consent_record.record_state == CONSENT_CAPTURE_RECORD_STATE_INVALID
+    ):
+        capture_state = CONSENT_CAPTURE_STATE_BLOCKED_BY_RECORD
+        write_blocker = CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_INVALID
+        write_reason = CONSENT_CAPTURE_WRITE_REASON_RECORD_INVALID
+    elif consent_record.record_state == CONSENT_CAPTURE_RECORD_STATE_RESET:
+        capture_state = CONSENT_CAPTURE_STATE_RESET_LOCAL_ONLY
+        write_status = CONSENT_CAPTURE_WRITE_STATUS_RESET_LOCAL
+        write_blocker = CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_RESET
+        write_reason = CONSENT_CAPTURE_WRITE_REASON_RECORD_RESET
+        snapshot_status = CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY
+    elif consent_record.record_state == CONSENT_CAPTURE_RECORD_STATE_REVOKED:
+        capture_state = CONSENT_CAPTURE_STATE_REVOKED_LOCAL_ONLY
+        write_status = CONSENT_CAPTURE_WRITE_STATUS_REVOKED_LOCAL
+        write_blocker = CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_REVOKED
+        write_reason = CONSENT_CAPTURE_WRITE_REASON_RECORD_REVOKED
+        snapshot_status = CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY
+    elif consent_record.record_state == CONSENT_CAPTURE_RECORD_STATE_NO_CONSENT_SELECTED:
+        capture_state = CONSENT_CAPTURE_STATE_BLOCKED_BY_RECORD
+        write_blocker = CONSENT_CAPTURE_WRITE_BLOCKER_NO_CONSENT_SELECTED
+        write_reason = CONSENT_CAPTURE_WRITE_REASON_NO_CONSENT_SELECTED
+    else:
+        capture_state = CONSENT_CAPTURE_STATE_CAPTURED_LOCAL_ONLY
+        write_status = CONSENT_CAPTURE_WRITE_STATUS_LOCAL_SNAPSHOT
+        write_blocker = CONSENT_CAPTURE_WRITE_BLOCKER_NONE
+        write_reason = CONSENT_CAPTURE_WRITE_REASON_CAPTURED_LOCAL_ONLY
+        setup_captured = consent_record.setup_consent_granted
+        execution_captured = consent_record.execution_consent_granted
+        snapshot_status = CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY
+
+    capture_labels = {
+        CONSENT_CAPTURE_STATE_NOT_REQUESTED: "Consent capture: not requested",
+        CONSENT_CAPTURE_STATE_BLOCKED_BY_COLLECTION:
+            "Consent capture: blocked by collection foundation",
+        CONSENT_CAPTURE_STATE_BLOCKED_BY_RECORD:
+            "Consent capture: blocked by local record",
+        CONSENT_CAPTURE_STATE_CAPTURED_LOCAL_ONLY:
+            "Consent capture: local snapshot captured",
+        CONSENT_CAPTURE_STATE_REVOKED_LOCAL_ONLY:
+            "Consent capture: local snapshot revoked",
+        CONSENT_CAPTURE_STATE_RESET_LOCAL_ONLY:
+            "Consent capture: local snapshot reset",
+    }
+    write_labels = {
+        CONSENT_CAPTURE_WRITE_STATUS_BLOCKED: "Consent write path: blocked",
+        CONSENT_CAPTURE_WRITE_STATUS_LOCAL_SNAPSHOT:
+            "Consent write path: local snapshot only",
+        CONSENT_CAPTURE_WRITE_STATUS_REVOKED_LOCAL:
+            "Consent write path: revoked local snapshot only",
+        CONSENT_CAPTURE_WRITE_STATUS_RESET_LOCAL:
+            "Consent write path: reset local snapshot only",
+    }
+
+    return {
+        "consent_capture_transition_schema_version": (
+            CONSENT_CAPTURE_TRANSITION_SCHEMA_VERSION
+        ),
+        "consent_capture_local_record_schema_version": (
+            CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION
+        ),
+        "consent_capture_state": capture_state,
+        "consent_capture_label": capture_labels[capture_state],
+        "consent_capture_record_state": consent_record.record_state,
+        "consent_capture_record_valid": consent_record.record_valid,
+        "consent_capture_local_write_requested": consent_record.local_write_requested,
+        "consent_capture_write_status": write_status,
+        "consent_capture_write_label": write_labels[write_status],
+        "consent_capture_write_blocker": write_blocker,
+        "consent_capture_write_reason": write_reason,
+        "consent_capture_provenance": consent_record.provenance,
+        "setup_consent_captured": setup_captured,
+        "execution_consent_captured": execution_captured,
+        "consent_capture_local_snapshot_status": snapshot_status,
+        "consent_capture_durable_persistence_status": (
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED
+        ),
+        "consent_capture_provider_visible_data": "none",
+        "consent_capture_sent_to_provider": False,
+        "consent_capture_can_accept_prompts": False,
+        "consent_capture_prompt_execution_state": PROMPT_EXECUTION_GATE_DISABLED,
+        "consent_capture_network_egress_state": NETWORK_EGRESS_BLOCKED,
+        "consent_capture_memory_state": MEMORY_INDEXING_DISABLED,
+        "consent_capture_voice_state": VOICE_RUNTIME_DISABLED,
+    }
+
+
 def build_provider_consent_collection_foundation_state(
     readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
     *,
@@ -6839,6 +7245,70 @@ def build_provider_consent_collection_foundation_state(
             "Consent capture, provider setup, prompt routing, and model execution require later USER approval"
         ),
         **collection_fields,
+    )
+
+
+def build_provider_consent_collection_implementation_foundation_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    execution_config: AIProviderExecutionReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _EXECUTION_CONFIG_OMITTED
+    ),
+    path_consent_config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _PATH_CONSENT_CONFIG_OMITTED
+    ),
+    setup_foundation_config: AIProviderSetupFoundationConfigSnapshot | dict[str, object] | None | object = (
+        _SETUP_FOUNDATION_CONFIG_OMITTED
+    ),
+    consent_collection_config: (
+        AIProviderConsentCollectionFoundationConfigSnapshot | dict[str, object] | None | object
+    ) = _CONSENT_COLLECTION_CONFIG_OMITTED,
+    consent_capture_record: (
+        AIProviderConsentCaptureRecordSnapshot | dict[str, object] | None | object
+    ) = _CONSENT_CAPTURE_RECORD_OMITTED,
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve local consent capture/write-path proof without provider execution."""
+
+    collection_state = build_provider_consent_collection_foundation_state(
+        readiness_config,
+        activation_config=activation_config,
+        execution_config=execution_config,
+        path_consent_config=path_consent_config,
+        setup_foundation_config=setup_foundation_config,
+        consent_collection_config=consent_collection_config,
+        surface_role=surface_role,
+    )
+    if consent_capture_record is _CONSENT_CAPTURE_RECORD_OMITTED:
+        normalized_record = build_default_provider_consent_capture_record()
+    else:
+        normalized_record = normalize_provider_consent_capture_record(
+            consent_capture_record  # type: ignore[arg-type]
+        )
+    capture_fields = _provider_consent_capture_write_path_fields(
+        collection_state,
+        normalized_record,
+    )
+    return replace(
+        collection_state,
+        state_id=FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_STATE_ID,
+        mode=FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_MODE,
+        availability=(
+            FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_AVAILABILITY
+        ),
+        status_label=capture_fields["consent_capture_label"],
+        disabled_reason=(
+            "Consent capture write-path foundation is local-only; provider setup and execution remain pending USER approval"
+        ),
+        provider_next_action_label=(
+            "Next: Seam 2 consent capture record schema/storage boundary remains pending USER approval"
+        ),
+        interaction_label="Consent capture write-path foundation only",
+        interaction_disabled_reason=(
+            "Local consent capture does not enable provider setup, prompt routing, or model execution"
+        ),
+        **capture_fields,
     )
 
 
