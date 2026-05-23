@@ -27,18 +27,18 @@ This branch is the single standing governance lane for Release Readiness source-
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
 - Active RRI Cycle: `RRI-20260521-001`
 - Latest Closed RRI Cycle: `RRI-20260520-005`
-- Return Digest Status: `Pending - RRI-20260521-001 must finish the full Docs reform, validate, commit/push internal checkpoints, then wait for USER approval before final PR creation and merge`
+- Return Digest Status: `Pending - RRI-20260521-001 full Docs reform has been validated and opened as PR #195; return digest remains pending PR review, USER merge approval, merge, and post-merge sync`
 - Active Cycle Identity: `RRI-20260521-001 originates from USER-approved full Docs source-truth reform on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake after the Docs inventory audit; repair scope is source-truth ownership cleanup, backlog/roadmap compaction, branch-record/branch-plan/workstream ownership boundaries, and duplicate live-state prevention only`
 
 ## PR Readiness Stage 2 Execution Packet
 
-- PR Readiness Stage: `Not started for current RRI; final PR Readiness remains pending until the full Docs reform is complete and validation is green`
-- Live PR State: `Derived from GitHub during PR Readiness Stage 2; this branch record does not maintain live PR state for the current RRI`
-- Governance PR: `Pending USER approval after full reform completion`
+- PR Readiness Stage: `Stage 2 executed for current RRI after USER approval`
+- Live PR State: `Derived from GitHub during PR Readiness Stage 2 and watcher/review checks; this branch record keeps only compact PR creation receipt, not live PR state`
+- Governance PR: `PR #195 - https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/195; base main at 500c9ef6365527707ec22764d184ed3ea59bd410; created from head f6912ae41cd2d34c566e27098f7ad3a0162a388c`
 - Watcher Readiness Posture: `Stage 2 default - watcher provisioning is included with USER approval for PR Readiness Stage 2 / PR creation; no separate watcher-specific approval is required unless USER explicitly waives watcher provisioning or a platform/runtime blocker is recorded`
 - Historical Merge Proof: `PR #182 is closed/merged proof for the v1.7.9-prebeta post-release canon closure repair; PR #162 is closed/merged implementation proof for FAM-007 runtime expansion; PR #160 is closed/merged proof for RRI-20260515-003, PR #157 is closed/merged proof for RRI-20260515-002, PR #156 is closed/merged closeout proof for RRI-20260515-001, PR #155 is closed/merged historical proof for RRI-20260515-001, PR #153 is closed/merged historical proof for RRI-20260514-007, and PR #151 is closed/merged historical proof for RRI-20260514-006`
 - Next Workstream User Waiver: `Not applicable - RRI-20260521-001 is a governance/source-truth reform and does not select runtime successor workstreams, create runtime branches, or admit packages`
-- Stage 2 Outcome: `Pending - final PR creation, watcher handling, and merge remain separate USER decisions after full reform validation`
+- Stage 2 Outcome: `PR created; live review/watch handling active; merge remains a separate USER decision`
 
 ## Branch Class
 
@@ -68,7 +68,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
 - Active RRI Cycle: `RRI-20260521-001`
 - Latest Closed RRI Cycle: `RRI-20260520-005`
-- Return Digest Status: `Pending - RRI-20260521-001 must finish the full Docs reform, validate, commit/push internal checkpoints, then wait for USER approval before final PR creation and merge`
+- Return Digest Status: `Pending - RRI-20260521-001 full Docs reform has been validated and opened as PR #195; return digest remains pending PR review, USER merge approval, merge, and post-merge sync`
 - Active Cycle Identity: `RRI-20260521-001 originates from USER-approved full Docs source-truth reform on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake after the Docs inventory audit; repair scope is source-truth ownership cleanup, backlog/roadmap compaction, branch-record/branch-plan/workstream ownership boundaries, and duplicate live-state prevention only`
 - One Active Cycle: Required operationally while a cycle is in flight. A second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main; the standing Governance branch is the only branch class where merged source truth does not require a separate closeout PR solely to clear or rewrite the cycle ledger.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
