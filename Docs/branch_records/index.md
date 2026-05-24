@@ -137,6 +137,7 @@ Do not use this layer to replace:
 ## Historical Branch Authority Records
 
 - `Docs/branch_records/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
+- `Docs/branch_records/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
 - `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md`
