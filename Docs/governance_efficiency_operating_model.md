@@ -294,20 +294,23 @@ The generated review dossier and index must expose these decisions through a USE
 
 ## USER Review Desktop Bundle Rule
 
-When Codex asks USER to inspect repo files, review a generated dossier, approve a planning packet, or compare a source-truth reform surface, Codex must create or refresh a USER-facing review bundle folder on the user's Desktop.
+When Codex asks USER to inspect repo files, review a generated dossier, approve a planning packet, or compare a source-truth reform surface, Codex must create or refresh the USER-facing stable Desktop review folder for the active worktree.
 
 The Desktop bundle must:
 
-- live under the discovered Desktop path, preferring `C:\Users\<user>\OneDrive\Desktop` when available and `C:\Users\<user>\Desktop` otherwise
+- live under one stable Desktop root, `Nexus USER Review`, under the discovered Desktop path, preferring `C:\Users\<user>\OneDrive\Desktop\Nexus USER Review` when available and `C:\Users\<user>\Desktop\Nexus USER Review` otherwise
+- use one child folder per active worktree label, derived from the current worktree root folder name when USER does not provide a label, such as `Governance`, `FAM-006`, or `FAM-007`
+- refresh the same worktree-labeled child folder instead of creating a new top-level Desktop folder for each review packet
+- copy the selected review files as flat files directly inside the worktree-labeled child folder, with traceable filenames when needed to avoid basename collisions, rather than creating constantly changing nested review folders
 - include a `START_HERE.md` file with `Review Purpose:`, source repo, `Source Branch:`, `Source HEAD:`, upstream, `origin/main:`, `Validation Summary:`, `Review Order`, `Exact USER Decision This Bundle Supports:`, `Pending USER Decisions`, copied source paths, explicit bundle/copy file counts, and an extra-file count for stale artifacts left in non-cleared folders
 - copy only the files relevant to the requested review, not the whole repo or unrelated artifacts
-- preserve repo-relative paths inside the bundle so copied files remain traceable to source truth
+- preserve source traceability in `START_HERE.md` so every flat copied file maps back to its repo-relative source path
 - be refreshed when the underlying review files change
 - never replace source-truth files, commit artifacts, validation proof, or branch authority records
 
 For Workstream Entry, the Desktop bundle is required before USER green-lights implementation when the branch has runtime, user-facing, source-truth, helper/validator, or workflow impact. The bundle must copy the branch vision, active Branch Runtime Engineering Plan or Branch Engineering Plan, Element-to-Phase Proof Matrix owner, branch authority record, relevant Nexus/family vision files, UFD/change-intent surfaces when applicable, and any other source-truth files the USER needs to inspect. The Workstream Entry digest must report the folder path, copied files, and whole-package analysis status when multiple slices or seams are admitted.
 
-For governance review or PR-readiness review, the Desktop bundle should be self-checking: `Bundle File Count:` reports the actual file count present in the bundle after copy plus `START_HERE.md`, `Copied File Count:` counts copied repo files only, `Expected File Count:` must match the intended copied repo-file count, and `Extra Bundle File Count:` reports stale or unrelated files that remain when a bundle is refreshed without `--clear`. Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation. If the Desktop path cannot be discovered or the folder cannot be created, stop with `USER Review Desktop Bundle Missing` and return the exact blocker plus the copy command or helper command USER can run.
+For governance review or PR-readiness review, the Desktop bundle should be self-checking: `Bundle File Count:` reports the actual file count present in the worktree review folder after copy plus `START_HERE.md`, `Copied File Count:` counts copied repo files only, `Expected File Count:` must match the intended copied repo-file count, and `Extra Bundle File Count:` reports stale or unrelated files that remain when a bundle is refreshed without `--clear`. Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation; the helper defaults to `Nexus USER Review\<worktree-label>` and should not require USER to name a new folder for active worktrees. If the Desktop path cannot be discovered or the folder cannot be created, stop with `USER Review Desktop Bundle Missing` and return the exact blocker plus the copy command or helper command USER can run.
 
 ## Standing Governance Ledger Compaction
 

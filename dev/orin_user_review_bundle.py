@@ -1,22 +1,26 @@
 # NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=user-review-bundle-helper; status=shared
 """Create a USER-facing Desktop review bundle from selected repo files.
 
-This helper copies review files to a folder on the user's Desktop so USER review
-does not depend on manually browsing the worktree. It never edits repo files.
+This helper copies review files to a stable worktree-labeled folder on the
+user's Desktop so USER review does not depend on manually browsing the
+worktree. It never edits repo files.
 """
 
 from __future__ import annotations
 
 import argparse
 import os
+import re
 import shutil
 import stat
 import subprocess
+from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_REVIEW_ROOT_NAME = "Nexus USER Review"
 
 
 def _desktop_path() -> Path:
@@ -27,12 +31,29 @@ def _desktop_path() -> Path:
     return home / "Desktop"
 
 
-def _safe_target(desktop: Path, folder_name: str) -> Path:
-    target = (desktop / folder_name).resolve()
+def _sanitize_folder_name(name: str) -> str:
+    sanitized = re.sub(r'[<>:"/\\|?*]+', "_", name).strip(" .")
+    sanitized = re.sub(r"\s+", " ", sanitized)
+    if not sanitized:
+        raise ValueError("Review bundle folder name is empty after sanitization")
+    return sanitized
+
+
+def _worktree_label(explicit_label: str | None) -> str:
+    if explicit_label:
+        return _sanitize_folder_name(explicit_label)
+    return _sanitize_folder_name(ROOT.name)
+
+
+def _safe_target(desktop: Path, review_root_name: str, worktree_label: str) -> tuple[Path, Path]:
+    review_root = (desktop / _sanitize_folder_name(review_root_name)).resolve()
+    target = (review_root / _sanitize_folder_name(worktree_label)).resolve()
     desktop_resolved = desktop.resolve()
-    if target == desktop_resolved or desktop_resolved not in target.parents:
+    if review_root == desktop_resolved or desktop_resolved not in review_root.parents:
+        raise ValueError(f"Refusing to write review root outside Desktop: {review_root}")
+    if target == review_root or review_root not in target.parents:
         raise ValueError(f"Refusing to write outside Desktop: {target}")
-    return target
+    return review_root, target
 
 
 def _clear_readonly(function, path: str, _exc_info) -> None:
@@ -47,15 +68,35 @@ def _clear_target(target: Path) -> None:
         shutil.rmtree(target, onerror=_clear_readonly)
 
 
-def _copy_file(relative_file: str, target: Path) -> tuple[str, str]:
+def _flat_copy_name(relative_file: str) -> str:
+    normalized = Path(relative_file).as_posix().replace("\\", "/")
+    return normalized.replace("/", "__")
+
+
+def _copy_names(files: list[str]) -> list[str]:
+    basename_counts = Counter(Path(file_name).name for file_name in files)
+    names: list[str] = []
+    used: set[str] = set()
+    for file_name in files:
+        basename = Path(file_name).name
+        copy_name = basename if basename_counts[basename] == 1 else _flat_copy_name(file_name)
+        if copy_name in used:
+            copy_name = _flat_copy_name(file_name)
+        if copy_name in used:
+            raise ValueError(f"Review bundle filename collision: {copy_name}")
+        used.add(copy_name)
+        names.append(copy_name)
+    return names
+
+
+def _copy_file(relative_file: str, target: Path, copy_name: str) -> tuple[str, str]:
     source = (ROOT / relative_file).resolve()
     if not source.is_file():
         raise FileNotFoundError(f"Review source file not found: {relative_file}")
     if ROOT.resolve() not in source.parents:
         raise ValueError(f"Review source file is outside repo: {relative_file}")
 
-    destination = target / relative_file
-    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination = target / copy_name
     shutil.copy2(source, destination)
     return source.relative_to(ROOT).as_posix(), destination.relative_to(target).as_posix()
 
@@ -84,7 +125,8 @@ def _bundle_files(target: Path) -> set[Path]:
 
 def build_bundle(
     *,
-    folder_name: str,
+    review_root_name: str,
+    worktree_label: str | None,
     files: list[str],
     title: str,
     clear: bool,
@@ -96,12 +138,16 @@ def build_bundle(
     expected_file_count: int | None,
 ) -> Path:
     desktop = _desktop_path()
-    target = _safe_target(desktop, folder_name)
+    label = _worktree_label(worktree_label)
+    review_root, target = _safe_target(desktop, review_root_name, label)
     if clear and target.exists():
         _clear_target(target)
     target.mkdir(parents=True, exist_ok=True)
 
-    copied = [_copy_file(file_name, target) for file_name in files]
+    copied = [
+        _copy_file(file_name, target, copy_name)
+        for file_name, copy_name in zip(files, _copy_names(files), strict=True)
+    ]
     copied_count = len(copied)
     copied_targets = {(target / copied_rel).resolve() for _source_rel, copied_rel in copied}
     expected_count = expected_file_count if expected_file_count is not None else copied_count
@@ -132,6 +178,9 @@ def build_bundle(
         "",
         f"Review Purpose: {review_purpose}",
         f"Source Repo: `{ROOT}`",
+        f"Review Root: `{review_root}`",
+        f"Worktree Review Folder: `{target}`",
+        f"Worktree Label: `{label}`",
         f"Source Branch: `{source_branch}`",
         f"Source HEAD: `{source_head}`",
         f"Upstream: `{upstream}`",
@@ -171,7 +220,22 @@ def build_bundle(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--folder-name", required=True, help="Desktop folder name to create or refresh.")
+    parser.add_argument(
+        "--review-root-name",
+        default=DEFAULT_REVIEW_ROOT_NAME,
+        help="Stable Desktop review root folder name.",
+    )
+    parser.add_argument(
+        "--worktree-label",
+        help="Optional worktree child folder label. Defaults to the current worktree folder name.",
+    )
+    parser.add_argument(
+        "--folder-name",
+        help=(
+            "Legacy alias for --worktree-label. New governance expects a stable "
+            "review root with an auto-derived worktree label."
+        ),
+    )
     parser.add_argument("--title", default="Nexus Review Bundle", help="Title for START_HERE.md.")
     parser.add_argument("--clear", action="store_true", help="Delete the existing Desktop bundle folder before copying.")
     parser.add_argument(
@@ -210,7 +274,8 @@ def main() -> int:
     args = parser.parse_args()
 
     target = build_bundle(
-        folder_name=args.folder_name,
+        review_root_name=args.review_root_name,
+        worktree_label=args.worktree_label or args.folder_name,
         files=args.files,
         title=args.title,
         clear=args.clear,
