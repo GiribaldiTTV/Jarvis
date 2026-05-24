@@ -8,6 +8,7 @@ provider SDKs, persist memory, probe hardware, or infer a configured provider.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
@@ -1171,6 +1172,8 @@ CONSENT_DURABLE_PROVENANCE_LOCAL_STORE = "durable_local_consent_store"
 CONSENT_DURABLE_DEFAULT_RECORD_ID = "local-durable-consent-record"
 CONSENT_DURABLE_DEFAULT_AUDIT_EVENT_ID = "local-durable-consent-audit"
 CONSENT_DURABLE_RECORD_FILENAME = "provider_durable_consent_record.json"
+CONSENT_DURABLE_STORE_DIR_ENV = "NEXUS_PROVIDER_DURABLE_CONSENT_STORE_DIR"
+CONSENT_DURABLE_STORE_DIRNAME = "provider_consent"
 CONSENT_UX_STATE_SCHEMA_VERSION = "provider-user-operated-consent-ux-state.v1"
 CONSENT_UX_INTENT_SCHEMA_VERSION = "provider-user-operated-consent-ux-intent.v1"
 CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT = (
@@ -7961,6 +7964,26 @@ def normalize_provider_durable_consent_record(
         fail_closed_reason=fail_closed_reason,
         no_secrets=no_secrets,
         provider_payload_excluded=provider_payload_excluded,
+    )
+
+
+def resolve_default_provider_durable_consent_store_dir() -> Path:
+    """Resolve the local-only durable consent store directory for desktop runtime."""
+
+    override = os.environ.get(CONSENT_DURABLE_STORE_DIR_ENV, "").strip()
+    if override:
+        return Path(override)
+
+    local_app_data = os.environ.get("LOCALAPPDATA", "").strip()
+    if local_app_data:
+        return Path(local_app_data) / "Nexus Desktop AI" / CONSENT_DURABLE_STORE_DIRNAME
+
+    return (
+        Path.home()
+        / "AppData"
+        / "Local"
+        / "Nexus Desktop AI"
+        / CONSENT_DURABLE_STORE_DIRNAME
     )
 
 

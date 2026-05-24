@@ -39,6 +39,7 @@ from .interaction_overlay_model import CommandOverlayModel
 from .ai_provider_state import (
     build_default_provider_readiness_config,
     build_provider_user_operated_consent_ux_foundation_state,
+    resolve_default_provider_durable_consent_store_dir,
 )
 from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from .monitoring_hud_placement import build_monitoring_hud_placement_contract
@@ -5757,9 +5758,13 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.create_custom_group_requested.connect(self.handle_create_custom_group_requested)
         self._command_panel.created_groups_requested.connect(self.handle_created_groups_requested)
         self._command_panel.edit_saved_action_requested.connect(self.handle_edit_saved_action_requested)
+        self._provider_durable_consent_store_dir = (
+            resolve_default_provider_durable_consent_store_dir()
+        )
         self._ai_provider_state = build_provider_user_operated_consent_ux_foundation_state(
             build_default_provider_readiness_config(),
             surface_role=self.surface_role,
+            durable_consent_store_dir=self._provider_durable_consent_store_dir,
         )
         self._result_close_timer = QTimer(self)
         self._result_close_timer.setSingleShot(True)

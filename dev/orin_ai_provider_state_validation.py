@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 import tempfile
 from datetime import datetime, timezone
@@ -7372,6 +7373,41 @@ def validate() -> list[str]:
         and single_snapshot_payload["consentUxRevocationResetState"]
         == CONSENT_UX_STATE_READY_LOCAL_ONLY,
         "consent UX state must derive from the single durable snapshot already present in provider state",
+        failures,
+    )
+
+    previous_durable_store_override = os.environ.get(
+        ai_provider_state.CONSENT_DURABLE_STORE_DIR_ENV
+    )
+    durable_store_override = Path("validator-durable-consent-store-override")
+    os.environ[ai_provider_state.CONSENT_DURABLE_STORE_DIR_ENV] = str(
+        durable_store_override
+    )
+    try:
+        resolved_durable_store_override = (
+            ai_provider_state.resolve_default_provider_durable_consent_store_dir()
+        )
+    finally:
+        if previous_durable_store_override is None:
+            os.environ.pop(ai_provider_state.CONSENT_DURABLE_STORE_DIR_ENV, None)
+        else:
+            os.environ[
+                ai_provider_state.CONSENT_DURABLE_STORE_DIR_ENV
+            ] = previous_durable_store_override
+
+    _require(
+        resolved_durable_store_override == durable_store_override,
+        "durable consent store resolver must honor the explicit local store override",
+        failures,
+    )
+    _require(
+        "resolve_default_provider_durable_consent_store_dir" in renderer
+        and "durable_consent_store_dir=self._provider_durable_consent_store_dir"
+        in renderer
+        and "resolve_default_provider_durable_consent_store_dir" in core_renderer
+        and "durable_consent_store_dir=self._provider_durable_consent_store_dir"
+        in core_renderer,
+        "desktop and Core renderers must pass the durable consent store path into consent UX state",
         failures,
     )
     _require(

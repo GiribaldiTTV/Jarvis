@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 from .ai_provider_state import (
     build_default_provider_readiness_config,
     build_provider_user_operated_consent_ux_foundation_state,
+    resolve_default_provider_durable_consent_store_dir,
 )
 from .workerw_utils import (
     attach_window_to_desktop,
@@ -37,9 +38,13 @@ class CoreVisualizationWindow(QWidget):
         self._is_shutting_down = False
         self._pending_visual_state = "dormant"
         self._pending_voice_level = None
+        self._provider_durable_consent_store_dir = (
+            resolve_default_provider_durable_consent_store_dir()
+        )
         self._ai_provider_state = build_provider_user_operated_consent_ux_foundation_state(
             build_default_provider_readiness_config(),
             surface_role="core",
+            durable_consent_store_dir=self._provider_durable_consent_store_dir,
         )
         self._desktop_layer_attached = False
         self._desktop_layer_logged = False
