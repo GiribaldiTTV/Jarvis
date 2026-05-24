@@ -103,7 +103,7 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: USER-assigned runtime slot for FAM-007 User-Operated Consent UX Foundation Workstream carrier; Workstream/H1/LV1 Green with PR Readiness Stage 1 pending
+- Assignment Status: USER-assigned runtime slot for FAM-007 User-Operated Consent UX Foundation Workstream carrier; Workstream/H1/LV1 Green with PR Readiness Stage 1 merge-stable projection recorded
 - Assigned Branch: `feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation`
 - Assigned Family / Workstream: `FAM-007 Local AI Provider User-Operated Consent UX Foundation`
 - Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
