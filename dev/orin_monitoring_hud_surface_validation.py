@@ -207,6 +207,10 @@ def validate() -> list[str]:
         "Primary Interface Release Surface:",
         "Interface Bundle User Approval:",
         "Multiple Interface Release Drift",
+        "direct JavaScript `.click()`",
+        "diagnostic-only",
+        "real OS-level mouse/keyboard input",
+        "visibly move the real Windows cursor",
     ):
         _require_contains(phase_governance, needle, "interface release boundary governance", failures)
     for needle in (
@@ -302,7 +306,7 @@ def validate() -> list[str]:
         ".monitoring-hud__source-settings-body:focus-visible",
         ".monitoring-hud input[type=\"checkbox\"]:checked.is-hovered",
         ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown",
-        "grid-template-columns: max-content minmax(190px, 240px) minmax(150px, 1fr)",
+        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)",
         "width: min(900px, calc(100% - 40px))",
         "grid-template-columns: minmax(0, 1fr)",
         "body.desktop-mode .monitoring-hud__child-window--overlay-profile",
@@ -547,7 +551,6 @@ def validate() -> list[str]:
         'data-overlay-profile-outer-scroll-policy="normal-no-scroll-emergency-compact-scroll"',
         'id="monitoring-hud-overlay-profile-window-selector"',
         'data-visible-option-target="max-five"',
-        'id="monitoring-hud-overlay-profile-window-select-label"',
         'id="monitoring-hud-overlay-profile-name-input"',
         'id="monitoring-hud-overlay-profile-monitor-search"',
         'id="monitoring-hud-overlay-profile-monitor-filter"',
@@ -566,7 +569,7 @@ def validate() -> list[str]:
         'data-overlay-assignment-window="monitor-group-overlay-status-assignment"',
         'data-child-window="sensor-source-settings"',
         'data-source-settings-window="source-list-sensor-settings"',
-        "Select Profile to Edit",
+        "Profile to Edit:",
         'data-recording-profile-state="recording-profile-state-absent-future-gated"',
         'aria-label="Nexus Desktop AI Monitoring HUD product surface"',
         'aria-label="HUD Dashboard control hub cards"',
@@ -803,7 +806,7 @@ def validate() -> list[str]:
         and "data-child-window=\"overlay-profile-settings\"" in html
         and 'data-overlay-profile-window="select-profile-to-edit-create-right-save-required"' in html
         and 'data-overlay-profile-visual-repair="manager-selector-same-row-compact-unclipped-proof"' in html
-        and 'data-overlay-profile-manager-row="selector-label-dropdown-create-right"' in html
+        and 'data-overlay-profile-manager-row="selector-dropdown-create-right-equal"' in html
         and 'data-overlay-profile-visible-monitor-target="max-five"' in html
         and 'data-scrollbar-style="ndai-native"' in html
         and 'data-overlay-profile-route="assigned-overlay-status-window"' in html
@@ -814,7 +817,7 @@ def validate() -> list[str]:
         and 'data-monitor-detail-placement="below-sensor-source"' in html
         and html.find('data-monitor-detail-card="sensor-source"') < html.find('data-monitor-detail-placement="below-sensor-source"')
         and 'data-bounded-dropdown="overlay-profile-monitor-filter"' in html
-        and 'id="monitoring-hud-overlay-profile-window-select-label"' in html
+        and 'id="monitoring-hud-overlay-profile-window-select-label"' not in html
         and 'id="monitoring-hud-overlay-profile-delete"' in html
         and 'data-child-window="monitor-overlay-assignment"' in html
         and 'data-source-settings-window="source-list-sensor-settings"' in html
@@ -855,7 +858,7 @@ def validate() -> list[str]:
         failures,
     )
     _require(
-        "grid-template-columns: max-content minmax(190px, 240px) minmax(150px, 1fr)" in css
+        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)" in css
         and "width: min(900px, calc(100% - 40px))" in css
         and "min-width: min(720px, calc(100% - 40px))" in css
         and "max-height: min(720px, calc(100% - 40px))" in css
@@ -873,13 +876,15 @@ def validate() -> list[str]:
         and "min-height: 54px" in css
         and "max-height: 68px" in css
         and "max-height: 88px" in css
-        and "max-width: 220px;" in css
+        and "max-width: none;" in css
         and ".monitoring-hud__overlay-profile-window-actions-right" in css
         and "monitoringHudOverlayProfilePendingCreate" in js
         and "monitorIds: []" in js
         and "select-loads-edit-create-draft-save-required" in js
         and "padding-right: 14px;" in css
         and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css
+        and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown-toggle" in css
+        and "height: 38px;" in css
         and "min-width: min(420px, calc(100% - 28px))" in css
         and "@media (max-width: 360px)" in css
         and "max-height: 132px;" in css
@@ -2256,8 +2261,23 @@ def validate() -> list[str]:
         "manifest.json",
         "Stop-Process -Id $script:RuntimeProcess.Id -Force",
         "No-progress watchdog exceeded",
+        "Assert-NoSyntheticLiveValidationInteraction",
+        "no-synthetic-interaction preflight",
+        "active route contains synthetic interaction code",
+        "lacks real OS-level mouse input proof",
+        "JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned",
     ):
         _require_contains(live_validation, needle, "monitoring HUD live validation helper", failures)
+    for needle in (
+        "real-os-mouse-cursor-move-down-up",
+        "realOsInputProof",
+        "automatedOsClickAttempted",
+        "directJsClickUsed",
+        "Overlay Profile manager selector real OS mouse click sent",
+        "Overlay Profile manager selector option real OS mouse hover sent",
+        "proof requires real OS-level mouse input before UTS",
+    ):
+        _require_contains(renderer, needle, "monitoring HUD renderer live interaction proof", failures)
 
     return failures
 

@@ -1177,21 +1177,12 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__overlay-profile-manager-row {
   display: grid;
-  grid-template-columns: max-content minmax(190px, 240px) minmax(150px, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px;
   align-items: center;
   position: relative;
   z-index: 4;
   padding: 12px;
-}
-
-.monitoring-hud__overlay-profile-window-select-label {
-  color: rgba(125, 222, 244, 0.88);
-  font-size: 11px;
-  font-weight: 760;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .monitoring-hud__overlay-profile-manager-row > .monitoring-hud__hub-action {
@@ -1208,13 +1199,20 @@ body.desktop-mode #monitoring-hud > * {
   justify-self: stretch;
   width: 100%;
   min-width: 0;
-  max-width: 220px;
+  max-width: none;
   z-index: 5;
 }
 
 .monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown {
   min-width: 0;
-  max-width: 220px;
+  max-width: none;
+}
+
+.monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown-toggle {
+  min-height: 38px;
+  height: 38px;
+  border-radius: 999px;
+  padding: 8px 20px;
 }
 
 .monitoring-hud__overlay-profile-manager-meta {
@@ -1830,11 +1828,7 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
 
 @media (max-width: 680px) {
   .monitoring-hud__overlay-profile-manager-row {
-    grid-template-columns: minmax(0, 1fr) minmax(150px, 180px);
-  }
-
-  .monitoring-hud__overlay-profile-window-select-label {
-    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown {
@@ -2868,7 +2862,7 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
 
 @media (max-width: 880px) {
   .monitoring-hud__overlay-profile-manager-row {
-    grid-template-columns: max-content minmax(190px, 240px) minmax(150px, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
     padding: 12px;
   }
@@ -2876,7 +2870,7 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
   .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
     width: 100%;
     min-width: 0;
-    max-width: 220px;
+    max-width: none;
   }
 }
 

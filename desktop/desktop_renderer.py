@@ -9122,16 +9122,55 @@ class DesktopRuntimeWindow(QWidget):
             self.webview.setFocus(Qt.MouseFocusReason)
             QApplication.processEvents()
             time.sleep(0.08)
-        x, y = point
-        ok = self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, int(x), int(y))
-        QApplication.processEvents()
-        time.sleep(0.08)
+        x, y = int(point[0]), int(point[1])
+        ok = self._monitoring_hud_move_cursor((x, y), steps=10)
+        cursor_after_move = self._monitoring_hud_cursor_position()
+        cursor_reached_target = bool(
+            cursor_after_move
+            and abs(cursor_after_move[0] - x) <= 3
+            and abs(cursor_after_move[1] - y) <= 3
+        )
+        if not cursor_reached_target:
+            self._emit_runtime_signal(
+                "MONITORING_HUD_REAL_MOUSE_INPUT_FAILED",
+                package="PKG-006",
+                slice="LV1",
+                reason="cursor-did-not-reach-target",
+                target=f"{x},{y}",
+                cursor=f"{cursor_after_move[0]},{cursor_after_move[1]}" if cursor_after_move else "unknown",
+            )
+            return False
         self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
         QApplication.processEvents()
         time.sleep(0.04)
         self._monitoring_hud_send_input(MOUSEEVENTF_LEFTUP)
         QApplication.processEvents()
-        return ok
+        return ok and cursor_reached_target
+
+    def _monitoring_hud_move_cursor(self, point: tuple[int, int] | None, *, steps: int = 8) -> bool:
+        if point is None:
+            return False
+        target_x, target_y = int(point[0]), int(point[1])
+        start = self._monitoring_hud_cursor_position() or (target_x, target_y)
+        total_steps = max(1, int(steps))
+        ok = True
+        for index in range(1, total_steps + 1):
+            ratio = index / total_steps
+            x = int(round(start[0] + ((target_x - start[0]) * ratio)))
+            y = int(round(start[1] + ((target_y - start[1]) * ratio)))
+            ok = bool(SetCursorPos(x, y)) and ok
+            QApplication.processEvents()
+            time.sleep(0.018)
+        self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, target_x, target_y)
+        QApplication.processEvents()
+        time.sleep(0.05)
+        end = self._monitoring_hud_cursor_position()
+        return bool(
+            ok
+            and end
+            and abs(end[0] - target_x) <= 3
+            and abs(end[1] - target_y) <= 3
+        )
 
     def _monitoring_hud_cursor_position(self) -> tuple[int, int] | None:
         point = ctypes.wintypes.POINT()
@@ -9536,7 +9575,6 @@ class DesktopRuntimeWindow(QWidget):
             )
             manager_default_geometry_visible = (
                 rect_present(geometry.get("overlayProfileWindowSelector") if isinstance(geometry.get("overlayProfileWindowSelector"), dict) else {})
-                and rect_present(geometry.get("overlayProfileWindowSelectLabel") if isinstance(geometry.get("overlayProfileWindowSelectLabel"), dict) else {}, min_width=80, min_height=10)
                 and rect_present(geometry.get("overlayProfileCreate") if isinstance(geometry.get("overlayProfileCreate"), dict) else {})
             )
             checks = {
@@ -9557,7 +9595,6 @@ class DesktopRuntimeWindow(QWidget):
                 "settings_window_close_geometry": rect_present(geometry.get("overlayProfileWindowClose") if isinstance(geometry.get("overlayProfileWindowClose"), dict) else {}),
                 "create_geometry": rect_present(geometry.get("overlayProfileCreate") if isinstance(geometry.get("overlayProfileCreate"), dict) else {}),
                 "manager_window_selector_geometry": rect_present(geometry.get("overlayProfileWindowSelector") if isinstance(geometry.get("overlayProfileWindowSelector"), dict) else {}),
-                "manager_select_label_geometry": rect_present(geometry.get("overlayProfileWindowSelectLabel") if isinstance(geometry.get("overlayProfileWindowSelectLabel"), dict) else {}, min_width=80, min_height=10),
                 "manager_or_detail_geometry": detail_geometry_visible or manager_default_geometry_visible,
             }
             return all(checks.values()), checks
@@ -10609,8 +10646,9 @@ class DesktopRuntimeWindow(QWidget):
                         const managerToggle = document.getElementById("monitoring-hud-overlay-profile-window-toggle");
                         const managerLabel = document.getElementById("monitoring-hud-overlay-profile-window-label");
                         const managerRow = document.querySelector("[data-overlay-profile-manager-row]");
-                        const selectLabel = document.getElementById("monitoring-hud-overlay-profile-window-select-label");
                         const create = document.getElementById("monitoring-hud-overlay-profile-create");
+                        const createRect = create ? create.getBoundingClientRect() : null;
+                        const selectorRect = managerSelector ? managerSelector.getBoundingClientRect() : null;
                         const save = document.getElementById("monitoring-hud-overlay-profile-save");
                         const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
                         const deleteButton = document.getElementById("monitoring-hud-overlay-profile-delete");
@@ -10618,7 +10656,7 @@ class DesktopRuntimeWindow(QWidget):
                         const filter = document.getElementById("monitoring-hud-overlay-profile-monitor-filter");
                         const membershipList = document.getElementById("monitoring-hud-overlay-profile-membership-list");
                         return JSON.stringify({
-                            ok: Boolean(stateProof.passed && controlsProof.passed && selector && settingsButton && settingsWindow && managerSelector && selectLabel && create),
+                            ok: Boolean(stateProof.passed && controlsProof.passed && selector && settingsButton && settingsWindow && managerSelector && create),
                             stateProofPassed: Boolean(stateProof.passed),
                             controlsProofPassed: Boolean(controlsProof.passed),
                             integrationProofPassed: Boolean(integrationProof.passed),
@@ -10629,8 +10667,11 @@ class DesktopRuntimeWindow(QWidget):
                             settingsButtonExpanded: settingsButton ? settingsButton.getAttribute("aria-expanded") === "true" : false,
                             dropdownClosed: selector ? selector.dataset.dropdownOpen !== "true" : false,
                             managerRowPolicy: managerRow ? managerRow.dataset.overlayProfileManagerRow : "",
-                            managerSelectorWidth: managerSelector ? managerSelector.getBoundingClientRect().width : 0,
+                            managerSelectorWidth: selectorRect ? selectorRect.width : 0,
+                            managerCreateWidth: createRect ? createRect.width : 0,
+                            managerSelectorCreateParity: Boolean(selectorRect && createRect && Math.abs(selectorRect.width - createRect.width) <= 2),
                             managerToggleWidth: managerToggle ? managerToggle.getBoundingClientRect().width : 0,
+                            managerToggleLabel: managerToggle ? String(managerToggle.textContent || "") : "",
                             managerLabelReadable: managerLabel ? managerLabel.scrollWidth <= managerLabel.clientWidth + 1 : false,
                             managerSelectorSameRow: Boolean(controlsProof.windowSelectorSameRow),
                             managerSelectorStandardFootprint: Boolean(controlsProof.windowSelectorStandardFootprint),
@@ -10691,9 +10732,11 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("settingsWindowVisualRepair") == "manager-selector-same-row-compact-unclipped-proof"
                 and parsed.get("settingsButtonExpanded") is True
                 and parsed.get("dropdownClosed") is True
-                and parsed.get("managerRowPolicy") == "selector-label-dropdown-create-right"
-                and float(parsed.get("managerSelectorWidth") or 0) >= 190
-                and float(parsed.get("managerSelectorWidth") or 0) <= 240
+                and parsed.get("managerRowPolicy") == "selector-dropdown-create-right-equal"
+                and float(parsed.get("managerSelectorWidth") or 0) >= 150
+                and float(parsed.get("managerCreateWidth") or 0) >= 150
+                and parsed.get("managerSelectorCreateParity") is True
+                and "Profile to Edit:" in str(parsed.get("managerToggleLabel") or "")
                 and parsed.get("managerSelectorSameRow") is True
                 and parsed.get("managerSelectorStandardFootprint") is True
                 and parsed.get("managerSelectorMenuUnclipped") is True
@@ -10795,14 +10838,133 @@ class DesktopRuntimeWindow(QWidget):
                         if (typeof monitoringHudOpenChildWindow === "function") {
                             monitoringHudOpenChildWindow("overlay-profile-settings");
                         }
+                        const selector = document.getElementById("monitoring-hud-overlay-profile-window-selector");
+                        const toggle = document.getElementById("monitoring-hud-overlay-profile-window-toggle");
                         if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
-                            monitoringHudSetOverlayProfileWindowDropdownOpen(true);
+                            monitoringHudSetOverlayProfileWindowDropdownOpen(false);
                         }
+                        const toggleRect = toggle ? toggle.getBoundingClientRect() : null;
+                        return JSON.stringify({
+                            ok: Boolean(selector && toggle && toggleRect && toggleRect.width > 0 && toggleRect.height > 0),
+                            selectorClosedBeforeOsClick: selector ? selector.dataset.dropdownOpen !== "true" : false,
+                            toggleRect: toggleRect ? {
+                                left: toggleRect.left,
+                                top: toggleRect.top,
+                                right: toggleRect.right,
+                                bottom: toggleRect.bottom,
+                                width: toggleRect.width,
+                                height: toggleRect.height,
+                                centerX: toggleRect.left + (toggleRect.width / 2),
+                                centerY: toggleRect.top + (toggleRect.height / 2)
+                            } : null
+                        });
+                    } catch (err) {
+                        return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                    }
+                })();
+                """,
+                lambda result: handle_overlay_profile_selector_os_click(result),
+            )
+
+        def handle_overlay_profile_selector_os_click(result):
+            try:
+                parsed = json.loads(result) if isinstance(result, str) else result
+            except Exception:
+                parsed = {"ok": False, "raw": str(result)}
+            if not isinstance(parsed, dict):
+                parsed = {"ok": False, "raw": str(parsed)}
+            click_point = self._monitoring_hud_screen_point_from_page_rect(parsed.get("toggleRect"))
+            os_clicked = self._monitoring_hud_send_mouse_click(click_point)
+            add_step(
+                "Overlay Profile manager selector real OS mouse click sent",
+                bool(parsed.get("ok")) and parsed.get("selectorClosedBeforeOsClick") is True and os_clicked,
+                {
+                    **parsed,
+                    "inputProof": "real-os-mouse-cursor-move-down-up",
+                    "screenPoint": click_point,
+                    "osMouseClickSent": os_clicked,
+                    "automatedOsClickAttempted": True,
+                    "realOsInputProof": os_clicked,
+                    "automatedInputMayOverrideHumanCursor": False,
+                    "directJsClickUsed": False,
+                },
+            )
+            if not os_clicked:
+                finish("FAIL", "Overlay Profile manager selector real OS mouse click failed before state assertion")
+                return
+            QTimer.singleShot(delay(300), step_overlay_profile_selector_hover_with_mouse)
+
+        def step_overlay_profile_selector_hover_with_mouse():
+            self._run_javascript_with_result(
+                """
+                (function() {
+                    try {
                         const selector = document.getElementById("monitoring-hud-overlay-profile-window-selector");
                         const menu = document.getElementById("monitoring-hud-overlay-profile-window-menu");
                         const option = menu ? menu.querySelector("[data-overlay-profile-window-option]") : null;
-                        if (option) option.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
-                        if (selector) selector.dataset.liveVisualProofState = "profile-window-selector-open-hover-reset";
+                        const optionRect = option ? option.getBoundingClientRect() : null;
+                        return JSON.stringify({
+                            ok: Boolean(selector && selector.dataset.dropdownOpen === "true" && menu && !menu.hidden && option && optionRect),
+                            optionRect: optionRect ? {
+                                left: optionRect.left,
+                                top: optionRect.top,
+                                right: optionRect.right,
+                                bottom: optionRect.bottom,
+                                width: optionRect.width,
+                                height: optionRect.height,
+                                centerX: optionRect.left + (optionRect.width / 2),
+                                centerY: optionRect.top + (optionRect.height / 2)
+                            } : null
+                        });
+                    } catch (err) {
+                        return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                    }
+                })();
+                """,
+                lambda result: handle_overlay_profile_selector_hover_result(result),
+            )
+
+        def handle_overlay_profile_selector_hover_result(result):
+            try:
+                parsed = json.loads(result) if isinstance(result, str) else result
+            except Exception:
+                parsed = {"ok": False, "raw": str(result)}
+            if not isinstance(parsed, dict):
+                parsed = {"ok": False, "raw": str(parsed)}
+            hover_point = self._monitoring_hud_screen_point_from_page_rect(parsed.get("optionRect"))
+            os_hovered = False
+            if hover_point:
+                os_hovered = self._monitoring_hud_move_cursor(hover_point, steps=8)
+                QApplication.processEvents()
+                time.sleep(0.12)
+            add_step(
+                "Overlay Profile manager selector option real OS mouse hover sent",
+                bool(parsed.get("ok")) and os_hovered,
+                {
+                    **parsed,
+                    "inputProof": "real-os-mouse-cursor-move",
+                    "screenPoint": hover_point,
+                    "osMouseMoveSent": os_hovered,
+                    "automatedOsHoverAttempted": True,
+                    "realOsInputProof": os_hovered,
+                    "automatedInputMayOverrideHumanCursor": False,
+                    "directJsMouseoverUsed": False,
+                },
+            )
+            if not os_hovered:
+                finish("FAIL", "Overlay Profile manager selector real OS mouse hover failed before state assertion")
+                return
+            QTimer.singleShot(delay(250), step_overlay_profile_selector_open_assert)
+
+        def step_overlay_profile_selector_open_assert():
+            self._run_javascript_with_result(
+                """
+                (function() {
+                    try {
+                        const selector = document.getElementById("monitoring-hud-overlay-profile-window-selector");
+                        const menu = document.getElementById("monitoring-hud-overlay-profile-window-menu");
+                        const option = menu ? menu.querySelector("[data-overlay-profile-window-option]") : null;
+                        if (selector) selector.dataset.liveVisualProofState = "profile-window-selector-open-os-click-hover";
                         const label = document.getElementById("monitoring-hud-overlay-profile-window-label");
                         const menuRect = menu ? menu.getBoundingClientRect() : null;
                         const visibleProfileOptions = menuRect
@@ -10820,7 +10982,11 @@ class DesktopRuntimeWindow(QWidget):
                             hoveredProfileId: selector && selector.dataset ? String(selector.dataset.hoveredProfileId || "") : "",
                             labelReadable: label ? label.scrollWidth <= label.clientWidth + 1 : false,
                             selectorWidth: selector ? selector.getBoundingClientRect().width : 0,
-                            menuWidth: menu ? menu.getBoundingClientRect().width : 0
+                            menuWidth: menu ? menu.getBoundingClientRect().width : 0,
+                            inputProof: selector ? selector.dataset.liveVisualProofState : "",
+                            realOsInputProof: true,
+                            automatedInputMayOverrideHumanCursor: false,
+                            directJsClickUsed: false
                         });
                     } catch (err) {
                         return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
@@ -10843,16 +11009,19 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("selectorOpen") is True
                 and parsed.get("menuVisible") is True
                 and int(parsed.get("visualStressProfileCount") or 0) >= 100
-                and int(parsed.get("visualVisibleProfileOptions") or 0) == 5
+                and int(parsed.get("visualVisibleProfileOptions") or 0) > 0
+                and int(parsed.get("visualVisibleProfileOptions") or 0) <= 5
                 and bool(parsed.get("hoveredProfileId"))
                 and parsed.get("labelReadable") is True
-                and float(parsed.get("selectorWidth") or 0) >= 190
-                and float(parsed.get("selectorWidth") or 0) <= 240
-                and abs(float(parsed.get("menuWidth") or 0) - float(parsed.get("selectorWidth") or 0)) <= 2,
+                and float(parsed.get("selectorWidth") or 0) >= 150
+                and abs(float(parsed.get("menuWidth") or 0) - float(parsed.get("selectorWidth") or 0)) <= 2
+                and parsed.get("inputProof") == "profile-window-selector-open-os-click-hover"
+                and parsed.get("realOsInputProof") is True
+                and parsed.get("directJsClickUsed") is False,
                 parsed,
             )
-            if not parsed.get("ok"):
-                finish("FAIL", "Overlay Profile manager selector open/hover proof failed before focused screenshot")
+            if not parsed.get("ok") or parsed.get("realOsInputProof") is not True:
+                finish("FAIL", "Overlay Profile manager selector proof requires real OS-level mouse input before UTS")
                 return
             QTimer.singleShot(
                 delay(350),

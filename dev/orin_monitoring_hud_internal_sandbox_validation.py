@@ -115,6 +115,7 @@ def _validate_static_surface(failures: list[str]) -> None:
     html = _read("nexus_visual/monitoring_hud.html")
     css = _read("nexus_visual/monitoring_hud.css")
     js = _read("nexus_visual/monitoring_hud.js")
+    live_validation = _read("dev/orin_monitoring_hud_live_validation.ps1")
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
@@ -231,6 +232,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Primary Interface Release Surface:",
         "Interface Bundle User Approval:",
         "Branch Readiness Interface Planning Incomplete",
+        "direct JavaScript `.click()`",
+        "diagnostic-only",
+        "real OS-level mouse/keyboard input",
+        "visibly move the real Windows cursor",
     ):
         _require_contains(phase_governance, needle, "interface release boundary governance", failures)
     for needle in (
@@ -243,6 +248,14 @@ def _validate_static_surface(failures: list[str]) -> None:
         "direct-runtime active-client proof",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
+    for needle in (
+        "Assert-NoSyntheticLiveValidationInteraction",
+        "no-synthetic-interaction preflight",
+        "active route contains synthetic interaction code",
+        "lacks real OS-level mouse input proof",
+        "JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned",
+    ):
+        _require_contains(live_validation, needle, "monitoring HUD live validation helper", failures)
     for needle in (
         "SLC-041 validation/live-proof Workstream implementation Green",
         "SLC-041 Hardening H1 Green",
@@ -327,7 +340,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__source-settings-body:focus-visible",
         ".monitoring-hud input[type=\"checkbox\"]:checked.is-hovered",
         ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown",
-        "grid-template-columns: max-content minmax(190px, 240px) minmax(150px, 1fr)",
+        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)",
         "width: min(900px, calc(100% - 40px))",
         "grid-template-columns: minmax(0, 1fr)",
         "body.desktop-mode .monitoring-hud__child-window--overlay-profile",
@@ -576,7 +589,6 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-overlay-profile-outer-scroll-policy="normal-no-scroll-emergency-compact-scroll"',
         'id="monitoring-hud-overlay-profile-window-selector"',
         'data-visible-option-target="max-five"',
-        'id="monitoring-hud-overlay-profile-window-select-label"',
         'id="monitoring-hud-overlay-profile-name-input"',
         'id="monitoring-hud-overlay-profile-monitor-search"',
         'id="monitoring-hud-overlay-profile-monitor-filter"',
@@ -595,6 +607,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-overlay-assignment-window="monitor-group-overlay-status-assignment"',
         'data-child-window="sensor-source-settings"',
         'data-source-settings-window="source-list-sensor-settings"',
+        "Profile to Edit:",
         "Select an existing profile or create a new one first",
         'id="monitoring-hud-warning-toggle"',
         'id="monitoring-hud-settings-action"',
@@ -795,7 +808,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "data-child-window=\"overlay-profile-settings\"" in html
         and 'data-overlay-profile-window="select-profile-to-edit-create-right-save-required"' in html
         and 'data-overlay-profile-visual-repair="manager-selector-same-row-compact-unclipped-proof"' in html
-        and 'data-overlay-profile-manager-row="selector-label-dropdown-create-right"' in html
+        and 'data-overlay-profile-manager-row="selector-dropdown-create-right-equal"' in html
         and 'data-overlay-profile-visible-monitor-target="max-five"' in html
         and 'data-scrollbar-style="ndai-native"' in html
         and 'data-overlay-profile-route="assigned-overlay-status-window"' in html
@@ -806,7 +819,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         and 'data-monitor-detail-placement="below-sensor-source"' in html
         and html.find('data-monitor-detail-card="sensor-source"') < html.find('data-monitor-detail-placement="below-sensor-source"')
         and 'data-bounded-dropdown="overlay-profile-monitor-filter"' in html
-        and 'id="monitoring-hud-overlay-profile-window-select-label"' in html
+        and 'id="monitoring-hud-overlay-profile-window-select-label"' not in html
         and 'id="monitoring-hud-overlay-profile-delete"' in html
         and 'data-child-window="monitor-overlay-assignment"' in html
         and 'data-source-settings-window="source-list-sensor-settings"' in html
@@ -847,7 +860,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         failures,
     )
     _require(
-        "grid-template-columns: max-content minmax(190px, 240px) minmax(150px, 1fr)" in css
+        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)" in css
         and "width: min(900px, calc(100% - 40px))" in css
         and "min-width: min(720px, calc(100% - 40px))" in css
         and "max-height: min(720px, calc(100% - 40px))" in css
@@ -865,9 +878,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "min-height: 54px" in css
         and "max-height: 68px" in css
         and "max-height: 88px" in css
-        and "max-width: 220px;" in css
+        and "max-width: none;" in css
         and "padding-right: 14px;" in css
         and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css
+        and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown-toggle" in css
+        and "height: 38px;" in css
         and "min-width: min(420px, calc(100% - 28px))" in css
         and "@media (max-width: 360px)" in css
         and "max-height: 132px;" in css

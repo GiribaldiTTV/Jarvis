@@ -50,7 +50,6 @@ const monitoringHudOverlayProfileWindowSelector = document.getElementById("monit
 const monitoringHudOverlayProfileWindowToggle = document.getElementById("monitoring-hud-overlay-profile-window-toggle");
 const monitoringHudOverlayProfileWindowLabel = document.getElementById("monitoring-hud-overlay-profile-window-label");
 const monitoringHudOverlayProfileWindowMenu = document.getElementById("monitoring-hud-overlay-profile-window-menu");
-const monitoringHudOverlayProfileWindowSelectLabel = document.getElementById("monitoring-hud-overlay-profile-window-select-label");
 const monitoringHudOverlayProfileDetailSection = document.getElementById("monitoring-hud-overlay-profile-detail-section");
 const monitoringHudOverlayProfileUnsavedGuard = document.getElementById("monitoring-hud-overlay-profile-unsaved-guard");
 const monitoringHudOverlayProfileUnsavedSave = document.getElementById("monitoring-hud-overlay-profile-unsaved-save");
@@ -5102,8 +5101,9 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       && monitoringHudOverlayProfileDetailSection.hidden
     );
     proof.editButtonRemovedAndSelectorDefaultEmpty = Boolean(
-      Boolean(monitoringHudOverlayProfileWindowSelectLabel)
-      && !monitoringHudOverlayProfileWindowSelectedId
+      !monitoringHudOverlayProfileWindowSelectedId
+      && monitoringHudOverlayProfileWindowToggle
+      && /profile to edit/i.test(monitoringHudOverlayProfileWindowToggle.textContent || "")
       && monitoringHudOverlayProfileWindowLabel
       && /select profile/i.test(monitoringHudOverlayProfileWindowLabel.textContent || "")
     );
@@ -5119,17 +5119,18 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
         ? selector.closest("[data-overlay-profile-manager-row]")
         : null;
       const create = monitoringHudOverlayProfileCreate;
-      const label = document.getElementById("monitoring-hud-overlay-profile-window-select-label");
       const windowRect = monitoringHudOverlayProfileWindow
         ? monitoringHudOverlayProfileWindow.getBoundingClientRect()
         : { left: 0, top: 0, right: 0, bottom: 0 };
-      if (!selector || !row || !create || !label) {
+      if (!selector || !row || !create) {
         return {
           sameRow: false,
           standardFootprint: false,
+          equalFootprint: false,
           menuUnclipped: false,
           insideRow: false,
           selectorWidth: 0,
+          createWidth: 0,
           rowWidth: 0,
           menuWidth: 0,
           rowTopDelta: 999
@@ -5138,27 +5139,23 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       const selectorRect = selector.getBoundingClientRect();
       const rowRect = row.getBoundingClientRect();
       const createRect = create.getBoundingClientRect();
-      const labelRect = label.getBoundingClientRect();
       const selectorCenterY = selectorRect.top + (selectorRect.height / 2);
       const createCenterY = createRect.top + (createRect.height / 2);
-      const labelCenterY = labelRect.top + (labelRect.height / 2);
-      const rowTopDelta = Math.max(
-        Math.abs(selectorCenterY - createCenterY),
-        Math.abs(selectorCenterY - labelCenterY)
-      );
+      const rowTopDelta = Math.abs(selectorCenterY - createCenterY);
       const sameRow = Boolean(
         rowTopDelta <= 9
-        && selectorRect.left >= labelRect.right - 2
         && createRect.left >= selectorRect.right - 2
-        && selectorRect.top <= Math.max(createRect.top, labelRect.top) + 9
+        && selectorRect.top <= createRect.top + 9
       );
       const insideRow = Boolean(
         selectorRect.left >= rowRect.left - 1
-        && selectorRect.right <= rowRect.right + 1
+        && createRect.right <= rowRect.right + 1
       );
+      const equalFootprint = Math.abs(selectorRect.width - createRect.width) <= 2;
       const standardFootprint = Boolean(
-        selectorRect.width >= 190
-        && selectorRect.width <= 240
+        selectorRect.width >= 150
+        && createRect.width >= 150
+        && equalFootprint
         && insideRow
       );
       const wasOpen = selector.dataset.dropdownOpen === "true";
@@ -5182,9 +5179,11 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       return {
         sameRow,
         standardFootprint,
+        equalFootprint,
         menuUnclipped,
         insideRow,
         selectorWidth: selectorRect.width,
+        createWidth: createRect.width,
         rowWidth: rowRect.width,
         menuWidth: menuRect.width,
         rowTopDelta
@@ -5217,8 +5216,10 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
         return {
           sameRow: measurement.sameRow,
           standardFootprint: measurement.standardFootprint,
+          equalFootprint: measurement.equalFootprint,
           menuUnclipped: measurement.menuUnclipped,
           selectorWidth: measurement.selectorWidth,
+          createWidth: measurement.createWidth,
           rowWidth: measurement.rowWidth,
           menuWidth: measurement.menuWidth,
           rowTopDelta: measurement.rowTopDelta
@@ -5233,14 +5234,16 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
         && compactMeasurement.standardFootprint
         && wideMeasurement.menuUnclipped
         && compactMeasurement.menuUnclipped
-        && wideMeasurement.selectorWidth <= 240
-        && compactMeasurement.selectorWidth <= 240
+        && wideMeasurement.equalFootprint
+        && compactMeasurement.equalFootprint
         && compactMeasurement.selectorWidth <= wideMeasurement.selectorWidth + 2
       );
       proof.windowSelectorCompactMeasurements = {
         current: {
           rowWidth: Math.round(currentSelectorMeasurement.rowWidth),
           selectorWidth: Math.round(currentSelectorMeasurement.selectorWidth),
+          createWidth: Math.round(currentSelectorMeasurement.createWidth),
+          equalFootprint: currentSelectorMeasurement.equalFootprint,
           menuWidth: Math.round(currentSelectorMeasurement.menuWidth),
           sameRow: currentSelectorMeasurement.sameRow,
           standardFootprint: currentSelectorMeasurement.standardFootprint,
@@ -5251,6 +5254,8 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
           windowWidth: Math.round(availableWidth),
           rowWidth: Math.round(wideMeasurement.rowWidth),
           selectorWidth: Math.round(wideMeasurement.selectorWidth),
+          createWidth: Math.round(wideMeasurement.createWidth),
+          equalFootprint: wideMeasurement.equalFootprint,
           menuWidth: Math.round(wideMeasurement.menuWidth),
           sameRow: wideMeasurement.sameRow,
           standardFootprint: wideMeasurement.standardFootprint,
@@ -5261,6 +5266,8 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
           windowWidth: Math.round(compactWidth),
           rowWidth: Math.round(compactMeasurement.rowWidth),
           selectorWidth: Math.round(compactMeasurement.selectorWidth),
+          createWidth: Math.round(compactMeasurement.createWidth),
+          equalFootprint: compactMeasurement.equalFootprint,
           menuWidth: Math.round(compactMeasurement.menuWidth),
           sameRow: compactMeasurement.sameRow,
           standardFootprint: compactMeasurement.standardFootprint,
@@ -5294,7 +5301,6 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
         ? selector.closest("[data-overlay-profile-manager-row]")
         : null;
       const create = monitoringHudOverlayProfileCreate;
-      const labelNode = document.getElementById("monitoring-hud-overlay-profile-window-select-label");
       const windowRect = monitoringHudOverlayProfileWindow
         ? monitoringHudOverlayProfileWindow.getBoundingClientRect()
         : { left: 0, top: 0, right: 0, bottom: 0 };
@@ -5306,17 +5312,10 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
         : { left: 0, right: 0, top: 0, bottom: 0, width: 0, height: 0 };
       const createRect = create
         ? create.getBoundingClientRect()
-        : { top: 0, right: 0, height: 0 };
-      const labelRect = labelNode
-        ? labelNode.getBoundingClientRect()
-        : { top: 0, right: 0, height: 0 };
+        : { top: 0, right: 0, height: 0, width: 0 };
       const selectorCenterY = selectorRect.top + (selectorRect.height / 2);
       const createCenterY = createRect.top + (createRect.height / 2);
-      const labelCenterY = labelRect.top + (labelRect.height / 2);
-      const rowTopDelta = Math.max(
-        Math.abs(selectorCenterY - createCenterY),
-        Math.abs(selectorCenterY - labelCenterY)
-      );
+      const rowTopDelta = Math.abs(selectorCenterY - createCenterY);
       const options = menu
         ? Array.from(menu.querySelectorAll("[data-overlay-profile-window-option]"))
         : [];
@@ -5331,13 +5330,12 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
       const sameRow = Boolean(
         selector
         && create
-        && labelNode
         && row
         && rowTopDelta <= 9
-        && selectorRect.left >= labelRect.right - 2
         && createRect.left >= selectorRect.right - 2
       );
-      const standardFootprint = Boolean(selectorRect.width >= 190 && selectorRect.width <= 240);
+      const equalFootprint = Math.abs(selectorRect.width - createRect.width) <= 2;
+      const standardFootprint = Boolean(selectorRect.width >= 150 && createRect.width >= 150 && equalFootprint);
       const menuUnclipped = Boolean(
         menu
         && !menu.hidden
@@ -5363,6 +5361,8 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
         maxFiveVisible,
         scrollsWhenStressed,
         selectorWidth: Math.round(selectorRect.width),
+        createWidth: Math.round(createRect.width),
+        equalFootprint,
         menuWidth: Math.round(menuRect.width),
         menuBottom: Math.round(menuRect.bottom),
         windowBottom: Math.round(windowRect.bottom),
@@ -5913,7 +5913,6 @@ window.getMonitoringHudLiveClientGeometry = function() {
     overlayProfileWindow: rectFor("#monitoring-hud-overlay-profile-window"),
     overlayProfileWindowClose: rectFor('[data-child-window-close="overlay-profile-settings"]'),
     overlayProfileWindowSelector: rectFor("#monitoring-hud-overlay-profile-window-selector"),
-    overlayProfileWindowSelectLabel: rectFor("#monitoring-hud-overlay-profile-window-select-label"),
     overlayProfileNameInput: rectFor("#monitoring-hud-overlay-profile-name-input"),
     overlayProfileMonitorSearch: rectFor("#monitoring-hud-overlay-profile-monitor-search"),
     overlayProfileMonitorFilter: rectFor("#monitoring-hud-overlay-profile-monitor-filter"),
@@ -6422,7 +6421,6 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     const selector = monitoringHudOverlayProfileWindowSelector;
     const row = selector && selector.closest ? selector.closest("[data-overlay-profile-manager-row]") : null;
     const create = monitoringHudOverlayProfileCreate;
-    const label = document.getElementById("monitoring-hud-overlay-profile-window-select-label");
     const menu = monitoringHudOverlayProfileWindowMenu;
     if (!selector || !row || !monitoringHudVisualInspectionVisible(selector) || !monitoringHudVisualInspectionVisible(row)) {
       failures.push("overlay-manager-scaling:missing-visible-selector-row");
@@ -6438,8 +6436,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       const choicePanelRect = choicePanel
         ? choicePanel.getBoundingClientRect()
         : { left: 0, right: 0, width: 0 };
-      const createRect = create ? create.getBoundingClientRect() : { top: 0, right: 0, height: 0 };
-      const labelRect = label ? label.getBoundingClientRect() : { top: 0, right: 0, height: 0 };
+      const createRect = create ? create.getBoundingClientRect() : { top: 0, right: 0, height: 0, width: 0 };
       const windowRect = monitoringHudOverlayProfileWindow
         ? monitoringHudOverlayProfileWindow.getBoundingClientRect()
         : { left: 0, top: 0, right: 0, bottom: 0 };
@@ -6466,25 +6463,21 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       );
       const selectorCenterY = selectorRect.top + (selectorRect.height / 2);
       const createCenterY = createRect.top + (createRect.height / 2);
-      const labelCenterY = labelRect.top + (labelRect.height / 2);
-      const rowTopDelta = Math.max(
-        Math.abs(selectorCenterY - createCenterY),
-        Math.abs(selectorCenterY - labelCenterY)
-      );
+      const rowTopDelta = Math.abs(selectorCenterY - createCenterY);
       const sameRow = Boolean(
         create
-        && label
         && rowTopDelta <= 9
-        && selectorRect.left >= labelRect.right - 2
         && createRect.left >= selectorRect.right - 2
       );
       const insideRow = Boolean(
         selectorRect.left >= rowRect.left - 1
-        && selectorRect.right <= rowRect.right + 1
+        && createRect.right <= rowRect.right + 1
       );
+      const equalFootprint = Math.abs(selectorRect.width - createRect.width) <= 2;
       const standardFootprint = Boolean(
-        selectorRect.width >= 190
-        && selectorRect.width <= 240
+        selectorRect.width >= 150
+        && createRect.width >= 150
+        && equalFootprint
         && insideRow
       );
       const wasOpen = selector.dataset.dropdownOpen === "true";
@@ -6508,9 +6501,11 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       return {
         sameRow,
         standardFootprint,
+        equalFootprint,
         menuUnclipped,
         insideRow,
         selectorWidth: selectorRect.width,
+        createWidth: createRect.width,
         rowWidth: rowRect.width,
         menuWidth: menuRect.width,
         rowTopDelta,
@@ -6543,8 +6538,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       return {
         sameRow: measurement.sameRow,
         standardFootprint: measurement.standardFootprint,
+        equalFootprint: measurement.equalFootprint,
         menuUnclipped: measurement.menuUnclipped,
         selectorWidth: measurement.selectorWidth,
+        createWidth: measurement.createWidth,
         rowWidth: measurement.rowWidth,
         menuWidth: measurement.menuWidth,
         rowTopDelta: measurement.rowTopDelta,
@@ -6578,8 +6575,8 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       && compactMeasurement.symmetricWindowBuffer
       && wideMeasurement.symmetricChoicePanelBuffer
       && compactMeasurement.symmetricChoicePanelBuffer
-      && wideMeasurement.selectorWidth <= 240
-      && compactMeasurement.selectorWidth <= 240
+      && wideMeasurement.equalFootprint
+      && compactMeasurement.equalFootprint
       && compactMeasurement.selectorWidth <= wideMeasurement.selectorWidth + 2
     );
     if (!currentMeasurement.symmetricWindowBuffer || !currentMeasurement.symmetricChoicePanelBuffer || !scalesWithinRow || !responsiveCompact || !currentMeasurement.menuUnclipped) {
@@ -6598,6 +6595,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
         current: {
           rowWidth: Math.round(currentMeasurement.rowWidth),
           selectorWidth: Math.round(currentMeasurement.selectorWidth),
+          createWidth: Math.round(currentMeasurement.createWidth),
           menuWidth: Math.round(currentMeasurement.menuWidth),
           rowTopDelta: Math.round(currentMeasurement.rowTopDelta),
           leftBuffer: Math.round(currentMeasurement.leftBuffer),
@@ -6611,6 +6609,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
           windowWidth: Math.round(availableWidth),
           rowWidth: Math.round(wideMeasurement.rowWidth),
           selectorWidth: Math.round(wideMeasurement.selectorWidth),
+          createWidth: Math.round(wideMeasurement.createWidth),
           menuWidth: Math.round(wideMeasurement.menuWidth),
           sameRow: wideMeasurement.sameRow,
           standardFootprint: wideMeasurement.standardFootprint,
@@ -6627,6 +6626,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
           windowWidth: Math.round(compactWidth),
           rowWidth: Math.round(compactMeasurement.rowWidth),
           selectorWidth: Math.round(compactMeasurement.selectorWidth),
+          createWidth: Math.round(compactMeasurement.createWidth),
           menuWidth: Math.round(compactMeasurement.menuWidth),
           sameRow: compactMeasurement.sameRow,
           standardFootprint: compactMeasurement.standardFootprint,
@@ -6806,7 +6806,6 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     inspectResponsiveWindowContract();
     inspectTarget("overlay-window-close", '[data-child-window-close="overlay-profile-settings"]');
     inspectTarget("overlay-create", "#monitoring-hud-overlay-profile-create");
-    inspectTarget("overlay-select-profile-to-edit-label", "#monitoring-hud-overlay-profile-window-select-label");
     inspectTarget("overlay-profile-window-toggle", "#monitoring-hud-overlay-profile-window-toggle");
     inspectTarget("overlay-profile-window-option", "[data-overlay-profile-window-option]");
     inspectOverlayProfileManagerScaling();
@@ -6932,14 +6931,14 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     "UTS-HUD-011": ["dashboard-settings", "dashboard-data-sources-deferred"],
     "UTS-HUD-012": ["dirtyGuardCoverage", "sameMonitorRowDirtyGuard", "monitor-detail-actions-row"],
     "UTS-HUD-013": ["perElementVisualInventory", "issueFormCoverageMatrix"],
-    "UTS-HUD-014": ["overlay-window-frame", "overlay-choice-panel", "overlay-manager-meta-row", "overlay-manager-scaling", "overlay-profile-minimum-functional-height", "defaultProfileDeletePersists"],
+    "UTS-HUD-014": ["overlay-window-frame", "overlay-choice-panel", "overlay-manager-meta-row", "overlay-manager-scaling", "overlay-profile-minimum-functional-height", "defaultProfileDeletePersists", "createRequiresSave", "createStartsEmptyMembership", "closeGuardOpensForCreatedDraft", "childWindowClickIsolation", "selectorLoadsSelectedSettings"],
     "UTS-HUD-015": ["dashboard-control-hub-scrollbar", "manage-monitor-list-pane"],
     "UTS-HUD-016": ["pageBreakVisualInspection", "dashboard-page-breaks", "child-window-page-breaks"],
     "UTS-HUD-017": ["buttonRoleColorUniformity", "semanticHoverColorPreserved"],
     "UTS-HUD-018": ["dashboard-row-title-tabs", "child-window-row-title-tabs", "pageBreakVisualInspection"],
     "UTS-HUD-019": ["responsive-window-contract", "sourceSettingsWindowFlow", "manage-monitor-row"],
     "UTS-HUD-020": ["source-settings-shift-focus-frame", "source-settings-body", "source-settings-warning-row"],
-    "UTS-HUD-021": ["responsive-window-contract", "visible-hud-surfaces", "dashboard-window-border", "overlay-manager-scaling", "overlay-profile-minimum-functional-height"]
+    "UTS-HUD-021": ["responsive-window-contract", "visible-hud-surfaces", "dashboard-window-border", "overlay-manager-scaling", "overlay-profile-minimum-functional-height", "windowSelectorResponsiveCompact", "overlay-profile-compact-default-functional"]
   };
   const proof = {
     passed: failures.length === 0,

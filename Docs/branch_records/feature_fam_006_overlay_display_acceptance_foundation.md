@@ -248,8 +248,8 @@ User Test Summary Strategy: `No UTS is generated during Stage 2. Future LV1 must
 
 User Test Summary Results: `PENDING`
 User Test Summary Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
-Returned UTS Repair Disposition: `REPAIR - USER returned Overlay Profiles workflow defects after compact/buffer repair: create paths must be save-required rather than auto-persisted, new Overlay Profiles and Monitor Groups must start from empty/default-safe selections, the Overlay Profiles selector must load the selected profile directly without a separate Edit button, Delete and Discard must be right-aligned with Delete farthest right, close/dirty guard behavior must work below tall-window thresholds, compact-height action rows must remain reachable, and child-window clicks must not fall through to the Dashboard. Repair updates runtime behavior, validators, and live-validation governance before refreshed UTS.`
-User Test Summary Handoff Status: `LV1 UTS handoff repair active after current-main reconciliation; desktop UTS export must name FAM-006 Overlay Display Acceptance Foundation and remain blocked until USER returns PASS, FAIL, or WAIVED results after the Overlay Profiles buffer/clipping retest.`
+Returned UTS Repair Disposition: `REPAIR - UTS-HUD-014 tracks Overlay Profiles workflow defects: create paths must be save-required rather than auto-persisted, new Overlay Profiles and Monitor Groups must start from empty/default-safe selections, the selector must load the selected profile directly without a separate Edit button, the dropdown label must read Profile to Edit:, Delete and Discard must be right-aligned with Delete farthest right, and child-window clicks must not fall through to the Dashboard. UTS-HUD-021 tracks Overlay Profiles compact/default sizing defects: compact/default proof must exercise the real user workflow, keep the Profile to Edit dropdown and Create Profile button equal-sized/same-row/unclipped, preserve reachable action rows below tall-window thresholds, and prove null/high-volume profile states. Repair updates runtime behavior, validators, UTS issue mapping, and live-validation governance before refreshed UTS.`
+User Test Summary Handoff Status: `BLOCKED - LV1 UTS handoff repair found that the active live-client self-QA route still contains banned synthetic interaction code. The live helper now stops before launch on the no-synthetic-interaction preflight and writes synthetic_live_validation_interaction_blockers.txt. UTS export remains blocked until the active LV1 route is rebuilt so every feasible visible interaction uses real OS-level cursor movement, mouse down/up, hover, drag, and resulting-state proof rather than JavaScript click, DOM MouseEvent, QTest, widget-only events, direct handler calls, or state mutation.`
 Final Phase Advancement: `BLOCKED until the filled User Test Summary is submitted or waived, digested into this active authority record, and blockers are reevaluated.`
 
 ## Later-Phase Expectations
@@ -284,15 +284,15 @@ Proof Closure Status: `Closed for SLC-042 validation/proof closure; no runtime i
 ## Next Legal Phase
 
 Next Legal Phase: `Live Validation`
-Next Legal Phase Detail: `Current-main reconciliation and H1 are complete. LV1 handoff repair must refresh the UTS and proof posture, then USER Test Summary results must be returned and digested before final phase advancement.`
+Next Legal Phase Detail: `Current-main reconciliation and H1 are complete. LV1 handoff repair is blocked on rebuilding the live-validation interaction carrier so the active LV1 route has no synthetic interaction code and proves USER-level behavior through real OS-level cursor/mouse input before UTS handoff.`
 
 ## Formal Next Legal Phase Digest
 
 Current Phase: `Live Validation Stage 1 / UTS handoff repair`
 Next Legal Phase: `Live Validation`
-Why This Phase Is Next: `SLC-042 through SLC-045 and H1 are complete, LV1 proof was captured, and the remaining blocker is the corrected USER-facing UTS handoff and returned USER result digestion.`
+Why This Phase Is Next: `SLC-042 through SLC-045 and H1 are complete, but LV1 proof is not accepted while the active live-client self-QA route contains synthetic interaction code. The remaining blocker is the Live Validation carrier repair before refreshed UTS handoff and returned USER result digestion.`
 Approval Required: `USER must complete or waive the exported User Test Summary after the corrected LV1 handoff is delivered.`
-Exact USER Decision Needed: `Complete and return C:\Users\anden\OneDrive\Desktop\User Test Summary.txt with PASS, FAIL, or WAIVED results for the active LV1 checks; Codex will digest the returned results into source truth and reevaluate blockers before PR Readiness.`
+Exact USER Decision Needed: `Approve bounded LV1 interaction-carrier rebuild for FAM-006 in C:\Nexus Worktrees\FAM-006 on feature/fam-006-overlay-display-acceptance-foundation to replace banned synthetic Live Validation interactions with real OS-level mouse/cursor/keyboard input across the active LV1 route, rerun required validation, and return to UTS handoff only after the no-synthetic preflight and live proof are green.`
 Allowed Scope: `LV1 UTS handoff repair, validation, source-truth recording, and evidence refresh only.`
 Explicit Exclusions: `PR creation, merge to main, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation.`
 Validation Required: `Identity, source-truth, HUD live/human-client proof as needed, branch governance, worktree confinement after commit, release-readiness health gate, validation suite, diff checks, compileall, and supported JS syntax/runtime checks including bundled runtime Node when needed.`

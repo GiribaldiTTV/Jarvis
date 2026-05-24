@@ -59,6 +59,41 @@ function Check-Progress([string]$Activity) {
     }
 }
 
+function Assert-NoSyntheticLiveValidationInteraction {
+    param([object]$Paths)
+
+    $rendererPath = Join-Path $rootDir "desktop\desktop_renderer.py"
+    if (-not (Test-Path -LiteralPath $rendererPath)) {
+        throw "Synthetic-interaction preflight could not inspect renderer path: $rendererPath"
+    }
+    $rendererText = Get-Content -LiteralPath $rendererPath -Raw
+    $startMarker = "def _start_monitoring_hud_live_client_self_qa"
+    $startIndex = $rendererText.IndexOf($startMarker, [StringComparison]::Ordinal)
+    if ($startIndex -lt 0) {
+        throw "Synthetic-interaction preflight could not find active LV1 self-QA route marker: $startMarker"
+    }
+    $routeText = $rendererText.Substring($startIndex)
+    $forbiddenPatterns = @(
+        @{ Pattern = ".click("; Label = "direct JavaScript click" },
+        @{ Pattern = "dispatchEvent(new MouseEvent"; Label = "synthetic DOM mouse event" },
+        @{ Pattern = "QTest.mouse"; Label = "QTest widget-only mouse event" },
+        @{ Pattern = "handler calls"; Label = "direct handler-call proof" }
+    )
+    $findings = New-Object System.Collections.Generic.List[string]
+    foreach ($entry in $forbiddenPatterns) {
+        if ($routeText.Contains([string]$entry.Pattern)) {
+            $findings.Add("$($entry.Label): $($entry.Pattern)")
+        }
+    }
+    if ($findings.Count -gt 0) {
+        $findingPath = Join-Path $Paths.Root "synthetic_live_validation_interaction_blockers.txt"
+        $findings | Set-Content -LiteralPath $findingPath -Encoding utf8
+        Step $Paths "blocked LV1 before launch: active route contains synthetic interaction code: $findingPath"
+        throw "Live Validation interaction route contains banned synthetic/widget/direct-handler interaction code. Blockers: $($findings -join '; ')"
+    }
+    Step $Paths "no-synthetic-interaction preflight PASS: active LV1 interaction route contains no JS click, DOM MouseEvent, QTest mouse, or direct-handler interaction proof"
+}
+
 function Resolve-ValidationPython {
     $candidates = @()
     if ($PythonPath) { $candidates += $PythonPath }
@@ -140,14 +175,14 @@ function Get-HudIssueIdsForElementLabel {
         "UTS-HUD-011" = @("dashboard", "data_sources", "manage_monitors")
         "UTS-HUD-012" = @("unsaved", "guard", "discard", "save")
         "UTS-HUD-013" = @("dashboard", "overlay", "manage", "source", "scrollbar", "divider", "button")
-        "UTS-HUD-014" = @("overlay_profile", "clean", "selector", "choice_panel")
+        "UTS-HUD-014" = @("overlay_profile", "clean", "selector", "choice_panel", "create", "dirty", "guard", "save", "discard", "delete", "profile_to_edit")
         "UTS-HUD-015" = @("scrollbar")
         "UTS-HUD-016" = @("divider", "page_break")
         "UTS-HUD-017" = @("button", "glow", "color", "uniform")
         "UTS-HUD-018" = @("row_title", "row-title", "page_break", "divider", "tab")
         "UTS-HUD-019" = @("state_stability", "surface_stability", "group_switch", "responsive_window", "window_contract", "open_state", "window_create_clean", "window_display_mode_buttons")
         "UTS-HUD-020" = @("source_settings", "shift", "focus", "gold", "warning")
-        "UTS-HUD-021" = @("scalability", "window_size", "minimum", "responsive", "scale")
+        "UTS-HUD-021" = @("scalability", "window_size", "minimum", "responsive", "scale", "compact", "normal", "overlay_profile")
     }
     foreach ($issueId in $issueRules.Keys) {
         foreach ($keyword in $issueRules[$issueId]) {
@@ -808,12 +843,12 @@ Brief Issue List
 
 Active Issues To Test
 
-UTS-HUD-014 - Overlay Profiles Clean State, Delete, And Compact Scaling
-Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. Create, Edit, Profile / Select Profile, and Close remain compact/readable. The Profile / Select Profile control stays on the same row as Create and Edit, uses the standard compact dropdown footprint, and its menu opens without clipping. Null-state proof with no profiles and stress proof with 100+ profiles both keep the selector same-row, max-five visible options, and NDAI scrollbar behavior. Selecting a profile enables Edit. Deleting the default Overlay Profile enters the red confirmation path and does not silently auto-recreate the deleted default profile. Creating a new profile still restores a valid selectable profile when the user asks for one.
+UTS-HUD-014 - Overlay Profiles Selector, Draft Creation, Dirty Guard, And Delete
+Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. The separate Edit Profile button is removed. The dropdown button itself says `Profile to Edit:` and keeps the same rounded shape and size as the Create Profile button. Selecting an existing profile directly loads it for editing. Creating an Overlay Profile creates a draft only, starts with no monitor groups selected, requires Save before persistence, triggers the dirty-change guard on Close or navigation, and Discard leaves no persisted draft. Delete is a red danger action with confirmation and remains separated from Discard to reduce accidents.
 USER Result / Notes:
 
 UTS-HUD-021 - HUD Sizing And Overlay Profiles Scaling
-Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager Profile / Select Profile dropdown remains in the same row as Create and Edit, stays within the compact standard dropdown width range instead of becoming a full-row control, remains usable at compact legal window widths, and opens an unclipped NDAI-styled menu. Dropdown and multi-selection validation now includes null and 100+ item stress states for profile selectors, monitor/source lists, and other current bounded dropdown surfaces before UTS handoff.
+Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager `Profile to Edit:` dropdown and Create Profile button remain on the same row, use equal button footprints, remain readable/clickable at default and compact legal window sizes, and open an unclipped NDAI-styled menu. Compact proof must show the window can complete the real user workflow: select profile, create draft, close dirty guard, save, discard, delete confirmation, dropdown open/select/close, null profile state, and 100+ profile stress state.
 USER Result / Notes:
 
 Issue Regression Checks, If Any
@@ -871,6 +906,7 @@ try {
         $paths.AbortSignal
     )
     if ($effectiveRunInteractionSelfQA) {
+        Assert-NoSyntheticLiveValidationInteraction $paths
         New-Item -ItemType Directory -Force -Path $paths.InteractionEvidenceRoot | Out-Null
         $args += @(
             "--monitoring-hud-live-self-qa-manifest",
@@ -988,9 +1024,16 @@ try {
             throw "Interaction self-QA manifest was not written: $($paths.InteractionManifest)"
         }
         $interactionManifest = Get-Content -LiteralPath $paths.InteractionManifest -Raw | ConvertFrom-Json
+        $interactionManifestRaw = Get-Content -LiteralPath $paths.InteractionManifest -Raw
         $script:InteractionManifestStatus = [string]$interactionManifest.status
         if ($script:InteractionManifestStatus -ne "PASS") {
             throw "Interaction self-QA did not pass. Status: $script:InteractionManifestStatus"
+        }
+        if ($interactionManifestRaw -match '"directJsClickUsed"\s*:\s*true' -or
+            $interactionManifestRaw -match '"directJsMouseoverUsed"\s*:\s*true' -or
+            $interactionManifestRaw -match '"inputProof"\s*:\s*"automated-supporting-only:' -or
+            $interactionManifestRaw -notmatch '"realOsInputProof"\s*:\s*true') {
+            throw "Interaction self-QA lacks real OS-level mouse input proof. JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned as primary LV1 interaction proof."
         }
         Wait-Marker $paths "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY"
         Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY"
