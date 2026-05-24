@@ -248,7 +248,8 @@ User Test Summary Strategy: `No UTS is generated during Stage 2. Future LV1 must
 
 User Test Summary Results: `PENDING`
 User Test Summary Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
-User Test Summary Handoff Status: `LV1 UTS handoff repair active after current-main reconciliation; desktop UTS export must name FAM-006 Overlay Display Acceptance Foundation and remain blocked until USER returns PASS, FAIL, or WAIVED results.`
+Returned UTS Repair Disposition: `REPAIR - USER returned Overlay Profiles compact/normal buffer failure showing asymmetric side buffer and right-edge clipping in compact width; repair tightens Overlay Profiles child-window side buffers, manager-row grid sizing, selector max footprint, and symmetric window-buffer visual proof before refreshed UTS.`
+User Test Summary Handoff Status: `LV1 UTS handoff repair active after current-main reconciliation; desktop UTS export must name FAM-006 Overlay Display Acceptance Foundation and remain blocked until USER returns PASS, FAIL, or WAIVED results after the Overlay Profiles buffer/clipping retest.`
 Final Phase Advancement: `BLOCKED until the filled User Test Summary is submitted or waived, digested into this active authority record, and blockers are reevaluated.`
 
 ## Later-Phase Expectations

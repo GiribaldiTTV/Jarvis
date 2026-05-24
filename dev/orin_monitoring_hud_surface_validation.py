@@ -302,9 +302,16 @@ def validate() -> list[str]:
         ".monitoring-hud__source-settings-body:focus-visible",
         ".monitoring-hud input[type=\"checkbox\"]:checked.is-hovered",
         ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown",
-        "flex: 0 0 clamp(220px, 30%, 240px)",
+        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) clamp(200px, 31%, 220px)",
+        "width: min(900px, calc(100% - 40px))",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
+    for needle in (
+        "leftBuffer",
+        "rightBuffer",
+        "symmetricWindowBuffer",
+    ):
+        _require_contains(js, needle, "FAM-006 Overlay Profile manager scaling proof", failures)
     for needle in (
         "window.runMonitoringHudVisualInspectionMatrixProof",
         "monitoringHudVisualInspectionStyleSnapshot",
@@ -827,15 +834,14 @@ def validate() -> list[str]:
         failures,
     )
     _require(
-        "display: flex;" in css
-        and "flex-wrap: nowrap;" in css
-        and "flex: 0 0 clamp(220px, 30%, 240px)" in css
-        and "width: min(900px, calc(100% - 8px))" in css
-        and "min-width: min(720px, calc(100% - 8px))" in css
-        and "min-width: min(220px, 100%)" in css
-        and "max-width: min(240px, 100%)" in css
+        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) clamp(200px, 31%, 220px)" in css
+        and "width: min(900px, calc(100% - 40px))" in css
+        and "min-width: min(720px, calc(100% - 40px))" in css
+        and "max-height: min(720px, calc(100% - 40px))" in css
+        and "max-width: 220px;" in css
+        and "padding-right: 14px;" in css
         and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css
-        and "max-width: min(220px, 100%)" in css
+        and "min-width: min(420px, calc(100% - 28px))" in css
         and "@media (max-width: 360px)" in css
         and "max-height: 160px;" in css
         and "min-height: 26px;" in css

@@ -6337,6 +6337,19 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       const windowRect = monitoringHudOverlayProfileWindow
         ? monitoringHudOverlayProfileWindow.getBoundingClientRect()
         : { left: 0, top: 0, right: 0, bottom: 0 };
+      const layer = monitoringHudOverlayProfileWindow
+        ? monitoringHudOverlayProfileWindow.closest(".monitoring-hud__child-window-layer")
+        : null;
+      const layerRect = layer
+        ? layer.getBoundingClientRect()
+        : { left: 0, right: window.innerWidth || 0 };
+      const leftBuffer = windowRect.left - layerRect.left;
+      const rightBuffer = layerRect.right - windowRect.right;
+      const symmetricWindowBuffer = Boolean(
+        leftBuffer >= 14
+        && rightBuffer >= 14
+        && Math.abs(leftBuffer - rightBuffer) <= 8
+      );
       const selectorCenterY = selectorRect.top + (selectorRect.height / 2);
       const createCenterY = createRect.top + (createRect.height / 2);
       const editCenterY = editRect.top + (editRect.height / 2);
@@ -6386,6 +6399,9 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
         rowWidth: rowRect.width,
         menuWidth: menuRect.width,
         rowTopDelta,
+        leftBuffer,
+        rightBuffer,
+        symmetricWindowBuffer,
         selectorRect,
         rowRect
       };
@@ -6412,7 +6428,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
         selectorWidth: measurement.selectorWidth,
         rowWidth: measurement.rowWidth,
         menuWidth: measurement.menuWidth,
-        rowTopDelta: measurement.rowTopDelta
+        rowTopDelta: measurement.rowTopDelta,
+        leftBuffer: measurement.leftBuffer,
+        rightBuffer: measurement.rightBuffer,
+        symmetricWindowBuffer: measurement.symmetricWindowBuffer
       };
     };
     const availableWidth = Math.max(460, Math.min(820, (window.innerWidth || 900) - 56));
@@ -6433,11 +6452,13 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       && compactMeasurement.standardFootprint
       && wideMeasurement.menuUnclipped
       && compactMeasurement.menuUnclipped
+      && wideMeasurement.symmetricWindowBuffer
+      && compactMeasurement.symmetricWindowBuffer
       && wideMeasurement.selectorWidth <= 240
       && compactMeasurement.selectorWidth <= 240
       && compactMeasurement.selectorWidth <= wideMeasurement.selectorWidth + 2
     );
-    if (!scalesWithinRow || !responsiveCompact || !currentMeasurement.menuUnclipped) {
+    if (!currentMeasurement.symmetricWindowBuffer || !scalesWithinRow || !responsiveCompact || !currentMeasurement.menuUnclipped) {
       failures.push("overlay-manager-scaling:selector-stacked-oversized-or-clipped");
     }
     surfaces.push({
@@ -6454,7 +6475,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
           rowWidth: Math.round(currentMeasurement.rowWidth),
           selectorWidth: Math.round(currentMeasurement.selectorWidth),
           menuWidth: Math.round(currentMeasurement.menuWidth),
-          rowTopDelta: Math.round(currentMeasurement.rowTopDelta)
+          rowTopDelta: Math.round(currentMeasurement.rowTopDelta),
+          leftBuffer: Math.round(currentMeasurement.leftBuffer),
+          rightBuffer: Math.round(currentMeasurement.rightBuffer),
+          symmetricWindowBuffer: currentMeasurement.symmetricWindowBuffer
         },
         wide: {
           windowWidth: Math.round(availableWidth),
@@ -6464,7 +6488,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
           sameRow: wideMeasurement.sameRow,
           standardFootprint: wideMeasurement.standardFootprint,
           menuUnclipped: wideMeasurement.menuUnclipped,
-          rowTopDelta: Math.round(wideMeasurement.rowTopDelta)
+          rowTopDelta: Math.round(wideMeasurement.rowTopDelta),
+          leftBuffer: Math.round(wideMeasurement.leftBuffer),
+          rightBuffer: Math.round(wideMeasurement.rightBuffer),
+          symmetricWindowBuffer: wideMeasurement.symmetricWindowBuffer
         },
         compact: {
           windowWidth: Math.round(compactWidth),
@@ -6474,7 +6501,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
           sameRow: compactMeasurement.sameRow,
           standardFootprint: compactMeasurement.standardFootprint,
           menuUnclipped: compactMeasurement.menuUnclipped,
-          rowTopDelta: Math.round(compactMeasurement.rowTopDelta)
+          rowTopDelta: Math.round(compactMeasurement.rowTopDelta),
+          leftBuffer: Math.round(compactMeasurement.leftBuffer),
+          rightBuffer: Math.round(compactMeasurement.rightBuffer),
+          symmetricWindowBuffer: compactMeasurement.symmetricWindowBuffer
         }
       },
       selectorRect: {
