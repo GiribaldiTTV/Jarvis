@@ -1077,13 +1077,17 @@ function monitoringHudCardDefaults(cardId) {
 }
 
 function monitoringHudNextMonitorGroupNumber() {
-  const numericSuffixes = Object.keys(monitoringHudControlState.cards || {})
-    .map((cardId) => {
-      const match = String(cardId).match(/^monitor-(\d+)$/);
-      return match ? Number(match[1]) : 0;
-    })
-    .filter((value) => Number.isFinite(value));
-  return Math.max(3, Number(monitoringHudControlState.monitorSequence || 2) + 1, ...numericSuffixes.map((value) => value + 1));
+  const usedNumbers = new Set();
+  Object.entries(monitoringHudControlState.cards || {}).forEach(([cardId, layout]) => {
+    const idMatch = String(cardId || "").match(/^monitor-(\d+)$/);
+    if (idMatch) usedNumbers.add(Number(idMatch[1]));
+    const titleMatch = String(layout && layout.title ? layout.title : "").match(/^Monitor Group\s+(\d+)$/i);
+    if (titleMatch) usedNumbers.add(Number(titleMatch[1]));
+  });
+  for (let candidate = 3; candidate < 10000; candidate += 1) {
+    if (!usedNumbers.has(candidate)) return candidate;
+  }
+  return Math.max(3, ...Array.from(usedNumbers).filter((value) => Number.isFinite(value))) + 1;
 }
 
 function monitoringHudSuggestedMonitorName() {
@@ -2983,7 +2987,7 @@ function monitoringHudCloseChildWindow(options = {}) {
 
 function monitoringHudCreateMonitorGroup(titleValue) {
   const nextNumber = monitoringHudNextMonitorGroupNumber();
-  monitoringHudControlState.monitorSequence = nextNumber;
+  monitoringHudControlState.monitorSequence = Math.max(Number(monitoringHudControlState.monitorSequence || 2), nextNumber);
   const cardId = `monitor-${nextNumber}`;
   const title = monitoringHudCleanMonitorTitle(
     titleValue,
@@ -3080,6 +3084,47 @@ window.clearMonitoringHudLargeFixtureMode = function() {
   monitoringHudApplyCardLayout();
   monitoringHudRenderControls();
   monitoringHudRenderMonitorManagement();
+};
+
+window.runMonitoringHudMonitorGroupNameReuseProof = function() {
+  const backup = getMonitoringHudControlState();
+  try {
+    monitoringHudControlState.cards = {
+      cpu: monitoringHudCardDefaults("cpu"),
+      gpu: monitoringHudCardDefaults("gpu"),
+      "monitor-3": Object.assign(monitoringHudCardDefaults("monitor-3"), {
+        title: "Monitor Group 3",
+        sensors: [],
+        sensorSettings: {}
+      })
+    };
+    monitoringHudControlState.selectedMonitorId = "monitor-3";
+    monitoringHudControlState.monitorSequence = 99;
+    monitoringHudPendingDeleteMonitorId = "monitor-3";
+    monitoringHudSetMonitorDraftDirty(false);
+    monitoringHudConfirmDeleteMonitorGroup();
+    const nextNumberAfterDelete = monitoringHudNextMonitorGroupNumber();
+    const createdId = monitoringHudCreateMonitorGroup(monitoringHudSuggestedMonitorName());
+    const created = monitoringHudControlState.cards[createdId] || {};
+    const passed = Boolean(
+      nextNumberAfterDelete === 3
+      && createdId === "monitor-3"
+      && created.title === "Monitor Group 3"
+      && Number(monitoringHudControlState.monitorSequence || 0) >= 99
+    );
+    return {
+      passed,
+      nextNumberAfterDelete,
+      createdId,
+      createdTitle: created.title || "",
+      monitorSequence: monitoringHudControlState.monitorSequence,
+      proof: "delete-create-reuses-lowest-available-monitor-group-number"
+    };
+  } finally {
+    if (window.setMonitoringHudControlState) {
+      window.setMonitoringHudControlState(backup);
+    }
+  }
 };
 
 function monitoringHudReadSensorAssignmentsFromWindow(layout) {
@@ -7084,6 +7129,7 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
   let pollingRateHitboxProof = {};
   let manageCloseHitboxProof = {};
   let visualInspectionMatrixProof = {};
+  let monitorNameReuseProof = {};
   function prepareVisibleTarget(element) {
     if (!element) return;
     if (typeof element.scrollIntoView === "function") {
@@ -7206,6 +7252,10 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
       displayModeChipProof = window.runMonitoringHudDisplayModeChipStressProof() || {};
       if (displayModeChipProof.passed !== true) failures.push("display-mode-chip-stress");
     }
+    monitorNameReuseProof = typeof window.runMonitoringHudMonitorGroupNameReuseProof === "function"
+      ? window.runMonitoringHudMonitorGroupNameReuseProof() || {}
+      : {};
+    if (monitorNameReuseProof.passed !== true) failures.push("monitor-group-name-reuse-proof");
     monitoringHudOpenChildWindow("monitor-group-edit");
     monitoringHudOpenSourceSettings("cpu-load");
     const warningToggle = document.querySelector('[data-sensor-warning-enabled="cpu-load"]');
@@ -7289,6 +7339,8 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
     sourcePickerCheckmarkProof,
     displayModeChipStress: displayModeChipProof.passed === true,
     displayModeChipProof,
+    monitorGroupNameReuseAfterDelete: monitorNameReuseProof.passed === true,
+    monitorNameReuseProof,
     sourceSettingsFlowStress: failures.every((failure) => String(failure).indexOf("source-settings-") !== 0),
     sameMonitorRowDirtyGuard: failures.every((failure) => String(failure).indexOf("same-row-dirty-") !== 0),
     overlayProfileDirtyGuardStress: failures.every((failure) => String(failure).indexOf("overlay-profile-dirty-") !== 0),

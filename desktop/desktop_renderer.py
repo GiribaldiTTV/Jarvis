@@ -9579,6 +9579,30 @@ class DesktopRuntimeWindow(QWidget):
 
             query(label, rect_script(selector), hover_from_rect)
 
+        def os_wheel(selector: str, notches: int, label: str, callback):
+            def wheel_from_rect(parsed: dict[str, object]):
+                point = self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect"))
+                scrolled = self._monitoring_hud_send_mouse_wheel(notches, point)
+                details = {
+                    **parsed,
+                    "screenPoint": point,
+                    "wheelNotches": notches,
+                    "inputProof": "real-os-mouse-cursor-move-wheel",
+                    "realOsInputProof": bool(scrolled),
+                    "directJsScrollUsed": False,
+                    "directJsClickUsed": False,
+                    "syntheticDomEventUsed": False,
+                    "qtestMouseUsed": False,
+                }
+                real_os_actions.append({"label": label, "selector": selector, "screenPoint": point, "kind": "wheel"})
+                add_step(label, bool(scrolled), details)
+                if not scrolled:
+                    finish("FAIL", f"{label} failed to send real OS mouse wheel input")
+                    return
+                QTimer.singleShot(delay(), callback)
+
+            query(label, rect_script(selector), wheel_from_rect)
+
         def assert_state(label: str, script: str, callback):
             def record(parsed: dict[str, object]):
                 add_step(label, True, parsed)
@@ -10564,6 +10588,190 @@ class DesktopRuntimeWindow(QWidget):
                         windowOpen: Boolean(windowNode && !windowNode.hidden),
                         sourceSettingsVisible: Boolean(settings && settings.offsetWidth > 0),
                         monitorUnsavedChanges: hud ? String(hud.dataset.monitorUnsavedChanges || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_manage_name_reuse_create_first,
+            )
+
+        def step_manage_name_reuse_create_first():
+            os_click(
+                "#monitoring-hud-manage-monitor-create-action",
+                "real OS click creates first reusable-number Monitor Group draft",
+                step_manage_name_reuse_first_assert,
+            )
+
+        def step_manage_name_reuse_first_assert():
+            assert_state(
+                "First Manage Monitors create uses the lowest available Monitor Group number",
+                """
+                (function() {
+                    const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                    const id = state.selectedMonitorId || "";
+                    const card = state.cards && state.cards[id] ? state.cards[id] : null;
+                    return JSON.stringify({
+                        ok: Boolean(id === "monitor-3" && card && card.title === "Monitor Group 3" && document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges === "pending"),
+                        selectedMonitorId: id,
+                        title: card ? String(card.title || "") : "",
+                        monitorUnsavedChanges: document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges || "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_manage_name_reuse_scroll_to_save,
+            )
+
+        def step_manage_name_reuse_scroll_to_save():
+            os_wheel(
+                ".monitoring-hud__monitor-detail-pane",
+                -6,
+                "real OS mouse wheel scrolls Manage Monitors detail to reusable-number Save action",
+                step_manage_name_reuse_save_first,
+            )
+
+        def step_manage_name_reuse_save_first():
+            os_click(
+                "#monitoring-hud-edit-monitor-confirm",
+                "real OS click saves first reusable-number Monitor Group",
+                step_manage_name_reuse_saved_assert,
+            )
+
+        def step_manage_name_reuse_saved_assert():
+            assert_state(
+                "First reusable-number Monitor Group save clears dirty state",
+                """
+                (function() {
+                    const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                    const card = state.cards && state.cards["monitor-3"] ? state.cards["monitor-3"] : null;
+                    return JSON.stringify({
+                        ok: Boolean(card && card.title === "Monitor Group 3" && document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges === "clean"),
+                        title: card ? String(card.title || "") : "",
+                        monitorUnsavedChanges: document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges || "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_manage_name_reuse_delete_request,
+            )
+
+        def step_manage_name_reuse_delete_request():
+            os_click(
+                "#monitoring-hud-monitor-detail-delete",
+                "real OS click opens Delete Monitor confirmation for reusable-number proof",
+                step_manage_name_reuse_delete_assert,
+            )
+
+        def step_manage_name_reuse_delete_assert():
+            assert_state(
+                "Reusable-number Delete Monitor confirmation targets Monitor Group 3",
+                """
+                (function() {
+                    const confirmation = document.getElementById("monitoring-hud-monitor-delete-confirmation");
+                    return JSON.stringify({
+                        ok: Boolean(confirmation && !confirmation.hidden && confirmation.dataset.deleteMonitorId === "monitor-3"),
+                        deleteMonitorId: confirmation ? String(confirmation.dataset.deleteMonitorId || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_manage_name_reuse_delete_confirm,
+            )
+
+        def step_manage_name_reuse_delete_confirm():
+            os_click(
+                "#monitoring-hud-monitor-delete-confirm",
+                "real OS click deletes Monitor Group 3 before reusable-number recreation",
+                step_manage_name_reuse_deleted_assert,
+            )
+
+        def step_manage_name_reuse_deleted_assert():
+            assert_state(
+                "Monitor Group 3 deletion frees its reusable number",
+                """
+                (function() {
+                    const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                    return JSON.stringify({
+                        ok: Boolean(state.cards && !state.cards["monitor-3"] && Object.keys(state.cards).length >= 2),
+                        hasMonitor3: Boolean(state.cards && state.cards["monitor-3"]),
+                        monitorCount: state.cards ? Object.keys(state.cards).length : 0,
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_manage_name_reuse_create_second,
+            )
+
+        def step_manage_name_reuse_create_second():
+            os_click(
+                "#monitoring-hud-manage-monitor-create-action",
+                "real OS click recreates Monitor Group with freed number",
+                step_manage_name_reuse_second_assert,
+            )
+
+        def step_manage_name_reuse_second_assert():
+            assert_state(
+                "Create after delete reuses Monitor Group 3 instead of skipping to a higher number",
+                """
+                (function() {
+                    const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                    const id = state.selectedMonitorId || "";
+                    const card = state.cards && state.cards[id] ? state.cards[id] : null;
+                    return JSON.stringify({
+                        ok: Boolean(id === "monitor-3" && card && card.title === "Monitor Group 3" && document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges === "pending"),
+                        selectedMonitorId: id,
+                        title: card ? String(card.title || "") : "",
+                        monitorSequence: state.monitorSequence,
+                        monitorUnsavedChanges: document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges || "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_manage_name_reuse_captures,
+            )
+
+        def step_manage_name_reuse_captures():
+            labels = [
+                "manage_monitors_create_after_delete_reuses_monitor_group_number",
+                "manage_monitors_recreated_monitor_group_3_dirty_draft",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_manage_name_reuse_scroll_to_discard)
+
+        def step_manage_name_reuse_scroll_to_discard():
+            os_wheel(
+                ".monitoring-hud__monitor-detail-pane",
+                -6,
+                "real OS mouse wheel scrolls Manage Monitors detail to reusable-number Discard action",
+                step_manage_name_reuse_discard_second,
+            )
+
+        def step_manage_name_reuse_discard_second():
+            os_click(
+                "#monitoring-hud-edit-monitor-discard",
+                "real OS click discards recreated Monitor Group draft after reusable-number proof",
+                step_manage_name_reuse_discarded_assert,
+            )
+
+        def step_manage_name_reuse_discarded_assert():
+            assert_state(
+                "Reusable-number proof cleanup leaves Manage Monitors clean for Source Settings proof",
+                """
+                (function() {
+                    const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                    const settings = document.querySelector("[data-source-settings-open]");
+                    return JSON.stringify({
+                        ok: Boolean(state.cards && !state.cards["monitor-3"] && settings && document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges === "clean"),
+                        hasMonitor3: Boolean(state.cards && state.cards["monitor-3"]),
+                        sourceSettingsVisible: Boolean(settings && settings.offsetWidth > 0),
+                        monitorUnsavedChanges: document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges || "",
                         realOsInputProof: true,
                         directJsClickUsed: false
                     });

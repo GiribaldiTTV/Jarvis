@@ -286,7 +286,9 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         "manage_monitors_dirty_guard_save_discard_cancel_modal",
         "manage_monitors_dirty_guard_modal_uniform_with_overlay_profile",
         "manage_monitors_dirty_guard_background_blur_blocking",
-        "manage_monitors_dirty_guard_close_button_functionality"
+        "manage_monitors_dirty_guard_close_button_functionality",
+        "manage_monitors_create_after_delete_reuses_monitor_group_number",
+        "manage_monitors_recreated_monitor_group_3_dirty_draft"
     )
     $availableElementLabels = @($screenshots | Select-Object -ExpandProperty elementLabel)
     $missingRequiredElementLabels = @($requiredElementLabels | Where-Object { $availableElementLabels -notcontains $_ })
@@ -1075,7 +1077,8 @@ try {
             "Dirty-change guard blocks close after created draft",
             "Manage Monitors dirty guard matches shared modal Save Discard Cancel contract",
             "Manage Monitors dirty guard Cancel returns to dirty draft without queued close",
-            "Manage Monitors dirty guard Discard completes queued close and clears dirty state"
+            "Manage Monitors dirty guard Discard completes queued close and clears dirty state",
+            "Create after delete reuses Monitor Group 3 instead of skipping to a higher number"
         )
         foreach ($requiredLabel in $requiredInteractionLabels) {
             if ($interactionManifestRaw -notmatch [regex]::Escape($requiredLabel)) {
