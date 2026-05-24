@@ -6,7 +6,7 @@ Branch Creation Base: `origin/main` at `a42b7e50eb012722b140f3874dbf50826bd797c8
 Current origin/main: `6681131c974d99945c494c0e4ff3c436f9347422`
 Origin/Main Advanced Since Branch Creation: `YES - reconciled by governed non-rewrite merge after Branch Change Intent Ledger evidence cleared the Pre-Rebaseline Impact Audit overlap gate.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md`
-Branch Runtime Engineering Plan: `Live Validation Stage 1 - Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, bounded SLC-042 runtime implementation/proof closure, bounded SLC-043 active display implementation, bounded SLC-044 Dashboard / Overlay independence implementation, bounded SLC-045 readiness proof, and Hardening H1 are complete; LV1 UTS handoff repair is active after current-main reconciliation.`
+Branch Runtime Engineering Plan: `Live Validation Stage 1 - Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, bounded SLC-042 runtime implementation/proof closure, bounded SLC-043 active display implementation, bounded SLC-044 Dashboard / Overlay independence implementation, bounded SLC-045 readiness proof, Hardening H1, and LV1 proof refresh are complete; USER Test Summary review is pending.`
 Engineering Plan Status: `Accepted`
 
 ## Branch Identity
@@ -30,11 +30,11 @@ Canonical Branch: `feature/fam-006-overlay-display-acceptance-foundation`
 ## Current Phase
 
 Phase: `Live Validation`
-Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof closure are complete; bounded SLC-043 active Overlay Profile display behavior, SLC-044 Dashboard / Overlay independence, SLC-045 validation/live-proof readiness, and Hardening H1 are complete; LV1 UTS handoff repair is active after current-main reconciliation.`
+Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof closure are complete; bounded SLC-043 active Overlay Profile display behavior, SLC-044 Dashboard / Overlay independence, SLC-045 validation/live-proof readiness, Hardening H1, current-main reconciliation, and LV1 UTS handoff repair are complete; refreshed USER Test Summary review is pending.`
 
 ## Phase Status
 
-Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness and Hardening H1 are complete; LV1 UTS handoff repair is active and USER Test Summary results remain pending.`
+Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness, Hardening H1, and LV1 proof refresh are complete; USER Test Summary results remain pending.`
 Authority State: `Active Branch`
 Bounded State: `Granted for bounded multi-seam Workstream execution across admitted SLC-042 through SLC-045; PR/release and future-gated work remain blocked until later USER approval.`
 
@@ -246,10 +246,10 @@ User Test Summary Strategy: `No UTS is generated during Stage 2. Future LV1 must
 
 ## User Test Summary
 
-User Test Summary Results: `PENDING`
+User Test Summary Results: `PENDING USER REVIEW - LV1 proof refresh is green and the USER Test Summary handoff has been regenerated.`
 User Test Summary Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
-Returned UTS Repair Disposition: `REPAIR - UTS-HUD-014 and UTS-HUD-021 remain under returned-UTS repair after USER-witnessed compact Overlay Profiles visual failure during LV1. The active helper now has real-input proof and compact delete-confirmation scenarios, but that is not sufficient: Codex must pessimistically adjudicate the produced images and treat any Codex-visible compact/default visual concern as a blocker before returning to UTS.`
-User Test Summary Handoff Status: `BLOCKED - active live-client self-QA can pass mechanically, but USER witnessed a compact Overlay Profiles UI bug during LV1. UTS export/return remains blocked until the visual issue is diagnosed, repaired or explicitly waived, the focused proof images are pessimistically reviewed by Codex, and the source-truth record is updated from the reviewed evidence rather than validator status alone.`
+Returned UTS Repair Disposition: `GREEN FOR USER RETEST - UTS-HUD-014 and UTS-HUD-021 were rerun through the real user-facing desktop launcher/human-client path and the LV1 live proof wrapper after current-main reconciliation. Codex pessimistically inspected focused normal/compact Overlay Profiles screenshots, selector/dropdown stress proof, compact delete-confirmation proof, dirty-guard modal proof, child-window click isolation proof, empty draft membership proof, and normal/compact comparison proof; no unwaived Codex-visible visual blocker remains.`
+User Test Summary Handoff Status: `READY FOR USER REVIEW - refreshed UTS is at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt; human-client proof is at C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_human_client_validation\20260524_141107_425; LV1 focused proof is at C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260524_141358_335.`
 Final Phase Advancement: `BLOCKED until the filled User Test Summary is submitted or waived, digested into this active authority record, and blockers are reevaluated.`
 
 ## Later-Phase Expectations
@@ -269,7 +269,7 @@ Seam 4: `SLC-045 Validation/live proof and UTS handoff readiness`
 
 ## Active Seam
 
-Active seam: `SLC-045 validation/live proof and UTS handoff readiness implemented and proof-closed; Workstream Green and Hardening H1 are recorded; LV1 UTS handoff repair is active after current-main reconciliation.`
+Active seam: `SLC-045 validation/live proof and UTS handoff readiness implemented and proof-closed; Workstream Green, Hardening H1, current-main reconciliation, and LV1 UTS handoff repair are recorded green; USER Test Summary review is pending.`
 
 ## Validation Plan
 
@@ -284,15 +284,15 @@ Proof Closure Status: `Closed for SLC-042 validation/proof closure; no runtime i
 ## Next Legal Phase
 
 Next Legal Phase: `Live Validation`
-Next Legal Phase Detail: `Current-main reconciliation and H1 are complete. LV1 handoff repair is still in REPAIR after a USER-witnessed compact Overlay Profiles visual failure. The next legal work is bounded LV1 visual adjudication/repair and proof refresh, not UTS handoff.`
+Next Legal Phase Detail: `Current-main reconciliation, H1, and LV1 visual adjudication/proof refresh are complete. The next legal work is USER Test Summary review/digestion, not additional runtime implementation.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Live Validation Stage 1 / UTS handoff repair`
-Next Legal Phase: `Live Validation`
-Why This Phase Is Next: `SLC-042 through SLC-045 and H1 are complete, but LV1 cannot hand off while compact Overlay Profiles proof still has a USER-witnessed visual failure or while Codex has not pessimistically adjudicated the focused proof images.`
-Approval Required: `USER approval is already present for bounded LV1 repair continuation in this branch; if repair requires scope outside LV1 visual/runtime validation, Codex must stop with the exact approval needed.`
-Exact USER Decision Needed: `Continue bounded LV1 visual adjudication and repair for FAM-006 Overlay Display Acceptance Foundation until focused normal/compact screenshots, real-input proof, validators, and Codex pessimistic visual review are green; do not return to UTS until no unwaived Codex-visible repair finding remains.`
+Current Phase: `Live Validation Stage 1 / USER Test Summary handoff`
+Next Legal Phase: `USER Test Summary review and digestion`
+Why This Phase Is Next: `SLC-042 through SLC-045, H1, current-main reconciliation, real-input LV1 proof, focused normal/compact screenshots, short video proof, and Codex pessimistic visual review are green; USER review remains required before PR Readiness.`
+Approval Required: `USER must complete or waive the refreshed User Test Summary before PR Readiness Stage 1 can be trusted.`
+Exact USER Decision Needed: `Review the refreshed User Test Summary at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt and return PASS/FAIL notes for FAM-006 Overlay Display Acceptance Foundation; PR creation, merge, release, issues, stale branch cleanup, and future-gated runtime work remain pending separate USER decisions.`
 Allowed Scope: `LV1 UTS handoff repair, validation, source-truth recording, and evidence refresh only.`
 Explicit Exclusions: `PR creation, merge to main, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation.`
 Validation Required: `Identity, source-truth, HUD live/human-client proof as needed, branch governance, worktree confinement after commit, release-readiness health gate, validation suite, diff checks, compileall, and supported JS syntax/runtime checks including bundled runtime Node when needed.`
