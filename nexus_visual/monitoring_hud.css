@@ -1274,6 +1274,10 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
   scrollbar-gutter: auto;
 }
 
+body.desktop-mode .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] {
+  overflow: hidden;
+}
+
 .monitoring-hud__overlay-profile-choice-panel {
   display: grid;
   gap: 0;
@@ -1777,7 +1781,7 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
 @media (max-height: 620px) {
   .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] {
     height: min(720px, calc(100% - 40px));
-    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
   }
 
   .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-detail-section {
@@ -1801,8 +1805,8 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
 
 @media (max-height: 730px) {
   .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] {
-    overflow: auto;
-    scrollbar-gutter: stable;
+    overflow: hidden;
+    scrollbar-gutter: auto;
   }
 }
 

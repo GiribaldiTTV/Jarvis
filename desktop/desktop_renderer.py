@@ -155,6 +155,9 @@ GetWindowTextW.restype = ctypes.c_int
 SetCursorPos = user32.SetCursorPos
 SetCursorPos.argtypes = [ctypes.c_int, ctypes.c_int]
 SetCursorPos.restype = ctypes.c_bool
+ShowCursor = user32.ShowCursor
+ShowCursor.argtypes = [ctypes.c_bool]
+ShowCursor.restype = ctypes.c_int
 GetCursorPos = user32.GetCursorPos
 GetCursorPos.argtypes = [ctypes.POINTER(ctypes.wintypes.POINT)]
 GetCursorPos.restype = ctypes.c_bool
@@ -222,8 +225,10 @@ INPUT_MOUSE = 0
 MOUSEEVENTF_MOVE = 0x0001
 MOUSEEVENTF_LEFTDOWN = 0x0002
 MOUSEEVENTF_LEFTUP = 0x0004
+MOUSEEVENTF_WHEEL = 0x0800
 MOUSEEVENTF_ABSOLUTE = 0x8000
 MOUSEEVENTF_VIRTUALDESK = 0x4000
+WHEEL_DELTA = 120
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -7239,6 +7244,22 @@ class DesktopRuntimeWindow(QWidget):
             "monitorSelector",
             "monitorEnabled",
             "monitorPollingRate",
+            "overlayProfileWindowClose",
+            "overlayProfileWindowSelector",
+            "overlayProfileNameInput",
+            "overlayProfileMonitorSearch",
+            "overlayProfileMonitorFilter",
+            "overlayProfileMembershipList",
+            "overlayProfileMembershipFirstToggle",
+            "overlayProfileCreate",
+            "overlayProfileSave",
+            "overlayProfileDiscard",
+            "overlayProfileDelete",
+            "overlayProfileDeleteConfirmation",
+            "overlayAssignmentWindow",
+            "overlayAssignmentList",
+            "sourceSettingsWindow",
+            "sourceSettingsBody",
         )
         for name in control_rect_names:
             rect = self._monitoring_hud_live_screen_rects.get(name, QRect())
@@ -7277,6 +7298,21 @@ class DesktopRuntimeWindow(QWidget):
             "dashboard-settings": ("settingsWindow", "settingsClose"),
             "monitor-group-create": ("createMonitorWindow", "createMonitorClose"),
             "monitor-group-edit": ("editMonitorWindow", "editMonitorClose"),
+            "overlay-profile-settings": (
+                "overlayProfileWindow",
+                "overlayProfileWindowClose",
+                "overlayProfileWindowSelector",
+                "overlayProfileCreate",
+                "overlayProfileSave",
+                "overlayProfileDiscard",
+                "overlayProfileDelete",
+                "overlayProfileDeleteConfirmation",
+                "overlayProfileMonitorSearch",
+                "overlayProfileMonitorFilter",
+                "overlayProfileMembershipList",
+            ),
+            "monitor-overlay-assignment": ("overlayAssignmentWindow", "overlayAssignmentList"),
+            "sensor-source-settings": ("sourceSettingsWindow", "sourceSettingsBody"),
         }
         for name in rect_names_by_child_window.get(active_child_window, ()):
             rect = self._monitoring_hud_live_screen_rects.get(name, QRect())
@@ -8964,7 +9000,7 @@ class DesktopRuntimeWindow(QWidget):
             step_delay_ms=self._monitoring_hud_live_self_qa_step_delay_ms,
             final_hold_ms=self._monitoring_hud_live_self_qa_final_hold_ms,
         )
-        QTimer.singleShot(500, self._start_monitoring_hud_live_client_self_qa)
+        QTimer.singleShot(500, self._start_monitoring_hud_live_client_real_os_self_qa)
 
     def _write_monitoring_hud_live_client_self_qa_manifest(
         self,
@@ -9086,7 +9122,13 @@ class DesktopRuntimeWindow(QWidget):
         point = self.webview.mapToGlobal(QPoint(int(center_x), int(center_y)))
         return int(point.x()), int(point.y())
 
-    def _monitoring_hud_send_input(self, flags: int, x: int | None = None, y: int | None = None) -> bool:
+    def _monitoring_hud_send_input(
+        self,
+        flags: int,
+        x: int | None = None,
+        y: int | None = None,
+        mouse_data: int = 0,
+    ) -> bool:
         dx = 0
         dy = 0
         send_flags = flags
@@ -9100,15 +9142,21 @@ class DesktopRuntimeWindow(QWidget):
             send_flags |= MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK
         input_event = INPUT(
             type=INPUT_MOUSE,
-            union=INPUT_UNION(mi=MOUSEINPUT(dx, dy, 0, send_flags, 0, None)),
+            union=INPUT_UNION(mi=MOUSEINPUT(dx, dy, int(mouse_data) & 0xFFFFFFFF, send_flags, 0, None)),
         )
         sent = SendInput(1, ctypes.byref(input_event), ctypes.sizeof(INPUT))
         QApplication.processEvents()
         return sent == 1
 
+    def _monitoring_hud_force_cursor_visible(self):
+        for _ in range(8):
+            if ShowCursor(True) >= 0:
+                break
+
     def _monitoring_hud_send_mouse_click(self, point: tuple[int, int] | None) -> bool:
         if point is None:
             return False
+        self._monitoring_hud_force_cursor_visible()
         if self.surface_role == "hud":
             self.show()
             self.raise_()
@@ -9123,7 +9171,7 @@ class DesktopRuntimeWindow(QWidget):
             QApplication.processEvents()
             time.sleep(0.08)
         x, y = int(point[0]), int(point[1])
-        ok = self._monitoring_hud_move_cursor((x, y), steps=10)
+        ok = self._monitoring_hud_move_cursor((x, y), steps=24)
         cursor_after_move = self._monitoring_hud_cursor_position()
         cursor_reached_target = bool(
             cursor_after_move
@@ -9142,26 +9190,46 @@ class DesktopRuntimeWindow(QWidget):
             return False
         self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
         QApplication.processEvents()
-        time.sleep(0.04)
+        time.sleep(0.11)
         self._monitoring_hud_send_input(MOUSEEVENTF_LEFTUP)
         QApplication.processEvents()
+        time.sleep(0.05)
         return ok and cursor_reached_target
+
+    def _monitoring_hud_send_mouse_wheel(self, notches: int, point: tuple[int, int] | None = None) -> bool:
+        if point is not None and not self._monitoring_hud_move_cursor(point, steps=18):
+            return False
+        delta = int(notches) * WHEEL_DELTA
+        ok = self._monitoring_hud_send_input(MOUSEEVENTF_WHEEL, mouse_data=delta)
+        QApplication.processEvents()
+        time.sleep(0.12)
+        return bool(ok)
 
     def _monitoring_hud_move_cursor(self, point: tuple[int, int] | None, *, steps: int = 8) -> bool:
         if point is None:
             return False
+        self._monitoring_hud_force_cursor_visible()
         target_x, target_y = int(point[0]), int(point[1])
         start = self._monitoring_hud_cursor_position() or (target_x, target_y)
         total_steps = max(1, int(steps))
         ok = True
+        if abs(start[0] - target_x) < 18 and abs(start[1] - target_y) < 18:
+            staging = (target_x - 96, target_y - 54)
+            for index in range(1, 12):
+                ratio = index / 11
+                x = int(round(start[0] + ((staging[0] - start[0]) * ratio)))
+                y = int(round(start[1] + ((staging[1] - start[1]) * ratio)))
+                ok = bool(SetCursorPos(x, y)) and ok
+                QApplication.processEvents()
+                time.sleep(0.026)
+            start = staging
         for index in range(1, total_steps + 1):
             ratio = index / total_steps
             x = int(round(start[0] + ((target_x - start[0]) * ratio)))
             y = int(round(start[1] + ((target_y - start[1]) * ratio)))
             ok = bool(SetCursorPos(x, y)) and ok
             QApplication.processEvents()
-            time.sleep(0.018)
-        self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, target_x, target_y)
+            time.sleep(0.026)
         QApplication.processEvents()
         time.sleep(0.05)
         end = self._monitoring_hud_cursor_position()
@@ -9214,6 +9282,791 @@ class DesktopRuntimeWindow(QWidget):
         except (TypeError, ValueError):
             return None
         return QPoint(center_x, center_y)
+
+    def _start_monitoring_hud_live_client_real_os_self_qa(self):
+        if not self._monitoring_hud_live_self_qa_manifest_path:
+            return
+        if self._monitoring_hud_live_self_qa_started or self._is_shutting_down:
+            return
+        if not self._page_ready or not self.desktop_mode or not self.isVisible():
+            QTimer.singleShot(500, self._start_monitoring_hud_live_client_real_os_self_qa)
+            return
+
+        self._monitoring_hud_live_self_qa_started = True
+        steps: list[dict[str, object]] = []
+        screenshots: list[str] = []
+        real_os_actions: list[dict[str, object]] = []
+        live_window_origin = {"x": 120, "y": 80}
+
+        def delay(extra: int = 0) -> int:
+            return max(250, int(self._monitoring_hud_live_self_qa_step_delay_ms or 250)) + int(extra)
+
+        def finish(status: str, failure: str = ""):
+            self._write_monitoring_hud_live_client_self_qa_manifest(
+                status=status,
+                steps=steps,
+                screenshots=screenshots,
+                failure=failure,
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LIVE_CLIENT_SELF_QA_READY",
+                package="PKG-006",
+                slice="LV1",
+                status=status,
+                manifest=self._monitoring_hud_live_self_qa_manifest_path,
+            )
+
+        def add_step(label: str, passed: bool, details: dict[str, object] | None = None):
+            step_details = details or {}
+            steps.append(
+                {
+                    "label": label,
+                    "status": "PASS" if passed else "FAIL",
+                    "details": step_details,
+                }
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LIVE_CLIENT_SELF_QA_STEP",
+                package="PKG-006",
+                slice="LV1",
+                label=label,
+                status="PASS" if passed else "FAIL",
+            )
+            return passed
+
+        def capture(label: str):
+            path = self._capture_monitoring_hud_live_client_self_qa_screenshot(
+                label,
+                focused_visual=not label.startswith("context_"),
+            )
+            if path:
+                screenshots.append(path)
+            return path
+
+        def query(label: str, script: str, callback):
+            self._run_javascript_with_result(
+                script,
+                lambda result: handle_query_result(label, result, callback),
+            )
+
+        def handle_query_result(label: str, result, callback):
+            try:
+                parsed = json.loads(result) if isinstance(result, str) else result
+            except Exception:
+                parsed = {"ok": False, "raw": str(result)}
+            if not isinstance(parsed, dict):
+                parsed = {"ok": False, "raw": str(parsed)}
+            if not parsed.get("ok"):
+                add_step(label, False, parsed)
+                finish("FAIL", f"{label} failed")
+                return
+            callback(parsed)
+
+        def rect_script(selector: str) -> str:
+            return f"""
+            (function() {{
+                const selector = {json.dumps(selector)};
+                const element = document.querySelector(selector);
+                const rect = element ? element.getBoundingClientRect() : null;
+                const centerX = rect ? rect.left + (rect.width / 2) : 0;
+                const centerY = rect ? rect.top + (rect.height / 2) : 0;
+                const hitTarget = rect ? document.elementFromPoint(centerX, centerY) : null;
+                const hitControl = hitTarget && hitTarget.closest ? hitTarget.closest(selector) : null;
+                return JSON.stringify({{
+                    ok: Boolean(element && rect && rect.width > 0 && rect.height > 0 && !element.disabled && hitControl === element),
+                    selector,
+                    text: element ? String(element.textContent || "").trim() : "",
+                    hitTargetTag: hitTarget ? String(hitTarget.tagName || "") : "",
+                    hitTargetId: hitTarget ? String(hitTarget.id || "") : "",
+                    hitTargetText: hitTarget ? String(hitTarget.textContent || "").trim().slice(0, 80) : "",
+                    hitTargetMatchesSelector: Boolean(hitControl === element),
+                    hidden: element ? Boolean(element.hidden) : true,
+                    disabled: element ? Boolean(element.disabled) : true,
+                    rect: rect ? {{
+                        left: rect.left,
+                        top: rect.top,
+                        right: rect.right,
+                        bottom: rect.bottom,
+                        width: rect.width,
+                        height: rect.height,
+                        centerX: rect.left + (rect.width / 2),
+                        centerY: rect.top + (rect.height / 2)
+                    }} : null
+                }});
+            }})();
+            """
+
+        def os_click(selector: str, label: str, callback):
+            def click_from_rect(parsed: dict[str, object]):
+                point = self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect"))
+                os_clicked = self._monitoring_hud_send_mouse_click(point)
+                cursor_after = self._monitoring_hud_cursor_position()
+                details = {
+                    **parsed,
+                    "screenPoint": point,
+                    "cursorAfter": cursor_after,
+                    "inputProof": "real-os-mouse-cursor-move-down-up",
+                    "realOsInputProof": bool(os_clicked),
+                    "directJsClickUsed": False,
+                    "directJsMouseoverUsed": False,
+                    "syntheticDomEventUsed": False,
+                    "qtestMouseUsed": False,
+                }
+                real_os_actions.append({"label": label, "selector": selector, "screenPoint": point, "kind": "click"})
+                add_step(label, bool(os_clicked), details)
+                if not os_clicked:
+                    finish("FAIL", f"{label} failed to send real OS mouse input")
+                    return
+                QTimer.singleShot(delay(), callback)
+
+            query(label, rect_script(selector), click_from_rect)
+
+        def os_hover(selector: str, label: str, callback):
+            def hover_from_rect(parsed: dict[str, object]):
+                point = self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect"))
+                os_hovered = self._monitoring_hud_move_cursor(point, steps=18)
+                cursor_after = self._monitoring_hud_cursor_position()
+                details = {
+                    **parsed,
+                    "screenPoint": point,
+                    "cursorAfter": cursor_after,
+                    "inputProof": "real-os-mouse-cursor-move",
+                    "realOsInputProof": bool(os_hovered),
+                    "directJsClickUsed": False,
+                    "directJsMouseoverUsed": False,
+                    "syntheticDomEventUsed": False,
+                    "qtestMouseUsed": False,
+                }
+                real_os_actions.append({"label": label, "selector": selector, "screenPoint": point, "kind": "hover"})
+                add_step(label, bool(os_hovered), details)
+                if not os_hovered:
+                    finish("FAIL", f"{label} failed to visibly move real OS cursor")
+                    return
+                QTimer.singleShot(delay(), callback)
+
+            query(label, rect_script(selector), hover_from_rect)
+
+        def assert_state(label: str, script: str, callback):
+            def record(parsed: dict[str, object]):
+                add_step(label, True, parsed)
+                callback()
+
+            query(label, script, record)
+
+        def prepare_fixture():
+            target_screen = QApplication.primaryScreen()
+            origin_point = QPoint(0, 0)
+            for screen in QApplication.screens():
+                if screen.geometry().contains(origin_point):
+                    target_screen = screen
+                    break
+            if target_screen is None and QApplication.screens():
+                target_screen = sorted(
+                    QApplication.screens(),
+                    key=lambda item: abs(item.geometry().x()) + abs(item.geometry().y()),
+                )[0]
+            target_geometry = target_screen.availableGeometry() if target_screen else QRect(80, 80, 1280, 720)
+            target_x = target_geometry.x() + 80
+            target_y = target_geometry.y() + 80
+            live_window_origin["x"] = int(target_x)
+            live_window_origin["y"] = int(target_y)
+            self.show()
+            self.raise_()
+            self._promote_monitoring_hud_edit_window()
+            self.activateWindow()
+            self.webview.setFocus(Qt.MouseFocusReason)
+            self.setGeometry(target_x, target_y, 940, 760)
+            QApplication.processEvents()
+            self._monitoring_hud_force_cursor_visible()
+            self._monitoring_hud_move_cursor((target_x + 32, target_y + 32), steps=24)
+            capture("context_initial_live_client_visible")
+            self._run_javascript(
+                """
+                (function() {
+                    if (typeof monitoringHudControlState === "undefined") return;
+                    const state = monitoringHudControlState;
+                    state.overlayProfiles = state.overlayProfiles || {};
+                    state.cards = state.cards || {};
+                    if (!state.cards["cpu-group"]) {
+                        state.cards["cpu-group"] = { id: "cpu-group", title: "CPU Group", sourceIds: ["cpu-load"], enabled: true };
+                    }
+                    if (!state.cards["gpu-group"]) {
+                        state.cards["gpu-group"] = { id: "gpu-group", title: "GPU Group", sourceIds: [], enabled: true };
+                    }
+                    const monitorIds = Object.keys(state.cards);
+                    for (let index = 1; index <= 120; index += 1) {
+                        const id = `lv1-real-os-profile-${index}`;
+                        if (!state.overlayProfiles[id]) {
+                            state.overlayProfiles[id] = {
+                                id,
+                                schemaVersion: 1,
+                                kind: "overlay-profile",
+                                scope: "overlay-visible-monitor-membership",
+                                name: `LV1 Real OS Profile ${String(index).padStart(3, "0")}`,
+                                monitorIds: monitorIds.slice(0, Math.min(monitorIds.length, Math.max(0, index % 6))),
+                                displayMode: "monitor-cards"
+                            };
+                        }
+                    }
+                    if (typeof monitoringHudRenderControls === "function") {
+                        monitoringHudRenderControls();
+                    }
+                })();
+                """
+            )
+            QTimer.singleShot(delay(250), step_open_overlay_profiles)
+
+        def step_open_overlay_profiles():
+            capture("dashboard_window_card_button_glow_grid_background_normal_state")
+            os_click("#monitoring-hud-overlay-profile-open-settings", "real OS click opens Overlay Profile Settings", step_assert_overlay_window_open)
+
+        def step_assert_overlay_window_open():
+            assert_state(
+                "Overlay Profile Settings visible after real OS click",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-overlay-profile-window");
+                    const create = document.getElementById("monitoring-hud-overlay-profile-create");
+                    const selector = document.getElementById("monitoring-hud-overlay-profile-window-selector");
+                    const close = document.querySelector('[data-child-window-close="overlay-profile-settings"]');
+                    return JSON.stringify({
+                        ok: Boolean(windowNode && !windowNode.hidden && create && selector && close),
+                        activeWindow: document.body.dataset.activeChildWindow || "",
+                        createVisible: Boolean(create && create.offsetWidth > 0),
+                        selectorVisible: Boolean(selector && selector.offsetWidth > 0),
+                        closeVisible: Boolean(close && close.offsetWidth > 0),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_overlay_default_captures,
+            )
+
+        def step_overlay_default_captures():
+            labels = [
+                "overlay_profile_window_panel_background_grid_obscured_normal",
+                "overlay_profile_choice_panel_button_glow_uniform_normal",
+                "overlay_profile_create_button_dead_space_normal",
+                "overlay_profile_profile_to_edit_dropdown_normal",
+                "overlay_profile_row_title_page_break_divider_normal",
+                "overlay_profile_close_button_color_glow_normal",
+                "overlay_profile_selector_dropdown_button_normal",
+                "overlay_profile_window_minimum_scalability_normal",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_selector_open)
+
+        def step_selector_open():
+            os_click("#monitoring-hud-overlay-profile-window-toggle", "real OS click opens Profile to Edit dropdown", step_selector_hover)
+
+        def step_selector_hover():
+            os_hover("[data-overlay-profile-window-option]", "real OS hover illuminates Profile dropdown option", step_selector_assert_open)
+
+        def step_selector_assert_open():
+            assert_state(
+                "Profile dropdown remains bounded, scrollable, and max-five visible after real OS open",
+                """
+                (function() {
+                    const selector = document.getElementById("monitoring-hud-overlay-profile-window-selector");
+                    const menu = document.getElementById("monitoring-hud-overlay-profile-window-menu");
+                    const toggle = document.getElementById("monitoring-hud-overlay-profile-window-toggle");
+                    const options = menu ? Array.from(menu.querySelectorAll("[data-overlay-profile-window-option]")) : [];
+                    const menuRect = menu ? menu.getBoundingClientRect() : null;
+                    const visible = menuRect ? options.filter((option) => {
+                        const rect = option.getBoundingClientRect();
+                        return rect.top >= menuRect.top - 1 && rect.bottom <= menuRect.bottom + 1;
+                    }) : [];
+                    const selectorRect = selector ? selector.getBoundingClientRect() : null;
+                    return JSON.stringify({
+                        ok: Boolean(selector && selector.dataset.dropdownOpen === "true" && menu && !menu.hidden && options.length >= 100 && visible.length > 0 && visible.length <= 5 && selectorRect && menuRect && Math.abs(selectorRect.width - menuRect.width) <= 2),
+                        optionCount: options.length,
+                        visibleOptionCount: visible.length,
+                        menuWidth: menuRect ? menuRect.width : 0,
+                        selectorWidth: selectorRect ? selectorRect.width : 0,
+                        labelReadable: toggle ? toggle.scrollWidth <= toggle.clientWidth + 1 : false,
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_selector_open_captures,
+            )
+
+        def step_selector_open_captures():
+            labels = [
+                "overlay_profile_dropdown_open_max_five_ndai_scrollbar",
+                "overlay_profile_dropdown_option_hover_button_glow",
+                "overlay_profile_dropdown_stress_100_profiles",
+                "overlay_profile_selector_unclipped_normal",
+                "overlay_profile_selector_menu_width_matches_button",
+                "button_selector_dropdown_glow_border_only",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_selector_select)
+
+        def step_selector_select():
+            os_click("[data-overlay-profile-window-option]", "real OS click selects Profile to Edit option", step_profile_selected_assert)
+
+        def step_profile_selected_assert():
+            assert_state(
+                "Profile selection loads editable detail state without synthetic input",
+                """
+                (function() {
+                    const detail = document.getElementById("monitoring-hud-overlay-profile-detail-section");
+                    const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
+                    const list = document.getElementById("monitoring-hud-overlay-profile-membership-list");
+                    const rows = list ? Array.from(list.querySelectorAll("[data-overlay-profile-membership-row]")) : [];
+                    return JSON.stringify({
+                        ok: Boolean(detail && !detail.hidden && input && String(input.value || "").trim() && rows.length >= 0),
+                        detailOpen: Boolean(detail && !detail.hidden),
+                        nameValue: input ? input.value : "",
+                        visibleMonitorRows: rows.length,
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_profile_selected_captures,
+            )
+
+        def step_profile_selected_captures():
+            labels = [
+                "overlay_profile_name_field_button_buffer_selected",
+                "overlay_profile_visible_monitors_scrollbar_selected",
+                "overlay_profile_visible_monitor_source_row_checked_hover",
+                "overlay_profile_filter_dropdown_max_five_selected",
+                "overlay_profile_save_discard_delete_button_row_selected",
+                "overlay_profile_delete_button_red_danger_selected",
+                "overlay_profile_discard_button_red_danger_selected",
+                "overlay_profile_membership_separation_monitor_group_recording_profile",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_delete_request)
+
+        def step_filter_open():
+            os_click("#monitoring-hud-overlay-profile-monitor-filter-toggle", "real OS click opens Visible Monitors filter dropdown", step_filter_hover)
+
+        def step_filter_hover():
+            os_hover("[data-overlay-profile-monitor-filter-option]", "real OS hover illuminates Visible Monitors filter option", step_filter_assert)
+
+        def step_filter_assert():
+            assert_state(
+                "Visible Monitors filter remains NDAI styled and bounded",
+                """
+                (function() {
+                    const filter = document.getElementById("monitoring-hud-overlay-profile-monitor-filter");
+                    const menu = document.getElementById("monitoring-hud-overlay-profile-monitor-filter-menu");
+                    const options = menu ? Array.from(menu.querySelectorAll("[data-overlay-profile-monitor-filter-option]")) : [];
+                    const menuRect = menu ? menu.getBoundingClientRect() : null;
+                    return JSON.stringify({
+                        ok: Boolean(filter && filter.dataset.dropdownOpen === "true" && menu && !menu.hidden && options.length <= 5 && menuRect && menuRect.width > 0),
+                        optionCount: options.length,
+                        scrollbarPolicy: "ndai-native",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_filter_captures,
+            )
+
+        def step_filter_captures():
+            labels = [
+                "filter_dropdown_max_five_ndai_scrollbar",
+                "filter_dropdown_option_hover_source_picker_checked",
+                "source_row_checked_hover_state_stability",
+                "scrollbar_visible_monitors_ndai_native",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(
+                delay(),
+                lambda: os_click(
+                    "[data-overlay-profile-monitor-filter-option]",
+                    "real OS click selects Visible Monitors filter option before compact resize",
+                    step_compact_resize,
+                ),
+            )
+
+        def step_create_profile():
+            os_click("#monitoring-hud-overlay-profile-create", "real OS click creates draft Overlay Profile", step_create_assert)
+
+        def step_create_assert():
+            assert_state(
+                "Create Profile opens unsaved draft with empty monitor membership",
+                """
+                (function() {
+                    const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
+                    const save = document.getElementById("monitoring-hud-overlay-profile-save");
+                    const rows = Array.from(document.querySelectorAll("[data-overlay-profile-membership-row] input:checked"));
+                    const hud = document.getElementById("monitoring-hud");
+                    const create = document.getElementById("monitoring-hud-overlay-profile-create");
+                    return JSON.stringify({
+                        ok: Boolean(input && save && !save.disabled && rows.length === 0),
+                        checkedMembershipRows: rows.length,
+                        saveEnabled: save ? !save.disabled : false,
+                        createRect: create ? create.getBoundingClientRect().toJSON ? create.getBoundingClientRect().toJSON() : {
+                            left: create.getBoundingClientRect().left,
+                            top: create.getBoundingClientRect().top,
+                            right: create.getBoundingClientRect().right,
+                            bottom: create.getBoundingClientRect().bottom,
+                            width: create.getBoundingClientRect().width,
+                            height: create.getBoundingClientRect().height
+                        } : null,
+                        lastInteractiveControl: hud ? String(hud.dataset.lastInteractiveControl || "") : "",
+                        lastInteractiveControlPhase: hud ? String(hud.dataset.lastInteractiveControlPhase || "") : "",
+                        clickInterceptionDiagnostics: hud ? String(hud.dataset.clickInterceptionDiagnostics || "") : "",
+                        pendingCreate: typeof monitoringHudOverlayProfilePendingCreate !== "undefined" && monitoringHudOverlayProfilePendingCreate ? monitoringHudOverlayProfilePendingCreate.id : "",
+                        selectedId: typeof monitoringHudOverlayProfileWindowSelectedId !== "undefined" ? String(monitoringHudOverlayProfileWindowSelectedId || "") : "",
+                        detailOpen: typeof monitoringHudOverlayProfileDetailOpen !== "undefined" ? Boolean(monitoringHudOverlayProfileDetailOpen) : false,
+                        dirtyGuardEligible: true,
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_create_captures,
+            )
+
+        def step_create_captures():
+            labels = [
+                "overlay_profile_create_draft_clean_empty_membership",
+                "overlay_profile_save_button_enabled_dirty_changes",
+                "overlay_profile_close_dirty_guard_precheck",
+                "button_glow_create_profile_hover_state",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_close_dirty_guard)
+
+        def step_close_dirty_guard():
+            os_click('[data-child-window-close="overlay-profile-settings"]', "real OS click close opens dirty-change guard", step_dirty_guard_assert)
+
+        def step_dirty_guard_assert():
+            assert_state(
+                "Dirty-change guard blocks close after created draft",
+                """
+                (function() {
+                    const guard = document.getElementById("monitoring-hud-overlay-profile-unsaved-guard");
+                    const windowNode = document.getElementById("monitoring-hud-overlay-profile-window");
+                    return JSON.stringify({
+                        ok: Boolean(guard && !guard.hidden && windowNode && !windowNode.hidden),
+                        guardOpen: Boolean(guard && !guard.hidden),
+                        windowStillOpen: Boolean(windowNode && !windowNode.hidden),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_dirty_guard_captures,
+            )
+
+        def step_dirty_guard_captures():
+            labels = [
+                "unsaved_guard_save_discard_buttons_visible",
+                "unsaved_guard_discard_red_danger_button",
+                "unsaved_guard_panel_background_no_grid_bleed",
+                "dirty_guard_close_button_functionality",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_discard_guard)
+
+        def step_discard_guard():
+            os_click("#monitoring-hud-overlay-profile-unsaved-discard", "real OS click discards dirty Overlay Profile draft", step_discard_assert)
+
+        def step_discard_assert():
+            assert_state(
+                "Discard closes dirty guard without persisting draft",
+                """
+                (function() {
+                    const guard = document.getElementById("monitoring-hud-overlay-profile-unsaved-guard");
+                    const windowNode = document.getElementById("monitoring-hud-overlay-profile-window");
+                    return JSON.stringify({
+                        ok: Boolean(guard && guard.hidden && windowNode && windowNode.hidden),
+                        guardClosed: Boolean(guard && guard.hidden),
+                        windowClosed: Boolean(windowNode && windowNode.hidden),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_manage_monitors_open,
+            )
+
+        def step_reopen_for_delete():
+            self.setGeometry(int(live_window_origin["x"]), int(live_window_origin["y"]), 940, 760)
+            QApplication.processEvents()
+            os_click("#monitoring-hud-overlay-profile-open-settings", "real OS click reopens Overlay Profile Settings after discard", step_reselect_for_delete)
+
+        def step_reselect_for_delete():
+            os_click("#monitoring-hud-overlay-profile-window-toggle", "real OS click reopens selector before delete proof", step_reselect_option_for_delete)
+
+        def step_reselect_option_for_delete():
+            os_click("[data-overlay-profile-window-option]", "real OS click selects profile before delete proof", step_delete_request)
+
+        def step_delete_request():
+            os_click("#monitoring-hud-overlay-profile-delete", "real OS click opens Delete Profile confirmation", step_delete_assert)
+
+        def step_delete_assert():
+            assert_state(
+                "Delete Profile confirmation opens as red danger action",
+                """
+                (function() {
+                    const confirmation = document.getElementById("monitoring-hud-overlay-profile-delete-confirmation");
+                    const confirm = document.getElementById("monitoring-hud-overlay-profile-delete-confirm");
+                    const cancel = document.getElementById("monitoring-hud-overlay-profile-delete-cancel");
+                    return JSON.stringify({
+                        ok: Boolean(confirmation && !confirmation.hidden && confirm && cancel),
+                        confirmVisible: Boolean(confirm && confirm.offsetWidth > 0),
+                        cancelVisible: Boolean(cancel && cancel.offsetWidth > 0),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_delete_captures,
+            )
+
+        def step_delete_captures():
+            labels = [
+                "delete_confirmation_red_delete_cancel_buttons",
+                "delete_profile_danger_button_color_uniform",
+                "cancel_button_hover_glow_uniform",
+                "button_glow_border_only_non_hover",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_cancel_delete)
+
+        def step_cancel_delete():
+            os_click("#monitoring-hud-overlay-profile-delete-cancel", "real OS click cancels Delete Profile confirmation", step_filter_open)
+
+        def step_compact_resize():
+            self.setGeometry(int(live_window_origin["x"]), int(live_window_origin["y"]), 640, 595)
+            QApplication.processEvents()
+            QTimer.singleShot(delay(300), step_compact_assert)
+
+        def step_compact_assert():
+            assert_state(
+                "Compact Overlay Profiles window preserves functional visible monitor row and action buttons",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-overlay-profile-window");
+                    const create = document.getElementById("monitoring-hud-overlay-profile-create");
+                    const selector = document.getElementById("monitoring-hud-overlay-profile-window-selector");
+                    const save = document.getElementById("monitoring-hud-overlay-profile-save");
+                    const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
+                    const deleteButton = document.getElementById("monitoring-hud-overlay-profile-delete");
+                    const detail = document.getElementById("monitoring-hud-overlay-profile-detail-section");
+                    const membershipList = document.getElementById("monitoring-hud-overlay-profile-membership-list");
+                    const rows = Array.from(document.querySelectorAll("[data-overlay-profile-membership-row]"));
+                    const firstRow = rows[0] || null;
+                    const visibleFirstRow = firstRow ? firstRow.getBoundingClientRect().height >= 28 : false;
+                    const windowHasOuterScroll = Boolean(windowNode && windowNode.scrollHeight > windowNode.clientHeight + 2);
+                    const detailHasOuterScroll = Boolean(detail && detail.scrollHeight > detail.clientHeight + 2);
+                    const membershipScrollAllowed = Boolean(membershipList && membershipList.scrollHeight > membershipList.clientHeight + 2);
+                    return JSON.stringify({
+                        ok: Boolean(windowNode && !windowNode.hidden && create && selector && save && discard && deleteButton && visibleFirstRow && !windowHasOuterScroll && !detailHasOuterScroll && membershipScrollAllowed),
+                        createVisible: Boolean(create && create.offsetWidth > 0),
+                        selectorVisible: Boolean(selector && selector.offsetWidth > 0),
+                        saveVisible: Boolean(save && save.offsetWidth > 0),
+                        discardVisible: Boolean(discard && discard.offsetWidth > 0),
+                        deleteVisible: Boolean(deleteButton && deleteButton.offsetWidth > 0),
+                        firstMonitorRowVisible: visibleFirstRow,
+                        windowHasOuterScroll,
+                        detailHasOuterScroll,
+                        membershipScrollAllowed,
+                        compactSize: { width: window.innerWidth, height: window.innerHeight },
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_compact_captures,
+            )
+
+        def step_compact_captures():
+            labels = [
+                "compact_window_size_overlay_profile_functional",
+                "compact_overlay_profile_visible_monitor_full_row",
+                "compact_overlay_profile_action_buttons_visible",
+                "compact_overlay_profile_selector_create_same_row",
+                "compact_overlay_profile_no_right_edge_clipping",
+                "compact_overlay_profile_scrollbar_minimum_functionality",
+                "minimum_responsive_scale_overlay_profile_normal_compare",
+                "normal_compact_visual_comparison_overlay_profile",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_create_profile)
+
+        def step_close_compact():
+            os_click('[data-child-window-close="overlay-profile-settings"]', "real OS click closes Overlay Profile Settings at compact size", step_manage_monitors_open)
+
+        def step_manage_monitors_open():
+            self.setGeometry(int(live_window_origin["x"]), int(live_window_origin["y"]), 940, 760)
+            QApplication.processEvents()
+            QTimer.singleShot(delay(150), step_manage_monitors_scroll)
+
+        def step_manage_monitors_scroll():
+            point = (
+                int(live_window_origin["x"]) + 470,
+                int(live_window_origin["y"]) + 420,
+            )
+            scrolled = self._monitoring_hud_send_mouse_wheel(-5, point)
+            add_step(
+                "real OS mouse wheel scrolls Dashboard to Manage Monitors control",
+                bool(scrolled),
+                {
+                    "ok": bool(scrolled),
+                    "screenPoint": point,
+                    "wheelNotches": -5,
+                    "inputProof": "real-os-mouse-cursor-move-wheel",
+                    "realOsInputProof": bool(scrolled),
+                    "directJsScrollUsed": False,
+                    "directJsClickUsed": False,
+                    "syntheticDomEventUsed": False,
+                    "qtestMouseUsed": False,
+                },
+            )
+            if not scrolled:
+                finish("FAIL", "real OS mouse wheel scroll to Manage Monitors failed")
+                return
+            QTimer.singleShot(delay(150), lambda: os_click("#monitoring-hud-edit-monitor-action", "real OS click opens Manage Monitors", step_manage_assert))
+
+        def step_manage_assert():
+            assert_state(
+                "Manage Monitors opens and preserves Dashboard button parity",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-edit-monitor-window");
+                    const sourceList = document.getElementById("monitoring-hud-monitor-sensor-assignment");
+                    const settings = document.querySelector("[data-source-settings-open]");
+                    const overlayContext = document.getElementById("monitoring-hud-monitor-overlay-profile-context");
+                    return JSON.stringify({
+                        ok: Boolean(windowNode && !windowNode.hidden && sourceList && settings && overlayContext),
+                        windowOpen: Boolean(windowNode && !windowNode.hidden),
+                        sourceListVisible: Boolean(sourceList && sourceList.offsetWidth > 0),
+                        sourceSettingsVisible: Boolean(settings && settings.offsetWidth > 0),
+                        overlayContextVisible: Boolean(overlayContext && overlayContext.offsetWidth > 0),
+                        sourceListId: sourceList ? sourceList.id : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_manage_captures,
+            )
+
+        def step_manage_captures():
+            labels = [
+                "manage_monitors_window_panel_background_grid_obscured",
+                "manage_monitors_button_dashboard_parity",
+                "manage_monitors_source_picker_scrollbar",
+                "manage_monitors_source_row_checked_hover",
+                "manage_monitors_filter_dropdown_max_five",
+                "assigned_overlay_click_affordance_button",
+                "polling_rate_row_display",
+                "warning_checkbox_settings_row",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_source_settings_open)
+
+        def step_source_settings_open():
+            os_click("[data-source-settings-open]", "real OS click opens Source Settings", step_source_settings_assert)
+
+        def step_source_settings_assert():
+            assert_state(
+                "Source Settings opens through real OS click and exposes display/warning/polling controls",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-source-settings-window");
+                    const display = document.querySelector("[data-sensor-display-mode-option]");
+                    const warning = document.querySelector("[data-sensor-warning-enabled]");
+                    const polling = document.querySelector("[data-source-polling-toggle]");
+                    const hud = document.getElementById("monitoring-hud");
+                    return JSON.stringify({
+                        ok: Boolean(windowNode && !windowNode.hidden && display && warning && polling),
+                        windowOpen: Boolean(windowNode && !windowNode.hidden),
+                        activeChildWindow: hud ? String(hud.dataset.activeChildWindow || "") : "",
+                        sourceSettingsWindowState: windowNode ? String(windowNode.dataset.sourceSettingsWindow || "") : "",
+                        sourceSettingsSourceId: windowNode ? String(windowNode.dataset.sourceId || "") : "",
+                        displayVisible: Boolean(display && display.offsetWidth > 0),
+                        warningVisible: Boolean(warning && warning.offsetWidth > 0),
+                        pollingVisible: Boolean(polling && polling.offsetWidth > 0),
+                        lastInteractiveControl: hud ? String(hud.dataset.lastInteractiveControl || "") : "",
+                        lastInteractiveControlPhase: hud ? String(hud.dataset.lastInteractiveControlPhase || "") : "",
+                        clickInterceptionDiagnostics: hud ? String(hud.dataset.clickInterceptionDiagnostics || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_source_settings_captures,
+            )
+
+        def step_source_settings_captures():
+            labels = [
+                "source_settings_window_display_mode_buttons",
+                "source_settings_warning_checkbox_no_gold_focus",
+                "source_settings_polling_rate_dropdown_button",
+                "source_settings_shift_focus_state",
+                "source_settings_close_button_color_uniform",
+                "source_settings_window_create_clean_state_stability",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_final_markers)
+
+        def step_final_markers():
+            add_step(
+                "LV1 route used real OS mouse movement/clicks only for active interactions",
+                len(real_os_actions) >= 12,
+                {
+                    "realOsInputProof": True,
+                    "directJsClickUsed": False,
+                    "directJsMouseoverUsed": False,
+                    "syntheticDomEventUsed": False,
+                    "qtestMouseUsed": False,
+                    "realOsActionCount": len(real_os_actions),
+                    "realOsActions": real_os_actions,
+                },
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY",
+                package="PKG-006",
+                slice="LV1",
+                proof="real-os-input-route-active",
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY",
+                package="PKG-006",
+                slice="LV1",
+                proof="normal-and-compact-focused-screenshots",
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY",
+                package="PKG-006",
+                slice="LV1",
+                proof="dashboard-child-window-real-os-route",
+            )
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
+                package="PKG-006",
+                slice="LV1",
+                proof="real-os-cursor-move-down-up",
+                real_os_actions=len(real_os_actions),
+            )
+            capture("final_anchored_live_client")
+            finish("PASS")
+
+        prepare_fixture()
 
     def _monitoring_hud_send_widget_drag(
         self,

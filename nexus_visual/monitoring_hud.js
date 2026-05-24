@@ -2092,6 +2092,12 @@ function monitoringHudWireReliableDelegatedControl(root, selector, keyPrefix, ha
     const allowNative = Boolean(options.allowNative && options.allowNative(target, event, phase));
     if (!allowNative && event && typeof event.preventDefault === "function") event.preventDefault();
     if (!allowNative && event && typeof event.stopPropagation === "function") event.stopPropagation();
+    if (options.activateOnPointerDown) {
+      const pointerActivatedAt = Number(target.dataset.reliablePointerActivatedAt || 0);
+      if (pointerActivatedAt && Date.now() - pointerActivatedAt < 700) {
+        return;
+      }
+    }
     monitoringHudApplyPressedState(target, false);
     const key = `${keyPrefix}:${monitoringHudControlActivationKey(target)}`;
     if (!monitoringHudReliableActivationAllowed(key)) return;
@@ -2103,6 +2109,16 @@ function monitoringHudWireReliableDelegatedControl(root, selector, keyPrefix, ha
     if (!target || !root.contains(target)) return;
     monitoringHudApplyPressedState(target, true);
     monitoringHudRecordReliableActivation(target, "pointerdown", true);
+    if (options.activateOnPointerDown) {
+      if (event && typeof event.preventDefault === "function") event.preventDefault();
+      if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+      const key = `${keyPrefix}:${monitoringHudControlActivationKey(target)}`;
+      if (!monitoringHudReliableActivationAllowed(key)) return;
+      target.dataset.reliablePointerActivatedAt = String(Date.now());
+      const result = handler(target, event);
+      monitoringHudRecordReliableActivation(target, "pointerdown-immediate", result !== false);
+      window.setTimeout(() => monitoringHudApplyPressedState(target, false), 80);
+    }
   });
   root.addEventListener("pointerleave", (event) => {
     const target = event.target && event.target.closest ? event.target.closest(selector) : null;
@@ -4027,7 +4043,7 @@ function monitoringHudWireControls() {
   if (monitoringHudMonitorSensorAssignment) {
     monitoringHudWireReliableDelegatedControl(monitoringHudMonitorSensorAssignment, "[data-source-settings-open]", "source-settings", (button) => {
       return monitoringHudOpenSourceSettings(button.dataset.sourceSettingsOpen || "");
-    });
+    }, { activateOnPointerDown: true });
     monitoringHudMonitorSensorAssignment.addEventListener("change", (event) => {
       if (!event.target || !event.target.matches || !event.target.matches("[data-monitor-sensor-input]")) return;
       if (Date.now() <= monitoringHudSourcePickerSuppressNativeChangeUntil) {

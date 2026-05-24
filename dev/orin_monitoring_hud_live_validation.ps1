@@ -67,12 +67,18 @@ function Assert-NoSyntheticLiveValidationInteraction {
         throw "Synthetic-interaction preflight could not inspect renderer path: $rendererPath"
     }
     $rendererText = Get-Content -LiteralPath $rendererPath -Raw
-    $startMarker = "def _start_monitoring_hud_live_client_self_qa"
+    $startMarker = "def _start_monitoring_hud_live_client_real_os_self_qa"
     $startIndex = $rendererText.IndexOf($startMarker, [StringComparison]::Ordinal)
     if ($startIndex -lt 0) {
         throw "Synthetic-interaction preflight could not find active LV1 self-QA route marker: $startMarker"
     }
-    $routeText = $rendererText.Substring($startIndex)
+    $nextMethodIndex = $rendererText.IndexOf("`n    def ", $startIndex + $startMarker.Length, [StringComparison]::Ordinal)
+    if ($nextMethodIndex -lt 0) {
+        $routeText = $rendererText.Substring($startIndex)
+    }
+    else {
+        $routeText = $rendererText.Substring($startIndex, $nextMethodIndex - $startIndex)
+    }
     $forbiddenPatterns = @(
         @{ Pattern = ".click("; Label = "direct JavaScript click" },
         @{ Pattern = "dispatchEvent(new MouseEvent"; Label = "synthetic DOM mouse event" },
