@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 from .ai_provider_state import (
     build_default_provider_readiness_config,
-    build_provider_user_operated_consent_ux_foundation_state,
+    build_provider_setup_completion_foundation_state,
     resolve_default_provider_durable_consent_store_dir,
 )
 from .workerw_utils import (
@@ -41,7 +41,7 @@ class CoreVisualizationWindow(QWidget):
         self._provider_durable_consent_store_dir = (
             resolve_default_provider_durable_consent_store_dir()
         )
-        self._ai_provider_state = build_provider_user_operated_consent_ux_foundation_state(
+        self._ai_provider_state = build_provider_setup_completion_foundation_state(
             build_default_provider_readiness_config(),
             surface_role="core",
             durable_consent_store_dir=self._provider_durable_consent_store_dir,
@@ -377,6 +377,20 @@ class CoreVisualizationWindow(QWidget):
             f"|consent_ux_desktop_display={payload.get('consentUxDesktopDisplayState', '')}"
             f"|consent_ux_setup_gate={payload.get('consentUxProviderSetupGateState', '')}"
             f"|consent_ux_execution_gate={payload.get('consentUxProviderExecutionGateState', '')}"
+            f"|setup_completion={payload.get('providerSetupCompletionState', '')}"
+            f"|setup_completion_blocker={payload.get('providerSetupCompletionBlockerState', '')}"
+            f"|setup_completion_reason={payload.get('providerSetupCompletionReasonCode', '')}"
+            f"|setup_completion_profile={payload.get('providerSetupCompletionProfileStatus', '')}"
+            f"|setup_completion_config={payload.get('providerSetupCompletionConfigStatus', '')}"
+            f"|setup_completion_no_secrets={payload.get('providerSetupCompletionNoSecretsStatus', '')}"
+            f"|setup_completion_validation={payload.get('providerSetupCompletionValidationStatus', '')}"
+            f"|setup_completion_persistence={payload.get('providerSetupCompletionPersistenceStatus', '')}"
+            f"|setup_completion_reset={payload.get('providerSetupCompletionResetState', '')}"
+            f"|setup_completion_status_proof={payload.get('providerSetupCompletionStatusProofState', '')}"
+            f"|setup_completion_desktop_display={payload.get('providerSetupCompletionDesktopDisplayState', '')}"
+            f"|setup_completion_setup_gate={payload.get('providerSetupCompletionProviderSetupGateState', '')}"
+            f"|setup_completion_execution_gate={payload.get('providerSetupCompletionProviderExecutionGateState', '')}"
+            f"|setup_completion_sdk_handoff={payload.get('providerSetupCompletionSdkHandoffState', '')}"
             f"|provider_setup_handoff={payload.get('providerSetupHandoffPosture', '')}"
             f"|provider_consent_handoff={payload.get('providerConsentHandoffPosture', '')}"
             f"|desktop_readiness_display={payload.get('desktopAiOwnedReadinessDisplayState', '')}"

@@ -38,7 +38,7 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from .interaction_overlay_model import CommandOverlayModel
 from .ai_provider_state import (
     build_default_provider_readiness_config,
-    build_provider_user_operated_consent_ux_foundation_state,
+    build_provider_setup_completion_foundation_state,
     resolve_default_provider_durable_consent_store_dir,
 )
 from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
@@ -5761,7 +5761,7 @@ class DesktopRuntimeWindow(QWidget):
         self._provider_durable_consent_store_dir = (
             resolve_default_provider_durable_consent_store_dir()
         )
-        self._ai_provider_state = build_provider_user_operated_consent_ux_foundation_state(
+        self._ai_provider_state = build_provider_setup_completion_foundation_state(
             build_default_provider_readiness_config(),
             surface_role=self.surface_role,
             durable_consent_store_dir=self._provider_durable_consent_store_dir,
@@ -15060,6 +15060,20 @@ class DesktopRuntimeWindow(QWidget):
             consent_ux_desktop_display=payload.get("consentUxDesktopDisplayState", ""),
             consent_ux_setup_gate=payload.get("consentUxProviderSetupGateState", ""),
             consent_ux_execution_gate=payload.get("consentUxProviderExecutionGateState", ""),
+            setup_completion=payload.get("providerSetupCompletionState", ""),
+            setup_completion_blocker=payload.get("providerSetupCompletionBlockerState", ""),
+            setup_completion_reason=payload.get("providerSetupCompletionReasonCode", ""),
+            setup_completion_profile=payload.get("providerSetupCompletionProfileStatus", ""),
+            setup_completion_config=payload.get("providerSetupCompletionConfigStatus", ""),
+            setup_completion_no_secrets=payload.get("providerSetupCompletionNoSecretsStatus", ""),
+            setup_completion_validation=payload.get("providerSetupCompletionValidationStatus", ""),
+            setup_completion_persistence=payload.get("providerSetupCompletionPersistenceStatus", ""),
+            setup_completion_reset=payload.get("providerSetupCompletionResetState", ""),
+            setup_completion_status_proof=payload.get("providerSetupCompletionStatusProofState", ""),
+            setup_completion_desktop_display=payload.get("providerSetupCompletionDesktopDisplayState", ""),
+            setup_completion_setup_gate=payload.get("providerSetupCompletionProviderSetupGateState", ""),
+            setup_completion_execution_gate=payload.get("providerSetupCompletionProviderExecutionGateState", ""),
+            setup_completion_sdk_handoff=payload.get("providerSetupCompletionSdkHandoffState", ""),
             provider_setup_handoff=payload.get("providerSetupHandoffPosture", ""),
             provider_consent_handoff=payload.get("providerConsentHandoffPosture", ""),
             desktop_readiness_display=payload.get("desktopAiOwnedReadinessDisplayState", ""),

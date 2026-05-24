@@ -48,6 +48,9 @@ FAM007_PROVIDER_DURABLE_CONSENT_PERSISTENCE_FOUNDATION_STATE_ID = (
 FAM007_PROVIDER_USER_OPERATED_CONSENT_UX_FOUNDATION_STATE_ID = (
     "fam007-provider-user-operated-consent-ux-foundation"
 )
+FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_STATE_ID = (
+    "fam007-provider-setup-completion-foundation"
+)
 
 NO_PROVIDER_MODE = "no-provider"
 NO_PROVIDER_AVAILABILITY = "disabled"
@@ -82,10 +85,14 @@ FAM007_PROVIDER_DURABLE_CONSENT_PERSISTENCE_FOUNDATION_MODE = (
 FAM007_PROVIDER_USER_OPERATED_CONSENT_UX_FOUNDATION_MODE = (
     "provider-user-operated-consent-ux-foundation"
 )
+FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_MODE = (
+    "provider-setup-completion-foundation"
+)
 FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_AVAILABILITY = "disabled"
 FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_AVAILABILITY = "disabled"
 FAM007_PROVIDER_DURABLE_CONSENT_PERSISTENCE_FOUNDATION_AVAILABILITY = "disabled"
 FAM007_PROVIDER_USER_OPERATED_CONSENT_UX_FOUNDATION_AVAILABILITY = "disabled"
+FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_AVAILABILITY = "disabled"
 NO_PROVIDER_ID = "no-provider"
 NO_PROVIDER_FALLBACK_SELECTION = "fallback-no-provider"
 PROVIDER_CONSENT_REQUIRED = "required-before-provider"
@@ -1208,6 +1215,122 @@ CONSENT_UX_PROVIDER_EXECUTION_GATE_DISABLED = (
 CONSENT_UX_STATUS_PROOF_STATE = "consent-ux-status-proof-derived-from-durable-state"
 CONSENT_UX_DESKTOP_DISPLAY_SUPPRESSED = "consent-ux-desktop-display-suppressed"
 CONSENT_UX_LOCAL_ONLY_POSTURE = "consent-ux-local-only"
+SETUP_COMPLETION_STATE_SCHEMA_VERSION = "provider-setup-completion-foundation-state.v1"
+SETUP_COMPLETION_CONFIG_SCHEMA_VERSION = "provider-setup-completion-foundation-config.v1"
+SETUP_COMPLETION_CONFIG_MIGRATION_POSTURE = (
+    "safe-local-setup-completion-v1-no-secret-migration"
+)
+SETUP_COMPLETION_STATE_UNAVAILABLE = "setup_completion_unavailable"
+SETUP_COMPLETION_STATE_BLOCKED_BY_CONSENT_UX = (
+    "setup_completion_blocked_by_consent_ux"
+)
+SETUP_COMPLETION_STATE_BLOCKED_BY_PROFILE = (
+    "setup_completion_blocked_by_profile"
+)
+SETUP_COMPLETION_STATE_BLOCKED_BY_CONFIG = "setup_completion_blocked_by_config"
+SETUP_COMPLETION_STATE_BLOCKED_BY_NO_SECRETS = (
+    "setup_completion_blocked_by_no_secrets"
+)
+SETUP_COMPLETION_STATE_BLOCKED_BY_VALIDATION = (
+    "setup_completion_blocked_by_validation"
+)
+SETUP_COMPLETION_STATE_RESET_LOCAL_ONLY = "setup_completion_reset_local_only"
+SETUP_COMPLETION_STATE_READY_LOCAL_ONLY = "setup_completion_ready_local_only"
+SETUP_COMPLETION_STATE_READY_FOR_FUTURE_SDK_HANDOFF = (
+    "setup_completion_ready_for_future_sdk_handoff"
+)
+SETUP_COMPLETION_ELIGIBILITY_UNAVAILABLE = "setup_completion_eligibility_unavailable"
+SETUP_COMPLETION_ELIGIBILITY_BLOCKED = "setup_completion_eligibility_blocked"
+SETUP_COMPLETION_ELIGIBILITY_RESET = "setup_completion_eligibility_reset"
+SETUP_COMPLETION_ELIGIBILITY_LOCAL_READY = "setup_completion_eligibility_local_ready"
+SETUP_COMPLETION_ELIGIBILITY_FUTURE_HANDOFF = (
+    "setup_completion_eligibility_future_handoff"
+)
+SETUP_COMPLETION_BLOCKER_CONSENT_UX_REQUIRED = (
+    "setup_completion_consent_ux_required"
+)
+SETUP_COMPLETION_BLOCKER_PROFILE_FINALIZATION_REQUIRED = (
+    "setup_completion_profile_finalization_required"
+)
+SETUP_COMPLETION_BLOCKER_CONFIG_FINALIZATION_REQUIRED = (
+    "setup_completion_config_finalization_required"
+)
+SETUP_COMPLETION_BLOCKER_NO_SECRETS_REQUIRED = (
+    "setup_completion_no_secrets_required"
+)
+SETUP_COMPLETION_BLOCKER_VALIDATION_REQUIRED = (
+    "setup_completion_validation_required"
+)
+SETUP_COMPLETION_BLOCKER_RESET_REQUESTED = "setup_completion_reset_requested"
+SETUP_COMPLETION_BLOCKER_FUTURE_SDK_HANDOFF = (
+    "setup_completion_future_sdk_handoff_required"
+)
+SETUP_COMPLETION_BLOCKER_NONE = "none"
+SETUP_COMPLETION_REASON_DEFAULT_UNAVAILABLE = (
+    "setup_completion_default_unavailable"
+)
+SETUP_COMPLETION_REASON_CONSENT_UX_REQUIRED = (
+    "setup_completion_consent_ux_required"
+)
+SETUP_COMPLETION_REASON_PROFILE_MISSING = "setup_completion_profile_missing"
+SETUP_COMPLETION_REASON_PROFILE_INVALID = "setup_completion_profile_invalid"
+SETUP_COMPLETION_REASON_CONFIG_MISSING = "setup_completion_config_missing"
+SETUP_COMPLETION_REASON_CONFIG_INVALID = "setup_completion_config_invalid"
+SETUP_COMPLETION_REASON_NO_SECRETS_FAILED = "setup_completion_no_secrets_failed"
+SETUP_COMPLETION_REASON_VALIDATION_FAILED = "setup_completion_validation_failed"
+SETUP_COMPLETION_REASON_RESET_REQUESTED = "setup_completion_reset_requested"
+SETUP_COMPLETION_REASON_READY_LOCAL_ONLY = "setup_completion_ready_local_only"
+SETUP_COMPLETION_REASON_READY_FOR_FUTURE_SDK_HANDOFF = (
+    "setup_completion_ready_for_future_sdk_handoff"
+)
+SETUP_COMPLETION_PROVENANCE_CONSENT_UX = "provider_user_operated_consent_ux_state"
+SETUP_COMPLETION_PROVENANCE_PROFILE = "provider_profile_finalization"
+SETUP_COMPLETION_PROVENANCE_CONFIG = "provider_config_finalization"
+SETUP_COMPLETION_PROVENANCE_NO_SECRETS = "provider_setup_no_secrets_validation"
+SETUP_COMPLETION_PROVENANCE_VALIDATION = "provider_setup_completion_validation"
+SETUP_COMPLETION_PROVENANCE_RESET = "provider_setup_completion_reset"
+SETUP_COMPLETION_PROVENANCE_HANDOFF = "future_provider_sdk_handoff"
+SETUP_COMPLETION_PROFILE_MISSING = "setup_completion_profile_missing"
+SETUP_COMPLETION_PROFILE_INVALID = "setup_completion_profile_invalid"
+SETUP_COMPLETION_PROFILE_FINALIZED = "setup_completion_profile_finalized_local_only"
+SETUP_COMPLETION_CONFIG_MISSING = "setup_completion_config_missing"
+SETUP_COMPLETION_CONFIG_INVALID = "setup_completion_config_invalid"
+SETUP_COMPLETION_CONFIG_FINALIZED = "setup_completion_config_finalized_local_only"
+SETUP_COMPLETION_NO_SECRETS_BLOCKED = "setup_completion_no_secrets_blocked"
+SETUP_COMPLETION_NO_SECRETS_READY = "setup_completion_no_secrets_ready"
+SETUP_COMPLETION_VALIDATION_FAIL_CLOSED = "setup_completion_validation_fail_closed"
+SETUP_COMPLETION_VALIDATION_LOCAL_READY = "setup_completion_validation_local_ready"
+SETUP_COMPLETION_PERSISTENCE_BLOCKED = "setup_completion_persistence_blocked"
+SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY = (
+    "setup_completion_persistence_local_metadata_only"
+)
+SETUP_COMPLETION_RESET_NONE = "setup_completion_reset_none"
+SETUP_COMPLETION_RESET_REQUESTED = "setup_completion_reset_requested_local_only"
+SETUP_COMPLETION_STATUS_PROOF_HIDDEN_TELEMETRY = (
+    "setup-completion-status-hidden-telemetry"
+)
+SETUP_COMPLETION_DESKTOP_DISPLAY_SUPPRESSED = (
+    "setup-completion-desktop-display-suppressed"
+)
+SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED = (
+    "setup-completion-provider-setup-gate-blocked"
+)
+SETUP_COMPLETION_PROVIDER_SETUP_GATE_FUTURE_GATED = (
+    "setup-completion-provider-setup-gate-future-gated"
+)
+SETUP_COMPLETION_PROVIDER_EXECUTION_GATE_DISABLED = (
+    "setup-completion-provider-execution-gate-disabled"
+)
+SETUP_COMPLETION_SDK_HANDOFF_BLOCKED = "setup-completion-sdk-handoff-blocked"
+SETUP_COMPLETION_SDK_HANDOFF_READY_FUTURE_GATED = (
+    "setup-completion-sdk-handoff-ready-future-gated"
+)
+SETUP_COMPLETION_FUNCTIONAL_AI_CRITERIA_PENDING = (
+    "setup-completion-functional-ai-criteria-pending"
+)
+SETUP_COMPLETION_V18_CONTINUATION_PENDING = (
+    "setup-completion-v18-continuation-pending"
+)
 CONSENT_UX_FUNCTIONAL_AI_CRITERIA_PENDING = "consent-ux-functional-ai-pending"
 CONSENT_UX_V18_CONTINUATION_PENDING = "consent-ux-v1.8.0-continuation-pending"
 CONSENT_CAPTURE_AUDIT_SCHEMA_VERSION = "provider-consent-capture-audit.v1"
@@ -1499,6 +1622,7 @@ _CONSENT_COLLECTION_CONFIG_OMITTED = object()
 _CONSENT_CAPTURE_RECORD_OMITTED = object()
 _DURABLE_CONSENT_RECORD_OMITTED = object()
 _CONSENT_UX_INTENT_OMITTED = object()
+_SETUP_COMPLETION_CONFIG_OMITTED = object()
 
 
 @dataclass(frozen=True)
@@ -1731,6 +1855,24 @@ class AIProviderConsentUxIntentSnapshot:
             "surface_enabled": self.surface_enabled,
             "provenance": self.provenance,
         }
+
+
+@dataclass(frozen=True)
+class AIProviderSetupCompletionConfigSnapshot:
+    schema_version: str
+    config_state: str
+    setup_completion_approved: bool
+    provider_profile_finalized: bool
+    provider_profile_valid: bool
+    provider_config_finalized: bool
+    provider_config_valid: bool
+    no_secrets_validated: bool
+    local_persistence_ready: bool
+    validation_passed: bool
+    reset_requested: bool
+    future_sdk_handoff_ready: bool
+    config_valid: bool
+    provenance: str
 
 
 @dataclass(frozen=True)
@@ -2568,6 +2710,117 @@ class AIProviderStateSnapshot:
         CONSENT_UX_FUNCTIONAL_AI_CRITERIA_PENDING
     )
     consent_ux_v18_continuation_state: str = CONSENT_UX_V18_CONTINUATION_PENDING
+    provider_setup_completion_state_schema_version: str = (
+        SETUP_COMPLETION_STATE_SCHEMA_VERSION
+    )
+    provider_setup_completion_config_schema_version: str = (
+        SETUP_COMPLETION_CONFIG_SCHEMA_VERSION
+    )
+    provider_setup_completion_state: str = SETUP_COMPLETION_STATE_UNAVAILABLE
+    provider_setup_completion_label: str = "Setup completion: unavailable"
+    provider_setup_completion_eligibility_state: str = (
+        SETUP_COMPLETION_ELIGIBILITY_UNAVAILABLE
+    )
+    provider_setup_completion_eligibility_label: str = (
+        "Setup completion eligibility: unavailable"
+    )
+    provider_setup_completion_blocker_state: str = (
+        SETUP_COMPLETION_BLOCKER_CONSENT_UX_REQUIRED
+    )
+    provider_setup_completion_blocker_label: str = (
+        "Setup completion blocker: consent UX readiness required"
+    )
+    provider_setup_completion_reason_code: str = (
+        SETUP_COMPLETION_REASON_DEFAULT_UNAVAILABLE
+    )
+    provider_setup_completion_reason_label: str = (
+        "Setup completion reason: local-only safe default"
+    )
+    provider_setup_completion_provenance: str = SETUP_COMPLETION_PROVENANCE_CONSENT_UX
+    provider_setup_completion_provenance_label: str = (
+        "Setup completion provenance: user-operated consent UX state"
+    )
+    provider_setup_completion_config_state: str = PROVIDER_PATH_CONFIG_STATE_DEFAULT
+    provider_setup_completion_config_label: str = (
+        "Setup completion config: safe default local-only"
+    )
+    provider_setup_completion_config_migration: str = (
+        SETUP_COMPLETION_CONFIG_MIGRATION_POSTURE
+    )
+    provider_setup_completion_config_valid: bool = True
+    provider_setup_completion_profile_status: str = SETUP_COMPLETION_PROFILE_MISSING
+    provider_setup_completion_profile_label: str = (
+        "Setup completion profile: missing local finalization"
+    )
+    provider_setup_completion_config_status: str = SETUP_COMPLETION_CONFIG_MISSING
+    provider_setup_completion_config_status_label: str = (
+        "Setup completion config finalization: missing"
+    )
+    provider_setup_completion_no_secrets_status: str = (
+        SETUP_COMPLETION_NO_SECRETS_BLOCKED
+    )
+    provider_setup_completion_no_secrets_label: str = (
+        "Setup completion no-secrets posture: blocked"
+    )
+    provider_setup_completion_validation_status: str = (
+        SETUP_COMPLETION_VALIDATION_FAIL_CLOSED
+    )
+    provider_setup_completion_validation_label: str = (
+        "Setup completion validation: fail-closed"
+    )
+    provider_setup_completion_persistence_status: str = (
+        SETUP_COMPLETION_PERSISTENCE_BLOCKED
+    )
+    provider_setup_completion_persistence_label: str = (
+        "Setup completion persistence: blocked"
+    )
+    provider_setup_completion_reset_state: str = SETUP_COMPLETION_RESET_NONE
+    provider_setup_completion_reset_label: str = "Setup completion reset: none"
+    provider_setup_completion_setup_consent_state: str = (
+        CONSENT_DURABLE_CONSENT_STATE_MISSING
+    )
+    provider_setup_completion_setup_consent_label: str = (
+        "Setup completion setup consent: missing"
+    )
+    provider_setup_completion_execution_consent_state: str = (
+        CONSENT_DURABLE_CONSENT_STATE_MISSING
+    )
+    provider_setup_completion_execution_consent_label: str = (
+        "Setup completion execution consent: missing"
+    )
+    provider_setup_completion_status_proof_state: str = (
+        SETUP_COMPLETION_STATUS_PROOF_HIDDEN_TELEMETRY
+    )
+    provider_setup_completion_status_proof_label: str = (
+        "Setup completion status proof: hidden telemetry only"
+    )
+    provider_setup_completion_desktop_display_state: str = (
+        SETUP_COMPLETION_DESKTOP_DISPLAY_SUPPRESSED
+    )
+    provider_setup_completion_provider_setup_gate_state: str = (
+        SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED
+    )
+    provider_setup_completion_provider_execution_gate_state: str = (
+        SETUP_COMPLETION_PROVIDER_EXECUTION_GATE_DISABLED
+    )
+    provider_setup_completion_sdk_handoff_state: str = (
+        SETUP_COMPLETION_SDK_HANDOFF_BLOCKED
+    )
+    provider_setup_completion_sdk_handoff_label: str = (
+        "Setup completion SDK handoff: blocked"
+    )
+    provider_setup_completion_functional_ai_criteria_state: str = (
+        SETUP_COMPLETION_FUNCTIONAL_AI_CRITERIA_PENDING
+    )
+    provider_setup_completion_v18_continuation_state: str = (
+        SETUP_COMPLETION_V18_CONTINUATION_PENDING
+    )
+    provider_setup_completion_provider_visible_data: str = "none"
+    provider_setup_completion_sent_to_provider: bool = False
+    provider_setup_completion_can_accept_prompts: bool = False
+    provider_setup_completion_network_egress_state: str = NETWORK_EGRESS_BLOCKED
+    provider_setup_completion_memory_state: str = MEMORY_INDEXING_DISABLED
+    provider_setup_completion_voice_state: str = VOICE_RUNTIME_DISABLED
     future_consent_capture_handoff_state: str = FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY
     consent_collection_fold_down_posture: str = CONSENT_COLLECTION_FOLD_DOWN_READY
 
@@ -3343,6 +3596,143 @@ class AIProviderStateSnapshot:
             "consent_ux_v18_continuation_state": (
                 self.consent_ux_v18_continuation_state
             ),
+            "provider_setup_completion_state_schema_version": (
+                self.provider_setup_completion_state_schema_version
+            ),
+            "provider_setup_completion_config_schema_version": (
+                self.provider_setup_completion_config_schema_version
+            ),
+            "provider_setup_completion_state": self.provider_setup_completion_state,
+            "provider_setup_completion_label": self.provider_setup_completion_label,
+            "provider_setup_completion_eligibility_state": (
+                self.provider_setup_completion_eligibility_state
+            ),
+            "provider_setup_completion_eligibility_label": (
+                self.provider_setup_completion_eligibility_label
+            ),
+            "provider_setup_completion_blocker_state": (
+                self.provider_setup_completion_blocker_state
+            ),
+            "provider_setup_completion_blocker_label": (
+                self.provider_setup_completion_blocker_label
+            ),
+            "provider_setup_completion_reason_code": (
+                self.provider_setup_completion_reason_code
+            ),
+            "provider_setup_completion_reason_label": (
+                self.provider_setup_completion_reason_label
+            ),
+            "provider_setup_completion_provenance": (
+                self.provider_setup_completion_provenance
+            ),
+            "provider_setup_completion_provenance_label": (
+                self.provider_setup_completion_provenance_label
+            ),
+            "provider_setup_completion_config_state": (
+                self.provider_setup_completion_config_state
+            ),
+            "provider_setup_completion_config_label": (
+                self.provider_setup_completion_config_label
+            ),
+            "provider_setup_completion_config_migration": (
+                self.provider_setup_completion_config_migration
+            ),
+            "provider_setup_completion_config_valid": (
+                self.provider_setup_completion_config_valid
+            ),
+            "provider_setup_completion_profile_status": (
+                self.provider_setup_completion_profile_status
+            ),
+            "provider_setup_completion_profile_label": (
+                self.provider_setup_completion_profile_label
+            ),
+            "provider_setup_completion_config_status": (
+                self.provider_setup_completion_config_status
+            ),
+            "provider_setup_completion_config_status_label": (
+                self.provider_setup_completion_config_status_label
+            ),
+            "provider_setup_completion_no_secrets_status": (
+                self.provider_setup_completion_no_secrets_status
+            ),
+            "provider_setup_completion_no_secrets_label": (
+                self.provider_setup_completion_no_secrets_label
+            ),
+            "provider_setup_completion_validation_status": (
+                self.provider_setup_completion_validation_status
+            ),
+            "provider_setup_completion_validation_label": (
+                self.provider_setup_completion_validation_label
+            ),
+            "provider_setup_completion_persistence_status": (
+                self.provider_setup_completion_persistence_status
+            ),
+            "provider_setup_completion_persistence_label": (
+                self.provider_setup_completion_persistence_label
+            ),
+            "provider_setup_completion_reset_state": (
+                self.provider_setup_completion_reset_state
+            ),
+            "provider_setup_completion_reset_label": (
+                self.provider_setup_completion_reset_label
+            ),
+            "provider_setup_completion_setup_consent_state": (
+                self.provider_setup_completion_setup_consent_state
+            ),
+            "provider_setup_completion_setup_consent_label": (
+                self.provider_setup_completion_setup_consent_label
+            ),
+            "provider_setup_completion_execution_consent_state": (
+                self.provider_setup_completion_execution_consent_state
+            ),
+            "provider_setup_completion_execution_consent_label": (
+                self.provider_setup_completion_execution_consent_label
+            ),
+            "provider_setup_completion_status_proof_state": (
+                self.provider_setup_completion_status_proof_state
+            ),
+            "provider_setup_completion_status_proof_label": (
+                self.provider_setup_completion_status_proof_label
+            ),
+            "provider_setup_completion_desktop_display_state": (
+                self.provider_setup_completion_desktop_display_state
+            ),
+            "provider_setup_completion_provider_setup_gate_state": (
+                self.provider_setup_completion_provider_setup_gate_state
+            ),
+            "provider_setup_completion_provider_execution_gate_state": (
+                self.provider_setup_completion_provider_execution_gate_state
+            ),
+            "provider_setup_completion_sdk_handoff_state": (
+                self.provider_setup_completion_sdk_handoff_state
+            ),
+            "provider_setup_completion_sdk_handoff_label": (
+                self.provider_setup_completion_sdk_handoff_label
+            ),
+            "provider_setup_completion_functional_ai_criteria_state": (
+                self.provider_setup_completion_functional_ai_criteria_state
+            ),
+            "provider_setup_completion_v18_continuation_state": (
+                self.provider_setup_completion_v18_continuation_state
+            ),
+            "provider_setup_completion_provider_visible_data": (
+                self.provider_setup_completion_provider_visible_data
+            ),
+            "provider_setup_completion_sent_to_provider": (
+                self.provider_setup_completion_sent_to_provider
+            ),
+            "provider_setup_completion_can_accept_prompts": (
+                self.provider_setup_completion_can_accept_prompts
+            ),
+            "provider_setup_completion_network_egress_state": (
+                self.provider_setup_completion_network_egress_state
+            ),
+            "provider_setup_completion_memory_state": (
+                self.provider_setup_completion_memory_state
+            ),
+            "provider_setup_completion_voice_state": (
+                self.provider_setup_completion_voice_state
+            ),
             "future_consent_capture_handoff_state": self.future_consent_capture_handoff_state,
             "consent_collection_fold_down_posture": self.consent_collection_fold_down_posture,
         }
@@ -4110,6 +4500,143 @@ class AIProviderStateSnapshot:
                 self.consent_ux_functional_ai_criteria_state
             ),
             "consentUxV18ContinuationState": self.consent_ux_v18_continuation_state,
+            "providerSetupCompletionStateSchemaVersion": (
+                self.provider_setup_completion_state_schema_version
+            ),
+            "providerSetupCompletionConfigSchemaVersion": (
+                self.provider_setup_completion_config_schema_version
+            ),
+            "providerSetupCompletionState": self.provider_setup_completion_state,
+            "providerSetupCompletionLabel": self.provider_setup_completion_label,
+            "providerSetupCompletionEligibilityState": (
+                self.provider_setup_completion_eligibility_state
+            ),
+            "providerSetupCompletionEligibilityLabel": (
+                self.provider_setup_completion_eligibility_label
+            ),
+            "providerSetupCompletionBlockerState": (
+                self.provider_setup_completion_blocker_state
+            ),
+            "providerSetupCompletionBlockerLabel": (
+                self.provider_setup_completion_blocker_label
+            ),
+            "providerSetupCompletionReasonCode": (
+                self.provider_setup_completion_reason_code
+            ),
+            "providerSetupCompletionReasonLabel": (
+                self.provider_setup_completion_reason_label
+            ),
+            "providerSetupCompletionProvenance": (
+                self.provider_setup_completion_provenance
+            ),
+            "providerSetupCompletionProvenanceLabel": (
+                self.provider_setup_completion_provenance_label
+            ),
+            "providerSetupCompletionConfigState": (
+                self.provider_setup_completion_config_state
+            ),
+            "providerSetupCompletionConfigLabel": (
+                self.provider_setup_completion_config_label
+            ),
+            "providerSetupCompletionConfigMigration": (
+                self.provider_setup_completion_config_migration
+            ),
+            "providerSetupCompletionConfigValid": (
+                self.provider_setup_completion_config_valid
+            ),
+            "providerSetupCompletionProfileStatus": (
+                self.provider_setup_completion_profile_status
+            ),
+            "providerSetupCompletionProfileLabel": (
+                self.provider_setup_completion_profile_label
+            ),
+            "providerSetupCompletionConfigStatus": (
+                self.provider_setup_completion_config_status
+            ),
+            "providerSetupCompletionConfigStatusLabel": (
+                self.provider_setup_completion_config_status_label
+            ),
+            "providerSetupCompletionNoSecretsStatus": (
+                self.provider_setup_completion_no_secrets_status
+            ),
+            "providerSetupCompletionNoSecretsLabel": (
+                self.provider_setup_completion_no_secrets_label
+            ),
+            "providerSetupCompletionValidationStatus": (
+                self.provider_setup_completion_validation_status
+            ),
+            "providerSetupCompletionValidationLabel": (
+                self.provider_setup_completion_validation_label
+            ),
+            "providerSetupCompletionPersistenceStatus": (
+                self.provider_setup_completion_persistence_status
+            ),
+            "providerSetupCompletionPersistenceLabel": (
+                self.provider_setup_completion_persistence_label
+            ),
+            "providerSetupCompletionResetState": (
+                self.provider_setup_completion_reset_state
+            ),
+            "providerSetupCompletionResetLabel": (
+                self.provider_setup_completion_reset_label
+            ),
+            "providerSetupCompletionSetupConsentState": (
+                self.provider_setup_completion_setup_consent_state
+            ),
+            "providerSetupCompletionSetupConsentLabel": (
+                self.provider_setup_completion_setup_consent_label
+            ),
+            "providerSetupCompletionExecutionConsentState": (
+                self.provider_setup_completion_execution_consent_state
+            ),
+            "providerSetupCompletionExecutionConsentLabel": (
+                self.provider_setup_completion_execution_consent_label
+            ),
+            "providerSetupCompletionStatusProofState": (
+                self.provider_setup_completion_status_proof_state
+            ),
+            "providerSetupCompletionStatusProofLabel": (
+                self.provider_setup_completion_status_proof_label
+            ),
+            "providerSetupCompletionDesktopDisplayState": (
+                self.provider_setup_completion_desktop_display_state
+            ),
+            "providerSetupCompletionProviderSetupGateState": (
+                self.provider_setup_completion_provider_setup_gate_state
+            ),
+            "providerSetupCompletionProviderExecutionGateState": (
+                self.provider_setup_completion_provider_execution_gate_state
+            ),
+            "providerSetupCompletionSdkHandoffState": (
+                self.provider_setup_completion_sdk_handoff_state
+            ),
+            "providerSetupCompletionSdkHandoffLabel": (
+                self.provider_setup_completion_sdk_handoff_label
+            ),
+            "providerSetupCompletionFunctionalAiCriteriaState": (
+                self.provider_setup_completion_functional_ai_criteria_state
+            ),
+            "providerSetupCompletionV18ContinuationState": (
+                self.provider_setup_completion_v18_continuation_state
+            ),
+            "providerSetupCompletionProviderVisibleData": (
+                self.provider_setup_completion_provider_visible_data
+            ),
+            "providerSetupCompletionSentToProvider": (
+                self.provider_setup_completion_sent_to_provider
+            ),
+            "providerSetupCompletionCanAcceptPrompts": (
+                self.provider_setup_completion_can_accept_prompts
+            ),
+            "providerSetupCompletionNetworkEgressState": (
+                self.provider_setup_completion_network_egress_state
+            ),
+            "providerSetupCompletionMemoryState": (
+                self.provider_setup_completion_memory_state
+            ),
+            "providerSetupCompletionVoiceState": (
+                self.provider_setup_completion_voice_state
+            ),
             "futureConsentCaptureHandoffState": self.future_consent_capture_handoff_state,
             "consentCollectionFoldDownPosture": self.consent_collection_fold_down_posture,
             "canAcceptPrompts": False,
@@ -9352,6 +9879,550 @@ def build_provider_user_operated_consent_ux_foundation_state(
             "Consent UX records local intent/status only and does not enable provider setup, prompt routing, or model execution"
         ),
         **consent_ux_fields,
+    )
+
+
+def build_default_provider_setup_completion_config() -> AIProviderSetupCompletionConfigSnapshot:
+    """Return the fail-closed local setup completion default."""
+
+    return AIProviderSetupCompletionConfigSnapshot(
+        schema_version=SETUP_COMPLETION_CONFIG_SCHEMA_VERSION,
+        config_state=PROVIDER_PATH_CONFIG_STATE_DEFAULT,
+        setup_completion_approved=False,
+        provider_profile_finalized=False,
+        provider_profile_valid=False,
+        provider_config_finalized=False,
+        provider_config_valid=False,
+        no_secrets_validated=False,
+        local_persistence_ready=False,
+        validation_passed=False,
+        reset_requested=False,
+        future_sdk_handoff_ready=False,
+        config_valid=True,
+        provenance=SETUP_COMPLETION_PROVENANCE_CONSENT_UX,
+    )
+
+
+def normalize_provider_setup_completion_config(
+    config: AIProviderSetupCompletionConfigSnapshot | dict[str, object] | None,
+) -> AIProviderSetupCompletionConfigSnapshot:
+    """Normalize local setup completion config into fail-closed booleans."""
+
+    provenance_sources = {
+        SETUP_COMPLETION_PROVENANCE_CONSENT_UX,
+        SETUP_COMPLETION_PROVENANCE_PROFILE,
+        SETUP_COMPLETION_PROVENANCE_CONFIG,
+        SETUP_COMPLETION_PROVENANCE_NO_SECRETS,
+        SETUP_COMPLETION_PROVENANCE_VALIDATION,
+        SETUP_COMPLETION_PROVENANCE_RESET,
+        SETUP_COMPLETION_PROVENANCE_HANDOFF,
+    }
+
+    if config is None:
+        return replace(
+            build_default_provider_setup_completion_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_MISSING,
+            config_valid=False,
+            provenance=SETUP_COMPLETION_PROVENANCE_CONFIG,
+        )
+
+    if isinstance(config, AIProviderSetupCompletionConfigSnapshot):
+        if (
+            config.schema_version == SETUP_COMPLETION_CONFIG_SCHEMA_VERSION
+            and config.config_valid
+        ):
+            return config
+        return replace(
+            build_default_provider_setup_completion_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=config.provenance
+            if config.provenance in provenance_sources
+            else SETUP_COMPLETION_PROVENANCE_VALIDATION,
+        )
+
+    if not isinstance(config, dict):
+        return replace(
+            build_default_provider_setup_completion_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=SETUP_COMPLETION_PROVENANCE_VALIDATION,
+        )
+
+    schema_version = str(config.get("schema_version") or "")
+    provenance = str(config.get("provenance") or SETUP_COMPLETION_PROVENANCE_CONFIG)
+    config_valid = (
+        bool(config.get("config_valid", True))
+        and schema_version == SETUP_COMPLETION_CONFIG_SCHEMA_VERSION
+    )
+    if not config_valid:
+        return replace(
+            build_default_provider_setup_completion_config(),
+            config_state=PROVIDER_PATH_CONFIG_STATE_INVALID,
+            config_valid=False,
+            provenance=provenance
+            if provenance in provenance_sources
+            else SETUP_COMPLETION_PROVENANCE_VALIDATION,
+        )
+
+    return AIProviderSetupCompletionConfigSnapshot(
+        schema_version=schema_version,
+        config_state=PROVIDER_PATH_CONFIG_STATE_LOCAL,
+        setup_completion_approved=bool(
+            config.get("setup_completion_approved", False)
+        ),
+        provider_profile_finalized=bool(
+            config.get("provider_profile_finalized", False)
+        ),
+        provider_profile_valid=bool(config.get("provider_profile_valid", False)),
+        provider_config_finalized=bool(
+            config.get("provider_config_finalized", False)
+        ),
+        provider_config_valid=bool(config.get("provider_config_valid", False)),
+        no_secrets_validated=bool(config.get("no_secrets_validated", False)),
+        local_persistence_ready=bool(config.get("local_persistence_ready", False)),
+        validation_passed=bool(config.get("validation_passed", False)),
+        reset_requested=bool(config.get("reset_requested", False)),
+        future_sdk_handoff_ready=bool(
+            config.get("future_sdk_handoff_ready", False)
+        ),
+        config_valid=True,
+        provenance=provenance
+        if provenance in provenance_sources
+        else SETUP_COMPLETION_PROVENANCE_CONFIG,
+    )
+
+
+def _provider_setup_completion_fields(
+    consent_ux_state: AIProviderStateSnapshot,
+    setup_completion_config: AIProviderSetupCompletionConfigSnapshot,
+) -> dict[str, object]:
+    setup_consent_state = consent_ux_state.consent_ux_setup_display_state
+    execution_consent_state = consent_ux_state.consent_ux_execution_display_state
+    setup_consent_label = consent_ux_state.consent_ux_setup_display_label.replace(
+        "Consent UX", "Setup completion"
+    )
+    execution_consent_label = (
+        consent_ux_state.consent_ux_execution_display_label.replace(
+            "Consent UX", "Setup completion"
+        )
+    )
+    consent_ux_setup_ready = (
+        consent_ux_state.consent_ux_provider_setup_gate_state
+        == CONSENT_UX_PROVIDER_SETUP_GATE_FUTURE_GATED
+    )
+    profile_status = (
+        SETUP_COMPLETION_PROFILE_FINALIZED
+        if setup_completion_config.provider_profile_finalized
+        and setup_completion_config.provider_profile_valid
+        else SETUP_COMPLETION_PROFILE_INVALID
+        if setup_completion_config.provider_profile_finalized
+        else SETUP_COMPLETION_PROFILE_MISSING
+    )
+    config_status = (
+        SETUP_COMPLETION_CONFIG_FINALIZED
+        if setup_completion_config.provider_config_finalized
+        and setup_completion_config.provider_config_valid
+        else SETUP_COMPLETION_CONFIG_INVALID
+        if setup_completion_config.provider_config_finalized
+        else SETUP_COMPLETION_CONFIG_MISSING
+    )
+    no_secrets_status = (
+        SETUP_COMPLETION_NO_SECRETS_READY
+        if setup_completion_config.no_secrets_validated
+        else SETUP_COMPLETION_NO_SECRETS_BLOCKED
+    )
+    validation_status = (
+        SETUP_COMPLETION_VALIDATION_LOCAL_READY
+        if setup_completion_config.validation_passed
+        and profile_status == SETUP_COMPLETION_PROFILE_FINALIZED
+        and config_status == SETUP_COMPLETION_CONFIG_FINALIZED
+        and no_secrets_status == SETUP_COMPLETION_NO_SECRETS_READY
+        and setup_completion_config.local_persistence_ready
+        else SETUP_COMPLETION_VALIDATION_FAIL_CLOSED
+    )
+    persistence_status = (
+        SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY
+        if setup_completion_config.local_persistence_ready
+        else SETUP_COMPLETION_PERSISTENCE_BLOCKED
+    )
+    reset_state = (
+        SETUP_COMPLETION_RESET_REQUESTED
+        if setup_completion_config.reset_requested
+        else SETUP_COMPLETION_RESET_NONE
+    )
+
+    completion_state = SETUP_COMPLETION_STATE_UNAVAILABLE
+    completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_UNAVAILABLE
+    completion_blocker = SETUP_COMPLETION_BLOCKER_CONSENT_UX_REQUIRED
+    completion_reason = SETUP_COMPLETION_REASON_DEFAULT_UNAVAILABLE
+    completion_provenance = SETUP_COMPLETION_PROVENANCE_CONSENT_UX
+    setup_gate_state = SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED
+    sdk_handoff_state = SETUP_COMPLETION_SDK_HANDOFF_BLOCKED
+
+    if setup_completion_config.config_state == PROVIDER_PATH_CONFIG_STATE_MISSING:
+        completion_state = SETUP_COMPLETION_STATE_BLOCKED_BY_CONFIG
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_BLOCKED
+        completion_blocker = SETUP_COMPLETION_BLOCKER_CONFIG_FINALIZATION_REQUIRED
+        completion_reason = SETUP_COMPLETION_REASON_CONFIG_MISSING
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_CONFIG
+    elif setup_completion_config.config_state == PROVIDER_PATH_CONFIG_STATE_INVALID:
+        completion_state = SETUP_COMPLETION_STATE_BLOCKED_BY_VALIDATION
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_BLOCKED
+        completion_blocker = SETUP_COMPLETION_BLOCKER_VALIDATION_REQUIRED
+        completion_reason = SETUP_COMPLETION_REASON_CONFIG_INVALID
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_VALIDATION
+    elif not consent_ux_setup_ready:
+        completion_state = SETUP_COMPLETION_STATE_BLOCKED_BY_CONSENT_UX
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_BLOCKED
+        completion_reason = SETUP_COMPLETION_REASON_CONSENT_UX_REQUIRED
+    elif profile_status == SETUP_COMPLETION_PROFILE_MISSING:
+        completion_state = SETUP_COMPLETION_STATE_BLOCKED_BY_PROFILE
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_BLOCKED
+        completion_blocker = SETUP_COMPLETION_BLOCKER_PROFILE_FINALIZATION_REQUIRED
+        completion_reason = SETUP_COMPLETION_REASON_PROFILE_MISSING
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_PROFILE
+    elif profile_status == SETUP_COMPLETION_PROFILE_INVALID:
+        completion_state = SETUP_COMPLETION_STATE_BLOCKED_BY_PROFILE
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_BLOCKED
+        completion_blocker = SETUP_COMPLETION_BLOCKER_PROFILE_FINALIZATION_REQUIRED
+        completion_reason = SETUP_COMPLETION_REASON_PROFILE_INVALID
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_PROFILE
+    elif config_status == SETUP_COMPLETION_CONFIG_MISSING:
+        completion_state = SETUP_COMPLETION_STATE_BLOCKED_BY_CONFIG
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_BLOCKED
+        completion_blocker = SETUP_COMPLETION_BLOCKER_CONFIG_FINALIZATION_REQUIRED
+        completion_reason = SETUP_COMPLETION_REASON_CONFIG_MISSING
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_CONFIG
+    elif config_status == SETUP_COMPLETION_CONFIG_INVALID:
+        completion_state = SETUP_COMPLETION_STATE_BLOCKED_BY_CONFIG
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_BLOCKED
+        completion_blocker = SETUP_COMPLETION_BLOCKER_CONFIG_FINALIZATION_REQUIRED
+        completion_reason = SETUP_COMPLETION_REASON_CONFIG_INVALID
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_CONFIG
+    elif no_secrets_status != SETUP_COMPLETION_NO_SECRETS_READY:
+        completion_state = SETUP_COMPLETION_STATE_BLOCKED_BY_NO_SECRETS
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_BLOCKED
+        completion_blocker = SETUP_COMPLETION_BLOCKER_NO_SECRETS_REQUIRED
+        completion_reason = SETUP_COMPLETION_REASON_NO_SECRETS_FAILED
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_NO_SECRETS
+    elif setup_completion_config.reset_requested:
+        completion_state = SETUP_COMPLETION_STATE_RESET_LOCAL_ONLY
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_RESET
+        completion_blocker = SETUP_COMPLETION_BLOCKER_RESET_REQUESTED
+        completion_reason = SETUP_COMPLETION_REASON_RESET_REQUESTED
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_RESET
+    elif validation_status != SETUP_COMPLETION_VALIDATION_LOCAL_READY:
+        completion_state = SETUP_COMPLETION_STATE_BLOCKED_BY_VALIDATION
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_BLOCKED
+        completion_blocker = SETUP_COMPLETION_BLOCKER_VALIDATION_REQUIRED
+        completion_reason = SETUP_COMPLETION_REASON_VALIDATION_FAILED
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_VALIDATION
+    elif setup_completion_config.future_sdk_handoff_ready:
+        completion_state = SETUP_COMPLETION_STATE_READY_FOR_FUTURE_SDK_HANDOFF
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_FUTURE_HANDOFF
+        completion_blocker = SETUP_COMPLETION_BLOCKER_FUTURE_SDK_HANDOFF
+        completion_reason = SETUP_COMPLETION_REASON_READY_FOR_FUTURE_SDK_HANDOFF
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_HANDOFF
+        setup_gate_state = SETUP_COMPLETION_PROVIDER_SETUP_GATE_FUTURE_GATED
+        sdk_handoff_state = SETUP_COMPLETION_SDK_HANDOFF_READY_FUTURE_GATED
+    elif setup_completion_config.setup_completion_approved:
+        completion_state = SETUP_COMPLETION_STATE_READY_LOCAL_ONLY
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_LOCAL_READY
+        completion_blocker = SETUP_COMPLETION_BLOCKER_FUTURE_SDK_HANDOFF
+        completion_reason = SETUP_COMPLETION_REASON_READY_LOCAL_ONLY
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_VALIDATION
+        setup_gate_state = SETUP_COMPLETION_PROVIDER_SETUP_GATE_FUTURE_GATED
+    else:
+        completion_state = SETUP_COMPLETION_STATE_BLOCKED_BY_VALIDATION
+        completion_eligibility = SETUP_COMPLETION_ELIGIBILITY_BLOCKED
+        completion_blocker = SETUP_COMPLETION_BLOCKER_VALIDATION_REQUIRED
+        completion_reason = SETUP_COMPLETION_REASON_VALIDATION_FAILED
+        completion_provenance = SETUP_COMPLETION_PROVENANCE_VALIDATION
+
+    completion_labels = {
+        SETUP_COMPLETION_STATE_UNAVAILABLE: "Setup completion: unavailable",
+        SETUP_COMPLETION_STATE_BLOCKED_BY_CONSENT_UX:
+            "Setup completion: blocked by consent UX setup consent",
+        SETUP_COMPLETION_STATE_BLOCKED_BY_PROFILE:
+            "Setup completion: blocked by provider profile finalization",
+        SETUP_COMPLETION_STATE_BLOCKED_BY_CONFIG:
+            "Setup completion: blocked by provider config finalization",
+        SETUP_COMPLETION_STATE_BLOCKED_BY_NO_SECRETS:
+            "Setup completion: blocked by no-secrets validation",
+        SETUP_COMPLETION_STATE_BLOCKED_BY_VALIDATION:
+            "Setup completion: validation failed closed",
+        SETUP_COMPLETION_STATE_RESET_LOCAL_ONLY:
+            "Setup completion: local reset requested",
+        SETUP_COMPLETION_STATE_READY_LOCAL_ONLY:
+            "Setup completion: local-only foundation ready",
+        SETUP_COMPLETION_STATE_READY_FOR_FUTURE_SDK_HANDOFF:
+            "Setup completion: ready for future SDK handoff",
+    }
+    eligibility_labels = {
+        SETUP_COMPLETION_ELIGIBILITY_UNAVAILABLE:
+            "Setup completion eligibility: unavailable",
+        SETUP_COMPLETION_ELIGIBILITY_BLOCKED:
+            "Setup completion eligibility: blocked",
+        SETUP_COMPLETION_ELIGIBILITY_RESET:
+            "Setup completion eligibility: reset local-only",
+        SETUP_COMPLETION_ELIGIBILITY_LOCAL_READY:
+            "Setup completion eligibility: local-only ready",
+        SETUP_COMPLETION_ELIGIBILITY_FUTURE_HANDOFF:
+            "Setup completion eligibility: future SDK handoff gated",
+    }
+    blocker_labels = {
+        SETUP_COMPLETION_BLOCKER_CONSENT_UX_REQUIRED:
+            "Setup completion blocker: setup consent UX proof required",
+        SETUP_COMPLETION_BLOCKER_PROFILE_FINALIZATION_REQUIRED:
+            "Setup completion blocker: provider profile finalization required",
+        SETUP_COMPLETION_BLOCKER_CONFIG_FINALIZATION_REQUIRED:
+            "Setup completion blocker: provider config finalization required",
+        SETUP_COMPLETION_BLOCKER_NO_SECRETS_REQUIRED:
+            "Setup completion blocker: no-secrets validation required",
+        SETUP_COMPLETION_BLOCKER_VALIDATION_REQUIRED:
+            "Setup completion blocker: local validation proof required",
+        SETUP_COMPLETION_BLOCKER_RESET_REQUESTED:
+            "Setup completion blocker: local reset requested",
+        SETUP_COMPLETION_BLOCKER_FUTURE_SDK_HANDOFF:
+            "Setup completion blocker: future SDK handoff still requires USER approval",
+        SETUP_COMPLETION_BLOCKER_NONE:
+            "Setup completion blocker: none",
+    }
+    reason_labels = {
+        SETUP_COMPLETION_REASON_DEFAULT_UNAVAILABLE:
+            "Setup completion reason: local-only safe default",
+        SETUP_COMPLETION_REASON_CONSENT_UX_REQUIRED:
+            "Setup completion reason: setup consent must be present in local consent UX",
+        SETUP_COMPLETION_REASON_PROFILE_MISSING:
+            "Setup completion reason: provider profile finalization missing",
+        SETUP_COMPLETION_REASON_PROFILE_INVALID:
+            "Setup completion reason: provider profile finalization invalid",
+        SETUP_COMPLETION_REASON_CONFIG_MISSING:
+            "Setup completion reason: provider config finalization missing",
+        SETUP_COMPLETION_REASON_CONFIG_INVALID:
+            "Setup completion reason: provider config finalization invalid",
+        SETUP_COMPLETION_REASON_NO_SECRETS_FAILED:
+            "Setup completion reason: no-secrets posture not validated",
+        SETUP_COMPLETION_REASON_VALIDATION_FAILED:
+            "Setup completion reason: local setup completion validation failed",
+        SETUP_COMPLETION_REASON_RESET_REQUESTED:
+            "Setup completion reason: reset returns setup completion to blocked",
+        SETUP_COMPLETION_REASON_READY_LOCAL_ONLY:
+            "Setup completion reason: local setup completion foundation ready",
+        SETUP_COMPLETION_REASON_READY_FOR_FUTURE_SDK_HANDOFF:
+            "Setup completion reason: future SDK handoff criteria recorded",
+    }
+    provenance_labels = {
+        SETUP_COMPLETION_PROVENANCE_CONSENT_UX:
+            "Setup completion provenance: user-operated consent UX state",
+        SETUP_COMPLETION_PROVENANCE_PROFILE:
+            "Setup completion provenance: provider profile finalization",
+        SETUP_COMPLETION_PROVENANCE_CONFIG:
+            "Setup completion provenance: provider config finalization",
+        SETUP_COMPLETION_PROVENANCE_NO_SECRETS:
+            "Setup completion provenance: no-secrets validation",
+        SETUP_COMPLETION_PROVENANCE_VALIDATION:
+            "Setup completion provenance: local validation proof",
+        SETUP_COMPLETION_PROVENANCE_RESET:
+            "Setup completion provenance: local reset request",
+        SETUP_COMPLETION_PROVENANCE_HANDOFF:
+            "Setup completion provenance: future provider SDK handoff",
+    }
+
+    return {
+        "provider_setup_completion_state_schema_version": (
+            SETUP_COMPLETION_STATE_SCHEMA_VERSION
+        ),
+        "provider_setup_completion_config_schema_version": (
+            SETUP_COMPLETION_CONFIG_SCHEMA_VERSION
+        ),
+        "provider_setup_completion_state": completion_state,
+        "provider_setup_completion_label": completion_labels[completion_state],
+        "provider_setup_completion_eligibility_state": completion_eligibility,
+        "provider_setup_completion_eligibility_label": (
+            eligibility_labels[completion_eligibility]
+        ),
+        "provider_setup_completion_blocker_state": completion_blocker,
+        "provider_setup_completion_blocker_label": blocker_labels[completion_blocker],
+        "provider_setup_completion_reason_code": completion_reason,
+        "provider_setup_completion_reason_label": reason_labels[completion_reason],
+        "provider_setup_completion_provenance": completion_provenance,
+        "provider_setup_completion_provenance_label": (
+            provenance_labels[completion_provenance]
+        ),
+        "provider_setup_completion_config_state": (
+            setup_completion_config.config_state
+        ),
+        "provider_setup_completion_config_label": (
+            "Setup completion config: local-only finalization envelope"
+        ),
+        "provider_setup_completion_config_migration": (
+            SETUP_COMPLETION_CONFIG_MIGRATION_POSTURE
+        ),
+        "provider_setup_completion_config_valid": (
+            setup_completion_config.config_valid
+        ),
+        "provider_setup_completion_profile_status": profile_status,
+        "provider_setup_completion_profile_label": {
+            SETUP_COMPLETION_PROFILE_MISSING:
+                "Setup completion profile: missing local finalization",
+            SETUP_COMPLETION_PROFILE_INVALID:
+                "Setup completion profile: invalid local finalization",
+            SETUP_COMPLETION_PROFILE_FINALIZED:
+                "Setup completion profile: finalized local-only",
+        }[profile_status],
+        "provider_setup_completion_config_status": config_status,
+        "provider_setup_completion_config_status_label": {
+            SETUP_COMPLETION_CONFIG_MISSING:
+                "Setup completion config finalization: missing",
+            SETUP_COMPLETION_CONFIG_INVALID:
+                "Setup completion config finalization: invalid",
+            SETUP_COMPLETION_CONFIG_FINALIZED:
+                "Setup completion config finalization: finalized local-only",
+        }[config_status],
+        "provider_setup_completion_no_secrets_status": no_secrets_status,
+        "provider_setup_completion_no_secrets_label": {
+            SETUP_COMPLETION_NO_SECRETS_BLOCKED:
+                "Setup completion no-secrets posture: blocked",
+            SETUP_COMPLETION_NO_SECRETS_READY:
+                "Setup completion no-secrets posture: validated",
+        }[no_secrets_status],
+        "provider_setup_completion_validation_status": validation_status,
+        "provider_setup_completion_validation_label": {
+            SETUP_COMPLETION_VALIDATION_FAIL_CLOSED:
+                "Setup completion validation: fail-closed",
+            SETUP_COMPLETION_VALIDATION_LOCAL_READY:
+                "Setup completion validation: local proof ready",
+        }[validation_status],
+        "provider_setup_completion_persistence_status": persistence_status,
+        "provider_setup_completion_persistence_label": {
+            SETUP_COMPLETION_PERSISTENCE_BLOCKED:
+                "Setup completion persistence: blocked",
+            SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY:
+                "Setup completion persistence: local metadata only; no secrets",
+        }[persistence_status],
+        "provider_setup_completion_reset_state": reset_state,
+        "provider_setup_completion_reset_label": {
+            SETUP_COMPLETION_RESET_NONE: "Setup completion reset: none",
+            SETUP_COMPLETION_RESET_REQUESTED:
+                "Setup completion reset: requested locally; fail-closed",
+        }[reset_state],
+        "provider_setup_completion_setup_consent_state": setup_consent_state,
+        "provider_setup_completion_setup_consent_label": setup_consent_label,
+        "provider_setup_completion_execution_consent_state": execution_consent_state,
+        "provider_setup_completion_execution_consent_label": execution_consent_label,
+        "provider_setup_completion_status_proof_state": (
+            SETUP_COMPLETION_STATUS_PROOF_HIDDEN_TELEMETRY
+        ),
+        "provider_setup_completion_status_proof_label": (
+            "Setup completion status proof: hidden telemetry derived from consent UX "
+            f"and reason {completion_reason}"
+        ),
+        "provider_setup_completion_desktop_display_state": (
+            SETUP_COMPLETION_DESKTOP_DISPLAY_SUPPRESSED
+        ),
+        "provider_setup_completion_provider_setup_gate_state": setup_gate_state,
+        "provider_setup_completion_provider_execution_gate_state": (
+            SETUP_COMPLETION_PROVIDER_EXECUTION_GATE_DISABLED
+        ),
+        "provider_setup_completion_sdk_handoff_state": sdk_handoff_state,
+        "provider_setup_completion_sdk_handoff_label": {
+            SETUP_COMPLETION_SDK_HANDOFF_BLOCKED:
+                "Setup completion SDK handoff: blocked pending future USER approval",
+            SETUP_COMPLETION_SDK_HANDOFF_READY_FUTURE_GATED:
+                "Setup completion SDK handoff: ready but future-gated",
+        }[sdk_handoff_state],
+        "provider_setup_completion_functional_ai_criteria_state": (
+            SETUP_COMPLETION_FUNCTIONAL_AI_CRITERIA_PENDING
+        ),
+        "provider_setup_completion_v18_continuation_state": (
+            SETUP_COMPLETION_V18_CONTINUATION_PENDING
+        ),
+        "provider_setup_completion_provider_visible_data": "none",
+        "provider_setup_completion_sent_to_provider": False,
+        "provider_setup_completion_can_accept_prompts": False,
+        "provider_setup_completion_network_egress_state": NETWORK_EGRESS_BLOCKED,
+        "provider_setup_completion_memory_state": MEMORY_INDEXING_DISABLED,
+        "provider_setup_completion_voice_state": VOICE_RUNTIME_DISABLED,
+    }
+
+
+def build_provider_setup_completion_foundation_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    execution_config: AIProviderExecutionReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _EXECUTION_CONFIG_OMITTED
+    ),
+    path_consent_config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _PATH_CONSENT_CONFIG_OMITTED
+    ),
+    setup_foundation_config: AIProviderSetupFoundationConfigSnapshot | dict[str, object] | None | object = (
+        _SETUP_FOUNDATION_CONFIG_OMITTED
+    ),
+    consent_collection_config: (
+        AIProviderConsentCollectionFoundationConfigSnapshot | dict[str, object] | None | object
+    ) = _CONSENT_COLLECTION_CONFIG_OMITTED,
+    consent_capture_record: (
+        AIProviderConsentCaptureRecordSnapshot | dict[str, object] | None | object
+    ) = _CONSENT_CAPTURE_RECORD_OMITTED,
+    durable_consent_record: (
+        AIProviderDurableConsentRecordSnapshot | dict[str, object] | None | object
+    ) = _DURABLE_CONSENT_RECORD_OMITTED,
+    consent_ux_intent: (
+        AIProviderConsentUxIntentSnapshot | dict[str, object] | None | object
+    ) = _CONSENT_UX_INTENT_OMITTED,
+    setup_completion_config: (
+        AIProviderSetupCompletionConfigSnapshot | dict[str, object] | None | object
+    ) = _SETUP_COMPLETION_CONFIG_OMITTED,
+    durable_consent_store_dir: str | Path | None = None,
+    now_utc: datetime | None = None,
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve local setup completion foundation without enabling provider execution."""
+
+    consent_ux_state = build_provider_user_operated_consent_ux_foundation_state(
+        readiness_config,
+        activation_config=activation_config,
+        execution_config=execution_config,
+        path_consent_config=path_consent_config,
+        setup_foundation_config=setup_foundation_config,
+        consent_collection_config=consent_collection_config,
+        consent_capture_record=consent_capture_record,
+        durable_consent_record=durable_consent_record,
+        consent_ux_intent=consent_ux_intent,
+        durable_consent_store_dir=durable_consent_store_dir,
+        now_utc=now_utc,
+        surface_role=surface_role,
+    )
+    if setup_completion_config is _SETUP_COMPLETION_CONFIG_OMITTED:
+        normalized_setup_completion = build_default_provider_setup_completion_config()
+    else:
+        normalized_setup_completion = normalize_provider_setup_completion_config(
+            setup_completion_config  # type: ignore[arg-type]
+        )
+    setup_completion_fields = _provider_setup_completion_fields(
+        consent_ux_state,
+        normalized_setup_completion,
+    )
+    return replace(
+        consent_ux_state,
+        state_id=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_STATE_ID,
+        mode=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_MODE,
+        availability=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_AVAILABILITY,
+        status_label=setup_completion_fields["provider_setup_completion_label"],
+        disabled_reason=(
+            "Provider setup completion foundation is local-only; SDK/model execution remains pending USER approval"
+        ),
+        provider_next_action_label=(
+            "Next: validate setup completion foundation before provider SDK/model handoff remains future-gated"
+        ),
+        interaction_label="Provider setup completion foundation only",
+        interaction_disabled_reason=(
+            "Setup completion records local status only and does not enable prompt routing or model execution"
+        ),
+        **setup_completion_fields,
     )
 
 
