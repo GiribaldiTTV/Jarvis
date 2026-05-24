@@ -3929,19 +3929,21 @@ function monitoringHudWireCardInteractions() {
 
 function monitoringHudWireControls() {
   if (monitoringHudChildWindowLayer) {
-    monitoringHudChildWindowLayer.dataset.childWindowPointerIsolation = "stops-bubble-to-dashboard";
+    monitoringHudChildWindowLayer.dataset.childWindowPointerIsolation = "modal-layer-stops-dashboard-click-through";
     ["pointerdown", "mousedown", "click"].forEach((eventName) => {
       monitoringHudChildWindowLayer.addEventListener(eventName, (event) => {
         if (event.target === monitoringHudChildWindowLayer && typeof event.preventDefault === "function") {
           event.preventDefault();
         }
         if (typeof event.stopPropagation === "function") event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
       });
     });
     monitoringHudChildWindowLayer.querySelectorAll(".monitoring-hud__child-window").forEach((windowNode) => {
       ["pointerdown", "mousedown", "click"].forEach((eventName) => {
         windowNode.addEventListener(eventName, (event) => {
           if (typeof event.stopPropagation === "function") event.stopPropagation();
+          if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
         });
       });
     });
@@ -5109,7 +5111,7 @@ window.runMonitoringHudOverlayProfileControlsProof = function() {
     );
     proof.childWindowClickIsolation = Boolean(
       monitoringHudChildWindowLayer
-      && monitoringHudChildWindowLayer.dataset.childWindowPointerIsolation === "stops-bubble-to-dashboard"
+      && monitoringHudChildWindowLayer.dataset.childWindowPointerIsolation === "modal-layer-stops-dashboard-click-through"
     );
     proof.managerDefaultState = Boolean(
       !monitoringHudOverlayProfileWindowSelectedId

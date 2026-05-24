@@ -7287,6 +7287,11 @@ class DesktopRuntimeWindow(QWidget):
                     return True
         return False
 
+    def _monitoring_hud_any_child_window_active(self) -> bool:
+        state = self._monitoring_hud_live_page_state if isinstance(self._monitoring_hud_live_page_state, dict) else {}
+        active_child_window = str(state.get("activeChildWindow", "none") or "none")
+        return active_child_window not in ("", "none", "closed")
+
     def _monitoring_hud_active_child_window_rect_contains(self, point: QPoint) -> bool:
         if point.isNull():
             return False
@@ -7294,6 +7299,9 @@ class DesktopRuntimeWindow(QWidget):
         active_child_window = str(state.get("activeChildWindow", "none") or "none")
         if active_child_window in ("", "none", "closed"):
             return False
+        layer_rect = self._monitoring_hud_live_screen_rects.get("childWindowLayer", QRect())
+        if layer_rect.isValid() and not layer_rect.isNull() and layer_rect.contains(point):
+            return True
         rect_names_by_child_window = {
             "dashboard-settings": ("settingsWindow", "settingsClose"),
             "monitor-group-create": ("createMonitorWindow", "createMonitorClose"),
@@ -7321,6 +7329,8 @@ class DesktopRuntimeWindow(QWidget):
         return False
 
     def _monitoring_hud_dashboard_close_control_rect_contains(self, point: QPoint) -> bool:
+        if self._monitoring_hud_any_child_window_active():
+            return False
         rect = self._monitoring_hud_live_screen_rects.get("dashboardClose", QRect())
         if rect.isValid() and not rect.isNull() and rect.contains(point):
             return True
@@ -7346,6 +7356,8 @@ class DesktopRuntimeWindow(QWidget):
         return bool(fallback_rect.isValid() and not fallback_rect.isNull() and fallback_rect.contains(point))
 
     def _monitoring_hud_dashboard_settings_control_rect_contains(self, point: QPoint) -> bool:
+        if self._monitoring_hud_any_child_window_active():
+            return False
         rect = self._monitoring_hud_live_screen_rects.get("settingsAction", QRect())
         if rect.isValid() and not rect.isNull() and rect.contains(point):
             return True
@@ -9421,6 +9433,54 @@ class DesktopRuntimeWindow(QWidget):
 
             query(label, rect_script(selector), click_from_rect)
 
+        def os_click_covered_selector(selector: str, label: str, callback):
+            def click_from_rect(parsed: dict[str, object]):
+                point = self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect"))
+                os_clicked = self._monitoring_hud_send_mouse_click(point)
+                cursor_after = self._monitoring_hud_cursor_position()
+                details = {
+                    **parsed,
+                    "screenPoint": point,
+                    "cursorAfter": cursor_after,
+                    "inputProof": "real-os-mouse-cursor-move-down-up-covered-target",
+                    "realOsInputProof": bool(os_clicked),
+                    "directJsClickUsed": False,
+                    "directJsMouseoverUsed": False,
+                    "syntheticDomEventUsed": False,
+                    "qtestMouseUsed": False,
+                }
+                real_os_actions.append({"label": label, "selector": selector, "screenPoint": point, "kind": "covered-click"})
+                add_step(label, bool(os_clicked), details)
+                if not os_clicked:
+                    finish("FAIL", f"{label} failed to send real OS mouse input")
+                    return
+                QTimer.singleShot(delay(), callback)
+
+            script = f"""
+            (function() {{
+                const selector = {json.dumps(selector)};
+                const element = document.querySelector(selector);
+                const rect = element ? element.getBoundingClientRect() : null;
+                return JSON.stringify({{
+                    ok: Boolean(element && rect && rect.width > 0 && rect.height > 0),
+                    selector,
+                    coveredTargetAllowed: true,
+                    text: element ? String(element.textContent || "").trim() : "",
+                    rect: rect ? {{
+                        left: rect.left,
+                        top: rect.top,
+                        right: rect.right,
+                        bottom: rect.bottom,
+                        width: rect.width,
+                        height: rect.height,
+                        centerX: rect.left + (rect.width / 2),
+                        centerY: rect.top + (rect.height / 2)
+                    }} : null
+                }});
+            }})();
+            """
+            query(label, script, click_from_rect)
+
         def os_hover(selector: str, label: str, callback):
             def hover_from_rect(parsed: dict[str, object]):
                 point = self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect"))
@@ -9556,6 +9616,49 @@ class DesktopRuntimeWindow(QWidget):
             ]
             for label in labels:
                 capture(label)
+            QTimer.singleShot(delay(), step_child_window_blocks_dashboard_settings_click)
+
+        def step_child_window_blocks_dashboard_settings_click():
+            os_click_covered_selector(
+                "#monitoring-hud-settings-action",
+                "real OS click on Dashboard Settings coordinate is blocked while Overlay Profile child window is active",
+                step_child_window_isolation_assert,
+            )
+
+        def step_child_window_isolation_assert():
+            assert_state(
+                "Active child window prevents Dashboard click-through under overlapping controls",
+                """
+                (function() {
+                    const hud = document.getElementById("monitoring-hud");
+                    const layer = document.getElementById("monitoring-hud-child-window-layer");
+                    const overlayWindow = document.getElementById("monitoring-hud-overlay-profile-window");
+                    const settingsWindow = document.getElementById("monitoring-hud-settings-window");
+                    return JSON.stringify({
+                        ok: Boolean(
+                            hud
+                            && hud.dataset.activeChildWindow === "overlay-profile-settings"
+                            && layer
+                            && layer.dataset.childWindowPointerIsolation === "modal-layer-stops-dashboard-click-through"
+                            && overlayWindow
+                            && !overlayWindow.hidden
+                            && settingsWindow
+                            && settingsWindow.hidden
+                        ),
+                        activeChildWindow: hud ? String(hud.dataset.activeChildWindow || "") : "",
+                        childWindowPointerIsolation: layer ? String(layer.dataset.childWindowPointerIsolation || "") : "",
+                        overlayProfileWindowOpen: Boolean(overlayWindow && !overlayWindow.hidden),
+                        dashboardSettingsWindowOpen: Boolean(settingsWindow && !settingsWindow.hidden),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_child_window_isolation_captures,
+            )
+
+        def step_child_window_isolation_captures():
+            capture("child_window_blocks_dashboard_settings_click_through")
             QTimer.singleShot(delay(), step_selector_open)
 
         def step_selector_open():
