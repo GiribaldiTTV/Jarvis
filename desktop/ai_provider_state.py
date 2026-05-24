@@ -8934,9 +8934,9 @@ def _provider_user_operated_consent_ux_fields(
         intent_state = CONSENT_UX_INTENT_NONE
 
     surface_state = (
-        CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT
-        if consent_intent.surface_enabled
-        else CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL
+        CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL
+        if not consent_intent.surface_enabled or blocked_by_invalid_record
+        else CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT
     )
     write_posture = (
         CONSENT_UX_WRITE_LOCAL_INTENT_ONLY

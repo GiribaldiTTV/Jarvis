@@ -7042,6 +7042,7 @@ def validate() -> list[str]:
         "default": (
             CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT,
             CONSENT_UX_INTENT_BLOCKED,
+            CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL,
             CONSENT_UX_DURABLE_HANDOFF_BLOCKED,
             CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
@@ -7051,6 +7052,7 @@ def validate() -> list[str]:
         "blocked": (
             CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT,
             CONSENT_UX_INTENT_BLOCKED,
+            CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL,
             CONSENT_UX_DURABLE_HANDOFF_BLOCKED,
             CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED,
             CONSENT_DURABLE_CONSENT_STATE_BLOCKED,
@@ -7060,6 +7062,7 @@ def validate() -> list[str]:
         "setup_only": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
             CONSENT_UX_INTENT_NONE,
+            CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_FUTURE_GATED,
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
@@ -7069,6 +7072,7 @@ def validate() -> list[str]:
         "execution_only": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
             CONSENT_UX_INTENT_NONE,
+            CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
@@ -7078,6 +7082,7 @@ def validate() -> list[str]:
         "both_present": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
             CONSENT_UX_INTENT_NONE,
+            CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_FUTURE_GATED,
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
@@ -7087,6 +7092,7 @@ def validate() -> list[str]:
         "revoked": (
             CONSENT_UX_STATE_REVOKED_LOCAL_ONLY,
             CONSENT_UX_INTENT_NONE,
+            CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED,
             CONSENT_DURABLE_CONSENT_STATE_REVOKED,
@@ -7096,6 +7102,7 @@ def validate() -> list[str]:
         "reset": (
             CONSENT_UX_STATE_RESET_LOCAL_ONLY,
             CONSENT_UX_INTENT_NONE,
+            CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED,
             CONSENT_DURABLE_CONSENT_STATE_RESET,
@@ -7105,6 +7112,7 @@ def validate() -> list[str]:
         "expired": (
             CONSENT_UX_STATE_EXPIRED_LOCAL_ONLY,
             CONSENT_UX_INTENT_NONE,
+            CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED,
             CONSENT_DURABLE_CONSENT_STATE_EXPIRED,
@@ -7114,6 +7122,7 @@ def validate() -> list[str]:
         "setup_intent": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
             CONSENT_UX_INTENT_SETUP_SELECTED,
+            CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_FUTURE_GATED,
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
@@ -7123,6 +7132,7 @@ def validate() -> list[str]:
         "execution_intent": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
             CONSENT_UX_INTENT_EXECUTION_SELECTED,
+            CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_FUTURE_GATED,
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
@@ -7132,6 +7142,7 @@ def validate() -> list[str]:
         "revoke_intent": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
             CONSENT_UX_INTENT_REVOKE_SELECTED,
+            CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_FUTURE_GATED,
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
@@ -7141,6 +7152,7 @@ def validate() -> list[str]:
         "reset_intent": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
             CONSENT_UX_INTENT_RESET_SELECTED,
+            CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_FUTURE_GATED,
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
@@ -7150,6 +7162,7 @@ def validate() -> list[str]:
         "invalid_intent": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
             CONSENT_UX_INTENT_BLOCKED,
+            CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL,
             CONSENT_UX_DURABLE_HANDOFF_READY,
             CONSENT_UX_PROVIDER_SETUP_GATE_FUTURE_GATED,
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
@@ -7162,6 +7175,7 @@ def validate() -> list[str]:
         (
             expected_ux_state,
             expected_intent_state,
+            expected_surface_state,
             expected_handoff_state,
             expected_setup_gate,
             expected_setup_display,
@@ -7187,6 +7201,7 @@ def validate() -> list[str]:
         _require(
             ux_payload["consentUxState"] == expected_ux_state
             and ux_payload["consentUxIntentState"] == expected_intent_state
+            and ux_payload["consentUxSurfaceState"] == expected_surface_state
             and ux_payload["consentUxDurableHandoffState"]
             == expected_handoff_state
             and ux_payload["consentUxProviderSetupGateState"]
@@ -7202,9 +7217,7 @@ def validate() -> list[str]:
             failures,
         )
         _require(
-            ux_payload["consentUxSurfaceState"]
-            in {CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL, CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT}
-            and ux_payload["consentUxStatusProofState"]
+            ux_payload["consentUxStatusProofState"]
             == CONSENT_UX_STATUS_PROOF_STATE
             and ux_payload["consentUxDesktopDisplayState"]
             == CONSENT_UX_DESKTOP_DISPLAY_SUPPRESSED
