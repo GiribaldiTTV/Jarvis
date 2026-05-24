@@ -342,8 +342,8 @@
           class="monitoring-hud__child-window monitoring-hud__child-window--overlay-profile"
           id="monitoring-hud-overlay-profile-window"
           data-child-window="overlay-profile-settings"
-          data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"
-          data-overlay-profile-workflow="selector-first-create-edit-delete-followup-uts-repair"
+          data-overlay-profile-window="select-profile-to-edit-create-right-save-required"
+          data-overlay-profile-workflow="select-loads-edit-create-draft-save-required"
           data-overlay-profile-visual-repair="manager-selector-same-row-compact-unclipped-proof"
           data-overlay-profile-volume-policy="max-five-visible-monitors-inner-scroll"
           data-overlay-profile-selector-policy="max-five-visible-profile-options-ndai-scrollbar"
@@ -361,9 +361,8 @@
             <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="overlay-profile-settings" aria-label="Close Overlay Profile Settings">Close</button>
           </header>
           <div class="monitoring-hud__overlay-profile-choice-panel" aria-label="Overlay Profile selection workflow" data-overlay-profile-manager-default="create-edit-select">
-            <div class="monitoring-hud__overlay-profile-manager-row" data-overlay-profile-manager-row="create-edit-compact-selector-same-row">
-              <button type="button" id="monitoring-hud-overlay-profile-create" class="monitoring-hud__hub-action" data-control="overlay-profile-create">Create Profile</button>
-              <button type="button" id="monitoring-hud-overlay-profile-edit-selected" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="overlay-profile-edit-selected" data-control-state="clean-disabled" aria-disabled="true" disabled>Edit Profile</button>
+            <div class="monitoring-hud__overlay-profile-manager-row" data-overlay-profile-manager-row="selector-label-dropdown-create-right">
+              <span class="monitoring-hud__overlay-profile-window-select-label" id="monitoring-hud-overlay-profile-window-select-label">Select Profile to Edit</span>
               <div
                 class="monitoring-hud__bounded-dropdown monitoring-hud__overlay-profile-window-dropdown"
                 id="monitoring-hud-overlay-profile-window-selector"
@@ -391,6 +390,7 @@
                   <button type="button" class="monitoring-hud__bounded-dropdown-option" data-overlay-profile-window-option="default-overlay-profile" role="option" aria-selected="false">Default Overlay Profile</button>
                 </div>
               </div>
+              <button type="button" id="monitoring-hud-overlay-profile-create" class="monitoring-hud__hub-action" data-control="overlay-profile-create">Create Profile</button>
             </div>
             <div class="monitoring-hud__overlay-profile-manager-meta" aria-label="Overlay Profile manager summary">
               <span id="monitoring-hud-overlay-profile-window-active-name">No profile selected for editing</span>
@@ -464,9 +464,11 @@
             <div class="monitoring-hud__child-actions monitoring-hud__overlay-profile-window-actions" data-overlay-profile-actions="save-left-discard-delete-right">
               <div class="monitoring-hud__overlay-profile-window-actions-left">
                 <button type="button" id="monitoring-hud-overlay-profile-save" class="monitoring-hud__hub-action" data-control="overlay-profile-save" data-control-state="clean-disabled" aria-disabled="true" disabled>Save Profile</button>
+              </div>
+              <div class="monitoring-hud__overlay-profile-window-actions-right">
+                <button type="button" id="monitoring-hud-overlay-profile-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-discard" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
                 <button type="button" id="monitoring-hud-overlay-profile-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-delete">Delete Profile</button>
               </div>
-              <button type="button" id="monitoring-hud-overlay-profile-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-discard" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
             </div>
           </div>
         </div>

@@ -9536,7 +9536,7 @@ class DesktopRuntimeWindow(QWidget):
             )
             manager_default_geometry_visible = (
                 rect_present(geometry.get("overlayProfileWindowSelector") if isinstance(geometry.get("overlayProfileWindowSelector"), dict) else {})
-                and rect_present(geometry.get("overlayProfileWindowEdit") if isinstance(geometry.get("overlayProfileWindowEdit"), dict) else {})
+                and rect_present(geometry.get("overlayProfileWindowSelectLabel") if isinstance(geometry.get("overlayProfileWindowSelectLabel"), dict) else {}, min_width=80, min_height=10)
                 and rect_present(geometry.get("overlayProfileCreate") if isinstance(geometry.get("overlayProfileCreate"), dict) else {})
             )
             checks = {
@@ -9557,7 +9557,7 @@ class DesktopRuntimeWindow(QWidget):
                 "settings_window_close_geometry": rect_present(geometry.get("overlayProfileWindowClose") if isinstance(geometry.get("overlayProfileWindowClose"), dict) else {}),
                 "create_geometry": rect_present(geometry.get("overlayProfileCreate") if isinstance(geometry.get("overlayProfileCreate"), dict) else {}),
                 "manager_window_selector_geometry": rect_present(geometry.get("overlayProfileWindowSelector") if isinstance(geometry.get("overlayProfileWindowSelector"), dict) else {}),
-                "manager_edit_geometry": rect_present(geometry.get("overlayProfileWindowEdit") if isinstance(geometry.get("overlayProfileWindowEdit"), dict) else {}),
+                "manager_select_label_geometry": rect_present(geometry.get("overlayProfileWindowSelectLabel") if isinstance(geometry.get("overlayProfileWindowSelectLabel"), dict) else {}, min_width=80, min_height=10),
                 "manager_or_detail_geometry": detail_geometry_visible or manager_default_geometry_visible,
             }
             return all(checks.values()), checks
@@ -10609,7 +10609,7 @@ class DesktopRuntimeWindow(QWidget):
                         const managerToggle = document.getElementById("monitoring-hud-overlay-profile-window-toggle");
                         const managerLabel = document.getElementById("monitoring-hud-overlay-profile-window-label");
                         const managerRow = document.querySelector("[data-overlay-profile-manager-row]");
-                        const edit = document.getElementById("monitoring-hud-overlay-profile-edit-selected");
+                        const selectLabel = document.getElementById("monitoring-hud-overlay-profile-window-select-label");
                         const create = document.getElementById("monitoring-hud-overlay-profile-create");
                         const save = document.getElementById("monitoring-hud-overlay-profile-save");
                         const discard = document.getElementById("monitoring-hud-overlay-profile-discard");
@@ -10618,7 +10618,7 @@ class DesktopRuntimeWindow(QWidget):
                         const filter = document.getElementById("monitoring-hud-overlay-profile-monitor-filter");
                         const membershipList = document.getElementById("monitoring-hud-overlay-profile-membership-list");
                         return JSON.stringify({
-                            ok: Boolean(stateProof.passed && controlsProof.passed && selector && settingsButton && settingsWindow && managerSelector && edit && create),
+                            ok: Boolean(stateProof.passed && controlsProof.passed && selector && settingsButton && settingsWindow && managerSelector && selectLabel && create),
                             stateProofPassed: Boolean(stateProof.passed),
                             controlsProofPassed: Boolean(controlsProof.passed),
                             integrationProofPassed: Boolean(integrationProof.passed),
@@ -10644,7 +10644,12 @@ class DesktopRuntimeWindow(QWidget):
                             dropdownHighVolumeStress: Boolean(controlsProof.dropdownHighVolumeStress),
                             dropdownStressSurfaceCount: Number(controlsProof.dropdownStressSurfaceCount || 0),
                             dropdownStressProof: controlsProof.dropdownStressProof || {},
-                            editDisabledWithoutSelection: edit ? edit.disabled : false,
+                            editButtonRemovedAndSelectorDefaultEmpty: Boolean(controlsProof.editButtonRemovedAndSelectorDefaultEmpty),
+                            selectorLoadsSelectedSettings: Boolean(controlsProof.selectorLoadsSelectedSettings),
+                            createRequiresSave: Boolean(controlsProof.createRequiresSave),
+                            createStartsEmptyMembership: Boolean(controlsProof.createStartsEmptyMembership),
+                            closeGuardOpensForCreatedDraft: Boolean(controlsProof.closeGuardOpensForCreatedDraft),
+                            childWindowClickIsolation: Boolean(controlsProof.childWindowClickIsolation),
                             createVisible: Boolean(create),
                             saveDisabledDefault: save ? save.disabled : false,
                             discardDisabledDefault: discard ? discard.disabled : false,
@@ -10686,7 +10691,7 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("settingsWindowVisualRepair") == "manager-selector-same-row-compact-unclipped-proof"
                 and parsed.get("settingsButtonExpanded") is True
                 and parsed.get("dropdownClosed") is True
-                and parsed.get("managerRowPolicy") == "create-edit-compact-selector-same-row"
+                and parsed.get("managerRowPolicy") == "selector-label-dropdown-create-right"
                 and float(parsed.get("managerSelectorWidth") or 0) >= 190
                 and float(parsed.get("managerSelectorWidth") or 0) <= 240
                 and parsed.get("managerSelectorSameRow") is True
@@ -10701,7 +10706,12 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("dropdownHighVolumeStress") is True
                 and int(parsed.get("dropdownStressSurfaceCount") or 0) >= 2
                 and parsed.get("integrationProofPassed") is True
-                and parsed.get("editDisabledWithoutSelection") is True
+                and parsed.get("editButtonRemovedAndSelectorDefaultEmpty") is True
+                and parsed.get("selectorLoadsSelectedSettings") is True
+                and parsed.get("createRequiresSave") is True
+                and parsed.get("createStartsEmptyMembership") is True
+                and parsed.get("closeGuardOpensForCreatedDraft") is True
+                and parsed.get("childWindowClickIsolation") is True
                 and parsed.get("createVisible") is True
                 and parsed.get("saveDisabledDefault") is True
                 and parsed.get("discardDisabledDefault") is True
@@ -10711,7 +10721,7 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("deleteConfirmationVisualReviewable") is True
                 and parsed.get("searchFilterVisible") is True
                 and parsed.get("maxFiveInnerScrollPolicy") is True
-                and parsed.get("settingsWindowWorkflow") == "selector-first-create-edit-delete-followup-uts-repair"
+                and parsed.get("settingsWindowWorkflow") == "select-loads-edit-create-draft-save-required"
                 and parsed.get("outerScrollPolicy") == "normal-no-scroll-emergency-compact-scroll"
                 and parsed.get("membership") == "editable-slc-039-mapping",
                 parsed,
@@ -10885,8 +10895,6 @@ class DesktopRuntimeWindow(QWidget):
                     } else {
                         const option = document.querySelector("[data-overlay-profile-window-option]");
                         if (option) option.click();
-                        const edit = document.getElementById("monitoring-hud-overlay-profile-edit-selected");
-                        if (edit && !edit.disabled) edit.click();
                     }
                     const name = document.getElementById("monitoring-hud-overlay-profile-name-input");
                     if (name) {
@@ -12479,11 +12487,19 @@ class DesktopRuntimeWindow(QWidget):
                             const afterManageCreate = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
                             const afterManageCards = afterManageCreate && afterManageCreate.cards ? afterManageCreate.cards : {};
                             manageCreatedId = String(afterManageCreate && afterManageCreate.selectedMonitorId || "");
+                            const manageCreatedCard = afterManageCards[manageCreatedId] || {};
+                            const createSaveButton = document.getElementById("monitoring-hud-edit-monitor-confirm");
                             manageWindowCreateAddedMonitor = Boolean(
                                 manageCreatedId.indexOf("monitor-") === 0
                                 && afterManageCards[manageCreatedId]
                                 && Object.keys(afterManageCards).length === beforeCount + 1
+                                && Array.isArray(manageCreatedCard.sensors)
+                                && manageCreatedCard.sensors.length === 0
+                                && monitoringHudUnsavedMonitorDirty
+                                && createSaveButton
+                                && !createSaveButton.disabled
                             );
+                            if (createSaveButton && !createSaveButton.disabled) createSaveButton.click();
                             const afterManageCount = Object.keys(afterManageCards).length;
                             const deleteButton = document.getElementById("monitoring-hud-monitor-detail-delete");
                             if (deleteButton) {

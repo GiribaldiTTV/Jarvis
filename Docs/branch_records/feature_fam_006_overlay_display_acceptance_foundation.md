@@ -156,7 +156,7 @@ Thread Assignment Status: `Assigned to C:\Nexus Worktrees\FAM-006 only`
 Worktree Ownership Ledger: `C:\Nexus Worktrees\FAM-006 is the stable GitHub Desktop-bound FAM-006 worktree for this branch.`
 Intended Write Set: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/branch_records/index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Same Worktree / Same Branch Collision Check: `PASS - branch created in the FAM-006 worktree from current origin/main; no sibling worktree is assigned this branch.`
-Dirty Worktree Collision Check: `PASS - active owner FAM-006 assigned Codex thread owns the current bounded SLC-042 implementation dirty files until validation, commit, and push complete.`
+Dirty Worktree Collision Check: `PASS - owner claimed / current owner FAM-006 assigned Codex thread owns the current bounded LV1 returned-UTS workflow/validation repair dirty files until validation, commit, and push complete.`
 Dirty Worktree Recovery Packet: `Not required - no pre-existing dirty files.`
 Off-Worktree Work Routing: `Any FAM-007, Governance, Repo-Wide-Source-Owner-Markers, Compact-AI, or neutral-main mutation must be routed to its owning worktree and separate USER approval.`
 Governance Routing Barrier: `No Governance worktree mutation is authorized by this branch.`
@@ -248,7 +248,7 @@ User Test Summary Strategy: `No UTS is generated during Stage 2. Future LV1 must
 
 User Test Summary Results: `PENDING`
 User Test Summary Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
-Returned UTS Repair Disposition: `REPAIR - USER returned Overlay Profiles compact/normal buffer failure showing asymmetric side buffer and right-edge clipping in compact width; repair tightens Overlay Profiles child-window side buffers, manager-row grid sizing, selector max footprint, and symmetric window-buffer visual proof before refreshed UTS.`
+Returned UTS Repair Disposition: `REPAIR - USER returned Overlay Profiles workflow defects after compact/buffer repair: create paths must be save-required rather than auto-persisted, new Overlay Profiles and Monitor Groups must start from empty/default-safe selections, the Overlay Profiles selector must load the selected profile directly without a separate Edit button, Delete and Discard must be right-aligned with Delete farthest right, close/dirty guard behavior must work below tall-window thresholds, compact-height action rows must remain reachable, and child-window clicks must not fall through to the Dashboard. Repair updates runtime behavior, validators, and live-validation governance before refreshed UTS.`
 User Test Summary Handoff Status: `LV1 UTS handoff repair active after current-main reconciliation; desktop UTS export must name FAM-006 Overlay Display Acceptance Foundation and remain blocked until USER returns PASS, FAIL, or WAIVED results after the Overlay Profiles buffer/clipping retest.`
 Final Phase Advancement: `BLOCKED until the filled User Test Summary is submitted or waived, digested into this active authority record, and blockers are reevaluated.`
 

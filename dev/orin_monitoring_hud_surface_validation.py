@@ -302,7 +302,7 @@ def validate() -> list[str]:
         ".monitoring-hud__source-settings-body:focus-visible",
         ".monitoring-hud input[type=\"checkbox\"]:checked.is-hovered",
         ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown",
-        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) clamp(200px, 31%, 220px)",
+        "grid-template-columns: max-content minmax(190px, 240px) minmax(150px, 1fr)",
         "width: min(900px, calc(100% - 40px))",
         "grid-template-columns: minmax(0, 1fr)",
         "body.desktop-mode .monitoring-hud__child-window--overlay-profile",
@@ -540,14 +540,14 @@ def validate() -> list[str]:
         'data-overlay-profile-actions="settings-window-entry"',
         'id="monitoring-hud-overlay-profile-window"',
         'data-child-window="overlay-profile-settings"',
-        'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"',
-        'data-overlay-profile-workflow="selector-first-create-edit-delete-followup-uts-repair"',
+        'data-overlay-profile-window="select-profile-to-edit-create-right-save-required"',
+        'data-overlay-profile-workflow="select-loads-edit-create-draft-save-required"',
         'data-overlay-profile-volume-policy="max-five-visible-monitors-inner-scroll"',
         'data-overlay-profile-selector-policy="max-five-visible-profile-options-ndai-scrollbar"',
         'data-overlay-profile-outer-scroll-policy="normal-no-scroll-emergency-compact-scroll"',
         'id="monitoring-hud-overlay-profile-window-selector"',
         'data-visible-option-target="max-five"',
-        'id="monitoring-hud-overlay-profile-edit-selected"',
+        'id="monitoring-hud-overlay-profile-window-select-label"',
         'id="monitoring-hud-overlay-profile-name-input"',
         'id="monitoring-hud-overlay-profile-monitor-search"',
         'id="monitoring-hud-overlay-profile-monitor-filter"',
@@ -566,7 +566,7 @@ def validate() -> list[str]:
         'data-overlay-assignment-window="monitor-group-overlay-status-assignment"',
         'data-child-window="sensor-source-settings"',
         'data-source-settings-window="source-list-sensor-settings"',
-        "Select an existing profile or create a new one first",
+        "Select Profile to Edit",
         'data-recording-profile-state="recording-profile-state-absent-future-gated"',
         'aria-label="Nexus Desktop AI Monitoring HUD product surface"',
         'aria-label="HUD Dashboard control hub cards"',
@@ -801,9 +801,9 @@ def validate() -> list[str]:
         and ".monitoring-hud__monitor-overlay-profile-context--compact" in css
         and "data-overlay-profile-option" in html
         and "data-child-window=\"overlay-profile-settings\"" in html
-        and 'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"' in html
+        and 'data-overlay-profile-window="select-profile-to-edit-create-right-save-required"' in html
         and 'data-overlay-profile-visual-repair="manager-selector-same-row-compact-unclipped-proof"' in html
-        and 'data-overlay-profile-manager-row="create-edit-compact-selector-same-row"' in html
+        and 'data-overlay-profile-manager-row="selector-label-dropdown-create-right"' in html
         and 'data-overlay-profile-visible-monitor-target="max-five"' in html
         and 'data-scrollbar-style="ndai-native"' in html
         and 'data-overlay-profile-route="assigned-overlay-status-window"' in html
@@ -814,7 +814,7 @@ def validate() -> list[str]:
         and 'data-monitor-detail-placement="below-sensor-source"' in html
         and html.find('data-monitor-detail-card="sensor-source"') < html.find('data-monitor-detail-placement="below-sensor-source"')
         and 'data-bounded-dropdown="overlay-profile-monitor-filter"' in html
-        and 'id="monitoring-hud-overlay-profile-edit-selected"' in html
+        and 'id="monitoring-hud-overlay-profile-window-select-label"' in html
         and 'id="monitoring-hud-overlay-profile-delete"' in html
         and 'data-child-window="monitor-overlay-assignment"' in html
         and 'data-source-settings-window="source-list-sensor-settings"' in html
@@ -855,7 +855,7 @@ def validate() -> list[str]:
         failures,
     )
     _require(
-        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) clamp(200px, 31%, 220px)" in css
+        "grid-template-columns: max-content minmax(190px, 240px) minmax(150px, 1fr)" in css
         and "width: min(900px, calc(100% - 40px))" in css
         and "min-width: min(720px, calc(100% - 40px))" in css
         and "max-height: min(720px, calc(100% - 40px))" in css
@@ -874,11 +874,15 @@ def validate() -> list[str]:
         and "max-height: 68px" in css
         and "max-height: 88px" in css
         and "max-width: 220px;" in css
+        and ".monitoring-hud__overlay-profile-window-actions-right" in css
+        and "monitoringHudOverlayProfilePendingCreate" in js
+        and "monitorIds: []" in js
+        and "select-loads-edit-create-draft-save-required" in js
         and "padding-right: 14px;" in css
         and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css
         and "min-width: min(420px, calc(100% - 28px))" in css
         and "@media (max-width: 360px)" in css
-        and "max-height: 160px;" in css
+        and "max-height: 132px;" in css
         and "min-height: 26px;" in css
         and "box-sizing: border-box;" in css
         and "min-height: 152px;" in css
