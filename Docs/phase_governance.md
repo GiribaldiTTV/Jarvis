@@ -2512,6 +2512,12 @@ Off-worktree work routing is mandatory when a branch thread discovers work that 
 
 The active thread must run or report the equivalent of `python dev\orin_branch_governance_validation.py --worktree-confinement-gate` before Stage 2 execution, phase entry, branch/worktree creation, commit, push, PR work, release work, runtime validation, or GitHub Desktop handoff when the assigned branch record declares a worktree.
 
+### Family-Scoped Branch Readiness Confinement
+
+Family-scoped Branch Readiness must keep the requested family and worktree as the selector. The active branch record must name `Target Family:` and `Sibling Worktree Candidate Exclusion:` before Stage 2 mutation. Sibling worktrees are overlap context only; they are not successor authority, selected-next authority, or a reason to switch lanes unless USER explicitly broadens the task to repo-wide branch selection.
+
+If a sibling worktree appears to have an active branch, cleaner validation state, or a tempting next phase, the assigned thread must report it as overlap/reconciliation context only. If current source truth truly conflicts with the requested family/worktree, stop on `Family-Scoped Branch Readiness Drift` and return the routing conflict instead of recommending or entering the sibling branch.
+
 Stale parked branches, old worktrees, fallback folders, AI Lab context, deleted/recreated historical refs, and unknown write targets are stop conditions until USER explicitly routes the work to a legal target.
 
 ## Repo-Level State: No Active Branch

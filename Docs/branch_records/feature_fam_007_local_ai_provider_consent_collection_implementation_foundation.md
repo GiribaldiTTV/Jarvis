@@ -8,7 +8,7 @@ Record State: `Historical Branch Authority Projection`
 
 ## Status
 
-Status: `Historical merged-unreleased after PR #201 - local consent capture/write-path implementation foundation is merged to main as disabled/status-only local consent telemetry with static Core/Desktop/ORIN source truth, provider-state validator proof, desktop readiness display suppression continuity, User Test Summary waiver, selected-next defer/waiver, historical pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, and Release Window Audit recorded; release execution remains pending USER approval.`
+Status: `Historical released evidence after PR #201 and v1.7.16-prebeta - local consent capture/write-path implementation foundation is merged to main and released as disabled/status-only local consent telemetry with static Core/Desktop/ORIN source truth, provider-state validator proof, desktop readiness display suppression continuity, User Test Summary waiver, selected-next defer/waiver, historical pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, and Release Window Audit recorded.`
 
 ## Canonical Branch
 
@@ -28,7 +28,7 @@ Seam: `FAM-007 Local AI Provider Consent Collection Implementation Foundation`
 - Branch Authority Type: `Historical Projection`
 - Branch Evidence Branch: `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
 - Branch Evidence: `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
-- Branch Authority State: `Historical merged-unreleased after PR #201 - this branch is not active branch authority on merged main`
+- Branch Authority State: `Historical released evidence after PR #201 and v1.7.16-prebeta - this branch is not active branch authority on merged main`
 - Stage 2 Status: `Complete - PR Readiness Stage 2 created PR #201, and PR #201 merged into main`
 - Workstream Status: `Green - all admitted consent capture/write-path foundation seams are implemented and validated for closeout`
 - Hardening H1 Status: `Green - H1 compared the completed implementation against the admitted Workstream plan, Branch Runtime Engineering Plan, Product Definition Plan, Runtime Branch Engineering Contract, source truth, validator fixtures, setup/execution consent separation, consent record schema/storage boundary, provenance/audit/no-secrets posture, local-only safety boundaries, hidden telemetry UI proof, desktop readiness display suppression continuity, and overlap posture with no remaining H1 blocker`
@@ -49,13 +49,13 @@ Seam: `FAM-007 Local AI Provider Consent Collection Implementation Foundation`
 - Branch: `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
 - Worktree: `C:\Nexus Worktrees\FAM-007`
 - Base / merge base: `origin/main` at `6681131c974d99945c494c0e4ff3c436f9347422` after Governance PR #200 rebaseline
-- Latest public prerelease baseline: `v1.7.15-prebeta`
-- Latest public prerelease release commit: `3e769d0670937232afc3f5e767f5a3baf2f2c945`
+- Latest public prerelease baseline: `v1.7.16-prebeta`
+- Latest public prerelease release commit: `10c32804370ee5480416e68e55823e5997d18291`
 - Current origin/main at branch creation: `a42b7e50eb012722b140f3874dbf50826bd797c8`
 - Merge PR: `PR #201`
 - Merge Commit: `600f50d60a808cbc5a32473e80dd6e8778616906`
 - Merge Timestamp: `2026-05-23T23:57:37Z`
-- Current origin/main includes post-release governance commits after `v1.7.15-prebeta`: `PR #198` and `PR #199`
+- Current origin/main includes PR #201 released in `v1.7.16-prebeta` plus Governance PR #202 release-readiness drift repair.
 - Prior consent foundation branch: `feature/fam-007-local-ai-provider-consent-collection-foundation`
 - Prior consent foundation PR: `PR #193`
 
@@ -228,7 +228,7 @@ Status: `Complete - functional-AI and v1.8.0 continuation criteria remain pendin
 
 ## Historical Closeout Seam
 
-Active seam: `None - PR #201 merged; historical closeout records the merged-unreleased posture`
+Active seam: `None - PR #201 merged and released in v1.7.16-prebeta; historical closeout records the released posture`
 
 Goal: Preserve PR Readiness Stage 1 and Stage 2 evidence while preventing pre-PR/pending wording from remaining in merged-main current-state truth.
 
@@ -530,7 +530,7 @@ UTS And LV1 Waiver Posture: `PASS - LV1 classified this branch as disabled/statu
 
 Release Readiness Health Pass: `PASS - no release execution is authorized here; this branch preserves release-window/no-release-debt posture for later Release Readiness after merge.`
 
-Release Window Audit: `PASS - current public release baseline is v1.7.15-prebeta, origin/main includes Governance PR #200 at 6681131c974d99945c494c0e4ff3c436f9347422, and this branch is the next unreleased FAM-007 consent capture/write-path implementation foundation candidate only after PR creation/merge.`
+Release Window Audit: `Closed by v1.7.16-prebeta - PR #201 is released FAM-007 consent capture/write-path implementation foundation evidence; durable consent persistence foundation is the later FAM-007 Branch Readiness successor.`
 
 Runtime/UI Behavior Posture: `Local-only status/telemetry foundation remains disabled/status-only. Provider setup completion, provider SDK/model execution, downloads, network egress, memory, voice/Core sync, shortcut/installer, durable consent persistence beyond local snapshot proof, and functional AI remain blocked.`
 
@@ -552,7 +552,7 @@ Selected Next Implementation Branch: Not created - successor branch selection is
 
 Branch Authority Cleanup Projection: `PASS - branch authority should fold down from active carrier to historical merged-unreleased evidence after merge; no branch deletion or worktree cleanup is authorized.`
 
-Merged-Unreleased Scope Posture: `Projected - after PR merge and before a later release, this branch should be tracked as merged-unreleased FAM-007 consent capture/write-path implementation foundation evidence only.`
+Merged-Unreleased Scope Posture: `Closed - PR #201 is released in v1.7.16-prebeta and is tracked as historical released FAM-007 consent capture/write-path implementation foundation evidence.`
 
 Watcher / Live PR State Projection: `PASS - PR #201 watcher/live PR state is historical receipt evidence only and is not projected as active merged-main state.`
 
@@ -564,7 +564,7 @@ Governance Intake Routing: `PASS - Governance remains a separate standing intake
 
 Release Candidate Anchor Projection: `origin/main` at `600f50d60a808cbc5a32473e80dd6e8778616906` after PR #201 merge.
 
-Release Window Contributor Inventory: `Merged-unreleased contributor: PR #201 FAM-007 Local AI Provider Consent Collection Implementation Foundation. Released baseline: v1.7.15-prebeta with post-release Governance PR #200 and PR #201 on main.`
+Release Window Contributor Inventory: `Closed by v1.7.16-prebeta - PR #201 FAM-007 Local AI Provider Consent Collection Implementation Foundation is released evidence.`
 
 Projected Post-Merge Validation: `Release Readiness should validate branch authority fold-down, release-window inventory, no active branch projection, source-truth consistency, runtime safety posture, and selected-next defer truth before any release execution.`
 
@@ -624,7 +624,7 @@ Stale Active Branch Wording Scan: `PASS - current-state owners are updated for h
 
 Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - PR Readiness Stage 2 / PR creation and merge are historical complete through PR #201; current-state owners do not retain pre-PR or PR-creation-pending wording.`
 
-Merged-Unreleased Scope Posture: `PASS - PR #201 is merged-unreleased FAM-007 consent capture/write-path implementation foundation evidence; release execution remains a separate USER decision.`
+Merged-Unreleased Scope Posture: `PASS - PR #201 is released in v1.7.16-prebeta as FAM-007 consent capture/write-path implementation foundation evidence.`
 
 Release Execution Gate: `PASS - no release, tag, GitHub Release, artifact, or issue closeout is authorized by this PR Readiness Stage 1 repair.`
 
@@ -642,7 +642,7 @@ Merge-Stable Source Truth Projection: `PASS after Governance RRI-20260523-001 re
 
 Release Candidate Anchor Projection: `PASS - origin/main 600f50d60a808cbc5a32473e80dd6e8778616906 after PR #201 merge; Release Readiness must recalculate if origin/main advances before release preparation.`
 
-Release Window Contributor Inventory: `PASS - merged-unreleased contributor after PR #201: FAM-007 Local AI Provider Consent Collection Implementation Foundation. Current baseline is v1.7.15-prebeta plus post-release Governance PR #200 and PR #201.`
+Release Window Contributor Inventory: `Closed by v1.7.16-prebeta - PR #201 FAM-007 Local AI Provider Consent Collection Implementation Foundation is released evidence.`
 
 Projected Post-Merge Validation: `PASS - run branch governance, release-readiness health gate, governance efficiency, release body, provider-state, source-owner marker, branch-readiness planning fixture, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, compileall, and diff checks after PR merge or before Release Readiness.`
 
@@ -664,13 +664,13 @@ Governance Drift Found: `NO - PR Readiness Stage 1 source-truth repair records s
 
 ## Release Baseline And Prior Evidence
 
-Latest Public Prerelease: `v1.7.15-prebeta`
+Latest Public Prerelease: `v1.7.16-prebeta`
 
-Latest Public Release Commit: `3e769d0670937232afc3f5e767f5a3baf2f2c945`
+Latest Public Release Commit: `10c32804370ee5480416e68e55823e5997d18291`
 
 Current origin/main: `6681131c974d99945c494c0e4ff3c436f9347422`
 
-Post-Release Governance Context: `origin/main includes PR #198 and PR #199 after the v1.7.15-prebeta release baseline; this Stage 2 branch is created from that current main.`
+Post-Release Governance Context: `origin/main is v1.7.16-prebeta at 10c32804370ee5480416e68e55823e5997d18291; the durable consent persistence successor is created from that current main.`
 
 PR #193 Released Evidence: `Merged and released FAM-007 Local AI Provider Consent Collection Foundation evidence; it is the immediate predecessor and remains disabled/status-only consent scaffolding rather than actual consent capture/write-path implementation.`
 
