@@ -175,12 +175,12 @@ Element Validation Ledger Owner: `Docs/branch_records/feature_fam_006_overlay_di
 - Owned Behavior / Fact Class: `Governed phase-routing and approval-boundary behavior for active Workstream execution; not runtime behavior, release execution, PR creation, issue mutation, FAM-007 ownership, or sibling-worktree ownership.`
 - Canonical Owner / Source Owner: `Docs/phase_governance.md owns phase rules; this branch plan owns overlap intent evidence for the FAM-006 branch-local governance clarification.`
 - Resolution Owner: `Current Branch`
-- Shared Surface: `YES - origin/main / PR #201 also edits Docs/phase_governance.md for current-main governance updates.`
+- Shared Surface: `YES - origin/main current-main governance updates also edit Docs/phase_governance.md, including PR #201 context and later governance refinements.`
 - Overlap Risk: `High - phase-governance edits can silently change legal phase routing, approval requirements, or stop conditions if reconciled without intent evidence.`
 - Expected Conflict Risk: `Medium - both branches edit governance rules, but the expected final state should preserve incoming PR #201 governance/current-main updates and the FAM-006 bounded Workstream continuation clarification.`
 - Semantic Merge Risk: `High`
 - Regression / Gating Impact: `High`
-- Conflict Resolution Rule: `Preserve incoming PR #201 phase-governance additions as current-main context and preserve the FAM-006 bounded Workstream continuation rule that, after USER approval to start the admitted Workstream package, Codex continues within approved boundaries until Workstream Green or a true stop condition before routing to H1. Do not broaden this into runtime implementation, PR creation, merge, release, issue mutation, or sibling-worktree authority.`
+- Conflict Resolution Rule: `Preserve incoming origin/main phase-governance additions as current-main context and preserve the FAM-006 bounded Workstream continuation rule that, after USER approval to start the admitted Workstream package, Codex continues within approved boundaries until Workstream Green or a true stop condition before routing to H1. Do not broaden this into runtime implementation, PR creation, merge, release, issue mutation, or sibling-worktree authority.`
 - Rebaseline Handling: `After this ledger repair is committed and pushed, rerun the Pre-Rebaseline Impact Audit. If the overlap gate clears, USER may approve governed non-rewrite reconciliation of origin/main into feature/fam-006-overlay-display-acceptance-foundation.`
 - Validation Proof: `Before rebaseline mutation, run the Pre-Rebaseline Impact Audit with this branch plan path plus git diff checks, branch governance validation, worktree-confinement validation, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, and compileall.`
 - Fallback Evidence: `Current diffs show origin/main adds PR #201 governance context and this branch adds the FAM-006 Workstream-continuation clarification; fallback evidence supports classification only and is not a compatibility bypass.`
@@ -215,16 +215,76 @@ Element Validation Ledger Owner: `Docs/branch_records/feature_fam_006_overlay_di
 - Owned Behavior / Fact Class: `Validator enforcement for bounded Workstream continuation and phase-routing source-truth consistency; not runtime behavior, PR creation, merge execution, release execution, issue mutation, FAM-007 ownership, or sibling-worktree ownership.`
 - Canonical Owner / Source Owner: `dev/orin_branch_governance_validation.py owns machine-checkable branch governance validation; Docs/phase_governance.md owns the source-truth rule; this branch plan owns overlap intent evidence for the FAM-006 branch-local validator edit.`
 - Resolution Owner: `Current Branch`
-- Shared Surface: `YES - origin/main / PR #202 also edits dev/orin_branch_governance_validation.py for merge-stable source-truth projection checks and related governance fixtures.`
+- Shared Surface: `YES - origin/main current-main governance updates also edit dev/orin_branch_governance_validation.py for merge-stable source-truth projection checks, current-main reconciliation checks, and related governance fixtures.`
 - Overlap Risk: `High - branch governance validator edits can silently weaken phase gates, current-main projection checks, or bounded Workstream continuation checks if reconciled by inertia.`
 - Expected Conflict Risk: `Medium - both branches edit separate governance-validator regions, but the expected final state should preserve incoming PR #202 merge-stable projection validation and preserve the FAM-006 bounded Workstream continuation validator support.`
 - Semantic Merge Risk: `High`
 - Regression / Gating Impact: `High`
-- Conflict Resolution Rule: `Preserve incoming PR #202 merge-stable source-truth projection validation, fixtures, and any related governance helper changes as current-main context. Preserve the FAM-006 validator allowance for bounded Workstream continuation approval blockers inside admitted Workstream packages. Do not use the FAM-006 validator edit to weaken PR Readiness, Release Readiness, current-main reconciliation, merge-stable projection, or sibling-worktree gates.`
+- Conflict Resolution Rule: `Preserve incoming origin/main merge-stable source-truth projection validation, current-main reconciliation checks, fixtures, and any related governance helper changes as current-main context. Preserve the FAM-006 validator allowance for bounded Workstream continuation approval blockers inside admitted Workstream packages. Do not use the FAM-006 validator edit to weaken PR Readiness, Release Readiness, current-main reconciliation, merge-stable projection, or sibling-worktree gates.`
 - Rebaseline Handling: `After this ledger repair is committed and pushed, rerun the Pre-Rebaseline Impact Audit. If the overlap gate clears, USER approval already covers governed non-rewrite reconciliation of origin/main into feature/fam-006-overlay-display-acceptance-foundation for this bounded freshness/LV1 handoff repair.`
 - Validation Proof: `Before rebaseline mutation, run the Pre-Rebaseline Impact Audit with this branch plan path plus git diff checks, branch governance validation, worktree-confinement validation, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, FAM-006 HUD validators where required by changed files, runtime-fam006 validation suite where applicable, and compileall.`
 - Fallback Evidence: `Current diffs show origin/main adds merge-stable projection validation and fixtures, while this branch adds bounded Workstream continuation blocker recognition; fallback evidence supports classification only and is not a compatibility bypass.`
 - USER Decision / Waiver: `USER approved this bounded Branch Change Intent Ledger repair for dev/orin_branch_governance_validation.py, validation, commit, push, rerun of the Pre-Rebaseline Impact Audit, and governed current-main reconciliation only if the audit clears.`
+- Fold-Down Target: `Keep this overlap-intent evidence in the active branch plan until PR Readiness fold-down decides retention, compaction, or historical projection.`
+
+### Changed Surface: Docs/codex_modes.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `FAM-006 intentionally edits Codex mode guidance only to align bounded Workstream continuation and LV1 proof expectations with the active Overlay Display Acceptance Foundation branch-local repair path.`
+- Why This File Was Touched: `The FAM-006 LV1/UTS repair cycle exposed that Workstream and Live Validation modes needed sharper branch-local instructions for continuing within approved boundaries, real user-facing proof, and stop/report behavior.`
+- Owned Behavior / Fact Class: `Codex operating-mode source truth for bounded Workstream and validation behavior; not runtime behavior, release execution, PR creation, issue mutation, FAM-007 ownership, or sibling-worktree ownership.`
+- Canonical Owner / Source Owner: `Docs/codex_modes.md owns Codex mode rules; this branch plan owns overlap intent evidence for the FAM-006 branch-local mode clarification.`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES - origin/main current-main governance/source-truth updates also edit Docs/codex_modes.md.`
+- Overlap Risk: `High - Codex mode edits can silently change when work continues, stops, validates, or asks for USER approval if reconciled without intent evidence.`
+- Expected Conflict Risk: `Medium - both sides edit governance/mode language, but the expected final state should preserve incoming current-main mode guidance and the FAM-006 bounded Workstream/LV1 proof clarifications.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming origin/main Codex mode updates as current-main context and preserve FAM-006 branch-local instructions that approved Workstream execution remains bounded but continues until Workstream Green or a true stop condition, and that LV1 proof must use user-facing evidence standards required by this branch. Do not broaden this into runtime implementation, PR creation, merge, release, issue mutation, artifact handling outside approved proof, or sibling-worktree authority.`
+- Rebaseline Handling: `After this ledger repair is committed and pushed, rerun the Pre-Rebaseline Impact Audit. If the overlap gate clears, USER may approve governed non-rewrite reconciliation of origin/main into feature/fam-006-overlay-display-acceptance-foundation.`
+- Validation Proof: `Before rebaseline mutation, run the Pre-Rebaseline Impact Audit with this branch plan path plus git diff checks, branch governance validation, worktree-confinement validation, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, FAM-006 HUD validators where required by changed files, runtime-fam006 validation suite where applicable, and compileall.`
+- Fallback Evidence: `Current diffs show origin/main adds current-main Codex mode context, while this branch adds FAM-006 bounded Workstream/LV1 proof clarifications; fallback evidence supports classification only and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved this bounded Branch Change Intent Ledger repair only; rebaseline merge/rebase/current-main reconciliation mutation remains pending separate USER decision.`
+- Fold-Down Target: `Keep this overlap-intent evidence in the active branch plan until PR Readiness fold-down decides retention, compaction, or historical projection.`
+
+### Changed Surface: Docs/development_rules.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `FAM-006 intentionally edits development rules only to align branch-local LV1/live-validation rigor, pessimistic visual review, and real user-facing proof expectations with the Overlay Display Acceptance Foundation repair path.`
+- Why This File Was Touched: `The FAM-006 LV1/UTS repair cycle exposed missing mandatory validation standards for compact/default window proof, per-element screenshots, real user-level interaction, dirty-guard behavior, and Codex visual adjudication before UTS handoff.`
+- Owned Behavior / Fact Class: `Development and validation operating rules for user-facing proof quality; not runtime feature scope, release execution, PR creation, issue mutation, FAM-007 ownership, or sibling-worktree ownership.`
+- Canonical Owner / Source Owner: `Docs/development_rules.md owns development rules; this branch plan owns overlap intent evidence for the FAM-006 branch-local proof-standard clarification.`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES - origin/main current-main governance/source-truth updates also edit Docs/development_rules.md.`
+- Overlap Risk: `High - development-rule edits can weaken or duplicate mandatory validation standards if current-main and branch-local proof rules are reconciled by inertia.`
+- Expected Conflict Risk: `Medium - both sides edit governance/development-rule language, but the expected final state should preserve incoming current-main rules and the FAM-006 LV1/live-validation rigor clarifications.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming origin/main development-rule additions as current-main context and preserve FAM-006 branch-local mandatory live-validation proof rules for real user-level interaction, compact/default screenshot comparison, per-element evidence, pessimistic Codex review, and explicit blocker/waiver handling. Do not treat these rules as approval for runtime implementation, PR creation, merge, release, issue mutation, artifact handling outside approved proof, or sibling-worktree mutation.`
+- Rebaseline Handling: `After this ledger repair is committed and pushed, rerun the Pre-Rebaseline Impact Audit. If the overlap gate clears, USER may approve governed non-rewrite reconciliation of origin/main into feature/fam-006-overlay-display-acceptance-foundation.`
+- Validation Proof: `Before rebaseline mutation, run the Pre-Rebaseline Impact Audit with this branch plan path plus git diff checks, branch governance validation, worktree-confinement validation, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, FAM-006 HUD validators where required by changed files, runtime-fam006 validation suite where applicable, and compileall.`
+- Fallback Evidence: `Current diffs show origin/main adds current-main development-rule context, while this branch adds FAM-006 LV1/live-validation rigor requirements; fallback evidence supports classification only and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved this bounded Branch Change Intent Ledger repair only; rebaseline merge/rebase/current-main reconciliation mutation remains pending separate USER decision.`
+- Fold-Down Target: `Keep this overlap-intent evidence in the active branch plan until PR Readiness fold-down decides retention, compaction, or historical projection.`
+
+### Changed Surface: desktop/desktop_renderer.py
+
+- Surface Class: `runtime`
+- Change Intent: `FAM-006 intentionally edits the desktop renderer only to add overlay display acceptance bridge/proof signals needed by SLC-042 through SLC-045 and the approved HUD proof route.`
+- Why This File Was Touched: `Overlay Display Acceptance Foundation required renderer-visible proof signals for active-profile display behavior, Dashboard / Overlay independence, Workstream readiness, and bridge state without changing Recording Profile, tray recording, export/share, provider execution, or broad theme behavior.`
+- Owned Behavior / Fact Class: `FAM-006 HUD renderer bridge/proof signal behavior for Overlay Display Acceptance Foundation; not AI provider execution, FAM-007 consent behavior, Recording Profile runtime, tray controls, export/share, release execution, or sibling-worktree ownership.`
+- Canonical Owner / Source Owner: `desktop/desktop_renderer.py owns desktop renderer bridge behavior; this branch plan owns overlap intent evidence for the FAM-006 branch-local renderer/proof edit.`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES - origin/main current-main runtime-adjacent updates also edit desktop/desktop_renderer.py.`
+- Overlap Risk: `High - renderer changes can accidentally mix FAM-006 HUD proof signals with incoming current-main renderer behavior, including provider/FAM-007 context, if reconciled without explicit intent.`
+- Expected Conflict Risk: `Medium - both sides edit renderer-adjacent code, but the expected final state should preserve incoming current-main renderer behavior and the FAM-006 overlay display acceptance bridge/proof signals.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming origin/main renderer changes as current-main context and preserve FAM-006 branch-local HUD proof/bridge signals for SLC-042 through SLC-045. Do not use this overlap to implement Recording Profile runtime, tray recording controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, or unrelated renderer behavior.`
+- Rebaseline Handling: `After this ledger repair is committed and pushed, rerun the Pre-Rebaseline Impact Audit. If the overlap gate clears, USER may approve governed non-rewrite reconciliation of origin/main into feature/fam-006-overlay-display-acceptance-foundation.`
+- Validation Proof: `Before rebaseline mutation, run the Pre-Rebaseline Impact Audit with this branch plan path plus git diff checks, branch governance validation, worktree-confinement validation, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, FAM-006 HUD validators, runtime-fam006 validation suite, and compileall.`
+- Fallback Evidence: `Current diffs show origin/main changes desktop renderer-adjacent behavior, while this branch adds FAM-006 HUD overlay display acceptance bridge/proof signals; fallback evidence supports classification only and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved this bounded Branch Change Intent Ledger repair only; rebaseline merge/rebase/current-main reconciliation mutation remains pending separate USER decision.`
 - Fold-Down Target: `Keep this overlap-intent evidence in the active branch plan until PR Readiness fold-down decides retention, compaction, or historical projection.`
 
 ## Validation Plan
