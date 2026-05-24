@@ -7417,6 +7417,20 @@ def _now_utc(now_utc: datetime | None) -> datetime:
     return now_utc.astimezone(timezone.utc)
 
 
+def _read_durable_consent_bool(
+    record_payload: dict[str, object],
+    field_name: str,
+    *,
+    default: bool,
+) -> tuple[bool, bool]:
+    if field_name not in record_payload:
+        return default, False
+    value = record_payload[field_name]
+    if isinstance(value, bool):
+        return value, False
+    return default, True
+
+
 def normalize_provider_durable_consent_record(
     record: AIProviderDurableConsentRecordSnapshot | dict[str, object] | None,
     *,
@@ -7467,24 +7481,69 @@ def normalize_provider_durable_consent_record(
     provider_profile_id = str(
         record_payload.get("provider_profile_id") or PROVIDER_PROFILE_ID_LOCAL_NULL
     )
-    setup_consent_granted = bool(record_payload.get("setup_consent_granted", False))
-    execution_consent_granted = bool(
-        record_payload.get("execution_consent_granted", False)
+    boolean_field_invalid = False
+    setup_consent_granted, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "setup_consent_granted",
+        default=False,
     )
-    revoked = bool(record_payload.get("revoked", False))
-    reset_requested = bool(record_payload.get("reset_requested", False))
-    setup_consent_revoked = bool(
-        record_payload.get("setup_consent_revoked", False)
-    ) or (revoked and setup_consent_granted)
-    execution_consent_revoked = bool(
-        record_payload.get("execution_consent_revoked", False)
-    ) or (revoked and execution_consent_granted)
-    setup_consent_reset_requested = bool(
-        record_payload.get("setup_consent_reset_requested", False)
-    ) or (reset_requested and setup_consent_granted)
-    execution_consent_reset_requested = bool(
-        record_payload.get("execution_consent_reset_requested", False)
-    ) or (reset_requested and execution_consent_granted)
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    execution_consent_granted, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "execution_consent_granted",
+        default=False,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    revoked, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "revoked",
+        default=False,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    reset_requested, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "reset_requested",
+        default=False,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    setup_consent_revoked, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "setup_consent_revoked",
+        default=False,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    setup_consent_revoked = setup_consent_revoked or (
+        revoked and setup_consent_granted
+    )
+    execution_consent_revoked, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "execution_consent_revoked",
+        default=False,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    execution_consent_revoked = execution_consent_revoked or (
+        revoked and execution_consent_granted
+    )
+    setup_consent_reset_requested, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "setup_consent_reset_requested",
+        default=False,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    setup_consent_reset_requested = setup_consent_reset_requested or (
+        reset_requested and setup_consent_granted
+    )
+    execution_consent_reset_requested, invalid_bool = (
+        _read_durable_consent_bool(
+            record_payload,
+            "execution_consent_reset_requested",
+            default=False,
+        )
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    execution_consent_reset_requested = execution_consent_reset_requested or (
+        reset_requested and execution_consent_granted
+    )
     expires_at_utc = str(record_payload.get("expires_at_utc") or "")
     setup_consent_expires_at_utc = str(
         record_payload.get("setup_consent_expires_at_utc") or expires_at_utc
@@ -7506,10 +7565,18 @@ def normalize_provider_durable_consent_record(
         record_payload.get("audit_event_id")
         or CONSENT_DURABLE_DEFAULT_AUDIT_EVENT_ID
     )
-    no_secrets = bool(record_payload.get("no_secrets", False))
-    provider_payload_excluded = bool(
-        record_payload.get("provider_payload_excluded", False)
+    no_secrets, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "no_secrets",
+        default=False,
     )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    provider_payload_excluded, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "provider_payload_excluded",
+        default=False,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
     storage_boundary = str(
         record_payload.get("storage_boundary")
         or CONSENT_DURABLE_STORAGE_BOUNDARY_LOCAL_ONLY
@@ -7531,21 +7598,34 @@ def normalize_provider_durable_consent_record(
         )
     )
     record_expired = expires_at is not None and expires_at <= current_time
-    setup_consent_expired = bool(
-        record_payload.get("setup_consent_expired", False)
-    ) or (
+    setup_consent_expired, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "setup_consent_expired",
+        default=False,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    setup_consent_expired = setup_consent_expired or (
         setup_expires_at is not None
         and setup_consent_granted
         and setup_expires_at <= current_time
     )
-    execution_consent_expired = bool(
-        record_payload.get("execution_consent_expired", False)
-    ) or (
+    execution_consent_expired, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "execution_consent_expired",
+        default=False,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
+    execution_consent_expired = execution_consent_expired or (
         execution_expires_at is not None
         and execution_consent_granted
         and execution_expires_at <= current_time
     )
-    expired_flag_requested = bool(record_payload.get("expired", False))
+    expired_flag_requested, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "expired",
+        default=False,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
     expired = (
         record_expired
         or expired_flag_requested
@@ -7574,14 +7654,21 @@ def normalize_provider_durable_consent_record(
         and not revoked
         and not reset_requested
     )
+    record_valid_flag, invalid_bool = _read_durable_consent_bool(
+        record_payload,
+        "record_valid",
+        default=True,
+    )
+    boolean_field_invalid = boolean_field_invalid or invalid_bool
     record_valid = (
-        bool(record_payload.get("record_valid", True))
+        record_valid_flag
         and bool(record_id)
         and bool(audit_event_id)
         and no_secrets
         and provider_payload_excluded
         and storage_boundary == CONSENT_DURABLE_STORAGE_BOUNDARY_LOCAL_ONLY
         and not invalid_expiry_timestamp
+        and not boolean_field_invalid
     )
 
     record_state = CONSENT_DURABLE_RECORD_STATE_READY
@@ -7658,6 +7745,7 @@ def write_provider_durable_consent_record(
     """Persist a normalized durable consent record to an explicit local store."""
 
     normalized = normalize_provider_durable_consent_record(record, now_utc=now_utc)
+    record_path = _provider_durable_consent_record_path(store_dir)
     if normalized.record_state in {
         CONSENT_DURABLE_RECORD_STATE_INVALID,
         CONSENT_DURABLE_RECORD_STATE_CORRUPT,
@@ -7665,8 +7753,8 @@ def write_provider_durable_consent_record(
         CONSENT_DURABLE_RECORD_STATE_STALE_SCHEMA,
         CONSENT_DURABLE_RECORD_STATE_MISSING,
     }:
+        record_path.unlink(missing_ok=True)
         return normalized
-    record_path = _provider_durable_consent_record_path(store_dir)
     record_path.parent.mkdir(parents=True, exist_ok=True)
     record_path.write_text(
         json.dumps(normalized.as_dict(), indent=2, sort_keys=True) + "\n",

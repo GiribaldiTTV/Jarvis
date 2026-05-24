@@ -2560,6 +2560,25 @@ def validate() -> list[str]:
             execution_consent_expires_at_utc="not-a-timestamp",
         )
     )
+    non_boolean_setup_flag_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted="false",
+            execution_consent_granted=True,
+        )
+    )
+    non_boolean_record_valid_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(record_valid="true")
+    )
+    non_boolean_guard_flag_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(no_secrets="true")
+    )
+    non_boolean_revoked_flag_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+            revoked="false",
+        )
+    )
     expired_flag_durable_consent_snapshot = _durable_consent_snapshot(
         _durable_consent_record(
             setup_consent_granted=True,
@@ -2601,6 +2620,38 @@ def validate() -> list[str]:
         corrupt_loaded_durable_record_snapshot = load_provider_durable_consent_record(
             temp_store_path,
             now_utc=fixed_now,
+        )
+
+    with tempfile.TemporaryDirectory() as stale_temp_store:
+        stale_temp_store_path = Path(stale_temp_store)
+        write_provider_durable_consent_record(
+            stale_temp_store_path,
+            _durable_consent_record(),
+            now_utc=fixed_now,
+        )
+        stale_record_path = (
+            stale_temp_store_path / CONSENT_DURABLE_RECORD_FILENAME
+        )
+        invalid_write_durable_record_snapshot = (
+            write_provider_durable_consent_record(
+                stale_temp_store_path,
+                _durable_consent_record(no_secrets=False),
+                now_utc=fixed_now,
+            )
+        )
+        loaded_after_invalid_write_durable_record_snapshot = (
+            load_provider_durable_consent_record(
+                stale_temp_store_path,
+                now_utc=fixed_now,
+            )
+        )
+        invalid_write_cleared_stale_durable_record = (
+            invalid_write_durable_record_snapshot.record_state
+            == CONSENT_DURABLE_RECORD_STATE_INVALID
+            and not invalid_write_durable_record_snapshot.record_valid
+            and not stale_record_path.exists()
+            and loaded_after_invalid_write_durable_record_snapshot.record_state
+            == CONSENT_DURABLE_RECORD_STATE_MISSING
         )
 
     payload = snapshot.as_renderer_payload()
@@ -2791,6 +2842,18 @@ def validate() -> list[str]:
         ),
         "invalid_execution_expiry": (
             invalid_execution_expiry_durable_consent_snapshot.as_renderer_payload()
+        ),
+        "non_boolean_setup_flag": (
+            non_boolean_setup_flag_durable_consent_snapshot.as_renderer_payload()
+        ),
+        "non_boolean_record_valid": (
+            non_boolean_record_valid_durable_consent_snapshot.as_renderer_payload()
+        ),
+        "non_boolean_guard_flag": (
+            non_boolean_guard_flag_durable_consent_snapshot.as_renderer_payload()
+        ),
+        "non_boolean_revoked_flag": (
+            non_boolean_revoked_flag_durable_consent_snapshot.as_renderer_payload()
         ),
         "expired_flag": expired_flag_durable_consent_snapshot.as_renderer_payload(),
     }
@@ -6355,6 +6418,42 @@ def validate() -> list[str]:
             CONSENT_RECORD_DURABLE_STORAGE_LOCAL_READY,
             CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
         ),
+        "non_boolean_setup_flag": (
+            CONSENT_DURABLE_RECORD_STATE_INVALID,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_INVALID,
+            CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
+        "non_boolean_record_valid": (
+            CONSENT_DURABLE_RECORD_STATE_INVALID,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_INVALID,
+            CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
+        "non_boolean_guard_flag": (
+            CONSENT_DURABLE_RECORD_STATE_INVALID,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_INVALID,
+            CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
+        "non_boolean_revoked_flag": (
+            CONSENT_DURABLE_RECORD_STATE_INVALID,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_INVALID,
+            CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
     }
     _require(
         default_durable_record_snapshot.record_state
@@ -6406,6 +6505,11 @@ def validate() -> list[str]:
         and corrupt_loaded_durable_record_snapshot.fail_closed_reason
         == CONSENT_DURABLE_FAIL_REASON_CORRUPT,
         "durable consent corrupt local store load must fail closed",
+        failures,
+    )
+    _require(
+        invalid_write_cleared_stale_durable_record,
+        "durable consent invalid local write must clear stale ready records",
         failures,
     )
     for label, expectation in durable_consent_expectations.items():
