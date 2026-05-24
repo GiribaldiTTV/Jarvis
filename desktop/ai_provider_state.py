@@ -7794,11 +7794,19 @@ def write_provider_durable_consent_record(
     }:
         _clear_provider_durable_consent_record_path(record_path)
         return normalized
-    record_path.parent.mkdir(parents=True, exist_ok=True)
-    record_path.write_text(
-        json.dumps(normalized.as_dict(), indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    try:
+        record_path.parent.mkdir(parents=True, exist_ok=True)
+        record_path.write_text(
+            json.dumps(normalized.as_dict(), indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    except OSError:
+        return replace(
+            build_default_provider_durable_consent_record(),
+            record_state=CONSENT_DURABLE_RECORD_STATE_CORRUPT,
+            fail_closed_reason=CONSENT_DURABLE_FAIL_REASON_CORRUPT,
+            provenance=CONSENT_DURABLE_PROVENANCE_LOCAL_STORE,
+        )
     return normalized
 
 
