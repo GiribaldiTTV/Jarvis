@@ -329,12 +329,21 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown",
         "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) clamp(200px, 31%, 220px)",
         "width: min(900px, calc(100% - 40px))",
+        "grid-template-columns: minmax(0, 1fr)",
+        "body.desktop-mode .monitoring-hud__child-window--overlay-profile",
+        "scrollbar-gutter: auto",
+        ".monitoring-hud__overlay-profile-choice-panel",
+        "justify-self: stretch",
+        "max-width: 100%",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
     for needle in (
         "leftBuffer",
         "rightBuffer",
         "symmetricWindowBuffer",
+        "choicePanelLeftInset",
+        "choicePanelRightInset",
+        "symmetricChoicePanelBuffer",
     ):
         _require_contains(js, needle, "FAM-006 Overlay Profile manager scaling proof", failures)
     for needle in (
@@ -830,6 +839,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "width: min(900px, calc(100% - 40px))" in css
         and "min-width: min(720px, calc(100% - 40px))" in css
         and "max-height: min(720px, calc(100% - 40px))" in css
+        and "grid-template-columns: minmax(0, 1fr)" in css
+        and "body.desktop-mode .monitoring-hud__child-window--overlay-profile" in css
+        and "scrollbar-gutter: auto" in css
+        and "justify-self: stretch" in css
+        and "max-width: 100%" in css
         and "max-width: 220px;" in css
         and "padding-right: 14px;" in css
         and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css

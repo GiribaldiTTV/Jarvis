@@ -1254,13 +1254,22 @@ body.desktop-mode #monitoring-hud > * {
   min-width: min(720px, calc(100% - 40px));
   max-height: min(720px, calc(100% - 40px));
   overflow: hidden;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto minmax(0, auto) auto auto;
+}
+
+body.desktop-mode .monitoring-hud__child-window--overlay-profile {
+  scrollbar-gutter: auto;
 }
 
 .monitoring-hud__overlay-profile-choice-panel {
   display: grid;
   gap: 0;
   min-height: 152px;
+  justify-self: stretch;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   box-sizing: border-box;
   border: 1px solid rgba(117, 228, 255, 0.14);
   border-radius: 8px;
@@ -1728,7 +1737,12 @@ body.desktop-mode #monitoring-hud > * {
   min-width: min(720px, calc(100% - 40px));
   max-height: min(720px, calc(100% - 40px));
   overflow: hidden;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto minmax(0, auto) auto auto;
+}
+
+body.desktop-mode .monitoring-hud__child-window--overlay-profile {
+  scrollbar-gutter: auto;
 }
 
 .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-choice-panel {

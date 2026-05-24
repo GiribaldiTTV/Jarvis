@@ -6332,6 +6332,12 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     const measureSelectorLayout = () => {
       const selectorRect = selector.getBoundingClientRect();
       const rowRect = row.getBoundingClientRect();
+      const choicePanel = monitoringHudOverlayProfileWindow
+        ? monitoringHudOverlayProfileWindow.querySelector(".monitoring-hud__overlay-profile-choice-panel")
+        : null;
+      const choicePanelRect = choicePanel
+        ? choicePanel.getBoundingClientRect()
+        : { left: 0, right: 0, width: 0 };
       const createRect = create ? create.getBoundingClientRect() : { top: 0, right: 0, height: 0 };
       const editRect = edit ? edit.getBoundingClientRect() : { top: 0, right: 0, height: 0 };
       const windowRect = monitoringHudOverlayProfileWindow
@@ -6349,6 +6355,14 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
         leftBuffer >= 14
         && rightBuffer >= 14
         && Math.abs(leftBuffer - rightBuffer) <= 8
+      );
+      const choicePanelLeftInset = choicePanelRect.left - windowRect.left;
+      const choicePanelRightInset = windowRect.right - choicePanelRect.right;
+      const symmetricChoicePanelBuffer = Boolean(
+        choicePanelRect.width > 0
+        && choicePanelLeftInset >= 10
+        && choicePanelRightInset >= 10
+        && Math.abs(choicePanelLeftInset - choicePanelRightInset) <= 4
       );
       const selectorCenterY = selectorRect.top + (selectorRect.height / 2);
       const createCenterY = createRect.top + (createRect.height / 2);
@@ -6402,8 +6416,12 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
         leftBuffer,
         rightBuffer,
         symmetricWindowBuffer,
+        choicePanelLeftInset,
+        choicePanelRightInset,
+        symmetricChoicePanelBuffer,
         selectorRect,
-        rowRect
+        rowRect,
+        choicePanelRect
       };
     };
     const currentMeasurement = measureSelectorLayout();
@@ -6431,7 +6449,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
         rowTopDelta: measurement.rowTopDelta,
         leftBuffer: measurement.leftBuffer,
         rightBuffer: measurement.rightBuffer,
-        symmetricWindowBuffer: measurement.symmetricWindowBuffer
+        symmetricWindowBuffer: measurement.symmetricWindowBuffer,
+        choicePanelLeftInset: measurement.choicePanelLeftInset,
+        choicePanelRightInset: measurement.choicePanelRightInset,
+        symmetricChoicePanelBuffer: measurement.symmetricChoicePanelBuffer
       };
     };
     const availableWidth = Math.max(460, Math.min(820, (window.innerWidth || 900) - 56));
@@ -6454,11 +6475,13 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       && compactMeasurement.menuUnclipped
       && wideMeasurement.symmetricWindowBuffer
       && compactMeasurement.symmetricWindowBuffer
+      && wideMeasurement.symmetricChoicePanelBuffer
+      && compactMeasurement.symmetricChoicePanelBuffer
       && wideMeasurement.selectorWidth <= 240
       && compactMeasurement.selectorWidth <= 240
       && compactMeasurement.selectorWidth <= wideMeasurement.selectorWidth + 2
     );
-    if (!currentMeasurement.symmetricWindowBuffer || !scalesWithinRow || !responsiveCompact || !currentMeasurement.menuUnclipped) {
+    if (!currentMeasurement.symmetricWindowBuffer || !currentMeasurement.symmetricChoicePanelBuffer || !scalesWithinRow || !responsiveCompact || !currentMeasurement.menuUnclipped) {
       failures.push("overlay-manager-scaling:selector-stacked-oversized-or-clipped");
     }
     surfaces.push({
@@ -6478,7 +6501,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
           rowTopDelta: Math.round(currentMeasurement.rowTopDelta),
           leftBuffer: Math.round(currentMeasurement.leftBuffer),
           rightBuffer: Math.round(currentMeasurement.rightBuffer),
-          symmetricWindowBuffer: currentMeasurement.symmetricWindowBuffer
+          symmetricWindowBuffer: currentMeasurement.symmetricWindowBuffer,
+          choicePanelLeftInset: Math.round(currentMeasurement.choicePanelLeftInset),
+          choicePanelRightInset: Math.round(currentMeasurement.choicePanelRightInset),
+          symmetricChoicePanelBuffer: currentMeasurement.symmetricChoicePanelBuffer
         },
         wide: {
           windowWidth: Math.round(availableWidth),
@@ -6491,7 +6517,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
           rowTopDelta: Math.round(wideMeasurement.rowTopDelta),
           leftBuffer: Math.round(wideMeasurement.leftBuffer),
           rightBuffer: Math.round(wideMeasurement.rightBuffer),
-          symmetricWindowBuffer: wideMeasurement.symmetricWindowBuffer
+          symmetricWindowBuffer: wideMeasurement.symmetricWindowBuffer,
+          choicePanelLeftInset: Math.round(wideMeasurement.choicePanelLeftInset),
+          choicePanelRightInset: Math.round(wideMeasurement.choicePanelRightInset),
+          symmetricChoicePanelBuffer: wideMeasurement.symmetricChoicePanelBuffer
         },
         compact: {
           windowWidth: Math.round(compactWidth),
@@ -6504,7 +6533,10 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
           rowTopDelta: Math.round(compactMeasurement.rowTopDelta),
           leftBuffer: Math.round(compactMeasurement.leftBuffer),
           rightBuffer: Math.round(compactMeasurement.rightBuffer),
-          symmetricWindowBuffer: compactMeasurement.symmetricWindowBuffer
+          symmetricWindowBuffer: compactMeasurement.symmetricWindowBuffer,
+          choicePanelLeftInset: Math.round(compactMeasurement.choicePanelLeftInset),
+          choicePanelRightInset: Math.round(compactMeasurement.choicePanelRightInset),
+          symmetricChoicePanelBuffer: compactMeasurement.symmetricChoicePanelBuffer
         }
       },
       selectorRect: {
@@ -6516,6 +6548,11 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
         left: Math.round(currentMeasurement.rowRect.left),
         right: Math.round(currentMeasurement.rowRect.right),
         width: Math.round(currentMeasurement.rowRect.width)
+      },
+      choicePanelRect: {
+        left: Math.round(currentMeasurement.choicePanelRect.left),
+        right: Math.round(currentMeasurement.choicePanelRect.right),
+        width: Math.round(currentMeasurement.choicePanelRect.width)
       }
     });
   }
