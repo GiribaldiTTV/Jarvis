@@ -314,6 +314,10 @@ def validate() -> list[str]:
         "height: min(720px, calc(100% - 40px))",
         "max-height: 82px",
         "max-height: 102px",
+        "@media (max-height: 560px)",
+        "overflow: auto",
+        "max-height: 68px",
+        "max-height: 88px",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
     for needle in (
@@ -536,7 +540,7 @@ def validate() -> list[str]:
         'data-overlay-profile-workflow="selector-first-create-edit-delete-followup-uts-repair"',
         'data-overlay-profile-volume-policy="max-five-visible-monitors-inner-scroll"',
         'data-overlay-profile-selector-policy="max-five-visible-profile-options-ndai-scrollbar"',
-        'data-overlay-profile-outer-scroll-policy="no-normal-window-scrollbar"',
+        'data-overlay-profile-outer-scroll-policy="normal-no-scroll-emergency-compact-scroll"',
         'id="monitoring-hud-overlay-profile-window-selector"',
         'data-visible-option-target="max-five"',
         'id="monitoring-hud-overlay-profile-edit-selected"',
@@ -860,6 +864,10 @@ def validate() -> list[str]:
         and "height: min(720px, calc(100% - 40px))" in css
         and "max-height: 82px" in css
         and "max-height: 102px" in css
+        and "@media (max-height: 560px)" in css
+        and "overflow: auto" in css
+        and "max-height: 68px" in css
+        and "max-height: 88px" in css
         and "max-width: 220px;" in css
         and "padding-right: 14px;" in css
         and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css

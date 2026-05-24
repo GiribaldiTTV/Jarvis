@@ -1787,6 +1787,29 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
   }
 }
 
+@media (max-height: 560px) {
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] {
+    overflow: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-choice-panel {
+    min-height: 132px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-manager-meta {
+    min-height: 44px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-membership-list {
+    max-height: 68px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-filter-dropdown .monitoring-hud__bounded-dropdown-menu {
+    max-height: 88px;
+  }
+}
+
 .monitoring-hud__child-window--monitor-management {
   width: min(920px, calc(100% - 24px));
   min-width: min(680px, calc(100% - 24px));
