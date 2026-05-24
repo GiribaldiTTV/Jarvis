@@ -7519,6 +7519,17 @@ def normalize_provider_durable_consent_record(
     setup_expires_at = _parse_utc_timestamp(setup_consent_expires_at_utc)
     execution_expires_at = _parse_utc_timestamp(execution_consent_expires_at_utc)
     current_time = _now_utc(now_utc)
+    invalid_expiry_timestamp = (
+        (bool(expires_at_utc.strip()) and expires_at is None)
+        or (
+            bool(setup_consent_expires_at_utc.strip())
+            and setup_expires_at is None
+        )
+        or (
+            bool(execution_consent_expires_at_utc.strip())
+            and execution_expires_at is None
+        )
+    )
     record_expired = expires_at is not None and expires_at <= current_time
     setup_consent_expired = bool(
         record_payload.get("setup_consent_expired", False)
@@ -7534,28 +7545,34 @@ def normalize_provider_durable_consent_record(
         and execution_consent_granted
         and execution_expires_at <= current_time
     )
-    expired = record_expired or (
-        bool(record_payload.get("expired", False))
-        and setup_consent_expired
-        and execution_consent_expired
+    expired_flag_requested = bool(record_payload.get("expired", False))
+    expired = (
+        record_expired
+        or expired_flag_requested
+        or setup_consent_expired
+        or execution_consent_expired
+    )
+    effective_setup_consent_expired = (
+        setup_consent_expired or record_expired or expired_flag_requested
+    )
+    effective_execution_consent_expired = (
+        execution_consent_expired or record_expired or expired_flag_requested
     )
     setup_consent_active = (
         setup_consent_granted
         and not setup_consent_revoked
         and not setup_consent_reset_requested
-        and not setup_consent_expired
+        and not effective_setup_consent_expired
         and not revoked
         and not reset_requested
-        and not record_expired
     )
     execution_consent_active = (
         execution_consent_granted
         and not execution_consent_revoked
         and not execution_consent_reset_requested
-        and not execution_consent_expired
+        and not effective_execution_consent_expired
         and not revoked
         and not reset_requested
-        and not record_expired
     )
     record_valid = (
         bool(record_payload.get("record_valid", True))
@@ -7564,6 +7581,7 @@ def normalize_provider_durable_consent_record(
         and no_secrets
         and provider_payload_excluded
         and storage_boundary == CONSENT_DURABLE_STORAGE_BOUNDARY_LOCAL_ONLY
+        and not invalid_expiry_timestamp
     )
 
     record_state = CONSENT_DURABLE_RECORD_STATE_READY
@@ -7577,7 +7595,7 @@ def normalize_provider_durable_consent_record(
     elif revoked:
         record_state = CONSENT_DURABLE_RECORD_STATE_REVOKED
         fail_closed_reason = CONSENT_DURABLE_FAIL_REASON_REVOKED
-    elif record_expired:
+    elif expired:
         record_state = CONSENT_DURABLE_RECORD_STATE_EXPIRED
         fail_closed_reason = CONSENT_DURABLE_FAIL_REASON_EXPIRED
     elif not (setup_consent_granted or execution_consent_granted):
@@ -7591,7 +7609,7 @@ def normalize_provider_durable_consent_record(
         elif setup_consent_revoked or execution_consent_revoked:
             record_state = CONSENT_DURABLE_RECORD_STATE_REVOKED
             fail_closed_reason = CONSENT_DURABLE_FAIL_REASON_REVOKED
-        elif setup_consent_expired or execution_consent_expired:
+        elif effective_setup_consent_expired or effective_execution_consent_expired:
             record_state = CONSENT_DURABLE_RECORD_STATE_EXPIRED
             fail_closed_reason = CONSENT_DURABLE_FAIL_REASON_EXPIRED
 
@@ -7607,8 +7625,8 @@ def normalize_provider_durable_consent_record(
         execution_consent_revoked=execution_consent_revoked,
         setup_consent_reset_requested=setup_consent_reset_requested,
         execution_consent_reset_requested=execution_consent_reset_requested,
-        setup_consent_expired=setup_consent_expired or record_expired,
-        execution_consent_expired=execution_consent_expired or record_expired,
+        setup_consent_expired=effective_setup_consent_expired,
+        execution_consent_expired=effective_execution_consent_expired,
         setup_consent_expires_at_utc=setup_consent_expires_at_utc,
         execution_consent_expires_at_utc=execution_consent_expires_at_utc,
         revoked=revoked,
@@ -7766,7 +7784,7 @@ def _durable_consent_scope_status(
             f"Durable {title} consent: revoked",
             CONSENT_DURABLE_REASON_REVOKED,
         )
-    if durable_record.expired or expired:
+    if expired:
         return (
             CONSENT_DURABLE_CONSENT_STATE_EXPIRED,
             f"Durable {title} consent: expired",

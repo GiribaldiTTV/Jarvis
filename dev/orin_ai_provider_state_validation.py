@@ -2546,6 +2546,27 @@ def validate() -> list[str]:
             execution_consent_expires_at_utc=durable_past_expiry,
         )
     )
+    invalid_setup_expiry_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+            setup_consent_expires_at_utc="not-a-timestamp",
+        )
+    )
+    invalid_execution_expiry_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+            execution_consent_expires_at_utc="not-a-timestamp",
+        )
+    )
+    expired_flag_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+            expired=True,
+        )
+    )
     default_durable_record_snapshot = build_default_provider_durable_consent_record()
     normalized_valid_durable_record_snapshot = normalize_provider_durable_consent_record(
         _durable_consent_record(),
@@ -2765,6 +2786,13 @@ def validate() -> list[str]:
         "expired_execution": (
             expired_execution_durable_consent_snapshot.as_renderer_payload()
         ),
+        "invalid_setup_expiry": (
+            invalid_setup_expiry_durable_consent_snapshot.as_renderer_payload()
+        ),
+        "invalid_execution_expiry": (
+            invalid_execution_expiry_durable_consent_snapshot.as_renderer_payload()
+        ),
+        "expired_flag": expired_flag_durable_consent_snapshot.as_renderer_payload(),
     }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -6300,6 +6328,33 @@ def validate() -> list[str]:
             CONSENT_RECORD_DURABLE_STORAGE_LOCAL_READY,
             CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
         ),
+        "invalid_setup_expiry": (
+            CONSENT_DURABLE_RECORD_STATE_INVALID,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_INVALID,
+            CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
+        "invalid_execution_expiry": (
+            CONSENT_DURABLE_RECORD_STATE_INVALID,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_INVALID,
+            CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
+        "expired_flag": (
+            CONSENT_DURABLE_RECORD_STATE_EXPIRED,
+            True,
+            CONSENT_DURABLE_FAIL_REASON_EXPIRED,
+            CONSENT_DURABLE_STORAGE_STATE_LOCAL_READY,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_LOCAL_PROOF,
+            CONSENT_RECORD_DURABLE_STORAGE_LOCAL_READY,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
     }
     _require(
         default_durable_record_snapshot.record_state
@@ -6395,6 +6450,12 @@ def validate() -> list[str]:
             f"{label} durable-consent fixture must publish expected fail-closed state",
             failures,
         )
+        if expected_record_state == CONSENT_DURABLE_RECORD_STATE_EXPIRED:
+            _require(
+                durable_payload["durableConsentExpired"] is True,
+                f"{label} durable-consent fixture must keep expired flag consistent",
+                failures,
+            )
         _require(
             durable_payload["durableConsentLocalStorageBoundary"]
             == CONSENT_DURABLE_STORAGE_BOUNDARY_LOCAL_ONLY
@@ -6591,6 +6652,14 @@ def validate() -> list[str]:
             f"{label} durable-consent fixture must keep handoff criteria derived from separated consent",
             failures,
         )
+        if label.startswith("expired_"):
+            _require(
+                durable_payload["durableConsentRecordState"]
+                == CONSENT_DURABLE_RECORD_STATE_EXPIRED
+                and durable_payload["durableConsentExpired"] is True,
+                f"{label} durable-consent fixture must keep record and expired flag consistent",
+                failures,
+            )
         _require(
             durable_payload["durableConsentStatusProofState"]
             == CONSENT_DURABLE_STATUS_PROOF_HIDDEN_TELEMETRY
