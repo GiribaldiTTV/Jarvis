@@ -3,10 +3,10 @@
 Branch: `feature/fam-006-overlay-display-acceptance-foundation`
 Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `origin/main` at `a42b7e50eb012722b140f3874dbf50826bd797c8`
-Current origin/main: `6681131c974d99945c494c0e4ff3c436f9347422`
+Current origin/main: `a909f8e92c1fb1abd06e54e1301f12459e647b45`
 Origin/Main Advanced Since Branch Creation: `YES - reconciled by governed non-rewrite merge after Branch Change Intent Ledger evidence cleared the Pre-Rebaseline Impact Audit overlap gate.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md`
-Branch Runtime Engineering Plan: `Live Validation Stage 1 - Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, bounded SLC-042 runtime implementation/proof closure, bounded SLC-043 active display implementation, bounded SLC-044 Dashboard / Overlay independence implementation, bounded SLC-045 readiness proof, Hardening H1, and LV1 proof refresh are complete; USER Test Summary review is pending.`
+Branch Runtime Engineering Plan: `Live Validation Stage 1 - Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, bounded SLC-042 runtime implementation/proof closure, bounded SLC-043 active display implementation, bounded SLC-044 Dashboard / Overlay independence implementation, bounded SLC-045 readiness proof, Hardening H1, LV1 proof refresh, and USER Test Summary review are complete.`
 Engineering Plan Status: `Accepted`
 
 ## Branch Identity
@@ -30,11 +30,11 @@ Canonical Branch: `feature/fam-006-overlay-display-acceptance-foundation`
 ## Current Phase
 
 Phase: `Live Validation`
-Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof closure are complete; bounded SLC-043 active Overlay Profile display behavior, SLC-044 Dashboard / Overlay independence, SLC-045 validation/live-proof readiness, Hardening H1, current-main reconciliation, and LV1 UTS handoff repair are complete; refreshed USER Test Summary review is pending.`
+Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof closure are complete; bounded SLC-043 active Overlay Profile display behavior, SLC-044 Dashboard / Overlay independence, SLC-045 validation/live-proof readiness, Hardening H1, current-main reconciliation, LV1 UTS handoff repair, and refreshed USER Test Summary review are complete.`
 
 ## Phase Status
 
-Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness, Hardening H1, and LV1 proof refresh are complete; USER Test Summary results remain pending.`
+Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness, Hardening H1, LV1 proof refresh, and USER Test Summary review are complete; PR Readiness remains pending separate USER approval.`
 Authority State: `Active Branch`
 Bounded State: `Granted for bounded multi-seam Workstream execution across admitted SLC-042 through SLC-045; PR/release and future-gated work remain blocked until later USER approval.`
 
@@ -187,12 +187,12 @@ Stable Worktree Path Preservation Gate: `PASS - the stable path is preserved and
 
 ## Blockers
 
-Active Blockers: `User Test Summary Results Pending`
+Active Blockers: `None for LV1 / USER Test Summary - USER reported the two UTS items and branch bugs resolved and closed. PR creation, merge, release, issues, stale branch cleanup, and future-gated runtime work remain pending separate USER decisions.`
 PR Readiness Blocker: PR creation and merge remain pending separate USER approval.
 
 ## Exit Criteria
 
-Exit Criteria: `Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, review-bundle traceability repair, bounded SLC-042 implementation/proof closure, SLC-043 implementation/proof closure, SLC-044 Dashboard / Overlay independence proof, SLC-045 readiness proof, Hardening H1, and LV1 UTS handoff repair are recorded; required validations passed; commits are pushed; and final phase advancement remains blocked until USER Test Summary results are returned and digested.`
+Exit Criteria: `Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, review-bundle traceability repair, bounded SLC-042 implementation/proof closure, SLC-043 implementation/proof closure, SLC-044 Dashboard / Overlay independence proof, SLC-045 readiness proof, Hardening H1, LV1 UTS handoff repair, and USER Test Summary PASS/closed digestion are recorded; required validations passed; commits are pushed; and the next legal gate is PR Readiness Stage 1 analysis only after USER approval.`
 
 ## Rollback Target
 
@@ -246,11 +246,11 @@ User Test Summary Strategy: `No UTS is generated during Stage 2. Future LV1 must
 
 ## User Test Summary
 
-User Test Summary Results: `PENDING USER REVIEW - LV1 proof refresh is green after reopening and repairing the dirty-guard parity validation gap; the USER Test Summary handoff has been regenerated.`
+User Test Summary Results: `PASS / CLOSED - USER reported the two UTS items and branch bugs are resolved and can be closed. LV1 proof refresh remains green after reopening and repairing the dirty-guard parity validation gap, monitor-group number reuse issue, and related focused proof gaps.`
 User Test Summary Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
 Returned UTS Repair Disposition: `GREEN FOR USER RETEST - UTS-HUD-014 and UTS-HUD-021 were rerun through the real user-facing desktop launcher/human-client path and the LV1 live proof wrapper after current-main reconciliation. The prior LV1 green was reopened because Manage Monitors dirty-guard parity had not received equivalent real-input focused proof. Codex repaired the shared modal layout, required Manage Monitors dirty-guard real OS click proof, repaired monitor-group delete -> create numbering so the lowest available Monitor Group number is reused, and pessimistically inspected focused normal/compact Overlay Profiles screenshots, selector/dropdown stress proof, compact delete-confirmation proof, Overlay Profiles and Manage Monitors dirty-guard modal proof, child-window click isolation proof, empty draft membership proof, monitor-group name reuse proof, and normal/compact comparison proof; no unwaived Codex-visible visual blocker remains.`
-User Test Summary Handoff Status: `READY FOR USER REVIEW - refreshed UTS is at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt; human-client proof is at C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_human_client_validation\20260524_141107_425; LV1 focused proof is at C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260524_154225_043.`
-Final Phase Advancement: `BLOCKED until the filled User Test Summary is submitted or waived, digested into this active authority record, and blockers are reevaluated.`
+User Test Summary Handoff Status: `CLOSED - refreshed UTS at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt was returned by USER as resolved/closed; human-client proof is at C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_human_client_validation\20260524_141107_425; LV1 focused proof is at C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260524_154225_043.`
+Final Phase Advancement: `UNBLOCKED for PR Readiness Stage 1 analysis after USER approval; runtime implementation remains closed for this branch unless a new USER-approved repair is opened.`
 
 ## Later-Phase Expectations
 
@@ -269,7 +269,7 @@ Seam 4: `SLC-045 Validation/live proof and UTS handoff readiness`
 
 ## Active Seam
 
-Active seam: `SLC-045 validation/live proof and UTS handoff readiness implemented and proof-closed; Workstream Green, Hardening H1, current-main reconciliation, and LV1 UTS handoff repair are recorded green; USER Test Summary review is pending.`
+Active seam: `SLC-045 validation/live proof and UTS handoff readiness implemented and proof-closed; Workstream Green, Hardening H1, current-main reconciliation, LV1 UTS handoff repair, and USER Test Summary PASS/closed digestion are recorded green.`
 
 ## Validation Plan
 
@@ -283,17 +283,17 @@ Proof Closure Status: `Closed for SLC-042 validation/proof closure; no runtime i
 
 ## Next Legal Phase
 
-Next Legal Phase: `Live Validation`
-Next Legal Phase Detail: `Current-main reconciliation, H1, and LV1 visual adjudication/proof refresh are complete. The next legal work is USER Test Summary review/digestion, not additional runtime implementation.`
+Next Legal Phase: `PR Readiness`
+Next Legal Phase Detail: `Current-main reconciliation, H1, LV1 visual adjudication/proof refresh, and USER Test Summary digestion are complete. The next legal work is PR Readiness Stage 1 analysis after USER approval, not additional runtime implementation.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Live Validation Stage 1 / USER Test Summary handoff`
-Next Legal Phase: `USER Test Summary review and digestion`
-Why This Phase Is Next: `SLC-042 through SLC-045, H1, current-main reconciliation, real-input LV1 proof, focused normal/compact screenshots, short video proof, and Codex pessimistic visual review are green; USER review remains required before PR Readiness.`
-Approval Required: `USER must complete or waive the refreshed User Test Summary before PR Readiness Stage 1 can be trusted.`
-Exact USER Decision Needed: `Review the refreshed User Test Summary at C:\Users\anden\OneDrive\Desktop\User Test Summary.txt and return PASS/FAIL notes for FAM-006 Overlay Display Acceptance Foundation; PR creation, merge, release, issues, stale branch cleanup, and future-gated runtime work remain pending separate USER decisions.`
-Allowed Scope: `LV1 UTS handoff repair, validation, source-truth recording, and evidence refresh only.`
+Current Phase: `Live Validation Stage 1 / USER Test Summary digestion complete`
+Next Legal Phase: `PR Readiness Stage 1 analysis`
+Why This Phase Is Next: `SLC-042 through SLC-045, H1, current-main reconciliation, real-input LV1 proof, focused normal/compact screenshots, short video proof, Codex pessimistic visual review, and USER Test Summary PASS/closed digestion are green.`
+Approval Required: `USER must approve PR Readiness Stage 1 analysis before PR readiness source-truth analysis begins. PR creation remains a later separate decision.`
+Exact USER Decision Needed: `Approve PR Readiness Stage 1 analysis for FAM-006 Overlay Display Acceptance Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-overlay-display-acceptance-foundation; PR creation, merge, release, issues, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, and future-gated runtime work remain pending separate USER decisions.`
+Allowed Scope: `PR Readiness Stage 1 analysis only after USER approval; no runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup, or future-gated work.`
 Explicit Exclusions: `PR creation, merge to main, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation.`
 Validation Required: `Identity, source-truth, HUD live/human-client proof as needed, branch governance, worktree confinement after commit, release-readiness health gate, validation suite, diff checks, compileall, and supported JS syntax/runtime checks including bundled runtime Node when needed.`
-Stop Conditions: `Stop if worktree identity differs, origin/main advances and requires reconciliation, source truth selects a different phase, LV1 reveals visual defects, USER Test Summary is returned FAIL, or validation fails.`
+Stop Conditions: `Stop if worktree identity differs, origin/main advances and requires reconciliation, source truth selects a different phase, PR Readiness analysis reveals blockers, validation fails, or USER reports a new UTS failure.`
