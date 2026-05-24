@@ -9988,14 +9988,78 @@ class DesktopRuntimeWindow(QWidget):
             ]
             for label in labels:
                 capture(label)
-            QTimer.singleShot(delay(), step_discard_guard)
+            QTimer.singleShot(delay(), step_cancel_guard)
+
+        def step_cancel_guard():
+            os_click("#monitoring-hud-overlay-profile-unsaved-cancel", "real OS click cancels dirty Overlay Profile modal", step_cancel_assert)
+
+        def step_cancel_assert():
+            assert_state(
+                "Cancel closes dirty guard and preserves Overlay Profile dirty draft",
+                """
+                (function() {
+                    const guard = document.getElementById("monitoring-hud-overlay-profile-unsaved-guard");
+                    const windowNode = document.getElementById("monitoring-hud-overlay-profile-window");
+                    const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
+                    const save = document.getElementById("monitoring-hud-overlay-profile-save");
+                    const pendingCreate = typeof monitoringHudOverlayProfilePendingCreate !== "undefined" && monitoringHudOverlayProfilePendingCreate;
+                    return JSON.stringify({
+                        ok: Boolean(
+                            guard
+                            && guard.hidden
+                            && windowNode
+                            && !windowNode.hidden
+                            && windowNode.dataset.hudUnsavedState !== "open"
+                            && input
+                            && input.value === "Overlay Profile"
+                            && pendingCreate
+                            && save
+                            && !save.disabled
+                        ),
+                        guardClosed: Boolean(guard && guard.hidden),
+                        windowStillOpen: Boolean(windowNode && !windowNode.hidden),
+                        draftValue: input ? String(input.value || "") : "",
+                        pendingCreate: pendingCreate ? String(pendingCreate.id || "") : "",
+                        saveEnabled: Boolean(save && !save.disabled),
+                        hudUnsavedState: windowNode ? String(windowNode.dataset.hudUnsavedState || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_reclose_dirty_guard,
+            )
+
+        def step_reclose_dirty_guard():
+            os_click('[data-child-window-close="overlay-profile-settings"]', "real OS click close reopens dirty Overlay Profile modal after cancel", step_reclose_assert)
+
+        def step_reclose_assert():
+            assert_state(
+                "Dirty guard reopens after cancel because dirty draft remains",
+                """
+                (function() {
+                    const guard = document.getElementById("monitoring-hud-overlay-profile-unsaved-guard");
+                    const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
+                    const pendingCreate = typeof monitoringHudOverlayProfilePendingCreate !== "undefined" && monitoringHudOverlayProfilePendingCreate;
+                    return JSON.stringify({
+                        ok: Boolean(guard && !guard.hidden && input && input.value === "Overlay Profile" && pendingCreate),
+                        guardOpen: Boolean(guard && !guard.hidden),
+                        draftValue: input ? String(input.value || "") : "",
+                        pendingCreate: pendingCreate ? String(pendingCreate.id || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_discard_guard,
+            )
 
         def step_discard_guard():
             os_click("#monitoring-hud-overlay-profile-unsaved-discard", "real OS click discards dirty Overlay Profile draft", step_discard_assert)
 
         def step_discard_assert():
             assert_state(
-                "Discard closes dirty guard without persisting draft",
+                "Discard drops dirty Overlay Profile draft and continues queued close",
                 """
                 (function() {
                     const guard = document.getElementById("monitoring-hud-overlay-profile-unsaved-guard");
@@ -10004,6 +10068,7 @@ class DesktopRuntimeWindow(QWidget):
                         ok: Boolean(guard && guard.hidden && windowNode && windowNode.hidden),
                         guardClosed: Boolean(guard && guard.hidden),
                         windowClosed: Boolean(windowNode && windowNode.hidden),
+                        hudUnsavedState: windowNode ? String(windowNode.dataset.hudUnsavedState || "") : "",
                         realOsInputProof: true,
                         directJsClickUsed: false
                     });
@@ -11212,9 +11277,9 @@ class DesktopRuntimeWindow(QWidget):
                 "unsaved_close_targeted_manage_close": h1_proof.get("unsavedCloseTargetedManageClose") is True,
                 "unsaved_guard_scrolled_to_prompt": h1_proof.get("unsavedGuardModalFocused") is True,
                 "unsaved_close_save_persisted_draft": h1_proof.get("unsavedCloseSavePersistedDraft") is True,
-                "unsaved_close_save_closed_window": h1_proof.get("unsavedCloseSaveClosedWindow") is True,
+                "unsaved_close_save_returned_window": h1_proof.get("unsavedCloseSaveClosedWindow") is True,
                 "unsaved_close_discard_dropped_draft": h1_proof.get("unsavedCloseDiscardDroppedDraft") is True,
-                "unsaved_close_discard_closed_window": h1_proof.get("unsavedCloseDiscardClosedWindow") is True,
+                "unsaved_close_discard_returned_window": h1_proof.get("unsavedCloseDiscardClosedWindow") is True,
                 "delete_confirmation_cancel_illuminated": h1_proof.get("deleteConfirmationCancelIlluminated") is True,
                 "final_monitor_delete_empty_state": h1_proof.get("finalMonitorDeleteEmptyState") is True,
                 "final_monitor_create_reachable": h1_proof.get("finalMonitorCreateReachable") is True,
@@ -13145,6 +13210,9 @@ class DesktopRuntimeWindow(QWidget):
                         let unsavedCloseDraftBeforeClose = false;
                         let unsavedCloseTargetedManageClose = false;
                         let unsavedGuardModalFocused = false;
+                        let unsavedCancelReturnedWindow = false;
+                        let unsavedCancelPreservedDraft = false;
+                        let unsavedCancelClearedQueuedAction = false;
                         let unsavedCloseSavePersistedDraft = false;
                         let unsavedCloseSaveClosedWindow = false;
                         let unsavedCloseDiscardDroppedDraft = false;
@@ -13670,7 +13738,27 @@ class DesktopRuntimeWindow(QWidget):
                                 unsavedGuardModalFocused = Boolean(
                                     closeGuard
                                     && closeGuard.dataset.unsavedGuardReveal === "modal-focused"
-                                    && (!closeDetailPane || closeDetailPane.scrollTop <= 4)
+                                    && hud
+                                    && hud.dataset.activeChildWindow === "monitor-group-edit"
+                                );
+                                const closeCancel = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
+                                if (closeCancel) closeCancel.click();
+                                const closeCancelGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                                unsavedCancelReturnedWindow = Boolean(
+                                    closeCancelGuard
+                                    && closeCancelGuard.hidden
+                                    && hud
+                                    && hud.dataset.activeChildWindow === "monitor-group-edit"
+                                );
+                                unsavedCancelPreservedDraft = Boolean(
+                                    closeName
+                                    && closeName.value === closeDraftValue
+                                    && hud
+                                    && hud.dataset.monitorUnsavedChanges === "pending"
+                                );
+                                unsavedCancelClearedQueuedAction = Boolean(
+                                    closeCancelGuard
+                                    && closeCancelGuard.dataset.pendingMonitorAction === ""
                                 );
                                 if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
                                     const saveReadyState = JSON.parse(JSON.stringify(unsavedBackup));
@@ -14040,6 +14128,9 @@ class DesktopRuntimeWindow(QWidget):
                                     unsavedCloseDraftBeforeClose,
                                     unsavedCloseTargetedManageClose,
                                     unsavedGuardModalFocused,
+                                    unsavedCancelReturnedWindow,
+                                    unsavedCancelPreservedDraft,
+                                    unsavedCancelClearedQueuedAction,
                                     unsavedCloseSavePersistedDraft,
                                     unsavedCloseSaveClosedWindow,
                                     unsavedCloseDiscardDroppedDraft,
@@ -14146,6 +14237,9 @@ class DesktopRuntimeWindow(QWidget):
                             unsavedCloseDraftBeforeClose,
                             unsavedCloseTargetedManageClose,
                             unsavedGuardModalFocused,
+                            unsavedCancelReturnedWindow,
+                            unsavedCancelPreservedDraft,
+                            unsavedCancelClearedQueuedAction,
                             unsavedCloseSavePersistedDraft,
                             unsavedCloseSaveClosedWindow,
                             unsavedCloseDiscardDroppedDraft,

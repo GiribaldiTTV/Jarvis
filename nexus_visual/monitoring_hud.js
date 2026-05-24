@@ -7183,7 +7183,10 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
       const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
       return Boolean(guard && !guard.hidden && guard.dataset.pendingMonitorAction === "close");
     });
-    activate("dirty-discard", "#monitoring-hud-monitor-unsaved-discard", () => monitoringHudActiveChildWindow !== "monitor-group-edit");
+    activate("dirty-discard", "#monitoring-hud-monitor-unsaved-discard", () => {
+      const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+      return Boolean(monitoringHudActiveChildWindow === "monitor-group-edit" && guard && guard.hidden && !monitoringHudUnsavedMonitorDirty);
+    });
     if (typeof monitoringHudOpenChildWindow === "function") monitoringHudOpenChildWindow("monitor-group-edit");
     activate("source-filter-open", "#monitoring-hud-sensor-filter-toggle", () => monitoringHudSensorFilter && monitoringHudSensorFilter.dataset.filterOpen === "true");
     activate("source-filter-supported", '[data-source-filter="supported"]', () => monitoringHudSensorFilterValue() === "supported");
@@ -7234,7 +7237,10 @@ window.runMonitoringHudInteractiveControlStressProof = function() {
       const guard = document.getElementById("monitoring-hud-overlay-profile-unsaved-guard");
       return Boolean(guard && !guard.hidden && guard.dataset.unsavedGuard === "open-save-discard");
     });
-    activate("overlay-profile-dirty-discard", "#monitoring-hud-overlay-profile-unsaved-discard", () => monitoringHudActiveChildWindow !== "overlay-profile-settings");
+    activate("overlay-profile-dirty-discard", "#monitoring-hud-overlay-profile-unsaved-discard", () => {
+      const guard = document.getElementById("monitoring-hud-overlay-profile-unsaved-guard");
+      return Boolean(monitoringHudActiveChildWindow === "overlay-profile-settings" && guard && guard.hidden);
+    });
     if (typeof window.runMonitoringHudVisualInspectionMatrixProof === "function") {
       visualInspectionMatrixProof = window.runMonitoringHudVisualInspectionMatrixProof() || {};
       if (visualInspectionMatrixProof.passed !== true) failures.push("hud-wide-visual-inspection-matrix");
