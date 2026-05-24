@@ -112,7 +112,7 @@ Planning Completion Waiver: `Not required - Stage 2 records concrete branch purp
 
 ## Runtime Branch Engineering Contract
 
-Engineering Contract Status: `Accepted for Workstream; bounded SLC-042 runtime execution/proof closure and SLC-043 active display implementation are complete pending validation/commit`
+Engineering Contract Status: `Accepted for Workstream Green; bounded SLC-042 runtime execution/proof closure, SLC-043 active display implementation, SLC-044 Dashboard / Overlay independence, and SLC-045 readiness proof are complete and proof-closed`
 USER Engineering Planning Review: `Accepted for Stage 2 setup, Workstream Entry review, and bounded SLC-042 implementation`
 Runtime Implementation Approval: `Granted by USER for bounded multi-seam Workstream execution across admitted SLC-042 through SLC-045`
 Branch Purpose: `Prepare the FAM-006 Overlay Display Acceptance Foundation successor to prove profile-aware HUD Overlay display behavior in later seams while preserving existing monitoring/HUD source truth.`
@@ -192,7 +192,7 @@ PR Readiness Blocker: PR creation and merge remain pending separate USER approva
 
 ## Exit Criteria
 
-Exit Criteria: `Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, review-bundle traceability repair, bounded SLC-042 implementation/proof closure, and bounded SLC-043 implementation/validation are recorded; required validations pass; commits are pushed; and bounded Workstream continuation proceeds to SLC-044.`
+Exit Criteria: `Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, review-bundle traceability repair, bounded SLC-042 implementation/proof closure, SLC-043 implementation/proof closure, SLC-044 Dashboard / Overlay independence proof, and SLC-045 readiness proof are recorded; required validations passed; commits are pushed; and Workstream Green routes to Hardening H1.`
 
 ## Rollback Target
 
@@ -204,7 +204,7 @@ Branch Objective: `Admit and implement the first bounded Overlay Display Accepta
 
 ## Target End-State
 
-Target End-State: `The branch is in bounded Workstream continuation with a clear package/slice map, branch authority, branch plan, validation expectations, SLC-042 proof closure, SLC-043 active display implementation, SLC-044 next, and stable FAM-006 worktree binding.`
+Target End-State: `The branch has completed bounded Workstream execution with a clear package/slice map, branch authority, branch plan, validation expectations, SLC-042 through SLC-045 proof closure, Hardening H1 next, and stable FAM-006 worktree binding.`
 
 ## Backlog Completion Strategy
 
