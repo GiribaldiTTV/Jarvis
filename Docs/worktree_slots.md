@@ -103,23 +103,23 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: Historical merged-unreleased after PR #201; slot waits for USER-approved rebaseline and later Branch Readiness before any successor work
-- Assigned Branch: `None active - prior branch feature/fam-007-local-ai-provider-consent-collection-implementation-foundation merged through PR #201`
-- Assigned Family / Workstream: `FAM-007 Local AI Provider Consent Collection Implementation Foundation - historical merged-unreleased PR #201 evidence`
-- Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
-- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` retired from active planning posture after PR #201
+- Assignment Status: USER-assigned active runtime slot for FAM-007 Durable Consent Persistence Foundation Branch Readiness Stage 2
+- Assigned Branch: `feature/fam-007-local-ai-provider-durable-consent-persistence-foundation`
+- Assigned Family / Workstream: `FAM-007 Local AI Provider Durable Consent Persistence Foundation`
+- Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
+- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
 - GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding; no cleanup/rebinding authorized by this branch`
-- Active Thread Owner: `None active after PR #201 merge; future FAM-007 work requires USER-approved Branch Readiness`
-- Thread Assignment Status: `Waiting for updated main / future USER-approved Branch Readiness`
+- Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 Branch Readiness Stage 2 setup`
+- Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
 - Worktree Ownership Ledger: `Branch authority record plus this slot receipt`
-- Intended Write Set: `None while idle after PR #201 merge; release, provider setup completion, model execution, downloads/network, memory, voice/Core sync, cleanup, successor branch creation, and sibling-worktree mutation remain pending USER decisions`
+- Intended Write Set: `FAM-007 branch authority, branch plan, compact pointer docs, validation helper registry, bounded confinement repair, and validation-produced source truth if required`
 - Same Worktree / Same Branch Collision Check: `PASS at assignment; no second writer assigned`
 - Dirty Worktree Collision Check: `PASS at assignment; worktree clean before Stage 2 source-truth edits`
 - Dirty Worktree Recovery Packet: `Not required unless unowned dirty files appear`
-- Off-Worktree Work Routing: `Route FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests to owning lanes`
+- Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests are sibling overlap context only and not successor authority for this FAM-007 Stage 2 pass`
 - Governance Routing Barrier: `Active for governance-only mutation outside this FAM-007 branch path`
 - New Worktree Decision Gate: `Pending USER approval for any worktree creation, deletion, cleanup, or rebinding beyond this carrier`
-- USER Assignment Decision: `USER approved Branch Readiness Stage 2 setup, Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 in C:\Nexus Worktrees\FAM-007 for this target branch`
+- USER Assignment Decision: `USER approved Branch Readiness Stage 2 setup in C:\Nexus Worktrees\FAM-007 for feature/fam-007-local-ai-provider-durable-consent-persistence-foundation and approved bounded family-scoped confinement repair on this branch`
 - Operational Truth Source: `git status`, `git rev-parse HEAD`, `git rev-parse origin/main`, `git merge-base HEAD origin/main`, and Pre-Rebaseline Impact Audit before any future baseline mutation`
 
 ## Runtime Slot Assignment Template
