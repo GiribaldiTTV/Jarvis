@@ -316,6 +316,7 @@ def validate() -> list[str]:
         "max-height: 102px",
         "@media (max-height: 560px)",
         "overflow: auto",
+        "min-height: 54px",
         "max-height: 68px",
         "max-height: 88px",
     ):
@@ -350,6 +351,9 @@ def validate() -> list[str]:
         "windowSelectorMenuUnclipped",
         "windowSelectorResponsiveCompact",
         "selector-stacked-oversized-or-clipped",
+        "overlay-profile-minimum-functional-height",
+        "oneFullMonitorVisible",
+        "normal-no-scroll-emergency-compact-scroll",
         "dividerGlowReduced50Percent",
         "sameMonitorRowDirtyGuard",
         "defaultProfileDeletePersists",
@@ -866,6 +870,7 @@ def validate() -> list[str]:
         and "max-height: 102px" in css
         and "@media (max-height: 560px)" in css
         and "overflow: auto" in css
+        and "min-height: 54px" in css
         and "max-height: 68px" in css
         and "max-height: 88px" in css
         and "max-width: 220px;" in css
@@ -1737,8 +1742,15 @@ def validate() -> list[str]:
         "MONITORING_HUD_DASHBOARD_SHELL_LAYOUT_READY",
         "MONITORING_HUD_DASHBOARD_VISUAL_SHELL_READY",
         'minimum_edge_policy="native-min-size-bottom-edge-visible"',
+        "self.setMinimumSize(640, 595)",
         "02_dashboard_minimum_size_bottom_edge_visible",
         "Dashboard minimum-size bottom edge remains visible in focused WebView proof",
+        "Mandatory default-vs-compact Dashboard and child-window screenshot comparison proves functional readable UI",
+        "19_window_size_default_dashboard",
+        "19_window_size_compact_overlay_profiles",
+        "defaultWindowCount",
+        "compactWindowCount",
+        "focusedScreenshotCount",
         "chrome_bottom_inside_viewport",
         "minimum_media_min_height_cleared",
         "WM_NCHITTEST",

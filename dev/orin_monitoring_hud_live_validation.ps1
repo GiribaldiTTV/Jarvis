@@ -851,8 +851,8 @@ if ($ActiveUserFacingClient) {
     $effectiveFinalHoldMilliseconds = [Math]::Max($effectiveFinalHoldMilliseconds, 20000)
 }
 if ($effectiveRunInteractionSelfQA) {
-    $MarkerTimeoutSeconds = [Math]::Max($MarkerTimeoutSeconds, 180)
-    $NoProgressTimeoutSeconds = [Math]::Max($NoProgressTimeoutSeconds, 180)
+    $MarkerTimeoutSeconds = [Math]::Max($MarkerTimeoutSeconds, 420)
+    $NoProgressTimeoutSeconds = [Math]::Max($NoProgressTimeoutSeconds, 420)
 }
 
 $previousHudStatePath = $env:NEXUS_MONITORING_HUD_STATE_PATH

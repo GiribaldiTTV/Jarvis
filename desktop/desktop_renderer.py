@@ -5901,7 +5901,7 @@ class DesktopRuntimeWindow(QWidget):
 
         self.setGeometry(self.compute_compact_geometry())
         if self.surface_role == "hud":
-            self.setMinimumSize(640, 520)
+            self.setMinimumSize(640, 595)
             self._apply_monitoring_hud_rounded_window_mask(source="init")
         self.setMouseTracking(True)
 
@@ -8220,7 +8220,7 @@ class DesktopRuntimeWindow(QWidget):
     def _bound_monitoring_hud_window_resize_rect(self, rect: QRect) -> QRect:
         virtual = self._virtual_desktop_geometry()
         min_width = max(self.minimumWidth(), 640)
-        min_height = max(self.minimumHeight(), 520)
+        min_height = max(self.minimumHeight(), 595)
         width = max(min_width, min(rect.width(), virtual.width()))
         height = max(min_height, min(rect.height(), virtual.height()))
         left = max(virtual.x(), min(rect.x(), virtual.x() + virtual.width() - width))
@@ -8251,7 +8251,7 @@ class DesktopRuntimeWindow(QWidget):
             height = base.height() + delta.y()
 
         min_width = max(self.minimumWidth(), 640)
-        min_height = max(self.minimumHeight(), 520)
+        min_height = max(self.minimumHeight(), 595)
         if width < min_width:
             if left:
                 x = base.right() - min_width + 1
@@ -9314,6 +9314,7 @@ class DesktopRuntimeWindow(QWidget):
                     "16_scrollbar",
                     "17_divider",
                     "18_button",
+                    "19_window_size",
                 )
             )
             path = self._capture_monitoring_hud_live_client_self_qa_screenshot(
@@ -9688,7 +9689,7 @@ class DesktopRuntimeWindow(QWidget):
             checks = {
                 "dashboard_minimum_edge_marker": dataset.get("dashboardMinimumEdgeProof") == "native-min-size-bottom-edge-visible",
                 "native_width_at_minimum": native_geometry.width() == max(self.minimumWidth(), 640),
-                "native_height_at_minimum": native_geometry.height() == max(self.minimumHeight(), 520),
+                "native_height_at_minimum": native_geometry.height() == max(self.minimumHeight(), 595),
                 "viewport_matches_native_width": abs(viewport_width - native_geometry.width()) <= 2,
                 "viewport_matches_native_height": abs(viewport_height - native_geometry.height()) <= 2,
                 "hud_top_aligned_to_native_frame": abs(rect_number(rect, "top")) <= 1.5,
@@ -10158,7 +10159,7 @@ class DesktopRuntimeWindow(QWidget):
         def step_dashboard_minimum_edge_probe():
             minimum_edge_probe_state["restoreGeometry"] = QRect(self.geometry())
             minimum_width = max(self.minimumWidth(), 640)
-            minimum_height = max(self.minimumHeight(), 520)
+            minimum_height = max(self.minimumHeight(), 595)
             current = self.geometry()
             minimum_rect = self._bound_monitoring_hud_window_resize_rect(
                 QRect(current.x(), current.y(), minimum_width, minimum_height)
@@ -10182,8 +10183,257 @@ class DesktopRuntimeWindow(QWidget):
                 sync_dashboard_geometry_for_live_proof("live_minimum_size_bottom_edge_restore")
             QTimer.singleShot(
                 delay(500),
-                lambda: query("Dashboard restored after minimum-size bottom-edge proof", assert_dashboard_restored, step_surface_split),
+                lambda: query("Dashboard restored after minimum-size bottom-edge proof", assert_dashboard_restored, step_default_compact_window_matrix),
             )
+
+        def step_default_compact_window_matrix():
+            window_matrix_state = {
+                "restoreGeometry": QRect(self.geometry()),
+                "results": [],
+                "captures": [],
+                "index": 0,
+            }
+            available = self.screen_ref.availableGeometry()
+            normal_width = min(max(760, self.width()), max(640, available.width() - 120))
+            normal_height = min(max(720, self.height()), max(595, available.height() - 120))
+            normal_rect = self._bound_monitoring_hud_window_resize_rect(
+                QRect(self.x(), self.y(), normal_width, normal_height)
+            )
+            compact_rect = self._bound_monitoring_hud_window_resize_rect(
+                QRect(self.x(), self.y(), max(self.minimumWidth(), 640), max(self.minimumHeight(), 595))
+            )
+            matrix_items = []
+            required_default_compact_photo_labels = (
+                "19_window_size_default_dashboard",
+                "19_window_size_compact_overlay_profiles",
+            )
+            for size_label, geometry in (("default", normal_rect), ("compact", compact_rect)):
+                for child_kind, element_label in (
+                    ("dashboard", "dashboard"),
+                    ("dashboard-settings", "dashboard_settings"),
+                    ("overlay-profile-settings", "overlay_profiles"),
+                    ("monitor-group-edit", "manage_monitors"),
+                    ("monitor-overlay-assignment", "assigned_overlay"),
+                    ("sensor-source-settings", "source_settings"),
+                    ("monitor-group-create", "create_monitor"),
+                ):
+                    matrix_items.append((size_label, geometry, child_kind, element_label))
+
+            def finish_default_compact_window_matrix():
+                restore_geometry = window_matrix_state.get("restoreGeometry")
+                if isinstance(restore_geometry, QRect) and restore_geometry.isValid():
+                    self.setGeometry(restore_geometry)
+                    sync_dashboard_geometry_for_live_proof("default_compact_window_matrix_restore")
+                results = window_matrix_state.get("results") or []
+                captures = window_matrix_state.get("captures") or []
+                default_results = [entry for entry in results if entry.get("size") == "default"]
+                compact_results = [entry for entry in results if entry.get("size") == "compact"]
+                comparison_passed = (
+                    len(default_results) == 7
+                    and len(compact_results) == 7
+                    and len(captures) >= 14
+                    and all(entry.get("ok") is True for entry in results)
+                )
+                add_step(
+                    "Mandatory default-vs-compact Dashboard and child-window screenshot comparison proves functional readable UI",
+                    comparison_passed,
+                    {
+                        "standard": "REQUIRED - every Dashboard window and child window must have default and compact photos plus geometry/text/control proof before UTS handoff",
+                        "requiredDefaultCompactPhotoLabels": required_default_compact_photo_labels,
+                        "defaultWindowCount": len(default_results),
+                        "compactWindowCount": len(compact_results),
+                        "focusedScreenshotCount": len(captures),
+                        "captures": captures,
+                        "results": results,
+                    },
+                )
+                if not comparison_passed:
+                    finish("FAIL", "Default-vs-compact Dashboard child-window screenshot comparison failed")
+                    return
+                QTimer.singleShot(delay(300), step_surface_split)
+
+            def inspect_matrix_item(size_label: str, child_kind: str, element_label: str):
+                self._run_javascript_with_result(
+                    f"""
+                    (function() {{
+                        try {{
+                            const childKind = {json.dumps(child_kind)};
+                            const sizeLabel = {json.dumps(size_label)};
+                            const visible = (element) => Boolean(element && element.getClientRects && element.getClientRects().length && !element.hidden);
+                            const rectData = (element) => {{
+                                const rect = element ? element.getBoundingClientRect() : {{ left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 }};
+                                return {{ left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height }};
+                            }};
+                            const viewportIntersects = (element) => {{
+                                if (!element || !visible(element)) return false;
+                                const rect = element.getBoundingClientRect();
+                                return rect.bottom >= -1 && rect.right >= -1 && rect.top <= (window.innerHeight || 0) + 1 && rect.left <= (window.innerWidth || 0) + 1;
+                            }};
+                            const viewportFullyVisible = (element) => {{
+                                if (!element || !visible(element)) return false;
+                                const rect = element.getBoundingClientRect();
+                                return rect.top >= -1 && rect.left >= -1 && rect.bottom <= (window.innerHeight || 0) + 1 && rect.right <= (window.innerWidth || 0) + 1;
+                            }};
+                            const fitsText = (element) => {{
+                                if (!element || !visible(element)) return true;
+                                const text = String(element.innerText || element.value || "").trim();
+                                if (!text) return true;
+                                return element.scrollWidth <= element.clientWidth + 2 && element.scrollHeight <= element.clientHeight + 3;
+                            }};
+                            const prepare = () => {{
+                                if (childKind === "dashboard") {{
+                                    if (window.monitoringHudCloseChildWindow) window.monitoringHudCloseChildWindow({{ force: true }});
+                                }} else if (childKind === "overlay-profile-settings") {{
+                                    if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("overlay-profile-settings");
+                                    if (window.monitoringHudOpenOverlayProfileDetail) window.monitoringHudOpenOverlayProfileDetail("default-overlay-profile");
+                                }} else if (childKind === "sensor-source-settings") {{
+                                    if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
+                                    const firstSettings = document.querySelector("[data-source-settings-open]");
+                                    if (firstSettings && window.monitoringHudOpenSourceSettings) {{
+                                        window.monitoringHudOpenSourceSettings(firstSettings.dataset.sourceSettingsOpen || "");
+                                    }} else if (window.monitoringHudOpenChildWindow) {{
+                                        window.monitoringHudOpenChildWindow("sensor-source-settings");
+                                    }}
+                                }} else if (childKind === "monitor-overlay-assignment") {{
+                                    if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
+                                    const assigned = document.getElementById("monitoring-hud-monitor-overlay-profile-context");
+                                    if (assigned) assigned.click();
+                                    if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-overlay-assignment");
+                                }} else {{
+                                    if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow(childKind);
+                                }}
+                                if (window.monitoringHudRenderControls) window.monitoringHudRenderControls();
+                            }};
+                            prepare();
+                            const container = childKind === "dashboard"
+                                ? document.getElementById("monitoring-hud")
+                                : document.querySelector(`[data-child-window="${{childKind}}"]`);
+                            const viewport = {{ width: window.innerWidth || 0, height: window.innerHeight || 0 }};
+                            const rect = rectData(container);
+                            const controls = container
+                                ? Array.from(container.querySelectorAll("button, input, textarea, [role='button'], [data-bounded-dropdown]")).filter(visible)
+                                : [];
+                            const inspectedControls = controls.filter(viewportFullyVisible);
+                            const badText = inspectedControls
+                                .concat(container ? Array.from(container.querySelectorAll("strong, span, small, label")).filter(viewportFullyVisible) : [])
+                                .filter((entry) => !fitsText(entry))
+                                .slice(0, 8)
+                                .map((entry) => String(entry.id || entry.dataset.control || entry.dataset.boundedDropdown || entry.className || entry.tagName));
+                            const badControls = inspectedControls.filter((entry) => {{
+                                const r = entry.getBoundingClientRect();
+                                const disabled = entry.disabled || entry.getAttribute("aria-disabled") === "true";
+                                const isNativeCheckbox = String(entry.tagName || "").toLowerCase() === "input" && String(entry.type || "").toLowerCase() === "checkbox";
+                                const isNativeTextInput = String(entry.tagName || "").toLowerCase() === "input" && String(entry.type || "").toLowerCase() !== "checkbox";
+                                const minWidth = isNativeCheckbox ? 12 : (isNativeTextInput ? 90 : 28);
+                                const minHeight = isNativeCheckbox ? 12 : (isNativeTextInput ? 24 : 24);
+                                return !disabled && (r.width < minWidth || r.height < minHeight || r.right > viewport.width + 1 || r.bottom > viewport.height + 1 || r.left < -1 || r.top < -1);
+                            }}).slice(0, 8).map((entry) => String(entry.id || entry.dataset.control || entry.dataset.boundedDropdown || entry.className || entry.tagName));
+                            const membershipList = document.getElementById("monitoring-hud-overlay-profile-membership-list");
+                            const firstMonitorRow = membershipList ? membershipList.querySelector("[data-overlay-profile-membership-row]") : null;
+                            const membershipRect = rectData(membershipList);
+                            const firstMonitorRect = rectData(firstMonitorRow);
+                            const overlayFunctional = childKind !== "overlay-profile-settings" || Boolean(
+                                firstMonitorRow
+                                && firstMonitorRect.height >= 46
+                                && firstMonitorRect.top >= membershipRect.top - 1
+                                && firstMonitorRect.bottom <= membershipRect.bottom + 1
+                            );
+                            const scrollableIfNeeded = !container || container.scrollHeight <= container.clientHeight + 2 || ["auto", "scroll"].includes(window.getComputedStyle(container).overflowY);
+                            const ok = Boolean(
+                                container
+                                && visible(container)
+                                && rect.width >= 300
+                                && rect.height >= 160
+                                && rect.left >= -1
+                                && rect.top >= -1
+                                && rect.right <= viewport.width + 1
+                                && rect.bottom <= viewport.height + 1
+                                && inspectedControls.length > 0
+                                && badText.length === 0
+                                && badControls.length === 0
+                                && overlayFunctional
+                                && scrollableIfNeeded
+                            );
+                            return JSON.stringify({{
+                                ok,
+                                size: sizeLabel,
+                                childKind,
+                                rect,
+                                viewport,
+                                controlCount: controls.length,
+                                inspectedControlCount: inspectedControls.length,
+                                badText,
+                                badControls,
+                                overlayFunctional,
+                                scrollableIfNeeded,
+                                firstMonitorRect,
+                                membershipRect
+                            }});
+                        }} catch (err) {{
+                            return JSON.stringify({{ ok: false, size: {json.dumps(size_label)}, childKind: {json.dumps(child_kind)}, error: String(err && err.message ? err.message : err) }});
+                        }}
+                    }})();
+                    """,
+                    lambda result: handle_matrix_item_result(result),
+                )
+
+            def handle_matrix_item_result(result):
+                try:
+                    parsed = json.loads(result) if isinstance(result, str) else result
+                except Exception:
+                    parsed = {"ok": False, "raw": str(result)}
+                if not isinstance(parsed, dict):
+                    parsed = {"ok": False, "raw": str(parsed)}
+                window_matrix_state["results"].append(parsed)
+                QTimer.singleShot(delay(120), run_next_matrix_item)
+
+            def run_next_matrix_item():
+                index = int(window_matrix_state.get("index") or 0)
+                if index >= len(matrix_items):
+                    finish_default_compact_window_matrix()
+                    return
+                size_label, geometry, child_kind, element_label = matrix_items[index]
+                window_matrix_state["index"] = index + 1
+                self.setGeometry(geometry)
+                sync_dashboard_geometry_for_live_proof(f"default_compact_matrix_{size_label}_{element_label}")
+                self._run_javascript(
+                    f"""
+                    (function() {{
+                        const childKind = {json.dumps(child_kind)};
+                        if (childKind === "dashboard") {{
+                            if (window.monitoringHudCloseChildWindow) window.monitoringHudCloseChildWindow({{ force: true }});
+                        }} else if (childKind === "overlay-profile-settings") {{
+                            if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("overlay-profile-settings");
+                            if (window.monitoringHudOpenOverlayProfileDetail) window.monitoringHudOpenOverlayProfileDetail("default-overlay-profile");
+                        }} else if (childKind === "sensor-source-settings") {{
+                            if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
+                            const firstSettings = document.querySelector("[data-source-settings-open]");
+                            if (firstSettings && window.monitoringHudOpenSourceSettings) {{
+                                window.monitoringHudOpenSourceSettings(firstSettings.dataset.sourceSettingsOpen || "");
+                            }} else if (window.monitoringHudOpenChildWindow) {{
+                                window.monitoringHudOpenChildWindow("sensor-source-settings");
+                            }}
+                        }} else if (childKind === "monitor-overlay-assignment") {{
+                            if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-group-edit");
+                            const assigned = document.getElementById("monitoring-hud-monitor-overlay-profile-context");
+                            if (assigned) assigned.click();
+                            if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow("monitor-overlay-assignment");
+                        }} else {{
+                            if (window.monitoringHudOpenChildWindow) window.monitoringHudOpenChildWindow(childKind);
+                        }}
+                        if (window.monitoringHudRenderControls) window.monitoringHudRenderControls();
+                    }})();
+                    """
+                )
+                QTimer.singleShot(
+                    delay(220),
+                    lambda: (
+                        window_matrix_state["captures"].append(capture(f"19_window_size_{size_label}_{element_label}")),
+                        inspect_matrix_item(size_label, child_kind, element_label),
+                    ),
+                )
+
+            run_next_matrix_item()
 
         def step_surface_split():
             query("dashboard and minimal HUD surfaces are split", assert_surface_split, step_minimal_native_overlay)
@@ -10462,7 +10712,7 @@ class DesktopRuntimeWindow(QWidget):
                 and parsed.get("searchFilterVisible") is True
                 and parsed.get("maxFiveInnerScrollPolicy") is True
                 and parsed.get("settingsWindowWorkflow") == "selector-first-create-edit-delete-followup-uts-repair"
-                and parsed.get("outerScrollPolicy") == "no-normal-window-scrollbar"
+                and parsed.get("outerScrollPolicy") == "normal-no-scroll-emergency-compact-scroll"
                 and parsed.get("membership") == "editable-slc-039-mapping",
                 parsed,
             )

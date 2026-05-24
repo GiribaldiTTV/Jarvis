@@ -1802,6 +1802,7 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
   }
 
   .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-membership-list {
+    min-height: 54px;
     max-height: 68px;
   }
 

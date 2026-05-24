@@ -362,6 +362,11 @@ function monitoringHudCleanOverlayProfileName(value, fallback = "Overlay Profile
   return (cleaned || fallback).slice(0, 48);
 }
 
+function monitoringHudCompactOverlayProfileName(value, fallback = "Overlay Profile") {
+  const cleaned = monitoringHudCleanOverlayProfileName(value, fallback);
+  return cleaned === "Default Overlay Profile" ? "Default Profile" : cleaned;
+}
+
 function monitoringHudUniqueOverlayProfileName(value, currentProfileId = "") {
   const baseName = monitoringHudCleanOverlayProfileName(value);
   const existingNames = new Set(
@@ -1485,7 +1490,7 @@ function monitoringHudRenderOverlayProfileControls() {
   }
   if (monitoringHudOverlayProfileWindowLabel) {
     monitoringHudOverlayProfileWindowLabel.textContent = selectedProfile
-      ? monitoringHudCleanOverlayProfileName(selectedProfile.name, "Overlay Profile")
+      ? monitoringHudCompactOverlayProfileName(selectedProfile.name, "Overlay Profile")
       : "Select profile";
   }
   if (monitoringHudOverlayProfileWindowMenu) {
@@ -1518,7 +1523,7 @@ function monitoringHudRenderOverlayProfileControls() {
     monitoringHudOverlayProfileWindow.dataset.dirtyGuardCoverage = "save-discard-close-guard";
     monitoringHudOverlayProfileWindow.dataset.overlayProfileVolumePolicy = "max-five-visible-monitors-inner-scroll";
     monitoringHudOverlayProfileWindow.dataset.overlayProfileSelectorPolicy = "max-five-visible-profile-options-ndai-scrollbar";
-    monitoringHudOverlayProfileWindow.dataset.overlayProfileOuterScrollPolicy = "no-normal-window-scrollbar";
+    monitoringHudOverlayProfileWindow.dataset.overlayProfileOuterScrollPolicy = "normal-no-scroll-emergency-compact-scroll";
     monitoringHudOverlayProfileWindow.dataset.activeOverlayProfileId = activeProfileId;
     monitoringHudOverlayProfileWindow.dataset.selectedProfileId = monitoringHudOverlayProfileWindowSelectedId || "";
     monitoringHudOverlayProfileWindow.dataset.overlayProfileDetailState = detailOpen ? "open" : "closed";
@@ -1617,7 +1622,7 @@ function monitoringHudRenderMonitorOverlayProfileContext(selected, cards) {
   }
   if (monitoringHudMonitorOverlayProfileSelectedState) {
     monitoringHudMonitorOverlayProfileSelectedState.textContent = hasSelectedMonitor
-      ? (included ? "Active profile: Included" : "Active profile: Not included")
+      ? (included ? "Included in active" : "Not in active")
       : "No monitor selected";
   }
   if (monitoringHudMonitorOverlayProfileCount) {
@@ -6556,6 +6561,58 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       }
     });
   }
+  function inspectOverlayProfileMinimumFunctionalHeight() {
+    const windowElement = monitoringHudOverlayProfileWindow;
+    const list = monitoringHudOverlayProfileMembershipList;
+    if (!windowElement || !list || !monitoringHudVisualInspectionVisible(windowElement)) {
+      failures.push("overlay-profile-minimum-functional-height:missing-window-or-list");
+      surfaces.push({ name: "overlay-profile-minimum-functional-height", selector: "#monitoring-hud-overlay-profile-membership-list", sampleCount: 0 });
+      return;
+    }
+    const rows = Array.from(list.querySelectorAll("[data-overlay-profile-membership-row]")).filter(monitoringHudVisualInspectionVisible);
+    const firstRow = rows[0] || null;
+    const listRect = list.getBoundingClientRect();
+    const firstRowRect = firstRow
+      ? firstRow.getBoundingClientRect()
+      : { top: 0, bottom: 0, height: 0 };
+    const listStyle = window.getComputedStyle(list);
+    const windowStyle = window.getComputedStyle(windowElement);
+    const oneFullMonitorVisible = Boolean(
+      firstRow
+      && firstRowRect.height >= 46
+      && firstRowRect.top >= listRect.top - 1
+      && firstRowRect.bottom <= listRect.bottom + 1
+    );
+    const compactScrollPolicy = windowElement.dataset.overlayProfileOuterScrollPolicy === "normal-no-scroll-emergency-compact-scroll";
+    const membershipHasFunctionalMinimum = Number.parseFloat(listStyle.minHeight || "0") >= 54 || listRect.height >= firstRowRect.height;
+    const emergencyScrollAvailable = Boolean(
+      windowStyle.overflowY === "auto"
+      || windowStyle.overflowY === "scroll"
+      || windowElement.scrollHeight <= windowElement.clientHeight + 1
+    );
+    if (!oneFullMonitorVisible || !compactScrollPolicy || !membershipHasFunctionalMinimum || !emergencyScrollAvailable) {
+      failures.push("overlay-profile-minimum-functional-height:no-full-monitor-row-at-compact-minimum");
+    }
+    surfaces.push({
+      name: "overlay-profile-minimum-functional-height",
+      selector: "#monitoring-hud-overlay-profile-membership-list",
+      sampleCount: rows.length,
+      oneFullMonitorVisible,
+      compactScrollPolicy,
+      membershipHasFunctionalMinimum,
+      emergencyScrollAvailable,
+      listRect: {
+        top: Math.round(listRect.top),
+        bottom: Math.round(listRect.bottom),
+        height: Math.round(listRect.height)
+      },
+      firstRowRect: {
+        top: Math.round(firstRowRect.top),
+        bottom: Math.round(firstRowRect.bottom),
+        height: Math.round(firstRowRect.height)
+      }
+    });
+  }
   function inspectSourceSettingsFocusFrame() {
     const element = document.getElementById("monitoring-hud-source-settings-body");
     if (!element) {
@@ -6661,6 +6718,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     if (typeof monitoringHudOpenOverlayProfileDetail === "function") {
       monitoringHudOpenOverlayProfileDetail(monitoringHudDefaultOverlayProfileId);
     }
+    inspectOverlayProfileMinimumFunctionalHeight();
     monitoringHudSetOverlayProfileMonitorFilterOpen(true);
     inspectTarget("overlay-monitor-filter-toggle", "#monitoring-hud-overlay-profile-monitor-filter-toggle");
     inspectTarget("overlay-monitor-filter-option", "[data-overlay-profile-monitor-filter-option]");
@@ -6778,14 +6836,14 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     "UTS-HUD-011": ["dashboard-settings", "dashboard-data-sources-deferred"],
     "UTS-HUD-012": ["dirtyGuardCoverage", "sameMonitorRowDirtyGuard", "monitor-detail-actions-row"],
     "UTS-HUD-013": ["perElementVisualInventory", "issueFormCoverageMatrix"],
-    "UTS-HUD-014": ["overlay-window-frame", "overlay-choice-panel", "overlay-manager-meta-row", "overlay-manager-scaling", "defaultProfileDeletePersists"],
+    "UTS-HUD-014": ["overlay-window-frame", "overlay-choice-panel", "overlay-manager-meta-row", "overlay-manager-scaling", "overlay-profile-minimum-functional-height", "defaultProfileDeletePersists"],
     "UTS-HUD-015": ["dashboard-control-hub-scrollbar", "manage-monitor-list-pane"],
     "UTS-HUD-016": ["pageBreakVisualInspection", "dashboard-page-breaks", "child-window-page-breaks"],
     "UTS-HUD-017": ["buttonRoleColorUniformity", "semanticHoverColorPreserved"],
     "UTS-HUD-018": ["dashboard-row-title-tabs", "child-window-row-title-tabs", "pageBreakVisualInspection"],
     "UTS-HUD-019": ["responsive-window-contract", "sourceSettingsWindowFlow", "manage-monitor-row"],
     "UTS-HUD-020": ["source-settings-shift-focus-frame", "source-settings-body", "source-settings-warning-row"],
-    "UTS-HUD-021": ["responsive-window-contract", "visible-hud-surfaces", "dashboard-window-border", "overlay-manager-scaling"]
+    "UTS-HUD-021": ["responsive-window-contract", "visible-hud-surfaces", "dashboard-window-border", "overlay-manager-scaling", "overlay-profile-minimum-functional-height"]
   };
   const proof = {
     passed: failures.length === 0,
