@@ -7766,6 +7766,15 @@ def _provider_durable_consent_record_path(store_dir: str | Path) -> Path:
     return Path(store_dir) / CONSENT_DURABLE_RECORD_FILENAME
 
 
+def _clear_provider_durable_consent_record_path(record_path: Path) -> None:
+    try:
+        record_path.unlink(missing_ok=True)
+    except OSError:
+        if record_path.is_dir():
+            return
+        raise
+
+
 def write_provider_durable_consent_record(
     store_dir: str | Path,
     record: AIProviderDurableConsentRecordSnapshot | dict[str, object],
@@ -7783,7 +7792,7 @@ def write_provider_durable_consent_record(
         CONSENT_DURABLE_RECORD_STATE_STALE_SCHEMA,
         CONSENT_DURABLE_RECORD_STATE_MISSING,
     }:
-        record_path.unlink(missing_ok=True)
+        _clear_provider_durable_consent_record_path(record_path)
         return normalized
     record_path.parent.mkdir(parents=True, exist_ok=True)
     record_path.write_text(

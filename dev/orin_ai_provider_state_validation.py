@@ -2666,6 +2666,34 @@ def validate() -> list[str]:
             == CONSENT_DURABLE_RECORD_STATE_MISSING
         )
 
+    with tempfile.TemporaryDirectory() as collision_temp_store:
+        collision_temp_store_path = Path(collision_temp_store)
+        collision_record_path = (
+            collision_temp_store_path / CONSENT_DURABLE_RECORD_FILENAME
+        )
+        collision_record_path.mkdir()
+        invalid_directory_collision_write_snapshot = (
+            write_provider_durable_consent_record(
+                collision_temp_store_path,
+                _durable_consent_record(no_secrets=False),
+                now_utc=fixed_now,
+            )
+        )
+        loaded_after_directory_collision_snapshot = (
+            load_provider_durable_consent_record(
+                collision_temp_store_path,
+                now_utc=fixed_now,
+            )
+        )
+        invalid_write_directory_collision_fail_closed = (
+            invalid_directory_collision_write_snapshot.record_state
+            == CONSENT_DURABLE_RECORD_STATE_INVALID
+            and not invalid_directory_collision_write_snapshot.record_valid
+            and collision_record_path.is_dir()
+            and loaded_after_directory_collision_snapshot.record_state
+            == CONSENT_DURABLE_RECORD_STATE_CORRUPT
+        )
+
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
@@ -6540,6 +6568,11 @@ def validate() -> list[str]:
     _require(
         invalid_write_cleared_stale_durable_record,
         "durable consent invalid local write must clear stale ready records",
+        failures,
+    )
+    _require(
+        invalid_write_directory_collision_fail_closed,
+        "durable consent invalid local write must fail closed on directory collision",
         failures,
     )
     for label, expectation in durable_consent_expectations.items():
