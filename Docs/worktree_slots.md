@@ -103,18 +103,18 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: USER-assigned runtime slot for FAM-007 Local AI Provider Setup Completion Foundation Workstream carrier
+- Assignment Status: USER-assigned runtime slot for FAM-007 Local AI Provider Setup Completion Foundation H1/LV1 carrier
 - Assigned Branch: `feature/fam-007-local-ai-provider-setup-completion-foundation`
 - Assigned Family / Workstream: `FAM-007 Local AI Provider Setup Completion Foundation`
 - Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
 - Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
 - GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding; no cleanup/rebinding authorized by this branch`
-- Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 setup completion foundation Workstream implementation`
+- Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 setup completion foundation H1/LV1 handoff`
 - Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
 - Worktree Ownership Ledger: `Branch authority record plus this slot receipt`
-- Intended Write Set: `FAM-007 branch authority, branch plan, compact pointer docs, provider-state source, Core/Desktop/ORIN status surfaces, validation helper registry pointer, worktree slot receipt, and source-truth fold-down required for the approved Workstream implementation`
+- Intended Write Set: `FAM-007 branch authority, branch plan, compact pointer docs, provider-state source, Core/Desktop/ORIN status surfaces, validation helper registry pointer, worktree slot receipt, and source-truth fold-down required for the approved H1/LV1 path`
 - Same Worktree / Same Branch Collision Check: `PASS at assignment; no second writer assigned`
-- Dirty Worktree Collision Check: `PASS - current owner claimed by Current Codex thread assigned by USER for FAM-007 setup completion foundation Workstream implementation; dirty tracked files during implementation are owned by that active owner`
+- Dirty Worktree Collision Check: `PASS - current owner claimed by Current Codex thread assigned by USER for FAM-007 setup completion foundation H1/LV1 handoff; dirty tracked files during H1/LV1 source-truth fold-down are owned by that active owner`
 - Dirty Worktree Recovery Packet: `Not required unless unowned dirty files appear`
 - Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests are sibling overlap context only and not successor authority for this FAM-007 Workstream`
 - Governance Routing Barrier: `Active for governance-only mutation outside this FAM-007 branch path`

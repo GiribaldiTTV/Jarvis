@@ -8,14 +8,14 @@ Plan Identity: `FAM-007 Local AI Provider Setup Completion Foundation - Branch R
 Owning Branch: `feature/fam-007-local-ai-provider-setup-completion-foundation`
 Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
-Current Phase: `Workstream`
+Current Phase: `Hardening`
 Branch Runtime Engineering Plan: Required and present for the FAM-007 setup completion foundation runtime carrier.
-Engineering Plan Status: Accepted - Workstream Green; setup completion foundation implementation completed all admitted seams after USER-approved Workstream Entry and bounded implementation.
+Engineering Plan Status: Accepted - Workstream Green and Hardening H1 Green; setup completion foundation implementation completed all admitted seams after USER-approved Workstream Entry and bounded implementation, and H1 found no runtime repair required.
 Current Runtime Baseline: `origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45`, released as `v1.7.18-prebeta` with PR #206 FAM-007 user-operated consent UX state/config/schema/UI/desktop evidence.
 Branch Purpose: Admit the next FAM-007 successor that turns released setup/consent/consent UX layers into a local provider setup completion foundation before provider SDK integration, model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, or functional AI.
 Planned Runtime Delta: Implemented local provider setup completion state, eligibility, profile/config finalization, fail-closed persistence/reset semantics, setup/execution boundary alignment, safe Core/Desktop/ORIN status proof, validator fixtures, and future SDK/model handoff criteria.
 User-Facing Delta: Hidden/status-only local setup completion telemetry; no meaningful visible provider setup completion controls, provider/model execution, prompt acceptance, download/network readiness, memory, voice/Core sync, or functional AI were introduced.
-Source-Truth Delta: Workstream Green fold-down records active branch authority, compact FAM-007 pointers, validation registry pointer, worktree slot assignment, prior PR #206 released evidence, and completed setup completion foundation proof for this successor.
+Source-Truth Delta: Workstream Green and H1 Green fold-down records active branch authority, compact FAM-007 pointers, validation registry pointer, worktree slot assignment, prior PR #206 released evidence, completed setup completion foundation proof, and LV1 handoff posture for this successor.
 State / Config / Schema Delta: Implemented setup completion state schema, provider profile/config finalization state, setup blockers/reasons/provenance, no-secrets proof, reset semantics, setup/execution consent separation, and future handoff markers.
 Validator / Helper Delta: `dev/orin_ai_provider_state_validation.py` now directly validates setup completion eligibility, profile/config finalization, fail-closed states, reset behavior, status proof, provider-boundary preservation, and display-suppression continuity.
 Expected Changed Files / Surfaces: Branch record, this plan, backlog, roadmap, worktree slots, validation helper registry, provider-state source, Core/Desktop/ORIN status surfaces if admitted, desktop renderer/UI surfaces if admitted, and FAM-007 provider-state validator fixtures.
@@ -26,11 +26,11 @@ Per-Seam User-Facing Proof Checklist: If the seam changes visible UI, prove copy
 Future-Gated Items: `Future-gated and pending USER approval: provider SDK integration, provider/model execution, model downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, release execution, issue work, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 Approval-Boundary Audit: Workstream implementation was authorized and completed. Provider SDK/model execution and all future AI/provider/release/cleanup/sibling-worktree work remain blocked pending USER decisions.
 FAM / Shared-Surface Overlap Forecast: FAM-006 is a separate sibling lane and overlap context only; Governance is standing intake context only; Compact-AI remains protected historical work. None is successor authority for this FAM-007 branch.
-Open Questions: Resolved for Workstream Green. H1 must inspect the implemented setup completion fields, hidden/status-only proof route, reset semantics, and direct validator fixture coverage.
-USER Planning Decisions: USER approved Branch Readiness Stage 2 setup, Workstream Entry, and bounded Workstream implementation. H1, LV1, PR creation, merge, release, provider SDK/model execution, downloads/network, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.
+Open Questions: Resolved for H1. LV1 must classify the implemented hidden/status-only proof route and decide User Test Summary applicability or waiver.
+USER Planning Decisions: USER approved Branch Readiness Stage 2 setup, Workstream Entry, bounded Workstream implementation, and H1. LV1, PR creation, merge, release, provider SDK/model execution, downloads/network, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.
 Plan Revision History: v1 created during Branch Readiness Stage 2 from origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45 after v1.7.18-prebeta.
 Plan-To-Implementation Traceability Table: Complete. Setup completion state maps to `desktop/ai_provider_state.py`; hidden status proof maps to Core/Desktop/ORIN renderers; validators map to `dev/orin_ai_provider_state_validation.py`; compact status maps to backlog, roadmap, validation registry, and worktree slot receipts.
-Hardening Comparison Checklist: H1 must compare implementation against this plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Vision Snapshot, Element-to-Phase Proof Matrix, UI copy, provider-boundary preservation, validators, display-suppression continuity, and source-truth fold-down.
+Hardening Comparison Checklist: Complete - H1 compared implementation against this plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Vision Snapshot, Element-to-Phase Proof Matrix, UI copy, provider-boundary preservation, validators, display-suppression continuity, and source-truth fold-down.
 Live Validation Proof Or Waiver Checklist: LV1 must classify the implemented surface, prove user-facing setup completion behavior if present, run Codex Live Client Self-QA when applicable, record User Test Summary PASS or WAIVED, preserve provider-visible data none, and keep provider/model/network/memory/voice execution blocked.
 PR Readiness Fold-Down / Retention Checklist: PR Readiness must project merge-stable branch authority, release-window posture, selected-next/defer truth, live PR/watcher state separation, branch cleanup plan, and source-truth retention/retirement decisions.
 Release Readiness Public-Scope Translation Checklist: Release Readiness must describe this branch as local provider setup completion foundation only and exclude provider SDK/model execution, functional AI, memory, voice/Core, downloads/network, and v1.8.0 execution unless later USER-approved proof changes that scope.
@@ -44,11 +44,11 @@ Branch Vision Snapshot Status: Accepted for this Workstream implementation.
 Project-Wide Vision Alignment: Nexus should remain local-first, user-controlled, and honest about disabled provider behavior before model execution.
 Family Vision Alignment: FAM-007 requires explicit provider-visible data, privacy, network/download, memory, setup, and consent boundaries before runtime execution.
 Branch-Specific Vision Alignment: Provider setup completion should finalize local setup state without implying provider SDK readiness, prompt acceptance, model execution, or functional AI.
-Open Vision Questions: Resolved for Workstream Green; H1 must inspect hidden/status-only setup completion proof and future handoff wording.
+Open Vision Questions: Resolved for H1; LV1 must classify hidden/status-only setup completion proof and future handoff wording for user-facing/manual proof applicability.
 USER Vision Green: Yes - USER approved Workstream Entry and bounded Workstream implementation.
 Accepted Implementation Scope: Local-only setup completion state/schema, profile/config finalization, no-secrets posture, reset/fail-closed semantics, hidden telemetry/status proof, validators, and future handoff criteria.
 Accepted Seam Map: All six admitted seam families were implemented in the current Workstream.
-Accepted Stop Conditions: Stop at Workstream Green, named blocker, or explicit USER waiver after implementation approval; current Workstream reached Green and routes to H1.
+Accepted Stop Conditions: Stop at Workstream Green, H1 Green, named blocker, or explicit USER waiver after implementation approval; current H1 reached Green and routes to LV1.
 
 ## Product Definition Plan
 
@@ -62,7 +62,7 @@ Codex Product Interpretation: Setup completion is a local state/config boundary 
 Codex Implementation Recommendation: Complete local setup state before adapter/SDK work.
 Codex Additional Recommendations: Keep copy modest, keep setup and execution separate, persist no secrets, and validate every blocked state.
 USER/ChatGPT Review Checkpoint: USER reviewed/approved Workstream Entry and bounded Workstream implementation; H1 remains next.
-USER Critique Loop: Workstream implementation proceeded under USER-approved bounded scope and completed all admitted seams before this Workstream Green fold-down.
+USER Critique Loop: Workstream implementation proceeded under USER-approved bounded scope, completed all admitted seams, and passed H1 without runtime repair.
 USER Decision Ledger: Stage 2 setup, Workstream Entry, and bounded Workstream implementation are approved/complete; H1, LV1, PR creation, merge, release, provider SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.
 Deferred Ideas / Future Package Ledger: Adapter/SDK selection, model lifecycle, prompt/model execution, provider-visible data transfer proof, memory/indexing/personalization, voice/Core sync, shortcuts/installers, capability-pack install/download behavior, AI Product Contract import, Private Dev ORIN import, and v1.8.0 release execution.
 Planning Adequacy Review: Complete for Stage 2 because the plan covers product intent, state/config model, UI/status boundary, validator expectations, proof phases, overlap posture, and future exclusions.
@@ -83,11 +83,11 @@ Affected Files / Surfaces: Source truth, provider state, Core/Desktop/ORIN statu
 Branch Reach / Package-Size Proof: The branch covers state, config, status, validation, reset, and provider-boundary proof.
 Why Branch Is Large Enough: Setup completion is the coherent prerequisite between consent UX and adapter work.
 Why Not Split Into Tiny Branches: Splitting state/config/reset/validators would create false-readiness risk.
-Acceptance Criteria: Workstream Green requires implementation, direct validators, provider-boundary preservation, UI/status proof or waiver, validation, commit, and push; implementation proof is present and final validation/commit/push are required for completion.
+Acceptance Criteria: Workstream Green and H1 Green are complete. LV1 must classify visible/status-only behavior, preserve provider-boundary proof, decide User Test Summary applicability or waiver, run validation, and commit/push LV1 repairs only if needed.
 Screenshot / Live / User Test Summary Proof Requirements: UTS is required if visible setup controls/status are meaningful; hidden/status-only proof needs a source-truth waiver.
 Implementation Sequence Proposal: Workstream Entry, USER approval, bounded implementation through admitted seams, H1, LV1, PR readiness, PR, merge, release readiness, release only with separate approval.
 Planning Blockers: None for Workstream Green after validation.
-USER Decisions Needed: Hardening H1 approval is next.
+USER Decisions Needed: Live Validation LV1 approval is next.
 
 ## Interface Release Boundary
 
@@ -99,7 +99,7 @@ Interface Acceptance / Proof Path: Direct validators plus H1/LV1 classification;
 ## Runtime Branch Engineering Contract
 
 USER Engineering Planning Review: Accepted - completed through Workstream Entry review.
-Engineering Contract Status: Accepted and implementation-complete for Workstream Green.
+Engineering Contract Status: Accepted, implementation-complete, and H1-reviewed.
 Runtime Implementation Approval: Granted for this bounded Workstream; future AI/provider runtime behavior remains pending USER approval.
 Branch Purpose: Admit and plan the FAM-007 provider setup completion foundation after user-operated consent UX.
 Current Runtime Baseline: v1.7.18-prebeta at origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45.
@@ -114,8 +114,8 @@ Workstream Seam Map: Six seam families listed in the Branch Runtime Engineering 
 Proof Expectations: Direct validators, source inspection, UI/status proof or waiver, provider-boundary preservation, LV1/UTS route.
 Risk Forecast: High false-readiness risk.
 Recommendations And Alternatives: Preferred setup completion foundation now; narrower status-only fallback if controls are too broad; adapter work later.
-Plan Version / Revision Status: v1 completed through Workstream Green.
-Plan-To-Implementation Traceability: Complete for Workstream Green.
+Plan Version / Revision Status: v1 completed through Workstream Green and H1 Green.
+Plan-To-Implementation Traceability: Complete for Workstream Green and H1 Green.
 
 ## Workstream Admission
 
@@ -178,7 +178,7 @@ Non-Includes: SDK integration, model execution, release execution, or v1.8.0 fun
 
 Matrix Status: `Present - Workstream implementation and proof coverage complete`
 USER Review Status: `Accepted - completed during Workstream Entry; implementation approved by USER`
-Open Element Questions: `None - resolved for Workstream Green; H1 must inspect implementation against every element.`
+Open Element Questions: `None - resolved for H1; LV1 must classify visible/status-only proof and User Test Summary applicability.`
 Element Coverage Owner: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
 Element Validation Ledger Owner: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
 
@@ -224,20 +224,20 @@ Branch Change Intent Ledger Status: `No rebaseline overlap entries required at S
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Workstream`
-Next Legal Phase: `Hardening`
-Next Active Seam: `Hardening H1 for FAM-007 Local AI Provider Setup Completion Foundation`
-Why This Phase Is Next: `The USER-approved Workstream implementation completed every admitted setup completion foundation seam. H1 must now compare implementation against the branch plan, branch record, PDP, RBEC, BREP, Element-to-Phase Proof Matrix, provider-state implementation, renderer hidden telemetry, validators, source-truth fold-down, and provider-boundary exclusions.`
-Approval Required: `USER approval is required for Hardening H1.`
-Exact USER Approval Text: `I approve Hardening H1 for feature/fam-007-local-ai-provider-setup-completion-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45. Scope: inspect the completed FAM-007 Local AI Provider Setup Completion Foundation Workstream against the active branch record, branch plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, Element-to-Phase Proof Matrix, provider setup completion state/schema, profile/config finalization, no-secrets posture, fail-closed persistence/reset semantics, Core/Desktop/ORIN hidden telemetry/status proof, desktop readiness display suppression continuity, direct validator fixtures, source-truth fold-down, provider-visible-data none, sentToProvider=false, canAcceptPrompts=false, prompt/model execution disabled, downloads/network/external calls blocked, memory/learning/personalization inactive, voice/Core sync gated, FAM-006/Governance/Compact-AI overlap context, and H1-scoped repairs if repo truth supports them. Run required validation, commit/push H1 repairs only if needed and green, and return the H1 decision packet. Do not implement provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Allowed Scope: `Hardening H1 inspection, H1-scoped source/validator/copy/proof repair only if supported, validation, commit/push only for H1 repairs, and exact LV1 approval packet if green.`
+Current Phase: `Hardening`
+Next Legal Phase: `Live Validation`
+Next Active Seam: `Live Validation LV1 for FAM-007 Local AI Provider Setup Completion Foundation`
+Why This Phase Is Next: `Hardening H1 is Green: implementation, source truth, provider-boundary posture, hidden telemetry/status proof, desktop readiness display suppression continuity, and validator coverage passed inspection. LV1 must classify the surface, prove or waive user-facing/manual proof, and preserve the disabled local-only setup completion posture before PR Readiness.`
+Approval Required: `USER approval is required for Live Validation LV1.`
+Exact USER Approval Text: `I approve Live Validation LV1 for feature/fam-007-local-ai-provider-setup-completion-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45. Scope: validate the H1-green FAM-007 Local AI Provider Setup Completion Foundation as a local-only setup completion posture; classify hidden/status-only versus meaningful visible behavior; inspect Core/Desktop/ORIN setup completion hidden telemetry/status proof; confirm desktop readiness display suppression continuity; confirm provider-visible-data none, sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, memory/learning/personalization inactive, and voice/Core sync gated; inspect setup completion state/schema, profile/config finalization, no-secrets posture, fail-closed persistence/reset semantics, future SDK/model handoff criteria, validator fixtures, User Test Summary applicability or waiver basis, source-truth posture, and overlap context. Run required validation, apply LV1-scoped repairs only if repo truth supports them, commit/push LV1 repairs only if needed and green, and return the LV1 decision packet. Do not implement provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Allowed Scope: `Live Validation LV1 inspection, hidden/status-only classification, UTS applicability or waiver analysis, LV1-scoped source/validator/copy/proof repair only if supported, validation, commit/push only for LV1 repairs, and exact PR Readiness approval packet if green.`
 Explicit Exclusions: `No provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, PR creation, merge, release, tag, artifacts, cleanup, sibling mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `Identity/freshness checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, branch-readiness validation suite, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, diff checks, compileall, and any H1 validators required by source truth.`
-Stop Conditions: `Stop if origin/main advances and reconciliation is required, source truth points to another carrier, active branch authority is missing, H1 finds unsupported Workstream Green source truth, H1 finds provider-boundary or display-suppression drift, FAM-006/Governance/Compact-AI creates a direct sequencing blocker, H1 would require any pending USER decision, or validation fails.`
-USER Plan Review Gate: `Completed during Workstream Entry; H1 must verify implementation against the USER-reviewed plan and report any plan drift.`
+Stop Conditions: `Stop if origin/main advances and reconciliation is required, source truth points to another carrier, active branch authority is missing, LV1 finds unsupported H1 Green source truth, LV1 finds provider-boundary or display-suppression drift, LV1 requires meaningful visible user testing without USER-approved UTS handling, FAM-006/Governance/Compact-AI creates a direct sequencing blocker, LV1 would require any pending USER decision, or validation fails.`
+USER Plan Review Gate: `Completed during Workstream Entry and rechecked in H1; LV1 may accept the hidden/status-only proof path, return a UTS waiver basis, request USER-visible inspection if meaningful UI exists, or route back to H1 if drift appears.`
 USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/orin_ai_provider_state_validation.py.`
-Review Required Because: `The Workstream is runtime-adjacent and setup completion can create false readiness if confused with provider SDK/model execution; H1 must verify every implemented setup-completion element before LV1.`
-Implementation Blocker: `Cleared for this Workstream; all further runtime/provider/model/release work remains pending USER decisions.`
-Review Waiver Reason: `No H1 waiver is active.`
+Review Required Because: `The branch is runtime-adjacent and setup completion can create false readiness if confused with provider SDK/model execution; LV1 must verify the H1-green proof does not expose false user-facing readiness and must decide User Test Summary applicability.`
+Implementation Blocker: `None for H1 Green; LV1 remains unauthorized until USER approval and all further runtime/provider/model/release work remains pending USER decisions.`
+Review Waiver Reason: `No LV1 waiver is active yet; LV1 must determine whether User Test Summary can be waived because the implemented surface is hidden/status-only.`
 Next Legal Phase Digest Missing: `NO - this digest is complete and must not be compacted, abbreviated, summarized away, or omitted from phase handoff packets.`
-Next Safe Move: `Run Hardening H1 after USER approval and keep the branch in C:\Nexus Worktrees\FAM-007.`
+Next Safe Move: `Run Live Validation LV1 after USER approval and keep the branch in C:\Nexus Worktrees\FAM-007.`
