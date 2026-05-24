@@ -2952,6 +2952,19 @@ ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
     "Worktree Escape User Waiver Missing",
 )
 
+FAMILY_SCOPED_BRANCH_READINESS_DOCS = (
+    Path("Docs/phase_governance.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/validation_helper_registry.md"),
+)
+FAMILY_SCOPED_BRANCH_READINESS_PHRASES = (
+    "Family-Scoped Branch Readiness Confinement",
+    "Target Family",
+    "Sibling Worktree Candidate Exclusion",
+    "Sibling worktrees are overlap context only",
+    "not successor authority",
+)
+
 MULTI_SEAM_CONTRACT_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -4108,6 +4121,110 @@ PR_READINESS_ORIGIN_MAIN_FRESHNESS_MARKERS = (
     "Reconciliation Recommendation",
     "Reconciliation Mutation Status",
 )
+
+PROMPT_ENTRY_ORIGIN_MAIN_FRESHNESS_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Current Worktree:",
+        "Current Branch:",
+        "HEAD:",
+        "Upstream:",
+        "origin/main:",
+        "Merge Base With origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "Validating locally is not enough",
+    ),
+    Path("Docs/Main.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "validating locally is not enough",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Current Worktree:",
+        "Current Branch:",
+        "HEAD:",
+        "origin/main:",
+        "Merge Base With origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "validating locally is not enough",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "validating locally is not enough",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "validating locally is not enough",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Current Worktree:",
+        "Current Branch:",
+        "HEAD:",
+        "Upstream:",
+        "origin/main:",
+        "Merge Base With origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "validating locally is not enough",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+    ),
+}
 
 CURRENT_MAIN_RECONCILIATION_IDENTITY_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -18285,6 +18402,41 @@ def _run_worktree_confinement_gate(require) -> None:
                 ),
             )
 
+    current_phase = _extract_marker_value(_section(record_text, "Current Phase"), "Phase")
+    if current_phase == "Branch Readiness" and "fam-" in branch_name.casefold():
+        family_scope = _section(record_text, "Family-Scoped Branch Readiness Confinement")
+        require(
+            bool(family_scope),
+            f"{record_path}: missing ## Family-Scoped Branch Readiness Confinement",
+        )
+        target_family = _extract_marker_value(family_scope, "Target Family")
+        sibling_exclusion = _extract_marker_value(
+            family_scope,
+            "Sibling Worktree Candidate Exclusion",
+        )
+        expected_family = ""
+        family_match = re.search(r"fam-\d{3}", branch_name.casefold())
+        if family_match:
+            expected_family = family_match.group(0).upper()
+        require(
+            bool(target_family) and expected_family and expected_family in target_family.upper(),
+            (
+                f"{record_path}: Family-Scoped Branch Readiness Confinement must name "
+                f"`Target Family: {expected_family}` for branch `{branch_name}`"
+            ),
+        )
+        sibling_normalized = sibling_exclusion.casefold()
+        require(
+            bool(sibling_exclusion)
+            and "overlap context only" in sibling_normalized
+            and "not successor authority" in sibling_normalized,
+            (
+                f"{record_path}: Family-Scoped Branch Readiness Confinement must record "
+                "`Sibling Worktree Candidate Exclusion:` with sibling worktrees as overlap "
+                "context only and not successor authority"
+            ),
+        )
+
     if branch_name and upstream_branch:
         require(
             upstream_branch == f"origin/{branch_name}",
@@ -18924,6 +19076,17 @@ def main() -> int:
                 f"{relative_path}: assigned worktree confinement guidance is missing '{required_phrase}'",
             )
 
+    for relative_path in FAMILY_SCOPED_BRANCH_READINESS_DOCS:
+        text = _read_text(relative_path)
+        for required_phrase in FAMILY_SCOPED_BRANCH_READINESS_PHRASES:
+            require(
+                required_phrase in text,
+                (
+                    f"{relative_path}: family-scoped Branch Readiness confinement guidance "
+                    f"is missing '{required_phrase}'"
+                ),
+            )
+
     for relative_path in MULTI_SEAM_CONTRACT_DOCS:
         text = _read_text(relative_path)
         lower_text = text.casefold()
@@ -19340,6 +19503,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness origin/main freshness guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in PROMPT_ENTRY_ORIGIN_MAIN_FRESHNESS_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: prompt-entry origin/main freshness guidance is missing '{required_phrase}'",
             )
 
     for relative_path in PRE_REBASELINE_IMPACT_AUDIT_DOCS:

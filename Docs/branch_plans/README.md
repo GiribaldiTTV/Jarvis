@@ -80,7 +80,7 @@ Every planned/current created/touched/affected user-facing, runtime, UI, provide
 
 `Workstream Entry` is the pre-implementation review gate inside the `Workstream` phase. It is not a separate canonical phase, but it must produce USER-reviewable evidence before implementation begins or resumes.
 
-Before USER can green-light Workstream implementation, Codex must return a full, non-compacted Workstream Entry Review Digest and create or refresh a Desktop `USER Review Desktop Bundle`.
+Before USER can green-light Workstream implementation, Codex must return a full, non-compacted Workstream Entry Review Digest and create or refresh the active worktree's Desktop `USER Review Desktop Bundle` under the stable `Nexus USER Review\<worktree-label>` root.
 
 The bundle should copy the branch vision and planning files the USER needs to inspect, including:
 
@@ -91,7 +91,7 @@ The bundle should copy the branch vision and planning files the USER needs to in
 - relevant Nexus Vision and family vision files
 - relevant UFD, Branch Change Intent Ledger, source-truth owner, validator/helper, fixture, or planning files
 
-The digest must report the review folder path, copied files, source branch, source HEAD, validation summary, exact Workstream green-light decision requested, and pending USER decisions. Missing bundle proof blocks Workstream entry on `Workstream Entry Review Bundle Missing`.
+The bundle must use the active worktree label, copy the selected files flat into that worktree folder, and rely on `START_HERE.md` to map copied filenames back to repo-relative source paths. The digest must report the review folder path, copied files, source branch, source HEAD, validation summary, exact Workstream green-light decision requested, and pending USER decisions. Missing bundle proof blocks Workstream entry on `Workstream Entry Review Bundle Missing`.
 
 ## Workstream Entry Whole-Package Analysis Gate
 

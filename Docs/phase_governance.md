@@ -71,6 +71,26 @@ Widening beyond the current bounded state requires explicit USER waiver text rec
 
 Clean validation, a clean git tree, branch existence, prior broad approval, Codex discretion, ChatGPT wording, or prompt output shape cannot infer a bounded-state waiver. `Bounded State User Waiver: None` means execute only the single named bounded seam or stop.
 
+## Prompt-Entry Origin/Main Freshness Gate
+
+`Prompt-Entry Origin/Main Freshness Gate` is mandatory at the start of every new Codex thread, resumed thread, post-PR-merge handoff, post-watcher wakeup, and before any repo-affecting work continues. It applies before planning, patching, validation-green claims, phase entry or continuation, Branch Readiness, Workstream Entry, Workstream, Hardening, Live Validation, PR Readiness, Release Readiness, PR creation, merge handling, release work, branch/worktree mutation, runtime mutation, GitHub Desktop handoff, or same-branch current-main reconciliation.
+
+The freshness packet must include:
+
+- `Prompt-Entry Freshness Check:`
+- `Fetched origin/main:`
+- `Current Worktree:`
+- `Current Branch:`
+- `HEAD:`
+- `Upstream:`
+- `origin/main:`
+- `Merge Base With origin/main:`
+- `Origin/Main Advanced Since Last Action:`
+- `Pre-Rebaseline Impact Audit Required:`
+- `Rebaseline/Reconciliation Status:`
+
+Passing posture means Codex fetched or otherwise proved current `origin/main`, the active worktree identity was verified, and `HEAD` plus merge base were compared against current `origin/main` before any phase continuation or mutation. If `origin/main` advanced, if the merge base differs in a way that requires review, or if current `origin/main` cannot be proven, Codex must stop on `Prompt-Entry Origin/Main Freshness Missing` or `Origin/Main Advanced Rebaseline Required`, return a report-only `Pre-Rebaseline Impact Audit` / reconciliation packet, and wait for the exact USER decision before any merge, rebase, fast-forward, branch switch, conflict resolution, file mutation, validation-green claim, PR readiness claim, release-readiness claim, or next-phase execution. Validating locally is not enough when `origin/main` may have advanced.
+
 ## Pre-Rebaseline Impact Audit
 
 `Pre-Rebaseline Impact Audit` is mandatory before any branch, worktree, neutral-main folder, or standing governance lane merges, rebases, fast-forwards, conflict-resolves, branch-switches, or otherwise baselines itself against a newer `origin/main`.
@@ -270,7 +290,7 @@ The active Branch Runtime Engineering Plan must carry an `Element-to-Phase Proof
 
 Branch Readiness Stage 2 and Workstream Entry must produce or admit the matrix before Workstream implementation. Workstream seam closeout updates matrix rows with implemented, skipped, deferred, or future-gated status. Hardening compares actual implementation against the matrix. Live Validation compares observed behavior, user-facing proof, UTS posture, and waiver posture against the matrix. PR Readiness folds durable matrix outcomes into the branch record, workstream doc, family dossier, or Element Validation Ledger owner.
 
-`Workstream Entry` is the pre-implementation review gate inside the `Workstream` phase, not a separate canonical phase. Before USER can green-light Workstream implementation for a runtime/user-facing/source-truth branch, Codex must return a full, non-compacted Workstream Entry Review Digest and create or refresh a Desktop `USER Review Desktop Bundle` containing copies of the branch vision, Branch Runtime Engineering Plan, Element-to-Phase Proof Matrix owner, branch authority record, relevant Nexus/family vision files, UFD/change-intent surfaces when applicable, and any other source-truth files needed for USER inspection. The digest must include the review folder path, copied file list, source branch, source HEAD, validation summary, exact Workstream green-light decision requested, and pending USER decisions. Missing review bundle proof blocks on `Workstream Entry Review Bundle Missing`.
+`Workstream Entry` is the pre-implementation review gate inside the `Workstream` phase, not a separate canonical phase. Before USER can green-light Workstream implementation for a runtime/user-facing/source-truth branch, Codex must return a full, non-compacted Workstream Entry Review Digest and create or refresh the active worktree's Desktop `USER Review Desktop Bundle` under `Nexus USER Review\<worktree-label>`, containing flat copied files for the branch vision, Branch Runtime Engineering Plan, Element-to-Phase Proof Matrix owner, branch authority record, relevant Nexus/family vision files, UFD/change-intent surfaces when applicable, and any other source-truth files needed for USER inspection. The digest must include the stable review root, worktree review folder path, copied file list, source branch, source HEAD, validation summary, exact Workstream green-light decision requested, and pending USER decisions. Missing review bundle proof blocks on `Workstream Entry Review Bundle Missing`.
 
 Workstream Entry Whole-Package Analysis Gate: for any runtime-focused branch with multiple admitted slices or seams, Workstream Entry analysis must inspect and report on the entire admitted Workstream package before recommending the first implementation seam. The packet must include all admitted slices/seams, completion strategy, first-seam recommendation, seam dependency map, future-gated boundaries, preservation surfaces, validation plan, Hardening H1 expectations, Live Validation LV1 expectations, visual/user-facing proof requirements, UTS handoff criteria, and exact implementation approval text. A first-seam-only analysis is insufficient and blocks Workstream entry on `Workstream Entry Whole-Package Analysis Missing`. This gate plans Hardening and Live Validation obligations but does not authorize executing those phases; executing Workstream implementation, Hardening, Live Validation, UTS handoff, PR creation, merge, or release work still requires the separately legal phase approval.
 
@@ -511,7 +531,7 @@ Branch Runtime Engineering Plan:
 - the branch authority record must remain the control surface and must include `Branch Runtime Engineering Plan:`, `Branch Runtime Engineering Plan Path:`, and `Engineering Plan Status:` when the plan is required, present, accepted, revised, folded, or historical
 - backlog and roadmap remain compact pointer/status surfaces; detailed runtime baseline, planned delta, per-seam checklist, validation checklist, user-facing proof checklist, future-gated ledger, approval-boundary audit, and plan-to-implementation traceability belong in the Branch Runtime Engineering Plan or folded historical record
 - Branch Readiness Stage 2 and Workstream Entry must admit a USER-reviewable `Element-to-Phase Proof Matrix` in the active branch plan when the branch plans, creates, touches, affects, defers, or preserves product/runtime/UI/source-truth/helper/workflow elements; each current planned/created/touched/affected element must name Workstream implementation, Workstream proof, Hardening proof, Live Validation proof or waiver, UTS / USER acceptance, USER decision state, and source owner / ledger owner before Workstream begins or resumes
-- Workstream Entry must include a full non-compacted Workstream Entry Review Digest and a Desktop `USER Review Desktop Bundle` with copied branch vision, branch plan, branch authority, relevant Nexus/family vision, matrix, UFD/change-intent, and source-truth files needed for USER inspection before USER can green-light implementation
+- Workstream Entry must include a full non-compacted Workstream Entry Review Digest and the active worktree's Desktop `USER Review Desktop Bundle` under `Nexus USER Review\<worktree-label>`, with flat copied branch vision, branch plan, branch authority, relevant Nexus/family vision, matrix, UFD/change-intent, and source-truth files needed for USER inspection before USER can green-light implementation
 - Workstream Entry reads the plan and returns whole-package analysis before first-seam implementation, each seam updates traceability, Hardening compares actual implementation against it, Live Validation records proof or waiver posture, PR Readiness produces the `PR Fold-Down Packet:`, and Release Readiness translates the plan into public scope without internal governance jargon
 - a missing or shallow Branch Runtime Engineering Plan keeps runtime implementation blocked on Branch Readiness planning until USER accepts, revises, or explicitly waives the plan boundary
 
@@ -2532,6 +2552,12 @@ Dirty worktree collision recovery is mandatory when a target worktree is dirty b
 Off-worktree work routing is mandatory when a branch thread discovers work that does not belong to its assigned worktree or active branch. The discovering thread reports the issue, expected/actual identity, dirty-file risk, likely owning lane, and recommendation, then waits. It must not self-activate a sibling worktree, take over another active thread's branch, or create a new worktree by convenience.
 
 The active thread must run or report the equivalent of `python dev\orin_branch_governance_validation.py --worktree-confinement-gate` before Stage 2 execution, phase entry, branch/worktree creation, commit, push, PR work, release work, runtime validation, or GitHub Desktop handoff when the assigned branch record declares a worktree.
+
+### Family-Scoped Branch Readiness Confinement
+
+Family-scoped Branch Readiness must keep the requested family and worktree as the selector. The active branch record must name `Target Family:` and `Sibling Worktree Candidate Exclusion:` before Stage 2 mutation. Sibling worktrees are overlap context only; they are not successor authority, selected-next authority, or a reason to switch lanes unless USER explicitly broadens the task to repo-wide branch selection.
+
+If a sibling worktree appears to have an active branch, cleaner validation state, or a tempting next phase, the assigned thread must report it as overlap/reconciliation context only. If current source truth truly conflicts with the requested family/worktree, stop on `Family-Scoped Branch Readiness Drift` and return the routing conflict instead of recommending or entering the sibling branch.
 
 Stale parked branches, old worktrees, fallback folders, AI Lab context, deleted/recreated historical refs, and unknown write targets are stop conditions until USER explicitly routes the work to a legal target.
 
