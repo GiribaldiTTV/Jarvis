@@ -7299,9 +7299,6 @@ class DesktopRuntimeWindow(QWidget):
         active_child_window = str(state.get("activeChildWindow", "none") or "none")
         if active_child_window in ("", "none", "closed"):
             return False
-        layer_rect = self._monitoring_hud_live_screen_rects.get("childWindowLayer", QRect())
-        if layer_rect.isValid() and not layer_rect.isNull() and layer_rect.contains(point):
-            return True
         rect_names_by_child_window = {
             "dashboard-settings": ("settingsWindow", "settingsClose"),
             "monitor-group-create": ("createMonitorWindow", "createMonitorClose"),
