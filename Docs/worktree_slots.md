@@ -103,7 +103,7 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: USER-assigned active runtime slot for FAM-007 Durable Consent Persistence Foundation Workstream; Workstream Green, Hardening H1 Green, and Live Validation LV1 Green with PR Readiness Stage 1 pending USER approval
+- Assignment Status: USER-assigned runtime slot for FAM-007 Durable Consent Persistence Foundation branch; Workstream Green, Hardening H1 Green, Live Validation LV1 Green, and PR Readiness Stage 1 source-truth repair complete with Stage 2 USER gate recorded on the branch receipt
 - Assigned Branch: `feature/fam-007-local-ai-provider-durable-consent-persistence-foundation`
 - Assigned Family / Workstream: `FAM-007 Local AI Provider Durable Consent Persistence Foundation`
 - Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`

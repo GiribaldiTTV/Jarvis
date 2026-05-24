@@ -8,9 +8,9 @@ Plan Identity: `FAM-007 Local AI Provider Durable Consent Persistence Foundation
 Owning Branch: `feature/fam-007-local-ai-provider-durable-consent-persistence-foundation`
 Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
-Current Phase: `Live Validation`
+Current Phase: `Historical Traceability`
 Branch Runtime Engineering Plan: Required and present for the FAM-007 durable consent persistence foundation runtime carrier.
-Engineering Plan Status: Accepted - Workstream Green, Hardening H1 Green, and Live Validation LV1 Green; Seam Group A and Seam Group B implemented, validator-proven, H1-reviewed, and static/hidden-telemetry LV1 validated.
+Engineering Plan Status: Accepted - Workstream Green, Hardening H1 Green, Live Validation LV1 Green, and PR Readiness Stage 1 source-truth repair complete; Seam Group A and Seam Group B implemented, validator-proven, H1-reviewed, static/hidden-telemetry LV1 validated, and Stage 2-ready after USER approval.
 Current Runtime Baseline: Released FAM-007 evidence through v1.7.16-prebeta includes setup/consent-flow readiness, setup contract readiness, setup implementation foundation, consent collection foundation, and PR #201 local consent capture/write-path implementation foundation. Current safety posture remains provider-visible data none, sentToProvider false, canAcceptPrompts false, prompt/model execution disabled, downloads/network blocked, memory inactive or deferred, voice/Core sync gated, and desktop readiness display suppression preserved.
 Branch Purpose: Admit the next FAM-007 successor that turns local consent capture/write-path proof into durable local consent persistence planning before any user-operated consent UX, provider setup completion, SDK/model execution, or functional AI.
 Planned Runtime Delta: Add durable local consent record persistence, consent schema versioning, storage-boundary proof, revocation/reset durable semantics, setup consent and execution consent durable separation, local provenance/audit metadata, fail-closed persistence behavior, Core/Desktop/ORIN status proof, and validator fixtures.
@@ -27,15 +27,15 @@ Future-Gated Items: Future USER approval gates remain for user-operated consent 
 Approval-Boundary Audit: Stage 2 authorizes planning and governance/source-truth repair only. Workstream implementation, visible user consent UX, provider setup/model/memory/network/voice/shortcut/installer work, PR creation, merge, release, cleanup, and sibling-worktree mutation remain pending USER decisions.
 FAM / Shared-Surface Overlap Forecast: FAM-006 is a separate sibling lane and overlap context only; Governance is standing intake context; Compact-AI is historical released/salvaged evidence. None is successor authority for this FAM-007 branch.
 Open Questions: Whether durable persistence uses an existing config/profile store or a dedicated local consent store; whether visible consent UX belongs in the next branch; when provider setup completion becomes admissible after durable consent persistence.
-USER Planning Decisions: USER approved FAM-007 Branch Readiness Stage 2, Workstream Entry, Seam Group A implementation, Seam Group B implementation, bounded confinement repair on this branch, Hardening H1, and Live Validation LV1. USER has not approved PR Readiness Stage 1, PR creation, merge, release, provider setup completion, SDK/model execution, downloads/network, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.
+USER Planning Decisions: USER approved FAM-007 Branch Readiness Stage 2, Workstream Entry, Seam Group A implementation, Seam Group B implementation, bounded confinement repair on this branch, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 source-truth repair. USER has not approved PR Readiness Stage 2 / PR creation, merge, release, provider setup completion, SDK/model execution, downloads/network, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.
 Plan Revision History: v1 created during Branch Readiness Stage 2 from origin/main@10c32804370ee5480416e68e55823e5997d18291 after v1.7.16-prebeta release.
 Plan-To-Implementation Traceability Table: Planned persistence state maps to desktop provider-state implementation and fixtures; planned storage boundary maps to local-only no-network proof; revocation/reset maps to fail-closed validator cases; setup/execution separation maps to provider execution blockers; status proof maps to Core/Desktop/ORIN static proof; continuation criteria map to H1, LV1, PR Readiness, and Release Readiness fold-down.
 Hardening Comparison Checklist: H1 must compare durable consent schema, storage boundary, revocation/reset, setup/execution separation, no-provider/no-network/no-memory posture, UI/status copy, validator fixtures, branch plan, Runtime Branch Engineering Contract, Product Definition Plan, and confinement repair against implementation.
 Live Validation Proof Or Waiver Checklist: LV1 must classify the branch, prove static/runtime validator state, prove any visible status surface or record a source-truth-supported waiver, and keep provider-visible data none, prompt execution disabled, downloads/network/memory blocked, and voice/Core sync gated.
 PR Readiness Fold-Down / Retention Checklist: PR Readiness must fold durable consent persistence scope into branch record/source truth, resolve selected-next or USER waiver truth, prove release-window/no-release-debt posture, preserve branch-authority cleanup, and keep live PR/watcher state out of merged current-state owners.
 Release Readiness Public-Scope Translation Checklist: Release Readiness must describe this branch as durable local consent persistence foundation only and exclude provider setup completion, SDK/model execution, functional AI, memory, voice/Core, downloads/network, and v1.8.0 execution unless later USER-approved proof changes that scope.
-USER Planning Review: Completed for Workstream Entry via the desktop review bundle; Seam Group A and Seam Group B implementation, Hardening H1, and Live Validation LV1 are recorded here. PR Readiness Stage 1 requires USER approval.
-PR Fold-Down Packet: Pending until PR Readiness.
+USER Planning Review: Completed for Workstream Entry via the desktop review bundle; Seam Group A and Seam Group B implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 source-truth repair are recorded here. PR Readiness Stage 2 / PR creation requires USER approval.
+PR Fold-Down Packet: Stage 1 complete - selected-next defer/USER waiver, pre-PR no-live-PR truth, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, Governance Drift Audit, branch-authority historical projection, and Stage 2 approval boundary are recorded. Live PR metadata belongs to PR Readiness Stage 2 after USER approves PR creation.
 Runtime Implementation Approval: Approved - USER approved Seam Group A and Seam Group B implementation; later runtime/product work remains pending USER decisions.
 
 ## Workstream Seam Group A Implementation Proof
@@ -46,7 +46,7 @@ Implemented Seam 2: Local storage boundary and migration posture in `desktop/ai_
 Implemented Seam 3: Revocation, reset, and expiry persistence semantics in `desktop/ai_provider_state.py`, including durable revoked/reset/expired states, distinct fail-closed reason codes, and preservation of provider setup/model execution blockers.
 Direct Validator Proof: `dev/orin_ai_provider_state_validation.py` includes durable consent fixtures for valid, missing, invalid, corrupt, stale schema, unsupported schema, revoked, reset, and expired records; isolated temp-store write/load round trip; local storage confinement; no-secrets proof; provider-payload-excluded proof; provider-visible-data none; sentToProvider false; canAcceptPrompts false; disabled prompt/model/provider execution; blocked downloads/network; inactive memory; and voice/Core gated posture.
 Source-Truth Fold-Down: Branch record and this plan record Seam Group A completion and Seam Group B completion, making the overall Workstream green.
-Continuation Decision: Workstream Green after Seam Group B; Hardening H1 and Live Validation LV1 are green and PR Readiness Stage 1 is next after USER approval.
+Continuation Decision: Workstream Green after Seam Group B; Hardening H1 and Live Validation LV1 are green; PR Readiness Stage 1 source-truth repair is complete and Stage 2 / PR creation is next after USER approval.
 
 ## Workstream Seam Group B Implementation Proof
 
@@ -55,7 +55,7 @@ Implemented Seam 4: Setup/execution durable consent separation in `desktop/ai_pr
 Implemented Seam 5: Core/Desktop/ORIN hidden telemetry proof in `desktop/core_visualization_renderer.py` and `desktop/desktop_renderer.py`, including durable consent record, setup consent, execution consent, hidden status proof, desktop display suppression, and future handoff telemetry keys while preserving desktop AI-owned readiness display suppression.
 Implemented Seam 6: Direct validator fixture completion and future handoff criteria in `dev/orin_ai_provider_state_validation.py`, including setup-only, execution-only, both-absent, both-present, revoked-setup, revoked-execution, reset-setup, reset-execution, expired-setup, expired-execution, hidden telemetry, desktop readiness suppression, and provider-boundary preservation fixtures.
 Source-Truth Fold-Down: Branch record and this plan record Workstream Green while keeping provider setup completion, visible consent UX, SDK/model execution, downloads/network, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution future-gated.
-Continuation Decision: Hardening H1 and Live Validation LV1 are green; no same-branch durable consent persistence seams remain implementable, and PR Readiness Stage 1 is next after USER approval.
+Continuation Decision: Hardening H1 and Live Validation LV1 are green; no same-branch durable consent persistence seams remain implementable; PR Readiness Stage 1 source-truth repair is complete and Stage 2 / PR creation is next after USER approval.
 
 ## Hardening H1 Proof
 
@@ -66,7 +66,7 @@ Setup/Execution Separation Review: `PASS - durable setup consent and durable exe
 Hidden Telemetry And Display Suppression Review: `PASS - Core/Desktop renderer telemetry exposes durable consent proof keys while the long desktop AI-owned readiness display remains suppressed by default.`
 Provider Boundary Review: `PASS - provider-visible data remains none; sentToProvider remains false; canAcceptPrompts remains false; prompt/provider/model execution remains disabled; downloads/network/external calls remain blocked; memory/learning/personalization remains inactive; voice/Core sync remains gated.`
 H1 Repair Scope: `Source-truth phase fold-down only; no runtime behavior repair was required.`
-Next Phase: `Live Validation LV1 completed; PR Readiness Stage 1 after USER approval.`
+Next Phase: `PR Readiness Stage 1 source-truth repair completed; PR Readiness Stage 2 / PR creation after USER approval.`
 
 ## Live Validation LV1 Proof
 
@@ -97,9 +97,9 @@ USER Vision Question Packet: Not required for Stage 2 because visible user UX is
 Codex Product Interpretation: Durable persistence is the next safest prerequisite because the previous branch proved local capture/write-path snapshot behavior but explicitly deferred durable storage.
 Codex Implementation Recommendation: Implement durable persistence and revocation/reset semantics before user-operated consent UX or provider setup completion.
 Codex Additional Recommendations: Keep consent persistence local-only, auditable, versioned, fail-closed, and disconnected from prompt acceptance or provider communication.
-USER/ChatGPT Review Checkpoint: USER may inspect this plan and branch record before approving PR Readiness Stage 1.
+USER/ChatGPT Review Checkpoint: USER may inspect this plan and branch record before approving PR Readiness Stage 2 / PR creation.
 USER Critique Loop: USER can accept, revise, reject, defer, or waive this plan before implementation.
-USER Decision Ledger: Stage 2 setup, Workstream Entry, Seam Group A implementation, Seam Group B implementation, Hardening H1, and Live Validation LV1 approved; PR Readiness Stage 1 and later phases pending.
+USER Decision Ledger: Stage 2 setup, Workstream Entry, Seam Group A implementation, Seam Group B implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 source-truth repair approved; PR Readiness Stage 2 / PR creation and later phases pending.
 Deferred Ideas / Future Package Ledger: User-operated consent UX, provider setup completion, provider SDK/adapter, prompt/model execution, provider-visible data behavior proof, memory/indexing/personalization, voice/Core sync, shortcut/installer work, and v1.8.0 release execution.
 Planning Adequacy Review: The plan names state, schema, storage, revocation, reset, consent separation, validation, proof, FAM boundaries, and future-gated items; it is not a shallow or single-marker plan.
 Rejected Shallow Plan: A shallow plan that only toggles a "consent persisted" flag is rejected because consent durability needs schema, storage boundary, provenance, revocation/reset, and fail-closed proof.
@@ -121,9 +121,9 @@ Affected Files / Surfaces: Branch source truth, provider-state model, desktop/Co
 Data / Control Model: Local consent state may gate future setup but may not send provider data, accept prompts, execute models, download assets, write memory, or call external services.
 Branch Reach / Package-Size Proof: The branch is appropriately sized because durability, revocation/reset, consent separation, status proof, and fixtures form one coherent prerequisite.
 Why This Branch Should Not Split Smaller: Splitting storage, schema, and revocation/reset would create partial durable consent truth that later branches could misread.
-Implementation Sequence Proposal: Stage 2 setup -> Workstream Entry -> bounded Workstream -> H1 -> LV1 -> PR Readiness -> PR -> merge -> Release Readiness.
-Planning Blockers: None for Workstream completion, Hardening H1, or Live Validation LV1; PR Readiness Stage 1 approval remains pending.
-USER Decisions Needed: PR Readiness Stage 1, PR creation, merge, release, cleanup, and future-gated runtime/product work.
+Implementation Sequence Proposal: Stage 2 setup -> Workstream Entry -> bounded Workstream -> H1 -> LV1 -> PR Readiness Stage 1 repair -> PR Readiness Stage 2 / PR creation -> merge -> Release Readiness.
+Planning Blockers: None for Workstream completion, Hardening H1, Live Validation LV1, or PR Readiness Stage 1 source-truth repair; PR Readiness Stage 2 / PR creation approval remains pending.
+USER Decisions Needed: PR Readiness Stage 2 / PR creation, merge, release, cleanup, and future-gated runtime/product work.
 
 ## Element-to-Phase Proof Matrix
 
