@@ -21,6 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_REVIEW_ROOT_NAME = "Nexus USER Review"
+CUSTOM_REVIEW_PATH_NONE = "None - stable review root enforced"
 
 
 def _desktop_path() -> Path:
@@ -127,6 +128,8 @@ def build_bundle(
     *,
     review_root_name: str,
     worktree_label: str | None,
+    allow_custom_review_path: bool,
+    custom_review_path_reason: str | None,
     files: list[str],
     title: str,
     clear: bool,
@@ -137,6 +140,17 @@ def build_bundle(
     pending_user_decisions: list[str],
     expected_file_count: int | None,
 ) -> Path:
+    custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
+    custom_label = worktree_label is not None
+    if (custom_root or custom_label) and not allow_custom_review_path:
+        raise ValueError(
+            "Custom review paths are blocked by default. Use the stable "
+            "Nexus USER Review/<worktree-label> destination, or pass "
+            "--allow-custom-review-path with --custom-review-path-reason."
+        )
+    if allow_custom_review_path and not custom_review_path_reason:
+        raise ValueError("--custom-review-path-reason is required with --allow-custom-review-path")
+
     desktop = _desktop_path()
     label = _worktree_label(worktree_label)
     review_root, target = _safe_target(desktop, review_root_name, label)
@@ -162,6 +176,12 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
+    if allow_custom_review_path:
+        custom_review_path_waiver = "Granted"
+        custom_review_path_reason_value = custom_review_path_reason or "Not recorded"
+    else:
+        custom_review_path_waiver = CUSTOM_REVIEW_PATH_NONE
+        custom_review_path_reason_value = "Not applicable"
     start_here = (target / "START_HERE.md").resolve()
     actual_bundle_files = _bundle_files(target) | {start_here}
     extra_bundle_files = sorted(
@@ -181,6 +201,8 @@ def build_bundle(
         f"Review Root: `{review_root}`",
         f"Worktree Review Folder: `{target}`",
         f"Worktree Label: `{label}`",
+        f"Custom Review Path Waiver: {custom_review_path_waiver}",
+        f"Custom Review Path Reason: {custom_review_path_reason_value}",
         f"Source Branch: `{source_branch}`",
         f"Source HEAD: `{source_head}`",
         f"Upstream: `{upstream}`",
@@ -223,7 +245,7 @@ def main() -> int:
     parser.add_argument(
         "--review-root-name",
         default=DEFAULT_REVIEW_ROOT_NAME,
-        help="Stable Desktop review root folder name.",
+        help="Stable Desktop review root folder name. Custom values require --allow-custom-review-path.",
     )
     parser.add_argument(
         "--worktree-label",
@@ -233,8 +255,18 @@ def main() -> int:
         "--folder-name",
         help=(
             "Legacy alias for --worktree-label. New governance expects a stable "
-            "review root with an auto-derived worktree label."
+            "review root with an auto-derived worktree label. Requires "
+            "--allow-custom-review-path."
         ),
+    )
+    parser.add_argument(
+        "--allow-custom-review-path",
+        action="store_true",
+        help="USER-approved waiver allowing a custom review root or worktree label.",
+    )
+    parser.add_argument(
+        "--custom-review-path-reason",
+        help="Required reason when --allow-custom-review-path is used.",
     )
     parser.add_argument("--title", default="Nexus Review Bundle", help="Title for START_HERE.md.")
     parser.add_argument("--clear", action="store_true", help="Delete the existing Desktop bundle folder before copying.")
@@ -276,6 +308,8 @@ def main() -> int:
     target = build_bundle(
         review_root_name=args.review_root_name,
         worktree_label=args.worktree_label or args.folder_name,
+        allow_custom_review_path=args.allow_custom_review_path,
+        custom_review_path_reason=args.custom_review_path_reason,
         files=args.files,
         title=args.title,
         clear=args.clear,
