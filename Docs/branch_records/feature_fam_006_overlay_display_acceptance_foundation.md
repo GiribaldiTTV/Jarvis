@@ -6,7 +6,7 @@ Branch Creation Base: `origin/main` at `a42b7e50eb012722b140f3874dbf50826bd797c8
 Current origin/main: `6681131c974d99945c494c0e4ff3c436f9347422`
 Origin/Main Advanced Since Branch Creation: `YES - reconciled by governed non-rewrite merge after Branch Change Intent Ledger evidence cleared the Pre-Rebaseline Impact Audit overlap gate.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md`
-Branch Runtime Engineering Plan: `Workstream Green - Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, bounded SLC-042 runtime implementation/proof closure, bounded SLC-043 active display implementation, bounded SLC-044 Dashboard / Overlay independence implementation, and bounded SLC-045 readiness proof are complete; Hardening H1 is next after current-main reconciliation.`
+Branch Runtime Engineering Plan: `Live Validation Stage 1 - Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, bounded SLC-042 runtime implementation/proof closure, bounded SLC-043 active display implementation, bounded SLC-044 Dashboard / Overlay independence implementation, bounded SLC-045 readiness proof, and Hardening H1 are complete; LV1 UTS handoff repair is active after current-main reconciliation.`
 Engineering Plan Status: `Accepted`
 
 ## Branch Identity
@@ -29,12 +29,12 @@ Canonical Branch: `feature/fam-006-overlay-display-acceptance-foundation`
 
 ## Current Phase
 
-Phase: `Workstream`
-Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof closure are complete; bounded SLC-043 active Overlay Profile display behavior, SLC-044 Dashboard / Overlay independence, and SLC-045 validation/live-proof readiness are complete; Hardening H1 is next after current-main reconciliation.`
+Phase: `Live Validation`
+Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof closure are complete; bounded SLC-043 active Overlay Profile display behavior, SLC-044 Dashboard / Overlay independence, SLC-045 validation/live-proof readiness, and Hardening H1 are complete; LV1 UTS handoff repair is active after current-main reconciliation.`
 
 ## Phase Status
 
-Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness is complete; next legal phase after current-main reconciliation is Hardening H1.`
+Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness and Hardening H1 are complete; LV1 UTS handoff repair is active and USER Test Summary results remain pending.`
 Authority State: `Active Branch`
 Bounded State: `Granted for bounded multi-seam Workstream execution across admitted SLC-042 through SLC-045; PR/release and future-gated work remain blocked until later USER approval.`
 
@@ -187,12 +187,12 @@ Stable Worktree Path Preservation Gate: `PASS - the stable path is preserved and
 
 ## Blockers
 
-Active Blockers: None for bounded Workstream continuation.
+Active Blockers: `User Test Summary Results Pending`
 PR Readiness Blocker: PR creation and merge remain pending separate USER approval.
 
 ## Exit Criteria
 
-Exit Criteria: `Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, review-bundle traceability repair, bounded SLC-042 implementation/proof closure, SLC-043 implementation/proof closure, SLC-044 Dashboard / Overlay independence proof, and SLC-045 readiness proof are recorded; required validations passed; commits are pushed; and Workstream Green routes to Hardening H1.`
+Exit Criteria: `Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, review-bundle traceability repair, bounded SLC-042 implementation/proof closure, SLC-043 implementation/proof closure, SLC-044 Dashboard / Overlay independence proof, SLC-045 readiness proof, Hardening H1, and LV1 UTS handoff repair are recorded; required validations passed; commits are pushed; and final phase advancement remains blocked until USER Test Summary results are returned and digested.`
 
 ## Rollback Target
 
@@ -244,6 +244,13 @@ Expected Seam Families And Risk Classes: `Display acceptance baseline/state brid
 
 User Test Summary Strategy: `No UTS is generated during Stage 2. Future LV1 must prepare a focused USER-facing UTS only after real launcher proof, per-element screenshots, short video/frame-sequence evidence, and Codex Visual Adjudication pass.`
 
+## User Test Summary
+
+User Test Summary Results: `PENDING`
+User Test Summary Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+User Test Summary Handoff Status: `LV1 UTS handoff repair active after current-main reconciliation; desktop UTS export must name FAM-006 Overlay Display Acceptance Foundation and remain blocked until USER returns PASS, FAIL, or WAIVED results.`
+Final Phase Advancement: `BLOCKED until the filled User Test Summary is submitted or waived, digested into this active authority record, and blockers are reevaluated.`
+
 ## Later-Phase Expectations
 
 Later-Phase Expectations: `Workstream Entry selects the first SLC-042 seam; Workstream continues through admitted bounded seams until Workstream Green or a real stop condition; Hardening stress-tests after Workstream Green; Live Validation uses mandatory desktop and focused proof; PR Readiness handles PR execution only after USER approval.`
@@ -261,7 +268,7 @@ Seam 4: `SLC-045 Validation/live proof and UTS handoff readiness`
 
 ## Active Seam
 
-Active seam: `SLC-045 validation/live proof and UTS handoff readiness implemented and proof-closed; Workstream Green is recorded and Hardening H1 is next after current-main reconciliation.`
+Active seam: `SLC-045 validation/live proof and UTS handoff readiness implemented and proof-closed; Workstream Green and Hardening H1 are recorded; LV1 UTS handoff repair is active after current-main reconciliation.`
 
 ## Validation Plan
 
@@ -275,17 +282,17 @@ Proof Closure Status: `Closed for SLC-042 validation/proof closure; no runtime i
 
 ## Next Legal Phase
 
-Next Legal Phase: `Hardening`
-Next Legal Phase Detail: `The admitted Workstream package is complete. Hardening H1 is the next legal phase after current-main reconciliation and requires separate USER approval.`
+Next Legal Phase: `Live Validation`
+Next Legal Phase Detail: `Current-main reconciliation and H1 are complete. LV1 handoff repair must refresh the UTS and proof posture, then USER Test Summary results must be returned and digested before final phase advancement.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Workstream Green / awaiting Hardening H1`
-Next Legal Phase: `Hardening`
-Why This Phase Is Next: `SLC-042 through SLC-045 are implemented and proof-closed, and the admitted Workstream package has no remaining implementation slices. Hardening H1 is required before Live Validation or PR Readiness.`
-Approval Required: `USER approval required for Hardening H1`
-Exact USER Approval Text: `Approve Hardening H1 for FAM-006 in C:\Nexus Worktrees\FAM-006 on feature/fam-006-overlay-display-acceptance-foundation to pressure-test the completed SLC-042 through SLC-045 Overlay Display Acceptance Foundation Workstream, including active Overlay Profile display behavior, null/stale/high-volume proof, Dashboard / Overlay independence, visual acceptance readiness, validators/helpers/source truth, and preservation of Dashboard / Manage Monitors / Sensor Command Center behavior, with bounded H1 repairs, validation, commit, and push if green, without executing LV1/UTS, PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, or Governance worktree mutation.`
-Allowed Scope: `Hardening H1 only after USER approval`
-Explicit Exclusions: `Runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, and broad theme/skin work.`
-Validation Required: `Identity, source-truth, runtime-surface inspection, HUD surface/internal validators, branch governance, worktree confinement after commit, release-readiness health gate, validation suite, diff checks, compileall, and supported JS syntax/runtime checks including bundled runtime Node when needed.`
-Stop Conditions: `Stop if worktree identity differs, origin/main advances and requires reconciliation, source truth selects a different phase, H1 requires excluded work, concept separation cannot be preserved, or validation fails.`
+Current Phase: `Live Validation Stage 1 / UTS handoff repair`
+Next Legal Phase: `Live Validation`
+Why This Phase Is Next: `SLC-042 through SLC-045 and H1 are complete, LV1 proof was captured, and the remaining blocker is the corrected USER-facing UTS handoff and returned USER result digestion.`
+Approval Required: `USER must complete or waive the exported User Test Summary after the corrected LV1 handoff is delivered.`
+Exact USER Decision Needed: `Complete and return C:\Users\anden\OneDrive\Desktop\User Test Summary.txt with PASS, FAIL, or WAIVED results for the active LV1 checks; Codex will digest the returned results into source truth and reevaluate blockers before PR Readiness.`
+Allowed Scope: `LV1 UTS handoff repair, validation, source-truth recording, and evidence refresh only.`
+Explicit Exclusions: `PR creation, merge to main, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation.`
+Validation Required: `Identity, source-truth, HUD live/human-client proof as needed, branch governance, worktree confinement after commit, release-readiness health gate, validation suite, diff checks, compileall, and supported JS syntax/runtime checks including bundled runtime Node when needed.`
+Stop Conditions: `Stop if worktree identity differs, origin/main advances and requires reconciliation, source truth selects a different phase, LV1 reveals visual defects, USER Test Summary is returned FAIL, or validation fails.`

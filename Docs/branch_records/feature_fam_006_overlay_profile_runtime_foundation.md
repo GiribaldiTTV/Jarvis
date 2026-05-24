@@ -815,7 +815,7 @@ Branch Authority Cleanup Projection: `PASS - this branch authority record is ind
 
 Merged-Unreleased Scope Posture: `Projected - after PR merge and before later release execution, this branch should be tracked as merged-unreleased FAM-006 Overlay Profile Runtime Foundation evidence only.`
 
-Watcher / Live PR State Projection: `PASS - no live PR exists before Stage 2; PR watcher provisioning and live PR metadata belong to PR Readiness Stage 2 after USER approves PR creation.`
+Watcher / Live PR State Projection: `PASS - watcher/live PR metadata is Stage 2 operator evidence only and must not be projected as merged-main current-state truth.`
 
 Branch Cleanup Plan: `Deferred - no branch deletion, worktree deletion, stable worktree rebinding, or GitHub Desktop cleanup is authorized by this Stage 1 repair.`
 
@@ -887,7 +887,7 @@ Merged-Unreleased Scope Posture: `PASS - after PR merge, this implementation bra
 
 Release Execution Gate: `PASS - no release, tag, GitHub Release, artifact, raw evidence upload, or issue closeout is authorized by PR Readiness Stage 1.`
 
-Watcher / Live PR State Projection: `PASS - no live PR exists before Stage 2; watcher and live PR state belong to PR Readiness Stage 2 after USER approves PR creation.`
+Watcher / Live PR State Projection: `PASS - watcher/live PR state is Stage 2 operator evidence only and must not be projected as merged-main current-state truth.`
 
 Branch Cleanup Plan: `PASS - deferred; no branch deletion, worktree cleanup, stale remote update, or GitHub Desktop cleanup is authorized before later USER-approved cleanup.`
 

@@ -776,7 +776,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     # returned issue loop; detailed ledger/proof evidence stays in manifests.
     $content = @"
 Nexus Desktop AI - User Test Summary
-Workstream: FAM-006 Overlay Profile Runtime Foundation
+Workstream: FAM-006 Overlay Display Acceptance Foundation
 Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: $currentBranch
 Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")

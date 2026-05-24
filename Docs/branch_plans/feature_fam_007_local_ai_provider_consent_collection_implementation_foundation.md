@@ -12,11 +12,11 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
 
-Current Phase: `PR Readiness Stage 1 Ready For Stage 2 - PR creation pending USER approval`
+Current Phase: `Historical / Retired after PR #201 merge - merged-unreleased evidence pending Release Readiness`
 
 Branch Runtime Engineering Plan: Accepted - this plan is present for the FAM-007 consent collection implementation foundation carrier.
 
-Engineering Plan Status: Accepted for Stage 2 setup, Workstream Entry, completed Workstream implementation, Hardening H1 review, Live Validation LV1, and PR Readiness Stage 1; ready for PR Readiness Stage 2 / PR creation after USER approval.
+Engineering Plan Status: Historical / retired from active planning posture after PR #201 merged. Stage 2 setup, Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1, PR Readiness Stage 2 / PR creation, and merge are complete; release execution and future provider setup/execution work remain separate USER decisions.
 
 Current Runtime Baseline: Released FAM-007 evidence includes provider readiness, activation, execution-readiness, provider path/consent readiness, setup/consent-flow readiness, setup contract readiness, setup implementation foundation, and disabled/status-only consent collection foundation through PR #193. Provider-visible data remains none, sentToProvider false, canAcceptPrompts false, prompt/model execution disabled, downloads/network blocked, memory disabled or deferred, voice/Core sync gated, desktop readiness display suppression preserved, and validation helper coverage in `dev/orin_ai_provider_state_validation.py`.
 
@@ -30,7 +30,7 @@ User-Facing Delta: The completed Workstream adds truthful local consent capture/
 
 User-Facing Runtime Delta: The completed Workstream exposes only concise, truthful consent capture/status proof through hidden telemetry. No long desktop AI-owned readiness display should reappear unless a later USER-approved interface plan changes that suppression posture.
 
-Source-Truth Delta: Stage 2 records active FAM-007 branch authority, Product Definition Plan fields, Runtime Branch Engineering Contract fields, this Branch Runtime Engineering Plan, current release baseline, PR #193 as released predecessor evidence, compact FAM-007 pointer updates, worktree slot assignment, validation helper posture, FAM-006/Governance overlap posture, and future-gated approval boundaries.
+Source-Truth Delta: Historical fold-down records the FAM-007 branch authority as merged-unreleased PR #201 evidence, preserves this retired Branch Runtime Engineering Plan as a planning receipt, keeps current release baseline and PR #193 predecessor evidence intact, updates compact FAM-007 pointer surfaces, retires the worktree slot assignment from active PR posture, preserves validation helper posture, and keeps future-gated approval boundaries.
 
 State / Config / Schema Delta: Completed implementation introduces local consent record schema, schema versioning, setup consent status, execution consent status, capture eligibility, write-path result, blocker/reason codes, provenance markers, audit posture, revocation/reset posture, provider profile/config references, provider-visible-data posture, and future handoff fields. It does not store secrets, provider credentials, prompt payloads for provider use, memory indexes, model artifacts, or network/API tokens.
 
@@ -46,15 +46,15 @@ Per-Seam Validation Checklist: Run diff checks, branch governance, release-healt
 
 Per-Seam User-Facing Proof Checklist: If visible consent copy changes, prove the status-only or local-capture surface with static Core/Desktop/ORIN inspection and, if required by Workstream Entry, screenshot/live evidence. Confirm copy does not imply provider setup completion, provider execution, functional AI, downloads, network calls, memory, voice/Core sync, or v1.8.0 completion.
 
-Future-Gated Items: Provider setup completion, provider SDK integration, provider/model execution, model downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcuts/installers, PR creation, merge, release, issue work, FAM-006 mutation, Governance mutation outside this branch, Compact-AI mutation, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain gated.
+Future-Gated Items: Provider setup completion, provider SDK integration, provider/model execution, model downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcuts/installers, release execution, issue work, FAM-006 mutation, Governance mutation outside this branch, Compact-AI mutation, branch/worktree cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain gated. PR creation and merge are historical complete through PR #201.
 
-Approval-Boundary Audit: The completed Workstream built only the local consent capture/write-path foundation. Provider setup completion, provider communication, provider-visible prompts, model work, network egress, memory, voice/Core sync, shortcut/installer changes, release, PR creation, merge, cleanup, and cross-lane mutation require separate USER approval.
+Approval-Boundary Audit: The completed Workstream built only the local consent capture/write-path foundation. Provider setup completion, provider communication, provider-visible prompts, model work, network egress, memory, voice/Core sync, shortcut/installer changes, release, cleanup, and cross-lane mutation require separate USER approval. PR creation and merge are complete through PR #201 and no longer belong to active decision state.
 
 FAM / Shared-Surface Overlap Forecast: FAM-006 is a later PR/merge reconciliation risk only; Governance is standing intake context and must not be mutated here; Compact-AI is historical released/salvaged evidence and remains preserved; shared source-truth and ORIN/Core/Desktop surfaces require careful PR readiness reconciliation if other lanes advance before this branch merges.
 
 Open Questions: USER must later decide whether a future branch may add durable consent persistence beyond this local snapshot boundary, whether a later branch may include a user-operable local consent capture surface, and when provider setup completion and execution proof become admissible.
 
-USER Planning Decisions: USER approved Branch Readiness Stage 2 setup, Workstream Entry analysis, corrected the prior seam-stop drift so the bounded Workstream continued to Workstream Green, approved Hardening H1, approved Live Validation LV1, and approved PR Readiness Stage 1 analysis with bounded source-truth repair if needed. PR Readiness Stage 2 / PR creation, merge, release, provider setup completion, SDK/model work, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0 execution remain pending.
+USER Planning Decisions: USER approved Branch Readiness Stage 2 setup, Workstream Entry analysis, corrected the prior seam-stop drift so the bounded Workstream continued to Workstream Green, approved Hardening H1, approved Live Validation LV1, approved PR Readiness Stage 1 analysis, approved PR Readiness Stage 2 / PR creation, and PR #201 merged. Release execution, provider setup completion, SDK/model work, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0 execution remain pending.
 
 Plan Revision History: v1 created during Branch Readiness Stage 2 from current `origin/main` after `v1.7.15-prebeta` and after PR #193 merged/released as prior FAM-007 consent collection foundation evidence.
 
@@ -70,13 +70,13 @@ Release Readiness Public-Scope Translation Checklist: Release Readiness must des
 
 USER Planning Review: Complete via Workstream Entry, Hardening H1, Live Validation LV1, and PR Readiness Stage 1; completed Workstream is ready for PR Readiness Stage 2 / PR creation after USER approval.
 
-PR Fold-Down Packet: Stage 1 complete - selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, branch-authority historical projection, and Stage 2 approval boundary are recorded in the branch record. Live PR metadata belongs to PR Readiness Stage 2 after USER approves PR creation.
+PR Fold-Down Packet: Complete after PR #201 merge - selected-next defer/waiver, historical pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, branch-authority historical projection, PR Stage 2 execution, and merge proof are recorded in the branch record. Live PR metadata is historical receipt evidence only and must not be treated as active merged-main state.
 
-Runtime Implementation Approval: Approved for the admitted bounded Workstream; provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, PR, merge, release, cleanup, and v1.8.0 execution remain pending USER decisions.
+Runtime Implementation Approval: Approved for the admitted bounded Workstream; provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, release, cleanup, and v1.8.0 execution remain pending USER decisions. PR creation and merge are historical complete through PR #201.
 
 ## Plan Status
 
-Completed Workstream implementation, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 are recorded for `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`. The plan remains current for PR Readiness Stage 2 proof after Stage 1 validation.
+Completed Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1, PR Readiness Stage 2, and PR #201 merge are recorded for `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`. The plan is retired from active planning posture and remains only as historical merged-unreleased evidence until release execution or a later USER-approved Branch Readiness selects a successor.
 
 ## Branch Identity
 
@@ -320,20 +320,20 @@ Next Handoff: `PR Readiness Stage 1 analyzed PR eligibility, selected-next/defer
 
 ## PR Readiness Stage 1 Result
 
-PR Readiness Stage 1 Result: `Stage 1 Ready For Stage 2 - Workstream Green, H1 Green, LV1 Green, UTS waiver, desktop readiness display suppression continuity, selected-next defer/waiver truth, pre-PR live-state, post-merge No Active Branch projection, release-window posture, approval boundaries, Release Readiness Health Pass, and validation proof are recorded before PR creation is requested.`
+PR Readiness Stage 1 Result: `Historical complete - Stage 1 reached Ready For Stage 2, USER later approved PR Readiness Stage 2 / PR creation, and PR #201 merged. Workstream Green, H1 Green, LV1 Green, UTS waiver, desktop readiness display suppression continuity, selected-next defer/waiver truth, historical pre-PR live-state, post-merge No Active Branch projection, release-window posture, approval boundaries, Release Readiness Health Pass, and validation proof are retained as branch receipt evidence.`
 
-PR Readiness Stage 1 Repairs Applied: `Source-truth fold-down only - this plan, the branch record, backlog/roadmap current-state pointers, and the worktree slot receipt were updated from LV1 Green / PR Readiness Stage 1-next to PR Readiness Stage 1 complete / PR Readiness Stage 2-next. No PR was created, and no provider setup completion, SDK/model execution, runtime behavior beyond the admitted foundation, production UI behavior, merge, release, cleanup, FAM-006, Governance, or Compact-AI mutation was performed.`
+PR Readiness Stage 1 Repairs Applied: `Historical - Stage 1 source-truth fold-down updated this plan, the branch record, backlog/roadmap current-state pointers, and the worktree slot receipt before PR creation. PR #201 was later created and merged; no provider setup completion, SDK/model execution, runtime behavior beyond the admitted foundation, production UI behavior, release, cleanup, FAM-006, Governance, or Compact-AI mutation was performed.`
 
 Selected-Next Defer User Waiver: `Granted - USER approved selected-next defer/waiver truth for this PR-readiness pass.`
 
-Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval remains pending.`
+Pre-PR Live State: `Historical pre-PR snapshot - no live PR existed before Stage 2; USER later approved PR Readiness Stage 2, PR #201 was created, and PR #201 merged. This field is not active live PR state.`
 
 Post-Merge No Active Branch Projection: `After merge, merged-main source truth should project No Active Branch until a later USER-approved Branch Readiness decision selects a successor lane.`
 
-PR Readiness Stage 2 Next: `Pending USER approval - create the PR, validate live PR state, watcher provisioning, mergeability, checks, review state, and PR body/operator copy before any merge decision is requested.`
+PR Readiness Stage 2 Result: `Complete - PR #201 was created and merged into main. Live PR state, watcher proof, and merge metadata are historical receipt evidence only.`
 
 ## Next Legal Phase
 
-`PR Readiness`
+`Release Readiness`
 
-Next Legal Phase Detail: `PR Readiness Stage 2 / PR creation after USER approval`
+Next Legal Phase Detail: `Release Readiness Stage 1 may validate the aggregated release window after Governance repairs stale post-merge source truth; release execution remains separately USER-gated.`
