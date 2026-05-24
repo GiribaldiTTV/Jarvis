@@ -2658,6 +2658,14 @@ def validate() -> list[str]:
     blocked_consent_ux_snapshot = _consent_ux_snapshot(
         _durable_consent_record(no_secrets=False)
     )
+    blocked_revoke_intent_consent_ux_snapshot = _consent_ux_snapshot(
+        _durable_consent_record(no_secrets=False),
+        consent_ux_intent=_consent_ux_intent(revoke_intent_selected=True),
+    )
+    blocked_reset_intent_consent_ux_snapshot = _consent_ux_snapshot(
+        _durable_consent_record(no_secrets=False),
+        consent_ux_intent=_consent_ux_intent(reset_intent_selected=True),
+    )
     setup_only_consent_ux_snapshot = _consent_ux_snapshot(
         _durable_consent_record(
             setup_consent_granted=True,
@@ -3062,6 +3070,12 @@ def validate() -> list[str]:
     consent_ux_payloads = {
         "default": default_consent_ux_snapshot.as_renderer_payload(),
         "blocked": blocked_consent_ux_snapshot.as_renderer_payload(),
+        "blocked_revoke_intent": (
+            blocked_revoke_intent_consent_ux_snapshot.as_renderer_payload()
+        ),
+        "blocked_reset_intent": (
+            blocked_reset_intent_consent_ux_snapshot.as_renderer_payload()
+        ),
         "setup_only": setup_only_consent_ux_snapshot.as_renderer_payload(),
         "execution_only": execution_only_consent_ux_snapshot.as_renderer_payload(),
         "both_present": both_present_consent_ux_snapshot.as_renderer_payload(),
@@ -7048,6 +7062,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT,
         ),
         "blocked": (
             CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT,
@@ -7058,6 +7073,29 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_BLOCKED,
             CONSENT_DURABLE_CONSENT_STATE_BLOCKED,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT,
+        ),
+        "blocked_revoke_intent": (
+            CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT,
+            CONSENT_UX_INTENT_BLOCKED,
+            CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL,
+            CONSENT_UX_DURABLE_HANDOFF_BLOCKED,
+            CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_BLOCKED,
+            CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT,
+        ),
+        "blocked_reset_intent": (
+            CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT,
+            CONSENT_UX_INTENT_BLOCKED,
+            CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL,
+            CONSENT_UX_DURABLE_HANDOFF_BLOCKED,
+            CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_BLOCKED,
+            CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT,
         ),
         "setup_only": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
@@ -7068,6 +7106,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_READY_LOCAL_ONLY,
         ),
         "execution_only": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
@@ -7078,6 +7117,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_READY_LOCAL_ONLY,
         ),
         "both_present": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
@@ -7088,6 +7128,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_READY_LOCAL_ONLY,
         ),
         "revoked": (
             CONSENT_UX_STATE_REVOKED_LOCAL_ONLY,
@@ -7098,6 +7139,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_REVOKED,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_REVOKED_LOCAL_ONLY,
         ),
         "reset": (
             CONSENT_UX_STATE_RESET_LOCAL_ONLY,
@@ -7108,6 +7150,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_RESET,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_RESET_LOCAL_ONLY,
         ),
         "expired": (
             CONSENT_UX_STATE_EXPIRED_LOCAL_ONLY,
@@ -7118,6 +7161,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_EXPIRED,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_EXPIRED_LOCAL_ONLY,
         ),
         "setup_intent": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
@@ -7128,6 +7172,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_UX_WRITE_LOCAL_INTENT_ONLY,
+            CONSENT_UX_STATE_READY_LOCAL_ONLY,
         ),
         "execution_intent": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
@@ -7138,6 +7183,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
             CONSENT_UX_WRITE_LOCAL_INTENT_ONLY,
+            CONSENT_UX_STATE_READY_LOCAL_ONLY,
         ),
         "revoke_intent": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
@@ -7148,6 +7194,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_REVOKED_LOCAL_ONLY,
         ),
         "reset_intent": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
@@ -7158,6 +7205,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_RESET_LOCAL_ONLY,
         ),
         "invalid_intent": (
             CONSENT_UX_STATE_READY_LOCAL_ONLY,
@@ -7168,6 +7216,7 @@ def validate() -> list[str]:
             CONSENT_DURABLE_CONSENT_STATE_GRANTED,
             CONSENT_DURABLE_CONSENT_STATE_MISSING,
             CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED,
+            CONSENT_UX_STATE_READY_LOCAL_ONLY,
         ),
     }
     for label, expectation in consent_ux_expectations.items():
@@ -7181,6 +7230,7 @@ def validate() -> list[str]:
             expected_setup_display,
             expected_execution_display,
             expected_write_posture,
+            expected_revocation_reset_state,
         ) = expectation
         _require(
             ux_payload["stateId"]
@@ -7212,7 +7262,9 @@ def validate() -> list[str]:
             == expected_setup_display
             and ux_payload["consentUxExecutionDisplayState"]
             == expected_execution_display
-            and ux_payload["consentUxWritePosture"] == expected_write_posture,
+            and ux_payload["consentUxWritePosture"] == expected_write_posture
+            and ux_payload["consentUxRevocationResetState"]
+            == expected_revocation_reset_state,
             f"{label} consent UX fixture must derive local UX state from durable consent and local intent",
             failures,
         )

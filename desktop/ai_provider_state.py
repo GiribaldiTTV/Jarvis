@@ -8954,7 +8954,9 @@ def _provider_user_operated_consent_ux_fields(
         else CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED
     )
     revocation_reset_state = (
-        CONSENT_UX_STATE_RESET_LOCAL_ONLY
+        CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT
+        if blocked_by_invalid_record
+        else CONSENT_UX_STATE_RESET_LOCAL_ONLY
         if durable_state.durable_consent_reset_requested
         or consent_intent.reset_intent_selected
         else CONSENT_UX_STATE_REVOKED_LOCAL_ONLY
