@@ -21,13 +21,13 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-
 
 ## Current Phase
 
-Phase: `Workstream`
+Phase: `Live Validation`
 
 ## Phase Status
 
 - Branch Authority Marker: `Active Branch`
-Phase Status: `Active Branch` - Workstream implementation completed after current-main reconciliation to origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1; FAM-007 user-operated consent UX foundation is Workstream Green and ready for Hardening H1.
-Bounded State: `Workstream implementation completed for local user-operated consent UX state/intent, durable consent handoff, revocation/reset status mapping, Core/Desktop/ORIN hidden status proof, display-suppression continuity, and direct validator fixtures. Provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifact work, branch/worktree cleanup, FAM-006 mutation, Governance mutation outside this branch path, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending USER decisions.`
+Phase Status: `Active Branch` - Workstream implementation, Hardening H1, and Live Validation LV1 are green after current-main reconciliation to origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1; FAM-007 user-operated consent UX foundation is ready for PR Readiness Stage 1.
+Bounded State: `Workstream implementation completed for local user-operated consent UX state/intent, durable consent handoff, revocation/reset status mapping, Core/Desktop/ORIN hidden status proof, display-suppression continuity, and direct validator fixtures. H1 found zero repairs. LV1 classified the implemented surface as hidden/status-only with User Test Summary waived because no meaningful visible user-operated consent path is exposed. Provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifact work, branch/worktree cleanup, FAM-006 mutation, Governance mutation outside this branch path, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending USER decisions.`
 
 ## Branch Class
 
@@ -60,11 +60,11 @@ Sibling Worktree Candidate Exclusion: `FAM-006, Governance, Compact-AI, neutral-
 
 ## Blockers
 
-Blockers: `None for Workstream completion - Hardening H1 approval is the next legal phase.`
+Blockers: `None for LV1 closeout - PR Readiness Stage 1 approval is the next legal phase.`
 
 ## Entry Basis
 
-Entry Basis: `USER approved Branch Readiness Stage 2 setup, Workstream Entry, current-main reconciliation to origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1, and bounded Workstream implementation for this FAM-007 user-operated consent UX foundation branch while preserving all pending USER decisions outside this branch scope.`
+Entry Basis: `USER approved Branch Readiness Stage 2 setup, Workstream Entry, current-main reconciliation to origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1, bounded Workstream implementation, Hardening H1, and Live Validation LV1 for this FAM-007 user-operated consent UX foundation branch while preserving all pending USER decisions outside this branch scope.`
 
 ## Exit Criteria
 
@@ -72,11 +72,11 @@ Exit Criteria: `Workstream Green requires local user-operated consent UX state/i
 
 ## Rollback Target
 
-Rollback Target: `Workstream`
+Rollback Target: `Hardening`
 
 ## Next Legal Phase
 
-`Hardening`
+`PR Readiness`
 
 ## Planning-Loop Guardrail
 
@@ -125,13 +125,36 @@ Completion Status: Green
 
 This branch is expected to touch user-facing consent UX. Live Validation should assume a formal User Test Summary is required unless Workstream Entry or H1 proves the implemented surface is non-interactive/status-only and records a source-truth-supported waiver. If a visible control is implemented, Codex Live Client Self-QA, visual adjudication, focused screenshots, and USER-facing shortcut or equivalent entrypoint validation must be planned before LV1 green.
 
+## Hardening H1
+
+Hardening H1 Status: `Green`
+Hardening H1 Result: `Zero-repair H1 - implementation, source truth, provider-boundary posture, hidden/status proof, desktop readiness display suppression continuity, and validator coverage passed inspection.`
+Hardening H1 Proof Basis: `Source inspection plus required validators confirmed consent UX copy does not imply provider setup completion, prompt acceptance, provider/model execution, downloads, network readiness, memory activity, voice/Core sync, or functional AI.`
+
+## Live Validation LV1
+
+Live Validation LV1 Status: `Green`
+LV Classification: `Hidden/status-only local consent UX foundation`
+Visible User Path: `None - Core/Desktop/ORIN consent UX status is hidden by default through desktop AI-owned readiness display suppression, while telemetry/status keys remain validator-visible.`
+Codex Live Client Self-QA: `WAIVED`
+Codex Live Client Self-QA Waiver Reason: `The implemented consent UX surface is hidden/status-only, exposes no meaningful visible user-operated controls, and is proven through static renderer/status inspection plus direct provider-state validation.`
+User-Facing Shortcut Validation: `WAIVED`
+User-Facing Shortcut Validation Waiver Reason: `No user-facing shortcut or equivalent entrypoint is introduced or changed by this hidden/status-only branch.`
+LV1 Proof Basis: `Static Core/Desktop/ORIN source inspection, hidden status rows, display-suppression attributes, direct FAM-007 provider-state fixtures, rebaseline audit, and required validators.`
+
+## User Test Summary
+
+User Test Summary Results: `WAIVED`
+User Test Summary Waiver Reason: `LV1 classified this branch as a hidden/status-only local consent UX foundation. The branch exposes no meaningful visible user-operated consent controls or manual consent path, keeps the long desktop AI-owned readiness display suppressed by default, and preserves provider-visible data none, sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network blocked, memory inactive, and voice/Core sync gated.`
+User Test Summary Digest: `No returned USER form is required for this LV1 pass because there is no visible manual path to test. PR Readiness may verify this waiver but must not replace it with PR-phase UTS handling.`
+
 ## Branch Vision Contract Snapshot
 
 Branch Vision Snapshot Status: `Accepted for this Workstream implementation`
 Project-Wide Vision Alignment: `The branch keeps Nexus local-first, honest about disabled AI/provider behavior, and explicit about consent before provider-visible data or model execution can exist.`
 Family Vision Alignment: `FAM-007 requires provider-visible data, privacy, network/download behavior, memory boundaries, and consent to be explicit before runtime execution. This branch advances the consent-control layer only.`
 Branch-Specific Vision Alignment: `User-operated consent UX should make durable consent truth visible and controllable without implying provider setup completion, prompt acceptance, provider/model execution, or functional AI.`
-Open Vision Questions: `H1/LV1 must confirm hidden/status-only proof, visible-surface classification, and UTS waiver posture before PR readiness.`
+Open Vision Questions: `Resolved for LV1 - the implemented surface is hidden/status-only, visible-surface classification is non-interactive telemetry/status proof, and UTS is waived because no meaningful manual user path exists in this branch.`
 USER Vision Green: `Yes - USER approved Workstream Entry and bounded Workstream implementation.`
 Accepted Implementation Scope: `Local-only consent UX state/intent contract, safe local status/control posture, durable consent handoff, revocation/reset mapping, setup/execution separation, Core/Desktop/ORIN hidden status proof, validator fixtures, and future functional-AI criteria only.`
 Accepted Seam Map: `All six admitted seam families were implemented in the current Workstream.`
@@ -148,15 +171,15 @@ USER Vision Question Packet: `Completed through Workstream Entry review and USER
 Codex Product Interpretation: `The next safe layer after durable persistence is an operator-facing consent layer that reads durable state, records local user intent, and keeps all AI/provider execution blocked until later explicit approvals.`
 Codex Implementation Recommendation: `Implement consent UX state and local controls before provider setup completion so future setup work cannot outrun user-visible consent.`
 Codex Additional Recommendations: `Recommended options are a small consent controls surface, a safer status-only fallback if controls are not accepted, and strict copy that says consent controls are local preparation, not functional AI or provider execution.`
-USER/ChatGPT Review Checkpoint: `USER reviewed/approved Workstream Entry and bounded implementation; H1/LV1 remain later review phases.`
-USER Critique Loop: `Workstream implementation proceeded under USER-approved bounded scope; H1 may still require repair if copy, proof, or boundary drift appears.`
-USER Decision Ledger: `USER approved Stage 1 analysis, Stage 2 setup, Workstream Entry, current-main reconciliation, and Workstream implementation for this branch. H1, LV1, PR creation, merge, release, provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
+USER/ChatGPT Review Checkpoint: `USER reviewed/approved Workstream Entry, bounded implementation, H1, and LV1. PR Readiness remains the next later phase.`
+USER Critique Loop: `Workstream implementation proceeded under USER-approved bounded scope; H1 found zero repairs and LV1 recorded hidden/status-only proof with UTS waived.`
+USER Decision Ledger: `USER approved Stage 1 analysis, Stage 2 setup, Workstream Entry, current-main reconciliation, Workstream implementation, Hardening H1, and Live Validation LV1 for this branch. PR creation, merge, release, provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
 Deferred Ideas / Future Package Ledger: `Future packages are explicitly routed to provider setup completion, provider SDK/adapter selection, prompt/model execution, provider-visible data behavior proof, memory/indexing/personalization, voice/Core sync, shortcut/installer work, capability-pack install/download behavior, AI Product Contract import, Private Dev ORIN import, and v1.8.0 release execution.`
 Planning Adequacy Review: `Stage 2 is not shallow because it covers the whole end-to-end consent UX system boundary: product vision, interface boundary, user workflow, state/control model, durable handoff, provider blockers, validators, live proof, and future package deferrals.`
 Rejected Shallow Plan: `Rejected - a single button or copy-only consent surface is not enough because the branch must preserve setup/execution separation, durable consent handoff, revocation/reset semantics, provider-boundary proof, UI proof, and validator coverage.`
 Alternatives And Tradeoffs Reviewed: `Alternative A: move directly to provider setup completion; rejected because user-operated consent controls are not yet proven. Alternative B: implement SDK/model execution; rejected as premature and pending USER decision. Alternative C: route to FAM-006; rejected because this is a FAM-007 carrier and sibling worktrees are context only.`
 Whole-System Interaction Map: `User-operated consent UX reads durable local consent state, presents local labels and controls, writes only allowed local consent intent if later implementation admits it, feeds Core/Desktop/ORIN status proof, and leaves provider setup, provider execution, network, memory, voice/Core, and model paths blocked.`
-Open Questions / USER Decision Points: `USER decisions pending: H1 approval, LV1 approval, UTS waiver or live proof classification, provider setup/execution approval, and all functional-AI decisions.`
+Open Questions / USER Decision Points: `USER decisions pending: PR Readiness Stage 1 approval, PR creation, merge, release, provider setup/execution approval, and all functional-AI decisions.`
 System Concept Model: `Local consent UX is a presentation/control layer over durable consent truth, not a provider adapter, not a model runner, not a network client, and not a memory system.`
 Entity / Profile Model: `Entities include local consent intent, setup consent display state, execution consent display state, durable consent reference, revocation/reset action posture, local-only audit/provenance label, provider-boundary blocker, and future setup handoff marker.`
 User Workflow Model: `The user opens the relevant consent/status surface, sees setup and execution consent readiness separately, can understand blocked/future-gated provider behavior, and later may operate approved local consent controls without any provider data transfer.`
@@ -182,9 +205,9 @@ Implementation Sequence Proposal: `Workstream implementation complete; next sequ
 Planning Blockers: `None for Workstream completion.`
 Planning Packet Status: `Complete`
 Planning Revalidation Status: `PASS`
-User Test Summary Strategy: `Formal UTS is expected if visible controls are implemented; a waiver is allowed only if Workstream/H1 prove no meaningful manual user path exists.`
+User Test Summary Strategy: `Formal UTS is expected if visible controls are implemented; LV1 uses a waiver because Workstream/H1/LV1 proved no meaningful manual user path exists and the implemented surface remains hidden/status-only.`
 Planning Completion Waiver: `Not required - Workstream Entry reviewed the complete planning packet and USER approved bounded implementation.`
-USER Decisions Needed: `H1 approval is next; LV1 and all later phases remain pending.`
+USER Decisions Needed: `PR Readiness Stage 1 approval is next; PR creation, merge, release, and all future provider/model/runtime execution decisions remain pending.`
 
 ## Interface Release Boundary
 
@@ -217,7 +240,7 @@ Plan-To-Implementation Traceability: `Implemented and ready for H1 comparison: H
 ## Branch Runtime Engineering Plan
 
 Branch Runtime Engineering Plan: `Required and present.`
-Engineering Plan Status: `Implemented and ready for Hardening H1 review.`
+Engineering Plan Status: `Implemented, Hardening H1 Green, Live Validation LV1 Green, and ready for PR Readiness Stage 1.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
 
 ## Workstream Plan
@@ -262,7 +285,7 @@ Non-Includes: `Provider setup completion, provider SDK/model execution, prompt r
 
 ## Active Seam
 
-Active seam: `Workstream implementation complete; next active seam is Hardening H1 after USER approval.`
+Active seam: `Live Validation LV1 complete; next active phase is PR Readiness Stage 1 after USER approval.`
 
 ## Element-to-Phase Proof Matrix
 
@@ -304,18 +327,18 @@ Planned Validation Commands: `git diff --check origin/main...HEAD; git diff --ch
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Workstream`
-Next Legal Phase: `Hardening`
-Next Active Seam: `Hardening H1 review for FAM-007 Local AI Provider User-Operated Consent UX Foundation`
-Why This Phase Is Next: `The USER-approved bounded Workstream implementation reached Workstream Green after current-main reconciliation and direct provider-state/UI/status validation; H1 must now verify implementation-to-plan alignment, source-truth fold-down, UI copy, hidden/status proof, desktop readiness display suppression continuity, and provider-boundary preservation before LV1.`
-Approval Required: `USER approval is required for Hardening H1. Later separate approval is required for LV1 and all later phases.`
-Exact USER Approval Text: `I approve Hardening H1 for feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1. Scope: inspect the completed FAM-007 user-operated consent UX foundation Workstream, compare implementation against the branch plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, Element-to-Phase Proof Matrix, direct validators, Core/Desktop/ORIN status proof, desktop readiness display suppression continuity, provider-boundary posture, LV1/UTS waiver path, and source-truth fold-down; apply H1-scoped repairs if repo truth supports them; validate, commit, and push if repairs are made. Do not create a PR, merge, release, clean branches/worktrees, mutate sibling worktrees, implement provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Allowed Scope: `Hardening H1 inspection, H1-scoped repair, validation, and commit/push only if repairs are made.`
-Explicit Exclusions: `No implementation, PR creation, merge, release, cleanup, sibling mutation, provider setup completion, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Validation Required: `Run identity/freshness checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency, release body validation, source-owner marker validation, branch-readiness planning fixture validation, AI provider state validation, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, diff checks, compileall, and any H1 validators required by source truth.`
-Stop Conditions: `Stop if origin/main advances and reconciliation is required, H1 finds unsupported Workstream Green source truth, UI/status copy overclaims readiness, desktop readiness display suppression drifts, provider-boundary assertions weaken, validation fails, source truth points to another carrier, or implementation would require any pending USER decision.`
-USER Plan Review Gate: `Completed through Workstream Entry; H1 reviews the accepted plan against implementation rather than re-opening Stage 2 plan approval.`
+Current Phase: `Live Validation`
+Next Legal Phase: `PR Readiness`
+Next Active Seam: `PR Readiness Stage 1 analysis for FAM-007 Local AI Provider User-Operated Consent UX Foundation`
+Why This Phase Is Next: `The USER-approved Workstream is Green, H1 is Green with zero repairs, and LV1 is Green with hidden/status-only proof and User Test Summary waived because no meaningful manual user path exists. PR Readiness Stage 1 must now verify branch authority, source-truth fold-down, selected-next/defer truth, pre-PR live-state posture, overlap posture, validation, and PR eligibility before any PR creation.`
+Approval Required: `USER approval is required for PR Readiness Stage 1. Later separate approval is required for PR creation, merge, release, cleanup, and all future provider/model/runtime execution decisions.`
+Exact USER Approval Text: `I approve PR Readiness Stage 1 analysis for feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1. Scope: verify current branch/worktree identity, origin/main freshness, Workstream Green, Hardening H1 Green, Live Validation LV1 Green, User Test Summary WAIVED posture for the hidden/status-only consent UX surface, provider-boundary preservation, source-truth fold-down, selected-next/defer truth, pre-PR live-state posture, FAM-006/Governance/Compact-AI overlap as context only, validation posture, changed-file scope, and PR eligibility; apply PR Readiness Stage 1 source-truth repairs if repo truth supports them; validate, commit, and push if repairs are made. Do not create a PR, merge, release, tag, create artifacts, clean branches/worktrees, mutate sibling worktrees, implement provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Allowed Scope: `PR Readiness Stage 1 analysis, source-truth repair only if required for Stage 1 eligibility, validation, and commit/push only if repairs are made.`
+Explicit Exclusions: `No PR creation, merge, release, tag, artifact work, cleanup, sibling mutation, provider setup completion, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Validation Required: `Identity/freshness checks, open PR check, branch governance validation, worktree confinement gate, release-readiness health gate, PR-readiness gate if applicable, governance efficiency, release body validation, source-owner marker validation, branch-readiness planning fixture validation, AI provider state validation, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, diff checks, compileall, and any PR Readiness validators required by source truth.`
+Stop Conditions: `Stop if origin/main advances and reconciliation is required, source truth points to another carrier, selected-next/defer or pre-PR live-state truth is missing and cannot be repaired in Stage 1, LV1 waiver posture is unsupported, provider-boundary assertions weaken, validation fails, a direct FAM-006/Governance/Compact-AI sequencing blocker appears, or PR readiness would require any pending USER decision.`
+USER Plan Review Gate: `Completed through Workstream Entry and validated through H1/LV1; PR Readiness Stage 1 is a readiness analysis and may return source-truth repair or Stage 2 PR creation approval text.`
 USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/orin_ai_provider_state_validation.py.`
-Review Required Because: `The branch is user-facing/runtime-adjacent and must prove vision, interface boundary, element-to-phase coverage, durable consent handoff, provider-boundary preservation, and LV1/UTS posture before implementation.`
-Implementation Blocker: `None - Workstream implementation completed and routes to H1.`
-Review Waiver Reason: `No Workstream Entry review waiver is active; LV1/UTS waiver remains a later H1/LV1 classification question if the surface stays hidden/status-only.`
+Review Required Because: `The branch is runtime-adjacent, source-truth-bearing, and near PR handoff; USER must see PR eligibility, overlap, selected-next/defer, LV1 waiver, and validation posture before PR creation.`
+Implementation Blocker: `None - Workstream, H1, and LV1 are green; PR creation remains unauthorized until Stage 2.`
+Review Waiver Reason: `No PR Readiness Stage 1 review waiver is active. LV1 User Test Summary is waived because the implemented consent UX surface remains hidden/status-only and no meaningful manual user path exists.`

@@ -99,7 +99,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/family_visions/FAM-004_voice_and_audio.md` | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/family_visions/FAM-005_external_integrations.md` | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
 | `FAM-006` | Monitoring and HUD | High | Open / released Dashboard, Sensor Command Center, and Overlay Profile foundation evidence preserved | `PKG-006` released baseline / open | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md` |
-| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted; durable consent persistence foundation released in v1.7.17-prebeta via PR #203; active user-operated consent UX foundation carrier is Workstream Green with H1 pending | `PKG-007` admitted / not package-complete | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md` |
+| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted; durable consent persistence foundation released in v1.7.17-prebeta via PR #203; active user-operated consent UX foundation carrier is Workstream/H1/LV1 Green with PR Readiness Stage 1 pending | `PKG-007` admitted / not package-complete | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md` |
 | `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
 | `FAM-009` | Workspace and Data | Low | Open / deferred follow-through | `PKG-009` released baseline / open | `Docs/family_visions/FAM-009_workspace_and_data.md` | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
 | `FAM-010` | Safety and Privacy | High | Pending architecture/package | `PKG-010` pending | `Docs/family_visions/FAM-010_safety_and_privacy.md` | `Docs/family_visions/FAM-010_safety_and_privacy.md` |
@@ -208,7 +208,7 @@ Historical Trace Coverage: `FB-040`, HUD surface gap, PR #118, PR #180, PR #194,
 
 ### [ID: FAM-007] Local AI and Capability Packs
 
-Status: Open / package admitted; consent collection implementation foundation is released in v1.7.16-prebeta via PR #201; durable consent persistence foundation is released in v1.7.17-prebeta via PR #203; active user-operated consent UX foundation carrier is Workstream Green with H1 pending
+Status: Open / package admitted; consent collection implementation foundation is released in v1.7.16-prebeta via PR #201; durable consent persistence foundation is released in v1.7.17-prebeta via PR #203; active user-operated consent UX foundation carrier is Workstream/H1/LV1 Green with PR Readiness Stage 1 pending
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
