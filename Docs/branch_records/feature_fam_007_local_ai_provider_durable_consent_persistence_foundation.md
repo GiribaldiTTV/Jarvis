@@ -11,8 +11,8 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-
 - Package: `PKG-007`
 - Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
 - Created From: `origin/main@10c32804370ee5480416e68e55823e5997d18291`
-- Latest Public Prerelease: `v1.7.16-prebeta`
-- Latest Public Release Commit: `10c32804370ee5480416e68e55823e5997d18291`
+- Latest Public Prerelease: `v1.7.17-prebeta`
+- Latest Public Release Commit: `f3309a9e1843dbbfef3931c5967ba4ff04b46dc0`
 
 ## Current Phase
 
@@ -20,9 +20,9 @@ Phase: `Historical Traceability`
 
 ## Phase Status
 
-- Branch Authority Marker: `Historical Branch Evidence Projection`
-Phase Status: `Historical projection for PR Readiness Stage 1 - Workstream Green, Hardening H1 Green, Live Validation LV1 Green, selected-next defer/USER waiver, pre-PR no-live-PR truth, post-merge No Active Branch projection, Release Readiness Health Pass, and Stage 2 approval boundary are recorded. Live PR metadata belongs to PR Readiness Stage 2 after USER approval.`
-Bounded State: `Historical projection - FAM-007 Durable Local Consent Persistence Foundation is implemented, validator-proven, hardened, live-validated through static/hidden telemetry proof, and PR Readiness Stage 1 source-truth repaired; PR Readiness Stage 2 / PR creation is the next USER-gated seam.`
+- Branch Authority Marker: `Historical Released Evidence`
+Phase Status: `Historical released evidence - Workstream Green, Hardening H1 Green, Live Validation LV1 Green, PR Readiness, PR #203 merge, and v1.7.17-prebeta release are complete. This branch is no longer active branch authority after Branch Readiness Stage 2 admitted the user-operated consent UX successor.`
+Bounded State: `Historical released FAM-007 Durable Local Consent Persistence Foundation evidence only. No current implementation, PR, merge, release, cleanup, or successor authority is owned by this record.`
 
 ## Branch Class
 
@@ -30,7 +30,7 @@ Branch Class: `implementation`
 
 ## Blockers
 
-Blockers: `PR_READINESS_EXECUTION_USER_APPROVAL_MISSING - PR Readiness Stage 1 source-truth repair is complete after USER-approved selected-next defer/waiver, pre-PR no-live-PR truth, post-merge No Active Branch projection, and Release Readiness Health Pass. PR creation, merge, release, issue work, cleanup, and future runtime/provider/model work remain pending USER decisions.`
+Blockers: `None for this historical released branch record. Future FAM-007 work is owned by the active successor branch record after USER-approved Branch Readiness.`
 
 ## Entry Basis
 
@@ -38,7 +38,7 @@ Entry Basis: `USER approved FAM-007 Branch Readiness Stage 2 in C:\Nexus Worktre
 
 ## Exit Criteria
 
-Exit Criteria: `Workstream, Hardening H1, Live Validation LV1, and PR Readiness Stage 1 source-truth repair are complete. Branch closure requires later USER-approved PR creation, merge, Release Readiness, release execution, and post-merge/release fold-down.`
+Exit Criteria: `Complete - Workstream, Hardening H1, Live Validation LV1, PR Readiness, PR #203 merge, and v1.7.17-prebeta release are complete.`
 
 ## Rollback Target
 
@@ -64,7 +64,7 @@ Backlog-Split Reason: None
 
 ## Next Legal Phase
 
-`PR Readiness`
+`Branch Readiness`
 
 ## Branch Objective
 
@@ -113,20 +113,20 @@ Non-Includes: `Provider setup completion, provider SDK/model execution, prompt r
 
 ## Active Seam
 
-Active seam: `Historical PR Readiness Stage 1 projection - durable consent persistence is static/hidden-telemetry validated, UTS/shortcut/self-QA waivers are recorded, selected-next defer/no-active projection is recorded, and the branch is ready for PR Readiness Stage 2 after USER approval.`
+Active seam: `None - historical released evidence after PR #203 and v1.7.17-prebeta.`
 
 ## Seam Continuation Decision
 
-Seam Status: `Green`
-Slice Status: `Green`
-Completion Status: `Green`
+Seam Status: `Green / historical released`
+Slice Status: `Green / historical released`
+Completion Status: `Released in v1.7.17-prebeta`
 Waiver Status: `None`
-Continue Decision: `Stop`
-Continuation Execution Latch: `Inactive - PR Readiness Stage 1 source-truth repair reached; next seam is PR Readiness Stage 2 / PR creation and requires USER approval.`
-Stop Basis: `PR Readiness Stage 1 source-truth repair complete`
-Next Active Seam: `PR Readiness Stage 2 / PR creation after USER approval`
-Stop Condition: `Stage 1 Ready For Stage 2 - PR creation remains blocked until USER approval.`
-Continuation Action: `Stop at Stage 2 approval boundary; do not begin PR creation, merge, release, cleanup, or future provider/model work.`
+Continue Decision: `Closed`
+Continuation Execution Latch: `Closed - no active seams remain on this historical branch record.`
+Stop Basis: `Historical release closure complete`
+Next Active Seam: `None`
+Stop Condition: `None for this historical released branch record.`
+Continuation Action: `Use the active FAM-007 successor branch record for future work.`
 Single-Seam Workstream Waiver: `None`
 Single-Seam Or Single-Slice Waiver Authority: `USER only - Codex cannot infer single-seam or single-slice Workstream authority.`
 Single-Seam Or Single-Slice Workstream Blocker: `A one seam or one slice visible plan is a blocker unless USER waiver approval is recorded; this Workstream still contains remaining same-branch seams.`

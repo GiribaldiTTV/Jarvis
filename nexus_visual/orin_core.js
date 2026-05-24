@@ -105,6 +105,11 @@ const aiProviderStatusConsentCollectionAudit = document.getElementById("ai-provi
 const aiProviderStatusConsentCollectionHandoff = document.getElementById("ai-provider-status-consent-collection-handoff");
 const aiProviderStatusSetupConsent = document.getElementById("ai-provider-status-setup-consent");
 const aiProviderStatusExecutionConsent = document.getElementById("ai-provider-status-execution-consent");
+const aiProviderStatusConsentUx = document.getElementById("ai-provider-status-consent-ux");
+const aiProviderStatusConsentUxSetup = document.getElementById("ai-provider-status-consent-ux-setup");
+const aiProviderStatusConsentUxExecution = document.getElementById("ai-provider-status-consent-ux-execution");
+const aiProviderStatusConsentUxRevocationReset = document.getElementById("ai-provider-status-consent-ux-revocation-reset");
+const aiProviderStatusConsentUxGates = document.getElementById("ai-provider-status-consent-ux-gates");
 const aiProviderStatusConsentSchema = document.getElementById("ai-provider-status-consent-schema");
 const aiProviderStatusPathDataVisibility = document.getElementById("ai-provider-status-path-data-visibility");
 const aiProviderStatusPathAudit = document.getElementById("ai-provider-status-path-audit");
@@ -473,6 +478,24 @@ let aiProviderState = {
   consentCollectionValidationStatus: "consent-collection-validation-fail-closed",
   consentCollectionValidationLabel: "Consent collection validation: fail-closed",
   futureConsentCaptureHandoffState: "future-consent-capture-branch-handoff-ready",
+  consentUxState: "consent_ux_blocked_by_durable_consent",
+  consentUxLabel: "Consent UX: blocked by durable consent proof",
+  consentUxIntentState: "consent_ux_intent_none",
+  consentUxIntentLabel: "Consent UX intent: none selected",
+  consentUxSurfaceState: "consent-ux-status-only-local",
+  consentUxSurfaceLabel: "Consent UX surface: local status only; no provider action",
+  consentUxSetupDisplayState: "durable_consent_missing",
+  consentUxSetupDisplayLabel: "Consent UX setup consent: missing",
+  consentUxExecutionDisplayState: "durable_consent_missing",
+  consentUxExecutionDisplayLabel: "Consent UX execution consent: missing",
+  consentUxRevocationResetState: "consent_ux_blocked_by_durable_consent",
+  consentUxRevocationResetLabel: "Consent UX revoke/reset: blocked",
+  consentUxWritePosture: "consent-ux-write-blocked-fail-closed",
+  consentUxWriteLabel: "Consent UX write: blocked fail-closed",
+  consentUxStatusProofState: "consent-ux-status-proof-derived-from-durable-state",
+  consentUxDesktopDisplayState: "consent-ux-desktop-display-suppressed",
+  consentUxProviderSetupGateState: "consent-ux-provider-setup-gate-blocked",
+  consentUxProviderExecutionGateState: "consent-ux-provider-execution-gate-disabled",
   providerSetupHandoffPosture: "provider-setup-handoff-future-gated",
   providerSetupHandoffLabel: "Provider setup handoff: future-gated",
   providerConsentHandoffPosture: "provider-consent-handoff-future-gated",
@@ -1750,6 +1773,23 @@ function renderAIProviderState() {
     state.consentPersistenceStatus || "unknown";
   aiProviderStatus.dataset.consentCollectionGate =
     state.consentCollectionGateState || "unknown";
+  aiProviderStatus.dataset.consentUxState = state.consentUxState || "unknown";
+  aiProviderStatus.dataset.consentUxIntent = state.consentUxIntentState || "unknown";
+  aiProviderStatus.dataset.consentUxSurface = state.consentUxSurfaceState || "unknown";
+  aiProviderStatus.dataset.consentUxSetup = state.consentUxSetupDisplayState || "unknown";
+  aiProviderStatus.dataset.consentUxExecution =
+    state.consentUxExecutionDisplayState || "unknown";
+  aiProviderStatus.dataset.consentUxRevocationReset =
+    state.consentUxRevocationResetState || "unknown";
+  aiProviderStatus.dataset.consentUxWrite = state.consentUxWritePosture || "unknown";
+  aiProviderStatus.dataset.consentUxStatusProof =
+    state.consentUxStatusProofState || "unknown";
+  aiProviderStatus.dataset.consentUxDesktopDisplay =
+    state.consentUxDesktopDisplayState || "unknown";
+  aiProviderStatus.dataset.consentUxSetupGate =
+    state.consentUxProviderSetupGateState || "unknown";
+  aiProviderStatus.dataset.consentUxExecutionGate =
+    state.consentUxProviderExecutionGateState || "unknown";
   aiProviderStatus.dataset.providerSetupHandoff = state.providerSetupHandoffPosture || "unknown";
   aiProviderStatus.dataset.providerConsentHandoff = state.providerConsentHandoffPosture || "unknown";
   aiProviderStatus.dataset.providerPathHandoff = state.providerPathHandoffPosture || "unknown";
@@ -2150,6 +2190,26 @@ function renderAIProviderState() {
   if (aiProviderStatusExecutionConsent) {
     aiProviderStatusExecutionConsent.textContent =
       state.executionConsentLabel || "Execution consent: required before prompt/model execution";
+  }
+  if (aiProviderStatusConsentUx) {
+    aiProviderStatusConsentUx.textContent =
+      state.consentUxLabel || "Consent UX: local-only status";
+  }
+  if (aiProviderStatusConsentUxSetup) {
+    aiProviderStatusConsentUxSetup.textContent =
+      state.consentUxSetupDisplayLabel || "Consent UX setup: missing";
+  }
+  if (aiProviderStatusConsentUxExecution) {
+    aiProviderStatusConsentUxExecution.textContent =
+      state.consentUxExecutionDisplayLabel || "Consent UX execution: missing";
+  }
+  if (aiProviderStatusConsentUxRevocationReset) {
+    aiProviderStatusConsentUxRevocationReset.textContent =
+      `${state.consentUxRevocationResetLabel || "Consent UX revoke/reset: local-only"}; ${state.consentUxWriteLabel || "Consent UX write: blocked fail-closed"}`;
+  }
+  if (aiProviderStatusConsentUxGates) {
+    aiProviderStatusConsentUxGates.textContent =
+      `Consent UX provider gates: ${state.consentUxProviderSetupGateState || "setup blocked"}; ${state.consentUxProviderExecutionGateState || "execution disabled"}`;
   }
   if (aiProviderStatusConsentSchema) {
     const consentSchemaVersion =

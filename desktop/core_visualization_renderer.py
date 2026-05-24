@@ -7,7 +7,11 @@ from PySide6.QtGui import QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from .ai_provider_state import build_default_provider_readiness_config, build_provider_setup_implementation_foundation_state
+from .ai_provider_state import (
+    build_default_provider_readiness_config,
+    build_provider_user_operated_consent_ux_foundation_state,
+    resolve_default_provider_durable_consent_store_dir,
+)
 from .workerw_utils import (
     attach_window_to_desktop,
     make_window_noninteractive,
@@ -34,9 +38,13 @@ class CoreVisualizationWindow(QWidget):
         self._is_shutting_down = False
         self._pending_visual_state = "dormant"
         self._pending_voice_level = None
-        self._ai_provider_state = build_provider_setup_implementation_foundation_state(
+        self._provider_durable_consent_store_dir = (
+            resolve_default_provider_durable_consent_store_dir()
+        )
+        self._ai_provider_state = build_provider_user_operated_consent_ux_foundation_state(
             build_default_provider_readiness_config(),
             surface_role="core",
+            durable_consent_store_dir=self._provider_durable_consent_store_dir,
         )
         self._desktop_layer_attached = False
         self._desktop_layer_logged = False
@@ -358,6 +366,17 @@ class CoreVisualizationWindow(QWidget):
             f"|durable_consent_desktop_display={payload.get('durableConsentDesktopDisplayState', '')}"
             f"|durable_consent_setup_handoff={payload.get('durableConsentProviderSetupHandoffState', '')}"
             f"|durable_consent_execution_handoff={payload.get('durableConsentProviderExecutionHandoffState', '')}"
+            f"|consent_ux_state={payload.get('consentUxState', '')}"
+            f"|consent_ux_intent={payload.get('consentUxIntentState', '')}"
+            f"|consent_ux_surface={payload.get('consentUxSurfaceState', '')}"
+            f"|consent_ux_setup_display={payload.get('consentUxSetupDisplayState', '')}"
+            f"|consent_ux_execution_display={payload.get('consentUxExecutionDisplayState', '')}"
+            f"|consent_ux_revocation_reset={payload.get('consentUxRevocationResetState', '')}"
+            f"|consent_ux_write={payload.get('consentUxWritePosture', '')}"
+            f"|consent_ux_status_proof={payload.get('consentUxStatusProofState', '')}"
+            f"|consent_ux_desktop_display={payload.get('consentUxDesktopDisplayState', '')}"
+            f"|consent_ux_setup_gate={payload.get('consentUxProviderSetupGateState', '')}"
+            f"|consent_ux_execution_gate={payload.get('consentUxProviderExecutionGateState', '')}"
             f"|provider_setup_handoff={payload.get('providerSetupHandoffPosture', '')}"
             f"|provider_consent_handoff={payload.get('providerConsentHandoffPosture', '')}"
             f"|desktop_readiness_display={payload.get('desktopAiOwnedReadinessDisplayState', '')}"
