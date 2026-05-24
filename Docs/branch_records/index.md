@@ -131,6 +131,7 @@ Do not use this layer to replace:
 
 ## Active Branch Authority Records
 
+- `Docs/branch_records/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
 ## Historical Branch Authority Records
