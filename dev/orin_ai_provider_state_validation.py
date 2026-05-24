@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import sys
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -232,6 +234,8 @@ from desktop.ai_provider_state import (  # noqa: E402
     FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_STATE_ID,
     FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_MODE,
     FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_STATE_ID,
+    FAM007_PROVIDER_DURABLE_CONSENT_PERSISTENCE_FOUNDATION_MODE,
+    FAM007_PROVIDER_DURABLE_CONSENT_PERSISTENCE_FOUNDATION_STATE_ID,
     PROVIDER_EXECUTION_READINESS_CONFIG_SCHEMA_VERSION,
     PROVIDER_EXECUTION_READINESS_STATE_SCHEMA_VERSION,
     PROVIDER_EXECUTION_CONFIG_STATE_DEFAULT,
@@ -748,13 +752,52 @@ from desktop.ai_provider_state import (  # noqa: E402
     CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY,
     CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
     CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED,
+    CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+    CONSENT_CAPTURE_DURABLE_PERSISTENCE_LOCAL_PROOF,
     CONSENT_RECORD_STORAGE_BOUNDARY_SCHEMA_VERSION,
+    CONSENT_RECORD_STORAGE_BOUNDARY_LOCAL_DURABLE_ONLY,
     CONSENT_RECORD_STORAGE_BOUNDARY_LOCAL_SNAPSHOT_ONLY,
     CONSENT_RECORD_DURABLE_STORAGE_DEFERRED,
+    CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+    CONSENT_RECORD_DURABLE_STORAGE_LOCAL_READY,
+    CONSENT_RECORD_REVOCATION_MODEL_LOCAL_DURABLE,
     CONSENT_RECORD_REVOCATION_MODEL_LOCAL_ONLY,
+    CONSENT_RECORD_RESET_MODEL_LOCAL_DURABLE,
     CONSENT_RECORD_RESET_MODEL_LOCAL_ONLY,
     CONSENT_RECORD_NO_SECRETS_POSTURE_READY,
     CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED,
+    CONSENT_DURABLE_RECORD_SCHEMA_VERSION,
+    CONSENT_DURABLE_RECORD_STALE_SCHEMA_VERSION,
+    CONSENT_DURABLE_STORAGE_BOUNDARY_SCHEMA_VERSION,
+    CONSENT_DURABLE_RECORD_STATE_MISSING,
+    CONSENT_DURABLE_RECORD_STATE_READY,
+    CONSENT_DURABLE_RECORD_STATE_INVALID,
+    CONSENT_DURABLE_RECORD_STATE_CORRUPT,
+    CONSENT_DURABLE_RECORD_STATE_UNSUPPORTED_SCHEMA,
+    CONSENT_DURABLE_RECORD_STATE_STALE_SCHEMA,
+    CONSENT_DURABLE_RECORD_STATE_REVOKED,
+    CONSENT_DURABLE_RECORD_STATE_RESET,
+    CONSENT_DURABLE_RECORD_STATE_EXPIRED,
+    CONSENT_DURABLE_STORAGE_BOUNDARY_LOCAL_ONLY,
+    CONSENT_DURABLE_STORAGE_STATE_MISSING,
+    CONSENT_DURABLE_STORAGE_STATE_LOCAL_READY,
+    CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+    CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+    CONSENT_DURABLE_MIGRATION_STALE_SCHEMA_FAIL_CLOSED,
+    CONSENT_DURABLE_MIGRATION_UNSUPPORTED_SCHEMA_FAIL_CLOSED,
+    CONSENT_DURABLE_MIGRATION_NOT_APPLICABLE,
+    CONSENT_DURABLE_FAIL_REASON_NONE,
+    CONSENT_DURABLE_FAIL_REASON_MISSING,
+    CONSENT_DURABLE_FAIL_REASON_INVALID,
+    CONSENT_DURABLE_FAIL_REASON_CORRUPT,
+    CONSENT_DURABLE_FAIL_REASON_STALE_SCHEMA,
+    CONSENT_DURABLE_FAIL_REASON_UNSUPPORTED_SCHEMA,
+    CONSENT_DURABLE_FAIL_REASON_REVOKED,
+    CONSENT_DURABLE_FAIL_REASON_RESET,
+    CONSENT_DURABLE_FAIL_REASON_EXPIRED,
+    CONSENT_DURABLE_DEFAULT_RECORD_ID,
+    CONSENT_DURABLE_DEFAULT_AUDIT_EVENT_ID,
+    CONSENT_DURABLE_RECORD_FILENAME,
     CONSENT_CAPTURE_AUDIT_SCHEMA_VERSION,
     CONSENT_CAPTURE_AUDIT_STATUS_LOCAL_PROOF,
     CONSENT_CAPTURE_AUDIT_STATUS_BLOCKED,
@@ -800,6 +843,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     READINESS_ACTION_FUTURE_USER_APPROVAL_REQUIRED,
     PROVIDER_NEXT_ACTION_DISABLED,
     build_default_provider_activation_config,
+    build_default_provider_durable_consent_record,
     build_default_provider_execution_readiness_config,
     build_default_provider_path_consent_readiness_config,
     build_default_provider_consent_capture_record,
@@ -820,9 +864,13 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_provider_setup_implementation_foundation_state,
     build_provider_consent_collection_implementation_foundation_state,
     build_provider_consent_collection_foundation_state,
+    build_provider_durable_consent_persistence_foundation_state,
     build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
+    load_provider_durable_consent_record,
     normalize_provider_consent_capture_record,
+    normalize_provider_durable_consent_record,
+    write_provider_durable_consent_record,
 )
 
 
@@ -1435,6 +1483,32 @@ def validate() -> list[str]:
             "reset_requested": False,
             "record_valid": True,
             "provenance": CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD,
+        }
+        record.update(overrides)
+        return record
+
+    fixed_now = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    durable_future_expiry = "2026-12-31T00:00:00Z"
+    durable_past_expiry = "2025-01-01T00:00:00Z"
+
+    def _durable_consent_record(**overrides: object) -> dict[str, object]:
+        record: dict[str, object] = {
+            "schema_version": CONSENT_DURABLE_RECORD_SCHEMA_VERSION,
+            "record_id": CONSENT_DURABLE_DEFAULT_RECORD_ID,
+            "provider_profile_id": "local-null-provider",
+            "setup_consent_granted": True,
+            "execution_consent_granted": False,
+            "revoked": False,
+            "reset_requested": False,
+            "expires_at_utc": durable_future_expiry,
+            "captured_at_utc": "2026-01-01T00:00:00Z",
+            "updated_at_utc": "2026-01-01T00:00:00Z",
+            "provenance": "durable_local_consent_record",
+            "audit_event_id": CONSENT_DURABLE_DEFAULT_AUDIT_EVENT_ID,
+            "storage_boundary": CONSENT_DURABLE_STORAGE_BOUNDARY_LOCAL_ONLY,
+            "record_valid": True,
+            "no_secrets": True,
+            "provider_payload_excluded": True,
         }
         record.update(overrides)
         return record
@@ -2332,6 +2406,86 @@ def validate() -> list[str]:
             surface_role="core",
         )
     )
+
+    def _durable_consent_snapshot(
+        durable_record: object = None,
+        *,
+        omit_record: bool = False,
+    ):
+        durable_kwargs: dict[str, object] = {}
+        if not omit_record:
+            durable_kwargs["durable_consent_record"] = durable_record
+        return build_provider_durable_consent_persistence_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            consent_capture_record=_consent_capture_record(setup_consent_granted=True),
+            now_utc=fixed_now,
+            surface_role="core",
+            **durable_kwargs,
+        )
+
+    default_durable_consent_snapshot = _durable_consent_snapshot(omit_record=True)
+    valid_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record()
+    )
+    invalid_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(no_secrets=False)
+    )
+    corrupt_durable_consent_snapshot = _durable_consent_snapshot("not-a-record")
+    unsupported_schema_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(schema_version="provider-durable-consent-record.v99")
+    )
+    stale_schema_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(schema_version=CONSENT_DURABLE_RECORD_STALE_SCHEMA_VERSION)
+    )
+    revoked_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(revoked=True)
+    )
+    reset_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(reset_requested=True)
+    )
+    expired_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(expires_at_utc=durable_past_expiry)
+    )
+    default_durable_record_snapshot = build_default_provider_durable_consent_record()
+    normalized_valid_durable_record_snapshot = normalize_provider_durable_consent_record(
+        _durable_consent_record(),
+        now_utc=fixed_now,
+    )
+    normalized_missing_durable_record_snapshot = normalize_provider_durable_consent_record(
+        None,
+        now_utc=fixed_now,
+    )
+
+    with tempfile.TemporaryDirectory() as temp_store:
+        temp_store_path = Path(temp_store)
+        missing_loaded_durable_record_snapshot = load_provider_durable_consent_record(
+            temp_store_path,
+            now_utc=fixed_now,
+        )
+        written_durable_record_snapshot = write_provider_durable_consent_record(
+            temp_store_path,
+            _durable_consent_record(),
+            now_utc=fixed_now,
+        )
+        loaded_durable_record_snapshot = load_provider_durable_consent_record(
+            temp_store_path,
+            now_utc=fixed_now,
+        )
+        durable_record_path = temp_store_path / CONSENT_DURABLE_RECORD_FILENAME
+        durable_roundtrip_confined = (
+            durable_record_path.is_file()
+            and durable_record_path.parent.resolve() == temp_store_path.resolve()
+        )
+        durable_record_path.write_text("{", encoding="utf-8")
+        corrupt_loaded_durable_record_snapshot = load_provider_durable_consent_record(
+            temp_store_path,
+            now_utc=fixed_now,
+        )
+
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
@@ -2488,6 +2642,19 @@ def validate() -> list[str]:
         "reset": reset_consent_capture_snapshot.as_renderer_payload(),
         "setup_only": setup_only_consent_capture_snapshot.as_renderer_payload(),
         "setup_execution": setup_execution_consent_capture_snapshot.as_renderer_payload(),
+    }
+    durable_consent_payloads = {
+        "default": default_durable_consent_snapshot.as_renderer_payload(),
+        "valid": valid_durable_consent_snapshot.as_renderer_payload(),
+        "invalid": invalid_durable_consent_snapshot.as_renderer_payload(),
+        "corrupt": corrupt_durable_consent_snapshot.as_renderer_payload(),
+        "unsupported_schema": (
+            unsupported_schema_durable_consent_snapshot.as_renderer_payload()
+        ),
+        "stale_schema": stale_schema_durable_consent_snapshot.as_renderer_payload(),
+        "revoked": revoked_durable_consent_snapshot.as_renderer_payload(),
+        "reset": reset_durable_consent_snapshot.as_renderer_payload(),
+        "expired": expired_durable_consent_snapshot.as_renderer_payload(),
     }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -5938,6 +6105,253 @@ def validate() -> list[str]:
             and capture_payload["consentCaptureMemoryState"] == MEMORY_INDEXING_DISABLED
             and capture_payload["consentCaptureVoiceState"] == "voice-runtime-disabled",
             f"{label} consent-capture fixture must keep downloads, network, memory, and voice gated",
+            failures,
+        )
+
+    durable_consent_expectations = {
+        "default": (
+            CONSENT_DURABLE_RECORD_STATE_MISSING,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_MISSING,
+            CONSENT_DURABLE_STORAGE_STATE_MISSING,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_NOT_APPLICABLE,
+        ),
+        "valid": (
+            CONSENT_DURABLE_RECORD_STATE_READY,
+            True,
+            CONSENT_DURABLE_FAIL_REASON_NONE,
+            CONSENT_DURABLE_STORAGE_STATE_LOCAL_READY,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_LOCAL_PROOF,
+            CONSENT_RECORD_DURABLE_STORAGE_LOCAL_READY,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
+        "invalid": (
+            CONSENT_DURABLE_RECORD_STATE_INVALID,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_INVALID,
+            CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
+        "corrupt": (
+            CONSENT_DURABLE_RECORD_STATE_CORRUPT,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_CORRUPT,
+            CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_NOT_APPLICABLE,
+        ),
+        "unsupported_schema": (
+            CONSENT_DURABLE_RECORD_STATE_UNSUPPORTED_SCHEMA,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_UNSUPPORTED_SCHEMA,
+            CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_UNSUPPORTED_SCHEMA_FAIL_CLOSED,
+        ),
+        "stale_schema": (
+            CONSENT_DURABLE_RECORD_STATE_STALE_SCHEMA,
+            False,
+            CONSENT_DURABLE_FAIL_REASON_STALE_SCHEMA,
+            CONSENT_DURABLE_STORAGE_STATE_FAIL_CLOSED,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_FAIL_CLOSED,
+            CONSENT_RECORD_DURABLE_STORAGE_FAIL_CLOSED,
+            CONSENT_DURABLE_MIGRATION_STALE_SCHEMA_FAIL_CLOSED,
+        ),
+        "revoked": (
+            CONSENT_DURABLE_RECORD_STATE_REVOKED,
+            True,
+            CONSENT_DURABLE_FAIL_REASON_REVOKED,
+            CONSENT_DURABLE_STORAGE_STATE_LOCAL_READY,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_LOCAL_PROOF,
+            CONSENT_RECORD_DURABLE_STORAGE_LOCAL_READY,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
+        "reset": (
+            CONSENT_DURABLE_RECORD_STATE_RESET,
+            True,
+            CONSENT_DURABLE_FAIL_REASON_RESET,
+            CONSENT_DURABLE_STORAGE_STATE_LOCAL_READY,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_LOCAL_PROOF,
+            CONSENT_RECORD_DURABLE_STORAGE_LOCAL_READY,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
+        "expired": (
+            CONSENT_DURABLE_RECORD_STATE_EXPIRED,
+            True,
+            CONSENT_DURABLE_FAIL_REASON_EXPIRED,
+            CONSENT_DURABLE_STORAGE_STATE_LOCAL_READY,
+            CONSENT_CAPTURE_DURABLE_PERSISTENCE_LOCAL_PROOF,
+            CONSENT_RECORD_DURABLE_STORAGE_LOCAL_READY,
+            CONSENT_DURABLE_MIGRATION_CURRENT_SCHEMA_READY,
+        ),
+    }
+    _require(
+        default_durable_record_snapshot.record_state
+        == CONSENT_DURABLE_RECORD_STATE_MISSING
+        and not default_durable_record_snapshot.record_valid,
+        "default durable consent record must fail closed as missing",
+        failures,
+    )
+    _require(
+        normalized_missing_durable_record_snapshot.record_state
+        == CONSENT_DURABLE_RECORD_STATE_MISSING
+        and not normalized_missing_durable_record_snapshot.record_valid,
+        "missing durable consent record normalization must fail closed",
+        failures,
+    )
+    _require(
+        normalized_valid_durable_record_snapshot.record_state
+        == CONSENT_DURABLE_RECORD_STATE_READY
+        and normalized_valid_durable_record_snapshot.record_valid
+        and normalized_valid_durable_record_snapshot.no_secrets
+        and normalized_valid_durable_record_snapshot.provider_payload_excluded,
+        "valid durable consent record normalization must preserve local-only no-secrets proof",
+        failures,
+    )
+    _require(
+        missing_loaded_durable_record_snapshot.record_state
+        == CONSENT_DURABLE_RECORD_STATE_MISSING
+        and not missing_loaded_durable_record_snapshot.record_valid,
+        "durable consent load from empty local store must fail closed as missing",
+        failures,
+    )
+    _require(
+        written_durable_record_snapshot.record_state
+        == CONSENT_DURABLE_RECORD_STATE_READY
+        and loaded_durable_record_snapshot.record_state
+        == CONSENT_DURABLE_RECORD_STATE_READY
+        and loaded_durable_record_snapshot.record_id == CONSENT_DURABLE_DEFAULT_RECORD_ID,
+        "durable consent local write/load round trip must preserve the ready record",
+        failures,
+    )
+    _require(
+        durable_roundtrip_confined,
+        "durable consent local write proof must stay confined to the temp store",
+        failures,
+    )
+    _require(
+        corrupt_loaded_durable_record_snapshot.record_state
+        == CONSENT_DURABLE_RECORD_STATE_CORRUPT
+        and corrupt_loaded_durable_record_snapshot.fail_closed_reason
+        == CONSENT_DURABLE_FAIL_REASON_CORRUPT,
+        "durable consent corrupt local store load must fail closed",
+        failures,
+    )
+    for label, expectation in durable_consent_expectations.items():
+        durable_payload = durable_consent_payloads[label]
+        (
+            expected_record_state,
+            expected_record_valid,
+            expected_fail_reason,
+            expected_storage_state,
+            expected_persistence_status,
+            expected_durable_storage_state,
+            expected_migration_posture,
+        ) = expectation
+        _require(
+            durable_payload["stateId"]
+            == FAM007_PROVIDER_DURABLE_CONSENT_PERSISTENCE_FOUNDATION_STATE_ID
+            and durable_payload["mode"]
+            == FAM007_PROVIDER_DURABLE_CONSENT_PERSISTENCE_FOUNDATION_MODE,
+            f"{label} durable-consent fixture must use durable persistence identity",
+            failures,
+        )
+        _require(
+            durable_payload["durableConsentRecordSchemaVersion"]
+            in {
+                CONSENT_DURABLE_RECORD_SCHEMA_VERSION,
+                CONSENT_DURABLE_RECORD_STALE_SCHEMA_VERSION,
+                "provider-durable-consent-record.v99",
+            }
+            and durable_payload["durableConsentStorageBoundarySchemaVersion"]
+            == CONSENT_DURABLE_STORAGE_BOUNDARY_SCHEMA_VERSION,
+            f"{label} durable-consent fixture must publish durable schemas",
+            failures,
+        )
+        _require(
+            durable_payload["durableConsentRecordState"] == expected_record_state
+            and durable_payload["durableConsentRecordValid"]
+            is expected_record_valid
+            and durable_payload["durableConsentFailClosedReason"]
+            == expected_fail_reason
+            and durable_payload["durableConsentMigrationPosture"]
+            == expected_migration_posture,
+            f"{label} durable-consent fixture must publish expected fail-closed state",
+            failures,
+        )
+        _require(
+            durable_payload["durableConsentLocalStorageBoundary"]
+            == CONSENT_DURABLE_STORAGE_BOUNDARY_LOCAL_ONLY
+            and durable_payload["durableConsentStorageState"]
+            == expected_storage_state
+            and durable_payload["consentCaptureDurablePersistenceStatus"]
+            == expected_persistence_status
+            and durable_payload["consentRecordStorageBoundaryState"]
+            == CONSENT_RECORD_STORAGE_BOUNDARY_LOCAL_DURABLE_ONLY
+            and durable_payload["consentRecordDurableStorageState"]
+            == expected_durable_storage_state,
+            f"{label} durable-consent fixture must publish local storage boundary proof",
+            failures,
+        )
+        _require(
+            durable_payload["consentRecordRevocationModelState"]
+            == CONSENT_RECORD_REVOCATION_MODEL_LOCAL_DURABLE
+            and durable_payload["consentRecordResetModelState"]
+            == CONSENT_RECORD_RESET_MODEL_LOCAL_DURABLE,
+            f"{label} durable-consent fixture must publish durable revocation/reset posture",
+            failures,
+        )
+        _require(
+            durable_payload["durableConsentNoSecretsPosture"]
+            == CONSENT_RECORD_NO_SECRETS_POSTURE_READY
+            and durable_payload["durableConsentProviderPayloadPosture"]
+            == CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED
+            and durable_payload["consentRecordNoSecretsPosture"]
+            == CONSENT_RECORD_NO_SECRETS_POSTURE_READY
+            and durable_payload["consentRecordProviderPayloadPosture"]
+            == CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED,
+            f"{label} durable-consent fixture must preserve no-secrets/provider-payload-excluded posture",
+            failures,
+        )
+        _require(
+            durable_payload["providerVisibleData"] == "none"
+            and durable_payload["consentCaptureProviderVisibleData"] == "none"
+            and durable_payload["sentToProvider"] is False
+            and durable_payload["consentCaptureSentToProvider"] is False
+            and durable_payload["canAcceptPrompts"] is False
+            and durable_payload["consentCaptureCanAcceptPrompts"] is False,
+            f"{label} durable-consent fixture must keep provider data and prompts disabled",
+            failures,
+        )
+        _require(
+            durable_payload["promptSendPosture"] == PROMPT_SEND_POSTURE_DISABLED
+            and durable_payload["modelExecutionStatus"] == MODEL_EXECUTION_STATUS_DISABLED
+            and durable_payload["providerExecutionGateState"]
+            == PROVIDER_EXECUTION_GATE_DISABLED
+            and durable_payload["consentCapturePromptExecutionState"]
+            == PROMPT_EXECUTION_GATE_DISABLED,
+            f"{label} durable-consent fixture must not enable prompt/model/provider execution",
+            failures,
+        )
+        _require(
+            durable_payload["capabilityPackDownloadState"]
+            == CAPABILITY_PACK_DOWNLOADS_BLOCKED
+            and durable_payload["capabilityPackInstallState"]
+            == CAPABILITY_PACK_INSTALL_BLOCKED
+            and durable_payload["networkEgressState"] == NETWORK_EGRESS_BLOCKED
+            and durable_payload["consentCaptureNetworkEgressState"]
+            == NETWORK_EGRESS_BLOCKED
+            and durable_payload["memoryIndexingState"] == MEMORY_INDEXING_DISABLED
+            and durable_payload["consentCaptureMemoryState"] == MEMORY_INDEXING_DISABLED
+            and durable_payload["voiceRuntimeState"] == "voice-runtime-disabled"
+            and durable_payload["consentCaptureVoiceState"] == "voice-runtime-disabled",
+            f"{label} durable-consent fixture must keep downloads, network, memory, and voice gated",
             failures,
         )
 
