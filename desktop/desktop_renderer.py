@@ -5788,6 +5788,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_overlay_display_acceptance_signature = None
         self._monitoring_hud_active_overlay_profile_display_signature = None
         self._monitoring_hud_dashboard_overlay_independence_signature = None
+        self._monitoring_hud_overlay_display_workstream_readiness_signature = None
         self._monitoring_hud_overlay_profiles = {}
         self._monitoring_hud_active_overlay_profile_id = "default-overlay-profile"
         self._monitoring_hud_overlay_profile_default_deleted_by_user = False
@@ -12950,6 +12951,31 @@ class DesktopRuntimeWindow(QWidget):
                     non_theme_scope=bool(dashboard_overlay_independence_proof.get("nonThemeScope")),
                 )
                 dashboard_overlay_independence_changed = True
+        overlay_display_workstream_readiness_proof = state.get("overlayDisplayWorkstreamReadinessProof")
+        overlay_display_workstream_readiness_signature = json.dumps(
+            overlay_display_workstream_readiness_proof if isinstance(overlay_display_workstream_readiness_proof, dict) else {},
+            sort_keys=True,
+        )
+        overlay_display_workstream_readiness_changed = False
+        if overlay_display_workstream_readiness_signature != self._monitoring_hud_overlay_display_workstream_readiness_signature:
+            self._monitoring_hud_overlay_display_workstream_readiness_signature = overlay_display_workstream_readiness_signature
+            if isinstance(overlay_display_workstream_readiness_proof, dict):
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_OVERLAY_DISPLAY_WORKSTREAM_READY",
+                    package="PKG-006",
+                    slice=str(overlay_display_workstream_readiness_proof.get("slice") or "SLC-045"),
+                    seam="Workstream",
+                    slc042_proof_closed=bool(overlay_display_workstream_readiness_proof.get("slc042ProofClosed")),
+                    slc043_proof_closed=bool(overlay_display_workstream_readiness_proof.get("slc043ProofClosed")),
+                    slc044_proof_closed=bool(overlay_display_workstream_readiness_proof.get("slc044ProofClosed")),
+                    hardening_route_ready=bool(overlay_display_workstream_readiness_proof.get("hardeningRouteReady")),
+                    user_test_summary_deferred_to_live_validation=bool(overlay_display_workstream_readiness_proof.get("userTestSummaryDeferredToLiveValidation")),
+                    codex_visual_adjudication_required_in_lv1=bool(overlay_display_workstream_readiness_proof.get("codexVisualAdjudicationRequiredInLv1")),
+                    no_helper_only_final_green=bool(overlay_display_workstream_readiness_proof.get("noHelperOnlyFinalGreen")),
+                    non_recording_scope=bool(overlay_display_workstream_readiness_proof.get("nonRecordingScope")),
+                    non_theme_scope=bool(overlay_display_workstream_readiness_proof.get("nonThemeScope")),
+                )
+                overlay_display_workstream_readiness_changed = True
         monitor_signature_parts = []
         enabled_count = 0
         for card_id in sorted(str(key) for key in cards.keys()):
