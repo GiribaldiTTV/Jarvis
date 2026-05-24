@@ -795,6 +795,28 @@ from desktop.ai_provider_state import (  # noqa: E402
     CONSENT_DURABLE_FAIL_REASON_REVOKED,
     CONSENT_DURABLE_FAIL_REASON_RESET,
     CONSENT_DURABLE_FAIL_REASON_EXPIRED,
+    CONSENT_DURABLE_SETUP_REASON_MISSING,
+    CONSENT_DURABLE_EXECUTION_REASON_MISSING,
+    CONSENT_DURABLE_REASON_GRANTED,
+    CONSENT_DURABLE_REASON_REVOKED,
+    CONSENT_DURABLE_REASON_RESET,
+    CONSENT_DURABLE_REASON_EXPIRED,
+    CONSENT_DURABLE_REASON_FAIL_CLOSED,
+    CONSENT_DURABLE_CONSENT_STATE_MISSING,
+    CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+    CONSENT_DURABLE_CONSENT_STATE_REVOKED,
+    CONSENT_DURABLE_CONSENT_STATE_RESET,
+    CONSENT_DURABLE_CONSENT_STATE_EXPIRED,
+    CONSENT_DURABLE_CONSENT_STATE_BLOCKED,
+    CONSENT_DURABLE_SEPARATION_STATE_READY,
+    CONSENT_DURABLE_STATUS_PROOF_HIDDEN_TELEMETRY,
+    CONSENT_DURABLE_DESKTOP_DISPLAY_SUPPRESSED,
+    CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_READY,
+    CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_BLOCKED,
+    CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_READY,
+    CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED,
+    CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_READY,
+    CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_BLOCKED,
     CONSENT_DURABLE_DEFAULT_RECORD_ID,
     CONSENT_DURABLE_DEFAULT_AUDIT_EVENT_ID,
     CONSENT_DURABLE_RECORD_FILENAME,
@@ -1498,6 +1520,14 @@ def validate() -> list[str]:
             "provider_profile_id": "local-null-provider",
             "setup_consent_granted": True,
             "execution_consent_granted": False,
+            "setup_consent_revoked": False,
+            "execution_consent_revoked": False,
+            "setup_consent_reset_requested": False,
+            "execution_consent_reset_requested": False,
+            "setup_consent_expired": False,
+            "execution_consent_expired": False,
+            "setup_consent_expires_at_utc": durable_future_expiry,
+            "execution_consent_expires_at_utc": durable_future_expiry,
             "revoked": False,
             "reset_requested": False,
             "expires_at_utc": durable_future_expiry,
@@ -2450,6 +2480,72 @@ def validate() -> list[str]:
     expired_durable_consent_snapshot = _durable_consent_snapshot(
         _durable_consent_record(expires_at_utc=durable_past_expiry)
     )
+    setup_only_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=False,
+        )
+    )
+    execution_only_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=False,
+            execution_consent_granted=True,
+        )
+    )
+    both_absent_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=False,
+            execution_consent_granted=False,
+        )
+    )
+    both_present_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+        )
+    )
+    revoked_setup_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+            setup_consent_revoked=True,
+        )
+    )
+    revoked_execution_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+            execution_consent_revoked=True,
+        )
+    )
+    reset_setup_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+            setup_consent_reset_requested=True,
+        )
+    )
+    reset_execution_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+            execution_consent_reset_requested=True,
+        )
+    )
+    expired_setup_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+            setup_consent_expires_at_utc=durable_past_expiry,
+        )
+    )
+    expired_execution_durable_consent_snapshot = _durable_consent_snapshot(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=True,
+            execution_consent_expires_at_utc=durable_past_expiry,
+        )
+    )
     default_durable_record_snapshot = build_default_provider_durable_consent_record()
     normalized_valid_durable_record_snapshot = normalize_provider_durable_consent_record(
         _durable_consent_record(),
@@ -2655,6 +2751,20 @@ def validate() -> list[str]:
         "revoked": revoked_durable_consent_snapshot.as_renderer_payload(),
         "reset": reset_durable_consent_snapshot.as_renderer_payload(),
         "expired": expired_durable_consent_snapshot.as_renderer_payload(),
+        "setup_only": setup_only_durable_consent_snapshot.as_renderer_payload(),
+        "execution_only": execution_only_durable_consent_snapshot.as_renderer_payload(),
+        "both_absent": both_absent_durable_consent_snapshot.as_renderer_payload(),
+        "both_present": both_present_durable_consent_snapshot.as_renderer_payload(),
+        "revoked_setup": revoked_setup_durable_consent_snapshot.as_renderer_payload(),
+        "revoked_execution": (
+            revoked_execution_durable_consent_snapshot.as_renderer_payload()
+        ),
+        "reset_setup": reset_setup_durable_consent_snapshot.as_renderer_payload(),
+        "reset_execution": reset_execution_durable_consent_snapshot.as_renderer_payload(),
+        "expired_setup": expired_setup_durable_consent_snapshot.as_renderer_payload(),
+        "expired_execution": (
+            expired_execution_durable_consent_snapshot.as_renderer_payload()
+        ),
     }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -6354,6 +6464,163 @@ def validate() -> list[str]:
             f"{label} durable-consent fixture must keep downloads, network, memory, and voice gated",
             failures,
         )
+
+    durable_seam_b_expectations = {
+        "setup_only": (
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+            CONSENT_DURABLE_CONSENT_STATE_MISSING,
+            CONSENT_DURABLE_REASON_GRANTED,
+            CONSENT_DURABLE_EXECUTION_REASON_MISSING,
+            CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_READY,
+            CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_READY,
+        ),
+        "execution_only": (
+            CONSENT_DURABLE_CONSENT_STATE_MISSING,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+            CONSENT_DURABLE_SETUP_REASON_MISSING,
+            CONSENT_DURABLE_REASON_GRANTED,
+            CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_BLOCKED,
+        ),
+        "both_absent": (
+            CONSENT_DURABLE_CONSENT_STATE_MISSING,
+            CONSENT_DURABLE_CONSENT_STATE_MISSING,
+            CONSENT_DURABLE_SETUP_REASON_MISSING,
+            CONSENT_DURABLE_EXECUTION_REASON_MISSING,
+            CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_BLOCKED,
+        ),
+        "both_present": (
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+            CONSENT_DURABLE_REASON_GRANTED,
+            CONSENT_DURABLE_REASON_GRANTED,
+            CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_READY,
+            CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_READY,
+            CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_READY,
+        ),
+        "revoked_setup": (
+            CONSENT_DURABLE_CONSENT_STATE_REVOKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+            CONSENT_DURABLE_REASON_REVOKED,
+            CONSENT_DURABLE_REASON_GRANTED,
+            CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_BLOCKED,
+        ),
+        "revoked_execution": (
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+            CONSENT_DURABLE_CONSENT_STATE_REVOKED,
+            CONSENT_DURABLE_REASON_GRANTED,
+            CONSENT_DURABLE_REASON_REVOKED,
+            CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_READY,
+            CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_READY,
+        ),
+        "reset_setup": (
+            CONSENT_DURABLE_CONSENT_STATE_RESET,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+            CONSENT_DURABLE_REASON_RESET,
+            CONSENT_DURABLE_REASON_GRANTED,
+            CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_BLOCKED,
+        ),
+        "reset_execution": (
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+            CONSENT_DURABLE_CONSENT_STATE_RESET,
+            CONSENT_DURABLE_REASON_GRANTED,
+            CONSENT_DURABLE_REASON_RESET,
+            CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_READY,
+            CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_READY,
+        ),
+        "expired_setup": (
+            CONSENT_DURABLE_CONSENT_STATE_EXPIRED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+            CONSENT_DURABLE_REASON_EXPIRED,
+            CONSENT_DURABLE_REASON_GRANTED,
+            CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_BLOCKED,
+        ),
+        "expired_execution": (
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+            CONSENT_DURABLE_CONSENT_STATE_EXPIRED,
+            CONSENT_DURABLE_REASON_GRANTED,
+            CONSENT_DURABLE_REASON_EXPIRED,
+            CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_READY,
+            CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_READY,
+        ),
+    }
+    for label, expectation in durable_seam_b_expectations.items():
+        durable_payload = durable_consent_payloads[label]
+        (
+            expected_setup_state,
+            expected_execution_state,
+            expected_setup_reason,
+            expected_execution_reason,
+            expected_setup_handoff,
+            expected_execution_handoff,
+            expected_future_handoff,
+        ) = expectation
+        _require(
+            durable_payload["durableSetupConsentState"] == expected_setup_state
+            and durable_payload["durableExecutionConsentState"]
+            == expected_execution_state
+            and durable_payload["durableSetupConsentReasonCode"]
+            == expected_setup_reason
+            and durable_payload["durableExecutionConsentReasonCode"]
+            == expected_execution_reason,
+            f"{label} durable-consent fixture must derive setup/execution consent states independently",
+            failures,
+        )
+        _require(
+            durable_payload["durableSetupExecutionConsentSeparationState"]
+            == CONSENT_DURABLE_SEPARATION_STATE_READY
+            and durable_payload["durableConsentProviderSetupHandoffState"]
+            == expected_setup_handoff
+            and durable_payload["durableConsentProviderExecutionHandoffState"]
+            == expected_execution_handoff
+            and durable_payload["durableConsentFutureHandoffCriteriaState"]
+            == expected_future_handoff,
+            f"{label} durable-consent fixture must keep handoff criteria derived from separated consent",
+            failures,
+        )
+        _require(
+            durable_payload["durableConsentStatusProofState"]
+            == CONSENT_DURABLE_STATUS_PROOF_HIDDEN_TELEMETRY
+            and durable_payload["durableConsentDesktopDisplayState"]
+            == CONSENT_DURABLE_DESKTOP_DISPLAY_SUPPRESSED
+            and durable_payload["desktopAiOwnedReadinessDisplayState"]
+            == AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED,
+            f"{label} durable-consent fixture must use hidden telemetry and preserve desktop readiness suppression",
+            failures,
+        )
+        _require(
+            durable_payload["providerVisibleData"] == "none"
+            and durable_payload["sentToProvider"] is False
+            and durable_payload["canAcceptPrompts"] is False
+            and durable_payload["promptSendPosture"] == PROMPT_SEND_POSTURE_DISABLED
+            and durable_payload["modelExecutionStatus"] == MODEL_EXECUTION_STATUS_DISABLED
+            and durable_payload["networkEgressState"] == NETWORK_EGRESS_BLOCKED
+            and durable_payload["memoryIndexingState"] == MEMORY_INDEXING_DISABLED
+            and durable_payload["voiceRuntimeState"] == "voice-runtime-disabled",
+            f"{label} durable-consent fixture must preserve provider boundary while deriving consent status",
+            failures,
+        )
+    _require(
+        "durable_consent_status_proof" in renderer
+        and "durable_consent_setup_handoff" in renderer
+        and "durable_consent_status_proof" in core_renderer
+        and "durable_consent_setup_handoff" in core_renderer,
+        "desktop and Core renderers must publish durable consent hidden-telemetry proof keys",
+        failures,
+    )
 
     default_permissions = readiness_payloads["default"]["actionPermissionMatrix"]
     _require(

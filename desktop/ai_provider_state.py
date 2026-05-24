@@ -1119,6 +1119,46 @@ CONSENT_DURABLE_FAIL_REASON_EXPIRED = "durable_consent_expired"
 CONSENT_DURABLE_FAIL_REASON_NO_CONSENT_SELECTED = (
     "durable_consent_no_consent_selected"
 )
+CONSENT_DURABLE_CONSENT_STATE_MISSING = "durable_consent_missing"
+CONSENT_DURABLE_CONSENT_STATE_GRANTED = "durable_consent_granted_local_only"
+CONSENT_DURABLE_CONSENT_STATE_REVOKED = "durable_consent_revoked_local_only"
+CONSENT_DURABLE_CONSENT_STATE_RESET = "durable_consent_reset_local_only"
+CONSENT_DURABLE_CONSENT_STATE_EXPIRED = "durable_consent_expired_local_only"
+CONSENT_DURABLE_CONSENT_STATE_BLOCKED = "durable_consent_blocked_fail_closed"
+CONSENT_DURABLE_SETUP_REASON_MISSING = "durable_setup_consent_missing"
+CONSENT_DURABLE_EXECUTION_REASON_MISSING = "durable_execution_consent_missing"
+CONSENT_DURABLE_REASON_GRANTED = "durable_consent_present_local_only"
+CONSENT_DURABLE_REASON_REVOKED = "durable_consent_revoked"
+CONSENT_DURABLE_REASON_RESET = "durable_consent_reset"
+CONSENT_DURABLE_REASON_EXPIRED = "durable_consent_expired"
+CONSENT_DURABLE_REASON_FAIL_CLOSED = "durable_consent_fail_closed"
+CONSENT_DURABLE_SEPARATION_STATE_READY = (
+    "durable-setup-execution-consent-separated"
+)
+CONSENT_DURABLE_STATUS_PROOF_HIDDEN_TELEMETRY = (
+    "durable-consent-status-hidden-telemetry"
+)
+CONSENT_DURABLE_DESKTOP_DISPLAY_SUPPRESSED = (
+    "durable-consent-desktop-display-suppressed"
+)
+CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_READY = (
+    "durable-consent-provider-setup-handoff-ready-future-gated"
+)
+CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_BLOCKED = (
+    "durable-consent-provider-setup-handoff-blocked"
+)
+CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_READY = (
+    "durable-consent-provider-execution-handoff-ready-future-gated"
+)
+CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED = (
+    "durable-consent-provider-execution-handoff-blocked"
+)
+CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_READY = (
+    "durable-consent-future-handoff-criteria-ready-local-only"
+)
+CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_BLOCKED = (
+    "durable-consent-future-handoff-criteria-blocked"
+)
 CONSENT_DURABLE_PROVENANCE_LOCAL_RECORD = "durable_local_consent_record"
 CONSENT_DURABLE_PROVENANCE_LOCAL_STORE = "durable_local_consent_store"
 CONSENT_DURABLE_DEFAULT_RECORD_ID = "local-durable-consent-record"
@@ -1563,6 +1603,14 @@ class AIProviderDurableConsentRecordSnapshot:
     provider_profile_id: str
     setup_consent_granted: bool
     execution_consent_granted: bool
+    setup_consent_revoked: bool
+    execution_consent_revoked: bool
+    setup_consent_reset_requested: bool
+    execution_consent_reset_requested: bool
+    setup_consent_expired: bool
+    execution_consent_expired: bool
+    setup_consent_expires_at_utc: str
+    execution_consent_expires_at_utc: str
     revoked: bool
     reset_requested: bool
     expired: bool
@@ -1586,6 +1634,18 @@ class AIProviderDurableConsentRecordSnapshot:
             "provider_profile_id": self.provider_profile_id,
             "setup_consent_granted": self.setup_consent_granted,
             "execution_consent_granted": self.execution_consent_granted,
+            "setup_consent_revoked": self.setup_consent_revoked,
+            "execution_consent_revoked": self.execution_consent_revoked,
+            "setup_consent_reset_requested": self.setup_consent_reset_requested,
+            "execution_consent_reset_requested": (
+                self.execution_consent_reset_requested
+            ),
+            "setup_consent_expired": self.setup_consent_expired,
+            "execution_consent_expired": self.execution_consent_expired,
+            "setup_consent_expires_at_utc": self.setup_consent_expires_at_utc,
+            "execution_consent_expires_at_utc": (
+                self.execution_consent_expires_at_utc
+            ),
             "revoked": self.revoked,
             "reset_requested": self.reset_requested,
             "expired": self.expired,
@@ -2362,6 +2422,41 @@ class AIProviderStateSnapshot:
     durable_consent_provider_payload_posture: str = (
         CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED
     )
+    durable_setup_consent_state: str = CONSENT_DURABLE_CONSENT_STATE_MISSING
+    durable_setup_consent_label: str = "Durable setup consent: missing"
+    durable_setup_consent_reason_code: str = CONSENT_DURABLE_SETUP_REASON_MISSING
+    durable_execution_consent_state: str = CONSENT_DURABLE_CONSENT_STATE_MISSING
+    durable_execution_consent_label: str = "Durable execution consent: missing"
+    durable_execution_consent_reason_code: str = (
+        CONSENT_DURABLE_EXECUTION_REASON_MISSING
+    )
+    durable_setup_execution_consent_separation_state: str = (
+        CONSENT_DURABLE_SEPARATION_STATE_READY
+    )
+    durable_setup_execution_consent_separation_label: str = (
+        "Durable setup and execution consent remain separated"
+    )
+    durable_consent_status_proof_state: str = (
+        CONSENT_DURABLE_STATUS_PROOF_HIDDEN_TELEMETRY
+    )
+    durable_consent_status_proof_label: str = (
+        "Durable consent status proof: hidden telemetry only"
+    )
+    durable_consent_desktop_display_state: str = (
+        CONSENT_DURABLE_DESKTOP_DISPLAY_SUPPRESSED
+    )
+    durable_consent_provider_setup_handoff_state: str = (
+        CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_BLOCKED
+    )
+    durable_consent_provider_execution_handoff_state: str = (
+        CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED
+    )
+    durable_consent_future_handoff_criteria_state: str = (
+        CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_BLOCKED
+    )
+    durable_consent_future_handoff_criteria_label: str = (
+        "Durable consent future handoff criteria: blocked"
+    )
     future_consent_capture_handoff_state: str = FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY
     consent_collection_fold_down_posture: str = CONSENT_COLLECTION_FOLD_DOWN_READY
 
@@ -3048,6 +3143,47 @@ class AIProviderStateSnapshot:
             "durable_consent_provider_payload_posture": (
                 self.durable_consent_provider_payload_posture
             ),
+            "durable_setup_consent_state": self.durable_setup_consent_state,
+            "durable_setup_consent_label": self.durable_setup_consent_label,
+            "durable_setup_consent_reason_code": (
+                self.durable_setup_consent_reason_code
+            ),
+            "durable_execution_consent_state": (
+                self.durable_execution_consent_state
+            ),
+            "durable_execution_consent_label": (
+                self.durable_execution_consent_label
+            ),
+            "durable_execution_consent_reason_code": (
+                self.durable_execution_consent_reason_code
+            ),
+            "durable_setup_execution_consent_separation_state": (
+                self.durable_setup_execution_consent_separation_state
+            ),
+            "durable_setup_execution_consent_separation_label": (
+                self.durable_setup_execution_consent_separation_label
+            ),
+            "durable_consent_status_proof_state": (
+                self.durable_consent_status_proof_state
+            ),
+            "durable_consent_status_proof_label": (
+                self.durable_consent_status_proof_label
+            ),
+            "durable_consent_desktop_display_state": (
+                self.durable_consent_desktop_display_state
+            ),
+            "durable_consent_provider_setup_handoff_state": (
+                self.durable_consent_provider_setup_handoff_state
+            ),
+            "durable_consent_provider_execution_handoff_state": (
+                self.durable_consent_provider_execution_handoff_state
+            ),
+            "durable_consent_future_handoff_criteria_state": (
+                self.durable_consent_future_handoff_criteria_state
+            ),
+            "durable_consent_future_handoff_criteria_label": (
+                self.durable_consent_future_handoff_criteria_label
+            ),
             "future_consent_capture_handoff_state": self.future_consent_capture_handoff_state,
             "consent_collection_fold_down_posture": self.consent_collection_fold_down_posture,
         }
@@ -3731,6 +3867,43 @@ class AIProviderStateSnapshot:
             ),
             "durableConsentProviderPayloadPosture": (
                 self.durable_consent_provider_payload_posture
+            ),
+            "durableSetupConsentState": self.durable_setup_consent_state,
+            "durableSetupConsentLabel": self.durable_setup_consent_label,
+            "durableSetupConsentReasonCode": (
+                self.durable_setup_consent_reason_code
+            ),
+            "durableExecutionConsentState": self.durable_execution_consent_state,
+            "durableExecutionConsentLabel": self.durable_execution_consent_label,
+            "durableExecutionConsentReasonCode": (
+                self.durable_execution_consent_reason_code
+            ),
+            "durableSetupExecutionConsentSeparationState": (
+                self.durable_setup_execution_consent_separation_state
+            ),
+            "durableSetupExecutionConsentSeparationLabel": (
+                self.durable_setup_execution_consent_separation_label
+            ),
+            "durableConsentStatusProofState": (
+                self.durable_consent_status_proof_state
+            ),
+            "durableConsentStatusProofLabel": (
+                self.durable_consent_status_proof_label
+            ),
+            "durableConsentDesktopDisplayState": (
+                self.durable_consent_desktop_display_state
+            ),
+            "durableConsentProviderSetupHandoffState": (
+                self.durable_consent_provider_setup_handoff_state
+            ),
+            "durableConsentProviderExecutionHandoffState": (
+                self.durable_consent_provider_execution_handoff_state
+            ),
+            "durableConsentFutureHandoffCriteriaState": (
+                self.durable_consent_future_handoff_criteria_state
+            ),
+            "durableConsentFutureHandoffCriteriaLabel": (
+                self.durable_consent_future_handoff_criteria_label
             ),
             "futureConsentCaptureHandoffState": self.future_consent_capture_handoff_state,
             "consentCollectionFoldDownPosture": self.consent_collection_fold_down_posture,
@@ -7200,6 +7373,14 @@ def build_default_provider_durable_consent_record() -> AIProviderDurableConsentR
         provider_profile_id=PROVIDER_PROFILE_ID_LOCAL_NULL,
         setup_consent_granted=False,
         execution_consent_granted=False,
+        setup_consent_revoked=False,
+        execution_consent_revoked=False,
+        setup_consent_reset_requested=False,
+        execution_consent_reset_requested=False,
+        setup_consent_expired=False,
+        execution_consent_expired=False,
+        setup_consent_expires_at_utc="",
+        execution_consent_expires_at_utc="",
         revoked=False,
         reset_requested=False,
         expired=False,
@@ -7292,7 +7473,25 @@ def normalize_provider_durable_consent_record(
     )
     revoked = bool(record_payload.get("revoked", False))
     reset_requested = bool(record_payload.get("reset_requested", False))
+    setup_consent_revoked = bool(
+        record_payload.get("setup_consent_revoked", False)
+    ) or (revoked and setup_consent_granted)
+    execution_consent_revoked = bool(
+        record_payload.get("execution_consent_revoked", False)
+    ) or (revoked and execution_consent_granted)
+    setup_consent_reset_requested = bool(
+        record_payload.get("setup_consent_reset_requested", False)
+    ) or (reset_requested and setup_consent_granted)
+    execution_consent_reset_requested = bool(
+        record_payload.get("execution_consent_reset_requested", False)
+    ) or (reset_requested and execution_consent_granted)
     expires_at_utc = str(record_payload.get("expires_at_utc") or "")
+    setup_consent_expires_at_utc = str(
+        record_payload.get("setup_consent_expires_at_utc") or expires_at_utc
+    )
+    execution_consent_expires_at_utc = str(
+        record_payload.get("execution_consent_expires_at_utc") or expires_at_utc
+    )
     captured_at_utc = str(record_payload.get("captured_at_utc") or "")
     updated_at_utc = str(record_payload.get("updated_at_utc") or "")
     provenance = str(
@@ -7317,7 +7516,47 @@ def normalize_provider_durable_consent_record(
     )
 
     expires_at = _parse_utc_timestamp(expires_at_utc)
-    expired = expires_at is not None and expires_at <= _now_utc(now_utc)
+    setup_expires_at = _parse_utc_timestamp(setup_consent_expires_at_utc)
+    execution_expires_at = _parse_utc_timestamp(execution_consent_expires_at_utc)
+    current_time = _now_utc(now_utc)
+    record_expired = expires_at is not None and expires_at <= current_time
+    setup_consent_expired = bool(
+        record_payload.get("setup_consent_expired", False)
+    ) or (
+        setup_expires_at is not None
+        and setup_consent_granted
+        and setup_expires_at <= current_time
+    )
+    execution_consent_expired = bool(
+        record_payload.get("execution_consent_expired", False)
+    ) or (
+        execution_expires_at is not None
+        and execution_consent_granted
+        and execution_expires_at <= current_time
+    )
+    expired = record_expired or (
+        bool(record_payload.get("expired", False))
+        and setup_consent_expired
+        and execution_consent_expired
+    )
+    setup_consent_active = (
+        setup_consent_granted
+        and not setup_consent_revoked
+        and not setup_consent_reset_requested
+        and not setup_consent_expired
+        and not revoked
+        and not reset_requested
+        and not record_expired
+    )
+    execution_consent_active = (
+        execution_consent_granted
+        and not execution_consent_revoked
+        and not execution_consent_reset_requested
+        and not execution_consent_expired
+        and not revoked
+        and not reset_requested
+        and not record_expired
+    )
     record_valid = (
         bool(record_payload.get("record_valid", True))
         and bool(record_id)
@@ -7338,13 +7577,23 @@ def normalize_provider_durable_consent_record(
     elif revoked:
         record_state = CONSENT_DURABLE_RECORD_STATE_REVOKED
         fail_closed_reason = CONSENT_DURABLE_FAIL_REASON_REVOKED
-    elif expired:
+    elif record_expired:
         record_state = CONSENT_DURABLE_RECORD_STATE_EXPIRED
         fail_closed_reason = CONSENT_DURABLE_FAIL_REASON_EXPIRED
     elif not (setup_consent_granted or execution_consent_granted):
         record_state = CONSENT_DURABLE_RECORD_STATE_INVALID
         record_valid = False
         fail_closed_reason = CONSENT_DURABLE_FAIL_REASON_NO_CONSENT_SELECTED
+    elif not (setup_consent_active or execution_consent_active):
+        if setup_consent_reset_requested or execution_consent_reset_requested:
+            record_state = CONSENT_DURABLE_RECORD_STATE_RESET
+            fail_closed_reason = CONSENT_DURABLE_FAIL_REASON_RESET
+        elif setup_consent_revoked or execution_consent_revoked:
+            record_state = CONSENT_DURABLE_RECORD_STATE_REVOKED
+            fail_closed_reason = CONSENT_DURABLE_FAIL_REASON_REVOKED
+        elif setup_consent_expired or execution_consent_expired:
+            record_state = CONSENT_DURABLE_RECORD_STATE_EXPIRED
+            fail_closed_reason = CONSENT_DURABLE_FAIL_REASON_EXPIRED
 
     return AIProviderDurableConsentRecordSnapshot(
         schema_version=schema_version,
@@ -7354,6 +7603,14 @@ def normalize_provider_durable_consent_record(
         provider_profile_id=provider_profile_id,
         setup_consent_granted=setup_consent_granted,
         execution_consent_granted=execution_consent_granted,
+        setup_consent_revoked=setup_consent_revoked,
+        execution_consent_revoked=execution_consent_revoked,
+        setup_consent_reset_requested=setup_consent_reset_requested,
+        execution_consent_reset_requested=execution_consent_reset_requested,
+        setup_consent_expired=setup_consent_expired or record_expired,
+        execution_consent_expired=execution_consent_expired or record_expired,
+        setup_consent_expires_at_utc=setup_consent_expires_at_utc,
+        execution_consent_expires_at_utc=execution_consent_expires_at_utc,
         revoked=revoked,
         reset_requested=reset_requested,
         expired=expired,
@@ -7428,6 +7685,98 @@ def load_provider_durable_consent_record(
         )
     payload.setdefault("provenance", CONSENT_DURABLE_PROVENANCE_LOCAL_STORE)
     return normalize_provider_durable_consent_record(payload, now_utc=now_utc)
+
+
+def _durable_consent_scope_status(
+    durable_record: AIProviderDurableConsentRecordSnapshot,
+    *,
+    scope: str,
+) -> tuple[str, str, str]:
+    granted = (
+        durable_record.setup_consent_granted
+        if scope == "setup"
+        else durable_record.execution_consent_granted
+    )
+    revoked = (
+        durable_record.setup_consent_revoked
+        if scope == "setup"
+        else durable_record.execution_consent_revoked
+    )
+    reset_requested = (
+        durable_record.setup_consent_reset_requested
+        if scope == "setup"
+        else durable_record.execution_consent_reset_requested
+    )
+    expired = (
+        durable_record.setup_consent_expired
+        if scope == "setup"
+        else durable_record.execution_consent_expired
+    )
+    title = "setup" if scope == "setup" else "execution"
+    missing_reason = (
+        CONSENT_DURABLE_SETUP_REASON_MISSING
+        if scope == "setup"
+        else CONSENT_DURABLE_EXECUTION_REASON_MISSING
+    )
+
+    fail_closed_record_states = {
+        CONSENT_DURABLE_RECORD_STATE_INVALID,
+        CONSENT_DURABLE_RECORD_STATE_CORRUPT,
+        CONSENT_DURABLE_RECORD_STATE_UNSUPPORTED_SCHEMA,
+        CONSENT_DURABLE_RECORD_STATE_STALE_SCHEMA,
+    }
+    if (
+        durable_record.record_state == CONSENT_DURABLE_RECORD_STATE_INVALID
+        and durable_record.fail_closed_reason
+        == CONSENT_DURABLE_FAIL_REASON_NO_CONSENT_SELECTED
+        and not granted
+    ):
+        return (
+            CONSENT_DURABLE_CONSENT_STATE_MISSING,
+            f"Durable {title} consent: missing",
+            missing_reason,
+        )
+    if durable_record.record_state in fail_closed_record_states:
+        return (
+            CONSENT_DURABLE_CONSENT_STATE_BLOCKED,
+            f"Durable {title} consent: blocked fail-closed",
+            CONSENT_DURABLE_REASON_FAIL_CLOSED,
+        )
+    if durable_record.record_state == CONSENT_DURABLE_RECORD_STATE_MISSING:
+        return (
+            CONSENT_DURABLE_CONSENT_STATE_MISSING,
+            f"Durable {title} consent: missing",
+            missing_reason,
+        )
+    if not granted:
+        return (
+            CONSENT_DURABLE_CONSENT_STATE_MISSING,
+            f"Durable {title} consent: missing",
+            missing_reason,
+        )
+    if durable_record.reset_requested or reset_requested:
+        return (
+            CONSENT_DURABLE_CONSENT_STATE_RESET,
+            f"Durable {title} consent: reset",
+            CONSENT_DURABLE_REASON_RESET,
+        )
+    if durable_record.revoked or revoked:
+        return (
+            CONSENT_DURABLE_CONSENT_STATE_REVOKED,
+            f"Durable {title} consent: revoked",
+            CONSENT_DURABLE_REASON_REVOKED,
+        )
+    if durable_record.expired or expired:
+        return (
+            CONSENT_DURABLE_CONSENT_STATE_EXPIRED,
+            f"Durable {title} consent: expired",
+            CONSENT_DURABLE_REASON_EXPIRED,
+        )
+    return (
+        CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        f"Durable {title} consent: granted local-only",
+        CONSENT_DURABLE_REASON_GRANTED,
+    )
 
 
 def _provider_consent_collection_foundation_fields(
@@ -7969,6 +8318,37 @@ def _provider_consent_capture_write_path_fields(
 def _provider_durable_consent_persistence_fields(
     durable_record: AIProviderDurableConsentRecordSnapshot,
 ) -> dict[str, object]:
+    (
+        setup_consent_state,
+        setup_consent_label,
+        setup_consent_reason,
+    ) = _durable_consent_scope_status(durable_record, scope="setup")
+    (
+        execution_consent_state,
+        execution_consent_label,
+        execution_consent_reason,
+    ) = _durable_consent_scope_status(durable_record, scope="execution")
+    setup_handoff_state = (
+        CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_READY
+        if setup_consent_state == CONSENT_DURABLE_CONSENT_STATE_GRANTED
+        else CONSENT_DURABLE_PROVIDER_SETUP_HANDOFF_BLOCKED
+    )
+    execution_handoff_state = (
+        CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_READY
+        if setup_consent_state == CONSENT_DURABLE_CONSENT_STATE_GRANTED
+        and execution_consent_state == CONSENT_DURABLE_CONSENT_STATE_GRANTED
+        else CONSENT_DURABLE_PROVIDER_EXECUTION_HANDOFF_BLOCKED
+    )
+    future_handoff_state = (
+        CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_READY
+        if setup_consent_state == CONSENT_DURABLE_CONSENT_STATE_GRANTED
+        else CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_BLOCKED
+    )
+    future_handoff_label = (
+        "Durable consent future handoff criteria: setup consent local proof ready"
+        if future_handoff_state == CONSENT_DURABLE_FUTURE_HANDOFF_CRITERIA_READY
+        else "Durable consent future handoff criteria: blocked by durable setup consent"
+    )
     local_persistence_states = {
         CONSENT_DURABLE_RECORD_STATE_READY,
         CONSENT_DURABLE_RECORD_STATE_REVOKED,
@@ -8051,6 +8431,31 @@ def _provider_durable_consent_persistence_fields(
         "durable_consent_provider_payload_posture": (
             CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED
         ),
+        "durable_setup_consent_state": setup_consent_state,
+        "durable_setup_consent_label": setup_consent_label,
+        "durable_setup_consent_reason_code": setup_consent_reason,
+        "durable_execution_consent_state": execution_consent_state,
+        "durable_execution_consent_label": execution_consent_label,
+        "durable_execution_consent_reason_code": execution_consent_reason,
+        "durable_setup_execution_consent_separation_state": (
+            CONSENT_DURABLE_SEPARATION_STATE_READY
+        ),
+        "durable_setup_execution_consent_separation_label": (
+            "Durable setup consent and durable execution consent are independent local states"
+        ),
+        "durable_consent_status_proof_state": (
+            CONSENT_DURABLE_STATUS_PROOF_HIDDEN_TELEMETRY
+        ),
+        "durable_consent_status_proof_label": (
+            "Durable consent status proof: hidden telemetry only; no user-operable consent UX"
+        ),
+        "durable_consent_desktop_display_state": (
+            CONSENT_DURABLE_DESKTOP_DISPLAY_SUPPRESSED
+        ),
+        "durable_consent_provider_setup_handoff_state": setup_handoff_state,
+        "durable_consent_provider_execution_handoff_state": execution_handoff_state,
+        "durable_consent_future_handoff_criteria_state": future_handoff_state,
+        "durable_consent_future_handoff_criteria_label": future_handoff_label,
         "consent_capture_provider_visible_data": "none",
         "consent_capture_sent_to_provider": False,
         "consent_capture_can_accept_prompts": False,

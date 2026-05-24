@@ -21,8 +21,8 @@ Phase: `Workstream`
 ## Phase Status
 
 - Branch Authority Marker: `Active Branch`
-Phase Status: `Active Branch - Workstream Seam Group A implemented for FAM-007 Durable Consent Persistence Foundation. Durable consent state/schema, local storage boundary/migration posture, and revocation/reset/expiry persistence semantics are validator-proven. Seam Group B remains pending USER approval.`
-Bounded State: `Granted for Workstream Seam Group A implementation only: durable consent persistence state/schema, local storage boundary and migration posture, revocation/reset/expiry semantics, direct validator fixtures, source-truth proof, commit, and push.`
+Phase Status: `Active Branch - Workstream Green for FAM-007 Durable Consent Persistence Foundation. Seam Group A and Seam Group B are implemented and validator-proven: durable consent state/schema, local storage boundary/migration posture, revocation/reset/expiry semantics, setup/execution durable consent separation, hidden telemetry proof, desktop readiness display suppression continuity, direct validator fixtures, source-truth proof, commit, and push.`
+Bounded State: `Granted for Workstream Seam Group B implementation: setup/execution durable consent separation, Core/Desktop/ORIN hidden-telemetry proof, desktop readiness display suppression continuity, remaining validator fixture coverage, source-truth fold-down, future handoff criteria, commit, and push.`
 
 ## Branch Class
 
@@ -30,7 +30,7 @@ Branch Class: `implementation`
 
 ## Blockers
 
-Blockers: `Seam Group B Execution User Decision Required`
+Blockers: `None for Workstream completion; Hardening H1 remains pending USER approval.`
 
 ## Entry Basis
 
@@ -64,7 +64,7 @@ Backlog-Split Reason: None
 
 ## Next Legal Phase
 
-`Workstream`
+`Hardening`
 
 ## Branch Objective
 
@@ -82,10 +82,10 @@ Branch Closure Rule: `The branch may close after durable local consent persisten
 
 ## Backlog Completion Status
 
-Backlog Completion State: `In Progress`
-Remaining Implementable Work: `Seam Group B remains on the same FAM-007 branch: setup/execution durable consent separation, Core/Desktop/ORIN status or hidden-telemetry proof, validator fixture completion, source-truth fold-down, and future handoff criteria.`
+Backlog Completion State: `Implemented Complete Except Future Dependency`
+Remaining Implementable Work: `None`
 Future-Dependent Blockers: `Provider setup completion, user-operated consent UX beyond admitted proof, provider SDK/model execution, downloads/network/external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain future USER decisions.`
-Completion Status: `Red`
+Completion Status: `Green`
 
 ## Expected Seam Families And Risk Classes
 
@@ -113,20 +113,20 @@ Non-Includes: `Provider setup completion, provider SDK/model execution, prompt r
 
 ## Active Seam
 
-Active seam: `Seam Group B pending USER approval - setup/execution durable consent separation, Core/Desktop/ORIN status or hidden-telemetry proof, validator fixture completion, and future handoff criteria.`
+Active seam: `Workstream Green - Seam Group A and Seam Group B are implemented; next legal phase is Hardening after USER approval.`
 
 ## Seam Continuation Decision
 
 Seam Status: `Green`
-Slice Status: `In Progress`
-Completion Status: `Red`
+Slice Status: `Green`
+Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Continuation Execution Latch: `Inactive - named USER decision blocker prevents same-run continuation into Seam Group B.`
-Stop Basis: `Named Blocker`
-Next Active Seam: `Seam Group B - setup/execution durable consent separation, Core/Desktop/ORIN status or hidden-telemetry proof, validator fixture completion, source-truth fold-down, and future handoff criteria.`
-Stop Condition: `Seam Group B Execution User Decision Required`
-Continuation Action: `Clear the named blocker by obtaining USER approval for Seam Group B implementation on this FAM-007 branch.`
+Continuation Execution Latch: `Inactive - Workstream Green reached; next phase is Hardening and requires USER approval.`
+Stop Basis: `Workstream Green`
+Next Active Seam: `Hardening`
+Stop Condition: `Workstream Green - Hardening pending USER approval.`
+Continuation Action: `Stop at phase boundary until USER admits Hardening; do not begin PR creation, merge, release, cleanup, or future provider/model work.`
 Single-Seam Workstream Waiver: `None`
 Single-Seam Or Single-Slice Waiver Authority: `USER only - Codex cannot infer single-seam or single-slice Workstream authority.`
 Single-Seam Or Single-Slice Workstream Blocker: `A one seam or one slice visible plan is a blocker unless USER waiver approval is recorded; this Workstream still contains remaining same-branch seams.`
@@ -139,7 +139,17 @@ Completed Seams: `Seam 1 durable consent persistence state and schema; Seam 2 lo
 Implementation Proof: `desktop/ai_provider_state.py adds a durable local consent record schema, fail-closed normalization, local JSON store read/write/load helpers, migration posture for current/stale/unsupported schema, revoked/reset/expired durable states, no-secrets posture, provider-payload-excluded posture, and a FAM-007 durable consent persistence state builder.`
 Direct Validation Proof: `dev/orin_ai_provider_state_validation.py now includes fixtures for valid, missing, invalid, corrupt, stale schema, unsupported schema, revoked, reset, expired durable records, isolated temp-store write/load round trip, local storage confinement, provider-visible-data none, sentToProvider false, canAcceptPrompts false, disabled prompt/model/provider execution, blocked downloads/network, inactive memory, and voice/Core gated posture.`
 Provider Boundary Proof: `Provider-visible data remains none; sentToProvider remains false; canAcceptPrompts remains false; prompt/provider/model execution remains disabled; downloads/network/external calls remain blocked; memory/learning/personalization remains inactive; voice/Core sync remains gated.`
-Continuation Posture: `Continue in Workstream after USER approval for Seam Group B. Seam Group A completion is not Hardening authority while same-branch durable consent persistence seams remain.`
+Continuation Posture: `Complete - Seam Group B is now implemented and validator-proven, so the Workstream may proceed to Hardening H1 after USER approval.`
+
+## Workstream Seam Group B Proof
+
+Seam Group B Status: `Implemented and validator-proven`
+Completed Seams: `Seam 4 setup consent / execution consent durable separation; Seam 5 Core/Desktop/ORIN hidden-telemetry status proof and desktop readiness display suppression continuity; Seam 6 validator fixtures and future provider setup handoff criteria.`
+Implementation Proof: `desktop/ai_provider_state.py now derives independent durable setup consent and durable execution consent states, labels, reason codes, future-gated provider setup/execution handoff states, and future handoff criteria from the durable consent record without enabling provider setup, prompt acceptance, provider/model execution, network, downloads, memory, or voice/Core sync.`
+Hidden Telemetry Proof: `desktop/core_visualization_renderer.py and desktop/desktop_renderer.py emit durable consent record, setup consent, execution consent, hidden status proof, desktop display suppression, and future handoff telemetry keys while keeping the long desktop AI-owned readiness display suppressed by default.`
+Direct Validation Proof: `dev/orin_ai_provider_state_validation.py now includes fixtures for setup-only, execution-only, both-absent, both-present, revoked-setup, revoked-execution, reset-setup, reset-execution, expired-setup, and expired-execution durable consent states, plus status/reason-code derivation, hidden telemetry keys, desktop readiness suppression continuity, provider-visible-data none, sentToProvider false, canAcceptPrompts false, disabled prompt/model/provider execution, blocked downloads/network, inactive memory, and voice/Core gated posture.`
+Provider Boundary Proof: `Durable setup consent never implies durable execution consent, prompt acceptance, provider-visible data transfer, provider setup completion, provider/model execution, downloads, external calls, memory, or voice/Core sync.`
+Continuation Posture: `Workstream Green - no same-branch durable consent persistence seams remain implementable; next legal phase is Hardening after USER approval.`
 
 ## Admitted Implementation Slice
 
@@ -156,9 +166,9 @@ USER Vision Question Packet: `Not required for Stage 2 because this branch admit
 Codex Product Interpretation: `Durable consent persistence is the next safest FAM-007 layer after local consent capture/write-path proof because it hardens consent truth before provider setup or model execution.`
 Codex Implementation Recommendation: `Implement persistence schema, storage boundary, revocation/reset durability, fail-closed validation, and status proof before user-operated consent UX or provider setup completion.`
 Codex Additional Recommendations: `Recommendation: keep all provider-visible data none, sentToProvider false, canAcceptPrompts false, prompt/model execution disabled, downloads/network blocked, memory inactive, and voice/Core sync gated; option: defer visible consent UX until durable storage semantics pass validation.`
-USER/ChatGPT Review Checkpoint: `USER may inspect this record and the branch plan before approving Seam Group B implementation.`
+USER/ChatGPT Review Checkpoint: `USER may inspect this record and the branch plan before approving Hardening H1.`
 USER Critique Loop: `USER may accept, revise, reject, or defer durable persistence scope before Workstream implementation.`
-USER Decision Ledger: `USER approved Stage 2 setup, Workstream Entry analysis, FAM-007 confinement repair, and Seam Group A implementation. USER decisions for Seam Group B, PR creation, merge, release, cleanup, provider/model/memory/voice/shortcut/installer work, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
+USER Decision Ledger: `USER approved Stage 2 setup, Workstream Entry analysis, FAM-007 confinement repair, Seam Group A implementation, and Seam Group B implementation. USER decisions for Hardening H1, PR creation, merge, release, cleanup, provider/model/memory/voice/shortcut/installer work, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
 Deferred Ideas / Future Package Ledger: `Future packages or deferred USER decisions own user-operated consent UX, provider setup completion, provider SDK/adapter boundary, prompt/model execution proof, durable memory/indexing, voice/Core sync, shortcuts/installers, and v1.8.0 functional-AI proof.`
 Planning Adequacy Review: `The plan is not a one-screen or marker-only plan because it names persistence state, storage boundary, revocation/reset semantics, consent separation, UI/status proof, validators, future boundaries, and phase proof.`
 Rejected Shallow Plan: `Rejected: merely marking consent as stored without schema, revocation, reset, storage-boundary, provenance, and fail-closed validation proof.`
@@ -174,11 +184,11 @@ Scale / Data Volume Model: `The branch should handle missing, invalid, stale, re
 Configuration And State Model: `Consent persistence remains local-only, versioned, fail-closed, revocable/resettable, and separate from provider profile/config and model execution state.`
 Expected User-Facing Outcomes: `No new broad user-facing AI claim; any visible status must say durable consent persistence is local-only and does not mean provider setup or functional AI is complete.`
 Acceptance Criteria: `Workstream proof covers durable consent schema, local storage boundary, setup/execution separation, revocation/reset, fail-closed cases, no provider-visible data, disabled execution, validators, H1, LV1/static proof, and PR readiness fold-down.`
-User-Facing Proof Standard: `Static Core/Desktop/ORIN proof or hidden telemetry proof is expected for Seam Group A; visible UX requires focused screenshot/live proof and later USER approval.`
+User-Facing Proof Standard: `Static Core/Desktop/ORIN hidden-telemetry proof is expected for this Workstream; visible UX requires focused screenshot/live proof and later USER approval.`
 Current Branch vs Future Package Boundary: `Current branch is durable consent persistence foundation; future branches own user-operated consent UX, provider setup completion, SDK/model execution, memory, voice/Core, shortcuts/installers, and v1.8.0 release proof.`
 Current Branch vs Future Package Boundaries: `Current branch is durable consent persistence foundation; future packages own user-operated consent UX, provider setup completion, SDK/model execution, memory, voice/Core sync, shortcuts/installers, and v1.8.0 release proof.`
-Affected Files / Surfaces: `Branch record, branch plan, backlog/roadmap/worktree slots, validation helper registry, governance validator/source truth for confinement repair, desktop provider-state files, Core/Desktop/ORIN status surfaces, and provider-state validator fixtures as admitted later.`
-Affected Surfaces: `Branch authority record, Branch Runtime Engineering Plan, feature backlog, prebeta roadmap, worktree slots, validation helper registry, desktop provider state, and provider-state validator fixtures for Seam Group A. Core/Desktop/ORIN visible status surfaces remain pending Seam Group B approval.`
+Affected Files / Surfaces: `Branch record, branch plan, backlog/roadmap/worktree slots, validation helper registry, governance validator/source truth for confinement repair, desktop provider-state files, Core/Desktop/ORIN hidden-telemetry status surfaces, and provider-state validator fixtures.`
+Affected Surfaces: `Branch authority record, Branch Runtime Engineering Plan, feature backlog, prebeta roadmap, worktree slots, validation helper registry, desktop provider state, Core/Desktop/ORIN hidden-telemetry renderers, and provider-state validator fixtures for Seam Group A and Seam Group B.`
 Data / Control Model: `Local consent data may be persisted locally for future gates; it must not be sent to provider, used to accept prompts, enable model execution, download models, or write memory.`
 Data/Control Model: `Durable consent remains local control state only; it may gate later setup decisions but cannot send provider-visible data, accept prompts, execute models, download assets, write memory, call external services, or sync voice/Core runtime.`
 Branch Reach / Package-Size Proof: `This branch is large enough for durable consent persistence because it spans schema, storage boundary, revocation/reset, status proof, validation, and phase fold-down, but it remains smaller than provider setup completion or functional AI.`
@@ -187,10 +197,10 @@ Why Branch Is Large Enough: `It contains multiple concrete runtime and proof sea
 Why This Branch Should Not Split Smaller: `Splitting schema, storage boundary, and revocation/reset into separate branches would create fragile partial consent truth; they should be planned together and implemented seam-by-seam.`
 Why Not Split Into Tiny Branches: `Splitting schema, storage boundary, revocation/reset, and validation into tiny branches would create partial consent truth and increase release churn before the next FAM-007 provider step.`
 Validation Proof Requirements: `Run branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixture validation, AI provider state validation, runtime-fam007 suite, rebaseline audit, compileall, and any new persistence fixtures.`
-Screenshot / Live / User Test Summary Proof Requirements: `No user-operated consent UX is admitted during Seam Group A; LV1 should use static source/validator proof or hidden telemetry proof unless visible behavior is admitted in a later USER-approved seam.`
+Screenshot / Live / User Test Summary Proof Requirements: `No user-operated consent UX is admitted during this Workstream; LV1 should use static source/validator proof and hidden telemetry proof unless visible behavior is admitted in a later USER-approved branch.`
 Implementation Sequence Proposal: `Stage 2 setup, Workstream Entry whole-package analysis, bounded Workstream implementation, Hardening H1, Live Validation LV1/static proof, PR Readiness, PR creation, merge, and later Release Readiness.`
-Planning Blockers: `None for Seam Group A; Seam Group B approval remains pending.`
-USER Decisions Needed: `Approve Seam Group B implementation next; later approve PR creation, merge, release, and all future-gated provider/model/memory/voice/shortcut/installer work.`
+Planning Blockers: `None for Workstream completion; Hardening approval remains pending.`
+USER Decisions Needed: `Approve Hardening H1 next; later approve PR creation, merge, release, and all future-gated provider/model/memory/voice/shortcut/installer work.`
 Planning Packet Status: `Complete`
 Planning Revalidation Status: `PASS`
 Planning Completion Waiver: `None`
@@ -198,16 +208,16 @@ User Test Summary Strategy: `Static validator or hidden-telemetry proof is expec
 
 ## Runtime Branch Engineering Contract
 
-Engineering Contract Status: `Accepted for Workstream; Seam Group A implemented and validator-proven.`
-USER Engineering Planning Review: `Accepted - Workstream Entry review completed; Seam Group B remains pending USER approval.`
-Runtime Implementation Approval: `Approved - USER approved Seam Group A implementation; Seam Group B and later runtime/product work remain pending USER decisions.`
+Engineering Contract Status: `Accepted for Workstream; Seam Group A and Seam Group B implemented and validator-proven.`
+USER Engineering Planning Review: `Accepted - Workstream Entry review completed and Seam Group B USER approval received.`
+Runtime Implementation Approval: `Approved - USER approved Seam Group A and Seam Group B implementation; later runtime/product work remains pending USER decisions.`
 Branch Purpose: `Prepare the FAM-007 durable local consent persistence foundation after PR #201 so later user-operated consent UX and provider setup work can rely on versioned, revocable, fail-closed local consent state.`
 Current Runtime Baseline: `Released FAM-007 evidence includes setup/consent-flow readiness, setup contract readiness, setup implementation foundation, consent collection foundation, and PR #201 consent capture/write-path foundation released in v1.7.16-prebeta. Provider-visible data remains none, sentToProvider false, canAcceptPrompts false, prompt/model execution disabled, downloads/network blocked, memory inactive, voice/Core sync gated, and desktop readiness display suppression preserved.`
 Planned Runtime Delta: `Durable local consent persistence foundation: consent record persistence schema, local storage boundary, schema versioning, revocation/reset durability, setup/execution consent separation, provenance/audit metadata, fail-closed fixture coverage, and status proof.`
 User-Facing Runtime Delta: `Potential status-only proof that durable consent persistence exists locally; no claim of provider setup completion, consent UX completion, provider/model execution, downloads, network, memory, voice/Core sync, or functional AI.`
 State / Config / Schema Delta: `Local consent record schema, schema version, storage-boundary marker, setup consent durable state, execution consent durable state, revoked/reset state, provenance, audit timestamp/source fields, and fail-closed reason codes.`
 Validator / Helper Delta: `Extend FAM-007 provider-state validation for durable persistence fixtures, revocation/reset, setup/execution durable separation, local-only storage boundary, no provider-visible data, no prompt execution, and static proof/waiver posture; extend branch governance validation for family-scoped Branch Readiness confinement.`
-Expected Changed Files / Surfaces: `Docs branch record, branch plan, backlog, roadmap, worktree slot, validation helper registry, desktop/ai_provider_state.py, and dev/orin_ai_provider_state_validation.py for Seam Group A. Core/Desktop/ORIN visible status surfaces remain pending Seam Group B approval.`
+Expected Changed Files / Surfaces: `Docs branch record, branch plan, backlog, roadmap, worktree slot, validation helper registry, desktop/ai_provider_state.py, desktop/core_visualization_renderer.py, desktop/desktop_renderer.py, and dev/orin_ai_provider_state_validation.py for Seam Group A and Seam Group B. Visible user-operated consent UX remains excluded.`
 Approval-Boundary Audit: `Stage 2 changes source truth and validator governance only. Runtime implementation, provider setup completion, user-operated consent UX, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, PR creation, merge, release, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
 Future-Gated Items: `User-operated consent UX, provider setup completion, SDK/model execution, model downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, release execution, issue work, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta.`
 Workstream Seam Map: `Seam 1 -> persistence state/schema; Seam 2 -> local storage boundary and migration posture; Seam 3 -> revocation/reset/expiry persistence semantics; Seam 4 -> setup/execution consent durable separation; Seam 5 -> Core/Desktop/ORIN status proof; Seam 6 -> validator fixtures and future handoff criteria.`
@@ -221,7 +231,7 @@ Plan-To-Implementation Traceability: `Each seam maps to planned files, validator
 
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
 Branch Runtime Engineering Plan: `Accepted for Stage 2 setup.`
-Engineering Plan Status: `Accepted - Workstream active; Seam Group A implemented and Seam Group B pending USER approval.`
+Engineering Plan Status: `Accepted - Workstream Green; Seam Group A and Seam Group B implemented and validator-proven.`
 
 ## Family-Scoped Branch Readiness Confinement
 
@@ -269,17 +279,17 @@ Required Validation: `git diff --check origin/main...HEAD; git diff --check; pyt
 ## Formal Next Legal Phase Digest
 
 Current Phase: `Workstream`
-Next Legal Phase: `Workstream`
-Next Active Seam: `Seam Group B implementation`
-Why This Phase Is Next: `Seam Group A implemented durable consent state/schema, local storage boundary/migration posture, and revocation/reset/expiry persistence semantics. The admitted Workstream still has same-branch durable consent persistence seams for setup/execution durable consent separation, status or hidden-telemetry proof, validator fixture completion, and future handoff criteria, so Workstream must continue after USER approval instead of moving to Hardening.`
-Approval Required: `USER approval required for Seam Group B implementation.`
-Exact USER Approval Text: `I approve bounded Workstream implementation for Seam Group B on feature/fam-007-local-ai-provider-durable-consent-persistence-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@10c32804370ee5480416e68e55823e5997d18291. Scope: continue the admitted FAM-007 Durable Local Consent Persistence Foundation Workstream with setup/execution durable consent separation, Core/Desktop/ORIN status or hidden-telemetry proof with desktop readiness display suppression continuity, remaining validator fixture coverage, source-truth fold-down, and future handoff criteria. Preserve provider-visible data none, sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, memory/learning/personalization inactive, voice/Core sync gated, and keep provider setup completion, SDK/model execution, PR creation, merge, release, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution pending USER decisions. Validate with the Workstream validation set plus durable-consent fixtures, commit, and push when Seam Group B reaches green or a named blocker.`
-Allowed Scope: `Workstream Seam Group B implementation only after USER approval.`
+Next Legal Phase: `Hardening`
+Next Active Seam: `Hardening`
+Why This Phase Is Next: `Seam Group A and Seam Group B implemented the admitted durable consent persistence Workstream: durable state/schema, local storage boundary/migration posture, revocation/reset/expiry semantics, setup/execution durable consent separation, Core/Desktop/ORIN hidden telemetry proof, desktop readiness display suppression continuity, validator fixture completion, source-truth fold-down, and future handoff criteria. No same-branch durable consent persistence seams remain implementable, so the next governed phase is Hardening after USER approval.`
+Approval Required: `USER approval required for Hardening H1.`
+Exact USER Approval Text: `I approve Hardening H1 for feature/fam-007-local-ai-provider-durable-consent-persistence-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@10c32804370ee5480416e68e55823e5997d18291. Scope: inspect the completed FAM-007 Durable Local Consent Persistence Foundation Workstream, compare implementation against the branch plan, Product Definition Plan, Runtime Branch Engineering Contract, and Branch Runtime Engineering Plan, verify Seam Group A and Seam Group B proof, setup/execution durable consent separation, Core/Desktop/ORIN hidden telemetry proof, desktop readiness display suppression continuity, direct validator fixtures, source-truth fold-down, provider-boundary preservation, FAM-006/Governance/Compact-AI overlap as context only, and validation posture. Apply H1-scoped repairs if repo truth supports them, validate, commit, and push if repairs are made. Keep provider setup completion, SDK/model execution, PR creation, merge, release, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution pending USER decisions.`
+Allowed Scope: `Hardening H1 inspection and H1-scoped repairs only after USER approval.`
 Explicit Exclusions: `No runtime implementation, provider setup completion, user-operated consent UX, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release, branch/worktree cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `Run git diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixture validation, AI provider state validation, branch-readiness suite, runtime-fam007 suite, rebaseline audit, compileall, and any new durable-consent fixtures.`
-Stop Conditions: `Stop if origin/main advances, the worktree is dirty, source truth points to another FAM-007 carrier, family-scoped confinement fails, validation fails, direct durable-consent validation cannot prove the implemented behavior, or any step requires a pending USER decision.`
-USER Plan Review Gate: `USER may accept, revise, waive, or reject the next Seam Group B implementation plan before continuing Workstream.`
-USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md; Docs/phase_governance.md; Docs/branch_records/index.md; Docs/validation_helper_registry.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; dev/orin_branch_governance_validation.py.`
-Review Required Because: `The branch remains in bounded Workstream and Seam Group B will touch durable consent separation/status proof boundaries.`
-Implementation Blocker: `Seam Group B implementation remains blocked until USER approval.`
+Stop Conditions: `Stop if origin/main advances, the worktree is dirty, source truth points to another FAM-007 carrier, family-scoped confinement fails, validation fails, direct durable-consent validation cannot prove the implemented behavior, H1 finds a pending USER decision requirement, or any step requires work outside H1 scope.`
+USER Plan Review Gate: `USER may accept, revise, waive, or reject the Hardening H1 packet before H1 begins.`
+USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md; Docs/validation_helper_registry.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/orin_ai_provider_state_validation.py.`
+Review Required Because: `The Workstream is green and Hardening H1 must verify implementation/source-truth/validator alignment before LV1 or PR Readiness.`
+Implementation Blocker: `Runtime Workstream implementation is complete; Hardening H1 remains blocked until USER approval.`
 Review Waiver Reason: `Not waived.`
