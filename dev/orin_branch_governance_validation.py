@@ -4122,6 +4122,110 @@ PR_READINESS_ORIGIN_MAIN_FRESHNESS_MARKERS = (
     "Reconciliation Mutation Status",
 )
 
+PROMPT_ENTRY_ORIGIN_MAIN_FRESHNESS_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Current Worktree:",
+        "Current Branch:",
+        "HEAD:",
+        "Upstream:",
+        "origin/main:",
+        "Merge Base With origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "Validating locally is not enough",
+    ),
+    Path("Docs/Main.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "validating locally is not enough",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Current Worktree:",
+        "Current Branch:",
+        "HEAD:",
+        "origin/main:",
+        "Merge Base With origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "validating locally is not enough",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "validating locally is not enough",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "validating locally is not enough",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Current Worktree:",
+        "Current Branch:",
+        "HEAD:",
+        "Upstream:",
+        "origin/main:",
+        "Merge Base With origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+        "Origin/Main Advanced Rebaseline Required",
+        "validating locally is not enough",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "Prompt-Entry Origin/Main Freshness Gate",
+        "Prompt-Entry Freshness Check:",
+        "Fetched origin/main:",
+        "Origin/Main Advanced Since Last Action:",
+        "Pre-Rebaseline Impact Audit Required:",
+        "Rebaseline/Reconciliation Status:",
+        "Prompt-Entry Origin/Main Freshness Missing",
+    ),
+}
+
 CURRENT_MAIN_RECONCILIATION_IDENTITY_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -19385,6 +19489,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR Readiness origin/main freshness guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in PROMPT_ENTRY_ORIGIN_MAIN_FRESHNESS_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: prompt-entry origin/main freshness guidance is missing '{required_phrase}'",
             )
 
     for relative_path in PRE_REBASELINE_IMPACT_AUDIT_DOCS:

@@ -107,6 +107,39 @@ PR Readiness Stage:
 PR Readiness Stage 2 Approval:
 [USER approval to enter Stage 2 recorded / PR Readiness Execution User Approval Missing / not applicable]
 
+Prompt-Entry Freshness Check:
+[PASS / Prompt-Entry Origin/Main Freshness Missing / Origin/Main Advanced Rebaseline Required]
+
+Fetched origin/main:
+[YES with command/proof / NO with reason]
+
+Current Worktree:
+[absolute path]
+
+Current Branch:
+[fill in active branch]
+
+HEAD:
+[fill in current HEAD commit]
+
+Upstream:
+[fill in upstream ref / none]
+
+origin/main:
+[fill in current origin/main commit]
+
+Merge Base With origin/main:
+[fill in merge-base commit]
+
+Origin/Main Advanced Since Last Action:
+[YES / NO / unknown]
+
+Pre-Rebaseline Impact Audit Required:
+[YES / NO with reason]
+
+Rebaseline/Reconciliation Status:
+[Not Required / Report-Only Audit Returned / USER Approval Pending / Approved and Completed / Blocked]
+
 Origin/Main Freshness Check:
 [PASS / Origin Main Reconciliation Packet Required / not applicable]
 
