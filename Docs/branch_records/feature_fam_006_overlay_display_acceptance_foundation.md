@@ -34,7 +34,7 @@ Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof cl
 
 ## Phase Status
 
-Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness, Hardening H1, LV1 proof refresh, and USER Test Summary review are complete; PR Readiness remains pending separate USER approval.`
+Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness, Hardening H1, LV1 proof refresh, USER Test Summary review, and PR Readiness Stage 1 source-truth repair are complete; Stage 1 Ready For Stage 2 pending separate USER approval.`
 Authority State: `Active Branch`
 Bounded State: `Granted for bounded multi-seam Workstream execution across admitted SLC-042 through SLC-045; PR/release and future-gated work remain blocked until later USER approval.`
 
@@ -187,8 +187,43 @@ Stable Worktree Path Preservation Gate: `PASS - the stable path is preserved and
 
 ## Blockers
 
-Active Blockers: `None for LV1 / USER Test Summary - USER reported the two UTS items and branch bugs resolved and closed. PR creation, merge, release, issues, stale branch cleanup, and future-gated runtime work remain pending separate USER decisions.`
+Active Blockers: `PR Readiness Execution User Approval Missing - Stage 1 is ready for Stage 2, but PR creation, watcher provisioning, merge, release, issues, stale branch cleanup, and future-gated runtime work remain pending separate USER decisions.`
 PR Readiness Blocker: PR creation and merge remain pending separate USER approval.
+
+## PR Readiness Stage 1 Projection
+
+PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2`
+Pre-PR Live State: `No live PR`
+PR Creation Approval: `Pending USER approval`
+Stage 2 PR Creation: `Pending USER approval`
+Origin/Main Freshness Check: `PASS - current origin/main is a909f8e92c1fb1abd06e54e1301f12459e647b45; merge base is a909f8e92c1fb1abd06e54e1301f12459e647b45; branch is 39 ahead / 0 behind origin/main before Stage 2.`
+Reconciliation Required: `NO - current-main reconciliation is complete.`
+Reconciliation File List: `None for current Stage 1; prior reconciliation preserved incoming PR #206 / FAM-007 consent UX context and FAM-006 branch-local authority.`
+Reconciliation Recommendation: `No current-main reconciliation required before Stage 2 unless origin/main advances.`
+Reconciliation Mutation Status: `Complete before this Stage 1 repair; no reconciliation mutation performed during this repair.`
+Post-Merge Branch Authority Projection: `After this branch merges, Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md becomes historical merged-unreleased branch evidence; Docs/branch_records/index.md must move this FAM-006 branch pointer from Active Branch Authority Records to Historical Branch Authority Records unless a later USER-approved current branch keeps it active.`
+Stale Active Branch Wording Scan: `PASS for Stage 1 projection - active branch wording may remain before PR merge; Stage 2 / merge-readiness must ensure merged-main projection removes active FAM-006 authority wording from current-state owners.`
+Stale PR Creation / PR Readiness Pending Wording Scan: `PASS for Stage 1 projection - pre-PR pending wording is explicitly labeled as pre-PR state and must be replaced by live PR validation during Stage 2.`
+Merged-Unreleased Scope Posture: `After merge, FAM-006 Overlay Display Acceptance Foundation becomes merged-unreleased scope for the next release window; it does not execute release publication.`
+Release Execution Gate: `Blocked - release execution remains a separate USER decision after merge and Release Readiness.`
+Watcher / Live PR State Projection: `No live PR exists during Stage 1; Stage 2 approval includes watcher provisioning by default unless USER grants an explicit watcher waiver or a platform blocker is documented.`
+Branch Cleanup Plan: `No cleanup during Stage 1 or Stage 2 PR creation. After merge, stale branch/worktree cleanup remains a separate USER decision or later Branch Readiness cleanup gate.`
+Branch Cleanup Execution Gate: `Blocked - no branch deletion, remote branch deletion, worktree removal, or GitHub Desktop cleanup is authorized by PR Readiness Stage 1.`
+FAM Overlap Routing: `FAM-006 Overlay Display Acceptance Foundation is the current PR scope. FAM-007 provider/consent UX changes are current-main context only; Recording Profile, tray recording, export/share, provider/model work, broad theme/skin work, Governance mutation, Compact-AI work, and future monitoring/HUD expansion remain USER-gated.`
+Release Candidate Anchor Projection: `Pending live PR creation and merge commit; if merged before another runtime PR, this branch's merge commit becomes the merged-unreleased release candidate anchor for FAM-006 overlay display acceptance scope.`
+Release Window Contributor Inventory: `Projected next release-window contributor after v1.7.18-prebeta: this FAM-006 Overlay Display Acceptance Foundation branch only, unless another USER-approved PR merges first. Current origin/main already includes v1.7.18-prebeta / PR #206 FAM-007 context.`
+Governance Intake Routing: `None required now. If Release Readiness later finds stale active branch authority, stale phase wording, stale PR Readiness wording, selected-next ambiguity, release-window contributor ambiguity, or No Active Branch conflict after merge, route a digest to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake.`
+Projected Post-Merge Validation: `After merge, validate branch authority projection, active/historical branch record routing, backlog/roadmap merged-unreleased wording, release-readiness health gate, source-owner marker validation, FAM-006 HUD validators as needed, release body validation, AI provider state validation, and compileall.`
+No Successor Runtime Branch By Inertia: `USER-waived for this PR Readiness Stage 1 repair; no successor runtime branch is selected or created by inertia.`
+Selected-Next Defer User Waiver: `Granted for this PR Readiness Stage 1 repair; next-workstream selection is deferred to a later USER-approved Branch Readiness or explicit selected-next decision.`
+Post-Merge No Active Branch Projection: `Projected steady-state after this PR merge is no active FAM-006 runtime branch unless USER separately selects the next runtime branch; the standing governance intake authority may remain as its own standing exception.`
+Next Workstream User Waiver: `Granted - USER approval for this bounded Stage 1 repair allowed an explicit next-workstream waiver instead of selecting a successor workstream.`
+Recommended Next Workstream: `None selected by this PR Readiness Stage 1 repair.`
+Candidate Work To Be Done: `Deferred - future FAM-006 runtime work, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, and any next Monitoring/HUD package require separate USER-approved Branch Readiness.`
+User-Facing Output: `Current branch output is accepted Overlay Display Acceptance Foundation evidence with UTS PASS/closed; no new user-facing runtime work is selected for the next branch.`
+Next Branch Package Shape: `Deferred by USER waiver; no successor branch creation or package admission is authorized during PR Readiness.`
+Branch Creation Status: `Blocked - branch creation belongs to a later USER-approved Branch Readiness Stage 2.`
+PR Readiness Execution User Approval: `Missing - Stage 2 cannot begin until USER approves PR Readiness Stage 2 / PR creation.`
 
 ## Exit Criteria
 
@@ -284,16 +319,16 @@ Proof Closure Status: `Closed for SLC-042 validation/proof closure; no runtime i
 ## Next Legal Phase
 
 Next Legal Phase: `PR Readiness`
-Next Legal Phase Detail: `Current-main reconciliation, H1, LV1 visual adjudication/proof refresh, and USER Test Summary digestion are complete. The next legal work is PR Readiness Stage 1 analysis after USER approval, not additional runtime implementation.`
+Next Legal Phase Detail: `Current-main reconciliation, H1, LV1 visual adjudication/proof refresh, USER Test Summary digestion, and PR Readiness Stage 1 source-truth repair are complete. The next legal work is PR Readiness Stage 2 / PR creation after USER approval, not additional runtime implementation.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Live Validation Stage 1 / USER Test Summary digestion complete`
-Next Legal Phase: `PR Readiness Stage 1 analysis`
-Why This Phase Is Next: `SLC-042 through SLC-045, H1, current-main reconciliation, real-input LV1 proof, focused normal/compact screenshots, short video proof, Codex pessimistic visual review, and USER Test Summary PASS/closed digestion are green.`
-Approval Required: `USER must approve PR Readiness Stage 1 analysis before PR readiness source-truth analysis begins. PR creation remains a later separate decision.`
-Exact USER Decision Needed: `Approve PR Readiness Stage 1 analysis for FAM-006 Overlay Display Acceptance Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-overlay-display-acceptance-foundation; PR creation, merge, release, issues, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, and future-gated runtime work remain pending separate USER decisions.`
-Allowed Scope: `PR Readiness Stage 1 analysis only after USER approval; no runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup, or future-gated work.`
+Current Phase: `PR Readiness Stage 1 - Analysis Gate / source-truth repair complete`
+Next Legal Phase: `PR Readiness Stage 2 - Execution Gate`
+Why This Phase Is Next: `SLC-042 through SLC-045, H1, current-main reconciliation, real-input LV1 proof, focused normal/compact screenshots, short video proof, Codex pessimistic visual review, USER Test Summary PASS/closed digestion, and PR Readiness Stage 1 merge-stable projection are green.`
+Approval Required: `USER must approve PR Readiness Stage 2 / PR creation before PR creation, watcher provisioning, live PR validation, or merge-readiness work begins.`
+Exact USER Decision Needed: `Approve PR Readiness Stage 2 execution for FAM-006 Overlay Display Acceptance Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-overlay-display-acceptance-foundation to create the PR to main, provision the PR watcher, validate live PR state/mergeability, run required validation, and return the Stage 2 packet; merge, release, issues, stale branch cleanup, artifacts/raw evidence handling beyond approved PR proof, and future-gated runtime work remain pending separate USER decisions.`
+Allowed Scope: `PR Readiness Stage 2 execution only after USER approval: final pre-PR validation, PR creation, watcher provisioning, live PR validation, and Stage 2 packet.`
 Explicit Exclusions: `PR creation, merge to main, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation.`
 Validation Required: `Identity, source-truth, HUD live/human-client proof as needed, branch governance, worktree confinement after commit, release-readiness health gate, validation suite, diff checks, compileall, and supported JS syntax/runtime checks including bundled runtime Node when needed.`
-Stop Conditions: `Stop if worktree identity differs, origin/main advances and requires reconciliation, source truth selects a different phase, PR Readiness analysis reveals blockers, validation fails, or USER reports a new UTS failure.`
+Stop Conditions: `Stop if worktree identity differs, origin/main advances and requires reconciliation, source truth selects a different phase, PR creation fails, watcher provisioning fails without USER waiver, live PR validation/mergeability fails, validation fails, or USER reports a new UTS failure.`
