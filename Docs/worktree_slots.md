@@ -103,20 +103,20 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: USER-assigned runtime slot for FAM-007 User-Operated Consent UX Foundation Branch Readiness Stage 2 carrier; Workstream Entry pending after Stage 2 setup
+- Assignment Status: USER-assigned runtime slot for FAM-007 User-Operated Consent UX Foundation Workstream carrier; Workstream Green with H1 pending
 - Assigned Branch: `feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation`
 - Assigned Family / Workstream: `FAM-007 Local AI Provider User-Operated Consent UX Foundation`
 - Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
 - Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
 - GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding; no cleanup/rebinding authorized by this branch`
-- Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 user-operated consent UX foundation Branch Readiness Stage 2 setup`
+- Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 user-operated consent UX foundation Workstream implementation`
 - Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
 - Worktree Ownership Ledger: `Branch authority record plus this slot receipt`
-- Intended Write Set: `FAM-007 branch authority, branch plan, compact pointer docs, release-canon closure, worktree slot receipt, generated inventory surfaces if validation requires regeneration, and validation-produced source truth if required`
+- Intended Write Set: `FAM-007 branch authority, branch plan, compact pointer docs, provider-state source, Core/Desktop/ORIN status surfaces, validation-produced source truth, and FAM-007 provider-state validator updates required for the approved Workstream`
 - Same Worktree / Same Branch Collision Check: `PASS at assignment; no second writer assigned`
-- Dirty Worktree Collision Check: `PASS at assignment; worktree clean before Stage 2 source-truth edits`
+- Dirty Worktree Collision Check: `PASS - current owner claimed by Current Codex thread assigned by USER for FAM-007 user-operated consent UX foundation Workstream implementation; dirty tracked files during implementation are owned by that active owner`
 - Dirty Worktree Recovery Packet: `Not required unless unowned dirty files appear`
-- Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests are sibling overlap context only and not successor authority for this FAM-007 Stage 2 pass`
+- Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests are sibling overlap context only and not successor authority for this FAM-007 Workstream`
 - Governance Routing Barrier: `Active for governance-only mutation outside this FAM-007 branch path`
 - New Worktree Decision Gate: `Pending USER approval for any worktree creation, deletion, cleanup, or rebinding beyond this carrier`
 - USER Assignment Decision: `USER approved Branch Readiness Stage 2 setup in C:\Nexus Worktrees\FAM-007 for feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation from the current origin/main baseline after v1.7.17-prebeta and Governance PR #204`

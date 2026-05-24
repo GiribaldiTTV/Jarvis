@@ -44,6 +44,9 @@ FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_STATE_ID = (
 FAM007_PROVIDER_DURABLE_CONSENT_PERSISTENCE_FOUNDATION_STATE_ID = (
     "fam007-provider-durable-consent-persistence-foundation"
 )
+FAM007_PROVIDER_USER_OPERATED_CONSENT_UX_FOUNDATION_STATE_ID = (
+    "fam007-provider-user-operated-consent-ux-foundation"
+)
 
 NO_PROVIDER_MODE = "no-provider"
 NO_PROVIDER_AVAILABILITY = "disabled"
@@ -75,9 +78,13 @@ FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_MODE = (
 FAM007_PROVIDER_DURABLE_CONSENT_PERSISTENCE_FOUNDATION_MODE = (
     "provider-durable-consent-persistence-foundation"
 )
+FAM007_PROVIDER_USER_OPERATED_CONSENT_UX_FOUNDATION_MODE = (
+    "provider-user-operated-consent-ux-foundation"
+)
 FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_AVAILABILITY = "disabled"
 FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_AVAILABILITY = "disabled"
 FAM007_PROVIDER_DURABLE_CONSENT_PERSISTENCE_FOUNDATION_AVAILABILITY = "disabled"
+FAM007_PROVIDER_USER_OPERATED_CONSENT_UX_FOUNDATION_AVAILABILITY = "disabled"
 NO_PROVIDER_ID = "no-provider"
 NO_PROVIDER_FALLBACK_SELECTION = "fallback-no-provider"
 PROVIDER_CONSENT_REQUIRED = "required-before-provider"
@@ -1164,6 +1171,42 @@ CONSENT_DURABLE_PROVENANCE_LOCAL_STORE = "durable_local_consent_store"
 CONSENT_DURABLE_DEFAULT_RECORD_ID = "local-durable-consent-record"
 CONSENT_DURABLE_DEFAULT_AUDIT_EVENT_ID = "local-durable-consent-audit"
 CONSENT_DURABLE_RECORD_FILENAME = "provider_durable_consent_record.json"
+CONSENT_UX_STATE_SCHEMA_VERSION = "provider-user-operated-consent-ux-state.v1"
+CONSENT_UX_INTENT_SCHEMA_VERSION = "provider-user-operated-consent-ux-intent.v1"
+CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT = (
+    "consent_ux_blocked_by_durable_consent"
+)
+CONSENT_UX_STATE_READY_LOCAL_ONLY = "consent_ux_ready_local_only"
+CONSENT_UX_STATE_REVOKED_LOCAL_ONLY = "consent_ux_revoked_local_only"
+CONSENT_UX_STATE_RESET_LOCAL_ONLY = "consent_ux_reset_local_only"
+CONSENT_UX_STATE_EXPIRED_LOCAL_ONLY = "consent_ux_expired_local_only"
+CONSENT_UX_STATE_DEGRADED_FAIL_CLOSED = "consent_ux_degraded_fail_closed"
+CONSENT_UX_INTENT_NONE = "consent_ux_intent_none"
+CONSENT_UX_INTENT_SETUP_SELECTED = "consent_ux_intent_setup_selected_local_only"
+CONSENT_UX_INTENT_EXECUTION_SELECTED = (
+    "consent_ux_intent_execution_selected_local_only"
+)
+CONSENT_UX_INTENT_REVOKE_SELECTED = "consent_ux_intent_revoke_selected_local_only"
+CONSENT_UX_INTENT_RESET_SELECTED = "consent_ux_intent_reset_selected_local_only"
+CONSENT_UX_INTENT_BLOCKED = "consent_ux_intent_blocked_fail_closed"
+CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL = "consent-ux-status-only-local"
+CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT = "consent-ux-controls-local-intent"
+CONSENT_UX_WRITE_LOCAL_INTENT_ONLY = "consent-ux-write-local-intent-only"
+CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED = "consent-ux-write-blocked-fail-closed"
+CONSENT_UX_DURABLE_HANDOFF_READY = "consent-ux-durable-handoff-ready"
+CONSENT_UX_DURABLE_HANDOFF_BLOCKED = "consent-ux-durable-handoff-blocked"
+CONSENT_UX_PROVIDER_SETUP_GATE_FUTURE_GATED = (
+    "consent-ux-provider-setup-gate-future-gated"
+)
+CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED = "consent-ux-provider-setup-gate-blocked"
+CONSENT_UX_PROVIDER_EXECUTION_GATE_DISABLED = (
+    "consent-ux-provider-execution-gate-disabled"
+)
+CONSENT_UX_STATUS_PROOF_STATE = "consent-ux-status-proof-derived-from-durable-state"
+CONSENT_UX_DESKTOP_DISPLAY_SUPPRESSED = "consent-ux-desktop-display-suppressed"
+CONSENT_UX_LOCAL_ONLY_POSTURE = "consent-ux-local-only"
+CONSENT_UX_FUNCTIONAL_AI_CRITERIA_PENDING = "consent-ux-functional-ai-pending"
+CONSENT_UX_V18_CONTINUATION_PENDING = "consent-ux-v1.8.0-continuation-pending"
 CONSENT_CAPTURE_AUDIT_SCHEMA_VERSION = "provider-consent-capture-audit.v1"
 CONSENT_CAPTURE_AUDIT_STATUS_LOCAL_PROOF = "consent-capture-audit-local-proof"
 CONSENT_CAPTURE_AUDIT_STATUS_BLOCKED = "consent-capture-audit-blocked"
@@ -1452,6 +1495,7 @@ _SETUP_FOUNDATION_CONFIG_OMITTED = object()
 _CONSENT_COLLECTION_CONFIG_OMITTED = object()
 _CONSENT_CAPTURE_RECORD_OMITTED = object()
 _DURABLE_CONSENT_RECORD_OMITTED = object()
+_CONSENT_UX_INTENT_OMITTED = object()
 
 
 @dataclass(frozen=True)
@@ -1659,6 +1703,30 @@ class AIProviderDurableConsentRecordSnapshot:
             "fail_closed_reason": self.fail_closed_reason,
             "no_secrets": self.no_secrets,
             "provider_payload_excluded": self.provider_payload_excluded,
+        }
+
+
+@dataclass(frozen=True)
+class AIProviderConsentUxIntentSnapshot:
+    schema_version: str
+    setup_intent_selected: bool
+    execution_intent_selected: bool
+    revoke_intent_selected: bool
+    reset_intent_selected: bool
+    local_write_requested: bool
+    surface_enabled: bool
+    provenance: str
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "schema_version": self.schema_version,
+            "setup_intent_selected": self.setup_intent_selected,
+            "execution_intent_selected": self.execution_intent_selected,
+            "revoke_intent_selected": self.revoke_intent_selected,
+            "reset_intent_selected": self.reset_intent_selected,
+            "local_write_requested": self.local_write_requested,
+            "surface_enabled": self.surface_enabled,
+            "provenance": self.provenance,
         }
 
 
@@ -2457,6 +2525,46 @@ class AIProviderStateSnapshot:
     durable_consent_future_handoff_criteria_label: str = (
         "Durable consent future handoff criteria: blocked"
     )
+    consent_ux_state_schema_version: str = CONSENT_UX_STATE_SCHEMA_VERSION
+    consent_ux_intent_schema_version: str = CONSENT_UX_INTENT_SCHEMA_VERSION
+    consent_ux_state: str = CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT
+    consent_ux_label: str = "Consent UX: blocked by durable consent"
+    consent_ux_intent_state: str = CONSENT_UX_INTENT_NONE
+    consent_ux_intent_label: str = "Consent UX intent: none"
+    consent_ux_surface_state: str = CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL
+    consent_ux_surface_label: str = (
+        "Consent UX surface: local status only; no provider action"
+    )
+    consent_ux_setup_display_state: str = CONSENT_DURABLE_CONSENT_STATE_MISSING
+    consent_ux_setup_display_label: str = "Consent UX setup: missing"
+    consent_ux_execution_display_state: str = CONSENT_DURABLE_CONSENT_STATE_MISSING
+    consent_ux_execution_display_label: str = "Consent UX execution: missing"
+    consent_ux_revocation_reset_state: str = CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT
+    consent_ux_revocation_reset_label: str = "Consent UX revoke/reset: blocked"
+    consent_ux_write_posture: str = CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED
+    consent_ux_write_label: str = "Consent UX write: blocked fail-closed"
+    consent_ux_durable_handoff_state: str = CONSENT_UX_DURABLE_HANDOFF_BLOCKED
+    consent_ux_durable_handoff_label: str = "Consent UX durable handoff: blocked"
+    consent_ux_provider_setup_gate_state: str = CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED
+    consent_ux_provider_execution_gate_state: str = (
+        CONSENT_UX_PROVIDER_EXECUTION_GATE_DISABLED
+    )
+    consent_ux_status_proof_state: str = CONSENT_UX_STATUS_PROOF_STATE
+    consent_ux_status_proof_label: str = (
+        "Consent UX status proof: derived from durable local consent state"
+    )
+    consent_ux_desktop_display_state: str = CONSENT_UX_DESKTOP_DISPLAY_SUPPRESSED
+    consent_ux_local_only_posture: str = CONSENT_UX_LOCAL_ONLY_POSTURE
+    consent_ux_provider_visible_data: str = "none"
+    consent_ux_sent_to_provider: bool = False
+    consent_ux_can_accept_prompts: bool = False
+    consent_ux_network_egress_state: str = NETWORK_EGRESS_BLOCKED
+    consent_ux_memory_state: str = MEMORY_INDEXING_DISABLED
+    consent_ux_voice_state: str = VOICE_RUNTIME_DISABLED
+    consent_ux_functional_ai_criteria_state: str = (
+        CONSENT_UX_FUNCTIONAL_AI_CRITERIA_PENDING
+    )
+    consent_ux_v18_continuation_state: str = CONSENT_UX_V18_CONTINUATION_PENDING
     future_consent_capture_handoff_state: str = FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY
     consent_collection_fold_down_posture: str = CONSENT_COLLECTION_FOLD_DOWN_READY
 
@@ -3184,6 +3292,54 @@ class AIProviderStateSnapshot:
             "durable_consent_future_handoff_criteria_label": (
                 self.durable_consent_future_handoff_criteria_label
             ),
+            "consent_ux_state_schema_version": self.consent_ux_state_schema_version,
+            "consent_ux_intent_schema_version": self.consent_ux_intent_schema_version,
+            "consent_ux_state": self.consent_ux_state,
+            "consent_ux_label": self.consent_ux_label,
+            "consent_ux_intent_state": self.consent_ux_intent_state,
+            "consent_ux_intent_label": self.consent_ux_intent_label,
+            "consent_ux_surface_state": self.consent_ux_surface_state,
+            "consent_ux_surface_label": self.consent_ux_surface_label,
+            "consent_ux_setup_display_state": self.consent_ux_setup_display_state,
+            "consent_ux_setup_display_label": self.consent_ux_setup_display_label,
+            "consent_ux_execution_display_state": (
+                self.consent_ux_execution_display_state
+            ),
+            "consent_ux_execution_display_label": (
+                self.consent_ux_execution_display_label
+            ),
+            "consent_ux_revocation_reset_state": (
+                self.consent_ux_revocation_reset_state
+            ),
+            "consent_ux_revocation_reset_label": (
+                self.consent_ux_revocation_reset_label
+            ),
+            "consent_ux_write_posture": self.consent_ux_write_posture,
+            "consent_ux_write_label": self.consent_ux_write_label,
+            "consent_ux_durable_handoff_state": self.consent_ux_durable_handoff_state,
+            "consent_ux_durable_handoff_label": self.consent_ux_durable_handoff_label,
+            "consent_ux_provider_setup_gate_state": (
+                self.consent_ux_provider_setup_gate_state
+            ),
+            "consent_ux_provider_execution_gate_state": (
+                self.consent_ux_provider_execution_gate_state
+            ),
+            "consent_ux_status_proof_state": self.consent_ux_status_proof_state,
+            "consent_ux_status_proof_label": self.consent_ux_status_proof_label,
+            "consent_ux_desktop_display_state": self.consent_ux_desktop_display_state,
+            "consent_ux_local_only_posture": self.consent_ux_local_only_posture,
+            "consent_ux_provider_visible_data": self.consent_ux_provider_visible_data,
+            "consent_ux_sent_to_provider": self.consent_ux_sent_to_provider,
+            "consent_ux_can_accept_prompts": self.consent_ux_can_accept_prompts,
+            "consent_ux_network_egress_state": self.consent_ux_network_egress_state,
+            "consent_ux_memory_state": self.consent_ux_memory_state,
+            "consent_ux_voice_state": self.consent_ux_voice_state,
+            "consent_ux_functional_ai_criteria_state": (
+                self.consent_ux_functional_ai_criteria_state
+            ),
+            "consent_ux_v18_continuation_state": (
+                self.consent_ux_v18_continuation_state
+            ),
             "future_consent_capture_handoff_state": self.future_consent_capture_handoff_state,
             "consent_collection_fold_down_posture": self.consent_collection_fold_down_posture,
         }
@@ -3905,6 +4061,52 @@ class AIProviderStateSnapshot:
             "durableConsentFutureHandoffCriteriaLabel": (
                 self.durable_consent_future_handoff_criteria_label
             ),
+            "consentUxStateSchemaVersion": self.consent_ux_state_schema_version,
+            "consentUxIntentSchemaVersion": self.consent_ux_intent_schema_version,
+            "consentUxState": self.consent_ux_state,
+            "consentUxLabel": self.consent_ux_label,
+            "consentUxIntentState": self.consent_ux_intent_state,
+            "consentUxIntentLabel": self.consent_ux_intent_label,
+            "consentUxSurfaceState": self.consent_ux_surface_state,
+            "consentUxSurfaceLabel": self.consent_ux_surface_label,
+            "consentUxSetupDisplayState": self.consent_ux_setup_display_state,
+            "consentUxSetupDisplayLabel": self.consent_ux_setup_display_label,
+            "consentUxExecutionDisplayState": (
+                self.consent_ux_execution_display_state
+            ),
+            "consentUxExecutionDisplayLabel": (
+                self.consent_ux_execution_display_label
+            ),
+            "consentUxRevocationResetState": (
+                self.consent_ux_revocation_reset_state
+            ),
+            "consentUxRevocationResetLabel": (
+                self.consent_ux_revocation_reset_label
+            ),
+            "consentUxWritePosture": self.consent_ux_write_posture,
+            "consentUxWriteLabel": self.consent_ux_write_label,
+            "consentUxDurableHandoffState": self.consent_ux_durable_handoff_state,
+            "consentUxDurableHandoffLabel": self.consent_ux_durable_handoff_label,
+            "consentUxProviderSetupGateState": (
+                self.consent_ux_provider_setup_gate_state
+            ),
+            "consentUxProviderExecutionGateState": (
+                self.consent_ux_provider_execution_gate_state
+            ),
+            "consentUxStatusProofState": self.consent_ux_status_proof_state,
+            "consentUxStatusProofLabel": self.consent_ux_status_proof_label,
+            "consentUxDesktopDisplayState": self.consent_ux_desktop_display_state,
+            "consentUxLocalOnlyPosture": self.consent_ux_local_only_posture,
+            "consentUxProviderVisibleData": self.consent_ux_provider_visible_data,
+            "consentUxSentToProvider": self.consent_ux_sent_to_provider,
+            "consentUxCanAcceptPrompts": self.consent_ux_can_accept_prompts,
+            "consentUxNetworkEgressState": self.consent_ux_network_egress_state,
+            "consentUxMemoryState": self.consent_ux_memory_state,
+            "consentUxVoiceState": self.consent_ux_voice_state,
+            "consentUxFunctionalAiCriteriaState": (
+                self.consent_ux_functional_ai_criteria_state
+            ),
+            "consentUxV18ContinuationState": self.consent_ux_v18_continuation_state,
             "futureConsentCaptureHandoffState": self.future_consent_capture_handoff_state,
             "consentCollectionFoldDownPosture": self.consent_collection_fold_down_posture,
             "canAcceptPrompts": False,
@@ -8619,6 +8821,244 @@ def _provider_durable_consent_persistence_fields(
     }
 
 
+def build_default_provider_consent_ux_intent() -> AIProviderConsentUxIntentSnapshot:
+    """Return the fail-closed local consent UX intent default."""
+
+    return AIProviderConsentUxIntentSnapshot(
+        schema_version=CONSENT_UX_INTENT_SCHEMA_VERSION,
+        setup_intent_selected=False,
+        execution_intent_selected=False,
+        revoke_intent_selected=False,
+        reset_intent_selected=False,
+        local_write_requested=False,
+        surface_enabled=True,
+        provenance="local_consent_ux_intent",
+    )
+
+
+def normalize_provider_consent_ux_intent(
+    intent: AIProviderConsentUxIntentSnapshot | dict[str, object] | None,
+) -> AIProviderConsentUxIntentSnapshot:
+    """Normalize user-operated consent UX intent into local-only booleans."""
+
+    if intent is None:
+        return build_default_provider_consent_ux_intent()
+    if isinstance(intent, AIProviderConsentUxIntentSnapshot):
+        intent_payload = intent.as_dict()
+    elif isinstance(intent, dict):
+        intent_payload = intent
+    else:
+        return replace(
+            build_default_provider_consent_ux_intent(),
+            surface_enabled=False,
+            provenance="invalid_local_consent_ux_intent",
+        )
+
+    if intent_payload.get("schema_version") != CONSENT_UX_INTENT_SCHEMA_VERSION:
+        return replace(
+            build_default_provider_consent_ux_intent(),
+            surface_enabled=False,
+            provenance="invalid_local_consent_ux_intent_schema",
+        )
+
+    def _intent_bool(field_name: str) -> bool:
+        value = intent_payload.get(field_name)
+        return value if isinstance(value, bool) else False
+
+    return AIProviderConsentUxIntentSnapshot(
+        schema_version=CONSENT_UX_INTENT_SCHEMA_VERSION,
+        setup_intent_selected=_intent_bool("setup_intent_selected"),
+        execution_intent_selected=_intent_bool("execution_intent_selected"),
+        revoke_intent_selected=_intent_bool("revoke_intent_selected"),
+        reset_intent_selected=_intent_bool("reset_intent_selected"),
+        local_write_requested=_intent_bool("local_write_requested"),
+        surface_enabled=_intent_bool("surface_enabled")
+        if "surface_enabled" in intent_payload
+        else True,
+        provenance=str(intent_payload.get("provenance") or "local_consent_ux_intent"),
+    )
+
+
+def _provider_user_operated_consent_ux_fields(
+    durable_record: AIProviderDurableConsentRecordSnapshot,
+    consent_intent: AIProviderConsentUxIntentSnapshot,
+) -> dict[str, object]:
+    (
+        setup_consent_state,
+        setup_consent_label,
+        setup_consent_reason,
+    ) = _durable_consent_scope_status(durable_record, scope="setup")
+    (
+        execution_consent_state,
+        execution_consent_label,
+        execution_consent_reason,
+    ) = _durable_consent_scope_status(durable_record, scope="execution")
+    durable_handoff_ready = durable_record.record_state in {
+        CONSENT_DURABLE_RECORD_STATE_READY,
+        CONSENT_DURABLE_RECORD_STATE_REVOKED,
+        CONSENT_DURABLE_RECORD_STATE_RESET,
+        CONSENT_DURABLE_RECORD_STATE_EXPIRED,
+    }
+    setup_ready = setup_consent_state == CONSENT_DURABLE_CONSENT_STATE_GRANTED
+    execution_ready = (
+        execution_consent_state == CONSENT_DURABLE_CONSENT_STATE_GRANTED
+    )
+    blocked_by_invalid_record = durable_record.record_state in {
+        CONSENT_DURABLE_RECORD_STATE_MISSING,
+        CONSENT_DURABLE_RECORD_STATE_INVALID,
+        CONSENT_DURABLE_RECORD_STATE_CORRUPT,
+        CONSENT_DURABLE_RECORD_STATE_UNSUPPORTED_SCHEMA,
+        CONSENT_DURABLE_RECORD_STATE_STALE_SCHEMA,
+    }
+    if blocked_by_invalid_record:
+        ux_state = CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT
+    elif durable_record.reset_requested:
+        ux_state = CONSENT_UX_STATE_RESET_LOCAL_ONLY
+    elif durable_record.revoked:
+        ux_state = CONSENT_UX_STATE_REVOKED_LOCAL_ONLY
+    elif durable_record.expired:
+        ux_state = CONSENT_UX_STATE_EXPIRED_LOCAL_ONLY
+    elif not (setup_ready or execution_ready):
+        ux_state = CONSENT_UX_STATE_DEGRADED_FAIL_CLOSED
+    else:
+        ux_state = CONSENT_UX_STATE_READY_LOCAL_ONLY
+
+    if not consent_intent.surface_enabled or blocked_by_invalid_record:
+        intent_state = CONSENT_UX_INTENT_BLOCKED
+    elif consent_intent.reset_intent_selected:
+        intent_state = CONSENT_UX_INTENT_RESET_SELECTED
+    elif consent_intent.revoke_intent_selected:
+        intent_state = CONSENT_UX_INTENT_REVOKE_SELECTED
+    elif consent_intent.execution_intent_selected:
+        intent_state = CONSENT_UX_INTENT_EXECUTION_SELECTED
+    elif consent_intent.setup_intent_selected:
+        intent_state = CONSENT_UX_INTENT_SETUP_SELECTED
+    else:
+        intent_state = CONSENT_UX_INTENT_NONE
+
+    surface_state = (
+        CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT
+        if consent_intent.surface_enabled
+        else CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL
+    )
+    write_posture = (
+        CONSENT_UX_WRITE_LOCAL_INTENT_ONLY
+        if consent_intent.local_write_requested and intent_state != CONSENT_UX_INTENT_BLOCKED
+        else CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED
+    )
+    durable_handoff_state = (
+        CONSENT_UX_DURABLE_HANDOFF_READY
+        if durable_handoff_ready
+        else CONSENT_UX_DURABLE_HANDOFF_BLOCKED
+    )
+    setup_gate_state = (
+        CONSENT_UX_PROVIDER_SETUP_GATE_FUTURE_GATED
+        if setup_ready
+        else CONSENT_UX_PROVIDER_SETUP_GATE_BLOCKED
+    )
+    revocation_reset_state = (
+        CONSENT_UX_STATE_RESET_LOCAL_ONLY
+        if durable_record.reset_requested or consent_intent.reset_intent_selected
+        else CONSENT_UX_STATE_REVOKED_LOCAL_ONLY
+        if durable_record.revoked or consent_intent.revoke_intent_selected
+        else ux_state
+    )
+
+    ux_labels = {
+        CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT:
+            "Consent UX: blocked by durable consent proof",
+        CONSENT_UX_STATE_READY_LOCAL_ONLY:
+            "Consent UX: local-only consent controls/status ready",
+        CONSENT_UX_STATE_REVOKED_LOCAL_ONLY:
+            "Consent UX: local consent revoked",
+        CONSENT_UX_STATE_RESET_LOCAL_ONLY:
+            "Consent UX: local consent reset requested",
+        CONSENT_UX_STATE_EXPIRED_LOCAL_ONLY:
+            "Consent UX: local consent expired",
+        CONSENT_UX_STATE_DEGRADED_FAIL_CLOSED:
+            "Consent UX: degraded and fail-closed",
+    }
+    intent_labels = {
+        CONSENT_UX_INTENT_NONE: "Consent UX intent: none selected",
+        CONSENT_UX_INTENT_SETUP_SELECTED:
+            "Consent UX intent: setup consent selected locally",
+        CONSENT_UX_INTENT_EXECUTION_SELECTED:
+            "Consent UX intent: execution consent selected locally",
+        CONSENT_UX_INTENT_REVOKE_SELECTED:
+            "Consent UX intent: revoke selected locally",
+        CONSENT_UX_INTENT_RESET_SELECTED:
+            "Consent UX intent: reset selected locally",
+        CONSENT_UX_INTENT_BLOCKED:
+            "Consent UX intent: blocked fail-closed by durable state",
+    }
+    surface_labels = {
+        CONSENT_UX_SURFACE_STATUS_ONLY_LOCAL:
+            "Consent UX surface: local status only; no provider action",
+        CONSENT_UX_SURFACE_CONTROLS_LOCAL_INTENT:
+            "Consent UX surface: local intent controls; provider actions disabled",
+    }
+    write_labels = {
+        CONSENT_UX_WRITE_LOCAL_INTENT_ONLY:
+            "Consent UX write: local intent only; durable/provider payload unchanged",
+        CONSENT_UX_WRITE_BLOCKED_FAIL_CLOSED:
+            "Consent UX write: blocked fail-closed",
+    }
+    durable_labels = {
+        CONSENT_UX_DURABLE_HANDOFF_READY:
+            "Consent UX durable handoff: derived from local durable consent",
+        CONSENT_UX_DURABLE_HANDOFF_BLOCKED:
+            "Consent UX durable handoff: blocked by missing or invalid durable consent",
+    }
+
+    return {
+        "consent_ux_state_schema_version": CONSENT_UX_STATE_SCHEMA_VERSION,
+        "consent_ux_intent_schema_version": CONSENT_UX_INTENT_SCHEMA_VERSION,
+        "consent_ux_state": ux_state,
+        "consent_ux_label": ux_labels[ux_state],
+        "consent_ux_intent_state": intent_state,
+        "consent_ux_intent_label": intent_labels[intent_state],
+        "consent_ux_surface_state": surface_state,
+        "consent_ux_surface_label": surface_labels[surface_state],
+        "consent_ux_setup_display_state": setup_consent_state,
+        "consent_ux_setup_display_label": (
+            setup_consent_label.replace("Durable", "Consent UX")
+        ),
+        "consent_ux_execution_display_state": execution_consent_state,
+        "consent_ux_execution_display_label": (
+            execution_consent_label.replace("Durable", "Consent UX")
+        ),
+        "consent_ux_revocation_reset_state": revocation_reset_state,
+        "consent_ux_revocation_reset_label": (
+            "Consent UX revoke/reset: local-only status derived from durable consent"
+        ),
+        "consent_ux_write_posture": write_posture,
+        "consent_ux_write_label": write_labels[write_posture],
+        "consent_ux_durable_handoff_state": durable_handoff_state,
+        "consent_ux_durable_handoff_label": durable_labels[durable_handoff_state],
+        "consent_ux_provider_setup_gate_state": setup_gate_state,
+        "consent_ux_provider_execution_gate_state": (
+            CONSENT_UX_PROVIDER_EXECUTION_GATE_DISABLED
+        ),
+        "consent_ux_status_proof_state": CONSENT_UX_STATUS_PROOF_STATE,
+        "consent_ux_status_proof_label": (
+            "Consent UX status proof: setup reason "
+            f"{setup_consent_reason}; execution reason {execution_consent_reason}"
+        ),
+        "consent_ux_desktop_display_state": CONSENT_UX_DESKTOP_DISPLAY_SUPPRESSED,
+        "consent_ux_local_only_posture": CONSENT_UX_LOCAL_ONLY_POSTURE,
+        "consent_ux_provider_visible_data": "none",
+        "consent_ux_sent_to_provider": False,
+        "consent_ux_can_accept_prompts": False,
+        "consent_ux_network_egress_state": NETWORK_EGRESS_BLOCKED,
+        "consent_ux_memory_state": MEMORY_INDEXING_DISABLED,
+        "consent_ux_voice_state": VOICE_RUNTIME_DISABLED,
+        "consent_ux_functional_ai_criteria_state": (
+            CONSENT_UX_FUNCTIONAL_AI_CRITERIA_PENDING
+        ),
+        "consent_ux_v18_continuation_state": CONSENT_UX_V18_CONTINUATION_PENDING,
+    }
+
+
 def build_provider_consent_collection_foundation_state(
     readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
     *,
@@ -8813,6 +9253,96 @@ def build_provider_durable_consent_persistence_foundation_state(
             "Durable consent persistence does not enable provider setup, prompt routing, or model execution"
         ),
         **durable_fields,
+    )
+
+
+def build_provider_user_operated_consent_ux_foundation_state(
+    readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
+    *,
+    activation_config: AIProviderActivationConfigSnapshot | dict[str, object] | None | object = _ACTIVATION_CONFIG_OMITTED,
+    execution_config: AIProviderExecutionReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _EXECUTION_CONFIG_OMITTED
+    ),
+    path_consent_config: AIProviderPathConsentReadinessConfigSnapshot | dict[str, object] | None | object = (
+        _PATH_CONSENT_CONFIG_OMITTED
+    ),
+    setup_foundation_config: AIProviderSetupFoundationConfigSnapshot | dict[str, object] | None | object = (
+        _SETUP_FOUNDATION_CONFIG_OMITTED
+    ),
+    consent_collection_config: (
+        AIProviderConsentCollectionFoundationConfigSnapshot | dict[str, object] | None | object
+    ) = _CONSENT_COLLECTION_CONFIG_OMITTED,
+    consent_capture_record: (
+        AIProviderConsentCaptureRecordSnapshot | dict[str, object] | None | object
+    ) = _CONSENT_CAPTURE_RECORD_OMITTED,
+    durable_consent_record: (
+        AIProviderDurableConsentRecordSnapshot | dict[str, object] | None | object
+    ) = _DURABLE_CONSENT_RECORD_OMITTED,
+    consent_ux_intent: (
+        AIProviderConsentUxIntentSnapshot | dict[str, object] | None | object
+    ) = _CONSENT_UX_INTENT_OMITTED,
+    durable_consent_store_dir: str | Path | None = None,
+    now_utc: datetime | None = None,
+    surface_role: str = "hud",
+) -> AIProviderStateSnapshot:
+    """Resolve user-operated local consent UX without provider execution."""
+
+    durable_state = build_provider_durable_consent_persistence_foundation_state(
+        readiness_config,
+        activation_config=activation_config,
+        execution_config=execution_config,
+        path_consent_config=path_consent_config,
+        setup_foundation_config=setup_foundation_config,
+        consent_collection_config=consent_collection_config,
+        consent_capture_record=consent_capture_record,
+        durable_consent_record=durable_consent_record,
+        durable_consent_store_dir=durable_consent_store_dir,
+        now_utc=now_utc,
+        surface_role=surface_role,
+    )
+    if consent_ux_intent is _CONSENT_UX_INTENT_OMITTED:
+        normalized_intent = build_default_provider_consent_ux_intent()
+    else:
+        normalized_intent = normalize_provider_consent_ux_intent(
+            consent_ux_intent  # type: ignore[arg-type]
+        )
+    normalized_durable_record = (
+        load_provider_durable_consent_record(
+            durable_consent_store_dir,
+            now_utc=now_utc,
+        )
+        if durable_consent_record is _DURABLE_CONSENT_RECORD_OMITTED
+        and durable_consent_store_dir is not None
+        else build_default_provider_durable_consent_record()
+        if durable_consent_record is _DURABLE_CONSENT_RECORD_OMITTED
+        else normalize_provider_durable_consent_record(
+            durable_consent_record,  # type: ignore[arg-type]
+            now_utc=now_utc,
+        )
+    )
+    consent_ux_fields = _provider_user_operated_consent_ux_fields(
+        normalized_durable_record,
+        normalized_intent,
+    )
+    return replace(
+        durable_state,
+        state_id=FAM007_PROVIDER_USER_OPERATED_CONSENT_UX_FOUNDATION_STATE_ID,
+        mode=FAM007_PROVIDER_USER_OPERATED_CONSENT_UX_FOUNDATION_MODE,
+        availability=(
+            FAM007_PROVIDER_USER_OPERATED_CONSENT_UX_FOUNDATION_AVAILABILITY
+        ),
+        status_label=consent_ux_fields["consent_ux_label"],
+        disabled_reason=(
+            "User-operated consent UX is local-only; provider setup and execution remain pending USER approval"
+        ),
+        provider_next_action_label=(
+            "Next: validate local consent UX before provider setup completion remains future-gated"
+        ),
+        interaction_label="User-operated local consent UX foundation only",
+        interaction_disabled_reason=(
+            "Consent UX records local intent/status only and does not enable provider setup, prompt routing, or model execution"
+        ),
+        **consent_ux_fields,
     )
 
 

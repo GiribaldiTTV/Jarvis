@@ -10,24 +10,24 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-
 - Family: `FAM-007`
 - Package: `PKG-007`
 - Target Family: `FAM-007`
-- Sibling Worktree Candidate Exclusion: `FAM-006, Governance, Compact-AI, neutral-main, and parked worktrees are overlap context only and are not successor authority for this FAM-007 Branch Readiness Stage 2 carrier.`
+- Sibling Worktree Candidate Exclusion: `FAM-006, Governance, Compact-AI, neutral-main, and parked worktrees are overlap context only and are not successor authority for this FAM-007 Workstream carrier.`
 - Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
 - Created From: `origin/main@f072be65fc5f00202a684a20b3cbb4611536ab51`
 - Branch Creation Basis: `USER-approved Branch Readiness Stage 2 setup after v1.7.17-prebeta release and Governance PR #204 merge.`
 - Latest Public Prerelease: `v1.7.17-prebeta`
 - Latest Public Release Commit: `f3309a9e1843dbbfef3931c5967ba4ff04b46dc0`
-- Current Source Baseline: `origin/main@f072be65fc5f00202a684a20b3cbb4611536ab51`
+- Current Source Baseline: `origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1`
 - Prior Released FAM-007 Evidence: `PR #203 FAM-007 Durable Local Consent Persistence Foundation released in v1.7.17-prebeta.`
 
 ## Current Phase
 
-Phase: `Branch Readiness`
+Phase: `Workstream`
 
 ## Phase Status
 
 - Branch Authority Marker: `Active Branch`
-Phase Status: `Active Branch` - Branch Readiness Stage 2 setup complete after USER approval; fresh FAM-007 carrier created from origin/main@f072be65fc5f00202a684a20b3cbb4611536ab51 with post-release canon closure, branch plan, Branch Vision Snapshot / USER plan review gate, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, Element-to-Phase Proof Matrix, and bounded Workstream admission recorded.
-Bounded State: `Branch Readiness Stage 2 source-truth setup only. No Workstream implementation, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifact work, branch/worktree cleanup, FAM-006 mutation, Governance mutation outside this branch path, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution is authorized.`
+Phase Status: `Active Branch` - Workstream implementation completed after current-main reconciliation to origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1; FAM-007 user-operated consent UX foundation is Workstream Green and ready for Hardening H1.
+Bounded State: `Workstream implementation completed for local user-operated consent UX state/intent, durable consent handoff, revocation/reset status mapping, Core/Desktop/ORIN hidden status proof, display-suppression continuity, and direct validator fixtures. Provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifact work, branch/worktree cleanup, FAM-006 mutation, Governance mutation outside this branch path, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending USER decisions.`
 
 ## Branch Class
 
@@ -35,13 +35,13 @@ Branch Class: `implementation`
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active for this FAM-007 Branch Readiness Stage 2 carrier`
-Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 user-operated consent UX foundation Branch Readiness Stage 2 setup`
+Assigned Worktree Confinement: `Active for this FAM-007 Workstream carrier`
+Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 user-operated consent UX foundation Workstream implementation`
 Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
 Worktree Ownership Ledger: `This branch authority record plus Docs/worktree_slots.md runtime-active-1 receipt`
-Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, compact pointer docs, generated inventory surfaces, post-release canon closure, worktree slot receipt, and validation-produced source truth required for Stage 2`
+Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, compact pointer docs, provider-state source, Core/Desktop/ORIN status surfaces, validation-produced source truth, and FAM-007 provider-state validator updates required for the approved Workstream`
 Same Worktree / Same Branch Collision Check: `PASS - no second writer assigned to this FAM-007 worktree or branch`
-Dirty Worktree Collision Check: `PASS - Active Thread Owner is Current Codex thread assigned by USER for FAM-007 user-operated consent UX foundation Branch Readiness Stage 2 setup; dirty tracked files are the approved Stage 2 source-truth edit set owned by that active owner`
+Dirty Worktree Collision Check: `PASS - current owner claimed by Current Codex thread assigned by USER for FAM-007 user-operated consent UX foundation Workstream implementation; dirty tracked files during implementation are the approved Workstream edit set owned by that active owner`
 Dirty Worktree Recovery Packet: `Not required unless unowned dirty files appear`
 Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests are context only and route away from this branch unless USER grants a bounded waiver`
 Governance Routing Barrier: `Active for governance-only mutation outside this FAM-007 branch path`
@@ -60,23 +60,23 @@ Sibling Worktree Candidate Exclusion: `FAM-006, Governance, Compact-AI, neutral-
 
 ## Blockers
 
-Blockers: `WORKSTREAM_ENTRY_USER_APPROVAL_MISSING - Stage 2 setup is complete, but Workstream Entry analysis and USER plan review are required before runtime or user-facing implementation begins.`
+Blockers: `None for Workstream completion - Hardening H1 approval is the next legal phase.`
 
 ## Entry Basis
 
-Entry Basis: `USER approved Branch Readiness Stage 2 setup in C:\Nexus Worktrees\FAM-007 to create/rebind feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation from origin/main@f072be65fc5f00202a684a20b3cbb4611536ab51, incorporating Governance PR #204 source-truth changes and preserving all pending USER decisions outside this branch setup.`
+Entry Basis: `USER approved Branch Readiness Stage 2 setup, Workstream Entry, current-main reconciliation to origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1, and bounded Workstream implementation for this FAM-007 user-operated consent UX foundation branch while preserving all pending USER decisions outside this branch scope.`
 
 ## Exit Criteria
 
-Exit Criteria: `Stage 2 records fresh branch authority, v1.7.17 post-release canon closure, PR #203 released evidence, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, Branch Vision Snapshot / USER plan review gate, Element-to-Phase Proof Matrix, Workstream admission, validation proof, commit, and push.`
+Exit Criteria: `Workstream Green requires local user-operated consent UX state/intent, durable consent handoff, revocation/reset status mapping, setup/execution consent separation, Core/Desktop/ORIN hidden status proof, desktop readiness display suppression continuity, provider-boundary preservation, direct validator fixtures, source-truth fold-down, validation proof, commit, and push.`
 
 ## Rollback Target
 
-Rollback Target: `Branch Readiness`
+Rollback Target: `Workstream`
 
 ## Next Legal Phase
 
-`Workstream`
+`Hardening`
 
 ## Planning-Loop Guardrail
 
@@ -97,7 +97,7 @@ Admit the next FAM-007 local AI provider layer after durable local consent persi
 
 ## Target End-State
 
-The branch should leave FAM-007 with USER-reviewed and validator-planned consent UX implementation boundaries, durable consent handoff criteria, local-only visible/status proof expectations, desktop readiness display suppression continuity requirements, and a safe Workstream plan for later USER-approved implementation.
+The branch leaves FAM-007 with USER-approved and validator-proven consent UX implementation boundaries, durable consent handoff criteria, local-only hidden/status proof, desktop readiness display suppression continuity, and a safe route to H1/LV1 before PR readiness.
 
 ## Backlog Completion Strategy
 
@@ -107,10 +107,10 @@ Branch Closure Rule: `The branch may close only after all admitted user-operated
 
 ## Backlog Completion Status
 
-Backlog Completion State: `Admitted / not implemented`
-Remaining Implementable Work: `All admitted Workstream seams remain pending Workstream Entry and later USER-approved implementation.`
+Backlog Completion State: Implemented Complete Except Future Dependency
+Remaining Implementable Work: None
 Future-Dependent Blockers: `Provider setup completion, SDK/model execution, downloads/network/external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain future USER decisions.`
-Completion Status: `Not started`
+Completion Status: Green
 
 ## Expected Seam Families And Risk Classes
 
@@ -127,15 +127,15 @@ This branch is expected to touch user-facing consent UX. Live Validation should 
 
 ## Branch Vision Contract Snapshot
 
-Branch Vision Snapshot Status: `Prepared for USER review during Workstream Entry`
+Branch Vision Snapshot Status: `Accepted for this Workstream implementation`
 Project-Wide Vision Alignment: `The branch keeps Nexus local-first, honest about disabled AI/provider behavior, and explicit about consent before provider-visible data or model execution can exist.`
 Family Vision Alignment: `FAM-007 requires provider-visible data, privacy, network/download behavior, memory boundaries, and consent to be explicit before runtime execution. This branch advances the consent-control layer only.`
 Branch-Specific Vision Alignment: `User-operated consent UX should make durable consent truth visible and controllable without implying provider setup completion, prompt acceptance, provider/model execution, or functional AI.`
-Open Vision Questions: `Workstream Entry should confirm the exact visible surface, copy stance, revocation/reset UX wording, and LV1 user-test path before implementation.`
-USER Vision Green: `Pending Workstream Entry USER review`
-Accepted Implementation Scope: `Pending Workstream Entry`
-Accepted Seam Map: `Pending Workstream Entry`
-Accepted Stop Conditions: `Pending Workstream Entry`
+Open Vision Questions: `H1/LV1 must confirm hidden/status-only proof, visible-surface classification, and UTS waiver posture before PR readiness.`
+USER Vision Green: `Yes - USER approved Workstream Entry and bounded Workstream implementation.`
+Accepted Implementation Scope: `Local-only consent UX state/intent contract, safe local status/control posture, durable consent handoff, revocation/reset mapping, setup/execution separation, Core/Desktop/ORIN hidden status proof, validator fixtures, and future functional-AI criteria only.`
+Accepted Seam Map: `All six admitted seam families were implemented in the current Workstream.`
+Accepted Stop Conditions: `Stop only at Workstream Green, a named blocker, or explicit USER waiver; current Workstream reached Green and routes next to H1.`
 
 ## Product Definition Plan
 
@@ -144,19 +144,19 @@ User-Facing Goal: `Let the user see and operate local consent readiness truth in
 Project-Wide Vision Alignment: `Nexus remains a Windows-first local desktop assistant with privacy-explicit, user-controlled local AI layers and honest disabled-state copy before model execution.`
 Branch-Specific Vision Alignment: `This branch owns user-operated consent UX foundation only; durable consent persistence is released evidence, while provider setup completion, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, and functional AI remain future branches.`
 USER Vision Questions: `Which user-facing surface should carry the first consent controls, what exact copy should distinguish setup consent from execution consent, and what LV1 user-test path should prove it?`
-USER Vision Question Packet: `Required at Workstream Entry because this is a user-facing UX branch.`
+USER Vision Question Packet: `Completed through Workstream Entry review and USER approval.`
 Codex Product Interpretation: `The next safe layer after durable persistence is an operator-facing consent layer that reads durable state, records local user intent, and keeps all AI/provider execution blocked until later explicit approvals.`
 Codex Implementation Recommendation: `Implement consent UX state and local controls before provider setup completion so future setup work cannot outrun user-visible consent.`
 Codex Additional Recommendations: `Recommended options are a small consent controls surface, a safer status-only fallback if controls are not accepted, and strict copy that says consent controls are local preparation, not functional AI or provider execution.`
-USER/ChatGPT Review Checkpoint: `USER may inspect this branch record, branch plan, Element-to-Phase Proof Matrix, and Workstream Entry review bundle before approving implementation.`
-USER Critique Loop: `USER may accept, revise, reject, defer, or waive this Stage 2 plan during Workstream Entry.`
-USER Decision Ledger: `USER approved Stage 1 analysis and Stage 2 setup for this branch. Workstream Entry, implementation, H1, LV1, PR creation, merge, release, provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
+USER/ChatGPT Review Checkpoint: `USER reviewed/approved Workstream Entry and bounded implementation; H1/LV1 remain later review phases.`
+USER Critique Loop: `Workstream implementation proceeded under USER-approved bounded scope; H1 may still require repair if copy, proof, or boundary drift appears.`
+USER Decision Ledger: `USER approved Stage 1 analysis, Stage 2 setup, Workstream Entry, current-main reconciliation, and Workstream implementation for this branch. H1, LV1, PR creation, merge, release, provider setup completion, SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
 Deferred Ideas / Future Package Ledger: `Future packages are explicitly routed to provider setup completion, provider SDK/adapter selection, prompt/model execution, provider-visible data behavior proof, memory/indexing/personalization, voice/Core sync, shortcut/installer work, capability-pack install/download behavior, AI Product Contract import, Private Dev ORIN import, and v1.8.0 release execution.`
 Planning Adequacy Review: `Stage 2 is not shallow because it covers the whole end-to-end consent UX system boundary: product vision, interface boundary, user workflow, state/control model, durable handoff, provider blockers, validators, live proof, and future package deferrals.`
 Rejected Shallow Plan: `Rejected - a single button or copy-only consent surface is not enough because the branch must preserve setup/execution separation, durable consent handoff, revocation/reset semantics, provider-boundary proof, UI proof, and validator coverage.`
 Alternatives And Tradeoffs Reviewed: `Alternative A: move directly to provider setup completion; rejected because user-operated consent controls are not yet proven. Alternative B: implement SDK/model execution; rejected as premature and pending USER decision. Alternative C: route to FAM-006; rejected because this is a FAM-007 carrier and sibling worktrees are context only.`
 Whole-System Interaction Map: `User-operated consent UX reads durable local consent state, presents local labels and controls, writes only allowed local consent intent if later implementation admits it, feeds Core/Desktop/ORIN status proof, and leaves provider setup, provider execution, network, memory, voice/Core, and model paths blocked.`
-Open Questions / USER Decision Points: `USER decisions remain pending for the exact visible surface, copy wording, whether controls write durable consent directly or stage intent for a later branch, LV1 manual checklist, and screenshot/shortcut proof path.`
+Open Questions / USER Decision Points: `USER decisions pending: H1 approval, LV1 approval, UTS waiver or live proof classification, provider setup/execution approval, and all functional-AI decisions.`
 System Concept Model: `Local consent UX is a presentation/control layer over durable consent truth, not a provider adapter, not a model runner, not a network client, and not a memory system.`
 Entity / Profile Model: `Entities include local consent intent, setup consent display state, execution consent display state, durable consent reference, revocation/reset action posture, local-only audit/provenance label, provider-boundary blocker, and future setup handoff marker.`
 User Workflow Model: `The user opens the relevant consent/status surface, sees setup and execution consent readiness separately, can understand blocked/future-gated provider behavior, and later may operate approved local consent controls without any provider data transfer.`
@@ -175,58 +175,75 @@ Branch Reach / Package-Size Proof: `The branch is broad enough because it spans 
 Branch Reach / Package-Size Review: `PASS - the branch is a multi-element FAM-007 package slice covering UX, state handoff, provider-boundary copy, validation, and live proof rather than a one-button or copy-only branch.`
 Why Branch Is Large Enough: `User-operated consent UX is a coherent prerequisite package between durable persistence and provider setup completion.`
 Why Not Split Into Tiny Branches: `Splitting control copy, durable handoff, and validators into separate branches would increase false-readiness risk and make user consent proof harder to review.`
-Acceptance Criteria: `Stage 2 acceptance requires source-truth setup, plan-review gate, element matrix, validation, commit, and push. Later Workstream acceptance requires USER-approved implementation, direct validators, UI/status proof, provider-boundary preservation, and source-truth fold-down.`
-Screenshot / Live / User Test Summary Proof Requirements: `Expected required if visible UX is implemented; Workstream Entry must define exact proof or waiver basis.`
+Acceptance Criteria: `Workstream acceptance requires USER-approved implementation, direct validators, UI/status proof, provider-boundary preservation, source-truth fold-down, validation, commit, and push.`
+Screenshot / Live / User Test Summary Proof Requirements: `H1/LV1 should treat the implemented surface as hidden/status-only unless live proof finds a visible manual path; formal UTS remains required only if visible user-operated controls are exposed.`
 Validation Proof Requirements: `Workstream must include direct validators for every implemented consent UX behavior, provider-boundary assertions, UI/status proof, desktop readiness display suppression continuity proof, and LV1/UTS evidence or waiver.`
-Implementation Sequence Proposal: `Workstream Entry whole-package review, then consent UX state/intent, controls/status surface, durable handoff and revocation/reset mapping, Core/Desktop/ORIN proof, validator fixtures, source-truth fold-down, H1, LV1, PR Readiness.`
-Planning Blockers: `Workstream Entry and USER plan review pending.`
+Implementation Sequence Proposal: `Workstream implementation complete; next sequence is H1, LV1, PR Readiness.`
+Planning Blockers: `None for Workstream completion.`
 Planning Packet Status: `Complete`
 Planning Revalidation Status: `PASS`
 User Test Summary Strategy: `Formal UTS is expected if visible controls are implemented; a waiver is allowed only if Workstream/H1 prove no meaningful manual user path exists.`
-Planning Completion Waiver: `Not required - Stage 2 records a complete planning packet for Workstream Entry review.`
-USER Decisions Needed: `Workstream Entry approval is next; implementation and all later phases remain pending.`
+Planning Completion Waiver: `Not required - Workstream Entry reviewed the complete planning packet and USER approved bounded implementation.`
+USER Decisions Needed: `H1 approval is next; LV1 and all later phases remain pending.`
 
 ## Interface Release Boundary
 
-Primary Interface Release Surface: `User-operated local consent UX/status surface to be selected and accepted during Workstream Entry.`
-Interface Bundle User Approval: `Pending - Stage 2 admits one primary consent UX surface by default; multiple visible surfaces require explicit USER approval.`
-Fallback Point: `If a full visible control surface is not implementation-ready, fallback to safe status-only local consent copy with explicit USER waiver and no consent write behavior.`
-Interface Acceptance / Proof Path: `Workstream Entry must define static, screenshot, live-client, UTS, and validator proof before implementation begins.`
+Primary Interface Release Surface: `Core/Desktop/ORIN AI provider status payload and hidden-by-default consent UX labels backed by provider-state fixtures.`
+Interface Bundle User Approval: `USER approved the bounded Workstream implementation; no second visible surface was introduced.`
+Fallback Point: `Implemented status/telemetry-first foundation with no provider side effects; LV1 must confirm waiver basis if no meaningful manual path exists.`
+Interface Acceptance / Proof Path: `Direct validators prove state/copy/boundary now; H1/LV1 must decide static/screenshot/live-client/UTS proof based on the hidden-by-default status surface.`
 
 ## Runtime Branch Engineering Contract
 
-USER Engineering Planning Review: `Required - pending Workstream Entry USER review; Stage 2 creates the plan for USER inspection.`
-Engineering Contract Status: `Proposed`
-Runtime Implementation Approval: `Pending USER decision - no runtime or user-facing implementation is approved by Stage 2 setup.`
+USER Engineering Planning Review: `Accepted - USER approved Workstream Entry and bounded implementation.`
+Engineering Contract Status: `Accepted and implemented for Workstream scope.`
+Runtime Implementation Approval: `USER-approved bounded Workstream implementation completed.`
 Branch Purpose: `Admit and plan the FAM-007 user-operated local consent UX foundation after durable consent persistence and before provider setup completion.`
-Current Runtime Baseline: `origin/main@f072be65fc5f00202a684a20b3cbb4611536ab51 after PR #203 released in v1.7.17-prebeta and Governance PR #204 merged. Durable consent persistence is released evidence; provider setup/model execution remains blocked.`
-Planned Runtime Delta: `Future USER-approved Workstream may add local user-operated consent UX state/control/status foundation over durable consent persistence.`
-User-Facing Runtime Delta: `Expected future visible consent controls/status only; must not imply provider setup completion or functional AI.`
-State / Config / Schema Delta: `Potential local consent intent/status fields, setup/execution consent display labels, revocation/reset action posture, durable consent handoff markers, and fail-closed reason codes.`
-Validator / Helper Delta: `Extend FAM-007 provider-state and/or UI validators to prove consent UX state, durable handoff, setup/execution separation, provider-boundary preservation, display-suppression continuity, LV1 proof path, and no provider/model/network/memory activation.`
-Expected Changed Files / Surfaces: `Potential Workstream surfaces include desktop/ai_provider_state.py, desktop/core_visualization_renderer.py, desktop/desktop_renderer.py, nexus_visual/orin_core files if Workstream admits visible Core/ORIN status, dev/orin_ai_provider_state_validation.py, and source-truth files.`
-Approval-Boundary Audit: `Stage 2 is source-truth setup only. Provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcuts/installers, PR creation, merge, release, cleanup, FAM-006, Governance outside this branch path, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
+Current Runtime Baseline: `origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1 after PR #205 governance changes were merged and accepted as authoritative. Durable consent persistence remains released evidence; provider setup/model execution remains blocked.`
+Planned Runtime Delta: `Implemented local user-operated consent UX state/schema fields, intent schema, hidden UI/status copy, durable consent handoff labels, setup/execution display labels, revocation/reset posture, provider-boundary gates, and validator fixtures over durable consent persistence.`
+User-Facing Runtime Delta: `Hidden-by-default local consent UX/status labels only; must not imply provider setup completion or functional AI.`
+State / Config / Schema Delta: `Added user-operated consent UX state schema, intent schema, setup/execution display labels, revocation/reset local posture, durable handoff markers, provider setup/execution UX gates, and fail-closed/provider-boundary labels.`
+Validator / Helper Delta: `Extended FAM-007 provider-state validation to prove consent UX state, durable handoff, setup/execution separation, provider-boundary preservation, display-suppression continuity, LV1 proof path, and no provider/model/network/memory activation.`
+Expected Changed Files / Surfaces: `Implemented in source truth, desktop/ai_provider_state.py, desktop/core_visualization_renderer.py, desktop/desktop_renderer.py, nexus_visual/orin_core files, and dev/orin_ai_provider_state_validation.py.`
+Approval-Boundary Audit: `Workstream implementation is complete for local consent UX foundation only. Provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcuts/installers, PR creation, merge, release, cleanup, FAM-006, Governance outside this branch path, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
 Future-Gated Items: `Provider setup completion, SDK/model execution, model downloads, external/API calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, capability-pack install/execution, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 Workstream Seam Map: `Seam 1 consent UX state and intent contract; Seam 2 user-operated controls/local UX boundary; Seam 3 durable consent handoff and revocation/reset UX mapping; Seam 4 Core/Desktop/ORIN status proof and desktop readiness display suppression continuity; Seam 5 provider setup/execution gate alignment; Seam 6 validator fixtures, LV1 strategy, and functional-AI continuation criteria.`
 Proof Expectations: `Workstream must prove local-only consent UX behavior, setup/execution separation, no provider-visible data, sentToProvider false, canAcceptPrompts false, prompt/model execution disabled, downloads/network blocked, memory inactive, voice/Core gated, truthful UI copy, validator fixtures, and LV1/UTS posture.`
 Risk Forecast: `High user-facing and provider-boundary risk because consent UX can imply readiness if copy or state mapping is loose.`
 Recommendations And Alternatives: `Recommended: implement consent UX foundation before provider setup completion. Safer narrower alternative: status-only consent visibility with no writes. Larger future option: provider setup completion after consent UX proof.`
 Plan Version / Revision Status: `v1 created during Branch Readiness Stage 2 from origin/main@f072be65fc5f00202a684a20b3cbb4611536ab51.`
-Plan-To-Implementation Traceability: `Workstream Entry must map each planned seam to expected changed files, validators, UI proof, source-truth updates, and future-gated decisions; each implementation seam must then update this trace with actual changed files and proof so H1 can compare planned deltas against implementation.`
+Plan-To-Implementation Traceability: `Implemented and ready for H1 comparison: H1 will compare planned consent UX state/schema fields against desktop provider-state implementation, planned hidden UI/status copy against Core/Desktop/ORIN renderer surfaces, planned durable handoff against released PR #203 helpers, planned provider-boundary gates against direct FAM-007 validator fixtures, and planned LV1/UTS route against hidden/status-only proof.`
 
 ## Branch Runtime Engineering Plan
 
 Branch Runtime Engineering Plan: `Required and present.`
-Engineering Plan Status: `Created during Branch Readiness Stage 2 and ready for Workstream Entry review.`
+Engineering Plan Status: `Implemented and ready for Hardening H1 review.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
 
 ## Workstream Plan
 
 Workstream Label: `FAM-007 Local AI Provider User-Operated Consent UX Foundation`
-Workstream Status: `Admitted / pending Workstream Entry`
+Workstream Status: `Workstream Green`
 Workstream Definition: `A local-only user-operated consent UX/status foundation that makes durable consent truth visible and controllable while preserving provider setup, consent execution, provider/model execution, downloads, network, memory, voice/Core, shortcut/installer, and v1.8.0 gates.`
-Package Completion State: `Not started`
+Package Completion State: `Workstream Green - all admitted seams implemented`
 Continuation Rule: `After USER-approved Workstream implementation begins, Codex must continue seam-to-seam through every admitted seam until Workstream Green, a named blocker, or an explicit USER waiver; bounded means one active seam at a time, not one-seam Workstream authority.`
+Single-Seam Workstream Waiver: None
+Single-Seam Or Single-Slice Waiver Authority: USER only; Codex cannot infer single-seam or single-slice authority.
+Single-Seam Or Single-Slice Workstream Blocker: One seam or one slice is a blocker unless USER waiver is explicit; no blocker remains because all admitted seams were implemented.
+Bounded Seam Default: Bounded means one active seam at a time and is not one-seam Workstream authority; continue through every admitted seam until Workstream Green, a named blocker, or explicit USER waiver.
+
+## Seam Continuation Decision
+
+Seam Status: Green
+Slice Status: Green
+Completion Status: Green
+Waiver Status: None
+Continue Decision: Stop
+Continuation Execution Latch: Closed - Workstream Green routes to Hardening.
+Stop Basis: Workstream Green
+Next Active Seam: Hardening H1 after USER approval
+Stop Condition: Workstream Green reached after all admitted consent UX seams were implemented and validator-covered.
+Continuation Action: Stop at phase boundary until USER admits the next phase; request USER approval for Hardening H1.
 
 ## Admitted Implementation Slice
 
@@ -234,7 +251,7 @@ Slice: FAM-007 user-operated consent UX foundation, covering consent UX state an
 
 ## Later-Phase Expectations
 
-Workstream Entry must review the whole package, create or refresh the Desktop USER review bundle if source truth requires it, and return exact implementation approval text. Workstream must continue through all admitted seams after approval. H1 must compare implementation against this plan and matrix. LV1 must prove visible UX or record a source-truth-supported waiver. PR Readiness must fold active authority into merge-stable historical truth before PR green.
+H1 must compare implementation against this plan and matrix. LV1 must prove visible UX or record a source-truth-supported waiver. PR Readiness must fold active authority into merge-stable historical truth before PR green.
 
 ## Initial Workstream Seam Sequence
 
@@ -245,33 +262,34 @@ Non-Includes: `Provider setup completion, provider SDK/model execution, prompt r
 
 ## Active Seam
 
-Active seam: `Branch Readiness Stage 2 setup complete; next active seam is Workstream Entry whole-package analysis after USER approval.`
+Active seam: `Workstream implementation complete; next active seam is Hardening H1 after USER approval.`
 
 ## Element-to-Phase Proof Matrix
 
 | Element ID | Element / Surface | Element Classification | Workstream Implementation Plan | Workstream Proof Plan | Hardening Proof Plan | Live Validation Proof / Waiver Plan | UTS / USER Acceptance Path | Future / Deferred Boundary | USER Decision State | Source Owner / Ledger Owner |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| FAM007-CUX-001 | Consent UX state and local intent model | runtime/state | Define local state only if Workstream admits it | Provider-state validator and source inspection | H1 state/copy review | LV1 static or live proof depending on visible implementation | UTS required if visible | Provider execution remains blocked | Pending Workstream Entry | Branch plan and desktop provider state |
-| FAM007-CUX-002 | User-operated consent controls/status surface | user-facing UI | Implement one accepted primary surface only | Screenshot/static/live proof as admitted | H1 visual/copy review | LV1 live-client proof expected if visible | USER checklist expected | Multiple surfaces need approval | Pending Workstream Entry | Branch plan and renderer/UI files |
-| FAM007-CUX-003 | Durable consent handoff | runtime/state | Read or reference durable consent truth safely | Fixtures prove local-only handoff | H1 durable-state comparison | LV1 static/live proof | UTS covers visible result if any | Durable schema changes beyond need are deferred | Pending Workstream Entry | desktop/ai_provider_state.py |
-| FAM007-CUX-004 | Revocation/reset UX mapping | user-facing/runtime | Map revocation/reset labels and controls if admitted | Validator and copy proof | H1 fail-closed review | LV1 interaction proof if controls exist | USER checklist expected | Actual provider revocation effects remain future | Pending Workstream Entry | Branch plan and validators |
-| FAM007-CUX-005 | Setup vs execution consent copy | UI/provider-boundary | Keep labels separate and non-executing | Static copy and validator proof | H1 provider-boundary review | LV1 copy proof | USER acceptance expected | Execution remains disabled | Pending Workstream Entry | Branch plan, provider state, UI |
-| FAM007-CUX-006 | Core/Desktop/ORIN status proof | UI/status | Add only admitted safe labels/telemetry | Static/UI validator proof | H1 display-suppression review | LV1 screenshot or waiver | UTS if visible | Long AI-owned readiness display remains suppressed unless approved | Pending Workstream Entry | renderer/status surfaces |
-| FAM007-CUX-007 | Provider boundary blockers | safety/privacy | Preserve no provider-visible data and disabled execution | AI provider state validation | H1 boundary audit | LV1 provider-boundary proof | USER sees no functional AI claim | Provider setup/model execution future-gated | Pending Workstream Entry | provider-state validator |
-| FAM007-CUX-008 | Validator fixtures | validation/helper | Add deterministic fixtures for each implemented behavior | Direct validator output | H1 coverage review | LV1 validator layer | Not user-facing alone | No helper bypass of live proof | Pending Workstream Entry | dev/orin_ai_provider_state_validation.py |
+| FAM007-CUX-001 | Consent UX state and local intent model | Created | Implemented local consent UX state and intent fields | Provider-state validator and source inspection | H1 state/copy review | LV1 static or live proof depending on visible implementation | UTS required only if visible | Provider execution remains blocked | Accepted / USER-approved Workstream | Branch plan and desktop provider state |
+| FAM007-CUX-002 | User-operated consent controls/status surface | Created | Implemented hidden/status-first local consent UX posture | Static/UI validator and renderer source proof | H1 visual/copy review | LV1 live-client proof if visible, waiver if hidden/status-only | USER checklist only if visible | Multiple surfaces need approval | Accepted / USER-approved Workstream | Branch plan and renderer/UI files |
+| FAM007-CUX-003 | Durable consent handoff | Touched | Implemented durable consent truth handoff safely | Fixtures prove local-only handoff | H1 durable-state comparison | LV1 static/live proof | UTS covers visible result if any | Durable schema changes beyond UX handoff are deferred | Accepted / USER-approved Workstream | desktop/ai_provider_state.py |
+| FAM007-CUX-004 | Revocation/reset UX mapping | Created | Implemented revocation/reset labels and fail-closed posture | Validator and copy proof | H1 fail-closed review | LV1 interaction proof if controls exist | USER checklist only if visible | Actual provider revocation effects remain future | Accepted / USER-approved Workstream | Branch plan and validators |
+| FAM007-CUX-005 | Setup vs execution consent copy | Created | Implemented separated setup/execution labels and gates | Static copy and validator proof | H1 provider-boundary review | LV1 copy proof | USER acceptance if visible | Execution remains disabled | Accepted / USER-approved Workstream | Branch plan, provider state, UI |
+| FAM007-CUX-006 | Core/Desktop/ORIN status proof | Created | Implemented safe hidden labels/telemetry | Static/UI validator proof | H1 display-suppression review | LV1 screenshot or waiver | UTS if visible | Long AI-owned readiness display remains suppressed unless approved | Accepted / USER-approved Workstream | renderer/status surfaces |
+| FAM007-CUX-007 | Provider boundary blockers | Touched | Preserved no provider-visible data and disabled execution | AI provider state validation | H1 boundary audit | LV1 provider-boundary proof | USER sees no functional AI claim | Provider setup/model execution future-gated | Accepted / USER-approved Workstream | provider-state validator |
+| FAM007-CUX-008 | Validator fixtures | Created | Added deterministic fixtures for each implemented behavior | Direct validator output | H1 coverage review | LV1 validator layer | Not user-facing alone | No helper bypass of live proof | Accepted / USER-approved Workstream | dev/orin_ai_provider_state_validation.py |
 | FAM007-CUX-009 | Functional-AI / v1.8.0 criteria | release/future | Record continuation criteria only | Source-truth proof | H1 overclaim audit | LV1 wording audit | USER decision later | v1.8.0 execution remains future | Pending USER decision | Branch record and plan |
 
 ## Branch Change Intent Ledger
 
 Branch Change Intent Ledger Status: `No rebaseline overlap ledger entries required for Stage 2 setup because the pre-rebaseline audit reported Rebaseline Overlap Files: None.`
-Rebaseline Audit Proof: `python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
+Rebaseline Audit Proof: `python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
 
 ## Post-Release Canon Closure
 
 Latest Public Prerelease Recorded: `v1.7.17-prebeta`
 Latest Public Release Commit Recorded: `f3309a9e1843dbbfef3931c5967ba4ff04b46dc0`
 PR #203 Released Evidence: `Recorded as FAM-007 Durable Local Consent Persistence Foundation evidence released in v1.7.17-prebeta.`
-Governance PR #204 Baseline: `Current branch created from origin/main@f072be65fc5f00202a684a20b3cbb4611536ab51 after Governance PR #204 merged.`
+Governance PR #204 Baseline: `Branch created from origin/main@f072be65fc5f00202a684a20b3cbb4611536ab51 after Governance PR #204 merged.`
+Governance PR #205 Reconciliation: `Current branch reconciled to origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1 and accepted Governance PR #205 shared governance changes as authoritative while preserving FAM-007 branch-local authority.`
 Previous Carrier Lifecycle: `feature/fam-007-local-ai-provider-durable-consent-persistence-foundation is historical/released FAM-007 evidence and is not the active carrier.`
 
 ## FAM / Shared-Surface Overlap Forecast
@@ -286,18 +304,18 @@ Planned Validation Commands: `git diff --check origin/main...HEAD; git diff --ch
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Branch Readiness`
-Next Legal Phase: `Workstream Entry`
-Next Active Seam: `Workstream Entry whole-package analysis and USER plan review for FAM-007 Local AI Provider User-Operated Consent UX Foundation`
-Why This Phase Is Next: `Stage 2 creates the fresh branch authority and plan, but runtime/user-facing implementation remains blocked until Workstream Entry reviews the whole package, USER can inspect the plan, and an implementation approval is granted.`
-Approval Required: `USER approval is required for Workstream Entry analysis. Later separate approval is required for Workstream implementation and all later phases.`
-Exact USER Approval Text: `I approve Workstream Entry analysis for feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@f072be65fc5f00202a684a20b3cbb4611536ab51. Scope: inspect the active branch record, Branch Runtime Engineering Plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Vision Snapshot, Element-to-Phase Proof Matrix, USER plan review requirements, prior PR #203 durable consent persistence evidence, provider-boundary posture, validation expectations, UI/status proof expectations, LV1/UTS planning, FAM-006/Governance overlap context, and return the exact bounded Workstream implementation decision text. Do not implement runtime/UI changes, commit, push, create a PR, merge, release, clean branches/worktrees, mutate sibling worktrees, implement provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Allowed Scope: `Workstream Entry analysis, USER plan review bundle creation if required, source-truth inspection, validation posture review, and exact implementation approval packet only.`
+Current Phase: `Workstream`
+Next Legal Phase: `Hardening`
+Next Active Seam: `Hardening H1 review for FAM-007 Local AI Provider User-Operated Consent UX Foundation`
+Why This Phase Is Next: `The USER-approved bounded Workstream implementation reached Workstream Green after current-main reconciliation and direct provider-state/UI/status validation; H1 must now verify implementation-to-plan alignment, source-truth fold-down, UI copy, hidden/status proof, desktop readiness display suppression continuity, and provider-boundary preservation before LV1.`
+Approval Required: `USER approval is required for Hardening H1. Later separate approval is required for LV1 and all later phases.`
+Exact USER Approval Text: `I approve Hardening H1 for feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1. Scope: inspect the completed FAM-007 user-operated consent UX foundation Workstream, compare implementation against the branch plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, Element-to-Phase Proof Matrix, direct validators, Core/Desktop/ORIN status proof, desktop readiness display suppression continuity, provider-boundary posture, LV1/UTS waiver path, and source-truth fold-down; apply H1-scoped repairs if repo truth supports them; validate, commit, and push if repairs are made. Do not create a PR, merge, release, clean branches/worktrees, mutate sibling worktrees, implement provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Allowed Scope: `Hardening H1 inspection, H1-scoped repair, validation, and commit/push only if repairs are made.`
 Explicit Exclusions: `No implementation, PR creation, merge, release, cleanup, sibling mutation, provider setup completion, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Validation Required: `Run identity/freshness checks, branch governance validation, worktree confinement gate, branch-readiness planning fixture validation, AI provider state validation, runtime-fam007 validation suite as applicable, rebaseline audit, diff checks, and any Workstream Entry validators required by source truth.`
-Stop Conditions: `Stop if origin/main advances and reconciliation is required, Workstream Entry finds planning gaps, USER plan review is missing, source truth points to another carrier, validation fails, or implementation would require any pending USER decision.`
-USER Plan Review Gate: `USER may accept, revise, waive, or reject this Stage 2 plan during Workstream Entry before implementation begins.`
+Validation Required: `Run identity/freshness checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency, release body validation, source-owner marker validation, branch-readiness planning fixture validation, AI provider state validation, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, diff checks, compileall, and any H1 validators required by source truth.`
+Stop Conditions: `Stop if origin/main advances and reconciliation is required, H1 finds unsupported Workstream Green source truth, UI/status copy overclaims readiness, desktop readiness display suppression drifts, provider-boundary assertions weaken, validation fails, source truth points to another carrier, or implementation would require any pending USER decision.`
+USER Plan Review Gate: `Completed through Workstream Entry; H1 reviews the accepted plan against implementation rather than re-opening Stage 2 plan approval.`
 USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/orin_ai_provider_state_validation.py.`
 Review Required Because: `The branch is user-facing/runtime-adjacent and must prove vision, interface boundary, element-to-phase coverage, durable consent handoff, provider-boundary preservation, and LV1/UTS posture before implementation.`
-Implementation Blocker: `WORKSTREAM_ENTRY_USER_APPROVAL_MISSING - Workstream Entry and later implementation approval remain required.`
-Review Waiver Reason: `Not waived.`
+Implementation Blocker: `None - Workstream implementation completed and routes to H1.`
+Review Waiver Reason: `No Workstream Entry review waiver is active; LV1/UTS waiver remains a later H1/LV1 classification question if the surface stays hidden/status-only.`

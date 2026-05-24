@@ -36,7 +36,10 @@ from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .interaction_overlay_model import CommandOverlayModel
-from .ai_provider_state import build_default_provider_readiness_config, build_provider_setup_implementation_foundation_state
+from .ai_provider_state import (
+    build_default_provider_readiness_config,
+    build_provider_user_operated_consent_ux_foundation_state,
+)
 from .monitoring_hud_controls import build_monitoring_hud_controls_visibility_contract
 from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
@@ -5754,7 +5757,7 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.create_custom_group_requested.connect(self.handle_create_custom_group_requested)
         self._command_panel.created_groups_requested.connect(self.handle_created_groups_requested)
         self._command_panel.edit_saved_action_requested.connect(self.handle_edit_saved_action_requested)
-        self._ai_provider_state = build_provider_setup_implementation_foundation_state(
+        self._ai_provider_state = build_provider_user_operated_consent_ux_foundation_state(
             build_default_provider_readiness_config(),
             surface_role=self.surface_role,
         )
@@ -15041,6 +15044,17 @@ class DesktopRuntimeWindow(QWidget):
             durable_consent_desktop_display=payload.get("durableConsentDesktopDisplayState", ""),
             durable_consent_setup_handoff=payload.get("durableConsentProviderSetupHandoffState", ""),
             durable_consent_execution_handoff=payload.get("durableConsentProviderExecutionHandoffState", ""),
+            consent_ux_state=payload.get("consentUxState", ""),
+            consent_ux_intent=payload.get("consentUxIntentState", ""),
+            consent_ux_surface=payload.get("consentUxSurfaceState", ""),
+            consent_ux_setup_display=payload.get("consentUxSetupDisplayState", ""),
+            consent_ux_execution_display=payload.get("consentUxExecutionDisplayState", ""),
+            consent_ux_revocation_reset=payload.get("consentUxRevocationResetState", ""),
+            consent_ux_write=payload.get("consentUxWritePosture", ""),
+            consent_ux_status_proof=payload.get("consentUxStatusProofState", ""),
+            consent_ux_desktop_display=payload.get("consentUxDesktopDisplayState", ""),
+            consent_ux_setup_gate=payload.get("consentUxProviderSetupGateState", ""),
+            consent_ux_execution_gate=payload.get("consentUxProviderExecutionGateState", ""),
             provider_setup_handoff=payload.get("providerSetupHandoffPosture", ""),
             provider_consent_handoff=payload.get("providerConsentHandoffPosture", ""),
             desktop_readiness_display=payload.get("desktopAiOwnedReadinessDisplayState", ""),
