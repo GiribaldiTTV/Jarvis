@@ -335,6 +335,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__overlay-profile-choice-panel",
         "justify-self: stretch",
         "max-width: 100%",
+        "@media (max-height: 620px)",
+        "height: min(720px, calc(100% - 40px))",
+        "max-height: 82px",
+        "max-height: 102px",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
     for needle in (
@@ -844,6 +848,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "scrollbar-gutter: auto" in css
         and "justify-self: stretch" in css
         and "max-width: 100%" in css
+        and "@media (max-height: 620px)" in css
+        and "height: min(720px, calc(100% - 40px))" in css
+        and "max-height: 82px" in css
+        and "max-height: 102px" in css
         and "max-width: 220px;" in css
         and "padding-right: 14px;" in css
         and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css
