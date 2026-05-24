@@ -2188,13 +2188,30 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
 
 .monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard {
   display: grid;
-  grid-template-columns: minmax(96px, 0.75fr) minmax(120px, 1fr) minmax(96px, 0.75fr);
+  grid-template-columns: repeat(3, minmax(96px, 1fr));
   gap: 8px;
   align-items: center;
 }
 
 .monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard .monitoring-hud__hub-action {
   justify-content: center;
+  justify-self: stretch;
+  min-width: 0;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="overlay-profile-unsaved-save"],
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="unsaved-save-monitor"] {
+  grid-column: 1;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="overlay-profile-unsaved-discard"],
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="unsaved-discard-monitor"] {
+  grid-column: 2;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="overlay-profile-unsaved-cancel"],
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="unsaved-cancel-monitor"] {
+  grid-column: 3;
 }
 
 .monitoring-hud__delete-confirmation[hidden],

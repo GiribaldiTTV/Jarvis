@@ -10336,7 +10336,241 @@ class DesktopRuntimeWindow(QWidget):
             ]
             for label in labels:
                 capture(label)
-            QTimer.singleShot(delay(), step_source_settings_open)
+            QTimer.singleShot(delay(), step_manage_dirty_make_change)
+
+        def step_manage_dirty_make_change():
+            os_click(
+                "#monitoring-hud-monitor-warning-notifications-setting",
+                "real OS click changes Manage Monitors draft before dirty guard",
+                step_manage_dirty_close,
+            )
+
+        def step_manage_dirty_close():
+            os_click(
+                '[data-child-window-close="monitor-group-edit"]',
+                "real OS click close opens Manage Monitors dirty-change guard",
+                step_manage_dirty_guard_assert,
+            )
+
+        def step_manage_dirty_guard_assert():
+            assert_state(
+                "Manage Monitors dirty guard matches shared modal Save Discard Cancel contract",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-edit-monitor-window");
+                    const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                    const save = document.getElementById("monitoring-hud-monitor-unsaved-save");
+                    const discard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
+                    const cancel = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
+                    const close = document.querySelector('[data-child-window-close="monitor-group-edit"]');
+                    const guardRect = guard ? guard.getBoundingClientRect() : null;
+                    const windowRect = windowNode ? windowNode.getBoundingClientRect() : null;
+                    const computed = guard ? getComputedStyle(guard) : null;
+                    const closeRect = close ? close.getBoundingClientRect() : null;
+                    const saveRect = save ? save.getBoundingClientRect() : null;
+                    const discardRect = discard ? discard.getBoundingClientRect() : null;
+                    const cancelRect = cancel ? cancel.getBoundingClientRect() : null;
+                    const actionButtonsSingleRow = Boolean(
+                        saveRect
+                        && discardRect
+                        && cancelRect
+                        && Math.abs(saveRect.top - discardRect.top) <= 2
+                        && Math.abs(saveRect.top - cancelRect.top) <= 2
+                        && Math.abs(saveRect.height - discardRect.height) <= 2
+                        && Math.abs(saveRect.height - cancelRect.height) <= 2
+                    );
+                    const guardCoversClose = Boolean(
+                        guardRect
+                        && closeRect
+                        && guardRect.left <= closeRect.right
+                        && guardRect.right >= closeRect.left
+                        && guardRect.top <= closeRect.bottom
+                        && guardRect.bottom >= closeRect.top
+                    );
+                    return JSON.stringify({
+                        ok: Boolean(
+                            windowNode
+                            && !windowNode.hidden
+                            && windowNode.dataset.hudUnsavedState === "open"
+                            && windowNode.dataset.monitorUnsavedState === "open"
+                            && guard
+                            && !guard.hidden
+                            && guard.dataset.unsavedGuard === "open-save-discard"
+                            && guard.dataset.guardActionLayout === "modal-save-discard-cancel"
+                            && save
+                            && discard
+                            && cancel
+                            && save.offsetWidth > 0
+                            && discard.offsetWidth > 0
+                            && cancel.offsetWidth > 0
+                            && guardRect
+                            && windowRect
+                            && guardRect.top >= windowRect.top
+                            && guardRect.bottom <= windowRect.bottom
+                            && computed
+                            && computed.position === "absolute"
+                            && actionButtonsSingleRow
+                            && !guardCoversClose
+                        ),
+                        activeWindow: document.body.dataset.activeChildWindow || "",
+                        hudUnsavedState: windowNode ? String(windowNode.dataset.hudUnsavedState || "") : "",
+                        monitorUnsavedState: windowNode ? String(windowNode.dataset.monitorUnsavedState || "") : "",
+                        guardState: guard ? String(guard.dataset.unsavedGuard || "") : "",
+                        actionLayout: guard ? String(guard.dataset.guardActionLayout || "") : "",
+                        position: computed ? computed.position : "",
+                        saveVisible: Boolean(save && save.offsetWidth > 0),
+                        discardVisible: Boolean(discard && discard.offsetWidth > 0),
+                        cancelVisible: Boolean(cancel && cancel.offsetWidth > 0),
+                        actionButtonsSingleRow,
+                        guardInsideWindow: Boolean(guardRect && windowRect && guardRect.top >= windowRect.top && guardRect.bottom <= windowRect.bottom),
+                        guardCoversClose,
+                        realOsInputProof: true,
+                        directJsClickUsed: false,
+                        syntheticDomEventUsed: false,
+                        qtestMouseUsed: false
+                    });
+                })();
+                """,
+                step_manage_dirty_guard_captures,
+            )
+
+        def step_manage_dirty_guard_captures():
+            labels = [
+                "manage_monitors_dirty_guard_save_discard_cancel_modal",
+                "manage_monitors_dirty_guard_modal_uniform_with_overlay_profile",
+                "manage_monitors_dirty_guard_background_blur_blocking",
+                "manage_monitors_dirty_guard_close_button_functionality",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_manage_dirty_cancel)
+
+        def step_manage_dirty_cancel():
+            os_click(
+                "#monitoring-hud-monitor-unsaved-cancel",
+                "real OS click cancels Manage Monitors dirty modal and preserves draft",
+                step_manage_dirty_cancel_assert,
+            )
+
+        def step_manage_dirty_cancel_assert():
+            assert_state(
+                "Manage Monitors dirty guard Cancel returns to dirty draft without queued close",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-edit-monitor-window");
+                    const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                    return JSON.stringify({
+                        ok: Boolean(
+                            windowNode
+                            && !windowNode.hidden
+                            && windowNode.dataset.hudUnsavedState !== "open"
+                            && guard
+                            && guard.hidden
+                            && guard.dataset.unsavedGuard === "closed"
+                            && document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges === "pending"
+                        ),
+                        windowOpen: Boolean(windowNode && !windowNode.hidden),
+                        hudUnsavedState: windowNode ? String(windowNode.dataset.hudUnsavedState || "") : "",
+                        guardState: guard ? String(guard.dataset.unsavedGuard || "") : "",
+                        monitorUnsavedChanges: document.getElementById("monitoring-hud").dataset.monitorUnsavedChanges || "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_manage_dirty_reclose,
+            )
+
+        def step_manage_dirty_reclose():
+            os_click(
+                '[data-child-window-close="monitor-group-edit"]',
+                "real OS click close reopens Manage Monitors dirty modal after cancel",
+                step_manage_dirty_reclose_assert,
+            )
+
+        def step_manage_dirty_reclose_assert():
+            assert_state(
+                "Manage Monitors dirty guard reopens after Cancel with queued close action",
+                """
+                (function() {
+                    const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                    return JSON.stringify({
+                        ok: Boolean(
+                            guard
+                            && !guard.hidden
+                            && guard.dataset.unsavedGuard === "open-save-discard"
+                            && guard.dataset.pendingMonitorAction === "close"
+                        ),
+                        guardState: guard ? String(guard.dataset.unsavedGuard || "") : "",
+                        pendingAction: guard ? String(guard.dataset.pendingMonitorAction || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_manage_dirty_discard,
+            )
+
+        def step_manage_dirty_discard():
+            os_click(
+                "#monitoring-hud-monitor-unsaved-discard",
+                "real OS click discards Manage Monitors dirty draft and completes queued close",
+                step_manage_dirty_discard_assert,
+            )
+
+        def step_manage_dirty_discard_assert():
+            assert_state(
+                "Manage Monitors dirty guard Discard completes queued close and clears dirty state",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-edit-monitor-window");
+                    const guard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
+                    const hud = document.getElementById("monitoring-hud");
+                    return JSON.stringify({
+                        ok: Boolean(
+                            windowNode
+                            && windowNode.hidden
+                            && guard
+                            && guard.hidden
+                            && guard.dataset.unsavedGuard === "closed"
+                            && hud
+                            && hud.dataset.monitorUnsavedChanges === "clean"
+                        ),
+                        windowHidden: Boolean(windowNode && windowNode.hidden),
+                        guardHidden: Boolean(guard && guard.hidden),
+                        guardState: guard ? String(guard.dataset.unsavedGuard || "") : "",
+                        monitorUnsavedChanges: hud ? String(hud.dataset.monitorUnsavedChanges || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_reopen_manage_for_source_settings,
+            )
+
+        def step_reopen_manage_for_source_settings():
+            os_click("#monitoring-hud-edit-monitor-action", "real OS click reopens Manage Monitors after dirty guard discard", step_manage_reopen_assert)
+
+        def step_manage_reopen_assert():
+            assert_state(
+                "Manage Monitors reopens cleanly after dirty guard discard",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-edit-monitor-window");
+                    const settings = document.querySelector("[data-source-settings-open]");
+                    const hud = document.getElementById("monitoring-hud");
+                    return JSON.stringify({
+                        ok: Boolean(windowNode && !windowNode.hidden && settings && hud && hud.dataset.monitorUnsavedChanges === "clean"),
+                        windowOpen: Boolean(windowNode && !windowNode.hidden),
+                        sourceSettingsVisible: Boolean(settings && settings.offsetWidth > 0),
+                        monitorUnsavedChanges: hud ? String(hud.dataset.monitorUnsavedChanges || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_source_settings_open,
+            )
 
         def step_source_settings_open():
             os_click("[data-source-settings-open]", "real OS click opens Source Settings", step_source_settings_assert)

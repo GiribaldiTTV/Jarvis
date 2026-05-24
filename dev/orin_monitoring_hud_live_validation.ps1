@@ -278,6 +278,18 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         }
     }
     $missingIssueCoverage = @($issueCoverage | Where-Object { $_.status -ne "PASS" })
+    $requiredElementLabels = @(
+        "unsaved_guard_save_discard_buttons_visible",
+        "unsaved_guard_discard_red_danger_button",
+        "unsaved_guard_panel_background_no_grid_bleed",
+        "dirty_guard_close_button_functionality",
+        "manage_monitors_dirty_guard_save_discard_cancel_modal",
+        "manage_monitors_dirty_guard_modal_uniform_with_overlay_profile",
+        "manage_monitors_dirty_guard_background_blur_blocking",
+        "manage_monitors_dirty_guard_close_button_functionality"
+    )
+    $availableElementLabels = @($screenshots | Select-Object -ExpandProperty elementLabel)
+    $missingRequiredElementLabels = @($requiredElementLabels | Where-Object { $availableElementLabels -notcontains $_ })
 
     if ($screenshots.Count -lt $MinimumScreenshots) {
         return [ordered]@{
@@ -285,6 +297,19 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
             root = $Paths.ElementScreenshotEvidenceRoot
             count = $screenshots.Count
             reason = "only $($screenshots.Count) focused per-element screenshot(s) copied; minimum is $MinimumScreenshots"
+            proofClass = "focused-per-element-screenshot"
+            perElementVisualInventory = $screenshots
+            issueFormCoverageMatrix = $issueCoverage
+            screenshots = $screenshots
+        }
+    }
+
+    if ($missingRequiredElementLabels.Count -gt 0) {
+        return [ordered]@{
+            status = "FAIL"
+            root = $Paths.ElementScreenshotEvidenceRoot
+            count = $screenshots.Count
+            reason = "focused screenshots missing mandatory dirty-guard parity element(s): $($missingRequiredElementLabels -join ', ')"
             proofClass = "focused-per-element-screenshot"
             perElementVisualInventory = $screenshots
             issueFormCoverageMatrix = $issueCoverage
@@ -1047,7 +1072,10 @@ try {
             "Compact Overlay Profiles window preserves functional visible monitor row and action buttons",
             "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
             "Create Profile opens unsaved draft with empty monitor membership",
-            "Dirty-change guard blocks close after created draft"
+            "Dirty-change guard blocks close after created draft",
+            "Manage Monitors dirty guard matches shared modal Save Discard Cancel contract",
+            "Manage Monitors dirty guard Cancel returns to dirty draft without queued close",
+            "Manage Monitors dirty guard Discard completes queued close and clears dirty state"
         )
         foreach ($requiredLabel in $requiredInteractionLabels) {
             if ($interactionManifestRaw -notmatch [regex]::Escape($requiredLabel)) {

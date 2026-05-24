@@ -719,6 +719,47 @@ def validate() -> list[str]:
         ".monitoring-hud__hub-action--safe-cancel",
     ):
         _require_contains(html + css, interactive_control_markup, "FAM-006 interactive-control visual QA HTML/CSS", failures)
+    for dirty_guard_parity_markup in (
+        'id="monitoring-hud-overlay-profile-unsaved-guard" data-unsaved-guard="closed"',
+        'id="monitoring-hud-monitor-unsaved-guard" data-unsaved-guard="closed"',
+        'id="monitoring-hud-overlay-profile-unsaved-save"',
+        'id="monitoring-hud-monitor-unsaved-save"',
+        'id="monitoring-hud-overlay-profile-unsaved-discard"',
+        'id="monitoring-hud-monitor-unsaved-discard"',
+        'id="monitoring-hud-overlay-profile-unsaved-cancel"',
+        'id="monitoring-hud-monitor-unsaved-cancel"',
+        '.monitoring-hud__child-window[data-hud-unsaved-state="open"] > .monitoring-hud__unsaved-guard--modal[data-unsaved-guard="open-save-discard"]',
+        'grid-template-columns: repeat(3, minmax(96px, 1fr));',
+        '[data-control="overlay-profile-unsaved-save"]',
+        '[data-control="unsaved-save-monitor"]',
+        '[data-control="overlay-profile-unsaved-discard"]',
+        '[data-control="unsaved-discard-monitor"]',
+        '[data-control="overlay-profile-unsaved-cancel"]',
+        '[data-control="unsaved-cancel-monitor"]',
+        'data-unsaved-guard-actions="modal-save-discard-cancel"',
+    ):
+        _require_contains(
+            html + css,
+            dirty_guard_parity_markup,
+            "FAM-006 shared modal dirty-guard parity HTML/CSS",
+            failures,
+        )
+    for dirty_guard_live_proof in (
+        "Manage Monitors dirty guard matches shared modal Save Discard Cancel contract",
+        "Manage Monitors dirty guard Cancel returns to dirty draft without queued close",
+        "Manage Monitors dirty guard Discard completes queued close and clears dirty state",
+        "manage_monitors_dirty_guard_save_discard_cancel_modal",
+        "manage_monitors_dirty_guard_modal_uniform_with_overlay_profile",
+        "manage_monitors_dirty_guard_background_blur_blocking",
+        "manage_monitors_dirty_guard_close_button_functionality",
+        "focused screenshots missing mandatory dirty-guard parity element",
+    ):
+        _require_contains(
+            renderer + live_validation,
+            dirty_guard_live_proof,
+            "FAM-006 LV1 shared modal dirty-guard parity proof route",
+            failures,
+        )
     _require(
         'id="monitoring-hud-create-monitor-action"' not in hud_section
         and 'data-control="create-monitor"' not in hud_section,
