@@ -8880,20 +8880,17 @@ def normalize_provider_consent_ux_intent(
 
 
 def _provider_user_operated_consent_ux_fields(
-    durable_record: AIProviderDurableConsentRecordSnapshot,
+    durable_state: AIProviderStateSnapshot,
     consent_intent: AIProviderConsentUxIntentSnapshot,
 ) -> dict[str, object]:
-    (
-        setup_consent_state,
-        setup_consent_label,
-        setup_consent_reason,
-    ) = _durable_consent_scope_status(durable_record, scope="setup")
-    (
-        execution_consent_state,
-        execution_consent_label,
-        execution_consent_reason,
-    ) = _durable_consent_scope_status(durable_record, scope="execution")
-    durable_handoff_ready = durable_record.record_state in {
+    record_state = durable_state.durable_consent_record_state
+    setup_consent_state = durable_state.durable_setup_consent_state
+    setup_consent_label = durable_state.durable_setup_consent_label
+    setup_consent_reason = durable_state.durable_setup_consent_reason_code
+    execution_consent_state = durable_state.durable_execution_consent_state
+    execution_consent_label = durable_state.durable_execution_consent_label
+    execution_consent_reason = durable_state.durable_execution_consent_reason_code
+    durable_handoff_ready = record_state in {
         CONSENT_DURABLE_RECORD_STATE_READY,
         CONSENT_DURABLE_RECORD_STATE_REVOKED,
         CONSENT_DURABLE_RECORD_STATE_RESET,
@@ -8903,7 +8900,7 @@ def _provider_user_operated_consent_ux_fields(
     execution_ready = (
         execution_consent_state == CONSENT_DURABLE_CONSENT_STATE_GRANTED
     )
-    blocked_by_invalid_record = durable_record.record_state in {
+    blocked_by_invalid_record = record_state in {
         CONSENT_DURABLE_RECORD_STATE_MISSING,
         CONSENT_DURABLE_RECORD_STATE_INVALID,
         CONSENT_DURABLE_RECORD_STATE_CORRUPT,
@@ -8912,11 +8909,11 @@ def _provider_user_operated_consent_ux_fields(
     }
     if blocked_by_invalid_record:
         ux_state = CONSENT_UX_STATE_BLOCKED_BY_DURABLE_CONSENT
-    elif durable_record.reset_requested:
+    elif durable_state.durable_consent_reset_requested:
         ux_state = CONSENT_UX_STATE_RESET_LOCAL_ONLY
-    elif durable_record.revoked:
+    elif durable_state.durable_consent_revoked:
         ux_state = CONSENT_UX_STATE_REVOKED_LOCAL_ONLY
-    elif durable_record.expired:
+    elif durable_state.durable_consent_expired:
         ux_state = CONSENT_UX_STATE_EXPIRED_LOCAL_ONLY
     elif not (setup_ready or execution_ready):
         ux_state = CONSENT_UX_STATE_DEGRADED_FAIL_CLOSED
@@ -8958,9 +8955,10 @@ def _provider_user_operated_consent_ux_fields(
     )
     revocation_reset_state = (
         CONSENT_UX_STATE_RESET_LOCAL_ONLY
-        if durable_record.reset_requested or consent_intent.reset_intent_selected
+        if durable_state.durable_consent_reset_requested
+        or consent_intent.reset_intent_selected
         else CONSENT_UX_STATE_REVOKED_LOCAL_ONLY
-        if durable_record.revoked or consent_intent.revoke_intent_selected
+        if durable_state.durable_consent_revoked or consent_intent.revoke_intent_selected
         else ux_state
     )
 
@@ -9306,22 +9304,8 @@ def build_provider_user_operated_consent_ux_foundation_state(
         normalized_intent = normalize_provider_consent_ux_intent(
             consent_ux_intent  # type: ignore[arg-type]
         )
-    normalized_durable_record = (
-        load_provider_durable_consent_record(
-            durable_consent_store_dir,
-            now_utc=now_utc,
-        )
-        if durable_consent_record is _DURABLE_CONSENT_RECORD_OMITTED
-        and durable_consent_store_dir is not None
-        else build_default_provider_durable_consent_record()
-        if durable_consent_record is _DURABLE_CONSENT_RECORD_OMITTED
-        else normalize_provider_durable_consent_record(
-            durable_consent_record,  # type: ignore[arg-type]
-            now_utc=now_utc,
-        )
-    )
     consent_ux_fields = _provider_user_operated_consent_ux_fields(
-        normalized_durable_record,
+        durable_state,
         normalized_intent,
     )
     return replace(

@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import desktop.ai_provider_state as ai_provider_state  # noqa: E402
+
 from desktop.ai_provider_state import (  # noqa: E402
     CAPABILITY_PACK_DOWNLOADS_BLOCKED,
     CAPABILITY_PACK_LIFECYCLE_PLANNED,
@@ -7244,6 +7246,69 @@ def validate() -> list[str]:
             f"{label} consent UX fixture must keep functional AI and v1.8.0 future-gated",
             failures,
         )
+
+    original_durable_loader = ai_provider_state.load_provider_durable_consent_record
+    durable_loader_calls: list[object] = []
+    first_loaded_record = normalize_provider_durable_consent_record(
+        _durable_consent_record(
+            setup_consent_granted=True,
+            execution_consent_granted=False,
+        ),
+        now_utc=fixed_now,
+    )
+    second_loaded_record = normalize_provider_durable_consent_record(
+        _durable_consent_record(revoked=True),
+        now_utc=fixed_now,
+    )
+
+    def _changing_durable_loader(
+        store_dir: str | Path | None,
+        *,
+        now_utc: datetime | None = None,
+    ):
+        durable_loader_calls.append((store_dir, now_utc))
+        if len(durable_loader_calls) == 1:
+            return first_loaded_record
+        return second_loaded_record
+
+    ai_provider_state.load_provider_durable_consent_record = _changing_durable_loader
+    try:
+        single_snapshot_consent_ux = (
+            ai_provider_state.build_provider_user_operated_consent_ux_foundation_state(
+                execution_ready_readiness_config,
+                activation_config=execution_ready_activation_config,
+                path_consent_config=setup_foundation_future_branch_path_config,
+                setup_foundation_config=consent_collection_ready_setup_config,
+                consent_collection_config=consent_capture_ready_collection_config,
+                consent_capture_record=_consent_capture_record(
+                    setup_consent_granted=True
+                ),
+                durable_consent_store_dir=Path("validator-single-durable-snapshot"),
+                now_utc=fixed_now,
+                surface_role="core",
+            )
+        )
+    finally:
+        ai_provider_state.load_provider_durable_consent_record = original_durable_loader
+
+    single_snapshot_payload = single_snapshot_consent_ux.as_renderer_payload()
+    _require(
+        len(durable_loader_calls) == 1,
+        "consent UX derivation must reuse the already-built durable snapshot instead of reloading durable consent",
+        failures,
+    )
+    _require(
+        single_snapshot_payload["durableConsentRecordState"]
+        == CONSENT_DURABLE_RECORD_STATE_READY
+        and single_snapshot_payload["consentUxState"]
+        == CONSENT_UX_STATE_READY_LOCAL_ONLY
+        and single_snapshot_payload["consentUxSetupDisplayState"]
+        == CONSENT_DURABLE_CONSENT_STATE_GRANTED
+        and single_snapshot_payload["consentUxRevocationResetState"]
+        == CONSENT_UX_STATE_READY_LOCAL_ONLY,
+        "consent UX state must derive from the single durable snapshot already present in provider state",
+        failures,
+    )
     _require(
         "durable_consent_status_proof" in renderer
         and "durable_consent_setup_handoff" in renderer
