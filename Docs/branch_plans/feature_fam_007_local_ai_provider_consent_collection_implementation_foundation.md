@@ -12,7 +12,7 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
 
-Current Phase: `Historical / Retired after PR #201 merge - merged-unreleased evidence pending Release Readiness`
+Current Phase: `Historical / Retired after PR #201 merge and v1.7.16-prebeta release`
 
 Branch Runtime Engineering Plan: Accepted - this plan is present for the FAM-007 consent collection implementation foundation carrier.
 
@@ -30,7 +30,7 @@ User-Facing Delta: The completed Workstream adds truthful local consent capture/
 
 User-Facing Runtime Delta: The completed Workstream exposes only concise, truthful consent capture/status proof through hidden telemetry. No long desktop AI-owned readiness display should reappear unless a later USER-approved interface plan changes that suppression posture.
 
-Source-Truth Delta: Historical fold-down records the FAM-007 branch authority as merged-unreleased PR #201 evidence, preserves this retired Branch Runtime Engineering Plan as a planning receipt, keeps current release baseline and PR #193 predecessor evidence intact, updates compact FAM-007 pointer surfaces, retires the worktree slot assignment from active PR posture, preserves validation helper posture, and keeps future-gated approval boundaries.
+Source-Truth Delta: Historical fold-down records the FAM-007 branch authority as released PR #201 evidence in v1.7.16-prebeta, preserves this retired Branch Runtime Engineering Plan as a planning receipt, keeps PR #193 predecessor evidence intact, updates compact FAM-007 pointer surfaces, retires the worktree slot assignment from active PR posture, preserves validation helper posture, and keeps future-gated approval boundaries.
 
 State / Config / Schema Delta: Completed implementation introduces local consent record schema, schema versioning, setup consent status, execution consent status, capture eligibility, write-path result, blocker/reason codes, provenance markers, audit posture, revocation/reset posture, provider profile/config references, provider-visible-data posture, and future handoff fields. It does not store secrets, provider credentials, prompt payloads for provider use, memory indexes, model artifacts, or network/API tokens.
 
@@ -54,9 +54,9 @@ FAM / Shared-Surface Overlap Forecast: FAM-006 is a later PR/merge reconciliatio
 
 Open Questions: USER must later decide whether a future branch may add durable consent persistence beyond this local snapshot boundary, whether a later branch may include a user-operable local consent capture surface, and when provider setup completion and execution proof become admissible.
 
-USER Planning Decisions: USER approved Branch Readiness Stage 2 setup, Workstream Entry analysis, corrected the prior seam-stop drift so the bounded Workstream continued to Workstream Green, approved Hardening H1, approved Live Validation LV1, approved PR Readiness Stage 1 analysis, approved PR Readiness Stage 2 / PR creation, and PR #201 merged. Release execution, provider setup completion, SDK/model work, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0 execution remain pending.
+USER Planning Decisions: USER approved Branch Readiness Stage 2 setup, Workstream Entry analysis, corrected the prior seam-stop drift so the bounded Workstream continued to Workstream Green, approved Hardening H1, approved Live Validation LV1, approved PR Readiness Stage 1 analysis, approved PR Readiness Stage 2 / PR creation, PR #201 merged, and v1.7.16-prebeta release execution closed this branch as released evidence. Provider setup completion, SDK/model work, memory, voice/Core, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0 execution remain pending.
 
-Plan Revision History: v1 created during Branch Readiness Stage 2 from current `origin/main` after `v1.7.15-prebeta` and after PR #193 merged/released as prior FAM-007 consent collection foundation evidence.
+Plan Revision History: v1 created during Branch Readiness Stage 2 from current `origin/main` after `v1.7.15-prebeta` and after PR #193 merged/released as prior FAM-007 consent collection foundation evidence; post-release closure now records PR #201 released in v1.7.16-prebeta.
 
 Plan-To-Implementation Traceability Table: Planned consent capture state maps to provider-state implementation and fixtures; planned write path maps to local-only validation and fail-closed proof; planned provenance/audit posture maps to source-truth and validator proof; planned UI/status proof maps to Core/Desktop/ORIN status surfaces; planned setup/execution consent boundaries map to future-gated provider setup/execution handoff; planned continuation criteria map to H1, LV1, PR Readiness, and Release Readiness fold-down.
 
@@ -76,14 +76,14 @@ Runtime Implementation Approval: Approved for the admitted bounded Workstream; p
 
 ## Plan Status
 
-Completed Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1, PR Readiness Stage 2, and PR #201 merge are recorded for `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`. The plan is retired from active planning posture and remains only as historical merged-unreleased evidence until release execution or a later USER-approved Branch Readiness selects a successor.
+Completed Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1, PR Readiness Stage 2, PR #201 merge, and v1.7.16-prebeta release closure are recorded for `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`. The plan is retired from active planning posture and remains only as historical released evidence while a later USER-approved Branch Readiness selects a successor.
 
 ## Branch Identity
 
 - Branch: `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`
 - Worktree: `C:\Nexus Worktrees\FAM-007`
 - Base / merge base: `origin/main` at `6681131c974d99945c494c0e4ff3c436f9347422` after Governance PR #200 rebaseline
-- Latest public prerelease baseline: `v1.7.15-prebeta`
+- Latest public prerelease baseline: `v1.7.16-prebeta`
 - Prior FAM-007 released consent evidence: PR #193 consent collection foundation, PR #192 setup implementation foundation, PR #190 setup contract readiness, and PR #179 setup/consent-flow readiness.
 
 ## Workstream Label
