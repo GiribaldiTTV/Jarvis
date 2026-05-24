@@ -1575,6 +1575,7 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile[data-overlay-pr
 }
 
 .monitoring-hud__child-window {
+  position: relative;
   width: min(440px, calc(100% - 24px));
   max-height: min(620px, calc(100% - 24px));
   box-sizing: border-box;
@@ -1591,6 +1592,23 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile[data-overlay-pr
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.52),
     0 0 0 1px rgba(230, 251, 255, 0.05) inset;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] {
+  overflow: hidden;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 24;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255, 214, 108, 0.07), transparent 42%),
+    rgba(1, 8, 16, 0.62);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
 }
 
 .monitoring-hud__child-window-header {
@@ -1628,6 +1646,11 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile[data-overlay-pr
   padding: 8px 12px;
   flex: 0 0 auto;
   pointer-events: auto;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-window-close {
+  display: none;
+  pointer-events: none;
 }
 
 .monitoring-hud__child-field {
@@ -1800,6 +1823,35 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
 
   .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-filter-dropdown .monitoring-hud__bounded-dropdown-menu {
     max-height: 102px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-delete-state="open"] .monitoring-hud__overlay-profile-membership {
+    display: none;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-delete-state="open"] .monitoring-hud__child-note {
+    margin: 0;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-delete-state="open"] .monitoring-hud__delete-confirmation {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-delete-state="open"] .monitoring-hud__delete-confirmation span {
+    line-height: 1.2;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-delete-state="open"] .monitoring-hud__overlay-profile-window-actions {
+    align-self: end;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-unsaved-state="open"] .monitoring-hud__unsaved-guard {
+    gap: 7px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-unsaved-state="open"] .monitoring-hud__unsaved-guard span {
+    line-height: 1.2;
   }
 }
 
@@ -2108,6 +2160,41 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile {
   box-sizing: border-box;
   border: 1px solid rgba(255, 214, 108, 0.24);
   background: rgba(70, 52, 12, 0.30);
+}
+
+.monitoring-hud__unsaved-guard--modal {
+  margin: 0;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] > .monitoring-hud__unsaved-guard--modal[data-unsaved-guard="open-save-discard"] {
+  position: absolute;
+  inset: auto clamp(14px, 4%, 28px);
+  top: 50%;
+  z-index: 32;
+  transform: translateY(-50%);
+  width: auto;
+  min-width: min(360px, calc(100% - 28px));
+  max-height: calc(100% - 48px);
+  overflow: auto;
+  padding: 14px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 214, 108, 0.10), transparent 48%),
+    rgba(23, 18, 12, 0.96);
+  box-shadow:
+    0 0 0 1px rgba(255, 246, 218, 0.05) inset,
+    0 18px 34px rgba(0, 0, 0, 0.42),
+    0 0 26px rgba(255, 214, 108, 0.10);
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard {
+  display: grid;
+  grid-template-columns: minmax(96px, 0.75fr) minmax(120px, 1fr) minmax(96px, 0.75fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard .monitoring-hud__hub-action {
+  justify-content: center;
 }
 
 .monitoring-hud__delete-confirmation[hidden],

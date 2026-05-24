@@ -236,6 +236,16 @@ def _validate_static_surface(failures: list[str]) -> None:
         "diagnostic-only",
         "real OS-level mouse/keyboard input",
         "visibly move the real Windows cursor",
+        "diagnose it first as a possible runtime/user-visible defect",
+        "fallback is not a normal path",
+        "branch-adaptive and cumulative",
+        "Compact Overlay Profiles delete confirmation",
+        "explicit temporary waiver",
+        "pessimistic visual adjudication",
+        "assume the validator missed a defect",
+        "A helper/validator `PASS` cannot be reported as LV green",
+        "Verbal assurance, implementation description, or intent-language is not proof",
+        "Codex-owned photo review notes",
     ):
         _require_contains(phase_governance, needle, "interface release boundary governance", failures)
     for needle in (
@@ -254,8 +264,18 @@ def _validate_static_surface(failures: list[str]) -> None:
         "active route contains synthetic interaction code",
         "lacks real OS-level mouse input proof",
         "JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned",
+        "real-input fallback policy PASS",
+        "synthetic fallback requires explicit USER waiver",
+        "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
     ):
         _require_contains(live_validation, needle, "monitoring HUD live validation helper", failures)
+    for needle in (
+        "overlayProfileUnsavedState",
+        "hudUnsavedState",
+        "modalGuard",
+        "closeSuppressed",
+    ):
+        _require_contains(renderer, needle, "monitoring HUD renderer live interaction proof", failures)
     for needle in (
         "SLC-041 validation/live-proof Workstream implementation Green",
         "SLC-041 Hardening H1 Green",
@@ -677,7 +697,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-scroll-pane="sensor-settings"',
         'id="monitoring-hud-monitor-detail-delete"',
         "Delete Monitor",
-        'data-unsaved-guard-actions="save-left-discard-right"',
+        'data-unsaved-guard-actions="modal-save-discard-cancel"',
         'data-delete-confirmation-actions="delete-left-cancel-right"',
         'id="monitoring-hud-monitor-unsaved-guard"',
         'id="monitoring-hud-monitor-detail-empty"',
@@ -952,7 +972,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "footerSaveEnabledWhenDirty",
         "footerDiscardEnabledWhenDirty",
         "footerDiscardIlluminated",
-        "unsavedGuardScrolledToPrompt",
+        "unsavedGuardModalFocused",
         "unsavedGuardReveal",
         "sourceFilterVisualOpen",
         "sourceFilterVisualHoverReset",
@@ -985,7 +1005,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "unsavedCloseDirtyBeforeClose",
         "unsavedCloseDraftBeforeClose",
         "unsavedCloseTargetedManageClose",
-        "unsavedGuardScrolledToPrompt",
+        "unsavedGuardModalFocused",
         "unsavedCloseSavePersistedDraft",
         "unsavedCloseSaveClosedWindow",
         "unsavedCloseDiscardDroppedDraft",
@@ -1128,8 +1148,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "03_manage_monitors_open_state",
         "04_source_filter_dropdown_open_hover_reset",
         "05_unsaved_guard_close_queued",
-        "unsavedGuardScrolledToPrompt",
-        "06_unsaved_guard_save_discard_no_cancel",
+        "unsavedGuardModalFocused",
+        "06_unsaved_guard_modal_save_discard_cancel",
         "07_unsaved_close_save_closes_after_persist",
         "08_unsaved_close_discard_closes_after_drop",
         "09_delete_confirmation_bottom",

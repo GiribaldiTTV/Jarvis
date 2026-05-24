@@ -95,9 +95,10 @@ function Assert-NoSyntheticLiveValidationInteraction {
         $findingPath = Join-Path $Paths.Root "synthetic_live_validation_interaction_blockers.txt"
         $findings | Set-Content -LiteralPath $findingPath -Encoding utf8
         Step $Paths "blocked LV1 before launch: active route contains synthetic interaction code: $findingPath"
-        throw "Live Validation interaction route contains banned synthetic/widget/direct-handler interaction code. Blockers: $($findings -join '; ')"
+        throw "Live Validation interaction route contains banned synthetic/widget/direct-handler interaction code. STOP and diagnose the real-input failure first; do not edit the validator to use synthetic fallback. Blockers: $($findings -join '; ')"
     }
     Step $Paths "no-synthetic-interaction preflight PASS: active LV1 interaction route contains no JS click, DOM MouseEvent, QTest mouse, or direct-handler interaction proof"
+    Step $Paths "real-input fallback policy PASS: if a live click fails, diagnose hit target, z-order, native hit testing, focus, scroll, and runtime state before any validator change; synthetic fallback requires explicit USER waiver"
 }
 
 function Resolve-ValidationPython {
@@ -1040,6 +1041,18 @@ try {
             $interactionManifestRaw -match '"inputProof"\s*:\s*"automated-supporting-only:' -or
             $interactionManifestRaw -notmatch '"realOsInputProof"\s*:\s*true') {
             throw "Interaction self-QA lacks real OS-level mouse input proof. JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned as primary LV1 interaction proof."
+        }
+        $requiredInteractionLabels = @(
+            "Active child window prevents Dashboard click-through under overlapping controls",
+            "Compact Overlay Profiles window preserves functional visible monitor row and action buttons",
+            "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
+            "Create Profile opens unsaved draft with empty monitor membership",
+            "Dirty-change guard blocks close after created draft"
+        )
+        foreach ($requiredLabel in $requiredInteractionLabels) {
+            if ($interactionManifestRaw -notmatch [regex]::Escape($requiredLabel)) {
+                throw "Interaction self-QA missing required real-input scenario: $requiredLabel"
+            }
         }
         Wait-Marker $paths "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY"
         Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY"

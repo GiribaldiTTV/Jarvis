@@ -9131,6 +9131,28 @@ class DesktopRuntimeWindow(QWidget):
         point = self.webview.mapToGlobal(QPoint(int(center_x), int(center_y)))
         return int(point.x()), int(point.y())
 
+    def _monitoring_hud_screen_tuple_from_page_rect(self, rect: dict[str, object] | None) -> tuple[int, int, int, int] | None:
+        if not isinstance(rect, dict):
+            return None
+        try:
+            left = float(rect.get("left") or 0)
+            top = float(rect.get("top") or 0)
+            right = float(rect.get("right") or 0)
+            bottom = float(rect.get("bottom") or 0)
+        except (TypeError, ValueError):
+            return None
+        top_left = self.webview.mapToGlobal(QPoint(int(left), int(top)))
+        bottom_right = self.webview.mapToGlobal(QPoint(int(right), int(bottom)))
+        return int(top_left.x()), int(top_left.y()), int(bottom_right.x()), int(bottom_right.y())
+
+    @staticmethod
+    def _monitoring_hud_point_inside_screen_rect(point: tuple[int, int] | None, rect: tuple[int, int, int, int] | None) -> bool:
+        if point is None or rect is None:
+            return False
+        x, y = point
+        left, top, right, bottom = rect
+        return left <= x <= right and top <= y <= bottom
+
     def _monitoring_hud_send_input(
         self,
         flags: int,
@@ -9197,6 +9219,9 @@ class DesktopRuntimeWindow(QWidget):
                 cursor=f"{cursor_after_move[0]},{cursor_after_move[1]}" if cursor_after_move else "unknown",
             )
             return False
+        self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, x, y)
+        QApplication.processEvents()
+        time.sleep(0.03)
         self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
         QApplication.processEvents()
         time.sleep(0.11)
@@ -9204,6 +9229,54 @@ class DesktopRuntimeWindow(QWidget):
         QApplication.processEvents()
         time.sleep(0.05)
         return ok and cursor_reached_target
+
+    def _monitoring_hud_send_mouse_click_in_rect(self, point: tuple[int, int] | None, rect: tuple[int, int, int, int] | None) -> bool:
+        if point is None:
+            return False
+        self._monitoring_hud_force_cursor_visible()
+        if self.surface_role == "hud":
+            self.show()
+            self.raise_()
+            self._promote_monitoring_hud_edit_window()
+            self.activateWindow()
+            self.webview.setFocus(Qt.MouseFocusReason)
+            QApplication.processEvents()
+            time.sleep(0.08)
+        if not self._monitoring_hud_anchored:
+            self.activateWindow()
+            self.webview.setFocus(Qt.MouseFocusReason)
+            QApplication.processEvents()
+            time.sleep(0.08)
+        x, y = int(point[0]), int(point[1])
+        ok = self._monitoring_hud_move_cursor((x, y), steps=24)
+        cursor_after_move = self._monitoring_hud_cursor_position()
+        cursor_reached_target = bool(
+            cursor_after_move
+            and abs(cursor_after_move[0] - x) <= 3
+            and abs(cursor_after_move[1] - y) <= 3
+        )
+        cursor_inside_target = self._monitoring_hud_point_inside_screen_rect(cursor_after_move, rect)
+        if not cursor_reached_target and not cursor_inside_target:
+            self._emit_runtime_signal(
+                "MONITORING_HUD_REAL_MOUSE_INPUT_FAILED",
+                package="PKG-006",
+                slice="LV1",
+                reason="cursor-did-not-reach-target-or-target-rect",
+                target=f"{x},{y}",
+                cursor=f"{cursor_after_move[0]},{cursor_after_move[1]}" if cursor_after_move else "unknown",
+            )
+            return False
+        click_point = cursor_after_move if cursor_inside_target and cursor_after_move else (x, y)
+        self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, int(click_point[0]), int(click_point[1]))
+        QApplication.processEvents()
+        time.sleep(0.03)
+        self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
+        QApplication.processEvents()
+        time.sleep(0.11)
+        self._monitoring_hud_send_input(MOUSEEVENTF_LEFTUP)
+        QApplication.processEvents()
+        time.sleep(0.05)
+        return ok or cursor_inside_target
 
     def _monitoring_hud_send_mouse_wheel(self, notches: int, point: tuple[int, int] | None = None) -> bool:
         if point is not None and not self._monitoring_hud_move_cursor(point, steps=18):
@@ -9408,14 +9481,17 @@ class DesktopRuntimeWindow(QWidget):
         def os_click(selector: str, label: str, callback):
             def click_from_rect(parsed: dict[str, object]):
                 point = self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect"))
-                os_clicked = self._monitoring_hud_send_mouse_click(point)
+                screen_rect = self._monitoring_hud_screen_tuple_from_page_rect(parsed.get("rect"))
+                os_clicked = self._monitoring_hud_send_mouse_click_in_rect(point, screen_rect)
                 cursor_after = self._monitoring_hud_cursor_position()
                 details = {
                     **parsed,
                     "screenPoint": point,
+                    "screenRect": screen_rect,
                     "cursorAfter": cursor_after,
                     "inputProof": "real-os-mouse-cursor-move-down-up",
                     "realOsInputProof": bool(os_clicked),
+                    "cursorInsideTargetRect": self._monitoring_hud_point_inside_screen_rect(cursor_after, screen_rect),
                     "directJsClickUsed": False,
                     "directJsMouseoverUsed": False,
                     "syntheticDomEventUsed": False,
@@ -9853,10 +9929,48 @@ class DesktopRuntimeWindow(QWidget):
                 (function() {
                     const guard = document.getElementById("monitoring-hud-overlay-profile-unsaved-guard");
                     const windowNode = document.getElementById("monitoring-hud-overlay-profile-window");
+                    const detail = document.getElementById("monitoring-hud-overlay-profile-detail-section");
+                    const close = windowNode ? windowNode.querySelector('[data-child-window-close="overlay-profile-settings"]') : null;
+                    const save = document.getElementById("monitoring-hud-overlay-profile-unsaved-save");
+                    const discard = document.getElementById("monitoring-hud-overlay-profile-unsaved-discard");
+                    const cancel = document.getElementById("monitoring-hud-overlay-profile-unsaved-cancel");
+                    const rect = (node) => node ? node.getBoundingClientRect() : null;
+                    const windowRect = rect(windowNode);
+                    const guardRect = rect(guard);
+                    const guardStyle = guard && getComputedStyle(guard);
+                    const closeStyle = close && getComputedStyle(close);
+                    const guardInside = Boolean(windowRect && guardRect && guardRect.top >= windowRect.top - 1 && guardRect.bottom <= windowRect.bottom + 1);
+                    const modalGuard = Boolean(guardStyle && guardStyle.position === "absolute" && Number.parseInt(guardStyle.zIndex || "0", 10) >= 30);
+                    const closeSuppressed = Boolean(
+                        !close
+                        || (closeStyle && (closeStyle.display === "none" || closeStyle.visibility === "hidden") && closeStyle.pointerEvents === "none")
+                    );
                     return JSON.stringify({
-                        ok: Boolean(guard && !guard.hidden && windowNode && !windowNode.hidden),
+                        ok: Boolean(
+                            guard
+                            && !guard.hidden
+                            && windowNode
+                            && !windowNode.hidden
+                            && windowNode.dataset.overlayProfileUnsavedState === "open"
+                            && detail
+                            && detail.dataset.overlayProfileUnsavedState === "open"
+                            && guardInside
+                            && modalGuard
+                            && closeSuppressed
+                            && save
+                            && discard
+                            && cancel
+                        ),
                         guardOpen: Boolean(guard && !guard.hidden),
                         windowStillOpen: Boolean(windowNode && !windowNode.hidden),
+                        unsavedState: windowNode ? String(windowNode.dataset.overlayProfileUnsavedState || "") : "",
+                        hudUnsavedState: windowNode ? String(windowNode.dataset.hudUnsavedState || "") : "",
+                        guardInside,
+                        modalGuard,
+                        closeSuppressed,
+                        saveVisible: Boolean(save && save.offsetWidth > 0),
+                        discardVisible: Boolean(discard && discard.offsetWidth > 0),
+                        cancelVisible: Boolean(cancel && cancel.offsetWidth > 0),
                         realOsInputProof: true,
                         directJsClickUsed: false
                     });
@@ -10003,7 +10117,88 @@ class DesktopRuntimeWindow(QWidget):
             ]
             for label in labels:
                 capture(label)
-            QTimer.singleShot(delay(), step_create_profile)
+            QTimer.singleShot(delay(), step_compact_delete_request)
+
+        def step_compact_delete_request():
+            os_click("#monitoring-hud-overlay-profile-delete", "real OS click opens Delete Profile confirmation at compact size", step_compact_delete_assert)
+
+        def step_compact_delete_assert():
+            assert_state(
+                "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-overlay-profile-window");
+                    const detail = document.getElementById("monitoring-hud-overlay-profile-detail-section");
+                    const membership = document.querySelector(".monitoring-hud__overlay-profile-membership");
+                    const note = document.getElementById("monitoring-hud-overlay-profile-membership-note");
+                    const confirmation = document.getElementById("monitoring-hud-overlay-profile-delete-confirmation");
+                    const confirm = document.getElementById("monitoring-hud-overlay-profile-delete-confirm");
+                    const cancel = document.getElementById("monitoring-hud-overlay-profile-delete-cancel");
+                    const actions = document.querySelector(".monitoring-hud__overlay-profile-window-actions");
+                    const rect = (node) => node ? node.getBoundingClientRect() : null;
+                    const overlaps = (a, b) => Boolean(a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top);
+                    const windowRect = rect(windowNode);
+                    const noteRect = rect(note);
+                    const confirmationRect = rect(confirmation);
+                    const actionsRect = rect(actions);
+                    const confirmRect = rect(confirm);
+                    const cancelRect = rect(cancel);
+                    const membershipHidden = Boolean(membership && getComputedStyle(membership).display === "none");
+                    const confirmationInside = Boolean(windowRect && confirmationRect && confirmationRect.top >= windowRect.top - 1 && confirmationRect.bottom <= windowRect.bottom + 1);
+                    const actionsInside = Boolean(windowRect && actionsRect && actionsRect.top >= windowRect.top - 1 && actionsRect.bottom <= windowRect.bottom + 1);
+                    const confirmationSeparated = Boolean(
+                        confirmationRect
+                        && (!noteRect || !overlaps(confirmationRect, noteRect))
+                        && (!actionsRect || !overlaps(confirmationRect, actionsRect))
+                    );
+                    return JSON.stringify({
+                        ok: Boolean(
+                            windowNode
+                            && !windowNode.hidden
+                            && windowNode.dataset.overlayProfileDeleteState === "open"
+                            && detail
+                            && detail.dataset.overlayProfileDeleteState === "open"
+                            && confirmation
+                            && !confirmation.hidden
+                            && confirm
+                            && cancel
+                            && membershipHidden
+                            && confirmationInside
+                            && actionsInside
+                            && confirmationSeparated
+                            && !overlaps(confirmationRect, actionsRect)
+                            && !overlaps(confirmationRect, noteRect)
+                        ),
+                        compactSize: { width: window.innerWidth, height: window.innerHeight },
+                        deleteState: windowNode ? String(windowNode.dataset.overlayProfileDeleteState || "") : "",
+                        membershipHidden,
+                        confirmationInside,
+                        actionsInside,
+                        confirmationSeparated,
+                        confirmationOverlapsActions: overlaps(confirmationRect, actionsRect),
+                        confirmationOverlapsNote: overlaps(confirmationRect, noteRect),
+                        confirmVisible: Boolean(confirm && confirm.offsetWidth > 0),
+                        cancelVisible: Boolean(cancel && cancel.offsetWidth > 0),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_compact_delete_captures,
+            )
+
+        def step_compact_delete_captures():
+            labels = [
+                "compact_overlay_profile_delete_confirmation_unclipped",
+                "compact_overlay_profile_delete_confirmation_no_membership_overlap",
+                "compact_overlay_profile_delete_confirmation_action_row_reachable",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_compact_delete_cancel)
+
+        def step_compact_delete_cancel():
+            os_click("#monitoring-hud-overlay-profile-delete-cancel", "real OS click cancels Delete Profile confirmation at compact size", step_create_profile)
 
         def step_close_compact():
             os_click('[data-child-window-close="overlay-profile-settings"]', "real OS click closes Overlay Profile Settings at compact size", step_manage_monitors_open)
@@ -11015,7 +11210,7 @@ class DesktopRuntimeWindow(QWidget):
                 "unsaved_close_dirty_before_close": h1_proof.get("unsavedCloseDirtyBeforeClose") is True,
                 "unsaved_close_draft_before_close": h1_proof.get("unsavedCloseDraftBeforeClose") is True,
                 "unsaved_close_targeted_manage_close": h1_proof.get("unsavedCloseTargetedManageClose") is True,
-                "unsaved_guard_scrolled_to_prompt": h1_proof.get("unsavedGuardScrolledToPrompt") is True,
+                "unsaved_guard_scrolled_to_prompt": h1_proof.get("unsavedGuardModalFocused") is True,
                 "unsaved_close_save_persisted_draft": h1_proof.get("unsavedCloseSavePersistedDraft") is True,
                 "unsaved_close_save_closed_window": h1_proof.get("unsavedCloseSaveClosedWindow") is True,
                 "unsaved_close_discard_dropped_draft": h1_proof.get("unsavedCloseDiscardDroppedDraft") is True,
@@ -12383,7 +12578,7 @@ class DesktopRuntimeWindow(QWidget):
                         "15_source_settings_window_warning_checkbox",
                         "15_source_settings_window_polling_dropdown_open",
                         "05_unsaved_guard_close_queued",
-                        "06_unsaved_guard_save_discard_no_cancel",
+                        "06_unsaved_guard_modal_save_discard_cancel",
                         "07_unsaved_close_save_closes_after_persist",
                         "08_unsaved_close_discard_closes_after_drop",
                         "09_delete_confirmation_bottom",
@@ -12619,9 +12814,9 @@ class DesktopRuntimeWindow(QWidget):
                         lambda: (record_visual("07_unsaved_close_save_closes_after_persist"), visual_discard_close_outcome()),
                     )
 
-                def visual_guard_no_cancel_layout() -> None:
+                def visual_guard_modal_layout() -> None:
                     run_visual(
-                        "06_unsaved_guard_save_discard_no_cancel",
+                        "06_unsaved_guard_modal_save_discard_cancel",
                         """
                         (function() {
                             try {
@@ -12632,20 +12827,23 @@ class DesktopRuntimeWindow(QWidget):
                                 const guardRect = guard ? guard.getBoundingClientRect() : null;
                                 const saveRect = save ? save.getBoundingClientRect() : null;
                                 const discardRect = discard ? discard.getBoundingClientRect() : null;
+                                const cancelRect = cancel ? cancel.getBoundingClientRect() : null;
                                 return JSON.stringify({
                                     ok: Boolean(
                                         guard
                                         && !guard.hidden
                                         && save
                                         && discard
-                                        && !cancel
-                                        && guard.dataset.guardActionLayout === "save-left-discard-right-no-cancel"
+                                        && cancel
+                                        && guard.dataset.guardActionLayout === "modal-save-discard-cancel"
                                         && saveRect
                                         && discardRect
+                                        && cancelRect
                                         && guardRect
                                         && saveRect.left <= guardRect.left + 24
-                                        && discardRect.right >= guardRect.right - 24
+                                        && cancelRect.right >= guardRect.right - 24
                                         && saveRect.right < discardRect.left
+                                        && discardRect.right < cancelRect.left
                                     )
                                 });
                             } catch (err) {
@@ -12653,7 +12851,7 @@ class DesktopRuntimeWindow(QWidget):
                             }
                         })();
                         """,
-                        lambda: (record_visual("06_unsaved_guard_save_discard_no_cancel"), visual_save_close_outcome()),
+                        lambda: (record_visual("06_unsaved_guard_modal_save_discard_cancel"), visual_save_close_outcome()),
                     )
 
                 def visual_dirty_close_guard() -> None:
@@ -12683,7 +12881,7 @@ class DesktopRuntimeWindow(QWidget):
                             }
                         })();
                         """,
-                        lambda: (record_visual("05_unsaved_guard_close_queued"), visual_guard_no_cancel_layout()),
+                        lambda: (record_visual("05_unsaved_guard_close_queued"), visual_guard_modal_layout()),
                     )
 
                 def visual_source_filter() -> None:
@@ -12946,7 +13144,7 @@ class DesktopRuntimeWindow(QWidget):
                         let unsavedCloseDirtyBeforeClose = false;
                         let unsavedCloseDraftBeforeClose = false;
                         let unsavedCloseTargetedManageClose = false;
-                        let unsavedGuardScrolledToPrompt = false;
+                        let unsavedGuardModalFocused = false;
                         let unsavedCloseSavePersistedDraft = false;
                         let unsavedCloseSaveClosedWindow = false;
                         let unsavedCloseDiscardDroppedDraft = false;
@@ -13312,20 +13510,23 @@ class DesktopRuntimeWindow(QWidget):
                                 const cancelButton = document.getElementById("monitoring-hud-monitor-unsaved-cancel");
                                 const saveRect = saveButton ? saveButton.getBoundingClientRect() : null;
                                 const discardRect = discardButton ? discardButton.getBoundingClientRect() : null;
+                                const cancelRect = cancelButton ? cancelButton.getBoundingClientRect() : null;
                                 unsavedGuardButtons = Boolean(
                                     saveButton
                                     && discardButton
-                                    && !cancelButton
+                                    && cancelButton
                                 );
-                                unsavedGuardCancelRemoved = Boolean(!cancelButton && guard && guard.dataset.guardActionLayout === "save-left-discard-right-no-cancel");
+                                unsavedGuardCancelRemoved = Boolean(cancelButton && guard && guard.dataset.guardActionLayout === "modal-save-discard-cancel");
                                 unsavedDiscardRightAligned = Boolean(
                                     guardRect
                                     && saveRect
                                     && discardRect
+                                    && cancelRect
                                     && saveRect.left <= guardRect.left + 24
-                                    && discardRect.right >= guardRect.right - 48
-                                    && discardRect.right <= guardRect.right + 4
+                                    && cancelRect.right >= guardRect.right - 48
+                                    && cancelRect.right <= guardRect.right + 4
                                     && saveRect.right < discardRect.left
+                                    && discardRect.right < cancelRect.left
                                 );
                                 const discard = document.getElementById("monitoring-hud-monitor-unsaved-discard");
                                 if (discard) discard.click();
@@ -13397,7 +13598,7 @@ class DesktopRuntimeWindow(QWidget):
                                 );
                                 dirtyDeleteDiscardRevealed = Boolean(
                                     dirtyDeleteDiscardOpenedConfirmation
-                                    && dirtyDeletePanel.dataset.deleteConfirmationReveal === "scrolled-focused"
+                                    && dirtyDeletePanel.dataset.deleteConfirmationReveal === "modal-focused"
                                 );
                                 const dirtyDeleteCancel = document.getElementById("monitoring-hud-monitor-delete-cancel");
                                 if (dirtyDeleteCancel) dirtyDeleteCancel.click();
@@ -13466,9 +13667,9 @@ class DesktopRuntimeWindow(QWidget):
                                 if (childClose) childClose.click();
                                 const closeGuard = document.getElementById("monitoring-hud-monitor-unsaved-guard");
                                 unsavedCloseQueuedAction = Boolean(closeGuard && closeGuard.dataset.pendingMonitorAction === "close");
-                                unsavedGuardScrolledToPrompt = Boolean(
+                                unsavedGuardModalFocused = Boolean(
                                     closeGuard
-                                    && closeGuard.dataset.unsavedGuardReveal === "scrolled-focused"
+                                    && closeGuard.dataset.unsavedGuardReveal === "modal-focused"
                                     && (!closeDetailPane || closeDetailPane.scrollTop <= 4)
                                 );
                                 if (window.getMonitoringHudControlState && window.setMonitoringHudControlState) {
@@ -13838,7 +14039,7 @@ class DesktopRuntimeWindow(QWidget):
                                     unsavedCloseDirtyBeforeClose,
                                     unsavedCloseDraftBeforeClose,
                                     unsavedCloseTargetedManageClose,
-                                    unsavedGuardScrolledToPrompt,
+                                    unsavedGuardModalFocused,
                                     unsavedCloseSavePersistedDraft,
                                     unsavedCloseSaveClosedWindow,
                                     unsavedCloseDiscardDroppedDraft,
@@ -13944,7 +14145,7 @@ class DesktopRuntimeWindow(QWidget):
                             unsavedCloseDirtyBeforeClose,
                             unsavedCloseDraftBeforeClose,
                             unsavedCloseTargetedManageClose,
-                            unsavedGuardScrolledToPrompt,
+                            unsavedGuardModalFocused,
                             unsavedCloseSavePersistedDraft,
                             unsavedCloseSaveClosedWindow,
                             unsavedCloseDiscardDroppedDraft,

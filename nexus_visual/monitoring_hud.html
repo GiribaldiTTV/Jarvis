@@ -360,6 +360,15 @@
             </div>
             <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="overlay-profile-settings" aria-label="Close Overlay Profile Settings">Close</button>
           </header>
+          <div class="monitoring-hud__unsaved-guard monitoring-hud__unsaved-guard--modal" id="monitoring-hud-overlay-profile-unsaved-guard" data-unsaved-guard="closed" hidden>
+            <strong>Unsaved overlay profile changes</strong>
+            <span>Save changes or discard the draft before continuing.</span>
+            <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="modal-save-discard-cancel">
+              <button type="button" id="monitoring-hud-overlay-profile-unsaved-save" class="monitoring-hud__hub-action" data-control="overlay-profile-unsaved-save">Save</button>
+              <button type="button" id="monitoring-hud-overlay-profile-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-unsaved-discard">Discard</button>
+              <button type="button" id="monitoring-hud-overlay-profile-unsaved-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--safe-cancel" data-control="overlay-profile-unsaved-cancel">Cancel</button>
+            </div>
+          </div>
           <div class="monitoring-hud__overlay-profile-choice-panel" aria-label="Overlay Profile selection workflow" data-overlay-profile-manager-default="select-create">
             <div class="monitoring-hud__overlay-profile-manager-row" data-overlay-profile-manager-row="selector-dropdown-create-right-equal">
               <div
@@ -398,14 +407,6 @@
             </div>
           </div>
           <div class="monitoring-hud__overlay-profile-detail-section" id="monitoring-hud-overlay-profile-detail-section" data-overlay-profile-detail-state="closed" hidden>
-            <div class="monitoring-hud__unsaved-guard" id="monitoring-hud-overlay-profile-unsaved-guard" data-unsaved-guard="closed" hidden>
-              <strong>Unsaved overlay profile changes</strong>
-              <span>Save changes or discard the draft before closing this profile.</span>
-              <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="save-left-discard-right">
-                <button type="button" id="monitoring-hud-overlay-profile-unsaved-save" class="monitoring-hud__hub-action" data-control="overlay-profile-unsaved-save">Save</button>
-                <button type="button" id="monitoring-hud-overlay-profile-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-unsaved-discard">Discard</button>
-              </div>
-            </div>
             <label class="monitoring-hud__child-field monitoring-hud__overlay-profile-name-field">
               Overlay profile name
               <input id="monitoring-hud-overlay-profile-name-input" type="text" value="Default Overlay Profile" autocomplete="off" maxlength="48" />
@@ -569,6 +570,15 @@
             </div>
             <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="monitor-group-edit" aria-label="Close Edit Monitor">Close</button>
           </header>
+          <div class="monitoring-hud__unsaved-guard monitoring-hud__unsaved-guard--modal" id="monitoring-hud-monitor-unsaved-guard" data-unsaved-guard="closed" hidden>
+            <strong>Unsaved monitor changes</strong>
+            <span>Save changes or discard the draft before continuing.</span>
+            <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="modal-save-discard-cancel">
+              <button type="button" id="monitoring-hud-monitor-unsaved-save" class="monitoring-hud__hub-action" data-control="unsaved-save-monitor">Save</button>
+              <button type="button" id="monitoring-hud-monitor-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="unsaved-discard-monitor">Discard</button>
+              <button type="button" id="monitoring-hud-monitor-unsaved-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--safe-cancel" data-control="unsaved-cancel-monitor">Cancel</button>
+            </div>
+          </div>
           <div class="monitoring-hud__child-toolbar monitoring-hud__child-toolbar--compact monitoring-hud__child-toolbar--sticky" aria-label="Monitor management actions">
             <label class="monitoring-hud__search-field monitoring-hud__search-field--compact">
               <span>Search</span>
@@ -599,14 +609,6 @@
               <div class="monitoring-hud__empty-state" id="monitoring-hud-monitor-list-empty" data-monitor-list-empty="hidden" hidden>No matching monitors.</div>
             </aside>
             <section class="monitoring-hud__monitor-detail-pane monitoring-hud__nexus-scroll-pane" data-scroll-pane="monitor-detail" aria-label="Selected monitor settings">
-              <div class="monitoring-hud__unsaved-guard" id="monitoring-hud-monitor-unsaved-guard" data-unsaved-guard="closed" hidden>
-                <strong>Unsaved monitor changes</strong>
-                <span>Save changes or discard the draft before continuing.</span>
-                <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="save-left-discard-right">
-                  <button type="button" id="monitoring-hud-monitor-unsaved-save" class="monitoring-hud__hub-action" data-control="unsaved-save-monitor">Save</button>
-                  <button type="button" id="monitoring-hud-monitor-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="unsaved-discard-monitor">Discard</button>
-                </div>
-              </div>
               <div class="monitoring-hud__empty-state monitoring-hud__monitor-detail-empty" id="monitoring-hud-monitor-detail-empty" data-monitor-detail-empty="hidden" hidden>
                 <strong>No monitors yet</strong>
                 <span>Create a monitor to assign sources and settings.</span>
