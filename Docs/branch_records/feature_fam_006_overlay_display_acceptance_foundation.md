@@ -34,7 +34,7 @@ Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof cl
 
 ## Phase Status
 
-Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness, Hardening H1, LV1 proof refresh, USER Test Summary review, and PR Readiness Stage 1 source-truth repair are complete; Stage 1 Ready For Stage 2 pending separate USER approval.`
+Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness, Hardening H1, LV1 proof refresh, USER Test Summary review, PR Readiness Stage 1 source-truth repair, and PR Readiness Stage 2 PR creation are complete; PR #207 is open pending separate merge approval.`
 Authority State: `Active Branch`
 Bounded State: `Granted for bounded multi-seam Workstream execution across admitted SLC-042 through SLC-045; PR/release and future-gated work remain blocked until later USER approval.`
 
@@ -91,20 +91,20 @@ Why Branch Is Large Enough: `It spans state bridge, display behavior, visual acc
 Why Not Split Into Tiny Branches: `A bridge-only branch would not prove user-facing acceptance, while a visual-proof-only branch would lack runtime meaning; the admitted slice chain keeps the package coherent.`
 Codex Additional Recommendations: `Recommend choosing a safer first SLC-042 seam that proves state/read bridge and display acceptance assumptions before larger render changes; keep a larger option open only if Workstream Entry proves it is already bounded.`
 USER Critique Loop: `USER can approve the Workstream Entry recommendation, change the first seam, defer the branch, or critique the display acceptance interpretation before Workstream mutates runtime files.`
-USER Decision Ledger: `USER approved Stage 2 setup, Workstream Entry, bounded SLC-042 implementation, SLC-042 proof closure, and governed Workstream continuation. PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, and broad theme/skin work remain pending.`
+USER Decision Ledger: `USER approved Stage 2 setup, Workstream Entry, bounded SLC-042 implementation, SLC-042 proof closure, governed Workstream continuation, and PR Readiness Stage 2 PR creation. Merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, and broad theme/skin work remain pending.`
 Deferred Ideas / Future Package Ledger: `Recording Profile runtime, tray controls, export/share/import, profile duplicate/delete expansion beyond released baseline, broad theme/skin packs, layout personalization, provider/model work, external telemetry parity, FAM-007, Compact-AI, and AI Product remain future-gated.`
 Planning Adequacy Review: `This is not a shallow plan because it names the end-to-end system path from Dashboard to active profile state to overlay display behavior to real desktop proof, while also naming future-package boundaries and validation failure risks.`
 Rejected Shallow Plan: `Rejected: simply enabling an overlay toggle or claiming existing Overlay Profile state is enough. The branch must prove display behavior, visual acceptability, scaling, list/dropdown stress, and separation from unrelated profiles.`
 Alternatives And Tradeoffs Reviewed: `Alternative A was broader HUD theme/skin redesign; rejected as too broad. Alternative B was Recording Profile runtime; rejected as pending USER decision. Alternative C is this bounded overlay-display acceptance foundation; selected because it follows the released FAM-006 profile foundation.`
 Whole-System Interaction Map: `Dashboard -> active Overlay Profile state -> HUD Overlay display acceptance -> validation/live proof. Manage Monitors and Sensor Command Center remain preservation surfaces; Recording Profile, tray recording, export/share, and FAM-007 remain outside the branch.`
 Minimum Viable vs Full System Boundary: `Minimum viable branch is accepted overlay display foundation and proof. Full system would include recording, export/share, profile packs, theme/skin customization, and provider integrations, all excluded.`
-Open Questions / USER Decision Points: `Workstream continues through SLC-043, SLC-044, and SLC-045 unless blocked by validation, source-truth conflict, current-main reconciliation, USER stop, or a real named blocker; later decisions cover H1/LV1/UTS, PR creation, merge, release, and any expansion beyond overlay display acceptance foundation.`
+Open Questions / USER Decision Points: `Workstream, H1, LV1/UTS, and PR creation are complete; pending USER decisions cover merge, release, stale branch cleanup, and any expansion beyond overlay display acceptance foundation.`
 Acceptance Criteria: `Stage 2 is accepted when source truth, plan, worktree binding, validation, commit, and push are green; future branch acceptance requires admitted slices complete, H1 green, LV1/UTS green or waived, and PR Readiness green.`
 Validation Proof Requirements: `Stage 2 requires governance, worktree confinement, branch planning, release body, AI provider state, compileall, and diff checks. Future seams require HUD validators and proof helpers based on changed files.`
 Screenshot / Live / User Test Summary Proof Requirements: `Future LV1 must use the real user-facing desktop launcher where feasible, OneDrive focused per-element screenshots, short video/frame-sequence proof, Codex Visual Adjudication, and USER_TEST_REQUIRED until returned review.`
 Implementation Sequence Proposal: `Stage 2 setup, Workstream Entry, SLC-042 implementation/proof closure, SLC-043 implementation, SLC-044 implementation, SLC-045 validation/live-proof readiness, then H1/LV1/UTS until package-complete or a named blocker/USER waiver stops progress.`
 Planning Blockers: `None for Stage 2 setup.`
-USER Decisions Needed: `Later approve H1, LV1/UTS, PR creation, merge, release, issues, artifacts, cleanup, and future-gated package work after Workstream Green.`
+USER Decisions Needed: `Later approve merge, release, issues, artifacts, cleanup, and future-gated package work after live PR validation.`
 Planning Packet Status: `Complete`
 Planning Revalidation Status: `PASS`
 User Test Summary Strategy: `UTS is not generated during Stage 2; future Live Validation owns UTS after proof gates pass.`
@@ -122,8 +122,8 @@ User-Facing Runtime Delta: `SLC-042 adds no new visible editor controls; existin
 State / Config / Schema Delta: `SLC-042 adds bridge/proof metadata only through HUD page state and renderer signal payloads; it does not change persisted Overlay Profile schema, Monitor Group schema, or Recording Profile state.`
 Validator / Helper Delta: `FAM-006 HUD surface and internal sandbox validators now assert SLC-042, SLC-043, SLC-044, and SLC-045 proof hooks, state bridge markers, renderer signals, null-state proof, high-volume proof, stale-card removal proof, visual acceptance baseline proof, Workstream readiness proof, H1/LV1 routing posture, and non-recording/non-theme boundary proof. SLC-042 through SLC-045 JavaScript syntax proof is closed through bundled Codex runtime Node at C:\Users\anden\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe after local node.exe returned Access is denied.`
 Expected Changed Files / Surfaces: `Branch record, branch plan, backlog, roadmap in setup. Active Workstream implementation may touch nexus_visual/monitoring_hud.js, nexus_visual/monitoring_hud.html, nexus_visual/monitoring_hud.css, desktop/desktop_renderer.py, desktop/monitoring_hud_state.py, desktop/monitoring_hud_controls.py, desktop/monitoring_hud_placement.py, and FAM-006 validators/helpers within the admitted SLC-042 through SLC-045 package.`
-Approval-Boundary Audit: `Stage 2 setup may mutate source-truth setup surfaces only. Runtime implementation, PR creation, merge, release, issue mutation, artifact/raw evidence handling, stale branch cleanup, sibling worktrees, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain blocked.`
-Future-Gated Items: `Recording Profile runtime; tray recording controls; export/share/import; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007; Governance worktree mutation; Repo-Wide-Source-Owner-Markers work; Compact-AI work; stale remote FAM-006 branch cleanup; PR creation; merge; release; issue mutation; artifacts/raw evidence handling.`
+Approval-Boundary Audit: `PR Readiness Stage 2 created PR #207 and may validate live PR state only. Runtime implementation beyond this branch, merge, release, issue mutation, artifact/raw evidence handling, stale branch cleanup, sibling worktrees, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain blocked.`
+Future-Gated Items: `Recording Profile runtime; tray recording controls; export/share/import; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007; Governance worktree mutation; Repo-Wide-Source-Owner-Markers work; Compact-AI work; stale remote FAM-006 branch cleanup; merge; release; issue mutation; artifacts/raw evidence handling.`
 Workstream Seam Map: `Seam 1 / SLC-042 baseline and state bridge; Seam 2 / SLC-043 active-profile display behavior; Seam 3 / SLC-044 Dashboard and Overlay independence plus visual acceptance; Seam 4 / SLC-045 validation, live proof, and UTS handoff readiness.`
 Proof Expectations: `Future proof must include real user-facing desktop launcher path where Live Validation applies, focused per-element screenshots under the OneDrive Nexus screenshots directory, short video/frame-sequence evidence, Codex Visual Adjudication, null/high-volume dropdown/list stress proof, Dashboard/Overlay independence proof, preservation proof for Monitor Groups/Sensor Command Center, and bundled runtime JavaScript syntax/load proof when local WindowsApps node.exe is blocked.`
 Risk Forecast: `High-risk surfaces include overlay display visibility, responsive window geometry, dropdown/list clipping, Dashboard/Overlay state coupling, stale profile references, and visual validation false-green risk.`
@@ -174,7 +174,7 @@ Carrier Lifecycle Classification: `Fresh current branch`
 Remote Branch State: `Pushed and tracking origin/feature/fam-006-overlay-display-acceptance-foundation`
 Unique Branch Diff: `Stage 2 setup source-truth edits only`
 Origin/Main Ancestry: `Created directly from origin/main a42b7e50eb012722b140f3874dbf50826bd797c8`
-Open PR State: `No live PR`
+Open PR State: `PR #207 open at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/207`
 Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-006`
 Recommended Stage 2 Carrier Action: `Complete - stable FAM-006 path is bound to this branch; setup source truth was admitted, validated, committed, and pushed.`
 Stale Branch Cleanup Plan: `Historical stale branch cleanup remains a separate pending USER decision.`
@@ -187,16 +187,17 @@ Stable Worktree Path Preservation Gate: `PASS - the stable path is preserved and
 
 ## Blockers
 
-Active Blockers: `PR Readiness Execution User Approval Missing - Stage 1 is ready for Stage 2, but PR creation, watcher provisioning, merge, release, issues, stale branch cleanup, and future-gated runtime work remain pending separate USER decisions.`
-PR Readiness Blocker: PR creation and merge remain pending separate USER approval.
+Active Blockers: `Merge, release, issues, stale branch cleanup, and future-gated runtime work remain pending separate USER decisions after PR Readiness Stage 2 created live PR #207.`
+PR Readiness Blocker: Merge remains pending separate USER approval.
 
 ## PR Readiness Stage 1 Projection
 
 PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2`
 Pre-PR Live State: `No live PR`
-PR Creation Approval: `Pending USER approval`
-Stage 2 PR Creation: `Pending USER approval`
-Origin/Main Freshness Check: `PASS - current origin/main is a909f8e92c1fb1abd06e54e1301f12459e647b45; merge base is a909f8e92c1fb1abd06e54e1301f12459e647b45; branch is 39 ahead / 0 behind origin/main before Stage 2.`
+PR Creation Approval: `Granted by USER for PR Readiness Stage 2 execution.`
+Stage 2 PR Creation: `Complete - PR #207 created at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/207.`
+Live PR State: `OPEN / ready for review; base main; head feature/fam-006-overlay-display-acceptance-foundation; mergeability reported MERGEABLE at Stage 2 validation.`
+Origin/Main Freshness Check: `PASS - current origin/main is a909f8e92c1fb1abd06e54e1301f12459e647b45; merge base is a909f8e92c1fb1abd06e54e1301f12459e647b45; branch is 40 ahead / 0 behind origin/main at Stage 2 PR creation.`
 Reconciliation Required: `NO - current-main reconciliation is complete.`
 Reconciliation File List: `None for current Stage 1; prior reconciliation preserved incoming PR #206 / FAM-007 consent UX context and FAM-006 branch-local authority.`
 Reconciliation Recommendation: `No current-main reconciliation required before Stage 2 unless origin/main advances.`
@@ -206,7 +207,7 @@ Stale Active Branch Wording Scan: `PASS for Stage 1 projection - active branch w
 Stale PR Creation / PR Readiness Pending Wording Scan: `PASS for Stage 1 projection - pre-PR pending wording is explicitly labeled as pre-PR state and must be replaced by live PR validation during Stage 2.`
 Merged-Unreleased Scope Posture: `After merge, FAM-006 Overlay Display Acceptance Foundation becomes merged-unreleased scope for the next release window; it does not execute release publication.`
 Release Execution Gate: `Blocked - release execution remains a separate USER decision after merge and Release Readiness.`
-Watcher / Live PR State Projection: `No live PR exists during Stage 1; Stage 2 approval includes watcher provisioning by default unless USER grants an explicit watcher waiver or a platform blocker is documented.`
+Watcher / Live PR State Projection: `Live PR #207 exists; Stage 2 approval includes watcher provisioning by default unless USER grants an explicit watcher waiver or a platform blocker is documented.`
 Branch Cleanup Plan: `No cleanup during Stage 1 or Stage 2 PR creation. After merge, stale branch/worktree cleanup remains a separate USER decision or later Branch Readiness cleanup gate.`
 Branch Cleanup Execution Gate: `Blocked - no branch deletion, remote branch deletion, worktree removal, or GitHub Desktop cleanup is authorized by PR Readiness Stage 1.`
 FAM Overlap Routing: `FAM-006 Overlay Display Acceptance Foundation is the current PR scope. FAM-007 provider/consent UX changes are current-main context only; Recording Profile, tray recording, export/share, provider/model work, broad theme/skin work, Governance mutation, Compact-AI work, and future monitoring/HUD expansion remain USER-gated.`
@@ -223,7 +224,7 @@ Candidate Work To Be Done: `Deferred - future FAM-006 runtime work, Recording Pr
 User-Facing Output: `Current branch output is accepted Overlay Display Acceptance Foundation evidence with UTS PASS/closed; no new user-facing runtime work is selected for the next branch.`
 Next Branch Package Shape: `Deferred by USER waiver; no successor branch creation or package admission is authorized during PR Readiness.`
 Branch Creation Status: `Blocked - branch creation belongs to a later USER-approved Branch Readiness Stage 2.`
-PR Readiness Execution User Approval: `Missing - Stage 2 cannot begin until USER approves PR Readiness Stage 2 / PR creation.`
+PR Readiness Execution User Approval: `Granted - USER approved PR Readiness Stage 2 / PR creation; PR #207 is live.`
 
 ## Exit Criteria
 
@@ -296,7 +297,7 @@ Later-Phase Expectations: `Workstream Entry selects the first SLC-042 seam; Work
 Seam 1: `SLC-042 Overlay display acceptance baseline and state bridge`
 Goal: `Define and prove the smallest display-acceptance bridge from active Overlay Profile state to HUD Overlay display behavior without broad UI/theme expansion.`
 Scope: `Inspect display state bridge, baseline render assumptions, validator proof requirements, and preservation surfaces.`
-Non-Includes: `Recording Profile runtime, tray recording, export/share/import, provider/model work, broad theme/skin work, FAM-007, PR creation, merge, release, issue mutation, artifacts/raw evidence handling, and stale branch cleanup.`
+Non-Includes: `Recording Profile runtime, tray recording, export/share/import, provider/model work, broad theme/skin work, FAM-007, merge, release, issue mutation, artifacts/raw evidence handling, and stale branch cleanup.`
 
 Seam 2: `SLC-043 Active Overlay Profile display behavior`
 Seam 3: `SLC-044 Dashboard / Overlay display independence and visual acceptance`
@@ -319,16 +320,16 @@ Proof Closure Status: `Closed for SLC-042 validation/proof closure; no runtime i
 ## Next Legal Phase
 
 Next Legal Phase: `PR Readiness`
-Next Legal Phase Detail: `Current-main reconciliation, H1, LV1 visual adjudication/proof refresh, USER Test Summary digestion, and PR Readiness Stage 1 source-truth repair are complete. The next legal work is PR Readiness Stage 2 / PR creation after USER approval, not additional runtime implementation.`
+Next Legal Phase Detail: `Current-main reconciliation, H1, LV1 visual adjudication/proof refresh, USER Test Summary digestion, PR Readiness Stage 1 source-truth repair, and Stage 2 PR creation are complete. The next legal work is live PR monitoring / merge decision after USER approval, not additional runtime implementation.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `PR Readiness Stage 1 - Analysis Gate / source-truth repair complete`
-Next Legal Phase: `PR Readiness Stage 2 - Execution Gate`
+Current Phase: `PR Readiness Stage 2 - Live PR validation`
+Next Legal Phase: `PR Merge Decision Gate`
 Why This Phase Is Next: `SLC-042 through SLC-045, H1, current-main reconciliation, real-input LV1 proof, focused normal/compact screenshots, short video proof, Codex pessimistic visual review, USER Test Summary PASS/closed digestion, and PR Readiness Stage 1 merge-stable projection are green.`
-Approval Required: `USER must approve PR Readiness Stage 2 / PR creation before PR creation, watcher provisioning, live PR validation, or merge-readiness work begins.`
-Exact USER Decision Needed: `Approve PR Readiness Stage 2 execution for FAM-006 Overlay Display Acceptance Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-overlay-display-acceptance-foundation to create the PR to main, provision the PR watcher, validate live PR state/mergeability, run required validation, and return the Stage 2 packet; merge, release, issues, stale branch cleanup, artifacts/raw evidence handling beyond approved PR proof, and future-gated runtime work remain pending separate USER decisions.`
-Allowed Scope: `PR Readiness Stage 2 execution only after USER approval: final pre-PR validation, PR creation, watcher provisioning, live PR validation, and Stage 2 packet.`
-Explicit Exclusions: `PR creation, merge to main, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation.`
+Approval Required: `USER must approve merge separately after PR #207 live validation/check status is acceptable.`
+Exact USER Decision Needed: `Approve merge of PR #207 for FAM-006 Overlay Display Acceptance Foundation after live PR validation/check status is acceptable; release, issues, stale branch cleanup, artifacts/raw evidence handling beyond approved PR proof, future-gated runtime work, FAM-007 work, and Governance worktree mutation remain pending separate USER decisions.`
+Allowed Scope: `Live PR monitoring and merge-decision reporting only; merge requires separate USER approval.`
+Explicit Exclusions: `Merge to main, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation.`
 Validation Required: `Identity, source-truth, HUD live/human-client proof as needed, branch governance, worktree confinement after commit, release-readiness health gate, validation suite, diff checks, compileall, and supported JS syntax/runtime checks including bundled runtime Node when needed.`
 Stop Conditions: `Stop if worktree identity differs, origin/main advances and requires reconciliation, source truth selects a different phase, PR creation fails, watcher provisioning fails without USER waiver, live PR validation/mergeability fails, validation fails, or USER reports a new UTS failure.`
