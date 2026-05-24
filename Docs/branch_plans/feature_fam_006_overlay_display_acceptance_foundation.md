@@ -206,6 +206,26 @@ Element Validation Ledger Owner: `Docs/branch_records/feature_fam_006_overlay_di
 - USER Decision / Waiver: `USER approved this bounded Branch Change Intent Ledger repair only; rebaseline merge/rebase mutation remains pending separate USER decision.`
 - Fold-Down Target: `Keep this overlap-intent evidence in the active branch plan until PR Readiness fold-down decides retention, compaction, or historical projection.`
 
+### Changed Surface: dev/orin_branch_governance_validation.py
+
+- Surface Class: `validator/helper`
+- Change Intent: `FAM-006 intentionally edits the branch governance validator only to make the bounded Workstream continuation rule machine-checkable for admitted multi-seam Workstream packages, so approval-pending wording for the next seam does not incorrectly stop a USER-approved bounded Workstream before Workstream Green.`
+- Why This File Was Touched: `During SLC-042 through SLC-045 continuation, source truth added the bounded Workstream continuation rule and the validator needed matching acceptance of seam/slice/implementation approval blockers inside the active Workstream package while still preserving true stop conditions and pending USER decisions.`
+- Owned Behavior / Fact Class: `Validator enforcement for bounded Workstream continuation and phase-routing source-truth consistency; not runtime behavior, PR creation, merge execution, release execution, issue mutation, FAM-007 ownership, or sibling-worktree ownership.`
+- Canonical Owner / Source Owner: `dev/orin_branch_governance_validation.py owns machine-checkable branch governance validation; Docs/phase_governance.md owns the source-truth rule; this branch plan owns overlap intent evidence for the FAM-006 branch-local validator edit.`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES - origin/main / PR #202 also edits dev/orin_branch_governance_validation.py for merge-stable source-truth projection checks and related governance fixtures.`
+- Overlap Risk: `High - branch governance validator edits can silently weaken phase gates, current-main projection checks, or bounded Workstream continuation checks if reconciled by inertia.`
+- Expected Conflict Risk: `Medium - both branches edit separate governance-validator regions, but the expected final state should preserve incoming PR #202 merge-stable projection validation and preserve the FAM-006 bounded Workstream continuation validator support.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming PR #202 merge-stable source-truth projection validation, fixtures, and any related governance helper changes as current-main context. Preserve the FAM-006 validator allowance for bounded Workstream continuation approval blockers inside admitted Workstream packages. Do not use the FAM-006 validator edit to weaken PR Readiness, Release Readiness, current-main reconciliation, merge-stable projection, or sibling-worktree gates.`
+- Rebaseline Handling: `After this ledger repair is committed and pushed, rerun the Pre-Rebaseline Impact Audit. If the overlap gate clears, USER approval already covers governed non-rewrite reconciliation of origin/main into feature/fam-006-overlay-display-acceptance-foundation for this bounded freshness/LV1 handoff repair.`
+- Validation Proof: `Before rebaseline mutation, run the Pre-Rebaseline Impact Audit with this branch plan path plus git diff checks, branch governance validation, worktree-confinement validation, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, FAM-006 HUD validators where required by changed files, runtime-fam006 validation suite where applicable, and compileall.`
+- Fallback Evidence: `Current diffs show origin/main adds merge-stable projection validation and fixtures, while this branch adds bounded Workstream continuation blocker recognition; fallback evidence supports classification only and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved this bounded Branch Change Intent Ledger repair for dev/orin_branch_governance_validation.py, validation, commit, push, rerun of the Pre-Rebaseline Impact Audit, and governed current-main reconciliation only if the audit clears.`
+- Fold-Down Target: `Keep this overlap-intent evidence in the active branch plan until PR Readiness fold-down decides retention, compaction, or historical projection.`
+
 ## Validation Plan
 
 Stage 2 Validation: `git diff --check; git diff --cached --check after staging; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --worktree-confinement-gate; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python -m compileall -q desktop dev nexus_visual`
