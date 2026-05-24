@@ -6,7 +6,7 @@ Branch Creation Base: `origin/main` at `a42b7e50eb012722b140f3874dbf50826bd797c8
 Current origin/main: `6681131c974d99945c494c0e4ff3c436f9347422`
 Origin/Main Advanced Since Branch Creation: `YES - reconciled by governed non-rewrite merge after Branch Change Intent Ledger evidence cleared the Pre-Rebaseline Impact Audit overlap gate.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md`
-Branch Runtime Engineering Plan: `Workstream Green candidate - Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, bounded SLC-042 runtime implementation/proof closure, bounded SLC-043 active display implementation, bounded SLC-044 Dashboard / Overlay independence implementation, and bounded SLC-045 readiness proof are complete pending final validation/commit.`
+Branch Runtime Engineering Plan: `Workstream Green - Stage 2 setup, current-main reconciliation, Workstream Entry source-truth/validator sync, bounded SLC-042 runtime implementation/proof closure, bounded SLC-043 active display implementation, bounded SLC-044 Dashboard / Overlay independence implementation, and bounded SLC-045 readiness proof are complete; Hardening H1 is next after current-main reconciliation.`
 Engineering Plan Status: `Accepted`
 
 ## Branch Identity
@@ -30,11 +30,11 @@ Canonical Branch: `feature/fam-006-overlay-display-acceptance-foundation`
 ## Current Phase
 
 Phase: `Workstream`
-Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof closure are complete; bounded SLC-043 active Overlay Profile display behavior, SLC-044 Dashboard / Overlay independence, and SLC-045 validation/live-proof readiness are implemented and under final validation/source-truth closure.`
+Phase Detail: `Bounded SLC-042 Workstream implementation and JavaScript proof closure are complete; bounded SLC-043 active Overlay Profile display behavior, SLC-044 Dashboard / Overlay independence, and SLC-045 validation/live-proof readiness are complete; Hardening H1 is next after current-main reconciliation.`
 
 ## Phase Status
 
-Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness is complete pending final validation/commit; next legal phase after green closure is Hardening H1.`
+Phase Status: `Active Branch - SLC-042 through SLC-045 Workstream implementation/proof readiness is complete; next legal phase after current-main reconciliation is Hardening H1.`
 Authority State: `Active Branch`
 Bounded State: `Granted for bounded multi-seam Workstream execution across admitted SLC-042 through SLC-045; PR/release and future-gated work remain blocked until later USER approval.`
 
@@ -116,7 +116,7 @@ Engineering Contract Status: `Accepted for Workstream; bounded SLC-042 runtime e
 USER Engineering Planning Review: `Accepted for Stage 2 setup, Workstream Entry review, and bounded SLC-042 implementation`
 Runtime Implementation Approval: `Granted by USER for bounded multi-seam Workstream execution across admitted SLC-042 through SLC-045`
 Branch Purpose: `Prepare the FAM-006 Overlay Display Acceptance Foundation successor to prove profile-aware HUD Overlay display behavior in later seams while preserving existing monitoring/HUD source truth.`
-Current Runtime Baseline: `FAM-006 Dashboard, Sensor Command Center, Monitor Groups, and Overlay Profile Runtime Foundation are released historical evidence. Overlay Profile state and selection/editing/membership proof are historical green. SLC-042 display bridge/proof, SLC-043 active display behavior, SLC-044 Dashboard / Overlay independence, and SLC-045 readiness proof are complete pending final validation/commit.`
+Current Runtime Baseline: `FAM-006 Dashboard, Sensor Command Center, Monitor Groups, and Overlay Profile Runtime Foundation are released historical evidence. Overlay Profile state and selection/editing/membership proof are historical green. SLC-042 display bridge/proof, SLC-043 active display behavior, SLC-044 Dashboard / Overlay independence, and SLC-045 readiness proof are complete.`
 Planned Runtime Delta: `SLC-042 adds a HUD Overlay display acceptance state/proof bridge: active profile membership drives rendered overlay-card proof, stale overlay cards are removed, null profile state renders zero cards, high-volume membership renders deterministically, and renderer proof emits MONITORING_HUD_OVERLAY_DISPLAY_ACCEPTANCE_BRIDGE_READY. SLC-043 adds a visible active-profile display status strip, SLC-043 proof helper, and MONITORING_HUD_ACTIVE_OVERLAY_PROFILE_DISPLAY_READY renderer proof. SLC-044 adds Dashboard / Overlay independence proof markers, proof helper, and MONITORING_HUD_DASHBOARD_OVERLAY_INDEPENDENCE_READY renderer proof. SLC-045 adds Workstream readiness proof and MONITORING_HUD_OVERLAY_DISPLAY_WORKSTREAM_READY renderer proof while leaving H1/LV1/UTS to later legal phases.`
 User-Facing Runtime Delta: `SLC-042 adds no new visible editor controls; existing Dashboard, Manage Monitors, Sensor Command Center, and released Overlay Profile controls are preservation surfaces.`
 State / Config / Schema Delta: `SLC-042 adds bridge/proof metadata only through HUD page state and renderer signal payloads; it does not change persisted Overlay Profile schema, Monitor Group schema, or Recording Profile state.`
@@ -140,7 +140,7 @@ Planning-Loop Bypass Reason: `None`
 
 ## Admitted Implementation Slice
 
-Admitted Implementation Slice: `SLC-042 through SLC-045 are admitted for the Overlay Display Acceptance Foundation package; SLC-042 implementation/proof closure, SLC-043 active display behavior, SLC-044 Dashboard / Overlay independence, and SLC-045 readiness proof are implemented pending final validation/commit.`
+Admitted Implementation Slice: `SLC-042 through SLC-045 are admitted for the Overlay Display Acceptance Foundation package; SLC-042 implementation/proof closure, SLC-043 active display behavior, SLC-044 Dashboard / Overlay independence, and SLC-045 readiness proof are implemented and proof-closed.`
 
 ## Slice Continuation Policy
 
@@ -261,7 +261,7 @@ Seam 4: `SLC-045 Validation/live proof and UTS handoff readiness`
 
 ## Active Seam
 
-Active seam: `SLC-045 validation/live proof and UTS handoff readiness implemented and in validation/source-truth closure; Workstream Green is next after green commit.`
+Active seam: `SLC-045 validation/live proof and UTS handoff readiness implemented and proof-closed; Workstream Green is recorded and Hardening H1 is next after current-main reconciliation.`
 
 ## Validation Plan
 
@@ -276,13 +276,13 @@ Proof Closure Status: `Closed for SLC-042 validation/proof closure; no runtime i
 ## Next Legal Phase
 
 Next Legal Phase: `Hardening`
-Next Legal Phase Detail: `After green SLC-045 validation/commit, the admitted Workstream package is complete. Hardening H1 is the next legal phase and requires separate USER approval.`
+Next Legal Phase Detail: `The admitted Workstream package is complete. Hardening H1 is the next legal phase after current-main reconciliation and requires separate USER approval.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Workstream / SLC-045 validation`
+Current Phase: `Workstream Green / awaiting Hardening H1`
 Next Legal Phase: `Hardening`
-Why This Phase Is Next: `SLC-042 through SLC-045 are implemented and the admitted Workstream package has no remaining implementation slices after green validation/commit. Hardening H1 is required before Live Validation or PR Readiness.`
+Why This Phase Is Next: `SLC-042 through SLC-045 are implemented and proof-closed, and the admitted Workstream package has no remaining implementation slices. Hardening H1 is required before Live Validation or PR Readiness.`
 Approval Required: `USER approval required for Hardening H1`
 Exact USER Approval Text: `Approve Hardening H1 for FAM-006 in C:\Nexus Worktrees\FAM-006 on feature/fam-006-overlay-display-acceptance-foundation to pressure-test the completed SLC-042 through SLC-045 Overlay Display Acceptance Foundation Workstream, including active Overlay Profile display behavior, null/stale/high-volume proof, Dashboard / Overlay independence, visual acceptance readiness, validators/helpers/source truth, and preservation of Dashboard / Manage Monitors / Sensor Command Center behavior, with bounded H1 repairs, validation, commit, and push if green, without executing LV1/UTS, PR creation, merge, release, issue mutation, stale branch cleanup, artifacts/raw evidence handling beyond approved proof, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, or Governance worktree mutation.`
 Allowed Scope: `Hardening H1 only after USER approval`

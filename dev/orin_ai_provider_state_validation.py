@@ -230,6 +230,8 @@ from desktop.ai_provider_state import (  # noqa: E402
     FAM007_PROVIDER_SETUP_IMPLEMENTATION_FOUNDATION_STATE_ID,
     FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_MODE,
     FAM007_PROVIDER_CONSENT_COLLECTION_FOUNDATION_STATE_ID,
+    FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_MODE,
+    FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_STATE_ID,
     PROVIDER_EXECUTION_READINESS_CONFIG_SCHEMA_VERSION,
     PROVIDER_EXECUTION_READINESS_STATE_SCHEMA_VERSION,
     PROVIDER_EXECUTION_CONFIG_STATE_DEFAULT,
@@ -710,6 +712,58 @@ from desktop.ai_provider_state import (  # noqa: E402
     CONSENT_COLLECTION_VALIDATION_STATIC_READY,
     FUTURE_CONSENT_CAPTURE_BRANCH_HANDOFF_READY,
     CONSENT_COLLECTION_FOLD_DOWN_READY,
+    CONSENT_CAPTURE_TRANSITION_SCHEMA_VERSION,
+    CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION,
+    CONSENT_CAPTURE_RECORD_STATE_MISSING,
+    CONSENT_CAPTURE_RECORD_STATE_INVALID,
+    CONSENT_CAPTURE_RECORD_STATE_READY,
+    CONSENT_CAPTURE_RECORD_STATE_REVOKED,
+    CONSENT_CAPTURE_RECORD_STATE_RESET,
+    CONSENT_CAPTURE_RECORD_STATE_NO_CONSENT_SELECTED,
+    CONSENT_CAPTURE_STATE_NOT_REQUESTED,
+    CONSENT_CAPTURE_STATE_BLOCKED_BY_COLLECTION,
+    CONSENT_CAPTURE_STATE_BLOCKED_BY_RECORD,
+    CONSENT_CAPTURE_STATE_CAPTURED_LOCAL_ONLY,
+    CONSENT_CAPTURE_STATE_REVOKED_LOCAL_ONLY,
+    CONSENT_CAPTURE_STATE_RESET_LOCAL_ONLY,
+    CONSENT_CAPTURE_WRITE_STATUS_BLOCKED,
+    CONSENT_CAPTURE_WRITE_STATUS_LOCAL_SNAPSHOT,
+    CONSENT_CAPTURE_WRITE_STATUS_REVOKED_LOCAL,
+    CONSENT_CAPTURE_WRITE_STATUS_RESET_LOCAL,
+    CONSENT_CAPTURE_WRITE_BLOCKER_NONE,
+    CONSENT_CAPTURE_WRITE_BLOCKER_COLLECTION_NOT_READY,
+    CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_MISSING,
+    CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_INVALID,
+    CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_REVOKED,
+    CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_RESET,
+    CONSENT_CAPTURE_WRITE_BLOCKER_NO_CONSENT_SELECTED,
+    CONSENT_CAPTURE_WRITE_REASON_COLLECTION_NOT_READY,
+    CONSENT_CAPTURE_WRITE_REASON_RECORD_MISSING,
+    CONSENT_CAPTURE_WRITE_REASON_RECORD_INVALID,
+    CONSENT_CAPTURE_WRITE_REASON_RECORD_REVOKED,
+    CONSENT_CAPTURE_WRITE_REASON_RECORD_RESET,
+    CONSENT_CAPTURE_WRITE_REASON_NO_CONSENT_SELECTED,
+    CONSENT_CAPTURE_WRITE_REASON_CAPTURED_LOCAL_ONLY,
+    CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD,
+    CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY,
+    CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
+    CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED,
+    CONSENT_RECORD_STORAGE_BOUNDARY_SCHEMA_VERSION,
+    CONSENT_RECORD_STORAGE_BOUNDARY_LOCAL_SNAPSHOT_ONLY,
+    CONSENT_RECORD_DURABLE_STORAGE_DEFERRED,
+    CONSENT_RECORD_REVOCATION_MODEL_LOCAL_ONLY,
+    CONSENT_RECORD_RESET_MODEL_LOCAL_ONLY,
+    CONSENT_RECORD_NO_SECRETS_POSTURE_READY,
+    CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED,
+    CONSENT_CAPTURE_AUDIT_SCHEMA_VERSION,
+    CONSENT_CAPTURE_AUDIT_STATUS_LOCAL_PROOF,
+    CONSENT_CAPTURE_AUDIT_STATUS_BLOCKED,
+    CONSENT_CAPTURE_SETUP_EXECUTION_SEPARATION_READY,
+    CONSENT_CAPTURE_UI_STATUS_PROOF_HIDDEN_TELEMETRY,
+    CONSENT_CAPTURE_DESKTOP_DISPLAY_SUPPRESSED,
+    CONSENT_CAPTURE_PROVIDER_SETUP_HANDOFF_READY,
+    CONSENT_CAPTURE_FUNCTIONAL_AI_CRITERIA_PENDING,
+    CONSENT_CAPTURE_V18_CONTINUATION_PENDING,
     PROVIDER_PROFILE_GATE_BLOCKED,
     PROVIDER_PROFILE_GATE_READY_FUTURE_GATED,
     CAPABILITY_GATE_BLOCKED,
@@ -748,6 +802,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_default_provider_activation_config,
     build_default_provider_execution_readiness_config,
     build_default_provider_path_consent_readiness_config,
+    build_default_provider_consent_capture_record,
     build_default_provider_consent_collection_foundation_config,
     build_default_provider_setup_foundation_config,
     build_fam007_foundation_readiness_state,
@@ -763,9 +818,11 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_provider_setup_consent_flow_readiness_state,
     build_provider_setup_contract_readiness_state,
     build_provider_setup_implementation_foundation_state,
+    build_provider_consent_collection_implementation_foundation_state,
     build_provider_consent_collection_foundation_state,
     build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
+    normalize_provider_consent_capture_record,
 )
 
 
@@ -1368,6 +1425,19 @@ def validate() -> list[str]:
         }
         config.update(overrides)
         return config
+
+    def _consent_capture_record(**overrides: object) -> dict[str, object]:
+        record: dict[str, object] = {
+            "schema_version": CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION,
+            "setup_consent_granted": False,
+            "execution_consent_granted": False,
+            "revoked": False,
+            "reset_requested": False,
+            "record_valid": True,
+            "provenance": CONSENT_CAPTURE_PROVENANCE_LOCAL_RECORD,
+        }
+        record.update(overrides)
+        return record
 
     default_path_consent_config_snapshot = build_default_provider_path_consent_readiness_config()
     default_path_consent_snapshot = build_provider_path_consent_readiness_state(
@@ -2146,6 +2216,122 @@ def validate() -> list[str]:
             surface_role="core",
         )
     )
+    default_consent_capture_record_snapshot = build_default_provider_consent_capture_record()
+    normalized_default_consent_capture_record_snapshot = (
+        normalize_provider_consent_capture_record(default_consent_capture_record_snapshot)
+    )
+    consent_capture_ready_collection_config = _consent_collection_config(
+        consent_collection_approved=True
+    )
+    default_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            build_default_provider_readiness_config(),
+            surface_role="core",
+        )
+    )
+    blocked_by_collection_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            build_default_provider_readiness_config(),
+            consent_capture_record=_consent_capture_record(setup_consent_granted=True),
+            surface_role="core",
+        )
+    )
+    not_requested_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            surface_role="core",
+        )
+    )
+    invalid_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            consent_capture_record={
+                "schema_version": "provider-consent-capture-local-record.v0",
+                "local_write_requested": True,
+            },
+            surface_role="core",
+        )
+    )
+    conflicting_write_flag_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            consent_capture_record=_consent_capture_record(
+                local_write_requested=False,
+                setup_consent_granted=True,
+            ),
+            surface_role="core",
+        )
+    )
+    no_selection_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            consent_capture_record=_consent_capture_record(local_write_requested=True),
+            surface_role="core",
+        )
+    )
+    revoked_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            consent_capture_record=_consent_capture_record(revoked=True),
+            surface_role="core",
+        )
+    )
+    reset_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            consent_capture_record=_consent_capture_record(reset_requested=True),
+            surface_role="core",
+        )
+    )
+    setup_only_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            consent_capture_record=_consent_capture_record(setup_consent_granted=True),
+            surface_role="core",
+        )
+    )
+    setup_execution_consent_capture_snapshot = (
+        build_provider_consent_collection_implementation_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            consent_capture_record=_consent_capture_record(
+                setup_consent_granted=True,
+                execution_consent_granted=True,
+            ),
+            surface_role="core",
+        )
+    )
     payload = snapshot.as_renderer_payload()
     selection_payload = selection_snapshot.as_renderer_payload()
     registry_payload = registry_snapshot.as_renderer_payload()
@@ -2286,6 +2472,22 @@ def validate() -> list[str]:
         "ready_future_capture": (
             ready_future_capture_consent_collection_snapshot.as_renderer_payload()
         ),
+    }
+    consent_capture_payloads = {
+        "default": default_consent_capture_snapshot.as_renderer_payload(),
+        "blocked_by_collection": (
+            blocked_by_collection_consent_capture_snapshot.as_renderer_payload()
+        ),
+        "not_requested": not_requested_consent_capture_snapshot.as_renderer_payload(),
+        "invalid_record": invalid_consent_capture_snapshot.as_renderer_payload(),
+        "conflicting_write_flag": (
+            conflicting_write_flag_consent_capture_snapshot.as_renderer_payload()
+        ),
+        "no_selection": no_selection_consent_capture_snapshot.as_renderer_payload(),
+        "revoked": revoked_consent_capture_snapshot.as_renderer_payload(),
+        "reset": reset_consent_capture_snapshot.as_renderer_payload(),
+        "setup_only": setup_only_consent_capture_snapshot.as_renderer_payload(),
+        "setup_execution": setup_execution_consent_capture_snapshot.as_renderer_payload(),
     }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -5465,6 +5667,277 @@ def validate() -> list[str]:
             and collection_payload["networkEgressState"] == NETWORK_EGRESS_BLOCKED
             and collection_payload["voiceRuntimeState"] == "voice-runtime-disabled",
             f"{label} consent-collection fixture must keep downloads/install, memory, network, and voice gated",
+            failures,
+        )
+
+    consent_capture_expectations = {
+        "default": (
+            CONSENT_CAPTURE_STATE_BLOCKED_BY_COLLECTION,
+            CONSENT_CAPTURE_RECORD_STATE_MISSING,
+            False,
+            False,
+            False,
+            CONSENT_CAPTURE_WRITE_STATUS_BLOCKED,
+            CONSENT_CAPTURE_WRITE_BLOCKER_COLLECTION_NOT_READY,
+            CONSENT_CAPTURE_WRITE_REASON_COLLECTION_NOT_READY,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
+        ),
+        "blocked_by_collection": (
+            CONSENT_CAPTURE_STATE_BLOCKED_BY_COLLECTION,
+            CONSENT_CAPTURE_RECORD_STATE_READY,
+            True,
+            False,
+            False,
+            CONSENT_CAPTURE_WRITE_STATUS_BLOCKED,
+            CONSENT_CAPTURE_WRITE_BLOCKER_COLLECTION_NOT_READY,
+            CONSENT_CAPTURE_WRITE_REASON_COLLECTION_NOT_READY,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
+        ),
+        "not_requested": (
+            CONSENT_CAPTURE_STATE_NOT_REQUESTED,
+            CONSENT_CAPTURE_RECORD_STATE_MISSING,
+            False,
+            False,
+            False,
+            CONSENT_CAPTURE_WRITE_STATUS_BLOCKED,
+            CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_MISSING,
+            CONSENT_CAPTURE_WRITE_REASON_RECORD_MISSING,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
+        ),
+        "invalid_record": (
+            CONSENT_CAPTURE_STATE_BLOCKED_BY_RECORD,
+            CONSENT_CAPTURE_RECORD_STATE_INVALID,
+            True,
+            False,
+            False,
+            CONSENT_CAPTURE_WRITE_STATUS_BLOCKED,
+            CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_INVALID,
+            CONSENT_CAPTURE_WRITE_REASON_RECORD_INVALID,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
+        ),
+        "conflicting_write_flag": (
+            CONSENT_CAPTURE_STATE_BLOCKED_BY_RECORD,
+            CONSENT_CAPTURE_RECORD_STATE_INVALID,
+            True,
+            False,
+            False,
+            CONSENT_CAPTURE_WRITE_STATUS_BLOCKED,
+            CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_INVALID,
+            CONSENT_CAPTURE_WRITE_REASON_RECORD_INVALID,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
+        ),
+        "no_selection": (
+            CONSENT_CAPTURE_STATE_BLOCKED_BY_RECORD,
+            CONSENT_CAPTURE_RECORD_STATE_NO_CONSENT_SELECTED,
+            True,
+            False,
+            False,
+            CONSENT_CAPTURE_WRITE_STATUS_BLOCKED,
+            CONSENT_CAPTURE_WRITE_BLOCKER_NO_CONSENT_SELECTED,
+            CONSENT_CAPTURE_WRITE_REASON_NO_CONSENT_SELECTED,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_EMPTY,
+        ),
+        "revoked": (
+            CONSENT_CAPTURE_STATE_REVOKED_LOCAL_ONLY,
+            CONSENT_CAPTURE_RECORD_STATE_REVOKED,
+            True,
+            False,
+            False,
+            CONSENT_CAPTURE_WRITE_STATUS_REVOKED_LOCAL,
+            CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_REVOKED,
+            CONSENT_CAPTURE_WRITE_REASON_RECORD_REVOKED,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY,
+        ),
+        "reset": (
+            CONSENT_CAPTURE_STATE_RESET_LOCAL_ONLY,
+            CONSENT_CAPTURE_RECORD_STATE_RESET,
+            True,
+            False,
+            False,
+            CONSENT_CAPTURE_WRITE_STATUS_RESET_LOCAL,
+            CONSENT_CAPTURE_WRITE_BLOCKER_RECORD_RESET,
+            CONSENT_CAPTURE_WRITE_REASON_RECORD_RESET,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY,
+        ),
+        "setup_only": (
+            CONSENT_CAPTURE_STATE_CAPTURED_LOCAL_ONLY,
+            CONSENT_CAPTURE_RECORD_STATE_READY,
+            True,
+            True,
+            False,
+            CONSENT_CAPTURE_WRITE_STATUS_LOCAL_SNAPSHOT,
+            CONSENT_CAPTURE_WRITE_BLOCKER_NONE,
+            CONSENT_CAPTURE_WRITE_REASON_CAPTURED_LOCAL_ONLY,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY,
+        ),
+        "setup_execution": (
+            CONSENT_CAPTURE_STATE_CAPTURED_LOCAL_ONLY,
+            CONSENT_CAPTURE_RECORD_STATE_READY,
+            True,
+            True,
+            True,
+            CONSENT_CAPTURE_WRITE_STATUS_LOCAL_SNAPSHOT,
+            CONSENT_CAPTURE_WRITE_BLOCKER_NONE,
+            CONSENT_CAPTURE_WRITE_REASON_CAPTURED_LOCAL_ONLY,
+            CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY,
+        ),
+    }
+    _require(
+        default_consent_capture_record_snapshot.schema_version
+        == CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION
+        and default_consent_capture_record_snapshot.record_state
+        == CONSENT_CAPTURE_RECORD_STATE_MISSING
+        and not default_consent_capture_record_snapshot.record_valid,
+        "default consent capture record must fail closed with the local record schema",
+        failures,
+    )
+    _require(
+        normalized_default_consent_capture_record_snapshot.record_state
+        == CONSENT_CAPTURE_RECORD_STATE_MISSING
+        and not normalized_default_consent_capture_record_snapshot.local_write_requested
+        and not normalized_default_consent_capture_record_snapshot.record_valid,
+        "default consent capture record must normalize as missing/not-requested",
+        failures,
+    )
+    for label, expectation in consent_capture_expectations.items():
+        capture_payload = consent_capture_payloads[label]
+        (
+            expected_capture_state,
+            expected_record_state,
+            expected_local_write,
+            expected_setup_captured,
+            expected_execution_captured,
+            expected_write_status,
+            expected_write_blocker,
+            expected_write_reason,
+            expected_snapshot_status,
+        ) = expectation
+        _require(
+            capture_payload["stateId"]
+            == FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_STATE_ID
+            and capture_payload["mode"]
+            == FAM007_PROVIDER_CONSENT_COLLECTION_IMPLEMENTATION_FOUNDATION_MODE,
+            f"{label} consent-capture fixture must use implementation foundation identity",
+            failures,
+        )
+        _require(
+            capture_payload["consentCaptureTransitionSchemaVersion"]
+            == CONSENT_CAPTURE_TRANSITION_SCHEMA_VERSION
+            and capture_payload["consentCaptureLocalRecordSchemaVersion"]
+            == CONSENT_CAPTURE_LOCAL_RECORD_SCHEMA_VERSION,
+            f"{label} consent-capture fixture must publish capture/write schemas",
+            failures,
+        )
+        _require(
+            capture_payload["consentCaptureState"] == expected_capture_state
+            and capture_payload["consentCaptureRecordState"] == expected_record_state
+            and capture_payload["consentCaptureLocalWriteRequested"]
+            is expected_local_write
+            and capture_payload["setupConsentCaptured"] is expected_setup_captured
+            and capture_payload["executionConsentCaptured"]
+            is expected_execution_captured,
+            f"{label} consent-capture fixture must publish expected transition state",
+            failures,
+        )
+        _require(
+            capture_payload["consentCaptureWriteStatus"] == expected_write_status
+            and capture_payload["consentCaptureWriteBlocker"] == expected_write_blocker
+            and capture_payload["consentCaptureWriteReason"] == expected_write_reason
+            and capture_payload["consentCaptureLocalSnapshotStatus"]
+            == expected_snapshot_status,
+            f"{label} consent-capture fixture must publish expected write-path state",
+            failures,
+        )
+        _require(
+            capture_payload["consentCaptureDurablePersistenceStatus"]
+            == CONSENT_CAPTURE_DURABLE_PERSISTENCE_DEFERRED,
+            f"{label} consent-capture fixture must defer durable persistence",
+            failures,
+        )
+        expected_audit_status = (
+            CONSENT_CAPTURE_AUDIT_STATUS_LOCAL_PROOF
+            if expected_snapshot_status == CONSENT_CAPTURE_LOCAL_SNAPSHOT_STATUS_READY
+            else CONSENT_CAPTURE_AUDIT_STATUS_BLOCKED
+        )
+        _require(
+            capture_payload["consentRecordStorageBoundarySchemaVersion"]
+            == CONSENT_RECORD_STORAGE_BOUNDARY_SCHEMA_VERSION
+            and capture_payload["consentRecordStorageBoundaryState"]
+            == CONSENT_RECORD_STORAGE_BOUNDARY_LOCAL_SNAPSHOT_ONLY
+            and capture_payload["consentRecordDurableStorageState"]
+            == CONSENT_RECORD_DURABLE_STORAGE_DEFERRED,
+            f"{label} consent-capture fixture must publish storage boundary proof",
+            failures,
+        )
+        _require(
+            capture_payload["consentRecordRevocationModelState"]
+            == CONSENT_RECORD_REVOCATION_MODEL_LOCAL_ONLY
+            and capture_payload["consentRecordResetModelState"]
+            == CONSENT_RECORD_RESET_MODEL_LOCAL_ONLY
+            and capture_payload["consentRecordNoSecretsPosture"]
+            == CONSENT_RECORD_NO_SECRETS_POSTURE_READY
+            and capture_payload["consentRecordProviderPayloadPosture"]
+            == CONSENT_RECORD_PROVIDER_PAYLOAD_EXCLUDED,
+            f"{label} consent-capture fixture must publish revocation/no-secrets proof",
+            failures,
+        )
+        _require(
+            capture_payload["consentCaptureAuditSchemaVersion"]
+            == CONSENT_CAPTURE_AUDIT_SCHEMA_VERSION
+            and capture_payload["consentCaptureAuditStatus"] == expected_audit_status,
+            f"{label} consent-capture fixture must publish audit proof posture",
+            failures,
+        )
+        _require(
+            capture_payload["setupExecutionConsentSeparationState"]
+            == CONSENT_CAPTURE_SETUP_EXECUTION_SEPARATION_READY
+            and capture_payload["consentCaptureUiStatusProofState"]
+            == CONSENT_CAPTURE_UI_STATUS_PROOF_HIDDEN_TELEMETRY
+            and capture_payload["consentCaptureDesktopDisplayState"]
+            == CONSENT_CAPTURE_DESKTOP_DISPLAY_SUPPRESSED,
+            f"{label} consent-capture fixture must publish UI/suppression proof",
+            failures,
+        )
+        _require(
+            capture_payload["consentCaptureProviderSetupHandoffState"]
+            == CONSENT_CAPTURE_PROVIDER_SETUP_HANDOFF_READY
+            and capture_payload["consentCaptureFunctionalAiCriteriaState"]
+            == CONSENT_CAPTURE_FUNCTIONAL_AI_CRITERIA_PENDING
+            and capture_payload["consentCaptureV18ContinuationState"]
+            == CONSENT_CAPTURE_V18_CONTINUATION_PENDING,
+            f"{label} consent-capture fixture must publish handoff and v1.8.0 criteria proof",
+            failures,
+        )
+        _require(
+            capture_payload["providerVisibleData"] == "none"
+            and capture_payload["consentCaptureProviderVisibleData"] == "none"
+            and capture_payload["sentToProvider"] is False
+            and capture_payload["consentCaptureSentToProvider"] is False
+            and capture_payload["canAcceptPrompts"] is False
+            and capture_payload["consentCaptureCanAcceptPrompts"] is False,
+            f"{label} consent-capture fixture must keep provider data and prompts disabled",
+            failures,
+        )
+        _require(
+            capture_payload["promptSendPosture"] == PROMPT_SEND_POSTURE_DISABLED
+            and capture_payload["modelExecutionStatus"] == MODEL_EXECUTION_STATUS_DISABLED
+            and capture_payload["providerExecutionGateState"]
+            == PROVIDER_EXECUTION_GATE_DISABLED
+            and capture_payload["consentCapturePromptExecutionState"]
+            == PROMPT_EXECUTION_GATE_DISABLED,
+            f"{label} consent-capture fixture must not enable prompt/model/provider execution",
+            failures,
+        )
+        _require(
+            capture_payload["capabilityPackDownloadState"]
+            == CAPABILITY_PACK_DOWNLOADS_BLOCKED
+            and capture_payload["capabilityPackInstallState"]
+            == CAPABILITY_PACK_INSTALL_BLOCKED
+            and capture_payload["consentCaptureNetworkEgressState"]
+            == NETWORK_EGRESS_BLOCKED
+            and capture_payload["consentCaptureMemoryState"] == MEMORY_INDEXING_DISABLED
+            and capture_payload["consentCaptureVoiceState"] == "voice-runtime-disabled",
+            f"{label} consent-capture fixture must keep downloads, network, memory, and voice gated",
             failures,
         )
 
