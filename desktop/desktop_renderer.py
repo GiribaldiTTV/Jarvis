@@ -8270,10 +8270,15 @@ class DesktopRuntimeWindow(QWidget):
                     """
                 )
 
+    def _monitoring_hud_effective_window_minimum_size(self) -> tuple[int, int]:
+        virtual = self._virtual_desktop_geometry()
+        min_width = min(max(self.minimumWidth(), 640), max(1, virtual.width()))
+        min_height = min(max(self.minimumHeight(), 595), max(1, virtual.height()))
+        return min_width, min_height
+
     def _bound_monitoring_hud_window_resize_rect(self, rect: QRect) -> QRect:
         virtual = self._virtual_desktop_geometry()
-        min_width = max(self.minimumWidth(), 640)
-        min_height = max(self.minimumHeight(), 595)
+        min_width, min_height = self._monitoring_hud_effective_window_minimum_size()
         width = max(min_width, min(rect.width(), virtual.width()))
         height = max(min_height, min(rect.height(), virtual.height()))
         left = max(virtual.x(), min(rect.x(), virtual.x() + virtual.width() - width))
@@ -8303,8 +8308,7 @@ class DesktopRuntimeWindow(QWidget):
         elif bottom:
             height = base.height() + delta.y()
 
-        min_width = max(self.minimumWidth(), 640)
-        min_height = max(self.minimumHeight(), 595)
+        min_width, min_height = self._monitoring_hud_effective_window_minimum_size()
         if width < min_width:
             if left:
                 x = base.right() - min_width + 1
@@ -11386,10 +11390,11 @@ class DesktopRuntimeWindow(QWidget):
             viewport_height = rect_number(viewport, "height")
             hud_bottom = rect_number(rect, "bottom")
             chrome_bottom = rect_number(chrome_rect, "bottom")
+            expected_min_width, expected_min_height = self._monitoring_hud_effective_window_minimum_size()
             checks = {
                 "dashboard_minimum_edge_marker": dataset.get("dashboardMinimumEdgeProof") == "native-min-size-bottom-edge-visible",
-                "native_width_at_minimum": native_geometry.width() == max(self.minimumWidth(), 640),
-                "native_height_at_minimum": native_geometry.height() == max(self.minimumHeight(), 595),
+                "native_width_at_minimum": native_geometry.width() == expected_min_width,
+                "native_height_at_minimum": native_geometry.height() == expected_min_height,
                 "viewport_matches_native_width": abs(viewport_width - native_geometry.width()) <= 2,
                 "viewport_matches_native_height": abs(viewport_height - native_geometry.height()) <= 2,
                 "hud_top_aligned_to_native_frame": abs(rect_number(rect, "top")) <= 1.5,
@@ -11858,8 +11863,7 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_dashboard_minimum_edge_probe():
             minimum_edge_probe_state["restoreGeometry"] = QRect(self.geometry())
-            minimum_width = max(self.minimumWidth(), 640)
-            minimum_height = max(self.minimumHeight(), 595)
+            minimum_width, minimum_height = self._monitoring_hud_effective_window_minimum_size()
             current = self.geometry()
             minimum_rect = self._bound_monitoring_hud_window_resize_rect(
                 QRect(current.x(), current.y(), minimum_width, minimum_height)
@@ -11900,7 +11904,7 @@ class DesktopRuntimeWindow(QWidget):
                 QRect(self.x(), self.y(), normal_width, normal_height)
             )
             compact_rect = self._bound_monitoring_hud_window_resize_rect(
-                QRect(self.x(), self.y(), max(self.minimumWidth(), 640), max(self.minimumHeight(), 595))
+                QRect(self.x(), self.y(), *self._monitoring_hud_effective_window_minimum_size())
             )
             matrix_items = []
             required_default_compact_photo_labels = (
