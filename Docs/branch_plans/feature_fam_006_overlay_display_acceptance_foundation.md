@@ -229,7 +229,7 @@ Element Validation Ledger Owner: `Docs/branch_records/feature_fam_006_overlay_di
 
 ### Changed Surface: Docs/codex_modes.md
 
-- Surface Class: `governance/source-truth`
+- Surface Class: `prompt/template`
 - Change Intent: `FAM-006 intentionally edits Codex mode guidance only to align bounded Workstream continuation and LV1 proof expectations with the active Overlay Display Acceptance Foundation branch-local repair path.`
 - Why This File Was Touched: `The FAM-006 LV1/UTS repair cycle exposed that Workstream and Live Validation modes needed sharper branch-local instructions for continuing within approved boundaries, real user-facing proof, and stop/report behavior.`
 - Owned Behavior / Fact Class: `Codex operating-mode source truth for bounded Workstream and validation behavior; not runtime behavior, release execution, PR creation, issue mutation, FAM-007 ownership, or sibling-worktree ownership.`
@@ -269,7 +269,7 @@ Element Validation Ledger Owner: `Docs/branch_records/feature_fam_006_overlay_di
 
 ### Changed Surface: desktop/desktop_renderer.py
 
-- Surface Class: `runtime`
+- Surface Class: `desktop/UI`
 - Change Intent: `FAM-006 intentionally edits the desktop renderer only to add overlay display acceptance bridge/proof signals needed by SLC-042 through SLC-045 and the approved HUD proof route.`
 - Why This File Was Touched: `Overlay Display Acceptance Foundation required renderer-visible proof signals for active-profile display behavior, Dashboard / Overlay independence, Workstream readiness, and bridge state without changing Recording Profile, tray recording, export/share, provider execution, or broad theme behavior.`
 - Owned Behavior / Fact Class: `FAM-006 HUD renderer bridge/proof signal behavior for Overlay Display Acceptance Foundation; not AI provider execution, FAM-007 consent behavior, Recording Profile runtime, tray controls, export/share, release execution, or sibling-worktree ownership.`
