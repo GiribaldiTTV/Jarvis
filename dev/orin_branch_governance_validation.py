@@ -4990,12 +4990,6 @@ MERGE_STABLE_STALE_CONTEXT_ALLOWLIST = (
     "historical snapshot",
     "historical complete",
     "receipt evidence",
-    "must not",
-    "do not",
-    "allowed only",
-    "lawful only",
-    "blocker",
-    "scan",
 )
 
 UTS_RESULTS_BLOCKER_DOCS = (
@@ -11532,11 +11526,23 @@ def _collect_branch_record_paths(text: str, heading_prefix: str) -> set[str]:
 def _collect_merge_stable_detail_record_paths(*texts: str) -> set[str]:
     paths: set[str] = set()
     for text in texts:
+        current_block: list[str] = []
+        blocks: list[str] = []
         for line in text.splitlines():
-            normalized_line = line.casefold()
-            if "merged-unreleased" not in normalized_line and not re.search(r"\bPR #\d+", line):
+            if line.strip():
+                current_block.append(line)
                 continue
-            paths.update(re.findall(r"Docs/branch_records/[A-Za-z0-9._-]+\.md", line))
+            if current_block:
+                blocks.append("\n".join(current_block))
+                current_block = []
+        if current_block:
+            blocks.append("\n".join(current_block))
+
+        for block in blocks:
+            normalized_block = block.casefold()
+            if "merged-unreleased" not in normalized_block and not re.search(r"\bPR #\d+", block):
+                continue
+            paths.update(re.findall(r"Docs/branch_records/[A-Za-z0-9._-]+\.md", block))
     return paths
 
 

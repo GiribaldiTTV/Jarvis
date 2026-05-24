@@ -301,6 +301,32 @@ def _validate_merge_stable_projection_text(text: str) -> list[str]:
     return failures
 
 
+def _validate_merge_stable_projection_helpers() -> list[str]:
+    failures, require = _collect_failures()
+    broad_allowlist_failures = governance._stale_pre_pr_lines(
+        "Status: PR creation pending after blocker scan."
+    )
+    require(
+        bool(broad_allowlist_failures),
+        "Merge-stable stale pre-PR detector must not allow blocker/scan wording",
+    )
+    adjacent_paths = governance._collect_merge_stable_detail_record_paths(
+        (
+            "Assignment Status: Historical merged-unreleased after PR #201.\n"
+            "Branch Authority Record: "
+            "`Docs/branch_records/feature_example_merge_stable_fixture.md`\n"
+        )
+    )
+    require(
+        "Docs/branch_records/feature_example_merge_stable_fixture.md" in adjacent_paths,
+        (
+            "Merge-stable detail record collection must capture canonical record paths "
+            "from adjacent merge-status blocks"
+        ),
+    )
+    return failures
+
+
 def _runtime_overlap_ledger_text() -> str:
     return """# Runtime Overlap Fixture
 
@@ -852,6 +878,8 @@ def validate() -> list[str]:
             "Invalid Merge-Stable Source Truth Projection fixture did not reject "
             "stale PR creation pending wording"
         )
+
+    failures.extend(_validate_merge_stable_projection_helpers())
 
     failures.extend(_validate_rebaseline_overlap_helper_matrix())
 
