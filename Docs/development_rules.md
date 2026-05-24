@@ -69,6 +69,10 @@ If prompt framing is stale, report the real state first and plan from that state
 If repo truth resolves to blocked `No Active Branch`, report the blocking repair path instead of inventing a later phase.
 If repo truth resolves to steady-state `No Active Branch`, say so explicitly and do not invent a next implementation branch by inertia.
 
+## Prompt-Entry Origin/Main Freshness Gate
+
+Before every new or resumed repo-affecting Codex pass, and before planning, patching, phase work, validation-green claims, PR/merge/release work, runtime work, or branch/worktree mutation, run the `Prompt-Entry Origin/Main Freshness Gate` from `Docs/phase_governance.md`. The packet must include `Prompt-Entry Freshness Check:`, `Fetched origin/main:`, `Current Worktree:`, `Current Branch:`, `HEAD:`, `origin/main:`, `Merge Base With origin/main:`, `Origin/Main Advanced Since Last Action:`, `Pre-Rebaseline Impact Audit Required:`, and `Rebaseline/Reconciliation Status:`. If `origin/main` advanced or cannot be proven current, stop on `Prompt-Entry Origin/Main Freshness Missing` or `Origin/Main Advanced Rebaseline Required` before mutation or phase continuation; validating locally is not enough.
+
 ## Pre-Rebaseline Impact Audit
 
 `Pre-Rebaseline Impact Audit` is required before any worktree, branch, neutral-main workspace, or standing governance lane baselines itself to a newer `origin/main` through fast-forward, merge, rebase, conflict resolution, branch switch, or current-main reconciliation.

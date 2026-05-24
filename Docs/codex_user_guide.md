@@ -189,9 +189,11 @@ Codex should still:
 2. load `Docs/development_rules.md`
 3. load `Docs/phase_governance.md`
 4. load `Docs/codex_modes.md`
-5. infer the directly relevant authority docs
-6. pull the repo evidence needed to validate live truth
-7. keep the same reasoning standard as a longer structured prompt
+5. run the `Prompt-Entry Origin/Main Freshness Gate` with `Prompt-Entry Freshness Check:`, `Fetched origin/main:`, current worktree, current branch, `HEAD`, `origin/main`, merge base, `Origin/Main Advanced Since Last Action:`, `Pre-Rebaseline Impact Audit Required:`, and `Rebaseline/Reconciliation Status:`
+6. stop on `Prompt-Entry Origin/Main Freshness Missing` or `Origin/Main Advanced Rebaseline Required` if `origin/main` advanced or cannot be proven current; validating locally is not enough
+7. infer the directly relevant authority docs
+8. pull the repo evidence needed to validate live truth
+9. keep the same reasoning standard as a longer structured prompt
 
 For meaningful interactive desktop hardening or closeout work, that baseline also includes:
 
@@ -250,17 +252,18 @@ For tracked work, that means:
 2. read `Docs/development_rules.md`
 3. read `Docs/phase_governance.md`
 4. read `Docs/codex_modes.md`
-5. check `Docs/feature_backlog.md` for `Record State`
-6. load the canonical workstream doc when the item is `Promoted` or `Closed`
-7. if the task is a selected `Registry-only` backlog branch in `Branch Readiness`, or an approved non-backlog branch, load the branch authority record under `Docs/branch_records/`
-8. validate current branch truth before trusting prompt framing
-9. use the canonical workstream doc first for branch-local reuse, artifact history, and "what worked" notes, or use the branch authority record when no promoted workstream owns the branch
-10. run `Source-Truth Placement Preflight` before creating a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface
-11. use the owning `Element Validation Ledger` in the canonical workstream doc or active branch authority record for created, touched, affected, deferred, future, dependency-only, and non-gating supporting product elements
-12. record a Dev Toolkit Interface Review Mode disposition for USER-facing interface elements, including previous and future implementations: callable in dev-only review mode, deferred to a named repo-wide adoption branch/package, or not-applicable with reason
-13. use `Docs/incident_patterns.md` only for generalized cross-branch patterns
-14. run `Thread / Worktree Identity Preflight` before Stage 2, phase entry, branch/worktree creation, commit, push, PR work, release work, or GitHub Desktop handoff
-15. state the next safe move before narrowing scope
+5. run the `Prompt-Entry Origin/Main Freshness Gate` before trusting prompt framing, phase posture, PR state, merge state, release state, or local validation
+6. check `Docs/feature_backlog.md` for `Record State`
+7. load the canonical workstream doc when the item is `Promoted` or `Closed`
+8. if the task is a selected `Registry-only` backlog branch in `Branch Readiness`, or an approved non-backlog branch, load the branch authority record under `Docs/branch_records/`
+9. validate current branch truth before trusting prompt framing
+10. use the canonical workstream doc first for branch-local reuse, artifact history, and "what worked" notes, or use the branch authority record when no promoted workstream owns the branch
+11. run `Source-Truth Placement Preflight` before creating a new governance/source-truth file, active artifact, ledger, registry, or durable authority surface
+12. use the owning `Element Validation Ledger` in the canonical workstream doc or active branch authority record for created, touched, affected, deferred, future, dependency-only, and non-gating supporting product elements
+13. record a Dev Toolkit Interface Review Mode disposition for USER-facing interface elements, including previous and future implementations: callable in dev-only review mode, deferred to a named repo-wide adoption branch/package, or not-applicable with reason
+14. use `Docs/incident_patterns.md` only for generalized cross-branch patterns
+15. run `Thread / Worktree Identity Preflight` before Stage 2, phase entry, branch/worktree creation, commit, push, PR work, release work, or GitHub Desktop handoff
+16. state the next safe move before narrowing scope
 
 `Thread / Worktree Identity Preflight` proves the current working directory, repository root, branch, upstream, `HEAD`, `origin/main`, `git worktree list`, clean/dirty state, workspace role, active thread owner, thread assignment status, worktree ownership ledger, intended write set, runtime/process ownership, and GitHub Desktop folder binding when relevant. If the thread is in the wrong folder or branch for the requested work, stop on `Thread / Worktree Identity Mismatch` instead of correcting by inertia. If another active thread owns the same worktree or branch, stop on `Parallel Worktree Coordination Missing`.
 

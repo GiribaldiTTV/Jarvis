@@ -71,6 +71,26 @@ Widening beyond the current bounded state requires explicit USER waiver text rec
 
 Clean validation, a clean git tree, branch existence, prior broad approval, Codex discretion, ChatGPT wording, or prompt output shape cannot infer a bounded-state waiver. `Bounded State User Waiver: None` means execute only the single named bounded seam or stop.
 
+## Prompt-Entry Origin/Main Freshness Gate
+
+`Prompt-Entry Origin/Main Freshness Gate` is mandatory at the start of every new Codex thread, resumed thread, post-PR-merge handoff, post-watcher wakeup, and before any repo-affecting work continues. It applies before planning, patching, validation-green claims, phase entry or continuation, Branch Readiness, Workstream Entry, Workstream, Hardening, Live Validation, PR Readiness, Release Readiness, PR creation, merge handling, release work, branch/worktree mutation, runtime mutation, GitHub Desktop handoff, or same-branch current-main reconciliation.
+
+The freshness packet must include:
+
+- `Prompt-Entry Freshness Check:`
+- `Fetched origin/main:`
+- `Current Worktree:`
+- `Current Branch:`
+- `HEAD:`
+- `Upstream:`
+- `origin/main:`
+- `Merge Base With origin/main:`
+- `Origin/Main Advanced Since Last Action:`
+- `Pre-Rebaseline Impact Audit Required:`
+- `Rebaseline/Reconciliation Status:`
+
+Passing posture means Codex fetched or otherwise proved current `origin/main`, the active worktree identity was verified, and `HEAD` plus merge base were compared against current `origin/main` before any phase continuation or mutation. If `origin/main` advanced, if the merge base differs in a way that requires review, or if current `origin/main` cannot be proven, Codex must stop on `Prompt-Entry Origin/Main Freshness Missing` or `Origin/Main Advanced Rebaseline Required`, return a report-only `Pre-Rebaseline Impact Audit` / reconciliation packet, and wait for the exact USER decision before any merge, rebase, fast-forward, branch switch, conflict resolution, file mutation, validation-green claim, PR readiness claim, release-readiness claim, or next-phase execution. Validating locally is not enough when `origin/main` may have advanced.
+
 ## Pre-Rebaseline Impact Audit
 
 `Pre-Rebaseline Impact Audit` is mandatory before any branch, worktree, neutral-main folder, or standing governance lane merges, rebases, fast-forwards, conflict-resolves, branch-switches, or otherwise baselines itself against a newer `origin/main`.
