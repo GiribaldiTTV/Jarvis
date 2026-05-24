@@ -103,13 +103,13 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: USER-assigned active runtime slot for FAM-007 Durable Consent Persistence Foundation Workstream; Workstream Green and Hardening H1 Green with Live Validation LV1 pending USER approval
+- Assignment Status: USER-assigned active runtime slot for FAM-007 Durable Consent Persistence Foundation Workstream; Workstream Green, Hardening H1 Green, and Live Validation LV1 Green with PR Readiness Stage 1 pending USER approval
 - Assigned Branch: `feature/fam-007-local-ai-provider-durable-consent-persistence-foundation`
 - Assigned Family / Workstream: `FAM-007 Local AI Provider Durable Consent Persistence Foundation`
 - Branch Authority Record: `Docs/branch_records/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
 - Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
 - GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding; no cleanup/rebinding authorized by this branch`
-- Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 durable consent persistence Workstream and Hardening handoff`
+- Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 durable consent persistence Workstream, Hardening, and Live Validation handoff`
 - Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
 - Worktree Ownership Ledger: `Branch authority record plus this slot receipt`
 - Intended Write Set: `FAM-007 branch authority, branch plan, compact pointer docs, validation helper registry, bounded confinement repair, and validation-produced source truth if required`

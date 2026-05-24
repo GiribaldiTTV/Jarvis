@@ -16,13 +16,13 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-
 
 ## Current Phase
 
-Phase: `Hardening`
+Phase: `Live Validation`
 
 ## Phase Status
 
 - Branch Authority Marker: `Active Branch`
-Phase Status: `Active Branch - Hardening H1 Green for FAM-007 Durable Consent Persistence Foundation. H1 verified Seam Group A and Seam Group B implementation against the branch plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, hidden telemetry proof, desktop readiness display suppression continuity, direct validator fixtures, source-truth fold-down, and closed provider boundary.`
-Bounded State: `Granted for Hardening H1 inspection and source-truth fold-down: compare completed durable consent persistence implementation against branch plan/PDP/RBEC/BREP, verify direct validator coverage and provider-boundary preservation, record H1 Green, validate, commit, and push if repairs are made.`
+Phase Status: `Active Branch - Live Validation LV1 Green for FAM-007 Durable Consent Persistence Foundation. LV1 classified the completed and hardened Workstream as static/hidden-telemetry durable-consent proof, verified provider-boundary preservation, recorded the User Test Summary waiver, and routes the branch to PR Readiness Stage 1 after USER approval.`
+Bounded State: `Granted for Live Validation LV1 inspection and source-truth fold-down: validate durable consent persistence state/schema, local storage boundary, migration posture, revocation/reset/expiry semantics, setup/execution durable consent separation, Core/Desktop/ORIN hidden telemetry/status proof, desktop readiness display suppression continuity, provider-boundary preservation, UTS/shortcut/self-QA waiver posture, record LV1 Green, validate, commit, and push if repairs are made.`
 
 ## Branch Class
 
@@ -30,7 +30,7 @@ Branch Class: `implementation`
 
 ## Blockers
 
-Blockers: `None for Hardening H1; Live Validation LV1 remains pending USER approval.`
+Blockers: `None for Live Validation LV1; PR Readiness Stage 1 remains pending USER approval.`
 
 ## Entry Basis
 
@@ -64,7 +64,7 @@ Backlog-Split Reason: None
 
 ## Next Legal Phase
 
-`Live Validation`
+`PR Readiness`
 
 ## Branch Objective
 
@@ -76,7 +76,7 @@ The branch should complete the admitted durable consent persistence Workstream w
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Durable local consent persistence foundation is implemented, validator-proven, H1 green, LV1 green or explicitly waived for static/local-only proof, PR-ready, merged, and later released only after USER approval.`
+Branch Completion Goal: `Durable local consent persistence foundation is implemented, validator-proven, H1 green, LV1 green with static/local-only User Test Summary waiver, PR-ready, merged, and later released only after USER approval.`
 Known Future-Dependent Blockers: `User-operated consent UX, provider setup completion, provider SDK/adapter integration, prompt/model execution, downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 Branch Closure Rule: `The branch may close after durable local consent persistence foundation is proven or blocked/deferred with USER waiver; it must not claim functional AI, provider execution, or user-operated consent capture beyond the admitted persistence foundation.`
 
@@ -98,11 +98,11 @@ Completion Status: `Green`
 
 ## User Test Summary Strategy
 
-No user-operated consent UX is admitted by Seam Group A. LV1 is expected to use static validator proof or hidden-telemetry proof unless a later USER-approved seam admits visible UX. A formal UTS remains pending until user-facing behavior is admitted or explicitly waived.
+No user-operated consent UX is admitted by this branch. LV1 used static validator proof plus hidden-telemetry proof, and the formal `## User Test Summary` is waived because no meaningful manual user path exists for the hidden/status-only durable consent persistence foundation. Later visible consent UX requires a separate USER decision and a new Live Validation proof path.
 
 ## Later-Phase Expectations
 
-Workstream Entry inspected the full plan, compared it against prior PR #201 evidence, confirmed the durable persistence boundary, and returned exact Seam Group A implementation approval text. Hardening H1 compared implementation against this plan after the full Workstream became green, and LV1 must prove local-only/provider-safe posture before PR Readiness.
+Workstream Entry inspected the full plan, compared it against prior PR #201 evidence, confirmed the durable persistence boundary, and returned exact Seam Group A implementation approval text. Hardening H1 compared implementation against this plan after the full Workstream became green, and LV1 proved local-only/provider-safe posture through static provider-state validation plus Core/Desktop hidden telemetry before PR Readiness.
 
 ## Initial Workstream Seam Sequence
 
@@ -113,7 +113,7 @@ Non-Includes: `Provider setup completion, provider SDK/model execution, prompt r
 
 ## Active Seam
 
-Active seam: `Hardening H1 Green - Seam Group A and Seam Group B are implemented, H1-reviewed, validator-proven, and ready for Live Validation LV1 after USER approval.`
+Active seam: `Live Validation LV1 Green - durable consent persistence is static/hidden-telemetry validated, UTS/shortcut/self-QA waivers are recorded, and the branch is ready for PR Readiness Stage 1 after USER approval.`
 
 ## Seam Continuation Decision
 
@@ -122,11 +122,11 @@ Slice Status: `Green`
 Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Continuation Execution Latch: `Inactive - Hardening H1 Green reached; next phase is Live Validation and requires USER approval.`
-Stop Basis: `Hardening H1 Green`
-Next Active Seam: `Live Validation LV1`
-Stop Condition: `Hardening H1 Green - Live Validation LV1 pending USER approval.`
-Continuation Action: `Stop at phase boundary until USER admits Live Validation LV1; do not begin PR creation, merge, release, cleanup, or future provider/model work.`
+Continuation Execution Latch: `Inactive - Live Validation LV1 Green reached; next phase is PR Readiness and requires USER approval.`
+Stop Basis: `Live Validation LV1 Green`
+Next Active Seam: `PR Readiness Stage 1`
+Stop Condition: `Live Validation LV1 Green - PR Readiness Stage 1 pending USER approval.`
+Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stage 1; do not begin PR creation, merge, release, cleanup, or future provider/model work.`
 Single-Seam Workstream Waiver: `None`
 Single-Seam Or Single-Slice Waiver Authority: `USER only - Codex cannot infer single-seam or single-slice Workstream authority.`
 Single-Seam Or Single-Slice Workstream Blocker: `A one seam or one slice visible plan is a blocker unless USER waiver approval is recorded; this Workstream still contains remaining same-branch seams.`
@@ -139,7 +139,7 @@ Completed Seams: `Seam 1 durable consent persistence state and schema; Seam 2 lo
 Implementation Proof: `desktop/ai_provider_state.py adds a durable local consent record schema, fail-closed normalization, local JSON store read/write/load helpers, migration posture for current/stale/unsupported schema, revoked/reset/expired durable states, no-secrets posture, provider-payload-excluded posture, and a FAM-007 durable consent persistence state builder.`
 Direct Validation Proof: `dev/orin_ai_provider_state_validation.py now includes fixtures for valid, missing, invalid, corrupt, stale schema, unsupported schema, revoked, reset, expired durable records, isolated temp-store write/load round trip, local storage confinement, provider-visible-data none, sentToProvider false, canAcceptPrompts false, disabled prompt/model/provider execution, blocked downloads/network, inactive memory, and voice/Core gated posture.`
 Provider Boundary Proof: `Provider-visible data remains none; sentToProvider remains false; canAcceptPrompts remains false; prompt/provider/model execution remains disabled; downloads/network/external calls remain blocked; memory/learning/personalization remains inactive; voice/Core sync remains gated.`
-Continuation Posture: `Complete - Seam Group B is implemented and validator-proven; Hardening H1 is now green and Live Validation LV1 is next after USER approval.`
+Continuation Posture: `Complete - Seam Group B is implemented and validator-proven; Hardening H1 and Live Validation LV1 are green and PR Readiness Stage 1 is next after USER approval.`
 
 ## Workstream Seam Group B Proof
 
@@ -149,7 +149,7 @@ Implementation Proof: `desktop/ai_provider_state.py now derives independent dura
 Hidden Telemetry Proof: `desktop/core_visualization_renderer.py and desktop/desktop_renderer.py emit durable consent record, setup consent, execution consent, hidden status proof, desktop display suppression, and future handoff telemetry keys while keeping the long desktop AI-owned readiness display suppressed by default.`
 Direct Validation Proof: `dev/orin_ai_provider_state_validation.py now includes fixtures for setup-only, execution-only, both-absent, both-present, revoked-setup, revoked-execution, reset-setup, reset-execution, expired-setup, and expired-execution durable consent states, plus status/reason-code derivation, hidden telemetry keys, desktop readiness suppression continuity, provider-visible-data none, sentToProvider false, canAcceptPrompts false, disabled prompt/model/provider execution, blocked downloads/network, inactive memory, and voice/Core gated posture.`
 Provider Boundary Proof: `Durable setup consent never implies durable execution consent, prompt acceptance, provider-visible data transfer, provider setup completion, provider/model execution, downloads, external calls, memory, or voice/Core sync.`
-Continuation Posture: `Workstream Green reached before H1; Hardening H1 is now green and Live Validation LV1 is the next legal phase after USER approval.`
+Continuation Posture: `Workstream Green reached before H1; Hardening H1 and Live Validation LV1 are green and PR Readiness Stage 1 is the next legal phase after USER approval.`
 
 ## Hardening H1 Review
 
@@ -160,7 +160,40 @@ Seam Group B H1 Result: `PASS - durable setup consent and durable execution cons
 Hidden Telemetry / Status Proof H1 Result: `PASS - desktop/core_visualization_renderer.py and desktop/desktop_renderer.py expose durable consent record/setup/execution/status/handoff telemetry keys while preserving the long desktop AI-owned readiness display suppression by default.`
 Provider Boundary H1 Result: `PASS - provider-visible data remains none; sentToProvider remains false; canAcceptPrompts remains false; prompt/provider/model execution remains disabled; downloads/network/external calls remain blocked; memory/learning/personalization remains inactive; voice/Core sync remains gated.`
 H1 Repairs: `Source-truth phase fold-down only: record Hardening H1 Green and Live Validation LV1 as the next legal phase. No runtime behavior repair was required.`
-H1 Validation Posture: `Required H1 validators must pass before this H1 source-truth fold-down is committed and pushed.`
+H1 Validation Posture: `Required H1 validators passed before the H1 source-truth fold-down was committed and pushed. LV1 validation must pass before this LV1 source-truth fold-down is committed and pushed.`
+
+## Live Validation LV1 Proof
+
+LV1 Status: `Green`
+LV1 Classification: `Static/hidden-telemetry durable local consent persistence foundation; no user-operated consent UX, provider setup completion, prompt/provider/model execution, downloads, external calls, memory/learning/personalization behavior, voice/Core sync, shortcut/installer path, or functional AI is admitted.`
+LV1 Proof Path: `Static source inspection, dev/orin_ai_provider_state_validation.py durable-consent fixtures, Core/Desktop hidden telemetry proof, desktop readiness display suppression continuity, and standard branch/release/source-owner validators.`
+Durable Consent Persistence Proof: `PASS - desktop/ai_provider_state.py represents durable consent schema/state, local storage boundary, migration posture, revocation/reset/expiry semantics, fail-closed reason codes, no-secrets posture, provider-payload exclusion, setup/execution durable consent separation, hidden status proof, and future-gated handoff criteria.`
+Core/Desktop/ORIN Hidden Telemetry Proof: `PASS - desktop/core_visualization_renderer.py and desktop/desktop_renderer.py publish durable consent record/setup/execution/status/handoff telemetry keys while preserving the long desktop AI-owned readiness display suppression by default.`
+Provider Boundary Proof: `PASS - provider-visible data remains none; sentToProvider remains false; canAcceptPrompts remains false; prompt/provider/model execution remains disabled; downloads/network/external calls remain blocked; memory/learning/personalization remains inactive; voice/Core sync remains gated.`
+Desktop Readiness Display Suppression Continuity: `PASS - no long AI-owned readiness display is made visible by LV1; validator-visible hidden telemetry remains available.`
+User-Facing Shortcut Path: `Not applicable - no shortcut/installer/user-operated consent UX path is admitted by this branch.`
+User-Facing Shortcut Validation: `WAIVED`
+User-Facing Shortcut Waiver Reason: `The completed Workstream is hidden/status-only durable consent persistence proof; it changes no user-facing shortcut, launcher, installer, or visible consent interaction path.`
+Codex Live Client Self-QA: `WAIVED`
+Codex Live Client Self-QA Waiver Reason: `No live user-operated client path exists for this branch. Static source truth, provider-state validation, and hidden telemetry proof are the source-truth-supported LV1 substitute.`
+Visual Quality: `WAIVED - no visible consent UI or user-facing surface is admitted.`
+Live Interaction Evidence: `WAIVED - no live interaction path exists inside this branch scope.`
+Usability Check: `WAIVED - no visible workflow is introduced.`
+Platform Uniformity Check: `WAIVED - no user-facing desktop/platform path changes.`
+Codex Visual Adjudication: `WAIVED`
+Visual Artifact Review Scope: `No visible durable-consent UI artifact is admitted; LV1 proof is hidden telemetry and validator-backed source truth.`
+Product Vision Alignment: `PASS - local-first, privacy-explicit durable consent truth is proven without claiming provider setup, execution, or functional AI.`
+Per-Element Visual Verdicts: `WAIVED - no user-facing elements were added or changed.`
+Helper Marker Limitation: `Static validator/helper proof is sufficient only because no visible desktop UI path is admitted.`
+Unacceptable UI Findings: `None - no visible UI surface was introduced.`
+LV1 Handoff Disposition: `Green for PR Readiness Stage 1 after USER approval.`
+
+## User Test Summary
+
+User Test Summary Results: `WAIVED`
+User Test Summary Waiver Reason: `No meaningful manual user test exists for this LV1 pass because the branch implements hidden/status-only durable local consent persistence, not user-operated consent UX. Static Core/Desktop/ORIN source truth, hidden telemetry, and dev/orin_ai_provider_state_validation.py are the approved proof path.`
+User Test Summary Handoff: `Not generated - formal desktop UTS export is intentionally skipped because the UTS is waived for this hidden/status-only durable consent persistence branch.`
+Desktop User Test Summary Export: `Not required; waiver path.`
 
 ## Admitted Implementation Slice
 
@@ -177,9 +210,9 @@ USER Vision Question Packet: `Not required for Stage 2 because this branch admit
 Codex Product Interpretation: `Durable consent persistence is the next safest FAM-007 layer after local consent capture/write-path proof because it hardens consent truth before provider setup or model execution.`
 Codex Implementation Recommendation: `Implement persistence schema, storage boundary, revocation/reset durability, fail-closed validation, and status proof before user-operated consent UX or provider setup completion.`
 Codex Additional Recommendations: `Recommendation: keep all provider-visible data none, sentToProvider false, canAcceptPrompts false, prompt/model execution disabled, downloads/network blocked, memory inactive, and voice/Core sync gated; option: defer visible consent UX until durable storage semantics pass validation.`
-USER/ChatGPT Review Checkpoint: `USER may inspect this record and the branch plan before approving Live Validation LV1.`
+USER/ChatGPT Review Checkpoint: `USER may inspect this record and the branch plan before approving PR Readiness Stage 1.`
 USER Critique Loop: `USER may accept, revise, reject, or defer durable persistence scope before Workstream implementation.`
-USER Decision Ledger: `USER approved Stage 2 setup, Workstream Entry analysis, FAM-007 confinement repair, Seam Group A implementation, Seam Group B implementation, and Hardening H1. USER decisions for Live Validation LV1, PR creation, merge, release, cleanup, provider/model/memory/voice/shortcut/installer work, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
+USER Decision Ledger: `USER approved Stage 2 setup, Workstream Entry analysis, FAM-007 confinement repair, Seam Group A implementation, Seam Group B implementation, Hardening H1, and Live Validation LV1. USER decisions for PR Readiness Stage 1, PR creation, merge, release, cleanup, provider/model/memory/voice/shortcut/installer work, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.`
 Deferred Ideas / Future Package Ledger: `Future packages or deferred USER decisions own user-operated consent UX, provider setup completion, provider SDK/adapter boundary, prompt/model execution proof, durable memory/indexing, voice/Core sync, shortcuts/installers, and v1.8.0 functional-AI proof.`
 Planning Adequacy Review: `The plan is not a one-screen or marker-only plan because it names persistence state, storage boundary, revocation/reset semantics, consent separation, UI/status proof, validators, future boundaries, and phase proof.`
 Rejected Shallow Plan: `Rejected: merely marking consent as stored without schema, revocation, reset, storage-boundary, provenance, and fail-closed validation proof.`
@@ -210,12 +243,12 @@ Why Not Split Into Tiny Branches: `Splitting schema, storage boundary, revocatio
 Validation Proof Requirements: `Run branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixture validation, AI provider state validation, runtime-fam007 suite, rebaseline audit, compileall, and any new persistence fixtures.`
 Screenshot / Live / User Test Summary Proof Requirements: `No user-operated consent UX is admitted during this Workstream; LV1 should use static source/validator proof and hidden telemetry proof unless visible behavior is admitted in a later USER-approved branch.`
 Implementation Sequence Proposal: `Stage 2 setup, Workstream Entry whole-package analysis, bounded Workstream implementation, Hardening H1, Live Validation LV1/static proof, PR Readiness, PR creation, merge, and later Release Readiness.`
-Planning Blockers: `None for Workstream completion or Hardening H1; Live Validation LV1 approval remains pending.`
-USER Decisions Needed: `Approve Live Validation LV1 next; later approve PR creation, merge, release, and all future-gated provider/model/memory/voice/shortcut/installer work.`
+Planning Blockers: `None for Workstream completion, Hardening H1, or Live Validation LV1; PR Readiness Stage 1 approval remains pending.`
+USER Decisions Needed: `Approve PR Readiness Stage 1 next; later approve PR creation, merge, release, and all future-gated provider/model/memory/voice/shortcut/installer work.`
 Planning Packet Status: `Complete`
 Planning Revalidation Status: `PASS`
 Planning Completion Waiver: `None`
-User Test Summary Strategy: `Static validator or hidden-telemetry proof is expected unless a later USER-approved seam admits visible user-facing consent persistence proof; a formal UTS remains pending or waived until user-operated consent UX exists.`
+User Test Summary Strategy: `Complete - LV1 used static validator and hidden-telemetry proof with formal User Test Summary waived because no user-operated durable consent UX exists in this branch.`
 
 ## Runtime Branch Engineering Contract
 
@@ -242,7 +275,7 @@ Plan-To-Implementation Traceability: `Each seam maps to planned files, validator
 
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
 Branch Runtime Engineering Plan: `Accepted for Stage 2 setup.`
-Engineering Plan Status: `Accepted - Workstream Green and Hardening H1 Green; Seam Group A and Seam Group B implemented, validator-proven, and H1-reviewed.`
+Engineering Plan Status: `Accepted - Workstream Green, Hardening H1 Green, and Live Validation LV1 Green; Seam Group A and Seam Group B implemented, validator-proven, H1-reviewed, and LV1 static/hidden-telemetry validated.`
 
 ## Family-Scoped Branch Readiness Confinement
 
@@ -285,22 +318,22 @@ Compact-AI Posture: `Historical released/salvaged evidence; no mutation.`
 
 ## Validation Plan
 
-Required Validation: `git diff --check origin/main...HEAD; git diff --check; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --worktree-confinement-gate; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_governance_efficiency_validation.py; python dev\orin_release_body_validation.py; python dev\orin_source_owner_marker_validation.py; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_ai_provider_state_validation.py; python dev\orin_validation_suite.py --phase branch-readiness; python dev\orin_validation_suite.py --phase runtime-fam007; python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md; python -m compileall -q dev desktop Audio main.py.`
+Required Validation: `git diff --check origin/main...HEAD; git diff --check; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --worktree-confinement-gate; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_governance_efficiency_validation.py; python dev\orin_release_body_validation.py; python dev\orin_source_owner_marker_validation.py; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_ai_provider_state_validation.py; python dev\orin_validation_suite.py --phase branch-readiness; python dev\orin_validation_suite.py --phase runtime-fam007; python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md; python dev\orin_monitoring_hud_surface_validation.py; python dev\orin_monitoring_hud_internal_sandbox_validation.py; python -m compileall -q dev desktop Audio main.py.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Hardening`
-Next Legal Phase: `Live Validation`
-Next Active Seam: `Live Validation LV1`
-Why This Phase Is Next: `Hardening H1 verified the completed durable consent persistence Workstream: durable state/schema, local storage boundary/migration posture, revocation/reset/expiry semantics, setup/execution durable consent separation, Core/Desktop/ORIN hidden telemetry proof, desktop readiness display suppression continuity, validator fixture completion, source-truth fold-down, and provider-boundary preservation. No H1 repair remains other than this recorded phase fold-down, so the next governed phase is Live Validation LV1 after USER approval.`
-Approval Required: `USER approval required for Live Validation LV1.`
-Exact USER Approval Text: `I approve Live Validation LV1 for feature/fam-007-local-ai-provider-durable-consent-persistence-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@10c32804370ee5480416e68e55823e5997d18291. Scope: validate the completed and hardened FAM-007 Durable Local Consent Persistence Foundation Workstream using static/runtime validator and hidden-telemetry proof; verify durable consent persistence state/schema, local storage boundary, migration posture, revocation/reset/expiry semantics, setup/execution durable consent separation, Core/Desktop/ORIN hidden telemetry/status proof, desktop readiness display suppression continuity, provider-visible-data none, sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, memory/learning/personalization inactive, voice/Core sync gated, source-truth posture, validation posture, and FAM-006/Governance/Compact-AI overlap as context only. Apply LV1-scoped repairs if repo truth supports them, validate, commit, and push if repairs are made. Keep PR creation, merge, release, provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution pending USER decisions.`
-Allowed Scope: `Live Validation LV1 inspection, static/runtime validator proof, hidden-telemetry proof, display-suppression proof, LV1 source-truth fold-down, and LV1-scoped repairs only after USER approval.`
-Explicit Exclusions: `No runtime implementation, provider setup completion, user-operated consent UX, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release, branch/worktree cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Validation Required: `Run git diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixture validation, AI provider state validation, branch-readiness suite, runtime-fam007 suite, rebaseline audit, compileall, and any new durable-consent fixtures.`
-Stop Conditions: `Stop if origin/main advances, the worktree is dirty, source truth points to another FAM-007 carrier, family-scoped confinement fails, validation fails, LV1 proof cannot validate static/hidden-telemetry durable consent behavior, LV1 finds a pending USER decision requirement, or any step requires work outside LV1 scope.`
-USER Plan Review Gate: `USER may accept, revise, waive, or reject the Live Validation LV1 packet before LV1 begins.`
+Current Phase: `Live Validation`
+Next Legal Phase: `PR Readiness`
+Next Active Seam: `PR Readiness Stage 1`
+Why This Phase Is Next: `Live Validation LV1 verified the completed and hardened durable consent persistence Workstream with static/runtime validator proof, hidden Core/Desktop telemetry, desktop readiness display suppression continuity, exact User Test Summary waiver, and closed provider boundary. No LV1 blocker remains, so the next governed phase is PR Readiness Stage 1 after USER approval.`
+Approval Required: `USER approval required for PR Readiness Stage 1.`
+Exact USER Approval Text: `I approve PR Readiness Stage 1 analysis for feature/fam-007-local-ai-provider-durable-consent-persistence-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@10c32804370ee5480416e68e55823e5997d18291. Scope: inspect branch/worktree identity, origin/main freshness, Workstream Green, Hardening H1 Green, Live Validation LV1 Green/static proof, User Test Summary waiver, user-facing shortcut waiver, Codex live-client self-QA waiver, source-truth fold-down, validation posture, release-window/no-release-debt posture, selected-next/successor/defer truth, FAM-006/Governance/Compact-AI overlap as context only, and PR eligibility. Run PR-readiness validation and return Stage 1 blockers/repair needs or exact Stage 2 PR creation approval text. Do not create a PR, merge, release, tag, clean branches/worktrees, mutate siblings, implement provider setup, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Allowed Scope: `PR Readiness Stage 1 analysis and bounded Stage 1 source-truth repair only after USER approval if repo truth supports it.`
+Explicit Exclusions: `No PR creation, merge, release, tag, branch/worktree cleanup, runtime implementation, provider setup completion, user-operated consent UX, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Validation Required: `Run git diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, PR-readiness gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixture validation, AI provider state validation, branch-readiness suite, runtime-fam007 suite, rebaseline audit, monitoring HUD validators, compileall, and any new PR-readiness validators required by source truth.`
+Stop Conditions: `Stop if origin/main advances and reconciliation is required, the worktree is dirty, source truth points to another carrier, PR readiness requires a pending USER decision, selected-next/defer/no-release-debt/post-merge projection truth is missing and cannot be repaired in Stage 1, validation fails, or any step requires work outside PR Readiness Stage 1 scope.`
+USER Plan Review Gate: `USER may accept, revise, waive, or reject the PR Readiness Stage 1 packet before Stage 1 begins.`
 USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md; Docs/validation_helper_registry.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/orin_ai_provider_state_validation.py.`
-Review Required Because: `The Workstream and Hardening H1 are green, and Live Validation LV1 must verify static/runtime proof, hidden telemetry/status posture, display-suppression continuity, and provider-boundary preservation before PR Readiness.`
-Implementation Blocker: `Runtime Workstream implementation and Hardening H1 are complete; Live Validation LV1 remains blocked until USER approval.`
+Review Required Because: `The Workstream, Hardening H1, and Live Validation LV1 are green, and PR Readiness Stage 1 must verify PR eligibility, source-truth projection, selected-next/defer truth, release-window posture, and validation before PR creation can be requested.`
+Implementation Blocker: `Runtime Workstream implementation, Hardening H1, and Live Validation LV1 are complete; PR Readiness Stage 1 remains blocked until USER approval.`
 Review Waiver Reason: `Not waived.`
