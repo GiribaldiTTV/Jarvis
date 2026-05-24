@@ -6,6 +6,7 @@
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
 **Release Readiness anchor, aggregation, and contributor-inventory rules are owned by `Docs/phase_governance.md`. `Docs/Main.md` only routes to that owner so release-window details are not duplicated across governance files. Required field names: `Release Candidate Anchor:`, `Release Candidate Anchor Source:`, `Target Commit:`, `Historical Endpoint Handling:`, `Candidate Includes Later Governance Repairs:`, `Release Window Contributor Inventory:`, `Release Ownership Model:`, `Release Window Contributors:`, `Merged-Unreleased Scope Inventory:`, and `FAM Contributor Routing:`. Blockers: `Release Candidate Anchor Missing` and `Release Window Contributor Inventory Missing`.**
+**Merge-stable source-truth projection is owned by `Docs/phase_governance.md` and `Docs/branch_records/index.md`, with validation in `dev/orin_branch_governance_validation.py --release-readiness-health-gate`. `Docs/Main.md` only routes to that owner. Required blocker: `Merge-Stable Source Truth Projection Missing` when merged-main current-state owners, compact pointer rows, worktree slot receipts, active branch plans, or canonical branch records retain pre-PR / PR-creation-pending wording after a PR has merged.**
 
 ## Purpose
 

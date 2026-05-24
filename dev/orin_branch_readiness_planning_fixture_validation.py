@@ -90,6 +90,12 @@ VALID_WORKSTREAM_ENTRY_WHOLE_PACKAGE_FIXTURE = (
 INVALID_WORKSTREAM_ENTRY_FIRST_SEAM_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_workstream_entry_first_seam_only.md"
 )
+VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE = (
+    FIXTURE_DIR / "valid_merge_stable_source_truth_projection.md"
+)
+INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE = (
+    FIXTURE_DIR / "invalid_merge_stable_source_truth_projection.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -138,6 +144,7 @@ EXPECTED_ELEMENT_MATRIX_DUPLICATE_ID_FAILURE_SNIPPET = "duplicates an Element ID
 EXPECTED_WORKSTREAM_ENTRY_FIRST_SEAM_FAILURE_SNIPPET = (
     "Workstream Entry Whole-Package Summary must include"
 )
+EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
 
 def _collect_failures():
@@ -278,6 +285,45 @@ def _validate_workstream_entry_whole_package_text(text: str) -> list[str]:
             phrase in normalized_summary,
             f"Workstream Entry Whole-Package Summary must include {phrase}",
         )
+    return failures
+
+
+def _validate_merge_stable_projection_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    stale_lines = governance._stale_pre_pr_lines(text)
+    require(
+        not stale_lines,
+        (
+            "Merge-Stable Source Truth Projection Missing: "
+            + "; ".join(line for _, line in stale_lines)
+        ),
+    )
+    return failures
+
+
+def _validate_merge_stable_projection_helpers() -> list[str]:
+    failures, require = _collect_failures()
+    broad_allowlist_failures = governance._stale_pre_pr_lines(
+        "Status: PR creation pending after blocker scan."
+    )
+    require(
+        bool(broad_allowlist_failures),
+        "Merge-stable stale pre-PR detector must not allow blocker/scan wording",
+    )
+    adjacent_paths = governance._collect_merge_stable_detail_record_paths(
+        (
+            "Assignment Status: Historical merged-unreleased after PR #201.\n"
+            "Branch Authority Record: "
+            "`Docs/branch_records/feature_example_merge_stable_fixture.md`\n"
+        )
+    )
+    require(
+        "Docs/branch_records/feature_example_merge_stable_fixture.md" in adjacent_paths,
+        (
+            "Merge-stable detail record collection must capture canonical record paths "
+            "from adjacent merge-status blocks"
+        ),
+    )
     return failures
 
 
@@ -485,6 +531,8 @@ def validate() -> list[str]:
         INVALID_ELEMENT_TO_PHASE_DUPLICATE_ID_FIXTURE,
         VALID_WORKSTREAM_ENTRY_WHOLE_PACKAGE_FIXTURE,
         INVALID_WORKSTREAM_ENTRY_FIRST_SEAM_ONLY_FIXTURE,
+        VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
+        INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -810,6 +858,28 @@ def validate() -> list[str]:
         failures.append(
             "Invalid Workstream Entry fixture did not reject first-seam-only analysis"
         )
+
+    valid_merge_stable_failures = _validate_merge_stable_projection_text(
+        VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_merge_stable_failures:
+        failures.append(
+            "Valid Merge-Stable Source Truth Projection fixture unexpectedly failed: "
+            + "; ".join(valid_merge_stable_failures[:5])
+        )
+
+    invalid_merge_stable_failures = _validate_merge_stable_projection_text(
+        INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET not in "\n".join(
+        invalid_merge_stable_failures
+    ):
+        failures.append(
+            "Invalid Merge-Stable Source Truth Projection fixture did not reject "
+            "stale PR creation pending wording"
+        )
+
+    failures.extend(_validate_merge_stable_projection_helpers())
 
     failures.extend(_validate_rebaseline_overlap_helper_matrix())
 
