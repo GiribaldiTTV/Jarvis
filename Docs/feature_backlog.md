@@ -99,7 +99,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/family_visions/FAM-004_voice_and_audio.md` | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/family_visions/FAM-005_external_integrations.md` | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
 | `FAM-006` | Monitoring and HUD | High | Open / released Dashboard, Sensor Command Center, and Overlay Profile foundation evidence preserved | `PKG-006` released baseline / open | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md` |
-| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted; consent collection implementation foundation PR Readiness Stage 1 Ready For Stage 2 / PR creation pending USER approval | `PKG-007` admitted / not package-complete | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` |
+| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted; consent collection implementation foundation merged-unreleased via PR #201 | `PKG-007` admitted / not package-complete | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` |
 | `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
 | `FAM-009` | Workspace and Data | Low | Open / deferred follow-through | `PKG-009` released baseline / open | `Docs/family_visions/FAM-009_workspace_and_data.md` | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
 | `FAM-010` | Safety and Privacy | High | Pending architecture/package | `PKG-010` pending | `Docs/family_visions/FAM-010_safety_and_privacy.md` | `Docs/family_visions/FAM-010_safety_and_privacy.md` |
@@ -208,7 +208,7 @@ Historical Trace Coverage: `FB-040`, HUD surface gap, PR #118, PR #180, PR #194,
 
 ### [ID: FAM-007] Local AI and Capability Packs
 
-Status: Open / package admitted; consent collection implementation foundation PR Readiness Stage 1 Ready For Stage 2 / PR creation pending USER approval after released setup implementation and consent foundation evidence
+Status: Open / package admitted; consent collection implementation foundation is merged-unreleased via PR #201 after released setup implementation and consent foundation evidence
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
@@ -222,7 +222,7 @@ Single-Slice Package User Approval: Not required - package history is multi-slic
 Canonical Detail Owner: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
 Family Vision Owner: `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`
 Historical Branch Runtime Engineering Plans: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md`; `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md`; active plan `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
-Historical Trace Coverage: FAM-007 branch records, PR #138, PR #152, PR #159, PR #162, PR #165, PR #170, PR #172, PR #177, PR #179, PR #190, PR #192, PR #193, and current PR Readiness Stage 1 Ready For Stage 2 posture for `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`.
+Historical Trace Coverage: FAM-007 branch records, PR #138, PR #152, PR #159, PR #162, PR #165, PR #170, PR #172, PR #177, PR #179, PR #190, PR #192, PR #193, and merged-unreleased PR #201 posture for `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation`.
 
 ### [ID: FAM-008] Packaging and Install Experience
 

@@ -136,6 +136,14 @@ BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN = (
     "PR Readiness Stage 2 execution gate",
 )
 
+BACKLOG_ROADMAP_POINTER_FORBIDDEN = (
+    "PR Readiness Stage 1 Ready For Stage 2",
+    "PR creation pending",
+    "PR Creation Approval: Pending",
+    "Stage 2 PR Creation: Pending",
+    "No live PR",
+)
+
 BACKLOG_ROADMAP_CURRENT_STATE_BRANCH_FIELDS = (
     "Selected Next Implementation Branch",
     "Current Carrier Branch",
@@ -168,6 +176,11 @@ WORKTREE_SLOT_FORBIDDEN = (
     "Merged-Unreleased PRs:",
     "Live PR State:",
     "Review Decision:",
+    "PR Readiness Stage 1 Ready For Stage 2",
+    "PR creation pending",
+    "PR Creation Approval: Pending",
+    "Stage 2 PR Creation: Pending",
+    "No live PR",
 )
 
 BRANCH_RECORD_INDEX_REQUIRED = (
@@ -595,6 +608,13 @@ def validate() -> list[str]:
             failures.append(
                 f"{path}: missing Docs Source-Truth Reform Model compact pointer marker"
             )
+        for phrase in BACKLOG_ROADMAP_POINTER_FORBIDDEN:
+            if phrase in text:
+                failures.append(
+                    f"{path}: compact pointer surface retains stale pre-PR/PR-creation "
+                    f"wording {phrase!r}; use merged-unreleased, released/closed, "
+                    "historical receipt, or no-active-branch posture instead"
+                )
 
         current_state_text = "\n".join(
             _section(text, heading) for heading in BACKLOG_ROADMAP_CURRENT_STATE_SECTIONS

@@ -4909,6 +4909,11 @@ HISTORICAL_BRANCH_ACTIVE_PR_MARKERS = (
     "Live PR State: `open",
     "PR Validation Pending",
     "PR Merge Verification Pending",
+    "PR Creation Approval: Pending",
+    "Stage 2 PR Creation: Pending",
+    "PR Readiness Stage 1 Ready For Stage 2",
+    "PR Readiness Stage 2 / PR creation remains pending",
+    "PR Readiness Stage 2 / PR creation pending",
 )
 
 PR_LIFECYCLE_SOURCE_TRUTH_MARKERS = (
@@ -4960,8 +4965,37 @@ AUTOMATION_OBSERVABILITY_SOURCE_PHRASES = (
 
 POST_MERGE_PR_BLOCKERS = (
     "PR Creation Pending",
+    "PR creation pending",
+    "PR Readiness Stage 1 Ready For Stage 2",
+    "PR Readiness Stage 2 / PR creation remains pending",
+    "PR Readiness Stage 2 / PR creation pending",
+    "PR Creation Approval: Pending",
+    "Stage 2 PR Creation: Pending",
     "PR Validation Pending",
     "PR State Unknown",
+)
+
+MERGE_STABLE_STALE_PRE_PR_PHRASES = (
+    "pr creation pending",
+    "pr readiness stage 1 ready for stage 2",
+    "pr readiness stage 2 / pr creation remains pending",
+    "pr readiness stage 2 / pr creation pending",
+    "pr creation approval: pending",
+    "stage 2 pr creation: pending",
+    "no live pr",
+)
+
+MERGE_STABLE_STALE_CONTEXT_ALLOWLIST = (
+    "historical pre-pr",
+    "historical snapshot",
+    "historical complete",
+    "receipt evidence",
+    "must not",
+    "do not",
+    "allowed only",
+    "lawful only",
+    "blocker",
+    "scan",
 )
 
 UTS_RESULTS_BLOCKER_DOCS = (
@@ -11493,6 +11527,112 @@ def _collect_release_debt_index_paths(text: str) -> set[str]:
 def _collect_branch_record_paths(text: str, heading_prefix: str) -> set[str]:
     section = _section(text, heading_prefix)
     return set(re.findall(r"Docs/branch_records/[A-Za-z0-9._-]+\.md", section))
+
+
+def _collect_merge_stable_detail_record_paths(*texts: str) -> set[str]:
+    paths: set[str] = set()
+    for text in texts:
+        for line in text.splitlines():
+            normalized_line = line.casefold()
+            if "merged-unreleased" not in normalized_line and not re.search(r"\bPR #\d+", line):
+                continue
+            paths.update(re.findall(r"Docs/branch_records/[A-Za-z0-9._-]+\.md", line))
+    return paths
+
+
+def _stale_pre_pr_lines(text: str) -> list[tuple[int, str]]:
+    stale_lines: list[tuple[int, str]] = []
+    for index, line in enumerate(text.splitlines(), start=1):
+        normalized_line = line.casefold()
+        if not any(phrase in normalized_line for phrase in MERGE_STABLE_STALE_PRE_PR_PHRASES):
+            continue
+        if any(allowed in normalized_line for allowed in MERGE_STABLE_STALE_CONTEXT_ALLOWLIST):
+            continue
+        stale_lines.append((index, line.strip()))
+    return stale_lines
+
+
+def _run_merge_stable_source_truth_projection_gate(
+    require,
+    *,
+    backlog_text: str,
+    roadmap_text: str,
+    worktree_slots_text: str,
+    branch_record_index_text: str,
+) -> None:
+    pointer_docs = (
+        ("Docs/feature_backlog.md", backlog_text),
+        ("Docs/prebeta_roadmap.md", roadmap_text),
+        ("Docs/worktree_slots.md", worktree_slots_text),
+    )
+    for path, text in pointer_docs:
+        stale_lines = _stale_pre_pr_lines(text)
+        require(
+            not stale_lines,
+            (
+                f"{path}: Merge-Stable Source Truth Projection Missing; compact "
+                "current-state/pointer surface retains pre-PR or PR-creation-pending wording: "
+                + "; ".join(f"line {line_no}: {line}" for line_no, line in stale_lines[:5])
+            ),
+        )
+
+    historical_branch_record_paths = _collect_branch_record_paths(
+        branch_record_index_text,
+        "Historical Branch Authority Records",
+    )
+    detail_record_paths = _collect_merge_stable_detail_record_paths(
+        backlog_text,
+        roadmap_text,
+        worktree_slots_text,
+    )
+    retirement_index_text = _read_text(Path("Docs/branch_plans/retirement_index.md"))
+    for record_path in sorted(detail_record_paths & historical_branch_record_paths):
+        record_text = _read_text(Path(record_path))
+        merged_record = "merged-unreleased" in record_text.casefold() or "Merge PR:" in record_text
+        if not merged_record:
+            continue
+        summary_text = "\n".join(
+            section
+            for section in (
+                _section(record_text, "Status"),
+                _section(record_text, "Current Phase"),
+                _section(record_text, "Phase Status"),
+                _section(record_text, "Bounded State"),
+                _section(record_text, "Post-Merge State"),
+                _section(record_text, "Release Readiness Health Pass"),
+            )
+            if section
+        )
+        stale_lines = _stale_pre_pr_lines(summary_text)
+        require(
+            not stale_lines,
+            (
+                f"{record_path}: Merge-Stable Source Truth Projection Missing; "
+                "canonical merged-unreleased branch record retains pre-PR or "
+                "PR-creation-pending summary/current-state wording: "
+                + "; ".join(f"line {line_no}: {line}" for line_no, line in stale_lines[:5])
+            ),
+        )
+        require(
+            "Merge PR:" in record_text or re.search(r"\bPR #\d+\b", record_text),
+            (
+                f"{record_path}: merged-unreleased branch record must name the "
+                "merge PR or equivalent PR receipt"
+            ),
+        )
+        for plan_path in sorted(set(re.findall(r"Docs/branch_plans/[A-Za-z0-9._-]+\.md", record_text))):
+            if plan_path == "Docs/branch_plans/README.md":
+                continue
+            plan = Path(plan_path)
+            if not (ROOT_DIR / plan).exists():
+                continue
+            require(
+                plan_path in retirement_index_text,
+                (
+                    f"{record_path}: merged-unreleased canonical branch record points to "
+                    f"{plan_path}, but the plan is not listed in Docs/branch_plans/retirement_index.md"
+                ),
+            )
 
 
 def _is_backlog_family_reform_branch(branch_name: str) -> bool:
@@ -18523,6 +18663,7 @@ def main() -> int:
 
     backlog_text = _read_text(Path("Docs/feature_backlog.md"))
     roadmap_text = _read_text(Path("Docs/prebeta_roadmap.md"))
+    worktree_slots_text = _read_text(Path("Docs/worktree_slots.md"))
     index_text = _read_text(Path("Docs/workstreams/index.md"))
     branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
     main_text = _read_text(Path("Docs/Main.md"))
@@ -18538,6 +18679,14 @@ def main() -> int:
 
     for occurrence in _tracked_repo_legacy_product_name_occurrences():
         require(False, f"Tracked repo sterilization: {occurrence}")
+
+    _run_merge_stable_source_truth_projection_gate(
+        require,
+        backlog_text=backlog_text,
+        roadmap_text=roadmap_text,
+        worktree_slots_text=worktree_slots_text,
+        branch_record_index_text=branch_record_index_text,
+    )
 
     for relative_path in PROMPT_CONTRACT_DOCS:
         text = _read_text(relative_path)
