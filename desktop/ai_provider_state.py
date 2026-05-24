@@ -7475,6 +7475,36 @@ def normalize_provider_durable_consent_record(
             provenance=CONSENT_DURABLE_PROVENANCE_LOCAL_STORE,
         )
 
+    record_state_hint = str(record_payload.get("record_state") or "")
+    fail_closed_reason_hint = str(
+        record_payload.get("fail_closed_reason") or CONSENT_DURABLE_FAIL_REASON_MISSING
+    )
+    record_valid_hint, record_valid_hint_invalid = _read_durable_consent_bool(
+        record_payload,
+        "record_valid",
+        default=True,
+    )
+    if (
+        record_state_hint == CONSENT_DURABLE_RECORD_STATE_MISSING
+        and not record_valid_hint
+        and not record_valid_hint_invalid
+        and fail_closed_reason_hint == CONSENT_DURABLE_FAIL_REASON_MISSING
+    ):
+        provenance_hint = str(
+            record_payload.get("provenance")
+            or CONSENT_DURABLE_PROVENANCE_LOCAL_RECORD
+        )
+        if provenance_hint not in {
+            CONSENT_DURABLE_PROVENANCE_LOCAL_RECORD,
+            CONSENT_DURABLE_PROVENANCE_LOCAL_STORE,
+        }:
+            provenance_hint = CONSENT_DURABLE_PROVENANCE_LOCAL_RECORD
+        return replace(
+            build_default_provider_durable_consent_record(),
+            schema_version=schema_version,
+            provenance=provenance_hint,
+        )
+
     record_id = str(
         record_payload.get("record_id") or CONSENT_DURABLE_DEFAULT_RECORD_ID
     )

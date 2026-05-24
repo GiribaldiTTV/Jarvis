@@ -2587,6 +2587,12 @@ def validate() -> list[str]:
         )
     )
     default_durable_record_snapshot = build_default_provider_durable_consent_record()
+    renormalized_default_durable_record_snapshot = (
+        normalize_provider_durable_consent_record(
+            default_durable_record_snapshot,
+            now_utc=fixed_now,
+        )
+    )
     normalized_valid_durable_record_snapshot = normalize_provider_durable_consent_record(
         _durable_consent_record(),
         now_utc=fixed_now,
@@ -2601,6 +2607,12 @@ def validate() -> list[str]:
         missing_loaded_durable_record_snapshot = load_provider_durable_consent_record(
             temp_store_path,
             now_utc=fixed_now,
+        )
+        renormalized_missing_loaded_durable_record_snapshot = (
+            normalize_provider_durable_consent_record(
+                missing_loaded_durable_record_snapshot,
+                now_utc=fixed_now,
+            )
         )
         written_durable_record_snapshot = write_provider_durable_consent_record(
             temp_store_path,
@@ -6470,6 +6482,15 @@ def validate() -> list[str]:
         failures,
     )
     _require(
+        renormalized_default_durable_record_snapshot.record_state
+        == CONSENT_DURABLE_RECORD_STATE_MISSING
+        and renormalized_default_durable_record_snapshot.fail_closed_reason
+        == CONSENT_DURABLE_FAIL_REASON_MISSING
+        and not renormalized_default_durable_record_snapshot.record_valid,
+        "default durable consent missing snapshot must normalize idempotently",
+        failures,
+    )
+    _require(
         normalized_valid_durable_record_snapshot.record_state
         == CONSENT_DURABLE_RECORD_STATE_READY
         and normalized_valid_durable_record_snapshot.record_valid
@@ -6483,6 +6504,15 @@ def validate() -> list[str]:
         == CONSENT_DURABLE_RECORD_STATE_MISSING
         and not missing_loaded_durable_record_snapshot.record_valid,
         "durable consent load from empty local store must fail closed as missing",
+        failures,
+    )
+    _require(
+        renormalized_missing_loaded_durable_record_snapshot.record_state
+        == CONSENT_DURABLE_RECORD_STATE_MISSING
+        and renormalized_missing_loaded_durable_record_snapshot.fail_closed_reason
+        == CONSENT_DURABLE_FAIL_REASON_MISSING
+        and not renormalized_missing_loaded_durable_record_snapshot.record_valid,
+        "loaded missing durable consent record must normalize idempotently",
         failures,
     )
     _require(
