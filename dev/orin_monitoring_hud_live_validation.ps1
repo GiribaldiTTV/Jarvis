@@ -637,8 +637,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         dashboardUserTestSummaryExportRefreshed = [bool]$PrepareLiveValidationUserTestSummary
         dashboardUserTestSummaryExportPath = if ($PrepareLiveValidationUserTestSummary) { $Paths.UserTestSummary } else { "" }
         dashboardUserTestSummaryReturnedResults = "live-validation-stage-1-only"
-        overlayProfileValidationProof = [pscustomobject]@{
-            seam = "SLC-041 Overlay Profile validation and live desktop proof"
+        recordingProfileValidationProof = [pscustomobject]@{
+            seam = "FAM-006 Recording Profile Runtime Foundation LV1"
             focusedWebViewProofRequired = $true
             fullDesktopScreenshotsAreContextOnly = $true
             perElementUserInspectableScreenshotsRequired = $true
@@ -646,12 +646,12 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             formalUserTestSummaryBoundary = "Live Validation Stage 1 only after human-client precheck PASS or USER waiver"
             workstreamAndHardeningNoUtsExport = -not [bool]$PrepareLiveValidationUserTestSummary
             proofChain = @(
-                "SLC-037 Overlay Profile data/state foundation",
-                "SLC-038 Dashboard selector and Overlay Profile Settings controls",
-                "SLC-039 settings-window monitor membership mapping",
-                "Returned-UTS selector-first Overlay Profile settings with search/filter and max-five visible monitor target",
-                "Returned-UTS Manage Monitors compact read-only Overlay Profile context",
-                "SLC-041 focused validator and live desktop proof readiness"
+                "SLC-046 Recording Profile data/state foundation",
+                "SLC-047 Recording Profile selector/settings create/edit/delete/save/discard and guarded delete behavior",
+                "SLC-048 Recording Profile relationship mapping and boundary proof",
+                "SLC-049 compact Dashboard / Manage Monitors read-only Recording Profile status integration",
+                "SLC-050 Workstream readiness proof",
+                "LV1 real user-facing desktop proof with focused screenshots, compact/default states, short video proof, and UTS handoff"
             )
         }
         dashboardSpecificProof = [pscustomobject]@{

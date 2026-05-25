@@ -9048,18 +9048,25 @@ class DesktopRuntimeWindow(QWidget):
         manifest = {
             "status": status,
             "package": "PKG-006",
-            "slice": "SLC-029",
-            "seam": "Dashboard-specific active-client self-QA - no UTS export",
-            "proofSlice": "SLC-041",
-            "proofSeam": "SLC-041 Overlay Profile validation and live desktop proof",
+            "slice": "LV1",
+            "seam": "FAM-006 Recording Profile Runtime Foundation live-client real-input self-QA",
+            "proofSlice": "LV1",
+            "proofSeam": "FAM-006 Recording Profile Runtime Foundation LV1",
             "proofStandard": "focused WebView proof is acceptance evidence; full desktop screenshots are locator/context evidence only",
             "formalUserTestSummaryBoundary": "Live Validation Stage 1 only after human-client precheck PASS or USER waiver",
-            "overlayProfileProofChain": {
-                "slc037": "Overlay Profile data/state foundation and renderer bridge",
-                "slc038": "Dashboard selector plus Overlay Profile Settings create/rename/save/discard",
-                "slc039": "settings-window monitor membership mapping",
-                "returnedUtsRepair": "selector-first settings window, search/filter, max-five visible monitor target, and compact Manage Monitors read-only Overlay row",
-                "slc041": "focused validator and live desktop proof readiness",
+            "recordingProfileProofChain": {
+                "slc046": "Recording Profile data/state foundation and renderer bridge",
+                "slc047": "Recording Profile selector/settings create/edit/delete/save/discard and guarded delete behavior",
+                "slc048": "Recording Profile relationship mapping and boundary proof",
+                "slc049": "compact Dashboard / Manage Monitors read-only Recording Profile status integration",
+                "slc050": "Workstream readiness proof for H1 and LV1",
+                "lv1": "real user-facing desktop proof with focused screenshots, compact/default states, short video proof, and UTS handoff",
+            },
+            "historicalOverlayProfileProofChain": {
+                "slc037": "Overlay Profile data/state foundation and renderer bridge - historical released baseline",
+                "slc038": "Dashboard selector plus Overlay Profile Settings create/rename/save/discard - historical released baseline",
+                "slc039": "settings-window monitor membership mapping - historical released baseline",
+                "slc041": "Overlay Profile validation and live desktop proof - historical released baseline",
             },
             "client": "desktop/orin_desktop_main.py",
             "mode": "live-client-interaction-self-qa",
@@ -9529,6 +9536,99 @@ class DesktopRuntimeWindow(QWidget):
                 QTimer.singleShot(delay(), callback)
 
             query(label, rect_script(selector), click_from_rect)
+
+        def os_wheel_until_selector_hittable(
+            selector: str,
+            label: str,
+            *,
+            wheel_point: tuple[int, int] | None,
+            wheel_notches: int = -3,
+            max_attempts: int = 10,
+            callback=None,
+        ):
+            attempts = {"count": 0, "last": {}}
+
+            def parse_probe_result(result):
+                try:
+                    parsed = json.loads(result) if isinstance(result, str) else result
+                except Exception:
+                    parsed = {"ok": False, "raw": str(result)}
+                if not isinstance(parsed, dict):
+                    parsed = {"ok": False, "raw": str(parsed)}
+                return parsed
+
+            def probe():
+                self._run_javascript_with_result(rect_script(selector), handle_probe)
+
+            def handle_probe(result):
+                parsed = parse_probe_result(result)
+                attempts["last"] = parsed
+                if parsed.get("ok"):
+                    add_step(
+                        label,
+                        True,
+                        {
+                            **parsed,
+                            "attempts": attempts["count"],
+                            "screenPoint": self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect")),
+                            "inputProof": "real-os-mouse-wheel-until-hittable",
+                            "realOsInputProof": True,
+                            "directJsScrollUsed": False,
+                            "directJsClickUsed": False,
+                            "syntheticDomEventUsed": False,
+                            "qtestMouseUsed": False,
+                        },
+                    )
+                    if callback:
+                        QTimer.singleShot(delay(120), callback)
+                    return
+
+                if attempts["count"] >= max_attempts:
+                    capture(f"{re.sub(r'[^A-Za-z0-9_.-]+', '_', label).strip('_')}_failed_target_context")
+                    add_step(
+                        label,
+                        False,
+                        {
+                            **parsed,
+                            "attempts": attempts["count"],
+                            "screenPoint": self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect")),
+                            "wheelPoint": wheel_point,
+                            "wheelNotchesPerAttempt": wheel_notches,
+                            "inputProof": "real-os-mouse-wheel-until-hittable",
+                            "realOsInputProof": False,
+                            "directJsScrollUsed": False,
+                            "directJsClickUsed": False,
+                            "syntheticDomEventUsed": False,
+                            "qtestMouseUsed": False,
+                        },
+                    )
+                    finish("FAIL", f"{label} failed")
+                    return
+
+                scrolled = self._monitoring_hud_send_mouse_wheel(wheel_notches, wheel_point)
+                attempts["count"] += 1
+                if not scrolled:
+                    add_step(
+                        label,
+                        False,
+                        {
+                            **parsed,
+                            "attempts": attempts["count"],
+                            "wheelPoint": wheel_point,
+                            "wheelNotchesPerAttempt": wheel_notches,
+                            "inputProof": "real-os-mouse-wheel-until-hittable",
+                            "realOsInputProof": False,
+                            "directJsScrollUsed": False,
+                            "directJsClickUsed": False,
+                            "syntheticDomEventUsed": False,
+                            "qtestMouseUsed": False,
+                        },
+                    )
+                    finish("FAIL", f"{label} failed to send real OS mouse wheel input")
+                    return
+                QTimer.singleShot(delay(120), probe)
+
+            probe()
 
         def os_click_covered_selector(selector: str, label: str, callback):
             def click_from_rect(parsed: dict[str, object]):
@@ -10327,26 +10427,14 @@ class DesktopRuntimeWindow(QWidget):
                 int(live_window_origin["x"]) + 470,
                 int(live_window_origin["y"]) + 420,
             )
-            scrolled = self._monitoring_hud_send_mouse_wheel(-5, point)
-            add_step(
-                "real OS mouse wheel scrolls Dashboard to Manage Monitors control",
-                bool(scrolled),
-                {
-                    "ok": bool(scrolled),
-                    "screenPoint": point,
-                    "wheelNotches": -5,
-                    "inputProof": "real-os-mouse-cursor-move-wheel",
-                    "realOsInputProof": bool(scrolled),
-                    "directJsScrollUsed": False,
-                    "directJsClickUsed": False,
-                    "syntheticDomEventUsed": False,
-                    "qtestMouseUsed": False,
-                },
+            os_wheel_until_selector_hittable(
+                "#monitoring-hud-edit-monitor-action",
+                "real OS mouse wheel scrolls Dashboard to hittable Manage Monitors control",
+                wheel_point=point,
+                wheel_notches=-3,
+                max_attempts=12,
+                callback=lambda: os_click("#monitoring-hud-edit-monitor-action", "real OS click opens Manage Monitors", step_manage_assert),
             )
-            if not scrolled:
-                finish("FAIL", "real OS mouse wheel scroll to Manage Monitors failed")
-                return
-            QTimer.singleShot(delay(150), lambda: os_click("#monitoring-hud-edit-monitor-action", "real OS click opens Manage Monitors", step_manage_assert))
 
         def step_manage_assert():
             assert_state(
