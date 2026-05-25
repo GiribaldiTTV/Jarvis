@@ -4645,6 +4645,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/phase_governance.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
+        "Branch Readiness Stage 2 Review Bundle Missing",
         "Workstream Entry Review Bundle Missing",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
@@ -4681,6 +4682,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/validation_helper_registry.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
+        "Branch Readiness Stage 2 branch-plan packets",
         "Workstream Entry bundles",
         "Docs/branch_plans/<branch_slug>.md",
         "invalid backlog planning sprawl",
