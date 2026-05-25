@@ -7726,6 +7726,20 @@ def _validate_governed_output_state(
             "implementation seam" in blocker.casefold()
             and "approval missing" in blocker.casefold()
         )
+        or (
+            ("approval" in blocker.casefold() or "user approval" in blocker.casefold())
+            and (
+                "pending" in blocker.casefold()
+                or "required" in blocker.casefold()
+                or "missing" in blocker.casefold()
+            )
+            and (
+                "seam" in blocker.casefold()
+                or "slice" in blocker.casefold()
+                or "slc-" in blocker.casefold()
+                or "implementation" in blocker.casefold()
+            )
+        )
         for blocker in blockers
     )
     stop_authorizing_blockers = [

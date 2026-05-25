@@ -59,6 +59,48 @@ function Check-Progress([string]$Activity) {
     }
 }
 
+function Assert-NoSyntheticLiveValidationInteraction {
+    param([object]$Paths)
+
+    $rendererPath = Join-Path $rootDir "desktop\desktop_renderer.py"
+    if (-not (Test-Path -LiteralPath $rendererPath)) {
+        throw "Synthetic-interaction preflight could not inspect renderer path: $rendererPath"
+    }
+    $rendererText = Get-Content -LiteralPath $rendererPath -Raw
+    $startMarker = "def _start_monitoring_hud_live_client_real_os_self_qa"
+    $startIndex = $rendererText.IndexOf($startMarker, [StringComparison]::Ordinal)
+    if ($startIndex -lt 0) {
+        throw "Synthetic-interaction preflight could not find active LV1 self-QA route marker: $startMarker"
+    }
+    $nextMethodIndex = $rendererText.IndexOf("`n    def ", $startIndex + $startMarker.Length, [StringComparison]::Ordinal)
+    if ($nextMethodIndex -lt 0) {
+        $routeText = $rendererText.Substring($startIndex)
+    }
+    else {
+        $routeText = $rendererText.Substring($startIndex, $nextMethodIndex - $startIndex)
+    }
+    $forbiddenPatterns = @(
+        @{ Pattern = ".click("; Label = "direct JavaScript click" },
+        @{ Pattern = "dispatchEvent(new MouseEvent"; Label = "synthetic DOM mouse event" },
+        @{ Pattern = "QTest.mouse"; Label = "QTest widget-only mouse event" },
+        @{ Pattern = "handler calls"; Label = "direct handler-call proof" }
+    )
+    $findings = New-Object System.Collections.Generic.List[string]
+    foreach ($entry in $forbiddenPatterns) {
+        if ($routeText.Contains([string]$entry.Pattern)) {
+            $findings.Add("$($entry.Label): $($entry.Pattern)")
+        }
+    }
+    if ($findings.Count -gt 0) {
+        $findingPath = Join-Path $Paths.Root "synthetic_live_validation_interaction_blockers.txt"
+        $findings | Set-Content -LiteralPath $findingPath -Encoding utf8
+        Step $Paths "blocked LV1 before launch: active route contains synthetic interaction code: $findingPath"
+        throw "Live Validation interaction route contains banned synthetic/widget/direct-handler interaction code. STOP and diagnose the real-input failure first; do not edit the validator to use synthetic fallback. Blockers: $($findings -join '; ')"
+    }
+    Step $Paths "no-synthetic-interaction preflight PASS: active LV1 interaction route contains no JS click, DOM MouseEvent, QTest mouse, or direct-handler interaction proof"
+    Step $Paths "real-input fallback policy PASS: if a live click fails, diagnose hit target, z-order, native hit testing, focus, scroll, and runtime state before any validator change; synthetic fallback requires explicit USER waiver"
+}
+
 function Resolve-ValidationPython {
     $candidates = @()
     if ($PythonPath) { $candidates += $PythonPath }
@@ -140,14 +182,14 @@ function Get-HudIssueIdsForElementLabel {
         "UTS-HUD-011" = @("dashboard", "data_sources", "manage_monitors")
         "UTS-HUD-012" = @("unsaved", "guard", "discard", "save")
         "UTS-HUD-013" = @("dashboard", "overlay", "manage", "source", "scrollbar", "divider", "button")
-        "UTS-HUD-014" = @("overlay_profile", "clean", "selector", "choice_panel")
+        "UTS-HUD-014" = @("overlay_profile", "clean", "selector", "choice_panel", "create", "dirty", "guard", "save", "discard", "delete", "profile_to_edit")
         "UTS-HUD-015" = @("scrollbar")
         "UTS-HUD-016" = @("divider", "page_break")
         "UTS-HUD-017" = @("button", "glow", "color", "uniform")
         "UTS-HUD-018" = @("row_title", "row-title", "page_break", "divider", "tab")
         "UTS-HUD-019" = @("state_stability", "surface_stability", "group_switch", "responsive_window", "window_contract", "open_state", "window_create_clean", "window_display_mode_buttons")
         "UTS-HUD-020" = @("source_settings", "shift", "focus", "gold", "warning")
-        "UTS-HUD-021" = @("scalability", "window_size", "minimum", "responsive", "scale")
+        "UTS-HUD-021" = @("scalability", "window_size", "minimum", "responsive", "scale", "compact", "normal", "overlay_profile")
     }
     foreach ($issueId in $issueRules.Keys) {
         foreach ($keyword in $issueRules[$issueId]) {
@@ -236,6 +278,20 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         }
     }
     $missingIssueCoverage = @($issueCoverage | Where-Object { $_.status -ne "PASS" })
+    $requiredElementLabels = @(
+        "unsaved_guard_save_discard_buttons_visible",
+        "unsaved_guard_discard_red_danger_button",
+        "unsaved_guard_panel_background_no_grid_bleed",
+        "dirty_guard_close_button_functionality",
+        "manage_monitors_dirty_guard_save_discard_cancel_modal",
+        "manage_monitors_dirty_guard_modal_uniform_with_overlay_profile",
+        "manage_monitors_dirty_guard_background_blur_blocking",
+        "manage_monitors_dirty_guard_close_button_functionality",
+        "manage_monitors_create_after_delete_reuses_monitor_group_number",
+        "manage_monitors_recreated_monitor_group_3_dirty_draft"
+    )
+    $availableElementLabels = @($screenshots | Select-Object -ExpandProperty elementLabel)
+    $missingRequiredElementLabels = @($requiredElementLabels | Where-Object { $availableElementLabels -notcontains $_ })
 
     if ($screenshots.Count -lt $MinimumScreenshots) {
         return [ordered]@{
@@ -243,6 +299,19 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
             root = $Paths.ElementScreenshotEvidenceRoot
             count = $screenshots.Count
             reason = "only $($screenshots.Count) focused per-element screenshot(s) copied; minimum is $MinimumScreenshots"
+            proofClass = "focused-per-element-screenshot"
+            perElementVisualInventory = $screenshots
+            issueFormCoverageMatrix = $issueCoverage
+            screenshots = $screenshots
+        }
+    }
+
+    if ($missingRequiredElementLabels.Count -gt 0) {
+        return [ordered]@{
+            status = "FAIL"
+            root = $Paths.ElementScreenshotEvidenceRoot
+            count = $screenshots.Count
+            reason = "focused screenshots missing mandatory dirty-guard parity element(s): $($missingRequiredElementLabels -join ', ')"
             proofClass = "focused-per-element-screenshot"
             perElementVisualInventory = $screenshots
             issueFormCoverageMatrix = $issueCoverage
@@ -776,7 +845,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     # returned issue loop; detailed ledger/proof evidence stays in manifests.
     $content = @"
 Nexus Desktop AI - User Test Summary
-Workstream: FAM-006 Overlay Profile Runtime Foundation
+Workstream: FAM-006 Overlay Display Acceptance Foundation
 Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: $currentBranch
 Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
@@ -808,12 +877,12 @@ Brief Issue List
 
 Active Issues To Test
 
-UTS-HUD-014 - Overlay Profiles Clean State, Delete, And Compact Scaling
-Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. Create, Edit, Profile / Select Profile, and Close remain compact/readable. The Profile / Select Profile control stays on the same row as Create and Edit, uses the standard compact dropdown footprint, and its menu opens without clipping. Null-state proof with no profiles and stress proof with 100+ profiles both keep the selector same-row, max-five visible options, and NDAI scrollbar behavior. Selecting a profile enables Edit. Deleting the default Overlay Profile enters the red confirmation path and does not silently auto-recreate the deleted default profile. Creating a new profile still restores a valid selectable profile when the user asks for one.
+UTS-HUD-014 - Overlay Profiles Selector, Draft Creation, Dirty Guard, And Delete
+Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. The separate Edit Profile button is removed. The dropdown button itself says `Profile to Edit:` and keeps the same rounded shape and size as the Create Profile button. Selecting an existing profile directly loads it for editing. Creating an Overlay Profile creates a draft only, starts with no monitor groups selected, requires Save before persistence, triggers the dirty-change guard on Close or navigation, and Discard leaves no persisted draft. Delete is a red danger action with confirmation and remains separated from Discard to reduce accidents.
 USER Result / Notes:
 
 UTS-HUD-021 - HUD Sizing And Overlay Profiles Scaling
-Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager Profile / Select Profile dropdown remains in the same row as Create and Edit, stays within the compact standard dropdown width range instead of becoming a full-row control, remains usable at compact legal window widths, and opens an unclipped NDAI-styled menu. Dropdown and multi-selection validation now includes null and 100+ item stress states for profile selectors, monitor/source lists, and other current bounded dropdown surfaces before UTS handoff.
+Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager `Profile to Edit:` dropdown and Create Profile button remain on the same row, use equal button footprints, remain readable/clickable at default and compact legal window sizes, and open an unclipped NDAI-styled menu. Compact proof must show the window can complete the real user workflow: select profile, create draft, close dirty guard, save, discard, delete confirmation, dropdown open/select/close, null profile state, and 100+ profile stress state.
 USER Result / Notes:
 
 Issue Regression Checks, If Any
@@ -851,8 +920,8 @@ if ($ActiveUserFacingClient) {
     $effectiveFinalHoldMilliseconds = [Math]::Max($effectiveFinalHoldMilliseconds, 20000)
 }
 if ($effectiveRunInteractionSelfQA) {
-    $MarkerTimeoutSeconds = [Math]::Max($MarkerTimeoutSeconds, 180)
-    $NoProgressTimeoutSeconds = [Math]::Max($NoProgressTimeoutSeconds, 180)
+    $MarkerTimeoutSeconds = [Math]::Max($MarkerTimeoutSeconds, 420)
+    $NoProgressTimeoutSeconds = [Math]::Max($NoProgressTimeoutSeconds, 420)
 }
 
 $previousHudStatePath = $env:NEXUS_MONITORING_HUD_STATE_PATH
@@ -871,6 +940,7 @@ try {
         $paths.AbortSignal
     )
     if ($effectiveRunInteractionSelfQA) {
+        Assert-NoSyntheticLiveValidationInteraction $paths
         New-Item -ItemType Directory -Force -Path $paths.InteractionEvidenceRoot | Out-Null
         $args += @(
             "--monitoring-hud-live-self-qa-manifest",
@@ -988,9 +1058,32 @@ try {
             throw "Interaction self-QA manifest was not written: $($paths.InteractionManifest)"
         }
         $interactionManifest = Get-Content -LiteralPath $paths.InteractionManifest -Raw | ConvertFrom-Json
+        $interactionManifestRaw = Get-Content -LiteralPath $paths.InteractionManifest -Raw
         $script:InteractionManifestStatus = [string]$interactionManifest.status
         if ($script:InteractionManifestStatus -ne "PASS") {
             throw "Interaction self-QA did not pass. Status: $script:InteractionManifestStatus"
+        }
+        if ($interactionManifestRaw -match '"directJsClickUsed"\s*:\s*true' -or
+            $interactionManifestRaw -match '"directJsMouseoverUsed"\s*:\s*true' -or
+            $interactionManifestRaw -match '"inputProof"\s*:\s*"automated-supporting-only:' -or
+            $interactionManifestRaw -notmatch '"realOsInputProof"\s*:\s*true') {
+            throw "Interaction self-QA lacks real OS-level mouse input proof. JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned as primary LV1 interaction proof."
+        }
+        $requiredInteractionLabels = @(
+            "Active child window prevents Dashboard click-through under overlapping controls",
+            "Compact Overlay Profiles window preserves functional visible monitor row and action buttons",
+            "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
+            "Create Profile opens unsaved draft with empty monitor membership",
+            "Dirty-change guard blocks close after created draft",
+            "Manage Monitors dirty guard matches shared modal Save Discard Cancel contract",
+            "Manage Monitors dirty guard Cancel returns to dirty draft without queued close",
+            "Manage Monitors dirty guard Discard completes queued close and clears dirty state",
+            "Create after delete reuses Monitor Group 3 instead of skipping to a higher number"
+        )
+        foreach ($requiredLabel in $requiredInteractionLabels) {
+            if ($interactionManifestRaw -notmatch [regex]::Escape($requiredLabel)) {
+                throw "Interaction self-QA missing required real-input scenario: $requiredLabel"
+            }
         }
         Wait-Marker $paths "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY"
         Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY"
