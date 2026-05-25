@@ -8949,6 +8949,33 @@ def _element_matrix_requires_active_coverage(normalized_status: str) -> bool:
     return not any(term in normalized_status for term in ("folded", "historical", "retired"))
 
 
+def _user_branch_plan_review_requires_active_coverage(
+    normalized_status: str,
+    current_phase: str,
+    implementation_approval: str,
+) -> bool:
+    if not _element_matrix_requires_active_coverage(normalized_status):
+        return False
+    normalized_phase = _normalized_planning_value(current_phase)
+    normalized_approval = _normalized_planning_value(implementation_approval)
+    if "branch readiness" in normalized_phase or "workstream entry" in normalized_phase:
+        return True
+    if "workstream" in normalized_phase and not any(
+        term in normalized_phase
+        for term in ("complete", "green", "historical", "pr readiness", "release")
+    ):
+        return True
+    approval_blocks_implementation = any(
+        term in normalized_approval
+        for term in ("pending", "blocked", "not authorized", "separate user decision", "separately gated")
+    )
+    approval_already_resolved = any(
+        term in normalized_approval
+        for term in ("approved", "granted", "complete", "completed", "waiver")
+    )
+    return approval_blocks_implementation and not approval_already_resolved
+
+
 def _validate_element_to_phase_proof_matrix(
     require,
     source_path: str,
@@ -9373,7 +9400,11 @@ def _validate_branch_runtime_engineering_plan(
         require,
         source_path,
         text,
-        require_gate=False,
+        require_gate=_user_branch_plan_review_requires_active_coverage(
+            normalized_status,
+            _extract_marker_value(plan_section, "Current Phase:"),
+            implementation_approval,
+        ),
     )
     if f"## {USER_FEEDBACK_DISPOSITION_HEADING}" in text:
         _validate_user_feedback_disposition(require, source_path, text)

@@ -134,6 +134,9 @@ EXPECTED_BRANCH_RUNTIME_PLAN_FAILURE_SNIPPETS = (
     "Branch Runtime Engineering Plan marker 'Planned Runtime Delta:'",
     "Branch Runtime Engineering Plan value for 'Per-Seam Implementation Checklist:'",
 )
+EXPECTED_BRANCH_RUNTIME_PLAN_MISSING_REVIEW_GATE_FAILURE_SNIPPET = (
+    "Workstream Entry planning is missing '## USER Branch Plan Review Gate'"
+)
 EXPECTED_PROPOSED_VISION_FAILURE_SNIPPET = (
     "Branch Vision Snapshot Status cannot stay Proposed"
 )
@@ -227,6 +230,17 @@ def _validate_branch_runtime_plan_text(text: str) -> list[str]:
         text,
     )
     return failures
+
+
+def _without_user_branch_plan_review_gate(text: str) -> str:
+    marker = "\n## USER Branch Plan Review Gate\n"
+    start = text.find(marker)
+    if start == -1:
+        return text
+    next_heading = text.find("\n## ", start + len(marker))
+    if next_heading == -1:
+        return text[:start].rstrip() + "\n"
+    return text[:start].rstrip() + "\n" + text[next_heading:].lstrip()
 
 
 def _validate_branch_vision_contract_text(text: str) -> list[str]:
@@ -654,6 +668,19 @@ def validate() -> list[str]:
         failures.append(
             "Valid Branch Runtime Engineering Plan fixture unexpectedly failed: "
             + "; ".join(valid_plan_failures[:5])
+        )
+
+    missing_review_gate_failures = _validate_branch_runtime_plan_text(
+        _without_user_branch_plan_review_gate(
+            VALID_BRANCH_RUNTIME_PLAN_FIXTURE.read_text(encoding="utf-8")
+        )
+    )
+    if EXPECTED_BRANCH_RUNTIME_PLAN_MISSING_REVIEW_GATE_FAILURE_SNIPPET not in "\n".join(
+        missing_review_gate_failures
+    ):
+        failures.append(
+            "Pre-implementation Branch Runtime Engineering Plan fixture did not "
+            "reject a missing USER Branch Plan Review Gate"
         )
 
     shallow_plan_failures = _validate_branch_runtime_plan_text(
