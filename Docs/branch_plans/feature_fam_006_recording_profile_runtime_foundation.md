@@ -83,7 +83,7 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_recording_pr
 
 ## SLC-046 Workstream Implementation Trace
 
-SLC-046 Status: `Implemented - validation green`
+SLC-046 Status: `Implemented - H1 green`
 Implementation Scope: `Recording Profile data/state foundation only.`
 State / Schema Result: `Added recordingProfiles collection, activeRecordingProfileId pointer, Recording Profile schema/default constants, default active Recording Profile creation, membership/source normalization, and state proof fields.`
 Default Active Profile Result: `Legacy monitor/card state receives a default active Recording Profile with empty monitor/source membership so existing monitors are not auto-recorded.`
@@ -91,6 +91,15 @@ Persistence Result: `Existing HUD state persistence now carries Recording Profil
 Renderer Bridge Result: `Renderer state sync emits MONITORING_HUD_RECORDING_PROFILE_STATE_READY when Recording Profile state is present.`
 Concept Boundary Result: `Recording Profile state remains separate from overlayProfiles, activeOverlayProfileId, Monitor Group organization, tray recording controls, export/share, provider/model work, and theme/skin scope.`
 User-Facing Delta: `None - SLC-046 adds no visible Recording Profile selector/editor/status surface.`
+
+## SLC-046 Hardening H1 Trace
+
+H1 Status: `Green`
+H1 Scope: `Recording Profile data/state foundation pressure test only.`
+H1 Result: `No bounded repair required.`
+H1 Pressure-Test Coverage: `Missing/invalid Recording Profile state, legacy monitor/card migration, default active profile creation, duplicate/stale monitor references, duplicate source references, high-volume membership normalization, save/load persistence, active profile persistence, Overlay Profile separation, Monitor Group separation, tray recording boundary, export/share boundary, provider/model boundary, and no visible UI delta.`
+H1 Evidence Basis: `Focused SLC-046 H1 recording profile pressure test, FAM-006 HUD surface validator, FAM-006 internal sandbox validator, branch governance validation, release-readiness health gate, validation-suite recommendation, JS syntax proof, and compileall.`
+Next Legal Phase After H1: `Governed Workstream continuation decision for SLC-047 or a repo-truth-selected phase-boundary route.`
 
 ## Branch Change Intent Ledger
 

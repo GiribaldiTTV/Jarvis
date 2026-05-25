@@ -3,11 +3,11 @@
 Branch: `feature/fam-006-recording-profile-runtime-foundation`
 Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `origin/main` at `26dded3f84c526e0525c7d3b18fcd2607e16590d`
-Current origin/main: `26dded3f84c526e0525c7d3b18fcd2607e16590d`
-Origin/Main Advanced Since Branch Creation: `NO`
+Current origin/main: `a271496e1657842d536ebbf4442aa632a332e88c`
+Origin/Main Advanced Since Branch Creation: `YES - reconciled before SLC-046 implementation/H1`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md`
-Branch Runtime Engineering Plan: `Accepted for bounded SLC-046 Recording Profile data/state foundation implementation; later seams remain pending USER approval.`
-Engineering Plan Status: `Workstream implementation active - SLC-046`
+Branch Runtime Engineering Plan: `Accepted for bounded SLC-046 Recording Profile data/state foundation implementation and H1; later seams remain pending USER approval.`
+Engineering Plan Status: `SLC-046 H1 green - Workstream continuation decision pending`
 
 ## Branch Identity
 
@@ -21,7 +21,7 @@ Record State: `Active`
 
 ## Status
 
-Status: `Workstream implementation - SLC-046`
+Status: `Hardening H1 green - SLC-046`
 
 ## Canonical Branch
 
@@ -30,7 +30,7 @@ Canonical Branch: `feature/fam-006-recording-profile-runtime-foundation`
 ## Current Phase
 
 Phase: `Workstream`
-Phase Detail: `SLC-046 Recording Profile data/state foundation implementation after Workstream Entry selected the first bounded seam.`
+Phase Detail: `SLC-046 Recording Profile data/state foundation implementation and Hardening H1 are green; governed Workstream continuation decision is the next legal route.`
 
 ## Phase Status
 
@@ -52,11 +52,11 @@ Slice Status: `Green`
 Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Continuation Execution Latch: `Closed pending USER approval for H1 or later seam continuation`
+Continuation Execution Latch: `Closed pending USER approval for post-H1 Workstream continuation decision or later seam continuation`
 Stop Basis: `Workstream Green`
 Next Active Seam: `Hardening H1 - SLC-046 Recording Profile data/state foundation`
-Stop Condition: `SLC-046 state-only implementation is complete and should be pressure-tested before visible Recording Profile controls or later seams continue.`
-Continuation Action: `Stop at phase boundary until USER admits the next phase; approve Hardening H1 for SLC-046 Recording Profile data/state foundation, or separately approve a governed continuation route if source truth selects a different next phase.`
+Stop Condition: `SLC-046 state-only implementation and Hardening H1 pressure test are green; visible Recording Profile controls or later seams remain pending USER decision.`
+Continuation Action: `Stop at phase boundary until USER admits the next phase; approve a governed Workstream continuation decision for SLC-047 or a repo-truth-selected phase-boundary route.`
 Single-Seam Workstream Waiver: `None`
 Single-Seam Or Single-Slice Waiver Authority: `USER only can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.`
 Single-Seam Or Single-Slice Workstream Blocker: `One seam or one slice is a blocker unless USER waiver is recorded; this branch is not package-complete because SLC-047 through SLC-050 remain pending.`
@@ -169,12 +169,12 @@ Family: `FAM-006 - Monitoring and HUD`
 Package: `PKG-006 - Recording Profile Runtime Foundation`
 Package Admission State: `Admitted; SLC-046 implementation active, later seams pending USER approval`
 Admitted Slice Count: `5`
-Package Completion State: `In progress - SLC-046 implemented; SLC-047 through SLC-050 pending`
+Package Completion State: `In progress - SLC-046 implemented and H1 green; SLC-047 through SLC-050 pending`
 Single-Slice Package User Approval: `Not required - five concrete slices are admitted for planning.`
 
 | Slice | Admission State | Purpose | Current Status |
 | --- | --- | --- | --- |
-| `SLC-046` Recording Profile data/state foundation | Admitted | Define durable Recording Profile model, defaults, normalization, persistence plan, and separation from Overlay Profile / Monitor Group. | Workstream implementation green |
+| `SLC-046` Recording Profile data/state foundation | Admitted | Define durable Recording Profile model, defaults, normalization, persistence plan, and separation from Overlay Profile / Monitor Group. | Workstream implementation and H1 green |
 | `SLC-047` Recording Profile selection/editing entry points | Admitted | Plan visible selection/editing shell without recording execution. | Pending Workstream Entry |
 | `SLC-048` Recording Profile relationship mapping and boundaries | Admitted | Prove relationship to monitors, sources, Overlay Profiles, and Monitor Groups without mutating future-gated recording execution. | Pending Workstream Entry |
 | `SLC-049` Dashboard / Manage Monitors Recording Profile status integration | Admitted | Plan compact status/integration points while preserving existing FAM-006 UI behavior. | Pending Workstream Entry |
@@ -247,7 +247,7 @@ Rollback Target: `Branch Readiness`
 ## Next Legal Phase
 
 Next Legal Phase: `Hardening`
-Next Legal Phase Detail: `After SLC-046 validation is green and pushed, the next legal phase is Hardening H1 for SLC-046 unless USER explicitly approves continuing to SLC-047 first.`
+Next Legal Phase Detail: `SLC-046 implementation and Hardening H1 are green; the machine-readable phase boundary remains Hardening, and the next USER decision is a governed Workstream continuation decision to select SLC-047 continuation or another repo-truth-selected phase-boundary route.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -259,7 +259,7 @@ User Test Summary Strategy: `No UTS is generated for SLC-046 because the seam is
 
 ## Later-Phase Expectations
 
-Later-Phase Expectations: `Hardening H1 must pressure-test SLC-046 state/default/migration/persistence and concept separation before any visible SLC-047 controls or later package claims.`
+Later-Phase Expectations: `SLC-047 visible Recording Profile controls remain pending until USER approves a governed Workstream continuation decision; SLC-048 through SLC-050 remain later-seam work.`
 
 ## Initial Workstream Seam Sequence
 
@@ -279,15 +279,15 @@ Active seam: `SLC-046 Recording Profile data/state foundation`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Workstream implementation - SLC-046`
-Next Legal Phase: `Hardening H1`
-Why This Phase Is Next: `SLC-046 implements a state-only Recording Profile foundation and must be pressure-tested before visible selector/editing controls or later seams continue.`
-Approval Required: `USER must approve Hardening H1 for SLC-046.`
-Exact USER Approval Text: `Approve Hardening H1 for SLC-046 Recording Profile data/state foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-recording-profile-runtime-foundation. This approval covers pressure-testing Recording Profile state/schema defaults, default active profile creation, normalization/migration, persistence, renderer bridge proof, concept separation from Overlay Profile and Monitor Group, existing HUD behavior preservation, bounded H1 repairs if defects are found, required validation, commit, and push if green. It does not approve SLC-047 implementation, visible Recording Profile selector/editing controls, tray recording controls, recording execution, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, sibling-worktree mutation, or artifacts/raw evidence handling.`
-Allowed Scope: `Hardening H1 for SLC-046 only.`
+Current Phase: `Hardening H1 - SLC-046`
+Next Legal Phase: `Hardening`
+Why This Phase Is Next: `SLC-046 state-only Recording Profile implementation and H1 pressure test are green; source truth must now choose SLC-047 continuation or another governed phase-boundary route before visible Recording Profile controls are implemented.`
+Approval Required: `USER must approve governed Workstream continuation decision.`
+Exact USER Approval Text: `Approve governed Workstream continuation decision for FAM-006 Recording Profile Runtime Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-recording-profile-runtime-foundation. This approval covers inspection of SLC-046 implementation/H1 source truth, determination of whether source truth selects SLC-047 continuation or another phase-boundary route, narrow source-truth updates if required, required validation, commit/push if files change, and return of the exact next implementation or phase approval packet. It does not approve SLC-047 implementation, visible Recording Profile selector/editing controls, tray recording controls, recording execution, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, sibling-worktree mutation, or artifacts/raw evidence handling.`
+Allowed Scope: `Workstream continuation decision after SLC-046 H1 green.`
 Explicit Exclusions: `SLC-047 implementation; visible Recording Profile controls; tray recording controls; recording execution; export/share; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007 work; PR creation; merge; release; issue mutation; artifacts/raw evidence handling; sibling-worktree mutation; Governance worktree mutation.`
 Validation Required: `Identity, source truth, branch governance, worktree confinement, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, focused FAM-006 validators, runtime-fam006 validation suite, JS syntax/load proof if JS changed, and compileall.`
-Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, missing SLC-046 proof, stale active-authority drift, or need for out-of-scope runtime/UI work.`
+Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, missing SLC-046 implementation/H1 proof, stale active-authority drift, or need for out-of-scope runtime/UI work.`
 USER Plan Review Gate: `USER may accept, revise, waive, or reject the Workstream Entry plan before implementation.`
 USER Inspection Files: `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Review Required Because: `Recording Profile is a new FAM-006 runtime foundation and must remain distinct from Overlay Profile, Monitor Group, tray recording, export/share, provider/model work, and broad theme/skin work.`
