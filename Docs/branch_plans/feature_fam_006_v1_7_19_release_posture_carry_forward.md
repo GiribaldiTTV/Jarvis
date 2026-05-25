@@ -112,21 +112,53 @@ Plan-To-Implementation Traceability: `Stage 2 source-truth edits map directly to
 - Shared Surface: `YES`
 - Overlap Risk: `Medium`
 - Expected Conflict Risk: `Low from current origin/main; rerun Pre-Rebaseline Impact Audit if origin/main advances before PR.`
+- Semantic Merge Risk: `low`
+- Regression / Gating Impact: `high`
+- Rebaseline Handling: `Preserve incoming PR #210 / FAM-007 current-main additions, preserve standing governance intake routing, and preserve the FAM-006 v1.7.19 carry-forward active branch pointer.`
+- Fallback Evidence: `Branch authority record Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md and this branch plan define the FAM-006 pointer; incoming main records define PR #210 / FAM-007 context.`
+- USER Decision / Waiver: `USER approved bounded ledger repair before current-main reconciliation; no waiver to drop incoming main or FAM-006 branch-local authority.`
+- Fold-Down Target: `After PR merge, keep released FAM-006 posture in compact backlog/roadmap and close this branch pointer according to PR Readiness closeout.`
 - Conflict Resolution Rule: `Preserve the standing governance intake active pointer and add only this FAM-006 carry-forward active pointer.`
 - Validation Proof: `Branch governance validation and source-owner marker validation.`
 
-### Changed Surface: FAM-006 compact release posture
+### Changed Surface: Docs/feature_backlog.md
 
-- Surface Class: `source-truth`
+- Surface Class: `governance/source-truth`
 - Change Intent: `Replace stale pre-release-window FAM-006 Overlay Display Acceptance wording with released v1.7.19-prebeta posture.`
 - Why This File Was Touched: `GitHub release v1.7.19-prebeta is authoritative and is now published.`
-- Owned Behavior / Fact Class: `Release interpretation and historical receipt wording only.`
-- Canonical Owner / Source Owner: `Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md`
+- Owned Behavior / Fact Class: `FAM-006 compact backlog release posture and historical receipt wording only.`
+- Canonical Owner / Source Owner: `Docs/feature_backlog.md`
 - Resolution Owner: `Current Branch`
 - Shared Surface: `YES`
 - Overlap Risk: `Medium`
-- Expected Conflict Risk: `Low from current origin/main; rerun Pre-Rebaseline Impact Audit if origin/main advances before PR.`
-- Conflict Resolution Rule: `Preserve GitHub release v1.7.19-prebeta as release posture authority and preserve PR #207 as historical evidence.`
+- Expected Conflict Risk: `Medium after PR #210 because incoming main may update adjacent FAM compact rows and FAM-007 current-main context.`
+- Semantic Merge Risk: `medium`
+- Regression / Gating Impact: `high`
+- Rebaseline Handling: `Preserve incoming PR #210 backlog updates, preserve FAM-006 released v1.7.19-prebeta wording, and do not select a new FAM-006 runtime successor by inertia.`
+- Fallback Evidence: `GitHub Release v1.7.19-prebeta target dfa59b37058fb2ef0f7d3432b585f182551408a4 and historical PR #207 FAM-006 branch record.`
+- USER Decision / Waiver: `USER approved bounded ledger repair before current-main reconciliation; successor branch selection remains a later USER decision.`
+- Fold-Down Target: `After PR merge, backlog should retain released FAM-006 baseline posture and no active successor selection.`
+- Conflict Resolution Rule: `Preserve GitHub release v1.7.19-prebeta as release posture authority, preserve incoming current-main family rows, and preserve PR #207 as historical evidence.`
+- Validation Proof: `Release body validation, release-readiness health gate, branch governance validation, FAM-006 HUD validators, and source-owner marker validation.`
+
+### Changed Surface: Docs/prebeta_roadmap.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Replace stale pre-release-window FAM-006 roadmap wording with released v1.7.19-prebeta posture.`
+- Why This File Was Touched: `GitHub release v1.7.19-prebeta is authoritative and is now published.`
+- Owned Behavior / Fact Class: `FAM-006 compact roadmap release posture only.`
+- Canonical Owner / Source Owner: `Docs/prebeta_roadmap.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Medium after PR #210 because incoming main may update current roadmap rows and FAM-007 release/consent context.`
+- Semantic Merge Risk: `medium`
+- Regression / Gating Impact: `high`
+- Rebaseline Handling: `Preserve incoming PR #210 roadmap additions and preserve the FAM-006 released v1.7.19-prebeta roadmap status.`
+- Fallback Evidence: `GitHub Release v1.7.19-prebeta public release body and historical PR #207 FAM-006 branch plan/record.`
+- USER Decision / Waiver: `USER approved bounded ledger repair before current-main reconciliation; no waiver to overwrite incoming current-main roadmap context.`
+- Fold-Down Target: `After PR merge, roadmap should retain released FAM-006 baseline posture and no active successor selection.`
+- Conflict Resolution Rule: `Preserve GitHub release v1.7.19-prebeta as release posture authority, preserve incoming current-main roadmap updates, and preserve PR #207 as historical evidence.`
 - Validation Proof: `Release body validation, release-readiness health gate, branch governance validation, FAM-006 HUD validators, and source-owner marker validation.`
 
 ## Next Legal Phase
