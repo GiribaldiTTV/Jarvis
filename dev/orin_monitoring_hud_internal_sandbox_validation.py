@@ -29,9 +29,11 @@ from desktop.monitoring_hud_placement import build_monitoring_hud_placement_cont
 from desktop.monitoring_hud_status import build_monitoring_hud_status_snapshot
 from desktop.monitoring_hud_state import (
     DEFAULT_OVERLAY_PROFILE_ID,
+    DEFAULT_RECORDING_PROFILE_ID,
     MONITORING_HUD_STATE_ENV,
     load_monitoring_hud_state,
     normalize_monitoring_hud_overlay_profiles,
+    normalize_monitoring_hud_recording_profiles,
     save_monitoring_hud_state,
 )
 from desktop.monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
@@ -1775,12 +1777,18 @@ def _validate_static_surface(failures: list[str]) -> None:
     for needle in (
         'MONITORING_HUD_STATE_ENV = "NEXUS_MONITORING_HUD_STATE_PATH"',
         "monitoring_hud_state_path",
+        "DEFAULT_RECORDING_PROFILE_ID",
+        "RECORDING_PROFILE_SCHEMA_VERSION",
+        "default_recording_profile_state",
+        "normalize_monitoring_hud_recording_profiles",
         "load_monitoring_hud_state",
         "save_monitoring_hud_state",
         "MONITORING_HUD_STATE_LOAD_READY",
         "MONITORING_HUD_STATE_SAVE_READY",
         '"featureEnabled"',
         '"dashboardVisible"',
+        '"recordingProfiles"',
+        '"activeRecordingProfileId"',
         "os.replace",
     ):
         _require_contains(hud_state, needle, "Monitoring HUD persisted state helper", failures)
@@ -2047,6 +2055,64 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
             _require(
                 selected_profile.get("monitorIds") == ["gpu"],
                 "SLC-039 Overlay Profile membership mapping must persist across save/load",
+                failures,
+            )
+            recording_saved = save_monitoring_hud_state(
+                feature_enabled=True,
+                dashboard_visible=True,
+                source="internal_sandbox_slc046_recording_profile_state",
+                monitor_ids=["cpu", "gpu"],
+                overlay_profiles={
+                    DEFAULT_OVERLAY_PROFILE_ID: default_profile,
+                },
+                active_overlay_profile_id=DEFAULT_OVERLAY_PROFILE_ID,
+                recording_profiles={
+                    "custom-recording": {
+                        "id": "custom-recording",
+                        "name": "Custom Recording Profile",
+                        "monitorIds": ["gpu", "missing", "gpu", "cpu"],
+                        "sourceIds": ["cpu-load", "cpu-load", "gpu-load"],
+                        "overlayProfileId": "must-not-survive",
+                        "monitorGroupId": "must-not-survive",
+                    }
+                },
+                active_recording_profile_id="missing-recording",
+            )
+            recording_state = load_monitoring_hud_state()
+            _require(recording_saved, "SLC-046 Recording Profile state save must succeed", failures)
+            _require(
+                recording_state.get("activeRecordingProfileId") == "custom-recording",
+                "SLC-046 active Recording Profile pointer must fall back to the available custom profile",
+                failures,
+            )
+            recording_profile = (recording_state.get("recordingProfiles") or {}).get("custom-recording", {})
+            _require(
+                recording_profile.get("monitorIds") == ["gpu", "cpu"],
+                "SLC-046 Recording Profile normalization must remove duplicate and stale monitor ids",
+                failures,
+            )
+            _require(
+                recording_profile.get("sourceIds") == ["cpu-load", "gpu-load"],
+                "SLC-046 Recording Profile normalization must remove duplicate source ids",
+                failures,
+            )
+            _require(
+                "overlayProfileId" not in recording_profile and "monitorGroupId" not in recording_profile,
+                "SLC-046 Recording Profile state must stay distinct from Overlay Profile and Monitor Group fields",
+                failures,
+            )
+            normalized_recording_legacy = normalize_monitoring_hud_recording_profiles({}, ["cpu", "gpu"])
+            default_recording_profile = (
+                normalized_recording_legacy.get("recordingProfiles", {}).get(DEFAULT_RECORDING_PROFILE_ID, {})
+            )
+            _require(
+                normalized_recording_legacy.get("activeRecordingProfileId") == DEFAULT_RECORDING_PROFILE_ID,
+                "Legacy card state without recordingProfiles must create a default Recording Profile",
+                failures,
+            )
+            _require(
+                default_recording_profile.get("monitorIds") == [],
+                "Default Recording Profile must not auto-record legacy monitor cards",
                 failures,
             )
         finally:

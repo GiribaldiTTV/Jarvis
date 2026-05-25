@@ -234,10 +234,17 @@ function monitoringHudSafeCardsObject(cards) {
 
 const monitoringHudOverlayProfileSchemaVersion = 1;
 const monitoringHudDefaultOverlayProfileId = "default-overlay-profile";
+const monitoringHudRecordingProfileSchemaVersion = 1;
+const monitoringHudDefaultRecordingProfileId = "default-recording-profile";
 
 function monitoringHudSafeOverlayProfilesObject(overlayProfiles) {
   if (!overlayProfiles || typeof overlayProfiles !== "object" || Array.isArray(overlayProfiles)) return {};
   return Object.assign({}, overlayProfiles);
+}
+
+function monitoringHudSafeRecordingProfilesObject(recordingProfiles) {
+  if (!recordingProfiles || typeof recordingProfiles !== "object" || Array.isArray(recordingProfiles)) return {};
+  return Object.assign({}, recordingProfiles);
 }
 
 function monitoringHudStableMonitorIds(cards) {
@@ -254,6 +261,19 @@ function monitoringHudUniqueValidMonitorIds(values, cards) {
     if (!monitorId || !cardIds.has(monitorId) || seen.has(monitorId)) return;
     seen.add(monitorId);
     result.push(monitorId);
+  });
+  return result;
+}
+
+function monitoringHudUniqueStringIds(values) {
+  const seen = new Set();
+  const result = [];
+  if (!Array.isArray(values)) return result;
+  values.forEach((value) => {
+    const stringId = String(value || "").trim();
+    if (!stringId || seen.has(stringId)) return;
+    seen.add(stringId);
+    result.push(stringId);
   });
   return result;
 }
@@ -334,6 +354,86 @@ function monitoringHudNormalizeOverlayProfileState(state) {
     monitorGroupBoundary: "monitor-groups-organize-configuration-only",
     recordingProfileBoundary: "recording-profile-state-absent-future-gated",
     visibleEditorUi: "slc-039-membership-editor"
+  };
+  return targetState;
+}
+
+function monitoringHudDefaultRecordingProfile(cards, previousProfile = {}) {
+  return {
+    id: monitoringHudDefaultRecordingProfileId,
+    schemaVersion: monitoringHudRecordingProfileSchemaVersion,
+    kind: "recording-profile",
+    scope: "recording-profile-state-foundation",
+    name: previousProfile.name || "Default Recording Profile",
+    monitorIds: Array.isArray(previousProfile.monitorIds) ? monitoringHudUniqueValidMonitorIds(previousProfile.monitorIds, cards) : [],
+    sourceIds: monitoringHudUniqueStringIds(previousProfile.sourceIds),
+    recordingMode: previousProfile.recordingMode || "manual-future-gated",
+    storagePolicy: previousProfile.storagePolicy || "local-metadata-only",
+    source: previousProfile.source || "recording-profile-state-foundation",
+    dirty: false
+  };
+}
+
+function monitoringHudNormalizeRecordingProfileState(state) {
+  const targetState = state || monitoringHudControlState;
+  const cards = monitoringHudSafeCardsObject(targetState.cards || {});
+  const rawProfiles = monitoringHudSafeRecordingProfilesObject(targetState.recordingProfiles);
+  const profiles = {};
+  const migratedLegacyCards = !Object.prototype.hasOwnProperty.call(targetState, "recordingProfiles");
+
+  Object.keys(rawProfiles).forEach((profileKey) => {
+    const rawProfile = rawProfiles[profileKey];
+    if (!rawProfile || typeof rawProfile !== "object" || Array.isArray(rawProfile)) return;
+    const profileId = String(rawProfile.id || profileKey || "").trim();
+    if (!profileId) return;
+    profiles[profileId] = {
+      id: profileId,
+      schemaVersion: monitoringHudRecordingProfileSchemaVersion,
+      kind: "recording-profile",
+      scope: "recording-profile-state-foundation",
+      name: String(rawProfile.name || "Recording Profile").trim() || "Recording Profile",
+      monitorIds: monitoringHudUniqueValidMonitorIds(rawProfile.monitorIds, cards),
+      sourceIds: monitoringHudUniqueStringIds(rawProfile.sourceIds),
+      recordingMode: String(rawProfile.recordingMode || "manual-future-gated").trim() || "manual-future-gated",
+      storagePolicy: String(rawProfile.storagePolicy || "local-metadata-only").trim() || "local-metadata-only",
+      source: String(rawProfile.source || "persisted-recording-profile-state").trim() || "persisted-recording-profile-state",
+      dirty: Boolean(rawProfile.dirty)
+    };
+  });
+
+  if (migratedLegacyCards || Object.keys(profiles).length === 0 || rawProfiles[monitoringHudDefaultRecordingProfileId]) {
+    profiles[monitoringHudDefaultRecordingProfileId] = monitoringHudDefaultRecordingProfile(
+      cards,
+      profiles[monitoringHudDefaultRecordingProfileId] || rawProfiles[monitoringHudDefaultRecordingProfileId] || {}
+    );
+  }
+  const activeProfileId = String(targetState.activeRecordingProfileId || "").trim();
+  const fallbackProfileId = profiles[monitoringHudDefaultRecordingProfileId]
+    ? monitoringHudDefaultRecordingProfileId
+    : Object.keys(profiles)[0] || "";
+  targetState.recordingProfileSchemaVersion = monitoringHudRecordingProfileSchemaVersion;
+  targetState.recordingProfiles = profiles;
+  targetState.activeRecordingProfileId = profiles[activeProfileId] ? activeProfileId : fallbackProfileId;
+  targetState.recordingProfileStateProof = {
+    schemaVersion: monitoringHudRecordingProfileSchemaVersion,
+    activeProfileId: targetState.activeRecordingProfileId,
+    defaultProfileId: monitoringHudDefaultRecordingProfileId,
+    defaultProfileMonitorIds: profiles[monitoringHudDefaultRecordingProfileId]
+      ? profiles[monitoringHudDefaultRecordingProfileId].monitorIds.slice()
+      : [],
+    defaultProfileSourceIds: profiles[monitoringHudDefaultRecordingProfileId]
+      ? profiles[monitoringHudDefaultRecordingProfileId].sourceIds.slice()
+      : [],
+    profileCount: Object.keys(profiles).length,
+    legacyCardsMigrated: migratedLegacyCards,
+    legacyMonitorCardsAutoRecorded: false,
+    duplicateMonitorIdsRemoved: true,
+    staleMonitorIdsRemoved: true,
+    monitorGroupBoundary: "monitor-groups-organize-configuration-only",
+    overlayProfileBoundary: "overlay-profiles-control-display-only",
+    trayRecordingBoundary: "tray-recording-controls-future-gated",
+    exportShareBoundary: "export-share-future-gated",
+    visibleEditorUi: "none-slc-046-state-only"
   };
   return targetState;
 }
@@ -896,9 +996,13 @@ let monitoringHudControlState = {
   overlayProfileSchemaVersion: monitoringHudOverlayProfileSchemaVersion,
   activeOverlayProfileId: monitoringHudDefaultOverlayProfileId,
   overlayProfiles: {},
+  recordingProfileSchemaVersion: monitoringHudRecordingProfileSchemaVersion,
+  activeRecordingProfileId: monitoringHudDefaultRecordingProfileId,
+  recordingProfiles: {},
   changedAt: Date.now()
 };
 monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
 const monitoringHudStorageKey = "nexusMonitoringHudLayoutV4";
 const monitoringHudLegacyStorageKeys = ["nexusMonitoringHudLayoutV1", "nexusMonitoringHudLayoutV2", "nexusMonitoringHudLayoutV3"];
 const monitoringHudSnapSize = 20;
@@ -1037,9 +1141,11 @@ function monitoringHudLoadStoredState() {
       monitoringHudControlState.selectedMonitorId = Object.keys(monitoringHudControlState.cards)[0] || "";
     }
     monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
   } catch (_err) {
     monitoringHudControlState.changedAt = Date.now();
     monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
   }
 }
 
@@ -1047,6 +1153,7 @@ function monitoringHudSaveStoredState() {
   try {
     if (!window.localStorage) return;
     monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
     window.localStorage.setItem(monitoringHudStorageKey, JSON.stringify(monitoringHudControlState));
   } catch (_err) {}
 }
@@ -4675,6 +4782,109 @@ window.runMonitoringHudOverlayProfileStateProof = function() {
   return proof;
 };
 
+window.runMonitoringHudRecordingProfileStateProof = function() {
+  const legacyCards = {
+    cpu: Object.assign(monitoringHudCardDefaults("cpu"), { title: "CPU Group" }),
+    gpu: Object.assign(monitoringHudCardDefaults("gpu"), { title: "GPU Group" })
+  };
+  const legacyState = {
+    cards: legacyCards,
+    selectedMonitorId: "gpu"
+  };
+  monitoringHudNormalizeRecordingProfileState(legacyState);
+  const legacyDefaultProfile = legacyState.recordingProfiles[monitoringHudDefaultRecordingProfileId] || {};
+
+  const mixedState = {
+    cards: legacyCards,
+    selectedMonitorId: "gpu",
+    activeRecordingProfileId: "missing-recording-profile",
+    recordingProfiles: {
+      custom: {
+        id: "custom",
+        name: "Custom Recording Profile",
+        monitorIds: ["gpu", "gpu", "missing", "cpu"],
+        sourceIds: ["cpu-load", "cpu-load", "gpu-load"],
+        overlayProfileId: "must-not-survive",
+        monitorGroupId: "must-not-survive",
+        recordingMode: "manual-future-gated"
+      }
+    }
+  };
+  monitoringHudNormalizeRecordingProfileState(mixedState);
+  const customProfile = mixedState.recordingProfiles.custom || {};
+
+  const highVolumeCards = {};
+  const highVolumeIds = [];
+  for (let index = 1; index <= 150; index += 1) {
+    const monitorId = `recording-monitor-${String(index).padStart(3, "0")}`;
+    highVolumeCards[monitorId] = Object.assign(monitoringHudCardDefaults(monitorId), { title: `Recording Monitor ${index}` });
+    highVolumeIds.push(monitorId);
+  }
+  const highVolumeState = {
+    cards: highVolumeCards,
+    activeRecordingProfileId: "bulk-recording",
+    recordingProfiles: {
+      "bulk-recording": {
+        id: "bulk-recording",
+        name: "High Volume Recording Profile",
+        monitorIds: highVolumeIds.concat(highVolumeIds.slice(0, 8), ["stale-monitor"]),
+        sourceIds: ["cpu-load", "cpu-load", "memory-usage"]
+      }
+    }
+  };
+  monitoringHudNormalizeRecordingProfileState(highVolumeState);
+  const highVolumeProfile = highVolumeState.recordingProfiles["bulk-recording"] || {};
+  const proof = {
+    passed: true,
+    package: "PKG-006",
+    slice: "SLC-046",
+    schemaVersion: monitoringHudRecordingProfileSchemaVersion,
+    defaultProfileId: monitoringHudDefaultRecordingProfileId,
+    defaultProfileCreatedForLegacyCards: legacyState.activeRecordingProfileId === monitoringHudDefaultRecordingProfileId,
+    legacyDefaultMembership: (legacyDefaultProfile.monitorIds || []).slice(),
+    legacyDefaultSources: (legacyDefaultProfile.sourceIds || []).slice(),
+    legacyCardsDoNotAutoRecord: (legacyDefaultProfile.monitorIds || []).length === 0,
+    activeProfileFallback: mixedState.activeRecordingProfileId === "custom",
+    customMembershipNormalized: JSON.stringify(customProfile.monitorIds || []) === JSON.stringify(["gpu", "cpu"]),
+    customSourceIdsNormalized: JSON.stringify(customProfile.sourceIds || []) === JSON.stringify(["cpu-load", "gpu-load"]),
+    staleMonitorIdsRemoved: !(customProfile.monitorIds || []).includes("missing"),
+    duplicateMonitorIdsRemoved: (customProfile.monitorIds || []).length === 2,
+    highVolumeProfileCount: (highVolumeProfile.monitorIds || []).length,
+    highVolumeMembershipDeterministic: (highVolumeProfile.monitorIds || []).length === 150
+      && highVolumeProfile.monitorIds[0] === "recording-monitor-001"
+      && highVolumeProfile.monitorIds[149] === "recording-monitor-150",
+    selectedMonitorIdPreserved: mixedState.selectedMonitorId === "gpu",
+    overlayProfileBoundary: !Object.prototype.hasOwnProperty.call(customProfile, "overlayProfileId"),
+    monitorGroupBoundary: !Object.prototype.hasOwnProperty.call(customProfile, "monitorGroupId"),
+    trayRecordingBoundary: true,
+    exportShareBoundary: true,
+    visibleEditorUi: "none-slc-046-state-only"
+  };
+  proof.passed = proof.defaultProfileCreatedForLegacyCards
+    && proof.legacyCardsDoNotAutoRecord
+    && proof.activeProfileFallback
+    && proof.customMembershipNormalized
+    && proof.customSourceIdsNormalized
+    && proof.staleMonitorIdsRemoved
+    && proof.duplicateMonitorIdsRemoved
+    && proof.highVolumeMembershipDeterministic
+    && proof.selectedMonitorIdPreserved
+    && proof.overlayProfileBoundary
+    && proof.monitorGroupBoundary
+    && proof.trayRecordingBoundary
+    && proof.exportShareBoundary;
+  monitoringHudControlState.recordingProfileStateProof = proof;
+  if (monitoringHud) {
+    monitoringHud.dataset.recordingProfileStateProof = proof.passed ? "pass" : "fail";
+    monitoringHud.dataset.recordingProfileEditor = proof.visibleEditorUi;
+  }
+  if (monitoringHudOverlayDisplay) {
+    monitoringHudOverlayDisplay.dataset.recordingProfileStateProof = proof.passed ? "pass" : "fail";
+    monitoringHudOverlayDisplay.dataset.recordingProfileEditor = proof.visibleEditorUi;
+  }
+  return proof;
+};
+
 window.runMonitoringHudOverlayDisplayAcceptanceProof = function() {
   const previousState = JSON.stringify(monitoringHudControlState);
   let proof = {
@@ -5945,6 +6155,7 @@ window.runMonitoringHudOverlayProfileIntegrationProof = function() {
 
 window.getMonitoringHudControlState = function() {
   monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
   return Object.assign({}, monitoringHudControlState, {
     cards: Object.assign({}, monitoringHudControlState.cards),
     overlayProfiles: JSON.parse(JSON.stringify(monitoringHudControlState.overlayProfiles || {})),
@@ -5952,6 +6163,10 @@ window.getMonitoringHudControlState = function() {
     overlayProfileDefaultDeletedByUser: Boolean(monitoringHudControlState.overlayProfileDefaultDeletedByUser),
     overlayProfileSchemaVersion: monitoringHudOverlayProfileSchemaVersion,
     overlayProfileStateProof: Object.assign({}, monitoringHudControlState.overlayProfileStateProof || {}),
+    recordingProfiles: JSON.parse(JSON.stringify(monitoringHudControlState.recordingProfiles || {})),
+    activeRecordingProfileId: monitoringHudControlState.activeRecordingProfileId || "",
+    recordingProfileSchemaVersion: monitoringHudRecordingProfileSchemaVersion,
+    recordingProfileStateProof: Object.assign({}, monitoringHudControlState.recordingProfileStateProof || {}),
     overlayDisplayAcceptanceProof: Object.assign({}, monitoringHudControlState.overlayDisplayAcceptanceProof || {}),
     activeOverlayProfileDisplayProof: Object.assign({}, monitoringHudControlState.activeOverlayProfileDisplayProof || {}),
     dashboardOverlayIndependenceProof: Object.assign({}, monitoringHudControlState.dashboardOverlayIndependenceProof || {}),
@@ -7635,6 +7850,7 @@ window.setMonitoringHudControlState = function(state) {
     monitoringHudControlState.selectedMonitorId = Object.keys(monitoringHudControlState.cards)[0] || "";
   }
   monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
   monitoringHudControlState.monitorSequence = Math.max(
     Number(monitoringHudControlState.monitorSequence || 2),
     Object.keys(monitoringHudControlState.cards).length
