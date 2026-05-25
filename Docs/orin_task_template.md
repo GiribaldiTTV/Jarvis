@@ -403,6 +403,12 @@ Workstream Entry Review Bundle:
 Workstream Entry Review Files:
 [branch vision, active branch plan, branch authority record, Nexus/family vision, matrix, UFD/change-intent, source-truth owner, validator/helper, fixture, or planning files copied for USER inspection]
 
+USER Branch Plan Review:
+[required / present / accepted by USER / revised by USER / deferred with waiver / rejected by USER / needs USER decision / not required with reason]
+
+USER Branch Plan Review Summary:
+[plain-language branch goal, planned user-facing outcome, visual/behavioral description where relevant, implementation breakdown, Element-to-Phase Proof Matrix summary, Hardening plan, Live Validation / UTS plan, open USER questions, Codex recommendations, alternatives/tradeoffs, accepted scope, deferred scope, rejected scope, exact USER decision needed, and implementation approval status]
+
 Workstream Entry Whole-Package Analysis:
 [required / present / not required with reason / blocked on Workstream Entry Whole-Package Analysis Missing]
 
@@ -1010,6 +1016,8 @@ If the phase is `Branch Readiness` and the current stage is `Branch Readiness St
 - Branch Runtime Engineering Plan Path:
 - Engineering Plan Status:
 - PR Fold-Down Packet:
+- USER Branch Plan Review:
+- USER Branch Plan Review Summary:
 - USER Feedback Disposition Required:
 - UFD Ledger Status:
 - UFD Ledger Owner:
