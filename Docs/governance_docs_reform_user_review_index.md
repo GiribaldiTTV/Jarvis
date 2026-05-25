@@ -151,7 +151,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | High | `volatile-current-wording=59`; `unclear-ownership-wording=78`; `soft-commitment-wording=8`; `state-ledger-wording=137` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md` | High | `volatile-current-wording=70`; `unclear-ownership-wording=103`; `soft-commitment-wording=12`; `state-ledger-wording=119` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | `volatile-current-wording=22`; `unclear-ownership-wording=11`; `soft-commitment-wording=4`; `state-ledger-wording=53` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` | High | `volatile-current-wording=78`; `unclear-ownership-wording=73`; `soft-commitment-wording=3`; `state-ledger-wording=157` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` | High | `volatile-current-wording=93`; `unclear-ownership-wording=86`; `soft-commitment-wording=3`; `state-ledger-wording=164` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | High | `volatile-current-wording=41`; `unclear-ownership-wording=11`; `soft-commitment-wording=3`; `state-ledger-wording=84` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | High | `volatile-current-wording=27`; `unclear-ownership-wording=16`; `soft-commitment-wording=4`; `state-ledger-wording=76` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md` | High | `volatile-current-wording=54`; `unclear-ownership-wording=31`; `soft-commitment-wording=7`; `state-ledger-wording=145` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -194,6 +194,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/Main.md` | recovery map / source-truth router | Keep | High |
 | `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |
 | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | branch authority / structured receipt | Organize structured receipt | High |
 | `Docs/branch_records/codex_one_time_backlog_governance_repair.md` | branch authority / structured receipt | Keep historical receipt | High |
 | `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | branch authority / structured receipt | Organize structured receipt | High |
@@ -206,7 +207,6 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_records/feature_fam_006_dashboard_release_support.md` | branch authority / structured receipt | Keep historical receipt | High |
 | `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | branch authority / structured receipt | Organize structured receipt | High |
 | `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | branch authority / structured receipt | Organize structured receipt | High |
-| `Docs/branch_records/feature_fam_006_monitor_groups_sensor_configuration.md` | branch authority / structured receipt | Organize structured receipt | High |
 
 ## Future Migration Queue
 
