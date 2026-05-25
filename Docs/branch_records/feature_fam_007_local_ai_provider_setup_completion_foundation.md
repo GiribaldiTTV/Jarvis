@@ -51,6 +51,7 @@ Seam: `FAM-007 Local AI Provider Setup Completion Foundation`
 - Prior User-Operated Consent UX State: `Released evidence in v1.7.18-prebeta via PR #206; previous carrier is historical and not active branch authority.`
 - Next Active Seam: `PR Readiness Stage 2 / PR creation approval after Stage 1 source-truth repair, validation, commit, and push.`
 - PR Readiness Stage 1 Repair Status: `In progress - current-main reconciliation and pre-PR source-truth repair are USER-approved for this branch only.`
+- AI Edition Planning Addendum: `Accepted for this PR-readiness gate - Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md records the public-safe Owner / Dev / Public edition trust-boundary vision, release breakpoints, Public-to-Dev migration model, private repo separation, GitHub Desktop setup guidance, and future-gated implementation exclusions.`
 - Pre-PR Live State: `No live PR - gh open PR check returned no open pull request for feature/fam-007-local-ai-provider-setup-completion-foundation.`
 - PR Creation Approval: `Pending - PR Readiness Stage 2 PR creation remains a separate USER decision.`
 - Stage 2 PR Creation: `Pending`
@@ -453,7 +454,7 @@ No successor runtime branch by inertia: user-waived
 No Active Branch Waiver Context: `USER-waived selected-next defer records no successor branch by inertia; this is not the merge-target branch-authority projection while other active authority records exist on main.`
 Successor Selection Posture: `Deferred - successor branch/workstream selection must occur only through a later USER-approved Branch Readiness or runtime selection decision after this branch's PR/merge/release path.`
 Stage 2 Execution Plan: `After USER approval, create the PR from feature/fam-007-local-ai-provider-setup-completion-foundation to main, verify live PR state, provision/verify watcher posture if required, handle same-PR Codex review comments only within branch scope, and leave merge/release/cleanup as separate decisions.`
-Stage 1 Repairs Made: `Current-main reconciliation to origin/main@a6c0c9da7676a1f2686a13f24f9a57fd298180d2 plus branch-record pre-PR live-state and selected-next defer source-truth repair.`
+Stage 1 Repairs Made: `Current-main reconciliation to origin/main@a6c0c9da7676a1f2686a13f24f9a57fd298180d2 plus branch-record pre-PR live-state, selected-next defer source-truth repair, and public-safe AI Edition Capability / Trust Boundary planning document admission.`
 Stage 1 Repair Validation: `Required - PR-readiness gate, branch governance validation, release-readiness health gate, governance efficiency, AI provider state validation, monitoring HUD validators, rebaseline audit, diff checks, and compileall.`
 Governance Ledger Fallback: `Not used - repair is recorded in the active FAM-007 branch record and branch plan ledger.`
 Branch Readiness Fallback: `Deferred - no successor branch is selected or created by this PR-readiness pass.`

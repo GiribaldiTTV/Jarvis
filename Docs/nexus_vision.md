@@ -17,6 +17,8 @@ Use it for product direction, experience intent, and release-stage meaning.
 
 Family-specific vision records live under `Docs/family_visions/` when a broad feature family needs durable USER-reviewed product direction. Active branch plans still own the Branch Vision Contract Snapshot and implementation checklist for the current branch only.
 
+Edition-specific AI deployment planning lives in `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`. That plan records the public-safe Owner / Dev / Public edition capability model, private-repo separation, Public-to-Dev migration direction, GitHub Desktop setup guidance, and release breakpoints without authorizing runtime AI, provider/model execution, memory, packaging, licensing, or private repo implementation.
+
 ## Core Product Goal
 
 Nexus Desktop AI should eventually feel like the system-facing experience layer, not just a normal desktop app launched after Windows.
@@ -195,6 +197,7 @@ The first FAM-007 package should likely be a foundation package, not a full assi
 Public-safe planning principles to carry forward:
 
 - define Assisted Desktop Mode and no-provider behavior first
+- preserve the Edition Capability / Trust Boundary model in `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md` before implementing provider/model/runtime work
 - define provider boundaries before tying ORIN to any model, runtime, or vendor
 - define visible privacy/provider state before any external call path exists
 - define hardware, power, and performance safeguards before enabling local heavy workloads
@@ -221,4 +224,5 @@ That means:
 - use `Docs/orchestration.md` for orchestration behavior and runtime ownership
 - use `Docs/boot_access_design.md` for future boot-access planning
 - use `Docs/prebeta_roadmap.md` for sequencing and release posture
+- use `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md` for public-safe Owner / Dev / Public edition boundaries and release breakpoints
 - use `Docs/workstreams/...` for promoted workstream history

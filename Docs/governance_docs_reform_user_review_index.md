@@ -7,7 +7,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 ## Review Proof
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Docs files covered: 172
+- Docs files covered: 173
 - Source branch: `feature/fam-007-local-ai-provider-setup-completion-foundation`
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
@@ -100,7 +100,7 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 
 | Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
 | --- | ---: | --- | --- |
-| Ambiguous ownership/current-state wording | 126 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
+| Ambiguous ownership/current-state wording | 127 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
 | Structure and indexability risks | 35 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
 | Retired branch plan review | 21 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
@@ -151,7 +151,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | High | `volatile-current-wording=59`; `unclear-ownership-wording=78`; `soft-commitment-wording=8`; `state-ledger-wording=137` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md` | High | `volatile-current-wording=70`; `unclear-ownership-wording=103`; `soft-commitment-wording=12`; `state-ledger-wording=119` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | `volatile-current-wording=22`; `unclear-ownership-wording=11`; `soft-commitment-wording=4`; `state-ledger-wording=53` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` | High | `volatile-current-wording=93`; `unclear-ownership-wording=86`; `soft-commitment-wording=3`; `state-ledger-wording=164` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` | High | `volatile-current-wording=93`; `unclear-ownership-wording=88`; `soft-commitment-wording=3`; `state-ledger-wording=164` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | High | `volatile-current-wording=41`; `unclear-ownership-wording=11`; `soft-commitment-wording=3`; `state-ledger-wording=84` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_implementation_foundation.md` | High | `volatile-current-wording=27`; `unclear-ownership-wording=16`; `soft-commitment-wording=4`; `state-ledger-wording=76` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md` | High | `volatile-current-wording=54`; `unclear-ownership-wording=31`; `soft-commitment-wording=7`; `state-ledger-wording=145` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
