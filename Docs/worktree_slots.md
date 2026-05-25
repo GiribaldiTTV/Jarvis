@@ -103,7 +103,7 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: Active receipt for the FAM-007 AI Edition Public Leak-Prevention Foundation branch after USER-approved Workstream implementation reached Workstream Green, Hardening H1 reached H1 Green, and Live Validation LV1 reached LV1 Green with no-visible-runtime-surface User Test Summary waiver
+- Assignment Status: Active receipt for the FAM-007 AI Edition Public Leak-Prevention Foundation worktree after USER-approved Workstream implementation reached Workstream Green, Hardening H1 reached H1 Green, Live Validation LV1 reached LV1 Green with no-visible-runtime-surface User Test Summary waiver, and PR Stage 1 completed with Stage 2 opening approval next
 - Assigned Branch: `feature/fam-007-ai-edition-public-leak-prevention-foundation`
 - Assigned Family / Workstream: `FAM-007 AI Edition Public Leak-Prevention Foundation`
 - Branch Authority Record: `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md`

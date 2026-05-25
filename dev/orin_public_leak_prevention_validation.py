@@ -58,6 +58,8 @@ REQUIRED_BRANCH_PLAN_PHRASES = (
     "Public Build Exclusion Requirement And Audit Posture",
     "Public Review-Bundle Leak Prevention And Source-Truth Routing",
     "Dev/Owner Skeleton Handoff Criteria And Provider-Execution Continuation",
+    "PR Readiness Stage 1 Record",
+    "Stage 2 PR Creation: `Pending USER approval`",
     "FAM-007 USER Action Gate Identifiers",
     "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
     "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
@@ -67,12 +69,17 @@ REQUIRED_BRANCH_PLAN_PHRASES = (
 )
 
 REQUIRED_RECORD_PHRASES = (
-    "Phase: `Live Validation`",
+    "Phase: `PR Readiness`",
     "Workstream Status: `Green",
-    "Stage: `LV1 Green`",
+    "Stage: `Stage 1 Ready For Stage 2`",
+    "PR Readiness Stage 1 Result: `Stage 1 Ready For Stage 2",
+    "Stage 2 PR Creation: `Pending USER approval`",
     "Live Validation LV1 Result: `Green",
     "Hardening H1 Result: `Green",
     "Next Legal Phase: `PR Readiness`",
+    "Release Readiness Health Pass: PASS",
+    "Governance Drift Found:",
+    "Release Window Audit: PASS",
     "FAM-007 USER Action Gate Identifiers",
     "USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY",
     "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",

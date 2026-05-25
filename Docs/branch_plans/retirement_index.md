@@ -45,6 +45,6 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 
 ## Active Plan Posture
 
-Active runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` - active FAM-007 AI Edition Public Leak-Prevention Foundation LV1 Green plan pending PR Readiness Stage 1; not retired until a future merge/release/cleanup decision records durable fold-down.
+Active runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` - active FAM-007 AI Edition Public Leak-Prevention Foundation plan has PR Stage 1 complete with Stage 2 opening approval next; not retired until a future merge/release/cleanup decision records durable fold-down.
 
 Most recent retired runtime plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` - the FAM-007 setup completion foundation plan is retired from active planning posture after PR #210 merge and remains historical released evidence for v1.7.20-prebeta public release truth.
