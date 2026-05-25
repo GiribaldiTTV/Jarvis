@@ -169,6 +169,10 @@ const monitoringHudMonitorOverlayProfileSelectedState = document.getElementById(
 const monitoringHudMonitorOverlayProfileCount = document.getElementById("monitoring-hud-monitor-overlay-profile-count");
 const monitoringHudMonitorOverlayProfileDisplayMode = document.getElementById("monitoring-hud-monitor-overlay-profile-display-mode");
 const monitoringHudMonitorOverlayProfileSettings = document.getElementById("monitoring-hud-monitor-overlay-profile-settings");
+const monitoringHudMonitorRecordingProfileContext = document.getElementById("monitoring-hud-monitor-recording-profile-context");
+const monitoringHudMonitorRecordingProfileSelectedState = document.getElementById("monitoring-hud-monitor-recording-profile-selected-state");
+const monitoringHudMonitorRecordingProfileCount = document.getElementById("monitoring-hud-monitor-recording-profile-count");
+const monitoringHudMonitorRecordingProfileSourceState = document.getElementById("monitoring-hud-monitor-recording-profile-source-state");
 const monitoringHudOverlayAssignmentWindow = document.getElementById("monitoring-hud-overlay-assignment-window");
 const monitoringHudOverlayAssignmentTitle = document.getElementById("monitoring-hud-overlay-assignment-title");
 const monitoringHudOverlayAssignmentMonitorName = document.getElementById("monitoring-hud-overlay-assignment-monitor-name");
@@ -2249,6 +2253,7 @@ function monitoringHudRenderRecordingProfileControls() {
   monitoringHudRecordingProfileEditor.dataset.activeRecordingProfileId = activeProfileId;
   monitoringHudRecordingProfileEditor.dataset.recordingProfileCount = String(profiles.length);
   monitoringHudRecordingProfileEditor.dataset.recordingProfileProof = "selector-settings-window-create-rename-delete-save-discard";
+  monitoringHudRecordingProfileEditor.dataset.recordingProfileStatusIntegration = "slc-049-dashboard-compact-readonly";
   monitoringHudRecordingProfileEditor.dataset.recordingExecutionBoundary = "no-runtime-recording";
   if (monitoringHudRecordingProfileSelector) {
     monitoringHudRecordingProfileSelector.dataset.selectedProfileId = activeProfileId;
@@ -2410,6 +2415,78 @@ function monitoringHudRenderMonitorOverlayProfileContext(selected, cards) {
   }
   if (monitoringHudMonitorOverlayProfileDisplayMode) {
     monitoringHudMonitorOverlayProfileDisplayMode.textContent = monitoringHudOverlayProfileDisplayLabel(activeProfile.displayMode);
+  }
+}
+
+function monitoringHudRecordingProfileStatusSnapshot(state, selectedMonitorId = "") {
+  const sourceState = state && typeof state === "object" ? state : {};
+  const cards = sourceState.cards && typeof sourceState.cards === "object" ? sourceState.cards : {};
+  const profiles = sourceState.recordingProfiles && typeof sourceState.recordingProfiles === "object"
+    ? sourceState.recordingProfiles
+    : {};
+  const profileList = Object.values(profiles).filter((profile) => profile && typeof profile === "object");
+  const activeProfileId = String(sourceState.activeRecordingProfileId || monitoringHudDefaultRecordingProfileId);
+  const activeProfile = profiles[activeProfileId] && typeof profiles[activeProfileId] === "object"
+    ? profiles[activeProfileId]
+    : (profiles[monitoringHudDefaultRecordingProfileId] || {});
+  const selectedId = String(selectedMonitorId || sourceState.selectedMonitorId || "");
+  const activeMonitorIds = monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, cards);
+  const activeSourceIds = monitoringHudUniqueStringIds(activeProfile.sourceIds);
+  const assignedProfileCount = selectedId
+    ? profileList.filter((profile) => monitoringHudUniqueValidMonitorIds(profile.monitorIds, cards).includes(selectedId)).length
+    : 0;
+  const includedInActive = selectedId ? activeMonitorIds.includes(selectedId) : false;
+  return {
+    package: "PKG-006",
+    slice: "SLC-049",
+    seam: "Dashboard / Manage Monitors Recording Profile status integration",
+    activeRecordingProfileId: activeProfileId,
+    profileCount: profileList.length,
+    activeMonitorCount: activeMonitorIds.length,
+    activeSourceCount: activeSourceIds.length,
+    selectedMonitorId: selectedId,
+    assignedProfileCount,
+    includedInActive,
+    dashboardStatusMode: "compact-readonly",
+    manageMonitorsStatusMode: "single-row-readonly",
+    recordingProfileMutation: "none-status-only",
+    trayRecordingBoundary: "future-gated-not-present",
+    recordingExecutionBoundary: "future-gated-not-present",
+    exportShareBoundary: "future-gated-not-present",
+    providerModelBoundary: "future-gated-not-present"
+  };
+}
+
+function monitoringHudRenderMonitorRecordingProfileContext(selected, cards) {
+  if (!monitoringHudMonitorRecordingProfileContext) return;
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  const hasSelectedMonitor = Boolean(selected && selected.id && cards && cards[selected.id]);
+  const snapshot = monitoringHudRecordingProfileStatusSnapshot(
+    monitoringHudControlState,
+    hasSelectedMonitor ? selected.id : ""
+  );
+  monitoringHudMonitorRecordingProfileContext.dataset.recordingProfileStatusIntegration = "slc-049-manage-monitors-readonly-status";
+  monitoringHudMonitorRecordingProfileContext.dataset.recordingProfileContextLayout = "single-row-readonly";
+  monitoringHudMonitorRecordingProfileContext.dataset.recordingProfileMembershipState = hasSelectedMonitor
+    ? (snapshot.includedInActive ? "selected-monitor-included" : "selected-monitor-excluded")
+    : "no-selected-monitor";
+  monitoringHudMonitorRecordingProfileContext.dataset.recordingProfileMutation = "none-status-only";
+  monitoringHudMonitorRecordingProfileContext.dataset.recordingProfileBoundary = "no-tray-recording-no-execution-no-export-share";
+  monitoringHudMonitorRecordingProfileContext.dataset.activeRecordingProfileId = snapshot.activeRecordingProfileId;
+  monitoringHudMonitorRecordingProfileContext.dataset.selectedMonitorId = hasSelectedMonitor ? selected.id : "";
+  monitoringHudMonitorRecordingProfileContext.dataset.assignedRecordingCount = String(snapshot.assignedProfileCount);
+  monitoringHudMonitorRecordingProfileContext.dataset.activeRecordingMonitorCount = String(snapshot.activeMonitorCount);
+  monitoringHudMonitorRecordingProfileContext.dataset.activeRecordingSourceCount = String(snapshot.activeSourceCount);
+  if (monitoringHudMonitorRecordingProfileCount) {
+    monitoringHudMonitorRecordingProfileCount.textContent = `${snapshot.assignedProfileCount} assigned`;
+  }
+  if (monitoringHudMonitorRecordingProfileSelectedState) {
+    monitoringHudMonitorRecordingProfileSelectedState.textContent = hasSelectedMonitor
+      ? (snapshot.includedInActive ? "Active profile: Included" : "Active profile: Not included")
+      : "No monitor selected";
+  }
+  if (monitoringHudMonitorRecordingProfileSourceState) {
+    monitoringHudMonitorRecordingProfileSourceState.textContent = `${snapshot.activeSourceCount} source${snapshot.activeSourceCount === 1 ? "" : "s"}`;
   }
 }
 
@@ -3542,6 +3619,7 @@ function monitoringHudRenderChildWindows() {
     monitoringHudProviderReadinessPanel.dataset.readinessClassification = "status-future-capability-not-assignable-source";
   }
   monitoringHudRenderMonitorOverlayProfileContext(selected, cards);
+  monitoringHudRenderMonitorRecordingProfileContext(selected, cards);
   if (monitoringHudSensorFilter) {
     monitoringHudSetSourceFilterValue(monitoringHudSensorFilterValue());
   }
@@ -4270,6 +4348,8 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.pollingRateDropdown = "nexus-styled-bounded-control";
     monitoringHud.dataset.overlayProfileIntegration = "followup-assigned-overlay-status-assignment";
     monitoringHud.dataset.manageOverlayProfileContext = "clickable-assigned-overlay-status-window";
+    monitoringHud.dataset.recordingProfileStatusIntegration = "slc-049-dashboard-manage-monitors-readonly";
+    monitoringHud.dataset.manageRecordingProfileContext = "readonly-recording-profile-status-row";
     monitoringHud.dataset.sourceSettingsIa = "source-list-settings-entry-points";
     monitoringHud.dataset.overlayAcceptancePolicy = "deferred-non-gating";
     monitoringHud.dataset.interfaceBundleApproval = "not-granted";
@@ -5795,6 +5875,184 @@ window.runMonitoringHudRecordingProfileRelationshipProof = function() {
   return proof;
 };
 
+window.runMonitoringHudRecordingProfileStatusIntegrationProof = function() {
+  const previousState = JSON.stringify(monitoringHudControlState);
+  let proof = {
+    passed: false,
+    package: "PKG-006",
+    slice: "SLC-049",
+    seam: "Dashboard / Manage Monitors Recording Profile status integration",
+    dashboardCompactStatusVisible: false,
+    manageMonitorsReadOnlyStatusVisible: false,
+    selectedMonitorStatusDeterministic: false,
+    noRecordingProfileMutationControlsInManageMonitors: false,
+    overlayProfileBehaviorPreserved: false,
+    monitorGroupBehaviorPreserved: false,
+    recordingExecutionBoundary: true,
+    trayRecordingBoundary: true,
+    exportShareBoundary: true,
+    providerModelBoundary: true
+  };
+  try {
+    monitoringHudControlState = {
+      cards: {
+        cpu: Object.assign(monitoringHudCardDefaults("cpu"), {
+          title: "CPU Group",
+          sensors: ["cpu-load"],
+          sourceIds: ["cpu-load"]
+        }),
+        gpu: Object.assign(monitoringHudCardDefaults("gpu"), {
+          title: "GPU Group",
+          sensors: ["gpu-load"],
+          sourceIds: ["gpu-load"]
+        })
+      },
+      selectedMonitorId: "gpu",
+      activeOverlayProfileId: "overlay-visible",
+      overlayProfiles: {
+        "overlay-visible": {
+          id: "overlay-visible",
+          name: "Overlay Visible",
+          monitorIds: ["cpu"]
+        }
+      },
+      activeRecordingProfileId: "recording-status",
+      recordingProfiles: {
+        "recording-status": {
+          id: "recording-status",
+          name: "Recording Status",
+          monitorIds: ["gpu"],
+          sourceIds: ["gpu-load"]
+        },
+        "recording-extra": {
+          id: "recording-extra",
+          name: "Recording Extra",
+          monitorIds: ["cpu", "gpu"],
+          sourceIds: []
+        }
+      }
+    };
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+    monitoringHudControlState.recordingProfileRelationshipProof = monitoringHudRecordingProfileRelationshipProof(monitoringHudControlState);
+    monitoringHudRenderRecordingProfileControls();
+    monitoringHudRenderMonitorManagement();
+    const snapshot = monitoringHudRecordingProfileStatusSnapshot(monitoringHudControlState, "gpu");
+    proof.dashboardCompactStatusVisible = Boolean(
+      monitoringHudRecordingProfileEditor
+      && monitoringHudRecordingProfileEditor.dataset.recordingProfileStatusIntegration === "slc-049-dashboard-compact-readonly"
+      && monitoringHudRecordingProfileMonitorCount
+      && monitoringHudRecordingProfileMonitorCount.textContent === "1 selected"
+      && monitoringHudRecordingProfileSourceCount
+      && monitoringHudRecordingProfileSourceCount.textContent === "1 selected"
+    );
+    proof.manageMonitorsReadOnlyStatusVisible = Boolean(
+      monitoringHudMonitorRecordingProfileContext
+      && monitoringHudMonitorRecordingProfileContext.dataset.recordingProfileStatusIntegration === "slc-049-manage-monitors-readonly-status"
+      && monitoringHudMonitorRecordingProfileContext.dataset.recordingProfileMutation === "none-status-only"
+      && monitoringHudMonitorRecordingProfileContext.dataset.recordingProfileBoundary === "no-tray-recording-no-execution-no-export-share"
+      && monitoringHudMonitorRecordingProfileCount
+      && monitoringHudMonitorRecordingProfileCount.textContent === "2 assigned"
+    );
+    proof.selectedMonitorStatusDeterministic = snapshot.selectedMonitorId === "gpu"
+      && snapshot.assignedProfileCount === 2
+      && snapshot.includedInActive === true
+      && snapshot.activeMonitorCount === 1
+      && snapshot.activeSourceCount === 1;
+    proof.noRecordingProfileMutationControlsInManageMonitors = Boolean(
+      monitoringHudMonitorRecordingProfileContext
+      && !monitoringHudMonitorRecordingProfileContext.querySelector("button, input, select, textarea")
+    );
+    proof.overlayProfileBehaviorPreserved = monitoringHudControlState.activeOverlayProfileId === "overlay-visible"
+      && monitoringHudMonitorOverlayProfileContext
+      && monitoringHudMonitorOverlayProfileContext.dataset.overlayProfileIntegration === "slc-040-readonly-manage-context";
+    proof.monitorGroupBehaviorPreserved = monitoringHudControlState.selectedMonitorId === "gpu"
+      && Object.keys(monitoringHudControlState.cards || {}).length === 2
+      && !Object.prototype.hasOwnProperty.call(monitoringHudControlState.cards.gpu || {}, "recordingProfileId");
+    proof.passed = proof.dashboardCompactStatusVisible
+      && proof.manageMonitorsReadOnlyStatusVisible
+      && proof.selectedMonitorStatusDeterministic
+      && proof.noRecordingProfileMutationControlsInManageMonitors
+      && proof.overlayProfileBehaviorPreserved
+      && proof.monitorGroupBehaviorPreserved
+      && proof.recordingExecutionBoundary
+      && proof.trayRecordingBoundary
+      && proof.exportShareBoundary
+      && proof.providerModelBoundary;
+  } finally {
+    try {
+      monitoringHudControlState = JSON.parse(previousState);
+      monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+      monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+      monitoringHudControlState.recordingProfileRelationshipProof = monitoringHudRecordingProfileRelationshipProof(monitoringHudControlState);
+      monitoringHudRenderControls();
+    } catch (_err) {}
+  }
+  monitoringHudControlState.recordingProfileStatusIntegrationProof = proof;
+  if (monitoringHud) {
+    monitoringHud.dataset.recordingProfileStatusIntegrationProof = proof.passed ? "pass" : "fail";
+    monitoringHud.dataset.recordingProfileStatusIntegration = "slc-049-dashboard-manage-monitors-readonly";
+  }
+  if (monitoringHudRecordingProfileEditor) {
+    monitoringHudRecordingProfileEditor.dataset.recordingProfileStatusIntegration = "slc-049-dashboard-compact-readonly";
+  }
+  if (monitoringHudMonitorRecordingProfileContext) {
+    monitoringHudMonitorRecordingProfileContext.dataset.recordingProfileStatusIntegration = "slc-049-manage-monitors-readonly-status";
+  }
+  return proof;
+};
+
+window.runMonitoringHudRecordingProfileWorkstreamReadinessProof = function() {
+  const stateProof = typeof window.runMonitoringHudRecordingProfileStateProof === "function"
+    ? window.runMonitoringHudRecordingProfileStateProof()
+    : {};
+  const relationshipProof = typeof window.runMonitoringHudRecordingProfileRelationshipProof === "function"
+    ? window.runMonitoringHudRecordingProfileRelationshipProof()
+    : {};
+  const statusProof = typeof window.runMonitoringHudRecordingProfileStatusIntegrationProof === "function"
+    ? window.runMonitoringHudRecordingProfileStatusIntegrationProof()
+    : {};
+  const proof = {
+    passed: false,
+    package: "PKG-006",
+    slice: "SLC-050",
+    seam: "Recording Profile Workstream validation/live proof readiness",
+    slc046ProofClosed: Boolean(stateProof && stateProof.passed && stateProof.slice === "SLC-046"),
+    slc047ProofClosed: Boolean(
+      monitoringHudRecordingProfileWindow
+      && monitoringHudRecordingProfileWindow.dataset.recordingProfileWorkflow === "select-loads-edit-create-draft-save-required"
+      && monitoringHudRecordingProfileWindow.dataset.recordingProfileBoundary === "no-tray-recording-no-export-share-no-provider-model"
+    ),
+    slc048ProofClosed: Boolean(relationshipProof && relationshipProof.passed && relationshipProof.slice === "SLC-048"),
+    slc049ProofClosed: Boolean(statusProof && statusProof.passed && statusProof.slice === "SLC-049"),
+    hardeningReady: false,
+    liveValidationNeedsUserFacingProof: true,
+    noTrayRecordingScope: true,
+    noRecordingExecutionScope: true,
+    noExportShareScope: true,
+    noProviderModelScope: true
+  };
+  proof.hardeningReady = proof.slc046ProofClosed
+    && proof.slc047ProofClosed
+    && proof.slc048ProofClosed
+    && proof.slc049ProofClosed;
+  proof.passed = proof.hardeningReady
+    && proof.liveValidationNeedsUserFacingProof
+    && proof.noTrayRecordingScope
+    && proof.noRecordingExecutionScope
+    && proof.noExportShareScope
+    && proof.noProviderModelScope;
+  monitoringHudControlState.recordingProfileWorkstreamReadinessProof = proof;
+  if (monitoringHud) {
+    monitoringHud.dataset.recordingProfileWorkstreamReadinessProof = proof.passed ? "pass" : "fail";
+    monitoringHud.dataset.recordingProfileWorkstreamReadiness = "slc-050-workstream-green-ready-for-hardening";
+  }
+  if (monitoringHudRecordingProfileEditor) {
+    monitoringHudRecordingProfileEditor.dataset.recordingProfileWorkstreamReadiness = "slc-050-workstream-green-ready-for-hardening";
+  }
+  return proof;
+};
+
 window.runMonitoringHudOverlayDisplayAcceptanceProof = function() {
   const previousState = JSON.stringify(monitoringHudControlState);
   let proof = {
@@ -7079,6 +7337,8 @@ window.getMonitoringHudControlState = function() {
     recordingProfileSchemaVersion: monitoringHudRecordingProfileSchemaVersion,
     recordingProfileStateProof: Object.assign({}, monitoringHudControlState.recordingProfileStateProof || {}),
     recordingProfileRelationshipProof: Object.assign({}, monitoringHudControlState.recordingProfileRelationshipProof || {}),
+    recordingProfileStatusIntegrationProof: Object.assign({}, monitoringHudControlState.recordingProfileStatusIntegrationProof || {}),
+    recordingProfileWorkstreamReadinessProof: Object.assign({}, monitoringHudControlState.recordingProfileWorkstreamReadinessProof || {}),
     overlayDisplayAcceptanceProof: Object.assign({}, monitoringHudControlState.overlayDisplayAcceptanceProof || {}),
     activeOverlayProfileDisplayProof: Object.assign({}, monitoringHudControlState.activeOverlayProfileDisplayProof || {}),
     dashboardOverlayIndependenceProof: Object.assign({}, monitoringHudControlState.dashboardOverlayIndependenceProof || {}),

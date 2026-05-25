@@ -15029,6 +15029,9 @@ class DesktopRuntimeWindow(QWidget):
         recording_relationship_proof = state.get("recordingProfileRelationshipProof")
         if not isinstance(recording_relationship_proof, dict):
             recording_relationship_proof = {}
+        recording_status_proof = state.get("recordingProfileStatusIntegrationProof")
+        if not isinstance(recording_status_proof, dict):
+            recording_status_proof = {}
         recording_profile_signature_parts = []
         for profile_id in sorted(str(key) for key in recording_profiles.keys()):
             profile = recording_profiles.get(profile_id) if isinstance(recording_profiles.get(profile_id), dict) else {}
@@ -15049,6 +15052,7 @@ class DesktopRuntimeWindow(QWidget):
             int(state.get("recordingProfileSchemaVersion") or 0),
             tuple(recording_profile_signature_parts),
             json.dumps(recording_relationship_proof, sort_keys=True),
+            json.dumps(recording_status_proof, sort_keys=True),
         )
         recording_profile_changed = False
         if recording_profile_signature != self._monitoring_hud_recording_profile_signature:
@@ -15082,6 +15086,10 @@ class DesktopRuntimeWindow(QWidget):
                 monitor_group_boundary="separate-configuration-organization",
                 overlay_profile_boundary="overlay-display-membership-separate",
                 relationship_boundary=str(recording_relationship_proof.get("recordingProfileRelationshipScope") or "state-only-readonly-foundation"),
+                status_integration_slice=str(recording_status_proof.get("slice") or "SLC-049"),
+                status_integration_boundary=str(recording_status_proof.get("recordingProfileMutation") or "none-status-only"),
+                status_dashboard_mode=str(recording_status_proof.get("dashboardStatusMode") or "compact-readonly"),
+                status_manage_monitors_mode=str(recording_status_proof.get("manageMonitorsStatusMode") or "single-row-readonly"),
                 tray_recording_boundary="future-gated-not-present",
                 recording_execution_boundary="future-gated-not-present",
                 export_share_boundary="future-gated-not-present",

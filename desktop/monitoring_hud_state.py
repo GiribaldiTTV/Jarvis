@@ -318,6 +318,54 @@ def build_recording_profile_relationship_proof(payload=None) -> dict[str, object
     }
 
 
+def build_recording_profile_status_integration_proof(payload=None) -> dict[str, object]:
+    source_payload = payload if isinstance(payload, dict) else {}
+    cards = source_payload.get("cards")
+    if not isinstance(cards, dict):
+        cards = {}
+    recording_profiles = source_payload.get("recordingProfiles")
+    if not isinstance(recording_profiles, dict):
+        recording_profiles = {}
+
+    active_recording_profile_id = str(source_payload.get("activeRecordingProfileId") or "").strip()
+    active_recording_profile = recording_profiles.get(active_recording_profile_id)
+    if not isinstance(active_recording_profile, dict):
+        active_recording_profile_id = next(iter(recording_profiles), "")
+        active_recording_profile = recording_profiles.get(active_recording_profile_id, {})
+    if not isinstance(active_recording_profile, dict):
+        active_recording_profile = {}
+
+    selected_monitor_id = str(source_payload.get("selectedMonitorId") or "").strip()
+    recording_monitor_ids = _stable_monitor_ids(active_recording_profile.get("monitorIds"))
+    recording_source_ids = _stable_string_ids(active_recording_profile.get("sourceIds"))
+    assigned_profile_count = 0
+    if selected_monitor_id:
+        for profile in recording_profiles.values():
+            if isinstance(profile, dict) and selected_monitor_id in _stable_monitor_ids(profile.get("monitorIds")):
+                assigned_profile_count += 1
+
+    return {
+        "package": "PKG-006",
+        "slice": "SLC-049",
+        "seam": "dashboard-manage-monitors-recording-profile-status-integration",
+        "activeRecordingProfileId": active_recording_profile_id,
+        "selectedMonitorId": selected_monitor_id,
+        "profileCount": len(recording_profiles),
+        "activeMonitorCount": len(recording_monitor_ids),
+        "activeSourceCount": len(recording_source_ids),
+        "assignedProfileCount": assigned_profile_count,
+        "includedInActive": bool(selected_monitor_id and selected_monitor_id in recording_monitor_ids),
+        "dashboardStatusMode": "compact-readonly",
+        "manageMonitorsStatusMode": "single-row-readonly",
+        "recordingProfileMutation": "none-status-only",
+        "monitorGroupBoundary": "read-only-status-does-not-own-monitor-groups",
+        "trayRecordingBoundary": "future-gated-not-present",
+        "recordingExecutionBoundary": "future-gated-not-present",
+        "exportShareBoundary": "future-gated-not-present",
+        "providerModelBoundary": "future-gated-not-present",
+    }
+
+
 def default_monitoring_hud_state(source: str = "default") -> dict[str, object]:
     state = {
         "schemaVersion": 1,
@@ -329,6 +377,7 @@ def default_monitoring_hud_state(source: str = "default") -> dict[str, object]:
     state.update(normalize_monitoring_hud_overlay_profiles({}))
     state.update(normalize_monitoring_hud_recording_profiles({}))
     state["recordingProfileRelationshipProof"] = build_recording_profile_relationship_proof(state)
+    state["recordingProfileStatusIntegrationProof"] = build_recording_profile_status_integration_proof(state)
     return state
 
 
@@ -368,6 +417,7 @@ def load_monitoring_hud_state(event_logger=None) -> dict[str, object]:
     state.update(normalize_monitoring_hud_overlay_profiles(payload, payload.get("monitorIds")))
     state.update(normalize_monitoring_hud_recording_profiles(payload, payload.get("monitorIds")))
     state["recordingProfileRelationshipProof"] = build_recording_profile_relationship_proof(state)
+    state["recordingProfileStatusIntegrationProof"] = build_recording_profile_status_integration_proof(state)
     _emit(
         event_logger,
         "MONITORING_HUD_STATE_LOAD_READY|source=persisted"
@@ -415,6 +465,7 @@ def save_monitoring_hud_state(
     payload.update(recording_payload)
     payload.update(normalize_monitoring_hud_recording_profiles(recording_payload, recording_payload["monitorIds"]))
     payload["recordingProfileRelationshipProof"] = build_recording_profile_relationship_proof(payload)
+    payload["recordingProfileStatusIntegrationProof"] = build_recording_profile_status_integration_proof(payload)
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         temp_path = path.with_name(f"{path.name}.tmp")

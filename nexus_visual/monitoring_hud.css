@@ -1550,6 +1550,19 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile[data-overlay-pr
   white-space: nowrap;
 }
 
+.monitoring-hud__monitor-recording-profile-context {
+  cursor: default;
+}
+
+.monitoring-hud__monitor-recording-profile-context:hover,
+.monitoring-hud__monitor-recording-profile-context:focus-visible {
+  border-color: rgba(117, 228, 255, 0.14);
+  background:
+    linear-gradient(145deg, rgba(6, 34, 52, 0.68), rgba(3, 18, 32, 0.60)),
+    rgba(6, 28, 48, 0.42);
+  box-shadow: none;
+}
+
 .monitoring-hud__overlay-profile-context-grid {
   display: grid;
   gap: 0;

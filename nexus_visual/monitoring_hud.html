@@ -228,6 +228,7 @@
             data-recording-profile-editor-ui="slc-047-selection-editing-shell"
             data-recording-profile-membership="readonly-slc-047"
             data-recording-profile-proof="selector-settings-window-create-rename-delete-save-discard"
+            data-recording-profile-status-integration="slc-049-dashboard-compact-readonly"
             aria-label="Recording Profile selector and editor"
           >
             <div class="monitoring-hud__overlay-profile-heading monitoring-hud__recording-profile-heading">
@@ -875,6 +876,23 @@
                 </button>
                 <div class="monitoring-hud__sensor-settings monitoring-hud__sensor-settings--source-entry monitoring-hud__nexus-scroll-pane" id="monitoring-hud-monitor-sensor-settings" data-sensor-settings="source-list-entry-points" data-scroll-pane="sensor-settings" aria-label="Per-sensor settings entry points" hidden>
                   <div class="monitoring-hud__sensor-settings-empty" data-sensor-settings-empty="source-list-entry-points">Use each Source row's Settings button for display mode, warning, and sensor-specific Polling Rate overrides.</div>
+                </div>
+                <div
+                  class="monitoring-hud__monitor-overlay-profile-context monitoring-hud__monitor-overlay-profile-context--compact monitoring-hud__monitor-recording-profile-context"
+                  id="monitoring-hud-monitor-recording-profile-context"
+                  data-monitor-detail-placement="below-assigned-overlay"
+                  data-recording-profile-status-integration="slc-049-manage-monitors-readonly-status"
+                  data-recording-profile-context-layout="single-row-readonly"
+                  data-recording-profile-mutation="none-status-only"
+                  data-recording-profile-boundary="no-tray-recording-no-execution-no-export-share"
+                  aria-label="Selected monitor Recording Profile context"
+                >
+                  <div class="monitoring-hud__overlay-profile-context-heading">
+                    <span>Recording Profile</span>
+                    <strong id="monitoring-hud-monitor-recording-profile-count">0 assigned</strong>
+                  </div>
+                  <span id="monitoring-hud-monitor-recording-profile-selected-state">Active profile: Not included</span>
+                  <span id="monitoring-hud-monitor-recording-profile-source-state">0 sources</span>
                 </div>
                 <div class="monitoring-hud__detail-danger-zone" data-detail-actions="selected-monitor-bottom">
                   <div class="monitoring-hud__detail-action-row" data-detail-action-row="save-left-discard-delete-right">

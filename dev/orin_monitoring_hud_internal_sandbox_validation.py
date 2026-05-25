@@ -32,6 +32,7 @@ from desktop.monitoring_hud_state import (
     DEFAULT_RECORDING_PROFILE_ID,
     MONITORING_HUD_STATE_ENV,
     build_recording_profile_relationship_proof,
+    build_recording_profile_status_integration_proof,
     load_monitoring_hud_state,
     normalize_monitoring_hud_overlay_profiles,
     normalize_monitoring_hud_recording_profiles,
@@ -1355,6 +1356,15 @@ def _validate_static_surface(failures: list[str]) -> None:
         "recordingProfileRelationshipProof",
         'monitoringHud.dataset.recordingProfileRelationshipBoundary = "slc-048-state-only-readonly"',
         "recordingProfileRelationshipScope",
+        "monitoringHudRecordingProfileStatusSnapshot",
+        "monitoringHudRenderMonitorRecordingProfileContext",
+        "window.runMonitoringHudRecordingProfileStatusIntegrationProof = function()",
+        "recordingProfileStatusIntegrationProof",
+        'monitoringHud.dataset.recordingProfileStatusIntegration = "slc-049-dashboard-manage-monitors-readonly"',
+        "slc-049-manage-monitors-readonly-status",
+        "window.runMonitoringHudRecordingProfileWorkstreamReadinessProof = function()",
+        "recordingProfileWorkstreamReadinessProof",
+        'monitoringHud.dataset.recordingProfileWorkstreamReadiness = "slc-050-workstream-green-ready-for-hardening"',
         "slc-042-active-profile-state-bridge",
         "slc-043-active-profile-display",
         "slc-044-dashboard-overlay-independent",
@@ -2218,6 +2228,32 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
                 and relationship_proof.get("exportShareBoundary") == "future-gated-not-present"
                 and relationship_proof.get("providerModelBoundary") == "future-gated-not-present",
                 "SLC-048 Recording Profile relationship proof must not introduce tray, execution, export/share, or provider/model scope",
+                failures,
+            )
+            status_payload = dict(relationship_payload)
+            status_payload["selectedMonitorId"] = "gpu"
+            status_proof = build_recording_profile_status_integration_proof(status_payload)
+            _require(
+                status_proof.get("slice") == "SLC-049",
+                "SLC-049 Recording Profile status integration proof must identify the active slice",
+                failures,
+            )
+            _require(
+                status_proof.get("dashboardStatusMode") == "compact-readonly"
+                and status_proof.get("manageMonitorsStatusMode") == "single-row-readonly",
+                "SLC-049 Recording Profile status integration must stay compact/read-only in Dashboard and Manage Monitors",
+                failures,
+            )
+            _require(
+                status_proof.get("assignedProfileCount") == 1
+                and status_proof.get("includedInActive") is True,
+                "SLC-049 Recording Profile status integration must deterministically classify selected monitor membership",
+                failures,
+            )
+            _require(
+                status_proof.get("recordingProfileMutation") == "none-status-only"
+                and status_proof.get("recordingExecutionBoundary") == "future-gated-not-present",
+                "SLC-049 Recording Profile status integration must not add Manage Monitors mutation or recording execution",
                 failures,
             )
         finally:
