@@ -177,7 +177,7 @@ def validate() -> list[str]:
                 failures,
             )
         for needle in (
-            "Overlay Display Acceptance Foundation is merged-unreleased via PR #207",
+            "Overlay Display Acceptance Foundation is released in `v1.7.19-prebeta` via PR #207",
             "Overlay Profile foundation evidence are released receipts",
             "future monitoring/HUD scope remains USER-gated",
             "Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md",
