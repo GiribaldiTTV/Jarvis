@@ -98,7 +98,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | `FAM-003` | Interaction and Actions | High | Open / aggregation-held | `PKG-003` released baseline / open | `Docs/family_visions/FAM-003_interaction_and_actions.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` |
 | `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/family_visions/FAM-004_voice_and_audio.md` | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/family_visions/FAM-005_external_integrations.md` | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
-| `FAM-006` | Monitoring and HUD | High | Open / released Dashboard, Sensor Command Center, and Overlay Profile foundation evidence preserved | `PKG-006` released baseline / open | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md` |
+| `FAM-006` | Monitoring and HUD | High | Open / Overlay Display Acceptance Foundation H1, LV1 proof refresh, and USER Test Summary PASS/closed; SLC-042 through SLC-045 complete; merge-stable handoff projection recorded in the branch authority record; released Dashboard, Sensor Command Center, and Overlay Profile foundation evidence preserved | `PKG-006` released baseline / open | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md` |
 | `FAM-007` | Local AI and Capability Packs | High | Open / package admitted; user-operated consent UX foundation released in v1.7.18-prebeta via PR #206; setup completion foundation Workstream Green, H1 Green, and LV1 Green on active carrier; PR Readiness Stage 1 pending | `PKG-007` admitted / not package-complete | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md` |
 | `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
 | `FAM-009` | Workspace and Data | Low | Open / deferred follow-through | `PKG-009` released baseline / open | `Docs/family_visions/FAM-009_workspace_and_data.md` | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
@@ -191,20 +191,20 @@ Historical Trace Coverage: `FB-039`, Stream Deck and external trigger planning g
 
 ### [ID: FAM-006] Monitoring and HUD
 
-Status: Open / released Dashboard, Sensor Command Center, and Overlay Profile Runtime Foundation evidence preserved
+Status: Open / Overlay Display Acceptance Foundation Workstream Green; SLC-042 through SLC-045 complete; Hardening H1 and LV1 proof refresh green with dirty-guard parity proof repaired; USER Test Summary PASS/closed; merge-stable handoff projection recorded in branch authority; released Dashboard, Sensor Command Center, and Overlay Profile Runtime Foundation evidence preserved
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: High
 Family Scope: Monitoring HUD, Dashboard, Sensor Command Center, Sensor Library, monitor configuration, Overlay Profile, Recording Profile, local telemetry presentation, and user-facing performance/health surfaces.
-Package Summary: `PKG-006` released baseline / open; detailed Monitor Groups, Sensor Library, Overlay Profile, Recording Profile, returned USER UTS, interactive-control visual QA, right-edge resize rediscovery, visual proof, Warning Notifications, Provider Readiness, and Sensor Command Center history live in FAM-006 branch authority records and related workstream evidence.
+Package Summary: `PKG-006` released baseline / open; active successor setup is `feature/fam-006-overlay-display-acceptance-foundation`, while detailed Monitor Groups, Sensor Library, Overlay Profile, Recording Profile, returned USER UTS, interactive-control visual QA, right-edge resize rediscovery, visual proof, Warning Notifications, Provider Readiness, and Sensor Command Center history live in FAM-006 branch authority records and related workstream evidence.
 Package Admission State: Historical baseline / no active package admission in this backlog file
 Admitted Slice Count: 0
 Package Completion State: Released Baseline / Open
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
-Canonical Detail Owner: `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`
+Canonical Detail Owner: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`
 Family Vision Owner: `Docs/family_visions/FAM-006_monitoring_and_hud.md`
-Historical Trace Coverage: `FB-040`, HUD surface gap, PR #118, PR #180, PR #194, FAM-006 branch records.
+Historical Trace Coverage: `FB-040`, HUD surface gap, PR #118, PR #180, PR #194, FAM-006 branch records. Historical Overlay Profile Runtime Foundation detail remains at `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`.
 
 ### [ID: FAM-007] Local AI and Capability Packs
 

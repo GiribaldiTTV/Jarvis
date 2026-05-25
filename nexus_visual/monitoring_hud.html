@@ -342,12 +342,12 @@
           class="monitoring-hud__child-window monitoring-hud__child-window--overlay-profile"
           id="monitoring-hud-overlay-profile-window"
           data-child-window="overlay-profile-settings"
-          data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"
-          data-overlay-profile-workflow="selector-first-create-edit-delete-followup-uts-repair"
+          data-overlay-profile-window="select-profile-to-edit-create-right-save-required"
+          data-overlay-profile-workflow="select-loads-edit-create-draft-save-required"
           data-overlay-profile-visual-repair="manager-selector-same-row-compact-unclipped-proof"
           data-overlay-profile-volume-policy="max-five-visible-monitors-inner-scroll"
           data-overlay-profile-selector-policy="max-five-visible-profile-options-ndai-scrollbar"
-          data-overlay-profile-outer-scroll-policy="no-normal-window-scrollbar"
+          data-overlay-profile-outer-scroll-policy="normal-no-scroll-emergency-compact-scroll"
           role="dialog"
           aria-modal="true"
           aria-labelledby="monitoring-hud-overlay-profile-window-title"
@@ -360,10 +360,17 @@
             </div>
             <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="overlay-profile-settings" aria-label="Close Overlay Profile Settings">Close</button>
           </header>
-          <div class="monitoring-hud__overlay-profile-choice-panel" aria-label="Overlay Profile selection workflow" data-overlay-profile-manager-default="create-edit-select">
-            <div class="monitoring-hud__overlay-profile-manager-row" data-overlay-profile-manager-row="create-edit-compact-selector-same-row">
-              <button type="button" id="monitoring-hud-overlay-profile-create" class="monitoring-hud__hub-action" data-control="overlay-profile-create">Create Overlay Profile</button>
-              <button type="button" id="monitoring-hud-overlay-profile-edit-selected" class="monitoring-hud__hub-action monitoring-hud__hub-action--secondary" data-control="overlay-profile-edit-selected" data-control-state="clean-disabled" aria-disabled="true" disabled>Edit Overlay Profile</button>
+          <div class="monitoring-hud__unsaved-guard monitoring-hud__unsaved-guard--modal" id="monitoring-hud-overlay-profile-unsaved-guard" data-unsaved-guard="closed" hidden>
+            <strong>Unsaved overlay profile changes</strong>
+            <span>Save changes or discard the draft before continuing.</span>
+            <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="modal-save-discard-cancel">
+              <button type="button" id="monitoring-hud-overlay-profile-unsaved-save" class="monitoring-hud__hub-action" data-control="overlay-profile-unsaved-save">Save</button>
+              <button type="button" id="monitoring-hud-overlay-profile-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-unsaved-discard">Discard</button>
+              <button type="button" id="monitoring-hud-overlay-profile-unsaved-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--safe-cancel" data-control="overlay-profile-unsaved-cancel">Cancel</button>
+            </div>
+          </div>
+          <div class="monitoring-hud__overlay-profile-choice-panel" aria-label="Overlay Profile selection workflow" data-overlay-profile-manager-default="select-create">
+            <div class="monitoring-hud__overlay-profile-manager-row" data-overlay-profile-manager-row="selector-dropdown-create-right-equal">
               <div
                 class="monitoring-hud__bounded-dropdown monitoring-hud__overlay-profile-window-dropdown"
                 id="monitoring-hud-overlay-profile-window-selector"
@@ -384,13 +391,14 @@
                   aria-expanded="false"
                   aria-controls="monitoring-hud-overlay-profile-window-menu"
                 >
-                  <span>Profile</span>
+                  <span>Profile to Edit:</span>
                   <strong id="monitoring-hud-overlay-profile-window-label">Select profile</strong>
                 </button>
                 <div class="monitoring-hud__bounded-dropdown-menu monitoring-hud__nexus-scroll-pane" id="monitoring-hud-overlay-profile-window-menu" role="listbox" aria-label="Overlay Profile manager options" hidden>
                   <button type="button" class="monitoring-hud__bounded-dropdown-option" data-overlay-profile-window-option="default-overlay-profile" role="option" aria-selected="false">Default Overlay Profile</button>
                 </div>
               </div>
+              <button type="button" id="monitoring-hud-overlay-profile-create" class="monitoring-hud__hub-action" data-control="overlay-profile-create">Create Profile</button>
             </div>
             <div class="monitoring-hud__overlay-profile-manager-meta" aria-label="Overlay Profile manager summary">
               <span id="monitoring-hud-overlay-profile-window-active-name">No profile selected for editing</span>
@@ -399,14 +407,6 @@
             </div>
           </div>
           <div class="monitoring-hud__overlay-profile-detail-section" id="monitoring-hud-overlay-profile-detail-section" data-overlay-profile-detail-state="closed" hidden>
-            <div class="monitoring-hud__unsaved-guard" id="monitoring-hud-overlay-profile-unsaved-guard" data-unsaved-guard="closed" hidden>
-              <strong>Unsaved overlay profile changes</strong>
-              <span>Save changes or discard the draft before closing this profile.</span>
-              <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="save-left-discard-right">
-                <button type="button" id="monitoring-hud-overlay-profile-unsaved-save" class="monitoring-hud__hub-action" data-control="overlay-profile-unsaved-save">Save</button>
-                <button type="button" id="monitoring-hud-overlay-profile-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-unsaved-discard">Discard</button>
-              </div>
-            </div>
             <label class="monitoring-hud__child-field monitoring-hud__overlay-profile-name-field">
               Overlay profile name
               <input id="monitoring-hud-overlay-profile-name-input" type="text" value="Default Overlay Profile" autocomplete="off" maxlength="48" />
@@ -464,9 +464,11 @@
             <div class="monitoring-hud__child-actions monitoring-hud__overlay-profile-window-actions" data-overlay-profile-actions="save-left-discard-delete-right">
               <div class="monitoring-hud__overlay-profile-window-actions-left">
                 <button type="button" id="monitoring-hud-overlay-profile-save" class="monitoring-hud__hub-action" data-control="overlay-profile-save" data-control-state="clean-disabled" aria-disabled="true" disabled>Save Profile</button>
+              </div>
+              <div class="monitoring-hud__overlay-profile-window-actions-right">
+                <button type="button" id="monitoring-hud-overlay-profile-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-discard" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
                 <button type="button" id="monitoring-hud-overlay-profile-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-delete">Delete Profile</button>
               </div>
-              <button type="button" id="monitoring-hud-overlay-profile-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="overlay-profile-discard" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
             </div>
           </div>
         </div>
@@ -568,6 +570,15 @@
             </div>
             <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="monitor-group-edit" aria-label="Close Edit Monitor">Close</button>
           </header>
+          <div class="monitoring-hud__unsaved-guard monitoring-hud__unsaved-guard--modal" id="monitoring-hud-monitor-unsaved-guard" data-unsaved-guard="closed" hidden>
+            <strong>Unsaved monitor changes</strong>
+            <span>Save changes or discard the draft before continuing.</span>
+            <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="modal-save-discard-cancel">
+              <button type="button" id="monitoring-hud-monitor-unsaved-save" class="monitoring-hud__hub-action" data-control="unsaved-save-monitor">Save</button>
+              <button type="button" id="monitoring-hud-monitor-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="unsaved-discard-monitor">Discard</button>
+              <button type="button" id="monitoring-hud-monitor-unsaved-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--safe-cancel" data-control="unsaved-cancel-monitor">Cancel</button>
+            </div>
+          </div>
           <div class="monitoring-hud__child-toolbar monitoring-hud__child-toolbar--compact monitoring-hud__child-toolbar--sticky" aria-label="Monitor management actions">
             <label class="monitoring-hud__search-field monitoring-hud__search-field--compact">
               <span>Search</span>
@@ -598,14 +609,6 @@
               <div class="monitoring-hud__empty-state" id="monitoring-hud-monitor-list-empty" data-monitor-list-empty="hidden" hidden>No matching monitors.</div>
             </aside>
             <section class="monitoring-hud__monitor-detail-pane monitoring-hud__nexus-scroll-pane" data-scroll-pane="monitor-detail" aria-label="Selected monitor settings">
-              <div class="monitoring-hud__unsaved-guard" id="monitoring-hud-monitor-unsaved-guard" data-unsaved-guard="closed" hidden>
-                <strong>Unsaved monitor changes</strong>
-                <span>Save changes or discard the draft before continuing.</span>
-                <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="save-left-discard-right">
-                  <button type="button" id="monitoring-hud-monitor-unsaved-save" class="monitoring-hud__hub-action" data-control="unsaved-save-monitor">Save</button>
-                  <button type="button" id="monitoring-hud-monitor-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="unsaved-discard-monitor">Discard</button>
-                </div>
-              </div>
               <div class="monitoring-hud__empty-state monitoring-hud__monitor-detail-empty" id="monitoring-hud-monitor-detail-empty" data-monitor-detail-empty="hidden" hidden>
                 <strong>No monitors yet</strong>
                 <span>Create a monitor to assign sources and settings.</span>
@@ -766,6 +769,8 @@
     data-interface-acceptance-policy="deferred-non-gating"
     data-dashboard-acceptance-role="supporting-future-interface-evidence"
     data-current-branch-release-gate="false"
+    data-overlay-display-acceptance="slc-042-active-profile-state-bridge"
+    data-overlay-display-acceptance-proof="pending"
     data-overlay-profile-state="slc-039-membership-mapping"
     data-overlay-profile-schema-version="1"
     data-active-overlay-profile-id="default-overlay-profile"
@@ -778,6 +783,15 @@
     <div class="monitoring-hud-overlay-display__frame" id="monitoring-hud-overlay-frame">
       <div class="monitoring-hud-overlay-display__watermark" aria-hidden="true">
         Nexus Desktop AI / ORIN
+      </div>
+      <div
+        class="monitoring-hud-overlay-display__profile-status"
+        id="monitoring-hud-overlay-profile-display-status"
+        data-overlay-profile-display-status="slc-043-active-profile-display"
+      >
+        <span>Overlay Profile</span>
+        <strong id="monitoring-hud-overlay-profile-display-name">Default Overlay Profile</strong>
+        <em id="monitoring-hud-overlay-profile-display-count">2 monitors</em>
       </div>
       <div
         class="monitoring-hud-overlay-display__canvas"

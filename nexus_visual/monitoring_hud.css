@@ -1167,43 +1167,52 @@ body.desktop-mode #monitoring-hud > * {
   justify-self: start;
 }
 
-.monitoring-hud__overlay-profile-manager-row {
+.monitoring-hud__overlay-profile-window-actions-right {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-self: end;
+  justify-content: flex-end;
+}
+
+.monitoring-hud__overlay-profile-manager-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
   align-items: center;
   position: relative;
   z-index: 4;
-  padding: 14px;
+  padding: 12px;
 }
 
 .monitoring-hud__overlay-profile-manager-row > .monitoring-hud__hub-action {
-  flex: 1 1 0;
   min-width: 0;
+  padding-right: 14px;
+  padding-left: 14px;
   justify-content: center;
   text-align: center;
   white-space: nowrap;
+  justify-self: stretch;
 }
 
 .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
-  flex: 0 0 clamp(220px, 30%, 240px);
   justify-self: stretch;
-  width: clamp(220px, 30%, 240px);
-  min-width: min(220px, 100%);
-  max-width: min(240px, 100%);
+  width: 100%;
+  min-width: 0;
+  max-width: none;
   z-index: 5;
 }
 
 .monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown {
   min-width: 0;
-  max-width: min(240px, 100%);
+  max-width: none;
 }
 
-.monitoring-hud__hub-action[data-control="overlay-profile-edit-selected"][data-control-state="editable"] {
-  border-color: rgba(122, 232, 255, 0.34);
-  background: var(--monitoring-hud-button-neutral-bg);
-  color: rgba(229, 249, 255, 0.94);
-  box-shadow: var(--monitoring-hud-affordance-default-shadow);
+.monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown-toggle {
+  min-height: 38px;
+  height: 38px;
+  border-radius: 999px;
+  padding: 8px 20px;
 }
 
 .monitoring-hud__overlay-profile-manager-meta {
@@ -1232,6 +1241,7 @@ body.desktop-mode #monitoring-hud > * {
   display: grid;
   gap: 9px;
   min-width: 0;
+  min-height: 0;
 }
 
 .monitoring-hud__overlay-profile-detail-section[hidden] {
@@ -1241,6 +1251,7 @@ body.desktop-mode #monitoring-hud > * {
 .monitoring-hud__overlay-profile-membership {
   display: grid;
   gap: 8px;
+  min-height: 0;
   padding: 10px;
   border: 1px solid rgba(117, 228, 255, 0.16);
   border-radius: 8px;
@@ -1250,17 +1261,32 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__child-window--overlay-profile {
-  width: min(900px, calc(100% - 8px));
-  min-width: min(720px, calc(100% - 8px));
-  max-height: min(720px, calc(100% - 8px));
-  overflow: hidden;
+  width: min(900px, calc(100% - 40px));
+  min-width: min(720px, calc(100% - 40px));
+  max-height: min(720px, calc(100% - 40px));
+  overflow: auto;
+  scrollbar-gutter: stable;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto minmax(0, auto) auto auto;
+}
+
+body.desktop-mode .monitoring-hud__child-window--overlay-profile {
+  scrollbar-gutter: auto;
+}
+
+body.desktop-mode .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] {
+  overflow: hidden;
 }
 
 .monitoring-hud__overlay-profile-choice-panel {
   display: grid;
   gap: 0;
   min-height: 152px;
+  justify-self: stretch;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   border: 1px solid rgba(117, 228, 255, 0.14);
   border-radius: 8px;
   position: relative;
@@ -1300,7 +1326,7 @@ body.desktop-mode #monitoring-hud > * {
   width: 100%;
   min-width: 100%;
   max-width: 100%;
-  max-height: 160px;
+  max-height: 132px;
   scrollbar-color: rgba(117, 228, 255, 0.58) rgba(3, 16, 28, 0.82);
 }
 
@@ -1549,8 +1575,10 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__child-window {
+  position: relative;
   width: min(440px, calc(100% - 24px));
   max-height: min(620px, calc(100% - 24px));
+  box-sizing: border-box;
   overflow: auto;
   display: grid;
   gap: 12px;
@@ -1564,6 +1592,23 @@ body.desktop-mode #monitoring-hud > * {
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.52),
     0 0 0 1px rgba(230, 251, 255, 0.05) inset;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] {
+  overflow: hidden;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 24;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255, 214, 108, 0.07), transparent 42%),
+    rgba(1, 8, 16, 0.62);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
 }
 
 .monitoring-hud__child-window-header {
@@ -1601,6 +1646,11 @@ body.desktop-mode #monitoring-hud > * {
   padding: 8px 12px;
   flex: 0 0 auto;
   pointer-events: auto;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-window-close {
+  display: none;
+  pointer-events: none;
 }
 
 .monitoring-hud__child-field {
@@ -1722,11 +1772,17 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__child-window--overlay-profile {
-  width: min(900px, calc(100% - 8px));
-  min-width: min(720px, calc(100% - 8px));
-  max-height: min(720px, calc(100% - 8px));
-  overflow: hidden;
+  width: min(900px, calc(100% - 40px));
+  min-width: min(720px, calc(100% - 40px));
+  max-height: min(720px, calc(100% - 40px));
+  overflow: auto;
+  scrollbar-gutter: stable;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto minmax(0, auto) auto auto;
+}
+
+body.desktop-mode .monitoring-hud__child-window--overlay-profile {
+  scrollbar-gutter: auto;
 }
 
 .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-choice-panel {
@@ -1743,6 +1799,97 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-membership-list {
   max-height: 132px;
+}
+
+@media (max-height: 620px) {
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] {
+    height: min(720px, calc(100% - 40px));
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-detail-section {
+    gap: 7px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-membership {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-membership-list {
+    min-height: 56px;
+    max-height: 82px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-filter-dropdown .monitoring-hud__bounded-dropdown-menu {
+    max-height: 102px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-delete-state="open"] .monitoring-hud__overlay-profile-membership {
+    display: none;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-delete-state="open"] .monitoring-hud__child-note {
+    margin: 0;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-delete-state="open"] .monitoring-hud__delete-confirmation {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-delete-state="open"] .monitoring-hud__delete-confirmation span {
+    line-height: 1.2;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-delete-state="open"] .monitoring-hud__overlay-profile-window-actions {
+    align-self: end;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-unsaved-state="open"] .monitoring-hud__unsaved-guard {
+    gap: 7px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-unsaved-state="open"] .monitoring-hud__unsaved-guard span {
+    line-height: 1.2;
+  }
+}
+
+@media (max-height: 730px) {
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] {
+    overflow: hidden;
+    scrollbar-gutter: auto;
+  }
+}
+
+@media (max-height: 560px) {
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-choice-panel {
+    min-height: 132px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-manager-meta {
+    min-height: 44px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-membership-list {
+    min-height: 54px;
+    max-height: 68px;
+  }
+
+  .monitoring-hud__child-window--overlay-profile[data-overlay-profile-detail-state="open"] .monitoring-hud__overlay-profile-filter-dropdown .monitoring-hud__bounded-dropdown-menu {
+    max-height: 88px;
+  }
+}
+
+@media (max-width: 680px) {
+  .monitoring-hud__overlay-profile-manager-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown {
+    max-width: none;
+  }
 }
 
 .monitoring-hud__child-window--monitor-management {
@@ -2013,6 +2160,58 @@ body.desktop-mode #monitoring-hud > * {
   box-sizing: border-box;
   border: 1px solid rgba(255, 214, 108, 0.24);
   background: rgba(70, 52, 12, 0.30);
+}
+
+.monitoring-hud__unsaved-guard--modal {
+  margin: 0;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] > .monitoring-hud__unsaved-guard--modal[data-unsaved-guard="open-save-discard"] {
+  position: absolute;
+  inset: auto clamp(14px, 4%, 28px);
+  top: 50%;
+  z-index: 32;
+  transform: translateY(-50%);
+  width: auto;
+  min-width: min(360px, calc(100% - 28px));
+  max-height: calc(100% - 48px);
+  overflow: auto;
+  padding: 14px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 214, 108, 0.10), transparent 48%),
+    rgba(23, 18, 12, 0.96);
+  box-shadow:
+    0 0 0 1px rgba(255, 246, 218, 0.05) inset,
+    0 18px 34px rgba(0, 0, 0, 0.42),
+    0 0 26px rgba(255, 214, 108, 0.10);
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(96px, 1fr));
+  gap: 8px;
+  align-items: center;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard .monitoring-hud__hub-action {
+  justify-content: center;
+  justify-self: stretch;
+  min-width: 0;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="overlay-profile-unsaved-save"],
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="unsaved-save-monitor"] {
+  grid-column: 1;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="overlay-profile-unsaved-discard"],
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="unsaved-discard-monitor"] {
+  grid-column: 2;
+}
+
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="overlay-profile-unsaved-cancel"],
+.monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-actions--guard [data-control="unsaved-cancel-monitor"] {
+  grid-column: 3;
 }
 
 .monitoring-hud__delete-confirmation[hidden],
@@ -2771,15 +2970,15 @@ body.desktop-mode #monitoring-hud > * {
 
 @media (max-width: 880px) {
   .monitoring-hud__overlay-profile-manager-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
     padding: 12px;
   }
 
   .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
-    flex-basis: 220px;
-    width: 220px;
+    width: 100%;
     min-width: 0;
-    max-width: min(220px, 100%);
+    max-width: none;
   }
 }
 
@@ -2791,20 +2990,28 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 @media (max-width: 520px) {
+  .monitoring-hud__child-window--overlay-profile {
+    width: min(900px, calc(100% - 28px));
+    min-width: min(420px, calc(100% - 28px));
+    max-height: min(720px, calc(100% - 28px));
+  }
+
+  .monitoring-hud__overlay-profile-manager-row {
+    grid-template-columns: 1fr;
+  }
+
   .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
-    flex-basis: 190px;
-    width: 190px;
-    max-width: min(190px, 100%);
+    width: 100%;
+    max-width: 100%;
   }
 }
 
 @media (max-width: 360px) {
   .monitoring-hud__overlay-profile-manager-row {
-    flex-wrap: wrap;
+    grid-template-columns: 1fr;
   }
 
   .monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown {
-    flex: 1 1 100%;
     width: 100%;
     max-width: 100%;
   }
@@ -3140,6 +3347,58 @@ body.desktop-mode #monitoring-hud > * {
   line-height: 1;
   pointer-events: none;
   text-transform: uppercase;
+}
+
+.monitoring-hud-overlay-display__profile-status {
+  position: sticky;
+  top: 10px;
+  left: max(280px, calc(100% - 420px));
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(140px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: min(390px, calc(100% - 24px));
+  min-height: 34px;
+  box-sizing: border-box;
+  margin: 10px 12px 0 auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(118, 226, 255, 0.18);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(5, 22, 36, 0.84), rgba(2, 10, 21, 0.72));
+  box-shadow:
+    0 0 0 1px rgba(230, 251, 255, 0.035) inset,
+    0 0 18px rgba(64, 218, 238, 0.10);
+  color: rgba(229, 249, 255, 0.94);
+  pointer-events: none;
+}
+
+.monitoring-hud-overlay-display__profile-status span,
+.monitoring-hud-overlay-display__profile-status em {
+  color: rgba(134, 222, 239, 0.82);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 760;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.monitoring-hud-overlay-display__profile-status strong {
+  min-width: 0;
+  color: rgba(239, 252, 255, 0.96);
+  font-size: 11px;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#monitoring-hud-overlay-display[data-overlay-display-empty="true"] .monitoring-hud-overlay-display__profile-status {
+  border-color: rgba(255, 214, 113, 0.20);
 }
 
 .monitoring-hud-overlay-display__canvas {

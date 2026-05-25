@@ -115,6 +115,7 @@ def _validate_static_surface(failures: list[str]) -> None:
     html = _read("nexus_visual/monitoring_hud.html")
     css = _read("nexus_visual/monitoring_hud.css")
     js = _read("nexus_visual/monitoring_hud.js")
+    live_validation = _read("dev/orin_monitoring_hud_live_validation.ps1")
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
@@ -190,6 +191,7 @@ def _validate_static_surface(failures: list[str]) -> None:
             "Sensor Library",
             "Overlay Profile",
             "Recording Profile",
+            "Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md",
             "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md",
             "PR #194",
         ):
@@ -200,8 +202,10 @@ def _validate_static_surface(failures: list[str]) -> None:
                 failures,
             )
         for needle in (
+            "Overlay Display Acceptance Foundation successor setup is active",
             "Overlay Profile foundation evidence are released receipts",
             "future monitoring/HUD scope remains USER-gated",
+            "Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md",
             "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md",
         ):
             _require_contains(
@@ -228,6 +232,20 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Primary Interface Release Surface:",
         "Interface Bundle User Approval:",
         "Branch Readiness Interface Planning Incomplete",
+        "direct JavaScript `.click()`",
+        "diagnostic-only",
+        "real OS-level mouse/keyboard input",
+        "visibly move the real Windows cursor",
+        "diagnose it first as a possible runtime/user-visible defect",
+        "fallback is not a normal path",
+        "branch-adaptive and cumulative",
+        "Compact Overlay Profiles delete confirmation",
+        "explicit temporary waiver",
+        "pessimistic visual adjudication",
+        "assume the validator missed a defect",
+        "A helper/validator `PASS` cannot be reported as LV green",
+        "Verbal assurance, implementation description, or intent-language is not proof",
+        "Codex-owned photo review notes",
     ):
         _require_contains(phase_governance, needle, "interface release boundary governance", failures)
     for needle in (
@@ -240,6 +258,24 @@ def _validate_static_surface(failures: list[str]) -> None:
         "direct-runtime active-client proof",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
+    for needle in (
+        "Assert-NoSyntheticLiveValidationInteraction",
+        "no-synthetic-interaction preflight",
+        "active route contains synthetic interaction code",
+        "lacks real OS-level mouse input proof",
+        "JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned",
+        "real-input fallback policy PASS",
+        "synthetic fallback requires explicit USER waiver",
+        "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
+    ):
+        _require_contains(live_validation, needle, "monitoring HUD live validation helper", failures)
+    for needle in (
+        "overlayProfileUnsavedState",
+        "hudUnsavedState",
+        "modalGuard",
+        "closeSuppressed",
+    ):
+        _require_contains(renderer, needle, "monitoring HUD renderer live interaction proof", failures)
     for needle in (
         "SLC-041 validation/live-proof Workstream implementation Green",
         "SLC-041 Hardening H1 Green",
@@ -324,9 +360,34 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__source-settings-body:focus-visible",
         ".monitoring-hud input[type=\"checkbox\"]:checked.is-hovered",
         ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown",
-        "flex: 0 0 clamp(220px, 30%, 240px)",
+        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)",
+        "width: min(900px, calc(100% - 40px))",
+        "grid-template-columns: minmax(0, 1fr)",
+        "body.desktop-mode .monitoring-hud__child-window--overlay-profile",
+        "scrollbar-gutter: auto",
+        ".monitoring-hud__overlay-profile-choice-panel",
+        "justify-self: stretch",
+        "max-width: 100%",
+        "@media (max-height: 620px)",
+        "height: min(720px, calc(100% - 40px))",
+        "max-height: 82px",
+        "max-height: 102px",
+        "@media (max-height: 560px)",
+        "overflow: auto",
+        "min-height: 54px",
+        "max-height: 68px",
+        "max-height: 88px",
     ):
         _require_contains(css, needle, "FAM-006 HUD-wide affordance CSS", failures)
+    for needle in (
+        "leftBuffer",
+        "rightBuffer",
+        "symmetricWindowBuffer",
+        "choicePanelLeftInset",
+        "choicePanelRightInset",
+        "symmetricChoicePanelBuffer",
+    ):
+        _require_contains(js, needle, "FAM-006 Overlay Profile manager scaling proof", failures)
     for needle in (
         "window.runMonitoringHudVisualInspectionMatrixProof",
         "monitoringHudVisualInspectionStyleSnapshot",
@@ -348,6 +409,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         "windowSelectorMenuUnclipped",
         "windowSelectorResponsiveCompact",
         "selector-stacked-oversized-or-clipped",
+        "overlay-profile-minimum-functional-height",
+        "oneFullMonitorVisible",
+        "normal-no-scroll-emergency-compact-scroll",
         "dividerGlowReduced50Percent",
         "sameMonitorRowDirtyGuard",
         "defaultProfileDeletePersists",
@@ -538,14 +602,13 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-overlay-profile-actions="settings-window-entry"',
         'id="monitoring-hud-overlay-profile-window"',
         'data-child-window="overlay-profile-settings"',
-        'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"',
-        'data-overlay-profile-workflow="selector-first-create-edit-delete-followup-uts-repair"',
+        'data-overlay-profile-window="select-profile-to-edit-create-right-save-required"',
+        'data-overlay-profile-workflow="select-loads-edit-create-draft-save-required"',
         'data-overlay-profile-volume-policy="max-five-visible-monitors-inner-scroll"',
         'data-overlay-profile-selector-policy="max-five-visible-profile-options-ndai-scrollbar"',
-        'data-overlay-profile-outer-scroll-policy="no-normal-window-scrollbar"',
+        'data-overlay-profile-outer-scroll-policy="normal-no-scroll-emergency-compact-scroll"',
         'id="monitoring-hud-overlay-profile-window-selector"',
         'data-visible-option-target="max-five"',
-        'id="monitoring-hud-overlay-profile-edit-selected"',
         'id="monitoring-hud-overlay-profile-name-input"',
         'id="monitoring-hud-overlay-profile-monitor-search"',
         'id="monitoring-hud-overlay-profile-monitor-filter"',
@@ -564,6 +627,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-overlay-assignment-window="monitor-group-overlay-status-assignment"',
         'data-child-window="sensor-source-settings"',
         'data-source-settings-window="source-list-sensor-settings"',
+        "Profile to Edit:",
         "Select an existing profile or create a new one first",
         'id="monitoring-hud-warning-toggle"',
         'id="monitoring-hud-settings-action"',
@@ -633,7 +697,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-scroll-pane="sensor-settings"',
         'id="monitoring-hud-monitor-detail-delete"',
         "Delete Monitor",
-        'data-unsaved-guard-actions="save-left-discard-right"',
+        'data-unsaved-guard-actions="modal-save-discard-cancel"',
         'data-delete-confirmation-actions="delete-left-cancel-right"',
         'id="monitoring-hud-monitor-unsaved-guard"',
         'id="monitoring-hud-monitor-detail-empty"',
@@ -675,6 +739,47 @@ def _validate_static_surface(failures: list[str]) -> None:
         "Monitor Groups assign supported sources and settings. HUD Overlay owns future visual display; fake values remain blocked.",
     ):
         _require_contains(html, needle, "HUD HTML product surface", failures)
+    for dirty_guard_parity_markup in (
+        'id="monitoring-hud-overlay-profile-unsaved-guard" data-unsaved-guard="closed"',
+        'id="monitoring-hud-monitor-unsaved-guard" data-unsaved-guard="closed"',
+        'id="monitoring-hud-overlay-profile-unsaved-save"',
+        'id="monitoring-hud-monitor-unsaved-save"',
+        'id="monitoring-hud-overlay-profile-unsaved-discard"',
+        'id="monitoring-hud-monitor-unsaved-discard"',
+        'id="monitoring-hud-overlay-profile-unsaved-cancel"',
+        'id="monitoring-hud-monitor-unsaved-cancel"',
+        '.monitoring-hud__child-window[data-hud-unsaved-state="open"] > .monitoring-hud__unsaved-guard--modal[data-unsaved-guard="open-save-discard"]',
+        'grid-template-columns: repeat(3, minmax(96px, 1fr));',
+        '[data-control="overlay-profile-unsaved-save"]',
+        '[data-control="unsaved-save-monitor"]',
+        '[data-control="overlay-profile-unsaved-discard"]',
+        '[data-control="unsaved-discard-monitor"]',
+        '[data-control="overlay-profile-unsaved-cancel"]',
+        '[data-control="unsaved-cancel-monitor"]',
+        'data-unsaved-guard-actions="modal-save-discard-cancel"',
+    ):
+        _require_contains(
+            html + css,
+            dirty_guard_parity_markup,
+            "FAM-006 shared modal dirty-guard parity HTML/CSS",
+            failures,
+        )
+    for dirty_guard_live_proof in (
+        "Manage Monitors dirty guard matches shared modal Save Discard Cancel contract",
+        "Manage Monitors dirty guard Cancel returns to dirty draft without queued close",
+        "Manage Monitors dirty guard Discard completes queued close and clears dirty state",
+        "manage_monitors_dirty_guard_save_discard_cancel_modal",
+        "manage_monitors_dirty_guard_modal_uniform_with_overlay_profile",
+        "manage_monitors_dirty_guard_background_blur_blocking",
+        "manage_monitors_dirty_guard_close_button_functionality",
+        "focused screenshots missing mandatory dirty-guard parity element",
+    ):
+        _require_contains(
+            renderer + live_validation,
+            dirty_guard_live_proof,
+            "FAM-006 LV1 shared modal dirty-guard parity proof route",
+            failures,
+        )
     _require(
         "Delete Selected Monitor" not in html,
         "HUD detail-pane delete action must say Delete Monitor, not Delete Selected Monitor",
@@ -762,9 +867,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         and ".monitoring-hud__monitor-overlay-profile-context--compact" in css
         and "data-overlay-profile-option" in html
         and "data-child-window=\"overlay-profile-settings\"" in html
-        and 'data-overlay-profile-window="selector-first-create-first-edit-delete-settings-shell"' in html
+        and 'data-overlay-profile-window="select-profile-to-edit-create-right-save-required"' in html
         and 'data-overlay-profile-visual-repair="manager-selector-same-row-compact-unclipped-proof"' in html
-        and 'data-overlay-profile-manager-row="create-edit-compact-selector-same-row"' in html
+        and 'data-overlay-profile-manager-row="selector-dropdown-create-right-equal"' in html
         and 'data-overlay-profile-visible-monitor-target="max-five"' in html
         and 'data-scrollbar-style="ndai-native"' in html
         and 'data-overlay-profile-route="assigned-overlay-status-window"' in html
@@ -775,7 +880,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         and 'data-monitor-detail-placement="below-sensor-source"' in html
         and html.find('data-monitor-detail-card="sensor-source"') < html.find('data-monitor-detail-placement="below-sensor-source"')
         and 'data-bounded-dropdown="overlay-profile-monitor-filter"' in html
-        and 'id="monitoring-hud-overlay-profile-edit-selected"' in html
+        and 'id="monitoring-hud-overlay-profile-window-select-label"' not in html
         and 'id="monitoring-hud-overlay-profile-delete"' in html
         and 'data-child-window="monitor-overlay-assignment"' in html
         and 'data-source-settings-window="source-list-sensor-settings"' in html
@@ -816,17 +921,32 @@ def _validate_static_surface(failures: list[str]) -> None:
         failures,
     )
     _require(
-        "display: flex;" in css
-        and "flex-wrap: nowrap;" in css
-        and "flex: 0 0 clamp(220px, 30%, 240px)" in css
-        and "width: min(900px, calc(100% - 8px))" in css
-        and "min-width: min(720px, calc(100% - 8px))" in css
-        and "min-width: min(220px, 100%)" in css
-        and "max-width: min(240px, 100%)" in css
+        "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)" in css
+        and "width: min(900px, calc(100% - 40px))" in css
+        and "min-width: min(720px, calc(100% - 40px))" in css
+        and "max-height: min(720px, calc(100% - 40px))" in css
+        and "grid-template-columns: minmax(0, 1fr)" in css
+        and "body.desktop-mode .monitoring-hud__child-window--overlay-profile" in css
+        and "scrollbar-gutter: auto" in css
+        and "justify-self: stretch" in css
+        and "max-width: 100%" in css
+        and "@media (max-height: 620px)" in css
+        and "height: min(720px, calc(100% - 40px))" in css
+        and "max-height: 82px" in css
+        and "max-height: 102px" in css
+        and "@media (max-height: 560px)" in css
+        and "overflow: auto" in css
+        and "min-height: 54px" in css
+        and "max-height: 68px" in css
+        and "max-height: 88px" in css
+        and "max-width: none;" in css
+        and "padding-right: 14px;" in css
         and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__overlay-profile-window-dropdown" in css
-        and "max-width: min(220px, 100%)" in css
+        and ".monitoring-hud__overlay-profile-manager-row .monitoring-hud__bounded-dropdown-toggle" in css
+        and "height: 38px;" in css
+        and "min-width: min(420px, calc(100% - 28px))" in css
         and "@media (max-width: 360px)" in css
-        and "max-height: 160px;" in css
+        and "max-height: 132px;" in css
         and "min-height: 26px;" in css
         and "box-sizing: border-box;" in css
         and "min-height: 152px;" in css
@@ -893,8 +1013,13 @@ def _validate_static_surface(failures: list[str]) -> None:
         "footerSaveEnabledWhenDirty",
         "footerDiscardEnabledWhenDirty",
         "footerDiscardIlluminated",
-        "unsavedGuardScrolledToPrompt",
+        "unsavedGuardModalFocused",
         "unsavedGuardReveal",
+        "runMonitoringHudMonitorGroupNameReuseProof",
+        "delete-create-reuses-lowest-available-monitor-group-number",
+        "monitoringHudNextMonitorGroupNumber",
+        "Create after delete reuses Monitor Group 3 instead of skipping to a higher number",
+        "manage_monitors_create_after_delete_reuses_monitor_group_number",
         "sourceFilterVisualOpen",
         "sourceFilterVisualHoverReset",
         "live self-QA step failure(s)",
@@ -926,7 +1051,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "unsavedCloseDirtyBeforeClose",
         "unsavedCloseDraftBeforeClose",
         "unsavedCloseTargetedManageClose",
-        "unsavedGuardScrolledToPrompt",
+        "unsavedGuardModalFocused",
         "unsavedCloseSavePersistedDraft",
         "unsavedCloseSaveClosedWindow",
         "unsavedCloseDiscardDroppedDraft",
@@ -1069,8 +1194,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "03_manage_monitors_open_state",
         "04_source_filter_dropdown_open_hover_reset",
         "05_unsaved_guard_close_queued",
-        "unsavedGuardScrolledToPrompt",
-        "06_unsaved_guard_save_discard_no_cancel",
+        "unsavedGuardModalFocused",
+        "06_unsaved_guard_modal_save_discard_cancel",
         "07_unsaved_close_save_closes_after_persist",
         "08_unsaved_close_discard_closes_after_drop",
         "09_delete_confirmation_bottom",
@@ -1190,6 +1315,34 @@ def _validate_static_surface(failures: list[str]) -> None:
 
     for needle in (
         "window.getMonitoringHudControlState = function()",
+        "window.runMonitoringHudOverlayDisplayAcceptanceProof = function()",
+        "window.runMonitoringHudActiveOverlayProfileDisplayProof = function()",
+        "window.runMonitoringHudDashboardOverlayIndependenceProof = function()",
+        "window.runMonitoringHudOverlayDisplayWorkstreamReadinessProof = function()",
+        "slc-042-active-profile-state-bridge",
+        "slc-043-active-profile-display",
+        "slc-044-dashboard-overlay-independent",
+        "slc-045-workstream-green-ready-for-hardening",
+        "activeProfileSelectionDrivesRenderedCards",
+        "activeProfileSwitchUpdatesVisibleDisplay",
+        "staleActiveProfileFallsBackDeterministically",
+        "nullProfileStateShowsNoActiveProfile",
+        "highVolumeDisplayRendersDeterministically",
+        "dashboardAndOverlayRolesDistinct",
+        "dashboardConfiguresOverlayWithoutOwningDisplay",
+        "visualAcceptanceBaselineReady",
+        "slc042ProofClosed",
+        "slc043ProofClosed",
+        "slc044ProofClosed",
+        "codexVisualAdjudicationRequiredInLv1",
+        "noHelperOnlyFinalGreen",
+        "staleOverlayCardsRemoved",
+        "nullProfileStateRendersZeroCards",
+        "highVolumeMembershipRendersDeterministically",
+        "overlayDisplayAcceptanceProof",
+        "activeOverlayProfileDisplayProof",
+        "dashboardOverlayIndependenceProof",
+        "overlayDisplayWorkstreamReadinessProof",
         "window.getMonitoringHudLiveClientGeometry = function()",
         "monitorGroupsCard: rectFor('[data-dashboard-hub-card=\"monitor-groups\"]')",
         "monitorGroupsSummaryGrid: rectFor('[data-dashboard-hub-card=\"monitor-groups\"] .monitoring-hud__monitor-summary-grid')",
@@ -1418,8 +1571,19 @@ def _validate_static_surface(failures: list[str]) -> None:
         "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY",
         "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY",
         'minimum_edge_policy="native-min-size-bottom-edge-visible"',
+        "def _monitoring_hud_effective_window_minimum_size",
+        "min(max(self.minimumHeight(), 595), max(1, virtual.height()))",
+        "def _apply_monitoring_hud_effective_window_minimum_size",
+        "self.setMinimumSize(min_width, min_height)",
+        "self._apply_monitoring_hud_effective_window_minimum_size()",
         "02_dashboard_minimum_size_bottom_edge_visible",
         "Dashboard minimum-size bottom edge remains visible in focused WebView proof",
+        "Mandatory default-vs-compact Dashboard and child-window screenshot comparison proves functional readable UI",
+        "19_window_size_default_dashboard",
+        "19_window_size_compact_overlay_profiles",
+        "defaultWindowCount",
+        "compactWindowCount",
+        "focusedScreenshotCount",
         "chrome_bottom_inside_viewport",
         "minimum_media_min_height_cleared",
         "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY",
@@ -1489,6 +1653,23 @@ def _validate_static_surface(failures: list[str]) -> None:
         "MONITORING_HUD_REAL_CLIENT_DASHBOARD_VISIBILITY_REQUESTED",
         "_ensure_monitoring_hud_desktop_mode_for_visible_dashboard",
         "MONITORING_HUD_MONITOR_MANAGEMENT_READY",
+        "MONITORING_HUD_OVERLAY_DISPLAY_ACCEPTANCE_BRIDGE_READY",
+        "MONITORING_HUD_ACTIVE_OVERLAY_PROFILE_DISPLAY_READY",
+        "MONITORING_HUD_DASHBOARD_OVERLAY_INDEPENDENCE_READY",
+        "MONITORING_HUD_OVERLAY_DISPLAY_WORKSTREAM_READY",
+        "profile_aware_bridge",
+        "null_profile_state_renders_zero_cards",
+        "high_volume_membership_renders_deterministically",
+        "active_profile_switch_updates_visible_display",
+        "high_volume_display_renders_deterministically",
+        "dashboard_and_overlay_roles_distinct",
+        "visual_acceptance_baseline_ready",
+        "slc042_proof_closed",
+        "codex_visual_adjudication_required_in_lv1",
+        "self._monitoring_hud_overlay_display_acceptance_signature",
+        "self._monitoring_hud_active_overlay_profile_display_signature",
+        "self._monitoring_hud_dashboard_overlay_independence_signature",
+        "self._monitoring_hud_overlay_display_workstream_readiness_signature",
         "hardeningH1MonitorManagementProof",
         "manageWindowCreateAddedMonitor",
         "deleteConfirmationOpened",
