@@ -227,7 +227,7 @@
             id="monitoring-hud-recording-profile-editor"
             data-recording-profile-editor-ui="slc-047-selection-editing-shell"
             data-recording-profile-membership="readonly-slc-047"
-            data-recording-profile-proof="selector-settings-window-create-rename-save-discard"
+            data-recording-profile-proof="selector-settings-window-create-rename-delete-save-discard"
             aria-label="Recording Profile selector and editor"
           >
             <div class="monitoring-hud__overlay-profile-heading monitoring-hud__recording-profile-heading">
@@ -639,12 +639,21 @@
               ></div>
             </div>
             <p class="monitoring-hud__child-note" id="monitoring-hud-recording-profile-membership-note">Recording membership is read-only in SLC-047; tray recording, recording execution, and export/share remain future-gated.</p>
-            <div class="monitoring-hud__child-actions monitoring-hud__overlay-profile-window-actions" data-recording-profile-actions="save-left-discard-right">
+            <div class="monitoring-hud__delete-confirmation monitoring-hud__overlay-profile-delete-confirmation monitoring-hud__recording-profile-delete-confirmation" id="monitoring-hud-recording-profile-delete-confirmation" data-recording-profile-delete-confirmation="closed" hidden>
+              <strong id="monitoring-hud-recording-profile-delete-title">Delete Recording Profile?</strong>
+              <span id="monitoring-hud-recording-profile-delete-copy">Confirm before removing this Recording Profile. Overlay Profiles, Monitor Groups, tray recording, and export/share stay separate.</span>
+              <div class="monitoring-hud__child-actions">
+                <button type="button" id="monitoring-hud-recording-profile-delete-confirm" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="confirm-delete-recording-profile">Delete</button>
+                <button type="button" id="monitoring-hud-recording-profile-delete-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--safe-cancel" data-control="cancel-delete-recording-profile">Cancel</button>
+              </div>
+            </div>
+            <div class="monitoring-hud__child-actions monitoring-hud__overlay-profile-window-actions" data-recording-profile-actions="save-left-discard-delete-right">
               <div class="monitoring-hud__overlay-profile-window-actions-left">
                 <button type="button" id="monitoring-hud-recording-profile-save" class="monitoring-hud__hub-action" data-control="recording-profile-save" data-control-state="clean-disabled" aria-disabled="true" disabled>Save Profile</button>
               </div>
               <div class="monitoring-hud__overlay-profile-window-actions-right">
                 <button type="button" id="monitoring-hud-recording-profile-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="recording-profile-discard" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
+                <button type="button" id="monitoring-hud-recording-profile-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="recording-profile-delete" data-control-state="clean-disabled" aria-disabled="true" disabled>Delete Profile</button>
               </div>
             </div>
           </div>

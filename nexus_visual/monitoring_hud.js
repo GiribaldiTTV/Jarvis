@@ -89,6 +89,12 @@ const monitoringHudRecordingProfileUnsavedCancel = document.getElementById("moni
 const monitoringHudRecordingProfileCreate = document.getElementById("monitoring-hud-recording-profile-create");
 const monitoringHudRecordingProfileSave = document.getElementById("monitoring-hud-recording-profile-save");
 const monitoringHudRecordingProfileDiscard = document.getElementById("monitoring-hud-recording-profile-discard");
+const monitoringHudRecordingProfileDelete = document.getElementById("monitoring-hud-recording-profile-delete");
+const monitoringHudRecordingProfileDeleteConfirmation = document.getElementById("monitoring-hud-recording-profile-delete-confirmation");
+const monitoringHudRecordingProfileDeleteTitle = document.getElementById("monitoring-hud-recording-profile-delete-title");
+const monitoringHudRecordingProfileDeleteCopy = document.getElementById("monitoring-hud-recording-profile-delete-copy");
+const monitoringHudRecordingProfileDeleteConfirm = document.getElementById("monitoring-hud-recording-profile-delete-confirm");
+const monitoringHudRecordingProfileDeleteCancel = document.getElementById("monitoring-hud-recording-profile-delete-cancel");
 const monitoringHudControlsVisibility = document.getElementById("monitoring-hud-controls-visibility");
 const monitoringHudControlsSurface = document.getElementById("monitoring-hud-controls-surface");
 const monitoringHudControlsPersistence = document.getElementById("monitoring-hud-controls-persistence");
@@ -1130,6 +1136,7 @@ let monitoringHudRecordingProfileDraftName = "Default Recording Profile";
 let monitoringHudRecordingProfilePendingCreate = null;
 let monitoringHudRecordingProfileWindowSelectedId = "";
 let monitoringHudRecordingProfileDetailOpen = false;
+let monitoringHudPendingDeleteRecordingProfileId = "";
 let monitoringHudActiveSourceSettingsId = "";
 let monitoringHudSourcePollingDropdownOpenSensorId = "";
 const monitoringHudSourceFilterLabels = {
@@ -1981,6 +1988,67 @@ function monitoringHudCreateRecordingProfile() {
   return true;
 }
 
+function monitoringHudRecordingProfileDeleteAllowed(profile) {
+  return Boolean(
+    profile
+    && profile.id
+    && (monitoringHudRecordingProfilePendingCreate || profile.id !== monitoringHudDefaultRecordingProfileId)
+  );
+}
+
+function monitoringHudSetRecordingProfileDeleteConfirmation(open) {
+  const activeProfile = monitoringHudRecordingProfileDraftTarget() || {};
+  monitoringHudPendingDeleteRecordingProfileId = open ? String(activeProfile.id || "") : "";
+  if (!monitoringHudRecordingProfileDeleteConfirmation) return;
+  const canOpen = Boolean(open && monitoringHudRecordingProfileDeleteAllowed(activeProfile));
+  monitoringHudRecordingProfileDeleteConfirmation.hidden = !canOpen;
+  monitoringHudRecordingProfileDeleteConfirmation.dataset.recordingProfileDeleteConfirmation = canOpen ? "open" : "closed";
+  monitoringHudRecordingProfileDeleteConfirmation.dataset.recordingProfileId = canOpen ? monitoringHudPendingDeleteRecordingProfileId : "";
+  if (monitoringHudRecordingProfileWindow) {
+    monitoringHudRecordingProfileWindow.dataset.recordingProfileDeleteState = canOpen ? "open" : "closed";
+  }
+  if (monitoringHudRecordingProfileDetailSection) {
+    monitoringHudRecordingProfileDetailSection.dataset.recordingProfileDeleteState = canOpen ? "open" : "closed";
+  }
+  if (monitoringHudRecordingProfileDeleteTitle) {
+    monitoringHudRecordingProfileDeleteTitle.textContent = canOpen
+      ? `Delete ${monitoringHudCleanRecordingProfileName(activeProfile.name, "Recording Profile")}?`
+      : "Delete Recording Profile?";
+  }
+  if (monitoringHudRecordingProfileDeleteCopy) {
+    monitoringHudRecordingProfileDeleteCopy.textContent = canOpen
+      ? "Confirm before removing this Recording Profile. Overlay Profiles, Monitor Groups, tray recording, and export/share stay separate."
+      : "Confirm before removing this Recording Profile.";
+  }
+}
+
+function monitoringHudConfirmDeleteRecordingProfile() {
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  const deleteId = String(monitoringHudPendingDeleteRecordingProfileId || "").trim();
+  if (monitoringHudRecordingProfilePendingCreate && deleteId === monitoringHudRecordingProfilePendingCreate.id) {
+    monitoringHudRecordingProfilePendingCreate = null;
+    monitoringHudRecordingProfileWindowSelectedId = "";
+    monitoringHudRecordingProfileDetailOpen = false;
+    monitoringHudPendingDeleteRecordingProfileId = "";
+    monitoringHudSetRecordingProfileDraftFromActive();
+    monitoringHudRenderControls();
+    return true;
+  }
+  const profiles = monitoringHudControlState.recordingProfiles || {};
+  if (!deleteId || deleteId === monitoringHudDefaultRecordingProfileId || !profiles[deleteId]) return false;
+  delete profiles[deleteId];
+  monitoringHudControlState.recordingProfiles = profiles;
+  monitoringHudControlState.activeRecordingProfileId = Object.keys(profiles)[0] || monitoringHudDefaultRecordingProfileId;
+  monitoringHudRecordingProfileWindowSelectedId = "";
+  monitoringHudRecordingProfileDetailOpen = false;
+  monitoringHudPendingDeleteRecordingProfileId = "";
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  monitoringHudSetRecordingProfileDraftFromActive();
+  monitoringHudRenderControls();
+  monitoringHudMarkChanged();
+  return true;
+}
+
 function monitoringHudSaveRecordingProfileDraft() {
   const activeProfile = monitoringHudRecordingProfileDraftTarget();
   if (!activeProfile) return false;
@@ -1999,6 +2067,7 @@ function monitoringHudSaveRecordingProfileDraft() {
   monitoringHudControlState.activeRecordingProfileId = activeProfile.id;
   monitoringHudRecordingProfileWindowSelectedId = activeProfile.id;
   monitoringHudRecordingProfilePendingCreate = null;
+  monitoringHudPendingDeleteRecordingProfileId = "";
   monitoringHudSetRecordingProfileDraftFromProfile(activeProfile);
   monitoringHudRenderControls();
   monitoringHudMarkChanged();
@@ -2012,6 +2081,7 @@ function monitoringHudDiscardRecordingProfileDraft() {
     monitoringHudRecordingProfileWindowSelectedId = "";
     monitoringHudRecordingProfileDetailOpen = false;
   }
+  monitoringHudPendingDeleteRecordingProfileId = "";
   monitoringHudSetRecordingProfileDraftFromProfile(monitoringHudRecordingProfileDraftTarget() || monitoringHudActiveRecordingProfile());
   monitoringHudRenderControls();
   return true;
@@ -2128,7 +2198,7 @@ function monitoringHudRenderRecordingProfileControls() {
   monitoringHudRecordingProfileEditor.dataset.recordingProfileDirty = dirty ? "dirty" : "clean";
   monitoringHudRecordingProfileEditor.dataset.activeRecordingProfileId = activeProfileId;
   monitoringHudRecordingProfileEditor.dataset.recordingProfileCount = String(profiles.length);
-  monitoringHudRecordingProfileEditor.dataset.recordingProfileProof = "selector-settings-window-create-rename-save-discard";
+  monitoringHudRecordingProfileEditor.dataset.recordingProfileProof = "selector-settings-window-create-rename-delete-save-discard";
   monitoringHudRecordingProfileEditor.dataset.recordingExecutionBoundary = "no-runtime-recording";
   if (monitoringHudRecordingProfileSelector) {
     monitoringHudRecordingProfileSelector.dataset.selectedProfileId = activeProfileId;
@@ -2219,6 +2289,10 @@ function monitoringHudRenderRecordingProfileControls() {
   if (!detailOpen || !dirty) {
     monitoringHudSetRecordingProfileUnsavedGuard(false);
   }
+  if (monitoringHudRecordingProfileDeleteConfirmation && !monitoringHudPendingDeleteRecordingProfileId) {
+    monitoringHudRecordingProfileDeleteConfirmation.hidden = true;
+    monitoringHudRecordingProfileDeleteConfirmation.dataset.recordingProfileDeleteConfirmation = "closed";
+  }
   if (detailOpen) {
     monitoringHudRenderRecordingProfileMembershipList(selectedProfile);
   } else if (monitoringHudRecordingProfileMembershipList) {
@@ -2234,6 +2308,13 @@ function monitoringHudRenderRecordingProfileControls() {
   }
   if (monitoringHudRecordingProfileDiscard) {
     monitoringHudSetActionDisabled(monitoringHudRecordingProfileDiscard, !detailOpen || !dirty, "discardable");
+  }
+  if (monitoringHudRecordingProfileDelete) {
+    monitoringHudSetActionDisabled(
+      monitoringHudRecordingProfileDelete,
+      !detailOpen || !monitoringHudRecordingProfileDeleteAllowed(selectedProfile),
+      "deleteable"
+    );
   }
   if (monitoringHudRecordingProfileMembershipNote) {
     monitoringHudRecordingProfileMembershipNote.textContent = detailOpen
@@ -5078,6 +5159,22 @@ function monitoringHudWireControls() {
     monitoringHudWireReliableControl(monitoringHudRecordingProfileDiscard, "recording-profile:discard", () => {
       if (monitoringHudRecordingProfileDiscard.disabled) return false;
       return monitoringHudDiscardRecordingProfileDraft();
+    });
+  }
+  if (monitoringHudRecordingProfileDelete) {
+    monitoringHudWireReliableControl(monitoringHudRecordingProfileDelete, "recording-profile:delete", () => {
+      if (monitoringHudRecordingProfileDelete.disabled) return false;
+      monitoringHudSetRecordingProfileDeleteConfirmation(true);
+      return true;
+    });
+  }
+  if (monitoringHudRecordingProfileDeleteConfirm) {
+    monitoringHudWireReliableControl(monitoringHudRecordingProfileDeleteConfirm, "recording-profile:delete-confirm", monitoringHudConfirmDeleteRecordingProfile);
+  }
+  if (monitoringHudRecordingProfileDeleteCancel) {
+    monitoringHudWireReliableControl(monitoringHudRecordingProfileDeleteCancel, "recording-profile:delete-cancel", () => {
+      monitoringHudSetRecordingProfileDeleteConfirmation(false);
+      return true;
     });
   }
   if (monitoringHudRecordingProfileUnsavedSave) {
