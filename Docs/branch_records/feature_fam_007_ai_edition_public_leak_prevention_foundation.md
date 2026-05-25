@@ -181,6 +181,16 @@ Planning Revalidation Status: PASS
 Planning Completion Waiver: None
 User Test Summary Strategy: No visible runtime UI change was implemented. Later Live Validation may use review-bundle/source/validator proof and no-visible-surface waiver unless Hardening admits a visible UI issue.
 
+## FAM-007 USER Action Gate Identifiers
+
+USER Action Gate Registry Source: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md#user-action-gate-registry`
+
+Gate Use Rule: `Future branches must cite exact USER Action Gate IDs when USER must create a private repo, configure private remotes/GitHub Desktop, approve private-to-public movement, choose public-to-dev import consent, approve Owner vault/private hosting, approve provider/model execution, approve memory/personalization, or approve edition packaging identity.`
+
+Current Gate Status: `All USER Action Gates are future-gated on this branch. This branch records identifiers and validation expectations only; it does not create private Dev or Owner repos, configure GitHub Desktop private remotes, implement Public-to-Dev import, move private material into public source, enable provider/model execution, enable memory/personalization, or implement packaging identity.`
+
+Gate IDs: `USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE`; `USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE`; `USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP`; `USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT`; `USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION`; `USER-ACTION-FAM007-OWNER-VAULT-OR-PRIVATE-HOSTING`; `USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION`; `USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION`; `USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY`.
+
 ## Runtime Branch Engineering Contract
 
 Engineering Contract Status: Accepted

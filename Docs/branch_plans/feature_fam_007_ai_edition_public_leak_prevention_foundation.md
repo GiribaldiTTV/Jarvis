@@ -57,6 +57,26 @@ Question Severity Policy: Level 2 for any question that changes public/private l
 Vision-to-Implementation Traceability: Public leak-prevention seams trace to the AI Edition plan's Protected Assets Table, Public Review-Bundle Leak-Prevention Rule, Edition Boundary Manifest Planning, Private-To-Public Sanitization Gate, Public Build Exclusion Requirement, and Breakpoint 1 / Breakpoint 2 sequence.
 Branch Plan Revision Packet: Required if Hardening finds the Workstream proof too broad, too shallow, or inconsistent with the accepted AI Edition plan.
 
+## FAM-007 USER Action Gate Identifiers
+
+USER Action Gate Registry Source: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md#user-action-gate-registry`
+
+Gate Use Rule: `Future branches must cite the exact USER Action Gate ID when USER must create a private repo, configure GitHub Desktop/private remotes, approve private-to-public movement, choose public-to-dev import consent, approve owner vault/private hosting, approve provider/model execution, approve memory/personalization, or approve edition packaging identity. A cited gate must include trigger, required USER action, allowed scope, blocked scope, validation proof, and exact approval text.`
+
+Active Gate Status:
+
+| Gate ID | Current Status On This Branch | Next Legal Use |
+| --- | --- | --- |
+| `USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE` | Future-gated / not executed | Use only after Breakpoint 1 remains green through LV1/PR/release posture or USER explicitly admits private Dev skeleton setup. |
+| `USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE` | Future-gated / not executed | Use only after Breakpoint 1 remains green through LV1/PR/release posture or USER explicitly admits Nexus Desktop AI Owner skeleton setup. |
+| `USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP` | Future-gated / not executed | Use only after a private Dev or Owner repo/local skeleton is approved. |
+| `USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT` | Future-gated / not executed | Use only after private Dev boundary proof exists and USER approves a Public-to-Dev migration branch. |
+| `USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION` | Future-gated / not executed | Use before any private Dev/Owner material is proposed for public repo, public artifact, or public release evidence. |
+| `USER-ACTION-FAM007-OWNER-VAULT-OR-PRIVATE-HOSTING` | Future-gated / not executed | Use before Owner private memory, private strategy, private automation, or private hosting leaves planning. |
+| `USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION` | Future-gated / not executed | Use before provider SDK integration, model execution, prompt acceptance, network/download activation, or `canAcceptPrompts=true`. |
+| `USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION` | Future-gated / not executed | Use before persistent memory, indexing, retrieval, learning, personalization, or memory import. |
+| `USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY` | Future-gated / not executed | Use before FAM-008 packaging or installer/shortcut identity work creates separate Public, Dev, or Owner app identities. |
+
 ## Product Definition Plan
 
 Product Vision: FAM-007 should become useful local AI through explicit user control, public/private trust boundaries, provider-visible data limits, and execution gates before any model is allowed to run.
@@ -183,7 +203,7 @@ Element Validation Ledger Owner: `Docs/branch_records/feature_fam_007_ai_edition
 
 ## Branch Change Intent Ledger
 
-Branch Change Intent Ledger Status: `No rebaseline overlap entries required at Stage 2 setup. The branch was created directly from origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4 after v1.7.20-prebeta release; future rebaseline mutation must rerun the audit and add per-file overlap entries if needed.`
+Branch Change Intent Ledger Status: `Stage 2 setup had no overlap entries. Current-main reconciliation to origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b requires the per-file overlap entries below before mutation. Incoming PR #212 / FAM-006 release-posture fold-down content is context only for this branch and must be preserved as current-main authority while preserving FAM-007 branch-local authority, H1 Green posture, and AI Edition Public Leak-Prevention Foundation source truth.`
 
 ### Changed Surface: No Rebaseline Overlap Files
 
@@ -209,6 +229,131 @@ Branch Change Intent Ledger Status: `No rebaseline overlap entries required at S
 - Resolution owner: `Current Branch`
 - FAM-007 preservation intent: `Preserve branch-local authority, planning, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, Element-to-Phase Proof Matrix, protected-asset policy, public build/review-bundle leak-prevention posture, and provider-boundary pending decisions.`
 - Validation command coverage: `python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_ai_edition_public_leak_prevention_foundation.md`
+
+### Changed Surface: Docs/branch_plans/retirement_index.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Reconcile incoming FAM-006 release-posture fold-down and retirement-index updates with this branch's historical FAM-007 setup-completion and active public leak-prevention carrier context.`
+- Why This File Was Touched: `The file overlaps because origin/main records PR #212 / FAM-006 carry-forward retirement posture while this branch records FAM-007 successor and prior setup-completion retirement context.`
+- Owned Behavior / Fact Class: `Historical branch retirement and released-branch receipt routing.`
+- Canonical Owner / Source Owner: `Docs/branch_plans/retirement_index.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Accept incoming PR #212 FAM-006 release-posture fold-down as authoritative for FAM-006 context; preserve FAM-007 setup-completion released evidence and the active AI Edition Public Leak-Prevention Foundation carrier references.`
+- Rebaseline Handling: `Merge/reconcile without deleting FAM-007 branch-local H1 Green or active-carrier pointers.`
+- Validation Proof: `Required validation: branch governance validation, release-readiness health gate, source-owner marker validation, rebaseline audit, and diff checks.`
+- Fallback Evidence: `Incoming commit 8add4ea6 records FAM-006 carry-forward after PR #212; this branch record and plan own FAM-007 H1 Green posture.`
+- USER Decision / Waiver: `USER approved current-main reconciliation and FAM-007 USER Action Gate repair.`
+- Fold-Down Target: `H1/LV1 handoff source truth and PR Readiness packet.`
+- File path: `Docs/branch_plans/retirement_index.md`
+- Overlap source: `origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b / PR #212 FAM-006 fold-down`
+- Resolution owner: `Incoming current-main for FAM-006; current branch for FAM-007 branch-local truth`
+- FAM-007 preservation intent: `Preserve active FAM-007 AI Edition Public Leak-Prevention Foundation authority, H1 Green posture, prior setup-completion released evidence, and pending USER decisions.`
+- Validation command coverage: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_ai_edition_public_leak_prevention_foundation.md`
+
+### Changed Surface: Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Accept incoming FAM-006 release-posture carry-forward record updates as context-only current-main authority without treating FAM-006 as FAM-007 successor authority.`
+- Why This File Was Touched: `The FAM-007 branch contains context rows from Stage 2 reconciliation, while origin/main now owns the merged FAM-006 carry-forward fold-down.`
+- Owned Behavior / Fact Class: `FAM-006 historical release-posture carry-forward receipt.`
+- Canonical Owner / Source Owner: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Low`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Accept incoming origin/main FAM-006 record content; do not add new FAM-007 authority to the FAM-006 record.`
+- Rebaseline Handling: `Preserve as context only after reconciliation.`
+- Validation Proof: `Required validation: branch governance validation, release-readiness health gate, source-owner marker validation, and rebaseline audit.`
+- Fallback Evidence: `origin/main@8add4ea6 records the merged FAM-006 fold-down; active FAM-007 authority remains in the FAM-007 branch record.`
+- USER Decision / Waiver: `USER approved current-main reconciliation while treating incoming FAM-006 changes as context only.`
+- Fold-Down Target: `No FAM-007 fold-down target; context-only preservation.`
+- File path: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
+- Overlap source: `origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b / PR #212 FAM-006 fold-down`
+- Resolution owner: `Incoming current-main`
+- FAM-007 preservation intent: `Do not mutate FAM-006 successor authority; keep FAM-007 active branch authority in its own record and plan.`
+- Validation command coverage: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_ai_edition_public_leak_prevention_foundation.md`
+
+### Changed Surface: Docs/branch_records/index.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Reconcile shared branch authority index updates so incoming FAM-006 fold-down remains current-main authority and this branch retains FAM-007 AI Edition Public Leak-Prevention Foundation H1 Green authority.`
+- Why This File Was Touched: `Both origin/main and this branch update active/historical branch index state for current family lanes.`
+- Owned Behavior / Fact Class: `Branch authority routing and active/historical branch state.`
+- Canonical Owner / Source Owner: `Docs/branch_records/index.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `High`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming merged-main FAM-006 fold-down and no-active-branch repair facts; preserve FAM-007 active branch pointer, H1 Green posture, and Live Validation LV1 next-phase gate.`
+- Rebaseline Handling: `Conflict-aware merge with explicit FAM-007 authority preservation.`
+- Validation Proof: `Required validation: branch governance validation, release-readiness health gate, governance efficiency validation, source-owner marker validation, and rebaseline audit.`
+- Fallback Evidence: `FAM-007 branch record and plan are canonical branch-local authority; origin/main owns PR #212 FAM-006 merged-main fold-down.`
+- USER Decision / Waiver: `USER approved current-main reconciliation and FAM-007 USER Action Gate repair.`
+- Fold-Down Target: `H1/LV1 handoff source truth and PR Readiness packet.`
+- File path: `Docs/branch_records/index.md`
+- Overlap source: `origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b / PR #212 FAM-006 fold-down`
+- Resolution owner: `Shared incoming-main plus current FAM-007 branch`
+- FAM-007 preservation intent: `Preserve FAM-007 active branch authority, H1 Green state, Live Validation LV1 next legal phase, and pending USER decisions.`
+- Validation command coverage: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_governance_efficiency_validation.py; python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_ai_edition_public_leak_prevention_foundation.md`
+
+### Changed Surface: Docs/governance_docs_full_inventory_reform_audit.md
+
+- Surface Class: `documentation/reference`
+- Change Intent: `Preserve regenerated inventory/reference consistency while accepting incoming current-main FAM-006 fold-down references and keeping FAM-007 public leak-prevention files visible where inventory tooling records them.`
+- Why This File Was Touched: `Both branches changed Docs inventory surfaces as part of governance/source-truth fold-down.`
+- Owned Behavior / Fact Class: `Docs inventory/reference audit.`
+- Canonical Owner / Source Owner: `Docs/governance_docs_full_inventory_reform_audit.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `Low`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Accept generated/current-main inventory updates and preserve FAM-007 public leak-prevention branch record/plan/validator references if present after reconciliation.`
+- Rebaseline Handling: `Accept or regenerate intentionally according to current validation posture.`
+- Validation Proof: `Required validation: branch governance validation, governance efficiency validation, source-owner marker validation, and diff checks.`
+- Fallback Evidence: `Inventory files are reference surfaces, not FAM-007 authority.`
+- USER Decision / Waiver: `USER approved current-main reconciliation and source-truth repair.`
+- Fold-Down Target: `Review bundle and PR Readiness source-truth inspection.`
+- File path: `Docs/governance_docs_full_inventory_reform_audit.md`
+- Overlap source: `origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b / PR #212 FAM-006 fold-down`
+- Resolution owner: `Generated/current-main inventory`
+- FAM-007 preservation intent: `Keep FAM-007 branch-local authority in branch record/plan; inventory only mirrors current file set.`
+- Validation command coverage: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_governance_efficiency_validation.py; python dev\orin_source_owner_marker_validation.py`
+
+### Changed Surface: Docs/governance_docs_reform_user_review_index.md
+
+- Surface Class: `documentation/reference`
+- Change Intent: `Preserve generated USER review index consistency while accepting incoming current-main FAM-006 fold-down references and keeping FAM-007 review surfaces visible where the index records them.`
+- Why This File Was Touched: `Both branches changed governance review-index surfaces as part of source-truth/review-bundle fold-down.`
+- Owned Behavior / Fact Class: `Docs reform USER review index.`
+- Canonical Owner / Source Owner: `Docs/governance_docs_reform_user_review_index.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `Low`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Accept generated/current-main review-index updates and preserve FAM-007 AI Edition plan/branch record/branch plan review references if present after reconciliation.`
+- Rebaseline Handling: `Accept or regenerate intentionally according to current validation posture.`
+- Validation Proof: `Required validation: branch governance validation, governance efficiency validation, source-owner marker validation, and diff checks.`
+- Fallback Evidence: `Review index files are reference surfaces, not FAM-007 authority.`
+- USER Decision / Waiver: `USER approved current-main reconciliation and source-truth repair.`
+- Fold-Down Target: `Review bundle and PR Readiness source-truth inspection.`
+- File path: `Docs/governance_docs_reform_user_review_index.md`
+- Overlap source: `origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b / PR #212 FAM-006 fold-down`
+- Resolution owner: `Generated/current-main review index`
+- FAM-007 preservation intent: `Keep FAM-007 branch-local authority in branch record/plan; review index only mirrors current review routing.`
+- Validation command coverage: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_governance_efficiency_validation.py; python dev\orin_source_owner_marker_validation.py`
 
 ## Hardening H1 Record
 
