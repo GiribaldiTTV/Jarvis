@@ -4,7 +4,7 @@ Branch: `feature/fam-006-v1-7-19-release-posture-carry-forward`
 Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
 Created From: `origin/main` at `dfa59b37058fb2ef0f7d3432b585f182551408a4`
-Current Plan Phase: `Branch Readiness Stage 2 source-truth carry-forward`
+Current Plan Phase: `Historical Traceability after PR #212 merge`
 Runtime Implementation Approval: `Pending - runtime implementation is not admitted by this release-posture carry-forward branch`
 
 ## Branch Runtime Engineering Plan
@@ -13,14 +13,14 @@ Plan Identity: `FAM-006 v1.7.19 Release Posture Carry-Forward`
 Owning Branch: `feature/fam-006-v1-7-19-release-posture-carry-forward`
 Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
-Current Phase: `Branch Readiness Stage 2`
-Branch Runtime Engineering Plan: `Source-truth carry-forward after GitHub release v1.7.19-prebeta.`
+Current Phase: `Historical Traceability`
+Branch Runtime Engineering Plan: `Historical source-truth carry-forward receipt after GitHub release v1.7.19-prebeta and PR #212 merge.`
 Engineering Plan Status: `Accepted`
 Current Runtime Baseline: `FAM-006 Overlay Display Acceptance Foundation was released through GitHub release v1.7.19-prebeta.`
 Branch Purpose: `Record GitHub-authoritative v1.7.19-prebeta release posture in FAM-006 source truth while preserving PR #207 as historical evidence.`
 Planned Runtime Delta: `None`
 User-Facing Delta: `None`
-Source-Truth Delta: `Update FAM-006 compact backlog/roadmap, historical PR #207 branch record/plan, active authority routing, and this branch authority/plan to reflect released v1.7.19-prebeta posture.`
+Source-Truth Delta: `FAM-006 compact backlog/roadmap, historical PR #207 branch record/plan, branch authority routing, and this branch authority/plan reflect released v1.7.19-prebeta posture after PR #212 merge.`
 State / Config / Schema Delta: `None`
 Validator / Helper Delta: `None expected; validation proves existing helpers remain green.`
 Expected Changed Files / Surfaces: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md.`
@@ -32,15 +32,15 @@ Future-Gated Items: `Future Monitoring/HUD runtime packages, Recording Profile r
 Approval-Boundary Audit: `Stage 2 setup only is approved. Runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup execution, and sibling-worktree mutation are blocked.`
 FAM / Shared-Surface Overlap Forecast: `FAM-006 compact source-truth surfaces only; no runtime shared-surface mutation. FAM-007 and Governance are sibling context only.`
 Open Questions: `Whether USER wants a future FAM-006 runtime successor after this carry-forward branch merges remains a later Branch Readiness decision.`
-USER Planning Decisions: `USER approved Stage 1 analysis and Stage 2 setup for this carry-forward branch.`
+USER Planning Decisions: `USER approved Stage 1 analysis, Stage 2 setup, PR creation, and PR #212 merge for this carry-forward branch.`
 Plan Revision History: `v1 - Created after GitHub release v1.7.19-prebeta published at dfa59b37058fb2ef0f7d3432b585f182551408a4.`
 Plan-To-Implementation Traceability: `This plan maps the Stage 2 source-truth carry-forward to the branch authority record, historical PR #207 record/plan, backlog, roadmap, and active authority index.`
 Hardening Comparison Checklist: `Not applicable - no runtime implementation.`
 Live Validation Proof Or Waiver Checklist: `Not applicable - no user-facing runtime mutation.`
-PR Readiness Fold-Down / Retention Checklist: `PR Readiness should preserve this branch as source-truth carry-forward evidence and not re-open PR #207 runtime scope.`
+PR Readiness Fold-Down / Retention Checklist: `Complete after PR #212 merge - this branch is preserved as source-truth carry-forward evidence and does not re-open PR #207 runtime scope.`
 Release Readiness Public-Scope Translation Checklist: `Not applicable - v1.7.19-prebeta is already published.`
 USER Planning Review: `Accepted for Branch Readiness Stage 2 setup.`
-PR Fold-Down Packet: `Pending future PR if USER approves.`
+PR Fold-Down Packet: `Complete - PR #212 merged; this plan is retired from active planning posture in Docs/branch_plans/retirement_index.md.`
 
 ## Purpose
 
@@ -71,7 +71,7 @@ Configuration And State Model: `No runtime configuration or persisted state chan
 Expected User-Facing Outcomes: `No user-facing behavior change.`
 Codex Additional Recommendations: `Use PR Readiness Stage 1 next if USER wants this carry-forward merged.`
 USER Critique Loop: `USER may revise wording or future branch direction before PR Readiness.`
-USER Decision Ledger: `Stage 2 source-truth carry-forward is approved; runtime implementation and PR creation are not.`
+USER Decision Ledger: `Stage 2 source-truth carry-forward, PR creation, and PR #212 merge are approved/complete; runtime implementation remains future-gated.`
 Deferred Ideas / Future Package Ledger: `Future FAM-006 runtime work remains USER-gated.`
 Planning Adequacy Review: `Adequate for a source-truth carry-forward branch.`
 Rejected Shallow Plan: `Rejected direct-main repair or leaving stale pre-release-window wording after release publication.`
@@ -104,7 +104,7 @@ Plan-To-Implementation Traceability: `Stage 2 source-truth edits map directly to
 ### Changed Surface: Docs/branch_records/index.md
 
 - Surface Class: `governance/source-truth`
-- Change Intent: `Add this carry-forward branch to Active Branch Authority Records while preserving the historical PR #207 Overlay Display Acceptance record.`
+- Change Intent: `Preserve this carry-forward branch as historical source-truth receipt while preserving the historical PR #207 Overlay Display Acceptance record.`
 - Why This File Was Touched: `Branch Readiness Stage 2 created the approved FAM-006 carry-forward branch.`
 - Owned Behavior / Fact Class: `Branch authority routing only.`
 - Canonical Owner / Source Owner: `Docs/branch_records/index.md`
@@ -117,7 +117,7 @@ Plan-To-Implementation Traceability: `Stage 2 source-truth edits map directly to
 - Rebaseline Handling: `Preserve incoming PR #210 / FAM-007 current-main additions, preserve standing governance intake routing, and preserve the FAM-006 v1.7.19 carry-forward active branch pointer.`
 - Fallback Evidence: `Branch authority record Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md and this branch plan define the FAM-006 pointer; incoming main records define PR #210 / FAM-007 context.`
 - USER Decision / Waiver: `USER approved bounded ledger repair before current-main reconciliation; no waiver to drop incoming main or FAM-006 branch-local authority.`
-- Fold-Down Target: `After PR merge, keep released FAM-006 posture in compact backlog/roadmap and close this branch pointer according to PR Readiness closeout.`
+- Fold-Down Target: `Complete after PR #212 merge - released FAM-006 posture remains in compact backlog/roadmap and this branch pointer is historical.`
 - Conflict Resolution Rule: `Preserve the standing governance intake active pointer and add only this FAM-006 carry-forward active pointer.`
 - Validation Proof: `Branch governance validation and source-owner marker validation.`
 
@@ -164,4 +164,4 @@ Plan-To-Implementation Traceability: `Stage 2 source-truth edits map directly to
 ## Next Legal Phase
 
 Next Legal Phase: `PR Readiness Stage 1`
-Exact USER Decision Needed: `Approve PR Readiness Stage 1 analysis for FAM-006 v1.7.19 Release Posture Carry-Forward in C:\Nexus Worktrees\FAM-006 on feature/fam-006-v1-7-19-release-posture-carry-forward.`
+Exact USER Decision Needed: `None for this historical PR #212 carry-forward receipt; future FAM-006 runtime work requires a later USER-approved Branch Readiness decision.`
