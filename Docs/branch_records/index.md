@@ -51,6 +51,7 @@ Do not use this layer to replace:
 - when merged-main truth is `No Active Branch`, merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership; that rule includes runtime, implementation, release packaging, and repair carriers. The single standing governance intake authority may remain active only for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake and must not be treated as an active runtime carrier.
 - before PR merge, any branch that still relies on an active branch authority record must either move that record into `Historical Branch Authority Records` or remove it entirely so merged truth does not leave a stale active branch owner behind
 - Merge-target post-merge-stable authority projection is mandatory before PR Readiness can report green: merge-target files must already describe the branch-authority state that will remain true after merge, and any active branch authority record that would otherwise land in `main` must be moved to historical/no-active posture or otherwise made merge-stable before PR green.
+- `Merged Active Branch Authority Not Folded Down` blocks validation when any non-standing active branch authority record points to a branch ref that is already an ancestor of `origin/main`. The single standing governance intake authority record is the only exception. When this blocker appears, move the merged branch record to `Historical Branch Authority Records`, retire or historical-label the branch plan, update compact pointers to merged-unreleased/released interpretation, and route any release execution as a separate USER decision.
 - Operational PR/watcher state may live in operator output or explicit historical PR sections, but merged current-state owners and historical branch records must not retain active branch truth, active PR Readiness phase, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`.
 - `Branch Cleanup Plan:` belongs in PR Readiness / Release Readiness planning and names stale/old branches, retired worktrees, or stale GitHub Desktop entries. `Branch Cleanup Execution Gate:` blocks deletion, worktree removal, branch switching, and GitHub Desktop-bound worktree cleanup during Release Readiness; cleanup executes only in the next `Branch Readiness Stage 2 - Execution Gate` after branch/worktree creation or validation proves every repository has a valid branch target.
 - `Stale Branch Cleanup Plan:` is required in Branch Readiness Stage 1 when prior PR/Release Readiness or multi-worktree preflight identified stale branch cleanup. Stage 2 must check `git worktree list`, checked-out branch targets, replacement branch/worktree identity, and GitHub Desktop-bound worktree binding before deleting a branch or removing a worktree.
@@ -133,10 +134,10 @@ Do not use this layer to replace:
 
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 - `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
-- `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
 - `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
