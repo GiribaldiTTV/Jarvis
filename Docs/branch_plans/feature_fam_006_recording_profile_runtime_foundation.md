@@ -163,6 +163,106 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_recording_pr
 - USER Decision / Waiver: `USER approved Branch Readiness Stage 2 setup and fold-down.`
 - Fold-Down Target: `Retain as historical/no-active authority evidence; do not restore as active authority.`
 
+### Changed Surface: Docs/feature_backlog.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve the active FAM-006 Recording Profile Runtime Foundation compact backlog pointer while accepting incoming FAM-007 v1.7.20 release-posture current-main context.`
+- Why This File Was Touched: `Branch Readiness Stage 2 and Workstream Entry repair aligned the compact FAM-006 backlog row with the active Recording Profile branch after Overlay Display Acceptance release and branch cleanup.`
+- Owned Behavior / Fact Class: `Compact FAM-006 family status and canonical detail pointer; not runtime behavior, release execution, PR state, issue state, FAM-007 ownership, or sibling-worktree ownership.`
+- Canonical Owner / Source Owner: `Docs/feature_backlog.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium - incoming main updates FAM-007 release posture while this branch preserves FAM-006 active runtime-branch status and detail owner.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming FAM-007 v1.7.20 release-posture backlog truth as current-main context and preserve the FAM-006 Recording Profile Runtime Foundation row, active branch pointer, historical Overlay Display Acceptance evidence, and pending Workstream/SLC-046 implementation boundary.`
+- Rebaseline Handling: `Preserve incoming current-main FAM-007 release posture and this branch-local FAM-006 active branch authority; do not accept FAM-007 package identity as FAM-006 identity.`
+- Validation Proof: `Branch governance validation, release-readiness health gate, FAM-006 HUD validators when required by changed files, source-owner marker validation, and runtime-fam006 validation-suite recommendation.`
+- Fallback Evidence: `FAM-006 branch authority record, this branch plan, compact backlog row, and incoming FAM-007 release-posture branch record.`
+- USER Decision / Waiver: `USER approved bounded overlap-intent source-truth repair before current-main reconciliation; no waiver to drop incoming current-main or FAM-006 branch-local authority.`
+- Fold-Down Target: `At PR Readiness/merge, compact backlog must project merge-stable FAM-006 branch posture without stale active branch wording.`
+
+### Changed Surface: Docs/phase_governance.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve branch-local governance clarifications needed for bounded Workstream continuation and validation while accepting incoming FAM-007 release-posture governance context.`
+- Why This File Was Touched: `Prior FAM-006 work added governance/validation standards for bounded Workstream continuation and LV1 proof discipline that remain relevant to the Recording Profile Runtime Foundation package.`
+- Owned Behavior / Fact Class: `Repo-wide phase governance and approval-boundary behavior; not FAM-006 runtime behavior, release execution, PR creation, issue mutation, FAM-007 ownership, or sibling-worktree ownership.`
+- Canonical Owner / Source Owner: `Docs/phase_governance.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium - incoming main may update release/readiness or FAM-007 governance while this branch preserves bounded Workstream/LV1 governance rules required by FAM-006.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming FAM-007 v1.7.20 release-posture governance additions as current-main context and preserve branch-local bounded Workstream continuation, real-proof, and validation-governance rules already accepted on this FAM-006 branch.`
+- Rebaseline Handling: `Preserve both current-main governance additions and this branch-local FAM-006 governance repair; if wording conflicts, keep the stricter phase-gate requirement unless source truth proves it belongs to a different carrier.`
+- Validation Proof: `Branch governance validation, worktree-confinement gate, release-readiness health gate, branch readiness planning fixture validation, and compileall when validator code changes.`
+- Fallback Evidence: `FAM-006 Workstream Entry repair records, branch authority record, this branch plan, and incoming FAM-007 release-posture records.`
+- USER Decision / Waiver: `USER approved bounded overlap-intent source-truth repair before current-main reconciliation; no waiver to weaken phase governance.`
+- Fold-Down Target: `Durable repo-wide governance remains after PR merge only where merge-stable; branch-specific narration must fold into branch records/plans.`
+
+### Changed Surface: Docs/prebeta_roadmap.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve the active FAM-006 Recording Profile Runtime Foundation roadmap pointer while accepting incoming FAM-007 v1.7.20 release-posture current-main context.`
+- Why This File Was Touched: `Branch Readiness Stage 2 and Workstream Entry repair aligned the compact FAM-006 roadmap row with the active Recording Profile branch and historical Overlay Display Acceptance release evidence.`
+- Owned Behavior / Fact Class: `Compact FAM-006 roadmap/milestone pointer truth; not runtime behavior, latest release truth, PR state, issue state, FAM-007 ownership, or sibling-worktree ownership.`
+- Canonical Owner / Source Owner: `Docs/prebeta_roadmap.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium - incoming main updates FAM-007 release-window posture while this branch preserves FAM-006 active runtime-branch roadmap status.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming FAM-007 v1.7.20 release-posture roadmap truth as current-main context and preserve the FAM-006 Recording Profile Runtime Foundation detail owner, historical Overlay Display Acceptance evidence, and pending SLC-046 implementation boundary.`
+- Rebaseline Handling: `Preserve incoming current-main FAM-007 roadmap updates and this branch-local FAM-006 active roadmap pointer; do not let either family overwrite the other's compact row.`
+- Validation Proof: `Branch governance validation, release-readiness health gate, release body validation, FAM-006 HUD validators when required by changed files, and source-owner marker validation.`
+- Fallback Evidence: `FAM-006 branch authority record, this branch plan, compact roadmap row, and incoming FAM-007 release-posture branch record.`
+- USER Decision / Waiver: `USER approved bounded overlap-intent source-truth repair before current-main reconciliation; no waiver to drop incoming current-main or FAM-006 branch-local authority.`
+- Fold-Down Target: `At PR Readiness/merge, roadmap must project merge-stable FAM-006 branch posture without stale active branch wording.`
+
+### Changed Surface: Docs/validation_helper_registry.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve validator/helper registry entries needed for FAM-006 Workstream validation while accepting incoming FAM-007 v1.7.20 validator/helper registry context.`
+- Why This File Was Touched: `FAM-006 Workstream Entry repair aligned HUD validators and validation-suite expectations with the active Recording Profile branch and preserved historical Overlay Profile/Overlay Display evidence.`
+- Owned Behavior / Fact Class: `Validation helper ownership, helper reuse, and validator scope registry; not runtime behavior, release execution, PR state, or family ownership by itself.`
+- Canonical Owner / Source Owner: `Docs/validation_helper_registry.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium - incoming main may add FAM-007 release-posture validator expectations while this branch preserves FAM-006 HUD/runtime validation routing.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming FAM-007 v1.7.20 validator/helper registry additions as current-main context and preserve FAM-006 HUD validator, internal sandbox, runtime-fam006 validation-suite, and branch-governance helper routing needed for SLC-046 through SLC-050.`
+- Rebaseline Handling: `Preserve both families' validator registry entries without collapsing FAM-007 provider/release validation into FAM-006 Recording Profile validation or vice versa.`
+- Validation Proof: `Branch governance validation, source-owner marker validation, FAM-006 HUD validators, FAM-006 internal sandbox validation, runtime-fam006 validation-suite recommendation, and compileall when helper code changes.`
+- Fallback Evidence: `Validation helper registry, FAM-006 branch plan, FAM-006 branch authority record, and incoming FAM-007 branch records.`
+- USER Decision / Waiver: `USER approved bounded overlap-intent source-truth repair before current-main reconciliation; no waiver to remove required validator routing.`
+- Fold-Down Target: `Merge-stable helper registry entries remain durable; branch-specific helper exceptions must be resolved before PR Readiness unless source truth grants an explicit carry-forward.`
+
+### Changed Surface: dev/orin_branch_governance_validation.py
+
+- Surface Class: `validator/helper`
+- Change Intent: `Preserve validator behavior needed for FAM-006 bounded Workstream, branch authority, overlap-intent, and release-readiness checks while accepting incoming FAM-007 v1.7.20 validator updates.`
+- Why This File Was Touched: `Prior branch-local governance/validator repair extended repo-wide validation so FAM-006 Workstream and LV1 proof standards are machine-checkable before implementation and PR readiness.`
+- Owned Behavior / Fact Class: `Repo-wide branch governance validator behavior; not product runtime behavior, recording execution, tray controls, export/share, provider/model work, or family ownership by itself.`
+- Canonical Owner / Source Owner: `dev/orin_branch_governance_validation.py`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `High - incoming main may update validator logic for FAM-007 release posture while this branch carries FAM-006 governance/Workstream validation behavior.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming FAM-007 v1.7.20 validator changes and preserve FAM-006 bounded Workstream, overlap-intent, active branch authority, and proof-governance validation behavior; after reconciliation, rerun governance, worktree-confinement, release-health, planning fixture, source-owner, HUD, runtime-fam006 recommendation, and compileall validation.`
+- Rebaseline Handling: `Manual inspection required during current-main reconciliation; do not accept one side wholesale if it would drop either incoming FAM-007 release-posture checks or branch-local FAM-006 Workstream/proof checks.`
+- Validation Proof: `git diff checks, branch governance validation, worktree-confinement gate, release-readiness health gate, branch readiness planning fixture validation, source-owner marker validation, FAM-006 HUD validators, runtime-fam006 validation-suite recommendation, and compileall.`
+- Fallback Evidence: `Validator registry, branch governance validator output, FAM-006 branch authority record, this branch plan, and incoming FAM-007 release-posture records.`
+- USER Decision / Waiver: `USER approved bounded overlap-intent source-truth repair before current-main reconciliation; no waiver to weaken validator coverage.`
+- Fold-Down Target: `Durable validator behavior remains repo-wide after merge only if all validation passes; branch-specific assumptions must fold into branch records/plans or be removed before PR Readiness.`
+
 ## Workstream Entry Whole-Package Analysis Requirements
 
 Workstream Entry must inspect all SLC-046 through SLC-050 before selecting the first seam. First-seam-only analysis is not enough.
