@@ -16,7 +16,7 @@ This plan exists so future FAM-007, FAM-008, FAM-010, packaging, privacy, memory
 
 ## Status
 
-Planning State: `Accepted as public-safe planning direction on the active FAM-007 setup completion carrier.`
+Planning State: `Repaired / pending USER acceptance as durable planning source truth on the active FAM-007 setup completion carrier.`
 
 Implementation State: `Not implemented.`
 
@@ -88,13 +88,13 @@ Protected assets are the material that gives Dev or Owner editions private value
 
 | Asset Class | Examples | Public Repo Allowed | Dev Repo Allowed | Owner Repo Allowed | Public Artifact Allowed | Required Gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| Owner memory | owner-specific memories, accepted feedback, long-term preferences, private interaction history | No | No | Yes, only with owner-approved local/private storage | No | Owner memory consent, local vault/encryption plan, no-export default |
+| Owner memory | owner-private accepted feedback, owner-specific memories, long-term preferences, private interaction history, and feedback not approved for public source truth | No | No | Yes, only with owner-approved local/private storage | No | Owner memory consent, local vault/encryption plan, no-export default |
 | Owner prompts and instructions | private system prompts, owner-specific Codex handoff rules, private assistant behavior prompts | No | No | Yes | No | Owner-only source root or private repo plus private-to-public sanitization before any excerpt leaves Owner |
 | Private strategy and planning | private strategy, private planning material, owner roadmap material not approved for public release, competitive/product timing notes | No | No by default | Yes | No | USER approval and sanitized public-safe summary only |
 | Secrets and credentials | GitHub tokens, provider keys, API keys, cookies, sessions, signing keys, vault secrets | No | No tracked storage; only scoped local secret store when approved | No tracked storage; only scoped local/owner vault when approved | No | Secret scan, vault/credential-store plan, no tracked plaintext |
 | Private Dev ORIN content | private Dev ORIN prompts, evals, workflows, unpublished developer helper instructions | No | Yes, if contributor-scoped and not owner-private | Only if manually selected by Owner | No | Dev private repo gate and no-owner-private scan |
 | Private eval logs and support data | raw eval conversations, debug logs, support bundles, screenshots, crash dumps, imported Public user diagnostics | No unless synthetic/sanitized | Yes only when scoped, redacted, and user-approved | Yes only when owner-approved | No by default | Redaction, provenance, user consent, and no-export review |
-| Private model or capability assets | model weights, adapters, private capability packs, proprietary data files, entitlement-gated binaries | No | Yes only in private artifact channel or private repo when licensed | Yes only in private artifact channel or private owner root | No unless public license/distribution is approved | License/integrity review, signed artifact gate, public release approval |
+| Private model or capability assets | model weights, adapters, private capability packs, proprietary data files, entitlement-gated binaries | No | Yes only in private artifact channel or private repo when licensed | Yes only in private artifact channel or private owner root | No unless public license/distribution is approved | License / redistribution review, artifact provenance, SBOM or manifest review, integrity/signature proof, signed artifact gate, public release approval |
 | Private automation | owner automation scripts, unrestricted repo/GitHub actions, private repair loops, private watcher/reporting routes | No | Yes only when dev-scoped and audited | Yes only when owner-approved and reversible | No | Tool permission review, audit log, bounded action contract |
 | Imported Public user data | Public settings, consent state, personalization, logs, future memory imported into Dev | No as raw data | Yes only after explicit import consent and no-export default | No by default; sanitized fixtures only | No | Public-to-Dev import consent level and provenance stamp |
 | Dev-only UI/tooling metadata | source-owner overlays, branch governance tools, review markers, debug badges, dev launchers | Public-safe docs/validators only | Yes | Yes if owner chooses | No production public UI | Public build exclusion and no-dev-tooling-in-public-UI validation |
@@ -105,6 +105,12 @@ Protected assets are the material that gives Dev or Owner editions private value
 Public-safe fixtures must be synthetic, non-secret, non-owner-specific, non-memory-derived, non-token-derived, and not copied from private logs unless sanitized and USER-approved.
 
 Fixtures in the public repo may demonstrate schemas, state transitions, validation boundaries, and no-leak rules, but they must not contain real Owner memory, real Dev/private content, real user logs, real provider credentials, private strategy, private planning material, private model data, or owner roadmap material not approved for public release.
+
+## Public Review-Bundle Leak-Prevention Rule
+
+Public review bundles must not include Owner/Dev private files, private repo paths, private logs, private prompts, private memory, private automation, private artifact references, private model outputs, private Codex handoff artifacts, or private screenshots unless the material is sanitized and USER-approved for that exact public review bundle.
+
+Review bundles created from the public repo should copy only public repo-relative files or public-safe generated review guides. If a future helper needs private-edition review bundles, it must use a private review root or explicit private-workspace routing and must not mix those files with public FAM review bundles.
 
 ## Edition Names
 
@@ -199,6 +205,8 @@ Owner Edition must not leak:
 - private repo automation
 
 Owner-As-Private-Test-Person Rule: Owner Edition may act as a private test/evaluation persona for Public Edition, including launching, testing, and evaluating the public user experience as the owner, but Owner behavior is not shipped Public Edition behavior. Owner behavior cannot define Public runtime behavior unless a later public-safe branch implements, validates, and releases that behavior through normal public source-truth and validation gates.
+
+Owner Screenshots / Logs / Evals Rule: Owner screenshots, Owner logs, Owner evaluation transcripts, private model outputs, and private Codex handoff artifacts are Owner-private by default. They may become public evidence only after explicit USER approval, sanitization, protected-asset review, and source-truth routing.
 
 ## Repository Topology
 
@@ -336,6 +344,7 @@ GitHub Desktop should be configured so each edition is visibly separate.
 - Public repo remote should be fetch-only unless the USER explicitly approves a different topology.
 - Owner may remain local-only until the USER approves private GitHub hosting.
 - Public repo remote must never be named `origin` in Dev or Owner repos.
+- Private Dev/Owner repos should configure `public-upstream` with no push URL, a disabled push URL, or a pre-push guard before private branch push workflows are trusted.
 - GitHub Desktop should show a visibly private repository for Dev and Owner before any push.
 - If remote naming is ambiguous, stop before commit or push and return a routing packet.
 
