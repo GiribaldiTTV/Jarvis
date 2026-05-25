@@ -57,6 +57,9 @@ Seam: `FAM-007 Local AI Provider Setup Completion Foundation`
 - Selected-next defer USER waiver: `Granted - USER approved recording selected-next/backlog defer posture for this PR-readiness pass without selecting, creating, splitting, or promoting a successor backlog identity.`
 - Next Workstream User Waiver: `Granted for this PR-readiness pass only; no successor runtime branch by inertia is authorized.`
 - No successor runtime branch by inertia: `USER-waived for PR Readiness Stage 1; successor selection is deferred until a later USER-approved Branch Readiness or runtime selection decision after this branch's PR/merge/release path.`
+- Selected-next defer user waiver: granted
+- Next workstream user waiver: granted
+- No successor runtime branch by inertia: user-waived
 
 ## Branch Class
 
@@ -444,6 +447,10 @@ Backlog Addition User Approval Missing: `USER-approved defer recorded for this P
 Selected-next defer USER waiver: `Granted`
 Next Workstream User Waiver: `Granted`
 No successor runtime branch by inertia: `USER-waived for PR Readiness Stage 1 only.`
+Selected-next defer user waiver: granted
+Next workstream user waiver: granted
+No successor runtime branch by inertia: user-waived
+No Active Branch Waiver Context: `USER-waived selected-next defer records no successor branch by inertia; this is not the merge-target branch-authority projection while other active authority records exist on main.`
 Successor Selection Posture: `Deferred - successor branch/workstream selection must occur only through a later USER-approved Branch Readiness or runtime selection decision after this branch's PR/merge/release path.`
 Stage 2 Execution Plan: `After USER approval, create the PR from feature/fam-007-local-ai-provider-setup-completion-foundation to main, verify live PR state, provision/verify watcher posture if required, handle same-PR Codex review comments only within branch scope, and leave merge/release/cleanup as separate decisions.`
 Stage 1 Repairs Made: `Current-main reconciliation to origin/main@a6c0c9da7676a1f2686a13f24f9a57fd298180d2 plus branch-record pre-PR live-state and selected-next defer source-truth repair.`
@@ -454,8 +461,8 @@ Next Legal Phase: `PR Readiness Stage 2 / PR creation approval after validation,
 
 ## Post-Merge State
 
-Repo State Projection: `No Active Branch`
-Post-Merge Branch Authority Projection: `No Active Branch after this branch merges; active FAM-007 setup completion authority should fold down to historical branch receipt during PR/merge/release closeout, with no successor selected by inertia.`
+Repo State Projection: `Successor deferred; active authority fold-down requires PR/merge/release closeout.`
+Post-Merge Branch Authority Projection: `This FAM-007 setup completion authority should fold down to historical branch receipt during PR/merge/release closeout, while any other active authority records on main remain governed by their own branch lanes.`
 Selected Next Workstream: `None`
 Selected Next Implementation Branch: `Not created`
 Successor Selection Posture: `Deferred by USER-approved selected-next defer; successor branch/workstream selection requires a later USER-approved Branch Readiness or runtime selection decision.`
