@@ -4,11 +4,11 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-
 
 ## Record State
 
-Record State: `Historical Branch Authority Projection`
+Record State: `Historical Released Branch Authority`
 
 ## Status
 
-Status: `PR Readiness Stage 1 Complete - FAM-007 user-operated consent UX foundation validated as hidden/status-only local consent UX/status proof; selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, and Release Window Audit are recorded; PR Readiness Stage 2 execution remains a later USER decision.`
+Status: `Historical released evidence - FAM-007 user-operated consent UX foundation merged as PR #206 and released in v1.7.18-prebeta; no active branch authority remains on this historical carrier. Active FAM-007 successor authority moves to feature/fam-007-local-ai-provider-setup-completion-foundation.`
 
 ## Branch Identity
 
@@ -22,16 +22,16 @@ Status: `PR Readiness Stage 1 Complete - FAM-007 user-operated consent UX founda
 - Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
 - Created From: `origin/main@f072be65fc5f00202a684a20b3cbb4611536ab51`
 - Branch Creation Basis: `USER-approved Branch Readiness Stage 2 setup after v1.7.17-prebeta release and Governance PR #204 merge.`
-- Latest Public Prerelease: `v1.7.17-prebeta`
-- Latest Public Release Commit: `f3309a9e1843dbbfef3931c5967ba4ff04b46dc0`
-- Current Source Baseline: `origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1`
+- Latest Public Prerelease: `v1.7.18-prebeta`
+- Latest Public Release Commit: `a909f8e92c1fb1abd06e54e1301f12459e647b45`
+- Current Source Baseline: `origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45`
 - Prior Released FAM-007 Evidence: `PR #203 FAM-007 Durable Local Consent Persistence Foundation released in v1.7.17-prebeta.`
 
 ## Current Phase
 
 Phase: `Historical Traceability`
 
-Stage: `PR Readiness Stage 1 merge-stable projection complete`
+Stage: `Merged and released historical traceability`
 
 Seam: `FAM-007 Local AI Provider User-Operated Consent UX Foundation`
 
@@ -39,13 +39,13 @@ Seam: `FAM-007 Local AI Provider User-Operated Consent UX Foundation`
 
 - Branch Authority Marker: `Historical Branch Evidence Projection`
 - Branch Evidence: `feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation`
-- Branch Authority State: `Historical projection for PR Readiness Stage 1 - this branch becomes merged-unreleased FAM-007 user-operated consent UX foundation evidence after PR merge and must not remain active branch authority on merged main.`
+- Branch Authority State: `Historical released evidence - this branch is not active branch authority after PR #206 merge and v1.7.18-prebeta release.`
 - Workstream Status: `Green - bounded user-operated consent UX foundation complete with provider setup and execution still future-gated.`
 - Hardening H1 Status: `Green - zero-repair H1 confirmed plan-vs-implementation alignment, hidden/status proof, desktop readiness display suppression continuity, provider-boundary preservation, and direct validator coverage.`
 - Live Validation LV1 Status: `Green - hidden/status-only local consent UX proof validated with User Test Summary waived because no meaningful visible user-operated consent path exists.`
-- PR Readiness Stage 1 Status: `Complete - selected-next defer / USER waiver truth, pre-PR live-state truth, post-merge No Active Branch projection, and successor Branch Readiness deferral are recorded.`
+- PR Readiness Stage 1 Status: `Historical complete - PR Readiness Stage 2, PR #206 merge, and v1.7.18-prebeta release are complete.`
 - Provider Execution State: `Blocked - provider setup completion, SDK/model execution, downloads, external calls, memory, and voice/Core sync remain pending USER decisions.`
-- Next Active Seam: `PR Readiness Stage 2 / PR creation after USER approval.`
+- Next Active Seam: `None on this historical carrier; active FAM-007 successor is feature/fam-007-local-ai-provider-setup-completion-foundation.`
 
 ## Branch Class
 
@@ -78,7 +78,7 @@ Sibling Worktree Candidate Exclusion: `FAM-006, Governance, Compact-AI, neutral-
 
 ## Blockers
 
-Blockers: `None for LV1 closeout - PR Readiness Stage 1 approval is the next legal phase.`
+Blockers: `None for historical traceability - this carrier is merged and released. Active setup completion foundation work belongs to feature/fam-007-local-ai-provider-setup-completion-foundation.`
 
 ## Entry Basis
 
@@ -94,7 +94,7 @@ Rollback Target: `Hardening`
 
 ## Next Legal Phase
 
-`PR Readiness`
+`Branch Readiness`
 
 ## Planning-Loop Guardrail
 

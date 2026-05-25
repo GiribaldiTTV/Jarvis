@@ -905,6 +905,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_default_provider_consent_capture_record,
     build_default_provider_consent_collection_foundation_config,
     build_default_provider_setup_foundation_config,
+    build_default_provider_setup_completion_config,
     build_fam007_foundation_readiness_state,
     build_default_provider_runtime_config,
     build_default_provider_readiness_config,
@@ -921,6 +922,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_provider_consent_collection_implementation_foundation_state,
     build_provider_consent_collection_foundation_state,
     build_provider_durable_consent_persistence_foundation_state,
+    build_provider_setup_completion_foundation_state,
     build_provider_user_operated_consent_ux_foundation_state,
     build_provider_runtime_contract_state,
     build_provider_selection_consent_state,
@@ -2726,6 +2728,114 @@ def validate() -> list[str]:
             "setup_intent_selected": True,
         },
     )
+
+    def _setup_completion_config(**overrides: object) -> dict[str, object]:
+        config: dict[str, object] = {
+            "schema_version": ai_provider_state.SETUP_COMPLETION_CONFIG_SCHEMA_VERSION,
+            "setup_completion_approved": True,
+            "provider_profile_finalized": True,
+            "provider_profile_valid": True,
+            "provider_config_finalized": True,
+            "provider_config_valid": True,
+            "no_secrets_validated": True,
+            "local_persistence_ready": True,
+            "validation_passed": True,
+            "reset_requested": False,
+            "future_sdk_handoff_ready": False,
+            "provenance": ai_provider_state.SETUP_COMPLETION_PROVENANCE_VALIDATION,
+        }
+        config.update(overrides)
+        return config
+
+    def _setup_completion_snapshot(
+        durable_record: object = None,
+        *,
+        setup_completion_config: object = None,
+        omit_record: bool = False,
+        omit_config: bool = False,
+    ):
+        setup_completion_kwargs: dict[str, object] = {}
+        if not omit_record:
+            setup_completion_kwargs["durable_consent_record"] = durable_record
+        if not omit_config:
+            setup_completion_kwargs["setup_completion_config"] = setup_completion_config
+        return build_provider_setup_completion_foundation_state(
+            execution_ready_readiness_config,
+            activation_config=execution_ready_activation_config,
+            path_consent_config=setup_foundation_future_branch_path_config,
+            setup_foundation_config=consent_collection_ready_setup_config,
+            consent_collection_config=consent_capture_ready_collection_config,
+            consent_capture_record=_consent_capture_record(setup_consent_granted=True),
+            now_utc=fixed_now,
+            surface_role="core",
+            **setup_completion_kwargs,
+        )
+
+    default_setup_completion_config_snapshot = (
+        build_default_provider_setup_completion_config()
+    )
+    default_setup_completion_snapshot = _setup_completion_snapshot(
+        omit_record=True,
+        omit_config=True,
+    )
+    missing_config_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config=None,
+    )
+    invalid_config_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config={
+            "schema_version": "provider-setup-completion-foundation-config.v0",
+            "provider_profile_finalized": True,
+        },
+    )
+    consent_ux_required_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(no_secrets=False),
+        setup_completion_config=_setup_completion_config(),
+    )
+    profile_missing_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config=_setup_completion_config(
+            provider_profile_finalized=False
+        ),
+    )
+    profile_invalid_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config=_setup_completion_config(provider_profile_valid=False),
+    )
+    config_missing_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config=_setup_completion_config(
+            provider_config_finalized=False
+        ),
+    )
+    config_invalid_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config=_setup_completion_config(provider_config_valid=False),
+    )
+    no_secrets_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config=_setup_completion_config(no_secrets_validated=False),
+    )
+    validation_failed_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config=_setup_completion_config(validation_passed=False),
+    )
+    reset_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config=_setup_completion_config(reset_requested=True),
+    )
+    ready_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config=_setup_completion_config(),
+    )
+    future_handoff_setup_completion_snapshot = _setup_completion_snapshot(
+        _durable_consent_record(setup_consent_granted=True),
+        setup_completion_config=_setup_completion_config(
+            future_sdk_handoff_ready=True,
+            provenance=ai_provider_state.SETUP_COMPLETION_PROVENANCE_HANDOFF,
+        ),
+    )
     normalized_invalid_consent_ux_intent = normalize_provider_consent_ux_intent(
         {"schema_version": "provider-user-operated-consent-ux-intent.v0"}
     )
@@ -3088,6 +3198,25 @@ def validate() -> list[str]:
         "revoke_intent": revoke_intent_consent_ux_snapshot.as_renderer_payload(),
         "reset_intent": reset_intent_consent_ux_snapshot.as_renderer_payload(),
         "invalid_intent": invalid_intent_consent_ux_snapshot.as_renderer_payload(),
+    }
+    setup_completion_payloads = {
+        "default": default_setup_completion_snapshot.as_renderer_payload(),
+        "missing_config": missing_config_setup_completion_snapshot.as_renderer_payload(),
+        "invalid_config": invalid_config_setup_completion_snapshot.as_renderer_payload(),
+        "consent_ux_required": (
+            consent_ux_required_setup_completion_snapshot.as_renderer_payload()
+        ),
+        "profile_missing": profile_missing_setup_completion_snapshot.as_renderer_payload(),
+        "profile_invalid": profile_invalid_setup_completion_snapshot.as_renderer_payload(),
+        "config_missing": config_missing_setup_completion_snapshot.as_renderer_payload(),
+        "config_invalid": config_invalid_setup_completion_snapshot.as_renderer_payload(),
+        "no_secrets": no_secrets_setup_completion_snapshot.as_renderer_payload(),
+        "validation_failed": (
+            validation_failed_setup_completion_snapshot.as_renderer_payload()
+        ),
+        "reset": reset_setup_completion_snapshot.as_renderer_payload(),
+        "ready": ready_setup_completion_snapshot.as_renderer_payload(),
+        "future_handoff": future_handoff_setup_completion_snapshot.as_renderer_payload(),
     }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -7313,6 +7442,335 @@ def validate() -> list[str]:
             failures,
         )
 
+    _require(
+        default_setup_completion_config_snapshot.schema_version
+        == ai_provider_state.SETUP_COMPLETION_CONFIG_SCHEMA_VERSION
+        and default_setup_completion_config_snapshot.config_valid,
+        "default setup completion config must publish the current schema and fail-closed valid envelope",
+        failures,
+    )
+    setup_completion_expectations = {
+        "default": (
+            ai_provider_state.SETUP_COMPLETION_STATE_BLOCKED_BY_CONSENT_UX,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_CONSENT_UX_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_REASON_CONSENT_UX_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_MISSING,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_MISSING,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_FAIL_CLOSED,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_MISSING,
+        ),
+        "missing_config": (
+            ai_provider_state.SETUP_COMPLETION_STATE_BLOCKED_BY_CONFIG,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_CONFIG_FINALIZATION_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_REASON_CONFIG_MISSING,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_MISSING,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_MISSING,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_FAIL_CLOSED,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+        "invalid_config": (
+            ai_provider_state.SETUP_COMPLETION_STATE_BLOCKED_BY_VALIDATION,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_VALIDATION_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_REASON_CONFIG_INVALID,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_MISSING,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_MISSING,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_FAIL_CLOSED,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+        "consent_ux_required": (
+            ai_provider_state.SETUP_COMPLETION_STATE_BLOCKED_BY_CONSENT_UX,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_CONSENT_UX_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_REASON_CONSENT_UX_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_READY,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_LOCAL_READY,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_BLOCKED,
+        ),
+        "profile_missing": (
+            ai_provider_state.SETUP_COMPLETION_STATE_BLOCKED_BY_PROFILE,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_PROFILE_FINALIZATION_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_REASON_PROFILE_MISSING,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_MISSING,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_READY,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_FAIL_CLOSED,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+        "profile_invalid": (
+            ai_provider_state.SETUP_COMPLETION_STATE_BLOCKED_BY_PROFILE,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_PROFILE_FINALIZATION_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_REASON_PROFILE_INVALID,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_INVALID,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_READY,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_FAIL_CLOSED,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+        "config_missing": (
+            ai_provider_state.SETUP_COMPLETION_STATE_BLOCKED_BY_CONFIG,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_CONFIG_FINALIZATION_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_REASON_CONFIG_MISSING,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_MISSING,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_READY,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_FAIL_CLOSED,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+        "config_invalid": (
+            ai_provider_state.SETUP_COMPLETION_STATE_BLOCKED_BY_CONFIG,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_CONFIG_FINALIZATION_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_REASON_CONFIG_INVALID,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_INVALID,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_READY,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_FAIL_CLOSED,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+        "no_secrets": (
+            ai_provider_state.SETUP_COMPLETION_STATE_BLOCKED_BY_NO_SECRETS,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_NO_SECRETS_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_REASON_NO_SECRETS_FAILED,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_FAIL_CLOSED,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+        "validation_failed": (
+            ai_provider_state.SETUP_COMPLETION_STATE_BLOCKED_BY_VALIDATION,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_VALIDATION_REQUIRED,
+            ai_provider_state.SETUP_COMPLETION_REASON_VALIDATION_FAILED,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_READY,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_FAIL_CLOSED,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+        "reset": (
+            ai_provider_state.SETUP_COMPLETION_STATE_RESET_LOCAL_ONLY,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_RESET_REQUESTED,
+            ai_provider_state.SETUP_COMPLETION_REASON_RESET_REQUESTED,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_READY,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_LOCAL_READY,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY,
+            ai_provider_state.SETUP_COMPLETION_RESET_REQUESTED,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+        "ready": (
+            ai_provider_state.SETUP_COMPLETION_STATE_READY_LOCAL_ONLY,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_FUTURE_SDK_HANDOFF,
+            ai_provider_state.SETUP_COMPLETION_REASON_READY_LOCAL_ONLY,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_READY,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_LOCAL_READY,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_FUTURE_GATED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_BLOCKED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+        "future_handoff": (
+            ai_provider_state.SETUP_COMPLETION_STATE_READY_FOR_FUTURE_SDK_HANDOFF,
+            ai_provider_state.SETUP_COMPLETION_BLOCKER_FUTURE_SDK_HANDOFF,
+            ai_provider_state.SETUP_COMPLETION_REASON_READY_FOR_FUTURE_SDK_HANDOFF,
+            ai_provider_state.SETUP_COMPLETION_PROFILE_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_CONFIG_FINALIZED,
+            ai_provider_state.SETUP_COMPLETION_NO_SECRETS_READY,
+            ai_provider_state.SETUP_COMPLETION_VALIDATION_LOCAL_READY,
+            ai_provider_state.SETUP_COMPLETION_PERSISTENCE_LOCAL_METADATA_ONLY,
+            ai_provider_state.SETUP_COMPLETION_RESET_NONE,
+            ai_provider_state.SETUP_COMPLETION_PROVIDER_SETUP_GATE_FUTURE_GATED,
+            ai_provider_state.SETUP_COMPLETION_SDK_HANDOFF_READY_FUTURE_GATED,
+            CONSENT_DURABLE_CONSENT_STATE_GRANTED,
+        ),
+    }
+    for label, expectation in setup_completion_expectations.items():
+        setup_completion_payload = setup_completion_payloads[label]
+        (
+            expected_state,
+            expected_blocker,
+            expected_reason,
+            expected_profile,
+            expected_config,
+            expected_no_secrets,
+            expected_validation,
+            expected_persistence,
+            expected_reset,
+            expected_setup_gate,
+            expected_sdk_handoff,
+            expected_setup_consent,
+        ) = expectation
+        _require(
+            setup_completion_payload["stateId"]
+            == ai_provider_state.FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_STATE_ID
+            and setup_completion_payload["mode"]
+            == ai_provider_state.FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_MODE,
+            f"{label} setup-completion fixture must use setup completion identity",
+            failures,
+        )
+        _require(
+            setup_completion_payload["providerSetupCompletionStateSchemaVersion"]
+            == ai_provider_state.SETUP_COMPLETION_STATE_SCHEMA_VERSION
+            and setup_completion_payload[
+                "providerSetupCompletionConfigSchemaVersion"
+            ]
+            == ai_provider_state.SETUP_COMPLETION_CONFIG_SCHEMA_VERSION,
+            f"{label} setup-completion fixture must publish setup completion schemas",
+            failures,
+        )
+        _require(
+            setup_completion_payload["providerSetupCompletionState"]
+            == expected_state
+            and setup_completion_payload["providerSetupCompletionBlockerState"]
+            == expected_blocker
+            and setup_completion_payload["providerSetupCompletionReasonCode"]
+            == expected_reason
+            and setup_completion_payload["providerSetupCompletionProfileStatus"]
+            == expected_profile
+            and setup_completion_payload["providerSetupCompletionConfigStatus"]
+            == expected_config
+            and setup_completion_payload["providerSetupCompletionNoSecretsStatus"]
+            == expected_no_secrets
+            and setup_completion_payload[
+                "providerSetupCompletionValidationStatus"
+            ]
+            == expected_validation
+            and setup_completion_payload[
+                "providerSetupCompletionPersistenceStatus"
+            ]
+            == expected_persistence
+            and setup_completion_payload["providerSetupCompletionResetState"]
+            == expected_reset
+            and setup_completion_payload[
+                "providerSetupCompletionProviderSetupGateState"
+            ]
+            == expected_setup_gate
+            and setup_completion_payload[
+                "providerSetupCompletionProviderExecutionGateState"
+            ]
+            == ai_provider_state.SETUP_COMPLETION_PROVIDER_EXECUTION_GATE_DISABLED
+            and setup_completion_payload[
+                "providerSetupCompletionSdkHandoffState"
+            ]
+            == expected_sdk_handoff
+            and setup_completion_payload[
+                "providerSetupCompletionSetupConsentState"
+            ]
+            == expected_setup_consent,
+            f"{label} setup-completion fixture must derive local completion, reset, and handoff posture",
+            failures,
+        )
+        _require(
+            setup_completion_payload["providerSetupCompletionStatusProofState"]
+            == ai_provider_state.SETUP_COMPLETION_STATUS_PROOF_HIDDEN_TELEMETRY
+            and setup_completion_payload[
+                "providerSetupCompletionDesktopDisplayState"
+            ]
+            == ai_provider_state.SETUP_COMPLETION_DESKTOP_DISPLAY_SUPPRESSED
+            and setup_completion_payload["desktopAiOwnedReadinessDisplayState"]
+            == AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED,
+            f"{label} setup-completion fixture must publish hidden telemetry and preserve display suppression",
+            failures,
+        )
+        _require(
+            setup_completion_payload["providerSetupCompletionProviderVisibleData"]
+            == "none"
+            and setup_completion_payload["providerSetupCompletionSentToProvider"]
+            is False
+            and setup_completion_payload[
+                "providerSetupCompletionCanAcceptPrompts"
+            ]
+            is False
+            and setup_completion_payload["providerVisibleData"] == "none"
+            and setup_completion_payload["sentToProvider"] is False
+            and setup_completion_payload["canAcceptPrompts"] is False,
+            f"{label} setup-completion fixture must keep provider-visible data and prompts closed",
+            failures,
+        )
+        _require(
+            setup_completion_payload["promptSendPosture"]
+            == PROMPT_SEND_POSTURE_DISABLED
+            and setup_completion_payload["modelExecutionStatus"]
+            == MODEL_EXECUTION_STATUS_DISABLED
+            and setup_completion_payload["providerExecutionGateState"]
+            == PROVIDER_EXECUTION_GATE_DISABLED
+            and setup_completion_payload["providerSetupCompletionNetworkEgressState"]
+            == NETWORK_EGRESS_BLOCKED
+            and setup_completion_payload["networkEgressState"]
+            == NETWORK_EGRESS_BLOCKED
+            and setup_completion_payload["providerSetupCompletionMemoryState"]
+            == MEMORY_INDEXING_DISABLED
+            and setup_completion_payload["memoryIndexingState"]
+            == MEMORY_INDEXING_DISABLED
+            and setup_completion_payload["providerSetupCompletionVoiceState"]
+            == "voice-runtime-disabled"
+            and setup_completion_payload["voiceRuntimeState"]
+            == "voice-runtime-disabled",
+            f"{label} setup-completion fixture must not enable model, network, memory, or voice paths",
+            failures,
+        )
+        _require(
+            setup_completion_payload[
+                "providerSetupCompletionFunctionalAiCriteriaState"
+            ]
+            == ai_provider_state.SETUP_COMPLETION_FUNCTIONAL_AI_CRITERIA_PENDING
+            and setup_completion_payload[
+                "providerSetupCompletionV18ContinuationState"
+            ]
+            == ai_provider_state.SETUP_COMPLETION_V18_CONTINUATION_PENDING,
+            f"{label} setup-completion fixture must keep functional AI and v1.8.0 future-gated",
+            failures,
+        )
+
     original_durable_loader = ai_provider_state.load_provider_durable_consent_record
     durable_loader_calls: list[object] = []
     first_loaded_record = normalize_provider_durable_consent_record(
@@ -7426,6 +7884,14 @@ def validate() -> list[str]:
         and "consent_ux_setup_display" in core_renderer
         and "consent_ux_execution_display" in core_renderer,
         "desktop and Core renderers must publish consent UX status/separation proof keys",
+        failures,
+    )
+    _require(
+        "setup_completion_status_proof" in renderer
+        and "setup_completion_sdk_handoff" in renderer
+        and "setup_completion_status_proof" in core_renderer
+        and "setup_completion_sdk_handoff" in core_renderer,
+        "desktop and Core renderers must publish setup completion hidden-telemetry proof keys",
         failures,
     )
 
@@ -7719,7 +8185,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "build_provider_user_operated_consent_ux_foundation_state",
+        "build_provider_setup_completion_foundation_state",
         "_publish_ai_provider_state_to_page",
         "AI_PROVIDER_STATE_READY",
         "window.setAIProviderState",
@@ -7779,6 +8245,20 @@ def validate() -> list[str]:
         "setup_foundation_validation",
         "setup_foundation_persistence",
         "setup_foundation_gate",
+        "setup_completion",
+        "setup_completion_blocker",
+        "setup_completion_reason",
+        "setup_completion_profile",
+        "setup_completion_config",
+        "setup_completion_no_secrets",
+        "setup_completion_validation",
+        "setup_completion_persistence",
+        "setup_completion_reset",
+        "setup_completion_status_proof",
+        "setup_completion_desktop_display",
+        "setup_completion_setup_gate",
+        "setup_completion_execution_gate",
+        "setup_completion_sdk_handoff",
         "consent_collection_foundation",
         "consent_collection_blocker",
         "consent_collection_validation",

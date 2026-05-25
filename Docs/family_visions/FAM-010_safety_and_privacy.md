@@ -13,6 +13,7 @@ Safety and Privacy should be visible product behavior, not hidden policy. Users 
 - Privacy-first defaults are non-negotiable.
 - Local-only, local-network, external API, and no-provider modes should be visible when those modes exist.
 - Provider-visible data must be explicit before prompts, provider setup, or model execution occur.
+- Public, Dev, and Owner privacy boundaries must remain separate: Owner-private memory/prompts/secrets and Dev-only tooling must not leak into public source, public artifacts, or Public Edition runtime.
 - Secrets, memory, indexing, learning, and personalization require dedicated USER-approved planning before implementation.
 - Deferral is acceptable when local capability is not safe, practical, or approved.
 
@@ -24,5 +25,6 @@ Safety and Privacy should be visible product behavior, not hidden policy. Users 
 ## Canonical Pointers
 
 - Project vision: `Docs/nexus_vision.md`
+- Edition capability / trust boundary release plan: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - Backlog registry: `Docs/feature_backlog.md`
 - Roadmap posture: `Docs/prebeta_roadmap.md`

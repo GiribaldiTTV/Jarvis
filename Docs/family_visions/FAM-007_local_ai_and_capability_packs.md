@@ -13,6 +13,7 @@ Local AI and capability packs should make Nexus feel smarter while preserving lo
 - The base app should remain useful without a local LLM.
 - Heavy local AI should remain optional capability-pack work, not default installer bloat.
 - Assisted Desktop Mode and no-provider behavior should be defined before real provider execution.
+- Owner, Dev, and Public AI deployment must follow the public-safe Edition Capability / Trust Boundary plan before provider/model/runtime work claims release readiness.
 - Provider-visible data, privacy mode, hardware eligibility, network/download behavior, and memory/indexing boundaries must be explicit before runtime execution.
 - External API use should be opt-in, revocable, cost/privacy-aware, and visible.
 
@@ -24,6 +25,7 @@ Local AI and capability packs should make Nexus feel smarter while preserving lo
 ## Canonical Pointers
 
 - Project vision: `Docs/nexus_vision.md`
+- Edition capability / trust boundary release plan: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - Backlog registry: `Docs/feature_backlog.md`
-- Durable receipt pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md`
+- Durable receipt pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
 - Provider-state validator: `dev/orin_ai_provider_state_validation.py`

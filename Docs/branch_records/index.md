@@ -132,6 +132,7 @@ Do not use this layer to replace:
 ## Active Branch Authority Records
 
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
+- `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
 
 ## Historical Branch Authority Records
 
