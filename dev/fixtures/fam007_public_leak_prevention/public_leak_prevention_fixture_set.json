@@ -101,6 +101,12 @@
       "expectedReason": "private-path"
     },
     {
+      "caseId": "private-owner-backup-path",
+      "surface": "review-bundle-file-list",
+      "payload": "D:\\Nexus Backups\\Nexus Desktop AI Owner\\private-memory-backup.json",
+      "expectedReason": "private-path"
+    },
+    {
       "caseId": "private-prompt",
       "surface": "review-bundle-content",
       "payload": "synthetic owner private prompt instruction canary",
