@@ -3,8 +3,8 @@
 Branch: `feature/fam-006-recording-profile-runtime-foundation`
 Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `origin/main` at `26dded3f84c526e0525c7d3b18fcd2607e16590d`
-Current origin/main: `a271496e1657842d536ebbf4442aa632a332e88c`
-Origin/Main Advanced Since Branch Creation: `YES - reconciled before SLC-046 implementation/H1`
+Current origin/main: `d5f5bce378ffd0629dd9b852f0aae974b51d2c3f`
+Origin/Main Advanced Since Branch Creation: `YES - reconciled through origin/main d5f5bce378ffd0629dd9b852f0aae974b51d2c3f after SLC-047 preservation commit`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md`
 Branch Runtime Engineering Plan: `Accepted for bounded SLC-046 Recording Profile data/state foundation implementation/H1 and bounded SLC-047 Recording Profile selection/editing entry point implementation; later seams remain pending USER approval.`
 Engineering Plan Status: `SLC-047 Workstream implementation green - H1 pending`
@@ -206,7 +206,7 @@ Carrier Lifecycle Classification: `Fresh current branch`
 Remote Branch State: `Pending first push`
 Unique Branch Diff: `Stage 2 source-truth setup edits only`
 Origin/Main Ancestry: `Created directly from origin/main 26dded3f84c526e0525c7d3b18fcd2607e16590d`
-Origin/Main Advanced Since Branch Creation: `NO`
+Origin/Main Advanced Since Branch Creation: `YES - reconciled through origin/main d5f5bce378ffd0629dd9b852f0aae974b51d2c3f`
 Open PR State: `No live PR`
 Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-006`
 Recommended Stage 2 Carrier Action: `Create/rebind stable FAM-006 worktree to this fresh branch and commit/push setup source truth.`
@@ -233,7 +233,7 @@ Branch Closure Rule: `Do not claim package-complete until admitted slices are im
 
 ## Blockers
 
-Active Blockers: `Runtime implementation, Workstream entry, PR creation, merge, release, issue mutation, artifacts/raw evidence handling, sibling-worktree mutation, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending separate USER decisions.`
+Active Blockers: `SLC-047 Hardening H1, SLC-048 through SLC-050 implementation, PR creation, merge, release, issue mutation, artifacts/raw evidence handling, sibling-worktree mutation, tray recording controls, recording execution, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending separate USER decisions.`
 PR Readiness Blocker: `Pending Workstream, Hardening, Live Validation, and later USER approval.`
 
 ## Exit Criteria

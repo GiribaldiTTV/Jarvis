@@ -16,12 +16,54 @@ import stat
 import subprocess
 from collections import Counter
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_REVIEW_ROOT_NAME = "Nexus USER Review"
 CUSTOM_REVIEW_PATH_NONE = "None - stable review root enforced"
+PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
+    "PASS - copied file list and START_HERE file-list metadata are repo-relative "
+    "and exclude Owner/Dev private path patterns; copied file content remains "
+    "source truth for USER inspection."
+)
+
+
+PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "owner-private-path",
+        re.compile(
+            r"(?:^|[\\/ _.-])(?:owner[-_ ]?private|private[-_ ]?owner|"
+            r"nexus[-_ ]?desktop[-_ ]?ai[-_ ]?owner|owner[-_ ]?edition)(?:[\\/ _.-]|$)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "dev-private-path",
+        re.compile(
+            r"(?:^|[\\/ _.-])(?:private[-_ ]?dev|dev[-_ ]?private|"
+            r"private[-_ ]?orin|dev[-_ ]?orin)(?:[\\/ _.-]|$)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "private-artifact-path",
+        re.compile(
+            r"(?:^|[\\/ _.-])private[-_ ]?"
+            r"(?:prompt|memory|log|eval|screenshot|automation|handoff|artifact|model|capability)"
+            r"(?:[\\/ _.-]|$)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "private-repo-path",
+        re.compile(
+            r"(?:^|[\\/ _.-])(?:owner|dev)[-_ ]?repo(?:[\\/ _.-]|$)|"
+            r"(?:^|[\\/])\.codex[\\/](?:worktrees|private|owner|dev)(?:[\\/]|$)",
+            re.IGNORECASE,
+        ),
+    ),
+)
 
 
 def _desktop_path() -> Path:
@@ -124,6 +166,32 @@ def _bundle_files(target: Path) -> set[Path]:
     return {path for path in target.rglob("*") if path.is_file()}
 
 
+def _is_repo_relative_review_path(path: str) -> bool:
+    if not isinstance(path, str) or not path:
+        return False
+    if "://" in path or path.startswith("~"):
+        return False
+    if Path(path).is_absolute() or PurePosixPath(path).is_absolute():
+        return False
+    windows_path = PureWindowsPath(path)
+    if windows_path.is_absolute() or windows_path.drive or windows_path.root:
+        return False
+    parts = set(PurePosixPath(path).parts) | set(windows_path.parts)
+    return ".." not in parts
+
+
+def _public_review_bundle_file_list_failures(paths: list[str]) -> list[str]:
+    failures: list[str] = []
+    for path in paths:
+        normalized = path.replace("\\", "/")
+        if not _is_repo_relative_review_path(path):
+            failures.append(f"{path}: public review bundle file list must stay repo-relative")
+        for reason, pattern in PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS:
+            if pattern.search(normalized):
+                failures.append(f"{path}: public review bundle file list matched {reason}")
+    return failures
+
+
 def build_bundle(
     *,
     review_root_name: str,
@@ -190,6 +258,18 @@ def build_bundle(
         if path not in copied_targets and path != start_here
     )
     bundle_file_count = len(actual_bundle_files)
+    leak_prevention_failures = _public_review_bundle_file_list_failures(
+        [
+            *(source_rel for source_rel, _copied_rel in copied),
+            *(copied_rel for _source_rel, copied_rel in copied),
+            *extra_bundle_files,
+        ]
+    )
+    if leak_prevention_failures:
+        raise ValueError(
+            "Public review bundle leak-prevention failed:\n"
+            + "\n".join(f"- {failure}" for failure in leak_prevention_failures)
+        )
 
     readme_lines: list[str] = [
         f"# {title}",
@@ -212,6 +292,7 @@ def build_bundle(
         f"Expected File Count: {expected_count}",
         f"Copied File Count: {copied_count}",
         f"Extra Bundle File Count: {len(extra_bundle_files)}",
+        f"Public Review Bundle Leak-Prevention: {PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS}",
         f"Validation Summary: {validation_summary}",
         f"Exact USER Decision This Bundle Supports: {exact_user_decision}",
         "",

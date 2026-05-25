@@ -310,6 +310,23 @@ The important rule is separation:
 - separate update channels
 - separate secrets stores
 
+## Off-Boot Backup And Recovery Planning
+
+Nexus Desktop AI must not rely on the OS boot drive as the only copy of personalized AI state, private edition source, private memory, or edition recovery material. This is planning only; it does not create repositories, copy data, enable memory, or implement backup automation.
+
+The preferred future posture is:
+
+- Public user data may remain in the normal Public data root during runtime, but any future backup/recovery feature must offer an off-boot backup target before persistent AI personalization is treated as durable.
+- Dev Edition should have a private source root and a separate off-boot backup/recovery root.
+- Nexus Desktop AI Owner should have its own private repo when USER approves private hosting, or a local-only Owner skeleton first when USER chooses that posture.
+- Nexus Desktop AI Owner must also have a separate off-boot backup/recovery root before owner-private memory, owner strategy, owner prompts, private automation, or owner-specific personalization is treated as durable.
+- `D:\Nexus Backups\Nexus Desktop AI`, `D:\Nexus Backups\Nexus Desktop AI Dev`, and `D:\Nexus Backups\Nexus Desktop AI Owner` are acceptable planning examples when `D:\` is not the OS boot drive.
+- A same-machine non-boot drive protects against OS-drive failure, but not whole-machine loss; future security planning should recommend an additional encrypted external or private off-device backup when the USER is ready.
+- Any backup containing private memory, prompts, logs, transcripts, screenshots, model outputs, credentials, private strategy, private planning material, or private automation is protected material by default.
+- Backup roots, restore logs, manifests, and recovery screenshots must not be included in public commits, public review bundles, public artifacts, or public release evidence unless sanitized and USER-approved through `USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION`.
+
+Future backup/recovery work must prove that a reinstall can restore the approved edition's allowed state without crossing edition boundaries. Public restore must not import Dev or Owner state. Dev restore must not import Owner state. Owner restore must remain owner-private.
+
 ## GitHub Desktop Setup Plan
 
 GitHub Desktop should be configured so each edition is visibly separate.
@@ -612,6 +629,25 @@ Expected outputs:
 
 This is the clearest "the time is now" breakpoint for creating DEV and OWNER versions.
 
+## USER Action Gate Registry
+
+This registry gives future Codex runs durable, searchable identifiers for moments where USER must create, approve, configure, or personally perform an action before work can continue. These identifiers are source-truth gates, not implementation. A branch may mention one of these gates only when it also states the trigger, required USER action, allowed scope, blocked scope, validation proof, and exact approval text.
+
+| Gate ID | Trigger | Required USER Action | Allowed Scope After Approval | Blocked Until Separate Approval | Validation / Proof |
+| --- | --- | --- | --- | --- | --- |
+| `USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE` | Breakpoint 1 is green and Dev skeleton setup becomes the next legal branch candidate. | Create or approve the private Dev repository or approve a local-only private Dev skeleton path. | Private Dev skeleton setup, private origin remote, public-upstream fetch-only remote, Dev edition manifest placeholders, and Dev-only `.gitignore` / secret rules. | Owner private material, provider/model execution, memory import, public artifact publication, public-to-dev import implementation, and public repo leakage. | Private repo/local path proof, remote naming proof, no public push path proof, secret scan plan, and source-truth record of private/public separation. |
+| `USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE` | Breakpoint 1 is green and Owner skeleton setup becomes the next legal branch candidate. | Create or approve the private Owner repository, or explicitly choose local-only Owner hosting first. | Nexus Desktop AI Owner skeleton setup, private/local owner root, owner vault planning, private origin remote if hosted, and public-upstream fetch-only remote. | Dev/public inheritance of Owner memory, prompts, strategy, private logs, private automation, credentials, or owner-only model/capability assets. | Private/local path proof, no public remote push proof, owner-private asset exclusion proof, and USER-approved hosting posture. |
+| `USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP` | Dev or Owner private repo/skeleton setup is approved. | Bind GitHub Desktop to the correct private Dev/Owner local path and verify remote names before any push. | GitHub Desktop setup for private repo `origin`; public repo as `public-upstream`; push URL disabled or guarded for public-upstream. | Any push from private Dev/Owner roots to the public GitHub repo, or any public repo remote named `origin` inside private roots. | Git remote proof, GitHub Desktop path proof, no-push-url or pre-push guard proof, and screenshot/manual verification where requested. |
+| `USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT` | Public-to-Dev migration work is proposed after private Dev boundary proof exists. | Choose import consent level and approve data classes to copy from Public to Dev. | Copy-only import of approved Public settings, consent state, personalization, selected logs/support data, or separately approved memory. | Importing secrets, tokens, API keys, owner-private data, no-export data, raw private logs, or memory without separate explicit approval. | Consent-level receipt, provenance stamps, copy-not-move proof, reset path, and validation that Public data remains intact. |
+| `USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION` | Any private Dev/Owner work is proposed for public repo import, public artifact inclusion, or public release evidence. | Approve the Private-To-Public Sanitization Gate for the exact candidate files/artifacts. | Sanitized public-safe code, docs, fixtures, or generic patterns after protected asset scan, secret scan, prompt/memory strip, private path scan, model/capability asset scan, private automation scan, source-truth review, and USER approval. | Owner/Dev private prompts, memory, strategy, logs, screenshots, model outputs, automation, credentials, private repo paths, private artifacts, and private release evidence. | PASS sanitization gate or explicit USER waiver naming residual risk. |
+| `USER-ACTION-FAM007-OWNER-VAULT-OR-PRIVATE-HOSTING` | Owner Edition requires secrets, private memory, private strategy, or private automation beyond source-truth planning. | Choose local-only Owner vault/private root or approve private GitHub hosting and access rules. | Owner-only local vault planning, private storage root, audit log posture, reversible automation rules, and private backup/hosting posture. | Public repo storage, Dev inheritance of owner-private state, external calls, model execution, or persistent memory runtime until separately approved. | Owner path/hosting proof, access-boundary proof, encryption/vault plan where needed, and no public artifact proof. |
+| `USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY` | Public, Dev, or Owner AI personalization, memory, private state, or edition recovery work is proposed beyond source-truth planning. | Choose approved off-boot backup/recovery root(s), decide whether Owner also uses private GitHub hosting or local-only backup first, and approve restore-proof expectations. | Planning or implementation for the exact approved backup/recovery seam, including off-boot local backup path, restore test, edition separation proof, and protected-material handling. | Relying only on the OS boot drive, copying private state to the public repo, cross-edition restore, unencrypted secret backup, hidden memory backup, provider/model execution, or private repo creation beyond the approved seam. | Off-boot path proof, restore drill or fixture proof, no public artifact proof, edition-separation proof, encryption/vault plan where private material is present, and USER-approved recovery posture. |
+| `USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION` | A future branch proposes any provider SDK integration, model execution, prompt acceptance, downloads, network calls, or `canAcceptPrompts=true`. | Approve provider/model execution scope, provider-visible data boundary, cost/privacy posture, model/download source, and rollback/disable path. | The exact approved provider/model execution seam only. | Memory/learning, voice/Core sync, installer/shortcut work, private editions, external calls beyond the approved provider path, and public release claims. | Provider-state validation, consent validation, no hidden external calls, provider-visible data proof, and direct runtime proof. |
+| `USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION` | Any branch proposes persistent memory, indexing, retrieval, learning, personalization, or memory import. | Approve memory/data scope, retention/reset/export rules, public/private edition separation, and whether any external training is allowed. | The exact approved memory/indexing/retrieval/personalization seam. | Owner-private memory in Dev/Public, unapproved training, hidden persistence, network egress, provider execution, or public-to-dev memory import without separate approval. | Consent proof, storage-boundary proof, reset/delete/export proof, no hidden indexing, and edition-separation validation. |
+| `USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY` | FAM-008 packaging/install work is ready to name or ship separate Public, Dev, or Owner identities. | Approve app names, install paths, icons, data roots, update channels, signing/channel posture, and GitHub Desktop local path guidance. | Packaging identity planning or implementation for the approved edition/channel only. | Runtime provider/model execution, private repo creation, memory, public artifact publication, release/tag execution, or edition functionality claims outside approved packaging scope. | Installer/shortcut/source proof, distinct data-root proof, signed/update-channel plan, public build exclusion proof, and FAM-008/FAM-010 validation where applicable. |
+
+The first future USER-created private assets are expected to be gated by `USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE`, `USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE`, and `USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP`. Public functional AI must not proceed past provider/model execution gates until these action gates are either completed, explicitly deferred, or waived by USER with recorded risk.
+
 ### Breakpoint 3: Public-To-Dev Migration Contract
 
 Goal: define how Public users become Dev users without losing their personalized Public data or accidentally exporting it.
@@ -784,9 +820,11 @@ Still pending USER decisions:
 - create private Owner repo
 - choose exact private local paths
 - choose whether Owner repo is private GitHub-hosted or local-only first
+- choose off-boot backup/recovery roots for Public, Dev, and Owner AI state
+- define restore-proof expectations before persistent AI personalization is treated as durable
 - define Dev edition final name before packaging
 - implement edition manifests
-- implement leak-prevention validator
+- extend leak-prevention validators for future private skeleton, backup/recovery, or packaging gates as needed
 - implement Public-to-Dev import wizard
 - implement memory/personalization
 - implement provider/model execution
@@ -804,6 +842,7 @@ Use this plan during future Branch Readiness and Workstream Entry when a branch 
 - FAM-010 privacy, safety, secret, consent, memory, or egress behavior
 - GitHub Desktop setup for edition work
 - Codex setup for public/private repo separation
+- off-boot backup/recovery planning for AI personalization, private state, or reinstall continuity
 - Public-to-Dev migration
 - Owner-only AI runtime or private memory
 

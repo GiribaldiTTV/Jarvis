@@ -46,6 +46,8 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 
 ## Active Plan Posture
 
-Active runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md`
+Active runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md` - branch-local active FAM-006 Recording Profile Runtime Foundation plan has SLC-047 Workstream implementation green and H1 pending.
+
+Current-main runtime Branch Runtime Engineering Plan context: `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` - incoming PR #215 / FAM-007 AI Edition Public Leak-Prevention Foundation plan is preserved as historical merged-unreleased current-main context after origin/main d5f5bce378ffd0629dd9b852f0aae974b51d2c3f; release execution remains separate.
 
 Most recent retired runtime plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` - the FAM-007 setup completion foundation plan is retired from active planning posture after PR #210 merge and remains historical released evidence for v1.7.20-prebeta public release truth.

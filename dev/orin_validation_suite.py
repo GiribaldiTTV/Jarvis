@@ -93,6 +93,10 @@ PHASE_COMMANDS: dict[str, tuple[ValidationCommand, ...]] = {
             r"python dev\orin_ai_provider_state_validation.py",
             "checks FAM-007 local AI provider/readiness state contracts",
         ),
+        ValidationCommand(
+            r"python dev\orin_public_leak_prevention_validation.py",
+            "checks FAM-007 AI Edition public leak-prevention fixtures, review-bundle safety, manifest posture, build/audit posture, and provider-boundary preservation",
+        ),
     ),
 }
 
@@ -156,6 +160,13 @@ def _surface_commands(changed_files: tuple[str, ...]) -> tuple[ValidationCommand
         commands.extend(PHASE_COMMANDS["runtime-fam006"])
     if "ai_provider" in normalized or "fam_007" in normalized or "local_ai" in normalized:
         commands.extend(PHASE_COMMANDS["runtime-fam007"])
+    if "public_leak_prevention" in normalized or "edition_boundary" in normalized:
+        commands.append(
+            ValidationCommand(
+                r"python dev\orin_public_leak_prevention_validation.py",
+                "checks public leak-prevention proof for protected assets, fixtures, review bundles, manifest posture, and build/audit posture",
+            )
+        )
     if "docs\\branch_records" in normalized or "docs\\feature_backlog.md" in normalized or "docs\\prebeta_roadmap.md" in normalized:
         commands.append(
             ValidationCommand(
