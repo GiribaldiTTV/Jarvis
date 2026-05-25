@@ -171,6 +171,7 @@ Main routes Codex to:
 - execution posture: `Docs/development_rules.md`, `Docs/phase_governance.md`, and `Docs/codex_modes.md`
 - ChatGPT prompt-generation guardrails: `Docs/nexus_startup_contract.md`
 - project-wide product/design vision: `Docs/nexus_vision.md`
+- public-safe AI edition/trust-boundary planning: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - reusable family vision: `Docs/family_visions/`
 - active branch authority and receipts: `Docs/branch_records/`
 - active branch vision, planning, UFD, Element-to-Phase Proof Matrix, and Branch Change Intent Ledger: `Docs/branch_plans/<branch_slug>.md`

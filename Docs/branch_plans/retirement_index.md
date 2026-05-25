@@ -43,4 +43,4 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 
 ## Active Plan Posture
 
-Active runtime Branch Runtime Engineering Plan: None - the FAM-007 user-operated consent UX plan is retired from active planning posture by PR Readiness Stage 1 merge-stable projection. Future runtime or user-facing branches must create or admit a fresh active branch plan during Branch Readiness Stage 2. Non-runtime branches with `Rebaseline Overlap Files:` must admit the smallest source-truth-supported Branch Engineering Plan before rebaseline mutation can proceed.
+Active runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` - the FAM-007 setup completion foundation plan is active after Branch Readiness Stage 2 setup from v1.7.18-prebeta. The prior user-operated consent UX plan remains retired historical evidence after PR #206 merge and release.

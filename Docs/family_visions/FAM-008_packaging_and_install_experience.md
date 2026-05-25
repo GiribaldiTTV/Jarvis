@@ -12,6 +12,7 @@ Packaging and install work should make Nexus easier to install, launch, update, 
 
 - Installer and shortcut behavior must be explicit, reversible, and validation-backed.
 - Capability-pack installation should stay separate from the base app unless USER accepts a package boundary.
+- Public, Dev, and Owner edition install identities, data roots, update channels, and GitHub Desktop/source-root setup should follow the edition trust-boundary plan before packaging work creates real artifacts.
 - Setup should explain trust, privacy, provider, and disk/network implications before enabling heavier capabilities.
 - Update and migration behavior should preserve user data and make repair paths clear.
 
@@ -23,5 +24,6 @@ Packaging and install work should make Nexus easier to install, launch, update, 
 ## Canonical Pointers
 
 - Project vision: `Docs/nexus_vision.md`
+- Edition capability / trust boundary release plan: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - Backlog registry: `Docs/feature_backlog.md`
 - Roadmap posture: `Docs/prebeta_roadmap.md`
