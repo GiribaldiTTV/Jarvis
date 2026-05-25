@@ -7463,7 +7463,7 @@ def _backlog_entry_block(backlog_text: str, fam_id: str) -> str:
 
 
 def _roadmap_family_row(roadmap_text: str, fam_id: str) -> str:
-    pattern = re.compile(rf"^\|\s*`{re.escape(fam_id)}`\b.*$", flags=re.M)
+    pattern = re.compile(rf"^\|\s*`{re.escape(fam_id)}`(?:\s|\|).*$", flags=re.M)
     match = pattern.search(roadmap_text)
     return match.group(0) if match else ""
 
