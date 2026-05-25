@@ -60,7 +60,7 @@ REQUIRED_BRANCH_PLAN_PHRASES = (
     "Public Review-Bundle Leak Prevention And Source-Truth Routing",
     "Dev/Owner Skeleton Handoff Criteria And Provider-Execution Continuation",
     "PR Readiness Stage 1 Record",
-    "Historical merged-unreleased after PR #215",
+    "Stage 2 PR Creation: `Historical completed",
     "FAM-007 USER Action Gate Identifiers",
     "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
     "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
@@ -71,10 +71,10 @@ REQUIRED_BRANCH_PLAN_PHRASES = (
 
 REQUIRED_RECORD_PHRASES = (
     "Phase: `Historical Traceability`",
-    "Workstream Status: `Green",
+    "Workstream Status: `Historical green",
     "Stage: `Merged-unreleased after PR #215`",
-    "PR Readiness Stage 1 Result: `Stage 1 Ready For Stage 2",
-    "Stage 2 PR Creation: `Historical snapshot superseded by PR #215 merge",
+    "PR Readiness Stage 1 Result: `Historical pre-PR snapshot",
+    "Stage 2 PR Creation: `Historical completed",
     "Live Validation LV1 Result: `Green",
     "Hardening H1 Result: `Green",
     "Next Legal Phase: `Release Readiness`",

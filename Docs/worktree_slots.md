@@ -103,14 +103,14 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: Historical merged-unreleased receipt for the FAM-007 AI Edition Public Leak-Prevention Foundation worktree after PR #215 / origin/main d5f5bce378ffd0629dd9b852f0aae974b51d2c3f merged the branch; Workstream Green, Hardening H1 Green, LV1 Green, and no-visible-runtime-surface User Test Summary waiver remain historical evidence.
+- Assignment Status: Historical merged-unreleased receipt for the FAM-007 AI Edition Public Leak-Prevention Foundation worktree after PR #215 merged; future mutation in this slot requires a fresh USER-approved Branch Readiness authority route
 - Assigned Branch: `feature/fam-007-ai-edition-public-leak-prevention-foundation`
 - Assigned Family / Workstream: `FAM-007 AI Edition Public Leak-Prevention Foundation`
-- Branch Authority Record: `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md`
-- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md`
+- Branch Authority Record: `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` (historical merged-unreleased receipt)
+- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` (retired from active planning posture)
 - GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding; no cleanup/rebinding authorized by this branch`
-- Active Thread Owner: `Historical FAM-007 AI Edition Public Leak-Prevention Foundation worktree receipt after PR #215 merge; no active FAM-007 thread is selected by this FAM-006 reconciliation.`
-- Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
+- Active Thread Owner: `None recorded after PR #215 merge; future FAM-007 mutation requires fresh USER assignment`
+- Thread Assignment Status: `Waiting for future USER-approved Branch Readiness route`
 - Worktree Ownership Ledger: `Branch authority record plus this slot receipt`
 - Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, compact pointer docs, worktree slot receipt, public leak-prevention validator, synthetic fixtures, review-bundle helper safety guard, validation registry/suite wiring, USER Action Gate source truth for Owner private repo and off-boot AI data backup/recovery planning, and source-truth fold-down required for Workstream Green, H1 Green, and LV1 Green`
 - Same Worktree / Same Branch Collision Check: `PASS at assignment; no second writer assigned`
