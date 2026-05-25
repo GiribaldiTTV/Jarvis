@@ -4,11 +4,11 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-
 
 ## Record State
 
-Record State: `Historical merged-unreleased`
+Record State: `Historical released`
 
 ## Status
 
-Status: `Merged-unreleased via PR #210 - FAM-007 setup completion foundation is merged into origin/main@107f563796e28cfda803cb7b93b70b043278b6db as the v1.7.20-prebeta release-window contributor; Workstream, H1, LV1, User Test Summary waiver, AI Edition planning truth, and provider-boundary preservation are historical green, while release execution remains a separate USER decision.`
+Status: `Released via PR #210 in v1.7.20-prebeta - FAM-007 setup completion foundation is merged and publicly released at origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4, with PR #211 release-readiness fold-down evidence included in the release target. Workstream, H1, LV1, User Test Summary waiver, AI Edition planning truth, and provider-boundary preservation are historical green.`
 
 ## Branch Identity
 
@@ -23,25 +23,25 @@ Status: `Merged-unreleased via PR #210 - FAM-007 setup completion foundation is 
 - Branch Runtime Engineering Plan: `Present - Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
 - Created From: `origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45`
 - Branch Creation Basis: `USER-approved Branch Readiness Stage 2 setup after v1.7.18-prebeta release.`
-- Latest Public Prerelease: `v1.7.18-prebeta`
-- Latest Public Release Commit: `a909f8e92c1fb1abd06e54e1301f12459e647b45`
-- Current Source Baseline: `origin/main@107f563796e28cfda803cb7b93b70b043278b6db after PR #210 merge; branch creation base remains origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45.`
+- Latest Public Prerelease: `v1.7.20-prebeta`
+- Latest Public Release Commit: `497ca4e2ec2534c06d3d48aa80595d6b90259bf4`
+- Current Source Baseline: `origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4 after PR #211 fold-down repair and v1.7.20-prebeta release; branch creation base remains origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45.`
 - Prior Released FAM-007 Evidence: `PR #201 local consent capture/write-path implementation foundation released in v1.7.16-prebeta; PR #203 durable local consent persistence foundation released in v1.7.17-prebeta; PR #206 user-operated consent UX foundation released in v1.7.18-prebeta.`
 
 ## Current Phase
 
 Phase: `Historical Traceability`
 
-Stage: `PR #210 merged / v1.7.20-prebeta release-window evidence`
+Stage: `PR #210 released in v1.7.20-prebeta`
 
 Seam: `FAM-007 Local AI Provider Setup Completion Foundation`
 
 ## Phase Status
 
-- Branch Authority Marker: `Historical merged-unreleased`
+- Branch Authority Marker: `Historical released`
 - Historical Branch: `feature/fam-007-local-ai-provider-setup-completion-foundation`
 - Branch Evidence: `feature/fam-007-local-ai-provider-setup-completion-foundation`
-- Branch Authority State: `Historical FAM-007 setup completion foundation receipt after PR #210 merged into origin/main@107f563796e28cfda803cb7b93b70b043278b6db.`
+- Branch Authority State: `Historical FAM-007 setup completion foundation receipt after PR #210 merged into origin/main@107f563796e28cfda803cb7b93b70b043278b6db and released in v1.7.20-prebeta at 497ca4e2ec2534c06d3d48aa80595d6b90259bf4.`
 - PR #210 Merge: `Complete - merged at 2026-05-25T02:44:41Z with merge commit 107f563796e28cfda803cb7b93b70b043278b6db.`
 - Stage 2 Status: `Complete - branch authority and Workstream Entry planning were validated, committed, and pushed before implementation.`
 - Workstream Status: `Green - all admitted setup completion foundation seam families are implemented and validator-covered.`
@@ -50,11 +50,11 @@ Seam: `FAM-007 Local AI Provider Setup Completion Foundation`
 - Provider Setup Completion State: `Implemented local-only foundation - setup completion state/schema, eligibility, profile/config finalization, no-secrets posture, reset/fail-closed persistence semantics, hidden telemetry/status proof, and future SDK handoff criteria are present.`
 - Provider Execution State: `Blocked - provider SDK integration, model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, and functional AI remain pending USER decisions.`
 - Prior User-Operated Consent UX State: `Released evidence in v1.7.18-prebeta via PR #206; previous carrier is historical and not active branch authority.`
-- Next Historical Phase: `Release Readiness Stage 1 rerun for v1.7.20-prebeta candidate after this merged-main source-truth fold-down repair.`
+- Next Historical Phase: `Closed / released receipt; next FAM-007 work belongs to the USER-approved successor branch feature/fam-007-ai-edition-public-leak-prevention-foundation.`
 - PR Readiness Stage 1 Repair Status: `Historical complete - source-truth repair, AI Edition planning hardening, USER acceptance, current-main reconciliation, overlap-intent repair, validation, commit, push, PR creation, and merge are complete through PR #210.`
 - AI Edition Planning Addendum: `USER-accepted durable planning source truth for this PR-readiness gate - Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md records the public-safe Owner / Dev / Public edition trust-boundary vision, Protected Assets Table, Private-To-Public Sanitization Gate, Public Build Exclusion Requirement, Public-to-Dev import consent levels, private repo remote rules, Owner-as-private-test-person rule, edition boundary manifest planning, public-safe fixture rule, public review-bundle leak-prevention rule, Owner screenshots/logs/evals rule, release breakpoints, private repo separation, GitHub Desktop setup guidance, and future-gated implementation exclusions.`
 - PR #210 State: `Merged into main; historical PR receipt replaces earlier pre-PR operator state.`
-- Release Debt Posture: `Merged-unreleased for v1.7.20-prebeta until Release Readiness and release execution complete.`
+- Release Debt Posture: `Closed - v1.7.20-prebeta release is published at 497ca4e2ec2534c06d3d48aa80595d6b90259bf4 and includes PR #210 plus PR #211.`
 - Branch Plan Fold-Down: `Complete - Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md is retired from active planning posture in Docs/branch_plans/retirement_index.md.`
 - Selected-next defer USER waiver: `Granted - USER approved recording selected-next/backlog defer posture for this PR-readiness pass without selecting, creating, splitting, or promoting a successor backlog identity.`
 - Next Workstream User Waiver: `Granted for this PR-readiness pass only; no successor runtime branch by inertia is authorized.`
@@ -109,7 +109,7 @@ No Unique Commit Loss Proof: `The prior user-operated consent UX branch is merge
 
 ## Blockers
 
-Blockers: `None for PR #210 merge receipt, Workstream Green, H1 Green, LV1 Green, AI Edition plan acceptance, or current-main reconciliation. Release/tag/artifact work, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, issue work, FAM-006 mutation, Governance mutation outside an approved intake, Compact-AI mutation, branch cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain separate USER decisions.`
+Blockers: `None for PR #210 release receipt, Workstream Green, H1 Green, LV1 Green, AI Edition plan acceptance, current-main reconciliation, or v1.7.20-prebeta closure. Provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, issue work, FAM-006 mutation, Governance mutation outside an approved intake, Compact-AI mutation, branch cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain separate USER decisions.`
 
 ## Entry Basis
 
@@ -117,7 +117,7 @@ Entry Basis: `USER approved Branch Readiness Stage 2 setup, Workstream Entry ana
 
 ## Exit Criteria
 
-Exit Criteria: `Historical receipt remains valid when PR #210 merge evidence, Workstream/H1/LV1 proof, source-truth fold-down, branch-plan retirement, compact pointer updates, release-window posture, and validation proof are preserved.`
+Exit Criteria: `Historical receipt remains valid when PR #210 merge/release evidence, PR #211 fold-down evidence, Workstream/H1/LV1 proof, source-truth fold-down, branch-plan retirement, compact pointer updates, and validation proof are preserved.`
 
 ## Rollback Target
 
@@ -201,7 +201,7 @@ Non-Includes: `Provider adapter setup, model behavior, or multiple interfaces wi
 
 ## Active Seam
 
-Active seam: `None - historical merged-unreleased receipt after PR #210 merge.`
+Active seam: `None - historical released receipt after PR #210 release.`
 
 ## Seam Continuation Decision
 
@@ -210,7 +210,7 @@ Seam Status: Green
 Slice Status: Green
 Completion Status: Green
 Waiver Status: None
-Next Active Seam: None - historical merged-unreleased receipt
+Next Active Seam: None - historical released receipt
 Continue Decision: Stop
 Continuation Action: Stop; next action belongs to Release Readiness Stage 1 after Governance fold-down repair.
 Continuation Execution Latch: Closed - LV1 Green routes to PR Readiness.
@@ -443,7 +443,7 @@ Stage 1 Outcome: `Historical complete - Stage 1 repair/review, AI Edition planni
 PR Readiness Stage 1 Repair Status: `Historical complete - pre-PR live-state truth, selected-next defer USER waiver, backlog-addition defer posture, AI Edition planning repair, and current-main reconciliation are preserved as prior branch-local receipt evidence.`
 Historical Pre-PR Live State: `Receipt evidence only - before PR #210 existed, gh open PR check returned no open pull request for feature/fam-007-local-ai-provider-setup-completion-foundation.`
 PR #210 Creation / Merge Receipt: `Complete - PR #210 merged into main at origin/main@107f563796e28cfda803cb7b93b70b043278b6db.`
-Release Readiness Repair Status: `This Governance intake folds stale active authority to historical merged-unreleased posture before Release Readiness Stage 1 reruns.`
+Release Readiness Repair Status: `PR #211 folded stale active authority to historical posture before v1.7.20-prebeta release.`
 Backlog Addition User Approval Missing: `USER-approved defer recorded for this PR-readiness pass; Codex is not creating, splitting, promoting, package-admitting, branch-creating, or selecting a backlog identity.`
 Selected-next defer USER waiver: `Granted`
 Next Workstream User Waiver: `Granted`
@@ -458,35 +458,35 @@ Stage 1 Repairs Made: `Current-main reconciliation to origin/main@a6c0c9da7676a1
 Stage 1 Repair Validation: `Required - PR-readiness gate, branch governance validation, release-readiness health gate, governance efficiency, AI provider state validation, monitoring HUD validators, rebaseline audit, diff checks, and compileall.`
 Governance Ledger Fallback: `Not used - historical repair receipt is recorded in the FAM-007 branch record and retired branch plan ledger.`
 Branch Readiness Fallback: `Deferred - no successor branch is selected or created by this PR-readiness pass.`
-Next Legal Phase: `Release Readiness Stage 1 rerun after this source-truth repair.`
+Next Legal Phase: `None from this historical released carrier; active FAM-007 successor is feature/fam-007-ai-edition-public-leak-prevention-foundation.`
 
 ## Post-Merge State
 
 Repo State Projection: `Successor deferred; active authority fold-down requires PR/merge/release closeout.`
-Post-Merge Branch Authority Projection: `Complete - this FAM-007 setup completion authority is historical merged-unreleased branch receipt after PR #210 merge, and Docs/branch_records/index.md moves the record from Active Branch Authority Records to Historical Branch Authority Records.`
+Post-Merge Branch Authority Projection: `Complete - this FAM-007 setup completion authority is historical released branch receipt after PR #210 merge and v1.7.20-prebeta release, and Docs/branch_records/index.md keeps the record under Historical Branch Authority Records.`
 Selected Next Workstream: `None`
 Selected Next Implementation Branch: `Not created`
 Successor Selection Posture: `Deferred by USER-approved selected-next defer; successor branch/workstream selection requires a later USER-approved Branch Readiness or runtime selection decision.`
 Backlog Addition User Approval Missing: `USER-approved defer recorded; no backlog identity, package, slice, selected-next workstream, or successor branch is created by this PR-readiness pass.`
 No successor runtime branch by inertia: `USER-waived`
-Release Debt Posture: `Merged-unreleased release-window evidence for v1.7.20-prebeta; release readiness/release execution remain separate USER decisions.`
+Release Debt Posture: `Closed - v1.7.20-prebeta release is published and includes PR #210 plus PR #211.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Historical Traceability / PR #210 merged-unreleased release-window evidence`
-Next Legal Phase: `Release Readiness Stage 1 rerun for v1.7.20-prebeta candidate`
-Next Historical Seam: `Release Readiness digest rerun after Governance source-truth drift repair`
-Why This Phase Is Next: `PR #210 merged into origin/main@107f563796e28cfda803cb7b93b70b043278b6db after v1.7.19-prebeta, so the candidate release window contains this FAM-007 setup completion foundation and requires Release Readiness Stage 1 rerun after stale active authority is folded down.`
-Approval Required: `USER approval is required for release execution after Release Readiness Stage 1 reports green; this branch record does not authorize release/tag/artifact work.`
-Exact USER Approval Text: `I approve rerunning Release Readiness Stage 1 for v1.7.20-prebeta at origin/main@107f563796e28cfda803cb7b93b70b043278b6db after the PR #210 FAM-007 setup completion source-truth fold-down repair merges. Scope: derive latest release/tag/PR truth from Git/GitHub/helpers, verify release-window contributor inventory, validate FAM-007 setup completion release scope and exclusions, and report whether Release Execution is legal. Do not release/tag/artifacts, mutate runtime/provider/model/memory/voice/shortcut/installer/private-edition work, clean branches/worktrees, create successor runtime branches, import AI Product Contract or Private Dev ORIN, or execute v1.8.0-prebeta.`
-Allowed Scope: `Release Readiness Stage 1 analysis after this Governance repair; release execution remains separately USER-gated.`
-Explicit Exclusions: `No release, tag, artifacts, cleanup, sibling mutation, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Validation Required: `diff checks, branch governance validation, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, runtime-fam007 validation suite when release readiness requests it, and compileall.`
-Stop Conditions: `Stop if origin/main advances again, source truth points to another carrier, FAM-007 release-window posture is stale, LV1 waiver is unsupported, provider-boundary or display-suppression drift appears, the accepted AI Edition plan is contradicted, Release Readiness discovers another file-mutation need, or validation fails.`
-USER Plan Review Gate: `Not required for this historical receipt; Release Readiness Stage 1 will produce the next USER-facing review packet if release execution is green or blocked.`
+Current Phase: `Historical Traceability / PR #210 released in v1.7.20-prebeta`
+Next Legal Phase: `None from this historical carrier; active FAM-007 successor is feature/fam-007-ai-edition-public-leak-prevention-foundation`
+Next Historical Seam: `Closed released receipt`
+Why This Phase Is Next: `No phase is next from this historical carrier because PR #210 is merged and released in v1.7.20-prebeta, while the next FAM-007 Branch Readiness carrier is recorded separately.`
+Approval Required: `No approval is requested from this historical receipt; successor work must use the active FAM-007 branch authority record.`
+Exact USER Approval Text: `Use the active branch record Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md for the next FAM-007 USER decision.`
+Allowed Scope: `Historical traceability only.`
+Explicit Exclusions: `No release, tag, artifacts, cleanup, sibling mutation, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution from this historical carrier.`
+Validation Required: `Historical receipt is validated by branch governance, release-readiness health gate, release body validation, source-owner marker validation, AI provider state validation, and current successor Branch Readiness validation.`
+Stop Conditions: `Stop if this historical record is mistaken for active branch authority or if it is used to authorize provider/model/private-edition work.`
+USER Plan Review Gate: `Not required for this historical receipt; successor review belongs to the active FAM-007 branch.`
 USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/orin_ai_provider_state_validation.py.`
-Review Required Because: `Release Readiness must confirm this merged-unreleased FAM-007 scope is public-safe setup completion only and does not imply provider SDK/model execution or AI Edition/private capability release.`
-Implementation Blocker: `Release execution remains unauthorized until USER separately approves it after Release Readiness Stage 1 green; runtime/provider/model/private-edition work remains pending USER decisions.`
+Review Required Because: `This record preserves released setup-completion evidence and prevents future work from confusing setup completion with provider SDK/model execution or AI Edition/private capability release.`
+Implementation Blocker: `Historical receipt only; runtime/provider/model/private-edition work remains pending USER decisions and must use a current active branch.`
 Review Waiver Reason: `LV1 User Test Summary, user-facing shortcut validation, Codex live-client self-QA, and visual adjudication are waived because the implemented setup completion surface is hidden/status-only telemetry with no meaningful manual user path.`
 Next Legal Phase Digest Missing: `NO - this digest is complete and must not be compacted, abbreviated, summarized away, or omitted from phase handoff packets.`
-Next Safe Move: `Merge this Governance repair, rebaseline affected worktrees, then rerun Release Readiness Stage 1 for v1.7.20-prebeta.`
+Next Safe Move: `Use the active FAM-007 successor feature/fam-007-ai-edition-public-leak-prevention-foundation for Workstream Entry analysis after USER approval.`

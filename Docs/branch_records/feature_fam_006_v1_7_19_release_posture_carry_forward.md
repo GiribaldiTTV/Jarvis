@@ -17,11 +17,11 @@ Engineering Plan Status: `Accepted`
 
 ## Record State
 
-Record State: `Active`
+Record State: `Historical Branch Authority`
 
 ## Status
 
-Status: `Branch Readiness Stage 2 source-truth setup`
+Status: `Historical merged source-truth carry-forward after PR #212 merged into origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d.`
 
 ## Canonical Branch
 
@@ -34,8 +34,8 @@ Phase Detail: `Carry GitHub-authoritative v1.7.19-prebeta release posture into F
 
 ## Phase Status
 
-Phase Status: `Active Branch`
-Authority State: `Active branch authority for FAM-006 release-posture carry-forward only`
+Phase Status: `Historical Branch`
+Authority State: `Historical FAM-006 release-posture carry-forward receipt after PR #212 merge; not active branch authority.`
 Bounded State: `Allowed scope is branch/worktree setup plus release-posture source-truth repair for v1.7.19-prebeta. Runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain blocked.`
 
 ## Branch Class
@@ -227,17 +227,17 @@ Rollback Target: `Branch Readiness`
 
 ## Next Legal Phase
 
-Next Legal Phase: `PR Readiness`
-Next Legal Phase Detail: `After setup is green and pushed, this source-truth carry-forward branch may enter PR Readiness Stage 1 analysis if USER approves. Runtime Workstream remains unauthorized.`
+Next Legal Phase: `Branch Readiness`
+Next Legal Phase Detail: `No active phase continues from this historical merged carry-forward receipt; future FAM-006 work requires a separate USER-approved Branch Readiness decision.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Branch Readiness`
-Next Legal Phase: `PR Readiness`
-Why This Phase Is Next: `The branch is a source-truth carry-forward carrier with no admitted runtime Workstream; after setup, the next legal gate is PR readiness analysis for the carry-forward PR.`
-Approval Required: `USER must approve PR Readiness Stage 1.`
-Exact USER Approval Text: `Approve PR Readiness Stage 1 analysis for FAM-006 v1.7.19 Release Posture Carry-Forward in C:\Nexus Worktrees\FAM-006 on feature/fam-006-v1-7-19-release-posture-carry-forward. This approval covers analysis only and does not approve runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording, export/share, provider/model work, or broad theme/skin work.`
-Allowed Scope: `Analysis-only PR Readiness Stage 1 after setup.`
+Current Phase: `Historical Traceability`
+Next Legal Phase: `Branch Readiness`
+Why This Phase Is Next: `No phase is next from this historical merged carry-forward receipt because PR #212 has already merged; future FAM-006 work requires separate USER-approved Branch Readiness.`
+Approval Required: `No approval is requested from this historical receipt.`
+Exact USER Approval Text: `No approval text from this historical FAM-006 receipt; use a future USER-approved FAM-006 Branch Readiness packet if FAM-006 work resumes.`
+Allowed Scope: `Historical traceability only.`
 Explicit Exclusions: `Runtime implementation; PR creation; merge; release; issue mutation; stale branch cleanup execution; artifacts/raw evidence handling; sibling-worktree mutation; FAM-007 work; Governance worktree mutation.`
 Validation Required: `Governance, release-readiness health, source-owner, FAM-006 HUD validators as applicable, release body validation, AI provider state validation, diff checks, compileall.`
 Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, validation failure, source-truth drift beyond approved carry-forward scope, or need for runtime implementation.`
