@@ -23,7 +23,7 @@ User-Facing Delta: `None after rollback; future user-visible UI/status/copy delt
 Source-Truth Delta: `Move merged/deleted FAM-006 release-posture carry-forward record from active to historical/no-active posture; add this active branch authority and branch plan; update compact backlog/roadmap pointers for the active Recording Profile planning branch; record cleanup/no-unique-commit proof.`
 State / Config / Schema Delta: `None after rollback; future recording state/schema must be replanned from active Overlay Profile membership and recording output settings.`
 Validator / Helper Delta: `Recording Profile Workstream validator/helper changes are reverted; future validators must be selected by the next Branch Readiness / Workstream path.`
-Expected Changed Files / Surfaces: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/retirement_index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md.`
+Expected Changed Files / Surfaces: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/README.md; Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/retirement_index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md.`
 Workstream / Seam Map: `Withdrawn for Recording Profile Runtime Foundation; future seam map must be selected by a new Branch Readiness / Workstream Entry path for active-overlay-driven recording.`
 Per-Seam Implementation Checklist: `SLC-046 must name state/schema files before runtime edits; SLC-047 must name visible selector/editing files before UI edits; SLC-048 must name relationship/boundary files; SLC-049 must name Dashboard/Manage Monitors surfaces; SLC-050 must name validator/helper/proof files.`
 Per-Seam Validation Checklist: `Each seam must define exact validators, fixtures, proof helpers, JS syntax/load checks where changed, H1 checks, LV1 real-input proof where user-facing, and regression proof for Overlay Profile, Monitor Group, Dashboard, Sensor Command Center, and Recording Profile separation.`
@@ -98,10 +98,30 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_recording_pr
 - Regression / Gating Impact: `High`
 - Conflict Resolution Rule: `Preserve the standing governance intake active pointer, move the merged FAM-006 carry-forward pointer to historical, and preserve this Recording Profile active pointer.`
 - Rebaseline Handling: `Preserve incoming current-main governance/source-truth context and this branch-local FAM-006 authority.`
-- Validation Proof: `Branch governance validation and release-readiness health gate.`
-- Fallback Evidence: `Stage 1 packet, branch cleanup proof, and this branch authority record.`
-- USER Decision / Waiver: `USER approved Branch Readiness Stage 2 setup and fold-down.`
-- Fold-Down Target: `At PR Readiness/merge, this branch must project its own post-merge historical/no-active state.`
+- Validation Proof: `Required validation must include branch governance validation, worktree-confinement gate, release-readiness health gate, branch-readiness planning fixture validation, FAM-006 HUD validators, runtime-fam006 validation suite recommendation, source-owner marker validation, and compileall before current-main reconciliation mutation resumes.`
+- Fallback Evidence: `If incoming current-main changes overlap this router, use this branch plan ledger plus the active branch authority record as branch-owned intent evidence; compatibility still requires the explicit conflict-resolution rule and required validation.`
+- USER Decision / Waiver: `USER approved Branch Readiness Stage 2 setup for this branch and later approved rollback to Branch Readiness Stage 1 posture; no waiver authorizes dropping incoming current-main governance context or the FAM-006 rollback/source-truth posture.`
+- Fold-Down Target: `Merged/deleted FAM-006 release-posture carry-forward authority remains historical/no-active; this active FAM-006 branch remains the rollback receipt carrier until USER approves the next route.`
+
+### Changed Surface: Docs/branch_plans/README.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Carry Branch Readiness Stage 2 branch-plan USER review packet routing context only as needed to reconcile current-main USER branch plan review gate governance with this FAM-006 rollback carrier.`
+- Why This File Was Touched: `Current-main PR #217 added USER branch plan review gate governance context to the branch-plan index/README surface, and the FAM-006 branch already carries branch-plan review packet expectations from its Stage 2 setup and rollback posture.`
+- Owned Behavior / Fact Class: `Branch plan review packet routing and governance context.`
+- Canonical Owner / Source Owner: `Docs/branch_plans/README.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium until current-main reconciliation completes because incoming main and FAM-006 both touch branch-plan review routing context.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming current-main USER branch plan review gate governance context, preserve this FAM-006 rollback posture, and preserve active-overlay-driven recording planning context without re-admitting Recording Profile runtime work.`
+- Rebaseline Handling: `Preserve incoming current-main USER branch plan review gate governance context and this branch-local FAM-006 rollback/source-truth context.`
+- Validation Proof: `Required validation must include branch governance validation, worktree-confinement gate, release-readiness health gate, branch-readiness planning fixture validation, FAM-006 HUD validators, runtime-fam006 validation suite recommendation, source-owner marker validation, and compileall before current-main reconciliation mutation resumes.`
+- Fallback Evidence: `Use this branch plan ledger as branch-owned intent evidence for the FAM-006 rollback carrier; incoming current-main USER branch plan review gate governance remains authoritative current-main context to preserve.`
+- USER Decision / Waiver: `USER approved this bounded pre-reconciliation overlap-intent repair only; no waiver authorizes current-main reconciliation, Branch Readiness Stage 1, runtime implementation, Workstream Entry, PR creation, merge, release, or future-gated recording work.`
+- Fold-Down Target: `No branch-plan README fold-down is requested; reconcile by preserving incoming current-main USER branch plan review gate context and FAM-006 rollback planning context.`
 
 ## Workstream Entry Whole-Package Analysis Requirements
 
