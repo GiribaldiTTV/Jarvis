@@ -8,7 +8,7 @@ Record State: `Active Branch Authority`
 
 ## Status
 
-Status: `H1 Green - FAM-007 AI Edition Public Leak-Prevention Foundation implemented and hardened public protected-asset leak-prevention proof, public-safe fixtures, public review-bundle leak-prevention proof, edition-boundary manifest public-safe posture, public build exclusion/audit posture, Dev/Owner skeleton handoff criteria, and provider-boundary preservation from current baseline origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d while preserving v1.7.20-prebeta release canon.`
+Status: `H1 Green - FAM-007 AI Edition Public Leak-Prevention Foundation implemented and hardened public protected-asset leak-prevention proof, public-safe fixtures, public review-bundle leak-prevention proof, edition-boundary manifest public-safe posture, public build exclusion/audit posture, Dev/Owner skeleton handoff criteria, and provider-boundary preservation from current baseline origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b while preserving v1.7.20-prebeta release canon.`
 
 ## Branch Identity
 
@@ -25,7 +25,7 @@ Status: `H1 Green - FAM-007 AI Edition Public Leak-Prevention Foundation impleme
 - Branch Creation Basis: `USER-approved Branch Readiness Stage 2 setup after v1.7.20-prebeta release.`
 - Latest Public Prerelease: `v1.7.20-prebeta`
 - Latest Public Release Commit: `497ca4e2ec2534c06d3d48aa80595d6b90259bf4`
-- Current Source Baseline: `origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d after PR #212 FAM-006 release-posture carry-forward reconciliation; latest public prerelease remains v1.7.20-prebeta at 497ca4e2ec2534c06d3d48aa80595d6b90259bf4.`
+- Current Source Baseline: `origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b after current-main FAM-006 release-posture carry-forward reconciliation; latest public prerelease remains v1.7.20-prebeta at 497ca4e2ec2534c06d3d48aa80595d6b90259bf4.`
 - Prior Released FAM-007 Evidence: `PR #201 local consent capture/write-path implementation foundation released in v1.7.16-prebeta; PR #203 durable local consent persistence foundation released in v1.7.17-prebeta; PR #206 user-operated consent UX foundation released in v1.7.18-prebeta; PR #210 local provider setup completion foundation released in v1.7.20-prebeta.`
 - Release-Readiness Fold-Down Evidence: `PR #211 repaired post-merge source-truth drift before v1.7.20-prebeta release and is included in release target commit 497ca4e2ec2534c06d3d48aa80595d6b90259bf4.`
 
@@ -44,7 +44,7 @@ Phase Status: `Active Branch`
 - Active Branch: `feature/fam-007-ai-edition-public-leak-prevention-foundation`
 - Branch Evidence: `feature/fam-007-ai-edition-public-leak-prevention-foundation`
 - Branch Authority State: `Active FAM-007 carrier for public-safe AI Edition leak-prevention foundation Workstream Green, H1 Green, and Live Validation LV1 review.`
-- Stage 2 Status: `Complete - successor branch was created from origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4, reconciled with current origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d after PR #212, branch authority and Branch Runtime Engineering Plan are admitted, v1.7.20 post-release canon drift is closed, and Stage 2 validation passed before commit/push.`
+- Stage 2 Status: `Complete - successor branch was created from origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4, initially reconciled with origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d after PR #212, then reconciled with current origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b for FAM-006 carry-forward context while preserving FAM-007 branch authority and Branch Runtime Engineering Plan.`
 - v1.7.20-prebeta Canon Closure: `Recorded - v1.7.20-prebeta is the latest public prerelease at 497ca4e2ec2534c06d3d48aa80595d6b90259bf4 with no binary assets.`
 - PR #210 Evidence Handling: `Released - FAM-007 setup completion foundation is released in v1.7.20-prebeta and remains public-safe setup completion evidence only.`
 - PR #211 Evidence Handling: `Recorded - release-readiness source-truth fold-down repair is included in the v1.7.20-prebeta target commit and prevents stale merged active branch authority.`
@@ -88,7 +88,7 @@ Sibling Worktree Candidate Exclusion: `FAM-006, Governance, Compact-AI, neutral-
 Carrier Lifecycle Classification: `Fresh current branch`
 Remote Branch State: `Absent before Stage 2 setup; created by final Stage 2 push after validation and commit.`
 Unique Branch Diff: `Stage 2 source-truth setup plus Workstream implementation proof for public leak-prevention validator, synthetic fixtures, public review-bundle file-list guard, validation registry/suite wiring, and Workstream Green source-truth fold-down.`
-Origin/Main Ancestry: `Created from origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4, then reconciled with origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d after PR #212.`
+Origin/Main Ancestry: `Created from origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4, reconciled with origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d after PR #212, then reconciled with origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b for current-main FAM-006 carry-forward context.`
 Origin/Main Advanced Since Branch Creation: `YES - reconciled under USER approval; PR #212 FAM-006 release-posture changes are context only for this FAM-007 carrier.`
 Open PR State: `No open PR exists for this branch during Workstream Green; PR creation remains pending USER decision after Hardening and later gates.`
 Worktree Checkout State: `Checked out in C:\Nexus Worktrees\FAM-007.`
@@ -197,7 +197,7 @@ Engineering Contract Status: Accepted
 USER Engineering Planning Review: Accepted - Workstream Entry review and bounded Workstream approval completed before implementation proof.
 Runtime Implementation Approval: Granted for public leak-prevention validator/audit/source-truth implementation only; provider/model/runtime execution remains pending.
 Branch Purpose: Admit and plan the FAM-007 public leak-prevention foundation after setup-completion release and before private edition skeletons or provider/model execution.
-Current Runtime Baseline: v1.7.20-prebeta released setup-completion state/config/schema/UI/desktop/provider-boundary baseline at origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4, reconciled with current source baseline origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d.
+Current Runtime Baseline: v1.7.20-prebeta released setup-completion state/config/schema/UI/desktop/provider-boundary baseline at origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4, reconciled with current source baseline origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b.
 Planned Runtime Delta: Public-safe leak-prevention source truth, fixture/audit posture, manifest planning, review-bundle safety, build exclusion posture, and Dev/Owner handoff criteria.
 User-Facing Runtime Delta: No visible UI, copy, status label, interaction, or user workflow change was changed by this Workstream.
 State / Config / Schema Delta: Public-safe edition-boundary manifest posture is represented as synthetic fixture schema proof only; no runtime provider/model/memory state changes were implemented.
@@ -310,7 +310,7 @@ Next Legal Phase Detail: `Live Validation LV1`
 Next Active Seam: `Live Validation LV1 for FAM-007 AI Edition Public Leak-Prevention Foundation`
 Why This Phase Is Next: `Hardening H1 inspected Workstream Green proof, direct validators, public-safe fixtures, review-bundle guard behavior, edition manifest/build audit posture, provider-boundary preservation, source truth, and the end-of-Workstream packet. Repo-side hardening is green; LV1 must now validate public-safe proof surfaces and record no-visible-runtime-surface waiver/proof before PR Readiness.`
 Approval Required: `USER approval is required for Live Validation LV1.`
-Exact USER Approval Text: `I approve Live Validation LV1 for feature/fam-007-ai-edition-public-leak-prevention-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d after H1 Green. Scope: validate public-safe proof surfaces and the end-of-Workstream USER review bundle, record a phase-specific no-visible-runtime-surface waiver if supported, rerun required validators including public leak-prevention and provider-boundary checks, and confirm no private/provider/runtime work was introduced. Do not perform provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, private Dev/Owner repo creation, Public-to-Dev import implementation, PR creation, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Exact USER Approval Text: `I approve Live Validation LV1 for feature/fam-007-ai-edition-public-leak-prevention-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b after H1 Green and current-main reconciliation. Scope: validate public-safe proof surfaces and the end-of-Workstream USER review bundle, record a phase-specific no-visible-runtime-surface waiver if supported, rerun required validators including public leak-prevention and provider-boundary checks, and confirm no private/provider/runtime work was introduced. Do not perform provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, private Dev/Owner repo creation, Public-to-Dev import implementation, PR creation, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Allowed Scope: `Live Validation LV1 analysis, validation, and source-truth fold-down only after USER approval; no visible runtime UI is expected unless source truth changes.`
 Explicit Exclusions: `No provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, private Dev/Owner repo creation, Public-to-Dev import implementation, PR creation, merge, release, tag, artifacts, cleanup, sibling mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `Identity/freshness checks, diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, public leak-prevention validation, branch-readiness validation suite, runtime-fam007 validation suite recommendation, rebaseline audit, compileall, and any LV1 proof required by source truth.`

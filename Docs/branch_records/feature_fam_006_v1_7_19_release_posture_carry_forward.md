@@ -6,7 +6,7 @@ Branch Creation Base: `origin/main` at `dfa59b37058fb2ef0f7d3432b585f182551408a4
 Current origin/main: `dfa59b37058fb2ef0f7d3432b585f182551408a4`
 Origin/Main Advanced Since Branch Creation: `NO`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
-Branch Runtime Engineering Plan: `Accepted for release-posture source-truth carry-forward only; no runtime implementation is admitted.`
+Branch Runtime Engineering Plan: `Historical receipt for release-posture source-truth carry-forward only; no runtime implementation was admitted.`
 Engineering Plan Status: `Accepted`
 
 ## Branch Identity
@@ -17,11 +17,11 @@ Engineering Plan Status: `Accepted`
 
 ## Record State
 
-Record State: `Historical Branch Authority`
+Record State: `Historical merged source-truth carry-forward`
 
 ## Status
 
-Status: `Historical merged source-truth carry-forward after PR #212 merged into origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d.`
+Status: `Merged via PR #212 - post-release FAM-006 v1.7.19-prebeta source-truth carry-forward is historical receipt evidence only.`
 
 ## Canonical Branch
 
@@ -29,14 +29,14 @@ Canonical Branch: `feature/fam-006-v1-7-19-release-posture-carry-forward`
 
 ## Current Phase
 
-Phase: `Branch Readiness`
-Phase Detail: `Carry GitHub-authoritative v1.7.19-prebeta release posture into FAM-006 source truth after Release Readiness Stage 2 published the release.`
+Phase: `Historical Traceability`
+Phase Detail: `PR #212 merged this post-release FAM-006 v1.7.19-prebeta source-truth carry-forward into origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d.`
 
 ## Phase Status
 
-Phase Status: `Historical Branch`
-Authority State: `Historical FAM-006 release-posture carry-forward receipt after PR #212 merge; not active branch authority.`
-Bounded State: `Allowed scope is branch/worktree setup plus release-posture source-truth repair for v1.7.19-prebeta. Runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain blocked.`
+Phase Status: `Historical merged source-truth carry-forward - PR #212 merged the FAM-006 v1.7.19-prebeta release-posture receipt; no active branch authority remains.`
+Authority State: `Historical source-truth carry-forward`
+Bounded State: `Closed - source-truth carry-forward, PR creation, and PR #212 merge are complete. Runtime implementation, release execution, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation outside approved intake, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain blocked.`
 
 ## Branch Class
 
@@ -97,7 +97,7 @@ Why Branch Is Large Enough: `It is large enough to carry all release-posture rep
 Why Not Split Into Tiny Branches: `Splitting branch record, backlog, and roadmap release-posture updates would create avoidable source-truth drift.`
 Codex Additional Recommendations: `After this branch is validated and merged, decide separately whether to start a new FAM-006 runtime package.`
 USER Critique Loop: `USER may accept this carry-forward posture, request wording changes, or defer future FAM-006 work.`
-USER Decision Ledger: `USER approved Stage 1 analysis and Stage 2 setup for this carry-forward branch. Runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain pending.`
+USER Decision Ledger: `USER approved Stage 1 analysis, Stage 2 setup, PR creation, and PR #212 merge for this carry-forward branch. Runtime implementation, release execution, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation outside approved intake, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain pending.`
 Deferred Ideas / Future Package Ledger: `Future Monitoring/HUD packages, Recording Profile runtime, tray recording, export/share/import, layout personalization, broad theme/skin, provider/model work, FAM-007, Compact-AI, and AI Product remain future-gated.`
 Planning Adequacy Review: `Adequate for a source-truth carry-forward branch because it names release authority, changed surfaces, non-includes, validation, and next legal phase.`
 Rejected Shallow Plan: `Rejected: directly editing main after release or silently treating stale pre-release-window wording as acceptable.`
@@ -110,7 +110,7 @@ Validation Proof Requirements: `git diff checks, branch governance validation, w
 Screenshot / Live / User Test Summary Proof Requirements: `Not required - no user-facing runtime mutation.`
 Implementation Sequence Proposal: `Stage 2 source-truth setup, validation, commit, push, then PR Readiness Stage 1 for this carry-forward branch if USER approves.`
 Planning Blockers: `None for Stage 2 setup.`
-USER Decisions Needed: `Approve PR Readiness Stage 1 after setup if USER wants this carry-forward branch merged.`
+USER Decisions Needed: `None for this historical PR #212 carry-forward receipt; future FAM-006 runtime work requires a later USER-approved Branch Readiness decision.`
 Planning Packet Status: `Complete`
 Planning Revalidation Status: `Pending validation`
 User Test Summary Strategy: `Not applicable - no UI/runtime change.`
@@ -139,9 +139,9 @@ Plan-To-Implementation Traceability: `Stage 2 edits record v1.7.19-prebeta relea
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active`
-Active Thread Owner: `FAM-006 assigned Codex thread`
-Thread Assignment Status: `Assigned to C:\Nexus Worktrees\FAM-006 only`
+Assigned Worktree Confinement: `Historical receipt after PR #212 merge`
+Active Thread Owner: `None after PR #212 merge; future mutation requires a new USER-approved Branch Readiness or Governance intake.`
+Thread Assignment Status: `Historical for C:\Nexus Worktrees\FAM-006 after PR #212 merge`
 Worktree Ownership Ledger: `C:\Nexus Worktrees\FAM-006 is the stable GitHub Desktop-bound FAM-006 worktree for this branch.`
 Intended Write Set: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Same Worktree / Same Branch Collision Check: `PASS - no other worktree is assigned this branch.`
@@ -164,9 +164,9 @@ Remote Branch State: `Pending first push`
 Unique Branch Diff: `Stage 2 source-truth carry-forward edits only`
 Origin/Main Ancestry: `Created directly from origin/main dfa59b37058fb2ef0f7d3432b585f182551408a4`
 Origin/Main Advanced Since Branch Creation: `NO`
-Open PR State: `No live PR`
+Open PR State: `Historical receipt - PR #212 is merged`
 Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-006`
-Recommended Stage 2 Carrier Action: `Create/rebind stable FAM-006 worktree to this fresh branch and commit/push source-truth carry-forward.`
+Recommended Stage 2 Carrier Action: `Historical complete - this branch was created/rebound, committed, pushed, PR-created, and merged through PR #212.`
 Stale Branch Cleanup Plan: `Historical branch feature/fam-006-overlay-display-acceptance-foundation is preserved as PR #207 evidence. Branch deletion or cleanup remains a separate USER decision.`
 Branch Cleanup Execution Gate: `Blocked - no branch deletion, remote deletion, worktree removal, or GitHub Desktop cleanup is authorized.`
 Stable Worktree Path: `C:\Nexus Worktrees\FAM-006`
@@ -176,8 +176,8 @@ No Unique Commit Loss Proof: `PASS - historical branch has no unique local/remot
 
 ## Blockers
 
-Active Blockers: `Runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain pending separate USER decisions.`
-PR Readiness Blocker: `Pending USER approval after Stage 2 setup.`
+Active Blockers: `Runtime implementation, release execution, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation outside approved intake, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain pending separate USER decisions.`
+PR Readiness Blocker: `Closed - PR #212 merged.`
 
 ## Branch Objective
 
@@ -189,9 +189,9 @@ Target End-State: `FAM-006 compact source truth and historical PR #207 records s
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Complete the post-release source-truth carry-forward and merge it through a future PR if USER approves PR Readiness and PR execution.`
+Branch Completion Goal: `Complete - post-release source-truth carry-forward merged through PR #212.`
 Known Future-Dependent Blockers: `Future FAM-006 runtime successor selection, stale branch cleanup execution, issue mutation, and any Recording Profile/tray/export/provider/theme work remain pending USER decisions.`
-Branch Closure Rule: `Close this branch only after PR Readiness, PR creation, review, merge, and post-merge validation are separately approved and green; do not convert this branch into runtime implementation.`
+Branch Closure Rule: `Closed after PR Readiness, PR creation, review, merge, and post-merge validation; do not convert this branch into runtime implementation.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -215,34 +215,34 @@ Non-Includes: `Runtime implementation, UI changes, PR creation, merge, release p
 
 ## Active Seam
 
-Active seam: `Seam 1 release-posture source-truth carry-forward is active for Branch Readiness Stage 2 setup only.`
+Active seam: `None - historical PR #212 source-truth carry-forward receipt.`
 
 ## Exit Criteria
 
-Exit Criteria: `Stage 2 setup is complete when source truth is updated, validation is green, commit is created, and branch is pushed.`
+Exit Criteria: `Historical receipt remains valid when PR #212 merge evidence, v1.7.19-prebeta release posture, compact pointer updates, branch-plan retirement, and validation proof are preserved.`
 
 ## Rollback Target
 
-Rollback Target: `Branch Readiness`
+Rollback Target: `PR Readiness`
 
 ## Next Legal Phase
 
 Next Legal Phase: `Branch Readiness`
-Next Legal Phase Detail: `No active phase continues from this historical merged carry-forward receipt; future FAM-006 work requires a separate USER-approved Branch Readiness decision.`
+Next Legal Phase Detail: `Future FAM-006 runtime successor selection, if desired, must start from a later USER-approved Branch Readiness decision. Runtime Workstream remains unauthorized by this historical receipt.`
 
 ## Formal Next Legal Phase Digest
 
 Current Phase: `Historical Traceability`
 Next Legal Phase: `Branch Readiness`
-Why This Phase Is Next: `No phase is next from this historical merged carry-forward receipt because PR #212 has already merged; future FAM-006 work requires separate USER-approved Branch Readiness.`
-Approval Required: `No approval is requested from this historical receipt.`
-Exact USER Approval Text: `No approval text from this historical FAM-006 receipt; use a future USER-approved FAM-006 Branch Readiness packet if FAM-006 work resumes.`
-Allowed Scope: `Historical traceability only.`
-Explicit Exclusions: `Runtime implementation; PR creation; merge; release; issue mutation; stale branch cleanup execution; artifacts/raw evidence handling; sibling-worktree mutation; FAM-007 work; Governance worktree mutation.`
+Why This Phase Is Next: `PR #212 merged the source-truth carry-forward; any future FAM-006 runtime work requires a new USER-approved Branch Readiness decision from current origin/main.`
+Approval Required: `USER approval is required before any future FAM-006 runtime branch or cleanup work.`
+Exact USER Approval Text: `Approve Branch Readiness Stage 1 analysis for the next FAM-006 runtime successor from current origin/main after PR #212, if USER wants additional FAM-006 work. This approval would cover analysis only and would not approve runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording, export/share, provider/model work, or broad theme/skin work.`
+Allowed Scope: `Future Branch Readiness Stage 1 analysis only when USER requests it.`
+Explicit Exclusions: `Runtime implementation; PR creation; merge; release; issue mutation; stale branch cleanup execution; artifacts/raw evidence handling; sibling-worktree mutation; FAM-007 work; Governance worktree mutation outside approved intake.`
 Validation Required: `Governance, release-readiness health, source-owner, FAM-006 HUD validators as applicable, release body validation, AI provider state validation, diff checks, compileall.`
 Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, validation failure, source-truth drift beyond approved carry-forward scope, or need for runtime implementation.`
-USER Plan Review Gate: `USER may accept, revise, waive, or reject this plan before PR Readiness Stage 1.`
+USER Plan Review Gate: `Not required for this historical PR #212 receipt; future Branch Readiness will produce a new USER-review packet if requested.`
 USER Inspection Files: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
-Review Required Because: `This branch records post-release source-truth carry-forward after GitHub release publication.`
+Review Required Because: `This historical receipt records post-release source-truth carry-forward after GitHub release publication.`
 Implementation Blocker: `Runtime implementation is not approved and no Workstream is admitted.`
 Review Waiver Reason: `None`
