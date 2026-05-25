@@ -202,7 +202,7 @@ def _validate_static_surface(failures: list[str]) -> None:
                 failures,
             )
         for needle in (
-            "Overlay Display Acceptance Foundation successor setup is active",
+            "Overlay Display Acceptance Foundation is merged-unreleased via PR #207",
             "Overlay Profile foundation evidence are released receipts",
             "future monitoring/HUD scope remains USER-gated",
             "Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md",

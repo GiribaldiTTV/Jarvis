@@ -5394,6 +5394,24 @@ MERGE_STABLE_BRANCH_HEAD_PIN_PATTERNS = (
     re.compile(r"`origin/[A-Za-z0-9._/-]+`\s+(?:is|remains at)\s+`?[0-9a-f]{7,40}`?", re.IGNORECASE),
 )
 
+POST_MERGE_FOLD_DOWN_STALE_PATTERNS = (
+    ("open PR state", re.compile(r"\bPR\s+#\d+\s+(?:is\s+)?open\b", re.IGNORECASE)),
+    ("live PR state", re.compile(r"\bPR\s+#\d+\s+is\s+live\b", re.IGNORECASE)),
+    ("live PR exists state", re.compile(r"\bLive\s+PR\s+#\d+\s+exists\b", re.IGNORECASE)),
+    (
+        "merge approval pending state",
+        re.compile(r"\bopen\s+pending\s+separate\s+merge\s+approval\b", re.IGNORECASE),
+    ),
+    ("merge remains pending state", re.compile(r"\bmerge\s+remains\s+pending\b", re.IGNORECASE)),
+    ("merge approval request", re.compile(r"\bApprove\s+merge\s+of\s+PR\s+#\d+\b", re.IGNORECASE)),
+)
+
+POST_MERGE_COMPACT_OWNER_STALE_PHRASES = (
+    "successor setup is active",
+    "active successor setup",
+    "merge-stable handoff projection",
+)
+
 REQUIRED_RELEASE_BEARING_MARKERS = (
     "Release Target:",
     "Release Scope:",
@@ -7374,6 +7392,141 @@ def _parse_workstream_doc(text: str) -> dict[str, object]:
         "next_legal_phase": next_legal_phase,
         "governance_audit": governance_audit,
     }
+
+
+def _current_state_label_lines(text: str, labels: tuple[str, ...]) -> str:
+    lines: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if any(stripped.startswith(f"{label}:") for label in labels):
+            lines.append(stripped)
+    return "\n".join(lines)
+
+
+def _post_merge_record_current_state_text(record_text: str) -> str:
+    current_sections = (
+        "Record State",
+        "Status",
+        "Current Phase",
+        "Phase Status",
+        "Blockers",
+        "Next Legal Phase",
+        "Formal Next Legal Phase Digest",
+    )
+    current_labels = (
+        "Record State",
+        "Status",
+        "Phase",
+        "Phase Detail",
+        "Phase Status",
+        "Authority State",
+        "Bounded State",
+        "Open PR State",
+        "Active Blockers",
+        "PR Readiness Blocker",
+        "Current Phase",
+        "Next Legal Phase",
+        "Why This Phase Is Next",
+        "Approval Required",
+        "Exact USER Decision Needed",
+        "Allowed Scope",
+    )
+    return "\n".join(
+        section
+        for section in (
+            *(_section(record_text, section_name) for section_name in current_sections),
+            _current_state_label_lines(record_text, current_labels),
+        )
+        if section
+    )
+
+
+def _post_merge_plan_current_state_text(plan_text: str) -> str:
+    current_labels = (
+        "Current Plan Phase",
+        "Current Phase",
+        "Engineering Plan Status",
+        "Open Questions",
+        "USER Planning Decisions",
+        "PR Fold-Down Packet",
+        "Next Legal Phase",
+        "Exact USER Decision Needed",
+    )
+    return _current_state_label_lines(plan_text, current_labels)
+
+
+def _backlog_entry_block(backlog_text: str, fam_id: str) -> str:
+    for entry in _parse_backlog_sections(backlog_text):
+        if entry["id"] == fam_id:
+            return entry["block"]
+    return ""
+
+
+def _roadmap_family_row(roadmap_text: str, fam_id: str) -> str:
+    pattern = re.compile(rf"^\|\s*`{re.escape(fam_id)}`(?:\s|\|).*$", flags=re.M)
+    match = pattern.search(roadmap_text)
+    return match.group(0) if match else ""
+
+
+def _run_post_merge_fold_down_drift_gate(
+    require,
+    *,
+    backlog_text: str,
+    roadmap_text: str,
+    branch_record_index_text: str,
+) -> None:
+    historical_branch_record_paths = _collect_branch_record_paths(
+        branch_record_index_text,
+        "Historical Branch Authority Records",
+    )
+    active_branch_record_paths = set(
+        _collect_branch_record_paths(branch_record_index_text, "Active Branch Authority Records")
+    )
+    for record_path in historical_branch_record_paths:
+        path = Path(record_path)
+        if not path.exists():
+            continue
+        record_text = _read_text(path)
+        record_state = _parse_workstream_doc(record_text)
+        if not (
+            str(record_state["record_state"]).casefold() == "historical merged-unreleased"
+            or str(record_state["status"]).casefold() == "merged-unreleased"
+        ):
+            continue
+        require(
+            record_path not in active_branch_record_paths,
+            f"{record_path}: historical merged-unreleased record must not remain in Active Branch Authority Records",
+        )
+        require(
+            str(record_state["current_phase"]) == HISTORICAL_TRACEABILITY_PHASE,
+            f"{record_path}: historical merged-unreleased record must use Phase: `{HISTORICAL_TRACEABILITY_PHASE}`",
+        )
+        plan_pointer = _extract_colon_value(record_text, "Branch Runtime Engineering Plan Path").strip("`")
+        plan_text = _read_text(Path(plan_pointer)) if plan_pointer and Path(plan_pointer).exists() else ""
+        record_current_state_text = _post_merge_record_current_state_text(record_text)
+        plan_current_state_text = _post_merge_plan_current_state_text(plan_text)
+        for label, pattern in POST_MERGE_FOLD_DOWN_STALE_PATTERNS:
+            require(
+                pattern.search(record_current_state_text) is None,
+                f"{record_path}: post-merge current-state fold-down still contains stale {label}",
+            )
+            if plan_current_state_text:
+                require(
+                    pattern.search(plan_current_state_text) is None,
+                    f"{plan_pointer}: post-merge current-state fold-down still contains stale {label}",
+                )
+        if "fam_006_overlay_display_acceptance_foundation" in record_path:
+            roadmap_text = _read_text(Path("Docs/prebeta_roadmap.md"))
+            fam_sources = (
+                ("Docs/feature_backlog.md", _backlog_entry_block(backlog_text, "FAM-006")),
+                ("Docs/prebeta_roadmap.md", _roadmap_family_row(roadmap_text, "FAM-006")),
+            )
+            for source_name, source_text in fam_sources:
+                for phrase in POST_MERGE_COMPACT_OWNER_STALE_PHRASES:
+                    require(
+                        phrase.casefold() not in source_text.casefold(),
+                        f"{source_name}: FAM-006 compact current-state owner still contains stale post-merge phrase '{phrase}'",
+                    )
 
 
 def _extract_branch_identity_branch(text: str) -> str:
@@ -18857,6 +19010,12 @@ def main() -> int:
         backlog_text=backlog_text,
         roadmap_text=roadmap_text,
         worktree_slots_text=worktree_slots_text,
+        branch_record_index_text=branch_record_index_text,
+    )
+    _run_post_merge_fold_down_drift_gate(
+        require,
+        backlog_text=backlog_text,
+        roadmap_text=roadmap_text,
         branch_record_index_text=branch_record_index_text,
     )
 
