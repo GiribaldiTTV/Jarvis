@@ -7455,6 +7455,13 @@ def _post_merge_plan_current_state_text(plan_text: str) -> str:
     return _current_state_label_lines(plan_text, current_labels)
 
 
+def _backlog_entry_block(backlog_text: str, fam_id: str) -> str:
+    for entry in _parse_backlog_sections(backlog_text):
+        if entry["id"] == fam_id:
+            return entry["block"]
+    return ""
+
+
 def _run_post_merge_fold_down_drift_gate(
     require,
     *,
@@ -7504,7 +7511,7 @@ def _run_post_merge_fold_down_drift_gate(
                 )
         if "fam_006_overlay_display_acceptance_foundation" in record_path:
             fam_sources = (
-                ("Docs/feature_backlog.md", _section(backlog_text, "[ID: FAM-006] Monitoring and HUD")),
+                ("Docs/feature_backlog.md", _backlog_entry_block(backlog_text, "FAM-006")),
                 ("Docs/prebeta_roadmap.md", _read_text(Path("Docs/prebeta_roadmap.md"))),
             )
             for source_name, source_text in fam_sources:
