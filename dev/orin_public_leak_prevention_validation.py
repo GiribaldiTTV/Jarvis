@@ -100,23 +100,36 @@ REQUIRED_RECORD_PHRASES = (
 
 REQUIRED_DEV_OWNER_PLAN_PHRASES = (
     "First Seam Group Implementation Receipt",
+    "Remaining Workstream Seam Group Implementation Receipt",
     "Dev Skeleton Readiness Gate Proof: `Implemented - public-safe planning proof only`",
     "Owner Skeleton Readiness Gate Proof: `Implemented - public-safe planning proof only`",
     "Private Repo / Local-Only Action-Gate Proof: `Implemented - private setup remains pending USER decision`",
     "GitHub Desktop Private Remote Safety Proof: `Implemented - planning-only remote safety proof`",
+    "Off-Boot Backup / Recovery Planning Proof: `Implemented - public-safe planning proof only`",
+    "Public-To-Private Separation Proof: `Implemented - public-safe planning proof only`",
+    "Provider / Model Execution Deferral Hardening Proof: `Implemented - provider boundary remains closed`",
+    "Future Handoff Criteria Proof: `Implemented - Hardening H1 handoff criteria are recorded`",
+    "Workstream Green Candidate: `YES - all admitted Workstream seams have public-safe proof",
     "No private Dev repository was created",
     "No private Owner repository or local-only Owner root was created",
     "No GitHub Desktop private remote was configured",
-    "Remaining Implementable Work: `Seam 5 - Off-Boot Backup / Recovery Root Planning; Seam 6 - Public-To-Private Separation And Provider/Model Deferral; Seam 7 - Future Handoff Criteria And Validation Proof.`",
+    "No off-boot backup root was created or written",
+    "No Public-to-Dev import was implemented",
+    "No provider SDK or model execution was enabled",
 )
 
 REQUIRED_DEV_OWNER_RECORD_PHRASES = (
     "First Seam Group Implementation Receipt",
+    "Remaining Workstream Seam Group Implementation Receipt",
     "Dev Skeleton Readiness Gate Proof: `Implemented - public-safe planning proof only`",
     "Owner Skeleton Readiness Gate Proof: `Implemented - public-safe planning proof only`",
     "Private Repo / Local-Only Action-Gate Proof: `Implemented - private setup remains pending USER decision`",
     "GitHub Desktop Private Remote Safety Proof: `Implemented - planning-only remote safety proof`",
-    "First Seam Group Scope Boundary",
+    "Off-Boot Backup / Recovery Planning Proof: `Implemented - public-safe planning proof only`",
+    "Public-To-Private Separation Proof: `Implemented - public-safe planning proof only`",
+    "Provider / Model Execution Deferral Hardening Proof: `Implemented - provider boundary remains closed`",
+    "Future Handoff Criteria Proof: `Implemented - Hardening H1 handoff criteria are recorded`",
+    "Workstream Green Candidate: `YES - all admitted Workstream seams have public-safe proof",
     "No provider/model execution, memory, downloads, external calls, voice/Core sync, backup implementation, private repo creation, private remote configuration, PR, merge, release, cleanup, or v1.8.0 work was performed.",
 )
 
@@ -130,6 +143,10 @@ REQUIRED_REGISTRY_PHRASES = (
     "public build exclusion",
     "Dev/Owner skeleton readiness action-gate proof",
     "GitHub Desktop private remote safety remains planning-only",
+    "off-boot backup/recovery planning remains USER-gated",
+    "public-to-private separation remains planning-only",
+    "provider/model deferral hardening",
+    "future handoff criteria",
 )
 
 PROTECTED_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -528,6 +545,129 @@ def _validate_dev_owner_skeleton_readiness(fixture_set: dict[str, Any], failures
     )
 
 
+def _validate_remaining_workstream_readiness(fixture_set: dict[str, Any], failures: list[str]) -> None:
+    readiness = fixture_set.get("remainingWorkstreamReadiness", {})
+    _require(
+        readiness.get("schema") == "fam007-remaining-workstream-readiness-fixture-v1",
+        failures,
+        "remaining Workstream readiness fixture schema mismatch",
+    )
+    _require(readiness.get("planningOnly") is True, failures, "remaining Workstream readiness must be planning-only")
+    _require(
+        readiness.get("publicSafeProofOnly") is True,
+        failures,
+        "remaining Workstream readiness must be public-safe proof only",
+    )
+    _require(
+        readiness.get("workstreamGreenReady") is True,
+        failures,
+        "remaining Workstream readiness must mark Workstream Green readiness",
+    )
+
+    action_gates = readiness.get("actionGates", {})
+    expected_gates = {
+        "backupRecovery": "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
+        "publicToDevMigration": "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
+        "privateToPublicSanitization": "USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION",
+        "providerModelExecution": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+        "memoryLearningPersonalization": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+    }
+    for field, expected in expected_gates.items():
+        _require(action_gates.get(field) == expected, failures, f"remaining Workstream action gate {field} mismatch")
+
+    setup_state = readiness.get("setupState", {})
+    for field in (
+        "offBootBackupRootCreated",
+        "backupRestoreImplemented",
+        "publicToDevImportImplemented",
+        "providerSdkIntegrated",
+        "modelExecutionEnabled",
+        "modelDownloadsEnabled",
+        "externalCallsEnabled",
+        "memoryLearningPersonalizationEnabled",
+        "voiceCoreSyncEnabled",
+        "privateDevOwnerReposCreated",
+    ):
+        _require(setup_state.get(field) is False, failures, f"remaining Workstream must set {field}=false")
+
+    backup = readiness.get("backupRecoveryPlanning", {})
+    _require(backup.get("state") == "planning-only", failures, "backup/recovery planning must remain planning-only")
+    _require(backup.get("offBootRequired") is True, failures, "backup/recovery planning must require off-boot roots")
+    _require(backup.get("bootDriveOnlyAllowed") is False, failures, "backup/recovery planning must reject boot-drive-only backup")
+    _require(
+        backup.get("restoreProofRequiredBeforeImplementation") is True,
+        failures,
+        "backup/recovery planning must require restore proof before implementation",
+    )
+    _require(
+        backup.get("editionSeparatedRecoveryRequired") is True,
+        failures,
+        "backup/recovery planning must require edition-separated recovery",
+    )
+    _require(
+        backup.get("privateMaterialRequiresEncryptionOrVaultPlan") is True,
+        failures,
+        "backup/recovery planning must require encryption/vault planning for private material",
+    )
+    _require(
+        backup.get("publicRepoBackupStorageAllowed") is False,
+        failures,
+        "backup/recovery planning must block public repo backup storage",
+    )
+
+    separation = readiness.get("publicToPrivateSeparation", {})
+    _require(separation.get("state") == "planning-only", failures, "public-to-private separation must remain planning-only")
+    _require(separation.get("copyOnlyImportRequired") is True, failures, "public-to-private separation must require copy-only import")
+    for field in ("secretsTokensImportedByDefault", "ownerPrivateDataImportedToDevOrPublic", "noExportDataImportedByDefault"):
+        _require(separation.get(field) is False, failures, f"public-to-private separation must set {field}=false")
+    _require(
+        separation.get("privateToPublicSanitizationGateRequired") is True,
+        failures,
+        "public-to-private separation must require private-to-public sanitization gate",
+    )
+    _require(
+        separation.get("protectedAssetsExcluded") is True,
+        failures,
+        "public-to-private separation must exclude protected assets",
+    )
+
+    provider = readiness.get("providerModelDeferral", {})
+    _require(provider.get("state") == "deferred", failures, "provider/model deferral must remain deferred")
+    for field in ("providerSdkExecutionAllowed", "modelExecutionAllowed", "modelDownloadsAllowed", "externalCallsAllowed"):
+        _require(provider.get(field) is False, failures, f"provider/model deferral must set {field}=false")
+    _require(provider.get("providerVisibleData") == "none", failures, "provider/model deferral must keep providerVisibleData=none")
+    for field in ("sentToProvider", "canAcceptPrompts"):
+        _require(provider.get(field) is False, failures, f"provider/model deferral must set {field}=false")
+
+    handoff = readiness.get("futureHandoffCriteria", {})
+    _require(handoff.get("state") == "ready-for-hardening-review", failures, "future handoff must point to Hardening review")
+    _require(handoff.get("planningOnly") is True, failures, "future handoff criteria must remain planning-only")
+    for field in (
+        "privateRepoCreationAuthorized",
+        "privateRemoteConfigurationAuthorized",
+        "backupImplementationAuthorized",
+        "publicToDevImportAuthorized",
+        "providerModelExecutionAuthorized",
+    ):
+        _require(handoff.get(field) is False, failures, f"future handoff criteria must set {field}=false")
+    _require(handoff.get("nextLegalPhase") == "Hardening H1", failures, "future handoff must name Hardening H1")
+
+    forbidden = readiness.get("forbiddenMaterialPresence", {})
+    for field in (
+        "privateRemoteUrl",
+        "tokenOrCredential",
+        "ownerSecret",
+        "privatePath",
+        "promptPayload",
+        "memoryPayload",
+        "privateAutomation",
+        "modelArtifact",
+        "capabilityPackAsset",
+        "privateHostingSecret",
+    ):
+        _require(forbidden.get(field) is False, failures, f"remaining Workstream must set forbidden {field}=false")
+
+
 def _validate_blocked_canaries(fixture_set: dict[str, Any], failures: list[str]) -> None:
     canaries = fixture_set.get("blockedCanaries", [])
     _require(len(canaries) >= 10, failures, "blocked canaries must cover all major private/leak classes")
@@ -622,6 +762,7 @@ def validate() -> list[str]:
     _validate_edition_manifest(fixture_set, failures)
     _validate_public_build_audit(failures=failures, fixture_set=fixture_set)
     _validate_dev_owner_skeleton_readiness(fixture_set, failures)
+    _validate_remaining_workstream_readiness(fixture_set, failures)
     _validate_blocked_canaries(fixture_set, failures)
     _validate_provider_boundary(failures)
     _validate_workstream_entry_packet_decision_canaries(fixture_set, failures)

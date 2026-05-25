@@ -103,7 +103,7 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: Active Branch Readiness Stage 2 receipt for the FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation worktree after v1.7.22-prebeta; future mutation remains bound to this branch authority record until fold-down.
+- Assignment Status: Active Workstream Green candidate receipt for the FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation worktree after v1.7.22-prebeta and current-main reconciliation; future mutation remains bound to this branch authority record until fold-down.
 - Assigned Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`
 - Assigned Family / Workstream: `FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation`
 - Branch Authority Record: `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`

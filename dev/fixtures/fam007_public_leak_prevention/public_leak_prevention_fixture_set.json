@@ -303,6 +303,82 @@
       "providerModelExecution": "deferred"
     }
   },
+  "remainingWorkstreamReadiness": {
+    "schema": "fam007-remaining-workstream-readiness-fixture-v1",
+    "seamGroup": "backup-recovery-public-private-provider-deferral-handoff",
+    "planningOnly": true,
+    "publicSafeProofOnly": true,
+    "workstreamGreenReady": true,
+    "actionGates": {
+      "backupRecovery": "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
+      "publicToDevMigration": "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
+      "privateToPublicSanitization": "USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION",
+      "providerModelExecution": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+      "memoryLearningPersonalization": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION"
+    },
+    "setupState": {
+      "offBootBackupRootCreated": false,
+      "backupRestoreImplemented": false,
+      "publicToDevImportImplemented": false,
+      "providerSdkIntegrated": false,
+      "modelExecutionEnabled": false,
+      "modelDownloadsEnabled": false,
+      "externalCallsEnabled": false,
+      "memoryLearningPersonalizationEnabled": false,
+      "voiceCoreSyncEnabled": false,
+      "privateDevOwnerReposCreated": false
+    },
+    "backupRecoveryPlanning": {
+      "state": "planning-only",
+      "offBootRequired": true,
+      "bootDriveOnlyAllowed": false,
+      "restoreProofRequiredBeforeImplementation": true,
+      "editionSeparatedRecoveryRequired": true,
+      "privateMaterialRequiresEncryptionOrVaultPlan": true,
+      "publicRepoBackupStorageAllowed": false
+    },
+    "publicToPrivateSeparation": {
+      "state": "planning-only",
+      "copyOnlyImportRequired": true,
+      "secretsTokensImportedByDefault": false,
+      "ownerPrivateDataImportedToDevOrPublic": false,
+      "noExportDataImportedByDefault": false,
+      "privateToPublicSanitizationGateRequired": true,
+      "protectedAssetsExcluded": true
+    },
+    "providerModelDeferral": {
+      "state": "deferred",
+      "providerSdkExecutionAllowed": false,
+      "modelExecutionAllowed": false,
+      "modelDownloadsAllowed": false,
+      "externalCallsAllowed": false,
+      "providerVisibleData": "none",
+      "sentToProvider": false,
+      "canAcceptPrompts": false
+    },
+    "futureHandoffCriteria": {
+      "state": "ready-for-hardening-review",
+      "planningOnly": true,
+      "privateRepoCreationAuthorized": false,
+      "privateRemoteConfigurationAuthorized": false,
+      "backupImplementationAuthorized": false,
+      "publicToDevImportAuthorized": false,
+      "providerModelExecutionAuthorized": false,
+      "nextLegalPhase": "Hardening H1"
+    },
+    "forbiddenMaterialPresence": {
+      "privateRemoteUrl": false,
+      "tokenOrCredential": false,
+      "ownerSecret": false,
+      "privatePath": false,
+      "promptPayload": false,
+      "memoryPayload": false,
+      "privateAutomation": false,
+      "modelArtifact": false,
+      "capabilityPackAsset": false,
+      "privateHostingSecret": false
+    }
+  },
   "blockedCanaries": [
     {
       "caseId": "private-path",
