@@ -16,7 +16,7 @@ import stat
 import subprocess
 from collections import Counter
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -166,11 +166,25 @@ def _bundle_files(target: Path) -> set[Path]:
     return {path for path in target.rglob("*") if path.is_file()}
 
 
+def _is_repo_relative_review_path(path: str) -> bool:
+    if not isinstance(path, str) or not path:
+        return False
+    if "://" in path or path.startswith("~"):
+        return False
+    if Path(path).is_absolute() or PurePosixPath(path).is_absolute():
+        return False
+    windows_path = PureWindowsPath(path)
+    if windows_path.is_absolute() or windows_path.drive or windows_path.root:
+        return False
+    parts = set(PurePosixPath(path).parts) | set(windows_path.parts)
+    return ".." not in parts
+
+
 def _public_review_bundle_file_list_failures(paths: list[str]) -> list[str]:
     failures: list[str] = []
     for path in paths:
         normalized = path.replace("\\", "/")
-        if Path(normalized).is_absolute():
+        if not _is_repo_relative_review_path(path):
             failures.append(f"{path}: public review bundle file list must stay repo-relative")
         for reason, pattern in PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS:
             if pattern.search(normalized):

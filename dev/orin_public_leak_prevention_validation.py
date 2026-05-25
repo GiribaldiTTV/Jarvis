@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import desktop.ai_provider_state as ai_provider_state  # noqa: E402
+import dev.orin_user_review_bundle as user_review_bundle  # noqa: E402
 
 
 AI_EDITION_PLAN = Path(
@@ -320,6 +321,13 @@ def _validate_review_bundle_path_canaries(fixture_set: dict[str, Any], failures:
             actual is expected,
             failures,
             f"review bundle path canary {case_id} expected repo-relative={expected!r}, got {actual!r} for {path!r}",
+        )
+        helper_failures = user_review_bundle._public_review_bundle_file_list_failures([path])
+        helper_actual = not helper_failures
+        _require(
+            helper_actual is expected,
+            failures,
+            f"review bundle helper canary {case_id} expected repo-relative={expected!r}, got {helper_actual!r} for {path!r}",
         )
     for required_case in (
         "repo-relative-root-file",
