@@ -123,6 +123,27 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_recording_pr
 - USER Decision / Waiver: `USER approved this bounded pre-reconciliation overlap-intent repair only; no waiver authorizes current-main reconciliation, Branch Readiness Stage 1, runtime implementation, Workstream Entry, PR creation, merge, release, or future-gated recording work.`
 - Fold-Down Target: `No branch-plan README fold-down is requested; reconcile by preserving incoming current-main USER branch plan review gate context and FAM-006 rollback planning context.`
 
+## USER Branch Plan Review Gate
+
+USER Branch Plan Review: Required - future Workstream Entry must present the readable implementation plan before any runtime work begins or resumes.
+Review Status: Needs USER Decision - Recording Profile Workstream route is withdrawn and future active-overlay-driven recording requires Branch Readiness Stage 1 analysis first.
+Desktop Review Bundle: Not required - current branch is a rollback/source-truth carrier only and does not authorize runtime implementation review.
+Plain-Language Branch Goal: Preserve rollback/source-truth posture after the profile-loaded Recording Profile route was rejected and preserve the corrected active-overlay-driven recording vision for future planning.
+Planned User-Facing Outcome: No user-facing runtime change remains from this branch after rollback; future recording controls require a new Branch Readiness and Workstream path.
+Visual / Behavioral Description: Future recording should live in the HUD Overlay card, record active Overlay Profile membership, and use a compact standalone Recording Settings window after USER approval.
+Implementation Breakdown: No runtime implementation is approved on this carrier; the previous SLC-046 through SLC-050 route is withdrawn.
+Element-to-Phase Proof Matrix: Withdrawn for Recording Profile route; future rows must be created by the selected active-overlay-driven recording carrier.
+Hardening Plan: Pending future Workstream implementation; H1 must compare future behavior against the corrected active-overlay-driven recording vision.
+Live Validation / UTS Plan: Pending future Workstream implementation; LV1 and UTS are required for future user-facing recording controls unless explicitly waived by governance.
+Open USER Questions: Branch Readiness Stage 1 must determine the corrected carrier, stable Overlay Profile Settings placement, durable recording output format, and any Recording Settings beyond folder path/open folder/Start/Stop.
+Codex Recommendations: Do not continue the Recording Profile Workstream; restart planning from active Overlay Profile membership and lightweight recording controls.
+Alternatives / Tradeoffs: The profile-loaded Recording Profile route was attempted and then withdrawn because it does not match the clarified USER vision.
+Accepted Scope: Current accepted scope is rollback/source-truth posture and current-main reconciliation only.
+Deferred Scope: Runtime implementation, Workstream Entry, recording execution, output file writing, standalone Recording Settings implementation, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, and artifacts/raw evidence handling remain deferred.
+Rejected Scope: Loading a separate Recording Profile before recording sensors is rejected for future recording runtime unless USER explicitly re-approves it.
+Exact USER Decision Needed: USER may approve rollback receipt repair after current-main reconciliation, then Branch Readiness Stage 1 analysis for the next active-overlay-driven recording carrier.
+Implementation Approval: Blocked - branch plan review gate does not authorize runtime mutation.
+
 ## Workstream Entry Whole-Package Analysis Requirements
 
 Superseded: the Recording Profile SLC-046 through SLC-050 package is withdrawn after USER rollback request. Future Workstream Entry must be preceded by Branch Readiness Stage 1 analysis for active-overlay-driven recording.
