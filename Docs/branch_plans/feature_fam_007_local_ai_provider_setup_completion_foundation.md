@@ -195,7 +195,7 @@ Element Validation Ledger Owner: `Docs/branch_records/feature_fam_007_local_ai_p
 
 ## Branch Change Intent Ledger
 
-Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded for origin/main@f4d81d179f9631cc36cc09ba520a12002221003d after FAM-006 PR #207 merged. The original Stage 2 no-overlap receipt is retained as historical setup evidence, and the active overlap entries below govern this reconciliation pass.`
+Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded for origin/main@f4d81d179f9631cc36cc09ba520a12002221003d after FAM-006 PR #207 merged and extended for origin/main@a6c0c9da7676a1f2686a13f24f9a57fd298180d2 after release-readiness PR #208 merged. The original Stage 2 no-overlap receipt is retained as historical setup evidence, and the active overlap entries below govern these reconciliation passes.`
 
 ### Changed Surface: Docs/branch_records/index.md
 
@@ -275,6 +275,66 @@ Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded
 - Validation Proof: `Required validation includes python dev\orin_ai_provider_state_validation.py, python dev\orin_monitoring_hud_surface_validation.py, python dev\orin_monitoring_hud_internal_sandbox_validation.py, python dev\orin_branch_governance_validation.py, python dev\orin_branch_governance_validation.py --worktree-confinement-gate, and python -m compileall -q dev desktop Audio main.py after reconciliation.`
 - Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
 - USER Decision / Waiver: `USER approved current-main reconciliation preparation for this FAM-007 branch against origin/main@f4d81d179f9631cc36cc09ba520a12002221003d.`
+- Fold-Down Target: `PR Readiness Stage 1 repair/reconciliation packet and final PR Readiness Stage 1 decision packet.`
+
+### Changed Surface: Docs/branch_plans/retirement_index.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Accept incoming release-readiness PR #208 branch-plan retirement inventory as authoritative while preserving the active FAM-007 setup completion plan as current branch-local authority.`
+- Why This File Was Touched: `Incoming main updates the retirement index after merged FAM branches and this branch previously repaired retirement-index disposition during current-main reconciliation; the active FAM-007 setup completion plan must remain active while historical FAM-006/FAM-007 plan disposition stays validator-consistent.`
+- Owned Behavior / Fact Class: `Branch-plan lifecycle, retired-plan disposition, and active branch-plan pointer posture.`
+- Canonical Owner / Source Owner: `Docs/branch_plans/retirement_index.md`
+- Resolution Owner: `USER Decision`
+- Shared Surface: `YES - merged-main release-readiness inventory updates and this branch's reconciliation repair both touch branch-plan lifecycle posture.`
+- Overlap Risk: `Medium - wrong resolution could mark the active FAM-007 setup completion plan retired too early, lose the FAM-006 PR #207 retired-plan row, or desynchronize governance-efficiency validation.`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Preserve incoming PR #208 release-readiness inventory truth and preserve this FAM-007 setup completion plan as the active runtime Branch Runtime Engineering Plan until PR Readiness and merge-stable fold-down decide retirement.`
+- Rebaseline Handling: `Merge origin/main only after this ledger entry is present; if the retirement index conflicts, keep PR #208 governance inventory content and re-assert only the active FAM-007 setup completion plan posture needed by this branch.`
+- Validation Proof: `Required validation includes python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_setup_completion_foundation.md, python dev\orin_governance_efficiency_validation.py, python dev\orin_branch_governance_validation.py, and python dev\orin_branch_governance_validation.py --pr-readiness-gate after reconciliation and PR-readiness repair.`
+- Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved current-main reconciliation plus PR Readiness Stage 1 source-truth repair against origin/main@a6c0c9da7676a1f2686a13f24f9a57fd298180d2.`
+- Fold-Down Target: `PR Readiness Stage 1 repair/reconciliation packet and final PR Readiness Stage 1 decision packet.`
+
+### Changed Surface: Docs/governance_docs_full_inventory_reform_audit.md
+
+- Surface Class: `documentation/reference`
+- Change Intent: `Accept incoming PR #208 regenerated Docs inventory as authoritative and regenerate only if this branch's reconciliation or PR-readiness repair changes Docs file inventory consistency.`
+- Why This File Was Touched: `Incoming main updates the full Docs inventory after FAM merges; this branch previously regenerated the audit after adding FAM-007 setup completion and FAM-006 reconciliation evidence.`
+- Owned Behavior / Fact Class: `Generated Docs inventory reform audit, file count, cleanup/disposition rows, ambiguity pass, structure pass, and file-by-file review dossier.`
+- Canonical Owner / Source Owner: `dev/orin_docs_inventory_reform_audit.py`
+- Resolution Owner: `USER Decision`
+- Shared Surface: `YES - generated governance inventory from PR #208 overlaps this branch's generated inventory repair.`
+- Overlap Risk: `Low - generated inventory can be refreshed deterministically, but stale counts can block governance-efficiency validation.`
+- Expected Conflict Risk: `Low`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Prefer regenerated output from the current reconciled tree using dev/orin_docs_inventory_reform_audit.py; do not hand-edit generated inventory content except through the helper.`
+- Rebaseline Handling: `After merging origin/main, run the Docs inventory helper only if governance-efficiency validation reports inventory drift or if file inventory changed during PR-readiness repair.`
+- Validation Proof: `Required validation includes python dev\orin_docs_inventory_reform_audit.py when regeneration is needed and python dev\orin_governance_efficiency_validation.py after reconciliation.`
+- Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved current-main reconciliation plus PR Readiness Stage 1 source-truth repair against origin/main@a6c0c9da7676a1f2686a13f24f9a57fd298180d2.`
+- Fold-Down Target: `PR Readiness Stage 1 repair/reconciliation packet and final PR Readiness Stage 1 decision packet.`
+
+### Changed Surface: Docs/governance_docs_reform_user_review_index.md
+
+- Surface Class: `documentation/reference`
+- Change Intent: `Accept incoming PR #208 generated user-review index as authoritative and regenerate only if this branch's reconciliation or PR-readiness repair changes Docs inventory consistency.`
+- Why This File Was Touched: `Incoming main updates the compact Docs reform user-review index after FAM merges; this branch previously regenerated the review index after current-main reconciliation.`
+- Owned Behavior / Fact Class: `Generated Docs reform review index, covered-file count, and review routing summary.`
+- Canonical Owner / Source Owner: `dev/orin_docs_inventory_reform_audit.py`
+- Resolution Owner: `USER Decision`
+- Shared Surface: `YES - generated governance review index from PR #208 overlaps this branch's generated review-index repair.`
+- Overlap Risk: `Low - generated review-index output can be refreshed deterministically, but stale covered-file counts can block governance-efficiency validation.`
+- Expected Conflict Risk: `Low`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Prefer regenerated output from the current reconciled tree using dev/orin_docs_inventory_reform_audit.py; do not hand-edit generated review-index content except through the helper.`
+- Rebaseline Handling: `After merging origin/main, run the Docs inventory helper only if governance-efficiency validation reports review-index drift or if file inventory changed during PR-readiness repair.`
+- Validation Proof: `Required validation includes python dev\orin_docs_inventory_reform_audit.py when regeneration is needed and python dev\orin_governance_efficiency_validation.py after reconciliation.`
+- Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved current-main reconciliation plus PR Readiness Stage 1 source-truth repair against origin/main@a6c0c9da7676a1f2686a13f24f9a57fd298180d2.`
 - Fold-Down Target: `PR Readiness Stage 1 repair/reconciliation packet and final PR Readiness Stage 1 decision packet.`
 
 ### Changed Surface: No Rebaseline Overlap Files
