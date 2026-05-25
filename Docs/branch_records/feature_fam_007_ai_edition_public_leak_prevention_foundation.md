@@ -8,7 +8,7 @@ Record State: `Active Branch Authority`
 
 ## Status
 
-Status: `Workstream Green - FAM-007 AI Edition Public Leak-Prevention Foundation implemented public protected-asset leak-prevention proof, public-safe fixtures, public review-bundle leak-prevention proof, edition-boundary manifest public-safe posture, public build exclusion/audit posture, Dev/Owner skeleton handoff criteria, and provider-boundary preservation from current baseline origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d while preserving v1.7.20-prebeta release canon.`
+Status: `H1 Green - FAM-007 AI Edition Public Leak-Prevention Foundation implemented and hardened public protected-asset leak-prevention proof, public-safe fixtures, public review-bundle leak-prevention proof, edition-boundary manifest public-safe posture, public build exclusion/audit posture, Dev/Owner skeleton handoff criteria, and provider-boundary preservation from current baseline origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d while preserving v1.7.20-prebeta release canon.`
 
 ## Branch Identity
 
@@ -31,11 +31,11 @@ Status: `Workstream Green - FAM-007 AI Edition Public Leak-Prevention Foundation
 
 ## Current Phase
 
-Phase: `Workstream`
+Phase: `Hardening`
 
-Stage: `Workstream Green`
+Stage: `H1 Green`
 
-Seam: `FAM-007 AI Edition Public Leak-Prevention Foundation implementation complete`
+Seam: `Hardening H1 complete`
 
 ## Phase Status
 
@@ -43,7 +43,7 @@ Phase Status: `Active Branch`
 - Branch Authority Marker: `Active Branch Authority`
 - Active Branch: `feature/fam-007-ai-edition-public-leak-prevention-foundation`
 - Branch Evidence: `feature/fam-007-ai-edition-public-leak-prevention-foundation`
-- Branch Authority State: `Active FAM-007 carrier for public-safe AI Edition leak-prevention foundation Workstream Green and Hardening H1 review.`
+- Branch Authority State: `Active FAM-007 carrier for public-safe AI Edition leak-prevention foundation Workstream Green, H1 Green, and Live Validation LV1 review.`
 - Stage 2 Status: `Complete - successor branch was created from origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4, reconciled with current origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d after PR #212, branch authority and Branch Runtime Engineering Plan are admitted, v1.7.20 post-release canon drift is closed, and Stage 2 validation passed before commit/push.`
 - v1.7.20-prebeta Canon Closure: `Recorded - v1.7.20-prebeta is the latest public prerelease at 497ca4e2ec2534c06d3d48aa80595d6b90259bf4 with no binary assets.`
 - PR #210 Evidence Handling: `Released - FAM-007 setup completion foundation is released in v1.7.20-prebeta and remains public-safe setup completion evidence only.`
@@ -52,7 +52,7 @@ Phase Status: `Active Branch`
 - Workstream Status: `Green - bounded implementation completed all admitted public leak-prevention seams with direct validator/audit proof and no visible runtime UI change.`
 - Provider Execution State: `Blocked - provider SDK integration, model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, private Dev/Owner repo creation, Public-to-Dev import implementation, and functional AI remain pending USER decisions.`
 - AI Edition Planning Basis: `USER-accepted FAM-007 AI Edition Capability / Trust Boundary Release Plan identifies Breakpoint 1: Public Leak-Prevention Foundation as the next concrete branch before Dev/Owner skeleton creation and before public provider/model execution.`
-- Next Active Seam: `Hardening H1 for FAM-007 AI Edition Public Leak-Prevention Foundation.`
+- Next Active Seam: `Live Validation LV1 for FAM-007 AI Edition Public Leak-Prevention Foundation.`
 
 ## Branch Class
 
@@ -100,7 +100,7 @@ No Unique Commit Loss Proof: `The prior setup completion branch is merged/releas
 
 ## Blockers
 
-Blockers: `None for Workstream Green after validation. Hardening H1 is next; provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, private Dev/Owner repo creation, Public-to-Dev import implementation, PR creation, merge, release/tag/artifact work, issue work, branch/worktree cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain separate USER decisions.`
+Blockers: `None for H1 Green after validation. Live Validation LV1 is next; provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, private Dev/Owner repo creation, Public-to-Dev import implementation, PR creation, merge, release/tag/artifact work, issue work, branch/worktree cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain separate USER decisions.`
 
 ## Entry Basis
 
@@ -116,8 +116,8 @@ Rollback Target: `Branch Readiness`
 
 ## Next Legal Phase
 
-Next Legal Phase: `Hardening`
-Next Legal Phase Detail: `Hardening H1 for FAM-007 AI Edition Public Leak-Prevention Foundation.`
+Next Legal Phase: `Live Validation`
+Next Legal Phase Detail: `Live Validation LV1 for FAM-007 AI Edition Public Leak-Prevention Foundation.`
 
 ## Planning-Loop Guardrail
 
@@ -147,7 +147,7 @@ USER Vision Question Packet: Workstream Entry accepted public leak-prevention va
 Codex Product Interpretation: Public leak prevention is a trust-boundary foundation and release-safety prerequisite, not functional AI, not a private edition implementation, and not provider/model execution.
 Codex Implementation Recommendation: Start with protected-asset checklist and public-safe fixture/review-bundle audit posture before private repos, private overlays, provider SDKs, model execution, or memory work.
 Codex Additional Recommendations: Codex recommends a manifest/audit contract as the safer option over scattered checks, and also recommends public review-bundle proof plus fail-closed public build scanning before public provider/model execution.
-USER/ChatGPT Review Checkpoint: USER accepted the AI Edition release plan, approved Branch Readiness Stage 2 setup, reviewed the Workstream Entry packet, and approved bounded Workstream implementation through Workstream Green.
+USER/ChatGPT Review Checkpoint: USER accepted the AI Edition release plan, approved Branch Readiness Stage 2 setup, reviewed the Workstream Entry packet, approved bounded Workstream implementation through Workstream Green, and approved Hardening H1 review.
 USER Critique Loop: USER feedback named Owner/Dev theft risk, accepted Nexus Desktop AI Owner, requested concrete release breakpoints, and identified that Workstream Entry review packets must include a USER-readable digest; the Workstream completion packet now includes that digest posture.
 USER Decision Ledger: USER approved Stage 2 setup, current-main reconciliation, Workstream Entry, and bounded Workstream implementation; provider/model execution, private repos, Public-to-Dev import, PR creation, merge, release, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0 remain pending or deferred.
 Deferred Ideas / Future Package Ledger: Future/deferred work includes Private Dev repo creation, Owner repo creation or local-only owner vault, edition manifest implementation, public build validator, secret scanning, private-to-public sanitizer helper, Public-to-Dev migration, capability-pack signing, entitlement/licensing, memory import, model execution, and packaging identity.
@@ -155,7 +155,7 @@ Planning Adequacy Review: Complete for Stage 2 because the plan covers product i
 Rejected Shallow Plan: A one-line "do not leak private files" rule is rejected without protected-asset classes, public-safe fixtures, public review-bundle rules, build/audit posture, manifest direction, sanitizer gates, and Dev/Owner handoff criteria.
 Alternatives And Tradeoffs Reviewed: Alternative one is provider/model execution now, rejected as high-risk premature work; alternative two is private Dev/Owner skeleton setup now, rejected until Breakpoint 1 is green; option three is source-only planning, lower risk but weaker than validator/audit posture.
 Whole-System Interaction Map: Released setup completion and accepted AI Edition planning feed public leak-prevention proof, which unlocks later Dev/Owner skeleton decisions and provider/model execution gates while keeping all private material outside public source.
-Open Questions / USER Decision Points: Hardening H1 must review whether Workstream Green proof is sufficient; USER approval remains pending for private repos, provider/model execution, packaging, import/migration, PR creation, release, and v1.8.0.
+Open Questions / USER Decision Points: Live Validation LV1 must record no-visible-runtime-surface proof or waiver for this source/validator/review-bundle branch; USER approval remains pending for private repos, provider/model execution, packaging, import/migration, PR creation, release, and v1.8.0.
 System Concept Model: Public repo and future public artifacts are least-privilege outputs governed by protected-asset policy, public-safe fixtures, public review-bundle exclusions, private-to-public sanitizer gates, and future build/audit gates.
 Entity / Profile Model: Protected asset class, public-safe fixture, review bundle, edition manifest field, build exclusion rule, private-to-public sanitization gate, Dev/Owner handoff criterion, and provider-boundary blocker.
 User Workflow Model: USER reviews a public-safe Workstream plan, later approves bounded implementation, and then receives proof that public repo/artifacts exclude private Owner/Dev material before private or provider/model work continues.
@@ -174,8 +174,8 @@ Acceptance Criteria: Stage 2 setup, Workstream Entry review, Workstream Green, H
 Validation Proof Requirements: Diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, branch-readiness suite recommendation, runtime-fam007 suite recommendation, rebaseline audit, compileall, and any admitted public leak-prevention validator.
 Screenshot / Live / User Test Summary Proof Requirements: No Stage 2 UI proof is required. Later visible UI requires screenshot/live proof; source/validator-only Workstream may use review-bundle inspection and no-visible-surface waiver.
 Implementation Sequence Proposal: Branch Readiness Stage 2, Workstream Entry analysis, USER approval, bounded Workstream implementation through admitted seams, H1, LV1, PR Readiness, PR, merge, Release Readiness, and release only with separate approval.
-Planning Blockers: None for Workstream Green after validation.
-USER Decisions Needed: Hardening H1 is next.
+Planning Blockers: None for H1 Green after validation.
+USER Decisions Needed: Live Validation LV1 is next.
 Planning Packet Status: Complete
 Planning Revalidation Status: PASS
 Planning Completion Waiver: None
@@ -241,7 +241,7 @@ User Test Summary Strategy: `No visible user-facing runtime behavior changed. La
 
 ## Later-Phase Expectations
 
-Hardening H1 Expectation: `Compare implemented leak-prevention rules, fixtures, manifest/audit posture, review-bundle safety, source truth, and provider-boundary preservation against this record, the branch plan, Product Definition Plan, Runtime Branch Engineering Contract, and Branch Runtime Engineering Plan.`
+Hardening H1 Result: `Green - H1 inspected implemented leak-prevention rules, fixtures, manifest/audit posture, review-bundle safety, source truth, direct validators, end-of-Workstream USER packet, and provider-boundary preservation against this record, the branch plan, Product Definition Plan, Runtime Branch Engineering Contract, and Branch Runtime Engineering Plan. No runtime behavior, provider/model execution, private edition setup, packaging, PR, merge, release, cleanup, or sibling-worktree mutation was performed.`
 Live Validation LV1 Expectation: `Validate public-safe proof surfaces and USER review-bundle safety; if no visible UI is introduced, record the no-visible-surface waiver basis instead of requesting a manual UI User Test Summary.`
 PR Readiness Expectation: `Verify Workstream Green, H1 Green, LV1 Green or waiver, released v1.7.20 closure, no private asset leakage, selected-next posture, release-window projection, and branch authority fold-down before PR creation.`
 
@@ -259,7 +259,7 @@ Non-Includes: `Actual packaging, installer, signing, private entitlement systems
 
 ## Active Seam
 
-Active seam: `Workstream Green complete; Hardening H1 pending USER decision`
+Active seam: `Workstream Green complete; Hardening H1 completed and recorded below`
 
 ## Seam Continuation Decision
 
@@ -284,23 +284,31 @@ Bounded Seam Default: Bounded means one active seam at a time, not one-seam Work
 Element Validation Ledger Status: `Branch-local planning ledger admitted; detailed Element-to-Phase Proof Matrix lives in Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md.`
 Element Validation Ledger Owner: `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md`
 
+## Hardening H1 Record
+
+Hardening H1 Result: `Green - H1 inspected public protected-asset leak-prevention proof, public-safe fixture proof, public review-bundle file-list leak-prevention proof, edition-boundary manifest public-safe posture, public build exclusion/audit posture, Dev/Owner skeleton handoff criteria, provider-boundary preservation, source-truth fold-down, direct validator coverage, and the end-of-Workstream USER packet.`
+
+H1 Repairs Applied: `Source-truth posture repaired from H1-pending to H1 Green / Live Validation LV1 next in this record, the branch plan, backlog, roadmap, and worktree slot receipt only. No provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, private Dev/Owner repo creation, Public-to-Dev import implementation, PR creation, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution was performed.`
+
+Next Handoff: `Live Validation LV1 should validate the public-safe proof surfaces and USER review-bundle safety. Because this branch changed no visible runtime UI, LV1 may record a phase-specific no-visible-runtime-surface waiver with validator/source/review-bundle proof instead of requiring a manual UI User Test Summary.`
+
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Workstream Green`
-Next Legal Phase: `Hardening`
-Next Legal Phase Detail: `Hardening H1`
-Next Active Seam: `Hardening H1 for FAM-007 AI Edition Public Leak-Prevention Foundation`
-Why This Phase Is Next: `The Workstream implemented all admitted public leak-prevention seams, added direct validator/audit proof, preserved provider-boundary closure, updated source truth to Workstream Green, and created the end-of-Workstream review packet. Hardening H1 must now inspect the implementation against the accepted branch plan, PDP/RBEC/BREP, Element-to-Phase Proof Matrix, and AI Edition plan.`
-Approval Required: `USER approval is required for Hardening H1.`
-Exact USER Approval Text: `I approve Hardening H1 for feature/fam-007-ai-edition-public-leak-prevention-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d after Workstream Green. Scope: inspect public protected-asset leak-prevention proof, public-safe fixture proof, public review-bundle leak-prevention proof, edition-boundary manifest public-safe posture, public build exclusion/audit posture, Dev/Owner skeleton handoff criteria, provider-boundary preservation, source-truth fold-down, direct validator coverage, and end-of-Workstream USER packet. Do not perform provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, private Dev/Owner repo creation, Public-to-Dev import implementation, PR creation, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Allowed Scope: `Hardening H1 inspection and H1-scoped repairs only after USER approval.`
+Current Phase: `H1 Green`
+Next Legal Phase: `Live Validation`
+Next Legal Phase Detail: `Live Validation LV1`
+Next Active Seam: `Live Validation LV1 for FAM-007 AI Edition Public Leak-Prevention Foundation`
+Why This Phase Is Next: `Hardening H1 inspected Workstream Green proof, direct validators, public-safe fixtures, review-bundle guard behavior, edition manifest/build audit posture, provider-boundary preservation, source truth, and the end-of-Workstream packet. Repo-side hardening is green; LV1 must now validate public-safe proof surfaces and record no-visible-runtime-surface waiver/proof before PR Readiness.`
+Approval Required: `USER approval is required for Live Validation LV1.`
+Exact USER Approval Text: `I approve Live Validation LV1 for feature/fam-007-ai-edition-public-leak-prevention-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d after H1 Green. Scope: validate public-safe proof surfaces and the end-of-Workstream USER review bundle, record a phase-specific no-visible-runtime-surface waiver if supported, rerun required validators including public leak-prevention and provider-boundary checks, and confirm no private/provider/runtime work was introduced. Do not perform provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, private Dev/Owner repo creation, Public-to-Dev import implementation, PR creation, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Allowed Scope: `Live Validation LV1 analysis, validation, and source-truth fold-down only after USER approval; no visible runtime UI is expected unless source truth changes.`
 Explicit Exclusions: `No provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, private Dev/Owner repo creation, Public-to-Dev import implementation, PR creation, merge, release, tag, artifacts, cleanup, sibling mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Validation Required: `Identity/freshness checks, diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, public leak-prevention validation, branch-readiness validation suite, runtime-fam007 validation suite recommendation, rebaseline audit, compileall, and any H1 proof required by source truth.`
-Stop Conditions: `Stop if origin/main advances and rebaseline must be recalculated, source truth points to another FAM-007 successor, Workstream Green proof is unsupported, provider-boundary blockers weaken, leak-prevention validator proof is insufficient, FAM-006/Governance/Compact-AI creates a direct sequencing blocker, Hardening requires a pending USER decision, or validation fails.`
-USER Plan Review Gate: `Required - USER may accept, revise, waive, or reject the Workstream Green packet before Hardening begins.`
+Validation Required: `Identity/freshness checks, diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, public leak-prevention validation, branch-readiness validation suite, runtime-fam007 validation suite recommendation, rebaseline audit, compileall, and any LV1 proof required by source truth.`
+Stop Conditions: `Stop if origin/main advances and rebaseline must be recalculated, source truth points to another FAM-007 successor, H1 Green proof is unsupported, provider-boundary blockers weaken, leak-prevention validator proof is insufficient, FAM-006/Governance/Compact-AI creates a direct sequencing blocker, LV1 requires a pending USER decision, or validation fails.`
+USER Plan Review Gate: `Required - USER may accept, revise, waive, or reject the H1 packet before Live Validation begins.`
 USER Inspection Files: `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md; Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md; Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md; Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/validation_helper_registry.md.`
 Review Required Because: `The branch controls public/private AI edition trust boundaries and must prove protected Owner/Dev material cannot leak into public repo, public review bundles, or future public builds before Dev/Owner skeletons or provider/model execution continue.`
-Implementation Blocker: `None for Workstream implementation; the Workstream is green. Hardening remains unauthorized until USER approval.`
-Review Waiver Reason: `No review waiver applies; Hardening must inspect Workstream Green proof before PR readiness.`
+Implementation Blocker: `None for H1 Green; Live Validation remains unauthorized until USER approval.`
+Review Waiver Reason: `No H1 waiver applies; H1 inspected Workstream Green proof before Live Validation. LV1 may separately record a no-visible-runtime-surface waiver if source truth supports it.`
 Next Legal Phase Digest Missing: `NO - this digest is complete and must not be compacted, abbreviated, summarized away, or omitted from phase handoff packets.`
-Next Safe Move: `Wait for USER approval to run Hardening H1 from C:\Nexus Worktrees\FAM-007.`
+Next Safe Move: `Wait for USER approval to run Live Validation LV1 from C:\Nexus Worktrees\FAM-007.`

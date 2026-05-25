@@ -55,9 +55,11 @@ REQUIRED_BRANCH_PLAN_PHRASES = (
 )
 
 REQUIRED_RECORD_PHRASES = (
-    "Phase: `Workstream`",
+    "Phase: `Hardening`",
     "Workstream Status: `Green",
-    "Next Legal Phase: `Hardening`",
+    "Stage: `H1 Green`",
+    "Hardening H1 Result: `Green",
+    "Next Legal Phase: `Live Validation`",
     "No visible runtime UI change",
     "Provider Execution State: `Blocked",
 )
