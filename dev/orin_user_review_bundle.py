@@ -14,6 +14,7 @@ import re
 import shutil
 import stat
 import subprocess
+import zipfile
 from collections import Counter
 from datetime import datetime
 from pathlib import Path, PurePosixPath, PureWindowsPath
@@ -26,6 +27,10 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "PASS - copied file list and START_HERE file-list metadata are repo-relative "
     "and exclude Owner/Dev private path patterns; copied file content remains "
     "source truth for USER inspection."
+)
+REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
+    "PASS - helper overwrote the stable review zip from the freshly refreshed "
+    "worktree review folder after START_HERE was written for this Source HEAD."
 )
 
 
@@ -166,6 +171,36 @@ def _bundle_files(target: Path) -> set[Path]:
     return {path for path in target.rglob("*") if path.is_file()}
 
 
+def _export_zip_path(review_root: Path, label: str) -> Path:
+    return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
+
+
+def _write_export_zip(target: Path, export_zip: Path) -> None:
+    if target in export_zip.parents or export_zip == target:
+        raise ValueError(f"Refusing to write review zip inside bundle folder: {export_zip}")
+    export_zip.parent.mkdir(parents=True, exist_ok=True)
+    if export_zip.exists():
+        export_zip.unlink()
+    with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(_bundle_files(target)):
+            archive.write(path, path.relative_to(target).as_posix())
+
+
+def _validate_export_zip(export_zip: Path, source_head: str) -> None:
+    with zipfile.ZipFile(export_zip, "r") as archive:
+        try:
+            start_here = archive.read("START_HERE.md").decode("utf-8")
+        except KeyError as exc:
+            raise ValueError(f"Review export zip is missing START_HERE.md: {export_zip}") from exc
+    if f"Source HEAD: `{source_head}`" not in start_here:
+        raise ValueError(
+            "Review export zip stale-head guard failed: START_HERE Source HEAD "
+            f"does not match {source_head}"
+        )
+    if "Review Export Zip Stale Guard: PASS" not in start_here:
+        raise ValueError("Review export zip is missing stale-guard proof in START_HERE.md")
+
+
 def _is_repo_relative_review_path(path: str) -> bool:
     if not isinstance(path, str) or not path:
         return False
@@ -207,7 +242,7 @@ def build_bundle(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     expected_file_count: int | None,
-) -> Path:
+) -> tuple[Path, Path]:
     custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
     custom_label = worktree_label is not None
     if (custom_root or custom_label) and not allow_custom_review_path:
@@ -244,6 +279,7 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
+    export_zip = _export_zip_path(review_root, label)
     if allow_custom_review_path:
         custom_review_path_waiver = "Granted"
         custom_review_path_reason_value = custom_review_path_reason or "Not recorded"
@@ -287,6 +323,9 @@ def build_bundle(
         f"Source HEAD: `{source_head}`",
         f"Upstream: `{upstream}`",
         f"origin/main: `{origin_main}`",
+        f"Review Export Zip: `{export_zip}`",
+        f"Review Export Zip Source HEAD: `{source_head}`",
+        f"Review Export Zip Stale Guard: {REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS}",
         f"Bundle Created: {created_at}",
         f"Bundle File Count: {bundle_file_count}",
         f"Expected File Count: {expected_count}",
@@ -318,7 +357,9 @@ def build_bundle(
     readme_lines.append("")
 
     (target / "START_HERE.md").write_text("\n".join(readme_lines), encoding="utf-8")
-    return target
+    _write_export_zip(target, export_zip)
+    _validate_export_zip(export_zip, source_head)
+    return target, export_zip
 
 
 def main() -> int:
@@ -386,7 +427,7 @@ def main() -> int:
     parser.add_argument("files", nargs="+", help="Repo-relative files to copy into the Desktop review bundle.")
     args = parser.parse_args()
 
-    target = build_bundle(
+    target, export_zip = build_bundle(
         review_root_name=args.review_root_name,
         worktree_label=args.worktree_label or args.folder_name,
         allow_custom_review_path=args.allow_custom_review_path,
@@ -402,6 +443,7 @@ def main() -> int:
         expected_file_count=args.expected_file_count,
     )
     print(f"Review bundle: {target}")
+    print(f"Review export zip: {export_zip}")
     return 0
 
 
