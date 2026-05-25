@@ -67,6 +67,19 @@ CURRENT_STATE_OWNER_DOCS = (
     Path("Docs/closeout_index.md"),
 )
 
+PUBLISHED_RELEASE_CLOSURE_SCAN_PATHS = (
+    Path("Docs/feature_backlog.md"),
+    Path("Docs/prebeta_roadmap.md"),
+    Path("Docs/worktree_slots.md"),
+    Path("Docs/workstreams/index.md"),
+)
+
+PUBLISHED_RELEASE_CLOSURE_SCAN_DIRS = (
+    Path("Docs/branch_records"),
+    Path("Docs/branch_plans"),
+    Path("Docs/family_visions"),
+)
+
 AUXILIARY_GUIDANCE_DOCS = (
     Path("Docs/closeout_guidance.md"),
     Path("Docs/codex_user_guide.md"),
@@ -7349,6 +7362,47 @@ def _highest_known_prebeta_tag() -> str:
     if not tags:
         return ""
     return max(tags, key=lambda tag: _parse_prebeta_version(tag) or (0, 0, 0))
+
+
+def _published_release_closure_scan_paths() -> list[Path]:
+    paths: set[Path] = set(PUBLISHED_RELEASE_CLOSURE_SCAN_PATHS)
+    for directory in PUBLISHED_RELEASE_CLOSURE_SCAN_DIRS:
+        root = ROOT_DIR / directory
+        if not root.is_dir():
+            continue
+        paths.update(
+            path.relative_to(ROOT_DIR)
+            for path in root.rglob("*.md")
+            if path.is_file()
+        )
+    return sorted(paths, key=lambda path: path.as_posix())
+
+
+def _validate_published_release_canon_closure(require, release_tag: str) -> None:
+    if not release_tag:
+        return
+
+    release_tag_lower = release_tag.casefold()
+    for relative_path in _published_release_closure_scan_paths():
+        path = ROOT_DIR / relative_path
+        if not path.is_file():
+            continue
+        text = _read_text(relative_path)
+        for line_number, line in enumerate(text.splitlines(), start=1):
+            line_lower = line.casefold()
+            if "merged-unreleased" not in line_lower or release_tag_lower not in line_lower:
+                continue
+            if "historical pre-release snapshot" in line_lower:
+                continue
+            require(
+                False,
+                (
+                    f"{relative_path}:{line_number}: Post-Release Canon Closure Drift; "
+                    f"{release_tag} is published, so source truth must not keep included "
+                    "scope as merged-unreleased for that same tag. Fold the scope to "
+                    "released/closed posture or label it as historical pre-release snapshot evidence."
+                ),
+            )
 
 
 def _workstream_target_version(workstream_text: str) -> str:
@@ -20377,6 +20431,7 @@ def main() -> int:
                 "`Implementation Entry: Blocked until closure repair validates green`."
             ),
         )
+        _validate_published_release_canon_closure(require, highest_known_prebeta_tag)
 
     fb038_entry = _entry_by_id(backlog_entries, "FB-038")
     require(

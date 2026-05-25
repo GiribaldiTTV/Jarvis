@@ -1467,6 +1467,13 @@ Aggregation rule:
 
 The blocker for missing or ambiguous contributor inventory is `Release Window Contributor Inventory Missing`.
 
+Post-release closure rule:
+
+- once a public prerelease tag exists, no current-state owner, compact pointer row, canonical detail branch record, retired branch plan, worktree slot receipt, or family vision pointer may keep that exact tag's included scope as `merged-unreleased`
+- included scope must be folded to released/closed or explicitly labeled as historical pre-release snapshot evidence that is not current posture
+- Release Readiness must stop on `Post-Release Canon Closure Drift` when the selected candidate has already been published but source truth still describes an included contributor as merged-unreleased for that published tag
+- the standing Governance intake lane is the legal carrier for post-release source-truth/governance drift discovered after publication; Release Readiness remains file-frozen and must not patch the drift directly
+
 Scope routing:
 
 - if the selected release candidate is current `origin/main`, stale wording at an older PR endpoint is historical PR Readiness miss evidence, not a current Release Readiness blocker when later merged governance/source-truth repairs fixed the selected candidate
