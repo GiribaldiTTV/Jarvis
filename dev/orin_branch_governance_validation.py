@@ -2870,6 +2870,7 @@ STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_monitoring_hud_internal_sandbox_validation.py",
     "dev/orin_monitoring_hud_surface_validation.py",
     "dev/orin_pr_body_quality_audit.py",
+    "dev/orin_public_leak_prevention_validation.py",
     "dev/orin_release_body_validation.py",
 }
 STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS = (
