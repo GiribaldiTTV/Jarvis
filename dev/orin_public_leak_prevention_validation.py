@@ -272,6 +272,9 @@ def _validate_required_source_truth(failures: list[str]) -> None:
         "PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS",
         "PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS",
         "_public_review_bundle_file_list_failures",
+        "WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES",
+        "_validate_workstream_entry_packet_decision_path",
+        "validate_workstream_entry_packet_folder",
     ):
         _require(phrase in helper, failures, f"{REVIEW_BUNDLE_HELPER}: missing {phrase!r}")
 
@@ -414,6 +417,52 @@ def _validate_provider_boundary(failures: list[str]) -> None:
         _require(payload.get(key) == expected, failures, f"provider payload {key}={payload.get(key)!r}, expected {expected!r}")
 
 
+def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, Any], failures: list[str]) -> None:
+    canaries = fixture_set.get("workstreamEntryPacketDecisionCanaries", [])
+    _require(len(canaries) >= 6, failures, "workstream entry packet decision canaries must cover pass and failure cases")
+    seen_cases: set[str] = set()
+    for canary in canaries:
+        case_id = str(canary.get("caseId", ""))
+        seen_cases.add(case_id)
+        result = user_review_bundle._validate_workstream_entry_packet_decision_path(
+            canary.get("files", {}),
+            expected_branch=canary.get("expectedBranch", ""),
+            expected_head=canary.get("expectedHead", ""),
+            expected_origin_main=canary.get("expectedOriginMain", ""),
+            require_implementation_ready=canary.get("requireImplementationReady", False),
+        )
+        expected_valid = canary.get("expectedValid")
+        expected_status = canary.get("expectedStatus")
+        if expected_valid is True:
+            _require(not result.failures, failures, f"packet decision canary {case_id} unexpectedly failed: {result.failures}")
+        elif expected_valid is False:
+            _require(bool(result.failures), failures, f"packet decision canary {case_id} unexpectedly passed")
+        else:
+            failures.append(f"packet decision canary {case_id} missing expectedValid boolean")
+        _require(
+            result.status == expected_status,
+            failures,
+            f"packet decision canary {case_id} expected status {expected_status!r}, got {result.status!r}",
+        )
+        expected_failure_contains = canary.get("expectedFailureContains")
+        if expected_failure_contains:
+            joined_failures = "\n".join(result.failures)
+            _require(
+                expected_failure_contains in joined_failures,
+                failures,
+                f"packet decision canary {case_id} did not report expected failure fragment {expected_failure_contains!r}",
+            )
+    for required_case in (
+        "branch-correct-implementation-ready",
+        "branch-correct-repair-revalidation",
+        "stale-branch-packet",
+        "missing-required-digest-file",
+        "conflicting-next-legal-phase",
+        "chat-only-decision-missing-packet-evidence",
+    ):
+        _require(required_case in seen_cases, failures, f"packet decision canaries missing {required_case}")
+
+
 def validate() -> list[str]:
     failures: list[str] = []
     _require(FIXTURE_SET.is_file(), failures, f"{FIXTURE_SET.relative_to(ROOT)} is missing")
@@ -428,6 +477,7 @@ def validate() -> list[str]:
     _validate_public_build_audit(failures=failures, fixture_set=fixture_set)
     _validate_blocked_canaries(fixture_set, failures)
     _validate_provider_boundary(failures)
+    _validate_workstream_entry_packet_decision_canaries(fixture_set, failures)
     return failures
 
 

@@ -291,7 +291,7 @@ Plan-To-Implementation Traceability: `During Workstream, each planned seam must 
 
 ### Changed Surface: Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md
 
-- Surface Class: `branch-plan/source-truth`
+- Surface Class: `governance/source-truth`
 - Change Intent: `Create the active Branch Runtime Engineering Plan for Breakpoint 2 readiness.`
 - Why This File Was Touched: `Runtime-focused Branch Readiness requires PDP/RBEC/BREP and seam mapping before Workstream Entry.`
 - Owned Behavior / Fact Class: `Branch-local engineering and validation plan.`
@@ -368,6 +368,166 @@ Plan-To-Implementation Traceability: `During Workstream, each planned seam must 
 - Fallback Evidence: `Live git branch and this record.`
 - USER Decision / Waiver: `USER approved Stage 2 setup in this worktree.`
 - Fold-Down Target: `Future PR readiness merge-stable projection.`
+
+### Changed Surface: Docs/phase_governance.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Add Workstream Entry Desktop packet decision-path consistency as a required acceptance condition.`
+- Why This File Was Touched: `USER identified that branch-correct/file-complete packets could still carry repair/revalidation next-phase wording.`
+- Owned Behavior / Fact Class: `Workstream Entry packet acceptance and implementation approval blockers.`
+- Canonical Owner / Source Owner: `Docs/phase_governance.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve generic packet decision-path consistency rule for all Workstream Entry packets.`
+- Rebaseline Handling: `If origin/main changes Workstream Entry packet governance, rerun overlap audit before mutation.`
+- Validation Proof: `python dev\orin_branch_governance_validation.py; python dev\orin_public_leak_prevention_validation.py`
+- Fallback Evidence: `Desktop packet validation helper and fixtures.`
+- USER Decision / Waiver: `USER approved governance/packet-consistency repair on this active FAM-007 branch.`
+- Fold-Down Target: `Future PR readiness fold-down and governance reuse.`
+
+### Changed Surface: Docs/development_rules.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Record that Workstream Entry Desktop packets must be decision-path consistent before implementation approval.`
+- Why This File Was Touched: `The execution rule must block chat-only correction when packet decision files still disagree.`
+- Owned Behavior / Fact Class: `Codex execution discipline for Desktop packet proof.`
+- Canonical Owner / Source Owner: `Docs/development_rules.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Keep packet proof self-validating inside the Desktop folder before Workstream implementation.`
+- Rebaseline Handling: `If origin/main changes Workstream Entry execution rules, rerun overlap audit before mutation.`
+- Validation Proof: `python dev\orin_branch_governance_validation.py; python dev\orin_public_leak_prevention_validation.py`
+- Fallback Evidence: `Desktop packet validation helper and fixtures.`
+- USER Decision / Waiver: `USER approved governance/packet-consistency repair on this active FAM-007 branch.`
+- Fold-Down Target: `Future PR readiness fold-down and governance reuse.`
+
+### Changed Surface: Docs/validation_helper_registry.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Register Workstream Entry packet decision-path validation coverage on the existing bundle helper and FAM-007 validator.`
+- Why This File Was Touched: `New helper behavior and fixture coverage must be discoverable before future packet approvals.`
+- Owned Behavior / Fact Class: `Helper reuse and validator ownership.`
+- Canonical Owner / Source Owner: `Docs/validation_helper_registry.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Reuse existing helper/validator instead of creating duplicate packet validators.`
+- Rebaseline Handling: `If origin/main changes helper registry rows, preserve reusable decision-path validation ownership.`
+- Validation Proof: `python dev\orin_governance_efficiency_validation.py; python dev\orin_public_leak_prevention_validation.py`
+- Fallback Evidence: `dev/orin_user_review_bundle.py and public leak-prevention fixtures.`
+- USER Decision / Waiver: `USER approved governance/packet-consistency repair on this active FAM-007 branch.`
+- Fold-Down Target: `Future PR readiness fold-down.`
+
+### Changed Surface: dev/orin_user_review_bundle.py
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Add Workstream Entry packet decision-path validation mode to the existing Desktop review bundle helper.`
+- Why This File Was Touched: `The helper already owns packet creation and is the smallest reusable place to validate packet identity, required files, exact decision text, and next-phase consistency.`
+- Owned Behavior / Fact Class: `Desktop review bundle creation and packet consistency validation.`
+- Canonical Owner / Source Owner: `dev/orin_user_review_bundle.py`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve existing bundle creation behavior while adding validation-only mode.`
+- Rebaseline Handling: `If origin/main changes helper CLI, preserve build mode compatibility and validation mode.`
+- Validation Proof: `python dev\orin_public_leak_prevention_validation.py; python -m compileall -q dev desktop Audio main.py`
+- Fallback Evidence: `Synthetic packet decision canaries.`
+- USER Decision / Waiver: `USER approved governance/packet-consistency repair on this active FAM-007 branch.`
+- Fold-Down Target: `Future PR readiness fold-down.`
+
+### Changed Surface: dev/orin_public_leak_prevention_validation.py
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Add direct fixture validation for Workstream Entry packet decision-path consistency.`
+- Why This File Was Touched: `The FAM-007 public/private boundary validator already owns public review-bundle proof and can prevent future packet contradiction drift.`
+- Owned Behavior / Fact Class: `FAM-007 public/private packet and leak-prevention proof.`
+- Canonical Owner / Source Owner: `dev/orin_public_leak_prevention_validation.py`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Validate branch-correct implementation-ready, repair/revalidation, stale, missing, conflicting, and chat-only packet fixtures.`
+- Rebaseline Handling: `If origin/main changes FAM-007 public leak validation, preserve decision-path fixture coverage.`
+- Validation Proof: `python dev\orin_public_leak_prevention_validation.py`
+- Fallback Evidence: `dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json`
+- USER Decision / Waiver: `USER approved governance/packet-consistency repair on this active FAM-007 branch.`
+- Fold-Down Target: `Future PR readiness fold-down.`
+
+### Changed Surface: dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Add deterministic packet decision-path canaries.`
+- Why This File Was Touched: `The validator needs fixture proof for implementation-ready, repair/revalidation, stale, missing, conflicting, and chat-only packet evidence cases.`
+- Owned Behavior / Fact Class: `Regression fixtures for FAM-007 packet consistency.`
+- Canonical Owner / Source Owner: `dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `NO`
+- Overlap Risk: `Low`
+- Expected Conflict Risk: `Low`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Keep fixtures synthetic and public-safe.`
+- Rebaseline Handling: `If origin/main changes fixture schema, preserve public-safe synthetic coverage.`
+- Validation Proof: `python dev\orin_public_leak_prevention_validation.py`
+- Fallback Evidence: `No private material in fixture payloads.`
+- USER Decision / Waiver: `USER approved governance/packet-consistency repair on this active FAM-007 branch.`
+- Fold-Down Target: `Future PR readiness fold-down.`
+
+### Changed Surface: Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Record the packet-consistency repair on the active FAM-007 branch authority.`
+- Why This File Was Touched: `The active branch record must explain why shared governance/helper surfaces changed inside this carrier.`
+- Owned Behavior / Fact Class: `Active branch authority and repair history.`
+- Canonical Owner / Source Owner: `This branch record.`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `NO`
+- Overlap Risk: `Low`
+- Expected Conflict Risk: `Low`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Preserve active Dev/Owner skeleton readiness authority and pending USER decisions.`
+- Rebaseline Handling: `If origin/main changes this record, rerun overlap audit before mutation.`
+- Validation Proof: `python dev\orin_branch_governance_validation.py`
+- Fallback Evidence: `This branch plan and Desktop packet validation.`
+- USER Decision / Waiver: `USER approved governance/packet-consistency repair on this active FAM-007 branch.`
+- Fold-Down Target: `Future PR readiness fold-down.`
+
+### Changed Surface: Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Record the packet-consistency repair changed surfaces and validation expectations.`
+- Why This File Was Touched: `The branch plan owns overlap intent and must list every changed file for rebaseline review.`
+- Owned Behavior / Fact Class: `Branch-local planning, ledger, and validation expectations.`
+- Canonical Owner / Source Owner: `This branch plan.`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `NO`
+- Overlap Risk: `Low`
+- Expected Conflict Risk: `Low`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Preserve Workstream Entry as next legal phase; implementation remains pending USER approval.`
+- Rebaseline Handling: `If origin/main changes this plan, rerun overlap audit before mutation.`
+- Validation Proof: `python dev\orin_branch_governance_validation.py; python dev\orin_branch_readiness_planning_fixture_validation.py`
+- Fallback Evidence: `Active branch record and Desktop packet validation.`
+- USER Decision / Waiver: `USER approved governance/packet-consistency repair on this active FAM-007 branch.`
+- Fold-Down Target: `Future PR readiness fold-down.`
 
 ## Bounded Workstream Admission
 
