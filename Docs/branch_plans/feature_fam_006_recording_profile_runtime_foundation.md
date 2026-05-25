@@ -31,7 +31,7 @@ Per-Seam User-Facing Proof Checklist: `Pending Workstream Entry; any user-facing
 Future-Gated Items: `Future-gated and pending USER approval: tray recording controls, actual recording execution, export/share/import, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance worktree mutation, issue mutation, PR creation, merge, release, and artifacts/raw evidence handling.`
 Approval-Boundary Audit: `Approval boundary: USER approved bounded Workstream continuation until all Recording Profile Runtime Foundation Workstream work is complete and green, ratified SLC-049/SLC-050, approved bounded Hardening H1, and approved bounded Live Validation LV1 proof capture. SLC-046 through SLC-050 and bounded H1 are complete; LV1 helper proof is green; final LV1 green and PR Readiness are blocked by User Test Summary Results Pending. PR, merge, release, issue, artifact handling beyond approved LV1 proof, sibling-worktree, tray/export/provider/theme work remain pending separate USER approval.`
 FAM / Shared-Surface Overlap Forecast: `FAM-006 only. FAM-007 and Governance worktrees are sibling context and not mutable. Future runtime seams may touch HUD/Dashboard/Manage Monitors surfaces and must forecast overlap before implementation.`
-Open Questions: `Workstream Entry must select the first implementation seam and confirm exact runtime surfaces.`
+Open Questions: `USER clarified after LV1 handoff that future recording runtime should be active-overlay-driven rather than profile-loaded. Future planning must reconcile this branch's Recording Profile foundation with the new recording vision before actual recording runtime.`
 USER Planning Decisions: `USER approved Stage 1 analysis, Stage 2 setup, Workstream Entry analysis, bounded SLC-046 implementation/H1, governed SLC-047 continuation, bounded SLC-047 implementation/H1, governed SLC-048 continuation, bounded SLC-048 implementation/H1, governed SLC-049 continuation decision, and explicit ratification of SLC-049 Dashboard / Manage Monitors Recording Profile status integration plus SLC-050 Workstream readiness proof for this Recording Profile branch.`
 Plan Revision History: `v1 - Created after PR #212 merge and FAM-006 branch cleanup from current origin/main 26dded3f84c526e0525c7d3b18fcd2607e16590d.`
 Plan-To-Implementation Traceability: `SLC-046 through SLC-050 implementation evidence is recorded below; Hardening H1 must compare implementation evidence, changed files, validation proof, user-facing proof, H1 findings, LV1 artifacts, and UTS disposition for each admitted slice before PR Readiness.`
@@ -49,6 +49,16 @@ PR Fold-Down Packet: `Pending future PR Readiness.`
 Family: `FAM-006 - Monitoring and HUD`
 Package: `PKG-006 - Recording Profile Runtime Foundation`
 Package Posture: `Active Workstream branch / SLC-046 implementation and H1 green; SLC-047 implementation and H1 green; SLC-048 implementation and H1 green; SLC-049 implementation and package H1 green; SLC-050 Workstream readiness proof and package H1 green; LV1 helper proof green; User Test Summary Results Pending`
+
+## Vision Correction - Active-Overlay-Driven Recording
+
+Vision Correction Status: `Recorded after LV1 handoff and before final UTS disposition.`
+USER Recording Vision: `Recording should not be a profile-loaded workflow. Recording controls should live in the HUD Overlay card, record the currently active Overlay Profile membership, and expose lightweight Start Recording / Stop Recording quick access.`
+Recording Settings Vision: `Recording Settings should be a separate normal OS-level NDAI window, not a Dashboard child window. It should be compact, movable/minimizable independently, include folder path, open log folder, Start Recording, Stop Recording, and only additional settings explicitly USER-approved after proposal.`
+Recording Output Vision: `Recording output should be a valid durable file that can later be graphed, plotted, or analyzed reliably.`
+HUD Overlay Card Vision: `HUD Overlay card should order Overlay Profile before Overlay Status; the active Overlay Profile row should show active monitored monitors so the user understands what would be recorded; Overlay Profile Settings must keep a stable location, preferably title-row right or bottom-right, and future additions must not move it.`
+Current Branch Reconciliation Note: `SLC-046 through SLC-050 remain historical Recording Profile Runtime Foundation evidence, but future recording runtime planning must decide whether to retire, hide, or repurpose Recording Profile state/UI so it does not conflict with the active-overlay-driven recording vision.`
+Out-Of-Scope Until Future Approval: `Actual recording execution, Start/Stop runtime controls, output file writing, standalone Recording Settings implementation, folder picker/open-folder behavior, and HUD Overlay card reorganization remain future-gated and are not authorized by this source-truth update.`
 
 | Slice | Admission State | Purpose | Current Status |
 | --- | --- | --- | --- |
