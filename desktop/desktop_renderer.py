@@ -5806,9 +5806,6 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_active_overlay_profile_id = "default-overlay-profile"
         self._monitoring_hud_overlay_profile_default_deleted_by_user = False
         self._monitoring_hud_overlay_profile_monitor_ids = []
-        self._monitoring_hud_recording_profile_signature = None
-        self._monitoring_hud_recording_profiles = {}
-        self._monitoring_hud_active_recording_profile_id = "default-recording-profile"
         self._monitoring_hud_active_child_window_signature = None
         self._monitoring_hud_control_sync_timer = QTimer(self)
         self._monitoring_hud_control_sync_timer.timeout.connect(self._sync_monitoring_hud_control_state_from_page)
@@ -8864,11 +8861,6 @@ class DesktopRuntimeWindow(QWidget):
             overlay_profile_default_deleted_by_user=bool(
                 getattr(self, "_monitoring_hud_overlay_profile_default_deleted_by_user", False)
             ),
-            recording_profiles=dict(getattr(self, "_monitoring_hud_recording_profiles", {}) or {}),
-            active_recording_profile_id=str(
-                getattr(self, "_monitoring_hud_active_recording_profile_id", "default-recording-profile")
-                or ""
-            ),
         )
 
     def monitoring_hud_feature_state(self) -> dict[str, object]:
@@ -9048,25 +9040,18 @@ class DesktopRuntimeWindow(QWidget):
         manifest = {
             "status": status,
             "package": "PKG-006",
-            "slice": "LV1",
-            "seam": "FAM-006 Recording Profile Runtime Foundation live-client real-input self-QA",
-            "proofSlice": "LV1",
-            "proofSeam": "FAM-006 Recording Profile Runtime Foundation LV1",
+            "slice": "SLC-029",
+            "seam": "Dashboard-specific active-client self-QA - no UTS export",
+            "proofSlice": "SLC-041",
+            "proofSeam": "SLC-041 Overlay Profile validation and live desktop proof",
             "proofStandard": "focused WebView proof is acceptance evidence; full desktop screenshots are locator/context evidence only",
             "formalUserTestSummaryBoundary": "Live Validation Stage 1 only after human-client precheck PASS or USER waiver",
-            "recordingProfileProofChain": {
-                "slc046": "Recording Profile data/state foundation and renderer bridge",
-                "slc047": "Recording Profile selector/settings create/edit/delete/save/discard and guarded delete behavior",
-                "slc048": "Recording Profile relationship mapping and boundary proof",
-                "slc049": "compact Dashboard / Manage Monitors read-only Recording Profile status integration",
-                "slc050": "Workstream readiness proof for H1 and LV1",
-                "lv1": "real user-facing desktop proof with focused screenshots, compact/default states, short video proof, and UTS handoff",
-            },
-            "historicalOverlayProfileProofChain": {
-                "slc037": "Overlay Profile data/state foundation and renderer bridge - historical released baseline",
-                "slc038": "Dashboard selector plus Overlay Profile Settings create/rename/save/discard - historical released baseline",
-                "slc039": "settings-window monitor membership mapping - historical released baseline",
-                "slc041": "Overlay Profile validation and live desktop proof - historical released baseline",
+            "overlayProfileProofChain": {
+                "slc037": "Overlay Profile data/state foundation and renderer bridge",
+                "slc038": "Dashboard selector plus Overlay Profile Settings create/rename/save/discard",
+                "slc039": "settings-window monitor membership mapping",
+                "returnedUtsRepair": "selector-first settings window, search/filter, max-five visible monitor target, and compact Manage Monitors read-only Overlay row",
+                "slc041": "focused validator and live desktop proof readiness",
             },
             "client": "desktop/orin_desktop_main.py",
             "mode": "live-client-interaction-self-qa",
@@ -9536,99 +9521,6 @@ class DesktopRuntimeWindow(QWidget):
                 QTimer.singleShot(delay(), callback)
 
             query(label, rect_script(selector), click_from_rect)
-
-        def os_wheel_until_selector_hittable(
-            selector: str,
-            label: str,
-            *,
-            wheel_point: tuple[int, int] | None,
-            wheel_notches: int = -3,
-            max_attempts: int = 10,
-            callback=None,
-        ):
-            attempts = {"count": 0, "last": {}}
-
-            def parse_probe_result(result):
-                try:
-                    parsed = json.loads(result) if isinstance(result, str) else result
-                except Exception:
-                    parsed = {"ok": False, "raw": str(result)}
-                if not isinstance(parsed, dict):
-                    parsed = {"ok": False, "raw": str(parsed)}
-                return parsed
-
-            def probe():
-                self._run_javascript_with_result(rect_script(selector), handle_probe)
-
-            def handle_probe(result):
-                parsed = parse_probe_result(result)
-                attempts["last"] = parsed
-                if parsed.get("ok"):
-                    add_step(
-                        label,
-                        True,
-                        {
-                            **parsed,
-                            "attempts": attempts["count"],
-                            "screenPoint": self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect")),
-                            "inputProof": "real-os-mouse-wheel-until-hittable",
-                            "realOsInputProof": True,
-                            "directJsScrollUsed": False,
-                            "directJsClickUsed": False,
-                            "syntheticDomEventUsed": False,
-                            "qtestMouseUsed": False,
-                        },
-                    )
-                    if callback:
-                        QTimer.singleShot(delay(120), callback)
-                    return
-
-                if attempts["count"] >= max_attempts:
-                    capture(f"{re.sub(r'[^A-Za-z0-9_.-]+', '_', label).strip('_')}_failed_target_context")
-                    add_step(
-                        label,
-                        False,
-                        {
-                            **parsed,
-                            "attempts": attempts["count"],
-                            "screenPoint": self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect")),
-                            "wheelPoint": wheel_point,
-                            "wheelNotchesPerAttempt": wheel_notches,
-                            "inputProof": "real-os-mouse-wheel-until-hittable",
-                            "realOsInputProof": False,
-                            "directJsScrollUsed": False,
-                            "directJsClickUsed": False,
-                            "syntheticDomEventUsed": False,
-                            "qtestMouseUsed": False,
-                        },
-                    )
-                    finish("FAIL", f"{label} failed")
-                    return
-
-                scrolled = self._monitoring_hud_send_mouse_wheel(wheel_notches, wheel_point)
-                attempts["count"] += 1
-                if not scrolled:
-                    add_step(
-                        label,
-                        False,
-                        {
-                            **parsed,
-                            "attempts": attempts["count"],
-                            "wheelPoint": wheel_point,
-                            "wheelNotchesPerAttempt": wheel_notches,
-                            "inputProof": "real-os-mouse-wheel-until-hittable",
-                            "realOsInputProof": False,
-                            "directJsScrollUsed": False,
-                            "directJsClickUsed": False,
-                            "syntheticDomEventUsed": False,
-                            "qtestMouseUsed": False,
-                        },
-                    )
-                    finish("FAIL", f"{label} failed to send real OS mouse wheel input")
-                    return
-                QTimer.singleShot(delay(120), probe)
-
-            probe()
 
         def os_click_covered_selector(selector: str, label: str, callback):
             def click_from_rect(parsed: dict[str, object]):
@@ -10427,14 +10319,26 @@ class DesktopRuntimeWindow(QWidget):
                 int(live_window_origin["x"]) + 470,
                 int(live_window_origin["y"]) + 420,
             )
-            os_wheel_until_selector_hittable(
-                "#monitoring-hud-edit-monitor-action",
-                "real OS mouse wheel scrolls Dashboard to hittable Manage Monitors control",
-                wheel_point=point,
-                wheel_notches=-3,
-                max_attempts=12,
-                callback=lambda: os_click("#monitoring-hud-edit-monitor-action", "real OS click opens Manage Monitors", step_manage_assert),
+            scrolled = self._monitoring_hud_send_mouse_wheel(-5, point)
+            add_step(
+                "real OS mouse wheel scrolls Dashboard to Manage Monitors control",
+                bool(scrolled),
+                {
+                    "ok": bool(scrolled),
+                    "screenPoint": point,
+                    "wheelNotches": -5,
+                    "inputProof": "real-os-mouse-cursor-move-wheel",
+                    "realOsInputProof": bool(scrolled),
+                    "directJsScrollUsed": False,
+                    "directJsClickUsed": False,
+                    "syntheticDomEventUsed": False,
+                    "qtestMouseUsed": False,
+                },
             )
+            if not scrolled:
+                finish("FAIL", "real OS mouse wheel scroll to Manage Monitors failed")
+                return
+            QTimer.singleShot(delay(150), lambda: os_click("#monitoring-hud-edit-monitor-action", "real OS click opens Manage Monitors", step_manage_assert))
 
         def step_manage_assert():
             assert_state(
@@ -11401,7 +11305,7 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
                 "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
-                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings",
+                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings",
                 "dashboard_monitor_selection_in_child_window": dataset.get("dashboardMonitorSelectionPlacement") == "edit-child-window-only",
                 "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-overlay-monitor-groups-provider-warning",
                 "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "dashboard-ia-card-settings-button",
@@ -11785,7 +11689,7 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
                 "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
-                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings",
+                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings",
                 "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "configurable-groups-sensor-assignment",
                 "dashboard_monitor_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-visual-rendering",
                 "dashboard_sensor_assignment": dataset.get("monitorSensorAssignment") == "sensor-library-source-picker",
@@ -15112,81 +15016,6 @@ class DesktopRuntimeWindow(QWidget):
                 schema_version=int(state.get("overlayProfileSchemaVersion") or 0),
             )
             overlay_profile_changed = True
-        recording_profiles = state.get("recordingProfiles") if isinstance(state.get("recordingProfiles"), dict) else {}
-        active_recording_profile_id = str(state.get("activeRecordingProfileId") or "")
-        recording_relationship_proof = state.get("recordingProfileRelationshipProof")
-        if not isinstance(recording_relationship_proof, dict):
-            recording_relationship_proof = {}
-        recording_status_proof = state.get("recordingProfileStatusIntegrationProof")
-        if not isinstance(recording_status_proof, dict):
-            recording_status_proof = {}
-        recording_profile_signature_parts = []
-        for profile_id in sorted(str(key) for key in recording_profiles.keys()):
-            profile = recording_profiles.get(profile_id) if isinstance(recording_profiles.get(profile_id), dict) else {}
-            monitor_ids = profile.get("monitorIds") if isinstance(profile.get("monitorIds"), list) else []
-            source_ids = profile.get("sourceIds") if isinstance(profile.get("sourceIds"), list) else []
-            recording_profile_signature_parts.append((
-                profile_id,
-                str(profile.get("kind", "")),
-                str(profile.get("scope", "")),
-                str(profile.get("name", "")),
-                tuple(str(monitor_id) for monitor_id in monitor_ids),
-                tuple(str(source_id) for source_id in source_ids),
-                str(profile.get("recordingMode", "")),
-                str(profile.get("storagePolicy", "")),
-            ))
-        recording_profile_signature = (
-            active_recording_profile_id,
-            int(state.get("recordingProfileSchemaVersion") or 0),
-            tuple(recording_profile_signature_parts),
-            json.dumps(recording_relationship_proof, sort_keys=True),
-            json.dumps(recording_status_proof, sort_keys=True),
-        )
-        recording_profile_changed = False
-        if recording_profile_signature != self._monitoring_hud_recording_profile_signature:
-            self._monitoring_hud_recording_profile_signature = recording_profile_signature
-            self._monitoring_hud_recording_profiles = recording_profiles
-            self._monitoring_hud_active_recording_profile_id = active_recording_profile_id
-            default_profile = recording_profiles.get("default-recording-profile") if isinstance(recording_profiles.get("default-recording-profile"), dict) else {}
-            default_monitor_ids = default_profile.get("monitorIds") if isinstance(default_profile.get("monitorIds"), list) else []
-            default_source_ids = default_profile.get("sourceIds") if isinstance(default_profile.get("sourceIds"), list) else []
-            self._emit_runtime_signal(
-                "MONITORING_HUD_RECORDING_PROFILE_STATE_READY",
-                package="PKG-006",
-                slice="SLC-047",
-                seam="Workstream",
-                active_recording_profile_id=active_recording_profile_id,
-                profile_count=len(recording_profiles),
-                default_profile_id="default-recording-profile",
-                default_profile_monitor_count=len(default_monitor_ids),
-                default_profile_source_count=len(default_source_ids),
-                relationship_proof_slice=str(recording_relationship_proof.get("slice") or "SLC-048"),
-                relationship_monitor_count=len(recording_relationship_proof.get("recordingMonitorIds", []))
-                if isinstance(recording_relationship_proof.get("recordingMonitorIds"), list)
-                else 0,
-                relationship_source_count=len(recording_relationship_proof.get("recordingSourceIds", []))
-                if isinstance(recording_relationship_proof.get("recordingSourceIds"), list)
-                else 0,
-                relationship_overlay_profile_id=str(recording_relationship_proof.get("activeOverlayProfileId") or active_overlay_profile_id),
-                relationship_monitor_group_count=len(recording_relationship_proof.get("monitorGroupIds", []))
-                if isinstance(recording_relationship_proof.get("monitorGroupIds"), list)
-                else len(cards),
-                monitor_group_boundary="separate-configuration-organization",
-                overlay_profile_boundary="overlay-display-membership-separate",
-                relationship_boundary=str(recording_relationship_proof.get("recordingProfileRelationshipScope") or "state-only-readonly-foundation"),
-                status_integration_slice=str(recording_status_proof.get("slice") or "SLC-049"),
-                status_integration_boundary=str(recording_status_proof.get("recordingProfileMutation") or "none-status-only"),
-                status_dashboard_mode=str(recording_status_proof.get("dashboardStatusMode") or "compact-readonly"),
-                status_manage_monitors_mode=str(recording_status_proof.get("manageMonitorsStatusMode") or "single-row-readonly"),
-                tray_recording_boundary="future-gated-not-present",
-                recording_execution_boundary="future-gated-not-present",
-                export_share_boundary="future-gated-not-present",
-                provider_model_boundary="future-gated-not-present",
-                visible_profile_editor="slc-047-selection-editing-shell",
-                profile_membership_editor="readonly-slc-047",
-                schema_version=int(state.get("recordingProfileSchemaVersion") or 0),
-            )
-            recording_profile_changed = True
         overlay_display_acceptance_proof = state.get("overlayDisplayAcceptanceProof")
         overlay_display_acceptance_signature = json.dumps(
             overlay_display_acceptance_proof if isinstance(overlay_display_acceptance_proof, dict) else {},
@@ -15373,8 +15202,8 @@ class DesktopRuntimeWindow(QWidget):
 
         signature = (feature_enabled, visible, anchored, snap_enabled, polling_rate_ms)
         if signature == self._monitoring_hud_control_signature:
-            if overlay_profile_changed or overlay_display_acceptance_changed or recording_profile_changed:
-                self._persist_monitoring_hud_feature_state(source="page_sync_profile_state")
+            if overlay_profile_changed or overlay_display_acceptance_changed:
+                self._persist_monitoring_hud_feature_state(source="page_sync_overlay_profile")
             self._sync_monitoring_hud_minimal_native_overlay(source="page_sync")
             return
 
@@ -15597,7 +15426,7 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
                     monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
                     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-monitor-management-child-windows";
-                    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings";
+                    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings";
                     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
                     monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
                     monitoringHud.dataset.dashboardOpenBadge = "removed";

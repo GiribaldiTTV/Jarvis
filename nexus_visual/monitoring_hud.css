@@ -1409,25 +1409,6 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile[data-overlay-pr
   cursor: pointer;
 }
 
-.monitoring-hud__recording-profile-membership-row {
-  cursor: default;
-}
-
-.monitoring-hud__recording-profile-membership-row > span:first-child {
-  grid-row: 1 / span 2;
-  display: inline-grid;
-  place-items: center;
-  min-width: 30px;
-  min-height: 22px;
-  padding: 3px 6px;
-  border: 1px solid rgba(117, 228, 255, 0.16);
-  border-radius: 999px;
-  color: rgba(157, 246, 218, 0.88);
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
 .monitoring-hud__overlay-profile-membership-row strong {
   color: rgba(232, 250, 255, 0.94);
   font-size: 12px;
@@ -1548,19 +1529,6 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile[data-overlay-pr
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.monitoring-hud__monitor-recording-profile-context {
-  cursor: default;
-}
-
-.monitoring-hud__monitor-recording-profile-context:hover,
-.monitoring-hud__monitor-recording-profile-context:focus-visible {
-  border-color: rgba(117, 228, 255, 0.14);
-  background:
-    linear-gradient(145deg, rgba(6, 34, 52, 0.68), rgba(3, 18, 32, 0.60)),
-    rgba(6, 28, 48, 0.42);
-  box-shadow: none;
 }
 
 .monitoring-hud__overlay-profile-context-grid {

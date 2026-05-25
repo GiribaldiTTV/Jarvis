@@ -29,13 +29,9 @@ from desktop.monitoring_hud_placement import build_monitoring_hud_placement_cont
 from desktop.monitoring_hud_status import build_monitoring_hud_status_snapshot
 from desktop.monitoring_hud_state import (
     DEFAULT_OVERLAY_PROFILE_ID,
-    DEFAULT_RECORDING_PROFILE_ID,
     MONITORING_HUD_STATE_ENV,
-    build_recording_profile_relationship_proof,
-    build_recording_profile_status_integration_proof,
     load_monitoring_hud_state,
     normalize_monitoring_hud_overlay_profiles,
-    normalize_monitoring_hud_recording_profiles,
     save_monitoring_hud_state,
 )
 from desktop.monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
@@ -561,7 +557,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-dashboard-content-polish="branch2-monitor-groups-no-dead-space"',
         'data-dashboard-layout-proof="monitor-groups-measured-no-overlap"',
         'data-dashboard-home-model="control-hub-cards-monitor-management-child-windows"',
-        'data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings"',
+        'data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"',
         'data-dashboard-close-affordance="window-level-close-button"',
         'data-dashboard-close-layout="window-level-top-right-close-pill"',
         'data-dashboard-open-badge="removed"',
@@ -627,34 +623,6 @@ def _validate_static_surface(failures: list[str]) -> None:
         'id="monitoring-hud-overlay-profile-discard"',
         'id="monitoring-hud-overlay-profile-delete"',
         'data-overlay-profile-actions="save-left-discard-delete-right"',
-        'id="monitoring-hud-recording-profile-editor"',
-        'data-recording-profile-editor-ui="slc-047-selection-editing-shell"',
-        'data-recording-profile-proof="selector-settings-window-create-rename-delete-save-discard"',
-        'id="monitoring-hud-recording-profile-selector"',
-        'data-bounded-dropdown="recording-profile"',
-        'id="monitoring-hud-recording-profile-toggle"',
-        'id="monitoring-hud-recording-profile-menu"',
-        'data-recording-profile-option="default-recording-profile"',
-        'id="monitoring-hud-recording-profile-open-settings"',
-        'data-recording-profile-actions="settings-window-entry"',
-        'id="monitoring-hud-recording-profile-window"',
-        'data-child-window="recording-profile-settings"',
-        'data-recording-profile-window="select-profile-to-edit-create-right-save-required"',
-        'data-recording-profile-workflow="select-loads-edit-create-draft-save-required"',
-        'data-recording-profile-membership="readonly-slc-047"',
-        'data-recording-profile-boundary="no-tray-recording-no-export-share-no-provider-model"',
-        'id="monitoring-hud-recording-profile-window-selector"',
-        'data-bounded-dropdown="recording-profile-window"',
-        'id="monitoring-hud-recording-profile-name-input"',
-        'id="monitoring-hud-recording-profile-membership-list"',
-        'data-recording-profile-membership-list="readonly-monitor-source-membership"',
-        'id="monitoring-hud-recording-profile-create"',
-        'id="monitoring-hud-recording-profile-save"',
-        'id="monitoring-hud-recording-profile-discard"',
-        'id="monitoring-hud-recording-profile-delete"',
-        'id="monitoring-hud-recording-profile-delete-confirmation"',
-        'id="monitoring-hud-recording-profile-unsaved-guard"',
-        "Recording membership is read-only in SLC-047",
         'data-child-window="monitor-overlay-assignment"',
         'data-overlay-assignment-window="monitor-group-overlay-status-assignment"',
         'data-child-window="sensor-source-settings"',
@@ -1219,8 +1187,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "ok: Boolean(integrationProof.passed && context && manageWindow && !routeButton)",
         "contextBelowSensorSource",
         "SLC-039 Overlay Profile settings-window controls stay bounded and distinct",
-        "FAM-006 Recording Profile Runtime Foundation live-client real-input self-QA",
-        '"proofSeam": "FAM-006 Recording Profile Runtime Foundation LV1"',
+        "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, compact Manage Monitors context, and LV1 UTS boundary",
+        '"proofSeam": "SLC-041 Overlay Profile validation and live desktop proof"',
         "focused WebView proof is acceptance evidence; full desktop screenshots are locator/context evidence only",
         "formalUserTestSummaryBoundary",
         "03_manage_monitors_open_state",
@@ -1351,20 +1319,6 @@ def _validate_static_surface(failures: list[str]) -> None:
         "window.runMonitoringHudActiveOverlayProfileDisplayProof = function()",
         "window.runMonitoringHudDashboardOverlayIndependenceProof = function()",
         "window.runMonitoringHudOverlayDisplayWorkstreamReadinessProof = function()",
-        "monitoringHudRecordingProfileRelationshipProof",
-        "window.runMonitoringHudRecordingProfileRelationshipProof = function()",
-        "recordingProfileRelationshipProof",
-        'monitoringHud.dataset.recordingProfileRelationshipBoundary = "slc-048-state-only-readonly"',
-        "recordingProfileRelationshipScope",
-        "monitoringHudRecordingProfileStatusSnapshot",
-        "monitoringHudRenderMonitorRecordingProfileContext",
-        "window.runMonitoringHudRecordingProfileStatusIntegrationProof = function()",
-        "recordingProfileStatusIntegrationProof",
-        'monitoringHud.dataset.recordingProfileStatusIntegration = "slc-049-dashboard-manage-monitors-readonly"',
-        "slc-049-manage-monitors-readonly-status",
-        "window.runMonitoringHudRecordingProfileWorkstreamReadinessProof = function()",
-        "recordingProfileWorkstreamReadinessProof",
-        'monitoringHud.dataset.recordingProfileWorkstreamReadiness = "slc-050-workstream-green-ready-for-hardening"',
         "slc-042-active-profile-state-bridge",
         "slc-043-active-profile-display",
         "slc-044-dashboard-overlay-independent",
@@ -1445,7 +1399,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-monitor-management-child-windows"',
         'monitoringHud.dataset.dashboardPollingPlacement = "monitor-group-editor-only"',
         'monitoringHud.dataset.dashboardProofContentPolicy = "validator-artifacts-not-home-surface"',
-        'monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings"',
+        'monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"',
         'monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning"',
         'monitoringHud.dataset.dashboardSettingsAffordance = "dashboard-ia-card-settings-button"',
         'monitoringHud.dataset.dashboardSettingsPanel = "settings-panel-child-window"',
@@ -1821,19 +1775,12 @@ def _validate_static_surface(failures: list[str]) -> None:
     for needle in (
         'MONITORING_HUD_STATE_ENV = "NEXUS_MONITORING_HUD_STATE_PATH"',
         "monitoring_hud_state_path",
-        "DEFAULT_RECORDING_PROFILE_ID",
-        "RECORDING_PROFILE_SCHEMA_VERSION",
-        "default_recording_profile_state",
-        "normalize_monitoring_hud_recording_profiles",
-        "build_recording_profile_relationship_proof",
         "load_monitoring_hud_state",
         "save_monitoring_hud_state",
         "MONITORING_HUD_STATE_LOAD_READY",
         "MONITORING_HUD_STATE_SAVE_READY",
         '"featureEnabled"',
         '"dashboardVisible"',
-        '"recordingProfiles"',
-        '"activeRecordingProfileId"',
         "os.replace",
     ):
         _require_contains(hud_state, needle, "Monitoring HUD persisted state helper", failures)
@@ -2102,160 +2049,6 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
                 "SLC-039 Overlay Profile membership mapping must persist across save/load",
                 failures,
             )
-            recording_saved = save_monitoring_hud_state(
-                feature_enabled=True,
-                dashboard_visible=True,
-                source="internal_sandbox_slc046_recording_profile_state",
-                monitor_ids=["cpu", "gpu"],
-                overlay_profiles={
-                    DEFAULT_OVERLAY_PROFILE_ID: default_profile,
-                },
-                active_overlay_profile_id=DEFAULT_OVERLAY_PROFILE_ID,
-                recording_profiles={
-                    "custom-recording": {
-                        "id": "custom-recording",
-                        "name": "Custom Recording Profile",
-                        "monitorIds": ["gpu", "missing", "gpu", "cpu"],
-                        "sourceIds": ["cpu-load", "cpu-load", "gpu-load"],
-                        "overlayProfileId": "must-not-survive",
-                        "monitorGroupId": "must-not-survive",
-                    }
-                },
-                active_recording_profile_id="missing-recording",
-            )
-            recording_state = load_monitoring_hud_state()
-            _require(recording_saved, "SLC-046 Recording Profile state save must succeed", failures)
-            _require(
-                recording_state.get("activeRecordingProfileId") == "custom-recording",
-                "SLC-046 active Recording Profile pointer must fall back to the available custom profile",
-                failures,
-            )
-            recording_profile = (recording_state.get("recordingProfiles") or {}).get("custom-recording", {})
-            _require(
-                recording_profile.get("monitorIds") == ["gpu", "cpu"],
-                "SLC-046 Recording Profile normalization must remove duplicate and stale monitor ids",
-                failures,
-            )
-            _require(
-                recording_profile.get("sourceIds") == ["cpu-load", "gpu-load"],
-                "SLC-046 Recording Profile normalization must remove duplicate source ids",
-                failures,
-            )
-            _require(
-                "overlayProfileId" not in recording_profile and "monitorGroupId" not in recording_profile,
-                "SLC-046 Recording Profile state must stay distinct from Overlay Profile and Monitor Group fields",
-                failures,
-            )
-            normalized_recording_legacy = normalize_monitoring_hud_recording_profiles({}, ["cpu", "gpu"])
-            default_recording_profile = (
-                normalized_recording_legacy.get("recordingProfiles", {}).get(DEFAULT_RECORDING_PROFILE_ID, {})
-            )
-            _require(
-                normalized_recording_legacy.get("activeRecordingProfileId") == DEFAULT_RECORDING_PROFILE_ID,
-                "Legacy card state without recordingProfiles must create a default Recording Profile",
-                failures,
-            )
-            _require(
-                default_recording_profile.get("monitorIds") == [],
-                "Default Recording Profile must not auto-record legacy monitor cards",
-                failures,
-            )
-            relationship_payload = {
-                "cards": {
-                    "cpu": {"id": "cpu", "title": "CPU Group", "sourceIds": ["cpu-load"]},
-                    "gpu": {"id": "gpu", "title": "GPU Group", "sourceIds": ["gpu-load"]},
-                    "memory": {"id": "memory", "title": "Memory Group", "sourceIds": ["memory-usage"]},
-                },
-                "activeOverlayProfileId": "overlay-visible",
-                "overlayProfiles": {
-                    "overlay-visible": {
-                        "id": "overlay-visible",
-                        "name": "Overlay Visible",
-                        "monitorIds": ["cpu"],
-                    }
-                },
-                "activeRecordingProfileId": "recording-relationship",
-                "recordingProfiles": {
-                    "recording-relationship": {
-                        "id": "recording-relationship",
-                        "name": "Recording Relationship",
-                        "monitorIds": ["gpu", "memory"],
-                        "sourceIds": ["gpu-load", "memory-usage"],
-                    }
-                },
-            }
-            relationship_payload.update(
-                normalize_monitoring_hud_overlay_profiles(relationship_payload, ["cpu", "gpu", "memory"])
-            )
-            relationship_payload.update(
-                normalize_monitoring_hud_recording_profiles(relationship_payload, ["cpu", "gpu", "memory"])
-            )
-            relationship_proof = build_recording_profile_relationship_proof(relationship_payload)
-            _require(
-                relationship_proof.get("slice") == "SLC-048",
-                "SLC-048 Recording Profile relationship proof must identify the active slice",
-                failures,
-            )
-            _require(
-                relationship_proof.get("recordingMonitorIds") == ["gpu", "memory"],
-                "SLC-048 Recording Profile relationship proof must map monitor ids without mutating Overlay Profile state",
-                failures,
-            )
-            _require(
-                relationship_proof.get("recordingSourceIds") == ["gpu-load", "memory-usage"],
-                "SLC-048 Recording Profile relationship proof must map source ids deterministically",
-                failures,
-            )
-            _require(
-                relationship_proof.get("overlayMonitorIds") == ["cpu"],
-                "SLC-048 Recording Profile relationship proof must keep Overlay Profile membership separate",
-                failures,
-            )
-            _require(
-                relationship_proof.get("monitorGroupIds") == ["cpu", "gpu", "memory"],
-                "SLC-048 Recording Profile relationship proof must read Monitor Group ids without owning them",
-                failures,
-            )
-            _require(
-                relationship_proof.get("overlayProfileBoundary") is True
-                and relationship_proof.get("monitorGroupBoundary") is True,
-                "SLC-048 Recording Profile relationship proof must preserve Overlay Profile and Monitor Group boundaries",
-                failures,
-            )
-            _require(
-                relationship_proof.get("trayRecordingBoundary") == "future-gated-not-present"
-                and relationship_proof.get("recordingExecutionBoundary") == "future-gated-not-present"
-                and relationship_proof.get("exportShareBoundary") == "future-gated-not-present"
-                and relationship_proof.get("providerModelBoundary") == "future-gated-not-present",
-                "SLC-048 Recording Profile relationship proof must not introduce tray, execution, export/share, or provider/model scope",
-                failures,
-            )
-            status_payload = dict(relationship_payload)
-            status_payload["selectedMonitorId"] = "gpu"
-            status_proof = build_recording_profile_status_integration_proof(status_payload)
-            _require(
-                status_proof.get("slice") == "SLC-049",
-                "SLC-049 Recording Profile status integration proof must identify the active slice",
-                failures,
-            )
-            _require(
-                status_proof.get("dashboardStatusMode") == "compact-readonly"
-                and status_proof.get("manageMonitorsStatusMode") == "single-row-readonly",
-                "SLC-049 Recording Profile status integration must stay compact/read-only in Dashboard and Manage Monitors",
-                failures,
-            )
-            _require(
-                status_proof.get("assignedProfileCount") == 1
-                and status_proof.get("includedInActive") is True,
-                "SLC-049 Recording Profile status integration must deterministically classify selected monitor membership",
-                failures,
-            )
-            _require(
-                status_proof.get("recordingProfileMutation") == "none-status-only"
-                and status_proof.get("recordingExecutionBoundary") == "future-gated-not-present",
-                "SLC-049 Recording Profile status integration must not add Manage Monitors mutation or recording execution",
-                failures,
-            )
         finally:
             if previous_state_path is None:
                 os.environ.pop(MONITORING_HUD_STATE_ENV, None)
@@ -2280,7 +2073,7 @@ def _write_manifest(status: str, failures: list[str], contracts: dict[str, objec
         "status": status,
         "package": "PKG-006",
         "phase": "Workstream",
-        "seam": "FAM-006 Recording Profile Runtime Foundation LV1 readiness",
+        "seam": "SLC-041 Overlay Profile validation and live desktop proof readiness",
         "proofChain": {
             "SLC-037": "Overlay Profile data/state foundation",
             "SLC-038": "Dashboard selector and Overlay Profile Settings controls",

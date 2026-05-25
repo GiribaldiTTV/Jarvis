@@ -637,8 +637,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         dashboardUserTestSummaryExportRefreshed = [bool]$PrepareLiveValidationUserTestSummary
         dashboardUserTestSummaryExportPath = if ($PrepareLiveValidationUserTestSummary) { $Paths.UserTestSummary } else { "" }
         dashboardUserTestSummaryReturnedResults = "live-validation-stage-1-only"
-        recordingProfileValidationProof = [pscustomobject]@{
-            seam = "FAM-006 Recording Profile Runtime Foundation LV1"
+        overlayProfileValidationProof = [pscustomobject]@{
+            seam = "SLC-041 Overlay Profile validation and live desktop proof"
             focusedWebViewProofRequired = $true
             fullDesktopScreenshotsAreContextOnly = $true
             perElementUserInspectableScreenshotsRequired = $true
@@ -646,12 +646,12 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             formalUserTestSummaryBoundary = "Live Validation Stage 1 only after human-client precheck PASS or USER waiver"
             workstreamAndHardeningNoUtsExport = -not [bool]$PrepareLiveValidationUserTestSummary
             proofChain = @(
-                "SLC-046 Recording Profile data/state foundation",
-                "SLC-047 Recording Profile selector/settings create/edit/delete/save/discard and guarded delete behavior",
-                "SLC-048 Recording Profile relationship mapping and boundary proof",
-                "SLC-049 compact Dashboard / Manage Monitors read-only Recording Profile status integration",
-                "SLC-050 Workstream readiness proof",
-                "LV1 real user-facing desktop proof with focused screenshots, compact/default states, short video proof, and UTS handoff"
+                "SLC-037 Overlay Profile data/state foundation",
+                "SLC-038 Dashboard selector and Overlay Profile Settings controls",
+                "SLC-039 settings-window monitor membership mapping",
+                "Returned-UTS selector-first Overlay Profile settings with search/filter and max-five visible monitor target",
+                "Returned-UTS Manage Monitors compact read-only Overlay Profile context",
+                "SLC-041 focused validator and live desktop proof readiness"
             )
         }
         dashboardSpecificProof = [pscustomobject]@{
@@ -842,23 +842,21 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $deferredBoundaryPrecheck = "Codex Precheck: PASS through source-truth, static validation, sandbox validation, and active-client manifest boundary proof - USER is not being asked to accept deferred/future scope."
 
     # Keep the desktop UTS as a short USER questionnaire focused on the
-    # active branch acceptance loop; detailed ledger/proof evidence stays in
-    # manifests. Do not carry closed returned-UTS issue IDs forward from a
-    # prior FAM-006 branch as active questions.
+    # returned issue loop; detailed ledger/proof evidence stays in manifests.
     $content = @"
 Nexus Desktop AI - User Test Summary
-Workstream: FAM-006 Recording Profile Runtime Foundation
+Workstream: FAM-006 Overlay Display Acceptance Foundation
 Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: $currentBranch
 Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
-Status: USER TEST SUMMARY RESULTS PENDING - HANDOFF COPY - NOT RETURNED RESULTS
+Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
 
 How To Use This File
 - Launch and test from the red FAM-006 desktop shortcut.
-- This pass is focused on Recording Profile Runtime Foundation acceptance for the current branch.
-- Closed Overlay Profile / Overlay Display UTS issue IDs from prior branches are historical and should not be retested unless they visibly regress.
-- For each active acceptance item below, write PASS, FAIL, or WAIVED plus a short note.
-- If an active item FAILS, describe exactly what you saw and attach/screenshot separately if useful.
+- This pass is focused on the returned failed issue IDs only.
+- Confirmed items from the previous returned UTS are treated as closed unless they visibly regress during this pass.
+- For each active issue below, write PASS, FAIL, or WAIVED plus a short note.
+- If an active issue FAILS, describe exactly what you saw and attach/screenshot separately if useful.
 - Return this file to Codex when complete. Codex will digest the results into source truth.
 
 Codex Precheck Summary
@@ -868,49 +866,36 @@ Codex Precheck Summary
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
 - USER-inspectable short video: $($script:ShortVideoProof.userInspectablePath)
-- Screenshot rule: review the detailed `element_<label>_<state>.png` screenshots and Recording Profile LV1 acceptance evidence; full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
+- Screenshot rule: review the detailed `element_<label>_<state>.png` screenshots and the returned issue-form coverage matrix; full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
 - Step 7 - #137 Dashboard Rounded Corners On Light Background: preserved as precheck/source-truth evidence; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 - Overlay/display release acceptance is deferred and non-gating.
-- Overlay Profile / Overlay Display release acceptance remains historical and non-gating unless this Recording Profile branch visibly regresses it.
 
 Brief Issue List
-- Historical/closed from prior FAM-006 branches: Overlay Profile selector/scaling returned-UTS items and Overlay Display acceptance items.
-- Current active acceptance focus: Recording Profile selector/settings behavior, Recording Profile status integration, Recording Profile relationship boundaries, compact/default usability, dirty-guard behavior, and future-gated boundary preservation.
-- Deferred/source-truth-carried: tray recording controls, recording execution, export/share, provider/model work, broad theme/skin work, and FAM-007 work remain outside this branch.
+- Closed by USER confirmation: UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, and UTS-HUD-016 from returned passes, plus all earlier confirmed IDs unless regression appears.
+- Deferred/source-truth-carried: UTS-HUD-009 Polling Rate live provider cadence, because external/provider telemetry cadence remains outside this HUD repair.
+- Active failed issues repaired in this pass and requiring focused USER retest: UTS-HUD-014 and UTS-HUD-021.
 
-Active Recording Profile Acceptance Items To Test
+Active Issues To Test
 
-RPF-LV1-001 - Recording Profile Settings Selector, Create, Edit, Save, Discard, And Delete
-Expected: Recording Profile Settings opens from the Dashboard path, remains usable at default and compact legal sizes, lets the user select an existing Recording Profile, create a draft, edit the profile name, save or discard changes, blocks default-profile deletion, allows guarded non-default deletion, and keeps Delete styled as a red danger action with confirmation.
+UTS-HUD-014 - Overlay Profiles Selector, Draft Creation, Dirty Guard, And Delete
+Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. The separate Edit Profile button is removed. The dropdown button itself says `Profile to Edit:` and keeps the same rounded shape and size as the Create Profile button. Selecting an existing profile directly loads it for editing. Creating an Overlay Profile creates a draft only, starts with no monitor groups selected, requires Save before persistence, triggers the dirty-change guard on Close or navigation, and Discard leaves no persisted draft. Delete is a red danger action with confirmation and remains separated from Discard to reduce accidents.
 USER Result / Notes:
 
-RPF-LV1-002 - Recording Profile Dirty-Guard Modal
-Expected: Unsaved Recording Profile changes trigger a modal-style dirty guard before close or state-changing navigation. Save and Discard complete the queued action. Cancel returns to the same dirty state. The modal blocks underlying UI input and does not compress, overlap, or become hidden behind the child window.
-USER Result / Notes:
-
-RPF-LV1-003 - Dashboard And Manage Monitors Recording Profile Status
-Expected: Dashboard and Manage Monitors show compact, read-only Recording Profile status without adding recording execution controls, tray recording controls, export/share controls, provider/model controls, or broad theme/skin work. Existing Dashboard, Manage Monitors, Sensor Command Center, Overlay Profile, and Overlay Display behavior remains preserved.
-USER Result / Notes:
-
-RPF-LV1-004 - Recording Profile Relationship And Boundary Preservation
-Expected: Recording Profile state remains separate from Overlay Profile membership, Monitor Group organization, monitor/source assignment, tray recording, export/share, provider/model work, and theme/skin behavior. Selecting or editing a Recording Profile must not mutate Overlay Profile or Monitor Group data.
-USER Result / Notes:
-
-RPF-LV1-005 - Compact And Default Window Usability
-Expected: Recording Profile user-facing windows remain readable, clickable, unclipped, and scroll-contained where intended at default and compact legal sizes. Dropdowns, Save/Discard/Delete actions, modal guards, labels, and button buffer zones remain visible and usable with real mouse input.
+UTS-HUD-021 - HUD Sizing And Overlay Profiles Scaling
+Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager `Profile to Edit:` dropdown and Create Profile button remain on the same row, use equal button footprints, remain readable/clickable at default and compact legal window sizes, and open an unclipped NDAI-styled menu. Compact proof must show the window can complete the real user workflow: select profile, create draft, close dirty guard, save, discard, delete confirmation, dropdown open/select/close, null profile state, and 100+ profile stress state.
 USER Result / Notes:
 
 Issue Regression Checks, If Any
-- Spot-check Overlay Profile selector/scaling only if Recording Profile testing visibly regresses released Overlay Profile behavior.
+- Spot-check checked-source hover, same-row dirty guard, and divider underglow only if retesting Overlay Profiles reveals an obvious regression in those previously closed areas.
   USER Result / Notes:
-- Spot-check Dashboard button alignment and Manage Data Sources deferred state only if Recording Profile status testing visibly regresses Dashboard layout.
+- Spot-check Dashboard button alignment and Manage Data Sources deferred state only if retesting compact Dashboard sizing in UTS-HUD-021.
   USER Result / Notes:
-- Spot-check Monitor Group / Overlay Profile / Recording Profile concept separation if Recording Profile editing appears to mix those concepts.
+- Spot-check Monitor Group / Overlay Profile / Recording Profile concept separation only if Overlay Profile deletion or creation appears to mix those concepts.
   USER Result / Notes:
 
 Final USER Result
 - PASS / FAIL / WAIVED:
-- If FAIL, which active acceptance item(s) remain:
+- If FAIL, which active issue ID(s) remain:
 - If PASS, any non-blocking follow-up ideas:
 - If WAIVED, waiver reason:
 "@

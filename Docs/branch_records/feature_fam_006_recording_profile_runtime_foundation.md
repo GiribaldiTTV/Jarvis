@@ -4,10 +4,10 @@ Branch: `feature/fam-006-recording-profile-runtime-foundation`
 Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `origin/main` at `26dded3f84c526e0525c7d3b18fcd2607e16590d`
 Current origin/main: `2684080fe1abacb9c124f540f898182046193cc4`
-Origin/Main Advanced Since Branch Creation: `YES - reconciled through origin/main 2684080fe1abacb9c124f540f898182046193cc4 after SLC-047 implementation`
+Origin/Main Advanced Since Branch Creation: `YES - reconciled through origin/main 2684080fe1abacb9c124f540f898182046193cc4 before rollback`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md`
-Branch Runtime Engineering Plan: `Accepted for bounded SLC-046 Recording Profile data/state foundation implementation/H1, bounded SLC-047 Recording Profile selection/editing entry point implementation/H1, bounded SLC-048 Recording Profile relationship mapping and boundary proof implementation/H1, bounded SLC-049 Dashboard / Manage Monitors status integration implementation, and bounded SLC-050 Workstream readiness proof.`
-Engineering Plan Status: `Live Validation LV1 proof green - User Test Summary Results Pending`
+Branch Runtime Engineering Plan: `Accepted rollback to Branch Readiness Stage 1 posture after USER rejected the profile-loaded Recording Profile direction for future recording runtime.`
+Engineering Plan Status: `Branch Readiness Stage 1 posture after Workstream rollback`
 
 ## Branch Identity
 
@@ -21,7 +21,7 @@ Record State: `Active`
 
 ## Status
 
-Status: `Live Validation LV1 proof green - SLC-046 through SLC-050 complete, H1 green, User Test Summary Results Pending`
+Status: `Branch Readiness Stage 1 posture after Workstream rollback`
 
 ## Canonical Branch
 
@@ -29,47 +29,23 @@ Canonical Branch: `feature/fam-006-recording-profile-runtime-foundation`
 
 ## Current Phase
 
-Phase: `Live Validation`
-Phase Detail: `SLC-046 Recording Profile data/state foundation implementation and Hardening H1 are green; SLC-047 Recording Profile selection/editing entry point Workstream implementation and Hardening H1 are green after a bounded delete-control proof repair; SLC-048 Recording Profile relationship mapping and boundary proof implementation and H1 are green; SLC-049 Dashboard / Manage Monitors Recording Profile status integration and SLC-050 Workstream readiness proof passed bounded package Hardening H1 with no runtime repair required; Live Validation LV1 helper proof is green with real user-facing desktop proof, focused screenshots, short video proof, and USER Test Summary handoff, but final LV1 phase advancement is blocked until returned UTS results are PASS or WAIVED and digested.`
+Phase: `Branch Readiness`
+Phase Detail: `USER requested rollback of Recording Profile Workstream changes and return to Branch Readiness Stage 1 posture. Runtime Workstream changes are reverted; future FAM-006 planning must restart from the active-overlay-driven recording vision.`
 
 ## Phase Status
 
 Phase Status: `Active Branch`
 Authority State: `Active branch authority for FAM-006 Recording Profile Runtime Foundation`
-Bounded State: `Allowed scope now includes SLC-046 Recording Profile data/state foundation, SLC-047 visible Recording Profile selection/editing entry points, SLC-048 state-only Recording Profile relationship mapping/boundary proof across Recording Profile, Overlay Profile, Monitor Group, monitor IDs, and source IDs with H1 green, SLC-049 compact Dashboard / Manage Monitors Recording Profile status integration, and SLC-050 validation/live proof readiness. PR creation, merge, release, issue mutation, artifacts/raw evidence handling, sibling-worktree mutation, tray recording controls, recording execution, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending USER decisions.`
-
-## Backlog Completion Status
-
-Backlog Completion State: `Implemented Complete Except Future Dependency`
-Remaining Implementable Work: `None`
-Future-Dependent Blockers: `Tray recording controls, recording execution, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, artifacts/raw evidence handling, and sibling-worktree mutation remain future-gated.`
-Completion Status: `Green`
-
-## Seam Continuation Decision
-
-Seam Status: `Green`
-Slice Status: `Green`
-Completion Status: `Green`
-Waiver Status: `None`
-Continue Decision: `Stop`
-Continuation Execution Latch: `Closed at Workstream phase boundary`
-Stop Basis: `Workstream Green`
-Next Active Seam: `User Test Summary handoff return and digest for Recording Profile Runtime Foundation`
-Stop Condition: `SLC-046 through SLC-050 Workstream package and bounded Hardening H1 are complete and green; LV1 helper proof is green, but User Test Summary Results Pending blocks final LV1 green and PR Readiness.`
-Continuation Action: `Stop at UTS handoff until USER returns PASS/FAIL/WAIVED results or grants an explicit waiver.`
-Single-Seam Workstream Waiver: `None`
-Single-Seam Or Single-Slice Waiver Authority: `USER only can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.`
-Single-Seam Or Single-Slice Workstream Blocker: `One seam or one slice is a blocker unless USER waiver is recorded; cleared here because the admitted SLC-046 through SLC-050 Workstream package is complete.`
-Bounded Seam Default: `Bounded means one active seam at a time; bounded is not one-seam Workstream authority and cannot be used to claim package completion.`
+Bounded State: `Allowed scope is rollback/source-truth repair only: remove Recording Profile Workstream runtime changes, preserve branch setup/fold-down receipts as history, record the active-overlay-driven recording vision, and return to Branch Readiness Stage 1 analysis posture. Runtime implementation, Workstream entry, PR creation, merge, release, issue mutation, artifacts/raw evidence handling, sibling-worktree mutation, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending USER decisions.`
 
 ## Branch Class
 
 Branch Class: `implementation`
 Primary Package: `PKG-006 - Monitoring and HUD`
 Slice Admission: `SLC-046 through SLC-050 planned for Recording Profile Runtime Foundation`
-Interface Release Boundary: `Primary interface is Recording Profile runtime state and management foundation inside the Monitoring/HUD family. Tray recording controls, export/share, provider/model work, broad theme/skin work, and Recording Profile execution controls remain future-gated unless later USER approval admits them.`
-Primary Interface Release Surface: `FAM-006 Recording Profile runtime foundation`
-Interface Bundle User Approval: `Granted and ratified for bounded SLC-046 state/data foundation, bounded SLC-047 visible Recording Profile selection/editing entry point implementation, bounded SLC-048 relationship mapping/boundary proof implementation, bounded SLC-049 Dashboard / Manage Monitors read-only Recording Profile status integration, and bounded SLC-050 Workstream readiness proof.`
+Interface Release Boundary: `No Recording Profile runtime interface is active after rollback. Future recording runtime must be active-overlay-driven and must remain future-gated until new Branch Readiness planning and USER approval.`
+Primary Interface Release Surface: `FAM-006 active-overlay-driven recording planning`
+Interface Bundle User Approval: `Not granted for runtime; Workstream implementation was rolled back and future planning must restart.`
 
 ## Entry Basis
 
@@ -87,22 +63,22 @@ GitHub Desktop-bound worktree: `PASS - stable FAM-006 path remains the intended 
 
 ## Product Definition Plan
 
-Product Vision: `SUPERSEDED FOR FUTURE RECORDING RUNTIME - USER clarified that recording should be active-overlay-driven, not profile-loaded. This branch remains historical/foundation evidence, but future recording runtime must live in the HUD Overlay card and record the currently active Overlay Profile membership.`
-User-Facing Goal: `Historical branch goal was to prepare Recording Profile configuration foundation. Updated USER vision says future recording should instead expose lightweight Start/Stop recording in the HUD Overlay card and a separate normal OS-level Recording Settings window.`
+Product Vision: `Recording should be active-overlay-driven, not profile-loaded. Future recording runtime should live in the HUD Overlay card and record the currently active Overlay Profile membership.`
+User-Facing Goal: `Future recording should expose lightweight Start Recording / Stop Recording in the HUD Overlay card plus a separate compact normal OS-level Recording Settings window.`
 Project-Wide Vision Alignment: `Nexus should keep user-facing runtime concepts clean, truthful, and modular. Recording Profile planning must avoid fake recording behavior and must not imply tray controls, export/share, or provider execution before those packages are approved.`
-Branch-Specific Vision Alignment: `This branch follows released Overlay Profile and Overlay Display evidence by admitting the next FAM-006 runtime foundation around Recording Profile state and boundaries.`
-USER Vision Questions: `None blocking for Stage 2 setup. Workstream Entry must review whether the first runtime seam should begin with Recording Profile data/state, selector shell, Dashboard status, Monitor/Overlay relationship proof, or validation foundation.`
-Codex Product Interpretation: `This branch implemented a Recording Profile foundation, but USER has now corrected the product direction: recording should use active Overlay Profile membership as the recording target and should not require a separate loaded Recording Profile.`
-Codex Implementation Recommendation: `Before actual recording runtime, run a future FAM-006 branch/source-truth reconciliation that either retires, hides, or repurposes Recording Profile foundation work so active-overlay-driven recording can proceed without conflicting user-facing concepts.`
+Branch-Specific Vision Alignment: `This branch now records that the profile-loaded Recording Profile Workstream direction is rolled back and superseded for future recording runtime by active-overlay-driven recording.`
+USER Vision Questions: `Pending USER decisions: whether to create a new active-overlay-driven recording branch, where Overlay Profile Settings should live permanently in the HUD Overlay card, what durable recording output format should be approved, and which Recording Settings beyond folder path/open folder/Start/Stop should be proposed.`
+Codex Product Interpretation: `The previously implemented Recording Profile foundation does not match the corrected recording vision. Future implementation should start from active Overlay Profile membership and a lightweight recording control/settings model.`
+Codex Implementation Recommendation: `Do not continue the Recording Profile Workstream. Return to Branch Readiness Stage 1 analysis for a successor active-overlay-driven recording branch or another USER-selected carrier.`
 USER/ChatGPT Review Checkpoint: `Stage 2 setup records the plan for USER review; Workstream Entry remains the next review gate before runtime mutation.`
-Full Feature Element Breakdown: `Recording Profile data/state model, default profile posture, relationship to Overlay Profile and Monitor Group, selection/edit shell planning, Dashboard/Manage Monitors status integration planning, validation/live proof planning, and future-gated tray/export/provider/theme boundaries.`
-System Concept Model: `Monitor Groups organize sensors; Overlay Profiles control display membership and presentation; future recording captures the currently active Overlay Profile membership; Recording Profile as a separate loaded profile is no longer the preferred future recording workflow.`
-Entity / Profile Model: `Future recording runtime should rely on activeOverlayProfileId / active overlay membership, recording output path/settings, and a lightweight Recording Settings window; avoid adding a separate recording membership/profile selector unless USER explicitly re-approves it.`
-User Workflow Model: `A future user sees the active Overlay Profile and active monitored monitors in the HUD Overlay card, uses Start Recording / Stop Recording quick access, and can open a small standalone Recording Settings window for output path, open-log-folder, and approved settings.`
+Full Feature Element Breakdown: `HUD Overlay card recording quick access, active Overlay Profile selection, visible active monitored monitors, standalone Recording Settings window, recording folder path, open log/output folder, durable recording output file, future graph/plot-ready data, and future-gated advanced settings.`
+System Concept Model: `Monitor Groups organize sensors; Overlay Profiles control display membership and presentation; future recording captures the active Overlay Profile membership; separate Recording Profile loading is no longer the preferred recording workflow.`
+Entity / Profile Model: `Future recording runtime should use activeOverlayProfileId / active overlay membership, recording output path/settings, and a lightweight standalone Recording Settings window; avoid separate recording membership/profile selection unless USER explicitly re-approves it.`
+User Workflow Model: `A future user sees the active Overlay Profile and active monitored monitors in the HUD Overlay card, starts/stops recording from Quick Access, and optionally keeps a compact Recording Settings window open independently of the Dashboard.`
 Scale / Data Volume Model: `Planning must account for high-volume monitors/sources/profiles, null and stress states, compact/default window behavior, no clipping, NDAI scrollbars, max-visible list discipline, and focused real-input visual proof inherited from recent FAM-006 LV1 governance.`
-Configuration And State Model: `SLC-046 adds Recording Profile schema/state only and must preserve existing Overlay Profile, Monitor Group, Dashboard, Sensor Command Center, and HUD Overlay behavior.`
-Expected User-Facing Outcomes: `No user-facing runtime change in SLC-046. Later Workstream may introduce Recording Profile controls only after SLC-047 or later USER approval.`
-Current Branch vs Future Package Boundaries: `Current branch admits Recording Profile Runtime Foundation planning. Tray recording controls, actual recording execution, export/share, provider/model work, broad theme/skin work, FAM-007 work, and AI Product work remain future-gated.`
+Configuration And State Model: `No Recording Profile runtime state remains admitted after rollback. Future active-overlay-driven recording state must be replanned from source truth before implementation.`
+Expected User-Facing Outcomes: `No user-facing runtime change remains from the rolled-back Workstream. Future user-facing recording controls require new Branch Readiness and Workstream approvals.`
+Current Branch vs Future Package Boundaries: `Current branch is a rollback/planning carrier. Actual recording execution, output files, standalone Recording Settings, HUD Overlay card reorganization, export/share, provider/model work, broad theme/skin work, FAM-007 work, and AI Product work remain future-gated.`
 Affected Surfaces: `Branch records, branch plan, backlog, roadmap, FAM-006 family vision pointers, future HUD/Dashboard/Recording Profile state and validators.`
 Data/Control Model: `No runtime control flow changes in Stage 2. Future data/control flow must keep recording state separate from display state and monitor organization.`
 Branch Reach / Package-Size Review: `This branch is large enough because Recording Profile foundation requires multiple linked slices: state, selector/editing, relationship boundaries, Dashboard/Manage Monitors integration, and validation/live proof.`
@@ -110,14 +86,14 @@ Why Branch Is Large Enough: `A data-only branch would not prove user-facing conc
 Why Not Split Into Tiny Branches: `Recording Profile state, selector shell, relationship proof, and validation expectations are coupled and should be reviewed as one package before runtime work begins.`
 Codex Additional Recommendations: `Workstream Entry should inspect the whole SLC-046 through SLC-050 package before selecting the first bounded seam.`
 USER Critique Loop: `Before Workstream implementation, USER may approve, change, defer, critique, or give feedback on the Recording Profile plan during Workstream Entry; Codex must route any material feedback into the branch plan or return a revision packet before runtime mutation.`
-USER Decision Ledger: `USER approved Branch Readiness Stage 1 analysis, Stage 2 setup, Workstream Entry analysis, bounded SLC-046 Recording Profile data/state foundation implementation/H1, governed SLC-047 continuation, bounded SLC-047 Recording Profile selection/editing entry point implementation/H1, governed SLC-048 continuation, bounded SLC-048 Recording Profile relationship mapping/boundary proof implementation, bounded SLC-048 H1, governed SLC-049 continuation decision, bounded Workstream continuation through SLC-049/SLC-050 until Workstream green, bounded Hardening H1, and bounded Live Validation LV1 helper/proof capture. User Test Summary return/digest, PR Readiness Stage 1, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved LV1 proof, sibling-worktree mutation, tray recording controls, recording execution, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending.`
-Deferred Ideas / Future Package Ledger: `Active-overlay-driven recording runtime, lightweight HUD Overlay card Start/Stop controls, standalone Recording Settings window, durable recording export file format, open-log-folder control, provider/model integration, broad theme/skin packs, layout personalization, external telemetry parity, FAM-007, Compact-AI, and AI Product remain future-gated.`
+USER Decision Ledger: `USER approved Branch Readiness Stage 1 analysis and Stage 2 setup for this branch, then requested rollback of all Recording Profile Workstream changes and return to Branch Readiness Stage 1 posture after clarifying the active-overlay-driven recording vision. Runtime implementation, Workstream entry, PR creation, merge, release, issue mutation, artifacts/raw evidence handling, sibling-worktree mutation, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending.`
+Deferred Ideas / Future Package Ledger: `Active-overlay-driven recording runtime, HUD Overlay card Start/Stop quick access, standalone Recording Settings, durable recording output files, export/share/import, provider/model integration, broad theme/skin packs, layout personalization, external telemetry parity, FAM-007, Compact-AI, and AI Product remain future-gated.`
 Planning Adequacy Review: `Adequate for Branch Readiness Stage 2 because it names family/package, branch purpose, planned slice chain, boundaries, source-truth repairs, worktree preservation, validation, and next legal review gate.`
-Rejected Shallow Plan: `Rejected for future runtime: requiring users to load a separate Recording Profile before recording sensors. USER clarified recording should be intuitive by recording the currently active Overlay Profile.`
-Alternatives And Tradeoffs Reviewed: `Historical alternative selected by this branch was Recording Profile Runtime Foundation. USER has now superseded that future-facing direction with active-overlay-driven recording: HUD Overlay card quick access plus standalone Recording Settings.`
+Rejected Shallow Plan: `Rejected for future recording runtime: requiring users to load a separate Recording Profile before recording sensors. USER clarified recording should be intuitive by recording the currently active Overlay Profile.`
+Alternatives And Tradeoffs Reviewed: `Historical alternative selected by this branch was Recording Profile Runtime Foundation; USER has now superseded that future-facing direction with active-overlay-driven recording.`
 Whole-System Interaction Map: `Dashboard HUD Overlay card -> active Overlay Profile and active monitored monitors -> Start/Stop recording quick access -> standalone Recording Settings for folder path/open log folder/settings -> durable recording output file for future graph/plot workflows.`
-Minimum Viable vs Full System Boundary: `Future minimum viable recording should be lightweight active-overlay-driven Start/Stop plus output path/settings; bulky or advanced settings should move behind secondary surfaces after USER approval. Current branch remains foundation evidence and does not implement actual recording.`
-Open Questions / USER Decision Points: `Pending USER decisions: how to reconcile existing Recording Profile foundation state/UI with active-overlay-driven recording, which stable Overlay Profile Settings placement to approve in the HUD Overlay card, which durable recording output format to approve, and whether to approve any Recording Settings beyond folder path/open folder/Start/Stop.`
+Minimum Viable vs Full System Boundary: `Future minimum viable recording should be lightweight active-overlay-driven Start/Stop plus output path/settings; bulky or advanced settings should move behind secondary surfaces after USER approval.`
+Open Questions / USER Decision Points: `Pending USER decisions: Branch Readiness Stage 1 analysis for the next active-overlay-driven recording carrier, stable Overlay Profile Settings placement, durable recording output format, and any Recording Settings beyond folder path/open folder/Start/Stop.`
 Acceptance Criteria: `Stage 2 is accepted when the branch is created/rebound, source truth is aligned, stale active authority is folded down, branch cleanup receipt is recorded, validation is green, commit is created, and branch is pushed.`
 Validation Proof Requirements: `git diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, and compileall.`
 Screenshot / Live / User Test Summary Proof Requirements: `Not required for Stage 2 setup because no runtime/UI mutation occurs. Future Workstream/Hardening/LV1 must follow FAM-006 real-input and per-element visual proof governance.`
@@ -133,20 +109,20 @@ Planning Completion Waiver: `Not required`
 
 Engineering Contract Status: `Accepted for Stage 2 setup`
 USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup`
-Runtime Implementation Approval: `Granted for bounded SLC-046 through SLC-050 Recording Profile Runtime Foundation Workstream implementation; bounded Hardening H1 is green; LV1 helper proof is green; final LV1 green is blocked by User Test Summary Results Pending`
+Runtime Implementation Approval: `Blocked - Recording Profile Workstream implementation was rolled back by USER request; future active-overlay-driven recording implementation requires new Branch Readiness and Workstream approval`
 Branch Purpose: `Admit the FAM-006 Recording Profile Runtime Foundation branch and plan while folding down post-merge release-posture drift.`
-Current Runtime Baseline: `FAM-006 Overlay Profile Runtime Foundation and Overlay Display Acceptance Foundation are released historical evidence; SLC-046 adds Recording Profile state foundation and H1 proof.`
-Planned Runtime Delta: `SLC-047 adds the first visible Recording Profile selection/editing entry point on top of the SLC-046 durable Recording Profile data/state foundation; SLC-049 adds compact read-only Dashboard / Manage Monitors Recording Profile status integration; SLC-050 adds Workstream readiness proof.`
-User-Facing Runtime Delta: `SLC-047 adds compact Dashboard/HUD Recording Profile selector/status controls and a Recording Profile Settings child window for selecting, creating, renaming, and guarded deleting Recording Profiles; SLC-049 adds compact read-only Recording Profile status integration without recording execution.`
-State / Config / Schema Delta: `SLC-046 adds recordingProfiles, activeRecordingProfileId, Recording Profile schema/default constants, default active Recording Profile creation, membership/source normalization, and state proof fields.`
-Validator / Helper Delta: `SLC-048 updates FAM-006 HUD surface and internal sandbox validators plus renderer bridge proof expectations for state-only Recording Profile relationship mapping; SLC-049/SLC-050 extend HUD validators, sandbox proof, renderer bridge proof, and Workstream readiness proof while preserving Overlay Profile and Monitor Group boundaries.`
+Current Runtime Baseline: `FAM-006 Overlay Profile Runtime Foundation and Overlay Display Acceptance Foundation are released historical evidence; Recording Profile runtime is not implemented.`
+Planned Runtime Delta: `None after rollback. Future Workstream must be replanned around active-overlay-driven recording, not profile-loaded Recording Profile state.`
+User-Facing Runtime Delta: `None after rollback; future visible UI/status/copy changes must be approved through Branch Readiness and Workstream for HUD Overlay card recording controls or standalone Recording Settings.`
+State / Config / Schema Delta: `None after rollback; future recording state/schema must be replanned from active Overlay Profile membership and recording output settings.`
+Validator / Helper Delta: `None expected during Stage 2; existing validators must pass after source-truth setup.`
 Expected Changed Files / Surfaces: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/retirement_index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md.`
-Approval-Boundary Audit: `USER ratified bounded SLC-049 Dashboard / Manage Monitors Recording Profile status integration and SLC-050 Workstream readiness proof after approval-boundary audit; Hardening H1 and all future-gated work remain pending separate USER approval.`
+Approval-Boundary Audit: `Recording Profile Workstream implementation was rolled back by USER request. Runtime implementation and all future-gated work are blocked pending new Branch Readiness and Workstream approvals.`
 Future-Gated Items: `Tray recording controls; recording execution; export/share/import; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007 work; Governance mutation; issue mutation; PR creation; merge; release; artifacts/raw evidence handling.`
-Workstream Seam Map: `Seam 1 SLC-046 data/state foundation and schema proof; Seam 2 SLC-047 selection/editing entry point proof; Seam 3 SLC-048 relationship-boundary proof; Seam 4 SLC-049 Dashboard/Manage Monitors status proof; Seam 5 SLC-050 validation, H1, LV1, and UTS readiness proof.`
-Proof Expectations: `Stage 2 source-truth validation only; future Workstream/H1/LV1 proof must include null/stress state, concept separation, real-input desktop proof where user-facing, and per-element visual review.`
-Risk Forecast: `Primary risks are concept drift between Recording Profile and Overlay Profile, accidental tray/export scope expansion, stale active-authority drift, and visual-proof gaps if future user-facing controls are admitted.`
-Recommendations And Alternatives: `Recommend Workstream Entry review the whole SLC-046 through SLC-050 package and select the first bounded seam, likely state/schema foundation.`
+Workstream Seam Map: `Withdrawn for Recording Profile Runtime Foundation; future seam map must be selected by a new Branch Readiness / Workstream Entry path for active-overlay-driven recording.`
+Proof Expectations: `Future Workstream/H1/LV1 proof must include active Overlay Profile membership recording target proof, compact/default HUD Overlay card proof, standalone Recording Settings proof, output-file proof, null/stress state, concept separation, real-input desktop proof where user-facing, and per-element visual review.`
+Risk Forecast: `Primary risks are stale Recording Profile concept bleed-through, active Overlay Profile membership ambiguity, accidental tray/export/provider scope expansion, output-file format drift, and visual-proof gaps if future user-facing recording controls are admitted.`
+Recommendations And Alternatives: `Recommend Branch Readiness Stage 1 analysis for a successor active-overlay-driven recording carrier before any runtime mutation.`
 Plan Version / Revision Status: `v1 - Branch Readiness Stage 2 setup from current origin/main after PR #212 merge and FAM-006 branch cleanup.`
 Plan-To-Implementation Traceability: `Each planned SLC-046 through SLC-050 delta must be compared during Workstream against actual changed files, validator output, proof artifacts, skipped/deferred items, H1 findings, LV1 screenshots/videos, and UTS disposition before PR Readiness.`
 
@@ -167,18 +143,18 @@ Backlog-Split Reason: `None`
 
 Family: `FAM-006 - Monitoring and HUD`
 Package: `PKG-006 - Recording Profile Runtime Foundation`
-Package Admission State: `Admitted; SLC-046 implementation/H1 green, SLC-047 implementation/H1 green, SLC-048 implementation/H1 green, SLC-049 implementation green, and SLC-050 Workstream readiness proof green`
+Package Admission State: `Rolled back; Recording Profile Workstream package is no longer the active implementation route`
 Admitted Slice Count: `5`
-Package Completion State: `Live Validation LV1 proof green - SLC-046 through SLC-050 complete; Hardening H1 green; User Test Summary Results Pending`
+Package Completion State: `Rolled back to Branch Readiness Stage 1 posture`
 Single-Slice Package User Approval: `Not required - five concrete slices are admitted for planning.`
 
 | Slice | Admission State | Purpose | Current Status |
 | --- | --- | --- | --- |
-| `SLC-046` Recording Profile data/state foundation | Admitted | Define durable Recording Profile model, defaults, normalization, persistence plan, and separation from Overlay Profile / Monitor Group. | Workstream implementation and H1 green |
-| `SLC-047` Recording Profile selection/editing entry points | Admitted | Plan visible selection/editing shell without recording execution. | Workstream implementation and H1 green |
-| `SLC-048` Recording Profile relationship mapping and boundaries | Admitted | Prove relationship to monitors, sources, Overlay Profiles, and Monitor Groups without mutating future-gated recording execution. | Workstream implementation and H1 green |
-| `SLC-049` Dashboard / Manage Monitors Recording Profile status integration | Admitted | Plan compact status/integration points while preserving existing FAM-006 UI behavior. | Workstream implementation green |
-| `SLC-050` validation/live proof readiness | Admitted | Plan validators, helper proof, H1, LV1, visual proof, UTS strategy, and stress/null coverage. | Workstream readiness proof green |
+| `SLC-046` Recording Profile data/state foundation | Admitted | Define durable Recording Profile model, defaults, normalization, persistence plan, and separation from Overlay Profile / Monitor Group. | Pending Workstream Entry |
+| `SLC-047` Recording Profile selection/editing entry points | Admitted | Plan visible selection/editing shell without recording execution. | Pending Workstream Entry |
+| `SLC-048` Recording Profile relationship mapping and boundaries | Admitted | Prove relationship to monitors, sources, Overlay Profiles, and Monitor Groups without mutating future-gated recording execution. | Pending Workstream Entry |
+| `SLC-049` Dashboard / Manage Monitors Recording Profile status integration | Admitted | Plan compact status/integration points while preserving existing FAM-006 UI behavior. | Pending Workstream Entry |
+| `SLC-050` validation/live proof readiness | Admitted | Plan validators, helper proof, H1, LV1, visual proof, UTS strategy, and stress/null coverage. | Pending Workstream Entry |
 
 ## Assigned Worktree Confinement
 
@@ -186,9 +162,9 @@ Assigned Worktree Confinement: `Active`
 Active Thread Owner: `FAM-006 assigned Codex thread`
 Thread Assignment Status: `Assigned to C:\Nexus Worktrees\FAM-006 only`
 Worktree Ownership Ledger: `C:\Nexus Worktrees\FAM-006 is the stable GitHub Desktop-bound FAM-006 worktree for this branch.`
-Intended Write Set: `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/validation_helper_registry.md; desktop/desktop_renderer.py; dev/orin_monitoring_hud_surface_validation.py; dev/orin_monitoring_hud_internal_sandbox_validation.py; nexus_visual/monitoring_hud.html; nexus_visual/monitoring_hud.css; nexus_visual/monitoring_hud.js`
+Intended Write Set: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/retirement_index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Same Worktree / Same Branch Collision Check: `PASS - no other worktree is assigned this branch.`
-Dirty Worktree Collision Check: `PASS - current owner FAM-006 assigned Codex thread has owner claimed USER-approved bounded SLC-047 Workstream implementation edits in the intended write set; no unowned dirty tracked files are present.`
+Dirty Worktree Collision Check: `PASS - worktree was clean before Stage 2 setup edits.`
 Dirty Worktree Recovery Packet: `Not required`
 Off-Worktree Work Routing: `Any FAM-007, Governance, neutral-main, Compact-AI, or unrelated work must route to its owning worktree and separate USER approval.`
 Governance Routing Barrier: `No Governance worktree mutation is authorized.`
@@ -206,7 +182,7 @@ Carrier Lifecycle Classification: `Fresh current branch`
 Remote Branch State: `Pending first push`
 Unique Branch Diff: `Stage 2 source-truth setup edits only`
 Origin/Main Ancestry: `Created directly from origin/main 26dded3f84c526e0525c7d3b18fcd2607e16590d`
-Origin/Main Advanced Since Branch Creation: `YES - reconciled through origin/main d5f5bce378ffd0629dd9b852f0aae974b51d2c3f`
+Origin/Main Advanced Since Branch Creation: `NO`
 Open PR State: `No live PR`
 Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-006`
 Recommended Stage 2 Carrier Action: `Create/rebind stable FAM-006 worktree to this fresh branch and commit/push setup source truth.`
@@ -233,8 +209,8 @@ Branch Closure Rule: `Do not claim package-complete until admitted slices are im
 
 ## Blockers
 
-Active Blockers: `User Test Summary Results Pending, PR Readiness Stage 1 analysis, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved LV1 proof, sibling-worktree mutation, tray recording controls, recording execution, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending separate USER decisions.`
-PR Readiness Blocker: `User Test Summary Results Pending - PR Readiness is RED until returned UTS results are PASS or WAIVED and digested into source truth.`
+Active Blockers: `Runtime implementation, Workstream entry, PR creation, merge, release, issue mutation, artifacts/raw evidence handling, sibling-worktree mutation, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending separate USER decisions.`
+PR Readiness Blocker: `Pending Workstream, Hardening, Live Validation, and later USER approval.`
 
 ## Exit Criteria
 
@@ -246,69 +222,50 @@ Rollback Target: `Branch Readiness`
 
 ## Next Legal Phase
 
-Next Legal Phase: `Live Validation`
-Next Legal Phase Detail: `SLC-046 through SLC-050 Recording Profile Runtime Foundation Workstream package and bounded Hardening H1 are complete and green; LV1 helper proof is captured, but User Test Summary Results Pending keeps the branch in Live Validation until USER returns PASS/FAIL/WAIVED results or grants an explicit waiver and Codex digests that result.`
+Next Legal Phase: `Branch Readiness`
+Next Legal Phase Detail: `Recording Profile Workstream changes have been rolled back by USER request. The next legal step is Branch Readiness Stage 1 analysis for the next FAM-006 active-overlay-driven recording carrier or another USER-selected path. Runtime implementation remains unauthorized.`
 
 ## Expected Seam Families And Risk Classes
 
-Expected Seam Families And Risk Classes: `Recording Profile data/state; visible profile selection/editing; Recording Profile relationship boundaries; Dashboard/Manage Monitors status integration; validation/live proof. Risk classes include concept drift with Overlay Profile or Monitor Group, accidental tray/export scope expansion, high-volume profile/list stress, dirty-guard or compact-window UI regressions, and validator false-green.`
+Expected Seam Families And Risk Classes: `Active Overlay Profile recording target; HUD Overlay card Start/Stop quick access; active monitors transparency; standalone Recording Settings window; durable graph/plot-ready output file; validation/live proof. Risk classes include stale Recording Profile concept bleed-through, active Overlay Profile membership ambiguity, accidental tray/export/provider scope expansion, output-file format drift, compact-window UI regressions, and validator false-green.`
 
 ## User Test Summary Strategy
 
-User Test Summary Strategy: `No UTS is generated for SLC-046 because the seam is state-only with no visible UI. Future user-facing Recording Profile seams require LV1 real user-facing launcher proof, per-element screenshots, compact/default comparison, and a USER Test Summary handoff unless explicitly waived by governance.`
+User Test Summary Strategy: `No UTS is required for this rollback/source-truth posture. Future user-facing active-overlay-driven recording seams require LV1 real user-facing launcher proof, per-element screenshots, compact/default comparison, output-file proof where applicable, and a USER Test Summary handoff unless explicitly waived by governance.`
 
 ## Later-Phase Expectations
 
-Later-Phase Expectations: `SLC-047 H1 is green after bounded repair; SLC-048 Workstream implementation and H1 are green; SLC-049 and SLC-050 Workstream implementation are green; Hardening H1 compared the completed package against this source truth before LV1, and LV1 proved the user-facing surfaces with real desktop input before UTS handoff. PR Readiness remains blocked until UTS results are returned or waived and digested.`
-
-## Live Validation LV1 Trace
-
-LV1 Status: `Helper proof green / final LV1 blocked by User Test Summary Results Pending`
-LV1 Evidence: `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260525_142153_564`
-LV1 User-Inspectable Evidence: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260525_142153_564`
-LV1 User Test Summary: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
-LV1 Result: `Automated validators and live helper evidence: GREEN. User Test Summary Results: PENDING. Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested or explicitly waived.`
-LV1 Repair Note: `A bounded LV1 helper repair preserved mandatory real OS input and required real mouse-wheel scrolling until the Dashboard Manage Monitors control is actually hit-testable before the real click is sent.`
-
-## User Test Summary
-
-User Test Summary Results: `PENDING`
-User Test Summary Blocker: `User Test Summary Results Pending`
-User Test Summary Export: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
-User Test Summary Handoff Status: `Exported for USER review; not returned or waived.`
-Automated Validators And Live Helper Evidence: `GREEN`
-Final Phase Advancement: `BLOCKED until the filled User Test Summary is submitted and digested or USER grants an explicit waiver.`
-User Test Summary Waiver Reason: `None`
+Later-Phase Expectations: `Future Branch Readiness must inspect the corrected active-overlay-driven recording vision before selecting any Workstream package. Hardening H1 and Live Validation LV1 remain later phase gates after any future Workstream implementation.`
 
 ## Initial Workstream Seam Sequence
 
-Seam 1: `SLC-046 Recording Profile data/state foundation`
-Goal: `Define durable Recording Profile state/schema, defaults, normalization, persistence, and concept-separation proof before visible or recording-execution behavior.`
-Scope: `Recording Profile state planning and future implementation boundary; validators/helpers/source-truth traceability as approved by Workstream Entry.`
-Non-Includes: `Tray recording controls, actual recording execution, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, and artifacts/raw evidence handling.`
+Seam 1: `Withdrawn - Recording Profile data/state foundation`
+Goal: `Rolled back by USER request after vision correction.`
+Scope: `Future scope must be reselected from Branch Readiness Stage 1 using active-overlay-driven recording.`
+Non-Includes: `Actual recording execution, output files, standalone Recording Settings implementation, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, and artifacts/raw evidence handling.`
 
-Seam 2: `SLC-047 Recording Profile selection/editing entry points`
-Seam 3: `SLC-048 Recording Profile relationship mapping and boundaries`
-Seam 4: `SLC-049 Dashboard / Manage Monitors Recording Profile status integration`
-Seam 5: `SLC-050 validation/live proof readiness`
+Seam 2: `Withdrawn - Recording Profile selection/editing entry points`
+Seam 3: `Withdrawn - Recording Profile relationship mapping and boundaries`
+Seam 4: `Withdrawn - Dashboard / Manage Monitors Recording Profile status integration`
+Seam 5: `Withdrawn - validation/live proof readiness for Recording Profile route`
 
 ## Active Seam
 
-Active seam: `User Test Summary handoff pending USER return or waiver`
+Active seam: `Branch Readiness Stage 1 posture after rollback; no runtime Workstream seam is active.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Live Validation`
-Next Legal Phase: `Live Validation`
-Why This Phase Is Next: `SLC-046 through SLC-050 Recording Profile Runtime Foundation Workstream package and bounded Hardening H1 are complete and green; LV1 helper evidence is green, but User Test Summary Results Pending is a hard Live Validation blocker and PR Readiness is RED until USER returns PASS/FAIL/WAIVED results or grants an explicit waiver and Codex digests it.`
-Approval Required: `USER must return the filled User Test Summary with PASS/FAIL/WAIVED results, or grant an explicit User Test Summary waiver.`
-Exact USER Approval Text: `Return the filled User Test Summary for FAM-006 Recording Profile Runtime Foundation from C:\Users\anden\OneDrive\Desktop\User Test Summary.txt with PASS, FAIL, or WAIVED results for the active issues, or explicitly approve a User Test Summary waiver with the waiver reason. This does not approve PR Readiness, PR creation, merge, release, issue mutation, sibling-worktree mutation, artifacts/raw evidence handling beyond UTS evidence digestion, tray recording controls, recording execution, export/share, provider/model work, broad theme/skin work, FAM-007 work, or Governance worktree mutation.`
-Allowed Scope: `UTS handoff return/digest only; no PR Readiness, PR creation, merge, release, or future-gated recording behavior until separately approved after UTS PASS or WAIVED is recorded.`
-Explicit Exclusions: `Tray recording controls; recording execution; export/share; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007 work; PR creation; merge; release; issue mutation; artifacts/raw evidence handling beyond inspection of existing LV1 proof; sibling-worktree mutation; Governance worktree mutation.`
-Validation Required: `UTS result digest must rerun identity, source truth, branch governance, worktree confinement, release-readiness health gate, focused FAM-006 validators when source truth changes, runtime-fam006 validation suite, and compileall if helpers change.`
-Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, stale Workstream/H1/LV1 proof, UTS FAIL requiring repair, missing waiver reason, stale active-authority drift, or need for out-of-scope runtime/UI work.`
+Current Phase: `Branch Readiness`
+Next Legal Phase: `Branch Readiness Stage 1`
+Why This Phase Is Next: `USER requested rollback of the Recording Profile Workstream and a return to Branch Readiness Stage 1 posture. The next legal activity is analysis of the corrected active-overlay-driven recording vision and carrier/path selection before any runtime mutation.`
+Approval Required: `USER must approve Workstream Entry analysis.`
+Exact USER Approval Text: `Approve Workstream Entry analysis for FAM-006 Recording Profile Runtime Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-recording-profile-runtime-foundation. This approval covers analysis of the full SLC-046 through SLC-050 package, source truth, runtime surfaces, validators, proof requirements, and first bounded implementation seam only. It does not approve runtime implementation, PR creation, merge, release, issue mutation, artifacts/raw evidence handling, sibling-worktree mutation, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, or Governance worktree mutation.`
+Allowed Scope: `Analysis-only Workstream Entry after Stage 2 setup.`
+Explicit Exclusions: `Runtime implementation; PR creation; merge; release; issue mutation; artifacts/raw evidence handling; sibling-worktree mutation; tray recording controls; export/share; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007 work; Governance worktree mutation.`
+Validation Required: `Identity, source truth, branch governance, worktree confinement, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, and focused FAM-006 validators as applicable.`
+Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, missing package/slice proof, stale active-authority drift, or need for runtime implementation.`
 USER Plan Review Gate: `USER may accept, revise, waive, or reject the Workstream Entry plan before implementation.`
 USER Inspection Files: `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Review Required Because: `Recording Profile is a new FAM-006 runtime foundation and must remain distinct from Overlay Profile, Monitor Group, tray recording, export/share, provider/model work, and broad theme/skin work.`
-Implementation Blocker: `Workstream implementation and Hardening H1 are complete, and LV1 helper proof is green; final LV1 green and PR Readiness are blocked by User Test Summary Results Pending.`
+Implementation Blocker: `Runtime implementation is not approved until Workstream Entry returns and USER approves a bounded implementation seam.`
 Review Waiver Reason: `None`

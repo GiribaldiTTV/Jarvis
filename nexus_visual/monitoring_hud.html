@@ -87,7 +87,7 @@
     data-polling-rate-dropdown="nexus-styled-bounded-control"
     data-dashboard-ia-model="branch2-ia-controls-followthrough"
     data-dashboard-home-model="control-hub-cards-monitor-management-child-windows"
-    data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings"
+    data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"
     data-dashboard-close-affordance="window-level-close-button"
     data-dashboard-open-badge="removed"
     data-dashboard-quick-access="warning-notifications-only"
@@ -107,10 +107,7 @@
     data-active-overlay-profile-id="default-overlay-profile"
     data-overlay-profile-editor="slc-039-membership-editor"
     data-overlay-profile-membership="editable-slc-039-mapping"
-    data-recording-profile-state="slc-047-selection-editing-shell"
-    data-recording-profile-editor="slc-047-selection-editing-shell"
-    data-recording-profile-membership="readonly-slc-047"
-    data-recording-execution-boundary="no-tray-recording-no-export-share-no-provider-model"
+    data-recording-profile-state="recording-profile-state-absent-future-gated"
     aria-label="Nexus Desktop AI Monitoring HUD product surface"
     aria-hidden="true"
   >
@@ -222,57 +219,6 @@
             </div>
             <small id="monitoring-hud-overlay-profile-membership-note">Membership is editable inside Overlay Profile Settings; monitor groups remain separate.</small>
           </div>
-          <div
-            class="monitoring-hud__overlay-profile-panel monitoring-hud__recording-profile-panel"
-            id="monitoring-hud-recording-profile-editor"
-            data-recording-profile-editor-ui="slc-047-selection-editing-shell"
-            data-recording-profile-membership="readonly-slc-047"
-            data-recording-profile-proof="selector-settings-window-create-rename-delete-save-discard"
-            data-recording-profile-status-integration="slc-049-dashboard-compact-readonly"
-            aria-label="Recording Profile selector and editor"
-          >
-            <div class="monitoring-hud__overlay-profile-heading monitoring-hud__recording-profile-heading">
-              <span>Recording Profile</span>
-              <div
-                class="monitoring-hud__bounded-dropdown monitoring-hud__overlay-profile-dropdown monitoring-hud__recording-profile-dropdown"
-                id="monitoring-hud-recording-profile-selector"
-                data-bounded-dropdown="recording-profile"
-                data-selected-profile-id="default-recording-profile"
-                data-dropdown-open="false"
-                data-hovered-profile-id=""
-              >
-                <button
-                  type="button"
-                  class="monitoring-hud__bounded-dropdown-toggle"
-                  id="monitoring-hud-recording-profile-toggle"
-                  aria-label="Recording Profile"
-                  aria-haspopup="listbox"
-                  aria-expanded="false"
-                  aria-controls="monitoring-hud-recording-profile-menu"
-                >
-                  <span>Profile</span>
-                  <strong id="monitoring-hud-recording-profile-label">Default Recording Profile</strong>
-                </button>
-                <div class="monitoring-hud__bounded-dropdown-menu monitoring-hud__nexus-scroll-pane" id="monitoring-hud-recording-profile-menu" role="listbox" aria-label="Recording Profile options" hidden>
-                  <button type="button" class="monitoring-hud__bounded-dropdown-option" data-recording-profile-option="default-recording-profile" role="option" aria-selected="true">Default Recording Profile</button>
-                </div>
-              </div>
-            </div>
-            <div class="monitoring-hud__overlay-profile-detail-grid" aria-label="Recording Profile details">
-              <div class="monitoring-hud__state-row">
-                <span>Monitors</span>
-                <strong id="monitoring-hud-recording-profile-monitor-count">0 selected</strong>
-              </div>
-              <div class="monitoring-hud__state-row">
-                <span>Sources</span>
-                <strong id="monitoring-hud-recording-profile-source-count">0 selected</strong>
-              </div>
-            </div>
-            <div class="monitoring-hud__hub-actions monitoring-hud__overlay-profile-actions" data-recording-profile-actions="settings-window-entry">
-              <button type="button" id="monitoring-hud-recording-profile-open-settings" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__dashboard-paired-action" data-control="recording-profile-open-settings" data-dashboard-action-size="paired-overlay-manage-250" data-child-window-target="recording-profile-settings" aria-haspopup="dialog" aria-expanded="false">Recording Profile Settings</button>
-            </div>
-            <small id="monitoring-hud-recording-profile-membership-note">Recording membership is read-only in this seam; tray recording and export/share remain future-gated.</small>
-          </div>
         </article>
         <article class="monitoring-hud__hub-card monitoring-hud__hub-card--monitor-groups" data-dashboard-hub-card="monitor-groups" data-slice="SLC-027" data-dashboard-issue="125" data-monitor-group-flow="sensor-command-center-list-detail-source-picker">
           <div class="monitoring-hud__hub-card-topline">
@@ -336,7 +282,7 @@
       <div
         class="monitoring-hud__child-window-layer"
         id="monitoring-hud-child-window-layer"
-        data-child-window-layer="dashboard-settings-monitor-groups-overlay-profile-recording-profile"
+        data-child-window-layer="dashboard-settings-monitor-groups-overlay-profile"
         data-child-window-state="closed"
         aria-hidden="true"
         hidden
@@ -551,112 +497,6 @@
           <p class="monitoring-hud__child-note">Assign or unassign this Monitor Group to Overlay Profiles here. Overlay Profile editing remains centralized in Overlay Profile Settings.</p>
           <div class="monitoring-hud__child-actions">
             <button type="button" class="monitoring-hud__hub-action" data-child-window-close="monitor-overlay-assignment">Done</button>
-          </div>
-        </div>
-        <div
-          class="monitoring-hud__child-window monitoring-hud__child-window--overlay-profile monitoring-hud__child-window--recording-profile"
-          id="monitoring-hud-recording-profile-window"
-          data-child-window="recording-profile-settings"
-          data-recording-profile-window="select-profile-to-edit-create-right-save-required"
-          data-recording-profile-workflow="select-loads-edit-create-draft-save-required"
-          data-recording-profile-membership="readonly-slc-047"
-          data-recording-profile-boundary="no-tray-recording-no-export-share-no-provider-model"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="monitoring-hud-recording-profile-window-title"
-          hidden
-        >
-          <header class="monitoring-hud__child-window-header">
-            <div>
-              <span>Recording Profiles</span>
-              <strong id="monitoring-hud-recording-profile-window-title">Select Or Create</strong>
-            </div>
-            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="recording-profile-settings" aria-label="Close Recording Profile Settings">Close</button>
-          </header>
-          <div class="monitoring-hud__unsaved-guard monitoring-hud__unsaved-guard--modal" id="monitoring-hud-recording-profile-unsaved-guard" data-unsaved-guard="closed" hidden>
-            <strong>Unsaved recording profile changes</strong>
-            <span>Save changes or discard the draft before continuing.</span>
-            <div class="monitoring-hud__child-actions monitoring-hud__child-actions--guard" data-unsaved-guard-actions="modal-save-discard-cancel">
-              <button type="button" id="monitoring-hud-recording-profile-unsaved-save" class="monitoring-hud__hub-action" data-control="recording-profile-unsaved-save">Save</button>
-              <button type="button" id="monitoring-hud-recording-profile-unsaved-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="recording-profile-unsaved-discard">Discard</button>
-              <button type="button" id="monitoring-hud-recording-profile-unsaved-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--safe-cancel" data-control="recording-profile-unsaved-cancel">Cancel</button>
-            </div>
-          </div>
-          <div class="monitoring-hud__overlay-profile-choice-panel monitoring-hud__recording-profile-choice-panel" aria-label="Recording Profile selection workflow" data-recording-profile-manager-default="select-create">
-            <div class="monitoring-hud__overlay-profile-manager-row" data-recording-profile-manager-row="selector-dropdown-create-right-equal">
-              <div
-                class="monitoring-hud__bounded-dropdown monitoring-hud__overlay-profile-window-dropdown monitoring-hud__recording-profile-window-dropdown"
-                id="monitoring-hud-recording-profile-window-selector"
-                data-bounded-dropdown="recording-profile-window"
-                data-selected-profile-id=""
-                data-explicit-profile-selection="false"
-                data-dropdown-open="false"
-                data-hovered-profile-id=""
-                data-visible-option-target="max-five"
-                data-scrollbar-style="ndai-native"
-              >
-                <button
-                  type="button"
-                  class="monitoring-hud__bounded-dropdown-toggle"
-                  id="monitoring-hud-recording-profile-window-toggle"
-                  aria-label="Select Recording Profile to edit"
-                  aria-haspopup="listbox"
-                  aria-expanded="false"
-                  aria-controls="monitoring-hud-recording-profile-window-menu"
-                >
-                  <span>Profile to Edit:</span>
-                  <strong id="monitoring-hud-recording-profile-window-label">Select profile</strong>
-                </button>
-                <div class="monitoring-hud__bounded-dropdown-menu monitoring-hud__nexus-scroll-pane" id="monitoring-hud-recording-profile-window-menu" role="listbox" aria-label="Recording Profile manager options" hidden>
-                  <button type="button" class="monitoring-hud__bounded-dropdown-option" data-recording-profile-window-option="default-recording-profile" role="option" aria-selected="false">Default Recording Profile</button>
-                </div>
-              </div>
-              <button type="button" id="monitoring-hud-recording-profile-create" class="monitoring-hud__hub-action" data-control="recording-profile-create">Create Profile</button>
-            </div>
-            <div class="monitoring-hud__overlay-profile-manager-meta" aria-label="Recording Profile manager summary">
-              <span id="monitoring-hud-recording-profile-window-active-name">No profile selected for editing</span>
-              <strong id="monitoring-hud-recording-profile-window-count">1 available</strong>
-              <span id="monitoring-hud-recording-profile-window-membership">Select a profile to review recording state.</span>
-            </div>
-          </div>
-          <div class="monitoring-hud__overlay-profile-detail-section monitoring-hud__recording-profile-detail-section" id="monitoring-hud-recording-profile-detail-section" data-recording-profile-detail-state="closed" hidden>
-            <label class="monitoring-hud__child-field monitoring-hud__overlay-profile-name-field">
-              Recording profile name
-              <input id="monitoring-hud-recording-profile-name-input" type="text" value="Default Recording Profile" autocomplete="off" maxlength="48" />
-            </label>
-            <div class="monitoring-hud__overlay-profile-membership monitoring-hud__recording-profile-membership" aria-label="Recording Profile read-only membership">
-              <div class="monitoring-hud__overlay-profile-membership-heading">
-                <span>Read-only recording membership</span>
-                <strong>Future mapping seam</strong>
-              </div>
-              <div
-                class="monitoring-hud__overlay-profile-membership-list monitoring-hud__recording-profile-membership-list monitoring-hud__nexus-scroll-pane"
-                id="monitoring-hud-recording-profile-membership-list"
-                data-recording-profile-membership-list="readonly-monitor-source-membership"
-                data-recording-profile-visible-item-target="max-five"
-                data-scrollbar-style="ndai-native"
-                role="group"
-                aria-label="Read-only monitors and sources in this Recording Profile"
-              ></div>
-            </div>
-            <p class="monitoring-hud__child-note" id="monitoring-hud-recording-profile-membership-note">Recording membership is read-only in SLC-047; tray recording, recording execution, and export/share remain future-gated.</p>
-            <div class="monitoring-hud__delete-confirmation monitoring-hud__overlay-profile-delete-confirmation monitoring-hud__recording-profile-delete-confirmation" id="monitoring-hud-recording-profile-delete-confirmation" data-recording-profile-delete-confirmation="closed" hidden>
-              <strong id="monitoring-hud-recording-profile-delete-title">Delete Recording Profile?</strong>
-              <span id="monitoring-hud-recording-profile-delete-copy">Confirm before removing this Recording Profile. Overlay Profiles, Monitor Groups, tray recording, and export/share stay separate.</span>
-              <div class="monitoring-hud__child-actions">
-                <button type="button" id="monitoring-hud-recording-profile-delete-confirm" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="confirm-delete-recording-profile">Delete</button>
-                <button type="button" id="monitoring-hud-recording-profile-delete-cancel" class="monitoring-hud__hub-action monitoring-hud__hub-action--safe-cancel" data-control="cancel-delete-recording-profile">Cancel</button>
-              </div>
-            </div>
-            <div class="monitoring-hud__child-actions monitoring-hud__overlay-profile-window-actions" data-recording-profile-actions="save-left-discard-delete-right">
-              <div class="monitoring-hud__overlay-profile-window-actions-left">
-                <button type="button" id="monitoring-hud-recording-profile-save" class="monitoring-hud__hub-action" data-control="recording-profile-save" data-control-state="clean-disabled" aria-disabled="true" disabled>Save Profile</button>
-              </div>
-              <div class="monitoring-hud__overlay-profile-window-actions-right">
-                <button type="button" id="monitoring-hud-recording-profile-discard" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="recording-profile-discard" data-control-state="clean-disabled" aria-disabled="true" disabled>Discard</button>
-                <button type="button" id="monitoring-hud-recording-profile-delete" class="monitoring-hud__hub-action monitoring-hud__hub-action--danger" data-control="recording-profile-delete" data-control-state="clean-disabled" aria-disabled="true" disabled>Delete Profile</button>
-              </div>
-            </div>
           </div>
         </div>
         <div
@@ -876,23 +716,6 @@
                 </button>
                 <div class="monitoring-hud__sensor-settings monitoring-hud__sensor-settings--source-entry monitoring-hud__nexus-scroll-pane" id="monitoring-hud-monitor-sensor-settings" data-sensor-settings="source-list-entry-points" data-scroll-pane="sensor-settings" aria-label="Per-sensor settings entry points" hidden>
                   <div class="monitoring-hud__sensor-settings-empty" data-sensor-settings-empty="source-list-entry-points">Use each Source row's Settings button for display mode, warning, and sensor-specific Polling Rate overrides.</div>
-                </div>
-                <div
-                  class="monitoring-hud__monitor-overlay-profile-context monitoring-hud__monitor-overlay-profile-context--compact monitoring-hud__monitor-recording-profile-context"
-                  id="monitoring-hud-monitor-recording-profile-context"
-                  data-monitor-detail-placement="below-assigned-overlay"
-                  data-recording-profile-status-integration="slc-049-manage-monitors-readonly-status"
-                  data-recording-profile-context-layout="single-row-readonly"
-                  data-recording-profile-mutation="none-status-only"
-                  data-recording-profile-boundary="no-tray-recording-no-execution-no-export-share"
-                  aria-label="Selected monitor Recording Profile context"
-                >
-                  <div class="monitoring-hud__overlay-profile-context-heading">
-                    <span>Recording Profile</span>
-                    <strong id="monitoring-hud-monitor-recording-profile-count">0 assigned</strong>
-                  </div>
-                  <span id="monitoring-hud-monitor-recording-profile-selected-state">Active profile: Not included</span>
-                  <span id="monitoring-hud-monitor-recording-profile-source-state">0 sources</span>
                 </div>
                 <div class="monitoring-hud__detail-danger-zone" data-detail-actions="selected-monitor-bottom">
                   <div class="monitoring-hud__detail-action-row" data-detail-action-row="save-left-discard-delete-right">
