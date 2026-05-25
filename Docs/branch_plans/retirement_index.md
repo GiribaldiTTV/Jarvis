@@ -20,6 +20,7 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 | Branch Plan | Retirement Posture | Durable Owner / Lookup Path |
 | --- | --- | --- |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | Retired from active planning posture | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/validation_helper_registry.md` |
+| `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md` | Retired from active planning posture after PR #207 merge | `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_uts_reference_20260521.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
