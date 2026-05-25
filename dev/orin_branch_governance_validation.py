@@ -2870,6 +2870,7 @@ STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_monitoring_hud_internal_sandbox_validation.py",
     "dev/orin_monitoring_hud_surface_validation.py",
     "dev/orin_pr_body_quality_audit.py",
+    "dev/orin_public_leak_prevention_validation.py",
     "dev/orin_release_body_validation.py",
 }
 STANDING_GOVERNANCE_INTAKE_CONTRACT_MARKERS = (
@@ -18169,6 +18170,25 @@ def _run_merge_target_authority_projection_gate(
     branch_record_text = merge_stable_branch_record_text or active_branch_record_text
     if not branch_record_text:
         return
+    if merge_stable_branch_record_text and active_branch_record_text:
+        merge_stable_branch = _extract_branch_identity_branch(merge_stable_branch_record_text)
+        active_branch = _extract_branch_identity_branch(active_branch_record_text)
+        if (
+            merge_stable_branch
+            and active_branch == merge_stable_branch
+            and active_branch_record_path != STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
+        ):
+            require(
+                False,
+                (
+                    "PR readiness gate: Merge-Stable Projection Shadowed By Active Authority "
+                    "blocker is active; a post-merge projection receipt cannot sit beside an "
+                    "active authority record for the same branch. Move the actual branch record "
+                    "to Historical Branch Authority Records, remove it from Active Branch "
+                    "Authority Records, and then rerun the Release Readiness Health Pass before "
+                    "PR green."
+                ),
+            )
     post_merge_state = _section(branch_record_text, "Post-Merge State")
     if "No Active Branch" not in post_merge_state:
         return
@@ -18705,6 +18725,18 @@ def _run_release_readiness_health_gate(
         historical_branch_record_paths,
         branch_name,
     )
+    if current_active_branch_record_text and historical_branch_record_text:
+        require(
+            False,
+            (
+                f"{historical_branch_record_path}: Release Readiness Health Pass cannot use a "
+                "post-merge projection receipt while "
+                f"{current_active_branch_record_path} remains listed under Active Branch "
+                "Authority Records for the same branch. Fold down the real active record into "
+                "historical/no-active posture before PR Stage 1 reports Stage 2-ready or before "
+                "merge approval."
+            ),
+        )
 
     record_path = current_active_branch_record_path or active_branch_record_path
     record_text = current_active_branch_record_text or active_branch_record_text

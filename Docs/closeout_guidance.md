@@ -61,6 +61,7 @@ Use a rebaseline when:
 - do not rewrite historical closeouts just to modernize wording
 - do not use closeouts or rebaselines as substitutes for workstream records
 - do not force release-dependent canon repair into `Release Readiness`; PR-owned canon must be complete before PR green, and escaped misses block the next legitimate runtime-focused backlog branch's `Branch Readiness`
+- do not treat a separate post-merge projection receipt as closeout when the real branch record remains active; the active record must be folded down or removed from `Active Branch Authority Records` before PR green
 
 ## Post-Release Rule
 
