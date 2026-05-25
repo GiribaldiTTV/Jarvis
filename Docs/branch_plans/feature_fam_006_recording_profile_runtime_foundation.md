@@ -103,6 +103,66 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_recording_pr
 - USER Decision / Waiver: `USER approved Branch Readiness Stage 2 setup and fold-down.`
 - Fold-Down Target: `At PR Readiness/merge, this branch must project its own post-merge historical/no-active state.`
 
+### Changed Surface: Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Record that the merged/deleted FAM-006 release-posture carry-forward branch plan is historical and no longer an active FAM-006 runtime carrier.`
+- Why This File Was Touched: `Branch Readiness Stage 2 is the legal carrier for post-merge fold-down of the prior FAM-006 release-support branch before admitting the Recording Profile Runtime Foundation branch.`
+- Owned Behavior / Fact Class: `Historical branch-plan posture for the released/deleted FAM-006 carry-forward branch.`
+- Canonical Owner / Source Owner: `Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Low from current origin/main; rerun Pre-Rebaseline Impact Audit if origin/main advances before PR.`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Preserve incoming PR #212 current-main fold-down/history wording and preserve this branch setup truth that the prior release-posture branch is historical, merged, deleted, and not an active runtime carrier.`
+- Rebaseline Handling: `Preserve incoming current-main fold-down context and this branch-local Recording Profile setup/fold-down evidence.`
+- Validation Proof: `Branch governance validation, branch readiness planning fixture validation, and release-readiness health gate.`
+- Fallback Evidence: `Stage 1 packet, branch cleanup proof, and this Recording Profile branch plan.`
+- USER Decision / Waiver: `USER approved Branch Readiness Stage 2 setup and fold-down.`
+- Fold-Down Target: `Retain as historical branch-plan evidence only; do not restore as an active branch plan.`
+
+### Changed Surface: Docs/branch_plans/retirement_index.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Record the merged/deleted FAM-006 release-posture carry-forward branch as retired while preserving the active Recording Profile branch path.`
+- Why This File Was Touched: `Branch Readiness Stage 2 recorded cleanup/no-unique-commit-loss proof and retired the prior FAM-006 carry-forward branch after release and merge.`
+- Owned Behavior / Fact Class: `Retired branch-plan index and branch cleanup evidence.`
+- Canonical Owner / Source Owner: `Docs/branch_plans/retirement_index.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Low from current origin/main; rerun Pre-Rebaseline Impact Audit if origin/main advances before PR.`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Preserve incoming PR #212 retirement-index additions and preserve this branch's cleanup/no-unique-commit-loss receipt for the FAM-006 release-posture carry-forward branch.`
+- Rebaseline Handling: `Preserve incoming current-main retirement context and this branch-local FAM-006 cleanup evidence.`
+- Validation Proof: `Branch governance validation, branch readiness planning fixture validation, and release-readiness health gate.`
+- Fallback Evidence: `Stage 1 packet, branch cleanup proof, and this Recording Profile branch authority record.`
+- USER Decision / Waiver: `USER approved Branch Readiness Stage 2 setup and fold-down.`
+- Fold-Down Target: `Retain prior FAM-006 carry-forward branch as retired/historical; do not restore active authority.`
+
+### Changed Surface: Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Record the merged/deleted FAM-006 release-posture carry-forward branch authority as historical/no-active after release and branch cleanup.`
+- Why This File Was Touched: `Branch Readiness Stage 2 folded down the prior active FAM-006 release-support authority before admitting the Recording Profile Runtime Foundation branch.`
+- Owned Behavior / Fact Class: `Historical branch authority for the released/deleted FAM-006 carry-forward branch.`
+- Canonical Owner / Source Owner: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Low from current origin/main; rerun Pre-Rebaseline Impact Audit if origin/main advances before PR.`
+- Semantic Merge Risk: `Low`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Preserve incoming PR #212 current-main historical/fold-down authority state and preserve this branch setup truth that Recording Profile Runtime Foundation is the active FAM-006 authority.`
+- Rebaseline Handling: `Preserve incoming current-main fold-down context and this branch-local FAM-006 authority transition evidence.`
+- Validation Proof: `Branch governance validation, branch readiness planning fixture validation, and release-readiness health gate.`
+- Fallback Evidence: `Stage 1 packet, branch cleanup proof, and this Recording Profile branch authority record.`
+- USER Decision / Waiver: `USER approved Branch Readiness Stage 2 setup and fold-down.`
+- Fold-Down Target: `Retain as historical/no-active authority evidence; do not restore as active authority.`
+
 ## Workstream Entry Whole-Package Analysis Requirements
 
 Workstream Entry must inspect all SLC-046 through SLC-050 before selecting the first seam. First-seam-only analysis is not enough.
