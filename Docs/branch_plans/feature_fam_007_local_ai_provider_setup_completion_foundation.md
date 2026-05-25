@@ -259,6 +259,26 @@ Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded
 - USER Decision / Waiver: `USER approved current-main reconciliation preparation for this FAM-007 branch against origin/main@f4d81d179f9631cc36cc09ba520a12002221003d.`
 - Fold-Down Target: `PR Readiness Stage 1 repair/reconciliation packet and final PR Readiness Stage 1 decision packet.`
 
+### Changed Surface: Docs/validation_helper_registry.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Accept incoming PR #209 release-readiness health-gate validator registry wording as authoritative while preserving this branch's FAM-007 setup completion foundation provider-state validator registration.`
+- Why This File Was Touched: `Incoming main tightens release-readiness health-gate scan requirements for stale open-PR/active-branch wording; this branch registers the FAM-007 setup completion foundation extension to the shared FAM-007 provider-state validator.`
+- Owned Behavior / Fact Class: `Validator registry ownership, reusable validation helper capabilities, FAM-007 provider-state validator extension evidence, and release-readiness health-gate reuse guidance.`
+- Canonical Owner / Source Owner: `Docs/validation_helper_registry.md`
+- Resolution Owner: `USER Decision`
+- Shared Surface: `YES - incoming governance PR #209 and current-branch FAM-007 setup completion source truth both update the shared validator registry.`
+- Overlap Risk: `Medium - stale resolution could drop the incoming release-readiness health-gate hardening or drop the FAM-007 setup completion validator registration needed for PR Readiness proof.`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Preserve both changes: keep incoming PR #209 release-readiness health-gate wording and keep this branch's FAM-007 setup completion foundation validator extension row. Do not use incoming FAM-006/release-readiness governance content as FAM-007 successor authority.`
+- Rebaseline Handling: `Merge origin/main into this FAM-007 branch after this ledger entry is present; if the registry conflicts, keep incoming governance helper wording and re-add the FAM-007 setup completion validator row in the FAM-007 provider-state extension group.`
+- Validation Proof: `Required validation includes python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_setup_completion_foundation.md, python dev\orin_branch_governance_validation.py, python dev\orin_branch_governance_validation.py --release-readiness-health-gate, python dev\orin_branch_governance_validation.py --pr-readiness-gate, python dev\orin_ai_provider_state_validation.py, python dev\orin_release_body_validation.py, and python dev\orin_governance_efficiency_validation.py after reconciliation.`
+- Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved current-main reconciliation / rebaseline audit repair for this FAM-007 branch after accepting the AI Edition plan review, with origin/main advanced to dfa59b37058fb2ef0f7d3432b585f182551408a4.`
+- Fold-Down Target: `Current-main reconciliation packet, PR Readiness Stage 1 repair/reconciliation packet, and final PR Readiness Stage 1 decision packet.`
+
 ### Changed Surface: desktop/desktop_renderer.py
 
 - Surface Class: `desktop/UI`
