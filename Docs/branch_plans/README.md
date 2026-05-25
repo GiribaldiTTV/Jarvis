@@ -93,6 +93,35 @@ The bundle should copy the branch vision and planning files the USER needs to in
 
 The bundle must use the active worktree label, copy the selected files flat into that worktree folder, and rely on `START_HERE.md` to map copied filenames back to repo-relative source paths. The digest must report the review folder path, copied files, source branch, source HEAD, validation summary, exact Workstream green-light decision requested, and pending USER decisions. Missing bundle proof blocks Workstream entry on `Workstream Entry Review Bundle Missing`.
 
+## USER Branch Plan Review Gate
+
+`USER Branch Plan Review Gate` is the named USER-facing Workstream Entry checkpoint. It wraps the active branch plan, Branch Vision Contract Snapshot, Element-to-Phase Proof Matrix, Workstream Entry whole-package analysis, Hardening plan, Live Validation / UTS plan, UFD items, and Branch Change Intent Ledger when present into a plain-language review packet before Workstream implementation begins or resumes.
+
+Required review markers:
+
+- USER Branch Plan Review:
+- Review Status:
+- Desktop Review Bundle:
+- Plain-Language Branch Goal:
+- Planned User-Facing Outcome:
+- Visual / Behavioral Description:
+- Implementation Breakdown:
+- Element-to-Phase Proof Matrix:
+- Hardening Plan:
+- Live Validation / UTS Plan:
+- Open USER Questions:
+- Codex Recommendations:
+- Alternatives / Tradeoffs:
+- Accepted Scope:
+- Deferred Scope:
+- Rejected Scope:
+- Exact USER Decision Needed:
+- Implementation Approval:
+
+`Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. The packet must give USER answer paths to accept the recommendation, revise it with USER-written changes, defer/future-package/waive with reason, reject it, or request more analysis. It is a review wrapper, not a duplicate permanent ledger; accepted answers fold into the Branch Vision Contract Snapshot, Branch Runtime Engineering Plan, UFD item, matrix row, or branch record only through a later USER-approved digest/source-truth pass.
+
+Missing or shallow branch goal, user-facing outcome, implementation breakdown, Hardening plan, Live Validation / UTS plan, Desktop review bundle proof, or exact USER decision blocks Workstream implementation on `USER Branch Plan Review Missing`. A first-seam-only packet cannot satisfy this gate when multiple slices or seams are admitted.
+
 ## Workstream Entry Whole-Package Analysis Gate
 
 Runtime-focused branch plans with multiple admitted slices or seams must support whole-package Workstream Entry analysis before implementation begins or resumes.
@@ -328,6 +357,8 @@ Branch Readiness Stage 1 proposes the plan requirements and returns the USER pla
 Branch Readiness Stage 2 creates or admits `Docs/branch_plans/<branch_slug>.md`, links it from the branch authority record through `Branch Runtime Engineering Plan Path:`, records `Engineering Plan Status:`, and keeps `Runtime Implementation Approval:` pending until a later USER decision admits runtime work. Stage 2 closeout must explicitly tell USER that the plan is now the object of the next review gate and that USER may accept, change, waive, or reject the plan before implementation.
 
 Branch Readiness Stage 2 also creates or admits the `Element-to-Phase Proof Matrix` when the branch creates, touches, affects, defers, or preserves product/runtime/UI/source-truth elements. Workstream Entry must return that matrix, or a concrete summary of it, for USER review before implementation begins or resumes.
+
+Workstream Entry must return the `USER Branch Plan Review Gate` packet before implementation begins or resumes for runtime/user-facing/source-truth work. The packet is the readable "what this branch intends to build" handoff, while the active branch plan remains source truth.
 
 Workstream Entry reads the plan and returns whole-package analysis plus the first-seam design packet before implementation. Each seam updates plan-to-implementation traceability with planned item, changed files, validator proof, user-facing proof, and future-gated decisions.
 

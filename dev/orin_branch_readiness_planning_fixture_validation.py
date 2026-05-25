@@ -90,6 +90,24 @@ VALID_WORKSTREAM_ENTRY_WHOLE_PACKAGE_FIXTURE = (
 INVALID_WORKSTREAM_ENTRY_FIRST_SEAM_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_workstream_entry_first_seam_only.md"
 )
+VALID_USER_BRANCH_PLAN_REVIEW_FIXTURE = (
+    FIXTURE_DIR / "valid_user_branch_plan_review_gate.md"
+)
+INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_OUTCOME_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_branch_plan_review_missing_outcome.md"
+)
+INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_HARDENING_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_branch_plan_review_missing_hardening.md"
+)
+INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_LIVE_VALIDATION_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_branch_plan_review_missing_live_validation.md"
+)
+INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_branch_plan_review_first_seam_only.md"
+)
+VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE = (
+    FIXTURE_DIR / "valid_user_branch_plan_review_deferred_scope.md"
+)
 VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE = (
     FIXTURE_DIR / "valid_merge_stable_source_truth_projection.md"
 )
@@ -143,6 +161,16 @@ EXPECTED_ELEMENT_MATRIX_LIVE_VALIDATION_FAILURE_SNIPPET = (
 EXPECTED_ELEMENT_MATRIX_DUPLICATE_ID_FAILURE_SNIPPET = "duplicates an Element ID"
 EXPECTED_WORKSTREAM_ENTRY_FIRST_SEAM_FAILURE_SNIPPET = (
     "Workstream Entry Whole-Package Summary must include"
+)
+EXPECTED_USER_BRANCH_PLAN_MISSING_OUTCOME_FAILURE_SNIPPET = (
+    "Planned User-Facing Outcome:"
+)
+EXPECTED_USER_BRANCH_PLAN_MISSING_HARDENING_FAILURE_SNIPPET = "Hardening Plan:"
+EXPECTED_USER_BRANCH_PLAN_MISSING_LIVE_VALIDATION_FAILURE_SNIPPET = (
+    "Live Validation / UTS Plan:"
+)
+EXPECTED_USER_BRANCH_PLAN_FIRST_SEAM_FAILURE_SNIPPET = (
+    "cannot be satisfied by first-seam-only implementation planning"
 )
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
@@ -285,6 +313,17 @@ def _validate_workstream_entry_whole_package_text(text: str) -> list[str]:
             phrase in normalized_summary,
             f"Workstream Entry Whole-Package Summary must include {phrase}",
         )
+    return failures
+
+
+def _validate_user_branch_plan_review_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    governance._validate_user_branch_plan_review_gate(
+        require,
+        "<user-branch-plan-review-fixture>",
+        text,
+        require_gate=True,
+    )
     return failures
 
 
@@ -531,6 +570,12 @@ def validate() -> list[str]:
         INVALID_ELEMENT_TO_PHASE_DUPLICATE_ID_FIXTURE,
         VALID_WORKSTREAM_ENTRY_WHOLE_PACKAGE_FIXTURE,
         INVALID_WORKSTREAM_ENTRY_FIRST_SEAM_ONLY_FIXTURE,
+        VALID_USER_BRANCH_PLAN_REVIEW_FIXTURE,
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_OUTCOME_FIXTURE,
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_HARDENING_FIXTURE,
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_LIVE_VALIDATION_FIXTURE,
+        INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE,
+        VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE,
         VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
         INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
     ):
@@ -857,6 +902,70 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid Workstream Entry fixture did not reject first-seam-only analysis"
+        )
+
+    valid_branch_review_failures = _validate_user_branch_plan_review_text(
+        VALID_USER_BRANCH_PLAN_REVIEW_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_branch_review_failures:
+        failures.append(
+            "Valid USER Branch Plan Review fixture unexpectedly failed: "
+            + "; ".join(valid_branch_review_failures[:5])
+        )
+
+    missing_outcome_failures = _validate_user_branch_plan_review_text(
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_OUTCOME_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_USER_BRANCH_PLAN_MISSING_OUTCOME_FAILURE_SNIPPET not in "\n".join(
+        missing_outcome_failures
+    ):
+        failures.append(
+            "Invalid USER Branch Plan Review fixture did not reject missing "
+            "planned user-facing outcome"
+        )
+
+    missing_review_hardening_failures = _validate_user_branch_plan_review_text(
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_HARDENING_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_USER_BRANCH_PLAN_MISSING_HARDENING_FAILURE_SNIPPET not in "\n".join(
+        missing_review_hardening_failures
+    ):
+        failures.append(
+            "Invalid USER Branch Plan Review fixture did not reject missing "
+            "Hardening plan"
+        )
+
+    missing_review_live_validation_failures = _validate_user_branch_plan_review_text(
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_LIVE_VALIDATION_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_USER_BRANCH_PLAN_MISSING_LIVE_VALIDATION_FAILURE_SNIPPET not in "\n".join(
+        missing_review_live_validation_failures
+    ):
+        failures.append(
+            "Invalid USER Branch Plan Review fixture did not reject missing "
+            "Live Validation / UTS plan"
+        )
+
+    first_seam_review_failures = _validate_user_branch_plan_review_text(
+        INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_USER_BRANCH_PLAN_FIRST_SEAM_FAILURE_SNIPPET not in "\n".join(
+        first_seam_review_failures
+    ):
+        failures.append(
+            "Invalid USER Branch Plan Review fixture did not reject first-seam-only "
+            "implementation breakdown"
+        )
+
+    deferred_review_failures = _validate_user_branch_plan_review_text(
+        VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if deferred_review_failures:
+        failures.append(
+            "Valid deferred-scope USER Branch Plan Review fixture unexpectedly failed: "
+            + "; ".join(deferred_review_failures[:5])
         )
 
     valid_merge_stable_failures = _validate_merge_stable_projection_text(

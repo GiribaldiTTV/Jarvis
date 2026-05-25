@@ -574,6 +574,39 @@ ELEMENT_TO_PHASE_DECISION_TERMS = (
     "rejected",
     "superseded",
 )
+USER_BRANCH_PLAN_REVIEW_HEADING = "USER Branch Plan Review Gate"
+USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
+    "USER Branch Plan Review:",
+    "Review Status:",
+    "Desktop Review Bundle:",
+    "Plain-Language Branch Goal:",
+    "Planned User-Facing Outcome:",
+    "Visual / Behavioral Description:",
+    "Implementation Breakdown:",
+    "Element-to-Phase Proof Matrix:",
+    "Hardening Plan:",
+    "Live Validation / UTS Plan:",
+    "Open USER Questions:",
+    "Codex Recommendations:",
+    "Alternatives / Tradeoffs:",
+    "Accepted Scope:",
+    "Deferred Scope:",
+    "Rejected Scope:",
+    "Exact USER Decision Needed:",
+    "Implementation Approval:",
+)
+USER_BRANCH_PLAN_REVIEW_STATUS_PREFIXES = (
+    "accepted by user",
+    "revised by user",
+    "deferred with waiver",
+    "rejected by user",
+    "needs user decision",
+)
+USER_BRANCH_PLAN_REVIEW_SCOPE_MARKERS = (
+    "Accepted Scope:",
+    "Deferred Scope:",
+    "Rejected Scope:",
+)
 BRANCH_VISION_CONTRACT_HEADING = "Branch Vision Contract Snapshot"
 BRANCH_VISION_CONTRACT_REQUIRED_MARKERS = (
     "Vision Contract Required:",
@@ -3571,6 +3604,66 @@ WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
         "Workstream Entry Whole-Package Analysis Gate",
         "Formal Next Legal Phase Digest non-compaction",
         "Forwarded Digest Non-Compaction Rule",
+    ),
+}
+
+USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
+    Path("Docs/Main.md"): (
+        "USER Branch Plan Review Gate",
+        "USER Branch Plan Review Missing",
+        "planned user-facing outcome",
+    ),
+    Path("Docs/phase_governance.md"): (
+        "USER Branch Plan Review Gate",
+        "Plain-Language Branch Goal",
+        "Planned User-Facing Outcome",
+        "Live Validation / UTS plan",
+        "USER Branch Plan Review Missing",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "USER Branch Plan Review Gate",
+        "Required review markers",
+        "Plain-Language Branch Goal:",
+        "Planned User-Facing Outcome:",
+        "Live Validation / UTS Plan:",
+        "USER Branch Plan Review Missing",
+    ),
+    Path("Docs/branch_records/index.md"): (
+        "USER Branch Plan Review Gate",
+        "Live Validation / UTS plan",
+        "USER Branch Plan Review Missing",
+    ),
+    Path("Docs/development_rules.md"): (
+        "USER Branch Plan Review Gate",
+        "Live Validation / UTS plan",
+        "USER Branch Plan Review Missing",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "USER Branch Plan Review Gate",
+        "USER Branch Plan Review Missing",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "USER Branch Plan Review:",
+        "USER Branch Plan Review Summary:",
+        "Live Validation / UTS plan",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "USER Branch Plan Review Gate",
+        "USER Branch Plan Review Missing",
+    ),
+    Path("Docs/codex_user_guide.md"): (
+        "USER Branch Plan Review Gate",
+        "Live Validation / UTS plan",
+        "USER Branch Plan Review Missing",
+    ),
+    Path("Docs/governance_efficiency_operating_model.md"): (
+        "USER Branch Plan Review Gate",
+        "accepting, revising, deferring with waiver, rejecting",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "USER Branch Plan Review Gate",
+        "invalid missing user-facing outcome",
+        "invalid first-seam-only review packet",
     ),
 }
 
@@ -9063,6 +9156,146 @@ def _validate_element_to_phase_proof_matrix(
         )
 
 
+def _validate_user_branch_plan_review_gate(
+    require,
+    source_path: str,
+    text: str,
+    *,
+    require_gate: bool,
+) -> None:
+    has_gate = f"## {USER_BRANCH_PLAN_REVIEW_HEADING}" in text
+    require(
+        has_gate or not require_gate,
+        (
+            f"{source_path}: Workstream Entry planning is missing "
+            f"'## {USER_BRANCH_PLAN_REVIEW_HEADING}'"
+        ),
+    )
+    if not has_gate:
+        return
+
+    gate_section = _section(text, USER_BRANCH_PLAN_REVIEW_HEADING)
+    for marker in USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS:
+        require(
+            marker in gate_section,
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} is missing '{marker}'",
+        )
+        value = _extract_marker_value(gate_section, marker)
+        require(
+            bool(value),
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} must give "
+                f"a real value for '{marker}'"
+            ),
+        )
+        normalized_value = _normalized_planning_value(value)
+        require(
+            normalized_value not in PRODUCT_SYSTEM_PLANNING_HANDWAVE_VALUES,
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} has "
+                f"placeholder/self-assessed value for '{marker}'"
+            ),
+        )
+
+    review_status = _normalized_planning_value(
+        _extract_marker_value(gate_section, "Review Status:")
+    )
+    require(
+        any(
+            review_status == prefix
+            or review_status.startswith(f"{prefix} ")
+            or review_status.startswith(f"{prefix} -")
+            for prefix in USER_BRANCH_PLAN_REVIEW_STATUS_PREFIXES
+        ),
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Review Status "
+            "must be Accepted by USER, Revised by USER, Deferred With Waiver, "
+            "Rejected by USER, or Needs USER Decision"
+        ),
+    )
+
+    for marker in (
+        "Plain-Language Branch Goal:",
+        "Planned User-Facing Outcome:",
+        "Implementation Breakdown:",
+        "Element-to-Phase Proof Matrix:",
+        "Hardening Plan:",
+        "Live Validation / UTS Plan:",
+        "Codex Recommendations:",
+        "Alternatives / Tradeoffs:",
+        "Exact USER Decision Needed:",
+        "Implementation Approval:",
+    ):
+        value = _extract_marker_value(gate_section, marker)
+        require(
+            _planning_word_count(value) >= BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS,
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} marker "
+                f"'{marker}' is too shallow for USER implementation review"
+            ),
+        )
+
+    desktop_bundle = _normalized_planning_value(
+        _extract_marker_value(gate_section, "Desktop Review Bundle:")
+    )
+    require(
+        "nexus user review" in desktop_bundle
+        or "desktop" in desktop_bundle
+        or "not required" in desktop_bundle,
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Desktop Review "
+            "Bundle must name the stable Desktop review bundle or a not-required reason"
+        ),
+    )
+
+    implementation_breakdown = _normalized_planning_value(
+        _extract_marker_value(gate_section, "Implementation Breakdown:")
+    )
+    require(
+        "first-seam-only" not in implementation_breakdown
+        and "first seam only" not in implementation_breakdown,
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} cannot be "
+            "satisfied by first-seam-only implementation planning"
+        ),
+    )
+
+    for marker in USER_BRANCH_PLAN_REVIEW_SCOPE_MARKERS:
+        value = _normalized_planning_value(_extract_marker_value(gate_section, marker))
+        require(
+            any(
+                term in value
+                for term in (
+                    "scope",
+                    "none",
+                    "defer",
+                    "future",
+                    "reject",
+                    "accepted",
+                    "waiver",
+                )
+            ),
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} marker "
+                f"'{marker}' must name accepted/deferred/rejected scope or None"
+            ),
+        )
+
+    implementation_approval = _normalized_planning_value(
+        _extract_marker_value(gate_section, "Implementation Approval:")
+    )
+    require(
+        any(
+            term in implementation_approval
+            for term in ("pending", "approved", "blocked", "waiver", "accepted", "not authorized")
+        ),
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Implementation "
+            "Approval must preserve the implementation approval boundary"
+        ),
+    )
+
+
 def _validate_branch_runtime_engineering_plan(
     require,
     source_path: str,
@@ -9135,6 +9368,12 @@ def _validate_branch_runtime_engineering_plan(
         source_path,
         text,
         require_matrix=_element_matrix_requires_active_coverage(normalized_status),
+    )
+    _validate_user_branch_plan_review_gate(
+        require,
+        source_path,
+        text,
+        require_gate=False,
     )
     if f"## {USER_FEEDBACK_DISPOSITION_HEADING}" in text:
         _validate_user_feedback_disposition(require, source_path, text)
@@ -19883,6 +20122,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: Workstream Entry whole-package analysis guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: USER Branch Plan Review Gate guidance is missing '{required_phrase}'",
             )
 
     for relative_path, required_phrases in FORWARDED_DIGEST_NON_COMPACTION_REQUIRED_PHRASES.items():
