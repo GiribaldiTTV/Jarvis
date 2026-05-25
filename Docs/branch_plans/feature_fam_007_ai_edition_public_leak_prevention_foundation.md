@@ -10,12 +10,12 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md`
 Current Phase: `Historical Traceability`
 Branch Runtime Engineering Plan: Historical receipt for the FAM-007 public-safe AI Edition leak-prevention carrier.
-Engineering Plan Status: Folded - PR #215 merged into origin/main@d5f5bce378ffd0629dd9b852f0aae974b51d2c3f after v1.7.21-prebeta; this plan is retired from active execution posture and preserved as merged-unreleased release-window evidence.
+Engineering Plan Status: Folded - PR #215 merged into origin/main@d5f5bce378ffd0629dd9b852f0aae974b51d2c3f and was released in v1.7.22-prebeta at 2684080fe1abacb9c124f540f898182046193cc4; this plan is retired from active execution posture and preserved as released historical evidence.
 Current Runtime Baseline: `origin/main@a271496e1657842d536ebbf4442aa632a332e88c` after current-main FAM-007 release-posture closure, preserving the `v1.7.20-prebeta` released setup-completion state/config/schema/UI/desktop/provider-boundary baseline at `497ca4e2ec2534c06d3d48aa80595d6b90259bf4` with PR #210 FAM-007 setup completion foundation and PR #211 release-readiness fold-down evidence.
 Branch Purpose: Admit the next FAM-007 successor that turns the USER-accepted Owner / Dev / Public AI Edition trust-boundary plan into public leak-prevention foundation before Dev/Owner skeleton creation, provider SDK integration, model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, or functional AI.
 Planned Runtime Delta: Planned public-safe leak-prevention source truth, protected-asset checklist, public-safe fixture contract, edition-boundary manifest direction, public build exclusion/audit posture, review-bundle leak-prevention posture, and Dev/Owner skeleton handoff criteria; no provider/model/runtime execution is admitted by Stage 2.
 User-Facing Delta: None; Workstream implementation added no visible UI, status label, interaction, or user workflow change.
-Source-Truth Delta: v1.7.20-prebeta post-release canon closure, PR #210 released evidence, PR #211 release-readiness fold-down evidence, PR #215 merged-unreleased public leak-prevention evidence, compact FAM-007 pointers, worktree slot receipt, public leak-prevention Workstream Green, H1 Green, and LV1 Green/no-visible-runtime-surface User Test Summary waiver are recorded.
+Source-Truth Delta: v1.7.20-prebeta post-release canon closure, PR #210 released evidence, PR #211 release-readiness fold-down evidence, PR #215 released public leak-prevention evidence, PR #216 release-readiness guard evidence, compact FAM-007 pointers, worktree slot receipt, public leak-prevention Workstream Green, H1 Green, and LV1 Green/no-visible-runtime-surface User Test Summary waiver are recorded.
 State / Config / Schema Delta: Public-safe edition-boundary manifest posture is represented through synthetic fixture schema proof only; no runtime config, private edition manifests, memory, provider, or model state was implemented.
 Validator / Helper Delta: Workstream added `dev/orin_public_leak_prevention_validation.py`, synthetic FAM-007 public leak-prevention fixtures, validation-suite/registry wiring, and public review-bundle file-list leak-prevention guard in `dev/orin_user_review_bundle.py`.
 Expected Changed Files / Surfaces: Branch record, this branch plan, backlog, roadmap, worktree slots, validation/helper registry, source-owner inventory, validation suite, public leak-prevention validator, synthetic fixture set, and user review-bundle helper file-list guard.
@@ -26,7 +26,7 @@ Per-Seam User-Facing Proof Checklist: If a seam changes visible public UI, prove
 Future-Gated Items: `Future-gated and pending USER approval: provider SDK integration, provider/model execution, model downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, private Dev/Owner repo creation, off-boot AI data backup/recovery implementation, Public-to-Dev import implementation, PR creation, merge, release execution, issue work, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 Approval-Boundary Audit: Stage 2 setup, Workstream Entry, Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1, PR creation, and PR #215 merge are complete. Release execution, provider/model execution, private editions, import/migration, packaging, cleanup, and v1.8.0-prebeta remain blocked pending separate USER approval.
 FAM / Shared-Surface Overlap Forecast: FAM-006 is a separate sibling lane and overlap context only; Governance is standing intake context only; Compact-AI remains protected historical work. None is successor authority for this FAM-007 branch.
-Open Questions: Release Readiness must evaluate PR #215 as merged-unreleased public leak-prevention scope after this governance fold-down repair lands. Private Dev/Owner skeleton timing remains future-gated after Breakpoint 1 stays green through PR/release posture or a separate USER decision.
+Open Questions: This plan is released historical evidence after v1.7.22-prebeta. Private Dev/Owner skeleton timing is now carried by the active successor feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation.
 USER Planning Decisions: USER approved Branch Readiness Stage 2 setup, Workstream Entry analysis, Workstream implementation, Hardening H1, Live Validation LV1, PR Readiness Stage 1 analysis, PR creation, and PR #215 merge for this branch. Provider SDK/model execution, downloads/network, memory, voice/Core sync, shortcuts/installers, private Dev/Owner repo creation, Public-to-Dev import implementation, release, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.
 Plan Revision History: v1 created during Branch Readiness Stage 2 from origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4 after v1.7.20-prebeta; v1 reconciliation pass rebased the setup onto origin/main@26dded3f84c526e0525c7d3b18fcd2607e16590d after PR #212; current-main reconciliation folded in origin/main@8add4ea6efda58a23a17e129debe4a5a2562da8b FAM-006 carry-forward context and origin/main@a271496e1657842d536ebbf4442aa632a332e88c FAM-007 release-posture closure while preserving FAM-007 H1/LV1 handoff authority.
 Plan-To-Implementation Traceability Table: Stage 2 traceability is planning-only. Public protected assets map to the AI Edition Protected Assets Table; public fixture safety maps to the Public-Safe Fixture Rule; review-bundle safety maps to the Public Review-Bundle Leak-Prevention Rule; future manifest direction maps to Edition Boundary Manifest Planning; build/audit posture maps to Public Build Exclusion Requirement; Dev/Owner skeleton timing maps to Breakpoint 2 handoff criteria.
@@ -35,14 +35,14 @@ Live Validation Proof Or Waiver Checklist: LV1 must prove public-safe review art
 PR Readiness Fold-Down / Retention Checklist: PR Readiness must project merge-stable branch authority, release-window posture, selected-next/defer truth, public/private edition boundary preservation, branch cleanup plan, and source-truth retention/retirement decisions.
 Release Readiness Public-Scope Translation Checklist: Release Readiness must describe this branch as public AI Edition leak-prevention foundation only and exclude private Dev/Owner skeletons, private repos, provider SDK/model execution, functional AI, memory, voice/Core, downloads/network, and v1.8.0 execution unless later USER-approved proof changes that scope.
 USER Planning Review: Complete through Workstream Entry and bounded Workstream implementation approval.
-PR Fold-Down Packet: Complete - folded to historical merged-unreleased branch record evidence for PR #215 and retired from active planning posture.
+PR Fold-Down Packet: Complete - folded to historical released branch record evidence for PR #215 and retired from active planning posture.
 Runtime Implementation Approval: Granted for public leak-prevention proof only; provider/model/runtime execution remains pending.
 
 ## Branch Vision Contract Snapshot
 
 Vision Contract Required: Yes
 Vision Contract Requirement Reason: The branch affects AI edition trust boundaries, public/private source separation, future provider/model execution sequencing, review-bundle safety, and public build exclusion posture.
-Branch Vision Snapshot Status: Historical merged-unreleased after PR #215; release execution remains pending explicit USER approval.
+Branch Vision Snapshot Status: Historical released after PR #215 and v1.7.22-prebeta; future release execution belongs to later active carriers.
 Project-Wide Vision Alignment: Nexus should remain local-first, user-controlled, public-safe, and honest about disabled provider behavior before model execution.
 Family Vision Alignment: FAM-007 requires explicit provider-visible data, privacy, network/download, memory, setup, consent, and AI edition trust boundaries before runtime execution.
 Branch-Specific Vision Alignment: Public leak-prevention foundation should prove the public repo and future public artifacts do not carry Owner/Dev protected assets before private skeletons or provider/model execution continue.
@@ -114,7 +114,7 @@ Why Not Split Into Tiny Branches: Splitting these proof surfaces would let futur
 Acceptance Criteria: Stage 2 setup, Workstream Entry review, Workstream Green, H1 Green, LV1 Green or waiver, PR Readiness, merge, and release only after separate USER approval.
 Screenshot / Live / User Test Summary Proof Requirements: No Stage 2 UI proof is required. Later visible UI requires screenshot/live proof; source/validator-only Workstream may use review-bundle inspection and no-visible-surface waiver.
 Implementation Sequence Proposal: Branch Readiness Stage 2, Workstream Entry analysis, USER approval, bounded Workstream implementation through admitted seams, H1, LV1, PR Readiness, PR, merge, Release Readiness, release only with separate approval.
-Planning Blockers: None for historical merged-unreleased PR #215 evidence after this fold-down; release execution remains pending separate USER approval.
+Planning Blockers: None for historical released PR #215 evidence after v1.7.22-prebeta; future release execution remains pending separate USER approval for later carriers.
 USER Decisions Needed: Release Readiness Stage 1 approval from updated origin/main, then separate release execution approval if Stage 1 is green.
 
 ## Interface Release Boundary
@@ -127,7 +127,7 @@ Interface Acceptance / Proof Path: USER review bundle, source inspection, valida
 ## Runtime Branch Engineering Contract
 
 USER Engineering Planning Review: Accepted - Workstream Entry review and bounded Workstream implementation approval completed.
-Engineering Contract Status: Historical merged-unreleased after PR #215; release execution remains pending USER approval.
+Engineering Contract Status: Historical released after PR #215 and v1.7.22-prebeta; future release execution remains pending USER approval for later carriers.
 Runtime Implementation Approval: Granted for public leak-prevention proof only; provider/model/runtime execution remains pending.
 Branch Purpose: Admit and plan the FAM-007 public leak-prevention foundation after setup completion release and before private edition skeletons or provider/model execution.
 Current Runtime Baseline: v1.7.20-prebeta released setup-completion state/config/schema/UI/desktop/provider-boundary baseline at origin/main@497ca4e2ec2534c06d3d48aa80595d6b90259bf4, reconciled with current source baseline origin/main@a271496e1657842d536ebbf4442aa632a332e88c.
@@ -148,15 +148,15 @@ Plan-To-Implementation Traceability: Planned seams trace to specific AI Edition 
 ## Workstream Admission
 
 Workstream Label: `FAM-007 AI Edition Public Leak-Prevention Foundation`
-Admission State: `Historical merged-unreleased after PR #215`
+Admission State: `Historical released after PR #215 and v1.7.22-prebeta`
 Package Completion State: `Workstream Green - all admitted public leak-prevention seams implemented and directly validated`
 Bounded Seam Default: `Bounded means one active seam at a time, not one-seam Workstream authority; continue through admitted seams until Workstream Green, named blocker, or explicit USER waiver.`
 Single-Seam Or Single-Slice Waiver Authority: `USER only; Codex cannot infer single-seam or single-slice authority.`
-Stop Basis: `Historical merged-unreleased after PR #215; Release Readiness Stage 1 is the next analysis surface after this fold-down repair lands.`
+Stop Basis: `Historical released after PR #215 and v1.7.22-prebeta; no active phase remains for this carrier.`
 
 ### Seam 1: v1.7.20 Post-Release Canon Closure And Released Evidence Fold-Down
 
-Goal: Close setup-completion merged-unreleased drift and preserve PR #210 and PR #211 release evidence.
+Goal: Preserve released setup-completion evidence and released PR #215 public leak-prevention evidence.
 Non-Includes: Release execution, tag changes, artifact upload, branch cleanup, or direct-main repair.
 
 ### Seam 2: Public Protected-Asset Leak Checklist And Public-Safe Fixture Contract
@@ -390,7 +390,7 @@ PR Readiness Stage 1 Result: `Historical pre-PR snapshot - Stage 1 verified curr
 Stage 1 Analysis Baseline: `origin/main@a271496e1657842d536ebbf4442aa632a332e88c`
 Stage 1 Starting HEAD: `4d3b17d7fe64a63db2667f6a86828838953089d9`
 Stage 1 Target Branch: `feature/fam-007-ai-edition-public-leak-prevention-foundation`
-Release Canon Preserved: `v1.7.20-prebeta at 497ca4e2ec2534c06d3d48aa80595d6b90259bf4 remains the released FAM-007 setup-completion canon; current main also carries v1.7.21-prebeta at a271496e1657842d536ebbf4442aa632a332e88c.`
+Release Canon Preserved: `v1.7.20-prebeta at 497ca4e2ec2534c06d3d48aa80595d6b90259bf4 remains the released FAM-007 setup-completion canon; v1.7.22-prebeta at 2684080fe1abacb9c124f540f898182046193cc4 includes PR #215 public leak-prevention evidence.`
 Pre-PR Live State: `Historical pre-PR snapshot only; PR #215 was later created and merged.`
 Remote Branch State: `origin/feature/fam-007-ai-edition-public-leak-prevention-foundation exists and matched the local branch before Stage 1 source-truth fold-down.`
 Stage 2 PR Creation: `Historical completed - PR #215 was created and merged after this Stage 1 snapshot.`
@@ -400,7 +400,7 @@ Release Target Projection: `v1.7.22-prebeta candidate after PR merge, subject to
 Release Artifact Projection: `No binary assets projected.`
 Release Scope Projection: `FAM-007 AI Edition Public Leak-Prevention Foundation only: protected-asset leak prevention, public-safe fixtures, public review-bundle leak-prevention proof, edition-boundary manifest public-safe posture, public build exclusion/audit posture, Dev/Owner skeleton handoff criteria, Owner private repo/off-boot backup action gates, and provider-boundary preservation.`
 Explicit Release Exclusions: `No provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, private Dev/Owner repo creation, Public-to-Dev import implementation, private artifact publication, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Merged-Unreleased Posture Projection: `After PR merge, this branch becomes merged-unreleased until a later Release Readiness and Release Execution pass fold it into a public prerelease.`
+Merged-Unreleased Posture Projection: `Historical pre-release projection only; v1.7.22-prebeta has since released this branch's PR #215 scope.`
 Selected-Next Posture: `Deferred by explicit USER waiver required in Stage 2 approval; no successor branch or next Workstream is selected by this Stage 1 record.`
 Recommended Next Workstream Candidate: `After this branch merges and release-readiness posture is legal, consider FAM-007 private Dev/Owner skeleton plus off-boot AI data backup/recovery Branch Readiness analysis as the next candidate; provider/model execution remains blocked until a separate USER Action Gate is approved.`
 Candidate Work To Be Done Later: `Private Dev repo creation, Nexus Desktop AI Owner repo or local-only owner vault decision, GitHub Desktop private remote setup, off-boot backup roots, restore-proof expectations, private/public sanitizer proof, and no-public-leak validation for private skeletons.`
@@ -408,7 +408,7 @@ User-Facing Output Projection: `No public runtime UI or prompt/model behavior is
 Next Workstream User Waiver: `Required in PR Readiness Stage 2 approval because selected-next is intentionally deferred until after PR creation/merge/release posture.`
 Watcher Plan: `PR Readiness Stage 2 must create the PR targeting main and provision the approved PR watcher/reporting surface; no watcher is created during Stage 1 because no live PR exists.`
 PR Creation Readiness: `Ready after explicit USER approval for PR Readiness Stage 2 / PR creation and after freshness validation confirms origin/main has not advanced.`
-Merge-Stable Source-Truth Projection: `When merged, active branch authority should fold down to historical merged-unreleased FAM-007 evidence, compact pointers should remove active PR-pending wording, and PR/release records should preserve the public leak-prevention release scope and exclusions.`
+Merge-Stable Source-Truth Projection: `Historical pre-release projection only; active branch authority has folded down and v1.7.22-prebeta release closure is carried by the successor Branch Readiness setup.`
 Provider Boundary Preservation: `Preserved - provider-visible data none, sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, memory/learning/personalization inactive, and voice/Core sync gated.`
 
 ## Formal Next Legal Phase Digest
@@ -419,7 +419,7 @@ Next Legal Phase Detail: `Release Readiness Stage 1 after governance fold-down r
 Next Active Seam: `PR Readiness Stage 2 / PR creation for FAM-007 AI Edition Public Leak-Prevention Foundation`
 Why This Phase Is Next: `PR Readiness Stage 1 verified current origin/main, branch cleanliness, Workstream/H1/LV1 proof, no-visible-runtime-surface User Test Summary waiver, public leak-prevention release scope and exclusions, selected-next defer posture, merge-target source-truth projection, release-window posture, watcher plan, and PR creation readiness. Stage 2 is now the legal point to create the PR, provision the watcher, and inspect live PR state.`
 Approval Required: `USER approval is required for PR Readiness Stage 2 / PR creation. Merge and release remain separate decisions.`
-Exact USER Approval Text: `Approve Release Readiness Stage 1 analysis from updated origin/main after the PR #215 fold-down repair lands, evaluating PR #215 as merged-unreleased FAM-007 AI Edition Public Leak-Prevention Foundation scope while preserving provider/model/private-edition exclusions.`
+Exact USER Approval Text: `No approval for this historical released carrier; approve the active successor branch's next legal phase instead.`
 Allowed Scope: `PR Readiness Stage 2 / PR creation, live PR verification, watcher provisioning, and Stage 2 packet only after freshness checks pass.`
 Explicit Exclusions: `No merge, release, tag, artifacts, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, private Dev/Owner repo creation, off-boot backup/recovery implementation, Public-to-Dev import implementation, cleanup, sibling mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `Identity/freshness checks, diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, public leak-prevention validation, validation-suite recommendations, rebaseline audit, compileall, live PR creation proof, live PR mergeability/status/review inspection, and watcher health proof.`

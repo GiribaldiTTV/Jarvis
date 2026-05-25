@@ -72,7 +72,7 @@ REQUIRED_BRANCH_PLAN_PHRASES = (
 REQUIRED_RECORD_PHRASES = (
     "Phase: `Historical Traceability`",
     "Workstream Status: `Historical green",
-    "Stage: `Merged-unreleased after PR #215`",
+    "Stage: `Released in v1.7.22-prebeta`",
     "PR Readiness Stage 1 Result: `Historical pre-PR snapshot",
     "Stage 2 PR Creation: `Historical completed",
     "Live Validation LV1 Result: `Green",
