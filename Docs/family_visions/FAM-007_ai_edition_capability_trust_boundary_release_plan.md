@@ -629,6 +629,41 @@ Expected outputs:
 
 This is the clearest "the time is now" breakpoint for creating DEV and OWNER versions.
 
+### Breakpoint 2 Readiness Proof Contract
+
+Breakpoint 2 readiness proof is public-safe planning and validation evidence only. It may prove that the Dev and Owner skeleton decisions are ready to ask for later USER action, but it must not create private repositories, create local-only private roots, configure GitHub Desktop private remotes, copy private files, enable provider/model execution, enable memory, or implement backup/restore.
+
+Dev skeleton readiness proof must show:
+
+- `USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE` is the controlling gate before any private Dev repository or local-only private Dev skeleton exists.
+- Dev remains trusted but not owner-private.
+- Dev must not inherit Owner memory, Owner prompts, Owner strategy, Owner credentials, Owner private automation, Owner private planning, private model/capability assets, or owner roadmap material not approved for public release.
+- Dev may later use a private `origin` and a fetch-only `public-upstream` only after USER approves the Dev private repo or local-only path.
+- Dev readiness proof remains source-truth and validator proof until USER approves actual private Dev setup.
+
+Owner skeleton readiness proof must show:
+
+- `USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE` is the controlling gate before any Nexus Desktop AI Owner repository, local-only owner root, vault, or owner-hosting posture exists.
+- Nexus Desktop AI Owner remains owner-only and may choose private GitHub hosting or a local-only Owner skeleton only by later USER approval.
+- Owner prompts, owner-private memory, owner strategy, owner logs/evals, private Codex handoff artifacts, private automation, credentials, private model/capability assets, and owner-specific personalization remain protected by default.
+- Owner readiness proof does not authorize Dev or Public inheritance of Owner material.
+- Owner readiness proof remains source-truth and validator proof until USER approves actual private Owner setup.
+
+Private repo / local-only action-gate proof must show:
+
+- no private Dev repository was created by the public branch;
+- no private Owner repository or local-only owner root was created by the public branch;
+- no private remote URL, token, credential, private path, prompt, memory payload, private automation, model artifact, capability-pack asset, or private hosting secret is present in public source truth or public review packets;
+- any later private repo or local-only setup must record path/remote proof, secret-scan posture, protected-asset exclusion, and USER-approved hosting posture.
+
+GitHub Desktop private remote safety proof must show:
+
+- `USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP` is the controlling gate before GitHub Desktop is bound to a private Dev or Owner root.
+- Dev and Owner hosted repos must use private `origin`.
+- The public repository in private Dev/Owner roots must be named `public-upstream`.
+- `public-upstream` must have no push URL, a disabled push URL, or a pre-push guard before private push workflows are trusted.
+- GitHub Desktop setup remains planning-only until USER approves actual private remote configuration.
+
 ## USER Action Gate Registry
 
 This registry gives future Codex runs durable, searchable identifiers for moments where USER must create, approve, configure, or personally perform an action before work can continue. These identifiers are source-truth gates, not implementation. A branch may mention one of these gates only when it also states the trigger, required USER action, allowed scope, blocked scope, validation proof, and exact approval text.

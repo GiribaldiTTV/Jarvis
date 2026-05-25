@@ -8,7 +8,7 @@ Record State: `Active Branch Authority`
 
 ## Status
 
-Status: `Branch Readiness Stage 2 setup for FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation. This public-repo carrier starts from origin/main@2684080fe1abacb9c124f540f898182046193cc4 after v1.7.22-prebeta and prepares Breakpoint 2 readiness only. It does not create private Dev or Owner repositories, configure GitHub Desktop private remotes, implement off-boot backup/recovery, import Public-to-Dev data, execute providers/models, enable memory, or ship functional AI.`
+Status: `Workstream first seam group implemented for FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation. This public-repo carrier starts from origin/main@2684080fe1abacb9c124f540f898182046193cc4 after v1.7.22-prebeta and now has validator-backed Dev/Owner skeleton readiness and GitHub Desktop private remote safety proof. It does not create private Dev or Owner repositories, configure GitHub Desktop private remotes, implement off-boot backup/recovery, import Public-to-Dev data, execute providers/models, enable memory, or ship functional AI.`
 
 ## Branch Identity
 
@@ -31,23 +31,24 @@ Status: `Branch Readiness Stage 2 setup for FAM-007 AI Edition Dev/Owner Skeleto
 
 ## Current Phase
 
-Phase: `Branch Readiness`
+Phase: `Workstream`
 
-Stage: `Stage 2 setup`
+Stage: `First seam group implementation`
 
-Seam: `Dev/Owner skeleton readiness authority and planning admission`
+Seam: `Dev/Owner skeleton readiness and GitHub Desktop private remote safety proof`
 
 ## Phase Status
 
-Phase Status: `Active Branch` - Stage 2 setup completes after validation, commit, and push; Workstream Entry analysis is the next legal Workstream gate.
+Phase Status: `Active Branch` - Active Workstream first seam group implements public-safe Dev/Owner skeleton readiness, private repo/local-only action-gate proof, and GitHub Desktop private remote safety proof; remaining Workstream seams require the next USER decision.
 - Branch Authority Marker: `Active branch authority`
 - Branch Evidence: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`
 - Branch Authority State: `Active Branch - this branch is the current FAM-007 public-safe Breakpoint 2 readiness carrier.`
+- Next Active Seam: `Workstream seam group 2 - Off-Boot Backup / Recovery Root Planning, Public-To-Private Separation And Provider/Model Deferral, and Future Handoff Criteria And Validation Proof`
 - PR #215 Evidence Handling: `Released - FAM-007 AI Edition Public Leak-Prevention Foundation is included in v1.7.22-prebeta and remains the Breakpoint 1 prerequisite evidence.`
 - PR #216 Evidence Handling: `Released - release-readiness guard repair is included in v1.7.22-prebeta and prevents projection-shadowed active authority drift.`
 - Previous Carrier Handling: `Historical released - feature/fam-007-ai-edition-public-leak-prevention-foundation remains released v1.7.22 evidence only and is not active branch authority.`
 - Breakpoint Basis: `FAM-007 AI Edition Capability / Trust Boundary Release Plan identifies Breakpoint 2: Private Dev And Owner Skeleton Creation after Breakpoint 1 is green and before public provider/model execution.`
-- Scope Posture: `Public-safe readiness only; no private repo creation, private remote configuration, backup implementation, provider/model execution, memory, import, packaging, or v1.8.0 execution is admitted.`
+- Scope Posture: `Public-safe readiness proof only; first seam group does not create private repos, private roots, private remotes, backup implementation, provider/model execution, memory, import, packaging, PR, merge, release, cleanup, or v1.8.0 execution.`
 
 ## Branch Class
 
@@ -59,9 +60,9 @@ Assigned Worktree Confinement: `Active for this FAM-007 Branch Readiness Stage 2
 Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation setup`
 Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
 Worktree Ownership Ledger: `This branch authority record plus Docs/worktree_slots.md runtime-active-1 receipt`
-Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, compact pointer docs, worktree slot receipt, historical public leak-prevention release closure, Product Definition Plan, Runtime Branch Engineering Contract, Element-to-Phase Proof Matrix, and validation proof required for Stage 2 setup`
+Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, AI Edition plan, validation helper registry, public leak-prevention validator and fixture, Desktop USER review packet, and validation proof required for first seam group implementation`
 Same Worktree / Same Branch Collision Check: `PASS - no second writer is assigned to this FAM-007 worktree or branch by source truth`
-Dirty Worktree Collision Check: `PASS - pre-setup worktree was clean before Stage 2 mutation; current dirty tracked files are owned by the current Codex thread for this approved FAM-007 Stage 2 setup`
+Dirty Worktree Collision Check: `PASS - pre-implementation worktree was clean; current owner claimed dirty tracked files are owned by the current Codex thread for this approved FAM-007 first seam group implementation`
 Dirty Worktree Recovery Packet: `Not required unless unowned dirty files appear`
 Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, private Dev/Owner roots, and parked-worktree mutation requests are context only and route away from this branch unless USER grants a bounded waiver`
 Governance Routing Barrier: `Active for governance-only mutation outside this FAM-007 branch path`
@@ -82,7 +83,7 @@ Sibling Worktree Candidate Exclusion: `FAM-006, Governance, Compact-AI, neutral-
 
 Carrier Lifecycle Classification: `Fresh current branch`
 Remote Branch State: `Absent before Stage 2 setup; created by final Stage 2 push after validation and commit.`
-Unique Branch Diff: `Stage 2 source-truth setup for Dev/Owner skeleton readiness, v1.7.22 post-release canon closure for PR #215/#216 evidence, compact pointer updates, active branch authority record, active branch plan, and worktree slot receipt.`
+Unique Branch Diff: `Stage 2 source-truth setup plus first seam group public-safe proof for Dev/Owner skeleton readiness, private repo/local-only action gates, GitHub Desktop private remote safety, validator coverage, and synthetic fixture proof.`
 Origin/Main Ancestry: `Created directly from origin/main@2684080fe1abacb9c124f540f898182046193cc4.`
 Origin/Main Advanced Since Branch Creation: `NO at Stage 2 setup start; stop if current origin/main differs from 2684080fe1abacb9c124f540f898182046193cc4.`
 Open PR State: `No live PR for this successor branch during Stage 2 setup; PR creation remains a pending USER decision.`
@@ -95,7 +96,7 @@ No Unique Commit Loss Proof: `The prior public leak-prevention branch was merged
 
 ## Blockers
 
-Blockers: `None for Branch Readiness Stage 2 setup after validation. Workstream implementation, private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup or recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain separate USER decisions.`
+Blockers: `First Seam Group Scope Boundary. Backup/recovery root planning implementation, public-to-private separation/provider deferral hardening, future handoff criteria, full Workstream Green, private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup or recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain separate USER decisions.`
 
 ## Entry Basis
 
@@ -103,16 +104,16 @@ Entry Basis: `USER approved Branch Readiness Stage 2 setup in C:\Nexus Worktrees
 
 ## Exit Criteria
 
-Exit Criteria: `Stage 2 exits green when the successor branch is created from the approved baseline, v1.7.22 post-release canon closure is recorded, PR #215 and PR #216 evidence is folded down, active branch record and branch plan/PDP/RBEC/BREP are present, bounded Workstream seams are admitted, validation is green, and the setup commit is pushed without executing private repo, provider/model, backup, import, packaging, release, cleanup, or v1.8.0 work.`
+Exit Criteria: `First seam group exits green when Dev skeleton readiness gate proof, Owner skeleton readiness gate proof, private repo/local-only action-gate proof, GitHub Desktop private remote safety proof, source-truth fold-down, synthetic fixture proof, public leak-prevention validation, AI provider state validation, branch governance validation, Desktop USER review packet refresh, commit, and push are complete without executing private repo, provider/model, backup, import, packaging, release, cleanup, or v1.8.0 work.`
 
 ## Rollback Target
 
-Rollback Target: `Branch Readiness`
+Rollback Target: `Workstream`
 
 ## Next Legal Phase
 
 Next Legal Phase: `Workstream`
-Next Legal Phase Detail: `Workstream Entry analysis for FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation.`
+Next Legal Phase Detail: `Remaining Workstream seam group implementation for off-boot backup/recovery root planning, public-to-private separation/provider deferral hardening, and future handoff criteria after USER approval.`
 
 ## Planning-Loop Guardrail
 
@@ -123,16 +124,23 @@ Planning-Loop Bypass Reason: None
 
 ## Admitted Implementation Slice
 
-Admitted Implementation Slice: `Branch Readiness Stage 2 source-truth setup for the FAM-007 Dev/Owner Skeleton Readiness Foundation.`
-Included Scope: `Create active branch authority, active branch plan, PDP/RBEC/BREP records, release-canon fold-down, Workstream seam admission, USER Action Gate planning, public/private separation planning, provider-boundary deferral, and validation expectations.`
+Admitted Implementation Slice: `First seam group Workstream implementation for Dev/Owner skeleton readiness and GitHub Desktop private remote safety.`
+Included Scope: `Add public-safe Dev skeleton readiness proof, Owner skeleton readiness proof, private repo/local-only action-gate proof, GitHub Desktop private remote safety proof, validator/fixture proof, source-truth fold-down, and end-of-seam USER review packet.`
 Excluded Scope: `No private Dev repo creation, no private Owner repo creation, no GitHub Desktop private remote configuration, no off-boot backup implementation, no Public-to-Dev import implementation, no provider SDK/model execution, no downloads, no external calls, no memory/personalization, no voice/Core sync, no shortcut/installer work, no PR creation, no merge, no release execution, no cleanup, and no v1.8.0-prebeta execution.`
-Validation Commitment: `Stage 2 setup must pass branch governance, release-health, AI provider state, public leak-prevention, branch-readiness planning, and compile validation before commit/push completion.`
+Validation Commitment: `First seam group must pass branch governance, worktree confinement, release-health, governance efficiency, source-owner marker, release body, AI provider state, public leak-prevention, branch-readiness planning, validation-suite recommendation, and compile validation before commit/push completion.`
 
 ## Slice Continuation Policy
 
 Slice Continuation Default: `Same-branch backlog completion`
 Backlog-Split User Approval: `None`
 Backlog-Split Reason: None
+
+## Backlog Completion Status
+
+Backlog Completion State: `In Progress`
+Remaining Implementable Work: `Seam 5 - Off-Boot Backup / Recovery Root Planning; Seam 6 - Public-To-Private Separation And Provider/Model Deferral; Seam 7 - Future Handoff Criteria And Validation Proof.`
+Future-Dependent Blockers: `Private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup/recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
+Completion Status: `Red`
 
 ## Branch Objective
 
@@ -185,7 +193,9 @@ Non-Includes: `No Owner repo creation, private hosting, owner memory, or private
 
 ## Active Seam
 
-Active seam: `Seam 1 - Branch Readiness Stage 2 Dev/Owner Skeleton Readiness Setup is active for this branch authority; Workstream implementation seams remain pending USER approval.`
+Active seam: `Seam 2 through Seam 4 - Dev/Owner skeleton readiness plus GitHub Desktop private remote safety are implemented and validator-backed.`
+Next active seam: `Workstream seam group 2 - Off-Boot Backup / Recovery Root Planning, Public-To-Private Separation And Provider/Model Deferral, and Future Handoff Criteria And Validation Proof`
+Active seam status: `Blocked by First Seam Group Scope Boundary until USER approves remaining Workstream seam group implementation.`
 
 ## Product Definition Plan
 
@@ -238,8 +248,8 @@ User Test Summary Strategy: `No visible runtime surface changed by Stage 2; LV m
 
 Engineering Contract Status: Accepted
 Branch Purpose: `Public-safe Branch Readiness Stage 2 carrier for FAM-007 Breakpoint 2 Dev/Owner skeleton readiness planning and validation admission.`
-USER Engineering Planning Review: `Required at Workstream Entry before implementation begins; USER may accept, revise, waive, or reject the admitted Breakpoint 2 readiness plan.`
-Runtime Implementation Approval: `Pending USER approval for Workstream implementation; Stage 2 setup only is approved.`
+USER Engineering Planning Review: `Accepted - USER accepted Workstream Entry final decision review before approving the first seam group implementation.`
+Runtime Implementation Approval: `Granted for first seam group public-safe readiness proof. Separate USER decisions remain required for private Dev/Owner repo creation, private remote configuration, backup implementation, Public-to-Dev import implementation, provider/model execution, memory, downloads, external calls, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, and v1.8.0.`
 Current Runtime Baseline: `origin/main@2684080fe1abacb9c124f540f898182046193cc4 with current state/config/schema/UI/desktop provider-boundary posture from v1.7.22-prebeta, PR #215 public leak-prevention proof, and PR #216 governance guard evidence.`
 Planned Runtime Delta: `No runtime behavior delta in Stage 2. Planned future Workstream may add public-safe readiness validators/fixtures/source-truth proof for Dev/Owner skeleton gates without private repo creation or provider/model execution.`
 User-Facing Runtime Delta: `None. No UI, prompt acceptance, provider status, model execution, memory, download, network, voice/Core, shortcut, installer, or private edition runtime behavior changes.`
@@ -260,9 +270,27 @@ Plan-To-Implementation Traceability: `During Workstream, each planned seam must 
 | Element ID | Element | Stage 2 Setup | Workstream Implementation | Workstream Proof | Hardening Proof | Live Validation / Waiver | UTS / USER Acceptance | USER Decision State | Source Owner |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | FAM007-DOSR-001 | v1.7.22 canon closure | Touched | Verify current pointers remain released | Governance/release-health validation | H1 checks no stale release posture | No visible runtime surface expected | USER reviews packet | Accepted for Stage 2 | This record; backlog; roadmap; public leak branch receipt |
-| FAM007-DOSR-002 | Dev skeleton readiness gate | Planned | Add direct readiness/action-gate proof | Validator or source-truth proof | H1 checks Dev does not inherit Owner | No visible runtime surface expected | USER chooses later private Dev action | Pending Workstream | This record; AI Edition plan |
-| FAM007-DOSR-003 | Owner skeleton readiness gate | Planned | Add direct readiness/action-gate proof | Validator or source-truth proof | H1 checks Owner isolation | No visible runtime surface expected | USER chooses later private Owner/local-only action | Pending Workstream | This record; AI Edition plan |
-| FAM007-DOSR-004 | GitHub Desktop private remote safety | Planned | Add private remote safety checklist/proof criteria | Source-truth/fixture proof | H1 checks public remote cannot be origin in private roots | Manual screenshot only if future setup is approved | USER approves later remote setup | Pending USER action | This record; AI Edition plan |
+| FAM007-DOSR-002 | Dev skeleton readiness gate | Implemented first seam group | Implemented public-safe readiness/action-gate proof | Public leak-prevention validator and synthetic fixture proof | H1 checks Dev does not inherit Owner | No visible runtime surface expected | USER chooses later private Dev action | Pending USER action gate | This record; AI Edition plan; public leak-prevention validator |
+| FAM007-DOSR-003 | Owner skeleton readiness gate | Implemented first seam group | Implemented public-safe readiness/action-gate proof | Public leak-prevention validator and synthetic fixture proof | H1 checks Owner isolation | No visible runtime surface expected | USER chooses later private Owner/local-only action | Pending USER action gate | This record; AI Edition plan; public leak-prevention validator |
+| FAM007-DOSR-004 | GitHub Desktop private remote safety | Implemented first seam group | Implemented private remote safety checklist/proof criteria | Public leak-prevention validator and synthetic fixture proof | H1 checks public remote cannot be origin in private roots | Manual screenshot only if future setup is approved | USER approves later remote setup | Pending USER action gate | This record; AI Edition plan; public leak-prevention validator |
+
+## First Seam Group Implementation Receipt
+
+Seam Group: `Seam 2 through Seam 4 - Dev/Owner skeleton readiness plus GitHub Desktop private remote safety`
+Implementation Status: `Implemented and validator-backed`
+Dev Skeleton Readiness Gate Proof: `Implemented - public-safe planning proof only`
+Owner Skeleton Readiness Gate Proof: `Implemented - public-safe planning proof only`
+Private Repo / Local-Only Action-Gate Proof: `Implemented - private setup remains pending USER decision`
+GitHub Desktop Private Remote Safety Proof: `Implemented - planning-only remote safety proof`
+Source-Truth Proof: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md records the Breakpoint 2 Readiness Proof Contract; this branch record and active branch plan record first seam group implementation; Docs/validation_helper_registry.md records reusable validator coverage.`
+Direct Validator Proof: `dev/orin_public_leak_prevention_validation.py validates Dev/Owner skeleton readiness action gates, private setup remains closed, GitHub Desktop remote safety remains planning-only, forbidden private material is absent, and provider boundary stays closed through the synthetic fixture.`
+Fixture Proof: `dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json includes devOwnerSkeletonReadiness with planningOnly=true, privateDevRepositoryCreated=false, privateOwnerRepositoryCreated=false, ownerLocalOnlyRootCreated=false, githubDesktopPrivateRemoteConfigured=false, ownerPrivateInheritanceAllowed=false, publicUpstreamPushAllowed=false, sentToProvider=false, canAcceptPrompts=false, and providerVisibleData=none.`
+Dev Gate Result: `USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE remains pending before any private Dev repository or local-only private Dev skeleton can exist.`
+Owner Gate Result: `USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE remains pending before any Nexus Desktop AI Owner repository, local-only Owner root, vault, or owner-hosting posture can exist.`
+Private Remote Gate Result: `USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP remains pending before GitHub Desktop is bound to private Dev/Owner roots or remotes.`
+No Private Setup Proof: `No private Dev repository was created. No private Owner repository or local-only Owner root was created. No GitHub Desktop private remote was configured. No private remote URL, token, credential, private path, prompt, memory payload, private automation, model artifact, capability-pack asset, or private hosting secret was added.`
+Provider Boundary Preservation: `provider-visible data remains none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution remains disabled; downloads, network, external calls, memory/learning/personalization, and voice/Core sync remain gated.`
+Explicit Non-Includes: `No provider/model execution, memory, downloads, external calls, voice/Core sync, backup implementation, private repo creation, private remote configuration, PR, merge, release, cleanup, or v1.8.0 work was performed.`
 | FAM007-DOSR-005 | Off-boot backup/recovery root planning | Planned | Add backup root decision and restore-proof criteria | Source-truth/fixture proof | H1 checks no public/private backup leakage | No runtime backup expected in this branch | USER chooses later roots | Pending USER action | This record; AI Edition plan |
 | FAM007-DOSR-006 | Public-to-private separation | Planned | Add separation and sanitizer gate proof | Public leak-prevention validation | H1 checks protected assets excluded | No visible runtime surface expected | USER accepts or revises before private work | Pending Workstream | This record; public leak validator |
 | FAM007-DOSR-007 | Provider/model execution deferral | Planned | Preserve provider boundary closed | AI provider state validation | H1 checks no provider enablement | No visible runtime surface expected | USER action gate required for execution | Pending USER action | desktop provider state; validator |
@@ -531,13 +559,22 @@ Plan-To-Implementation Traceability: `During Workstream, each planned seam must 
 
 ## Bounded Workstream Admission
 
-Workstream Admission State: `Admitted pending Workstream Entry analysis`
-Completion Status: `Not started`
-Seam Status: `Not started`
-Slice Status: `Not started`
-Continue Decision: `Stop at Stage 2; Workstream Entry USER approval required`
-Continuation Execution Latch: `Locked until Workstream Entry ACCEPT and Workstream implementation approval`
-Stop Basis: `Phase boundary`
+Workstream Admission State: `Active - first seam group implemented`
+Completion Status: `Red`
+Seam Status: `Blocked`
+Slice Status: `Blocked`
+Waiver Status: `None`
+Continue Decision: `Stop`
+Continuation Execution Latch: `Inactive - first seam group implementation is complete; current approval did not include remaining Workstream seam execution.`
+Next Active Seam: `Workstream seam group 2 - Off-Boot Backup / Recovery Root Planning, Public-To-Private Separation And Provider/Model Deferral, and Future Handoff Criteria And Validation Proof`
+Stop Basis: `Named Blocker`
+Stop Condition: `First Seam Group Scope Boundary`
+Continuation Action: `USER must approve remaining Workstream seam group implementation before Codex continues; no private/runtime work is authorized.`
+Remaining Implementable Work: `Seam 5 - Off-Boot Backup / Recovery Root Planning; Seam 6 - Public-To-Private Separation And Provider/Model Deferral; Seam 7 - Future Handoff Criteria And Validation Proof.`
+Single-Seam Workstream Waiver: `None`
+Single-Seam Or Single-Slice Waiver Authority: `USER only - Codex, ChatGPT, validators, prompts, clean validation, or a green seam cannot infer single-seam or single-slice Workstream authority.`
+Single-Seam Or Single-Slice Workstream Blocker: `One seam or one slice visible in a Workstream is a blocker unless USER waiver text explicitly waives it; this branch keeps multiple same-branch seams visible and does not claim a one-seam Workstream.`
+Bounded Seam Default: `Bounded means one active seam at a time; bounded is not one-seam Workstream authority, and the first seam group is not terminal Workstream authority.`
 
 Admitted Workstream Seams:
 - Seam 1: `v1.7.22 Release Canon Closure And Released Evidence Fold-Down`
@@ -548,25 +585,38 @@ Admitted Workstream Seams:
 - Seam 6: `Public-To-Private Separation And Provider/Model Deferral`
 - Seam 7: `Future Handoff Criteria And Validation Proof`
 
-Workstream Proof Expectations: `Workstream Entry must verify every seam has direct validation or source-truth proof, no private repo/runtime work is required, provider boundary stays closed, and USER Action Gate IDs are preserved.`
+Workstream Proof Expectations: `First seam group now has direct validator and fixture proof. Remaining Workstream seams must add direct proof for off-boot backup/recovery root planning, public-to-private separation, provider/model deferral, future handoff criteria, no private repo/runtime work, closed provider boundary, and preserved USER Action Gate IDs.`
+
+## Seam Continuation Decision
+
+Seam Status: `Blocked`
+Slice Status: `Blocked`
+Completion Status: `Red`
+Waiver Status: `None`
+Continue Decision: `Stop`
+Continuation Execution Latch: `Inactive - first seam group implementation is complete; current approval did not include remaining Workstream seam execution.`
+Next Active Seam: `Workstream seam group 2 - Off-Boot Backup / Recovery Root Planning, Public-To-Private Separation And Provider/Model Deferral, and Future Handoff Criteria And Validation Proof`
+Stop Basis: `Named Blocker`
+Stop Condition: `First Seam Group Scope Boundary`
+Continuation Action: `USER must approve remaining Workstream seam group implementation before Codex continues; no private/runtime work is authorized.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Branch Readiness`
-Next Legal Phase: `Workstream`
-Next Legal Phase Detail: `Workstream Entry analysis for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation.`
-Next Active Seam: `Whole-package Workstream Entry review for Dev/Owner skeleton readiness foundation.`
-Why This Phase Is Next: `Stage 2 creates the active branch authority and planning contract, but implementation remains unauthorized until Workstream Entry proves the bounded seams, validation expectations, action gates, and non-includes.`
-Approval Required: `USER approval is required for Workstream Entry analysis and later Workstream implementation.`
-Exact USER Approval Text: `Approve Workstream Entry analysis for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@2684080fe1abacb9c124f540f898182046193cc4, scope: inspect the Dev/Owner skeleton readiness branch record, branch plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Runtime Engineering Plan, Element-to-Phase Proof Matrix, USER Action Gates, validation expectations, and public/private/provider-boundary exclusions; return the Workstream Entry decision packet and exact implementation approval text without creating private repos, configuring private remotes, implementing backups, provider/model execution, memory, PR, merge, release, cleanup, or v1.8.0 work.`
-Allowed Scope: `Workstream Entry analysis, source-truth review, validation expectation review, USER review packet if required, and recommendation only.`
-Explicit Exclusions: `No Workstream implementation, private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup/recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, branch/worktree cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Current Phase: `Workstream`
+Next Legal Phase: `Remaining Workstream seam group implementation`
+Next Legal Phase Detail: `USER-approved implementation for Seam 5 through Seam 7 on feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation.`
+Next Active Seam: `Workstream seam group 2 - Off-Boot Backup / Recovery Root Planning, Public-To-Private Separation And Provider/Model Deferral, and Future Handoff Criteria And Validation Proof`
+Why This Phase Is Next: `First seam group is implemented and validator-backed, but Workstream is not green because backup/recovery planning proof, public-to-private/provider deferral proof, and future handoff criteria remain same-branch Workstream scope.`
+Approval Required: `USER approval is required because the current approval covered only the first seam group.`
+Exact USER Approval Text: `Approve remaining Workstream seam group implementation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@2684080fe1abacb9c124f540f898182046193cc4, scope: implement public-safe planning and direct validation proof for off-boot backup/recovery root planning, public-to-private separation, provider/model execution deferral hardening, future handoff criteria, source-truth fold-down, end-of-Workstream USER review packet refresh, validation, commit, and push if green; do not create private Dev or Owner repos, configure private remotes, implement backup/restore, implement Public-to-Dev import, execute providers/models, download models, make external calls, enable memory/learning/personalization, sync voice/Core, change shortcuts/installers, create PR, merge, release, cleanup, mutate sibling worktrees, import AI Product Contract or Private Dev ORIN, or execute v1.8.0-prebeta.`
+Allowed Scope: `Remaining public-safe Workstream source-truth proof, validator/fixture proof, USER review packet refresh, validation, commit, and push.`
+Explicit Exclusions: `No private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup/recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, branch/worktree cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --worktree-confinement-gate; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_governance_efficiency_validation.py; python dev\orin_source_owner_marker_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python dev\orin_public_leak_prevention_validation.py; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_validation_suite.py --phase branch-readiness; python -m compileall -q dev desktop Audio main.py.`
-Stop Conditions: `Stop if origin/main advances beyond 2684080fe1abacb9c124f540f898182046193cc4, source truth points to a different successor, action gates are missing, validation expectations are marker-only where direct proof is required, provider/private/runtime boundaries weaken, private repo or backup implementation becomes required, pending USER decisions are needed, or validation fails.`
-USER Plan Review Gate: `Required - USER may accept, revise, waive, or reject the Workstream Entry recommendation.`
-USER Inspection Files: `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md; Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/validation_helper_registry.md.`
-Review Required Because: `The branch controls when Dev and Nexus Desktop AI Owner skeletons become actionable and must not accidentally authorize private repo creation, private remotes, backups, provider/model execution, or memory.`
-Implementation Blocker: `Workstream implementation is unauthorized until USER approves it after Workstream Entry.`
-Review Waiver Reason: `Not waived - Workstream Entry is required before implementation.`
+Stop Conditions: `Stop if origin/main advances beyond 2684080fe1abacb9c124f540f898182046193cc4, source truth points to a different successor, action gates are missing, validation expectations are marker-only where direct proof is required, provider/private/runtime boundaries weaken, private repo or backup implementation becomes required, pending USER decisions are needed, packet decision-path fields conflict, or validation fails.`
+USER Plan Review Gate: `Required - USER may accept, revise, waive, or reject the first seam group completion and next remaining Workstream recommendation.`
+USER Inspection Files: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007; Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md; dev/orin_public_leak_prevention_validation.py; dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json; Docs/validation_helper_registry.md.`
+Review Required Because: `The branch now has validator-backed Dev/Owner skeleton readiness proof, but the USER must approve whether to continue into remaining planning seams before Workstream Green.`
+Implementation Blocker: `First Seam Group Scope Boundary - remaining Workstream seam group implementation is not authorized by the current approval.`
+Review Waiver Reason: `Not waived - USER review is required before remaining Workstream continuation.`
 Next Legal Phase Digest Missing: `NO - this digest is complete and must not be compacted, abbreviated, summarized away, or omitted from phase handoff packets.`
-Next Safe Move: `Run Workstream Entry analysis after USER approval.`
+Next Safe Move: `Request USER approval for remaining Workstream seam group implementation.`

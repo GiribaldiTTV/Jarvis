@@ -27,6 +27,12 @@ FAM007_BRANCH_PLAN = Path(
 FAM007_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md"
 )
+FAM007_DEV_OWNER_BRANCH_PLAN = Path(
+    "Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md"
+)
+FAM007_DEV_OWNER_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md"
+)
 VALIDATION_REGISTRY = Path("Docs/validation_helper_registry.md")
 REVIEW_BUNDLE_HELPER = Path("dev/orin_user_review_bundle.py")
 FIXTURE_DIR = ROOT / "dev" / "fixtures" / "fam007_public_leak_prevention"
@@ -50,6 +56,10 @@ REQUIRED_AI_PLAN_PHRASES = (
     "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
     "Breakpoint 1: Public Leak-Prevention Foundation",
     "Breakpoint 2: Private Dev And Owner Skeleton Creation",
+    "Breakpoint 2 Readiness Proof Contract",
+    "Dev skeleton readiness proof must show",
+    "Owner skeleton readiness proof must show",
+    "GitHub Desktop private remote safety proof must show",
     "Private release notes, private tags, private builds, private capability packs",
 )
 
@@ -88,6 +98,28 @@ REQUIRED_RECORD_PHRASES = (
     "Provider Execution State: `Blocked",
 )
 
+REQUIRED_DEV_OWNER_PLAN_PHRASES = (
+    "First Seam Group Implementation Receipt",
+    "Dev Skeleton Readiness Gate Proof: `Implemented - public-safe planning proof only`",
+    "Owner Skeleton Readiness Gate Proof: `Implemented - public-safe planning proof only`",
+    "Private Repo / Local-Only Action-Gate Proof: `Implemented - private setup remains pending USER decision`",
+    "GitHub Desktop Private Remote Safety Proof: `Implemented - planning-only remote safety proof`",
+    "No private Dev repository was created",
+    "No private Owner repository or local-only Owner root was created",
+    "No GitHub Desktop private remote was configured",
+    "Remaining Implementable Work: `Seam 5 - Off-Boot Backup / Recovery Root Planning; Seam 6 - Public-To-Private Separation And Provider/Model Deferral; Seam 7 - Future Handoff Criteria And Validation Proof.`",
+)
+
+REQUIRED_DEV_OWNER_RECORD_PHRASES = (
+    "First Seam Group Implementation Receipt",
+    "Dev Skeleton Readiness Gate Proof: `Implemented - public-safe planning proof only`",
+    "Owner Skeleton Readiness Gate Proof: `Implemented - public-safe planning proof only`",
+    "Private Repo / Local-Only Action-Gate Proof: `Implemented - private setup remains pending USER decision`",
+    "GitHub Desktop Private Remote Safety Proof: `Implemented - planning-only remote safety proof`",
+    "First Seam Group Scope Boundary",
+    "No provider/model execution, memory, downloads, external calls, voice/Core sync, backup implementation, private repo creation, private remote configuration, PR, merge, release, cleanup, or v1.8.0 work was performed.",
+)
+
 REQUIRED_REGISTRY_PHRASES = (
     "dev/orin_public_leak_prevention_validation.py",
     "FAM-007 public leak-prevention validator",
@@ -96,6 +128,8 @@ REQUIRED_REGISTRY_PHRASES = (
     "review-bundle leak prevention",
     "edition-boundary manifest",
     "public build exclusion",
+    "Dev/Owner skeleton readiness action-gate proof",
+    "GitHub Desktop private remote safety remains planning-only",
 )
 
 PROTECTED_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -258,6 +292,8 @@ def _validate_required_source_truth(failures: list[str]) -> None:
     ai_plan = _read(AI_EDITION_PLAN)
     branch_plan = _read(FAM007_BRANCH_PLAN)
     branch_record = _read(FAM007_BRANCH_RECORD)
+    dev_owner_plan = _read(FAM007_DEV_OWNER_BRANCH_PLAN)
+    dev_owner_record = _read(FAM007_DEV_OWNER_BRANCH_RECORD)
     registry = _read(VALIDATION_REGISTRY)
     helper = _read(REVIEW_BUNDLE_HELPER)
     for phrase in REQUIRED_AI_PLAN_PHRASES:
@@ -266,6 +302,18 @@ def _validate_required_source_truth(failures: list[str]) -> None:
         _require(phrase in branch_plan, failures, f"{FAM007_BRANCH_PLAN}: missing {phrase!r}")
     for phrase in REQUIRED_RECORD_PHRASES:
         _require(phrase in branch_record, failures, f"{FAM007_BRANCH_RECORD}: missing {phrase!r}")
+    for phrase in REQUIRED_DEV_OWNER_PLAN_PHRASES:
+        _require(
+            phrase in dev_owner_plan,
+            failures,
+            f"{FAM007_DEV_OWNER_BRANCH_PLAN}: missing {phrase!r}",
+        )
+    for phrase in REQUIRED_DEV_OWNER_RECORD_PHRASES:
+        _require(
+            phrase in dev_owner_record,
+            failures,
+            f"{FAM007_DEV_OWNER_BRANCH_RECORD}: missing {phrase!r}",
+        )
     for phrase in REQUIRED_REGISTRY_PHRASES:
         _require(phrase in registry, failures, f"{VALIDATION_REGISTRY}: missing {phrase!r}")
     for phrase in (
@@ -382,6 +430,104 @@ def _validate_public_build_audit(fixture_set: dict[str, Any], failures: list[str
     _require(not reasons, failures, f"public build audit contains protected patterns: {sorted(reasons)}")
 
 
+def _validate_dev_owner_skeleton_readiness(fixture_set: dict[str, Any], failures: list[str]) -> None:
+    readiness = fixture_set.get("devOwnerSkeletonReadiness", {})
+    _require(
+        readiness.get("schema") == "fam007-dev-owner-skeleton-readiness-fixture-v1",
+        failures,
+        "Dev/Owner skeleton readiness fixture schema mismatch",
+    )
+    _require(readiness.get("planningOnly") is True, failures, "Dev/Owner readiness must be planning-only")
+    _require(
+        readiness.get("publicSafeProofOnly") is True,
+        failures,
+        "Dev/Owner readiness must be public-safe proof only",
+    )
+
+    action_gates = readiness.get("actionGates", {})
+    _require(
+        action_gates.get("dev") == "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+        failures,
+        "Dev skeleton readiness must cite the Dev private repo action gate",
+    )
+    _require(
+        action_gates.get("owner") == "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+        failures,
+        "Owner skeleton readiness must cite the Owner private repo action gate",
+    )
+    _require(
+        action_gates.get("githubDesktop") == "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP",
+        failures,
+        "GitHub Desktop readiness must cite the private remote setup action gate",
+    )
+
+    setup_state = readiness.get("setupState", {})
+    for field in (
+        "privateDevRepositoryCreated",
+        "privateOwnerRepositoryCreated",
+        "ownerLocalOnlyRootCreated",
+        "githubDesktopPrivateRemoteConfigured",
+        "providerModelExecutionEnabled",
+        "memoryPersonalizationEnabled",
+        "downloadsNetworkExternalCallsEnabled",
+        "voiceCoreSyncEnabled",
+    ):
+        _require(setup_state.get(field) is False, failures, f"Dev/Owner readiness must set {field}=false")
+
+    dev = readiness.get("devSkeleton", {})
+    _require(dev.get("trustedButNotOwnerPrivate") is True, failures, "Dev skeleton must remain trusted but not owner-private")
+    _require(dev.get("ownerPrivateInheritanceAllowed") is False, failures, "Dev skeleton must block owner-private inheritance")
+    _require(dev.get("privateSetupState") == "pending-user-action", failures, "Dev private setup must remain pending USER action")
+    _require(
+        dev.get("publicSourceScope") == "readiness-proof-only",
+        failures,
+        "Dev public source scope must be readiness-proof-only",
+    )
+
+    owner = readiness.get("ownerSkeleton", {})
+    _require(owner.get("editionName") == "Nexus Desktop AI Owner", failures, "Owner skeleton must preserve accepted edition name")
+    _require(owner.get("ownerOnly") is True, failures, "Owner skeleton must be owner-only")
+    _require(owner.get("privateSetupState") == "pending-user-action", failures, "Owner private setup must remain pending USER action")
+    _require(owner.get("devPublicInheritanceAllowed") is False, failures, "Owner material must not flow to Dev/Public by default")
+    _require(
+        owner.get("localOnlyAllowedBeforePrivateHosting") is True,
+        failures,
+        "Owner skeleton must preserve local-only option before private hosting",
+    )
+
+    remote_safety = readiness.get("githubDesktopPrivateRemoteSafety", {})
+    _require(remote_safety.get("configurationState") == "planning-only", failures, "GitHub Desktop setup must remain planning-only")
+    _require(remote_safety.get("privateOriginRequired") is True, failures, "private origin must be required for hosted Dev/Owner repos")
+    _require(remote_safety.get("publicRemoteName") == "public-upstream", failures, "public remote must be named public-upstream")
+    _require(remote_safety.get("publicUpstreamPushAllowed") is False, failures, "public-upstream push must remain blocked")
+    _require(remote_safety.get("publicRemoteAsOriginAllowed") is False, failures, "public remote must not be origin in private roots")
+
+    forbidden = readiness.get("forbiddenMaterialPresence", {})
+    for field in (
+        "privateRemoteUrl",
+        "tokenOrCredential",
+        "ownerSecret",
+        "privatePath",
+        "promptPayload",
+        "memoryPayload",
+        "privateAutomation",
+        "modelArtifact",
+        "capabilityPackAsset",
+        "privateHostingSecret",
+    ):
+        _require(forbidden.get(field) is False, failures, f"Dev/Owner readiness must set forbidden {field}=false")
+
+    provider_boundary = readiness.get("providerBoundary", {})
+    for field in ("sentToProvider", "canAcceptPrompts"):
+        _require(provider_boundary.get(field) is False, failures, f"provider boundary must set {field}=false")
+    _require(provider_boundary.get("providerVisibleData") == "none", failures, "provider visible data must remain none")
+    _require(
+        provider_boundary.get("providerModelExecution") == "deferred",
+        failures,
+        "provider/model execution must remain deferred",
+    )
+
+
 def _validate_blocked_canaries(fixture_set: dict[str, Any], failures: list[str]) -> None:
     canaries = fixture_set.get("blockedCanaries", [])
     _require(len(canaries) >= 10, failures, "blocked canaries must cover all major private/leak classes")
@@ -475,6 +621,7 @@ def validate() -> list[str]:
     _validate_review_bundle_path_canaries(fixture_set, failures)
     _validate_edition_manifest(fixture_set, failures)
     _validate_public_build_audit(failures=failures, fixture_set=fixture_set)
+    _validate_dev_owner_skeleton_readiness(fixture_set, failures)
     _validate_blocked_canaries(fixture_set, failures)
     _validate_provider_boundary(failures)
     _validate_workstream_entry_packet_decision_canaries(fixture_set, failures)

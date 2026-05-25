@@ -242,6 +242,67 @@
       }
     ]
   },
+  "devOwnerSkeletonReadiness": {
+    "schema": "fam007-dev-owner-skeleton-readiness-fixture-v1",
+    "seamGroup": "dev-owner-skeleton-readiness-and-private-remote-safety",
+    "planningOnly": true,
+    "publicSafeProofOnly": true,
+    "actionGates": {
+      "dev": "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+      "owner": "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+      "githubDesktop": "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP"
+    },
+    "setupState": {
+      "privateDevRepositoryCreated": false,
+      "privateOwnerRepositoryCreated": false,
+      "ownerLocalOnlyRootCreated": false,
+      "githubDesktopPrivateRemoteConfigured": false,
+      "providerModelExecutionEnabled": false,
+      "memoryPersonalizationEnabled": false,
+      "downloadsNetworkExternalCallsEnabled": false,
+      "voiceCoreSyncEnabled": false
+    },
+    "devSkeleton": {
+      "readinessState": "ready-to-request-user-action",
+      "trustedButNotOwnerPrivate": true,
+      "ownerPrivateInheritanceAllowed": false,
+      "privateSetupState": "pending-user-action",
+      "publicSourceScope": "readiness-proof-only"
+    },
+    "ownerSkeleton": {
+      "readinessState": "ready-to-request-user-action",
+      "editionName": "Nexus Desktop AI Owner",
+      "ownerOnly": true,
+      "privateSetupState": "pending-user-action",
+      "devPublicInheritanceAllowed": false,
+      "localOnlyAllowedBeforePrivateHosting": true
+    },
+    "githubDesktopPrivateRemoteSafety": {
+      "configurationState": "planning-only",
+      "privateOriginRequired": true,
+      "publicRemoteName": "public-upstream",
+      "publicUpstreamPushAllowed": false,
+      "publicRemoteAsOriginAllowed": false
+    },
+    "forbiddenMaterialPresence": {
+      "privateRemoteUrl": false,
+      "tokenOrCredential": false,
+      "ownerSecret": false,
+      "privatePath": false,
+      "promptPayload": false,
+      "memoryPayload": false,
+      "privateAutomation": false,
+      "modelArtifact": false,
+      "capabilityPackAsset": false,
+      "privateHostingSecret": false
+    },
+    "providerBoundary": {
+      "providerVisibleData": "none",
+      "sentToProvider": false,
+      "canAcceptPrompts": false,
+      "providerModelExecution": "deferred"
+    }
+  },
   "blockedCanaries": [
     {
       "caseId": "private-path",
