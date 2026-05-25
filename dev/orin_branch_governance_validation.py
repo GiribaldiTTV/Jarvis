@@ -5394,15 +5394,16 @@ MERGE_STABLE_BRANCH_HEAD_PIN_PATTERNS = (
     re.compile(r"`origin/[A-Za-z0-9._/-]+`\s+(?:is|remains at)\s+`?[0-9a-f]{7,40}`?", re.IGNORECASE),
 )
 
-POST_MERGE_FOLD_DOWN_STALE_PHRASES = (
-    "PR #207 is open",
-    "PR #207 open",
-    "PR #207 is live",
-    "Live PR #207 exists",
-    "open pending separate merge approval",
-    "Merge remains pending",
-    "merge remains pending",
-    "Approve merge of PR #207",
+POST_MERGE_FOLD_DOWN_STALE_PATTERNS = (
+    ("open PR state", re.compile(r"\bPR\s+#\d+\s+(?:is\s+)?open\b", re.IGNORECASE)),
+    ("live PR state", re.compile(r"\bPR\s+#\d+\s+is\s+live\b", re.IGNORECASE)),
+    ("live PR exists state", re.compile(r"\bLive\s+PR\s+#\d+\s+exists\b", re.IGNORECASE)),
+    (
+        "merge approval pending state",
+        re.compile(r"\bopen\s+pending\s+separate\s+merge\s+approval\b", re.IGNORECASE),
+    ),
+    ("merge remains pending state", re.compile(r"\bmerge\s+remains\s+pending\b", re.IGNORECASE)),
+    ("merge approval request", re.compile(r"\bApprove\s+merge\s+of\s+PR\s+#\d+\b", re.IGNORECASE)),
 )
 
 POST_MERGE_COMPACT_OWNER_STALE_PHRASES = (
@@ -7393,6 +7394,67 @@ def _parse_workstream_doc(text: str) -> dict[str, object]:
     }
 
 
+def _current_state_label_lines(text: str, labels: tuple[str, ...]) -> str:
+    lines: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if any(stripped.startswith(f"{label}:") for label in labels):
+            lines.append(stripped)
+    return "\n".join(lines)
+
+
+def _post_merge_record_current_state_text(record_text: str) -> str:
+    current_sections = (
+        "Record State",
+        "Status",
+        "Current Phase",
+        "Phase Status",
+        "Blockers",
+        "Next Legal Phase",
+        "Formal Next Legal Phase Digest",
+    )
+    current_labels = (
+        "Record State",
+        "Status",
+        "Phase",
+        "Phase Detail",
+        "Phase Status",
+        "Authority State",
+        "Bounded State",
+        "Open PR State",
+        "Active Blockers",
+        "PR Readiness Blocker",
+        "Current Phase",
+        "Next Legal Phase",
+        "Why This Phase Is Next",
+        "Approval Required",
+        "Exact USER Decision Needed",
+        "Allowed Scope",
+    )
+    return "\n".join(
+        section
+        for section in (
+            *(_section(record_text, section_name) for section_name in current_sections),
+            _current_state_label_lines(record_text, current_labels),
+        )
+        if section
+    )
+
+
+def _post_merge_plan_current_state_text(plan_text: str) -> str:
+    current_labels = (
+        "Current Plan Phase",
+        "Current Phase",
+        "Engineering Plan Status",
+        "Open Questions",
+        "USER Planning Decisions",
+        "PR Fold-Down Packet",
+        "Next Legal Phase",
+        "Exact USER Decision Needed",
+    )
+    return _current_state_label_lines(plan_text, current_labels)
+
+
 def _run_post_merge_fold_down_drift_gate(
     require,
     *,
@@ -7428,15 +7490,17 @@ def _run_post_merge_fold_down_drift_gate(
         )
         plan_pointer = _extract_colon_value(record_text, "Branch Runtime Engineering Plan Path").strip("`")
         plan_text = _read_text(Path(plan_pointer)) if plan_pointer and Path(plan_pointer).exists() else ""
-        for phrase in POST_MERGE_FOLD_DOWN_STALE_PHRASES:
+        record_current_state_text = _post_merge_record_current_state_text(record_text)
+        plan_current_state_text = _post_merge_plan_current_state_text(plan_text)
+        for label, pattern in POST_MERGE_FOLD_DOWN_STALE_PATTERNS:
             require(
-                phrase not in record_text,
-                f"{record_path}: post-merge fold-down still contains stale phrase '{phrase}'",
+                pattern.search(record_current_state_text) is None,
+                f"{record_path}: post-merge current-state fold-down still contains stale {label}",
             )
-            if plan_text:
+            if plan_current_state_text:
                 require(
-                    phrase not in plan_text,
-                    f"{plan_pointer}: post-merge fold-down still contains stale phrase '{phrase}'",
+                    pattern.search(plan_current_state_text) is None,
+                    f"{plan_pointer}: post-merge current-state fold-down still contains stale {label}",
                 )
         if "fam_006_overlay_display_acceptance_foundation" in record_path:
             fam_sources = (
