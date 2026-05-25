@@ -82,6 +82,30 @@ The public repository must not contain:
 
 The safest rule is simple: if losing the public repo would expose it, it cannot be the thing that makes Owner or Dev special.
 
+## Protected Assets Table
+
+Protected assets are the material that gives Dev or Owner editions private value, private authority, private context, or private access. Future branches and validators should use this table as the public-safe reference for what must be excluded, gated, sanitized, or kept private.
+
+| Asset Class | Examples | Public Repo Allowed | Dev Repo Allowed | Owner Repo Allowed | Public Artifact Allowed | Required Gate |
+| --- | --- | --- | --- | --- | --- | --- |
+| Owner memory | owner-specific memories, accepted feedback, long-term preferences, private interaction history | No | No | Yes, only with owner-approved local/private storage | No | Owner memory consent, local vault/encryption plan, no-export default |
+| Owner prompts and instructions | private system prompts, owner-specific Codex handoff rules, private assistant behavior prompts | No | No | Yes | No | Owner-only source root or private repo plus private-to-public sanitization before any excerpt leaves Owner |
+| Private strategy and planning | private strategy, private planning material, owner roadmap material not approved for public release, competitive/product timing notes | No | No by default | Yes | No | USER approval and sanitized public-safe summary only |
+| Secrets and credentials | GitHub tokens, provider keys, API keys, cookies, sessions, signing keys, vault secrets | No | No tracked storage; only scoped local secret store when approved | No tracked storage; only scoped local/owner vault when approved | No | Secret scan, vault/credential-store plan, no tracked plaintext |
+| Private Dev ORIN content | private Dev ORIN prompts, evals, workflows, unpublished developer helper instructions | No | Yes, if contributor-scoped and not owner-private | Only if manually selected by Owner | No | Dev private repo gate and no-owner-private scan |
+| Private eval logs and support data | raw eval conversations, debug logs, support bundles, screenshots, crash dumps, imported Public user diagnostics | No unless synthetic/sanitized | Yes only when scoped, redacted, and user-approved | Yes only when owner-approved | No by default | Redaction, provenance, user consent, and no-export review |
+| Private model or capability assets | model weights, adapters, private capability packs, proprietary data files, entitlement-gated binaries | No | Yes only in private artifact channel or private repo when licensed | Yes only in private artifact channel or private owner root | No unless public license/distribution is approved | License/integrity review, signed artifact gate, public release approval |
+| Private automation | owner automation scripts, unrestricted repo/GitHub actions, private repair loops, private watcher/reporting routes | No | Yes only when dev-scoped and audited | Yes only when owner-approved and reversible | No | Tool permission review, audit log, bounded action contract |
+| Imported Public user data | Public settings, consent state, personalization, logs, future memory imported into Dev | No as raw data | Yes only after explicit import consent and no-export default | No by default; sanitized fixtures only | No | Public-to-Dev import consent level and provenance stamp |
+| Dev-only UI/tooling metadata | source-owner overlays, branch governance tools, review markers, debug badges, dev launchers | Public-safe docs/validators only | Yes | Yes if owner chooses | No production public UI | Public build exclusion and no-dev-tooling-in-public-UI validation |
+| Hidden provider/model/memory behavior | undisclosed prompt send, model execution, memory indexing, background network egress | No | No unless explicitly developer-visible and approved | No unless explicitly owner-approved and audited | No | Provider-visible data, consent, network, memory, and execution gates |
+
+## Public-Safe Fixture Rule
+
+Public-safe fixtures must be synthetic, non-secret, non-owner-specific, non-memory-derived, non-token-derived, and not copied from private logs unless sanitized and USER-approved.
+
+Fixtures in the public repo may demonstrate schemas, state transitions, validation boundaries, and no-leak rules, but they must not contain real Owner memory, real Dev/private content, real user logs, real provider credentials, private strategy, private planning material, private model data, or owner roadmap material not approved for public release.
+
 ## Edition Names
 
 Public Edition name: `Nexus Desktop AI`.
@@ -142,6 +166,8 @@ Dev Edition must not include:
 
 Dev Edition is trusted, but it is not owner-private.
 
+Formal Dev Boundary Rule: Dev Edition may contain contributor/dev tooling, but it must not inherit Owner memory, Owner prompts, Owner strategy, Owner credentials, Owner automation, Owner private planning, or owner roadmap material not approved for public release by default. Dev is allowed to be powerful for contributor workflows; it is not allowed to become a backdoor copy of Owner.
+
 ## Owner Edition Vision
 
 Owner Edition should eventually provide:
@@ -164,11 +190,15 @@ Owner Edition must not leak:
 - owner memory
 - owner prompts
 - owner strategy
+- private strategy
+- private planning material
+- owner roadmap material not approved for public release
 - owner GitHub credentials
 - private logs
-- private planning material
 - private model or capability-pack assets
 - private repo automation
+
+Owner-As-Private-Test-Person Rule: Owner Edition may act as a private test/evaluation persona for Public Edition, including launching, testing, and evaluating the public user experience as the owner, but Owner behavior is not shipped Public Edition behavior. Owner behavior cannot define Public runtime behavior unless a later public-safe branch implements, validates, and releases that behavior through normal public source-truth and validation gates.
 
 ## Repository Topology
 
@@ -187,6 +217,31 @@ Private edition repos should consume public changes.
 
 Private repos should not be treated as sources to bulk-copy back into public.
 
+## Edition Boundary Manifest Planning
+
+Future branches should introduce a public-safe edition boundary manifest concept before edition-specific runtime behavior becomes hard to reason about.
+
+Candidate manifest name: `edition_boundary_manifest.json`.
+
+This plan does not implement the manifest. It records the future schema direction so Breakpoint 1 and Breakpoint 2 can turn the vision into validator-backed configuration.
+
+Public-safe candidate fields:
+
+- `edition`
+- `repo_role`
+- `data_root`
+- `allowed_capability_classes`
+- `blocked_capability_classes`
+- `protected_asset_policy`
+- `provider_execution_allowed`
+- `memory_allowed`
+- `network_allowed`
+- `owner_private_allowed`
+- `dev_private_allowed`
+- `public_artifact_allowed`
+
+The manifest must not contain secrets, private prompts, private memory, private strategy, model assets, or private capability-pack payloads.
+
 ## Sync Direction
 
 Preferred sync model:
@@ -200,6 +255,29 @@ Preferred sync model:
 Private-to-public flow must be exceptional and review-heavy.
 
 Public-to-private flow should be routine.
+
+## Private-To-Public Sanitization Gate
+
+Private-to-public movement is blocked until this gate is `PASS` or the USER grants an explicit waiver that names the source edition, target edition, candidate files, protected assets involved, and residual risk.
+
+Required gate fields:
+
+- Source Edition:
+- Target Edition:
+- Candidate Files:
+- Protected Asset Scan:
+- Secret Scan:
+- Prompt / Memory Strip:
+- Private Path Scan:
+- Model / Capability Asset Scan:
+- Private Automation Scan:
+- Source-Truth Owner Review:
+- USER Approval:
+- Sanitization Result:
+
+The default result is `BLOCKED` when any candidate file contains Owner memory, Owner prompts, private strategy, private planning material, owner roadmap material not approved for public release, secrets, private Dev ORIN content, private eval logs, private model/capability assets, imported Public user data, or private automation.
+
+Public-safe reimplementation is preferred over direct private-to-public copying when private context influenced the change.
 
 ## Local Path Model
 
@@ -250,6 +328,16 @@ GitHub Desktop should be configured so each edition is visibly separate.
 - Optional extra remote: public upstream, named `public-upstream`.
 - Use for owner-only workflows.
 - Never push Owner branches to the public `Nexus-Desktop-AI` remote.
+
+### Private Repo Remote Rules
+
+- Dev and Owner `origin` must be the private repository when those repos are GitHub-hosted.
+- Public repo remote in Dev and Owner repos should be named `public-upstream`.
+- Public repo remote should be fetch-only unless the USER explicitly approves a different topology.
+- Owner may remain local-only until the USER approves private GitHub hosting.
+- Public repo remote must never be named `origin` in Dev or Owner repos.
+- GitHub Desktop should show a visibly private repository for Dev and Owner before any push.
+- If remote naming is ambiguous, stop before commit or push and return a routing packet.
 
 ### GitHub Desktop Safety Checklist
 
@@ -341,6 +429,21 @@ Dev import must prove:
 - provider-visible data remains explicit
 - memory/indexing/learning remains gated until approved
 
+### Public-To-Dev Import Consent Levels
+
+Public-to-Dev import should be explicit and level-based:
+
+| Level | Import Scope | Default |
+| --- | --- | --- |
+| Level 0 | No import | Safe default |
+| Level 1 | Settings only | Recommended first import |
+| Level 2 | Settings plus consent state | Allowed with explicit consent-state notice |
+| Level 3 | Settings plus local personalization | Allowed only when personalization exists and user approves |
+| Level 4 | Manually selected logs/support data | Manual selection only |
+| Level 5 | Memory import | Separate explicit approval only |
+
+Secrets, tokens, provider API keys, raw private logs, unsupported memory stores, crash dumps with private data, and no-export data are never imported by default.
+
 ## Owner Isolation Model
 
 Public to Owner migration should not be a normal user path.
@@ -376,6 +479,12 @@ Each edition should eventually use separate:
 Secrets should never be stored in plain tracked files.
 
 Future secrets handling should use an OS credential vault, encrypted local vault, or another FAM-010-approved mechanism.
+
+## Public Build Exclusion Requirement
+
+Public builds must fail when Dev/Owner-only files, manifests, prompts, memory adapters, private configs, private capability-pack references, private model references, private automation, protected asset paths, or private repository overlays are included.
+
+This requirement is a future build/validator gate. It is not implemented by this plan, but future packaging, installer, release, and CI branches must treat it as a public release blocker before any real public AI/runtime distribution claims edition-boundary safety.
 
 ## Security Model
 
@@ -467,6 +576,7 @@ Required before complete:
 
 - public-safe edition manifest schema planned or implemented
 - public repo leak checklist created
+- Public Build Exclusion Requirement converted into a validator or build-fail gate where source truth supports it
 - validator or audit helper can flag forbidden private paths/patterns where source truth supports it
 - public build excludes dev/owner overlays by construction
 - docs explain what belongs outside public repo
@@ -479,6 +589,8 @@ Goal: create the private edition skeletons before public functional AI is comple
 
 Trigger: after Breakpoint 1 is green and before provider/model execution is released publicly.
 
+Do not wait until Public functional AI is complete before creating Dev and Owner skeletons. Do not begin public provider/model execution until edition boundaries are validator-backed.
+
 Expected outputs:
 
 - private `Nexus-Desktop-AI-Dev` repo or local private skeleton
@@ -486,6 +598,7 @@ Expected outputs:
 - public-upstream remote strategy
 - private `.gitignore` and secret rules
 - private edition manifest placeholders
+- private remote rules proving `origin` is private and public repo is `public-upstream`
 - no private logic copied to public
 
 This is the clearest "the time is now" breakpoint for creating DEV and OWNER versions.
@@ -582,6 +695,8 @@ Recommended sequence from this planning point:
 Public releases should continue on the public prerelease line until the project is ready for a functional AI version jump.
 
 Private Dev and Owner releases may use private channels and private tags, but those tags must not be treated as public release truth.
+
+Private release notes, private tags, private builds, private capability packs, private model assets, and private artifacts must not be cited as public release evidence or public readiness proof.
 
 | Channel | Audience | Example Naming |
 | --- | --- | --- |
