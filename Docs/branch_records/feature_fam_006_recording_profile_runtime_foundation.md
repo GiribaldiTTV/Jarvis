@@ -7,7 +7,7 @@ Current origin/main: `2684080fe1abacb9c124f540f898182046193cc4`
 Origin/Main Advanced Since Branch Creation: `YES - reconciled through origin/main 2684080fe1abacb9c124f540f898182046193cc4 after SLC-047 implementation`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md`
 Branch Runtime Engineering Plan: `Accepted for bounded SLC-046 Recording Profile data/state foundation implementation/H1, bounded SLC-047 Recording Profile selection/editing entry point implementation/H1, bounded SLC-048 Recording Profile relationship mapping and boundary proof implementation/H1, bounded SLC-049 Dashboard / Manage Monitors status integration implementation, and bounded SLC-050 Workstream readiness proof.`
-Engineering Plan Status: `Live Validation LV1 green - ready for PR Readiness Stage 1 analysis`
+Engineering Plan Status: `Live Validation LV1 proof green - User Test Summary Results Pending`
 
 ## Branch Identity
 
@@ -21,7 +21,7 @@ Record State: `Active`
 
 ## Status
 
-Status: `Live Validation LV1 green - SLC-046 through SLC-050 complete, H1 green, LV1 proof captured`
+Status: `Live Validation LV1 proof green - SLC-046 through SLC-050 complete, H1 green, User Test Summary Results Pending`
 
 ## Canonical Branch
 
@@ -30,7 +30,7 @@ Canonical Branch: `feature/fam-006-recording-profile-runtime-foundation`
 ## Current Phase
 
 Phase: `Live Validation`
-Phase Detail: `SLC-046 Recording Profile data/state foundation implementation and Hardening H1 are green; SLC-047 Recording Profile selection/editing entry point Workstream implementation and Hardening H1 are green after a bounded delete-control proof repair; SLC-048 Recording Profile relationship mapping and boundary proof implementation and H1 are green; SLC-049 Dashboard / Manage Monitors Recording Profile status integration and SLC-050 Workstream readiness proof passed bounded package Hardening H1 with no runtime repair required; Live Validation LV1 is green with real user-facing desktop proof, focused screenshots, short video proof, and USER Test Summary handoff.`
+Phase Detail: `SLC-046 Recording Profile data/state foundation implementation and Hardening H1 are green; SLC-047 Recording Profile selection/editing entry point Workstream implementation and Hardening H1 are green after a bounded delete-control proof repair; SLC-048 Recording Profile relationship mapping and boundary proof implementation and H1 are green; SLC-049 Dashboard / Manage Monitors Recording Profile status integration and SLC-050 Workstream readiness proof passed bounded package Hardening H1 with no runtime repair required; Live Validation LV1 helper proof is green with real user-facing desktop proof, focused screenshots, short video proof, and USER Test Summary handoff, but final LV1 phase advancement is blocked until returned UTS results are PASS or WAIVED and digested.`
 
 ## Phase Status
 
@@ -54,9 +54,9 @@ Waiver Status: `None`
 Continue Decision: `Stop`
 Continuation Execution Latch: `Closed at Workstream phase boundary`
 Stop Basis: `Workstream Green`
-Next Active Seam: `PR Readiness Stage 1 analysis for Recording Profile Runtime Foundation`
-Stop Condition: `SLC-046 through SLC-050 Workstream package, bounded Hardening H1, and Live Validation LV1 are complete and green.`
-Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stage 1 analysis.`
+Next Active Seam: `User Test Summary handoff return and digest for Recording Profile Runtime Foundation`
+Stop Condition: `SLC-046 through SLC-050 Workstream package and bounded Hardening H1 are complete and green; LV1 helper proof is green, but User Test Summary Results Pending blocks final LV1 green and PR Readiness.`
+Continuation Action: `Stop at UTS handoff until USER returns PASS/FAIL/WAIVED results or grants an explicit waiver.`
 Single-Seam Workstream Waiver: `None`
 Single-Seam Or Single-Slice Waiver Authority: `USER only can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.`
 Single-Seam Or Single-Slice Workstream Blocker: `One seam or one slice is a blocker unless USER waiver is recorded; cleared here because the admitted SLC-046 through SLC-050 Workstream package is complete.`
@@ -110,7 +110,7 @@ Why Branch Is Large Enough: `A data-only branch would not prove user-facing conc
 Why Not Split Into Tiny Branches: `Recording Profile state, selector shell, relationship proof, and validation expectations are coupled and should be reviewed as one package before runtime work begins.`
 Codex Additional Recommendations: `Workstream Entry should inspect the whole SLC-046 through SLC-050 package before selecting the first bounded seam.`
 USER Critique Loop: `Before Workstream implementation, USER may approve, change, defer, critique, or give feedback on the Recording Profile plan during Workstream Entry; Codex must route any material feedback into the branch plan or return a revision packet before runtime mutation.`
-USER Decision Ledger: `USER approved Branch Readiness Stage 1 analysis, Stage 2 setup, Workstream Entry analysis, bounded SLC-046 Recording Profile data/state foundation implementation/H1, governed SLC-047 continuation, bounded SLC-047 Recording Profile selection/editing entry point implementation/H1, governed SLC-048 continuation, bounded SLC-048 Recording Profile relationship mapping/boundary proof implementation, bounded SLC-048 H1, governed SLC-049 continuation decision, bounded Workstream continuation through SLC-049/SLC-050 until Workstream green, bounded Hardening H1, and bounded Live Validation LV1. PR Readiness Stage 1, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved LV1 proof, sibling-worktree mutation, tray recording controls, recording execution, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending.`
+USER Decision Ledger: `USER approved Branch Readiness Stage 1 analysis, Stage 2 setup, Workstream Entry analysis, bounded SLC-046 Recording Profile data/state foundation implementation/H1, governed SLC-047 continuation, bounded SLC-047 Recording Profile selection/editing entry point implementation/H1, governed SLC-048 continuation, bounded SLC-048 Recording Profile relationship mapping/boundary proof implementation, bounded SLC-048 H1, governed SLC-049 continuation decision, bounded Workstream continuation through SLC-049/SLC-050 until Workstream green, bounded Hardening H1, and bounded Live Validation LV1 helper/proof capture. User Test Summary return/digest, PR Readiness Stage 1, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved LV1 proof, sibling-worktree mutation, tray recording controls, recording execution, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending.`
 Deferred Ideas / Future Package Ledger: `Tray recording controls, recording execution, export/share/import, provider/model integration, broad theme/skin packs, layout personalization, external telemetry parity, FAM-007, Compact-AI, and AI Product remain future-gated.`
 Planning Adequacy Review: `Adequate for Branch Readiness Stage 2 because it names family/package, branch purpose, planned slice chain, boundaries, source-truth repairs, worktree preservation, validation, and next legal review gate.`
 Rejected Shallow Plan: `Rejected: treating Recording Profile as a button-only UI addition or a synonym for Overlay Profile.`
@@ -133,7 +133,7 @@ Planning Completion Waiver: `Not required`
 
 Engineering Contract Status: `Accepted for Stage 2 setup`
 USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup`
-Runtime Implementation Approval: `Granted for bounded SLC-046 through SLC-050 Recording Profile Runtime Foundation Workstream implementation; bounded Hardening H1 is green; Live Validation LV1 is green`
+Runtime Implementation Approval: `Granted for bounded SLC-046 through SLC-050 Recording Profile Runtime Foundation Workstream implementation; bounded Hardening H1 is green; LV1 helper proof is green; final LV1 green is blocked by User Test Summary Results Pending`
 Branch Purpose: `Admit the FAM-006 Recording Profile Runtime Foundation branch and plan while folding down post-merge release-posture drift.`
 Current Runtime Baseline: `FAM-006 Overlay Profile Runtime Foundation and Overlay Display Acceptance Foundation are released historical evidence; SLC-046 adds Recording Profile state foundation and H1 proof.`
 Planned Runtime Delta: `SLC-047 adds the first visible Recording Profile selection/editing entry point on top of the SLC-046 durable Recording Profile data/state foundation; SLC-049 adds compact read-only Dashboard / Manage Monitors Recording Profile status integration; SLC-050 adds Workstream readiness proof.`
@@ -169,7 +169,7 @@ Family: `FAM-006 - Monitoring and HUD`
 Package: `PKG-006 - Recording Profile Runtime Foundation`
 Package Admission State: `Admitted; SLC-046 implementation/H1 green, SLC-047 implementation/H1 green, SLC-048 implementation/H1 green, SLC-049 implementation green, and SLC-050 Workstream readiness proof green`
 Admitted Slice Count: `5`
-Package Completion State: `Live Validation LV1 green - SLC-046 through SLC-050 complete; Hardening H1 green; LV1 proof captured`
+Package Completion State: `Live Validation LV1 proof green - SLC-046 through SLC-050 complete; Hardening H1 green; User Test Summary Results Pending`
 Single-Slice Package User Approval: `Not required - five concrete slices are admitted for planning.`
 
 | Slice | Admission State | Purpose | Current Status |
@@ -233,8 +233,8 @@ Branch Closure Rule: `Do not claim package-complete until admitted slices are im
 
 ## Blockers
 
-Active Blockers: `PR Readiness Stage 1 analysis, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved LV1 proof, sibling-worktree mutation, tray recording controls, recording execution, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending separate USER decisions.`
-PR Readiness Blocker: `Pending PR Readiness Stage 1 analysis and later USER approval.`
+Active Blockers: `User Test Summary Results Pending, PR Readiness Stage 1 analysis, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved LV1 proof, sibling-worktree mutation, tray recording controls, recording execution, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation remain pending separate USER decisions.`
+PR Readiness Blocker: `User Test Summary Results Pending - PR Readiness is RED until returned UTS results are PASS or WAIVED and digested into source truth.`
 
 ## Exit Criteria
 
@@ -246,8 +246,8 @@ Rollback Target: `Branch Readiness`
 
 ## Next Legal Phase
 
-Next Legal Phase: `PR Readiness`
-Next Legal Phase Detail: `SLC-046 through SLC-050 Recording Profile Runtime Foundation Workstream package, bounded Hardening H1, and Live Validation LV1 are complete and green; PR Readiness Stage 1 analysis is the next phase gate.`
+Next Legal Phase: `Live Validation`
+Next Legal Phase Detail: `SLC-046 through SLC-050 Recording Profile Runtime Foundation Workstream package and bounded Hardening H1 are complete and green; LV1 helper proof is captured, but User Test Summary Results Pending keeps the branch in Live Validation until USER returns PASS/FAIL/WAIVED results or grants an explicit waiver and Codex digests that result.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -259,16 +259,26 @@ User Test Summary Strategy: `No UTS is generated for SLC-046 because the seam is
 
 ## Later-Phase Expectations
 
-Later-Phase Expectations: `SLC-047 H1 is green after bounded repair; SLC-048 Workstream implementation and H1 are green; SLC-049 and SLC-050 Workstream implementation are green; Hardening H1 compared the completed package against this source truth before LV1, and LV1 proved the user-facing surfaces with real desktop input before PR Readiness.`
+Later-Phase Expectations: `SLC-047 H1 is green after bounded repair; SLC-048 Workstream implementation and H1 are green; SLC-049 and SLC-050 Workstream implementation are green; Hardening H1 compared the completed package against this source truth before LV1, and LV1 proved the user-facing surfaces with real desktop input before UTS handoff. PR Readiness remains blocked until UTS results are returned or waived and digested.`
 
 ## Live Validation LV1 Trace
 
-LV1 Status: `Green`
+LV1 Status: `Helper proof green / final LV1 blocked by User Test Summary Results Pending`
 LV1 Evidence: `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260525_142153_564`
 LV1 User-Inspectable Evidence: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260525_142153_564`
 LV1 User Test Summary: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
-LV1 Result: `PASS - real user-facing desktop path, real OS interaction self-QA, focused per-element screenshots, normal/compact behavior, short video proof, and USER Test Summary handoff are complete.`
+LV1 Result: `Automated validators and live helper evidence: GREEN. User Test Summary Results: PENDING. Final phase advancement is BLOCKED until the filled User Test Summary is submitted and digested or explicitly waived.`
 LV1 Repair Note: `A bounded LV1 helper repair preserved mandatory real OS input and required real mouse-wheel scrolling until the Dashboard Manage Monitors control is actually hit-testable before the real click is sent.`
+
+## User Test Summary
+
+User Test Summary Results: `PENDING`
+User Test Summary Blocker: `User Test Summary Results Pending`
+User Test Summary Export: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+User Test Summary Handoff Status: `Exported for USER review; not returned or waived.`
+Automated Validators And Live Helper Evidence: `GREEN`
+Final Phase Advancement: `BLOCKED until the filled User Test Summary is submitted and digested or USER grants an explicit waiver.`
+User Test Summary Waiver Reason: `None`
 
 ## Initial Workstream Seam Sequence
 
@@ -284,21 +294,21 @@ Seam 5: `SLC-050 validation/live proof readiness`
 
 ## Active Seam
 
-Active seam: `PR Readiness Stage 1 pending USER approval`
+Active seam: `User Test Summary handoff pending USER return or waiver`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Live Validation LV1 green`
-Next Legal Phase: `PR Readiness`
-Why This Phase Is Next: `SLC-046 through SLC-050 Recording Profile Runtime Foundation Workstream package, bounded Hardening H1, and Live Validation LV1 are complete and green; PR Readiness Stage 1 analysis is the next governed gate before PR creation.`
-Approval Required: `USER must approve Branch/PR Readiness Stage 1 analysis.`
-Exact USER Approval Text: `Approve PR Readiness Stage 1 analysis for FAM-006 Recording Profile Runtime Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-recording-profile-runtime-foundation. This approval covers read-only verification of repo/worktree identity, source truth, Workstream/H1/LV1 green posture, validation/proof artifacts, PR readiness blockers, current-main freshness, changed-file risk, and exact Stage 2/PR-readiness decision text. It does not approve PR creation, merge, release, issue mutation, sibling-worktree mutation, artifacts/raw evidence handling beyond inspection of existing LV1 proof, tray recording controls, recording execution, export/share, provider/model work, broad theme/skin work, FAM-007 work, or Governance worktree mutation.`
-Allowed Scope: `PR Readiness Stage 1 analysis only; no PR creation, merge, release, or future-gated recording behavior until separately approved.`
+Current Phase: `Live Validation`
+Next Legal Phase: `Live Validation`
+Why This Phase Is Next: `SLC-046 through SLC-050 Recording Profile Runtime Foundation Workstream package and bounded Hardening H1 are complete and green; LV1 helper evidence is green, but User Test Summary Results Pending is a hard Live Validation blocker and PR Readiness is RED until USER returns PASS/FAIL/WAIVED results or grants an explicit waiver and Codex digests it.`
+Approval Required: `USER must return the filled User Test Summary with PASS/FAIL/WAIVED results, or grant an explicit User Test Summary waiver.`
+Exact USER Approval Text: `Return the filled User Test Summary for FAM-006 Recording Profile Runtime Foundation from C:\Users\anden\OneDrive\Desktop\User Test Summary.txt with PASS, FAIL, or WAIVED results for the active issues, or explicitly approve a User Test Summary waiver with the waiver reason. This does not approve PR Readiness, PR creation, merge, release, issue mutation, sibling-worktree mutation, artifacts/raw evidence handling beyond UTS evidence digestion, tray recording controls, recording execution, export/share, provider/model work, broad theme/skin work, FAM-007 work, or Governance worktree mutation.`
+Allowed Scope: `UTS handoff return/digest only; no PR Readiness, PR creation, merge, release, or future-gated recording behavior until separately approved after UTS PASS or WAIVED is recorded.`
 Explicit Exclusions: `Tray recording controls; recording execution; export/share; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007 work; PR creation; merge; release; issue mutation; artifacts/raw evidence handling beyond inspection of existing LV1 proof; sibling-worktree mutation; Governance worktree mutation.`
-Validation Required: `Identity, source truth, branch governance, worktree confinement, release-readiness health gate, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, focused FAM-006 validators, runtime-fam006 validation suite, JS syntax/load proof if JS changed, and compileall.`
-Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, stale Workstream/H1/LV1 proof, stale active-authority drift, or need for out-of-scope runtime/UI work.`
+Validation Required: `UTS result digest must rerun identity, source truth, branch governance, worktree confinement, release-readiness health gate, focused FAM-006 validators when source truth changes, runtime-fam006 validation suite, and compileall if helpers change.`
+Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, stale Workstream/H1/LV1 proof, UTS FAIL requiring repair, missing waiver reason, stale active-authority drift, or need for out-of-scope runtime/UI work.`
 USER Plan Review Gate: `USER may accept, revise, waive, or reject the Workstream Entry plan before implementation.`
 USER Inspection Files: `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Review Required Because: `Recording Profile is a new FAM-006 runtime foundation and must remain distinct from Overlay Profile, Monitor Group, tray recording, export/share, provider/model work, and broad theme/skin work.`
-Implementation Blocker: `Workstream implementation, Hardening H1, and Live Validation LV1 are complete; PR Readiness Stage 1 is not approved until USER approves the exact bounded analysis scope.`
+Implementation Blocker: `Workstream implementation and Hardening H1 are complete, and LV1 helper proof is green; final LV1 green and PR Readiness are blocked by User Test Summary Results Pending.`
 Review Waiver Reason: `None`

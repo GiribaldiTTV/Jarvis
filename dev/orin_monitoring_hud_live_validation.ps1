@@ -845,11 +845,11 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     # returned issue loop; detailed ledger/proof evidence stays in manifests.
     $content = @"
 Nexus Desktop AI - User Test Summary
-Workstream: FAM-006 Overlay Display Acceptance Foundation
+Workstream: FAM-006 Recording Profile Runtime Foundation
 Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: $currentBranch
 Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
-Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
+Status: USER TEST SUMMARY RESULTS PENDING - HANDOFF COPY - NOT RETURNED RESULTS
 
 How To Use This File
 - Launch and test from the red FAM-006 desktop shortcut.

@@ -1387,6 +1387,8 @@ User Test Summary is exclusive to Live Validation Stage 1.
 Live Validation Stage 1 cannot enter Stage 2 until User Test Summary results are `PASS` or `WAIVED`, Codex has digested the result into source truth, and blockers have been reevaluated.
 PR Readiness may verify the previously digested Live Validation UTS state, but it must not create, refresh, or digest UTS as its own phase artifact.
 Live Validation green requires an exact `## User Test Summary` state before final green.
+Live Validation helper PASS, real-input proof PASS, screenshot/video proof PASS, and desktop `User Test Summary.txt` export do not equal final Live Validation green while the UTS copy remains a draft/handoff/`NOT RETURNED RESULTS` artifact.
+While UTS is exported but not returned, the active authority record must keep `Next Legal Phase: Live Validation`, must list `User Test Summary Results Pending`, and must explicitly block PR Readiness until returned results are `PASS` or `WAIVED` and digested.
 Every Live Validation digest must include an exact `## User Test Summary` section. If User Test Summary is waived, that digest section must still declare `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:`; validation summaries, blocker summaries, and source-truth references do not replace the digest section.
 This is a `Live Validation Stage 1` gate, not a Workstream, Hardening, or PR Readiness completion substitute.
 Workstream and Hardening may maintain UTS strategy or readiness notes, but they must not create/refresh the formal desktop UTS export, create a UTS results seam, digest UTS results, or stop on `User Test Summary Results Pending`.
