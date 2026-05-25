@@ -42,6 +42,53 @@
       }
     ]
   },
+  "reviewBundlePathCanaries": [
+    {
+      "caseId": "repo-relative-root-file",
+      "path": "START_HERE.md",
+      "expectedRepoRelative": true
+    },
+    {
+      "caseId": "repo-relative-nested-file",
+      "path": "Docs/branch_records/example.md",
+      "expectedRepoRelative": true
+    },
+    {
+      "caseId": "windows-drive-absolute",
+      "path": "C:\\review\\file.md",
+      "expectedRepoRelative": false
+    },
+    {
+      "caseId": "windows-drive-relative",
+      "path": "C:review\\file.md",
+      "expectedRepoRelative": false
+    },
+    {
+      "caseId": "windows-rooted-path",
+      "path": "\\review\\file.md",
+      "expectedRepoRelative": false
+    },
+    {
+      "caseId": "windows-unc-path",
+      "path": "\\\\server\\share\\file.md",
+      "expectedRepoRelative": false
+    },
+    {
+      "caseId": "posix-absolute",
+      "path": "/tmp/review/file.md",
+      "expectedRepoRelative": false
+    },
+    {
+      "caseId": "parent-traversal",
+      "path": "../review/file.md",
+      "expectedRepoRelative": false
+    },
+    {
+      "caseId": "url-path",
+      "path": "https://example.invalid/review/file.md",
+      "expectedRepoRelative": false
+    }
+  ],
   "editionBoundaryManifest": {
     "schema": "fam007-edition-boundary-manifest-v1",
     "edition": "Public",

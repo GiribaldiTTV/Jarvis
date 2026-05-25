@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import re
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 
@@ -239,6 +239,20 @@ def _require(condition: bool, failures: list[str], message: str) -> None:
         failures.append(message)
 
 
+def _is_public_review_bundle_relative_path(path: str) -> bool:
+    if not isinstance(path, str) or not path:
+        return False
+    if "://" in path or path.startswith("~"):
+        return False
+    if Path(path).is_absolute() or PurePosixPath(path).is_absolute():
+        return False
+    windows_path = PureWindowsPath(path)
+    if windows_path.is_absolute() or windows_path.drive or windows_path.root:
+        return False
+    parts = set(PurePosixPath(path).parts) | set(windows_path.parts)
+    return ".." not in parts
+
+
 def _validate_required_source_truth(failures: list[str]) -> None:
     ai_plan = _read(AI_EDITION_PLAN)
     branch_plan = _read(FAM007_BRANCH_PLAN)
@@ -287,9 +301,38 @@ def _validate_public_review_bundle(fixture_set: dict[str, Any], failures: list[s
     )
     for file_entry in bundle.get("files", []):
         path = file_entry.get("path", "")
-        _require(path and not Path(path).is_absolute(), failures, f"public review bundle path must be relative: {path!r}")
+        _require(_is_public_review_bundle_relative_path(path), failures, f"public review bundle path must be repo-relative: {path!r}")
     reasons = _scan_reasons(bundle)
     _require(not reasons, failures, f"public review bundle contains protected patterns: {sorted(reasons)}")
+
+
+def _validate_review_bundle_path_canaries(fixture_set: dict[str, Any], failures: list[str]) -> None:
+    canaries = fixture_set.get("reviewBundlePathCanaries", [])
+    _require(len(canaries) >= 6, failures, "review bundle path canaries must cover relative and absolute path forms")
+    seen_cases: set[str] = set()
+    for canary in canaries:
+        case_id = str(canary.get("caseId", ""))
+        path = canary.get("path", "")
+        expected = canary.get("expectedRepoRelative")
+        actual = _is_public_review_bundle_relative_path(path)
+        seen_cases.add(case_id)
+        _require(
+            actual is expected,
+            failures,
+            f"review bundle path canary {case_id} expected repo-relative={expected!r}, got {actual!r} for {path!r}",
+        )
+    for required_case in (
+        "repo-relative-root-file",
+        "repo-relative-nested-file",
+        "windows-drive-absolute",
+        "windows-drive-relative",
+        "windows-rooted-path",
+        "windows-unc-path",
+        "posix-absolute",
+        "parent-traversal",
+        "url-path",
+    ):
+        _require(required_case in seen_cases, failures, f"review bundle path canaries missing {required_case}")
 
 
 def _validate_edition_manifest(fixture_set: dict[str, Any], failures: list[str]) -> None:
@@ -372,6 +415,7 @@ def validate() -> list[str]:
     _validate_required_source_truth(failures)
     _validate_public_safe_fixture(fixture_set, failures)
     _validate_public_review_bundle(fixture_set, failures)
+    _validate_review_bundle_path_canaries(fixture_set, failures)
     _validate_edition_manifest(fixture_set, failures)
     _validate_public_build_audit(failures=failures, fixture_set=fixture_set)
     _validate_blocked_canaries(fixture_set, failures)
