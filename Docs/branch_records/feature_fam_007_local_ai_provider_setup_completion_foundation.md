@@ -49,8 +49,8 @@ Seam: `FAM-007 Local AI Provider Setup Completion Foundation`
 - Provider Setup Completion State: `Implemented local-only foundation - setup completion state/schema, eligibility, profile/config finalization, no-secrets posture, reset/fail-closed persistence semantics, hidden telemetry/status proof, and future SDK handoff criteria are present.`
 - Provider Execution State: `Blocked - provider SDK integration, model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, and functional AI remain pending USER decisions.`
 - Prior User-Operated Consent UX State: `Released evidence in v1.7.18-prebeta via PR #206; previous carrier is historical and not active branch authority.`
-- Next Active Seam: `Current-main reconciliation / rebaseline repair against origin/main@dfa59b37058fb2ef0f7d3432b585f182551408a4; after reconciliation validation, the next separate approval becomes PR Readiness Stage 2 / PR creation.`
-- PR Readiness Stage 1 Repair Status: `Complete pending current-main reconciliation closeout - pre-PR source-truth repair and AI Edition planning hardening are recorded, validated, committed, pushed, reviewed, and USER-accepted; origin/main advanced afterward and requires the approved rebaseline repair before Stage 2 can proceed.`
+- Next Active Seam: `PR Readiness Stage 2 / PR creation approval; current-main reconciliation against origin/main@dfa59b37058fb2ef0f7d3432b585f182551408a4 is complete and validated.`
+- PR Readiness Stage 1 Repair Status: `Complete - pre-PR source-truth repair, AI Edition planning hardening, USER acceptance, current-main reconciliation, overlap-intent repair, validation, commit, and push are complete; PR Readiness Stage 2 / PR creation remains a separate USER decision.`
 - AI Edition Planning Addendum: `USER-accepted durable planning source truth for this PR-readiness gate - Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md records the public-safe Owner / Dev / Public edition trust-boundary vision, Protected Assets Table, Private-To-Public Sanitization Gate, Public Build Exclusion Requirement, Public-to-Dev import consent levels, private repo remote rules, Owner-as-private-test-person rule, edition boundary manifest planning, public-safe fixture rule, public review-bundle leak-prevention rule, Owner screenshots/logs/evals rule, release breakpoints, private repo separation, GitHub Desktop setup guidance, and future-gated implementation exclusions.`
 - Pre-PR Live State: `No live PR - gh open PR check returned no open pull request for feature/fam-007-local-ai-provider-setup-completion-foundation.`
 - PR Creation Approval: `Pending - PR Readiness Stage 2 PR creation remains a separate USER decision.`
@@ -108,7 +108,7 @@ No Unique Commit Loss Proof: `The prior user-operated consent UX branch is merge
 
 ## Blockers
 
-Blockers: `None for Live Validation LV1 Green or AI Edition plan acceptance. Current-main reconciliation against origin/main@dfa59b37058fb2ef0f7d3432b585f182551408a4 must be completed and validated before PR Readiness Stage 2 / PR creation. PR Readiness Stage 2 / PR creation, merge, release/tag/artifact work, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, issue work, FAM-006 mutation, Governance mutation outside this branch, Compact-AI mutation, branch cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain separate USER decisions.`
+Blockers: `None for Live Validation LV1 Green, AI Edition plan acceptance, or current-main reconciliation. PR Readiness Stage 2 / PR creation, merge, release/tag/artifact work, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, issue work, FAM-006 mutation, Governance mutation outside this branch, Compact-AI mutation, branch cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain separate USER decisions.`
 
 ## Entry Basis
 
@@ -200,7 +200,7 @@ Non-Includes: `Provider adapter setup, model behavior, or multiple interfaces wi
 
 ## Active Seam
 
-Active seam: `Current-main reconciliation / rebaseline repair; AI Edition plan final USER acceptance is complete, and PR Readiness Stage 2 / PR creation remains a separate gate after reconciliation validation.`
+Active seam: `PR Readiness Stage 2 / PR creation approval gate; AI Edition plan final USER acceptance and current-main reconciliation are complete.`
 
 ## Seam Continuation Decision
 
@@ -209,9 +209,9 @@ Seam Status: Green
 Slice Status: Green
 Completion Status: Green
 Waiver Status: None
-Next Active Seam: Current-main reconciliation / rebaseline repair
+Next Active Seam: PR Readiness Stage 2 / PR creation approval
 Continue Decision: Stop
-Continuation Action: Complete the USER-approved current-main reconciliation / rebaseline repair before PR Readiness Stage 2 can proceed.
+Continuation Action: Stop at PR Readiness Stage 2 approval gate until USER authorizes PR creation.
 Continuation Execution Latch: Closed - LV1 Green routes to PR Readiness.
 Stop Basis: LV1 Green
 Stop Condition: LV1 Green reached after setup completion foundation was classified hidden/status-only and validator-supported User Test Summary waiver was recorded.
@@ -438,8 +438,8 @@ Branch Change Intent Ledger Status: `No rebaseline overlap entries required at S
 
 ## PR Readiness Stage 1 Analysis Packet
 
-Stage 1 Outcome: `AI Edition planning review accepted; current-main reconciliation required because origin/main advanced to dfa59b37058fb2ef0f7d3432b585f182551408a4 after the Stage 1 repair. After reconciliation validation, Stage 1 repair/review becomes complete and Stage 2 / PR creation remains a separate USER approval.`
-PR Readiness Stage 1 Repair Status: `Recorded / USER-accepted pending reconciliation closeout - pre-PR live-state truth, selected-next defer USER waiver, backlog-addition defer posture, and AI Edition planning repair are branch-local source truth for this pass.`
+Stage 1 Outcome: `Stage 1 repair/review complete after AI Edition planning review acceptance and current-main reconciliation against origin/main@dfa59b37058fb2ef0f7d3432b585f182551408a4. Stage 2 / PR creation remains a separate USER approval.`
+PR Readiness Stage 1 Repair Status: `Recorded / complete - pre-PR live-state truth, selected-next defer USER waiver, backlog-addition defer posture, AI Edition planning repair, and current-main reconciliation are branch-local source truth for this pass.`
 Pre-PR Live State: `No live PR - gh open PR check returned no open pull request for feature/fam-007-local-ai-provider-setup-completion-foundation.`
 PR Creation Approval Missing: `YES - Stage 2 PR creation remains pending USER approval.`
 PR Creation Approval: `Pending`
@@ -458,7 +458,7 @@ Stage 1 Repairs Made: `Current-main reconciliation to origin/main@a6c0c9da7676a1
 Stage 1 Repair Validation: `Required - PR-readiness gate, branch governance validation, release-readiness health gate, governance efficiency, AI provider state validation, monitoring HUD validators, rebaseline audit, diff checks, and compileall.`
 Governance Ledger Fallback: `Not used - repair is recorded in the active FAM-007 branch record and branch plan ledger.`
 Branch Readiness Fallback: `Deferred - no successor branch is selected or created by this PR-readiness pass.`
-Next Legal Phase: `Current-main reconciliation / rebaseline repair closeout against origin/main@dfa59b37058fb2ef0f7d3432b585f182551408a4; after validation, PR Readiness Stage 2 / PR creation approval is the next separate gate.`
+Next Legal Phase: `PR Readiness Stage 2 / PR creation approval.`
 
 ## Post-Merge State
 
@@ -473,20 +473,20 @@ Release Debt Posture: `No release execution is performed by PR Readiness Stage 1
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Current-main reconciliation / rebaseline repair inside PR Readiness Stage 1 source-truth repair`
-Next Legal Phase: `Current-main reconciliation closeout and PR Readiness Stage 2 decision packet`
-Next Active Seam: `Resolve origin/main@dfa59b37058fb2ef0f7d3432b585f182551408a4 overlap, preserve FAM-007 branch-local authority, and validate before Stage 2 / PR creation approval can proceed.`
-Why This Phase Is Next: `The repaired AI Edition plan is USER-accepted as durable planning source truth, but origin/main advanced after the review. The rebaseline audit requires overlap reconciliation before PR Readiness Stage 2 / PR creation can legally proceed.`
-Approval Required: `USER approval is active for current-main reconciliation / rebaseline audit repair. PR Readiness Stage 2 / PR creation remains a later separate USER decision.`
+Current Phase: `PR Readiness Stage 1 source-truth repair / current-main reconciliation complete`
+Next Legal Phase: `PR Readiness Stage 2 / PR creation approval`
+Next Active Seam: `PR Readiness Stage 2 PR creation gate for FAM-007 Local AI Provider Setup Completion Foundation`
+Why This Phase Is Next: `The repaired AI Edition plan is USER-accepted as durable planning source truth, origin/main@dfa59b37058fb2ef0f7d3432b585f182551408a4 was reconciled into the branch, overlap intent evidence is present, merge base equals origin/main, and validation is green. PR creation remains separately USER-gated.`
+Approval Required: `USER approval is required for PR Readiness Stage 2 / PR creation.`
 Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-setup-completion-foundation in C:\Nexus Worktrees\FAM-007 after current-main reconciliation against origin/main@dfa59b37058fb2ef0f7d3432b585f182551408a4 is validated and pushed. Scope: create the PR to main, verify live PR state, mergeability, status checks, source-truth posture, provider-boundary preservation, watcher/proof posture if required, and return the PR execution packet. Do not merge, release/tag/artifacts, cleanup, sibling-worktree mutation, provider SDK/model execution, downloads/external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, private Dev/Owner repo creation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Allowed Scope: `Current-main reconciliation repair and validation only for this pass. PR creation is not authorized by this digest.`
+Allowed Scope: `PR Readiness Stage 2 PR creation and live PR verification only after USER approval; same-PR comment repairs only if later approved and branch-scoped.`
 Explicit Exclusions: `No merge, release, tag, artifacts, cleanup, sibling mutation, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution during Stage 2 PR creation.`
 Validation Required: `Identity/freshness checks, diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, PR-readiness gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, branch-readiness validation suite, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, compileall, and any PR-readiness validators required by source truth.`
 Stop Conditions: `Stop if origin/main advances again and reconciliation must be recalculated, source truth points to another carrier, active branch authority is missing, selected-next/defer truth is missing, release-window posture is stale, LV1 waiver is unsupported, provider-boundary or display-suppression drift appears, the accepted AI Edition plan is contradicted, FAM-006/Governance/Compact-AI creates a direct sequencing blocker, PR Readiness Stage 2 requires another pending USER decision, or validation fails.`
-USER Plan Review Gate: `Complete - the repaired AI Edition plan is USER-accepted as durable planning source truth. Current-main reconciliation remains the active blocker before Stage 2 approval text can be acted on.`
+USER Plan Review Gate: `Complete - the repaired AI Edition plan is USER-accepted as durable planning source truth and current-main reconciliation is complete. PR creation remains separately USER-gated.`
 USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/orin_ai_provider_state_validation.py.`
 Review Required Because: `The branch is runtime-adjacent and setup completion can create false readiness if confused with provider SDK/model execution; PR Readiness must prove LV1 waiver/source truth is durable and merge-stable before PR creation.`
-Implementation Blocker: `PR creation remains unauthorized until current-main reconciliation validates and USER separately approves PR Readiness Stage 2; runtime/provider/model/release work remains pending USER decisions.`
+Implementation Blocker: `PR creation remains unauthorized until USER separately approves PR Readiness Stage 2; runtime/provider/model/release work remains pending USER decisions.`
 Review Waiver Reason: `LV1 User Test Summary, user-facing shortcut validation, Codex live-client self-QA, and visual adjudication are waived because the implemented setup completion surface is hidden/status-only telemetry with no meaningful manual user path.`
 Next Legal Phase Digest Missing: `NO - this digest is complete and must not be compacted, abbreviated, summarized away, or omitted from phase handoff packets.`
-Next Safe Move: `Complete and validate the USER-approved current-main reconciliation; after push, return the PR Readiness Stage 2 / PR creation approval packet.`
+Next Safe Move: `Wait for USER approval to run PR Readiness Stage 2 / PR creation from C:\Nexus Worktrees\FAM-007.`
