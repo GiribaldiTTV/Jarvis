@@ -7462,6 +7462,12 @@ def _backlog_entry_block(backlog_text: str, fam_id: str) -> str:
     return ""
 
 
+def _roadmap_family_row(roadmap_text: str, fam_id: str) -> str:
+    pattern = re.compile(rf"^\|\s*`{re.escape(fam_id)}`\b.*$", flags=re.M)
+    match = pattern.search(roadmap_text)
+    return match.group(0) if match else ""
+
+
 def _run_post_merge_fold_down_drift_gate(
     require,
     *,
@@ -7510,9 +7516,10 @@ def _run_post_merge_fold_down_drift_gate(
                     f"{plan_pointer}: post-merge current-state fold-down still contains stale {label}",
                 )
         if "fam_006_overlay_display_acceptance_foundation" in record_path:
+            roadmap_text = _read_text(Path("Docs/prebeta_roadmap.md"))
             fam_sources = (
                 ("Docs/feature_backlog.md", _backlog_entry_block(backlog_text, "FAM-006")),
-                ("Docs/prebeta_roadmap.md", _read_text(Path("Docs/prebeta_roadmap.md"))),
+                ("Docs/prebeta_roadmap.md", _roadmap_family_row(roadmap_text, "FAM-006")),
             )
             for source_name, source_text in fam_sources:
                 for phrase in POST_MERGE_COMPACT_OWNER_STALE_PHRASES:
