@@ -195,7 +195,87 @@ Element Validation Ledger Owner: `Docs/branch_records/feature_fam_007_local_ai_p
 
 ## Branch Change Intent Ledger
 
-Branch Change Intent Ledger Status: `No rebaseline overlap entries required at Stage 2 setup. The branch was created directly from origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45 after v1.7.18-prebeta release; future rebaseline mutation must rerun the audit and add per-file overlap entries if needed.`
+Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded for origin/main@f4d81d179f9631cc36cc09ba520a12002221003d after FAM-006 PR #207 merged. The original Stage 2 no-overlap receipt is retained as historical setup evidence, and the active overlap entries below govern this reconciliation pass.`
+
+### Changed Surface: Docs/branch_records/index.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Accept incoming FAM-006 PR #207 active authority indexing as merged-main context while preserving FAM-007 setup completion foundation active authority and PR Readiness handoff on this branch.`
+- Why This File Was Touched: `Incoming main adds the FAM-006 overlay display acceptance branch record to the active authority index while this FAM-007 branch adds the setup completion foundation branch record; both active lanes must remain explicit without one lane becoming successor authority for the other.`
+- Owned Behavior / Fact Class: `Branch authority index and active carrier routing.`
+- Canonical Owner / Source Owner: `Docs/branch_records/index.md`
+- Resolution Owner: `USER Decision`
+- Shared Surface: `YES - merged-main branch authority index overlap between FAM-006 incoming truth and FAM-007 branch-local truth.`
+- Overlap Risk: `Medium - wrong resolution could drop one active authority entry or incorrectly route FAM-007 PR Readiness into FAM-006.`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Keep both active authority entries when reconciling: incoming FAM-006 PR #207 authority remains authoritative for FAM-006/HUD, and current-branch FAM-007 setup completion authority remains authoritative for this FAM-007 PR Readiness carrier.`
+- Rebaseline Handling: `Merge origin/main into the FAM-007 branch only after this ledger entry is present; do not delete or rewrite FAM-006 authority, and do not demote FAM-007 authority before PR Readiness decides merge-stable projection.`
+- Validation Proof: `Required validation includes python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_setup_completion_foundation.md, python dev\orin_branch_governance_validation.py, python dev\orin_branch_governance_validation.py --release-readiness-health-gate, and python dev\orin_branch_governance_validation.py --pr-readiness-gate after reconciliation.`
+- Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved current-main reconciliation preparation for this FAM-007 branch against origin/main@f4d81d179f9631cc36cc09ba520a12002221003d.`
+- Fold-Down Target: `PR Readiness Stage 1 repair/reconciliation packet and final PR Readiness Stage 1 decision packet.`
+
+### Changed Surface: Docs/feature_backlog.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Accept incoming FAM-006 backlog updates as authoritative for FAM-006/HUD while preserving FAM-007 setup completion LV1 Green and PR Readiness Stage 1 pending truth.`
+- Why This File Was Touched: `Incoming main updates the FAM-006 family row and detail owner after PR #207; this branch updates the FAM-007 family row and detail owner for setup completion foundation.`
+- Owned Behavior / Fact Class: `Feature-family registry, canonical detail owner pointers, and compact current-state summaries.`
+- Canonical Owner / Source Owner: `Docs/feature_backlog.md`
+- Resolution Owner: `USER Decision`
+- Shared Surface: `YES - FAM-006 and FAM-007 compact registry rows changed from different lanes.`
+- Overlap Risk: `Medium - stale resolution could revert the FAM-006 PR #207 backlog truth or lose FAM-007 LV1 Green/PR Readiness truth.`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Preserve incoming FAM-006 row/detail-owner truth from origin/main and preserve current-branch FAM-007 setup completion row/detail-owner truth. Do not select FAM-006 as successor authority for FAM-007 and do not revert FAM-007 to the prior user-operated consent UX carrier.`
+- Rebaseline Handling: `Merge both family rows semantically, then validate backlog registry and release-readiness health gates.`
+- Validation Proof: `Required validation includes python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_setup_completion_foundation.md, python dev\orin_branch_governance_validation.py, python dev\orin_branch_governance_validation.py --release-readiness-health-gate, python dev\orin_governance_efficiency_validation.py, and python dev\orin_branch_readiness_planning_fixture_validation.py after reconciliation.`
+- Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved current-main reconciliation preparation for this FAM-007 branch against origin/main@f4d81d179f9631cc36cc09ba520a12002221003d.`
+- Fold-Down Target: `PR Readiness Stage 1 repair/reconciliation packet and final PR Readiness Stage 1 decision packet.`
+
+### Changed Surface: Docs/prebeta_roadmap.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Accept incoming FAM-006 roadmap updates as authoritative for FAM-006/HUD while preserving FAM-007 setup completion LV1 Green and PR Readiness Stage 1 pending roadmap truth.`
+- Why This File Was Touched: `Incoming main updates the FAM-006 roadmap row after PR #207; this branch updates the FAM-007 roadmap row for setup completion foundation.`
+- Owned Behavior / Fact Class: `Pre-beta stage-breakpoint schedule outline and family milestone summaries.`
+- Canonical Owner / Source Owner: `Docs/prebeta_roadmap.md`
+- Resolution Owner: `USER Decision`
+- Shared Surface: `YES - FAM-006 and FAM-007 roadmap rows changed from different lanes.`
+- Overlap Risk: `Medium - stale resolution could revert the FAM-006 PR #207 roadmap truth or lose the FAM-007 setup completion LV1 Green milestone.`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Preserve the incoming FAM-006 roadmap row and the current-branch FAM-007 setup completion row; keep provider SDK/model execution and model work USER-gated.`
+- Rebaseline Handling: `Merge roadmap rows semantically, then validate release-readiness health and release body checks.`
+- Validation Proof: `Required validation includes python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_setup_completion_foundation.md, python dev\orin_branch_governance_validation.py --release-readiness-health-gate, python dev\orin_release_body_validation.py, and python dev\orin_governance_efficiency_validation.py after reconciliation.`
+- Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved current-main reconciliation preparation for this FAM-007 branch against origin/main@f4d81d179f9631cc36cc09ba520a12002221003d.`
+- Fold-Down Target: `PR Readiness Stage 1 repair/reconciliation packet and final PR Readiness Stage 1 decision packet.`
+
+### Changed Surface: desktop/desktop_renderer.py
+
+- Surface Class: `desktop/UI`
+- Change Intent: `Accept incoming FAM-006 overlay display acceptance runtime/UI changes as authoritative while preserving FAM-007 setup completion hidden telemetry payload wiring in the desktop renderer.`
+- Why This File Was Touched: `Incoming main changes Monitoring HUD interaction, sizing, and live-validation support; this branch changes the AI provider state builder and renderer payload keys to expose setup completion hidden telemetry without visible setup completion UI.`
+- Owned Behavior / Fact Class: `Desktop runtime renderer surfaces for Monitoring HUD and FAM-007 AI provider hidden telemetry.`
+- Canonical Owner / Source Owner: `desktop/desktop_renderer.py`
+- Resolution Owner: `USER Decision`
+- Shared Surface: `YES - incoming FAM-006 renderer/runtime changes and current-branch FAM-007 renderer hidden telemetry changes both touch the desktop renderer.`
+- Overlap Risk: `Medium - wrong resolution could drop FAM-006 HUD fixes or drop FAM-007 setup completion hidden telemetry/status proof.`
+- Expected Conflict Risk: `Medium`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Preserve incoming FAM-006 Monitoring HUD runtime changes from origin/main and preserve current-branch FAM-007 setup completion provider-state import, builder call, and hidden telemetry payload keys. Do not add visible setup completion UI, prompt acceptance, provider execution, model execution, downloads, network calls, memory behavior, or voice/Core sync.`
+- Rebaseline Handling: `Merge origin/main into this branch, resolve renderer conflicts semantically, and run both FAM-007 provider-state validation and FAM-006 monitoring HUD validators.`
+- Validation Proof: `Required validation includes python dev\orin_ai_provider_state_validation.py, python dev\orin_monitoring_hud_surface_validation.py, python dev\orin_monitoring_hud_internal_sandbox_validation.py, python dev\orin_branch_governance_validation.py, python dev\orin_branch_governance_validation.py --worktree-confinement-gate, and python -m compileall -q dev desktop Audio main.py after reconciliation.`
+- Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
+- USER Decision / Waiver: `USER approved current-main reconciliation preparation for this FAM-007 branch against origin/main@f4d81d179f9631cc36cc09ba520a12002221003d.`
+- Fold-Down Target: `PR Readiness Stage 1 repair/reconciliation packet and final PR Readiness Stage 1 decision packet.`
 
 ### Changed Surface: No Rebaseline Overlap Files
 
