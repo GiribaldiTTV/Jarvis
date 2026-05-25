@@ -4,8 +4,8 @@ Branch: `feature/fam-006-recording-profile-runtime-foundation`
 Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md`
 Created From: `origin/main` at `26dded3f84c526e0525c7d3b18fcd2607e16590d`
-Current Plan Phase: `Branch Readiness Stage 1 posture after Workstream rollback`
-Runtime Implementation Approval: `Blocked - Recording Profile Workstream implementation was rolled back by USER request; future active-overlay-driven recording implementation requires new Branch Readiness and Workstream approval`
+Current Plan Phase: `Historical rollback receipt - superseded by feature/fam-006-active-overlay-recording-runtime-foundation`
+Runtime Implementation Approval: `Blocked - Recording Profile Workstream implementation was rolled back by USER request; future active-overlay-driven recording implementation is routed to feature/fam-006-active-overlay-recording-runtime-foundation`
 
 ## Branch Runtime Engineering Plan
 
@@ -13,25 +13,25 @@ Plan Identity: `FAM-006 Recording Profile Runtime Foundation`
 Owning Branch: `feature/fam-006-recording-profile-runtime-foundation`
 Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md`
-Current Phase: `Branch Readiness Stage 1 posture after Workstream rollback`
+Current Phase: `Historical rollback receipt`
 Branch Runtime Engineering Plan: `Recording Profile Runtime Foundation branch setup and planning admission.`
-Engineering Plan Status: `Accepted for Stage 2 setup`
+Engineering Plan Status: `Historical rollback receipt - retired from active planning posture`
 Current Runtime Baseline: `FAM-006 Overlay Profile Runtime Foundation and Overlay Display Acceptance Foundation are released historical evidence. Recording Profile Workstream runtime changes are rolled back.`
-Branch Purpose: `Return FAM-006 to Branch Readiness Stage 1 posture after USER rejected the profile-loaded Recording Profile direction and clarified active-overlay-driven recording vision.`
+Branch Purpose: `Preserve FAM-006 rollback receipt after USER rejected the profile-loaded Recording Profile direction and clarified active-overlay-driven recording vision.`
 Planned Runtime Delta: `None after rollback. Future Workstream must be replanned around active-overlay-driven recording, not profile-loaded Recording Profile state.`
 User-Facing Delta: `None after rollback; future user-visible UI/status/copy deltas must be approved through Branch Readiness and Workstream for HUD Overlay card recording controls or standalone Recording Settings.`
 Source-Truth Delta: `Move merged/deleted FAM-006 release-posture carry-forward record from active to historical/no-active posture; add this active branch authority and branch plan; update compact backlog/roadmap pointers for the active Recording Profile planning branch; record cleanup/no-unique-commit proof.`
 State / Config / Schema Delta: `None after rollback; future recording state/schema must be replanned from active Overlay Profile membership and recording output settings.`
 Validator / Helper Delta: `Recording Profile Workstream validator/helper changes are reverted; future validators must be selected by the next Branch Readiness / Workstream path.`
 Expected Changed Files / Surfaces: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/README.md; Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/retirement_index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md.`
-Workstream / Seam Map: `Withdrawn for Recording Profile Runtime Foundation; future seam map must be selected by a new Branch Readiness / Workstream Entry path for active-overlay-driven recording.`
+Workstream / Seam Map: `Withdrawn for Recording Profile Runtime Foundation; future seam map is routed to feature/fam-006-active-overlay-recording-runtime-foundation.`
 Per-Seam Implementation Checklist: `SLC-046 must name state/schema files before runtime edits; SLC-047 must name visible selector/editing files before UI edits; SLC-048 must name relationship/boundary files; SLC-049 must name Dashboard/Manage Monitors surfaces; SLC-050 must name validator/helper/proof files.`
 Per-Seam Validation Checklist: `Each seam must define exact validators, fixtures, proof helpers, JS syntax/load checks where changed, H1 checks, LV1 real-input proof where user-facing, and regression proof for Overlay Profile, Monitor Group, Dashboard, Sensor Command Center, and Recording Profile separation.`
 Per-Seam User-Facing Proof Checklist: `Pending Workstream Entry; any user-facing seam must carry real-input desktop validation and focused per-element screenshot requirements.`
 Future-Gated Items: `Future-gated and pending USER approval: tray recording controls, actual recording execution, export/share/import, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, Governance worktree mutation, issue mutation, PR creation, merge, release, and artifacts/raw evidence handling.`
 Approval-Boundary Audit: `Recording Profile Workstream implementation was rolled back by USER request and receipt-complete for rollback commit f2563c717dd1d2d80e07f12462b916097c6e8745. Exact USER authorization text: "okay, so then i want you to revert all the changes you made for the workstream, and lets go back to a Branch Readiness Stage 1 posture for now." Runtime implementation, Workstream execution, PR, merge, release, issue, artifact, sibling-worktree, tray/export/provider/theme work are blocked pending separate USER approval.`
 FAM / Shared-Surface Overlap Forecast: `FAM-006 only. FAM-007 and Governance worktrees are sibling context and not mutable. Future runtime seams may touch HUD/Dashboard/Manage Monitors surfaces and must forecast overlap before implementation.`
-Open Questions: `Pending USER decisions: Branch Readiness Stage 1 analysis for the next active-overlay-driven recording carrier, stable Overlay Profile Settings placement, durable recording output format, and any Recording Settings beyond folder path/open folder/Start/Stop.`
+Open Questions: `Pending USER decisions on the successor active-overlay branch: stable Overlay Profile Settings placement, durable recording output format, and any Recording Settings beyond folder path/open folder/Start/Stop.`
 USER Planning Decisions: `USER approved Stage 1 analysis and Stage 2 setup for this branch, then requested rollback of all Recording Profile Workstream changes and return to Branch Readiness Stage 1 posture after clarifying active-overlay-driven recording vision. Exact USER rollback authorization text recorded for commit f2563c717dd1d2d80e07f12462b916097c6e8745: "okay, so then i want you to revert all the changes you made for the workstream, and lets go back to a Branch Readiness Stage 1 posture for now."`
 Plan Revision History: `v1 - Created after PR #212 merge and FAM-006 branch cleanup from current origin/main 26dded3f84c526e0525c7d3b18fcd2607e16590d.`
 Plan-To-Implementation Traceability: `Recording Profile Workstream implementation evidence is superseded by rollback. Future implementation must start from a new Branch Readiness / Workstream trace for active-overlay-driven recording.`
@@ -40,8 +40,8 @@ Hardening Comparison Checklist: `Pending future Workstream implementation. H1 mu
 Live Validation Proof Or Waiver Checklist: `Pending future Workstream implementation. LV1 must use real user-facing launcher where feasible, real user-level input, compact/default window proof, per-element screenshots, output-file proof where applicable, and UTS handoff when user-facing behavior changes.`
 PR Readiness Fold-Down / Retention Checklist: `Future PR Readiness must decide what branch-plan details fold into branch record, family vision/dossier, workstream record, or retirement index.`
 Release Readiness Public-Scope Translation Checklist: `Future Release Readiness must describe only implemented and validated user-facing Recording Profile work; future-gated tray/export/provider/theme work must remain excluded.`
-USER Planning Review: `Accepted for Branch Readiness Stage 2 setup only.`
-Runtime Implementation Approval: `Blocked - Recording Profile Workstream was rolled back. Runtime implementation is blocked until Branch Readiness Stage 1 selects a corrected active-overlay-driven recording path and USER approves later Workstream implementation.`
+USER Planning Review: `Historical rollback receipt only.`
+Runtime Implementation Approval: `Blocked - Recording Profile Workstream was rolled back. Runtime implementation is blocked until Workstream Entry and later USER implementation approval on feature/fam-006-active-overlay-recording-runtime-foundation.`
 PR Fold-Down Packet: `Pending future PR Readiness.`
 
 ## Package And Slice Admission
@@ -141,12 +141,12 @@ Alternatives / Tradeoffs: The profile-loaded Recording Profile route was attempt
 Accepted Scope: Current accepted scope is rollback/source-truth posture and current-main reconciliation only.
 Deferred Scope: Runtime implementation, Workstream Entry, recording execution, output file writing, standalone Recording Settings implementation, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, and artifacts/raw evidence handling remain deferred.
 Rejected Scope: Loading a separate Recording Profile before recording sensors is rejected for future recording runtime unless USER explicitly re-approves it.
-Exact USER Decision Needed: USER may approve rollback receipt repair after current-main reconciliation, then Branch Readiness Stage 1 analysis for the next active-overlay-driven recording carrier.
+Exact USER Decision Needed: USER may approve Workstream Entry analysis on feature/fam-006-active-overlay-recording-runtime-foundation.
 Implementation Approval: Blocked - branch plan review gate does not authorize runtime mutation.
 
 ## Workstream Entry Whole-Package Analysis Requirements
 
-Superseded: the Recording Profile SLC-046 through SLC-050 package is withdrawn after USER rollback request. Future Workstream Entry must be preceded by Branch Readiness Stage 1 analysis for active-overlay-driven recording.
+Superseded: the Recording Profile SLC-046 through SLC-050 package is withdrawn after USER rollback request. Future Workstream Entry is routed to feature/fam-006-active-overlay-recording-runtime-foundation.
 
 Required Workstream Entry outputs:
 
@@ -164,5 +164,5 @@ Required Workstream Entry outputs:
 
 ## Next Legal Phase
 
-Next Legal Phase: `Branch Readiness Stage 1`
-Exact USER Decision Needed: `Approve Branch Readiness Stage 1 analysis for the next FAM-006 active-overlay-driven recording carrier in C:\Nexus Worktrees\FAM-006. This approval covers analysis of the corrected recording vision, carrier/branch path, rollback/source-truth state, current-main freshness, branch cleanup risk, and exact Stage 2 setup decision text only. It does not approve runtime implementation, Workstream implementation, PR creation, merge, release, issue mutation, artifacts/raw evidence handling, sibling-worktree mutation, export/share, provider/model work, broad theme/skin work, FAM-007 work, or Governance worktree mutation.`
+Next Legal Phase: `Workstream Entry analysis on feature/fam-006-active-overlay-recording-runtime-foundation`
+Exact USER Decision Needed: `Approve Workstream Entry analysis for FAM-006 Active Overlay Recording Runtime Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-foundation. This approval covers analysis only: inspection of source truth and runtime surfaces, analysis of the admitted active-overlay-driven recording package from SLC-051 through SLC-055, selection of the first bounded implementation seam, definition of affected files, validators, helpers, source-truth updates, proof requirements, USER-facing proof requirements, and return of the first implementation approval packet. It does not approve runtime implementation, Workstream implementation, recording execution, tray recording controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge to main, release, issue mutation, artifacts/raw evidence handling beyond approved Workstream Entry review materials, sibling-worktree mutation, old branch cleanup/deletion, or Governance worktree mutation.`
