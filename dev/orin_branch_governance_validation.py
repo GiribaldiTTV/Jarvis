@@ -11911,7 +11911,7 @@ def _run_merge_stable_source_truth_projection_gate(
             ),
         )
         for plan_path in sorted(set(re.findall(r"Docs/branch_plans/[A-Za-z0-9._-]+\.md", record_text))):
-            if plan_path == "Docs/branch_plans/README.md":
+            if plan_path in {"Docs/branch_plans/README.md", "Docs/branch_plans/retirement_index.md"}:
                 continue
             plan = Path(plan_path)
             if not (ROOT_DIR / plan).exists():
@@ -15357,6 +15357,32 @@ def _git_is_ancestor(ancestor_sha: str, descendant_sha: str) -> tuple[bool, str]
     if completed.returncode == 1:
         return False, ""
     return False, completed.stderr.strip() or completed.stdout.strip() or "git merge-base failed"
+
+
+def _branch_ref_is_merged_into_origin_main(branch_name: str) -> tuple[bool, str]:
+    normalized_branch = branch_name.strip()
+    if normalized_branch.startswith("origin/"):
+        normalized_branch = normalized_branch.removeprefix("origin/")
+    if not normalized_branch:
+        return False, ""
+
+    origin_main_ref = "refs/remotes/origin/main"
+    if not _git_ref_sha(origin_main_ref):
+        return False, "could not resolve refs/remotes/origin/main"
+
+    candidate_refs = (
+        f"refs/remotes/origin/{normalized_branch}",
+        f"refs/heads/{normalized_branch}",
+    )
+    for candidate_ref in candidate_refs:
+        if not _git_ref_sha(candidate_ref):
+            continue
+        is_ancestor, error = _git_is_ancestor(candidate_ref, origin_main_ref)
+        if error:
+            return False, error
+        if is_ancestor:
+            return True, ""
+    return False, ""
 
 
 def _local_merge_tree_clean() -> tuple[bool, str]:
@@ -21957,6 +21983,25 @@ def main() -> int:
                     f"'{branch_name}'"
                 ),
             )
+            if branch_record_path != STANDING_GOVERNANCE_INTAKE_RECORD_PATH:
+                branch_is_merged, branch_merge_error = _branch_ref_is_merged_into_origin_main(branch_name)
+                require(
+                    not branch_merge_error,
+                    (
+                        f"{branch_record_path}: Merged Active Branch Authority Not Folded Down; "
+                        f"could not compare branch '{branch_name}' with origin/main: {branch_merge_error}"
+                    ),
+                )
+                require(
+                    not branch_is_merged,
+                    (
+                        f"{branch_record_path}: Merged Active Branch Authority Not Folded Down; "
+                        f"active branch authority points to branch '{branch_name}' whose ref is already "
+                        "merged into origin/main. Move the record to Historical Branch Authority Records, "
+                        "retire or historical-label its branch plan, update compact pointers to "
+                        "merged-unreleased/released posture, and route release execution separately."
+                    ),
+                )
         if branch_record_path in historical_branch_record_paths:
             require(
                 "`Active Branch`" not in phase_status_section,

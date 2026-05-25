@@ -8,15 +8,15 @@ Plan Identity: `FAM-007 Local AI Provider Setup Completion Foundation - Branch R
 Owning Branch: `feature/fam-007-local-ai-provider-setup-completion-foundation`
 Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
-Current Phase: `PR Readiness Stage 1 source-truth repair / current-main reconciliation complete`
-Branch Runtime Engineering Plan: Required and present for the FAM-007 setup completion foundation runtime carrier.
+Current Phase: `Historical merged-unreleased after PR #210 merge`
+Branch Runtime Engineering Plan: Historical receipt for the FAM-007 setup completion foundation runtime carrier.
 Engineering Plan Status: Accepted - Workstream Green, Hardening H1 Green, and Live Validation LV1 Green; setup completion foundation implementation completed all admitted seams, H1 found no runtime repair required, and LV1 classified the surface as hidden/status-only with a source-truth-supported User Test Summary waiver.
 Current Runtime Baseline: `origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45`, released as `v1.7.18-prebeta` with PR #206 FAM-007 user-operated consent UX state/config/schema/UI/desktop evidence.
 Branch Purpose: Admit the next FAM-007 successor that turns released setup/consent/consent UX layers into a local provider setup completion foundation before provider SDK integration, model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, or functional AI.
 Planned Runtime Delta: Implemented local provider setup completion state, eligibility, profile/config finalization, fail-closed persistence/reset semantics, setup/execution boundary alignment, safe Core/Desktop/ORIN status proof, validator fixtures, and future SDK/model handoff criteria.
 User-Facing Delta: Hidden/status-only local setup completion telemetry; no meaningful visible provider setup completion controls, provider/model execution, prompt acceptance, download/network readiness, memory, voice/Core sync, or functional AI were introduced.
-Source-Truth Delta: Workstream Green, H1 Green, and LV1 Green fold-down records active branch authority, compact FAM-007 pointers, validation registry pointer, worktree slot assignment, prior PR #206 released evidence, completed setup completion foundation proof, User Test Summary waiver, and PR Readiness handoff posture for this successor.
-Edition Planning Delta: `PR Readiness source-truth addendum adds and repairs Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md as the USER-accepted public-safe Owner / Dev / Public edition trust-boundary and release-breakpoint plan, including a Protected Assets Table, Private-To-Public Sanitization Gate, Public Build Exclusion Requirement, Public-to-Dev import consent levels, private repo remote rules, Owner-as-private-test-person rule, edition boundary manifest planning, public-safe fixture rule, public review-bundle leak-prevention rule, Owner screenshots/logs/evals rule, and private release evidence boundary. It does not authorize runtime AI, provider/model execution, private repo creation, memory, packaging, licensing/security implementation, or release work. Current-main reconciliation is complete; PR Readiness Stage 2 remains separately USER-gated.`
+Source-Truth Delta: Workstream Green, H1 Green, LV1 Green, PR #210 merge, branch authority fold-down, compact FAM-007 pointers, validation registry pointer, worktree slot receipt, prior PR #206 released evidence, completed setup completion foundation proof, User Test Summary waiver, and merged-unreleased release-window posture are recorded as historical source truth.
+Edition Planning Delta: `PR Readiness source-truth addendum added and repaired Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md as the USER-accepted public-safe Owner / Dev / Public edition trust-boundary and release-breakpoint plan, including a Protected Assets Table, Private-To-Public Sanitization Gate, Public Build Exclusion Requirement, Public-to-Dev import consent levels, private repo remote rules, Owner-as-private-test-person rule, edition boundary manifest planning, public-safe fixture rule, public review-bundle leak-prevention rule, Owner screenshots/logs/evals rule, and private release evidence boundary. It does not authorize runtime AI, provider/model execution, private repo creation, memory, packaging, licensing/security implementation, release work, or v1.8.0-prebeta execution. PR #210 merged; Release Readiness remains separately USER-gated.`
 State / Config / Schema Delta: Implemented setup completion state schema, provider profile/config finalization state, setup blockers/reasons/provenance, no-secrets proof, reset semantics, setup/execution consent separation, and future handoff markers.
 Validator / Helper Delta: `dev/orin_ai_provider_state_validation.py` now directly validates setup completion eligibility, profile/config finalization, fail-closed states, reset behavior, status proof, provider-boundary preservation, and display-suppression continuity.
 Expected Changed Files / Surfaces: Branch record, this plan, backlog, roadmap, worktree slots, validation helper registry, provider-state source, Core/Desktop/ORIN status surfaces if admitted, desktop renderer/UI surfaces if admitted, and FAM-007 provider-state validator fixtures.
@@ -27,17 +27,17 @@ Per-Seam User-Facing Proof Checklist: If the seam changes visible UI, prove copy
 Future-Gated Items: `Future-gated and pending USER approval: provider SDK integration, provider/model execution, model downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, release execution, issue work, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.`
 Approval-Boundary Audit: Workstream implementation was authorized and completed. Provider SDK/model execution and all future AI/provider/release/cleanup/sibling-worktree work remain blocked pending USER decisions.
 FAM / Shared-Surface Overlap Forecast: FAM-006 is a separate sibling lane and overlap context only; Governance is standing intake context only; Compact-AI remains protected historical work. None is successor authority for this FAM-007 branch.
-Open Questions: Resolved for LV1. Hidden/status-only proof route, User Test Summary waiver, live-client self-QA waiver, shortcut waiver, and visual adjudication waiver are recorded.
-USER Planning Decisions: USER approved Branch Readiness Stage 2 setup, Workstream Entry, bounded Workstream implementation, H1, LV1, PR Readiness Stage 1 analysis/repair, AI Edition planning repair and final AI Edition plan acceptance, and current-main reconciliation / rebaseline audit repair. PR creation, merge, release, provider SDK/model execution, downloads/network, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.
+Open Questions: None for PR #210 merge receipt. Hidden/status-only proof route, User Test Summary waiver, live-client self-QA waiver, shortcut waiver, and visual adjudication waiver are recorded.
+USER Planning Decisions: USER approved Branch Readiness Stage 2 setup, Workstream Entry, bounded Workstream implementation, H1, LV1, PR Readiness Stage 1 analysis/repair, AI Edition planning repair and final AI Edition plan acceptance, current-main reconciliation / rebaseline audit repair, PR creation, and PR #210 merge. Release, provider SDK/model execution, downloads/network, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.
 Plan Revision History: v1 created during Branch Readiness Stage 2 from origin/main@a909f8e92c1fb1abd06e54e1301f12459e647b45 after v1.7.18-prebeta.
 Plan-To-Implementation Traceability Table: Complete. Setup completion state maps to `desktop/ai_provider_state.py`; hidden status proof maps to Core/Desktop/ORIN renderers; validators map to `dev/orin_ai_provider_state_validation.py`; compact status maps to backlog, roadmap, validation registry, and worktree slot receipts; LV1 maps to hidden/status-only classification and User Test Summary waiver.
 Hardening Comparison Checklist: Complete - H1 compared implementation against this plan, Product Definition Plan, Runtime Branch Engineering Contract, Branch Vision Snapshot, Element-to-Phase Proof Matrix, UI copy, provider-boundary preservation, validators, display-suppression continuity, and source-truth fold-down.
 Live Validation Proof Or Waiver Checklist: Complete - LV1 classified the implemented surface as hidden/status-only, waived User Test Summary, user-facing shortcut validation, Codex Live Client Self-QA, and visual adjudication, preserved provider-visible data none, and kept provider/model/network/memory/voice execution blocked.
-PR Readiness Fold-Down / Retention Checklist: PR Readiness must project merge-stable branch authority, release-window posture, selected-next/defer truth, live PR/watcher state separation, branch cleanup plan, and source-truth retention/retirement decisions.
+PR Readiness Fold-Down / Retention Checklist: Complete after PR #210 merge - branch authority is historical merged-unreleased, release-window posture points to v1.7.20-prebeta, selected-next/defer truth is retained as historical receipt, live PR/watcher state is not current source truth, branch cleanup remains USER-gated, and source-truth retention/retirement decisions are recorded.
 AI Edition Plan Retention Checklist: `Keep Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md as public-safe FAM-007/FAM-008/FAM-010 planning truth after merge; later Branch Readiness must use it before creating Dev/Owner private skeletons, Public-to-Dev migration, edition manifests, packaging identity, memory/personalization, provider execution, or v1.8.0-prebeta release claims.`
 Release Readiness Public-Scope Translation Checklist: Release Readiness must describe this branch as local provider setup completion foundation only and exclude provider SDK/model execution, functional AI, memory, voice/Core, downloads/network, and v1.8.0 execution unless later USER-approved proof changes that scope.
 USER Planning Review: Completed during Workstream Entry.
-PR Fold-Down Packet: Pending.
+PR Fold-Down Packet: Complete - PR #210 merged; this plan is retired from active planning posture in Docs/branch_plans/retirement_index.md, with durable detail in Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md and FAM-007 family vision records.
 Runtime Implementation Approval: Granted for this Workstream; future provider SDK/model execution remains pending USER approval.
 
 ## Branch Vision Contract Snapshot
@@ -63,15 +63,15 @@ USER Vision Question Packet: Completed through Workstream Entry review and USER 
 Codex Product Interpretation: Setup completion is a local state/config boundary and future handoff layer, not a provider adapter or model runner.
 Codex Implementation Recommendation: Complete local setup state before adapter/SDK work.
 Codex Additional Recommendations: Keep copy modest, keep setup and execution separate, persist no secrets, and validate every blocked state.
-USER/ChatGPT Review Checkpoint: USER reviewed/approved Workstream Entry, bounded Workstream implementation, H1, LV1, PR Readiness Stage 1 repair direction, and the repaired AI Edition plan; current-main reconciliation is complete and Stage 2 remains separately USER-gated.
+USER/ChatGPT Review Checkpoint: USER reviewed/approved Workstream Entry, bounded Workstream implementation, H1, LV1, PR Readiness Stage 1 repair direction, repaired AI Edition plan, PR creation, and PR #210 merge; release readiness remains separately USER-gated.
 USER Critique Loop: Workstream implementation proceeded under USER-approved bounded scope, completed all admitted seams, passed H1 without runtime repair, and passed LV1 as hidden/status-only with waiver support.
-USER Decision Ledger: Stage 2 setup, Workstream Entry, bounded Workstream implementation, H1, LV1, PR Readiness Stage 1 analysis/repair, AI Edition planning repair and acceptance, and current-main reconciliation / rebaseline audit repair are approved/complete; PR creation, merge, release, provider SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.
+USER Decision Ledger: Stage 2 setup, Workstream Entry, bounded Workstream implementation, H1, LV1, PR Readiness Stage 1 analysis/repair, AI Edition planning repair and acceptance, current-main reconciliation / rebaseline audit repair, PR creation, and PR #210 merge are approved/complete; release, provider SDK/model execution, downloads/external calls, memory, voice/Core sync, shortcuts/installers, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending.
 Deferred Ideas / Future Package Ledger: Adapter/SDK selection, model lifecycle, prompt/model execution, provider-visible data transfer proof, memory/indexing/personalization, voice/Core sync, shortcuts/installers, capability-pack install/download behavior, AI Product Contract import, Private Dev ORIN import, and v1.8.0 release execution.
 Planning Adequacy Review: Complete for Stage 2 because the plan covers product intent, state/config model, UI/status boundary, validator expectations, proof phases, overlap posture, and future exclusions.
 Rejected Shallow Plan: A single setup-ready label is rejected without setup state, config finalization, reset behavior, validators, and provider-boundary proof.
 Alternatives And Tradeoffs Reviewed: SDK/model execution now is premature; repeating user-operated consent UX is stale because PR #206 released it; FAM-006 routing is sibling drift.
 Whole-System Interaction Map: Released setup and consent foundations feed setup completion state, which feeds future provider adapter handoff while keeping execution blocked.
-Open Questions / USER Decision Points: PR creation, merge, release, and all future AI/provider decisions remain pending.
+Open Questions / USER Decision Points: Release and all future AI/provider decisions remain pending.
 System Concept Model: Local setup completion state machine and proof layer.
 Entity / Profile Model: Setup completion state, provider profile, config envelope, blocker, reason, provenance, reset state, consent handoff, and future adapter marker.
 User Workflow Model: User eventually completes or resets local setup and sees clear local setup-complete or blocked status, with execution still unavailable.
@@ -85,11 +85,11 @@ Affected Files / Surfaces: Source truth, provider state, Core/Desktop/ORIN statu
 Branch Reach / Package-Size Proof: The branch covers state, config, status, validation, reset, and provider-boundary proof.
 Why Branch Is Large Enough: Setup completion is the coherent prerequisite between consent UX and adapter work.
 Why Not Split Into Tiny Branches: Splitting state/config/reset/validators would create false-readiness risk.
-Acceptance Criteria: Workstream Green, H1 Green, LV1 Green, PR Readiness Stage 1 source-truth repair, AI Edition plan acceptance, current-main reconciliation, selected-next/defer truth, release-window posture, branch authority fold-down, validation, and PR eligibility review are complete. PR creation remains separately gated.
+Acceptance Criteria: Workstream Green, H1 Green, LV1 Green, PR Readiness Stage 1 source-truth repair, AI Edition plan acceptance, current-main reconciliation, selected-next/defer truth, release-window posture, branch authority fold-down, validation, PR eligibility review, PR creation, and PR #210 merge are complete. Release execution remains separately gated.
 Screenshot / Live / User Test Summary Proof Requirements: Complete for LV1 - UTS, shortcut validation, live-client self-QA, and visual adjudication are waived because setup completion remains hidden/status-only local telemetry.
 Implementation Sequence Proposal: Workstream Entry, USER approval, bounded implementation through admitted seams, H1, LV1, PR readiness, PR, merge, release readiness, release only with separate approval.
 Planning Blockers: None for Workstream Green after validation.
-USER Decisions Needed: PR Readiness Stage 2 / PR creation approval is next. PR creation remains a separate USER decision.
+USER Decisions Needed: Release Readiness Stage 1 rerun is next after Governance source-truth fold-down; release execution remains a separate USER decision.
 
 ## Interface Release Boundary
 
@@ -135,9 +135,9 @@ Seam Status: Green
 Slice Status: Green
 Completion Status: Green
 Waiver Status: None
-Next Active Seam: PR Readiness Stage 2 / PR creation approval
+Next Active Seam: None - historical merged-unreleased receipt after PR #210 merge
 Continue Decision: Stop
-Continuation Action: Stop at PR Readiness Stage 2 approval gate until USER authorizes PR creation.
+Continuation Action: Stop; next action belongs to Release Readiness Stage 1 after Governance fold-down repair.
 Continuation Execution Latch: Closed - LV1 Green routes to PR Readiness.
 Stop Basis: LV1 Green
 Stop Condition: LV1 Green reached after setup completion foundation was classified hidden/status-only and validator-supported User Test Summary waiver was recorded.
@@ -202,9 +202,9 @@ Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded
 ### Changed Surface: Docs/branch_records/index.md
 
 - Surface Class: `governance/source-truth`
-- Change Intent: `Accept incoming FAM-006 PR #207 active authority indexing as merged-main context while preserving FAM-007 setup completion foundation active authority and PR Readiness handoff on this branch.`
-- Why This File Was Touched: `Incoming main adds the FAM-006 overlay display acceptance branch record to the active authority index while this FAM-007 branch adds the setup completion foundation branch record; both active lanes must remain explicit without one lane becoming successor authority for the other.`
-- Owned Behavior / Fact Class: `Branch authority index and active carrier routing.`
+- Change Intent: `Accept incoming FAM-006 PR #207 authority indexing as merged-main context while preserving FAM-007 setup completion foundation authority as historical receipt after PR #210.`
+- Why This File Was Touched: `Incoming main added the FAM-006 overlay display acceptance branch record to the authority index while this FAM-007 branch added the setup completion foundation branch record; after PR #210, both lanes must remain explicit historical or release-window evidence without one lane becoming successor authority for the other.`
+- Owned Behavior / Fact Class: `Branch authority index and historical carrier routing.`
 - Canonical Owner / Source Owner: `Docs/branch_records/index.md`
 - Resolution Owner: `USER Decision`
 - Shared Surface: `YES - merged-main branch authority index overlap between FAM-006 incoming truth and FAM-007 branch-local truth.`
@@ -212,7 +212,7 @@ Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded
 - Expected Conflict Risk: `Medium`
 - Semantic Merge Risk: `Medium`
 - Regression / Gating Impact: `Medium`
-- Conflict Resolution Rule: `Keep both active authority entries when reconciling: incoming FAM-006 PR #207 authority remains authoritative for FAM-006/HUD, and current-branch FAM-007 setup completion authority remains authoritative for this FAM-007 PR Readiness carrier.`
+- Conflict Resolution Rule: `Keep both authority receipts when reconciling: incoming FAM-006 PR #207 authority remains authoritative for FAM-006/HUD, and the FAM-007 setup completion authority remains historical merged-unreleased evidence after PR #210.`
 - Rebaseline Handling: `Merge origin/main into the FAM-007 branch only after this ledger entry is present; do not delete or rewrite FAM-006 authority, and do not demote FAM-007 authority before PR Readiness decides merge-stable projection.`
 - Validation Proof: `Required validation includes python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_setup_completion_foundation.md, python dev\orin_branch_governance_validation.py, python dev\orin_branch_governance_validation.py --release-readiness-health-gate, and python dev\orin_branch_governance_validation.py --pr-readiness-gate after reconciliation.`
 - Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
@@ -222,7 +222,7 @@ Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded
 ### Changed Surface: Docs/feature_backlog.md
 
 - Surface Class: `governance/source-truth`
-- Change Intent: `Accept incoming FAM-006 backlog updates as authoritative for FAM-006/HUD while preserving FAM-007 setup completion LV1 Green and PR Readiness Stage 1 pending truth.`
+- Change Intent: `Accept incoming FAM-006 backlog updates as authoritative for FAM-006/HUD while preserving FAM-007 setup completion LV1 Green and historical PR Readiness Stage 1 receipt truth.`
 - Why This File Was Touched: `Incoming main updates the FAM-006 family row and detail owner after PR #207; this branch updates the FAM-007 family row and detail owner for setup completion foundation.`
 - Owned Behavior / Fact Class: `Feature-family registry, canonical detail owner pointers, and compact current-state summaries.`
 - Canonical Owner / Source Owner: `Docs/feature_backlog.md`
@@ -242,7 +242,7 @@ Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded
 ### Changed Surface: Docs/prebeta_roadmap.md
 
 - Surface Class: `governance/source-truth`
-- Change Intent: `Accept incoming FAM-006 roadmap updates as authoritative for FAM-006/HUD while preserving FAM-007 setup completion LV1 Green and PR Readiness Stage 1 pending roadmap truth.`
+- Change Intent: `Accept incoming FAM-006 roadmap updates as authoritative for FAM-006/HUD while preserving FAM-007 setup completion LV1 Green and historical PR Readiness Stage 1 roadmap receipt truth.`
 - Why This File Was Touched: `Incoming main updates the FAM-006 roadmap row after PR #207; this branch updates the FAM-007 roadmap row for setup completion foundation.`
 - Owned Behavior / Fact Class: `Pre-beta stage-breakpoint schedule outline and family milestone summaries.`
 - Canonical Owner / Source Owner: `Docs/prebeta_roadmap.md`
@@ -302,18 +302,18 @@ Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded
 ### Changed Surface: Docs/branch_plans/retirement_index.md
 
 - Surface Class: `governance/source-truth`
-- Change Intent: `Accept incoming release-readiness PR #208 branch-plan retirement inventory as authoritative while preserving the active FAM-007 setup completion plan as current branch-local authority.`
-- Why This File Was Touched: `Incoming main updates the retirement index after merged FAM branches and this branch previously repaired retirement-index disposition during current-main reconciliation; the active FAM-007 setup completion plan must remain active while historical FAM-006/FAM-007 plan disposition stays validator-consistent.`
+- Change Intent: `Accept incoming release-readiness PR #208 branch-plan retirement inventory as authoritative while preserving the FAM-007 setup completion plan as historical merged-unreleased branch-local evidence.`
+- Why This File Was Touched: `Incoming main updates the retirement index after merged FAM branches and this branch previously repaired retirement-index disposition during current-main reconciliation; the FAM-007 setup completion plan is now retired after PR #210 while historical FAM-006/FAM-007 plan disposition stays validator-consistent.`
 - Owned Behavior / Fact Class: `Branch-plan lifecycle, retired-plan disposition, and active branch-plan pointer posture.`
 - Canonical Owner / Source Owner: `Docs/branch_plans/retirement_index.md`
 - Resolution Owner: `USER Decision`
 - Shared Surface: `YES - merged-main release-readiness inventory updates and this branch's reconciliation repair both touch branch-plan lifecycle posture.`
-- Overlap Risk: `Medium - wrong resolution could mark the active FAM-007 setup completion plan retired too early, lose the FAM-006 PR #207 retired-plan row, or desynchronize governance-efficiency validation.`
+- Overlap Risk: `Medium - wrong resolution could lose the FAM-007 setup completion historical plan receipt, lose the FAM-006 PR #207 retired-plan row, or desynchronize governance-efficiency validation.`
 - Expected Conflict Risk: `Medium`
 - Semantic Merge Risk: `Medium`
 - Regression / Gating Impact: `Medium`
-- Conflict Resolution Rule: `Preserve incoming PR #208 release-readiness inventory truth and preserve this FAM-007 setup completion plan as the active runtime Branch Runtime Engineering Plan until PR Readiness and merge-stable fold-down decide retirement.`
-- Rebaseline Handling: `Merge origin/main only after this ledger entry is present; if the retirement index conflicts, keep PR #208 governance inventory content and re-assert only the active FAM-007 setup completion plan posture needed by this branch.`
+- Conflict Resolution Rule: `Preserve incoming PR #208 release-readiness inventory truth and preserve this FAM-007 setup completion plan as historical runtime Branch Runtime Engineering Plan evidence after PR #210 merge-stable fold-down.`
+- Rebaseline Handling: `Merge origin/main only after this ledger entry is present; if the retirement index conflicts, keep PR #208 governance inventory content and re-assert only the historical FAM-007 setup completion plan posture needed after PR #210.`
 - Validation Proof: `Required validation includes python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_local_ai_provider_setup_completion_foundation.md, python dev\orin_governance_efficiency_validation.py, python dev\orin_branch_governance_validation.py, and python dev\orin_branch_governance_validation.py --pr-readiness-gate after reconciliation and PR-readiness repair.`
 - Fallback Evidence: `Report-only audit identified the overlap; this ledger entry is the compatibility evidence and is not a compatibility bypass.`
 - USER Decision / Waiver: `USER approved current-main reconciliation plus PR Readiness Stage 1 source-truth repair against origin/main@a6c0c9da7676a1f2686a13f24f9a57fd298180d2.`
@@ -386,20 +386,20 @@ Branch Change Intent Ledger Status: `Current-main reconciliation intent recorded
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `PR Readiness Stage 1 source-truth repair / current-main reconciliation complete`
-Next Legal Phase: `PR Readiness Stage 2 / PR creation approval`
-Next Active Seam: `PR Readiness Stage 2 PR creation gate for FAM-007 Local AI Provider Setup Completion Foundation`
-Why This Phase Is Next: `Live Validation LV1 is Green, PR Readiness Stage 1 repair has validated branch identity, source-truth posture, selected-next/defer truth, release-window posture, branch authority fold-down, PR eligibility, and the USER-accepted AI Edition plan. origin/main@dfa59b37058fb2ef0f7d3432b585f182551408a4 was reconciled into the branch and validation is green, so PR Readiness Stage 2 is the next separate approval gate.`
-Approval Required: `USER approval is required for PR Readiness Stage 2 / PR creation.`
-Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-setup-completion-foundation in C:\Nexus Worktrees\FAM-007 after current-main reconciliation against origin/main@dfa59b37058fb2ef0f7d3432b585f182551408a4 is validated and pushed. Scope: create the PR to main, verify live PR state, mergeability, status checks, source-truth posture, provider-boundary preservation, watcher/proof posture if required, and return the PR execution packet. Do not merge, release/tag/artifacts, cleanup, sibling-worktree mutation, provider SDK/model execution, downloads/external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, private Dev/Owner repo creation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Allowed Scope: `PR Readiness Stage 2 PR creation and live PR verification only after USER approval; same-PR comment repairs only if later approved and branch-scoped.`
-Explicit Exclusions: `No PR creation, merge, release, tag, artifacts, cleanup, sibling mutation, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
-Validation Required: `Identity/freshness checks, diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, PR-readiness gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, branch-readiness validation suite, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, compileall, and any PR-readiness validators required by source truth.`
-Stop Conditions: `Stop if origin/main advances again and reconciliation must be recalculated, source truth points to another carrier, active branch authority is missing, selected-next/defer truth is missing and cannot be repaired within Stage 1 approval, release-window posture is stale, LV1 waiver is unsupported, provider-boundary or display-suppression drift appears, the accepted AI Edition plan is contradicted, FAM-006/Governance/Compact-AI creates a direct sequencing blocker, PR Readiness requires a pending USER decision, or validation fails.`
-USER Plan Review Gate: `Complete - the repaired AI Edition plan is USER-accepted as durable planning source truth and current-main reconciliation is complete. PR creation remains separately USER-gated.`
+Current Phase: `Historical merged-unreleased after PR #210 merge`
+Next Legal Phase: `Release Readiness Stage 1 rerun for v1.7.20-prebeta candidate`
+Next Active Seam: `None - historical merged-unreleased receipt`
+Why This Phase Is Next: `PR #210 merged into origin/main@107f563796e28cfda803cb7b93b70b043278b6db after v1.7.19-prebeta, so Release Readiness must rerun against the candidate after Governance folds down stale active authority.`
+Approval Required: `USER approval is required for release execution after Release Readiness Stage 1 reports green; this historical plan does not authorize release/tag/artifact work.`
+Exact USER Approval Text: `I approve rerunning Release Readiness Stage 1 for v1.7.20-prebeta at origin/main@107f563796e28cfda803cb7b93b70b043278b6db after the PR #210 FAM-007 setup completion source-truth fold-down repair merges. Scope: derive latest release/tag/PR truth from Git/GitHub/helpers, verify release-window contributor inventory, validate FAM-007 setup completion release scope and exclusions, and report whether Release Execution is legal. Do not release/tag/artifacts, mutate runtime/provider/model/memory/voice/shortcut/installer/private-edition work, clean branches/worktrees, create successor runtime branches, import AI Product Contract or Private Dev ORIN, or execute v1.8.0-prebeta.`
+Allowed Scope: `Release Readiness Stage 1 analysis after this Governance repair; release execution remains separately USER-gated.`
+Explicit Exclusions: `No release, tag, artifacts, cleanup, sibling mutation, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Validation Required: `Identity/freshness checks, diff checks, branch governance validation, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, runtime-fam007 validation suite when Release Readiness requests it, rebaseline audit if worktrees need sync, compileall, and any release-readiness validators required by source truth.`
+Stop Conditions: `Stop if origin/main advances again, source truth points to another carrier, FAM-007 release-window posture is stale, LV1 waiver is unsupported, provider-boundary or display-suppression drift appears, the accepted AI Edition plan is contradicted, Release Readiness requires a file mutation, or validation fails.`
+USER Plan Review Gate: `Not required for this historical receipt; Release Readiness Stage 1 will produce the next USER-facing review packet if release execution is green or blocked.`
 USER Inspection Files: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md; Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; desktop/ai_provider_state.py; desktop/core_visualization_renderer.py; desktop/desktop_renderer.py; dev/orin_ai_provider_state_validation.py.`
-Review Required Because: `The branch is runtime-adjacent and setup completion can create false readiness if confused with provider SDK/model execution; PR Readiness must prove LV1 waiver/source truth is durable and merge-stable before PR creation.`
-Implementation Blocker: `PR creation remains unauthorized until USER separately approves PR Readiness Stage 2. Runtime/provider/model/release work remains pending USER decisions.`
+Review Required Because: `Release Readiness must confirm this merged-unreleased FAM-007 scope is public-safe setup completion only and does not imply provider SDK/model execution or AI Edition/private capability release.`
+Implementation Blocker: `Release execution remains unauthorized until USER separately approves it after Release Readiness Stage 1 green. Runtime/provider/model/private-edition work remains pending USER decisions.`
 Review Waiver Reason: `LV1 User Test Summary, user-facing shortcut validation, Codex live-client self-QA, and visual adjudication are waived because the implemented setup completion surface is hidden/status-only telemetry with no meaningful manual user path.`
 Next Legal Phase Digest Missing: `NO - this digest is complete and must not be compacted, abbreviated, summarized away, or omitted from phase handoff packets.`
-Next Safe Move: `Wait for USER approval to run PR Readiness Stage 2 / PR creation from C:\Nexus Worktrees\FAM-007.`
+Next Safe Move: `Merge this Governance repair, rebaseline affected worktrees, then rerun Release Readiness Stage 1 for v1.7.20-prebeta.`
