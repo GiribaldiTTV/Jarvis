@@ -11313,7 +11313,7 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
                 "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
-                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings",
+                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings",
                 "dashboard_monitor_selection_in_child_window": dataset.get("dashboardMonitorSelectionPlacement") == "edit-child-window-only",
                 "dashboard_settings_model": dataset.get("dashboardSettingsModel") == "hud-overlay-monitor-groups-provider-warning",
                 "dashboard_settings_affordance": dataset.get("dashboardSettingsAffordance") == "dashboard-ia-card-settings-button",
@@ -11697,7 +11697,7 @@ class DesktopRuntimeWindow(QWidget):
                 "dashboard_layout_proof": dataset.get("dashboardLayoutProof") == "monitor-groups-measured-no-overlap",
                 "dashboard_close_affordance": dataset.get("dashboardCloseAffordance") == "window-level-close-button",
                 "dashboard_open_badge_removed": dataset.get("dashboardOpenBadge") == "removed",
-                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings",
+                "dashboard_child_window_scope": dataset.get("dashboardChildWindowScope") == "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings",
                 "dashboard_monitor_group_model": dataset.get("monitorGroupModel") == "configurable-groups-sensor-assignment",
                 "dashboard_monitor_card_policy": dataset.get("dashboardMonitorCardPolicy") == "overlay-display-owns-visual-rendering",
                 "dashboard_sensor_assignment": dataset.get("monitorSensorAssignment") == "sensor-library-source-picker",
@@ -15057,7 +15057,7 @@ class DesktopRuntimeWindow(QWidget):
             self._emit_runtime_signal(
                 "MONITORING_HUD_RECORDING_PROFILE_STATE_READY",
                 package="PKG-006",
-                slice="SLC-046",
+                slice="SLC-047",
                 seam="Workstream",
                 active_recording_profile_id=active_recording_profile_id,
                 profile_count=len(recording_profiles),
@@ -15068,7 +15068,8 @@ class DesktopRuntimeWindow(QWidget):
                 overlay_profile_boundary="overlay-display-membership-separate",
                 tray_recording_boundary="future-gated-not-present",
                 export_share_boundary="future-gated-not-present",
-                visible_profile_editor="none-slc-046-state-only",
+                visible_profile_editor="slc-047-selection-editing-shell",
+                profile_membership_editor="readonly-slc-047",
                 schema_version=int(state.get("recordingProfileSchemaVersion") or 0),
             )
             recording_profile_changed = True
@@ -15482,7 +15483,7 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHud.dataset.dashboardDecouplingProof = "core-overlay-independent";
                     monitoringHud.dataset.dashboardContentPolish = "branch2-monitor-groups-no-dead-space";
                     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-monitor-management-child-windows";
-                    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings";
+                    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings";
                     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
                     monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
                     monitoringHud.dataset.dashboardOpenBadge = "removed";

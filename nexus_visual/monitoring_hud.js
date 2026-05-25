@@ -61,6 +61,34 @@ const monitoringHudOverlayProfileDeleteTitle = document.getElementById("monitori
 const monitoringHudOverlayProfileDeleteCopy = document.getElementById("monitoring-hud-overlay-profile-delete-copy");
 const monitoringHudOverlayProfileDeleteConfirm = document.getElementById("monitoring-hud-overlay-profile-delete-confirm");
 const monitoringHudOverlayProfileDeleteCancel = document.getElementById("monitoring-hud-overlay-profile-delete-cancel");
+const monitoringHudRecordingProfileEditor = document.getElementById("monitoring-hud-recording-profile-editor");
+const monitoringHudRecordingProfileSelector = document.getElementById("monitoring-hud-recording-profile-selector");
+const monitoringHudRecordingProfileToggle = document.getElementById("monitoring-hud-recording-profile-toggle");
+const monitoringHudRecordingProfileLabel = document.getElementById("monitoring-hud-recording-profile-label");
+const monitoringHudRecordingProfileMenu = document.getElementById("monitoring-hud-recording-profile-menu");
+const monitoringHudRecordingProfileMonitorCount = document.getElementById("monitoring-hud-recording-profile-monitor-count");
+const monitoringHudRecordingProfileSourceCount = document.getElementById("monitoring-hud-recording-profile-source-count");
+const monitoringHudRecordingProfileOpenSettings = document.getElementById("monitoring-hud-recording-profile-open-settings");
+const monitoringHudRecordingProfileWindow = document.getElementById("monitoring-hud-recording-profile-window");
+const monitoringHudRecordingProfileWindowTitle = document.getElementById("monitoring-hud-recording-profile-window-title");
+const monitoringHudRecordingProfileWindowActiveName = document.getElementById("monitoring-hud-recording-profile-window-active-name");
+const monitoringHudRecordingProfileWindowCount = document.getElementById("monitoring-hud-recording-profile-window-count");
+const monitoringHudRecordingProfileWindowMembership = document.getElementById("monitoring-hud-recording-profile-window-membership");
+const monitoringHudRecordingProfileWindowSelector = document.getElementById("monitoring-hud-recording-profile-window-selector");
+const monitoringHudRecordingProfileWindowToggle = document.getElementById("monitoring-hud-recording-profile-window-toggle");
+const monitoringHudRecordingProfileWindowLabel = document.getElementById("monitoring-hud-recording-profile-window-label");
+const monitoringHudRecordingProfileWindowMenu = document.getElementById("monitoring-hud-recording-profile-window-menu");
+const monitoringHudRecordingProfileDetailSection = document.getElementById("monitoring-hud-recording-profile-detail-section");
+const monitoringHudRecordingProfileNameInput = document.getElementById("monitoring-hud-recording-profile-name-input");
+const monitoringHudRecordingProfileMembershipList = document.getElementById("monitoring-hud-recording-profile-membership-list");
+const monitoringHudRecordingProfileMembershipNote = document.getElementById("monitoring-hud-recording-profile-membership-note");
+const monitoringHudRecordingProfileUnsavedGuard = document.getElementById("monitoring-hud-recording-profile-unsaved-guard");
+const monitoringHudRecordingProfileUnsavedSave = document.getElementById("monitoring-hud-recording-profile-unsaved-save");
+const monitoringHudRecordingProfileUnsavedDiscard = document.getElementById("monitoring-hud-recording-profile-unsaved-discard");
+const monitoringHudRecordingProfileUnsavedCancel = document.getElementById("monitoring-hud-recording-profile-unsaved-cancel");
+const monitoringHudRecordingProfileCreate = document.getElementById("monitoring-hud-recording-profile-create");
+const monitoringHudRecordingProfileSave = document.getElementById("monitoring-hud-recording-profile-save");
+const monitoringHudRecordingProfileDiscard = document.getElementById("monitoring-hud-recording-profile-discard");
 const monitoringHudControlsVisibility = document.getElementById("monitoring-hud-controls-visibility");
 const monitoringHudControlsSurface = document.getElementById("monitoring-hud-controls-surface");
 const monitoringHudControlsPersistence = document.getElementById("monitoring-hud-controls-persistence");
@@ -436,6 +464,63 @@ function monitoringHudNormalizeRecordingProfileState(state) {
     visibleEditorUi: "none-slc-046-state-only"
   };
   return targetState;
+}
+
+function monitoringHudActiveRecordingProfile() {
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  return monitoringHudControlState.recordingProfiles[monitoringHudControlState.activeRecordingProfileId]
+    || monitoringHudControlState.recordingProfiles[monitoringHudDefaultRecordingProfileId]
+    || null;
+}
+
+function monitoringHudRecordingProfileList() {
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  const profiles = monitoringHudControlState.recordingProfiles || {};
+  return Object.keys(profiles)
+    .sort((left, right) => {
+      if (left === monitoringHudDefaultRecordingProfileId) return -1;
+      if (right === monitoringHudDefaultRecordingProfileId) return 1;
+      return String(profiles[left].name || left).localeCompare(String(profiles[right].name || right));
+    })
+    .map((profileId) => profiles[profileId])
+    .filter(Boolean);
+}
+
+function monitoringHudCleanRecordingProfileName(value, fallback = "Recording Profile") {
+  const cleaned = String(value || "").replace(/\s+/g, " ").trim();
+  return (cleaned || fallback).slice(0, 48);
+}
+
+function monitoringHudCompactRecordingProfileName(value, fallback = "Recording Profile") {
+  const cleaned = monitoringHudCleanRecordingProfileName(value, fallback);
+  return cleaned === "Default Recording Profile" ? "Default Profile" : cleaned;
+}
+
+function monitoringHudUniqueRecordingProfileName(value, currentProfileId = "") {
+  const baseName = monitoringHudCleanRecordingProfileName(value);
+  const existingNames = new Set(
+    monitoringHudRecordingProfileList()
+      .filter((profile) => profile.id !== currentProfileId)
+      .map((profile) => String(profile.name || "").trim().toLocaleLowerCase())
+      .filter(Boolean)
+  );
+  if (!existingNames.has(baseName.toLocaleLowerCase())) return baseName;
+  for (let index = 2; index < 100; index += 1) {
+    const candidate = `${baseName} ${index}`;
+    if (!existingNames.has(candidate.toLocaleLowerCase())) return candidate;
+  }
+  return `${baseName} ${Date.now()}`;
+}
+
+function monitoringHudNextRecordingProfileId() {
+  const profiles = monitoringHudControlState.recordingProfiles || {};
+  let index = Object.keys(profiles).length + 1;
+  let profileId = `recording-profile-${index}`;
+  while (profiles[profileId]) {
+    index += 1;
+    profileId = `recording-profile-${index}`;
+  }
+  return profileId;
 }
 
 function monitoringHudActiveOverlayProfile() {
@@ -1040,6 +1125,11 @@ let monitoringHudOverlayProfileDetailOpen = false;
 let monitoringHudPendingDeleteOverlayProfileId = "";
 let monitoringHudOverlayProfileMonitorSearchTerm = "";
 let monitoringHudOverlayProfileMonitorFilterMode = "all";
+let monitoringHudRecordingProfileDraftId = monitoringHudDefaultRecordingProfileId;
+let monitoringHudRecordingProfileDraftName = "Default Recording Profile";
+let monitoringHudRecordingProfilePendingCreate = null;
+let monitoringHudRecordingProfileWindowSelectedId = "";
+let monitoringHudRecordingProfileDetailOpen = false;
 let monitoringHudActiveSourceSettingsId = "";
 let monitoringHudSourcePollingDropdownOpenSensorId = "";
 const monitoringHudSourceFilterLabels = {
@@ -1546,6 +1636,7 @@ function monitoringHudSetChildWindowVisibility(kind) {
   [
     monitoringHudSettingsWindow,
     monitoringHudOverlayProfileWindow,
+    monitoringHudRecordingProfileWindow,
     monitoringHudOverlayAssignmentWindow,
     monitoringHudSourceSettingsWindow,
     monitoringHudCreateMonitorWindow,
@@ -1560,6 +1651,7 @@ function monitoringHudSetChildWindowVisibility(kind) {
     monitoringHud.dataset.activeChildWindow = open ? monitoringHudActiveChildWindow : "none";
     monitoringHud.dataset.dashboardSettingsPanelState = monitoringHudActiveChildWindow === "dashboard-settings" ? "open" : "closed";
     monitoringHud.dataset.overlayProfileSettingsWindowState = monitoringHudActiveChildWindow === "overlay-profile-settings" ? "open" : "closed";
+    monitoringHud.dataset.recordingProfileSettingsWindowState = monitoringHudActiveChildWindow === "recording-profile-settings" ? "open" : "closed";
     monitoringHud.dataset.overlayAssignmentWindowState = monitoringHudActiveChildWindow === "monitor-overlay-assignment" ? "open" : "closed";
     monitoringHud.dataset.sourceSettingsWindowState = monitoringHudActiveChildWindow === "sensor-source-settings" ? "open" : "closed";
   }
@@ -1570,6 +1662,10 @@ function monitoringHudSetChildWindowVisibility(kind) {
   if (monitoringHudOverlayProfileOpenSettings) {
     const profileSettingsOpen = monitoringHudActiveChildWindow === "overlay-profile-settings";
     monitoringHudOverlayProfileOpenSettings.setAttribute("aria-expanded", profileSettingsOpen ? "true" : "false");
+  }
+  if (monitoringHudRecordingProfileOpenSettings) {
+    const profileSettingsOpen = monitoringHudActiveChildWindow === "recording-profile-settings";
+    monitoringHudRecordingProfileOpenSettings.setAttribute("aria-expanded", profileSettingsOpen ? "true" : "false");
   }
   if (monitoringHudMonitorOverlayProfileSettings) {
     const profileSettingsOpen = monitoringHudActiveChildWindow === "overlay-profile-settings";
@@ -1759,6 +1855,390 @@ function monitoringHudRenderOverlayProfileControls() {
     monitoringHudOverlayProfileMembershipNote.textContent = detailOpen
       ? "Visible monitor membership is scroll-contained here; Monitor Groups and Recording Profiles remain separate."
       : "Select an existing profile to edit or create a new draft profile first.";
+  }
+}
+
+function monitoringHudSetRecordingProfileDraftFromProfile(profile) {
+  const activeProfile = profile || null;
+  monitoringHudRecordingProfileDraftId = activeProfile && activeProfile.id ? activeProfile.id : "";
+  monitoringHudRecordingProfileDraftName = activeProfile
+    ? monitoringHudCleanRecordingProfileName(activeProfile.name, "Recording Profile")
+    : "";
+  if (monitoringHudRecordingProfileNameInput) {
+    monitoringHudRecordingProfileNameInput.value = monitoringHudRecordingProfileDraftName;
+  }
+}
+
+function monitoringHudSetRecordingProfileDraftFromActive() {
+  monitoringHudSetRecordingProfileDraftFromProfile(monitoringHudRecordingProfilePendingCreate || monitoringHudActiveRecordingProfile());
+}
+
+function monitoringHudRecordingProfileDraftTarget() {
+  if (monitoringHudRecordingProfilePendingCreate) return monitoringHudRecordingProfilePendingCreate;
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  const selectedId = String(monitoringHudRecordingProfileWindowSelectedId || "").trim();
+  return selectedId && monitoringHudControlState.recordingProfiles
+    ? monitoringHudControlState.recordingProfiles[selectedId] || null
+    : null;
+}
+
+function monitoringHudRecordingProfileDraftDirty() {
+  const activeProfile = monitoringHudRecordingProfileDraftTarget() || {};
+  const currentName = monitoringHudCleanRecordingProfileName(activeProfile.name, "Recording Profile");
+  const draftName = monitoringHudCleanRecordingProfileName(
+    monitoringHudRecordingProfileNameInput ? monitoringHudRecordingProfileNameInput.value : monitoringHudRecordingProfileDraftName,
+    "Recording Profile"
+  );
+  return Boolean(monitoringHudRecordingProfilePendingCreate || draftName !== currentName);
+}
+
+function monitoringHudSetRecordingProfileDropdownOpen(open) {
+  if (!monitoringHudRecordingProfileSelector || !monitoringHudRecordingProfileMenu) return;
+  monitoringHudRecordingProfileSelector.dataset.dropdownOpen = open ? "true" : "false";
+  monitoringHudRecordingProfileMenu.hidden = !open;
+  if (monitoringHudRecordingProfileToggle) {
+    monitoringHudRecordingProfileToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  if (!open) monitoringHudResetRecordingProfileHover();
+}
+
+function monitoringHudResetRecordingProfileHover() {
+  if (!monitoringHudRecordingProfileSelector) return;
+  monitoringHudRecordingProfileSelector.dataset.hoveredProfileId = "";
+  monitoringHudRecordingProfileSelector.querySelectorAll("[data-recording-profile-option].is-hovered").forEach((option) => {
+    option.classList.remove("is-hovered");
+  });
+}
+
+function monitoringHudSetRecordingProfileWindowDropdownOpen(open) {
+  if (!monitoringHudRecordingProfileWindowSelector || !monitoringHudRecordingProfileWindowMenu) return;
+  monitoringHudRecordingProfileWindowSelector.dataset.dropdownOpen = open ? "true" : "false";
+  monitoringHudRecordingProfileWindowMenu.hidden = !open;
+  if (monitoringHudRecordingProfileWindowToggle) {
+    monitoringHudRecordingProfileWindowToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  if (!open) monitoringHudResetRecordingProfileWindowHover();
+}
+
+function monitoringHudResetRecordingProfileWindowHover() {
+  if (!monitoringHudRecordingProfileWindowSelector) return;
+  monitoringHudRecordingProfileWindowSelector.dataset.hoveredProfileId = "";
+  monitoringHudRecordingProfileWindowSelector.querySelectorAll("[data-recording-profile-window-option].is-hovered").forEach((option) => {
+    option.classList.remove("is-hovered");
+  });
+}
+
+function monitoringHudSelectRecordingProfile(profileId) {
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  const normalizedProfileId = String(profileId || "").trim();
+  if (!monitoringHudControlState.recordingProfiles[normalizedProfileId]) return false;
+  monitoringHudControlState.activeRecordingProfileId = normalizedProfileId;
+  monitoringHudSetRecordingProfileDraftFromActive();
+  monitoringHudSetRecordingProfileDropdownOpen(false);
+  monitoringHudRenderControls();
+  monitoringHudMarkChanged();
+  return true;
+}
+
+function monitoringHudSelectRecordingProfileForWindow(profileId) {
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  const normalizedProfileId = String(profileId || "").trim();
+  if (!monitoringHudControlState.recordingProfiles[normalizedProfileId]) return false;
+  monitoringHudRecordingProfilePendingCreate = null;
+  monitoringHudRecordingProfileWindowSelectedId = normalizedProfileId;
+  monitoringHudRecordingProfileDetailOpen = true;
+  monitoringHudSetRecordingProfileDraftFromProfile(monitoringHudControlState.recordingProfiles[normalizedProfileId]);
+  monitoringHudSetRecordingProfileWindowDropdownOpen(false);
+  monitoringHudRenderControls();
+  return true;
+}
+
+function monitoringHudCreateRecordingProfile() {
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  const profileId = monitoringHudNextRecordingProfileId();
+  const profileName = monitoringHudUniqueRecordingProfileName("Recording Profile", profileId);
+  monitoringHudRecordingProfilePendingCreate = {
+    id: profileId,
+    schemaVersion: monitoringHudRecordingProfileSchemaVersion,
+    kind: "recording-profile",
+    scope: "recording-profile-selection-editing-shell",
+    name: profileName,
+    monitorIds: [],
+    sourceIds: [],
+    recordingMode: "manual-future-gated",
+    storagePolicy: "local-metadata-only",
+    source: "slc-047-selection-editor-create-shell",
+    dirty: true
+  };
+  monitoringHudRecordingProfileWindowSelectedId = profileId;
+  monitoringHudRecordingProfileDetailOpen = true;
+  monitoringHudSetRecordingProfileDraftFromProfile(monitoringHudRecordingProfilePendingCreate);
+  monitoringHudRenderControls();
+  if (monitoringHudRecordingProfileNameInput && typeof monitoringHudRecordingProfileNameInput.focus === "function") {
+    monitoringHudRecordingProfileNameInput.focus();
+    monitoringHudRecordingProfileNameInput.select();
+  }
+  return true;
+}
+
+function monitoringHudSaveRecordingProfileDraft() {
+  const activeProfile = monitoringHudRecordingProfileDraftTarget();
+  if (!activeProfile) return false;
+  const draftName = monitoringHudUniqueRecordingProfileName(
+    monitoringHudRecordingProfileNameInput ? monitoringHudRecordingProfileNameInput.value : activeProfile.name,
+    activeProfile.id
+  );
+  activeProfile.name = draftName;
+  activeProfile.monitorIds = monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, monitoringHudControlState.cards || {});
+  activeProfile.sourceIds = monitoringHudUniqueStringIds(activeProfile.sourceIds);
+  activeProfile.recordingMode = activeProfile.recordingMode || "manual-future-gated";
+  activeProfile.storagePolicy = activeProfile.storagePolicy || "local-metadata-only";
+  activeProfile.dirty = false;
+  activeProfile.source = "slc-047-selection-editor";
+  monitoringHudControlState.recordingProfiles[activeProfile.id] = activeProfile;
+  monitoringHudControlState.activeRecordingProfileId = activeProfile.id;
+  monitoringHudRecordingProfileWindowSelectedId = activeProfile.id;
+  monitoringHudRecordingProfilePendingCreate = null;
+  monitoringHudSetRecordingProfileDraftFromProfile(activeProfile);
+  monitoringHudRenderControls();
+  monitoringHudMarkChanged();
+  return true;
+}
+
+function monitoringHudDiscardRecordingProfileDraft() {
+  const pendingWasNew = Boolean(monitoringHudRecordingProfilePendingCreate);
+  monitoringHudRecordingProfilePendingCreate = null;
+  if (pendingWasNew) {
+    monitoringHudRecordingProfileWindowSelectedId = "";
+    monitoringHudRecordingProfileDetailOpen = false;
+  }
+  monitoringHudSetRecordingProfileDraftFromProfile(monitoringHudRecordingProfileDraftTarget() || monitoringHudActiveRecordingProfile());
+  monitoringHudRenderControls();
+  return true;
+}
+
+function monitoringHudSetRecordingProfileUnsavedGuard(open) {
+  if (!monitoringHudRecordingProfileUnsavedGuard) return;
+  const isOpen = Boolean(open);
+  monitoringHudRecordingProfileUnsavedGuard.hidden = !isOpen;
+  monitoringHudRecordingProfileUnsavedGuard.dataset.unsavedGuard = isOpen ? "open-save-discard" : "closed";
+  monitoringHudRecordingProfileUnsavedGuard.dataset.guardActionLayout = "modal-save-discard-cancel";
+  monitoringHudRecordingProfileUnsavedGuard.dataset.pendingRecordingProfileAction = isOpen ? "close" : "";
+  if (monitoringHudRecordingProfileWindow) {
+    monitoringHudSetChildWindowDirtyModalState(monitoringHudRecordingProfileWindow, isOpen);
+    monitoringHudRecordingProfileWindow.dataset.recordingProfileUnsavedState = isOpen ? "open" : "closed";
+  }
+  if (!isOpen) return;
+  window.requestAnimationFrame(() => {
+    if (!monitoringHudRecordingProfileUnsavedGuard || monitoringHudRecordingProfileUnsavedGuard.hidden) return;
+    const focusTarget = monitoringHudRecordingProfileUnsavedSave || monitoringHudRecordingProfileUnsavedDiscard;
+    if (focusTarget && typeof focusTarget.focus === "function") focusTarget.focus({ preventScroll: true });
+  });
+}
+
+function monitoringHudCancelRecordingProfileUnsavedGuard() {
+  monitoringHudSetRecordingProfileUnsavedGuard(false);
+  monitoringHudRenderControls();
+  return true;
+}
+
+function monitoringHudSaveRecordingProfileAndClose() {
+  if (!monitoringHudSaveRecordingProfileDraft()) return false;
+  monitoringHudSetRecordingProfileUnsavedGuard(false);
+  return monitoringHudCloseChildWindow({ force: true });
+}
+
+function monitoringHudDiscardRecordingProfileAndClose() {
+  if (!monitoringHudDiscardRecordingProfileDraft()) return false;
+  monitoringHudSetRecordingProfileUnsavedGuard(false);
+  return monitoringHudCloseChildWindow({ force: true });
+}
+
+function monitoringHudRenderRecordingProfileMembershipList(activeProfile) {
+  if (!monitoringHudRecordingProfileMembershipList) return;
+  const cards = monitoringHudControlState.cards || {};
+  const monitorIds = monitoringHudUniqueValidMonitorIds(activeProfile && activeProfile.monitorIds, cards);
+  const sourceIds = monitoringHudUniqueStringIds(activeProfile && activeProfile.sourceIds);
+  monitoringHudRecordingProfileMembershipList.replaceChildren();
+  monitoringHudRecordingProfileMembershipList.dataset.recordingProfileMembershipList = "readonly-monitor-source-membership";
+  monitoringHudRecordingProfileMembershipList.dataset.recordingProfileVisibleItemTarget = "max-five";
+  monitoringHudRecordingProfileMembershipList.dataset.scrollbarStyle = "ndai-native";
+  monitoringHudRecordingProfileMembershipList.dataset.monitorCount = String(monitorIds.length);
+  monitoringHudRecordingProfileMembershipList.dataset.sourceCount = String(sourceIds.length);
+  const entries = [];
+  monitorIds.forEach((monitorId) => {
+    const layout = Object.assign(monitoringHudCardDefaults(monitorId), cards[monitorId] || {});
+    entries.push(["Monitor", layout.title || monitorId, monitoringHudOverlayProfileMonitorSummary(monitorId, layout)]);
+  });
+  sourceIds.forEach((sourceId) => {
+    const source = monitoringHudSensorDefinitionById(sourceId) || { label: sourceId, reason: "Future recording source mapping" };
+    entries.push(["Source", source.label || sourceId, source.reason || source.state || "Future recording source mapping"]);
+  });
+  if (!entries.length) {
+    const empty = document.createElement("p");
+    empty.className = "monitoring-hud__child-note";
+    empty.textContent = "No recording membership is assigned yet. Mapping remains a later seam.";
+    monitoringHudRecordingProfileMembershipList.appendChild(empty);
+    return;
+  }
+  entries.forEach(([type, title, summary]) => {
+    const row = document.createElement("div");
+    row.className = "monitoring-hud__overlay-profile-membership-row monitoring-hud__recording-profile-membership-row";
+    row.dataset.recordingProfileMembershipRow = type.toLowerCase();
+    row.dataset.recordingProfileMembershipReadonly = "true";
+    row.setAttribute("aria-selected", "false");
+    const badge = document.createElement("span");
+    badge.textContent = type;
+    const strong = document.createElement("strong");
+    strong.textContent = title;
+    const small = document.createElement("small");
+    small.textContent = summary;
+    row.appendChild(badge);
+    row.appendChild(strong);
+    row.appendChild(small);
+    monitoringHudRecordingProfileMembershipList.appendChild(row);
+  });
+}
+
+function monitoringHudRenderRecordingProfileControls() {
+  if (!monitoringHudRecordingProfileEditor) return;
+  monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  const profiles = monitoringHudRecordingProfileList();
+  const activeProfile = monitoringHudActiveRecordingProfile();
+  const activeProfileId = activeProfile && activeProfile.id ? activeProfile.id : "";
+  const activeProfileName = activeProfile
+    ? monitoringHudCleanRecordingProfileName(activeProfile.name, "Recording Profile")
+    : "No profile selected";
+  const cards = monitoringHudControlState.cards || {};
+  const activeMonitorIds = activeProfile ? monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, cards) : [];
+  const activeSourceIds = activeProfile ? monitoringHudUniqueStringIds(activeProfile.sourceIds) : [];
+  const selectedProfile = monitoringHudRecordingProfilePendingCreate
+    || profiles.find((profile) => profile.id === monitoringHudRecordingProfileWindowSelectedId)
+    || null;
+  const selectedProfileName = selectedProfile
+    ? monitoringHudCleanRecordingProfileName(selectedProfile.name, "Recording Profile")
+    : activeProfileName;
+  const detailOpen = Boolean(monitoringHudRecordingProfileDetailOpen && selectedProfile);
+  const dirty = detailOpen && monitoringHudRecordingProfileDraftDirty();
+  const selectedMonitorIds = selectedProfile ? monitoringHudUniqueValidMonitorIds(selectedProfile.monitorIds, cards) : [];
+  const selectedSourceIds = selectedProfile ? monitoringHudUniqueStringIds(selectedProfile.sourceIds) : [];
+
+  monitoringHudRecordingProfileEditor.dataset.recordingProfileEditorUi = "slc-047-selection-editing-shell";
+  monitoringHudRecordingProfileEditor.dataset.recordingProfileMembership = "readonly-slc-047";
+  monitoringHudRecordingProfileEditor.dataset.recordingProfileDirty = dirty ? "dirty" : "clean";
+  monitoringHudRecordingProfileEditor.dataset.activeRecordingProfileId = activeProfileId;
+  monitoringHudRecordingProfileEditor.dataset.recordingProfileCount = String(profiles.length);
+  monitoringHudRecordingProfileEditor.dataset.recordingProfileProof = "selector-settings-window-create-rename-save-discard";
+  monitoringHudRecordingProfileEditor.dataset.recordingExecutionBoundary = "no-runtime-recording";
+  if (monitoringHudRecordingProfileSelector) {
+    monitoringHudRecordingProfileSelector.dataset.selectedProfileId = activeProfileId;
+    monitoringHudRecordingProfileSelector.dataset.recordingProfileSelector = "active-profile-selector";
+  }
+  if (monitoringHudRecordingProfileLabel) {
+    monitoringHudRecordingProfileLabel.textContent = activeProfileName;
+  }
+  if (monitoringHudRecordingProfileMenu) {
+    monitoringHudRecordingProfileMenu.replaceChildren();
+    monitoringHudRecordingProfileMenu.dataset.visibleOptionTarget = "max-five";
+    monitoringHudRecordingProfileMenu.dataset.scrollbarStyle = "ndai-native";
+    profiles.forEach((profile) => {
+      const option = document.createElement("button");
+      option.type = "button";
+      option.className = "monitoring-hud__bounded-dropdown-option";
+      option.dataset.recordingProfileOption = profile.id;
+      option.setAttribute("role", "option");
+      option.setAttribute("aria-selected", profile.id === activeProfileId ? "true" : "false");
+      option.textContent = monitoringHudCleanRecordingProfileName(profile.name, "Recording Profile");
+      monitoringHudRecordingProfileMenu.appendChild(option);
+    });
+  }
+  if (monitoringHudRecordingProfileMonitorCount) {
+    monitoringHudRecordingProfileMonitorCount.textContent = `${activeMonitorIds.length} selected`;
+  }
+  if (monitoringHudRecordingProfileSourceCount) {
+    monitoringHudRecordingProfileSourceCount.textContent = `${activeSourceIds.length} selected`;
+  }
+  if (monitoringHudRecordingProfileWindowSelector) {
+    monitoringHudRecordingProfileWindowSelector.dataset.selectedProfileId = monitoringHudRecordingProfileWindowSelectedId || "";
+    monitoringHudRecordingProfileWindowSelector.dataset.explicitProfileSelection = monitoringHudRecordingProfileWindowSelectedId ? "true" : "false";
+    monitoringHudRecordingProfileWindowSelector.dataset.visibleOptionTarget = "max-five";
+    monitoringHudRecordingProfileWindowSelector.dataset.scrollbarStyle = "ndai-native";
+  }
+  if (monitoringHudRecordingProfileWindowLabel) {
+    monitoringHudRecordingProfileWindowLabel.textContent = selectedProfile
+      ? monitoringHudCompactRecordingProfileName(selectedProfile.name, "Recording Profile")
+      : "Select profile";
+  }
+  if (monitoringHudRecordingProfileWindowMenu) {
+    monitoringHudRecordingProfileWindowMenu.replaceChildren();
+    monitoringHudRecordingProfileWindowMenu.dataset.visibleOptionTarget = "max-five";
+    monitoringHudRecordingProfileWindowMenu.dataset.scrollbarStyle = "ndai-native";
+    profiles.forEach((profile) => {
+      const option = document.createElement("button");
+      option.type = "button";
+      option.className = "monitoring-hud__bounded-dropdown-option";
+      option.dataset.recordingProfileWindowOption = profile.id;
+      option.setAttribute("role", "option");
+      option.setAttribute("aria-selected", profile.id === monitoringHudRecordingProfileWindowSelectedId ? "true" : "false");
+      option.textContent = monitoringHudCleanRecordingProfileName(profile.name, "Recording Profile");
+      monitoringHudRecordingProfileWindowMenu.appendChild(option);
+    });
+  }
+  if (monitoringHudRecordingProfileWindow) {
+    monitoringHudRecordingProfileWindow.dataset.recordingProfileWindow = "select-profile-to-edit-create-right-save-required";
+    monitoringHudRecordingProfileWindow.dataset.recordingProfileWorkflow = "select-loads-edit-create-draft-save-required";
+    monitoringHudRecordingProfileWindow.dataset.recordingProfileMembership = "readonly-slc-047";
+    monitoringHudRecordingProfileWindow.dataset.recordingProfileBoundary = "no-tray-recording-no-export-share-no-provider-model";
+    monitoringHudRecordingProfileWindow.dataset.dirtyGuardCoverage = "save-discard-close-guard";
+    monitoringHudRecordingProfileWindow.dataset.activeRecordingProfileId = activeProfileId;
+    monitoringHudRecordingProfileWindow.dataset.selectedProfileId = monitoringHudRecordingProfileWindowSelectedId || "";
+    monitoringHudRecordingProfileWindow.dataset.recordingProfileDetailState = detailOpen ? "open" : "closed";
+    monitoringHudRecordingProfileWindow.dataset.recordingProfileDirty = dirty ? "dirty" : "clean";
+    monitoringHudRecordingProfileWindow.dataset.recordingProfilePendingCreate = monitoringHudRecordingProfilePendingCreate ? "true" : "false";
+  }
+  if (monitoringHudRecordingProfileWindowTitle) {
+    monitoringHudRecordingProfileWindowTitle.textContent = "Select Or Create";
+  }
+  if (monitoringHudRecordingProfileWindowActiveName) {
+    monitoringHudRecordingProfileWindowActiveName.textContent = selectedProfile
+      ? `${monitoringHudCleanRecordingProfileName(selectedProfile.name, "Recording Profile")} selected`
+      : "No profile selected for editing";
+  }
+  if (monitoringHudRecordingProfileWindowCount) {
+    monitoringHudRecordingProfileWindowCount.textContent = `${profiles.length} available profile${profiles.length === 1 ? "" : "s"}`;
+  }
+  if (monitoringHudRecordingProfileWindowMembership) {
+    monitoringHudRecordingProfileWindowMembership.textContent = detailOpen
+      ? `${selectedMonitorIds.length} monitor${selectedMonitorIds.length === 1 ? "" : "s"} / ${selectedSourceIds.length} source${selectedSourceIds.length === 1 ? "" : "s"} read-only`
+      : "Select a profile, then edit its name.";
+  }
+  if (monitoringHudRecordingProfileDetailSection) {
+    monitoringHudRecordingProfileDetailSection.hidden = !detailOpen;
+    monitoringHudRecordingProfileDetailSection.dataset.recordingProfileDetailState = detailOpen ? "open" : "closed";
+  }
+  if (!detailOpen || !dirty) {
+    monitoringHudSetRecordingProfileUnsavedGuard(false);
+  }
+  if (detailOpen) {
+    monitoringHudRenderRecordingProfileMembershipList(selectedProfile);
+  } else if (monitoringHudRecordingProfileMembershipList) {
+    monitoringHudRecordingProfileMembershipList.replaceChildren();
+  }
+  if (monitoringHudRecordingProfileNameInput && document.activeElement !== monitoringHudRecordingProfileNameInput) {
+    monitoringHudRecordingProfileNameInput.value = dirty
+      ? monitoringHudRecordingProfileNameInput.value
+      : selectedProfileName;
+  }
+  if (monitoringHudRecordingProfileSave) {
+    monitoringHudSetActionDisabled(monitoringHudRecordingProfileSave, !detailOpen || !dirty, "saveable");
+  }
+  if (monitoringHudRecordingProfileDiscard) {
+    monitoringHudSetActionDisabled(monitoringHudRecordingProfileDiscard, !detailOpen || !dirty, "discardable");
+  }
+  if (monitoringHudRecordingProfileMembershipNote) {
+    monitoringHudRecordingProfileMembershipNote.textContent = detailOpen
+      ? "Recording membership is read-only in SLC-047; Monitor Groups, Overlay Profiles, tray recording, and export/share stay separate."
+      : "Select an existing Recording Profile to edit its name or create a new draft profile first.";
   }
 }
 
@@ -3027,11 +3507,21 @@ function monitoringHudOpenChildWindow(kind) {
     monitoringHudSetOverlayProfileWindowDropdownOpen(false);
     monitoringHudSetOverlayProfileMonitorFilterOpen(false);
   }
+  if (kind === "recording-profile-settings") {
+    monitoringHudRecordingProfileWindowSelectedId = "";
+    monitoringHudRecordingProfileDetailOpen = false;
+    monitoringHudRecordingProfilePendingCreate = null;
+    monitoringHudSetRecordingProfileDraftFromActive();
+    monitoringHudSetRecordingProfileDropdownOpen(false);
+    monitoringHudSetRecordingProfileWindowDropdownOpen(false);
+  }
   monitoringHudRenderChildWindows();
   monitoringHudSetChildWindowVisibility(kind);
   if (kind === "overlay-profile-settings") {
     monitoringHudRenderOverlayProfileControls();
     monitoringHudRenderMonitorOverlayProfileContext(monitoringHudSelectedMonitor(), monitoringHudControlState.cards || {});
+  } else if (kind === "recording-profile-settings") {
+    monitoringHudRenderRecordingProfileControls();
   } else if (kind === "monitor-overlay-assignment") {
     monitoringHudRenderOverlayAssignmentWindow();
   } else if (kind === "sensor-source-settings") {
@@ -3043,11 +3533,13 @@ function monitoringHudOpenChildWindow(kind) {
       ? monitoringHudCreateMonitorName
       : kind === "overlay-profile-settings"
         ? monitoringHudOverlayProfileCreate
-        : kind === "monitor-overlay-assignment"
-          ? monitoringHudOverlayAssignmentList
-          : kind === "sensor-source-settings"
-            ? monitoringHudSourceSettingsBody
-            : monitoringHudEditMonitorName;
+        : kind === "recording-profile-settings"
+          ? monitoringHudRecordingProfileCreate
+          : kind === "monitor-overlay-assignment"
+            ? monitoringHudOverlayAssignmentList
+            : kind === "sensor-source-settings"
+              ? monitoringHudSourceSettingsBody
+              : monitoringHudEditMonitorName;
   if (focusTarget && typeof focusTarget.focus === "function") {
     setTimeout(() => focusTarget.focus(), 0);
   }
@@ -3060,6 +3552,10 @@ function monitoringHudCloseChildWindow(options = {}) {
   }
   if (!options.force && monitoringHudActiveChildWindow === "overlay-profile-settings" && monitoringHudOverlayProfileDetailOpen && monitoringHudOverlayProfileDraftDirty()) {
     monitoringHudSetOverlayProfileUnsavedGuard(true);
+    return false;
+  }
+  if (!options.force && monitoringHudActiveChildWindow === "recording-profile-settings" && monitoringHudRecordingProfileDetailOpen && monitoringHudRecordingProfileDraftDirty()) {
+    monitoringHudSetRecordingProfileUnsavedGuard(true);
     return false;
   }
   if (!options.force && monitoringHudActiveChildWindow === "monitor-overlay-assignment") {
@@ -3083,6 +3579,11 @@ function monitoringHudCloseChildWindow(options = {}) {
     monitoringHudOverlayProfilePendingCreate = null;
     monitoringHudPendingDeleteOverlayProfileId = "";
     monitoringHudSetOverlayProfileUnsavedGuard(false);
+  }
+  if (monitoringHudActiveChildWindow === "recording-profile-settings") {
+    monitoringHudRecordingProfileDetailOpen = false;
+    monitoringHudRecordingProfilePendingCreate = null;
+    monitoringHudSetRecordingProfileUnsavedGuard(false);
   }
   if (monitoringHudActiveChildWindow === "sensor-source-settings") {
     monitoringHudActiveSourceSettingsId = "";
@@ -3598,7 +4099,7 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-monitor-management-child-windows";
     monitoringHud.dataset.dashboardPollingPlacement = "monitor-group-editor-only";
     monitoringHud.dataset.dashboardProofContentPolicy = "validator-artifacts-not-home-surface";
-    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings";
+    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings";
     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
     monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
@@ -3829,7 +4330,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardLayoutProof = "monitor-groups-measured-no-overlap";
     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
     monitoringHud.dataset.dashboardHomeModel = "control-hub-cards-monitor-management-child-windows";
-    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings";
+    monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings";
     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
     monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
     monitoringHud.dataset.dashboardCloseLayout = "window-level-top-right-close-pill";
@@ -3927,7 +4428,12 @@ function monitoringHudRenderControls() {
   monitoringHud.dataset.overlayProfileIntegration = "followup-assigned-overlay-status-assignment";
   monitoringHud.dataset.manageOverlayProfileContext = "clickable-assigned-overlay-status-window";
   monitoringHud.dataset.sourceSettingsIa = "source-list-settings-entry-points";
-  monitoringHud.dataset.recordingProfileState = "recording-profile-state-absent-future-gated";
+  monitoringHud.dataset.recordingProfileState = "slc-047-selection-editing-shell";
+  monitoringHud.dataset.recordingProfileSchemaVersion = String(monitoringHudRecordingProfileSchemaVersion);
+  monitoringHud.dataset.activeRecordingProfileId = String(monitoringHudControlState.activeRecordingProfileId || "");
+  monitoringHud.dataset.recordingProfileEditor = "slc-047-selection-editing-shell";
+  monitoringHud.dataset.recordingProfileMembership = "readonly-slc-047";
+  monitoringHud.dataset.recordingExecutionBoundary = "no-tray-recording-no-export-share-no-provider-model";
   monitoringHud.dataset.warningControlPosture = monitoringHudControlState.warningNotificationsMuted
     ? "global-muted"
     : "visual-notifications-enabled";
@@ -3977,6 +4483,7 @@ function monitoringHudRenderControls() {
   }
   monitoringHudRenderDashboardSettingsPanel();
   monitoringHudRenderOverlayProfileControls();
+  monitoringHudRenderRecordingProfileControls();
   if (monitoringHudWarningPosture) {
     monitoringHudWarningPosture.textContent = monitoringHudControlState.warningNotificationsMuted
       ? "Globally muted; Monitor Group settings preserved"
@@ -4498,6 +5005,90 @@ function monitoringHudWireControls() {
   if (monitoringHudOverlayProfileUnsavedCancel) {
     monitoringHudWireReliableControl(monitoringHudOverlayProfileUnsavedCancel, "overlay-profile:dirty-cancel", monitoringHudCancelOverlayProfileUnsavedGuard);
   }
+  if (monitoringHudRecordingProfileSelector) {
+    monitoringHudWireReliableDelegatedControl(monitoringHudRecordingProfileSelector, "#monitoring-hud-recording-profile-toggle,[data-recording-profile-option]", "recording-profile", (button) => {
+      if (button.id === "monitoring-hud-recording-profile-toggle") {
+        monitoringHudSetRecordingProfileDropdownOpen(monitoringHudRecordingProfileSelector.dataset.dropdownOpen !== "true");
+        return true;
+      }
+      return monitoringHudSelectRecordingProfile(button.dataset.recordingProfileOption || monitoringHudDefaultRecordingProfileId);
+    });
+    monitoringHudRecordingProfileSelector.addEventListener("mouseover", (event) => {
+      const option = event.target && event.target.closest ? event.target.closest("[data-recording-profile-option]") : null;
+      if (!option) return;
+      monitoringHudResetRecordingProfileHover();
+      option.classList.add("is-hovered");
+      monitoringHudRecordingProfileSelector.dataset.hoveredProfileId = option.dataset.recordingProfileOption || "";
+    });
+    monitoringHudRecordingProfileSelector.addEventListener("mouseleave", monitoringHudResetRecordingProfileHover);
+    monitoringHudRecordingProfileSelector.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") monitoringHudSetRecordingProfileDropdownOpen(false);
+    });
+  }
+  if (monitoringHudRecordingProfileWindowSelector) {
+    monitoringHudWireReliableDelegatedControl(monitoringHudRecordingProfileWindowSelector, "#monitoring-hud-recording-profile-window-toggle,[data-recording-profile-window-option]", "recording-profile-window", (button) => {
+      if (button.id === "monitoring-hud-recording-profile-window-toggle") {
+        monitoringHudSetRecordingProfileWindowDropdownOpen(monitoringHudRecordingProfileWindowSelector.dataset.dropdownOpen !== "true");
+        return true;
+      }
+      return monitoringHudSelectRecordingProfileForWindow(button.dataset.recordingProfileWindowOption || "");
+    });
+    monitoringHudRecordingProfileWindowSelector.addEventListener("mouseover", (event) => {
+      const option = event.target && event.target.closest ? event.target.closest("[data-recording-profile-window-option]") : null;
+      if (!option) return;
+      monitoringHudResetRecordingProfileWindowHover();
+      option.classList.add("is-hovered");
+      monitoringHudRecordingProfileWindowSelector.dataset.hoveredProfileId = option.dataset.recordingProfileWindowOption || "";
+    });
+    monitoringHudRecordingProfileWindowSelector.addEventListener("mouseleave", monitoringHudResetRecordingProfileWindowHover);
+    monitoringHudRecordingProfileWindowSelector.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") monitoringHudSetRecordingProfileWindowDropdownOpen(false);
+    });
+  }
+  if (monitoringHudRecordingProfileOpenSettings) {
+    monitoringHudWireReliableControl(monitoringHudRecordingProfileOpenSettings, "recording-profile:open-settings", () => {
+      monitoringHudOpenChildWindow("recording-profile-settings");
+      return true;
+    });
+  }
+  if (monitoringHudRecordingProfileNameInput) {
+    monitoringHudRecordingProfileNameInput.addEventListener("input", () => {
+      monitoringHudRenderRecordingProfileControls();
+    });
+    monitoringHudRecordingProfileNameInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        monitoringHudSaveRecordingProfileDraft();
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        monitoringHudDiscardRecordingProfileDraft();
+      }
+    });
+  }
+  if (monitoringHudRecordingProfileCreate) {
+    monitoringHudWireReliableControl(monitoringHudRecordingProfileCreate, "recording-profile:create", monitoringHudCreateRecordingProfile, { activateOnPointerUp: true });
+  }
+  if (monitoringHudRecordingProfileSave) {
+    monitoringHudWireReliableControl(monitoringHudRecordingProfileSave, "recording-profile:save", () => {
+      if (monitoringHudRecordingProfileSave.disabled) return false;
+      return monitoringHudSaveRecordingProfileDraft();
+    });
+  }
+  if (monitoringHudRecordingProfileDiscard) {
+    monitoringHudWireReliableControl(monitoringHudRecordingProfileDiscard, "recording-profile:discard", () => {
+      if (monitoringHudRecordingProfileDiscard.disabled) return false;
+      return monitoringHudDiscardRecordingProfileDraft();
+    });
+  }
+  if (monitoringHudRecordingProfileUnsavedSave) {
+    monitoringHudWireReliableControl(monitoringHudRecordingProfileUnsavedSave, "recording-profile:dirty-save-close", monitoringHudSaveRecordingProfileAndClose);
+  }
+  if (monitoringHudRecordingProfileUnsavedDiscard) {
+    monitoringHudWireReliableControl(monitoringHudRecordingProfileUnsavedDiscard, "recording-profile:dirty-discard-close", monitoringHudDiscardRecordingProfileAndClose);
+  }
+  if (monitoringHudRecordingProfileUnsavedCancel) {
+    monitoringHudWireReliableControl(monitoringHudRecordingProfileUnsavedCancel, "recording-profile:dirty-cancel", monitoringHudCancelRecordingProfileUnsavedGuard);
+  }
   if (monitoringHudMonitorOverlayProfileContext) {
     monitoringHudWireReliableControl(monitoringHudMonitorOverlayProfileContext, "manage:assigned-overlay", () => {
       const selected = monitoringHudSelectedMonitor();
@@ -4594,6 +5185,14 @@ function monitoringHudWireControls() {
     monitoringHudSetOverlayProfileMonitorFilterOpen(false);
   });
   document.addEventListener("click", (event) => {
+    if (!monitoringHudRecordingProfileSelector || monitoringHudRecordingProfileSelector.contains(event.target)) return;
+    monitoringHudSetRecordingProfileDropdownOpen(false);
+  });
+  document.addEventListener("click", (event) => {
+    if (!monitoringHudRecordingProfileWindowSelector || monitoringHudRecordingProfileWindowSelector.contains(event.target)) return;
+    monitoringHudSetRecordingProfileWindowDropdownOpen(false);
+  });
+  document.addEventListener("click", (event) => {
     if (!monitoringHudMonitorPollingRateControl || monitoringHudMonitorPollingRateControl.contains(event.target)) return;
     monitoringHudSetPollingRateDropdownOpen(false);
   });
@@ -4667,6 +5266,7 @@ function monitoringHudInitializeControls() {
   monitoringHudLoadStoredState();
   monitoringHudApplyCardLayout();
   monitoringHudSetOverlayProfileDraftFromActive();
+  monitoringHudSetRecordingProfileDraftFromActive();
   monitoringHudRenderControls();
   monitoringHudWirePanelDrag();
   monitoringHudWireCardInteractions();
@@ -6377,7 +6977,7 @@ window.getMonitoringHudDashboardAcceptanceState = function() {
       && split.dashboardSettingsPanel === "settings-panel-child-window"
       && split.dashboardSettingsProof === "visible-open-close-control-hit-target"
       && split.monitorManagement === "sensor-command-center-list-detail-source-picker"
-      && split.dashboardChildWindowScope === "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"
+      && split.dashboardChildWindowScope === "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-recording-profile-settings"
       && split.monitorGroupModel === "configurable-groups-sensor-assignment"
       && split.dashboardMonitorCardPolicy === "overlay-display-owns-visual-rendering"
       && split.monitorSensorAssignment === "sensor-library-source-picker"
