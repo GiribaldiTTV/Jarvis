@@ -16,7 +16,7 @@ This plan exists so future FAM-007, FAM-008, FAM-010, packaging, privacy, memory
 
 ## Status
 
-Planning State: `Repaired / pending USER acceptance as durable planning source truth on the active FAM-007 setup completion carrier.`
+Planning State: `USER-accepted durable planning source truth on the active FAM-007 setup completion carrier.`
 
 Implementation State: `Not implemented.`
 

@@ -21,14 +21,14 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Intake State: `Active - RRI-20260524-001 is a USER-approved phase-gate governance intake after the USER requested stable Desktop review-bundle routing by worktree label. Scope is USER review Desktop bundle source-truth/helper repair only; runtime work, release execution, issue work, branch cleanup, FAM-006 mutation, FAM-007 successor creation, provider setup, consent collection, and model/provider execution remain separate USER decisions`
+- Intake State: `Active - RRI-20260524-002 is a USER-approved Release Readiness digest intake after PR #207 merged and Release Readiness Stage 1 found post-merge FAM-006 source-truth drift. Scope is post-PR #207 source-truth fold-down and validator prevention only; runtime work, release execution, issue work, branch cleanup, FAM-006 runtime mutation, FAM-007 successor creation, provider setup, consent collection, and model/provider execution remain separate USER decisions`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
-- Active RRI Cycle: `RRI-20260524-001`
+- Active RRI Cycle: `RRI-20260524-002`
 - Latest Closed RRI Cycle: `RRI-20260523-001 - PR #202 merged post-PR #201 source-truth drift repair and merge-stable projection prevention into origin/main@10c32804370ee5480416e68e55823e5997d18291`
-- Return Digest Status: `Pending - RRI-20260524-001 stable Desktop review-bundle worktree routing repair is in progress on the standing Governance lane; PR creation, merge, and post-merge sync remain future gates`
-- Active Cycle Identity: `RRI-20260524-001 originates from USER request to stop creating changing top-level Desktop review folders and instead use a stable Desktop root with one worktree-labeled child folder for flat copied USER inspection files; repair scope is USER Review Desktop Bundle source truth, Main loader pointer, prompt/context docs, helper registry, task template, branch plan/phase governance wording, and dev/orin_user_review_bundle.py`
+- Return Digest Status: `Pending - RRI-20260524-002 post-PR #207 Release Readiness source-truth drift repair is in progress on the standing Governance lane; PR creation, merge, post-merge sync, and originating Release Readiness rerun remain future gates`
+- Active Cycle Identity: `RRI-20260524-002 originates from Release Readiness Stage 1 digest after PR #207 merged into main at f4d81d179f9631cc36cc09ba520a12002221003d; repair scope is FAM-006 Overlay Display Acceptance Foundation historical merged-unreleased fold-down, compact backlog/roadmap posture, branch authority routing, branch-plan retirement posture, and validator prevention for stale active/open-PR wording after merge.`
 
 ## Historical PR Readiness Stage 2 Execution Packet - RRI-20260521-001
 
@@ -66,10 +66,10 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only for release-blocker intake; USER-approved automation/worktree governance intake may also use this standing lane when the repair is non-runtime, multi-worktree safety related, and held to the same one-cycle/PR-gated contract; USER-approved phase-gate governance intake may also use this standing lane when a live branch exposes a repeatable Branch Readiness, PR Readiness, Release Readiness, or Workstream gate miss and the repair is limited to governance/source-truth/validator/helper prevention; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `RRI-20260524-001`
+- Active RRI Cycle: `RRI-20260524-002`
 - Latest Closed RRI Cycle: `RRI-20260523-001 - PR #202 merged post-PR #201 source-truth drift repair and merge-stable projection prevention into origin/main@10c32804370ee5480416e68e55823e5997d18291`
-- Return Digest Status: `Pending - RRI-20260524-001 stable Desktop review-bundle worktree routing repair is in progress on the standing Governance lane; PR creation, merge, and post-merge sync remain future gates`
-- Active Cycle Identity: `RRI-20260524-001 originates from USER request to stop creating changing top-level Desktop review folders and instead use a stable Desktop root with one worktree-labeled child folder for flat copied USER inspection files; repair scope is USER Review Desktop Bundle source truth, Main loader pointer, prompt/context docs, helper registry, task template, branch plan/phase governance wording, and dev/orin_user_review_bundle.py`
+- Return Digest Status: `Pending - RRI-20260524-002 post-PR #207 Release Readiness source-truth drift repair is in progress on the standing Governance lane; PR creation, merge, post-merge sync, and originating Release Readiness rerun remain future gates`
+- Active Cycle Identity: `RRI-20260524-002 originates from Release Readiness Stage 1 digest after PR #207 merged into main at f4d81d179f9631cc36cc09ba520a12002221003d; repair scope is FAM-006 Overlay Display Acceptance Foundation historical merged-unreleased fold-down, compact backlog/roadmap posture, branch authority routing, branch-plan retirement posture, and validator prevention for stale active/open-PR wording after merge.`
 - One Active Cycle: Required operationally while a cycle is in flight. A second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main; the standing Governance branch is the only branch class where merged source truth does not require a separate closeout PR solely to clear or rewrite the cycle ledger.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Pre-Rebaseline Impact Audit: Required before the standing branch, neutral main workspace, or any originating worktree fast-forwards, merges, rebases, branch-switches, or otherwise baselines to newer `origin/main`; report `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before mutation.
@@ -80,7 +80,7 @@ This branch is the single standing governance lane for Release Readiness source-
 ## Assigned Worktree Confinement
 
 - Assigned Worktree Confinement: `Required`
-- Active Thread Owner: `Current Governance thread only for RRI-20260524-001 until the stable Desktop review-bundle routing repair, validation, final PR/merge path if later approved, and return digest complete; no other thread may mutate C:\Nexus Worktrees\Governance during this cycle`
+- Active Thread Owner: `Current Governance thread only for RRI-20260524-002 until the post-PR #207 Release Readiness source-truth drift repair, validation, final PR/merge path if later approved, and return digest complete; no other thread may mutate C:\Nexus Worktrees\Governance during this cycle`
 - Thread Assignment Status: `Assigned and active for this RRI cycle; competing same-worktree/same-branch ownership is blocked on Parallel Worktree Coordination Missing`
 - Worktree Ownership Ledger: `This branch authority record is the ownership ledger for the standing Governance worktree; runtime worktrees must record equivalent ownership in their active authority record or Branch Runtime Engineering Plan before mutation`
 - Intended Write Set: `Stable Desktop review-bundle routing source truth/helper repair plus post-merge docs inventory reconciliation: Docs/Main.md, Docs/branch_plans/README.md, Docs/branch_plans/retirement_index.md, Docs/branch_records/feature_release_readiness_source_truth_intake.md, Docs/codex_modes.md, Docs/development_rules.md, Docs/governance_efficiency_operating_model.md, Docs/orin_task_template.md, Docs/phase_governance.md, Docs/validation_helper_registry.md, dev/orin_user_review_bundle.py, and docs inventory/review outputs only if regenerated`
@@ -228,13 +228,13 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `RRI-20260523-001 - post-PR #201 source-truth drift and prevention repair`
+Active seam: `RRI-20260524-002 - post-PR #207 FAM-006 source-truth drift and prevention repair`
 
-Seam Goal: `Repair stale post-merge FAM-007 source-truth after PR #201 and harden PR Readiness / Release Readiness validation so pre-PR or PR-creation-pending wording cannot land in merged-main current-state owners after a PR has merged.`
+Seam Goal: `Repair stale post-merge FAM-006 source-truth after PR #207 and harden PR Readiness / Release Readiness validation so active-branch, open-PR, merge-pending, or active successor wording cannot land in merged-main current-state owners after a PR has merged.`
 
-Seam Scope: `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md, Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md, Docs/branch_plans/retirement_index.md, Docs/feature_backlog.md, Docs/prebeta_roadmap.md, Docs/worktree_slots.md, PR Readiness / Release Readiness source-truth rules, validation helper registry, branch governance validator, governance efficiency validator, docs inventory outputs, review bundle, and fixture coverage when needed.`
+Seam Scope: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md, Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md, Docs/branch_records/index.md, Docs/feature_backlog.md, Docs/prebeta_roadmap.md, Release Readiness source-truth rules, validation helper registry, branch governance validator, and fixture coverage when needed.`
 
-Seam Non-Includes: `FAM-006 mutation, FAM-007 worktree mutation, runtime/provider/model/memory/voice/Core/shortcut/installer work, successor branch creation, release execution, tag/GitHub Release/artifact work, issue work, branch deletion, worktree cleanup, broad historical deletion/archival, direct-main source mutation, or changing canonical phase names.`
+Seam Non-Includes: `FAM-006 runtime mutation, FAM-007 worktree mutation, runtime/provider/model/memory/voice/Core/shortcut/installer work, successor branch creation, release execution, tag/GitHub Release/artifact work, issue work, branch deletion, worktree cleanup, broad historical deletion/archival, direct-main source mutation, or changing canonical phase names.`
 
 ## Initial Workstream Seam Sequence
 
