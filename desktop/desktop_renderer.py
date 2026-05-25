@@ -5914,7 +5914,7 @@ class DesktopRuntimeWindow(QWidget):
 
         self.setGeometry(self.compute_compact_geometry())
         if self.surface_role == "hud":
-            self.setMinimumSize(640, 595)
+            self._apply_monitoring_hud_effective_window_minimum_size()
             self._apply_monitoring_hud_rounded_window_mask(source="init")
         self.setMouseTracking(True)
 
@@ -8276,6 +8276,10 @@ class DesktopRuntimeWindow(QWidget):
         min_height = min(max(self.minimumHeight(), 595), max(1, virtual.height()))
         return min_width, min_height
 
+    def _apply_monitoring_hud_effective_window_minimum_size(self):
+        min_width, min_height = self._monitoring_hud_effective_window_minimum_size()
+        self.setMinimumSize(min_width, min_height)
+
     def _bound_monitoring_hud_window_resize_rect(self, rect: QRect) -> QRect:
         virtual = self._virtual_desktop_geometry()
         min_width, min_height = self._monitoring_hud_effective_window_minimum_size()
@@ -10162,7 +10166,8 @@ class DesktopRuntimeWindow(QWidget):
             os_click("#monitoring-hud-overlay-profile-delete-cancel", "real OS click cancels Delete Profile confirmation", step_filter_open)
 
         def step_compact_resize():
-            self.setGeometry(int(live_window_origin["x"]), int(live_window_origin["y"]), 640, 595)
+            compact_width, compact_height = self._monitoring_hud_effective_window_minimum_size()
+            self.setGeometry(int(live_window_origin["x"]), int(live_window_origin["y"]), compact_width, compact_height)
             QApplication.processEvents()
             QTimer.singleShot(delay(300), step_compact_assert)
 
