@@ -472,6 +472,55 @@ function monitoringHudNormalizeRecordingProfileState(state) {
   return targetState;
 }
 
+function monitoringHudRecordingProfileRelationshipProof(state) {
+  const targetState = state || monitoringHudControlState;
+  monitoringHudNormalizeOverlayProfileState(targetState);
+  monitoringHudNormalizeRecordingProfileState(targetState);
+  const cards = monitoringHudSafeCardsObject(targetState.cards || {});
+  const recordingProfiles = monitoringHudSafeRecordingProfilesObject(targetState.recordingProfiles);
+  const overlayProfiles = monitoringHudSafeOverlayProfilesObject(targetState.overlayProfiles);
+  const activeRecordingProfile = recordingProfiles[targetState.activeRecordingProfileId] || {};
+  const activeOverlayProfile = overlayProfiles[targetState.activeOverlayProfileId] || {};
+  const monitorGroupSourceIds = [];
+  Object.values(cards).forEach((card) => {
+    if (!card || typeof card !== "object" || Array.isArray(card)) return;
+    if (Array.isArray(card.sourceIds)) {
+      monitorGroupSourceIds.push(...card.sourceIds);
+    } else if (Array.isArray(card.sensors)) {
+      monitorGroupSourceIds.push(...card.sensors);
+    }
+  });
+  const overlayForbiddenKeys = ["recordingProfileId", "recordingProfileIds", "recordingSourceIds"];
+  const monitorGroupForbiddenKeys = ["recordingProfileId", "recordingProfileIds", "recordingSourceIds"];
+  const overlayProfileBoundary = Object.values(overlayProfiles).every((profile) => {
+    if (!profile || typeof profile !== "object" || Array.isArray(profile)) return true;
+    return overlayForbiddenKeys.every((key) => !Object.prototype.hasOwnProperty.call(profile, key));
+  });
+  const monitorGroupBoundary = Object.values(cards).every((card) => {
+    if (!card || typeof card !== "object" || Array.isArray(card)) return true;
+    return monitorGroupForbiddenKeys.every((key) => !Object.prototype.hasOwnProperty.call(card, key));
+  });
+  return {
+    package: "PKG-006",
+    slice: "SLC-048",
+    seam: "recording-profile-relationship-mapping-boundary-proof",
+    activeRecordingProfileId: targetState.activeRecordingProfileId,
+    activeOverlayProfileId: targetState.activeOverlayProfileId,
+    recordingMonitorIds: monitoringHudUniqueValidMonitorIds(activeRecordingProfile.monitorIds, cards),
+    recordingSourceIds: monitoringHudUniqueStringIds(activeRecordingProfile.sourceIds),
+    overlayMonitorIds: monitoringHudUniqueValidMonitorIds(activeOverlayProfile.monitorIds, cards),
+    monitorGroupIds: monitoringHudStableMonitorIds(cards),
+    monitorGroupSourceIds: monitoringHudUniqueStringIds(monitorGroupSourceIds),
+    recordingProfileRelationshipScope: "state-only-readonly-foundation",
+    overlayProfileBoundary,
+    monitorGroupBoundary,
+    trayRecordingBoundary: "future-gated-not-present",
+    recordingExecutionBoundary: "future-gated-not-present",
+    exportShareBoundary: "future-gated-not-present",
+    providerModelBoundary: "future-gated-not-present"
+  };
+}
+
 function monitoringHudActiveRecordingProfile() {
   monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
   return monitoringHudControlState.recordingProfiles[monitoringHudControlState.activeRecordingProfileId]
@@ -1094,6 +1143,7 @@ let monitoringHudControlState = {
 };
 monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
 monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+monitoringHudControlState.recordingProfileRelationshipProof = monitoringHudRecordingProfileRelationshipProof(monitoringHudControlState);
 const monitoringHudStorageKey = "nexusMonitoringHudLayoutV4";
 const monitoringHudLegacyStorageKeys = ["nexusMonitoringHudLayoutV1", "nexusMonitoringHudLayoutV2", "nexusMonitoringHudLayoutV3"];
 const monitoringHudSnapSize = 20;
@@ -5582,6 +5632,169 @@ window.runMonitoringHudRecordingProfileStateProof = function() {
   return proof;
 };
 
+window.runMonitoringHudRecordingProfileRelationshipProof = function() {
+  const previousState = JSON.stringify(monitoringHudControlState);
+  let proof = {
+    passed: false,
+    package: "PKG-006",
+    slice: "SLC-048",
+    seam: "Recording Profile relationship mapping and boundaries",
+    activeRecordingProfileMapsMonitorIds: false,
+    activeRecordingProfileMapsSourceIds: false,
+    overlayProfileStateSeparate: false,
+    monitorGroupStateSeparate: false,
+    staleRecordingMonitorIdsRemoved: false,
+    duplicateRelationshipIdsRemoved: false,
+    highVolumeRelationshipDeterministic: false,
+    dashboardManageOverlayBehaviorPreserved: true,
+    nonTrayRecordingScope: true,
+    nonRecordingExecutionScope: true,
+    nonExportShareScope: true,
+    nonProviderModelScope: true
+  };
+  try {
+    const fixtureCards = {
+      cpu: Object.assign(monitoringHudCardDefaults("cpu"), {
+        title: "CPU Group",
+        sourceIds: ["cpu-load"]
+      }),
+      gpu: Object.assign(monitoringHudCardDefaults("gpu"), {
+        title: "GPU Group",
+        sourceIds: ["gpu-load"]
+      }),
+      memory: Object.assign(monitoringHudCardDefaults("memory"), {
+        title: "Memory Group",
+        sourceIds: ["memory-usage"]
+      })
+    };
+    const relationshipState = {
+      cards: fixtureCards,
+      activeOverlayProfileId: "overlay-visible",
+      overlayProfiles: {
+        "overlay-visible": {
+          id: "overlay-visible",
+          name: "Overlay Visible",
+          monitorIds: ["cpu"],
+          recordingProfileId: "must-not-survive"
+        }
+      },
+      activeRecordingProfileId: "recording-relationship",
+      recordingProfiles: {
+        "recording-relationship": {
+          id: "recording-relationship",
+          name: "Recording Relationship",
+          monitorIds: ["gpu", "gpu", "missing", "memory"],
+          sourceIds: ["gpu-load", "gpu-load", "memory-usage"],
+          recordingMode: "manual-future-gated",
+          storagePolicy: "local-metadata-only"
+        }
+      }
+    };
+    monitoringHudNormalizeOverlayProfileState(relationshipState);
+    monitoringHudNormalizeRecordingProfileState(relationshipState);
+    const relationshipProof = monitoringHudRecordingProfileRelationshipProof(relationshipState);
+    const recordingProfile = relationshipState.recordingProfiles["recording-relationship"] || {};
+    const overlayProfile = relationshipState.overlayProfiles["overlay-visible"] || {};
+
+    const highVolumeCards = {};
+    const highVolumeMonitorIds = [];
+    const highVolumeSourceIds = [];
+    for (let index = 1; index <= 175; index += 1) {
+      const monitorId = `slc048-monitor-${String(index).padStart(3, "0")}`;
+      const sourceId = `slc048-source-${String(index).padStart(3, "0")}`;
+      highVolumeMonitorIds.push(monitorId);
+      highVolumeSourceIds.push(sourceId);
+      highVolumeCards[monitorId] = Object.assign(monitoringHudCardDefaults(monitorId), {
+        title: `SLC-048 Monitor ${index}`,
+        sourceIds: [sourceId]
+      });
+    }
+    const highVolumeState = {
+      cards: highVolumeCards,
+      activeOverlayProfileId: "overlay-high-volume",
+      overlayProfiles: {
+        "overlay-high-volume": {
+          id: "overlay-high-volume",
+          name: "Overlay High Volume",
+          monitorIds: highVolumeMonitorIds.slice(0, 5)
+        }
+      },
+      activeRecordingProfileId: "recording-high-volume",
+      recordingProfiles: {
+        "recording-high-volume": {
+          id: "recording-high-volume",
+          name: "Recording High Volume",
+          monitorIds: highVolumeMonitorIds.concat(highVolumeMonitorIds.slice(0, 12), ["stale-monitor"]),
+          sourceIds: highVolumeSourceIds.concat(highVolumeSourceIds.slice(0, 12))
+        }
+      }
+    };
+    monitoringHudNormalizeOverlayProfileState(highVolumeState);
+    monitoringHudNormalizeRecordingProfileState(highVolumeState);
+    const highVolumeProof = monitoringHudRecordingProfileRelationshipProof(highVolumeState);
+
+    proof.activeRecordingProfileMapsMonitorIds = JSON.stringify(relationshipProof.recordingMonitorIds)
+      === JSON.stringify(["gpu", "memory"]);
+    proof.activeRecordingProfileMapsSourceIds = JSON.stringify(relationshipProof.recordingSourceIds)
+      === JSON.stringify(["gpu-load", "memory-usage"]);
+    proof.overlayProfileStateSeparate = JSON.stringify(relationshipProof.overlayMonitorIds) === JSON.stringify(["cpu"])
+      && !Object.prototype.hasOwnProperty.call(overlayProfile, "recordingProfileId")
+      && relationshipProof.overlayProfileBoundary === true;
+    proof.monitorGroupStateSeparate = relationshipProof.monitorGroupBoundary === true
+      && Object.values(relationshipState.cards || {}).every((card) => (
+        !Object.prototype.hasOwnProperty.call(card, "recordingProfileId")
+          && !Object.prototype.hasOwnProperty.call(card, "recordingSourceIds")
+      ));
+    proof.staleRecordingMonitorIdsRemoved = !(recordingProfile.monitorIds || []).includes("missing");
+    proof.duplicateRelationshipIdsRemoved = JSON.stringify(recordingProfile.monitorIds || []) === JSON.stringify(["gpu", "memory"])
+      && JSON.stringify(recordingProfile.sourceIds || []) === JSON.stringify(["gpu-load", "memory-usage"]);
+    proof.highVolumeRelationshipDeterministic = (highVolumeProof.recordingMonitorIds || []).length === 175
+      && highVolumeProof.recordingMonitorIds[0] === "slc048-monitor-001"
+      && highVolumeProof.recordingMonitorIds[174] === "slc048-monitor-175"
+      && (highVolumeProof.recordingSourceIds || []).length === 175;
+    proof.dashboardManageOverlayBehaviorPreserved = relationshipState.activeOverlayProfileId === "overlay-visible"
+      && relationshipState.activeRecordingProfileId === "recording-relationship"
+      && relationshipProof.recordingProfileRelationshipScope === "state-only-readonly-foundation";
+    proof.nonTrayRecordingScope = relationshipProof.trayRecordingBoundary === "future-gated-not-present";
+    proof.nonRecordingExecutionScope = relationshipProof.recordingExecutionBoundary === "future-gated-not-present";
+    proof.nonExportShareScope = relationshipProof.exportShareBoundary === "future-gated-not-present";
+    proof.nonProviderModelScope = relationshipProof.providerModelBoundary === "future-gated-not-present";
+    proof.passed = proof.activeRecordingProfileMapsMonitorIds
+      && proof.activeRecordingProfileMapsSourceIds
+      && proof.overlayProfileStateSeparate
+      && proof.monitorGroupStateSeparate
+      && proof.staleRecordingMonitorIdsRemoved
+      && proof.duplicateRelationshipIdsRemoved
+      && proof.highVolumeRelationshipDeterministic
+      && proof.dashboardManageOverlayBehaviorPreserved
+      && proof.nonTrayRecordingScope
+      && proof.nonRecordingExecutionScope
+      && proof.nonExportShareScope
+      && proof.nonProviderModelScope;
+  } finally {
+    try {
+      monitoringHudControlState = JSON.parse(previousState);
+      monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+      monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+      monitoringHudControlState.recordingProfileRelationshipProof = monitoringHudRecordingProfileRelationshipProof(monitoringHudControlState);
+    } catch (_err) {}
+  }
+  monitoringHudControlState.recordingProfileRelationshipProof = proof;
+  if (monitoringHud) {
+    monitoringHud.dataset.recordingProfileRelationshipProof = proof.passed ? "pass" : "fail";
+    monitoringHud.dataset.recordingProfileRelationshipBoundary = "slc-048-state-only-readonly";
+  }
+  if (monitoringHudOverlayDisplay) {
+    monitoringHudOverlayDisplay.dataset.recordingProfileRelationshipProof = proof.passed ? "pass" : "fail";
+    monitoringHudOverlayDisplay.dataset.recordingProfileRelationshipBoundary = "slc-048-state-only-readonly";
+  }
+  if (monitoringHudRecordingProfileEditor) {
+    monitoringHudRecordingProfileEditor.dataset.recordingProfileRelationshipProof = proof.passed ? "pass" : "fail";
+    monitoringHudRecordingProfileEditor.dataset.recordingProfileMembership = "readonly-slc-048";
+  }
+  return proof;
+};
+
 window.runMonitoringHudOverlayDisplayAcceptanceProof = function() {
   const previousState = JSON.stringify(monitoringHudControlState);
   let proof = {
@@ -6853,6 +7066,7 @@ window.runMonitoringHudOverlayProfileIntegrationProof = function() {
 window.getMonitoringHudControlState = function() {
   monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  monitoringHudControlState.recordingProfileRelationshipProof = monitoringHudRecordingProfileRelationshipProof(monitoringHudControlState);
   return Object.assign({}, monitoringHudControlState, {
     cards: Object.assign({}, monitoringHudControlState.cards),
     overlayProfiles: JSON.parse(JSON.stringify(monitoringHudControlState.overlayProfiles || {})),
@@ -6864,6 +7078,7 @@ window.getMonitoringHudControlState = function() {
     activeRecordingProfileId: monitoringHudControlState.activeRecordingProfileId || "",
     recordingProfileSchemaVersion: monitoringHudRecordingProfileSchemaVersion,
     recordingProfileStateProof: Object.assign({}, monitoringHudControlState.recordingProfileStateProof || {}),
+    recordingProfileRelationshipProof: Object.assign({}, monitoringHudControlState.recordingProfileRelationshipProof || {}),
     overlayDisplayAcceptanceProof: Object.assign({}, monitoringHudControlState.overlayDisplayAcceptanceProof || {}),
     activeOverlayProfileDisplayProof: Object.assign({}, monitoringHudControlState.activeOverlayProfileDisplayProof || {}),
     dashboardOverlayIndependenceProof: Object.assign({}, monitoringHudControlState.dashboardOverlayIndependenceProof || {}),
@@ -8548,6 +8763,7 @@ window.setMonitoringHudControlState = function(state) {
   }
   monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   monitoringHudNormalizeRecordingProfileState(monitoringHudControlState);
+  monitoringHudControlState.recordingProfileRelationshipProof = monitoringHudRecordingProfileRelationshipProof(monitoringHudControlState);
   monitoringHudControlState.monitorSequence = Math.max(
     Number(monitoringHudControlState.monitorSequence || 2),
     Object.keys(monitoringHudControlState.cards).length

@@ -31,6 +31,7 @@ from desktop.monitoring_hud_state import (
     DEFAULT_OVERLAY_PROFILE_ID,
     DEFAULT_RECORDING_PROFILE_ID,
     MONITORING_HUD_STATE_ENV,
+    build_recording_profile_relationship_proof,
     load_monitoring_hud_state,
     normalize_monitoring_hud_overlay_profiles,
     normalize_monitoring_hud_recording_profiles,
@@ -1349,6 +1350,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         "window.runMonitoringHudActiveOverlayProfileDisplayProof = function()",
         "window.runMonitoringHudDashboardOverlayIndependenceProof = function()",
         "window.runMonitoringHudOverlayDisplayWorkstreamReadinessProof = function()",
+        "monitoringHudRecordingProfileRelationshipProof",
+        "window.runMonitoringHudRecordingProfileRelationshipProof = function()",
+        "recordingProfileRelationshipProof",
+        'monitoringHud.dataset.recordingProfileRelationshipBoundary = "slc-048-state-only-readonly"',
+        "recordingProfileRelationshipScope",
         "slc-042-active-profile-state-bridge",
         "slc-043-active-profile-display",
         "slc-044-dashboard-overlay-independent",
@@ -1809,6 +1815,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "RECORDING_PROFILE_SCHEMA_VERSION",
         "default_recording_profile_state",
         "normalize_monitoring_hud_recording_profiles",
+        "build_recording_profile_relationship_proof",
         "load_monitoring_hud_state",
         "save_monitoring_hud_state",
         "MONITORING_HUD_STATE_LOAD_READY",
@@ -2141,6 +2148,76 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
             _require(
                 default_recording_profile.get("monitorIds") == [],
                 "Default Recording Profile must not auto-record legacy monitor cards",
+                failures,
+            )
+            relationship_payload = {
+                "cards": {
+                    "cpu": {"id": "cpu", "title": "CPU Group", "sourceIds": ["cpu-load"]},
+                    "gpu": {"id": "gpu", "title": "GPU Group", "sourceIds": ["gpu-load"]},
+                    "memory": {"id": "memory", "title": "Memory Group", "sourceIds": ["memory-usage"]},
+                },
+                "activeOverlayProfileId": "overlay-visible",
+                "overlayProfiles": {
+                    "overlay-visible": {
+                        "id": "overlay-visible",
+                        "name": "Overlay Visible",
+                        "monitorIds": ["cpu"],
+                    }
+                },
+                "activeRecordingProfileId": "recording-relationship",
+                "recordingProfiles": {
+                    "recording-relationship": {
+                        "id": "recording-relationship",
+                        "name": "Recording Relationship",
+                        "monitorIds": ["gpu", "memory"],
+                        "sourceIds": ["gpu-load", "memory-usage"],
+                    }
+                },
+            }
+            relationship_payload.update(
+                normalize_monitoring_hud_overlay_profiles(relationship_payload, ["cpu", "gpu", "memory"])
+            )
+            relationship_payload.update(
+                normalize_monitoring_hud_recording_profiles(relationship_payload, ["cpu", "gpu", "memory"])
+            )
+            relationship_proof = build_recording_profile_relationship_proof(relationship_payload)
+            _require(
+                relationship_proof.get("slice") == "SLC-048",
+                "SLC-048 Recording Profile relationship proof must identify the active slice",
+                failures,
+            )
+            _require(
+                relationship_proof.get("recordingMonitorIds") == ["gpu", "memory"],
+                "SLC-048 Recording Profile relationship proof must map monitor ids without mutating Overlay Profile state",
+                failures,
+            )
+            _require(
+                relationship_proof.get("recordingSourceIds") == ["gpu-load", "memory-usage"],
+                "SLC-048 Recording Profile relationship proof must map source ids deterministically",
+                failures,
+            )
+            _require(
+                relationship_proof.get("overlayMonitorIds") == ["cpu"],
+                "SLC-048 Recording Profile relationship proof must keep Overlay Profile membership separate",
+                failures,
+            )
+            _require(
+                relationship_proof.get("monitorGroupIds") == ["cpu", "gpu", "memory"],
+                "SLC-048 Recording Profile relationship proof must read Monitor Group ids without owning them",
+                failures,
+            )
+            _require(
+                relationship_proof.get("overlayProfileBoundary") is True
+                and relationship_proof.get("monitorGroupBoundary") is True,
+                "SLC-048 Recording Profile relationship proof must preserve Overlay Profile and Monitor Group boundaries",
+                failures,
+            )
+            _require(
+                relationship_proof.get("trayRecordingBoundary") == "future-gated-not-present"
+                and relationship_proof.get("recordingExecutionBoundary") == "future-gated-not-present"
+                and relationship_proof.get("exportShareBoundary") == "future-gated-not-present"
+                and relationship_proof.get("providerModelBoundary") == "future-gated-not-present",
+                "SLC-048 Recording Profile relationship proof must not introduce tray, execution, export/share, or provider/model scope",
                 failures,
             )
         finally:

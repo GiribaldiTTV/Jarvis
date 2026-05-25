@@ -15026,6 +15026,9 @@ class DesktopRuntimeWindow(QWidget):
             overlay_profile_changed = True
         recording_profiles = state.get("recordingProfiles") if isinstance(state.get("recordingProfiles"), dict) else {}
         active_recording_profile_id = str(state.get("activeRecordingProfileId") or "")
+        recording_relationship_proof = state.get("recordingProfileRelationshipProof")
+        if not isinstance(recording_relationship_proof, dict):
+            recording_relationship_proof = {}
         recording_profile_signature_parts = []
         for profile_id in sorted(str(key) for key in recording_profiles.keys()):
             profile = recording_profiles.get(profile_id) if isinstance(recording_profiles.get(profile_id), dict) else {}
@@ -15045,6 +15048,7 @@ class DesktopRuntimeWindow(QWidget):
             active_recording_profile_id,
             int(state.get("recordingProfileSchemaVersion") or 0),
             tuple(recording_profile_signature_parts),
+            json.dumps(recording_relationship_proof, sort_keys=True),
         )
         recording_profile_changed = False
         if recording_profile_signature != self._monitoring_hud_recording_profile_signature:
@@ -15064,10 +15068,24 @@ class DesktopRuntimeWindow(QWidget):
                 default_profile_id="default-recording-profile",
                 default_profile_monitor_count=len(default_monitor_ids),
                 default_profile_source_count=len(default_source_ids),
+                relationship_proof_slice=str(recording_relationship_proof.get("slice") or "SLC-048"),
+                relationship_monitor_count=len(recording_relationship_proof.get("recordingMonitorIds", []))
+                if isinstance(recording_relationship_proof.get("recordingMonitorIds"), list)
+                else 0,
+                relationship_source_count=len(recording_relationship_proof.get("recordingSourceIds", []))
+                if isinstance(recording_relationship_proof.get("recordingSourceIds"), list)
+                else 0,
+                relationship_overlay_profile_id=str(recording_relationship_proof.get("activeOverlayProfileId") or active_overlay_profile_id),
+                relationship_monitor_group_count=len(recording_relationship_proof.get("monitorGroupIds", []))
+                if isinstance(recording_relationship_proof.get("monitorGroupIds"), list)
+                else len(cards),
                 monitor_group_boundary="separate-configuration-organization",
                 overlay_profile_boundary="overlay-display-membership-separate",
+                relationship_boundary=str(recording_relationship_proof.get("recordingProfileRelationshipScope") or "state-only-readonly-foundation"),
                 tray_recording_boundary="future-gated-not-present",
+                recording_execution_boundary="future-gated-not-present",
                 export_share_boundary="future-gated-not-present",
+                provider_model_boundary="future-gated-not-present",
                 visible_profile_editor="slc-047-selection-editing-shell",
                 profile_membership_editor="readonly-slc-047",
                 schema_version=int(state.get("recordingProfileSchemaVersion") or 0),
