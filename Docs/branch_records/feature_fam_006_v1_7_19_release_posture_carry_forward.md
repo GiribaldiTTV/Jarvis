@@ -6,8 +6,8 @@ Branch Creation Base: `origin/main` at `dfa59b37058fb2ef0f7d3432b585f182551408a4
 Current origin/main: `dfa59b37058fb2ef0f7d3432b585f182551408a4`
 Origin/Main Advanced Since Branch Creation: `NO`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
-Branch Runtime Engineering Plan: `Accepted for release-posture source-truth carry-forward only; no runtime implementation is admitted.`
-Engineering Plan Status: `Accepted`
+Branch Runtime Engineering Plan: `Historical source-truth carry-forward evidence after PR #212 merge.`
+Engineering Plan Status: `Retired from active planning posture`
 
 ## Branch Identity
 
@@ -17,11 +17,11 @@ Engineering Plan Status: `Accepted`
 
 ## Record State
 
-Record State: `Active`
+Record State: `Historical merged`
 
 ## Status
 
-Status: `Branch Readiness Stage 2 source-truth setup`
+Status: `Merged through PR #212; active authority folded down during feature/fam-006-recording-profile-runtime-foundation Branch Readiness Stage 2 setup`
 
 ## Canonical Branch
 
@@ -29,14 +29,14 @@ Canonical Branch: `feature/fam-006-v1-7-19-release-posture-carry-forward`
 
 ## Current Phase
 
-Phase: `Branch Readiness`
-Phase Detail: `Carry GitHub-authoritative v1.7.19-prebeta release posture into FAM-006 source truth after Release Readiness Stage 2 published the release.`
+Phase: `Historical Traceability`
+Phase Detail: `Carry-forward source-truth branch merged through PR #212 at 26dded3f84c526e0525c7d3b18fcd2607e16590d after GitHub published v1.7.19-prebeta.`
 
 ## Phase Status
 
-Phase Status: `Active Branch`
-Authority State: `Active branch authority for FAM-006 release-posture carry-forward only`
-Bounded State: `Allowed scope is branch/worktree setup plus release-posture source-truth repair for v1.7.19-prebeta. Runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain blocked.`
+Phase Status: `Historical merged`
+Authority State: `Historical source-truth carry-forward evidence; no active branch authority`
+Bounded State: `Closed - PR #212 merged and branch refs were cleaned up after no-unique-commit proof. Future FAM-006 runtime work is owned by feature/fam-006-recording-profile-runtime-foundation after USER-approved Branch Readiness Stage 2 setup.`
 
 ## Branch Class
 
@@ -153,22 +153,22 @@ New Worktree Decision Gate: `Not required - USER selected stable FAM-006 path.`
 Expected Worktree Root: `C:\Nexus Worktrees\FAM-006`
 Actual Worktree Root: `C:\Nexus Worktrees\FAM-006`
 No Cross-Worktree Mutation: `PASS`
-GitHub Desktop-bound worktree: `PASS - git worktree registration binds C:\Nexus Worktrees\FAM-006 to feature/fam-006-v1-7-19-release-posture-carry-forward.`
+GitHub Desktop-bound worktree: `Historical - C:\Nexus Worktrees\FAM-006 was later rebound to feature/fam-006-recording-profile-runtime-foundation during Branch Readiness Stage 2 setup.`
 Worktree Escape User Waiver: `Not granted`
 Worktree Escape User Waiver Missing: `Not applicable`
 
 ## Carrier Lifecycle Decision
 
 Carrier Lifecycle Classification: `Fresh current branch`
-Remote Branch State: `Pending first push`
+Remote Branch State: `Historical deleted after PR #212 merge and no-unique-commit proof`
 Unique Branch Diff: `Stage 2 source-truth carry-forward edits only`
 Origin/Main Ancestry: `Created directly from origin/main dfa59b37058fb2ef0f7d3432b585f182551408a4`
 Origin/Main Advanced Since Branch Creation: `NO`
-Open PR State: `No live PR`
-Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-006`
-Recommended Stage 2 Carrier Action: `Create/rebind stable FAM-006 worktree to this fresh branch and commit/push source-truth carry-forward.`
-Stale Branch Cleanup Plan: `Historical branch feature/fam-006-overlay-display-acceptance-foundation is preserved as PR #207 evidence. Branch deletion or cleanup remains a separate USER decision.`
-Branch Cleanup Execution Gate: `Blocked - no branch deletion, remote deletion, worktree removal, or GitHub Desktop cleanup is authorized.`
+Open PR State: `Historical - PR #212 merged.`
+Worktree Checkout State: `Historical - branch was checked out at C:\Nexus Worktrees\FAM-006 before merge; worktree was later rebound to feature/fam-006-recording-profile-runtime-foundation.`
+Recommended Stage 2 Carrier Action: `Complete historically - release-posture source truth merged through PR #212; fold-down and branch cleanup receipt are carried by feature/fam-006-recording-profile-runtime-foundation.`
+Stale Branch Cleanup Plan: `Complete for this branch - local and remote refs were deleted after merge/no-unique-commit proof.`
+Branch Cleanup Execution Gate: `Closed for this branch cleanup receipt; no further cleanup authorized by this historical record.`
 Stable Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Replacement Binding Path: `C:\Nexus Worktrees\FAM-006`
 Recreate From Current origin/main: `Complete`
@@ -177,7 +177,7 @@ No Unique Commit Loss Proof: `PASS - historical branch has no unique local/remot
 ## Blockers
 
 Active Blockers: `Runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording, export/share, provider/model work, and broad theme/skin work remain pending separate USER decisions.`
-PR Readiness Blocker: `Pending USER approval after Stage 2 setup.`
+PR Readiness Blocker: `Closed - PR #212 merged.`
 
 ## Branch Objective
 
@@ -219,7 +219,7 @@ Active seam: `Seam 1 release-posture source-truth carry-forward is active for Br
 
 ## Exit Criteria
 
-Exit Criteria: `Stage 2 setup is complete when source truth is updated, validation is green, commit is created, and branch is pushed.`
+Exit Criteria: `Historical - setup, PR Readiness, PR #212 merge, and branch cleanup receipt are complete.`
 
 ## Rollback Target
 
@@ -227,22 +227,22 @@ Rollback Target: `Branch Readiness`
 
 ## Next Legal Phase
 
-Next Legal Phase: `PR Readiness`
-Next Legal Phase Detail: `After setup is green and pushed, this source-truth carry-forward branch may enter PR Readiness Stage 1 analysis if USER approves. Runtime Workstream remains unauthorized.`
+Next Legal Phase: `Branch Readiness`
+Next Legal Phase Detail: `No active phase remains for this branch. Future FAM-006 runtime work is routed to feature/fam-006-recording-profile-runtime-foundation after USER-approved Branch Readiness Stage 2 setup.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Branch Readiness`
-Next Legal Phase: `PR Readiness`
-Why This Phase Is Next: `The branch is a source-truth carry-forward carrier with no admitted runtime Workstream; after setup, the next legal gate is PR readiness analysis for the carry-forward PR.`
-Approval Required: `USER must approve PR Readiness Stage 1.`
-Exact USER Approval Text: `Approve PR Readiness Stage 1 analysis for FAM-006 v1.7.19 Release Posture Carry-Forward in C:\Nexus Worktrees\FAM-006 on feature/fam-006-v1-7-19-release-posture-carry-forward. This approval covers analysis only and does not approve runtime implementation, PR creation, merge, release, issue mutation, stale branch cleanup execution, artifacts/raw evidence handling, FAM-007 work, Governance worktree mutation, Recording Profile runtime, tray recording, export/share, provider/model work, or broad theme/skin work.`
-Allowed Scope: `Analysis-only PR Readiness Stage 1 after setup.`
+Current Phase: `Historical Traceability`
+Next Legal Phase: `Branch Readiness`
+Why This Phase Is Next: `This carry-forward branch is merged and deleted. The next active FAM-006 carrier is feature/fam-006-recording-profile-runtime-foundation.`
+Approval Required: `None for this historical record.`
+Exact USER Approval Text: `None for this historical record.`
+Allowed Scope: `Historical traceability only.`
 Explicit Exclusions: `Runtime implementation; PR creation; merge; release; issue mutation; stale branch cleanup execution; artifacts/raw evidence handling; sibling-worktree mutation; FAM-007 work; Governance worktree mutation.`
-Validation Required: `Governance, release-readiness health, source-owner, FAM-006 HUD validators as applicable, release body validation, AI provider state validation, diff checks, compileall.`
-Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, validation failure, source-truth drift beyond approved carry-forward scope, or need for runtime implementation.`
-USER Plan Review Gate: `USER may accept, revise, waive, or reject this plan before PR Readiness Stage 1.`
+Validation Required: `Historical record only; active validation belongs to the current FAM-006 branch.`
+Stop Conditions: `None for this historical record.`
+USER Plan Review Gate: `Not applicable.`
 USER Inspection Files: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
-Review Required Because: `This branch records post-release source-truth carry-forward after GitHub release publication.`
-Implementation Blocker: `Runtime implementation is not approved and no Workstream is admitted.`
+Review Required Because: `Historical lookup only.`
+Implementation Blocker: `This branch is closed; runtime implementation belongs only to a future USER-approved active branch.`
 Review Waiver Reason: `None`

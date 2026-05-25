@@ -4,7 +4,7 @@ Branch: `feature/fam-006-v1-7-19-release-posture-carry-forward`
 Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
 Created From: `origin/main` at `dfa59b37058fb2ef0f7d3432b585f182551408a4`
-Current Plan Phase: `Branch Readiness Stage 2 source-truth carry-forward`
+Current Plan Phase: `Historical Traceability`
 Runtime Implementation Approval: `Pending - runtime implementation is not admitted by this release-posture carry-forward branch`
 
 ## Branch Runtime Engineering Plan
@@ -15,7 +15,7 @@ Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
 Current Phase: `Branch Readiness Stage 2`
 Branch Runtime Engineering Plan: `Source-truth carry-forward after GitHub release v1.7.19-prebeta.`
-Engineering Plan Status: `Accepted`
+Engineering Plan Status: `Retired from active planning posture`
 Current Runtime Baseline: `FAM-006 Overlay Display Acceptance Foundation was released through GitHub release v1.7.19-prebeta.`
 Branch Purpose: `Record GitHub-authoritative v1.7.19-prebeta release posture in FAM-006 source truth while preserving PR #207 as historical evidence.`
 Planned Runtime Delta: `None`
@@ -40,7 +40,7 @@ Live Validation Proof Or Waiver Checklist: `Not applicable - no user-facing runt
 PR Readiness Fold-Down / Retention Checklist: `PR Readiness should preserve this branch as source-truth carry-forward evidence and not re-open PR #207 runtime scope.`
 Release Readiness Public-Scope Translation Checklist: `Not applicable - v1.7.19-prebeta is already published.`
 USER Planning Review: `Accepted for Branch Readiness Stage 2 setup.`
-PR Fold-Down Packet: `Pending future PR if USER approves.`
+PR Fold-Down Packet: `Historical - PR #212 merged; fold-down recorded by feature/fam-006-recording-profile-runtime-foundation Branch Readiness Stage 2 setup.`
 
 ## Purpose
 
@@ -50,11 +50,11 @@ This branch carries post-release FAM-006 source-truth repair after GitHub publis
 
 Family: `FAM-006 - Monitoring and HUD`
 Package: `PKG-006 - Monitoring and HUD`
-Package Posture: `Released baseline / open future work`
+Package Posture: `Historical released baseline / open future work`
 
 | Slice | Admission State | Purpose | Current Status |
 | --- | --- | --- | --- |
-| `SLC-042` through `SLC-045` Overlay Display Acceptance Foundation | Historical released evidence | Preserve release evidence from PR #207 / v1.7.19-prebeta. | Released in v1.7.19-prebeta |
+| `SLC-042` through `SLC-045` Overlay Display Acceptance Foundation | Historical released evidence | Preserve release evidence from PR #207 / v1.7.19-prebeta. | Released in v1.7.19-prebeta; carry-forward branch merged through PR #212 |
 
 Single-Slice Package User Approval: `Not required - no new slice is admitted.`
 Package Completion State: `Released baseline / open future work`
@@ -161,7 +161,13 @@ Plan-To-Implementation Traceability: `Stage 2 source-truth edits map directly to
 - Conflict Resolution Rule: `Preserve GitHub release v1.7.19-prebeta as release posture authority, preserve incoming current-main roadmap updates, and preserve PR #207 as historical evidence.`
 - Validation Proof: `Release body validation, release-readiness health gate, branch governance validation, FAM-006 HUD validators, and source-owner marker validation.`
 
+## Retirement / Fold-Down Receipt
+
+Retirement Status: `Retired from active planning posture after PR #212 merge.`
+Fold-Down Carrier: `feature/fam-006-recording-profile-runtime-foundation`
+Branch Cleanup Receipt: `Local and remote FAM-006 carry-forward branch refs were deleted after merge/no-unique-commit proof; stable worktree C:\Nexus Worktrees\FAM-006 was preserved and rebound to the next active FAM-006 branch.`
+
 ## Next Legal Phase
 
-Next Legal Phase: `PR Readiness Stage 1`
-Exact USER Decision Needed: `Approve PR Readiness Stage 1 analysis for FAM-006 v1.7.19 Release Posture Carry-Forward in C:\Nexus Worktrees\FAM-006 on feature/fam-006-v1-7-19-release-posture-carry-forward.`
+Next Legal Phase: `Historical Traceability`
+Exact USER Decision Needed: `None for this retired plan.`

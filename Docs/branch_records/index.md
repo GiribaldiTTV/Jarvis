@@ -133,10 +133,11 @@ Do not use this layer to replace:
 ## Active Branch Authority Records
 
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
-- `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
+- `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md`
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
 - `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`
 - `Docs/branch_records/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md`

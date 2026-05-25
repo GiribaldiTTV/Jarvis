@@ -22,6 +22,7 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | Retired from active planning posture | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/validation_helper_registry.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md` | Retired from active planning posture after PR #207 merge | `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
+| `Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md` | Retired from active planning posture after PR #212 merge and FAM-006 branch cleanup | `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`; `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_uts_reference_20260521.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_lv1_visual_governance_gap_reference_20260521.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
@@ -44,6 +45,6 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 
 ## Active Plan Posture
 
-Active runtime Branch Runtime Engineering Plan: `None recorded in this index after PR #210 merge.`
+Active runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md`
 
 Most recent retired runtime plan: `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` - the FAM-007 setup completion foundation plan is retired from active planning posture after PR #210 merge and remains historical merged-unreleased release-window evidence until Release Readiness / release execution records public release truth.
