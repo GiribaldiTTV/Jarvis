@@ -32,6 +32,7 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
     "PASS - helper overwrote the stable review zip from the freshly refreshed "
     "worktree review folder after START_HERE was written for this Source HEAD."
 )
+USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -192,6 +193,12 @@ def _validate_export_zip(export_zip: Path, source_head: str) -> None:
             start_here = archive.read("START_HERE.md").decode("utf-8")
         except KeyError as exc:
             raise ValueError(f"Review export zip is missing START_HERE.md: {export_zip}") from exc
+        try:
+            archive.read(USER_BRANCH_PLAN_REVIEW_FILE)
+        except KeyError as exc:
+            raise ValueError(
+                f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
+            ) from exc
     if f"Source HEAD: `{source_head}`" not in start_here:
         raise ValueError(
             "Review export zip stale-head guard failed: START_HERE Source HEAD "
@@ -225,6 +232,94 @@ def _public_review_bundle_file_list_failures(paths: list[str]) -> list[str]:
             if pattern.search(normalized):
                 failures.append(f"{path}: public review bundle file list matched {reason}")
     return failures
+
+
+def _write_user_branch_plan_review(
+    *,
+    target: Path,
+    title: str,
+    review_purpose: str,
+    source_branch: str,
+    source_head: str,
+    upstream: str,
+    origin_main: str,
+    exact_user_decision: str,
+    pending_user_decisions: list[str],
+    copied: list[tuple[str, str]],
+) -> Path:
+    active_branch_files = [
+        copied_rel
+        for source_rel, copied_rel in copied
+        if "active_overlay_recording_runtime_foundation" in source_rel
+    ]
+    rollback_context_files = [
+        copied_rel
+        for source_rel, copied_rel in copied
+        if "recording_profile_runtime_foundation" in source_rel
+    ]
+    source_truth_files = [
+        copied_rel
+        for source_rel, copied_rel in copied
+        if source_rel
+        in {
+            "Docs/feature_backlog.md",
+            "Docs/prebeta_roadmap.md",
+            "Docs/branch_records/index.md",
+            "Docs/branch_plans/README.md",
+            "Docs/family_visions/FAM-006_monitoring_and_hud.md",
+        }
+    ]
+    lines = [
+        f"# USER Branch Plan Review - {title}",
+        "",
+        "## Purpose",
+        "",
+        review_purpose,
+        "",
+        "This file is the standalone USER-facing branch-plan review entrypoint. "
+        "It is generated in addition to START_HERE.md so the review packet has "
+        "an obvious file for USER branch-plan review instead of relying on a "
+        "section buried inside the copied source-truth plan.",
+        "",
+        "## Current Branch State",
+        "",
+        f"- Source Branch: `{source_branch}`",
+        f"- Source HEAD: `{source_head}`",
+        f"- Upstream: `{upstream}`",
+        f"- origin/main: `{origin_main}`",
+        f"- Source Repo: `{ROOT}`",
+        "",
+        "## Review Focus",
+        "",
+        "- Confirm the active branch authority and branch plan match the intended carrier.",
+        "- Confirm historical/rollback files are present only as context.",
+        "- Confirm pending USER decisions are explicit before implementation.",
+        "- Confirm the exact next approval text matches the intended next phase.",
+        "",
+        "## Active Branch Plan Files",
+        "",
+        *_markdown_lines(active_branch_files),
+        "",
+        "## Historical / Rollback Context Files",
+        "",
+        *_markdown_lines(rollback_context_files),
+        "",
+        "## Supporting Source-Truth Files",
+        "",
+        *_markdown_lines(source_truth_files),
+        "",
+        "## Pending USER Decisions",
+        "",
+        *_markdown_lines(pending_user_decisions),
+        "",
+        "## Exact USER Decision Supported",
+        "",
+        exact_user_decision,
+        "",
+    ]
+    review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+    review_path.write_text("\n".join(lines), encoding="utf-8")
+    return review_path.resolve()
 
 
 def build_bundle(
@@ -280,6 +375,18 @@ def build_bundle(
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
     export_zip = _export_zip_path(review_root, label)
+    user_review_file = _write_user_branch_plan_review(
+        target=target,
+        title=title,
+        review_purpose=review_purpose,
+        source_branch=source_branch,
+        source_head=source_head,
+        upstream=upstream,
+        origin_main=origin_main,
+        exact_user_decision=exact_user_decision,
+        pending_user_decisions=pending_user_decisions,
+        copied=copied,
+    )
     if allow_custom_review_path:
         custom_review_path_waiver = "Granted"
         custom_review_path_reason_value = custom_review_path_reason or "Not recorded"
@@ -287,7 +394,7 @@ def build_bundle(
         custom_review_path_waiver = CUSTOM_REVIEW_PATH_NONE
         custom_review_path_reason_value = "Not applicable"
     start_here = (target / "START_HERE.md").resolve()
-    actual_bundle_files = _bundle_files(target) | {start_here}
+    actual_bundle_files = _bundle_files(target) | {start_here, user_review_file}
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
