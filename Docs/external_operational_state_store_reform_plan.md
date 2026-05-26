@@ -23,17 +23,18 @@ This file is a planning reference, not an active external-state migration, helpe
 14. Stage 6A compact pointer-surface cleanup landed through PR #232 and cleaned `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/worktree_slots.md`.
 15. Stage 6B branch-authority routing cleanup planning landed through PR #233 and defined the `Docs/branch_records/index.md` execution packet.
 16. Stage 6C branch-authority routing cleanup landed through PR #234 and made `Docs/branch_records/index.md` durable routing law plus standing Governance authority while non-standing active operational authority routes external.
-17. Current posture is Stage 6D: branch-detail-record / branch-plan cleanup planning. This plans future cleanup batches, durable receipt preservation, external replacement owners, and validation preflight without editing branch detail records or branch plans.
-18. Branch-detail-record cleanup execution, branch-plan cleanup execution, file movement, deletion, archival, worktree-local staging creation, FAM worktree reconciliation, branch cleanup, and release execution remain future USER decisions after Stage 6D is reviewed.
+17. Stage 6D branch-detail-record / branch-plan cleanup planning landed through PR #235 and defined the no-loss cleanup batches.
+18. Current posture is Stage 6E: no-loss cleanup closure. Report-only scans show zero blocking leakage for branch records and branch plans; broad branch-record / branch-plan rewrites are not required for the External Operational State Store transition and would risk durable receipt loss.
+19. File movement, deletion, archival, worktree-local staging creation, FAM worktree reconciliation, branch cleanup, release execution, and any future exact branch-record / branch-plan cleanup found by later validators remain separate USER decisions after Stage 6E is reviewed.
 
 ## Current Boundaries
 
 Approved now:
 
-- Stage 6D branch-detail-record / branch-plan cleanup planning
-- exact future cleanup batches for branch detail records and branch plans
-- durable receipt preservation and no-loss boundaries before active operational fields move external
-- USER review bundle refresh for Stage 6D inspection
+- Stage 6E no-loss cleanup closure
+- scanner-backed decision that branch records and branch plans remain durable receipts or transition owners with zero blocking leakage
+- completion posture for the External Operational State Store transition
+- USER review bundle refresh for Stage 6E inspection
 - validation and PR Readiness Stage 1 analysis
 
 Not approved by this planning file:
@@ -597,6 +598,48 @@ Stage 6D non-includes unless separately approved:
 - mutating FAM-006 or FAM-007 worktrees
 - release execution, runtime implementation, issue work, branch cleanup, private-state backup, or new external schema migration
 
+## Docs Split Stage 6E - No-Loss Cleanup Closure
+
+Stage Status: `Active no-loss cleanup closure`
+Source Branch: `feature/release-readiness-source-truth-intake`
+Source Worktree: `C:\Nexus Worktrees\Governance`
+Stage 6E Base: `origin/main@9fa9f4300e3be9cd51319cc62ec384a61cf0b456`
+
+Stage 6E closes the branch-detail-record / branch-plan cleanup family without broad rewriting. Stage 6D planned cleanup batches, then validation evidence showed that branch records and branch plans are not producing blocking repo live-state leakage. The safe execution is therefore a no-loss closure: keep these files as durable receipts or transition owners, and do not rewrite them just to reduce scanner counts.
+
+Stage 6E execution finding:
+
+- `Docs/branch_records` scan: `Repo Live-State Leakage Scan Result: CLEAR / MIGRATION CANDIDATES ONLY`; `Blocking Leakage Findings: 0`.
+- `Docs/branch_plans` scan: `Repo Live-State Leakage Scan Result: CLEAR / MIGRATION CANDIDATES ONLY`; `Blocking Leakage Findings: 0`.
+- Branch detail records are predominantly durable historical receipts, transition-legal current owners, or durable rule references.
+- Branch plans are classified as durable historical receipts or durable rule references by the current scanner.
+- Stage 6C already removed the repo index as a general live active-authority operations list.
+- Broad branch-record or branch-plan rewrites would risk losing USER decisions, accepted vision, PR/merge/release evidence, validation proof, and durable receipt context.
+
+Stage 6E closure rule:
+
+Branch records and branch plans remain in repo as durable receipts, transition owners, templates, or historical planning records unless a later validator reports blocking `Repo Live-State Leakage` or USER approves an exact no-loss cleanup lane for named files. Active operational ownership is external or derived by contract; durable receipt preservation wins over cosmetic shrinkage.
+
+Stage 6E completed owner split:
+
+| Fact Class | Final Owner After Stage 6E |
+| --- | --- |
+| active operational branch authority | `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks |
+| compact backlog / roadmap / worktree-slot posture | repo pointer surfaces cleaned in Stage 6A; live state external or derived |
+| branch-record index active list | standing Governance exception only after Stage 6C |
+| branch detail records | durable receipts, transition owners, historical evidence, and future exact cleanup candidates only when blocking leakage appears |
+| branch plans | active planning owners only while active; otherwise historical planning receipts or retirement-index entries |
+| release debt | durable public release truth defects only; stale operational trackers classify as `Repo Live-State Leakage` or external operational state conflict |
+| local operational state | `C:\Nexus Governance State` with locks, schema, audit, snapshots, reports, and no-loss promotion posture |
+
+Stage 6E remaining future work:
+
+- Worktree-local `.nexus_state_staging` remains optional and uncreated until USER approves it.
+- Repo Docs file movement, deletion, archive, or folder restructuring remains blocked until USER approves a separate exact plan.
+- FAM-006 and FAM-007 worktree reconciliation remains paused until USER chooses to rebaseline those worktrees after this Governance transition lands.
+- Generated audit refresh is optional unless a validator or USER review reports generated-source drift.
+- Future exact branch-record or branch-plan cleanup remains legal only when named files, no-loss preservation, external replacement owners, validation, and review bundle proof are present.
+
 ## Problem Statement
 
 Release Readiness keeps blocking on stale live operational state in repo-tracked Docs after branches merge. Recent examples include:
@@ -799,10 +842,10 @@ Required named blockers:
 ## External State Transition Drift Gate
 
 Gate Status: `Required for external-state reform PR Readiness`
-Current Stage: `Stage 6D - Branch Detail And Plan Cleanup Planning`
+Current Stage: `Stage 6E - No-Loss Cleanup Closure`
 External Root Approval: `Bootstrap Approved`
 External Root Status: `Initialized`
-Migration Status: `Stage 4 active-state migration execution completed externally at source repo HEAD 5abdd9c011c80f5b7b57d473b973654a2427d5a8; Stage 6D branch-detail-record / branch-plan cleanup planning only`
+Migration Status: `Stage 4 active-state migration execution completed externally at source repo HEAD 5abdd9c011c80f5b7b57d473b973654a2427d5a8; Stage 6E closes repo cleanup with no-loss durable receipt preservation`
 Validator / Helper Transition Status: `Stage 5 landed - local external-state validation is opt-in and explicit; clean-clone repo validation remains external-root independent`
 
 Required packet fields:
@@ -820,7 +863,7 @@ Required packet fields:
 - `Next Approved Step:`
 - `Remaining USER Decisions:`
 
-This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, report-only scanner, active-state migration planning packet, active-state migration execution planning packet, active-state migration execution, validator transition, repo cleanup planning, compact pointer cleanup, branch-authority routing planning, branch-authority routing cleanup, branch-detail-record / branch-plan cleanup planning, or broader repo cleanup execution as interchangeable. Stage 6D means cleanup planning only for branch detail records and branch plans. It must not edit branch detail records, branch plans, generated audits, move/delete/archive repo files, create worktree-local staging, rely on external state without no-loss preservation proof, or mutate FAM worktrees. Clean-clone repo validators must remain external-root independent.
+This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, report-only scanner, active-state migration planning packet, active-state migration execution planning packet, active-state migration execution, validator transition, repo cleanup planning, compact pointer cleanup, branch-authority routing planning, branch-authority routing cleanup, branch-detail-record / branch-plan cleanup planning, no-loss cleanup closure, or broader repo cleanup execution as interchangeable. Stage 6E means closure only: record the scanner-backed no-loss decision and completion posture. It must not edit branch detail records, branch plans, generated audits, move/delete/archive repo files, create worktree-local staging, rely on external state without no-loss preservation proof, or mutate FAM worktrees. Clean-clone repo validators must remain external-root independent.
 
 Drift blockers:
 
@@ -833,7 +876,7 @@ Drift blockers:
 
 Recommended near-term implementation posture:
 
-- keep this branch at Stage 6D until PR/merge and active worktree acknowledgement or USER-approved branch-detail-record / branch-plan cleanup execution
+- keep this branch at Stage 6E until PR/merge and active worktree acknowledgement, then treat the External Operational State Store transition as complete unless a later validator reports blocking leakage
 - validate the approved Stage 4 migrated records through explicit local external-state validation when cleanup planning depends on migrated external records
 - do not run helper `--apply` operations in this PR
 - do not migrate branch records or branch plans in this PR
@@ -1241,17 +1284,17 @@ Recommendation E - keep release debt narrow:
 
 Default path:
 
-1. Complete Stage 6D branch-detail-record / branch-plan cleanup planning after Stage 6C branch-authority routing cleanup has landed and the branch has rebaselined to current `origin/main`.
-2. Merge the Stage 6D planning packet only after validation, USER review bundle refresh, and USER approval.
+1. Complete Stage 6E no-loss cleanup closure after Stage 6D planning has landed and the branch has rebaselined to current `origin/main`.
+2. Merge the Stage 6E closure packet only after validation, USER review bundle refresh, and USER approval.
 3. Rebaseline or acknowledge active worktrees after merge when USER chooses that sequencing.
-4. Decide whether the next lane should be branch-detail-record / branch-plan cleanup execution, generated-index support, repo Docs file movement/deletion/archive planning, worktree-local staging, or FAM worktree reconciliation.
+4. Resume normal branch work from current `origin/main`; route any future exact branch-record / branch-plan cleanup only when a validator or USER review reports blocking leakage or receipt-safe cleanup need.
 
 External-state implementation does not replace post-release canon closure or become a release unblocker unless USER explicitly pauses release flow and approves that route.
 
 ## Future Exact USER Decision Shape
 
-Approve the next implementation phase only after this Stage 6D branch-detail-record / branch-plan cleanup planning PR merges and active worktrees rebaseline or acknowledge the changed governance when USER chooses that sequencing:
+After this Stage 6E no-loss cleanup closure PR merges and active worktrees rebaseline or acknowledge the changed governance when USER chooses that sequencing, the External Operational State Store transition is complete for current repo governance. Future optional cleanup requires a new exact USER decision:
 
 ```text
-Approve External Operational State Store branch-detail-record / branch-plan cleanup execution on C:\Nexus Worktrees\Governance after reviewing the Stage 6D planning packet. Scope: edit only the branch detail records and branch plans named by the Stage 6D batch matrix so active operational state routes external while durable receipts, USER decisions, accepted vision, PR/merge/release evidence, validation proof, and retirement pointers remain preserved; refresh the review bundle. Do not move/delete/archive repo files, mutate runtime, create releases, clean branches/worktrees, create worktree-local staging, or change FAM-006/FAM-007 without separate USER approval.
+Approve a future exact cleanup only if a validator or USER review names blocking repo live-state leakage or receipt-safe cleanup need. Scope must name exact files, no-loss preservation proof, external replacement owners, validation, and USER review bundle. Do not move/delete/archive repo files, mutate runtime, create releases, clean branches/worktrees, create worktree-local staging, or change FAM-006/FAM-007 without separate USER approval.
 ```
