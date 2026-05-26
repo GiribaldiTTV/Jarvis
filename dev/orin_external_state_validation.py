@@ -161,8 +161,11 @@ def main() -> int:
 
     if not root.exists():
         print("Validation Result: External State Missing")
+        if args.require_root or args.require_stage4_records:
+            print("Clean Clone Boundary: BLOCKED - required local external-state validation needs the root")
+            return 1
         print("Clean Clone Boundary: PASS - missing root is not a repo validation failure")
-        return 1 if args.require_root else 0
+        return 0
 
     manifest_path = root / "state_manifest.json"
     if not manifest_path.exists():
