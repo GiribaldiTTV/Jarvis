@@ -4,7 +4,7 @@ Branch: `feature/fam-006-active-overlay-recording-runtime-foundation`
 Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`
 Created From: `feature/fam-006-recording-profile-runtime-foundation` at `1f399003d2e6d13b34b567cd7f7900a709254bc9`
-Current Plan Phase: `Historical traceability after PR #222 merge`
+Current Plan Phase: `Historical released traceability after PR #222 merge and v1.7.25-prebeta publication`
 Runtime Implementation Approval: `Blocked - this branch is not the runtime implementation carrier; SLC-051 and all runtime work are deferred to a future USER-approved carrier`
 
 ## Branch Runtime Engineering Plan
@@ -15,7 +15,7 @@ Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`
 Current Phase: `Historical Traceability`
 Branch Runtime Engineering Plan: `Historical planning receipt for the corrected active-overlay-driven recording carrier merged by PR #222.`
-Engineering Plan Status: `Retired from active planning posture after PR #222 merge; runtime implementation remains deferred to a future USER-approved carrier.`
+Engineering Plan Status: `Retired from active planning posture after PR #222 merge and v1.7.25-prebeta publication; runtime implementation remains deferred to a future USER-approved carrier.`
 Current Runtime Baseline: `FAM-006 Overlay Profile Runtime Foundation and Overlay Display Acceptance Foundation are released historical evidence. The profile-loaded Recording Profile Workstream route was rolled back by USER request and is preserved as historical receipt only.`
 Branch Purpose: `Admit a corrected FAM-006 recording carrier where recording is driven by the active Overlay Profile membership rather than a separate loaded Recording Profile.`
 Planned Runtime Delta: `None on this branch. Future runtime deltas for active-overlay recording target, HUD Overlay launcher/target preview, standalone Recording Control window, secondary settings surfaces, durable output contract, and validation/live proof are deferred to a later USER-approved carrier.`
@@ -41,7 +41,7 @@ Live Validation Proof Or Waiver Checklist: `Not applicable on this branch becaus
 PR Readiness Fold-Down / Retention Checklist: `PR Readiness must fold this branch down as planning/governance truth only, preserve accepted v3 contract in maintained source truth, and avoid claiming runtime implementation or release-user-facing behavior.`
 Release Readiness Public-Scope Translation Checklist: `Release language must describe only planning/governance/source-truth changes if this branch merges; no active-overlay recording runtime, HUD control, Recording Control window, output file, or user-facing recording behavior shipped in this branch.`
 USER Planning Review: `Completed for planning/governance closeout; USER stated the v3 plan is perfect and requested skipping Workstream on this branch.`
-PR Fold-Down Packet: `Historical - PR #222 merged this planning/governance branch.`
+PR Fold-Down Packet: `Historical released - PR #222 merged this planning/governance branch, PR #223 folded it down, and v1.7.25-prebeta published the release window that included PR #222/#223/#224.`
 Runtime Implementation Approval: `Blocked - runtime implementation requires a future USER-approved carrier, Workstream Entry analysis, and separate USER approval.`
 
 ## Package And Slice Admission
@@ -428,7 +428,7 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 
 USER Branch Plan Review: Required - Stage 2 creates a USER branch-plan review packet and future Workstream Entry must present a full readable implementation plan before runtime work begins.
 Review Status: Historical after PR #222 merge - USER said the plan is perfect and requested skipping Workstream on this branch.
-Contract Status: Complete - merged historical receipt after PR #222; USER accepted the v3 contract for planning/governance closeout; implementation remains blocked and deferred to a future USER-approved carrier.
+Contract Status: Complete - released historical receipt after PR #222 and v1.7.25-prebeta; USER accepted the v3 contract for planning/governance closeout; implementation remains blocked and deferred to a future USER-approved carrier.
 Contract Version / Revision: v4 - v3 product-model contract accepted; branch posture revised to planning/governance closeout with Workstream skipped.
 Desktop Review Bundle: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-006`
 USER Review Packet Finding: Required before PR Readiness - PR Readiness Stage 1 must load and digest `START_HERE.md`, `USER_BRANCH_PLAN_REVIEW.md`, and `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-006.zip`; compare packet source HEAD and review zip source HEAD with current branch HEAD; then report loaded, stale, missing, waived, or blocking status before PR creation can be approved.
@@ -454,7 +454,7 @@ Current Branch Scope: Current branch scope is the accepted active-overlay-driven
 Future-Gated Scope: Future-gated scope includes recording execution, file writing until admitted, tray controls, export/share/import, provider/model work, broad theme/skin work, FAM-007 branch/workstream mutation, old branch cleanup, PR, merge, release, issue mutation, and durable Native Log Loader source-truth mutation.
 Implementation Staging Notes: SLC-051 through SLC-055 remain future implementation scaffolding for the accepted end-state, not work to execute on this branch. Target model work comes first on the future runtime carrier because HUD launcher/preview, Recording Control window, output contract, validators, H1, LV1, and UTS proof all depend on a trustworthy definition of what would be recorded.
 Alternatives / Tradeoffs: The prior profile-loaded Recording Profile route is preserved only as historical rollback receipt because it did not match the clarified USER recording vision.
-USER Decisions Needed: None for this merged historical carrier. Runtime implementation, SLC-051, Workstream, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, release execution, issue mutation, Governance worktree mutation, and durable Native Log Loader implementation remain pending decisions.
+USER Decisions Needed: None for this released historical carrier. Runtime implementation, SLC-051, Workstream, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, release execution beyond already published v1.7.25-prebeta, issue mutation, Governance worktree mutation, and durable Native Log Loader implementation remain pending decisions.
 USER Review Response: Accepted by USER - USER said the plan is perfect, then requested skipping Workstream and treating this branch as a governance/planning branch so repo-overhaul work in another thread/worktree is not stalled by runtime implementation.
 Codex Response Digest: Digested - the accepted v3 contract remains the durable FAM-006 active-overlay recording product plan. This branch will not implement SLC-051 through SLC-055, will not claim runtime package completion, and will proceed only to PR Readiness for planning/governance merge. Future runtime implementation must use this accepted source truth on a later USER-approved carrier.
 Implementation Constraints Created By USER Response: This branch must not implement SLC-051 or any runtime/user-facing recording work; active Overlay Profile membership remains the future recording target source; no separate Recording Profile system or recording-specific sensor chooser is admitted; recording execution, file writing, real Start/Stop behavior, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, and durable Native Log Loader mutation remain blocked; future recording execution should default to snapshot-at-recording-start for clean logs unless USER revises it; future SLC-051 may prove the live current target because it records nothing; future target proof must preserve null/empty/selected/switched/deleted-stale/duplicate-stale-ID/high-volume states and existing Overlay Profile, Overlay Display, Monitor Group, Dashboard, Manage Monitors, and Sensor Command Center behavior; per-overlay effective polling policy remains future-planning/source-truth constraint.
@@ -466,7 +466,7 @@ Contract Completion Checklist: Complete for planning/governance closeout - USER 
 Accepted Scope: Accepted scope is Branch Readiness Stage 2 setup, source-truth admission, old carrier fold-down, Stage 2 review packet creation, accepted planning/governance contract preservation, Workstream skip on this branch, validation, commit, push, and PR Readiness Stage 1 analysis after USER approval.
 Deferred Scope: Deferred scope is runtime implementation, Workstream Entry, Workstream implementation, recording execution, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review packet, sibling-worktree mutation, old branch cleanup/deletion, and Governance mutation.
 Rejected Scope: Requiring users to load a separate Recording Profile before recording sensors is rejected for this future recording path unless USER explicitly re-approves it.
-Exact USER Decision Needed: USER may approve PR Readiness Stage 1 analysis for this planning/governance branch; runtime implementation remains blocked and deferred.
+Exact USER Decision Needed: USER may approve a future FAM-006 Branch Readiness Stage 1 analysis on a separate carrier if runtime implementation should begin; runtime implementation remains blocked and deferred on this historical receipt.
 Implementation Approval: Blocked - no runtime mutation is approved or performed by this branch.
 
 ## Future Workstream Entry Whole-Package Analysis Requirements
@@ -489,5 +489,5 @@ Required Workstream Entry outputs:
 
 ## Next Legal Phase
 
-Next Legal Phase: `Release Readiness`
-Exact USER Decision Needed: `Rerun Release Readiness Stage 1 from current origin/main after the PR #222 post-merge FAM-006 fold-down repair validates green; release execution remains a separate USER decision.`
+Next Legal Phase: `Branch Readiness`
+Exact USER Decision Needed: `Approve a future FAM-006 Branch Readiness Stage 1 analysis on a separate USER-approved carrier if active-overlay recording runtime implementation should begin; this historical released planning receipt authorizes no runtime mutation.`

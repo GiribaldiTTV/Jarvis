@@ -7,11 +7,12 @@ This file is a planning reference, not an active external-state migration, helpe
 
 ## Current Approved Sequencing
 
-1. Clear the current PR #220 / FAM-007 post-merge source-truth blocker under existing repo rules.
-2. Stop at PR Readiness Stage 1 for this Governance repair unless USER separately approves PR Readiness Stage 2 / PR creation.
-3. Hold while FAM-007 is paused and FAM-006 finishes its current branch.
-4. After FAM-006 PR and merge, rebaseline and reconcile neutral main, Governance, FAM-006, and FAM-007.
-5. After all worktrees are neutral, reconciled, and current, begin implementation of the External Operational State Store reform as a new USER-approved phase.
+1. PR #220 / FAM-007 post-merge source-truth repair is historical and released through `v1.7.23-prebeta`.
+2. PR #222 / FAM-006 Active Overlay Recording Runtime Foundation planning receipt merged without runtime implementation and is included in `v1.7.25-prebeta`.
+3. PR #223 folded PR #222 into historical source truth, and PR #224 hardened PR body drift checks; both are included in `v1.7.25-prebeta`.
+4. Current start posture is Docs Split Stage 0: record the migration plan, split inventory expectations, and next implementation gates while preserving repo docs as durable source truth.
+5. Stop at PR Readiness Stage 1 for this Governance repair unless USER separately approves PR Readiness Stage 2 / PR creation.
+6. After this planning/closure PR merges, all active worktrees must rebaseline or acknowledge the new governance before external-state helper scaffolds, external folder creation, validator transition, or migration begins.
 
 ## Current Boundaries
 
@@ -19,7 +20,8 @@ Approved now:
 
 - docs-only source-truth contract work
 - durable planning record creation
-- current FAM-007 PR #220 blocker repair under existing rules
+- v1.7.25-prebeta post-release canon closure for PR #222, PR #223, and PR #224 where repo truth requires it
+- Docs Split Stage 0 planning for external operational state migration
 - validation and PR Readiness Stage 1 analysis
 
 Not approved by this planning file:
@@ -39,6 +41,51 @@ Not approved by this planning file:
 - branch cleanup
 - backup setup
 - private repo creation
+
+## Docs Split Stage 0 - Current Implementation Start Plan
+
+Stage Status: `Active planning/source-truth only`
+Source Branch: `feature/release-readiness-source-truth-intake`
+Source Worktree: `C:\Nexus Worktrees\Governance`
+Release Baseline: `v1.7.25-prebeta` at `origin/main@d432af4162b4f9fc651221e9b6d1c757fab4a2a0`
+
+This stage starts the Docs split without moving files. It preserves the agreed design, updates stale sequencing now that FAM-006 PR #222 and governance PRs #223/#224 are released, and prepares the next USER decision.
+
+Stage 0 deliverables:
+
+- current-state sequencing updated from "wait for FAM-006" to "ready for external-state implementation planning after this repair merges and active worktrees acknowledge/rebaseline"
+- repo-doc classification plan preserved: durable source truth, durable historical receipt, live operational state to migrate, mixed owner requiring split, and template/example exception
+- external-state owner list preserved without creating `C:\Nexus Governance State`
+- next helper/validator implementation scope named without creating helper code
+- no file moves, deletion, archival, external folder creation, migration, or worktree-local staging creation
+
+Stage 0 review question:
+
+```text
+Do you approve the next implementation phase to create helper scaffolds and initialize the external-state root, while still deferring active-state migration and repo Docs file movement?
+```
+
+Stage 1 candidate after this repair merges:
+
+```text
+External Operational State Helper Scaffold And Bootstrap Planning
+```
+
+Stage 1 candidate scope:
+
+- implement `dev/orin_external_state_init.py`, report, lock, validation, snapshot, fold-down preview, and promotion-preview scaffolds
+- initialize `C:\Nexus Governance State` only after explicit USER approval
+- keep repo validators clean-clone safe
+- keep active branch/worktree/release-window migration deferred until helper validation and USER review are green
+
+Stage 1 non-includes:
+
+- moving repo `Docs` files
+- deleting or archiving branch records/plans
+- migrating active branch state
+- mutating FAM-006 or FAM-007
+- changing runtime behavior
+- creating a release or tag
 
 ## Problem Statement
 
@@ -568,22 +615,23 @@ Stale generated indexes:
 
 Release delay:
 
-- Current PR #220 is handled under existing rules unless USER explicitly pauses release flow and approves external-state implementation as the unblocker.
+- PR #220 was handled under existing rules and released through `v1.7.23-prebeta`; PR #222, PR #223, and PR #224 are handled through `v1.7.25-prebeta` post-release canon closure before external-state implementation begins.
 
-## Immediate PR #220 Recommendation
+## Current Release Sequencing Recommendation
 
 Default path:
 
-1. Clear PR #220 under existing rules.
-2. Rerun Release Readiness.
-3. Then begin external-state reform.
+1. Record `v1.7.25-prebeta` as the released closure point for PR #222, PR #223, and PR #224 where repo truth requires it.
+2. Merge this Docs Split Stage 0 planning/closure repair only after validation and USER approval.
+3. Rebaseline or acknowledge active worktrees after merge.
+4. Then begin external-state helper/bootstrap implementation only after separate USER approval.
 
-External-state implementation does not become the immediate release unblocker unless USER explicitly pauses release flow and approves that route.
+External-state implementation does not replace post-release canon closure or become a release unblocker unless USER explicitly pauses release flow and approves that route.
 
 ## Future Exact USER Decision Shape
 
-Approve the next implementation phase only after FAM-006 and FAM-007 are reconciled and neutral:
+Approve the next implementation phase only after this planning/closure repair merges and active worktrees rebaseline or acknowledge the changed governance:
 
 ```text
-Approve External Operational State Store implementation on C:\Nexus Worktrees\Governance after all worktrees are reconciled and neutral. Scope: implement helper scaffolds, external-state bootstrap, lock/version/schema validation, snapshot/audit support, state promotion packets, review-bundle integration, and validator transition according to Docs/external_operational_state_store_reform_plan.md and Docs/governance_efficiency_operating_model.md. Do not migrate active state, delete repo files, archive branch plans, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
+Approve External Operational State Store helper/bootstrap implementation on C:\Nexus Worktrees\Governance after all active worktrees rebaseline or acknowledge the Docs Split Stage 0 plan. Scope: implement helper scaffolds, external-state bootstrap, lock/version/schema validation, snapshot/audit support, state promotion packets, review-bundle integration, and validator transition according to Docs/external_operational_state_store_reform_plan.md and Docs/governance_efficiency_operating_model.md. Do not migrate active state, delete repo files, archive branch plans, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
 ```
