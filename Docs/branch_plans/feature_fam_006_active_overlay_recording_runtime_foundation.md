@@ -204,6 +204,106 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - USER Decision / Waiver: `USER approved Stage 2 setup to fold this plan into historical/rollback receipt posture.`
 - Fold-Down Target: `Docs/branch_plans/retirement_index.md`
 
+### Changed Surface: Docs/development_rules.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve and enforce existing USER review packet / Desktop bundle obligations while this branch carries FAM-006 packet-proof hardening.`
+- Why This File Was Touched: `The active branch exposed that existing review-packet governance could be missed operationally, so the branch hardened validator/helper proof without changing the underlying governance owner.`
+- Owned Behavior / Fact Class: `Development workflow guardrails for USER review packet handling, validation proof, and phase handoff hygiene.`
+- Canonical Owner / Source Owner: `Docs/development_rules.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium to High when current-main governance/FAM-007 changes overlap this shared rules file.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming current-main governance context, preserve existing USER review packet requirements, and keep any branch-local FAM-006 wording limited to enforcement/proof rather than duplicate policy ownership.`
+- Rebaseline Handling: `During current-main reconciliation, accept compatible current-main wording and retain the requirement that required USER review packets are either refreshed and digested with folder/zip proof or explicitly waived/blocked.`
+- Validation Proof: `Branch governance validation, branch readiness planning fixture validation, and source-owner marker validation must pass after reconciliation.`
+- Fallback Evidence: `Docs/Main.md, Docs/phase_governance.md, Docs/branch_plans/README.md, and validation helper registry already own the USER review packet rule; this ledger records why shared development rules may overlap.`
+- USER Decision / Waiver: `USER approved bounded overlap-intent repair for this file before current-main reconciliation; no waiver permits omitting the USER review packet or ZIP proof.`
+- Fold-Down Target: `Shared governance remains in Docs/development_rules.md; branch-local receipt folds into this branch record/plan at PR Readiness.`
+
+### Changed Surface: Docs/phase_governance.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve the canonical phase gate requiring Workstream Entry USER review packet digestion and keep the active branch aligned with existing review-packet blocker semantics.`
+- Why This File Was Touched: `This branch depends on the existing Workstream Entry USER Branch Plan Review Gate and needs current-main reconciliation to preserve that gate while merging incoming FAM-007 governance context.`
+- Owned Behavior / Fact Class: `Canonical phase transition and blocker rules for Workstream Entry, review packets, and implementation approval.`
+- Canonical Owner / Source Owner: `Docs/phase_governance.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium to High when current-main phase-governance repairs overlap USER review packet or FAM-007 phase-gate wording.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming phase-governance improvements, preserve existing USER Review Packet Finding blockers, and reject duplicate branch-local policy that weakens or obscures the canonical gate.`
+- Rebaseline Handling: `Merge current-main phase-gate context as authority while keeping this branch's review-packet proof hardening compatible with the canonical Workstream Entry gate.`
+- Validation Proof: `Branch governance validation, release-readiness health gate, branch readiness planning fixture validation, and runtime-fam006 validation suite must pass.`
+- Fallback Evidence: `Existing phase governance already names START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, exported zip, source HEAD comparison, stale/not-digested blockers, and waiver/blocker disposition.`
+- USER Decision / Waiver: `USER approved bounded overlap-intent repair for this file; no waiver authorizes Workstream implementation without the review packet finding.`
+- Fold-Down Target: `Docs/phase_governance.md remains the canonical phase owner; branch-local proof folds down through PR Readiness.`
+
+### Changed Surface: Docs/validation_helper_registry.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Record the reusable helper/validator responsibilities for concrete USER review packet folder and ZIP proof.`
+- Why This File Was Touched: `This branch hardened dev/orin_user_review_bundle.py and dev/orin_branch_governance_validation.py so review packet proof is machine-visible instead of narrative-only.`
+- Owned Behavior / Fact Class: `Validation helper registry ownership for USER review Desktop bundle helper and governance validator behavior.`
+- Canonical Owner / Source Owner: `Docs/validation_helper_registry.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium to High when current-main helper registry changes overlap FAM-007 helper ownership or review-bundle helper wording.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming helper registry rows, preserve USER review bundle helper ownership, and keep the helper requirement that START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, exported zip, stale guard, and USER Review Packet Finding are generated/validated.`
+- Rebaseline Handling: `During current-main reconciliation, retain both incoming helper registry context and this branch's stricter PASS-finding / zip validation helper responsibilities.`
+- Validation Proof: `Branch governance validation, branch readiness planning fixture validation, source-owner marker validation, and compileall must pass.`
+- Fallback Evidence: `dev/orin_user_review_bundle.py and dev/orin_branch_governance_validation.py contain the concrete enforcement; registry text is ownership traceability.`
+- USER Decision / Waiver: `USER approved bounded overlap-intent repair for this file; no waiver permits treating helper output as optional when a USER review packet is required.`
+- Fold-Down Target: `Docs/validation_helper_registry.md remains shared helper registry; branch proof folds into PR Readiness record.`
+
+### Changed Surface: dev/orin_branch_governance_validation.py
+
+- Surface Class: `validator/helper`
+- Change Intent: `Enforce that USER Branch Plan Review Gate findings prove concrete Desktop review packet and ZIP freshness instead of accepting vague finding text.`
+- Why This File Was Touched: `The branch exposed an operational miss where an existing mandatory review-packet rule was not performed; validator hardening closes that enforcement gap.`
+- Owned Behavior / Fact Class: `Machine-checkable governance validation for USER Review Packet Finding substance.`
+- Canonical Owner / Source Owner: `dev/orin_branch_governance_validation.py`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium to High when current-main validator changes overlap FAM-007 packet parser or review gate checks.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming validator fixes and retain the stricter requirement that USER Review Packet Finding names START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, exported zip, Source HEAD/current branch HEAD freshness, and loaded/digested or waiver/blocker status.`
+- Rebaseline Handling: `Merge current-main validator improvements first, then reapply only the minimal FAM-006 review-packet finding substance checks if needed.`
+- Validation Proof: `Branch governance validation and branch readiness planning fixture validation must pass after reconciliation; compileall must pass for syntax.`
+- Fallback Evidence: `Existing fixture validation already checks missing USER Review Packet Finding; this branch adds substance requirements for vague findings.`
+- USER Decision / Waiver: `USER approved bounded overlap-intent repair for this validator before current-main reconciliation.`
+- Fold-Down Target: `Shared validator remains reusable; PR Readiness records the branch-local hardening result.`
+
+### Changed Surface: dev/orin_user_review_bundle.py
+
+- Surface Class: `validator/helper`
+- Change Intent: `Make the USER review Desktop bundle helper generate, validate, and print concrete folder/ZIP review packet proof.`
+- Why This File Was Touched: `The helper is the reusable path for creating START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and the uploadable ZIP; this branch needs the helper to fail if that proof is absent or stale.`
+- Owned Behavior / Fact Class: `Reusable USER review bundle generation and stale-guard validation behavior.`
+- Canonical Owner / Source Owner: `dev/orin_user_review_bundle.py`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium to High when current-main helper changes overlap FAM-007 review-bundle helper behavior.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming helper improvements, preserve stable Desktop review root and ZIP behavior, and retain validation that exported ZIP contains START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, stale-guard proof, and USER Review Packet Finding PASS for the current Source HEAD.`
+- Rebaseline Handling: `During current-main reconciliation, merge helper changes carefully and rerun helper/validator syntax plus governance validation before claiming green.`
+- Validation Proof: `Branch governance validation, branch readiness planning fixture validation, source-owner marker validation, and compileall must pass.`
+- Fallback Evidence: `Docs/validation_helper_registry.md owns helper responsibility; START_HERE.md carries the packet proof after helper execution.`
+- USER Decision / Waiver: `USER approved bounded overlap-intent repair for this helper before current-main reconciliation; no waiver authorizes stale ZIP output.`
+- Fold-Down Target: `Reusable helper remains shared; branch-specific proof is recorded in the review packet and PR Readiness closeout.`
+
 ## USER Branch Plan Review Gate
 
 USER Branch Plan Review: Required - Stage 2 creates a USER branch-plan review packet and future Workstream Entry must present a full readable implementation plan before runtime work begins.
