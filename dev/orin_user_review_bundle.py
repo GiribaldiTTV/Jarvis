@@ -247,6 +247,10 @@ def _write_user_branch_plan_review(
     pending_user_decisions: list[str],
     copied: list[tuple[str, str]],
 ) -> Path:
+    is_active_overlay_recording = any(
+        "active_overlay_recording_runtime_foundation" in source_rel
+        for source_rel, _copied_rel in copied
+    )
     active_branch_files = [
         copied_rel
         for source_rel, copied_rel in copied
@@ -269,17 +273,80 @@ def _write_user_branch_plan_review(
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
         }
     ]
+    if is_active_overlay_recording:
+        branch_overall_intent = (
+            "This branch is setting up the corrected FAM-006 recording direction: "
+            "recording should be driven by the currently active Overlay Profile, "
+            "not by loading a separate Recording Profile. The intended future "
+            "feature is lightweight recording access from the HUD Overlay card, "
+            "clear visibility into which active monitors would be recorded, and "
+            "a compact standalone Recording Settings window for recording path "
+            "and related settings."
+        )
+        assigned_creation = [
+            "An active-overlay recording target model that uses active Overlay Profile membership.",
+            "A HUD Overlay card recording area with lightweight Start/Stop-style access after implementation approval.",
+            "A visible active-monitor summary so the user can understand what recording would capture.",
+            "A compact standalone Recording Settings window that can remain open independently of the Dashboard.",
+            "A durable output-file contract suitable for future graphing/plotting workflows.",
+            "A validation plan that proves compact/default UI behavior, real user-level interactions, null/stress states, and future-gated boundaries.",
+        ]
+        next_stage_planning = [
+            "Which SLC-051 through SLC-055 seam should be implemented first.",
+            "Which exact files and runtime surfaces each seam may touch.",
+            "Whether actual recording execution belongs in this branch or needs a later explicit approval.",
+            "What recording output file shape should be proposed for reliable future graph/plot use.",
+            "What belongs in the lightweight Recording Settings window versus a later secondary surface.",
+            "How Live Validation will prove the user-facing window/control behavior with real input and photos.",
+        ]
+        branch_boundaries = [
+            "No runtime implementation is approved by this Stage 2 packet.",
+            "No recording execution or file writing is approved yet.",
+            "No tray recording controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, old branch cleanup/deletion, or Governance mutation is approved.",
+            "The old Recording Profile files are included only as rollback/source-truth receipt context.",
+        ]
+    else:
+        branch_overall_intent = (
+            "This branch-plan review summarizes the branch's intended product, "
+            "runtime, source-truth, and validation direction before Workstream "
+            "Entry performs deeper implementation planning."
+        )
+        assigned_creation = [
+            "Review the active branch plan to confirm the branch outcome and admitted package.",
+            "Review the active branch authority record to confirm branch identity and legal next phase.",
+            "Review copied source-truth files to confirm active/historical routing is understandable.",
+        ]
+        next_stage_planning = [
+            "Select the first bounded implementation seam.",
+            "Name affected files, validators, helpers, proof requirements, and USER-facing review needs.",
+            "Return exact implementation approval text only after the whole admitted package is analyzed.",
+        ]
+        branch_boundaries = [
+            "This review packet does not approve runtime implementation.",
+            "Pending USER decisions remain blocked until separately approved.",
+        ]
     lines = [
         f"# USER Branch Plan Review - {title}",
         "",
-        "## Purpose",
+        "## Branch Intent",
         "",
-        review_purpose,
+        branch_overall_intent,
         "",
-        "This file is the standalone USER-facing branch-plan review entrypoint. "
-        "It is generated in addition to START_HERE.md so the review packet has "
-        "an obvious file for USER branch-plan review instead of relying on a "
-        "section buried inside the copied source-truth plan.",
+        "This is a pre-plan review file. Its job is to make the branch direction "
+        "easy to inspect before Workstream Entry dives into detailed seam planning, "
+        "file lists, validators, proof requirements, and implementation approval text.",
+        "",
+        "## What This Branch Is Assigned To Create Or Plan",
+        "",
+        *_markdown_lines(assigned_creation),
+        "",
+        "## What The Next Stage Must Plan",
+        "",
+        *_markdown_lines(next_stage_planning),
+        "",
+        "## Boundaries",
+        "",
+        *_markdown_lines(branch_boundaries),
         "",
         "## Current Branch State",
         "",
@@ -289,12 +356,12 @@ def _write_user_branch_plan_review(
         f"- origin/main: `{origin_main}`",
         f"- Source Repo: `{ROOT}`",
         "",
-        "## Review Focus",
+        "## USER Early Input Prompt",
         "",
-        "- Confirm the active branch authority and branch plan match the intended carrier.",
-        "- Confirm historical/rollback files are present only as context.",
-        "- Confirm pending USER decisions are explicit before implementation.",
-        "- Confirm the exact next approval text matches the intended next phase.",
+        "Use this file to give early direction before Workstream Entry. Useful feedback includes "
+        "changes to the intended recording workflow, UI priorities, window behavior, output-file "
+        "expectations, deferred scope, or anything that would make the branch plan feel wrong "
+        "before implementation planning begins.",
         "",
         "## Active Branch Plan Files",
         "",
