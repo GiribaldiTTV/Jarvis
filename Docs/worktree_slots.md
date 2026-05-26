@@ -103,23 +103,23 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: Historical merged-unreleased receipt for the FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation worktree after PR #218 merge; future mutation requires a new USER-approved branch authority or explicit worktree assignment.
-- Assigned Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`
-- Assigned Family / Workstream: `FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation`
-- Branch Authority Record: `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`
-- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`
-- GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding as historical local worktree context; no cleanup/rebinding authorized by this governance intake`
+- Assignment Status: Active Branch Readiness Stage 2 carrier for v1.7.23-prebeta post-release canon closure; prior Dev/Owner Skeleton Readiness worktree receipt is historical released v1.7.23-prebeta evidence.
+- Assigned Branch: `feature/fam-007-v1-7-23-post-release-canon-closure`
+- Assigned Family / Workstream: `FAM-007 v1.7.23 post-release canon closure`
+- Branch Authority Record: `Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md`
+- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md`
+- GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding for this active canon-closure carrier; no cleanup/rebinding authorized`
 - Active Thread Owner: `Current Codex thread assigned by USER for Branch Readiness Stage 2 setup`
-- Thread Assignment Status: `Historical/idle after PR #218 merge; no active mutation owner is assigned by this slot receipt`
+- Thread Assignment Status: `Active for Branch Readiness Stage 2 post-release canon closure only`
 - Worktree Ownership Ledger: `Branch authority record plus this slot receipt`
-- Intended Write Set: `None for active mutation; historical receipt preserves the FAM-007 branch authority record, Branch Runtime Engineering Plan, compact pointer docs, worktree slot receipt, USER Action Gate source truth, validation proof, and no-visible-runtime-surface evidence delivered by PR #218`
+- Intended Write Set: `FAM-007 post-release canon-closure branch authority record, branch plan, historical Dev/Owner record and plan release posture, compact pointer docs, retirement index, worktree slot receipt, standing governance receipt, validation proof, and Desktop USER review packet if required`
 - Same Worktree / Same Branch Collision Check: `PASS at assignment; no second writer assigned`
 - Dirty Worktree Collision Check: `PASS - pre-implementation worktree was clean; Workstream tracked changes are owned by this current approved Codex pass`
 - Dirty Worktree Recovery Packet: `Required before future mutation if dirty files appear`
-- Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests are sibling overlap context only and not successor authority for this historical FAM-007 receipt`
-- Governance Routing Barrier: `Active for any mutation request against this historical slot until USER assigns a new branch/worktree owner`
+- Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests are sibling overlap context only and not successor authority for this active FAM-007 canon-closure carrier`
+- Governance Routing Barrier: `Active for any mutation outside this approved FAM-007 post-release canon-closure carrier`
 - New Worktree Decision Gate: `Pending USER approval for any worktree creation, deletion, cleanup, or rebinding beyond this carrier`
-- USER Assignment Decision: `USER approved Branch Readiness Stage 2 setup in C:\Nexus Worktrees\FAM-007 for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation from the current v1.7.22-prebeta post-release origin/main baseline; live commit truth must be read from Git before mutation`
+- USER Assignment Decision: `USER approved Branch Readiness Stage 2 setup in C:\Nexus Worktrees\FAM-007 for feature/fam-007-v1-7-23-post-release-canon-closure from the approved current origin/main post-v1.7.23-prebeta baseline; live commit truth must be read from Git before mutation`
 - Operational Truth Source: `git status`, `git rev-parse HEAD`, `git rev-parse origin/main`, `git merge-base HEAD origin/main`, and Pre-Rebaseline Impact Audit before any future baseline mutation`
 
 ## Runtime Slot Assignment Template

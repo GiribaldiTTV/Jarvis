@@ -444,7 +444,18 @@ def owner_for_fact(fact: str) -> str:
     return mapping.get(fact, "owning source-truth surface")
 
 
-def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str, str, str]:
+def branch_name_to_plan_path(branch: str) -> str:
+    """Return the canonical branch-plan path for a live branch name."""
+    return f"Docs/branch_plans/{branch.replace('-', '_').replace('/', '_')}.md"
+
+
+def action_for(
+    rel: str,
+    owner: str,
+    lines: int,
+    changed: set[str],
+    active_branch_plan_paths: set[str] | None = None,
+) -> tuple[str, str, str]:
     completed = (
         "Updated in this reform branch."
         if rel in changed
@@ -481,6 +492,13 @@ def action_for(rel: str, owner: str, lines: int, changed: set[str]) -> tuple[str
             "Keep historical receipt",
             completed,
             "Keep as historical receipt; remove stale active wording if reopened or edited.",
+        )
+    active_branch_plan_paths = active_branch_plan_paths or set()
+    if owner == "branch runtime engineering plan" and rel in active_branch_plan_paths:
+        return (
+            "Keep active branch plan",
+            completed,
+            "Keep as active planning authority for the current branch until PR fold-down; do not queue for retired-plan cleanup while active.",
         )
     if owner == "branch runtime engineering plan":
         return (
@@ -561,6 +579,8 @@ def consolidation_target_for(row: dict[str, object]) -> str:
         return "Keep here as slot registry; move live worktree facts to git/helper output."
     if rel == "Docs/Main.md":
         return "Keep here as least-updated canonical docs index and recovery/source-truth map; move full policy to owner docs."
+    if bool(row.get("active_branch_plan")):
+        return "Current active branch plan; keep as live branch authority until PR Readiness fold-down moves it to historical posture."
     if owner == "branch runtime engineering plan":
         return "Listed in Docs/branch_plans/retirement_index.md as historical retired posture; keep durable lookup paths in branch records/workstreams/family vision owners."
     if owner == "branch plan retirement index":
@@ -605,6 +625,8 @@ def consolidation_target_for(row: dict[str, object]) -> str:
 def deletion_posture_for(row: dict[str, object]) -> str:
     owner = str(row["owner"])
     action = str(row["action"])
+    if bool(row.get("active_branch_plan")):
+        return "Active branch plan; do not delete, archive, or retire while this branch remains active."
     if owner == "branch runtime engineering plan":
         return "Retired from active planning posture; do not delete without separate USER approval and reference proof."
     if "USER review" in action:
@@ -1059,6 +1081,7 @@ def generate() -> None:
     head = git_output("rev-parse", "HEAD")
     origin_main = git_output("rev-parse", "origin/main")
     merge_base = git_output("merge-base", "HEAD", "origin/main")
+    active_branch_plan_paths = {branch_name_to_plan_path(branch)} if branch else set()
 
     file_rows: list[dict[str, object]] = []
     fact_map: dict[str, set[str]] = {key: set() for key in FACT_CLASSES}
@@ -1070,7 +1093,13 @@ def generate() -> None:
         lines = text.count("\n") + (1 if text else 0)
         owner = owner_for(rel)
         owns, should_record, should_move = OWNER_DESCRIPTIONS[owner]
-        action, completed, remaining = action_for(rel, owner, lines, changed)
+        action, completed, remaining = action_for(
+            rel,
+            owner,
+            lines,
+            changed,
+            active_branch_plan_paths=active_branch_plan_paths,
+        )
         counts = {name: count_matches(text, patterns) for name, patterns in PATTERNS.items()}
         duplicate_classes = [fact for fact, patterns in FACT_CLASSES.items() if count_matches(text, patterns)]
         ambiguity_risk, ambiguity_hits, ambiguity_action = ambiguity_for(text, owner)
@@ -1093,7 +1122,8 @@ def generate() -> None:
         confidence = "High" if owner != "unknown docs reference" else "Medium"
         if action == "USER review needed":
             retire_candidates.append((rel, "purpose not clearly owned by current model", "needs USER decision"))
-        if owner == "branch runtime engineering plan":
+        active_branch_plan = owner == "branch runtime engineering plan" and rel in active_branch_plan_paths
+        if owner == "branch runtime engineering plan" and not active_branch_plan:
             retire_candidates.append(
                 (
                     rel,
@@ -1124,6 +1154,7 @@ def generate() -> None:
                 "ambiguity_action": ambiguity_action,
                 "structure_risk": structure_risk,
                 "structure_action": structure_action,
+                "active_branch_plan": active_branch_plan,
                 "live_fields": snippets(text, PATTERNS["live"]),
                 "receipt_fields": snippets(
                     text,
