@@ -136,10 +136,10 @@ Do not use this layer to replace:
 ## Active Branch Authority Records
 
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
-- `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`
 - `Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md`
 - `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`
 - `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md`
