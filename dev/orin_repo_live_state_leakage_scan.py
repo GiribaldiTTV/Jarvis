@@ -113,18 +113,27 @@ def repo_relative(path: Path, repo: Path) -> Path:
         return path
 
 
-def collect_scan_files(repo: Path, paths: list[Path]) -> tuple[list[Path], list[Path]]:
+def collect_scan_files(repo: Path, paths: list[Path]) -> tuple[list[Path], list[Path], list[Path]]:
     files: list[Path] = []
     missing: list[Path] = []
+    invalid: list[Path] = []
     for relative_path in paths:
-        path = repo / relative_path
+        if relative_path.is_absolute() or relative_path.anchor or ".." in relative_path.parts:
+            invalid.append(relative_path)
+            continue
+        path = (repo / relative_path).resolve(strict=False)
+        try:
+            path.relative_to(repo)
+        except ValueError:
+            invalid.append(relative_path)
+            continue
         if path.is_dir():
             files.extend(sorted(child for child in path.rglob("*.md") if child.is_file()))
         elif path.is_file():
             files.append(path)
         else:
             missing.append(relative_path)
-    return sorted(set(files)), missing
+    return sorted(set(files)), missing, invalid
 
 
 def load_retired_branch_plans(repo: Path) -> set[Path]:
@@ -344,7 +353,15 @@ def main() -> int:
         return 2
 
     scan_paths = [Path(path) for path in args.path] if args.path else list(DEFAULT_SCAN_PATHS)
-    files, missing_paths = collect_scan_files(repo, scan_paths)
+    files, missing_paths, invalid_paths = collect_scan_files(repo, scan_paths)
+    if invalid_paths:
+        requested_paths = ", ".join(path.as_posix() for path in invalid_paths)
+        print(
+            "ERROR: repo live-state scan paths must stay inside the repo root. "
+            f"Invalid paths: {requested_paths}",
+            file=sys.stderr,
+        )
+        return 2
     if missing_paths:
         requested_paths = ", ".join(path.as_posix() for path in missing_paths)
         print(
