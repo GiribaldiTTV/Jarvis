@@ -271,22 +271,6 @@ def _public_review_bundle_file_list_failures(paths: list[str]) -> list[str]:
 
 def _packet_text_status(text: str) -> str:
     normalized = re.sub(r"\s+", " ", text).casefold()
-    repair_markers = (
-        "branch readiness stage 2",
-        "repair/revalidation",
-        "repair before workstream implementation",
-        "returning to branch readiness",
-    )
-    if any(marker in normalized for marker in repair_markers):
-        return DECISION_STATUS_REPAIR_REVALIDATION
-
-    final_review_markers = (
-        "workstream entry final decision review",
-        "final workstream entry decision",
-    )
-    if any(marker in normalized for marker in final_review_markers):
-        return DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW
-
     implementation_markers = (
         "approve bounded workstream implementation",
         "approve workstream implementation",
@@ -304,6 +288,22 @@ def _packet_text_status(text: str) -> str:
         marker in normalized for marker in blocking_markers
     ):
         return DECISION_STATUS_IMPLEMENTATION_READY
+
+    repair_markers = (
+        "branch readiness stage 2 repair/revalidation",
+        "repair/revalidation",
+        "repair before workstream implementation",
+        "returning to branch readiness",
+    )
+    if any(marker in normalized for marker in repair_markers):
+        return DECISION_STATUS_REPAIR_REVALIDATION
+
+    final_review_markers = (
+        "workstream entry final decision review",
+        "final workstream entry decision",
+    )
+    if any(marker in normalized for marker in final_review_markers):
+        return DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW
 
     return DECISION_STATUS_UNKNOWN
 

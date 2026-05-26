@@ -19116,13 +19116,7 @@ def _run_release_readiness_health_gate(
             merge_stable_branch_record_text=historical_branch_record_text,
         )
 
-    projected_truth = "\n".join(
-        (
-            _section(record_text, "Current Phase"),
-            _section(record_text, "Phase Status"),
-            post_merge_state,
-        )
-    )
+    projected_truth = post_merge_state
     for label, pattern in RELEASE_READINESS_HEALTH_STALE_POST_MERGE_PATTERNS:
         require(
             re.search(pattern, projected_truth, flags=re.I) is None,

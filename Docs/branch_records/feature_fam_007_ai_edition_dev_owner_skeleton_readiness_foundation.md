@@ -31,25 +31,33 @@ Status: `PR Readiness Stage 1 repair/sync recorded for FAM-007 AI Edition Dev/Ow
 
 ## Current Phase
 
-Phase: `Live Validation`
+Phase: `PR Readiness`
 
-Stage: `PR Readiness Stage 1 repair/sync complete`
+Stage: `PR Readiness Stage 2 live PR validation`
 
-Seam: `Live Validation LV1 - No visible runtime surface waiver`
+Seam: `PR Readiness Stage 2 - Execution Gate / live PR validation`
 
 ## Phase Status
 
-Phase Status: `Active Branch` - Live Validation Stage 1 verified the branch has no visible runtime surface change, validated the no-visible-runtime-surface waiver path, preserved the Workstream Green proof, and kept provider/private/runtime exclusions closed; PR Readiness Stage 1 repair/sync has recorded selected-next truth and prepared Stage 2 PR creation details.
-- Branch Authority Marker: `Active branch authority`
-- Branch Evidence: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`
-- Branch Authority State: `Active Branch - this branch is the current FAM-007 public-safe Breakpoint 2 readiness carrier.`
-- Current Live Validation Seam: `Live Validation LV1 - No visible runtime surface waiver`
-- Next Active Seam: `PR Readiness Stage 2`
+Phase Status: `Active Branch` - PR Readiness Stage 2 live PR validation for PR #218; after merge this carrier becomes historical merged-unreleased FAM-007 evidence, not active branch authority on main. Live PR/operator state is recorded outside the post-merge projection block.
+- Post-Merge Projection: `This branch must fold down to historical merged-unreleased FAM-007 Dev/Owner Skeleton Readiness Foundation evidence after PR #218 merges.`
+- Live Validation Receipt: `LV1 no-visible-runtime-surface waiver remains the runtime proof basis.`
+- Watcher Handoff: `pr-218-watcher monitors PR #218 in Verify Once then Silent Monitor posture.`
+- Next Active Seam: `PR Watcher / bot-review signal monitoring`
 - PR #215 Evidence Handling: `Released - FAM-007 AI Edition Public Leak-Prevention Foundation is included in v1.7.22-prebeta and remains the Breakpoint 1 prerequisite evidence.`
-- PR #216 Evidence Handling: `Released - release-readiness guard repair is included in v1.7.22-prebeta and prevents projection-shadowed active authority drift.`
-- Previous Carrier Handling: `Historical released - feature/fam-007-ai-edition-public-leak-prevention-foundation remains released v1.7.22 evidence only and is not active branch authority.`
+- PR #216 Evidence Handling: `Released - release-readiness guard repair is included in v1.7.22-prebeta and prevents projection-shadowed authority drift.`
+- Previous Carrier Handling: `Historical released - feature/fam-007-ai-edition-public-leak-prevention-foundation remains released v1.7.22 evidence only.`
 - Breakpoint Basis: `FAM-007 AI Edition Capability / Trust Boundary Release Plan identifies Breakpoint 2: Private Dev And Owner Skeleton Creation after Breakpoint 1 is green and before public provider/model execution.`
-- Scope Posture: `Public-safe readiness proof only; Workstream does not create private repos, private roots, private remotes, backup implementation, provider/model execution, memory, import, packaging, PR, merge, release, cleanup, or v1.8.0 execution.`
+- Scope Posture: `Public-safe readiness proof only; Workstream does not create private repos, private roots, private remotes, backup implementation, provider/model execution, memory, import, packaging, merge, release, cleanup, or v1.8.0 execution. PR #218 exists only for USER-approved Stage 2 review.`
+
+## Live PR Operator Evidence
+
+- Live PR: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/218`
+- PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/218`
+- PR Number: `218`
+- PR Readiness Stage 2 USER Approval: `Granted by USER after PR Readiness Stage 1 repair/sync.`
+- Live PR State: `OPEN; non-draft; head=af181167f230f46383d62b98a168f1fe755c8ac8; base=main@98c82037e85940e630b727c8362bc9771ffd05e3; mergeable=MERGEABLE; status checks=none reported; unresolved review threads=0 before Codex review, then one Codex review thread identified for same-PR repair; PR comments=none; reactions=EYES=1 before Codex review refresh.`
+- PR Watcher: `pr-218-watcher provisioned as same-thread heartbeat in Verify Once then Silent Monitor posture.`
 
 ## Branch Class
 
@@ -87,7 +95,7 @@ Remote Branch State: `Absent before Stage 2 setup; created by final Stage 2 push
 Unique Branch Diff: `Stage 2 source-truth setup plus public-safe Workstream proof for Dev/Owner skeleton readiness, private repo/local-only action gates, GitHub Desktop private remote safety, off-boot backup/recovery planning, public-to-private separation, provider/model deferral, future handoff criteria, validator coverage, and synthetic fixture proof.`
 Origin/Main Ancestry: `Created directly from origin/main@2684080fe1abacb9c124f540f898182046193cc4.`
 Origin/Main Advanced Since Branch Creation: `NO at Stage 2 setup start; stop if current origin/main differs from 2684080fe1abacb9c124f540f898182046193cc4.`
-Open PR State: `No live PR for this successor branch during Stage 2 setup; PR creation remains a pending USER decision.`
+Open PR State: `Live PR #218 is open at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/218 after USER-approved PR Readiness Stage 2 creation.`
 Worktree Checkout State: `Checked out in C:\Nexus Worktrees\FAM-007.`
 Recommended Stage 2 Carrier Action: `Create/admit this branch as the active FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation carrier.`
 Stale Branch Cleanup Plan: `No cleanup authorized; previous FAM-007 branch remains a historical local/remote receipt until a later USER-approved cleanup gate.`
@@ -97,7 +105,7 @@ No Unique Commit Loss Proof: `The prior public leak-prevention branch was merged
 
 ## Blockers
 
-Blockers: `PR creation remains blocked until USER approves PR Readiness Stage 2. Private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup or recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcut/installer work, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain separate future USER decisions.`
+Blockers: `Bot-review/approval signal and merge approval remain pending after PR #218 creation. Private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup or recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcut/installer work, merge, release/tag/artifacts, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain separate future USER decisions.`
 
 ## Entry Basis
 
@@ -114,7 +122,7 @@ Rollback Target: `Hardening`
 ## Next Legal Phase
 
 Next Legal Phase: `PR Readiness`
-Next Legal Phase Detail: `PR Readiness Stage 2 / PR creation approval after USER-approved Stage 1 repair/sync validates and pushes.`
+Next Legal Phase Detail: `PR watcher / bot-review signal monitoring for PR #218; merge approval remains a separate USER decision.`
 
 ## Planning-Loop Guardrail
 
@@ -308,7 +316,7 @@ User Test Summary Waiver Reason: `The branch changed source truth, validators, f
 Runtime Surface Review: `No visible runtime surface changed; screenshot/live-client proof is not applicable for this branch.`
 Provider / Private Boundary Review: `provider-visible data remains none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution remains disabled; downloads, network, external calls, memory/learning/personalization, and voice/Core sync remain gated.`
 Review Packet Proof: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007 and C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007.zip remain the active USER review packet and export.`
-Next Phase: `PR Readiness Stage 1 analysis completed by this repair/sync; PR Readiness Stage 2 / PR creation approval remains next after validation and push.`
+Next Phase: `PR Readiness Stage 2 created PR #218; PR watcher / bot-review signal monitoring is active.`
 
 ## PR Readiness Stage 1 Analysis Packet
 
@@ -349,7 +357,7 @@ Governance Ledger Fallback: `Not required - current FAM-007 branch legally owns 
 Branch Readiness Fallback: `Not required for current branch; successor branch creation is deferred to Branch Readiness after merge and updated-main revalidation.`
 Stage 1 Outcome: `Stage 1 Ready For Stage 2 after this repair/sync validates and pushes.`
 Stage 2 Sync Plan: `Verify current origin/main, live branch head, review packet proof, selected-next truth, release-health, PR title/body, watcher plan, and then create/validate the PR only after explicit USER Stage 2 approval.`
-Next Legal Phase: `PR Readiness Stage 2 / PR creation approval`
+Next Legal Phase: `PR watcher / bot-review signal monitoring`
 Stage 2 Green-Light Decision Needed: `USER approval for PR Readiness Stage 2 / PR creation on this branch.`
 
 ## Next Workstream
@@ -380,14 +388,90 @@ Why Deferred: `Governance requires selected-next truth before PR readiness can p
 
 ## PR Creation Details
 
-PR Creation Status: `Pending USER Stage 2 approval`
+PR Creation Status: `Created - PR #218 is live at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/218`
 PR Title: `Prove FAM-007 Dev Owner skeleton readiness`
 PR Base: `main`
 PR Head: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`
 PR Body Top-Level Sections: `Summary; Branch Evidence; Validation`
 PR Summary Intent: `This branch proves public-safe FAM-007 Dev/Owner skeleton readiness, action gates, backup/recovery planning, public-to-private separation, and provider/model deferral without runtime AI/private setup.`
-PR Watcher Requirement: `Provision the PR watcher only after a live PR exists during PR Readiness Stage 2.`
-PR Creation Exclusions: `No merge, release, cleanup, private Dev repo, private Owner repo, private remote, backup implementation, Public-to-Dev import, provider/model execution, memory, voice/Core sync, shortcut/installer, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is authorized by Stage 1.`
+PR Watcher Requirement: `Satisfied - pr-218-watcher provisioned after PR #218 was created.`
+PR Creation Exclusions: `No merge, release, cleanup, private Dev repo, private Owner repo, private remote, backup implementation, Public-to-Dev import, provider/model execution, memory, voice/Core sync, shortcut/installer, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is authorized by Stage 2.`
+
+## Post-Merge State
+
+Repo State: `Successor-selected USER decision gate`
+Successor Branch Handling: `Selected-next truth exists for FAM-007 / PKG-007 private Dev and Nexus Desktop AI Owner skeleton continuation, but successor branch creation remains deferred to later USER-approved Branch Readiness from updated main.`
+Selected Next Workstream: `FAM-007`
+Selected Next Implementation Branch: `Deferred to Branch Readiness`
+Successor Selection Status: `Selected by USER-approved PR Readiness Stage 1 repair/sync; no successor runtime branch, private Dev repo, private Owner repo, provider/model branch, backup/recovery branch, or Public-to-Dev import branch is created by inertia.`
+Current Carrier Branch: `After PR #218 merges, feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation becomes historical merged-unreleased FAM-007 Dev/Owner Skeleton Readiness Foundation evidence and must not remain active branch authority on main.`
+Branch Authority Cleanup Projection: `PASS - merged main must move this branch authority to historical merged-unreleased evidence and must not retain active FAM-007 branch authority for this carrier.`
+Merged-Unreleased Scope Posture: `After PR #218 merges, this branch is merged-unreleased FAM-007 evidence until a separately USER-approved Release Readiness pass includes or releases it.`
+Watcher / Live PR State Projection: `PASS - PR #218 live state, watcher output, comments, reactions, and mergeability are Stage 2 operator evidence only and must not be projected as merged-main current-state truth.`
+Branch Cleanup Plan: `Deferred - no branch deletion, worktree deletion, stable worktree rebinding, stale remote pruning, or GitHub Desktop cleanup is authorized by PR Readiness.`
+FAM Overlap Routing: `PASS - FAM-006, Governance, Compact-AI, neutral-main, private Dev/Owner roots, and parked worktrees remain separate lanes; this branch does not mutate sibling worktrees.`
+Governance Intake Routing: `PASS - no separate Governance intake is required for the current PR #218 source-truth repair; after merge, any stale active-authority, selected-next, release-window, or successor-defer drift must route to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake.`
+Release Candidate Anchor Projection: `origin/main@98c82037e85940e630b727c8362bc9771ffd05e3 plus PR #218 after merge.`
+Release Window Contributor Inventory: `PR #218 will be merged-unreleased FAM-007 Dev/Owner Skeleton Readiness Foundation evidence after merge; released FAM-007 public leak-prevention canon remains v1.7.22-prebeta at 2684080fe1abacb9c124f540f898182046193cc4.`
+Projected Post-Merge Validation: `Release Readiness should validate branch authority fold-down, selected-next successor-defer truth, release-window inventory, provider-boundary preservation, public leak-prevention validation, AI provider state validation, release body validation, source-owner marker validation, branch governance, release-health gate, governance efficiency, rebaseline audit, compileall, and diff checks before any release execution.`
+
+## Release Readiness Health Pass
+
+Release Readiness Health Pass: PASS
+
+Post-Merge Branch Authority Projection: `PASS - after PR #218 merges, this branch record must be historical merged-unreleased FAM-007 evidence and merged main must not retain this branch as active authority.`
+
+Stale Active Branch Wording Scan: `PASS - projected post-merge truth makes this carrier historical merged-unreleased evidence rather than active branch authority.`
+
+Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - PR #218 has been created; any live PR state belongs to Stage 2 operator evidence and must not be projected as merged-main current-state truth.`
+
+Merged-Unreleased Scope Posture: `PASS - after merge, PR #218 is merged-unreleased FAM-007 Dev/Owner Skeleton Readiness Foundation evidence until separate Release Readiness.`
+
+Release Execution Gate: `PASS - no release, tag, GitHub Release, artifact, issue closeout, or release execution is authorized by PR Readiness.`
+
+Watcher / Live PR State Projection: `PASS - pr-218-watcher and live PR state are operator evidence only and must not be folded into merged-main current-state truth.`
+
+Branch Cleanup Plan: `PASS - deferred; no branch deletion, worktree cleanup, stale remote update, stable worktree rebinding, or GitHub Desktop cleanup is authorized before later USER-approved cleanup.`
+
+FAM Overlap Routing: `PASS - FAM-006, Governance, Compact-AI, neutral-main, private Dev/Owner roots, and parked worktrees remain separate lanes.`
+
+Release Candidate Anchor Projection: `PASS - origin/main@98c82037e85940e630b727c8362bc9771ffd05e3 plus PR #218 after merge; Release Readiness must recalculate if origin/main advances before release preparation.`
+
+Release Window Contributor Inventory: `PASS - PR #218 will be the current merged-unreleased FAM-007 contributor after merge; PR #215 remains released v1.7.22-prebeta evidence.`
+
+Governance Intake Routing: `PASS - no separate Governance intake is required for this same-PR source-truth repair; after merge, stale active-authority, selected-next, release-window, or successor-defer drift must route to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake.`
+
+Projected Post-Merge Validation: `PASS - run branch governance, release-readiness health gate, governance efficiency, release body, AI provider state, public leak-prevention validation, branch-readiness planning fixtures, source-owner marker validation, validation-suite recommendation, rebaseline audit, compileall, and diff checks from updated main before any release execution.`
+
+## Governance Drift Audit
+
+Governance Drift Found: `No unresolved drift after this Stage 2 repair - creating PR #218 made PR-lifecycle markers live, so the active branch record moved into PR Readiness and now carries Release Readiness Health Pass, Post-Merge State, Governance Drift Audit, and Release Window Audit source truth.`
+
+Drift Type: `Stage 2 operator metadata and bot-review repair; no runtime/UI defect and no separate Governance carrier required before PR #218 monitoring continues.`
+
+Why Current Canon Failed To Prevent It: `Stage 1 correctly stopped before live PR creation; once PR #218 existed, live PR markers required the branch to move from Live Validation posture into PR Readiness with merge-stable health-pass sections.`
+
+Required Canon Changes: `Record live PR URL, watcher proof, PR Readiness phase, post-merge projection, release-health pass, release-window audit, and bounded parser repair for the Codex review comment.`
+
+Whether The Drift Blocks Merge: `Yes until bot-review comment repair is pushed, the review thread is resolved, and PR readiness validation clears or reports only an expected approval-signal wait.`
+
+Whether User Confirmation Is Required: `Current Stage 2 approval covers same-PR validation and bot-review handling; merge, release, cleanup, private Dev/Owner repo creation, backup implementation, provider/model execution, Public-to-Dev import, AI Product Contract import, Private Dev ORIN import, and v1.8.0 remain pending USER decisions.`
+
+## Release Window Audit
+
+Release Window Audit: PASS
+
+Window Scope: `PR #218 is not released. If merged, it becomes merged-unreleased FAM-007 Dev/Owner Skeleton Readiness Foundation evidence until a separately USER-approved Release Readiness pass.`
+
+Known Window Blockers Reviewed: `Workstream Green, H1 Green, LV1 no-visible-runtime-surface waiver, PR Readiness Stage 1 selected-next truth, PR #218 creation, public leak-prevention validator proof, AI provider state closure, provider-boundary preservation, and no private/runtime execution.`
+
+Remaining Known Release Blockers: None
+
+Another Pre-Release Repair PR Required: NO
+
+Release Window Split Waiver Reason: `Not required - current repair is same-PR source truth and validator/helper repair before merge.`
+
+Release Window Split Waiver: None
 
 ## Remaining Workstream Seam Group Implementation Receipt
 
@@ -681,10 +765,10 @@ Slice Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
 Continuation Execution Latch: `Inactive - PR Readiness Stage 1 repair/sync is complete after USER approval; PR Readiness Stage 2 requires separate USER approval.`
-Next Active Seam: `PR Readiness Stage 2`
+Next Active Seam: `PR Watcher / bot-review signal monitoring`
 Stop Basis: `Workstream Green`
 Stop Condition: `Workstream Green`
-Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stage 2 / PR creation; no private/runtime work is authorized.`
+Continuation Action: `Remain in watcher/bot-review monitoring for PR #218 until an approval signal, actionable review comment, status-check change, or separate USER merge decision appears; no private/runtime work is authorized.`
 Remaining Implementable Work: `None`
 Single-Seam Workstream Waiver: `None`
 Single-Seam Or Single-Slice Waiver Authority: `USER only - Codex, ChatGPT, validators, prompts, clean validation, or a green seam cannot infer single-seam or single-slice Workstream authority.`
@@ -717,21 +801,21 @@ Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stag
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Live Validation`
-Next Legal Phase: `PR Readiness`
-Next Legal Phase Detail: `PR Readiness Stage 2 / PR creation approval for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation after Stage 1 repair/sync validates and pushes.`
-Next Active Seam: `PR Readiness Stage 2`
-Why This Phase Is Next: `Live Validation Stage 1 was green, PR Readiness Stage 1 repair/sync recorded selected-next FAM-007 / PKG-007 continuation truth, repaired branch-plan phase wording, and prepared PR details; PR creation remains separately gated.`
-Approval Required: `USER approval is required before Stage 2 can create the PR, provision a watcher, or rely on live PR state.`
-Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation in C:\Nexus Worktrees\FAM-007 from current origin/main@98c82037e85940e630b727c8362bc9771ffd05e3 after PR Readiness Stage 1 repair/sync. Scope: verify current origin/main freshness, branch head, selected-next truth, LV1 waiver proof, review packet proof, release-health, PR title/body, and validation; create the PR against main; provision the PR watcher on the approved Codex reporting surface; validate live PR state, mergeability, checks, unresolved review threads, and bot-review signal posture; do not merge, release/tag/artifacts, clean branches/worktrees, mutate sibling worktrees, create private Dev or Owner repos, configure private remotes, implement backup/restore, implement Public-to-Dev import, execute providers/models, download models, make external calls, enable memory/learning/personalization, sync voice/Core, change shortcuts/installers, import AI Product Contract or Private Dev ORIN, or execute v1.8.0-prebeta.`
-Allowed Scope: `PR Readiness Stage 2 PR creation only after verifying current origin/main, branch head, selected-next truth, release-health, review packet proof, PR title/body, watcher plan, and live PR validation.`
+Current Phase: `PR Readiness`
+Next Legal Phase: `PR watcher / bot-review signal monitoring`
+Next Legal Phase Detail: `PR watcher silent monitoring for PR #218; merge approval remains separate after bot-review signal and live PR validation.`
+Next Active Seam: `PR Watcher / bot-review signal monitoring`
+Why This Phase Is Next: `PR #218 was created after USER-approved Stage 2, live PR state was inspected, and pr-218-watcher was provisioned; the branch is waiting for bot-review or approval signal before any merge-readiness decision.`
+Approval Required: `No immediate USER approval is required unless the watcher reports an actionable review/comment, approval signal, status-check change, or merge decision point; merge remains separately USER-gated.`
+Exact USER Approval Text: `No immediate USER decision is needed while pr-218-watcher is silently monitoring PR #218. If the watcher reports approval or a repair need, USER may approve the next bounded PR repair, merge-readiness review, or merge action with explicit scope.`
+Allowed Scope: `Watcher monitoring and report-only live PR state verification; no merge, release, cleanup, private/runtime work, or branch mutation beyond separately approved PR repair.`
 Explicit Exclusions: `No private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup/recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, branch/worktree cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --worktree-confinement-gate; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_governance_efficiency_validation.py; python dev\orin_source_owner_marker_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python dev\orin_public_leak_prevention_validation.py; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_validation_suite.py --phase branch-readiness; python -m compileall -q dev desktop Audio main.py; python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md.`
-Stop Conditions: `Stop if origin/main advances beyond 98c82037e85940e630b727c8362bc9771ffd05e3, source truth points to a different branch, Live Validation waiver proof is missing, User Test Summary Results are not PASS or WAIVED, provider/private/runtime boundaries weaken, private repo or backup implementation becomes required, PR creation or watcher provisioning becomes necessary, packet decision-path fields conflict, or validation fails.`
-USER Plan Review Gate: `Required - USER may approve PR Readiness Stage 2 / PR creation, revise the scope, waive a review item, or reject the handoff.`
+Stop Conditions: `Stop if origin/main advances beyond 98c82037e85940e630b727c8362bc9771ffd05e3, source truth points to a different branch, Live Validation waiver proof is missing, User Test Summary Results are not PASS or WAIVED, provider/private/runtime boundaries weaken, private repo or backup implementation becomes required, new PR creation or watcher reprovisioning becomes necessary, packet decision-path fields conflict, or validation fails.`
+USER Plan Review Gate: `Watcher-gated - USER may approve a bounded repair, merge-readiness review, merge action, or reject the handoff after watcher output.`
 USER Inspection Files: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007; Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md; dev/orin_public_leak_prevention_validation.py; dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json; Docs/validation_helper_registry.md.`
-Review Required Because: `PR Readiness Stage 1 repair/sync is recorded only after validation and push; PR creation remains a separate Stage 2 USER decision.`
-Implementation Blocker: `PR creation remains blocked until USER approves PR Readiness Stage 2.`
+Review Required Because: `PR #218 is live and non-draft, but bot-review/approval signal is still pending.`
+Implementation Blocker: `Bot-review/approval signal is pending; merge remains blocked until a separate USER decision.`
 Review Waiver Reason: `Not waived - no waiver used; next phase remains USER-admitted by governance.`
 Next Legal Phase Digest Missing: `NO - this digest is complete and must not be compacted, abbreviated, summarized away, or omitted from phase handoff packets.`
-Next Safe Move: `Request USER approval for PR Readiness Stage 2 / PR creation after this sync validates and pushes.`
+Next Safe Move: `Let pr-218-watcher complete Verify Once, then remain in Silent Monitor posture until watched PR state changes or an approval/comment signal appears.`
