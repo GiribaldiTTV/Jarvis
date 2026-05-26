@@ -15,6 +15,7 @@ Safety and Privacy should be visible product behavior, not hidden policy. Users 
 - Provider-visible data must be explicit before prompts, provider setup, or model execution occur.
 - Public, Dev, and Owner privacy boundaries must remain separate: Owner-private memory/prompts/secrets and Dev-only tooling must not leak into public source, public artifacts, or Public Edition runtime.
 - Secrets, memory, indexing, learning, and personalization require dedicated USER-approved planning before implementation.
+- AI operational cache privacy belongs here for visibility, provenance, sensitivity classes, profile/user isolation, encryption expectations, Local-Only Mode, Privacy Lockdown behavior, stale-cache refusal, provider-cache sanitization, Trust Journal cache events, and clear-cache safety; cache remains distinct from memory.
 - Deferral is acceptable when local capability is not safe, practical, or approved.
 
 ## Implementation Boundaries

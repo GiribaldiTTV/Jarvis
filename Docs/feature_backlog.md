@@ -35,6 +35,23 @@ Use Git, GitHub, or approved helpers for live operational truth. Use branch reco
 
 Canonical Identity Model: `FAM` = broad long-lived product family; `Package` = bulk branch/release package under one family; `Slice` = traceable deliverable area inside a package; `Seam` = execution or validation checkpoint; `PR` = merge/review evidence only; legacy global `FB` = historical trace only.
 
+Backlog Taxonomy And Source-Truth Placement Gate: before Codex proposes, admits, or syncs any new backlog family, package, source-truth owner, architecture layer, policy owner, experience layer, runtime subsystem, capability-pack domain, or implementation slice/seam, the governing packet must answer: `Is this a backlog family, family vision, architecture layer, cross-family policy owner, experience layer, runtime subsystem, capability-pack domain, or implementation package/slice/seam?`
+
+| Concept Class | Should Own | Must Not Own |
+| --- | --- | --- |
+| Backlog family | Broad long-lived product identity and compact registry pointer | Every subsystem, dependency, architecture idea, policy, or implementation package |
+| Family vision | Durable direction for one family | Cross-family architecture, runtime approval, or active branch authority by default |
+| Architecture layer | Reusable structural system concepts | Product-family identity, release identity, or implementation approval by itself |
+| Cross-family policy owner | Hard rules, constraints, enforcement requirements, and safety/privacy boundaries across families | Runtime identity or implementation scope by itself |
+| Experience layer | Interaction philosophy, UX orchestration, and user-facing behavioral model | Automatic backlog identity or implementation approval |
+| Runtime subsystem | Executable behavior, service, tool, state machine, or persistence/control path | Canon identity, release identity, or family vision by itself |
+| Capability-pack domain | Modular capability, knowledge, tool, model, manifest, or pack category | Automatic new FAM, provider execution approval, or memory approval |
+| Package/slice/seam | Bounded implementation and proof work inside one admitted family/package | Product vision expansion or new backlog identity by itself |
+
+Important concepts do not automatically deserve backlog identity. AI-native, cache, trust, provider, routine, deterministic-routing, Windows Health, gaming/competitive-integrity, or ambient-assistance concepts must pass this gate before they can become a new FAM, package, source-truth file, or implementation scope. `Backlog Taxonomy Gate Missing` blocks Branch Readiness or PR Readiness when a concept is promoted without this classification, and `Backlog Addition User Approval Missing` remains active when a new backlog family would be required.
+
+AI Operational Cache Governance is not a backlog family. Cache is operational, purpose-bound, explainable, clearable, and policy-governed; memory is durable user-personal knowledge and requires separate explicit consent. Cache concepts route through existing AI/runtime, privacy/safety, workspace/data, packaging/setup, capability-pack, and branch-plan owners unless a `Source-Truth Placement Preflight` proves `No Existing Owner Fits`.
+
 Branch Scope Standard: branches must package multiple related admitted slices under exactly one broad family by default. A package with exactly one admitted slice is blocked by `Single-Slice Package User Approval Missing` unless `Single-Slice Package User Approval: Granted` is recorded with explicit USER approval.
 
 Package Completion Standard: Workstream continues through every admitted package slice until `Package Completion State: Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred` is truthfully recorded before Hardening admission.
