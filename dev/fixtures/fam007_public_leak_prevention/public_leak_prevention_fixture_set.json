@@ -89,6 +89,157 @@
       "expectedRepoRelative": false
     }
   ],
+  "workstreamEntryPacketDecisionCanaries": [
+    {
+      "caseId": "branch-correct-implementation-ready",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": true,
+      "expectedValid": true,
+      "expectedStatus": "implementation-ready",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve bounded Workstream implementation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head from origin/main@synthetic-origin-main.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Legal Posture: approve Workstream implementation approval.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head and origin/main synthetic-origin-main.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Exact USER Decision Needed: Approve bounded Workstream implementation for this Workstream.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Decision: approve Workstream implementation approval."
+      }
+    },
+    {
+      "caseId": "implementation-ready-with-historical-stage2-context",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": true,
+      "expectedValid": true,
+      "expectedStatus": "implementation-ready",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nHistorical Context: Branch Readiness Stage 2 created this carrier earlier.\nExact USER Decision This Bundle Supports: Approve bounded Workstream implementation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head from origin/main@synthetic-origin-main.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Historical context mentions Branch Readiness Stage 2, but Next Legal Posture is approve Workstream implementation approval.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head and origin/main synthetic-origin-main.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Exact USER Decision Needed: Approve bounded Workstream implementation for this Workstream.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Decision: approve Workstream implementation approval."
+      }
+    },
+    {
+      "caseId": "implementation-ready-with-pending-decisions-section",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": true,
+      "expectedValid": true,
+      "expectedStatus": "implementation-ready",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve bounded Workstream implementation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head from origin/main@synthetic-origin-main.\n\n## Pending USER Decisions\n\n- Merge.\n- Release.\n- Private Dev repo creation.\n- Private Owner repo creation.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Legal Posture is approve Workstream implementation approval. Pending USER Decisions include Merge and Release only.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head and origin/main synthetic-origin-main.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Exact USER Decision Needed: Approve bounded Workstream implementation for this Workstream.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Decision: approve Workstream implementation approval."
+      }
+    },
+    {
+      "caseId": "negated-workstream-implementation-approval",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": true,
+      "expectedValid": false,
+      "expectedStatus": "unknown",
+      "expectedFailureContains": "blocks implementation approval",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: This packet does not approve Workstream implementation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head from origin/main@synthetic-origin-main.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Legal Posture does not approve Workstream implementation.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head and origin/main synthetic-origin-main. This scan does not approve bounded Workstream implementation.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Exact USER Decision Needed: This digest does not approve bounded Workstream implementation.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Decision: does not approve Workstream implementation."
+      }
+    },
+    {
+      "caseId": "branch-correct-repair-revalidation",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": true,
+      "expectedValid": false,
+      "expectedStatus": "repair-revalidation",
+      "expectedFailureContains": "blocks implementation approval",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve Branch Readiness Stage 2 repair/revalidation before Workstream implementation.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Branch Readiness Stage 2 repair/revalidation.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve repair/revalidation before Workstream implementation.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Branch Readiness Stage 2 repair/revalidation."
+      }
+    },
+    {
+      "caseId": "stale-branch-packet",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": false,
+      "expectedValid": false,
+      "expectedStatus": "workstream-entry-final-review",
+      "expectedFailureContains": "expected branch",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-public-leak-prevention-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve Workstream Entry final decision review.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-public-leak-prevention-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-public-leak-prevention-foundation synthetic-dev-owner-head synthetic-origin-main.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-public-leak-prevention-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve Workstream Entry final decision review.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-public-leak-prevention-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Workstream Entry final decision review."
+      }
+    },
+    {
+      "caseId": "missing-required-digest-file",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": false,
+      "expectedValid": false,
+      "expectedStatus": "workstream-entry-final-review",
+      "expectedFailureContains": "required Workstream Entry packet file is missing",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve Workstream Entry final decision review.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve Workstream Entry final decision review."
+      }
+    },
+    {
+      "caseId": "conflicting-next-legal-phase",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": false,
+      "expectedValid": false,
+      "expectedStatus": "unknown",
+      "expectedFailureContains": "decision-path conflict",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve Workstream Entry final decision review.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve Branch Readiness Stage 2 repair/revalidation.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Workstream Entry final decision review."
+      }
+    },
+    {
+      "caseId": "chat-only-decision-missing-packet-evidence",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": false,
+      "expectedValid": false,
+      "expectedStatus": "workstream-entry-final-review",
+      "expectedFailureContains": "Exact USER Decision",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nNext Legal Posture: Workstream Entry final decision review.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Workstream Entry final decision review."
+      }
+    }
+  ],
   "editionBoundaryManifest": {
     "schema": "fam007-edition-boundary-manifest-v1",
     "edition": "Public",
@@ -139,6 +290,143 @@
         "classification": "public-manifest-placeholder"
       }
     ]
+  },
+  "devOwnerSkeletonReadiness": {
+    "schema": "fam007-dev-owner-skeleton-readiness-fixture-v1",
+    "seamGroup": "dev-owner-skeleton-readiness-and-private-remote-safety",
+    "planningOnly": true,
+    "publicSafeProofOnly": true,
+    "actionGates": {
+      "dev": "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+      "owner": "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+      "githubDesktop": "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP"
+    },
+    "setupState": {
+      "privateDevRepositoryCreated": false,
+      "privateOwnerRepositoryCreated": false,
+      "ownerLocalOnlyRootCreated": false,
+      "githubDesktopPrivateRemoteConfigured": false,
+      "providerModelExecutionEnabled": false,
+      "memoryPersonalizationEnabled": false,
+      "downloadsNetworkExternalCallsEnabled": false,
+      "voiceCoreSyncEnabled": false
+    },
+    "devSkeleton": {
+      "readinessState": "ready-to-request-user-action",
+      "trustedButNotOwnerPrivate": true,
+      "ownerPrivateInheritanceAllowed": false,
+      "privateSetupState": "pending-user-action",
+      "publicSourceScope": "readiness-proof-only"
+    },
+    "ownerSkeleton": {
+      "readinessState": "ready-to-request-user-action",
+      "editionName": "Nexus Desktop AI Owner",
+      "ownerOnly": true,
+      "privateSetupState": "pending-user-action",
+      "devPublicInheritanceAllowed": false,
+      "localOnlyAllowedBeforePrivateHosting": true
+    },
+    "githubDesktopPrivateRemoteSafety": {
+      "configurationState": "planning-only",
+      "privateOriginRequired": true,
+      "publicRemoteName": "public-upstream",
+      "publicUpstreamPushAllowed": false,
+      "publicRemoteAsOriginAllowed": false
+    },
+    "forbiddenMaterialPresence": {
+      "privateRemoteUrl": false,
+      "tokenOrCredential": false,
+      "ownerSecret": false,
+      "privatePath": false,
+      "promptPayload": false,
+      "memoryPayload": false,
+      "privateAutomation": false,
+      "modelArtifact": false,
+      "capabilityPackAsset": false,
+      "privateHostingSecret": false
+    },
+    "providerBoundary": {
+      "providerVisibleData": "none",
+      "sentToProvider": false,
+      "canAcceptPrompts": false,
+      "providerModelExecution": "deferred"
+    }
+  },
+  "remainingWorkstreamReadiness": {
+    "schema": "fam007-remaining-workstream-readiness-fixture-v1",
+    "seamGroup": "backup-recovery-public-private-provider-deferral-handoff",
+    "planningOnly": true,
+    "publicSafeProofOnly": true,
+    "workstreamGreenReady": true,
+    "actionGates": {
+      "backupRecovery": "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
+      "publicToDevMigration": "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
+      "privateToPublicSanitization": "USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION",
+      "providerModelExecution": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+      "memoryLearningPersonalization": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION"
+    },
+    "setupState": {
+      "offBootBackupRootCreated": false,
+      "backupRestoreImplemented": false,
+      "publicToDevImportImplemented": false,
+      "providerSdkIntegrated": false,
+      "modelExecutionEnabled": false,
+      "modelDownloadsEnabled": false,
+      "externalCallsEnabled": false,
+      "memoryLearningPersonalizationEnabled": false,
+      "voiceCoreSyncEnabled": false,
+      "privateDevOwnerReposCreated": false
+    },
+    "backupRecoveryPlanning": {
+      "state": "planning-only",
+      "offBootRequired": true,
+      "bootDriveOnlyAllowed": false,
+      "restoreProofRequiredBeforeImplementation": true,
+      "editionSeparatedRecoveryRequired": true,
+      "privateMaterialRequiresEncryptionOrVaultPlan": true,
+      "publicRepoBackupStorageAllowed": false
+    },
+    "publicToPrivateSeparation": {
+      "state": "planning-only",
+      "copyOnlyImportRequired": true,
+      "secretsTokensImportedByDefault": false,
+      "ownerPrivateDataImportedToDevOrPublic": false,
+      "noExportDataImportedByDefault": false,
+      "privateToPublicSanitizationGateRequired": true,
+      "protectedAssetsExcluded": true
+    },
+    "providerModelDeferral": {
+      "state": "deferred",
+      "providerSdkExecutionAllowed": false,
+      "modelExecutionAllowed": false,
+      "modelDownloadsAllowed": false,
+      "externalCallsAllowed": false,
+      "providerVisibleData": "none",
+      "sentToProvider": false,
+      "canAcceptPrompts": false
+    },
+    "futureHandoffCriteria": {
+      "state": "ready-for-hardening-review",
+      "planningOnly": true,
+      "privateRepoCreationAuthorized": false,
+      "privateRemoteConfigurationAuthorized": false,
+      "backupImplementationAuthorized": false,
+      "publicToDevImportAuthorized": false,
+      "providerModelExecutionAuthorized": false,
+      "nextLegalPhase": "Hardening H1"
+    },
+    "forbiddenMaterialPresence": {
+      "privateRemoteUrl": false,
+      "tokenOrCredential": false,
+      "ownerSecret": false,
+      "privatePath": false,
+      "promptPayload": false,
+      "memoryPayload": false,
+      "privateAutomation": false,
+      "modelArtifact": false,
+      "capabilityPackAsset": false,
+      "privateHostingSecret": false
+    }
   },
   "blockedCanaries": [
     {

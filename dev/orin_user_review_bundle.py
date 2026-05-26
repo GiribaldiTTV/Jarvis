@@ -16,8 +16,10 @@ import stat
 import subprocess
 import zipfile
 from collections import Counter
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path, PurePosixPath, PureWindowsPath
+from typing import Mapping
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,6 +72,46 @@ PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         ),
     ),
 )
+
+WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES: tuple[str, ...] = (
+    "START_HERE.md",
+    "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
+    "GOVERNANCE_REQUIRED_FILES_SCAN.md",
+    "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+    "BRANCH_VISION_VALIDATION_CHECKLIST.md",
+)
+
+WORKSTREAM_ENTRY_PACKET_DECISION_FILES: tuple[str, ...] = (
+    "START_HERE.md",
+    "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
+    "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+    "BRANCH_VISION_VALIDATION_CHECKLIST.md",
+)
+
+DECISION_STATUS_IMPLEMENTATION_READY = "implementation-ready"
+DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW = "workstream-entry-final-review"
+DECISION_STATUS_REPAIR_REVALIDATION = "repair-revalidation"
+DECISION_STATUS_UNKNOWN = "unknown"
+
+
+@dataclass(frozen=True)
+class WorkstreamEntryPacketDecisionPathResult:
+    """Machine-readable result for Workstream Entry packet decision-path checks."""
+
+    status: str
+    failures: list[str]
+
+    @property
+    def implementation_ready(self) -> bool:
+        return self.status == DECISION_STATUS_IMPLEMENTATION_READY and not self.failures
+
+    @property
+    def blocks_implementation(self) -> bool:
+        return self.status in {
+            DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW,
+            DECISION_STATUS_REPAIR_REVALIDATION,
+            DECISION_STATUS_UNKNOWN,
+        }
 
 
 def _desktop_path() -> Path:
@@ -391,6 +433,141 @@ def _write_user_branch_plan_review(
     return review_path.resolve()
 
 
+def _packet_text_status(text: str) -> str:
+    normalized = re.sub(r"\s+", " ", text).casefold()
+    implementation_markers = (
+        "approve bounded workstream implementation",
+        "approve workstream implementation",
+        "workstream implementation approval",
+    )
+    blocking_markers = (
+        "implementation remains blocked",
+        "implementation not yet authorized",
+        "does not approve bounded workstream implementation",
+        "does not approve workstream implementation",
+        "do not approve bounded workstream implementation",
+        "do not approve workstream implementation",
+        "not approve bounded workstream implementation",
+        "not approve workstream implementation",
+        "does not authorize workstream implementation",
+        "blocks workstream implementation",
+        "before workstream implementation",
+        "workstream implementation remains pending",
+        "workstream implementation remains a pending user decision",
+        "pending user decision: workstream implementation",
+    )
+    if any(marker in normalized for marker in implementation_markers) and not any(
+        marker in normalized for marker in blocking_markers
+    ):
+        return DECISION_STATUS_IMPLEMENTATION_READY
+
+    repair_markers = (
+        "branch readiness stage 2 repair/revalidation",
+        "repair/revalidation",
+        "repair before workstream implementation",
+        "returning to branch readiness",
+    )
+    if any(marker in normalized for marker in repair_markers):
+        return DECISION_STATUS_REPAIR_REVALIDATION
+
+    final_review_markers = (
+        "workstream entry final decision review",
+        "final workstream entry decision",
+    )
+    if any(marker in normalized for marker in final_review_markers):
+        return DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW
+
+    return DECISION_STATUS_UNKNOWN
+
+
+def _field_present(text: str, field_name: str) -> bool:
+    pattern = re.compile(rf"^{re.escape(field_name)}\s*:", re.IGNORECASE | re.MULTILINE)
+    return bool(pattern.search(text))
+
+
+def _validate_workstream_entry_packet_decision_path(
+    packet_files: Mapping[str, str],
+    *,
+    expected_branch: str,
+    expected_head: str,
+    expected_origin_main: str,
+    require_implementation_ready: bool = False,
+) -> WorkstreamEntryPacketDecisionPathResult:
+    failures: list[str] = []
+    for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
+        if required_file not in packet_files:
+            failures.append(f"{required_file}: required Workstream Entry packet file is missing")
+
+    for file_name in WORKSTREAM_ENTRY_PACKET_DECISION_FILES:
+        text = packet_files.get(file_name)
+        if text is None:
+            continue
+        if expected_branch not in text:
+            failures.append(f"{file_name}: expected branch {expected_branch!r} not found")
+        if expected_head not in text:
+            failures.append(f"{file_name}: expected HEAD {expected_head!r} not found")
+        if expected_origin_main not in text:
+            failures.append(f"{file_name}: expected origin/main {expected_origin_main!r} not found")
+
+    start_here = packet_files.get("START_HERE.md", "")
+    if not _field_present(start_here, "Exact USER Decision This Bundle Supports"):
+        failures.append("START_HERE.md: Exact USER Decision This Bundle Supports field is missing")
+    workstream_digest = packet_files.get("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "")
+    if "Exact USER Decision" not in workstream_digest:
+        failures.append("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md: Exact USER Decision field is missing")
+
+    file_statuses: dict[str, str] = {}
+    for file_name in WORKSTREAM_ENTRY_PACKET_DECISION_FILES:
+        text = packet_files.get(file_name)
+        if text is None:
+            continue
+        status = _packet_text_status(text)
+        file_statuses[file_name] = status
+        if status == DECISION_STATUS_UNKNOWN:
+            failures.append(f"{file_name}: next legal phase / implementation posture is not machine-readable")
+
+    distinct_statuses = {status for status in file_statuses.values() if status != DECISION_STATUS_UNKNOWN}
+    if len(distinct_statuses) > 1:
+        joined = ", ".join(f"{file_name}={status}" for file_name, status in sorted(file_statuses.items()))
+        failures.append(f"Workstream Entry packet decision-path conflict: {joined}")
+
+    if len(distinct_statuses) == 1:
+        status = next(iter(distinct_statuses))
+    else:
+        status = DECISION_STATUS_UNKNOWN
+
+    if require_implementation_ready and status != DECISION_STATUS_IMPLEMENTATION_READY:
+        joined = ", ".join(f"{file_name}={status_value}" for file_name, status_value in sorted(file_statuses.items()))
+        failures.append(
+            "Workstream Entry packet blocks implementation approval: "
+            f"status={status}; files={joined}"
+        )
+
+    return WorkstreamEntryPacketDecisionPathResult(status=status, failures=failures)
+
+
+def validate_workstream_entry_packet_folder(
+    packet_dir: Path,
+    *,
+    expected_branch: str,
+    expected_head: str,
+    expected_origin_main: str,
+    require_implementation_ready: bool = False,
+) -> WorkstreamEntryPacketDecisionPathResult:
+    packet_files: dict[str, str] = {}
+    for file_name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
+        path = packet_dir / file_name
+        if path.is_file():
+            packet_files[file_name] = path.read_text(encoding="utf-8")
+    return _validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch=expected_branch,
+        expected_head=expected_head,
+        expected_origin_main=expected_origin_main,
+        require_implementation_ready=require_implementation_ready,
+    )
+
+
 def build_bundle(
     *,
     review_root_name: str,
@@ -575,27 +752,15 @@ def main() -> int:
     )
     parser.add_argument("--title", default="Nexus Review Bundle", help="Title for START_HERE.md.")
     parser.add_argument("--clear", action="store_true", help="Delete the existing Desktop bundle folder before copying.")
-    parser.add_argument(
-        "--review-purpose",
-        required=True,
-        help="Why USER is reviewing this bundle.",
-    )
-    parser.add_argument(
-        "--validation-summary",
-        required=True,
-        help="Validation proof or status supporting the review bundle.",
-    )
+    parser.add_argument("--review-purpose", help="Why USER is reviewing this bundle.")
+    parser.add_argument("--validation-summary", help="Validation proof or status supporting the review bundle.")
     parser.add_argument(
         "--review-order",
         action="append",
         default=[],
         help="Repeatable suggested review step for START_HERE.md.",
     )
-    parser.add_argument(
-        "--exact-user-decision",
-        required=True,
-        help="Exact USER decision this bundle is meant to support.",
-    )
+    parser.add_argument("--exact-user-decision", help="Exact USER decision this bundle is meant to support.")
     parser.add_argument(
         "--pending-user-decision",
         action="append",
@@ -607,8 +772,52 @@ def main() -> int:
         type=int,
         help="Expected count of repo files copied into the review bundle.",
     )
-    parser.add_argument("files", nargs="+", help="Repo-relative files to copy into the Desktop review bundle.")
+    parser.add_argument(
+        "--validate-workstream-entry-packet",
+        type=Path,
+        help="Validate an existing Workstream Entry Desktop packet decision path.",
+    )
+    parser.add_argument("--expected-branch", help="Expected source branch for Workstream Entry packet validation.")
+    parser.add_argument("--expected-head", help="Expected source HEAD for Workstream Entry packet validation.")
+    parser.add_argument("--expected-origin-main", help="Expected origin/main baseline for Workstream Entry packet validation.")
+    parser.add_argument(
+        "--require-implementation-ready",
+        action="store_true",
+        help="Fail if the packet is branch-correct but still blocks Workstream implementation approval.",
+    )
+    parser.add_argument("files", nargs="*", help="Repo-relative files to copy into the Desktop review bundle.")
     args = parser.parse_args()
+
+    if args.validate_workstream_entry_packet:
+        for field_name in ("expected_branch", "expected_head", "expected_origin_main"):
+            if getattr(args, field_name) is None:
+                parser.error(f"--{field_name.replace('_', '-')} is required with --validate-workstream-entry-packet")
+        result = validate_workstream_entry_packet_folder(
+            args.validate_workstream_entry_packet,
+            expected_branch=args.expected_branch,
+            expected_head=args.expected_head,
+            expected_origin_main=args.expected_origin_main,
+            require_implementation_ready=args.require_implementation_ready,
+        )
+        if result.failures:
+            print("FAIL: Workstream Entry packet decision-path validation failed.")
+            print(f"Packet status: {result.status}")
+            for failure in result.failures:
+                print(f"- {failure}")
+            return 1
+        if result.blocks_implementation:
+            print("PASS: Workstream Entry packet is self-consistent and blocks implementation approval.")
+            print(f"Packet status: {result.status}")
+        else:
+            print("PASS: Workstream Entry packet is self-consistent and implementation-ready.")
+            print(f"Packet status: {result.status}")
+        return 0
+
+    for required_arg in ("review_purpose", "validation_summary", "exact_user_decision"):
+        if getattr(args, required_arg) is None:
+            parser.error(f"--{required_arg.replace('_', '-')} is required when building a review bundle")
+    if not args.files:
+        parser.error("at least one repo-relative file is required when building a review bundle")
 
     target, export_zip = build_bundle(
         review_root_name=args.review_root_name,
