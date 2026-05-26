@@ -121,7 +121,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/family_visions/FAM-004_voice_and_audio.md` | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/family_visions/FAM-005_external_integrations.md` | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
 | `FAM-006` | Monitoring and HUD | High | Open / durable planning receipts preserved | `PKG-006` future recording direction is preserved in the family vision and canonical detail owner; runtime recording implementation remains future-gated | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md` |
-| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted | `PKG-007` remains admitted and not package-complete; selected-next and live branch posture are external operational state or future Branch Readiness truth, not backlog live state | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` |
+| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted | `PKG-007` remains admitted and not package-complete; PR Readiness Stage 1 selected-next pointer routes the next candidate to FAM-007 Breakpoint 2 while live branch/PR posture remains external operational truth | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` |
 | `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
 
 ### Folded Non-Family Concepts
@@ -250,7 +250,13 @@ Package Completion State: Open / not package-complete
 Single-Slice Package User Approval: Not required - package history is multi-slice; future scope still requires USER approval.
 Canonical Detail Owner: `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`
 Family Vision Owner: `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`
-Operational Selection Pointer: selected-next, branch-creation, live PR, and current worktree posture are not owned by this backlog. Use `C:\Nexus Governance State`, Git/GitHub/helper truth, and future Branch Readiness packets for current operational selection.
+Next Workstream: Selected
+Minimal Scope: FAM-007 runtime action-gate planning slice for Breakpoint 2 private Dev/Owner skeleton setup decision, preserving provider/model/runtime/cache/memory execution as later USER-gated work.
+Selected Next Workstream: FAM-007 Breakpoint 2 private Dev/Owner skeleton setup decision.
+Selected Next Implementation Branch: Deferred to Branch Readiness
+Branch: Deferred to Branch Readiness
+Selection / Unblock: USER-approved PR Readiness Stage 1 selected-next sync for the existing FAM-007 backlog family; this does not create a new backlog family, branch, private repo, private remote, provider/model execution path, runtime cache behavior, memory behavior, or release action.
+Operational Selection Pointer: The compact selected-next marker above exists only to satisfy PR Readiness Stage 1 successor/no-release-debt truth for existing FAM-007. Live branch, PR, review, watcher, merge, release, and worktree posture remain external operational state or Git/GitHub/helper truth.
 Historical Branch Runtime Engineering Plans: see FAM-007 branch-plan records under `Docs/branch_plans/`.
 Historical Trace Coverage: FAM-007 branch records, family vision, branch plans, workstream evidence, and public release receipts. Detailed PR, release-readiness, post-release, and canon-closure interpretation lives in canonical detail owners, not this compact backlog registry.
 

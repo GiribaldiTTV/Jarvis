@@ -8,7 +8,7 @@ Plan Identity: `FAM-007 AI runtime/trust-boundary readiness planning carrier`
 Owning Branch: `feature/fam-007-ai-runtime-trust-boundary-readiness`
 Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md`
-Current Phase: `Live Validation`
+Current Phase: `PR Readiness`
 
 ## Branch Runtime Engineering Plan
 
@@ -16,9 +16,9 @@ Plan Identity: `FAM-007 AI runtime/trust-boundary readiness planning carrier`
 Owning Branch: `feature/fam-007-ai-runtime-trust-boundary-readiness`
 Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md`
-Current Phase: `Live Validation`
+Current Phase: `PR Readiness`
 Branch Runtime Engineering Plan: `Present - active branch-local plan for AI runtime/trust-boundary readiness Options 1 through 4.`
-Engineering Plan Status: `Implemented, H1 Green, and LV1 Green - USER accepted the Branch Plan Review contract and bounded Workstream implementation completed Options 1 through 4 as public-safe readiness/proof seams only.`
+Engineering Plan Status: `Implemented, H1 Green, LV1 Green, and PR Readiness Stage 1 Ready For Stage 2 - USER accepted the Branch Plan Review contract and bounded Workstream implementation completed Options 1 through 4 as public-safe readiness/proof seams only.`
 Current Runtime Baseline: `Runtime state is provider-disabled, prompt-disabled, provider-visible data none, no external calls, no downloads, no model execution, no runtime cache behavior, no memory/personalization, and no private roots/remotes.`
 Branch Purpose: `Map the accepted AI Runtime And Trust Architecture into FAM-007 branch-local readiness Options 1 through 4 before any provider/model/cache/memory/private implementation can be considered.`
 Planned Runtime Delta: `No runtime code, config, schema, UI, provider, model, cache, or memory delta; Workstream added validator/fixture proof only.`
@@ -40,11 +40,28 @@ Plan Revision History: `v1 - created during Branch Readiness Stage 2 from origin
 Plan-To-Implementation Traceability Table: `Implemented - planned deltas will be compared with actual implementation by tracing Option 1 through Option 4 planned rows to actual implementation files, fixture fields in dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json, direct validator assertions in dev/orin_public_leak_prevention_validation.py, and branch-record fold-down receipts.`
 Hardening Comparison Checklist: `Complete - H1 compared implementation against this plan, branch record, AI Runtime And Trust Architecture, FAM-007 family vision, AI Edition plan, provider-state proof, public leak-prevention proof, packet decision-path proof, and future-gated boundaries.`
 Live Validation Proof Or Waiver Checklist: `Complete - LV1 proved no visible runtime surface changed and recorded USER Test Summary waiver, packet integrity, provider/private/runtime exclusions, and no runtime/provider/cache/memory behavior.`
-PR Readiness Fold-Down / Retention Checklist: `PR Readiness must move active authority to merge-stable historical receipt, decide branch-plan retention or retirement, preserve option proof, and keep release execution separate.`
+PR Readiness Fold-Down / Retention Checklist: `PR Readiness fold, retention, historical receipt, and promote decisions are Stage 1 repaired: pre-PR live state, PR creation approval pending, Stage 2 PR creation pending, selected-next/pre-plan truth, post-merge projection, and no-release-debt posture are recorded in the branch record; Stage 2 PR creation remains USER-gated.`
 Release Readiness Public-Scope Translation Checklist: `Release Readiness may describe only public-safe planning/proof scope; private repos, providers, models, cache runtime, memory, imports, and v1.8.0 remain excluded.`
 USER Planning Review: `Required through the USER Branch Plan Review Gate before Workstream implementation.`
 PR Fold-Down Packet: `Pending - not applicable until PR Readiness is separately approved.`
 Runtime Implementation Approval: `Granted only for bounded public-safe readiness/proof Options 1 through 4; no runtime provider execution, model execution, cache runtime behavior, memory, private setup, PR, merge, release, cleanup, or v1.8.0 execution is approved.`
+
+## PR Readiness Stage 1 Repair Receipt
+
+PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2`
+Pre-PR Live State: `No live PR`
+PR Creation Approval: `Pending USER approval`
+Stage 2 PR Creation: `Pending USER approval`
+Selected Next Workstream: `FAM-007 Breakpoint 2 private Dev/Owner skeleton setup decision`
+Selected Next Implementation Branch: `Deferred to Branch Readiness`
+Next Workstream User Waiver: `Not required - USER approved selected-next/pre-plan recording for existing FAM-007 during bounded Stage 1 repair.`
+Next Branch Package Shape: `FAM-007 / PKG-007 multi-slice action-gate setup decision package`
+Single-Slice Drift Review: `PASS - next candidate is not a standalone cache/provider/private tiny branch and remains under existing FAM-007.`
+Family Organization Review: `PASS - no new backlog family is created; FAM-008 and pending FAM-010 material remain dependency/policy context.`
+Element Coverage Review: `PASS - next pre-plan covers private skeleton, private remote safety, public/private boundary validation, provider/model/cache/memory gates, and release impact.`
+Release-Debt Handling Status: `PASS - no release debt introduced by this Stage 1 repair.`
+Post-Merge Branch Authority Projection: `PASS - branch record now projects merged-unreleased receipt posture after merge while keeping exact PR/merge metadata for Stage 2/merge closeout.`
+Exact Stage 2 Approval Text: `Approve PR Readiness Stage 2 PR creation for feature/fam-007-ai-runtime-trust-boundary-readiness in C:\Nexus Worktrees\FAM-007 from origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9, with FAM-007 Breakpoint 2 recorded as the selected next candidate/pre-plan, no live PR currently present, validation expected green, and merge/release/cleanup/provider/model/runtime/cache/memory/private actions still blocked.`
 
 ## Source-Truth Placement Preflight
 
