@@ -12,7 +12,11 @@ from pathlib import Path
 from typing import Iterable
 
 
-DEFAULT_EXTERNAL_STATE_ROOT = Path(r"C:\Nexus Governance State")
+DEFAULT_EXTERNAL_STATE_ROOT = (
+    Path(r"C:\Nexus Governance State")
+    if os.name == "nt"
+    else Path.home() / "Nexus Governance State"
+)
 DEFAULT_SCHEMA_VERSION = "external-state-v1"
 
 STATE_DIRECTORIES = [

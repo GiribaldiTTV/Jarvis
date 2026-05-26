@@ -36,7 +36,11 @@ def main() -> int:
         print("External State Result: External State Corrupt - state_manifest.json missing")
         return 1
 
-    manifest = load_json(manifest_path)
+    try:
+        manifest = load_json(manifest_path)
+    except Exception as exc:  # noqa: BLE001 - report corrupt local state without traceback
+        print(f"External State Result: External State Corrupt - {manifest_path}: {exc}")
+        return 1
     print(f"External State Schema: {manifest.get('External State Schema', 'MISSING')}")
     print(f"State Version: {manifest.get('State Version', 'MISSING')}")
     print(f"Last Updated: {manifest.get('Last Updated', 'MISSING')}")
