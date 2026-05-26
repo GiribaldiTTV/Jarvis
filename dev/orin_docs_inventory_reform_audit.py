@@ -272,6 +272,11 @@ OWNER_DESCRIPTIONS = {
         "helper statuses, reuse/consolidation story",
         "workstream evidence details",
     ),
+    "external operational state reform plan": (
+        "external operational state transition plan",
+        "Docs split target matrix, staged implementation boundaries, and future-work sequencing",
+        "active external-state root contents or migrated branch/worktree/release-window state",
+    ),
     "governance support standard": (
         "supporting governance standard",
         "single-purpose governance rules and pointers",
@@ -391,6 +396,8 @@ def owner_for(rel: str) -> str:
         return "release closeout receipt"
     if rel == "Docs/validation_helper_registry.md":
         return "validator/helper registry"
+    if rel == "Docs/external_operational_state_store_reform_plan.md":
+        return "external operational state reform plan"
     if rel.startswith("Docs/governance") or rel in {
         "Docs/pr_watcher_mode_contract.md",
         "Docs/incident_patterns.md",

@@ -10,24 +10,25 @@ This file is a planning reference, not an active external-state migration, helpe
 1. PR #220 / FAM-007 post-merge source-truth repair is historical and released through `v1.7.23-prebeta`.
 2. PR #222 / FAM-006 Active Overlay Recording Runtime Foundation planning receipt merged without runtime implementation and is included in `v1.7.25-prebeta`.
 3. PR #223 folded PR #222 into historical source truth, and PR #224 hardened PR body drift checks; both are included in `v1.7.25-prebeta`.
-4. Current start posture is Docs Split Stage 0: record the migration plan, split inventory expectations, and next implementation gates while preserving repo docs as durable source truth.
-5. Stop at PR Readiness Stage 1 for this Governance repair unless USER separately approves PR Readiness Stage 2 / PR creation.
-6. After this planning/closure PR merges, all active worktrees must rebaseline or acknowledge the new governance before external-state helper scaffolds, external folder creation, validator transition, or migration begins.
+4. Docs Split Stage 0 landed through PR #225 and recorded the migration plan, split inventory expectations, and transition drift gate while preserving repo docs as durable source truth.
+5. Current posture is Docs Split Stage 1: helper/bootstrap scaffolding and validation planning only.
+6. Stop at PR Readiness Stage 1 for this Governance repair unless USER separately approves PR Readiness Stage 2 / PR creation.
+7. After this Stage 1 PR merges, all active worktrees must rebaseline or acknowledge the helper/bootstrap scaffold before external root initialization, validator transition, active-state migration, or repo Docs file movement begins.
 
 ## Current Boundaries
 
 Approved now:
 
-- docs-only source-truth contract work
-- durable planning record creation
-- v1.7.25-prebeta post-release canon closure for PR #222, PR #223, and PR #224 where repo truth requires it
-- Docs Split Stage 0 planning for external operational state migration
+- Stage 1 helper/bootstrap scaffold files under `dev/`
+- durable planning record updates for the Stage 1 boundary
+- helper registry updates for the external-state helper family
+- report-only / dry-run helper smoke validation
 - validation and PR Readiness Stage 1 analysis
 
 Not approved by this planning file:
 
-- helper code creation
-- validator code creation or transition
+- external root initialization or `--apply` bootstrap execution
+- validator code transition into mandatory repo gates
 - external folder creation
 - worktree-local staging folder creation
 - external state migration
@@ -42,43 +43,49 @@ Not approved by this planning file:
 - backup setup
 - private repo creation
 
-## Docs Split Stage 0 - Current Implementation Start Plan
+## Docs Split Stage 1 - Helper Bootstrap Scaffold Plan
 
-Stage Status: `Active planning/source-truth only`
+Stage Status: `Active helper/bootstrap scaffolding only`
 Source Branch: `feature/release-readiness-source-truth-intake`
 Source Worktree: `C:\Nexus Worktrees\Governance`
-Release Baseline: `v1.7.25-prebeta` at `origin/main@d432af4162b4f9fc651221e9b6d1c757fab4a2a0`
+Stage 1 Base: `origin/main@1acb308fead3c61600604dbfd2fdb36fca338262`
 
-This stage starts the Docs split without moving files. It preserves the agreed design, updates stale sequencing now that FAM-006 PR #222 and governance PRs #223/#224 are released, and prepares the next USER decision.
+This stage creates safe helper scaffolds and a validation plan without initializing `C:\Nexus Governance State`, migrating active state, moving repo Docs files, or changing clean-clone repo validation. The helpers are report-first and dry-run by default; any operation that creates external state requires a later explicit USER decision and an explicit `--apply` command.
 
-Stage 0 deliverables:
+Stage 1 deliverables:
 
-- current-state sequencing updated from "wait for FAM-006" to "ready for external-state implementation planning after this repair merges and active worktrees acknowledge/rebaseline"
-- repo-doc classification plan preserved: durable source truth, durable historical receipt, live operational state to migrate, mixed owner requiring split, and template/example exception
-- external-state owner list preserved without creating `C:\Nexus Governance State`
-- next helper/validator implementation scope named without creating helper code
-- no file moves, deletion, archival, external folder creation, migration, or worktree-local staging creation
+- `dev/orin_external_state_common.py` shared scaffold support
+- `dev/orin_external_state_init.py` bootstrap packet and optional future `--apply` initialization path
+- `dev/orin_external_state_report.py` external-root posture report
+- `dev/orin_external_state_validation.py` clean-clone-safe local validation helper
+- `dev/orin_external_state_lock.py` dry-run/applied lock packet scaffold
+- `dev/orin_external_state_snapshot.py` dry-run/applied snapshot scaffold
+- `dev/orin_state_fold_down_preview.py` fold-down preview scaffold
+- `dev/orin_external_state_promote_preview.py` promotion preview scaffold
+- `dev/orin_external_state_promote.py` promotion apply scaffold with no-loss audit posture
+- helper registry registration and smoke validation for the helper family
+- no external folder creation, state migration, file movement, deletion, archival, or worktree-local staging creation
 
-Stage 0 review question:
+Stage 1 review question:
 
 ```text
-Do you approve the next implementation phase to create helper scaffolds and initialize the external-state root, while still deferring active-state migration and repo Docs file movement?
+Do you approve Stage 2 root initialization for C:\Nexus Governance State after reviewing the Stage 1 helper/bootstrap scaffold and smoke-validation proof?
 ```
 
-Stage 1 candidate after this repair merges:
+Stage 2 candidate after this repair merges:
 
 ```text
-External Operational State Helper Scaffold And Bootstrap Planning
+External Operational State Root Initialization
 ```
 
-Stage 1 candidate scope:
+Stage 2 candidate scope:
 
-- implement `dev/orin_external_state_init.py`, report, lock, validation, snapshot, fold-down preview, and promotion-preview scaffolds
-- initialize `C:\Nexus Governance State` only after explicit USER approval
+- run `dev/orin_external_state_init.py --apply` only after explicit USER approval
+- initialize `C:\Nexus Governance State` with manifest, generated index placeholder, schema folder, locks, central state folders, snapshot folder, and audit-log folder
 - keep repo validators clean-clone safe
 - keep active branch/worktree/release-window migration deferred until helper validation and USER review are green
 
-Stage 1 non-includes:
+Stage 2 non-includes unless separately approved:
 
 - moving repo `Docs` files
 - deleting or archiving branch records/plans
@@ -149,12 +156,12 @@ Derived live truth from Git, GitHub, and helpers:
 
 ## Docs Split Target Matrix
 
-Matrix Status: `Current for Docs Split Stage 0`
+Matrix Status: `Current for Docs Split Stage 1`
 Matrix Owner: `Docs/external_operational_state_store_reform_plan.md`
 Binding Rule Owner: `Docs/governance_efficiency_operating_model.md`
 Phase Gate Owner: `Docs/phase_governance.md`
 
-This matrix is the Stage 0 review surface for preventing drift while repo docs still carry active operational owners. It does not move files or migrate state by itself.
+This matrix is the Stage 1 review surface for preventing drift while repo docs still carry active operational owners. It does not move files, initialize the external root, or migrate state by itself.
 
 | Surface | Current Repo Role | Target Owner After Migration | Stage 0 Disposition | Drift Risk | Recommendation |
 | --- | --- | --- | --- | --- | --- |
@@ -289,11 +296,11 @@ Required named blockers:
 ## External State Transition Drift Gate
 
 Gate Status: `Required for external-state reform PR Readiness`
-Current Stage: `Stage 0 - Docs Plan`
+Current Stage: `Stage 1 - Helper Bootstrap Planning`
 External Root Approval: `Not Approved`
 External Root Status: `Not Approved`
 Migration Status: `Not Started`
-Validator Transition Status: `Not Approved`
+Validator / Helper Transition Status: `Helper scaffolds approved; validator transition not approved`
 
 Required packet fields:
 
@@ -310,7 +317,7 @@ Required packet fields:
 - `Next Approved Step:`
 - `Remaining USER Decisions:`
 
-This gate exists so future Codex cannot treat the planning reference as already-executed migration. Stage 0 means repo docs may still contain current active owners required by existing governance. Those owners become migration targets only after USER approves helper/bootstrap work, initializes the external root, validates the helper path, and admits active-state migration.
+This gate exists so future Codex cannot treat the planning reference or Stage 1 scaffolds as already-executed migration. Stage 1 means helper/bootstrap files may exist and run in report/dry-run mode, while repo docs may still contain current active owners required by existing governance. Those owners become migration targets only after USER approves external root initialization, validates the helper path, and admits active-state migration.
 
 Drift blockers:
 
@@ -321,9 +328,9 @@ Drift blockers:
 
 Recommended near-term implementation posture:
 
-- keep this branch at Stage 0 until PR/merge and active worktree acknowledgement
+- keep this branch at Stage 1 until PR/merge and active worktree acknowledgement
 - do not create `C:\Nexus Governance State` in this PR
-- do not add external-state helper code in this PR
+- do not run helper `--apply` operations in this PR
 - do not migrate branch records, branch plans, roadmap, backlog, or worktree slots in this PR
 - require the transition gate in the next external-state implementation PR before Stage 2 / PR creation
 
@@ -656,13 +663,14 @@ External state must not contain plaintext secrets, tokens, cookies, provider key
 1. Clear current post-merge source-truth blockers under existing repo rules.
 2. Land docs-only source-truth contract for repo durable truth, external operational state, deterministic language, and concurrency model.
 3. Implement helper scaffolds: init, report, lock, validate, snapshot, fold-down preview, promotion preview, and promote.
-4. Adopt external state for new or re-entering branches.
-5. Adopt ignored worktree staging for proposed state only.
-6. Migrate active branch, worktree, and release-window state out of repo docs.
-7. Transition validators: repo validators stop requiring live state in repo docs; external validators check operational state.
-8. Clean repo docs: remove stale live-state fields and keep durable receipts only.
-9. Transition Release Readiness to Git/GitHub truth plus external state plus repo durable truth.
-10. Require active worktree acknowledgements after merged governance/source-truth changes.
+4. Initialize the canonical external root only after explicit USER approval.
+5. Adopt external state for new or re-entering branches.
+6. Adopt ignored worktree staging for proposed state only.
+7. Migrate active branch, worktree, and release-window state out of repo docs.
+8. Transition validators: repo validators stop requiring live state in repo docs; external validators check operational state.
+9. Clean repo docs: remove stale live-state fields and keep durable receipts only.
+10. Transition Release Readiness to Git/GitHub truth plus external state plus repo durable truth.
+11. Require active worktree acknowledgements after merged governance/source-truth changes.
 
 ## Risks And Mitigations
 
@@ -726,17 +734,17 @@ Recommendation E - keep release debt narrow:
 
 Default path:
 
-1. Record `v1.7.25-prebeta` as the released closure point for PR #222, PR #223, and PR #224 where repo truth requires it.
-2. Merge this Docs Split Stage 0 planning/closure repair only after validation and USER approval.
+1. Complete the Stage 1 helper/bootstrap scaffold with no external root initialization and no active-state migration.
+2. Merge this Stage 1 helper/bootstrap repair only after validation and USER approval.
 3. Rebaseline or acknowledge active worktrees after merge.
-4. Then begin external-state helper/bootstrap implementation only after separate USER approval.
+4. Then begin external-state root initialization only after separate USER approval.
 
 External-state implementation does not replace post-release canon closure or become a release unblocker unless USER explicitly pauses release flow and approves that route.
 
 ## Future Exact USER Decision Shape
 
-Approve the next implementation phase only after this planning/closure repair merges and active worktrees rebaseline or acknowledge the changed governance:
+Approve the next implementation phase only after this Stage 1 helper/bootstrap scaffold PR merges and active worktrees rebaseline or acknowledge the changed governance:
 
 ```text
-Approve External Operational State Store helper/bootstrap implementation on C:\Nexus Worktrees\Governance after all active worktrees rebaseline or acknowledge the Docs Split Stage 0 plan. Scope: implement helper scaffolds, external-state bootstrap, lock/version/schema validation, snapshot/audit support, state promotion packets, review-bundle integration, and validator transition according to Docs/external_operational_state_store_reform_plan.md and Docs/governance_efficiency_operating_model.md. Do not migrate active state, delete repo files, archive branch plans, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
+Approve External Operational State Store root initialization on C:\Nexus Worktrees\Governance after all active worktrees rebaseline or acknowledge the Stage 1 helper/bootstrap scaffold. Scope: run the approved bootstrap helper with explicit apply approval to initialize C:\Nexus Governance State and produce the external-state manifest, generated-index placeholder, lock folders, central state folders, snapshot folder, and audit-log folder. Do not migrate active state, transition repo validators, delete repo files, archive branch plans, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
 ```
