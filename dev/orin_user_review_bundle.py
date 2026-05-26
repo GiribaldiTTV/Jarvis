@@ -513,8 +513,8 @@ def _write_user_branch_plan_review(
             "Next USER decision needed.",
         ]
         implementation_constraints = [
-            "SLC-051 selects Option A: target model proof first only after USER confirms this revised contract.",
-            "SLC-051 remains state/proof-only and must not add recording execution, file writing, or real Start/Stop behavior.",
+            "This planning/governance branch must not implement SLC-051 or any runtime/user-facing recording work.",
+            "Future SLC-051 remains state/proof-only and must not add recording execution, file writing, or real Start/Stop behavior.",
             "Recording target derives only from active Overlay Profile membership and must cover null, empty, selected, switched, deleted/stale, duplicate/stale-ID, and high-volume membership states.",
             "No separate Recording Profile system or recording-specific sensor chooser is admitted.",
             "Start/Stop behavior remains future-gated until an approved seam admits execution; any later placeholder must be clearly disabled or future-gated.",
@@ -529,15 +529,16 @@ def _write_user_branch_plan_review(
         ]
         source_truth_impact = [
             "Family vision: record per-overlay effective polling policy as a future FAM-006 planning constraint and keep Native Log Loader as future graph/log viewer input only.",
-            "Active branch plan and branch record: update to record the v3 contract, USER vision digest, implementation constraints, and Pending USER Confirmation status.",
-            "Backlog/roadmap: no product-scope change required by this contract hardening unless USER revises the end-state.",
+            "Active branch plan and branch record: record the accepted v3/v4 planning-governance posture, USER vision digest, implementation constraints, Workstream skip, and PR Readiness Stage 1 as the next legal phase.",
+            "Backlog/roadmap: record planning-governance PR-readiness posture rather than runtime implementation posture.",
             "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
-            "Workstream seam order: target model remains first as implementation staging, not the USER decision surface.",
+            "Workstream seam order: target model remains future implementation staging, not current branch work.",
         ]
         contract_change_log = [
             "v1 - USER-facing Branch Plan Review packet introduced with end-state/options sections.",
             "v2 - Hardened into USER Branch Plan Contract with closed-loop response/digest, implementation constraints, source-truth impact, confirmation loop, and waiver semantics.",
             "v3 - Digested USER recording product-model feedback: HUD Overlay launcher/target preview, standalone Recording Control window, Native Log Loader separation, future per-overlay effective polling policy, and target-model-first SLC-051.",
+            "v4 - USER accepted the plan and redirected this branch to planning/governance PR Readiness with Workstream skipped and runtime implementation deferred to a future USER-approved carrier.",
         ]
         completion_checklist = [
             "Contract Status is Complete or Waived by USER.",
@@ -600,11 +601,11 @@ def _write_user_branch_plan_review(
             "proves the live current active-overlay target because no recording is occurring yet."
         )
         current_scope = [
-            "Plan and implement, only after separate approval, the active-overlay recording end-state accepted by USER.",
-            "Use active Overlay Profile membership as the source of truth for future recording targets.",
-            "Keep SLC-051 target-model-first and avoid blocking future per-overlay effective polling policy.",
-            "Preserve Dashboard, Manage Monitors, Sensor Command Center, Overlay Profile, Overlay Display, and Monitor Group behavior.",
-            "Create validators/helpers/source-truth proof only where required by the approved implementation stage.",
+            "Preserve the accepted active-overlay recording end-state as maintained source truth.",
+            "Record that active Overlay Profile membership is the source of truth for future recording targets.",
+            "Keep future SLC-051 target-model-first and avoid blocking future per-overlay effective polling policy.",
+            "Confirm this branch does not change Dashboard, Manage Monitors, Sensor Command Center, Overlay Profile, Overlay Display, Monitor Group, or recording runtime behavior.",
+            "Proceed only to PR Readiness Stage 1 after USER approval; runtime implementation belongs to a later USER-approved carrier.",
         ]
         future_scope = [
             "Recording execution and file writing remain blocked until an approved seam admits them.",
@@ -618,11 +619,10 @@ def _write_user_branch_plan_review(
             "HUD target preview, Recording Control window, output contract, and validation/live proof follow as staged implementation only after the end-state and boundaries are accepted.",
         ]
         user_decisions = [
-            "Does USER confirm the HUD Overlay card as launcher and target/status preview, or should that end-state change?",
-            "Does USER confirm the standalone Recording Control window as the compact future control surface?",
-            "Does USER confirm Native Log Loader stays a separate future graph/log viewer and not the control surface?",
-            "Does USER confirm per-overlay effective polling policy as a future FAM-006 planning constraint rather than SLC-051 implementation?",
-            "Does USER want any other product/end-state options before SLC-051 implementation planning proceeds?",
+            "Does USER approve PR Readiness Stage 1 analysis for this planning/governance branch?",
+            "Does USER agree that no runtime/user-facing recording work, SLC-051 implementation, Workstream implementation, H1, LV1, or UTS is claimed by this branch?",
+            "Does USER agree that the accepted active-overlay product contract is preserved for a future implementation carrier?",
+            "Does USER want a revision before PR Readiness, or should PR Readiness inspect this no-runtime closeout?",
         ]
     else:
         accepted_user_response = None
