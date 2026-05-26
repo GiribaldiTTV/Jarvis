@@ -16,6 +16,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Report External Governance State root posture.")
     parser.add_argument("--root", default=str(DEFAULT_EXTERNAL_STATE_ROOT))
     parser.add_argument("--repo", action="append", default=[], help="Repo path that root must not live inside")
+    parser.add_argument("--schema", default=DEFAULT_SCHEMA_VERSION)
     return parser
 
 
@@ -60,10 +61,10 @@ def main() -> int:
         )
         return 1
     schema = manifest.get("External State Schema")
-    if schema != DEFAULT_SCHEMA_VERSION:
+    if schema != args.schema:
         print(
             "External State Result: External State Schema Conflict - "
-            f"expected {DEFAULT_SCHEMA_VERSION}, found {schema or 'MISSING'}"
+            f"expected {args.schema}, found {schema or 'MISSING'}"
         )
         return 1
     print("External State Result: Clear")

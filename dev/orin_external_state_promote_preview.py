@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 
 from orin_external_state_common import DEFAULT_EXTERNAL_STATE_ROOT, resolve_path, validate_canonical_root
+from orin_external_state_promote import resolve_target_state
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -19,10 +20,17 @@ def main() -> int:
     root = resolve_path(args.root)
     root_issues = validate_canonical_root(root)
     source_state = resolve_path(args.source_state)
+    try:
+        target_state = resolve_target_state(root, args.target_state)
+    except ValueError as exc:
+        target_state = root / args.target_state
+        target_error = str(exc)
+    else:
+        target_error = ""
     print("External State Promotion Preview")
     print(f"Root: {root}")
     print(f"Source State: {source_state}")
-    print(f"Target State: {args.target_state}")
+    print(f"Target State: {target_state}")
     print(f"Reason: {args.reason}")
     print("Required Before Apply: lock acquisition, central state version check, conflict scan, validation, audit log")
     print("Mutation Status: Not started - preview only")
@@ -30,6 +38,10 @@ def main() -> int:
         print("Promotion Preview Result: BLOCKED")
         for issue in root_issues:
             print(issue)
+        return 1
+    if target_error:
+        print("Promotion Preview Result: BLOCKED")
+        print(target_error)
         return 1
     if not root.exists():
         print("Promotion Preview Result: External State Missing")
