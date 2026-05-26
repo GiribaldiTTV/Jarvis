@@ -251,10 +251,19 @@ def _validate_export_zip(export_zip: Path, source_head: str) -> None:
     if "USER Review Packet Finding: PASS" not in start_here:
         raise ValueError("Review export zip is missing USER Review Packet Finding proof")
     for required_heading in (
-        "## Codex Recommendations And Implementation Options",
-        "## USER Design Review Questions",
+        "## Plain-English Branch Summary",
+        "## End-State Vision",
+        "## Visual / Functional Walkthrough",
+        "## Surface Map",
+        "## Implementation Options",
+        "## Recommended Direction",
+        "## Current Branch Scope",
+        "## Future-Gated Scope",
+        "## SLC Package Plan",
+        "## USER Decisions Needed",
         "## USER Response",
         "## Codex Response Digest",
+        "## Workstream Entry Result",
     ):
         if required_heading not in user_review:
             raise ValueError(
@@ -328,7 +337,7 @@ def _write_user_branch_plan_review(
         }
     ]
     if is_active_overlay_recording:
-        branch_overall_intent = (
+        plain_english_summary = (
             "This branch is setting up the corrected FAM-006 recording direction: "
             "recording should be driven by the currently active Overlay Profile, "
             "not by loading a separate Recording Profile. The intended future "
@@ -337,93 +346,152 @@ def _write_user_branch_plan_review(
             "a compact standalone Recording Settings window for recording path "
             "and related settings."
         )
-        assigned_creation = [
-            "An active-overlay recording target model that uses active Overlay Profile membership.",
-            "A HUD Overlay card recording area with lightweight Start/Stop-style access after implementation approval.",
-            "A visible active-monitor summary so the user can understand what recording would capture.",
-            "A compact standalone Recording Settings window that can remain open independently of the Dashboard.",
-            "A durable output-file contract suitable for future graphing/plotting workflows.",
-            "A validation plan that proves compact/default UI behavior, real user-level interactions, null/stress states, and future-gated boundaries.",
+        end_state_vision = (
+            "When this branch's admitted package is complete, the HUD Overlay card should make "
+            "recording feel tied to the overlay the user already chose. The user should be able "
+            "to understand which active Overlay Profile members are the intended recording target "
+            "before recording execution is admitted. A compact, immersive NDAI Recording Settings "
+            "window is planned as an independent normal OS window for path/settings work, while "
+            "actual file writing remains separately approved."
+        )
+        walkthrough = [
+            "Dashboard / HUD Overlay card: the recording area should sit inside the existing HUD Overlay card and explain the active target before Start/Stop execution is admitted.",
+            "Active Overlay Profile membership: the selected overlay's active members become the future recording target; no separate Recording Profile selector is introduced.",
+            "Target visibility: SLC-051 should prove null, empty, selected, switched, deleted/stale, duplicate/stale-ID, and high-volume target states before visible controls depend on that model.",
+            "Recording Settings window: later seams plan a small independent NDAI window with folder path, open-folder access, and recording settings without becoming a Dashboard child window.",
+            "Output contract: later seams plan a graph/plot-ready file contract, but export/share and Native Log Loader remain future planning unless USER separately admits them.",
         ]
-        next_stage_planning = [
-            "Which SLC-051 through SLC-055 seam should be implemented first.",
-            "Which exact files and runtime surfaces each seam may touch.",
-            "Whether actual recording execution belongs in this branch or needs a later explicit approval.",
-            "What recording output file shape should be proposed for reliable future graph/plot use.",
-            "What belongs in the lightweight Recording Settings window versus a later secondary surface.",
-            "How Live Validation will prove the user-facing window/control behavior with real input and photos.",
+        surface_map = [
+            "HUD Overlay card: primary future recording access and active target transparency surface.",
+            "Dashboard: hosts the HUD Overlay card and must not regress existing Dashboard behavior.",
+            "Manage Monitors / Sensor Command Center: remain monitor/source management owners; recording target proof must not mutate their state.",
+            "Overlay Profile / Overlay Display: remain display and membership owners; recording reads active membership without taking ownership.",
+            "Recording Settings window: future compact standalone OS-level settings surface.",
+            "Files/output: future graph/plot-ready recording contract only after explicit approval.",
+            "Tray/export/provider/theme/FAM-007: future-gated surfaces outside this branch unless USER separately approves.",
         ]
-        codex_options = [
-            "Recommended path: start with SLC-051 target/state proof so later UI, settings, and output seams have a trustworthy active Overlay Profile target.",
-            "Option A: keep SLC-051 state/proof-only and do not add user-visible recording controls yet.",
-            "Option B: revise the package before implementation if USER wants recording execution or visible Start/Stop controls admitted earlier.",
-            "Option C: defer output-file contract details to SLC-054 while still naming the data needed for future graph/plot workflows now.",
+        implementation_options = [
+            "Option A - Target Preview First: prove the active-overlay recording target model and show or prepare what would be recorded without Start/Stop execution. Pros: safest foundation for SLC-051; Cons: less visual excitement; Risk: low. Codex recommends this first.",
+            "Option B - Disabled Start/Stop Placeholder: show future Start/Stop placement while keeping controls disabled. Pros: easier visual planning; Cons: can confuse placeholder UI with implemented recording; Risk: medium.",
+            "Option C - Settings Window First: build the compact Recording Settings window before HUD target proof. Pros: validates standalone-window direction early; Cons: weaker active-overlay recording flow foundation; Risk: medium.",
         ]
-        design_questions = [
+        recommended_direction = (
+            "Codex recommends Option A for SLC-051: establish the active Overlay Profile target "
+            "model first, then use later seams for HUD card controls, the compact Recording Settings "
+            "window, output-file contract, and live/user proof. This keeps the branch aligned with "
+            "the USER vision while avoiding fake or premature recording execution."
+        )
+        current_scope = [
+            "Plan and implement, only after separate approval, the SLC-051 through SLC-055 active-overlay recording foundation.",
+            "Use active Overlay Profile membership as the source of truth for future recording targets.",
+            "Preserve Dashboard, Manage Monitors, Sensor Command Center, Overlay Profile, Overlay Display, and Monitor Group behavior.",
+            "Create validators/helpers/source-truth proof only where required by admitted seams.",
+        ]
+        future_scope = [
+            "Recording execution and file writing remain blocked until an approved seam admits them.",
+            "Tray recording controls, export/share/import, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup, PR, merge, release, and issue mutation remain separate USER decisions.",
+            "Native Log Loader is early USER input only unless USER separately approves durable source-truth mutation.",
+        ]
+        slc_package_plan = [
+            "SLC-051 - Active Overlay recording target foundation: prove the target model first because every later UI/control/output behavior depends on knowing what would be recorded.",
+            "SLC-052 - HUD Overlay recording quick access and active-monitor transparency: plan the card area, target visibility, and future Start/Stop placement after the target model is trustworthy.",
+            "SLC-053 - Standalone Recording Settings window foundation: plan the compact independent NDAI settings window after the HUD flow is clear.",
+            "SLC-054 - Durable recording output contract: define graph/plot-ready file semantics only after target and settings assumptions are stable.",
+            "SLC-055 - Validation/live proof readiness: tie validators, H1, LV1, UTS, screenshots, and future-gated boundary proof together before PR readiness.",
+        ]
+        user_decisions = [
             "Should SLC-051 stay state/proof-only, or should USER revise the branch plan before implementation?",
             "Should recording execution remain outside SLC-051 and future-gated until a later seam explicitly admits file writing?",
-            "Should the HUD Overlay card show active monitored targets before Start/Stop controls are implemented, or should target visibility wait for SLC-052?",
+            "Should the HUD Overlay card show active monitored targets before Start/Stop controls are implemented, use a disabled placeholder, or wait for SLC-052?",
+            "Should the compact Recording Settings window stay limited to folder path/open folder/Start/Stop parity at first, or should USER propose additional settings for later planning?",
+            "Should durable output planning target CSV-like graph/plot readiness first, or should Codex propose multiple file-format options before SLC-054?",
             "Should Native Log Loader remain future planning input only for this branch?",
         ]
-        branch_boundaries = [
-            "No runtime implementation is approved by this Stage 2 packet.",
-            "No recording execution or file writing is approved yet.",
-            "No tray recording controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, old branch cleanup/deletion, or Governance mutation is approved.",
-            "The old Recording Profile files are included only as rollback/source-truth receipt context.",
-        ]
     else:
-        branch_overall_intent = (
+        plain_english_summary = (
             "This branch-plan review summarizes the branch's intended product, "
             "runtime, source-truth, and validation direction before Workstream "
             "Entry performs deeper implementation planning."
         )
-        assigned_creation = [
-            "Review the active branch plan to confirm the branch outcome and admitted package.",
-            "Review the active branch authority record to confirm branch identity and legal next phase.",
-            "Review copied source-truth files to confirm active/historical routing is understandable.",
+        end_state_vision = (
+            "When the branch is complete, USER should understand what visible/runtime behavior "
+            "will exist, which surfaces are affected, and which future-gated items remain outside "
+            "the branch before implementation begins."
+        )
+        walkthrough = [
+            "Review the active branch plan to understand the intended user-facing result.",
+            "Review the branch authority record to confirm identity and legal next phase.",
+            "Review copied source-truth files to confirm active/historical routing and future boundaries.",
         ]
-        next_stage_planning = [
-            "Select the first bounded implementation seam.",
-            "Name affected files, validators, helpers, proof requirements, and USER-facing review needs.",
-            "Return exact implementation approval text only after the whole admitted package is analyzed.",
+        surface_map = [
+            "Active branch plan and authority record.",
+            "Relevant family vision, backlog, roadmap, validators, and copied review files.",
         ]
-        codex_options = [
-            "Recommended path: use the accepted branch plan to select one bounded first seam before implementation.",
-            "Option A: accept the proposed first seam and keep later seams future-gated.",
-            "Option B: revise the branch plan before implementation if USER wants a different first seam or design direction.",
-            "Option C: waive unresolved questions only by explicit USER waiver text.",
+        implementation_options = [
+            "Option A - Accept the recommended first seam and keep later seams future-gated. Pros: fastest bounded path; Cons: less redesign; Risk: low when source truth is coherent.",
+            "Option B - Revise the branch plan before implementation. Pros: better USER fit; Cons: adds planning repair work; Risk: low to medium.",
+            "Option C - Waive unresolved questions explicitly. Pros: unblocks implementation; Cons: records less USER design input; Risk: medium.",
         ]
-        design_questions = [
+        recommended_direction = (
+            "Codex recommends accepting the branch plan only when the user-facing outcome, "
+            "surface map, options, proof path, and pending boundaries are understandable enough "
+            "for USER to decide whether implementation should begin."
+        )
+        current_scope = [
+            "Confirm the branch outcome and admitted package.",
+            "Confirm affected surfaces, validators, proof expectations, and next legal phase.",
+        ]
+        future_scope = [
+            "Any item not explicitly admitted by the active branch plan remains future-gated.",
+        ]
+        slc_package_plan = [
+            "Workstream Entry must explain every admitted seam or slice in plain language before selecting the first bounded implementation seam.",
+        ]
+        user_decisions = [
             "Does USER accept the branch goal and first-seam direction?",
             "Does USER want to revise any user-facing behavior, layout, workflow, or future-gated boundary before implementation?",
             "Does USER waive any unanswered design question, or should implementation remain blocked until it is answered?",
         ]
-        branch_boundaries = [
-            "This review packet does not approve runtime implementation.",
-            "Pending USER decisions remain blocked until separately approved.",
-        ]
     lines = [
         f"# USER Branch Plan Review - {title}",
         "",
-        "## Branch Intent",
+        "## Plain-English Branch Summary",
         "",
-        branch_overall_intent,
+        plain_english_summary,
         "",
-        "This is a pre-plan review file. Its job is to make the branch direction "
-        "easy to inspect before Workstream Entry dives into detailed seam planning, "
-        "file lists, validators, proof requirements, and implementation approval text.",
+        "This file is a required user-facing product/design planning gate. It should help USER answer: Do I actually like what Codex is about to build?",
         "",
-        "## What This Branch Is Assigned To Create Or Plan",
+        "## End-State Vision",
         "",
-        *_markdown_lines(assigned_creation),
+        end_state_vision,
         "",
-        "## What The Next Stage Must Plan",
+        "## Visual / Functional Walkthrough",
         "",
-        *_markdown_lines(next_stage_planning),
+        *_markdown_lines(walkthrough),
         "",
-        "## Boundaries",
+        "## Surface Map",
         "",
-        *_markdown_lines(branch_boundaries),
+        *_markdown_lines(surface_map),
+        "",
+        "## Implementation Options",
+        "",
+        *_markdown_lines(implementation_options),
+        "",
+        "## Recommended Direction",
+        "",
+        recommended_direction,
+        "",
+        "## Current Branch Scope",
+        "",
+        *_markdown_lines(current_scope),
+        "",
+        "## Future-Gated Scope",
+        "",
+        *_markdown_lines(future_scope),
+        "",
+        "## SLC Package Plan",
+        "",
+        *_markdown_lines(slc_package_plan),
         "",
         "## Current Branch State",
         "",
@@ -433,30 +501,37 @@ def _write_user_branch_plan_review(
         f"- origin/main: `{origin_main}`",
         f"- Source Repo: `{ROOT}`",
         "",
-        "## USER Early Input Prompt",
+        "## USER Decisions Needed",
         "",
-        "Use this file to give early direction before Workstream Entry. Useful feedback includes "
-        "changes to the intended recording workflow, UI priorities, window behavior, output-file "
-        "expectations, deferred scope, or anything that would make the branch plan feel wrong "
-        "before implementation planning begins.",
+        "USER may answer in order or respond generally. Useful feedback includes visual direction, workflow changes, window behavior, output-file expectations, deferred scope, or anything that would make the branch plan feel wrong before implementation planning begins.",
         "",
-        "## Codex Recommendations And Implementation Options",
-        "",
-        *_markdown_lines(codex_options),
-        "",
-        "## USER Design Review Questions",
-        "",
-        *_markdown_lines(design_questions),
+        *_markdown_lines(user_decisions),
         "",
         "## USER Response",
         "",
         "Status: Pending USER Response - Workstream implementation remains blocked until USER answers, revises, rejects, accepts, or explicitly waives this review.",
         "",
-        "USER may answer these questions in order or respond generally. Codex must attach or insert the response into the review packet or branch review digest before bounded Workstream implementation.",
+        "Codex must attach or insert the USER response into this packet or branch review digest before bounded Workstream implementation.",
         "",
         "## Codex Response Digest",
         "",
         "Status: Pending USER Response - Codex has not yet digested USER answers for this review packet. Workstream implementation requires a later digest or an explicit USER waiver.",
+        "",
+        "## Workstream Entry Result",
+        "",
+        "Status: Pending USER Response - first seam, affected files, validators, proof requirements, USER-facing proof, and exact implementation approval text must be returned only after USER response/digest or explicit waiver.",
+        "",
+        "## Codex Recommendations And Implementation Options",
+        "",
+        "This compatibility section is retained for older packet validators. See Implementation Options and Recommended Direction above.",
+        "",
+        *_markdown_lines(implementation_options),
+        "",
+        "## USER Design Review Questions",
+        "",
+        "This compatibility section is retained for older packet validators. See USER Decisions Needed above.",
+        "",
+        *_markdown_lines(user_decisions),
         "",
         "## Active Branch Plan Files",
         "",

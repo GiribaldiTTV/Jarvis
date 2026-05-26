@@ -582,7 +582,10 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "USER Review Packet Finding:",
     "Plain-Language Branch Goal:",
     "Planned User-Facing Outcome:",
+    "End-State Vision:",
     "Visual / Behavioral Description:",
+    "Visual / Functional Walkthrough:",
+    "Surface Map:",
     "Implementation Breakdown:",
     "Element-to-Phase Proof Matrix:",
     "Hardening Plan:",
@@ -591,9 +594,15 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "USER Design Review Questions:",
     "Codex Recommendations:",
     "Implementation Options:",
+    "Recommended Direction:",
+    "Current Branch Scope:",
+    "Future-Gated Scope:",
+    "SLC Package Plan:",
+    "USER Decisions Needed:",
     "Alternatives / Tradeoffs:",
     "USER Review Response:",
     "Codex Response Digest:",
+    "Workstream Entry Result:",
     "Accepted Scope:",
     "Deferred Scope:",
     "Rejected Scope:",
@@ -3639,12 +3648,19 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "USER Branch Plan Review Gate",
         "USER Branch Plan Review Missing",
         "planned user-facing outcome",
+        "End-State Vision",
+        "Visual / Functional Walkthrough",
         "USER response",
     ),
     Path("Docs/phase_governance.md"): (
         "USER Branch Plan Review Gate",
         "Plain-Language Branch Goal",
         "Planned User-Facing Outcome",
+        "End-State Vision",
+        "Visual / Functional Walkthrough",
+        "Surface Map",
+        "Implementation Options",
+        "Recommended Direction",
         "USER Design Review Questions",
         "USER Review Response",
         "Codex Response Digest",
@@ -3658,6 +3674,13 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "USER Review Packet Finding:",
         "Plain-Language Branch Goal:",
         "Planned User-Facing Outcome:",
+        "End-State Vision:",
+        "Visual / Functional Walkthrough:",
+        "Surface Map:",
+        "Recommended Direction:",
+        "Current Branch Scope:",
+        "Future-Gated Scope:",
+        "SLC Package Plan:",
         "USER Design Review Questions:",
         "USER Review Response:",
         "Codex Response Digest:",
@@ -3668,18 +3691,21 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "USER Branch Plan Review Gate",
         "USER Review Packet Finding",
         "USER Review Response",
+        "End-State Vision",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/development_rules.md"): (
         "USER Branch Plan Review Gate",
         "USER Review Response",
+        "End-State Vision",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/codex_modes.md"): (
         "USER Branch Plan Review Gate",
         "USER Review Response",
+        "End-State Vision",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/orin_task_template.md"): (
@@ -3690,11 +3716,13 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
     Path("Docs/nexus_startup_contract.md"): (
         "USER Branch Plan Review Gate",
         "USER Review Response",
+        "End-State Vision",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/codex_user_guide.md"): (
         "USER Branch Plan Review Gate",
         "Live Validation / UTS plan",
+        "End-State Vision",
         "USER Review Response",
         "USER Branch Plan Review Missing",
     ),
@@ -3702,12 +3730,16 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "USER Branch Plan Review Gate",
         "accepting, revising, deferring with waiver, rejecting",
         "USER response",
+        "End-State Vision",
+        "implementation options",
     ),
     Path("Docs/validation_helper_registry.md"): (
         "USER Branch Plan Review Gate",
         "invalid missing user-facing outcome",
         "invalid first-seam-only review packet",
         "USER Review Response",
+        "End-State Vision",
+        "Visual / Functional Walkthrough",
     ),
 }
 
@@ -9305,14 +9337,20 @@ def _validate_user_branch_plan_review_gate(
     for marker in (
         "Plain-Language Branch Goal:",
         "Planned User-Facing Outcome:",
+        "End-State Vision:",
         "Implementation Breakdown:",
+        "Visual / Functional Walkthrough:",
+        "Surface Map:",
         "Element-to-Phase Proof Matrix:",
         "Hardening Plan:",
         "Live Validation / UTS Plan:",
         "Codex Recommendations:",
         "Implementation Options:",
+        "Recommended Direction:",
+        "SLC Package Plan:",
         "Alternatives / Tradeoffs:",
         "USER Design Review Questions:",
+        "USER Decisions Needed:",
         "Exact USER Decision Needed:",
         "Implementation Approval:",
     ):
@@ -9384,6 +9422,25 @@ def _validate_user_branch_plan_review_gate(
             "satisfied by first-seam-only implementation planning"
         ),
     )
+
+    for marker in (
+        "End-State Vision:",
+        "Visual / Functional Walkthrough:",
+        "Surface Map:",
+        "Implementation Options:",
+        "Recommended Direction:",
+        "SLC Package Plan:",
+        "USER Decisions Needed:",
+        "Workstream Entry Result:",
+    ):
+        value = _normalized_planning_value(_extract_marker_value(gate_section, marker))
+        require(
+            not any(term in value for term in ("tbd", "todo", "placeholder", "normal codex digest")),
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} marker "
+                f"'{marker}' must be a user-facing product/design plan, not a placeholder"
+            ),
+        )
 
     for marker in USER_BRANCH_PLAN_REVIEW_SCOPE_MARKERS:
         value = _normalized_planning_value(_extract_marker_value(gate_section, marker))
