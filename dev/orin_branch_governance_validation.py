@@ -4473,6 +4473,8 @@ RELEASE_READINESS_HEALTH_STALE_POST_MERGE_PATTERNS = (
 RELEASE_READINESS_ACTIVE_AUTHORITY_FOLD_DOWN_MARKERS = (
     "must not remain active branch authority",
     "must not retain active",
+    "must become historical merged-unreleased",
+    "must become historical merged-unreleased evidence",
     "must be historical merged-unreleased",
     "becomes historical merged-unreleased",
     "move this branch authority to historical merged-unreleased",
