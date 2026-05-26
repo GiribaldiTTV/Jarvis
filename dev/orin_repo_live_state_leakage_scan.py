@@ -113,15 +113,18 @@ def repo_relative(path: Path, repo: Path) -> Path:
         return path
 
 
-def collect_scan_files(repo: Path, paths: list[Path]) -> list[Path]:
+def collect_scan_files(repo: Path, paths: list[Path]) -> tuple[list[Path], list[Path]]:
     files: list[Path] = []
+    missing: list[Path] = []
     for relative_path in paths:
         path = repo / relative_path
         if path.is_dir():
             files.extend(sorted(child for child in path.rglob("*.md") if child.is_file()))
         elif path.is_file():
             files.append(path)
-    return sorted(set(files))
+        else:
+            missing.append(relative_path)
+    return sorted(set(files)), missing
 
 
 def load_retired_branch_plans(repo: Path) -> set[Path]:
@@ -341,7 +344,15 @@ def main() -> int:
         return 2
 
     scan_paths = [Path(path) for path in args.path] if args.path else list(DEFAULT_SCAN_PATHS)
-    files = collect_scan_files(repo, scan_paths)
+    files, missing_paths = collect_scan_files(repo, scan_paths)
+    if missing_paths:
+        requested_paths = ", ".join(path.as_posix() for path in missing_paths)
+        print(
+            "ERROR: repo live-state scan requested missing paths; check --repo and --path values. "
+            f"Missing paths: {requested_paths}",
+            file=sys.stderr,
+        )
+        return 2
     if not files:
         requested_paths = ", ".join(path.as_posix() for path in scan_paths)
         print(
