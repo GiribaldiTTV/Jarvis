@@ -18,18 +18,20 @@ This file is a planning reference, not an active external-state migration, helpe
 9. Stage 4B active-state migration planning packet landed through PR #228 and used the Stage 4A scanner output to name exact repo surfaces, target external records, lock/snapshot/version requirements, durable receipt preservation, and no-loss promotion rules.
 10. Stage 4C active-state migration execution planning packet landed through PR #229 and preserved the exact execution preflight, external target record list, durable receipt preservation plan, rollback/recovery plan, and USER review question.
 11. Stage 4 active-state migration execution completed externally after PR #229 at source repo HEAD `5abdd9c011c80f5b7b57d473b973654a2427d5a8`; it created only approved central external operational records, released locks, wrote audit logs, and did not move, delete, archive, or rewrite repo Docs.
-12. Current posture is Stage 5: validator transition. This makes local external-state validation explicit for approved local workflows while keeping repo / CI / clean-clone validators safe from any dependency on `C:\Nexus Governance State`.
-13. Stop at PR Readiness Stage 1 for this Governance repair unless USER separately approves PR Readiness Stage 2 / PR creation.
-14. Repo Docs file movement, repo cleanup, worktree-local staging creation, FAM worktree reconciliation, branch cleanup, and release execution remain future USER decisions after Stage 5 is reviewed.
+12. Stage 5 validator transition landed through PR #230. Local external-state validation is explicit for approved local workflows, while repo / CI / clean-clone validators remain independent from `C:\Nexus Governance State`.
+13. Current posture is Stage 6: repo cleanup planning. This analyzes which repo Docs live-state fields should become pointer-only, external-only, or durable historical receipts after external records exist.
+14. Stop at PR Readiness Stage 1 for this Governance repair unless USER separately approves PR Readiness Stage 2 / PR creation.
+15. Repo Docs file movement, repo cleanup execution, worktree-local staging creation, FAM worktree reconciliation, branch cleanup, and release execution remain future USER decisions after Stage 6 planning is reviewed.
 
 ## Current Boundaries
 
 Approved now:
 
-- Stage 5 validator transition source-truth updates
-- opt-in local external-state validation for the approved migrated record set
-- source-truth owner wording that distinguishes clean-clone repo validation from local external operational validation
-- USER review bundle refresh for Stage 5 inspection
+- Stage 6 repo cleanup planning source-truth updates
+- cleanup lane classification for repo Docs live-state fields
+- cleanup execution preflight and review-bundle requirements
+- source-truth owner wording that distinguishes cleanup planning from file movement, deletion, archival, or broad migration
+- USER review bundle refresh for Stage 6 inspection
 - validation and PR Readiness Stage 1 analysis
 
 Not approved by this planning file:
@@ -37,7 +39,7 @@ Not approved by this planning file:
 - helper `--apply` operations
 - mandatory GitHub Actions / clean-clone dependency on `C:\Nexus Governance State`
 - worktree-local staging folder creation
-- file moves, deletion, or archive execution
+- file moves, deletion, archive execution, or broad repo cleanup execution
 - PR creation
 - merge
 - release execution
@@ -325,7 +327,7 @@ Stage 4 target records now exist at:
 
 ## Docs Split Stage 5 - Validator Transition
 
-Stage Status: `Active validator transition`
+Stage Status: `Historical - validator transition landed through PR #230`
 Source Branch: `feature/release-readiness-source-truth-intake`
 Source Worktree: `C:\Nexus Worktrees\Governance`
 Stage 5 Base: `origin/main@5abdd9c011c80f5b7b57d473b973654a2427d5a8`
@@ -351,6 +353,71 @@ Stage 5 non-includes unless separately approved:
 - repo Docs file movement, deletion, archival, or broad cleanup
 - worktree-local `.nexus_state_staging` creation
 - FAM-006 or FAM-007 worktree mutation
+- release execution, runtime implementation, issue work, branch cleanup, private-state backup, or new external schema migration
+
+## Docs Split Stage 6 - Repo Cleanup Planning
+
+Stage Status: `Active cleanup planning only`
+Source Branch: `feature/release-readiness-source-truth-intake`
+Source Worktree: `C:\Nexus Worktrees\Governance`
+Stage 6 Base: `origin/main@752d61c60a2b362a17d7c8c700c98bfe65835f08`
+
+Stage 6 is a USER-reviewable cleanup plan after Stage 4 external records exist and Stage 5 local validation is in place. It decides which repo Docs live-state fields should later become pointer-only, external-only, or durable historical receipts. It does not move, delete, archive, rename, collapse, or rewrite repo Docs.
+
+Stage 6 evidence:
+
+- Scanner command: `python dev\orin_repo_live_state_leakage_scan.py --repo "C:\Nexus Worktrees\Governance" --max-findings 12 --strict`
+- Scanned Files: `136`
+- Findings: `5926`
+- Blocking Leakage Findings: `0`
+- Scan Result: `CLEAR / MIGRATION CANDIDATES ONLY`
+- Classification Summary: `Durable Historical Receipt: 5006`; `Durable Rule Reference: 410`; `Migration Candidate: 408`; `Review Candidate: 18`; `Transition-Legal Current Owner: 84`
+- External root report: `C:\Nexus Governance State` exists and passes canonical root check with schema `external-state-v1`; its manifest remains anchored to the Stage 4 migration source repo HEAD `5abdd9c011c80f5b7b57d473b973654a2427d5a8`.
+
+Stage 6 cleanup planning rule:
+
+Repo cleanup execution is not legal until a later USER-approved cleanup execution packet names the exact files, exact fields/sections, replacement owner, receipt preservation plan, validation commands, and review bundle. Stage 6 may recommend cleanup lanes, but it must not modify the candidate repo surfaces merely to make the scanner output smaller.
+
+Stage 6 cleanup execution preflight for a future stage:
+
+1. Rebaseline Governance and neutral main to current `origin/main`.
+2. Run the repo live-state leakage scanner and compare current findings against this Stage 6 plan.
+3. Validate the external root; if cleanup depends on Stage 4 records, run the Stage 5 local external-state validation command.
+4. Reconcile or explicitly waive the external root Source Repo HEAD mismatch if the cleanup execution depends on post-Stage-4 repo state.
+5. For each proposed cleanup edit, name the replacement owner as repo durable truth, central external state, Git/GitHub/helper-derived live truth, or historical receipt.
+6. Preserve durable USER decisions, accepted branch vision, PR/merge/release evidence, validation proof, and public/product release interpretation.
+7. Create a Desktop review bundle with the exact files and before/after cleanup intent.
+8. Stop on `Fold-Down Decision Missing`, `Repo Live-State Leakage`, `External State Missing`, `External State Version Conflict`, or `USER Decision Required` when ownership is unclear.
+
+Stage 6 cleanup lane matrix:
+
+| Cleanup Lane | Candidate Surfaces | Target Posture | Cleanup Planning Decision | Future Execution Approval Needed |
+| --- | --- | --- | --- | --- |
+| Compact pointer surfaces | `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/worktree_slots.md` | Repo keeps durable family/stage/slot definitions and pointers; live selected-next, release-window, active branch, and worktree assignment state belongs to Git/GitHub/helpers or `C:\Nexus Governance State` | First recommended cleanup execution lane because it should reduce release-loop drift without deleting receipts | Required before any wording rewrite |
+| Branch authority routing | `Docs/branch_records/index.md` | Repo keeps durable routing law, active standing Governance exception, historical receipt index, and pointer to external active operational state | Candidate for second cleanup lane after pointer surfaces | Required before active authority lists become pointer-only |
+| Historical branch records | `Docs/branch_records/*.md` | Repo keeps USER approvals, phase decisions, PR/merge/release receipts, validation proof, accepted vision, and final fold-down history; active operational state moves external | Planning says preserve first; do not bulk shrink or delete | Required per family/branch group before edits |
+| Branch plans | `Docs/branch_plans/*.md`, `Docs/branch_plans/retirement_index.md` | Active plans move external for future branches; retired plans remain durable receipts or become indexed historical references | Candidate for focused review after branch authority routing | Required before any retirement rewrite, archive, or deletion |
+| Workstream and family dossiers | `Docs/workstreams/*.md`, `Docs/family_visions/*.md` | Repo keeps durable package/slice/proof history and reusable family direction; live watcher, PR, selected-next, or release-window state should not appear as current truth | Review-only unless scanner identifies active live-state leakage | Required before edits |
+| Governance law and loader chain | `Docs/Main.md`, `Docs/phase_governance.md`, `Docs/governance_efficiency_operating_model.md`, `Docs/validation_helper_registry.md`, this plan | Repo keeps durable law, stage boundaries, helper registry, and source-truth routing | Keep as durable source truth; update only for stage transitions | Required for future stage changes |
+| Generated review/audit surfaces | `Docs/governance_docs_full_inventory_reform_audit.md`, `Docs/governance_docs_reform_user_review_index.md` | Generated review surfaces should be refreshed only by their generator when the cleanup execution changes source files | Regenerate only after approved cleanup execution | Required if generated outputs would change |
+
+Stage 6 recommended next cleanup execution lane:
+
+Start with compact pointer surfaces only: `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/worktree_slots.md`. These surfaces already declare that they should not own live state, and the scanner reports migration candidates there. The future execution packet should make them more pointer-only without moving files or deleting historical receipts.
+
+Stage 6 USER review question:
+
+```text
+Do you approve a future External Operational State Store repo cleanup execution lane for compact pointer surfaces only (`Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/worktree_slots.md`), with exact before/after review bundle and no branch-record/branch-plan deletion, archive, file movement, FAM worktree mutation, release execution, or runtime work unless separately approved?
+```
+
+Stage 6 non-includes unless separately approved:
+
+- editing `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, or `Docs/worktree_slots.md`
+- moving, deleting, archiving, renaming, or broad-migrating repo Docs
+- rewriting historical branch records or branch plans
+- creating worktree-local `.nexus_state_staging`
+- mutating FAM-006 or FAM-007 worktrees
 - release execution, runtime implementation, issue work, branch cleanup, private-state backup, or new external schema migration
 
 ## Problem Statement
@@ -555,11 +622,11 @@ Required named blockers:
 ## External State Transition Drift Gate
 
 Gate Status: `Required for external-state reform PR Readiness`
-Current Stage: `Stage 5 - Validator Transition`
+Current Stage: `Stage 6 - Repo Cleanup`
 External Root Approval: `Bootstrap Approved`
 External Root Status: `Initialized`
-Migration Status: `Stage 4 active-state migration execution completed externally at source repo HEAD 5abdd9c011c80f5b7b57d473b973654a2427d5a8; repo Docs cleanup not started`
-Validator / Helper Transition Status: `Stage 5 in progress - local external-state validation is opt-in and explicit; clean-clone repo validation remains external-root independent`
+Migration Status: `Stage 4 active-state migration execution completed externally at source repo HEAD 5abdd9c011c80f5b7b57d473b973654a2427d5a8; Stage 6 cleanup planning only`
+Validator / Helper Transition Status: `Stage 5 landed - local external-state validation is opt-in and explicit; clean-clone repo validation remains external-root independent`
 
 Required packet fields:
 
@@ -576,7 +643,7 @@ Required packet fields:
 - `Next Approved Step:`
 - `Remaining USER Decisions:`
 
-This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, report-only scanner, active-state migration planning packet, active-state migration execution planning packet, active-state migration execution, validator transition, or repo cleanup as interchangeable. Stage 5 means the approved Stage 4 external records exist and local external-state validation may verify them, while repo docs remain durable transition owners until a later USER-approved repo cleanup stage. Clean-clone repo validators must remain external-root independent.
+This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, report-only scanner, active-state migration planning packet, active-state migration execution planning packet, active-state migration execution, validator transition, repo cleanup planning, or repo cleanup execution as interchangeable. Stage 6 means cleanup planning may classify repo Docs surfaces and recommend a future execution lane, while repo docs remain unchanged until a later USER-approved cleanup execution packet. Clean-clone repo validators must remain external-root independent.
 
 Drift blockers:
 
@@ -589,8 +656,8 @@ Drift blockers:
 
 Recommended near-term implementation posture:
 
-- keep this branch at Stage 5 until PR/merge and active worktree acknowledgement or USER-approved repo cleanup planning
-- validate the approved Stage 4 migrated records through explicit local external-state validation
+- keep this branch at Stage 6 until PR/merge and active worktree acknowledgement or USER-approved repo cleanup execution planning
+- validate the approved Stage 4 migrated records through explicit local external-state validation when cleanup planning depends on migrated external records
 - do not run helper `--apply` operations in this PR
 - do not migrate branch records, branch plans, roadmap, backlog, or worktree slots in this PR
 - require the transition gate in the next external-state implementation PR before Stage 2 / PR creation
@@ -997,17 +1064,17 @@ Recommendation E - keep release debt narrow:
 
 Default path:
 
-1. Complete Stage 5 validator transition after Stage 4 active-state migration execution has seeded the approved external records.
-2. Merge the Stage 5 validator transition only after validation and USER approval.
+1. Complete Stage 6 repo cleanup planning after Stage 5 validator transition has landed and the branch has rebaselined to current `origin/main`.
+2. Merge the Stage 6 cleanup planning packet only after validation and USER approval.
 3. Rebaseline or acknowledge active worktrees after merge when USER chooses that sequencing.
-4. Review the Stage 5 packet before deciding whether to approve repo cleanup planning, repo Docs file movement/deletion/archive planning, worktree-local staging, or FAM worktree reconciliation.
+4. Review the Stage 6 packet before deciding whether to approve compact pointer-surface cleanup execution, broader repo Docs file movement/deletion/archive planning, worktree-local staging, or FAM worktree reconciliation.
 
 External-state implementation does not replace post-release canon closure or become a release unblocker unless USER explicitly pauses release flow and approves that route.
 
 ## Future Exact USER Decision Shape
 
-Approve the next implementation phase only after this Stage 5 validator transition PR merges and active worktrees rebaseline or acknowledge the changed governance when USER chooses that sequencing:
+Approve the next implementation phase only after this Stage 6 repo cleanup planning PR merges and active worktrees rebaseline or acknowledge the changed governance when USER chooses that sequencing:
 
 ```text
-Approve External Operational State Store repo cleanup planning on C:\Nexus Worktrees\Governance after reviewing the Stage 5 validator transition packet. Scope: analyze which repo Docs live-state fields can be removed, made pointer-only, or preserved as durable historical receipts after external records exist; return a cleanup plan and review bundle only. Do not move, delete, or archive repo files, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
+Approve External Operational State Store compact pointer-surface cleanup execution planning on C:\Nexus Worktrees\Governance after reviewing the Stage 6 repo cleanup planning packet. Scope: produce exact before/after cleanup intent for Docs/feature_backlog.md, Docs/prebeta_roadmap.md, and Docs/worktree_slots.md so they become pointer-only surfaces for live operational state; return a review bundle only. Do not edit, move, delete, or archive repo files, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
 ```
