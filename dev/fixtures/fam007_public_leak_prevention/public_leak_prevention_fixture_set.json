@@ -428,6 +428,171 @@
       "privateHostingSecret": false
     }
   },
+  "aiRuntimeTrustBoundaryReadiness": {
+    "schema": "fam007-ai-runtime-trust-boundary-readiness-fixture-v1",
+    "seamGroup": "ai-runtime-trust-boundary-readiness-options-1-through-4",
+    "planningOnly": true,
+    "publicSafeProofOnly": true,
+    "workstreamGreenReady": true,
+    "options": {
+      "option1": {
+        "name": "permission-state-and-provider-boundary-readiness",
+        "status": "implemented-public-safe-proof-only",
+        "permissionStates": [
+          "Installed",
+          "Available",
+          "Enabled",
+          "Disabled",
+          "Denied",
+          "Suspended",
+          "Revoked",
+          "Requires Setup",
+          "Requires Hardware",
+          "Requires Consent",
+          "Blocked By Privacy Mode",
+          "Blocked By Safety Policy",
+          "Blocked By Competitive Integrity Mode",
+          "Blocked By Provider State"
+        ],
+        "enforcedAtLayers": [
+          "ai-layer",
+          "tool-capability-layer"
+        ],
+        "providerBoundary": {
+          "providerVisibleData": "none",
+          "sentToProvider": false,
+          "canAcceptPrompts": false,
+          "promptExecution": "disabled",
+          "providerExecution": "disabled",
+          "modelExecution": "disabled",
+          "downloadsNetworkExternalCalls": "blocked",
+          "localOnlyPosturePreserved": true
+        }
+      },
+      "option2": {
+        "name": "deterministic-routing-and-reliability-readiness",
+        "status": "implemented-public-safe-proof-only",
+        "objectiveAnswerPolicy": "deterministic-or-tool-backed-required",
+        "calculatorMathRouting": "deterministic-required",
+        "sourceCitationRouting": "required-when-source-backed",
+        "windowsHealthRouting": "observed-versus-inferred-separated",
+        "confidenceTiers": [
+          "Deterministic",
+          "High Confidence",
+          "Advisory",
+          "Creative/Open-ended"
+        ],
+        "refusalBehavior": "refuse-to-pretend-certainty",
+        "runtimeRouterImplemented": false,
+        "providerRecommendationExecutionAllowed": false
+      },
+      "option3": {
+        "name": "trust-journal-and-ai-operational-cache-governance-readiness",
+        "status": "implemented-public-safe-proof-only",
+        "cacheIsNotMemory": true,
+        "runtimeCacheImplementation": false,
+        "memoryWriteEnabled": false,
+        "trustJournalRuntimeImplemented": false,
+        "telemetryEnabled": false,
+        "cacheScopeClasses": [
+          "Session cache",
+          "Operational cache",
+          "Deterministic validation cache",
+          "Advisory cache",
+          "Provider-response cache",
+          "Capability-pack index cache",
+          "Windows Health analysis cache",
+          "Temporary routine-context cache"
+        ],
+        "cacheSensitivityClasses": [
+          "Low",
+          "Medium",
+          "High",
+          "Very High",
+          "Critical"
+        ],
+        "replaySafety": {
+          "deterministicReplayRequiresInputToolSourcePermissionPolicyMatch": true,
+          "advisoryProviderCacheCannotReplayAsCurrentTruth": true,
+          "safetySensitiveCacheRequiresFreshnessRevalidation": true,
+          "replayDecisionsJournalable": true
+        },
+        "providerCacheSanitization": {
+          "privatePromptAllowed": false,
+          "secretAllowed": false,
+          "privatePathAllowed": false,
+          "memoryPayloadAllowed": false,
+          "identityDataAllowed": false,
+          "protectedRepoMaterialAllowed": false
+        },
+        "privacyModes": {
+          "localOnlyBlocksProviderCache": true,
+          "privacyLockdownBlocksSensitiveCacheWrites": true,
+          "clearOperationalCacheDoesNotDeleteMemoryLogsOrBackups": true
+        }
+      },
+      "option4": {
+        "name": "capability-pack-and-local-only-handoff-readiness",
+        "status": "implemented-public-safe-proof-only",
+        "capabilityPackManifestExpectations": [
+          "declares-capability",
+          "declares-limits",
+          "declares-source-provenance",
+          "declares-hardware-storage-provider-requirements",
+          "declares-cache-ownership",
+          "declares-local-only-or-provider-assisted-mode"
+        ],
+        "capabilityPackInstalled": false,
+        "capabilityPackExecuted": false,
+        "modelOrCapabilityDownloadsEnabled": false,
+        "storageRootCreated": false,
+        "privateEditionSkeletonSetup": false,
+        "localOnlyHandoff": {
+          "providerCallsBlocked": true,
+          "providerCacheBlocked": true,
+          "hiddenExternalDependenciesAllowed": false,
+          "providerVisibleData": "none",
+          "localOnlyRuntimeGuaranteeImplemented": false
+        }
+      }
+    },
+    "globalActionGates": {
+      "providerModelExecution": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+      "memoryLearningPersonalization": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+      "backupRecovery": "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
+      "publicToDevMigration": "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
+      "privateDevRepository": "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+      "privateOwnerRepository": "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+      "githubDesktopPrivateRemote": "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP"
+    },
+    "setupState": {
+      "privateDevRepositoryCreated": false,
+      "privateOwnerRepositoryCreated": false,
+      "githubDesktopPrivateRemoteConfigured": false,
+      "offBootBackupRootCreated": false,
+      "publicToDevImportImplemented": false,
+      "providerSdkIntegrated": false,
+      "modelExecutionEnabled": false,
+      "modelDownloadsEnabled": false,
+      "runtimeProviderExecutionEnabled": false,
+      "runtimeCacheBehaviorEnabled": false,
+      "externalCallsEnabled": false,
+      "memoryLearningPersonalizationEnabled": false,
+      "voiceCoreSyncEnabled": false
+    },
+    "forbiddenMaterialPresence": {
+      "privateRemoteUrl": false,
+      "tokenOrCredential": false,
+      "ownerSecret": false,
+      "privatePath": false,
+      "promptPayload": false,
+      "memoryPayload": false,
+      "privateAutomation": false,
+      "modelArtifact": false,
+      "capabilityPackAsset": false,
+      "privateHostingSecret": false
+    }
+  },
   "blockedCanaries": [
     {
       "caseId": "private-path",
