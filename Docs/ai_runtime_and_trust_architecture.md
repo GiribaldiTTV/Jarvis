@@ -38,6 +38,22 @@ External operational state, after USER-approved initialization, owns live Codex/
 
 This file is durable repo source truth. It is not operational state and must not be used as a live branch tracker.
 
+## Binding And Directional Language
+
+Binding in this file:
+
+- source-truth ownership boundaries
+- taxonomy placement requirements
+- explicit non-goals
+- Branch Readiness citation requirements
+- implementation-approval blockers and routing rules
+
+Directional product language in this file records durable USER-reviewed architecture intent. Words such as `should` describe the target product shape, not current runtime behavior and not implementation approval.
+
+Future branches that implement any AI-native concept from this file must convert the relevant direction into an accepted branch vision, USER Branch Plan Review packet, Element-to-Phase Proof Matrix, implementation proof, Hardening proof, Live Validation / UTS plan, and validator/helper evidence where applicable.
+
+If a future branch cannot tell whether a concept is binding law, product direction, implementation scope, or external operational state, the branch must stop on `Backlog Taxonomy Gate Missing`, `Source-Truth Placement Preflight Missing`, `USER Branch Plan Review Missing`, or the closest repo-supported blocker instead of implementing by inference.
+
 ## Relationship To Existing Owners
 
 - `Docs/nexus_vision.md` owns project-wide AI-native product direction and ORIN experience intent.
