@@ -726,6 +726,8 @@ If any required merge-target canon update is missing, the branch remains blocked
 
 Release debt is not a normal acceptable merge state. When an implementation branch would unavoidably merge unreleased product behavior beyond the latest public prerelease, PR Readiness Stage 1 must first record explicit USER approval for that exception, the named owner, the release target/floor semantics, Release Window Audit posture, selected-next or USER-waiver truth, and the real carrier plan. Only then may PR Readiness leave exact post-merge release-debt truth in canon before PR green.
 
+After the External Operational State Store contract is implemented, release debt means durable public release truth is missing or wrong. Wrong tag/body/release notes, invalid or missing artifacts, missing durable public milestone summaries, and released capabilities absent from durable product history remain release debt. Stale active branch records, active branch plans, worktree slots, selected-next operational posture, PR watcher state, release-window operational state, and post-release closure status become `Repo Live-State Leakage` or `External Operational State Conflict`, not release debt. This reclassification does not take effect as a migration until the USER approves external-state implementation and validator transition.
+
 Required machine-checkable fields:
 
 - `Merged-Unreleased Release-Debt Owner:`
@@ -1543,6 +1545,10 @@ Release Readiness is analysis-only for repository files:
 - it may run validation commands that do not mutate tracked source files
 - it must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or desktop handoff files
 
+Release Readiness may read External Governance State only after USER-approved initialization. Repo-file validation in GitHub Actions or clean clones must not require `C:\Nexus Governance State`; those environments validate durable repo truth only. If external state is missing during active local Release Readiness analysis, Codex reports `External State Missing` and returns the bootstrap packet from `Docs/governance_efficiency_operating_model.md` instead of inferring active branch, selected-next, worktree assignment, release-window, or watcher state from stale repo docs.
+
+External state mutation during Release Readiness remains blocked unless USER explicitly approves a local operational-state reconciliation. Even when approved, that mutation is limited to external operational release-window state, external acknowledgement state, or external promotion/recovery packets; it must not edit repo files or create release artifacts.
+
 Allowed in `Release Readiness`:
 
 - release-candidate anchor validation
@@ -1702,6 +1708,8 @@ Required sequence:
 ### Current-State Claim Containment
 
 Time-sensitive current-state claims must live only in designated current-state owners, or be part of the merge-target canon update set.
+
+After the External Operational State Store contract is implemented, live operational state that exists only to coordinate active branches, PRs, worktrees, release windows, review bundles, watchers, selected-next posture, or temporary handoffs must not be reintroduced into repo docs as current truth. If Release Readiness finds that state in repo docs, classify it as `Repo Live-State Leakage` unless it is clearly labeled historical receipt evidence.
 
 Allowed current-state owners:
 
