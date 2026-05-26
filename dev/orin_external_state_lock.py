@@ -10,6 +10,7 @@ from orin_external_state_common import (
     resolve_path,
     utc_now,
     validate_canonical_root,
+    validate_initialized_root,
 )
 
 
@@ -74,6 +75,12 @@ def main() -> int:
     if not root.exists():
         print("Lock Result: External State Missing")
         return 1 if args.apply else 0
+    initialization_issues = validate_initialized_root(root, args.schema)
+    if initialization_issues:
+        print("Lock Result: BLOCKED")
+        for issue in initialization_issues:
+            print(issue)
+        return 1
 
     if not args.apply:
         print("Lock Result: READY - no lock file created")

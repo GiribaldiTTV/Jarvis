@@ -126,6 +126,27 @@ def validate_canonical_root(root: Path, repo_paths: Iterable[Path] = ()) -> list
     return issues
 
 
+def validate_initialized_root(root: Path, expected_schema: str = DEFAULT_SCHEMA_VERSION) -> list[str]:
+    issues: list[str] = []
+    root = resolve_path(root)
+    manifest_path = root / "state_manifest.json"
+    if not manifest_path.exists():
+        return ["External State Missing: state_manifest.json missing - initialize root before applied operations"]
+
+    try:
+        manifest = load_json(manifest_path)
+    except Exception as exc:  # noqa: BLE001 - report corrupt local state without traceback
+        return [f"External State Corrupt: {manifest_path}: {exc}"]
+
+    for field in REQUIRED_STATE_FIELDS:
+        if field not in manifest:
+            issues.append(f"External State Corrupt: state_manifest.json missing field: {field}")
+    schema = manifest.get("External State Schema")
+    if schema != expected_schema:
+        issues.append(f"External State Schema Conflict: expected {expected_schema}, found {schema or 'MISSING'}")
+    return issues
+
+
 def state_manifest_payload(
     root: Path,
     worktree_label: str,
