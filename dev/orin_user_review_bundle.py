@@ -36,6 +36,18 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
     "replaced the stable review zip from that refreshed folder."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
+FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH = (
+    "feature/fam-006-active-overlay-recording-runtime-implementation"
+)
+FAM006_ACTIVE_OVERLAY_RECORDING_FOUNDATION_BRANCH = (
+    "feature/fam-006-active-overlay-recording-runtime-foundation"
+)
+FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_PACKET_FILES = frozenset(
+    {
+        "Docs__branch_records__feature_fam_006_active_overlay_recording_runtime_implementation.md",
+        "Docs__branch_plans__feature_fam_006_active_overlay_recording_runtime_implementation.md",
+    }
+)
 
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -302,6 +314,24 @@ def _validate_export_zip(
             "Review export zip stale-head guard failed: Review Export Zip Source HEAD "
             f"does not match {source_head}"
         )
+    if source_branch == FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH:
+        missing_impl_files = sorted(
+            FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_PACKET_FILES - entries
+        )
+        if missing_impl_files:
+            raise ValueError(
+                "Review export zip FAM-006 implementation-carrier guard failed: "
+                f"missing={missing_impl_files}"
+            )
+        stale_foundation_metadata = (
+            f"Source Branch: `{FAM006_ACTIVE_OVERLAY_RECORDING_FOUNDATION_BRANCH}`"
+            in start_here
+        )
+        if stale_foundation_metadata:
+            raise ValueError(
+                "Review export zip FAM-006 implementation-carrier guard failed: "
+                "START_HERE still presents the released foundation carrier as active metadata"
+            )
     if "Review Export Zip Stale Guard: PASS" not in start_here:
         raise ValueError("Review export zip is missing stale-guard proof in START_HERE.md")
     if "USER Review Packet Finding: PASS" not in start_here:
@@ -422,16 +452,27 @@ def _write_user_branch_plan_review(
         or "active_overlay_recording_runtime_implementation" in source_rel
         for source_rel, _copied_rel in copied
     )
+    has_implementation_carrier_files = any(
+        "active_overlay_recording_runtime_implementation" in source_rel
+        for source_rel, _copied_rel in copied
+    )
     active_branch_files = [
         copied_rel
         for source_rel, copied_rel in copied
-        if "active_overlay_recording_runtime_foundation" in source_rel
-        or "active_overlay_recording_runtime_implementation" in source_rel
+        if (
+            "active_overlay_recording_runtime_implementation" in source_rel
+            if has_implementation_carrier_files
+            else "active_overlay_recording_runtime_foundation" in source_rel
+        )
     ]
     rollback_context_files = [
         copied_rel
         for source_rel, copied_rel in copied
         if "recording_profile_runtime_foundation" in source_rel
+        or (
+            has_implementation_carrier_files
+            and "active_overlay_recording_runtime_foundation" in source_rel
+        )
     ]
     source_truth_files = [
         copied_rel
