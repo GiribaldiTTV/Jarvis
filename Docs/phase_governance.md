@@ -1010,6 +1010,8 @@ Merge-target post-merge-stable authority projection is mandatory before PR green
 
 A post-merge projection receipt is not enough by itself. If a branch creates a separate projection file, PR Readiness Stage 1 must still fold down the real active authority record or remove it from `Active Branch Authority Records` before it reports `Stage 1 Ready For Stage 2`, before Stage 2 PR creation, and before merge approval. Projection-beside-active-authority blocks on `Merge-Stable Projection Shadowed By Active Authority`.
 
+Projection-only fold-down inside the active record is also not enough. If the active branch record's `Release Readiness Health Pass` or `Post-Merge State` says the branch must become historical/no-active, must not remain active branch authority, or must become historical merged-unreleased evidence, PR Readiness Stage 1 must perform that real fold-down before Stage 2, PR green, or merge approval. Leaving the actual record in `Active Branch Authority Records` blocks on `PR Readiness Stage 1 branch-authority fold-down required`.
+
 `Merge-Target Authority Projection Unproven` blocks PR green whenever that post-merge-stable authority projection is missing or would leave active branch-authority truth in merged `main`.
 
 ### Release Readiness Health Pass

@@ -103,21 +103,21 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: Active Live Validation Stage 1 green receipt for the FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation worktree after v1.7.22-prebeta and current-main reconciliation; future mutation remains bound to this branch authority record until fold-down.
+- Assignment Status: Historical merged-unreleased receipt for the FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation worktree after PR #218 merge; future mutation requires a new USER-approved branch authority or explicit worktree assignment.
 - Assigned Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`
 - Assigned Family / Workstream: `FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation`
 - Branch Authority Record: `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`
 - Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`
-- GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding; no cleanup/rebinding authorized by this branch`
+- GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding as historical local worktree context; no cleanup/rebinding authorized by this governance intake`
 - Active Thread Owner: `Current Codex thread assigned by USER for Branch Readiness Stage 2 setup`
-- Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
+- Thread Assignment Status: `Historical/idle after PR #218 merge; no active mutation owner is assigned by this slot receipt`
 - Worktree Ownership Ledger: `Branch authority record plus this slot receipt`
-- Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, compact pointer docs, worktree slot receipt, v1.7.22 release canon closure, USER Action Gate source truth for Dev/Owner skeleton readiness, GitHub Desktop private remote safety planning, off-boot AI data backup/recovery planning, public-to-private separation, provider/model execution deferral, and source-truth setup required before Workstream Entry`
+- Intended Write Set: `None for active mutation; historical receipt preserves the FAM-007 branch authority record, Branch Runtime Engineering Plan, compact pointer docs, worktree slot receipt, USER Action Gate source truth, validation proof, and no-visible-runtime-surface evidence delivered by PR #218`
 - Same Worktree / Same Branch Collision Check: `PASS at assignment; no second writer assigned`
 - Dirty Worktree Collision Check: `PASS - pre-implementation worktree was clean; Workstream tracked changes are owned by this current approved Codex pass`
 - Dirty Worktree Recovery Packet: `Required before future mutation if dirty files appear`
-- Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests are sibling overlap context only and not successor authority for this FAM-007 Workstream`
-- Governance Routing Barrier: `Active for work outside this FAM-007 Branch Readiness Stage 2 carrier`
+- Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests are sibling overlap context only and not successor authority for this historical FAM-007 receipt`
+- Governance Routing Barrier: `Active for any mutation request against this historical slot until USER assigns a new branch/worktree owner`
 - New Worktree Decision Gate: `Pending USER approval for any worktree creation, deletion, cleanup, or rebinding beyond this carrier`
 - USER Assignment Decision: `USER approved Branch Readiness Stage 2 setup in C:\Nexus Worktrees\FAM-007 for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation from the current v1.7.22-prebeta post-release origin/main baseline; live commit truth must be read from Git before mutation`
 - Operational Truth Source: `git status`, `git rev-parse HEAD`, `git rev-parse origin/main`, `git merge-base HEAD origin/main`, and Pre-Rebaseline Impact Audit before any future baseline mutation`
