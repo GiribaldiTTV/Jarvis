@@ -149,11 +149,11 @@ Blocking Condition:
 
 Repair Owner: standing Governance intake or the current USER-approved legal carrier named by phase governance.
 
-Repair Path: classify the item, decide whether it belongs in repo durable truth, central external state, worktree-local staging, Git/GitHub/helper-derived live truth, or historical receipt; then repair through the legal carrier. Active state migration and helper/validator implementation require separate USER approval.
+Repair Path: classify the item, decide whether it belongs in repo durable truth, central external state, worktree-local staging, Git/GitHub/helper-derived live truth, or historical receipt; then repair through the legal carrier. Additional active state migration, helper/validator implementation, and repo cleanup require separate USER approval.
 
 USER Decision Required: required before external root creation, staging folder creation, schema migration, state migration, shared-state promotion, release-window state mutation, selected-next posture mutation, branch authority mutation, fold-down, cloud backup, private repo creation, or any file move/delete/archive.
 
-Validation Owner: repo durable-truth validation remains owned by repo validators. External operational validation is a future helper/validator implementation decision and must not be required by GitHub Actions or clean-clone repo validation before that implementation is approved.
+Validation Owner: repo durable-truth validation remains owned by repo validators. External operational validation is local-workflow evidence after Stage 5 and must not be required by GitHub Actions or clean-clone repo validation.
 
 Final Disposition: external operational state may remain external-only, be folded into repo source truth as a durable receipt, be archived, expire, be rejected, or require USER decision. Governance law becomes binding only after USER-approved repo source-truth update and merge.
 
