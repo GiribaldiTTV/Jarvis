@@ -224,13 +224,15 @@ def iter_state_files(root: Path) -> list[Path]:
     root = resolve_path(root)
     if not root.exists():
         return []
-    return sorted(
-        path
-        for path in root.rglob("*")
-        if path.is_file()
-        and ".tmp" not in path.name
-        and not any(part == "snapshots" for part in path.parts)
-    )
+    state_files: list[Path] = []
+    for path in root.rglob("*"):
+        if not path.is_file() or ".tmp" in path.name:
+            continue
+        relative_parts = path.relative_to(root).parts
+        if relative_parts and relative_parts[0] == "snapshots":
+            continue
+        state_files.append(path)
+    return sorted(state_files)
 
 
 def copy_tree_snapshot(source: Path, destination: Path) -> list[dict[str, str]]:
