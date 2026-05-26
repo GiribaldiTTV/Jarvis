@@ -17,6 +17,21 @@ Its job is to:
 This registry owns the helper inventory and naming classification.
 Canonical workstream docs own the evidence produced by helpers for a specific branch.
 
+## Validation Output Interpretation Rule
+
+Rule Name: `Validation Output Interpretation Rule`
+Owner: `Docs/validation_helper_registry.md` for helper/validator evidence interpretation; `Docs/phase_governance.md` for phase-gate use.
+Applies To: every validator, helper, audit, scanner, harness, live-validation script, PR watcher, release helper, and Codex claim that a branch is green, red, blocked, ready, or safe to continue.
+Required State: helper output is evidence for review, not final authority. Codex retains responsibility for the phase decision and must trust but verify every validator/helper result against source truth, changed files, phase requirements, USER-approved scope, review bundles, and known drift risks before deciding the branch is green or deciding what to patch.
+Allowed Values: `Evidence Supports Green`, `Evidence Supports Repair`, `Evidence Supports Blocked`, `Tool Defect Suspected`, `Tool Defect Confirmed`, `Environment / Configuration Issue`, `Source-Truth Drift`, `USER Decision Required`.
+Invalid Values: `Green Because Validator Passed`, `Patch Validator Until Green`, `Ignore Failed Helper`, `Accept Red Without Diagnosis`, `Accept Blocked Without Diagnosis`, `Treat Helper As Source Truth`.
+Blocking Condition: `Validation Adequacy Review Missing`, `Validator Green Accepted Without Review`, or `Validator / Helper Patch By Inertia` when Codex treats PASS/GREEN as sufficient by itself, patches a validator/helper before diagnosing the failed condition, or ignores a possible false green/false red.
+Repair Owner: current branch owner for source/product defects; helper registry and owning validator/helper for proven tool defects; USER for unclear scope or waiver decisions.
+Repair Path: diagnose the result first, classify the failure or green result, inspect the changed files and relevant source-truth owners, decide whether the product/source truth or the tool is wrong, add or update fixture/smoke coverage when the defect is machine-checkable, then rerun validation. A validator/helper code patch is the last repair option unless the tool defect is directly proven by source truth, a minimal reproduction, or a review comment.
+USER Decision Required: required when fixing the reported issue would expand scope, alter product/runtime behavior, change source-truth ownership, waive validation evidence, or accept a known helper blind spot.
+Validation Owner: the helper/validator that produced the result plus the source-truth owner named by the phase packet.
+Final Disposition: every return packet that relies on validation must state that Codex reviewed the validation rather than delegated judgment to it, summarize why the validation is adequate, name what was independently checked, name whether any helper/validator limitation remains, and classify the result as `Green`, `Repair`, `Blocked`, or `USER Decision Required`.
+
 ## Helper Status Values
 
 Every durable helper or validator under root `dev/` must fit one of these statuses:

@@ -17,7 +17,7 @@ DEFAULT_SCAN_PATHS = (
     Path("Docs/feature_backlog.md"),
     Path("Docs/prebeta_roadmap.md"),
     Path("Docs/worktree_slots.md"),
-    Path("Docs/workstreams/index.md"),
+    Path("Docs/workstreams"),
     Path("Docs/governance_efficiency_operating_model.md"),
     Path("Docs/external_operational_state_store_reform_plan.md"),
 )
@@ -45,7 +45,8 @@ LIVE_STATE_PATTERNS = {
     ),
     "pr-state": re.compile(
         r"\b(Live PR State|No live PR|PR creation pending|PR Creation Approval|"
-        r"PR Readiness Stage 2|review-thread|mergeability|watcher)\b",
+        r"PR Readiness Stage 1 Ready For Stage 2|PR Readiness Stage 2|review-thread|"
+        r"mergeability|watcher)\b",
         re.IGNORECASE,
     ),
     "release-window": re.compile(

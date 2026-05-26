@@ -2475,6 +2475,7 @@ Forbidden:
 Required evidence:
 
 - branch-local proof complete
+- validation adequacy review complete under `Docs/validation_helper_registry.md`: helper/validator PASS/GREEN output supports the decision but does not replace Codex responsibility, source-truth review, changed-file inspection, review-bundle freshness, phase-scope checks, or USER-approved acceptance criteria
 - accepted vision and accepted branch plan satisfied, revised, waived, or folded down with explicit receipt when a Branch Vision Contract Snapshot is required
 - required user-facing desktop shortcut validation digested, passing or explicitly waived, and no `User-Facing Shortcut Validation Pending` blocker
 - required User Test Summary results digested, passing or explicitly waived, and no `User Test Summary Results Pending` blocker
@@ -2493,6 +2494,7 @@ Required evidence:
 - branches that still rely on branch-authority truth merge with historical or removed branch-authority truth rather than lingering as active branch owners on `main`
 - no active seam
 - no unresolved blocker that should have been repaired on the current branch before merge
+- no validator/helper result was accepted or patched by inertia; any failed, blocked, red, or suspiciously green helper result was diagnosed as source-truth drift, product/runtime defect, environment/configuration issue, USER decision need, or proven helper defect before repair
 
 Exit:
 

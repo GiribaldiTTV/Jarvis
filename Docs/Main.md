@@ -181,7 +181,7 @@ Main routes Codex to:
 - digest profiles and non-compaction standards: `Docs/governance_intake_triage_and_digest_profiles.md`
 - source-truth ownership, External Operational State Store contract, and USER review bundle rules: `Docs/governance_efficiency_operating_model.md`
 - external-state Docs Split implementation plan, target matrix, approved-stage boundaries, migration-map helper posture, annotations, and future-work sequencing: `Docs/external_operational_state_store_reform_plan.md`
-- helper and validator ownership: `Docs/validation_helper_registry.md`
+- helper and validator ownership plus the rule that validation output is evidence, not final authority: `Docs/validation_helper_registry.md`
 
 Context docs may explain, summarize, or point to the owners above. They must not supersede Main or the named owner. If a context doc conflicts with Main or the relevant owner, Codex must follow Main to the owner, report the conflict, and repair through the legal branch/phase instead of inferring behavior.
 
