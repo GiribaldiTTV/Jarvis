@@ -3,31 +3,33 @@
 
 ## Purpose
 
-This index routes repo-owned authority records for approved branches that do not map to a promoted backlog workstream.
+This index routes repo-owned durable authority records, branch-record law, and historical receipt indexes for approved branches that do not map to a promoted backlog workstream.
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
 Use this layer for:
 
-- active `Registry-only` backlog branches in `Branch Readiness` before a promoted canonical workstream exists
-- `release packaging` branches
+- branch-authority routing law and required branch-record fields
+- historical receipt indexing for merged, retired, or traceability-only branches
 - the single `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, for Release Readiness digest source-truth drift intake, USER-approved `automation/worktree governance intake` only when the repair is non-runtime multi-worktree safety work, and USER-approved `phase-gate governance intake` only when a repeatable non-runtime phase-gate miss needs governance/source-truth/validator prevention
-- active `repair/dev-tooling-governance` feature branches when USER-admitted repair scope includes developer-tooling plus governance hardening
-- USER-approved bounded issue-readiness/source-truth repair carriers that extend an existing family branch authority record without creating GitHub issues or admitting implementation
 - preserved historical `docs/governance` or `emergency canon repair` records
+- pointers from repo durable law to external active operational branch authority after the External Operational State Store transition
 
-when those branches need a durable repo-owned phase authority record.
+when those branches need a durable repo-owned phase authority record or historical receipt.
 
 Do not use this layer to replace:
 
 - `Docs/workstreams/` for promoted backlog-backed workstreams
 - merge-target canon sync that belongs on an already-active implementation branch
+- `C:\Nexus Governance State\central\active_branch_authority_state.md` or branch-specific external records for non-standing active operational branch authority after the External Operational State Store transition
+- Git/GitHub/helper-derived live facts such as current `HEAD`, PR state, merge state, release state, dirty state, or active worktree checkout truth
 
 ## Rules
 
-- branch authority records are for approved branches that do not yet map to a promoted canonical workstream
+- branch authority records are durable authority, phase-history, and receipt surfaces for approved branches that do not yet map to a promoted canonical workstream
+- after External Operational State Store Stage 6C, this index is not the canonical live operations list for non-standing active runtime, implementation, release-packaging, or repair carriers; non-standing active operational authority belongs in `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper-derived live truth
 - active branch names and active branch authority records must not use the `codex/` branch prefix; use `feature/` or another USER-approved non-`codex/` prefix, while historical `codex/` branch records remain traceability only and are not precedent
-- active `Registry-only` backlog branches may use this layer during `Branch Readiness` before promotion
+- active `Registry-only` backlog branches that still require repo durable admission receipts may use branch records during `Branch Readiness` before promotion, but live active operational posture must be external or derived after Stage 6C unless USER records a transition waiver
 - active-branch-first remains the default during `pre-Beta`
 - new governance-only branches are not used for Nexus work
 - Exception: exactly one `Standing Governance Intake Branch` is allowed: `feature/release-readiness-source-truth-intake` at `C:\Nexus Worktrees\Governance`. It accepts a `Release Readiness digest` for release-blocker repair, USER-approved `automation/worktree governance intake` for non-runtime multi-worktree safety repair, and USER-approved `phase-gate governance intake` for repeatable non-runtime phase-gate miss prevention, uses cycle IDs shaped `RRI-YYYYMMDD-NNN`, enforces operational `One Active Cycle`, requires a clean `Sync Rule` match to `origin/main` before each new intake, and must emit a `Return Digest` after merge/sync before the originating lane leaves `Waiting For Governance Intake` or `Waiting For Updated Main`; that digest must copy the exact originating branch, originating worktree, operating workspace, expected branch, and `Neutral Main Workspace Rebaseline:` proof from the accepted/closed intake and must stop on `Return Digest Origin Identity Missing` instead of inferring from `C:\Nexus Desktop AI`, `C:\Nexus Worktrees\Governance`, GitHub Desktop, or the current shell CWD. This standing branch is exempt from dedicated post-merge closeout PRs that only clear `Active RRI Cycle` or cycle-ledger wording; a later accepted intake may overwrite stale cycle ledger text after the branch is synced.
@@ -35,8 +37,8 @@ Do not use this layer to replace:
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
 - Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
 - USER-approved workspace-resilience or dev-tooling governance foundation carriers may exist only to clear a recorded multi-worktree/thread-safety blocker before future branch work; they do not authorize runtime implementation, package admission, release work, issue work, AI Product Contract import, or future standalone governance branches.
-- USER-approved bounded governance/source-truth repair carriers may use the `repair/dev-tooling-governance` branch class only when the active repair changes governance docs plus validator, helper, fixture, review-bundle, or dev-tooling proof surfaces. They require an exact active branch authority record, must keep runtime/release/FAM mutation blocked, and must move to historical/no-active posture or otherwise become merge-stable before PR green. This route does not replace the single standing governance intake branch and is not permission to create docs/governance branches by inertia.
-- USER-approved bounded issue-readiness/source-truth repair carriers may exist only to reconcile existing family/branch-record evidence into issue-ready source truth; they do not authorize GitHub issue creation, issue-resolution branches, runtime implementation, package admission, release work, FAM-007/local AI work, AI Product Contract import, or future standalone governance branches.
+- USER-approved bounded governance/source-truth repair carriers may use the `repair/dev-tooling-governance` branch class only when the active repair changes governance docs plus validator, helper, fixture, review-bundle, or dev-tooling proof surfaces. During the external-state transition they require either the standing Governance authority record or an external active-authority record with repo durable receipt pointers, must keep runtime/release/FAM mutation blocked, and must move to historical/no-active posture or otherwise become merge-stable before PR green. This route does not replace the single standing governance intake branch and is not permission to create docs/governance branches by inertia.
+- USER-approved bounded issue-readiness/source-truth repair carriers may exist only to reconcile existing family/branch-record evidence into issue-ready source truth; after Stage 6C their live active operational posture must be external or derived, while repo branch records may keep durable admission and historical receipt evidence. They do not authorize GitHub issue creation, issue-resolution branches, runtime implementation, package admission, release work, FAM-007/local AI work, AI Product Contract import, or future standalone governance branches.
 - If release publication exposes release-dependent canon drift, the drift must be recorded for the next legitimate runtime-focused branch's `Branch Readiness Stage 1` and repaired in `Branch Readiness Stage 2` before implementation begins.
 - If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
 - Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
@@ -47,7 +49,7 @@ Do not use this layer to replace:
 - The one-time `codex/one-time-backlog-governance-repair` branch is USER-admitted as `repair/dev-tooling-governance` to repair the blocker rule that allowed FB-027/PR #109 drift; it does not reopen governance-only branch creation as a default path.
 - between-branch canon repair is blocked
 - missed PR Readiness canon work must be carried by the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation begins
-- the `Active Branch Authority Records` list is only for branches that are still the current execution base, plus the single standing governance intake authority record
+- the `Active Branch Authority Records` list is the repo-tracked active exception list, not a general live operations ledger; after Stage 6C it must contain only the single standing governance intake authority record unless USER grants an explicit transition waiver with external-state reconciliation proof
 - when merged-main truth is `No Active Branch`, merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership; that rule includes runtime, implementation, release packaging, and repair carriers. The single standing governance intake authority may remain active only for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake and must not be treated as an active runtime carrier.
 - before PR merge, any branch that still relies on an active branch authority record must either move that record into `Historical Branch Authority Records` or remove it entirely so merged truth does not leave a stale active branch owner behind; a separate post-merge projection file is supporting evidence only and cannot sit beside an active authority record for the same branch when PR Readiness reports Stage 2-ready, merge-ready, or Release Readiness Health Pass green
 - Merge-target post-merge-stable authority projection is mandatory before PR Readiness can report green: merge-target files must already describe the branch-authority state that will remain true after merge, and any active branch authority record that would otherwise land in `main` must be moved to historical/no-active posture or otherwise made merge-stable before PR green.
@@ -134,6 +136,8 @@ Do not use this layer to replace:
 - PR Readiness fold-down must decide what detailed branch-plan content moves into this branch receipt layer, what promotes durable lessons to workstreams/family dossiers, and when the branch plan is retired from active planning posture.
 
 ## Active Branch Authority Records
+
+This repo-tracked active list is intentionally narrow after External Operational State Store Stage 6C. It preserves the single standing Governance intake exception only. Non-standing active runtime, implementation, release-packaging, repair, selected-next, PR, watcher, release-window, or worktree operational authority must be read from `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks unless USER records an explicit transition waiver.
 
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
