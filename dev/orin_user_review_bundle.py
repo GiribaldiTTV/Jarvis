@@ -670,6 +670,38 @@ def _write_user_branch_plan_review(
             "Does USER agree that the accepted active-overlay product contract is preserved for a future implementation carrier?",
             "Does USER want a revision before PR Readiness, or should PR Readiness inspect this no-runtime closeout?",
         ]
+        if source_branch == FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH:
+            implementation_constraints[0] = (
+                "This implementation carrier must not implement SLC-051 or any "
+                "runtime/user-facing recording work during Stage 2."
+            )
+            source_truth_impact = [
+                "Family vision: keep per-overlay effective polling policy as a future FAM-006 planning constraint and keep Native Log Loader as future graph/log viewer input only.",
+                "Active branch plan and branch record: record the accepted v4 planning contract as imported starting implementation truth for this fresh carrier.",
+                "Backlog/roadmap: record implementation-carrier Stage 2 setup and Workstream Entry pending posture.",
+                "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
+                "Workstream seam order: target model remains the first expected implementation seam, pending Workstream Entry analysis and USER implementation approval.",
+            ]
+            contract_change_log = [
+                "v1 - USER-facing Branch Plan Review packet introduced with end-state/options sections.",
+                "v2 - Hardened into USER Branch Plan Contract with closed-loop response/digest, implementation constraints, source-truth impact, confirmation loop, and waiver semantics.",
+                "v3 - Digested USER recording product-model feedback: HUD Overlay launcher/target preview, standalone Recording Control window, Native Log Loader separation, future per-overlay effective polling policy, and target-model-first SLC-051.",
+                "v4 - USER accepted the plan and redirected the released foundation carrier to planning/governance PR Readiness with Workstream skipped.",
+                "Implementation-carrier v1 - Imported the accepted v4 contract onto the fresh current-main runtime implementation branch.",
+            ]
+            current_scope = [
+                "Admit the fresh runtime implementation carrier and preserve the accepted active-overlay recording end-state as starting implementation truth.",
+                "Record that active Overlay Profile membership is the source of truth for future recording targets.",
+                "Keep SLC-051 target-model-first and avoid blocking future per-overlay effective polling policy.",
+                "Confirm Stage 2 does not change Dashboard, Manage Monitors, Sensor Command Center, Overlay Profile, Overlay Display, Monitor Group, or recording runtime behavior.",
+                "Proceed only to Workstream Entry analysis after USER approval; runtime implementation requires a later bounded implementation approval.",
+            ]
+            user_decisions = [
+                "Does USER approve Workstream Entry analysis for this implementation carrier?",
+                "Does USER agree that Stage 2 claims no runtime/user-facing recording work, SLC-051 implementation, Workstream implementation, H1, LV1, or UTS?",
+                "Does USER agree that the accepted active-overlay product contract is imported as starting implementation truth for this carrier?",
+                "Does USER want a revision before Workstream Entry, or should Workstream Entry inspect this carrier and return the first bounded implementation approval packet?",
+            ]
     else:
         accepted_user_response = None
         codex_response_digest = None
