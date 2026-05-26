@@ -236,7 +236,11 @@ def scan_file(
                 active_branch_records,
                 historical_branch_records,
             )
-            if any(phrase in line for phrase in BLOCKING_PHRASES) and classification == "Migration Candidate":
+            normalized_line = line.casefold()
+            if (
+                any(phrase.casefold() in normalized_line for phrase in BLOCKING_PHRASES)
+                and classification == "Migration Candidate"
+            ):
                 classification = "Repo Live-State Leakage"
                 reason = "stale live PR/PR-readiness wording in a repo operational tracker surface"
             findings.append(
@@ -247,7 +251,7 @@ def scan_file(
                     classification=classification,
                     target_owner=TARGET_OWNER_BY_CATEGORY[category],
                     reason=reason,
-                    excerpt=line.strip(),
+                    excerpt=line.strip().lstrip("\ufeff"),
                 )
             )
     return findings
