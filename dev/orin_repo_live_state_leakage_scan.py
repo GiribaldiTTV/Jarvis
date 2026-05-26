@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -314,8 +315,21 @@ def finding_sort_key(finding: Finding) -> tuple[int, str, int, str]:
 def main() -> int:
     args = build_parser().parse_args()
     repo = Path(args.repo).expanduser().resolve(strict=False)
+    if not repo.is_dir():
+        print(f"ERROR: repo root does not exist or is not a directory: {repo}", file=sys.stderr)
+        return 2
+
     scan_paths = [Path(path) for path in args.path] if args.path else list(DEFAULT_SCAN_PATHS)
     files = collect_scan_files(repo, scan_paths)
+    if not files:
+        requested_paths = ", ".join(path.as_posix() for path in scan_paths)
+        print(
+            "ERROR: repo live-state scan found no files; check --repo and --path values. "
+            f"Requested paths: {requested_paths}",
+            file=sys.stderr,
+        )
+        return 2
+
     retired_plans = load_retired_branch_plans(repo)
     active_branch_records, historical_branch_records = load_branch_record_posture(repo)
     findings: list[Finding] = []
