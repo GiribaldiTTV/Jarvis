@@ -430,20 +430,22 @@ def _write_user_branch_plan_review(
         ) or "Pending USER Confirmation - Codex revised this review into the closed-loop USER Branch Plan Contract; USER must confirm the revised contract or explicitly waive it before implementation."
         contract_version = (
             _source_marker(active_plan_source, "Contract Version / Revision:") if active_plan_source else None
-        ) or "v2 - Closed-loop USER Branch Plan Contract revision."
+        ) or "v3 - USER recording product-model revision."
         what_user_sees = (
-            "HUD Overlay card: a compact recording target area inside the existing card, showing "
-            "the active Overlay Profile name, a clear Recording Target / Active Recording Target "
-            "label, and a concise summary of what would be recorded. Recording Settings: a later "
-            "compact standalone NDAI window for folder path, open-folder access, output naming/location, "
-            "and simple settings. Output files: later graph/plot-ready recording files, likely CSV-like "
-            "first but with format options proposed before file-writing is admitted."
+            "HUD Overlay card: a compact recording launcher and target/status preview inside the "
+            "existing card, showing the active Overlay Profile name, a Recording Target / Active "
+            "Recording Target label, a concise target summary, future-gated status, and a future "
+            "Open Recording Control action. Recording Control window: a later compact standalone "
+            "normal Windows/NDAI window for target summary and future controls/settings, with "
+            "secondary settings windows when details would make the main control bulky. Native Log "
+            "Loader: a separate future graph/log viewer, not the recording control surface."
         )
         why_nexus = (
-            "This fits Nexus because it keeps the HUD lightweight, ties recording to the overlay "
-            "workflow the user already understands, avoids a confusing second profile system, preserves "
-            "modular standalone windows for settings, keeps advanced output/log tooling future-gated, "
-            "and makes the recording target visible before any execution can surprise the user."
+            "This fits Nexus because it keeps recording intuitive, avoids a confusing second profile "
+            "system, keeps the HUD lightweight, gives the user a compact normal OS window for ongoing "
+            "control, keeps graph/log viewing separate from recording control, and protects future "
+            "log quality by preserving per-overlay effective polling policy as architecture before "
+            "recording execution exists."
         )
         design_ballot = [
             "Accept Codex recommendation.",
@@ -473,20 +475,23 @@ def _write_user_branch_plan_review(
             "Next USER decision needed.",
         ]
         implementation_constraints = [
-            "SLC-051 selects Option A: Target Preview First only after USER confirms this revised contract.",
-            "SLC-051 remains state/proof-only and must not add recording execution or file writing.",
-            "Recording target derives from active Overlay Profile membership and must cover null, empty, selected, switched, deleted/stale, duplicate/stale-ID, and high-volume membership states.",
-            "Start/Stop behavior remains future-gated until an approved seam admits it; any later placeholder must be clearly disabled or future-gated.",
-            "Native Log Loader remains future planning input unless USER separately approves durable source-truth mutation.",
+            "SLC-051 selects Option A: target model proof first only after USER confirms this revised contract.",
+            "SLC-051 remains state/proof-only and must not add recording execution, file writing, or real Start/Stop behavior.",
+            "Recording target derives only from active Overlay Profile membership and must cover null, empty, selected, switched, deleted/stale, duplicate/stale-ID, and high-volume membership states.",
+            "No separate Recording Profile system or recording-specific sensor chooser is admitted.",
+            "Start/Stop behavior remains future-gated until an approved seam admits execution; any later placeholder must be clearly disabled or future-gated.",
+            "Native Log Loader remains future planning input unless USER separately approves durable source-truth mutation or implementation.",
+            "Per-overlay effective polling policy remains future planning/source-truth constraint and SLC-051 must not design against it.",
             "Overlay Profile, Overlay Display, Monitor Group, Dashboard, Manage Monitors, and Sensor Command Center behavior must remain preserved.",
         ]
         rejected_deferred = [
             "Rejected for this branch direction: separate profile-loaded Recording Profile system.",
-            "Deferred: recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, and durable Native Log Loader source-truth mutation.",
+            "Rejected as the desired long-term polling model: duplicate CPU FAST / CPU SLOW Monitor Groups solely to vary polling cadence.",
+            "Deferred: recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, per-overlay effective polling policy implementation, and durable Native Log Loader source-truth mutation.",
         ]
         source_truth_impact = [
-            "Family vision: no durable Native Log Loader mutation in this gate.",
-            "Active branch plan and branch record: update to record the closed-loop contract and Pending USER Confirmation status.",
+            "Family vision: record per-overlay effective polling policy as a future FAM-006 planning constraint and keep Native Log Loader as future graph/log viewer input only.",
+            "Active branch plan and branch record: update to record the v3 contract, USER vision digest, implementation constraints, and Pending USER Confirmation status.",
             "Backlog/roadmap: no product-scope change required by this contract hardening unless USER revises the end-state.",
             "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
             "Workstream seam order: target model remains first as implementation staging, not the USER decision surface.",
@@ -494,6 +499,7 @@ def _write_user_branch_plan_review(
         contract_change_log = [
             "v1 - USER-facing Branch Plan Review packet introduced with end-state/options sections.",
             "v2 - Hardened into USER Branch Plan Contract with closed-loop response/digest, implementation constraints, source-truth impact, confirmation loop, and waiver semantics.",
+            "v3 - Digested USER recording product-model feedback: HUD Overlay launcher/target preview, standalone Recording Control window, Native Log Loader separation, future per-overlay effective polling policy, and target-model-first SLC-051.",
         ]
         completion_checklist = [
             "Contract Status is Complete or Waived by USER.",
@@ -511,49 +517,54 @@ def _write_user_branch_plan_review(
             "This branch is setting up the corrected FAM-006 recording direction: "
             "recording should be driven by the currently active Overlay Profile, "
             "not by loading a separate Recording Profile. The intended future "
-            "feature is lightweight recording access from the HUD Overlay card, "
-            "clear visibility into which active monitors would be recorded, and "
-            "a compact standalone Recording Settings window for recording path "
-            "and related settings."
+            "feature uses the HUD Overlay card as the launcher and target/status "
+            "preview, a compact standalone Recording Control window as the control "
+            "surface, and a separate future Native Log Loader for graph/log viewing."
         )
         end_state_vision = (
             "When this branch's admitted package is complete, the HUD Overlay card should make "
-            "recording feel tied to the overlay the user already chose. The user should be able "
-            "to understand which active Overlay Profile members are the intended recording target "
-            "before recording execution is admitted. A compact, immersive NDAI Recording Settings "
-            "window is planned as an independent normal OS window for path/settings work, while "
-            "actual file writing remains separately approved."
+            "recording feel tied to the overlay the user already chose. The user should understand "
+            "which active Overlay Profile members are the intended recording target, launch a compact "
+            "standalone Recording Control window from the HUD Overlay card, and keep graph/log viewing "
+            "separate in a future Native Log Loader. Actual file writing and real Start/Stop remain "
+            "separately approved."
         )
         walkthrough = [
-            "Dashboard / HUD Overlay card: the recording area should sit inside the existing HUD Overlay card and explain the active target before Start/Stop execution is admitted.",
+            "Dashboard / HUD Overlay card: the recording area should sit inside the existing HUD Overlay card as launcher and target/status preview before Start/Stop execution is admitted.",
             "Active Overlay Profile membership: the selected overlay's active members become the future recording target; no separate Recording Profile selector is introduced.",
             "Target visibility: SLC-051 should prove null, empty, selected, switched, deleted/stale, duplicate/stale-ID, and high-volume target states before visible controls depend on that model.",
-            "Recording Settings window: later seams plan a small independent NDAI window with folder path, open-folder access, and recording settings without becoming a Dashboard child window.",
-            "Output contract: later seams plan a graph/plot-ready file contract, but export/share and Native Log Loader remain future planning unless USER separately admits them.",
+            "Recording Control window: later seams plan a small independent NDAI/Windows window that can be moved, minimized, taskbar-restored, and kept open outside Dashboard child-window lifetime.",
+            "Secondary settings/details windows: bulky or advanced settings should open outside the compact control surface when USER later approves them.",
+            "Output contract and Native Log Loader: later seams plan graph/plot-ready files, while Native Log Loader remains a separate future viewer unless USER separately admits it.",
         ]
         surface_map = [
-            "HUD Overlay card: primary future recording access and active target transparency surface.",
+            "HUD Overlay card: launcher and active target/status preview surface.",
+            "Recording Control window: compact standalone control surface for future target summary, Start/Stop, and path/status controls after approval.",
             "Dashboard: hosts the HUD Overlay card and must not regress existing Dashboard behavior.",
             "Manage Monitors / Sensor Command Center: remain monitor/source management owners; recording target proof must not mutate their state.",
             "Overlay Profile / Overlay Display: remain display and membership owners; recording reads active membership without taking ownership.",
-            "Recording Settings window: future compact standalone OS-level settings surface.",
+            "Monitor Group: reusable sensor/source group; future per-overlay effective polling policy should avoid duplicate FAST/SLOW group workarounds.",
             "Files/output: future graph/plot-ready recording contract only after explicit approval.",
+            "Native Log Loader: future separate graph/log viewer for completed recordings.",
             "Tray/export/provider/theme/FAM-007: future-gated surfaces outside this branch unless USER separately approves.",
         ]
         implementation_options = [
-            "Option A - Target Preview First: prove the active-overlay recording target model and show or prepare what would be recorded without Start/Stop execution. Pros: safest foundation for SLC-051; Cons: less visual excitement; Risk: low. Codex recommends this first.",
-            "Option B - Disabled Start/Stop Placeholder: show future Start/Stop placement while keeping controls disabled. Pros: easier visual planning; Cons: can confuse placeholder UI with implemented recording; Risk: medium.",
-            "Option C - Settings Window First: build the compact Recording Settings window before HUD target proof. Pros: validates standalone-window direction early; Cons: weaker active-overlay recording flow foundation; Risk: medium.",
+            "Option A - Target model proof first: prove the active-overlay recording target model before visible controls depend on it. Pros: safest foundation; Cons: least visible at first; Risk: low. Codex recommends this first.",
+            "Option B - Target preview in HUD card: show active target/status preview in the HUD Overlay card after or alongside safe target proof. Pros: strong user clarity; Cons: needs visual proof; Risk: low to medium.",
+            "Option C - Standalone Recording Control window shell first: build the compact OS-level window before target proof is complete. Pros: validates window feel early; Cons: weaker target-model foundation; Risk: medium.",
+            "Option D - Live Start/Stop planning later: plan real controls only after recording execution and file writing are admitted. Pros: avoids fake execution; Cons: later visible payoff; Risk: low when deferred.",
         ]
         recommended_direction = (
-            "Codex recommends Option A for SLC-051: establish the active Overlay Profile target "
-            "model first, then use later seams for HUD card controls, the compact Recording Settings "
-            "window, output-file contract, and live/user proof. This keeps the branch aligned with "
-            "the USER vision while avoiding fake or premature recording execution."
+            "Codex recommends Option A first: establish the active Overlay Profile target model, "
+            "then use later seams for HUD target preview, the standalone Recording Control window, "
+            "output-file contract, and live/user proof. For future recording execution, Codex "
+            "recommends snapshot-at-recording-start by default unless USER revises it, while SLC-051 "
+            "proves the live current active-overlay target because no recording is occurring yet."
         )
         current_scope = [
             "Plan and implement, only after separate approval, the active-overlay recording end-state accepted by USER.",
             "Use active Overlay Profile membership as the source of truth for future recording targets.",
+            "Keep SLC-051 target-model-first and avoid blocking future per-overlay effective polling policy.",
             "Preserve Dashboard, Manage Monitors, Sensor Command Center, Overlay Profile, Overlay Display, and Monitor Group behavior.",
             "Create validators/helpers/source-truth proof only where required by the approved implementation stage.",
         ]
@@ -561,18 +572,19 @@ def _write_user_branch_plan_review(
             "Recording execution and file writing remain blocked until an approved seam admits them.",
             "Tray recording controls, export/share/import, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup, PR, merge, release, and issue mutation remain separate USER decisions.",
             "Native Log Loader is early USER input only unless USER separately approves durable source-truth mutation.",
+            "Per-overlay effective polling policy is future FAM-006 architecture unless USER separately admits implementation.",
         ]
         slc_package_plan = [
             "Implementation staging note, not the USER decision surface: Codex uses SLC-051 through SLC-055 internally to sequence the accepted end-state safely.",
             "Target model comes first because every later UI/control/output behavior depends on knowing what would be recorded.",
-            "HUD card controls, Recording Settings, output contract, and validation/live proof follow as staged implementation only after the end-state and boundaries are accepted.",
+            "HUD target preview, Recording Control window, output contract, and validation/live proof follow as staged implementation only after the end-state and boundaries are accepted.",
         ]
         user_decisions = [
-            "Does USER accept the active-overlay-driven recording end-state, or should Codex change/add/remove feature behavior before implementation planning proceeds?",
-            "Does USER want the HUD Overlay card to eventually show target preview only, disabled future Start/Stop placement, or another compact Recording area concept?",
-            "Does USER accept the compact standalone Recording Settings window direction, or want different window behavior/settings proposed?",
-            "Does USER want graph/plot-ready recording output planned around CSV-like output first, or should Codex present multiple output-format options later?",
-            "Should Native Log Loader remain future planning input only for this branch?",
+            "Does USER confirm the HUD Overlay card as launcher and target/status preview, or should that end-state change?",
+            "Does USER confirm the standalone Recording Control window as the compact future control surface?",
+            "Does USER confirm Native Log Loader stays a separate future graph/log viewer and not the control surface?",
+            "Does USER confirm per-overlay effective polling policy as a future FAM-006 planning constraint rather than SLC-051 implementation?",
+            "Does USER want any other product/end-state options before SLC-051 implementation planning proceeds?",
         ]
     else:
         accepted_user_response = None

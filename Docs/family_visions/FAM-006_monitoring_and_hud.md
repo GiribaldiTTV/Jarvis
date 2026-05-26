@@ -19,15 +19,22 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 
 ## Recording Vision
 
-- Recording controls should live inside the HUD Overlay card as a lightweight section.
-- The HUD Overlay card should expose a small Quick Access recording control with Start Recording and Stop Recording.
-- Recording should capture only the currently active Overlay Profile and the monitors assigned to that overlay. Separate Recording Profile monitor/source selection is no longer the desired product direction.
-- Recording output should export to a valid, durable file format that can later be graphed, plotted, or otherwise analyzed reliably and easily.
-- A Recording Settings button should open a dedicated Recording Settings window.
-- Recording Settings should include the recording folder path, a quick access button to open the log/output folder, Start Recording, Stop Recording, and only other settings explicitly approved by USER after proposal.
-- The Recording Settings window should be a separate normal OS-level window, not a Dashboard child window, so the user can keep it open, move it, minimize it, or close/minimize the HUD Dashboard independently.
-- Recording Settings should look like an immersive NDAI window while remaining compact and lightweight.
-- The Recording Settings window should be small by default because it is likely to stay open while users record. Any future setting that would make it bulky should be moved behind a secondary settings surface or other explicit USER-approved expansion.
+- Recording should be intuitive and automatically connected to the currently active Overlay Profile.
+- Recording should not require a separate Recording Profile, duplicate monitor groups, or a recording-specific sensor chooser. The active Overlay Profile and its active membership define the recording target.
+- The HUD Overlay card should act as the launcher and target/status preview surface for recording. It should show the active Overlay Profile, the future recording target summary, and a truthful inactive/future-gated status before recording execution exists.
+- A future HUD Overlay card action should open the compact Recording Control window. Real Start/Stop controls remain future-gated until recording execution and file writing are explicitly admitted.
+- The Recording Control window should be a small standalone normal OS-level NDAI window, not a Dashboard child panel. The user should be able to move it, minimize it, restore it from the taskbar, and keep it open independently of the Dashboard.
+- The Recording Control window should stay compact by default because it is likely to remain open while the user records. Any advanced or bulky settings should move behind a secondary settings/details window or another explicitly approved surface.
+- Future recording output should use a valid, durable, graph/plot-ready format. CSV-like output is a likely first candidate, but file-format options should be proposed before output/file writing is admitted.
+- Native Log Loader is a future separate graph/log viewer that reads completed recording logs over time. It is not the recording control surface and is not admitted for implementation by the active-overlay recording contract alone.
+
+## Future Effective Polling Policy Vision
+
+- Future FAM-006 architecture should support per-overlay effective polling policy so the same Monitor Group can be reused by multiple Overlay Profiles with different effective polling intervals.
+- Example future target: a Gaming Overlay can use CPU Group and GPU Group at 1 second polling, while a Lightweight Overlay can use the same groups at 3 second polling.
+- The desired long-term model should avoid duplicate Monitor Groups such as CPU Group FAST and CPU Group SLOW merely to change polling cadence.
+- Recording should eventually inherit the active overlay's effective runtime policy when recording output is admitted.
+- This is a future planning/source-truth constraint, not SLC-051 implementation authority. SLC-051 should avoid designing the recording target model in a way that blocks future per-overlay effective polling policy.
 
 ## HUD Overlay Card Vision
 
