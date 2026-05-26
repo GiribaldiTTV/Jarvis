@@ -4470,6 +4470,17 @@ RELEASE_READINESS_HEALTH_STALE_POST_MERGE_PATTERNS = (
     ("release window unresolved", r"\bRelease Window(?: Audit)?:\s*`?(?:TBD|Unknown|Unresolved|Pending)\b"),
 )
 
+RELEASE_READINESS_ACTIVE_AUTHORITY_FOLD_DOWN_MARKERS = (
+    "must not remain active branch authority",
+    "must not retain active",
+    "must be historical merged-unreleased",
+    "becomes historical merged-unreleased",
+    "move this branch authority to historical merged-unreleased",
+    "move the branch authority to historical merged-unreleased",
+    "move the record to historical branch authority records",
+    "historical/no-active",
+)
+
 PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
     Path("Docs/phase_governance.md"): (
         "analysis-first readiness-lock gate",
@@ -19105,6 +19116,29 @@ def _run_release_readiness_health_gate(
     )
     if not post_merge_state:
         return
+
+    fold_down_text = f"{health_pass}\n{post_merge_state}".casefold()
+    fold_down_projected = any(
+        marker in fold_down_text
+        for marker in RELEASE_READINESS_ACTIVE_AUTHORITY_FOLD_DOWN_MARKERS
+    )
+    if (
+        current_active_branch_record_path
+        and record_path == current_active_branch_record_path
+        and current_active_branch_record_path != STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
+        and fold_down_projected
+    ):
+        require(
+            False,
+            (
+                f"{record_path}: PR Readiness Stage 1 branch-authority fold-down required; "
+                "Release Readiness Health Pass/Post-Merge State projects historical/no-active "
+                "posture, but the actual record still remains listed under Active Branch "
+                "Authority Records. Move the record to Historical Branch Authority Records, "
+                "retire or historical-label the branch plan, update compact pointers, and rerun "
+                "the release-readiness health gate before Stage 2, PR green, or merge approval."
+            ),
+        )
 
     if "No Active Branch" in post_merge_state:
         _run_merge_target_authority_projection_gate(
