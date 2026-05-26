@@ -17,8 +17,8 @@ Planned Runtime Delta: None. This branch changes source-truth receipts and revie
 User-Facing Delta: None. Public users see no runtime UI, behavior, provider, model, memory, backup, import, shortcut, installer, voice/Core, or packaging change.
 User-Facing Runtime Delta: None. No visible runtime surface changes.
 State / Config / Schema Delta: None. No runtime state, config, storage, backup, memory, provider, model, private root, or repo schema changes.
-Validator / Helper Delta: Reuse existing branch governance, release body, AI provider state, public leak-prevention, branch-readiness planning, source-owner marker, governance efficiency, validation-suite, compile, and worktree rebaseline audit helpers; no new validator or fixture is required unless validation exposes a gap.
-Expected Changed Files / Surfaces: `Docs/branch_records/index.md`; `Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md`; `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md`; `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`; `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`; `Docs/branch_plans/retirement_index.md`; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; `Docs/worktree_slots.md`; `Docs/branch_records/feature_release_readiness_source_truth_intake.md`; `Docs/governance_docs_full_inventory_reform_audit.md`; `Docs/governance_docs_reform_user_review_index.md`; Desktop USER review packet files under `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007` if generated.
+Validator / Helper Delta: Reuse existing branch governance, release body, AI provider state, public leak-prevention, branch-readiness planning, source-owner marker, governance efficiency, validation-suite, compile, and worktree rebaseline audit helpers; update `dev/orin_docs_inventory_reform_audit.py` only for the same-PR Codex review repair that prevents active current branch plans from being listed in the retired-plan cleanup queue.
+Expected Changed Files / Surfaces: `Docs/branch_records/index.md`; `Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md`; `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md`; `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`; `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`; `Docs/branch_plans/retirement_index.md`; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`; `Docs/worktree_slots.md`; `Docs/branch_records/feature_release_readiness_source_truth_intake.md`; `Docs/governance_docs_full_inventory_reform_audit.md`; `Docs/governance_docs_reform_user_review_index.md`; `dev/orin_docs_inventory_reform_audit.py`; Desktop USER review packet files under `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007` if generated.
 Workstream / Seam Map: Seam 1 -> Carrier authority and worktree slot rebinding; Seam 2 -> PR #217 released governance evidence; Seam 3 -> PR #218 released FAM-007 Dev/Owner Skeleton Readiness evidence; Seam 4 -> PR #219 released fold-down prevention evidence; Seam 5 -> Review packet and validation proof.
 Per-Seam Implementation Checklist: Each seam must preserve public/private/provider/runtime exclusions, avoid release execution and private/runtime work, update only the owner surfaces named in this plan, and validate release/source-truth posture.
 Per-Seam Validation Checklist: Run diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, governance efficiency validation, source-owner marker validation, release body validation, AI provider state validation, public leak-prevention validation, branch-readiness planning fixtures, validation-suite recommendation, compileall, and worktree rebaseline audit.
@@ -79,7 +79,7 @@ Current Runtime Baseline: `origin/main@73b4905cc5e6c626fae56ffd83f9df6c25e116a4`
 Planned Runtime Delta: `None`
 User-Facing Runtime Delta: `None`
 State / Config / Schema Delta: `None`
-Validator / Helper Delta: `Reuse existing validators/helpers; no new helper expected.`
+Validator / Helper Delta: `Reuse existing validators/helpers; same-PR Codex review repair updates dev/orin_docs_inventory_reform_audit.py so active current branch plans remain active in generated inventory output.`
 Expected Changed Files / Surfaces: `Listed in the Branch Runtime Engineering Plan section above.`
 Approval-Boundary Audit: `Branch Readiness Stage 2 canon closure only; private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work remains blocked.`
 Future-Gated Items: `Private Dev/Owner roots, private remotes, backup/import/provider/model/memory/voice/Core/shortcut/installer work, PR, merge, release, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta.`
@@ -358,6 +358,26 @@ Implementation Approval: `Denied for runtime/private Workstream implementation; 
 - Fallback Evidence: `dev/orin_docs_inventory_reform_audit.py generated the review index with the current Docs file count.`
 - USER Decision / Waiver: `USER approved Stage 2 post-release canon closure and validation refreshes required by source truth.`
 - Fold-Down Target: `Current Docs USER review index receipt.`
+
+### Changed Surface: dev/orin_docs_inventory_reform_audit.py
+
+- Surface Class: `validator/helper`
+- Change Intent: `Prevent the reusable Docs inventory generator from listing the current active branch plan as a retired branch plan cleanup candidate.`
+- Why This File Was Touched: `Codex review on PR #220 found that the generated USER review index misclassified the active canon-closure plan as retired, which could target live branch authority for cleanup.`
+- Owned Behavior / Fact Class: `Docs inventory generation and active branch-plan classification.`
+- Canonical Owner / Source Owner: `dev/orin_docs_inventory_reform_audit.py`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Low`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `Medium`
+- Conflict Resolution Rule: `Keep historical branch plans retired by default while preserving the current branch plan as active until PR Readiness fold-down.`
+- Rebaseline Handling: `Stop if origin/main advances before validation.`
+- Validation Proof: `python dev\orin_governance_efficiency_validation.py; python -m compileall -q dev desktop Audio main.py`
+- Fallback Evidence: `Generated Docs inventory output labels this branch plan as Keep active branch plan and omits it from the retired-plan USER decision queue.`
+- USER Decision / Waiver: `USER approved same-PR repair for PR #220 Codex review comments.`
+- Fold-Down Target: `Reusable helper behavior for future Docs inventory refreshes.`
 
 ## Formal Next Legal Phase Digest
 
