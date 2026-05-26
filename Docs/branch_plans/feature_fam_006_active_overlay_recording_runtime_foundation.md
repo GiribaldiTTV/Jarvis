@@ -209,6 +209,7 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 USER Branch Plan Review: Required - Stage 2 creates a USER branch-plan review packet and future Workstream Entry must present a full readable implementation plan before runtime work begins.
 Review Status: Needs USER Decision - Workstream Entry analysis remains pending after Stage 2 setup.
 Desktop Review Bundle: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-006`
+USER Review Packet Finding: Required before implementation approval - Workstream Entry must load and digest `START_HERE.md`, `USER_BRANCH_PLAN_REVIEW.md`, and `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-006.zip`; compare packet source HEAD and review zip source HEAD with current branch HEAD; then report loaded, stale, missing, waived, or blocking status before SLC-051 implementation can begin.
 Plain-Language Branch Goal: Establish the corrected FAM-006 recording branch where recording is driven by the active Overlay Profile instead of a separate Recording Profile.
 Planned User-Facing Outcome: No user-facing runtime change in Stage 2; future user-facing outcome is lightweight HUD Overlay recording access, transparent active monitor target, and a compact standalone Recording Settings window after later approval.
 Visual / Behavioral Description: Future recording should be visible from the HUD Overlay card, show what active overlay membership will be recorded, and let the user open a small NDAI Recording Settings window that behaves like a normal OS window.

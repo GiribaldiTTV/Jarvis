@@ -128,6 +128,7 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_recording_pr
 USER Branch Plan Review: Required - future Workstream Entry must present the readable implementation plan before any runtime work begins or resumes.
 Review Status: Needs USER Decision - Recording Profile Workstream route is withdrawn and future active-overlay-driven recording requires Branch Readiness Stage 1 analysis first.
 Desktop Review Bundle: Not required - current branch is a rollback/source-truth carrier only and does not authorize runtime implementation review.
+USER Review Packet Finding: Waived for this rollback/source-truth receipt carrier only - no implementation approval can proceed from this withdrawn branch, and any future runtime Workstream must load or refresh the USER Review Packet on the active-overlay carrier before implementation.
 Plain-Language Branch Goal: Preserve rollback/source-truth posture after the profile-loaded Recording Profile route was rejected and preserve the corrected active-overlay-driven recording vision for future planning.
 Planned User-Facing Outcome: No user-facing runtime change remains from this branch after rollback; future recording controls require a new Branch Readiness and Workstream path.
 Visual / Behavioral Description: Future recording should live in the HUD Overlay card, record active Overlay Profile membership, and use a compact standalone Recording Settings window after USER approval.

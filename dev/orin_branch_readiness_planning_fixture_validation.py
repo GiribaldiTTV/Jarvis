@@ -96,6 +96,9 @@ VALID_USER_BRANCH_PLAN_REVIEW_FIXTURE = (
 INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_OUTCOME_FIXTURE = (
     FIXTURE_DIR / "invalid_user_branch_plan_review_missing_outcome.md"
 )
+INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_PACKET_FINDING_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_branch_plan_review_missing_packet_finding.md"
+)
 INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_HARDENING_FIXTURE = (
     FIXTURE_DIR / "invalid_user_branch_plan_review_missing_hardening.md"
 )
@@ -167,6 +170,9 @@ EXPECTED_WORKSTREAM_ENTRY_FIRST_SEAM_FAILURE_SNIPPET = (
 )
 EXPECTED_USER_BRANCH_PLAN_MISSING_OUTCOME_FAILURE_SNIPPET = (
     "Planned User-Facing Outcome:"
+)
+EXPECTED_USER_BRANCH_PLAN_MISSING_PACKET_FINDING_FAILURE_SNIPPET = (
+    "USER Review Packet Finding:"
 )
 EXPECTED_USER_BRANCH_PLAN_MISSING_HARDENING_FAILURE_SNIPPET = "Hardening Plan:"
 EXPECTED_USER_BRANCH_PLAN_MISSING_LIVE_VALIDATION_FAILURE_SNIPPET = (
@@ -586,6 +592,7 @@ def validate() -> list[str]:
         INVALID_WORKSTREAM_ENTRY_FIRST_SEAM_ONLY_FIXTURE,
         VALID_USER_BRANCH_PLAN_REVIEW_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_OUTCOME_FIXTURE,
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_PACKET_FINDING_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_HARDENING_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_LIVE_VALIDATION_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE,
@@ -949,6 +956,19 @@ def validate() -> list[str]:
         failures.append(
             "Invalid USER Branch Plan Review fixture did not reject missing "
             "planned user-facing outcome"
+        )
+
+    missing_packet_finding_failures = _validate_user_branch_plan_review_text(
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_PACKET_FINDING_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_USER_BRANCH_PLAN_MISSING_PACKET_FINDING_FAILURE_SNIPPET not in "\n".join(
+        missing_packet_finding_failures
+    ):
+        failures.append(
+            "Invalid USER Branch Plan Review fixture did not reject missing "
+            "USER Review Packet Finding"
         )
 
     missing_review_hardening_failures = _validate_user_branch_plan_review_text(
