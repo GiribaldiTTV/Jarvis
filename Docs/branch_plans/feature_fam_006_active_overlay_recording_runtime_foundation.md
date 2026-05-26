@@ -124,6 +124,26 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - USER Decision / Waiver: `USER approved Stage 2 setup for the corrected carrier.`
 - Fold-Down Target: `Future PR Readiness decides durable family dossier or branch-record retention.`
 
+### Changed Surface: Docs/Main.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve incoming current-main source-truth router and sync-index updates while keeping FAM-006 active-overlay recording planning/governance closeout routed through this branch's maintained authority record and plan.`
+- Why This File Was Touched: `The FAM-006 branch history includes Main/router changes from earlier governance and branch setup work, while origin/main now carries Release Readiness/source-truth-intake updates that must remain the canonical router context before PR Readiness.`
+- Owned Behavior / Fact Class: `Primary repo source-truth router, loader map, and sync index.`
+- Canonical Owner / Source Owner: `Docs/Main.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `High when current-main governance/source-truth router updates overlap branch-local FAM-006 routing context.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming current-main router/source-truth-intake context, preserve any still-current FAM-006 active-overlay planning pointers only where they remain legitimate, and do not let this FAM-006 branch overwrite newer repo-wide source-truth routing.`
+- Rebaseline Handling: `During FAM-006 current-main reconciliation, accept current-main Main/router updates as authority and retain FAM-006 planning-governance closeout only through the active FAM-006 branch record, branch plan, family vision, backlog, roadmap, and refreshed review packet.`
+- Validation Proof: `Pre-reconciliation overlap audit must pass after this ledger repair; branch governance validation, release-readiness health gate, branch readiness planning fixture validation, FAM-006 validators, source-owner marker validation, and compileall must pass before current-main reconciliation resumes.`
+- Fallback Evidence: `origin/main@3dd999f873bb4f4dffb76ad2f3f613a34ccf776c includes Release Readiness/source-truth-intake updates from PR #221; this FAM-006 branch plan remains the active owner only for FAM-006 planning-governance closeout.`
+- USER Decision / Waiver: `USER approved bounded FAM-006 pre-reconciliation overlap-intent repair to preserve incoming origin/main source-truth/governance context while preserving the FAM-006 planning/governance closeout posture.`
+- Fold-Down Target: `Docs/Main.md remains the repo router; FAM-006 branch-local proof folds into PR Readiness source-truth projection.`
+
 ### Changed Surface: Docs/prebeta_roadmap.md
 
 - Surface Class: `governance/source-truth`
@@ -163,6 +183,46 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - Fallback Evidence: `Use this plan, active record, and retirement index row as lifecycle evidence.`
 - USER Decision / Waiver: `USER approved Stage 2 setup and did not authorize old branch deletion.`
 - Fold-Down Target: `Future PR Readiness may retire this plan after merge/release.`
+
+### Changed Surface: Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve incoming current-main FAM-007 v1.7.23 post-release canon-closure branch-plan context during FAM-006 current-main reconciliation.`
+- Why This File Was Touched: `The FAM-006 branch carries older FAM-007 closure context from branch history, and origin/main now includes PR #221 / release-readiness source-truth-intake updates that refine the FAM-007 v1.7.23 post-release canon closure.`
+- Owned Behavior / Fact Class: `FAM-007 historical post-release canon-closure planning receipt.`
+- Canonical Owner / Source Owner: `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium to High when current-main FAM-007 fold-down/canon-closure updates overlap FAM-006 branch history.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming current-main FAM-007 post-release canon-closure source truth, do not convert this FAM-007 plan into FAM-006 authority, and keep FAM-006 active-overlay recording truth in the FAM-006 branch record/plan.`
+- Rebaseline Handling: `During FAM-006 current-main reconciliation, accept current-main FAM-007 v1.7.23 canon-closure updates for this file while preserving FAM-006 planning/governance closeout and avoiding FAM-007 branch/workstream mutation.`
+- Validation Proof: `Pre-reconciliation overlap audit must pass; branch governance validation, release-readiness health gate, branch readiness planning fixture validation, source-owner marker validation, and compileall must pass before current-main reconciliation resumes.`
+- Fallback Evidence: `origin/main@3dd999f873bb4f4dffb76ad2f3f613a34ccf776c contains incoming FAM-007 post-release canon-closure and Release Readiness source-truth-intake updates; this ledger is reconciliation intent evidence only.`
+- USER Decision / Waiver: `USER approved bounded FAM-006 pre-reconciliation overlap-intent repair; no approval is granted for FAM-007 branch/workstream mutation.`
+- Fold-Down Target: `FAM-007 historical/canon-closure source truth remains owned by FAM-007/current-main history; FAM-006 PR Readiness records only that it preserved incoming context.`
+
+### Changed Surface: Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve incoming current-main FAM-007 v1.7.23 post-release canon-closure authority record context during FAM-006 current-main reconciliation.`
+- Why This File Was Touched: `The FAM-006 branch carries older FAM-007 closure authority context from branch history, and origin/main now includes PR #221 / release-readiness source-truth-intake updates that refine the FAM-007 v1.7.23 post-release canon closure authority.`
+- Owned Behavior / Fact Class: `FAM-007 historical post-release canon-closure branch authority receipt.`
+- Canonical Owner / Source Owner: `Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium to High when current-main FAM-007 authority/fold-down updates overlap FAM-006 branch history.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming current-main FAM-007 post-release canon-closure authority receipt, do not route FAM-007 authority through FAM-006, and keep FAM-006 active branch authority in Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md.`
+- Rebaseline Handling: `During FAM-006 current-main reconciliation, accept current-main FAM-007 v1.7.23 canon-closure updates for this file while preserving FAM-006 planning/governance closeout and avoiding FAM-007 branch/workstream mutation.`
+- Validation Proof: `Pre-reconciliation overlap audit must pass; branch governance validation, release-readiness health gate, branch readiness planning fixture validation, source-owner marker validation, and compileall must pass before current-main reconciliation resumes.`
+- Fallback Evidence: `origin/main@3dd999f873bb4f4dffb76ad2f3f613a34ccf776c contains incoming FAM-007 post-release canon-closure and Release Readiness source-truth-intake updates; this ledger is reconciliation intent evidence only.`
+- USER Decision / Waiver: `USER approved bounded FAM-006 pre-reconciliation overlap-intent repair; no approval is granted for FAM-007 branch/workstream mutation.`
+- Fold-Down Target: `FAM-007 historical/canon-closure authority remains owned by FAM-007/current-main history; FAM-006 PR Readiness records only that it preserved incoming context.`
 
 ### Changed Surface: Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md
 
@@ -283,6 +343,26 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - Fallback Evidence: `Existing phase governance already names START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, exported zip, source HEAD comparison, stale/not-digested blockers, and waiver/blocker disposition.`
 - USER Decision / Waiver: `USER approved bounded overlap-intent repair for this file; no waiver authorizes Workstream implementation without the review packet finding.`
 - Fold-Down Target: `Docs/phase_governance.md remains the canonical phase owner; branch-local proof folds down through PR Readiness.`
+
+### Changed Surface: Docs/governance_efficiency_operating_model.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve incoming current-main governance-efficiency/source-truth-intake context while keeping FAM-006 planning/governance closeout limited to this branch's accepted active-overlay recording contract.`
+- Why This File Was Touched: `The FAM-006 branch carries older governance-efficiency context from review-packet and governance hardening work, while origin/main now includes PR #221 Release Readiness/source-truth-intake updates that should remain canonical for repo-wide governance efficiency.`
+- Owned Behavior / Fact Class: `Repo-wide governance efficiency, source-truth reform, and operating-model guidance.`
+- Canonical Owner / Source Owner: `Docs/governance_efficiency_operating_model.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium to High when current-main governance-intake updates overlap FAM-006 branch-local governance hardening history.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming current-main governance-efficiency/source-truth-intake updates; do not let FAM-006 branch-local review-packet hardening weaken or replace repo-wide governance operating-model truth.`
+- Rebaseline Handling: `During FAM-006 current-main reconciliation, accept current-main governance-efficiency context as authority and preserve FAM-006-specific planning/governance closeout only in FAM-006 branch source truth and review packet.`
+- Validation Proof: `Pre-reconciliation overlap audit must pass; branch governance validation, release-readiness health gate, branch readiness planning fixture validation, source-owner marker validation, and compileall must pass before current-main reconciliation resumes.`
+- Fallback Evidence: `origin/main@3dd999f873bb4f4dffb76ad2f3f613a34ccf776c includes Release Readiness/source-truth-intake governance updates from PR #221; FAM-006 remains the owner only for its branch-local planning closeout.`
+- USER Decision / Waiver: `USER approved bounded FAM-006 pre-reconciliation overlap-intent repair to preserve incoming origin/main governance context while preserving the FAM-006 planning/governance closeout posture.`
+- Fold-Down Target: `Repo-wide governance-efficiency truth remains in this shared file; branch-local proof folds into FAM-006 PR Readiness only.`
 
 ### Changed Surface: Docs/validation_helper_registry.md
 
