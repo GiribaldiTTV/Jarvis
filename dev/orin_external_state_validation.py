@@ -161,7 +161,7 @@ def main() -> int:
 
     if not root.exists():
         print("Validation Result: External State Missing")
-        if args.require_root or args.require_stage4_records:
+        if args.require_root or args.require_stage4_records or args.expected_source_head:
             print("Clean Clone Boundary: BLOCKED - required local external-state validation needs the root")
             return 1
         print("Clean Clone Boundary: PASS - missing root is not a repo validation failure")
