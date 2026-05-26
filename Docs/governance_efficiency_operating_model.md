@@ -12,7 +12,7 @@ This model applies to governance/source-truth/process reform only.
 
 It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch deletion, worktree cleanup, provider/model execution, downloads, memory work, voice/Core sync, shortcut or installer work, AI Product Contract import, or private Dev ORIN import.
 
-External Operational State Store / Release Debt Abolition work advances only through separately USER-approved stages. Docs/source-truth contracts, helper scaffolds, local root initialization, report-only migration-map helpers, validator transition, active-state migration, repo cleanup, file moves, file deletion, file archival, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase. External-state helpers must default to report/dry-run behavior unless a later explicit USER-approved apply step authorizes mutation.
+External Operational State Store / Release Debt Abolition work advances only through separately USER-approved stages. Docs/source-truth contracts, helper scaffolds, local root initialization, report-only migration-map helpers, active-state migration planning packets, validator transition, active-state migration execution, repo cleanup, file moves, file deletion, file archival, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase. External-state helpers must default to report/dry-run behavior unless a later explicit USER-approved apply step authorizes mutation.
 
 Planning Reference: `Docs/external_operational_state_store_reform_plan.md` preserves the agreed sequencing, Docs Split Target Matrix, implementation annotations, and future-work design. Use it as the durable future-work reference, not as active migration authority.
 
@@ -174,12 +174,13 @@ Required State:
 - Stage 2 means USER-approved local root initialization only; it may initialize `C:\Nexus Governance State`, but it does not migrate active branch/worktree/release-window state, transition repo validators, or move repo docs.
 - Stage 3 means migration planning and external preview packets only; it may record no-mutation preview packets in external state, but it does not migrate active state.
 - Stage 4A means report-only repo live-state leakage scanning and migration-map helper support; it may inspect repo docs and print migration candidates, but it does not edit repo docs, migrate active state, create external branch/worktree/release-window records, or transition validators.
+- Stage 4B means active-state migration planning packet only; it may use Stage 4A scanner output to name exact repo surfaces, target external records, lock/snapshot/version requirements, durable receipt preservation, and no-loss promotion rules, but it does not create or update central external records, move/delete/archive repo docs, migrate active state, or transition validators.
 - Current repo branch records and branch plans remain legal active owners until a USER-approved migration stage replaces them with external operational state.
 - Main, phase governance, this model, the external-state plan, branch authority record, and helper registry must agree on the current stage and next legal step.
 
 Allowed Values:
 
-- Transition Stage: `Stage 0 - Docs Plan`, `Stage 1 - Helper Bootstrap Planning`, `Stage 2 - Root Initialization`, `Stage 3 - Migration Preview`, `Stage 4A - Report-Only Migration Map Helper`, `Stage 4 - Active-State Migration`, `Stage 5 - Validator Transition`, `Stage 6 - Repo Cleanup`, `Complete`, `Blocked`, `USER Decision Required`
+- Transition Stage: `Stage 0 - Docs Plan`, `Stage 1 - Helper Bootstrap Planning`, `Stage 2 - Root Initialization`, `Stage 3 - Migration Preview`, `Stage 4A - Report-Only Migration Map Helper`, `Stage 4B - Active-State Migration Planning Packet`, `Stage 4 - Active-State Migration`, `Stage 5 - Validator Transition`, `Stage 6 - Repo Cleanup`, `Complete`, `Blocked`, `USER Decision Required`
 - Docs Split Matrix Status: `Current`, `Missing`, `Stale`, `Needs USER Review`
 - Active-State Owner Boundary: `Repo Current Owners`, `Hybrid Transition`, `External Canonical`, `Blocked`
 - External Root Approval: `Not Approved`, `Bootstrap Approved`, `Migration Waiver Approved`, `Revoked`, `USER Decision Required`
