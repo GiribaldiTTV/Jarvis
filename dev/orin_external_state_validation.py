@@ -54,6 +54,12 @@ def main() -> int:
     print(f"Root: {root}")
     print(f"Root Required: {'YES' if args.require_root else 'NO'}")
 
+    if issues:
+        print("Validation Result: BLOCKED")
+        for issue in issues:
+            print(issue)
+        return 1
+
     if not root.exists():
         print("Validation Result: External State Missing")
         print("Clean Clone Boundary: PASS - missing root is not a repo validation failure")

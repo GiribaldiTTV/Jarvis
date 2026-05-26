@@ -24,6 +24,9 @@ def main() -> int:
     print(f"Canonical Root Check: {'PASS' if not issues else 'BLOCKED'}")
     for issue in issues:
         print(issue)
+    if issues:
+        print("External State Result: BLOCKED")
+        return 1
 
     manifest_path = root / "state_manifest.json"
     if not root.exists():
