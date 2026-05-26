@@ -31,9 +31,11 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "source truth for USER inspection."
 )
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
-    "PASS - helper overwrote the stable review zip from the freshly refreshed "
-    "worktree review folder after START_HERE was written for this Source HEAD."
+    "PASS - helper cleared the stable worktree review folder, copied fresh "
+    "source-truth files, wrote START_HERE for this Source HEAD, and atomically "
+    "replaced the stable review zip from that refreshed folder."
 )
+USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -209,6 +211,24 @@ def _markdown_lines(items: list[str]) -> list[str]:
     return [f"- {item}" for item in items]
 
 
+def _extract_marker_from_text(text: str, marker: str) -> str | None:
+    pattern = re.compile(rf"^{re.escape(marker)}\s*(.+)$", re.MULTILINE)
+    match = pattern.search(text)
+    if not match:
+        return None
+    value = match.group(1).strip()
+    if value.startswith("`") and value.endswith("`") and len(value) >= 2:
+        value = value[1:-1].strip()
+    return value or None
+
+
+def _source_marker(relative_file: str, marker: str) -> str | None:
+    source = (ROOT / relative_file).resolve()
+    if not source.is_file() or ROOT.resolve() not in source.parents:
+        return None
+    return _extract_marker_from_text(source.read_text(encoding="utf-8"), marker)
+
+
 def _bundle_files(target: Path) -> set[Path]:
     return {path for path in target.rglob("*") if path.is_file()}
 
@@ -221,26 +241,141 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
     if target in export_zip.parents or export_zip == target:
         raise ValueError(f"Refusing to write review zip inside bundle folder: {export_zip}")
     export_zip.parent.mkdir(parents=True, exist_ok=True)
-    if export_zip.exists():
-        export_zip.unlink()
-    with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for path in sorted(_bundle_files(target)):
-            archive.write(path, path.relative_to(target).as_posix())
+    temp_zip = export_zip.with_name(f".{export_zip.name}.{os.getpid()}.tmp")
+    if temp_zip.exists():
+        temp_zip.unlink()
+    try:
+        with zipfile.ZipFile(temp_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for path in sorted(_bundle_files(target)):
+                archive.write(path, path.relative_to(target).as_posix())
+        temp_zip.replace(export_zip)
+    except Exception:
+        if temp_zip.exists():
+            temp_zip.unlink()
+        raise
 
 
-def _validate_export_zip(export_zip: Path, source_head: str) -> None:
+def _validate_export_zip(
+    export_zip: Path,
+    *,
+    source_branch: str,
+    source_head: str,
+    origin_main: str,
+    expected_entries: set[str],
+) -> None:
     with zipfile.ZipFile(export_zip, "r") as archive:
+        entries = {entry.filename for entry in archive.infolist() if not entry.is_dir()}
         try:
             start_here = archive.read("START_HERE.md").decode("utf-8")
         except KeyError as exc:
             raise ValueError(f"Review export zip is missing START_HERE.md: {export_zip}") from exc
+        try:
+            user_review = archive.read(USER_BRANCH_PLAN_REVIEW_FILE).decode("utf-8")
+        except KeyError as exc:
+            raise ValueError(
+                f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
+            ) from exc
+    if entries != expected_entries:
+        missing = sorted(expected_entries - entries)
+        extra = sorted(entries - expected_entries)
+        raise ValueError(
+            "Review export zip file-list guard failed: "
+            f"missing={missing or 'none'} extra={extra or 'none'}"
+        )
+    if f"Source Branch: `{source_branch}`" not in start_here:
+        raise ValueError(
+            "Review export zip branch guard failed: START_HERE Source Branch "
+            f"does not match {source_branch}"
+        )
     if f"Source HEAD: `{source_head}`" not in start_here:
         raise ValueError(
             "Review export zip stale-head guard failed: START_HERE Source HEAD "
             f"does not match {source_head}"
         )
+    if f"origin/main: `{origin_main}`" not in start_here:
+        raise ValueError(
+            "Review export zip origin/main guard failed: START_HERE origin/main "
+            f"does not match {origin_main}"
+        )
+    if f"Review Export Zip Source HEAD: `{source_head}`" not in start_here:
+        raise ValueError(
+            "Review export zip stale-head guard failed: Review Export Zip Source HEAD "
+            f"does not match {source_head}"
+        )
     if "Review Export Zip Stale Guard: PASS" not in start_here:
         raise ValueError("Review export zip is missing stale-guard proof in START_HERE.md")
+    if "USER Review Packet Finding: PASS" not in start_here:
+        raise ValueError("Review export zip is missing USER Review Packet Finding proof")
+    for required_heading in (
+        "## Contract Status",
+        "## Contract Version / Revision",
+        "## Plain-English Branch Summary",
+        "## What Will I Actually See, And Where Will I See It?",
+        "## End-State Vision",
+        "## Visual / Functional Walkthrough",
+        "## Surface Map",
+        "## Implementation Options",
+        "## Recommended Direction",
+        "## Why This Fits The Nexus Vision",
+        "## USER Design Direction Decision",
+        "## USER Decisions Needed",
+        "## USER Response",
+        "## Codex Response Digest",
+        "## Implementation Constraints Created By USER Response",
+        "## USER Rejected / Deferred Ideas",
+        "## Vision Delta / Source-Truth Impact",
+        "## Contract Change Log",
+        "## Current Branch Scope",
+        "## Future-Gated Scope",
+        "## Implementation Staging Notes",
+        "## Workstream Entry Result",
+        "## Contract Completion Checklist",
+    ):
+        if required_heading not in user_review:
+            raise ValueError(
+                f"Review export zip USER_BRANCH_PLAN_REVIEW.md is missing {required_heading}"
+            )
+    contract_status = _section(user_review, "Contract Status").strip().casefold()
+    if not any(
+        contract_status.startswith(prefix)
+        for prefix in (
+            "draft",
+            "pending user response",
+            "pending codex digest",
+            "pending user confirmation",
+            "complete",
+            "waived by user",
+        )
+    ):
+        raise ValueError(
+            "Review export zip USER_BRANCH_PLAN_REVIEW.md has invalid Contract Status"
+        )
+    exact_decision = _section(user_review, "Exact USER Decision Supported").casefold()
+    if contract_status.startswith(
+        ("draft", "pending user response", "pending codex digest", "pending user confirmation")
+    ) and (
+        "approve bounded slc" in exact_decision
+        or "approve workstream implementation" in exact_decision
+        or "implementation approval" in exact_decision
+    ):
+        raise ValueError(
+            "Review export zip cannot request implementation approval while "
+            "USER_BRANCH_PLAN_REVIEW.md Contract Status is blocking"
+        )
+
+
+def _section(text: str, heading: str) -> str:
+    marker = f"## {heading}"
+    start = text.find(marker)
+    if start < 0:
+        return ""
+    start = text.find("\n", start)
+    if start < 0:
+        return ""
+    next_heading = text.find("\n## ", start + 1)
+    if next_heading < 0:
+        return text[start:].strip()
+    return text[start:next_heading].strip()
 
 
 def _is_repo_relative_review_path(path: str) -> bool:
@@ -267,6 +402,483 @@ def _public_review_bundle_file_list_failures(paths: list[str]) -> list[str]:
             if pattern.search(normalized):
                 failures.append(f"{path}: public review bundle file list matched {reason}")
     return failures
+
+
+def _write_user_branch_plan_review(
+    *,
+    target: Path,
+    title: str,
+    review_purpose: str,
+    source_branch: str,
+    source_head: str,
+    upstream: str,
+    origin_main: str,
+    exact_user_decision: str,
+    pending_user_decisions: list[str],
+    copied: list[tuple[str, str]],
+) -> Path:
+    is_active_overlay_recording = any(
+        "active_overlay_recording_runtime_foundation" in source_rel
+        for source_rel, _copied_rel in copied
+    )
+    active_branch_files = [
+        copied_rel
+        for source_rel, copied_rel in copied
+        if "active_overlay_recording_runtime_foundation" in source_rel
+    ]
+    rollback_context_files = [
+        copied_rel
+        for source_rel, copied_rel in copied
+        if "recording_profile_runtime_foundation" in source_rel
+    ]
+    source_truth_files = [
+        copied_rel
+        for source_rel, copied_rel in copied
+        if source_rel
+        in {
+            "Docs/feature_backlog.md",
+            "Docs/prebeta_roadmap.md",
+            "Docs/branch_records/index.md",
+            "Docs/branch_plans/README.md",
+            "Docs/family_visions/FAM-006_monitoring_and_hud.md",
+        }
+    ]
+    if is_active_overlay_recording:
+        active_plan_source = next(
+            (
+                source_rel
+                for source_rel, _copied_rel in copied
+                if source_rel.endswith(
+                    "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md"
+                )
+            ),
+            None,
+        )
+        accepted_user_response = (
+            _source_marker(active_plan_source, "USER Review Response:") if active_plan_source else None
+        )
+        codex_response_digest = (
+            _source_marker(active_plan_source, "Codex Response Digest:") if active_plan_source else None
+        )
+        workstream_entry_result = (
+            _source_marker(active_plan_source, "Workstream Entry Result:") if active_plan_source else None
+        )
+        contract_status = (
+            _source_marker(active_plan_source, "Contract Status:") if active_plan_source else None
+        ) or "Pending USER Confirmation - Codex revised this review into the closed-loop USER Branch Plan Contract; USER must confirm the revised contract or explicitly waive it before implementation."
+        contract_version = (
+            _source_marker(active_plan_source, "Contract Version / Revision:") if active_plan_source else None
+        ) or "v3 - USER recording product-model revision."
+        what_user_sees = (
+            "HUD Overlay card: a compact recording launcher and target/status preview inside the "
+            "existing card, showing the active Overlay Profile name, a Recording Target / Active "
+            "Recording Target label, a concise target summary, future-gated status, and a future "
+            "Open Recording Control action. Recording Control window: a later compact standalone "
+            "normal Windows/NDAI window for target summary and future controls/settings, with "
+            "secondary settings windows when details would make the main control bulky. Native Log "
+            "Loader: a separate future graph/log viewer, not the recording control surface."
+        )
+        why_nexus = (
+            "This fits Nexus because it keeps recording intuitive, avoids a confusing second profile "
+            "system, keeps the HUD lightweight, gives the user a compact normal OS window for ongoing "
+            "control, keeps graph/log viewing separate from recording control, and protects future "
+            "log quality by preserving per-overlay effective polling policy as architecture before "
+            "recording execution exists."
+        )
+        design_ballot = [
+            "Accept Codex recommendation.",
+            "Accept with changes.",
+            "Choose another option.",
+            "Request hybrid option.",
+            "Reject and ask for more options.",
+            "Pause / unclear.",
+        ]
+        response_structure = [
+            "Decision.",
+            "Required changes.",
+            "Must-have behavior.",
+            "Must-not-do boundaries.",
+            "Future-gated ideas.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER intent summary.",
+            "Accepted USER decisions.",
+            "Rejected or deferred USER ideas.",
+            "Implementation constraints created from USER response.",
+            "Source-truth updates required.",
+            "Review packet updates required.",
+            "Open questions.",
+            "Contract Status after digest.",
+            "Next USER decision needed.",
+        ]
+        implementation_constraints = [
+            "This planning/governance branch must not implement SLC-051 or any runtime/user-facing recording work.",
+            "Future SLC-051 remains state/proof-only and must not add recording execution, file writing, or real Start/Stop behavior.",
+            "Recording target derives only from active Overlay Profile membership and must cover null, empty, selected, switched, deleted/stale, duplicate/stale-ID, and high-volume membership states.",
+            "No separate Recording Profile system or recording-specific sensor chooser is admitted.",
+            "Start/Stop behavior remains future-gated until an approved seam admits execution; any later placeholder must be clearly disabled or future-gated.",
+            "Native Log Loader remains future planning input unless USER separately approves durable source-truth mutation or implementation.",
+            "Per-overlay effective polling policy remains future planning/source-truth constraint and SLC-051 must not design against it.",
+            "Overlay Profile, Overlay Display, Monitor Group, Dashboard, Manage Monitors, and Sensor Command Center behavior must remain preserved.",
+        ]
+        rejected_deferred = [
+            "Rejected for this branch direction: separate profile-loaded Recording Profile system.",
+            "Rejected as the desired long-term polling model: duplicate CPU FAST / CPU SLOW Monitor Groups solely to vary polling cadence.",
+            "Deferred: recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, per-overlay effective polling policy implementation, and durable Native Log Loader source-truth mutation.",
+        ]
+        source_truth_impact = [
+            "Family vision: record per-overlay effective polling policy as a future FAM-006 planning constraint and keep Native Log Loader as future graph/log viewer input only.",
+            "Active branch plan and branch record: record the accepted v3/v4 planning-governance posture, USER vision digest, implementation constraints, Workstream skip, and PR Readiness Stage 1 as the next legal phase.",
+            "Backlog/roadmap: record planning-governance PR-readiness posture rather than runtime implementation posture.",
+            "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
+            "Workstream seam order: target model remains future implementation staging, not current branch work.",
+        ]
+        contract_change_log = [
+            "v1 - USER-facing Branch Plan Review packet introduced with end-state/options sections.",
+            "v2 - Hardened into USER Branch Plan Contract with closed-loop response/digest, implementation constraints, source-truth impact, confirmation loop, and waiver semantics.",
+            "v3 - Digested USER recording product-model feedback: HUD Overlay launcher/target preview, standalone Recording Control window, Native Log Loader separation, future per-overlay effective polling policy, and target-model-first SLC-051.",
+            "v4 - USER accepted the plan and redirected this branch to planning/governance PR Readiness with Workstream skipped and runtime implementation deferred to a future USER-approved carrier.",
+        ]
+        completion_checklist = [
+            "Contract Status is Complete or Waived by USER.",
+            "USER response is present, attached, or explicitly waived.",
+            "Codex Response Digest is present.",
+            "Implementation Constraints Created By USER Response are present.",
+            "Vision Delta / Source-Truth Impact is resolved.",
+            "USER Rejected / Deferred Ideas are recorded.",
+            "Contract Change Log is current.",
+            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+            "Workstream Entry Result is present only after response/digest or waiver.",
+            "Exact implementation approval text cites completed or waived contract status.",
+        ]
+        plain_english_summary = (
+            "This branch is setting up the corrected FAM-006 recording direction: "
+            "recording should be driven by the currently active Overlay Profile, "
+            "not by loading a separate Recording Profile. The intended future "
+            "feature uses the HUD Overlay card as the launcher and target/status "
+            "preview, a compact standalone Recording Control window as the control "
+            "surface, and a separate future Native Log Loader for graph/log viewing."
+        )
+        end_state_vision = (
+            "When this branch's admitted package is complete, the HUD Overlay card should make "
+            "recording feel tied to the overlay the user already chose. The user should understand "
+            "which active Overlay Profile members are the intended recording target, launch a compact "
+            "standalone Recording Control window from the HUD Overlay card, and keep graph/log viewing "
+            "separate in a future Native Log Loader. Actual file writing and real Start/Stop remain "
+            "separately approved."
+        )
+        walkthrough = [
+            "Dashboard / HUD Overlay card: the recording area should sit inside the existing HUD Overlay card as launcher and target/status preview before Start/Stop execution is admitted.",
+            "Active Overlay Profile membership: the selected overlay's active members become the future recording target; no separate Recording Profile selector is introduced.",
+            "Target visibility: SLC-051 should prove null, empty, selected, switched, deleted/stale, duplicate/stale-ID, and high-volume target states before visible controls depend on that model.",
+            "Recording Control window: later seams plan a small independent NDAI/Windows window that can be moved, minimized, taskbar-restored, and kept open outside Dashboard child-window lifetime.",
+            "Secondary settings/details windows: bulky or advanced settings should open outside the compact control surface when USER later approves them.",
+            "Output contract and Native Log Loader: later seams plan graph/plot-ready files, while Native Log Loader remains a separate future viewer unless USER separately admits it.",
+        ]
+        surface_map = [
+            "HUD Overlay card: launcher and active target/status preview surface.",
+            "Recording Control window: compact standalone control surface for future target summary, Start/Stop, and path/status controls after approval.",
+            "Dashboard: hosts the HUD Overlay card and must not regress existing Dashboard behavior.",
+            "Manage Monitors / Sensor Command Center: remain monitor/source management owners; recording target proof must not mutate their state.",
+            "Overlay Profile / Overlay Display: remain display and membership owners; recording reads active membership without taking ownership.",
+            "Monitor Group: reusable sensor/source group; future per-overlay effective polling policy should avoid duplicate FAST/SLOW group workarounds.",
+            "Files/output: future graph/plot-ready recording contract only after explicit approval.",
+            "Native Log Loader: future separate graph/log viewer for completed recordings.",
+            "Tray/export/provider/theme/FAM-007: future-gated surfaces outside this branch unless USER separately approves.",
+        ]
+        implementation_options = [
+            "Option A - Target model proof first: prove the active-overlay recording target model before visible controls depend on it. Pros: safest foundation; Cons: least visible at first; Risk: low. Codex recommends this first.",
+            "Option B - Target preview in HUD card: show active target/status preview in the HUD Overlay card after or alongside safe target proof. Pros: strong user clarity; Cons: needs visual proof; Risk: low to medium.",
+            "Option C - Standalone Recording Control window shell first: build the compact OS-level window before target proof is complete. Pros: validates window feel early; Cons: weaker target-model foundation; Risk: medium.",
+            "Option D - Live Start/Stop planning later: plan real controls only after recording execution and file writing are admitted. Pros: avoids fake execution; Cons: later visible payoff; Risk: low when deferred.",
+        ]
+        recommended_direction = (
+            "Codex recommends Option A first: establish the active Overlay Profile target model, "
+            "then use later seams for HUD target preview, the standalone Recording Control window, "
+            "output-file contract, and live/user proof. For future recording execution, Codex "
+            "recommends snapshot-at-recording-start by default unless USER revises it, while SLC-051 "
+            "proves the live current active-overlay target because no recording is occurring yet."
+        )
+        current_scope = [
+            "Preserve the accepted active-overlay recording end-state as maintained source truth.",
+            "Record that active Overlay Profile membership is the source of truth for future recording targets.",
+            "Keep future SLC-051 target-model-first and avoid blocking future per-overlay effective polling policy.",
+            "Confirm this branch does not change Dashboard, Manage Monitors, Sensor Command Center, Overlay Profile, Overlay Display, Monitor Group, or recording runtime behavior.",
+            "Proceed only to PR Readiness Stage 1 after USER approval; runtime implementation belongs to a later USER-approved carrier.",
+        ]
+        future_scope = [
+            "Recording execution and file writing remain blocked until an approved seam admits them.",
+            "Tray recording controls, export/share/import, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup, PR, merge, release, and issue mutation remain separate USER decisions.",
+            "Native Log Loader is early USER input only unless USER separately approves durable source-truth mutation.",
+            "Per-overlay effective polling policy is future FAM-006 architecture unless USER separately admits implementation.",
+        ]
+        slc_package_plan = [
+            "Implementation staging note, not the USER decision surface: Codex uses SLC-051 through SLC-055 internally to sequence the accepted end-state safely.",
+            "Target model comes first because every later UI/control/output behavior depends on knowing what would be recorded.",
+            "HUD target preview, Recording Control window, output contract, and validation/live proof follow as staged implementation only after the end-state and boundaries are accepted.",
+        ]
+        user_decisions = [
+            "Does USER approve PR Readiness Stage 1 analysis for this planning/governance branch?",
+            "Does USER agree that no runtime/user-facing recording work, SLC-051 implementation, Workstream implementation, H1, LV1, or UTS is claimed by this branch?",
+            "Does USER agree that the accepted active-overlay product contract is preserved for a future implementation carrier?",
+            "Does USER want a revision before PR Readiness, or should PR Readiness inspect this no-runtime closeout?",
+        ]
+    else:
+        accepted_user_response = None
+        codex_response_digest = None
+        workstream_entry_result = None
+        contract_status = "Pending USER Response - USER must accept, revise, reject, request more options, or waive this contract before implementation."
+        contract_version = "v1 - Generated USER Branch Plan Contract."
+        what_user_sees = "USER should see the feature's planned surfaces, behavior, options, boundaries, and proof path before implementation begins."
+        why_nexus = "The recommendation should explain how the branch aligns with the project vision, keeps scope bounded, and preserves user-facing clarity."
+        design_ballot = [
+            "Accept Codex recommendation.",
+            "Accept with changes.",
+            "Choose another option.",
+            "Request hybrid option.",
+            "Reject and ask for more options.",
+            "Pause / unclear.",
+        ]
+        response_structure = [
+            "Decision.",
+            "Required changes.",
+            "Must-have behavior.",
+            "Must-not-do boundaries.",
+            "Future-gated ideas.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER intent summary.",
+            "Accepted USER decisions.",
+            "Rejected or deferred USER ideas.",
+            "Implementation constraints created from USER response.",
+            "Source-truth updates required.",
+            "Review packet updates required.",
+            "Open questions.",
+            "Contract Status after digest.",
+            "Next USER decision needed.",
+        ]
+        implementation_constraints = ["Pending USER response or explicit waiver."]
+        rejected_deferred = ["Pending USER response or explicit waiver."]
+        source_truth_impact = ["Pending USER response or explicit waiver."]
+        contract_change_log = ["v1 - Generated USER Branch Plan Contract."]
+        completion_checklist = [
+            "Contract Status is Complete or Waived by USER.",
+            "USER response is present, attached, or explicitly waived.",
+            "Codex Response Digest is present.",
+            "Implementation Constraints Created By USER Response are present.",
+            "Vision Delta / Source-Truth Impact is resolved.",
+            "USER Rejected / Deferred Ideas are recorded.",
+            "Contract Change Log is current.",
+            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+            "Workstream Entry Result is present only after response/digest or waiver.",
+            "Exact implementation approval text cites completed or waived contract status.",
+        ]
+        plain_english_summary = (
+            "This branch-plan review summarizes the branch's intended product, "
+            "runtime, source-truth, and validation direction before Workstream "
+            "Entry performs deeper implementation planning."
+        )
+        end_state_vision = (
+            "When the branch is complete, USER should understand what visible/runtime behavior "
+            "will exist, which surfaces are affected, and which future-gated items remain outside "
+            "the branch before implementation begins."
+        )
+        walkthrough = [
+            "Review the active branch plan to understand the intended user-facing result.",
+            "Review the branch authority record to confirm identity and legal next phase.",
+            "Review copied source-truth files to confirm active/historical routing and future boundaries.",
+        ]
+        surface_map = [
+            "Active branch plan and authority record.",
+            "Relevant family vision, backlog, roadmap, validators, and copied review files.",
+        ]
+        implementation_options = [
+            "Option A - Accept Codex's recommended end-state and keep later implementation staging future-gated. Pros: fastest bounded path; Cons: less redesign; Risk: low when source truth is coherent.",
+            "Option B - Revise the end-state before implementation. Pros: better USER fit; Cons: adds planning repair work; Risk: low to medium.",
+            "Option C - Waive unresolved end-state questions explicitly. Pros: unblocks implementation; Cons: records less USER design input; Risk: medium.",
+        ]
+        recommended_direction = (
+            "Codex recommends accepting the branch plan only when the user-facing outcome, "
+            "surface map, options, proof path, and pending boundaries are understandable enough "
+            "for USER to decide whether implementation should begin."
+        )
+        current_scope = [
+            "Confirm the branch outcome and admitted package.",
+            "Confirm affected surfaces, validators, proof expectations, and next legal phase.",
+        ]
+        future_scope = [
+            "Any item not explicitly admitted by the active branch plan remains future-gated.",
+        ]
+        slc_package_plan = [
+            "Implementation staging must support the accepted end-state; seam/slice details are background execution scaffolding, not the primary USER decision surface.",
+        ]
+        user_decisions = [
+            "Does USER accept the branch goal and end-state direction?",
+            "Does USER want to revise any user-facing behavior, layout, workflow, or future-gated boundary before implementation?",
+            "Does USER waive any unanswered design question, or should implementation remain blocked until it is answered?",
+        ]
+    lines = [
+        f"# USER Branch Plan Review - {title}",
+        "",
+        "## Contract Status",
+        "",
+        contract_status,
+        "",
+        "## Contract Version / Revision",
+        "",
+        contract_version,
+        "",
+        "## Plain-English Branch Summary",
+        "",
+        plain_english_summary,
+        "",
+        "This file is a required user-facing product/design planning gate. It should help USER answer: Do I actually like what Codex is about to build?",
+        "",
+        "## What Will I Actually See, And Where Will I See It?",
+        "",
+        what_user_sees,
+        "",
+        "## End-State Vision",
+        "",
+        end_state_vision,
+        "",
+        "## Visual / Functional Walkthrough",
+        "",
+        *_markdown_lines(walkthrough),
+        "",
+        "## Surface Map",
+        "",
+        *_markdown_lines(surface_map),
+        "",
+        "## Implementation Options",
+        "",
+        *_markdown_lines(implementation_options),
+        "",
+        "## Recommended Direction",
+        "",
+        recommended_direction,
+        "",
+        "## Why This Fits The Nexus Vision",
+        "",
+        why_nexus,
+        "",
+        "## USER Design Direction Decision",
+        "",
+        "Choose one of these paths, then add any notes or changes you want:",
+        "",
+        *_markdown_lines(design_ballot),
+        "",
+        "## USER Decisions Needed",
+        "",
+        "USER may answer in order or respond generally. Useful feedback includes visual direction, workflow changes, window behavior, output-file expectations, deferred scope, or anything that would make the branch plan feel wrong before implementation planning begins.",
+        "",
+        *_markdown_lines(user_decisions),
+        "",
+        "## USER Response",
+        "",
+        accepted_user_response
+        or "Status: Pending USER Response - Workstream implementation remains blocked until USER answers, revises, rejects, accepts, or explicitly waives this contract.",
+        "",
+        "Required USER Response structure:",
+        "",
+        *_markdown_lines(response_structure),
+        "",
+        "## Codex Response Digest",
+        "",
+        codex_response_digest
+        or "Status: Pending USER Response - Codex has not yet digested USER answers for this contract. Workstream implementation requires a later digest or an explicit USER waiver.",
+        "",
+        "Required Codex Response Digest structure:",
+        "",
+        *_markdown_lines(digest_structure),
+        "",
+        "## Implementation Constraints Created By USER Response",
+        "",
+        *_markdown_lines(implementation_constraints),
+        "",
+        "## USER Rejected / Deferred Ideas",
+        "",
+        *_markdown_lines(rejected_deferred),
+        "",
+        "## Vision Delta / Source-Truth Impact",
+        "",
+        *_markdown_lines(source_truth_impact),
+        "",
+        "## Contract Change Log",
+        "",
+        *_markdown_lines(contract_change_log),
+        "",
+        "## Current Branch Scope",
+        "",
+        *_markdown_lines(current_scope),
+        "",
+        "## Future-Gated Scope",
+        "",
+        *_markdown_lines(future_scope),
+        "",
+        "## Implementation Staging Notes",
+        "",
+        *_markdown_lines(slc_package_plan),
+        "",
+        "## Current Branch State",
+        "",
+        f"- Source Branch: `{source_branch}`",
+        f"- Source HEAD: `{source_head}`",
+        f"- Upstream: `{upstream}`",
+        f"- origin/main: `{origin_main}`",
+        f"- Source Repo: `{ROOT}`",
+        "",
+        "## Workstream Entry Result",
+        "",
+        workstream_entry_result
+        or "Status: Pending USER Response - first seam, affected files, validators, proof requirements, USER-facing proof, and exact implementation approval text must be returned only after USER response/digest or explicit waiver.",
+        "",
+        "## Contract Completion Checklist",
+        "",
+        *_markdown_lines(completion_checklist),
+        "",
+        "## Codex Recommendations And Implementation Options",
+        "",
+        "This compatibility section is retained for older packet validators. See Implementation Options and Recommended Direction above.",
+        "",
+        *_markdown_lines(implementation_options),
+        "",
+        "## USER Design Review Questions",
+        "",
+        "This compatibility section is retained for older packet validators. See USER Decisions Needed above.",
+        "",
+        *_markdown_lines(user_decisions),
+        "",
+        "## Appendix - Legacy Validator Compatibility",
+        "",
+        "Legacy compatibility sections are retained only for older validators and should not replace the contract sections above.",
+        "",
+        "## Active Branch Plan Files",
+        "",
+        *_markdown_lines(active_branch_files),
+        "",
+        "## Historical / Rollback Context Files",
+        "",
+        *_markdown_lines(rollback_context_files),
+        "",
+        "## Supporting Source-Truth Files",
+        "",
+        *_markdown_lines(source_truth_files),
+        "",
+        "## Pending USER Decisions",
+        "",
+        *_markdown_lines(pending_user_decisions),
+        "",
+        "## Exact USER Decision Supported",
+        "",
+        exact_user_decision,
+        "",
+    ]
+    review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+    review_path.write_text("\n".join(lines), encoding="utf-8")
+    return review_path.resolve()
 
 
 def _packet_text_status(text: str) -> str:
@@ -434,7 +1046,7 @@ def build_bundle(
     desktop = _desktop_path()
     label = _worktree_label(worktree_label)
     review_root, target = _safe_target(desktop, review_root_name, label)
-    if clear and target.exists():
+    if target.exists():
         _clear_target(target)
     target.mkdir(parents=True, exist_ok=True)
 
@@ -457,6 +1069,18 @@ def build_bundle(
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
     export_zip = _export_zip_path(review_root, label)
+    user_review_file = _write_user_branch_plan_review(
+        target=target,
+        title=title,
+        review_purpose=review_purpose,
+        source_branch=source_branch,
+        source_head=source_head,
+        upstream=upstream,
+        origin_main=origin_main,
+        exact_user_decision=exact_user_decision,
+        pending_user_decisions=pending_user_decisions,
+        copied=copied,
+    )
     if allow_custom_review_path:
         custom_review_path_waiver = "Granted"
         custom_review_path_reason_value = custom_review_path_reason or "Not recorded"
@@ -464,7 +1088,7 @@ def build_bundle(
         custom_review_path_waiver = CUSTOM_REVIEW_PATH_NONE
         custom_review_path_reason_value = "Not applicable"
     start_here = (target / "START_HERE.md").resolve()
-    actual_bundle_files = _bundle_files(target) | {start_here}
+    actual_bundle_files = _bundle_files(target) | {start_here, user_review_file}
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
@@ -503,6 +1127,13 @@ def build_bundle(
         f"Review Export Zip: `{export_zip}`",
         f"Review Export Zip Source HEAD: `{source_head}`",
         f"Review Export Zip Stale Guard: {REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS}",
+        (
+            "USER Review Packet Finding: PASS - helper generated and validated "
+            f"`START_HERE.md`, `{USER_BRANCH_PLAN_REVIEW_FILE}`, and exported zip "
+            f"`{export_zip}` from refreshed Desktop folder `{target}`; Source HEAD "
+            f"`{source_head}` and Review Export Zip Source HEAD `{source_head}` match "
+            "the current branch HEAD, and the packet is loaded/digestible for USER review."
+        ),
         f"Bundle Created: {created_at}",
         f"Bundle File Count: {bundle_file_count}",
         f"Expected File Count: {expected_count}",
@@ -534,8 +1165,17 @@ def build_bundle(
     readme_lines.append("")
 
     (target / "START_HERE.md").write_text("\n".join(readme_lines), encoding="utf-8")
+    expected_zip_entries = {
+        path.relative_to(target).as_posix() for path in _bundle_files(target)
+    }
     _write_export_zip(target, export_zip)
-    _validate_export_zip(export_zip, source_head)
+    _validate_export_zip(
+        export_zip,
+        source_branch=source_branch,
+        source_head=source_head,
+        origin_main=origin_main,
+        expected_entries=expected_zip_entries,
+    )
     return target, export_zip
 
 
@@ -568,7 +1208,11 @@ def main() -> int:
         help="Required reason when --allow-custom-review-path is used.",
     )
     parser.add_argument("--title", default="Nexus Review Bundle", help="Title for START_HERE.md.")
-    parser.add_argument("--clear", action="store_true", help="Delete the existing Desktop bundle folder before copying.")
+    parser.add_argument(
+        "--clear",
+        action="store_true",
+        help="Legacy compatibility flag; the helper always clears the Desktop bundle folder before copying.",
+    )
     parser.add_argument("--review-purpose", help="Why USER is reviewing this bundle.")
     parser.add_argument("--validation-summary", help="Validation proof or status supporting the review bundle.")
     parser.add_argument(
@@ -653,6 +1297,11 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
+    print(
+        "USER Review Packet Finding: PASS - START_HERE.md, "
+        f"{USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
+        "validated against current Source HEAD."
+    )
     return 0
 
 

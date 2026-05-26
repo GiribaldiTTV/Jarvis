@@ -96,6 +96,9 @@ VALID_USER_BRANCH_PLAN_REVIEW_FIXTURE = (
 INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_OUTCOME_FIXTURE = (
     FIXTURE_DIR / "invalid_user_branch_plan_review_missing_outcome.md"
 )
+INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_PACKET_FINDING_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_branch_plan_review_missing_packet_finding.md"
+)
 INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_HARDENING_FIXTURE = (
     FIXTURE_DIR / "invalid_user_branch_plan_review_missing_hardening.md"
 )
@@ -104,6 +107,9 @@ INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_LIVE_VALIDATION_FIXTURE = (
 )
 INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_user_branch_plan_review_first_seam_only.md"
+)
+INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_branch_plan_review_missing_response_digest.md"
 )
 VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE = (
     FIXTURE_DIR / "valid_user_branch_plan_review_deferred_scope.md"
@@ -168,12 +174,18 @@ EXPECTED_WORKSTREAM_ENTRY_FIRST_SEAM_FAILURE_SNIPPET = (
 EXPECTED_USER_BRANCH_PLAN_MISSING_OUTCOME_FAILURE_SNIPPET = (
     "Planned User-Facing Outcome:"
 )
+EXPECTED_USER_BRANCH_PLAN_MISSING_PACKET_FINDING_FAILURE_SNIPPET = (
+    "USER Review Packet Finding:"
+)
 EXPECTED_USER_BRANCH_PLAN_MISSING_HARDENING_FAILURE_SNIPPET = "Hardening Plan:"
 EXPECTED_USER_BRANCH_PLAN_MISSING_LIVE_VALIDATION_FAILURE_SNIPPET = (
     "Live Validation / UTS Plan:"
 )
 EXPECTED_USER_BRANCH_PLAN_FIRST_SEAM_FAILURE_SNIPPET = (
     "cannot be satisfied by first-seam-only implementation planning"
+)
+EXPECTED_USER_BRANCH_PLAN_MISSING_RESPONSE_DIGEST_FAILURE_SNIPPET = (
+    "USER Review Response:"
 )
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
@@ -586,9 +598,11 @@ def validate() -> list[str]:
         INVALID_WORKSTREAM_ENTRY_FIRST_SEAM_ONLY_FIXTURE,
         VALID_USER_BRANCH_PLAN_REVIEW_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_OUTCOME_FIXTURE,
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_PACKET_FINDING_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_HARDENING_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_LIVE_VALIDATION_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE,
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE,
         VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE,
         VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
         INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
@@ -951,6 +965,19 @@ def validate() -> list[str]:
             "planned user-facing outcome"
         )
 
+    missing_packet_finding_failures = _validate_user_branch_plan_review_text(
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_PACKET_FINDING_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_USER_BRANCH_PLAN_MISSING_PACKET_FINDING_FAILURE_SNIPPET not in "\n".join(
+        missing_packet_finding_failures
+    ):
+        failures.append(
+            "Invalid USER Branch Plan Review fixture did not reject missing "
+            "USER Review Packet Finding"
+        )
+
     missing_review_hardening_failures = _validate_user_branch_plan_review_text(
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_HARDENING_FIXTURE.read_text(encoding="utf-8")
     )
@@ -984,6 +1011,19 @@ def validate() -> list[str]:
         failures.append(
             "Invalid USER Branch Plan Review fixture did not reject first-seam-only "
             "implementation breakdown"
+        )
+
+    missing_response_digest_failures = _validate_user_branch_plan_review_text(
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_USER_BRANCH_PLAN_MISSING_RESPONSE_DIGEST_FAILURE_SNIPPET not in "\n".join(
+        missing_response_digest_failures
+    ):
+        failures.append(
+            "Invalid USER Branch Plan Review fixture did not reject missing "
+            "USER response / Codex digest markers"
         )
 
     deferred_review_failures = _validate_user_branch_plan_review_text(

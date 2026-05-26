@@ -578,17 +578,41 @@ USER_BRANCH_PLAN_REVIEW_HEADING = "USER Branch Plan Review Gate"
 USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "USER Branch Plan Review:",
     "Review Status:",
+    "Contract Status:",
+    "Contract Version / Revision:",
     "Desktop Review Bundle:",
+    "USER Review Packet Finding:",
     "Plain-Language Branch Goal:",
+    "What Will I Actually See, And Where Will I See It?:",
     "Planned User-Facing Outcome:",
+    "End-State Vision:",
     "Visual / Behavioral Description:",
+    "Visual / Functional Walkthrough:",
+    "Surface Map:",
     "Implementation Breakdown:",
     "Element-to-Phase Proof Matrix:",
     "Hardening Plan:",
     "Live Validation / UTS Plan:",
     "Open USER Questions:",
+    "USER Design Review Questions:",
     "Codex Recommendations:",
+    "Implementation Options:",
+    "Recommended Direction:",
+    "Why This Fits The Nexus Vision:",
+    "USER Design Direction Decision:",
+    "Current Branch Scope:",
+    "Future-Gated Scope:",
+    "Implementation Staging Notes:",
+    "USER Decisions Needed:",
     "Alternatives / Tradeoffs:",
+    "USER Review Response:",
+    "Codex Response Digest:",
+    "Implementation Constraints Created By USER Response:",
+    "USER Rejected / Deferred Ideas:",
+    "Vision Delta / Source-Truth Impact:",
+    "Contract Change Log:",
+    "Workstream Entry Result:",
+    "Contract Completion Checklist:",
     "Accepted Scope:",
     "Deferred Scope:",
     "Rejected Scope:",
@@ -602,10 +626,46 @@ USER_BRANCH_PLAN_REVIEW_STATUS_PREFIXES = (
     "rejected by user",
     "needs user decision",
 )
+USER_BRANCH_PLAN_CONTRACT_STATUS_PREFIXES = (
+    "draft",
+    "pending user response",
+    "pending codex digest",
+    "pending user confirmation",
+    "complete",
+    "waived by user",
+)
+USER_BRANCH_PLAN_CONTRACT_BLOCKING_PREFIXES = (
+    "draft",
+    "pending user response",
+    "pending codex digest",
+    "pending user confirmation",
+)
 USER_BRANCH_PLAN_REVIEW_SCOPE_MARKERS = (
     "Accepted Scope:",
     "Deferred Scope:",
     "Rejected Scope:",
+)
+USER_BRANCH_PLAN_REVIEW_RESPONSE_TERMS = (
+    "accepted by user",
+    "revised by user",
+    "deferred with waiver",
+    "waived",
+    "rejected by user",
+    "attached",
+    "inserted",
+    "digested",
+    "needs user response",
+    "pending user response",
+)
+USER_REVIEW_PACKET_FINDING_REQUIRED_TERMS = (
+    ("START_HERE.md",),
+    ("USER_BRANCH_PLAN_REVIEW.md",),
+    ("zip", ".zip"),
+    ("Source HEAD", "packet source HEAD", "review zip source HEAD"),
+    ("current branch HEAD", "current HEAD"),
+    ("loaded", "waived"),
+    ("digested", "waived"),
+    ("fresh", "match", "stale", "missing", "blocking", "waived"),
 )
 BRANCH_VISION_CONTRACT_HEADING = "Branch Vision Contract Snapshot"
 BRANCH_VISION_CONTRACT_REQUIRED_MARKERS = (
@@ -3611,35 +3671,92 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "USER Branch Plan Review Gate",
         "USER Branch Plan Review Missing",
+        "USER Branch Plan Contract",
+        "Contract Status",
+        "Pending USER Confirmation",
+        "Implementation Constraints Created By USER Response",
         "planned user-facing outcome",
+        "End-State Vision",
+        "Visual / Functional Walkthrough",
+        "USER response",
     ),
     Path("Docs/phase_governance.md"): (
         "USER Branch Plan Review Gate",
+        "USER Branch Plan Contract",
+        "Contract Status",
+        "Pending USER Confirmation",
         "Plain-Language Branch Goal",
         "Planned User-Facing Outcome",
+        "End-State Vision",
+        "Visual / Functional Walkthrough",
+        "Surface Map",
+        "Implementation Options",
+        "Recommended Direction",
+        "USER Design Review Questions",
+        "USER Review Response",
+        "Codex Response Digest",
+        "Implementation Constraints Created By USER Response",
+        "Vision Delta / Source-Truth Impact",
+        "USER Review Packet Finding",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/branch_plans/README.md"): (
         "USER Branch Plan Review Gate",
+        "USER Branch Plan Contract",
         "Required review markers",
+        "Contract Status:",
+        "Contract Version / Revision:",
+        "USER Review Packet Finding:",
         "Plain-Language Branch Goal:",
+        "What Will I Actually See, And Where Will I See It?:",
         "Planned User-Facing Outcome:",
+        "End-State Vision:",
+        "Visual / Functional Walkthrough:",
+        "Surface Map:",
+        "Recommended Direction:",
+        "Why This Fits The Nexus Vision:",
+        "USER Design Direction Decision:",
+        "Current Branch Scope:",
+        "Future-Gated Scope:",
+        "Implementation Staging Notes:",
+        "USER Design Review Questions:",
+        "USER Review Response:",
+        "Codex Response Digest:",
+        "Implementation Constraints Created By USER Response:",
+        "Vision Delta / Source-Truth Impact:",
+        "Contract Completion Checklist:",
         "Live Validation / UTS Plan:",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/branch_records/index.md"): (
         "USER Branch Plan Review Gate",
+        "USER Branch Plan Contract",
+        "Contract Status",
+        "USER Review Packet Finding",
+        "USER Review Response",
+        "End-State Vision",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/development_rules.md"): (
         "USER Branch Plan Review Gate",
+        "USER Branch Plan Contract",
+        "Contract Status",
+        "Pending USER Confirmation",
+        "Implementation Constraints Created By USER Response",
+        "USER Review Response",
+        "End-State Vision",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/codex_modes.md"): (
         "USER Branch Plan Review Gate",
+        "USER Branch Plan Contract",
+        "Contract Status",
+        "Pending USER Confirmation",
+        "USER Review Response",
+        "End-State Vision",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/orin_task_template.md"): (
@@ -3649,21 +3766,40 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "USER Branch Plan Review Gate",
+        "USER Branch Plan Contract",
+        "Contract Status",
+        "USER Review Response",
+        "End-State Vision",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/codex_user_guide.md"): (
         "USER Branch Plan Review Gate",
+        "USER Branch Plan Contract",
+        "Contract Status",
+        "Pending USER Confirmation",
         "Live Validation / UTS plan",
+        "End-State Vision",
+        "USER Review Response",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/governance_efficiency_operating_model.md"): (
         "USER Branch Plan Review Gate",
+        "USER Branch Plan Contract",
+        "Contract Status",
         "accepting, revising, deferring with waiver, rejecting",
+        "USER response",
+        "End-State Vision",
+        "implementation options",
     ),
     Path("Docs/validation_helper_registry.md"): (
         "USER Branch Plan Review Gate",
+        "USER Branch Plan Contract",
+        "Contract Status",
         "invalid missing user-facing outcome",
         "invalid first-seam-only review packet",
+        "USER Review Response",
+        "End-State Vision",
+        "Visual / Functional Walkthrough",
     ),
 }
 
@@ -9258,15 +9394,48 @@ def _validate_user_branch_plan_review_gate(
         ),
     )
 
+    contract_status = _normalized_planning_value(
+        _extract_marker_value(gate_section, "Contract Status:")
+    )
+    require(
+        any(
+            contract_status == prefix
+            or contract_status.startswith(f"{prefix} ")
+            or contract_status.startswith(f"{prefix} -")
+            for prefix in USER_BRANCH_PLAN_CONTRACT_STATUS_PREFIXES
+        ),
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Contract Status "
+            "must be Draft, Pending USER Response, Pending Codex Digest, "
+            "Pending USER Confirmation, Complete, or Waived by USER"
+        ),
+    )
+
     for marker in (
         "Plain-Language Branch Goal:",
+        "What Will I Actually See, And Where Will I See It?:",
         "Planned User-Facing Outcome:",
+        "End-State Vision:",
         "Implementation Breakdown:",
+        "Visual / Functional Walkthrough:",
+        "Surface Map:",
         "Element-to-Phase Proof Matrix:",
         "Hardening Plan:",
         "Live Validation / UTS Plan:",
         "Codex Recommendations:",
+        "Implementation Options:",
+        "Recommended Direction:",
+        "Why This Fits The Nexus Vision:",
+        "USER Design Direction Decision:",
+        "Implementation Staging Notes:",
         "Alternatives / Tradeoffs:",
+        "USER Design Review Questions:",
+        "USER Decisions Needed:",
+        "Implementation Constraints Created By USER Response:",
+        "USER Rejected / Deferred Ideas:",
+        "Vision Delta / Source-Truth Impact:",
+        "Contract Change Log:",
+        "Contract Completion Checklist:",
         "Exact USER Decision Needed:",
         "Implementation Approval:",
     ):
@@ -9291,6 +9460,41 @@ def _validate_user_branch_plan_review_gate(
             "Bundle must name the stable Desktop review bundle or a not-required reason"
         ),
     )
+    review_packet_finding = _extract_marker_value(gate_section, "USER Review Packet Finding:")
+    normalized_review_packet_finding = _normalized_planning_value(review_packet_finding)
+    for term_group in USER_REVIEW_PACKET_FINDING_REQUIRED_TERMS:
+        require(
+            any(term.lower() in normalized_review_packet_finding for term in term_group),
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} USER Review "
+                "Packet Finding must prove START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, "
+                "the exported zip, Source HEAD/current branch HEAD freshness, and "
+                "loaded/digested or waiver/blocker status"
+            ),
+        )
+
+    review_response = _normalized_planning_value(
+        _extract_marker_value(gate_section, "USER Review Response:")
+    )
+    response_digest = _normalized_planning_value(
+        _extract_marker_value(gate_section, "Codex Response Digest:")
+    )
+    require(
+        any(term in review_response for term in USER_BRANCH_PLAN_REVIEW_RESPONSE_TERMS),
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} USER Review "
+            "Response must record USER response attached/inserted/digested, "
+            "Needs USER Response/Pending USER Response, or an explicit waiver/rejection"
+        ),
+    )
+    require(
+        any(term in response_digest for term in USER_BRANCH_PLAN_REVIEW_RESPONSE_TERMS),
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Codex Response "
+            "Digest must record that USER response was digested, remains pending, "
+            "or was explicitly waived/rejected before Workstream implementation"
+        ),
+    )
 
     implementation_breakdown = _normalized_planning_value(
         _extract_marker_value(gate_section, "Implementation Breakdown:")
@@ -9303,6 +9507,30 @@ def _validate_user_branch_plan_review_gate(
             "satisfied by first-seam-only implementation planning"
         ),
     )
+
+    for marker in (
+        "End-State Vision:",
+        "Visual / Functional Walkthrough:",
+        "Surface Map:",
+        "Implementation Options:",
+        "Recommended Direction:",
+        "Why This Fits The Nexus Vision:",
+        "USER Design Direction Decision:",
+        "Implementation Staging Notes:",
+        "USER Decisions Needed:",
+        "Implementation Constraints Created By USER Response:",
+        "Vision Delta / Source-Truth Impact:",
+        "Contract Completion Checklist:",
+        "Workstream Entry Result:",
+    ):
+        value = _normalized_planning_value(_extract_marker_value(gate_section, marker))
+        require(
+            not any(term in value for term in ("tbd", "todo", "placeholder", "normal codex digest")),
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} marker "
+                f"'{marker}' must be a user-facing product/design plan, not a placeholder"
+            ),
+        )
 
     for marker in USER_BRANCH_PLAN_REVIEW_SCOPE_MARKERS:
         value = _normalized_planning_value(_extract_marker_value(gate_section, marker))
@@ -9338,6 +9566,43 @@ def _validate_user_branch_plan_review_gate(
             "Approval must preserve the implementation approval boundary"
         ),
     )
+    exact_user_decision = _normalized_planning_value(
+        _extract_marker_value(gate_section, "Exact USER Decision Needed:")
+    )
+    blocking_contract = any(
+        contract_status == prefix or contract_status.startswith(f"{prefix} ")
+        for prefix in USER_BRANCH_PLAN_CONTRACT_BLOCKING_PREFIXES
+    )
+    if blocking_contract:
+        require(
+            not (
+                "approve bounded slc" in exact_user_decision
+                or "approve workstream implementation" in exact_user_decision
+                or "approve bounded workstream implementation" in exact_user_decision
+                or "implementation approval" in exact_user_decision
+            ),
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} cannot return "
+                "implementation approval text while Contract Status is Draft, "
+                "Pending USER Response, Pending Codex Digest, or Pending USER Confirmation"
+            ),
+        )
+        require(
+            any(
+                term in exact_user_decision
+                for term in (
+                    "contract",
+                    "confirmation",
+                    "waiver",
+                    "waive",
+                    "user confirmation",
+                )
+            ),
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} must ask for "
+                "contract confirmation or explicit waiver while Contract Status is blocking"
+            ),
+        )
 
 
 def _validate_branch_runtime_engineering_plan(

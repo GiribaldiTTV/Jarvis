@@ -95,32 +95,60 @@ The bundle must use the active worktree label, copy the selected files flat into
 
 ## USER Branch Plan Review Gate
 
-`USER Branch Plan Review Gate` is the named USER-facing Workstream Entry checkpoint. It wraps the active branch plan, Branch Vision Contract Snapshot, Element-to-Phase Proof Matrix, Workstream Entry whole-package analysis, Hardening plan, Live Validation / UTS plan, UFD items, and Branch Change Intent Ledger when present into a plain-language review packet before Workstream implementation begins or resumes.
+`USER Branch Plan Review Gate` is the named USER-facing Workstream Entry checkpoint. It wraps the active branch plan, Branch Vision Contract Snapshot, Element-to-Phase Proof Matrix, Workstream Entry whole-package analysis, Hardening plan, Live Validation / UTS plan, UFD items, and Branch Change Intent Ledger when present into a plain-language product/design planning packet before Workstream implementation begins or resumes. The packet must help USER answer whether they actually like what Codex is about to build, not merely prove that governance markers exist.
 
 Required review markers:
 
 - USER Branch Plan Review:
 - Review Status:
+- Contract Status:
+- Contract Version / Revision:
 - Desktop Review Bundle:
+- USER Review Packet Finding:
 - Plain-Language Branch Goal:
+- What Will I Actually See, And Where Will I See It?:
 - Planned User-Facing Outcome:
+- End-State Vision:
 - Visual / Behavioral Description:
+- Visual / Functional Walkthrough:
+- Surface Map:
 - Implementation Breakdown:
 - Element-to-Phase Proof Matrix:
 - Hardening Plan:
 - Live Validation / UTS Plan:
 - Open USER Questions:
+- USER Design Review Questions:
 - Codex Recommendations:
+- Implementation Options:
+- Recommended Direction:
+- Why This Fits The Nexus Vision:
+- USER Design Direction Decision:
+- Current Branch Scope:
+- Future-Gated Scope:
+- Implementation Staging Notes:
+- USER Decisions Needed:
 - Alternatives / Tradeoffs:
+- USER Review Response:
+- Codex Response Digest:
+- Implementation Constraints Created By USER Response:
+- USER Rejected / Deferred Ideas:
+- Vision Delta / Source-Truth Impact:
+- Contract Change Log:
+- Workstream Entry Result:
+- Contract Completion Checklist:
 - Accepted Scope:
 - Deferred Scope:
 - Rejected Scope:
 - Exact USER Decision Needed:
 - Implementation Approval:
 
-`Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. The packet must give USER answer paths to accept the recommendation, revise it with USER-written changes, defer/future-package/waive with reason, reject it, or request more analysis. It is a review wrapper, not a duplicate permanent ledger; accepted answers fold into the Branch Vision Contract Snapshot, Branch Runtime Engineering Plan, UFD item, matrix row, or branch record only through a later USER-approved digest/source-truth pass.
+`Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. `Contract Status:` is the closed-loop USER Branch Plan Contract state and must use `Draft`, `Pending USER Response`, `Pending Codex Digest`, `Pending USER Confirmation`, `Complete`, or `Waived by USER`. The packet must give USER answer paths to accept the recommendation, accept with changes, choose another option, request a hybrid option, reject and ask for more options, or pause as unclear. `USER_BRANCH_PLAN_REVIEW.md` is the USER Branch Plan Contract: a required user-facing product/design planning artifact, not a normal Codex status digest. It must present the branch summary, what USER will actually see and where, end-state vision, visual/functional walkthrough, surface map, implementation options with pros/cons/risk, Codex recommended direction, why the recommendation fits the Nexus vision, current branch scope, future-gated scope, plain-English Implementation Staging Notes, clear USER decisions, USER response area, Codex response digest, implementation constraints created from USER response, rejected/deferred ideas, source-truth impact, change log, completion checklist, and Workstream Entry result area. The primary USER decision surface is the feature end-state and possibility space; SLC/slice/seam details may appear only as implementation staging notes after the end-state recommendation is clear.
 
-Missing or shallow branch goal, user-facing outcome, implementation breakdown, Hardening plan, Live Validation / UTS plan, Desktop review bundle proof, or exact USER decision blocks Workstream implementation on `USER Branch Plan Review Missing`. A first-seam-only packet cannot satisfy this gate when multiple slices or seams are admitted.
+The USER Branch Plan Contract lifecycle is closed loop: Codex proposes the product/design direction, USER responds, Codex digests the response, Codex converts that response into explicit implementation constraints, Codex identifies source-truth and review-packet impact, and any plan-changing digest returns `Contract Status:` to `Pending USER Confirmation`. Codex must update the branch record, branch plan, family vision, backlog, roadmap, validation helper registry, review packet, or other required source truth when USER feedback changes branch direction, feature shape, UI behavior, workflow, end-state vision, implementation scope, future-gated boundaries, or seam order. Codex then refreshes the Desktop review packet and exported ZIP. The cycle repeats until USER explicitly confirms the final contract as `Complete` or explicitly waives the gate. Bounded Workstream implementation may proceed only when `Contract Status:` is `Complete` or `Waived by USER`.
+
+Waiver semantics are strict. A waiver must be explicit USER text naming the contract and branch; Codex must record it in the branch record, branch plan, and review packet, set `Contract Status:` to `Waived by USER`, preserve pending boundaries, and cite the waiver in exact implementation approval text. A stale packet is blocking when `START_HERE.md` branch or HEAD differs from the active branch/current HEAD, when ZIP Source HEAD differs from packet Source HEAD, when `USER_BRANCH_PLAN_REVIEW.md` Contract Status conflicts with branch plan or branch record, or when implementation approval text is returned while Contract Status is `Draft`, `Pending USER Response`, `Pending Codex Digest`, or `Pending USER Confirmation`.
+
+Missing or shallow branch goal, user-facing outcome, what-will-I-see walkthrough, end-state vision, visual/functional walkthrough, surface map, implementation options, recommended direction, Nexus-fit rationale, Implementation Staging Notes, USER decisions, USER response/digest or waiver, implementation constraints, source-truth impact, completion checklist, Hardening plan, Live Validation / UTS plan, Desktop review bundle proof, `USER Review Packet Finding:`, or exact USER decision blocks Workstream implementation on `USER Branch Plan Review Missing`. A Desktop USER Review Packet that is stale against current `HEAD`, not loaded, not digested, missing `START_HERE.md`, missing `USER_BRANCH_PLAN_REVIEW.md`, missing the exported zip when required, or not explicitly waived blocks on `USER Review Packet Stale` or `USER Review Packet Not Digested`. A first-seam-only packet cannot satisfy this gate when multiple slices or seams are admitted.
 
 ## Workstream Entry Whole-Package Analysis Gate
 
@@ -356,9 +384,11 @@ Branch Readiness Stage 1 proposes the plan requirements and returns the USER pla
 
 Branch Readiness Stage 2 creates or admits `Docs/branch_plans/<branch_slug>.md`, links it from the branch authority record through `Branch Runtime Engineering Plan Path:`, records `Engineering Plan Status:`, and keeps `Runtime Implementation Approval:` pending until a later USER decision admits runtime work. Stage 2 closeout must explicitly tell USER that the plan is now the object of the next review gate and that USER may accept, change, waive, or reject the plan before implementation.
 
+Branch Readiness Stage 2 must also create or refresh a USER-reviewable Desktop branch-plan packet for the admitted plan under the stable `Nexus USER Review\<worktree-label>` root. The packet uses the same flat-file `USER Review Desktop Bundle` format as Workstream Entry, but its purpose is Stage 2 branch-plan review: it must include `START_HERE.md`, a standalone `USER_BRANCH_PLAN_REVIEW.md`, the active branch plan, active branch authority record, branch-record index, relevant family/Nexus vision or source-truth router files, and any compact backlog/roadmap/validator/helper files needed for USER review of the admitted plan before Workstream Entry analysis or implementation approval. `USER_BRANCH_PLAN_REVIEW.md` is not a Codex status digest: it must be a plain-language product/design pre-plan digest with branch summary, end-state vision, visual/functional walkthrough, surface map, implementation options with pros/cons/risk, Codex recommendation, current branch scope, future-gated scope, plain-English Implementation Staging Notes, USER decisions, USER response area, Codex response digest area, and Workstream Entry result area. Stage 2 closeout must report the review folder path, copied files, source branch, source HEAD, validation summary, exact next USER decision requested, and pending USER decisions. Workstream Entry must re-check this packet before implementation approval and include a `USER Review Packet Finding:` that names the packet files, exported zip, source branch, packet source HEAD, current branch HEAD, freshness result, digest status, and waiver/blocker status. Workstream implementation remains blocked until USER response is attached/inserted and Codex digests that response, or until USER grants an explicit waiver. Missing Stage 2 branch-plan packet proof, a missing/shallow `USER_BRANCH_PLAN_REVIEW.md`, a stale packet, a packet that was not loaded and digested, or a missing USER response/digest or waiver blocks the handoff on `Branch Readiness Stage 2 Review Bundle Missing`, `USER Branch Plan Review Missing`, `USER Review Packet Stale`, or `USER Review Packet Not Digested`.
+
 Branch Readiness Stage 2 also creates or admits the `Element-to-Phase Proof Matrix` when the branch creates, touches, affects, defers, or preserves product/runtime/UI/source-truth elements. Workstream Entry must return that matrix, or a concrete summary of it, for USER review before implementation begins or resumes.
 
-Workstream Entry must return the `USER Branch Plan Review Gate` packet before implementation begins or resumes for runtime/user-facing/source-truth work. The packet is the readable "what this branch intends to build" handoff, while the active branch plan remains source truth.
+Workstream Entry must return the `USER Branch Plan Review Gate` packet before implementation begins or resumes for runtime/user-facing/source-truth work. The packet is the readable "what this branch intends to build" handoff, while the active branch plan remains source truth. The Workstream Entry digest must not omit the USER Review Packet: it must either record an explicit waiver or digest `START_HERE.md`, `USER_BRANCH_PLAN_REVIEW.md`, and the exported zip freshness as a named `USER Review Packet Finding:` before any implementation approval text is legal. It must also report `USER Review Response:` and `Codex Response Digest:` so the next implementation packet proves USER design input was accepted, revised, rejected, deferred with waiver, or is still blocking.
 
 Workstream Entry reads the plan and returns whole-package analysis plus the first-seam design packet before implementation. Each seam updates plan-to-implementation traceability with planned item, changed files, validator proof, user-facing proof, and future-gated decisions.
 

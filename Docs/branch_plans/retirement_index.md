@@ -22,6 +22,8 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | Retired from active planning posture | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/validation_helper_registry.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md` | Retired from active planning posture after PR #207 merge | `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
+| `Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md` | Retired from active planning posture after PR #212 merge and FAM-006 branch cleanup | `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md`; `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
+| `Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md` | Retired from active planning posture after USER-authorized rollback of profile-loaded Recording Profile Workstream route | `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md`; `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_uts_reference_20260521.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_lv1_visual_governance_gap_reference_20260521.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md`; `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
@@ -48,6 +50,10 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 
 ## Active Plan Posture
 
-Active runtime Branch Runtime Engineering Plan: `None recorded in this retirement index; active branch authority must be read from Docs/branch_records/index.md and the standing Governance intake record while RRI-20260525-003 is in flight.`
+Active runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` - branch-local active FAM-006 Active Overlay Recording Runtime Foundation plan is in Branch Readiness Stage 2 setup / Workstream Entry pending posture.
+
+Current-main runtime Branch Runtime Engineering Plan context: `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` - incoming PR #215 / FAM-007 AI Edition Public Leak-Prevention Foundation plan is retired from active planning posture and preserved as historical merged-unreleased current-main context; release execution remains separate.
+
+Current-main runtime Branch Runtime Engineering Plan context: `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` - incoming PR #218 / FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation plan is merged current-main context for this FAM-006 branch; it is not the active FAM-006 carrier.
 
 Most recent retired runtime plan: `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md` - the FAM-007 v1.7.23 post-release canon-closure plan is retired from active planning posture after PR #220 merge and is historical post-release source-truth repair evidence.

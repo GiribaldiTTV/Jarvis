@@ -14,7 +14,7 @@ Status: `Historical receipt for the USER-approved FAM-007 v1.7.23-prebeta post-r
 
 - Branch: `feature/fam-007-v1-7-23-post-release-canon-closure`
 - Worktree: `C:\Nexus Worktrees\FAM-007`
-- Branch Class: `release packaging`
+- Branch Class: `emergency canon repair`
 - Family: `FAM-007`
 - Package: `PKG-007`
 - Target Family: `FAM-007`
@@ -54,7 +54,7 @@ Phase Status: `Historical merged post-release canon-closure receipt` - PR #220 m
 
 ## Branch Class
 
-Branch Class: `release packaging`
+Branch Class: `emergency canon repair`
 
 ## Assigned Worktree Confinement
 
