@@ -5,7 +5,7 @@ Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `feature/fam-006-recording-profile-runtime-foundation` at `1f399003d2e6d13b34b567cd7f7900a709254bc9`
 Branch Creation origin/main Baseline: `98c82037e85940e630b727c8362bc9771ffd05e3`
 Branch Creation Baseline Meaning: `Historical creation-time baseline only; do not treat this field as current live origin/main. Live origin/main must be derived from Git and START_HERE review-packet metadata.`
-Current Reviewed HEAD: `623888a0e798d7342f0002f43e6dfa9696f63aee`
+Current Reviewed HEAD Source: `Derived from Git and the refreshed START_HERE.md packet metadata at review-bundle generation time; this tracked branch record must not hard-code its own latest commit SHA because every authority-record repair commit changes HEAD.`
 Current Reviewed origin/main: `d35755ca5135a3c1081de27d023f2db96c2c9741`
 Current Reviewed Merge Base: `d35755ca5135a3c1081de27d023f2db96c2c9741`
 Origin/Main Advanced Since Branch Creation: `YES - origin/main advanced after branch creation; governed current-main reconciliation is complete and the current reviewed merge base equals current reviewed origin/main.`
