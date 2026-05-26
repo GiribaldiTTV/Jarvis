@@ -13,7 +13,7 @@ Engineering Plan Status: `Branch Readiness Stage 2 setup`
 
 - Branch: `feature/fam-006-active-overlay-recording-runtime-foundation`
 - Worktree: `C:\Nexus Worktrees\FAM-006`
-- Upstream: `Pending first push to origin/feature/fam-006-active-overlay-recording-runtime-foundation`
+- Upstream: `origin/feature/fam-006-active-overlay-recording-runtime-foundation`
 
 ## Record State
 
@@ -178,7 +178,7 @@ Worktree Escape User Waiver Missing: `Not applicable - no off-worktree mutation 
 ## Carrier Lifecycle Decision
 
 Carrier Lifecycle Classification: `Successor branch from rollback receipt carrier`
-Remote Branch State: `Pending first push`
+Remote Branch State: `Pushed and tracking origin/feature/fam-006-active-overlay-recording-runtime-foundation`
 Unique Branch Diff: `Stage 2 source-truth setup edits only`
 Origin/Main Ancestry: `Created from FAM-006 rollback receipt HEAD 1f399003d2e6d13b34b567cd7f7900a709254bc9 whose merge-base is current origin/main 98c82037e85940e630b727c8362bc9771ffd05e3`
 Origin/Main Advanced Since Branch Creation: `NO`
