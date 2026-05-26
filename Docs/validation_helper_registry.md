@@ -83,6 +83,16 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 
 The USER review Desktop bundle helper must treat every Desktop review bundle refresh as a clean regeneration. It clears the stable worktree-labeled folder under `Nexus USER Review`, copies fresh repo-relative files, writes `START_HERE.md` with current branch/HEAD/origin-main metadata, atomically replaces the stable uploadable zip, and validates the zip file list plus `START_HERE.md` / `USER_BRANCH_PLAN_REVIEW.md` metadata before reporting PASS. A stale folder file, stale stable zip, missing `USER_BRANCH_PLAN_REVIEW.md`, branch mismatch, HEAD mismatch, origin/main mismatch, zip/folder file-list mismatch, or missing stale-guard proof is a helper failure and must block the review packet as `USER Review Packet Stale`.
 
+## External State Transition Validator Hook
+
+The External Operational State Store transition starts as source-truth contract work. Until USER approves helper implementation and validator transition, repo validators remain clean-clone safe and must not require `C:\Nexus Governance State`.
+
+Future validator hardening should extend the existing reusable governance validators before adding a new root helper:
+
+- `dev/orin_branch_governance_validation.py` remains `Helper Status: Reusable` and should own marker-first PR Readiness checks for `External State Transition Gate:`, `Transition Stage:`, `Docs Split Target Matrix Status:`, `Active-State Owner Boundary:`, `External Root Status:`, `Premature Migration Scan:`, `Validator / Helper Transition Status:`, `Source-Truth Agreement:`, and the blockers `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, and `External State Migration Premature`.
+- `dev/orin_governance_efficiency_validation.py` remains `Helper Status: Reusable` and should own contract consistency checks for the External State Transition Drift Gate, Docs Split Target Matrix presence, Stage 0 versus helper/bootstrap/migration boundary, and Main / phase governance / governance efficiency / external plan routing agreement.
+- Future external-state helpers such as `dev/orin_external_state_init.py`, `dev/orin_external_state_validation.py`, `dev/orin_external_state_lock.py`, `dev/orin_external_state_snapshot.py`, and `dev/orin_external_state_promote.py` are admitted implementation candidates only after USER approves helper/bootstrap work. They are not registered durable helper files until they exist and this registry is updated.
+
 ## Registered Root Dev Helpers
 
 ### Repo-Wide Governance

@@ -1674,6 +1674,35 @@ The audit must explicitly check whether the branch exposed:
 
 If governance drift is found and unresolved, the branch is blocked by `Governance Drift`.
 
+### External Operational State Transition Gate
+
+Inside `PR Readiness`, any branch that changes the External Operational State Store contract, Docs split plan, live-state ownership, external-state schema, helper/bootstrap posture, validator transition, repo live-state leakage policy, review-bundle state ownership, or active-state migration plan must run a formal `External State Transition Gate` before Stage 2 / PR creation can be green.
+
+The gate must explicitly answer:
+
+- `External State Transition Gate: PASS / BLOCKED / USER Decision Required`
+- `Transition Stage`
+- `Docs Split Target Matrix Status`
+- `Active-State Owner Boundary`
+- `External Root Approval`
+- `External Root Status`
+- `Premature Migration Scan`
+- `Repo Live-State Leakage Scan`
+- `Validator / Helper Transition Status`
+- `Source-Truth Agreement`
+- `Next Approved Step`
+- `Remaining USER Decisions`
+
+Stage 0 is docs/source-truth planning only. It does not approve helper code, validator code, `C:\Nexus Governance State` creation, worktree-local staging, state migration, repo file movement, deletion, archival, or release execution. During Stage 0, repo branch records and branch plans remain legal current owners where current governance still requires them.
+
+If the gate is missing or source truth disagrees on the current transition stage, active-state owner, helper/bootstrap approval, external root status, migration status, or next legal step, the branch is blocked by `External State Transition Gate Missing` or `External State Transition Drift`.
+
+If the external-state plan lacks a current Docs Split Target Matrix, the branch is blocked by `Docs Split Target Matrix Missing`.
+
+If a branch treats external-state helper/bootstrap/root/migration work as approved, initialized, or required before USER has approved that stage, the branch is blocked by `External State Migration Premature`.
+
+Repo validators running in GitHub Actions or clean clones must not require `C:\Nexus Governance State`. Local governance workflows may require external state only after USER-approved initialization or an explicit local analysis/migration approval.
+
 ### Governance Drift Escalation Rule
 
 If governance drift is discovered in any earlier phase:

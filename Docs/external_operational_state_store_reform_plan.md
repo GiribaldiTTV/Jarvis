@@ -147,6 +147,34 @@ Derived live truth from Git, GitHub, and helpers:
 - latest GitHub Release
 - release body truth
 
+## Docs Split Target Matrix
+
+Matrix Status: `Current for Docs Split Stage 0`
+Matrix Owner: `Docs/external_operational_state_store_reform_plan.md`
+Binding Rule Owner: `Docs/governance_efficiency_operating_model.md`
+Phase Gate Owner: `Docs/phase_governance.md`
+
+This matrix is the Stage 0 review surface for preventing drift while repo docs still carry active operational owners. It does not move files or migrate state by itself.
+
+| Surface | Current Repo Role | Target Owner After Migration | Stage 0 Disposition | Drift Risk | Recommendation |
+| --- | --- | --- | --- | --- | --- |
+| `Docs/Main.md` | first loader and source-truth router | stays repo durable source truth | keep compact pointer to this plan and transition gate | high if Main implies migration is complete | update rarely; route only |
+| `Docs/phase_governance.md` | phase rules, blockers, PR/Release gates | stays repo durable source truth | add transition gate and blockers | high if Stage 0, helper bootstrap, and migration blur | keep gate fields deterministic |
+| `Docs/governance_efficiency_operating_model.md` | external-state contract and ownership model | stays repo durable source truth | owns binding transition drift gate | high if external candidates become shadow law | keep deterministic rule table |
+| `Docs/external_operational_state_store_reform_plan.md` | implementation plan and future-work ledger | stays repo planning/reference surface until migration completes | own matrix, annotations, sequencing | high if treated as active migration authority | label as plan, not root/state |
+| `Docs/validation_helper_registry.md` | helper inventory and future validation ownership | stays repo durable source truth | register future external-state helper family and drift-check hook | medium if validators are expected before approved | mark implementation as future |
+| `Docs/branch_records/index.md` | active/historical branch authority routing | mixed/split: durable routing stays repo; live active posture migrates external later | keep current until migration stage | high release-loop source | migrate active operational posture later |
+| `Docs/branch_records/*.md` | authority, approvals, phase history, receipts | mixed/split: durable receipts stay repo; active branch state migrates external later | current active owners remain legal until migration | high release-loop source | fold historical receipts, migrate active records by stage |
+| `Docs/branch_plans/README.md` | branch-plan rules and templates | stays repo durable source truth | keep rules; external active plans later use same contract | medium | update only when plan ownership changes |
+| `Docs/branch_plans/*.md` | active engineering plans while branch is active | mixed/split: active plans migrate external; durable retired receipts stay repo if approved | current active plans remain legal until migration | high release-loop source | migrate after helper/bootstrap validation |
+| `Docs/worktree_slots.md` | stable slot registry and assignment receipts | mixed/split: durable slot definitions stay repo; live assignment migrates external | keep stable slots only | high if live assignment is copied | strip active assignment later |
+| `Docs/feature_backlog.md` | compact feature-family registry | stays repo durable source truth | keep identity/pointers only | medium if selected-next returns | avoid live branch/PR posture |
+| `Docs/prebeta_roadmap.md` | stage-breakpoint schedule outline | stays repo durable source truth | keep milestones/checkpoints only | high if release-window live state returns | avoid live release-window assembly |
+| `Docs/workstreams/` | durable package/slice/proof history | stays repo durable receipt/history | keep promoted historical truth | medium | no live PR/watcher state |
+| `Docs/family_visions/` | reusable family product direction | stays repo durable source truth | keep USER-accepted durable direction | low | do not absorb active plans |
+| USER review Desktop bundle | local review/export packet | external/local review-bundle state after helper stage | stable bundle remains helper output | medium if stale zip recurs | keep stale-guard proof |
+| Git/GitHub/helper live facts | derived live truth | Git/GitHub/helpers | unchanged | high if copied into docs | derive on demand |
+
 ## Canonical Location Model
 
 Canonical external operational state root:
@@ -253,6 +281,50 @@ Required named blockers:
 - `External State Corrupt`
 - `External State Schema Conflict`
 - `Stale Lock Recovery Required`
+- `External State Transition Gate Missing`
+- `External State Transition Drift`
+- `Docs Split Target Matrix Missing`
+- `External State Migration Premature`
+
+## External State Transition Drift Gate
+
+Gate Status: `Required for external-state reform PR Readiness`
+Current Stage: `Stage 0 - Docs Plan`
+External Root Status: `Not Approved`
+Migration Status: `Not Started`
+Validator Transition Status: `Not Approved`
+
+Required packet fields:
+
+- `External State Transition Gate:`
+- `Transition Stage:`
+- `Docs Split Target Matrix Status:`
+- `Active-State Owner Boundary:`
+- `External Root Approval:`
+- `External Root Status:`
+- `Premature Migration Scan:`
+- `Repo Live-State Leakage Scan:`
+- `Validator / Helper Transition Status:`
+- `Source-Truth Agreement:`
+- `Next Approved Step:`
+- `Remaining USER Decisions:`
+
+This gate exists so future Codex cannot treat the planning reference as already-executed migration. Stage 0 means repo docs may still contain current active owners required by existing governance. Those owners become migration targets only after USER approves helper/bootstrap work, initializes the external root, validates the helper path, and admits active-state migration.
+
+Drift blockers:
+
+- `External State Transition Gate Missing`: PR Readiness packet omits the gate.
+- `External State Transition Drift`: Main, phase governance, governance efficiency, this plan, branch authority, or helper registry disagree on stage, owner, or next step.
+- `Docs Split Target Matrix Missing`: the matrix is absent or stale.
+- `External State Migration Premature`: helper/bootstrap/root/migration/file-movement work is treated as approved before USER approves that stage.
+
+Recommended near-term implementation posture:
+
+- keep this branch at Stage 0 until PR/merge and active worktree acknowledgement
+- do not create `C:\Nexus Governance State` in this PR
+- do not add external-state helper code in this PR
+- do not migrate branch records, branch plans, roadmap, backlog, or worktree slots in this PR
+- require the transition gate in the next external-state implementation PR before Stage 2 / PR creation
 
 ## CI And Clean Clone Boundary
 
@@ -616,6 +688,38 @@ Stale generated indexes:
 Release delay:
 
 - PR #220 was handled under existing rules and released through `v1.7.23-prebeta`; PR #222, PR #223, and PR #224 are handled through `v1.7.25-prebeta` post-release canon closure before external-state implementation begins.
+
+## Annotated Recommendations For Next Governance Pass
+
+Recommendation A - keep Main as a router:
+
+- Status: `Applied in Stage 0`
+- Reason: Main must point to the external-state contract and plan without becoming the detailed migration ledger.
+- Future risk: if Main starts carrying detailed live-state migration fields, it becomes another live-state owner.
+
+Recommendation B - require the transition gate before external-state PR creation:
+
+- Status: `Applied in Stage 0`
+- Reason: this prevents planning from being mistaken for migration complete and catches disagreement between Main, phase governance, governance efficiency, the plan, branch authority, and helper registry.
+- Future risk: without this gate, Codex could initialize helpers or demand external state before USER approves bootstrap.
+
+Recommendation C - delay helper and validator implementation until after active worktrees acknowledge this reform:
+
+- Status: `Recommended next phase`
+- Reason: FAM worktrees should rebaseline or acknowledge the changed governance before a shared local operational state root starts coordinating them.
+- Future risk: if helpers land before worktree acknowledgement, the first external-state records may encode stale worktree assumptions.
+
+Recommendation D - migrate active records only after helper bootstrap proves locks, snapshots, and version checks:
+
+- Status: `Future-gated`
+- Reason: moving branch records and plans out of repo without lock/version/snapshot proof risks losing the exact planning receipts the reform is meant to preserve.
+- Future risk: premature file movement could trade release debt for external-state corruption.
+
+Recommendation E - keep release debt narrow:
+
+- Status: `Applied in Stage 0`
+- Reason: stale operational trackers should become `Repo Live-State Leakage` or external-state updates, not durable release debt.
+- Future risk: if Release Readiness keeps treating stale branch/worktree posture as release debt, the repair loop continues.
 
 ## Current Release Sequencing Recommendation
 
