@@ -21,17 +21,18 @@ This file is a planning reference, not an active external-state migration, helpe
 12. Stage 5 validator transition landed through PR #230. Local external-state validation is explicit for approved local workflows, while repo / CI / clean-clone validators remain independent from `C:\Nexus Governance State`.
 13. Stage 6 repo cleanup planning landed through PR #231 and identified compact pointer surfaces as the first cleanup execution lane.
 14. Stage 6A compact pointer-surface cleanup landed through PR #232 and cleaned `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/worktree_slots.md`.
-15. Current posture is Stage 6B: branch-authority routing cleanup planning. This plans how `Docs/branch_records/index.md` can retain durable routing law, standing Governance authority, and historical receipt indexing while active operational authority moves external.
-16. Branch-authority routing execution, branch-record/branch-plan cleanup, file movement, deletion, archival, worktree-local staging creation, FAM worktree reconciliation, branch cleanup, and release execution remain future USER decisions after Stage 6B is reviewed.
+15. Stage 6B branch-authority routing cleanup planning landed through PR #233 and defined the `Docs/branch_records/index.md` execution packet.
+16. Current posture is Stage 6C: branch-authority routing cleanup execution. This edits only `Docs/branch_records/index.md` plus stage-boundary source truth so the index retains durable routing law, standing Governance authority, and historical receipt indexing while active operational authority moves external.
+17. Branch-detail-record cleanup, branch-plan cleanup, file movement, deletion, archival, worktree-local staging creation, FAM worktree reconciliation, branch cleanup, and release execution remain future USER decisions after Stage 6C is reviewed.
 
 ## Current Boundaries
 
 Approved now:
 
-- Stage 6B branch-authority routing cleanup planning
-- source-truth owner wording that distinguishes branch-authority routing planning from execution
-- future execution preflight for `Docs/branch_records/index.md`
-- USER review bundle refresh for Stage 6B inspection
+- Stage 6C branch-authority routing cleanup execution for `Docs/branch_records/index.md`
+- source-truth owner wording that distinguishes branch-authority routing cleanup from branch-detail-record or branch-plan cleanup
+- replacement-owner routing from repo active-authority list to external operational state
+- USER review bundle refresh for Stage 6C inspection
 - validation and PR Readiness Stage 1 analysis
 
 Not approved by this planning file:
@@ -503,6 +504,40 @@ Stage 6B non-includes unless separately approved:
 - mutating FAM-006 or FAM-007 worktrees
 - release execution, runtime implementation, issue work, branch cleanup, private-state backup, or new external schema migration
 
+## Docs Split Stage 6C - Branch-Authority Routing Cleanup Execution
+
+Stage Status: `Active branch-authority routing cleanup execution`
+Source Branch: `feature/release-readiness-source-truth-intake`
+Source Worktree: `C:\Nexus Worktrees\Governance`
+Stage 6C Base: `origin/main@8d0301cd547380e35431ce7f211f2589ce1c8fb1`
+
+Stage 6C executes the `Docs/branch_records/index.md` cleanup planned in Stage 6B. It edits the index and stage-boundary source truth only; it does not edit branch detail records, branch plans, generated audits, or external state contents.
+
+Stage 6C cleanup intent:
+
+- Keep `Docs/branch_records/index.md` as durable branch-record law, required branch-record schema, historical receipt routing, and the single standing Governance active-authority exception.
+- Stop treating the repo-tracked `Active Branch Authority Records` section as a general live operations ledger for non-standing active branches.
+- Route non-standing active runtime, implementation, release-packaging, repair, selected-next, PR, watcher, release-window, and worktree operational authority to `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks.
+- Preserve historical branch records in repo as durable receipt evidence until a later exact branch-record / branch-plan cleanup lane names the preservation, compaction, archive, or deletion decision.
+
+Stage 6C replacement owners:
+
+| Removed / Compressed Fact Class | Replacement Owner |
+| --- | --- |
+| Non-standing active branch authority list | `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks |
+| Standing Governance active exception | `Docs/branch_records/index.md` and `Docs/branch_records/feature_release_readiness_source_truth_intake.md` |
+| Historical branch record routing | `Docs/branch_records/index.md` historical index until generated index support is separately approved |
+| Branch-record law, blocker names, and schema fields | `Docs/branch_records/index.md`, `Docs/phase_governance.md`, and durable repo validators |
+
+Stage 6C non-includes unless separately approved:
+
+- editing any `Docs/branch_records/*.md` detail record except the standing Governance intake record that owns this RRI cycle
+- editing branch plans, workstreams, family visions, or generated audits
+- moving, deleting, archiving, renaming, or broad-migrating repo Docs
+- creating worktree-local `.nexus_state_staging`
+- mutating FAM-006 or FAM-007 worktrees
+- release execution, runtime implementation, issue work, branch cleanup, private-state backup, or new external schema migration
+
 ## Problem Statement
 
 Release Readiness keeps blocking on stale live operational state in repo-tracked Docs after branches merge. Recent examples include:
@@ -705,10 +740,10 @@ Required named blockers:
 ## External State Transition Drift Gate
 
 Gate Status: `Required for external-state reform PR Readiness`
-Current Stage: `Stage 6B - Branch Authority Routing Cleanup Planning`
+Current Stage: `Stage 6C - Branch Authority Routing Cleanup`
 External Root Approval: `Bootstrap Approved`
 External Root Status: `Initialized`
-Migration Status: `Stage 4 active-state migration execution completed externally at source repo HEAD 5abdd9c011c80f5b7b57d473b973654a2427d5a8; Stage 6B branch-authority routing cleanup planning only`
+Migration Status: `Stage 4 active-state migration execution completed externally at source repo HEAD 5abdd9c011c80f5b7b57d473b973654a2427d5a8; Stage 6C branch-authority routing cleanup execution only`
 Validator / Helper Transition Status: `Stage 5 landed - local external-state validation is opt-in and explicit; clean-clone repo validation remains external-root independent`
 
 Required packet fields:
@@ -726,7 +761,7 @@ Required packet fields:
 - `Next Approved Step:`
 - `Remaining USER Decisions:`
 
-This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, report-only scanner, active-state migration planning packet, active-state migration execution planning packet, active-state migration execution, validator transition, repo cleanup planning, compact pointer cleanup, branch-authority routing planning, or broader repo cleanup execution as interchangeable. Stage 6B means planning only for `Docs/branch_records/index.md`; it must not edit the index or any branch record until a later USER-approved execution packet. Clean-clone repo validators must remain external-root independent.
+This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, report-only scanner, active-state migration planning packet, active-state migration execution planning packet, active-state migration execution, validator transition, repo cleanup planning, compact pointer cleanup, branch-authority routing planning, branch-authority routing cleanup, or broader repo cleanup execution as interchangeable. Stage 6C means exact-file cleanup for `Docs/branch_records/index.md` plus stage-boundary source truth only. It must not edit branch detail records, branch plans, generated audits, move/delete/archive repo files, or mutate FAM worktrees. Clean-clone repo validators must remain external-root independent.
 
 Drift blockers:
 
@@ -739,7 +774,7 @@ Drift blockers:
 
 Recommended near-term implementation posture:
 
-- keep this branch at Stage 6B until PR/merge and active worktree acknowledgement or USER-approved branch-authority routing cleanup execution
+- keep this branch at Stage 6C until PR/merge and active worktree acknowledgement or USER-approved branch-detail-record / branch-plan cleanup planning
 - validate the approved Stage 4 migrated records through explicit local external-state validation when cleanup planning depends on migrated external records
 - do not run helper `--apply` operations in this PR
 - do not migrate branch records or branch plans in this PR
@@ -1147,17 +1182,17 @@ Recommendation E - keep release debt narrow:
 
 Default path:
 
-1. Complete Stage 6B branch-authority routing cleanup planning after Stage 6A compact pointer cleanup has landed and the branch has rebaselined to current `origin/main`.
-2. Merge the Stage 6B planning packet only after validation and USER approval.
+1. Complete Stage 6C branch-authority routing cleanup execution after Stage 6B planning has landed and the branch has rebaselined to current `origin/main`.
+2. Merge the Stage 6C cleanup packet only after validation, USER review bundle refresh, and USER approval.
 3. Rebaseline or acknowledge active worktrees after merge when USER chooses that sequencing.
-4. Review the Stage 6B packet before deciding whether to approve branch-authority routing cleanup execution, broader branch-record/branch-plan cleanup planning, repo Docs file movement/deletion/archive planning, worktree-local staging, or FAM worktree reconciliation.
+4. Decide whether the next lane should be branch-detail-record / branch-plan cleanup planning, generated-index support, repo Docs file movement/deletion/archive planning, worktree-local staging, or FAM worktree reconciliation.
 
 External-state implementation does not replace post-release canon closure or become a release unblocker unless USER explicitly pauses release flow and approves that route.
 
 ## Future Exact USER Decision Shape
 
-Approve the next implementation phase only after this Stage 6B branch-authority routing cleanup planning PR merges and active worktrees rebaseline or acknowledge the changed governance when USER chooses that sequencing:
+Approve the next implementation phase only after this Stage 6C branch-authority routing cleanup PR merges and active worktrees rebaseline or acknowledge the changed governance when USER chooses that sequencing:
 
 ```text
-Approve External Operational State Store branch-authority routing cleanup execution on C:\Nexus Worktrees\Governance after reviewing the Stage 6B planning packet. Scope: edit only Docs/branch_records/index.md so it keeps standing Governance authority, durable routing law, and historical receipt indexing while pointing non-standing active operational branch authority to external state; refresh the review bundle. Do not edit branch detail records, branch plans, move/delete/archive repo files, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
+Approve External Operational State Store branch-detail-record / branch-plan cleanup planning on C:\Nexus Worktrees\Governance after reviewing the Stage 6C branch-authority routing cleanup packet. Scope: produce the next exact cleanup plan for branch detail records and branch plans so active operational state can leave repo docs without losing durable receipts; refresh the review bundle. Do not move/delete/archive repo files, mutate runtime, create releases, clean branches/worktrees, create worktree-local staging, or change FAM-006/FAM-007 without separate USER approval.
 ```
