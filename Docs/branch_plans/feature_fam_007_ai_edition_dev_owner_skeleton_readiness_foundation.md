@@ -8,9 +8,9 @@ Plan Identity: `FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation - Bra
 Owning Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`
 Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`
-Current Phase: `Workstream`
+Current Phase: `Live Validation`
 Branch Runtime Engineering Plan: Active Branch Readiness Stage 2 plan for the public-safe Breakpoint 2 readiness carrier.
-Engineering Plan Status: Accepted - Live Validation Stage 1 green after Hardening H1 and no-visible-runtime-surface waiver for the public-safe Dev/Owner skeleton readiness proof branch.
+Engineering Plan Status: Accepted - PR Readiness Stage 1 repair/sync recorded after Live Validation Stage 1 green, with selected-next FAM-007 / PKG-007 continuation truth encoded and PR creation still separately gated.
 Current Runtime Baseline: `origin/main@98c82037e85940e630b727c8362bc9771ffd05e3`, reconciled after `v1.7.22-prebeta`, with state/config/schema/UI/desktop provider-boundary posture from PR #215 public leak-prevention proof, PR #216 projection-shadow guard evidence, and PR #217 USER branch plan review governance included.
 Branch Purpose: Admit the next FAM-007 successor after public leak-prevention: Dev/Owner skeleton readiness planning, private repo/local-only action-gate planning, GitHub Desktop private-remote safety planning, off-boot backup/recovery root planning, public-to-private separation, provider/model execution deferral, and future handoff criteria.
 Planned Runtime Delta: No runtime behavior in Stage 2. The future Workstream may add public-safe source-truth/validator proof for readiness gates only.
@@ -29,7 +29,7 @@ Approval-Boundary Audit: `Stage 2 is approval-bounded to source-truth setup, val
 FAM / Shared-Surface Overlap Forecast: FAM-006 is a sibling lane and context only; Governance is standing intake context only; Compact-AI remains protected historical context only.
 Open Questions: Exact Dev private repo or local-only path, exact Owner private repo or local-only path, off-boot backup root decisions, GitHub Desktop private remote proof shape, Public-to-Dev consent levels, provider/model execution timing, memory/personalization timing, and packaging identity.
 USER Planning Decisions: USER approved Stage 2 setup, first seam group implementation, current-main reconciliation, artifact verification, and remaining Workstream seam group implementation for public-safe proof only. Every private/runtime/release action remains pending.
-Plan Revision History: v1 created during Branch Readiness Stage 2 from origin/main@2684080fe1abacb9c124f540f898182046193cc4 after v1.7.22-prebeta release; v1.1 records first seam group implementation proof for Dev/Owner skeleton readiness and GitHub Desktop private remote safety; v1.2 records current-main reconciliation to origin/main@98c82037e85940e630b727c8362bc9771ffd05e3 and remaining seam group Workstream Green proof; v1.3 records Hardening H1 and Live Validation Stage 1 green with no-visible-runtime-surface and User Test Summary waivers.
+Plan Revision History: v1 created during Branch Readiness Stage 2 from origin/main@2684080fe1abacb9c124f540f898182046193cc4 after v1.7.22-prebeta release; v1.1 records first seam group implementation proof for Dev/Owner skeleton readiness and GitHub Desktop private remote safety; v1.2 records current-main reconciliation to origin/main@98c82037e85940e630b727c8362bc9771ffd05e3 and remaining seam group Workstream Green proof; v1.3 records Hardening H1 and Live Validation Stage 1 green with no-visible-runtime-surface and User Test Summary waivers; v1.4 records PR Readiness Stage 1 repair/sync, selected-next FAM-007 / PKG-007 continuation truth, and Stage 2 PR creation preparation without creating a PR.
 Plan-To-Implementation Traceability Table: `First seam group maps Dev skeleton readiness, Owner skeleton readiness, private repo/local-only action-gate proof, and GitHub Desktop private remote safety to the AI Edition plan, this plan, this branch record, public leak-prevention validator, and synthetic fixture proof. Remaining seam group maps off-boot backup/recovery planning, public-to-private separation, provider/model execution deferral, and future handoff criteria to the same owners plus USER Action Gates USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY, USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT, USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION, USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION, and USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION. Live Validation Stage 1 verifies no visible runtime surface changed and records User Test Summary Results: WAIVED in the active branch record.`
 Hardening Comparison Checklist: H1 must compare implemented readiness proof against this plan, the active branch record, the AI Edition plan, FAM-007 vision, protected asset rules, public leak-prevention validator, provider-state validator, and private/public boundary exclusions.
 Live Validation Proof Or Waiver Checklist: Completed - LV1 records a no-visible-runtime-surface waiver and User Test Summary Results: WAIVED after validating source-truth, fixture, review-bundle, and provider-boundary proof. Visible UI changes remain future-gated and would require screenshot/live-client proof.
@@ -76,7 +76,7 @@ Alternatives / Tradeoffs: `Creating private repos now would accelerate future te
 Accepted Scope: `Accepted scope includes public-safe planning proof, Dev/Owner readiness gate proof, private setup action-gate proof, GitHub Desktop private remote safety proof, off-boot backup/recovery planning proof, public-to-private separation proof, provider/model execution deferral hardening, future handoff criteria, validator/fixture proof, source-truth fold-down, current-main reconciliation, validation, commit, push, and USER review packet refreshes.`
 Deferred Scope: `Deferred scope includes private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, backup implementation, Public-to-Dev import implementation, provider/model execution, memory, packaging, PR, merge, release, cleanup, and v1.8.0.`
 Rejected Scope: `Rejected scope for this branch includes hidden private behavior in public source, owner-private memory or prompts in public commits, private remote URLs or credentials, functional AI runtime, provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut or installer changes, release artifacts, and any private Dev or Owner repository setup without separate USER approval.`
-Exact USER Decision Needed: `After Live Validation Stage 1 green, USER may approve PR Readiness Stage 1 analysis while preserving all private/runtime pending decisions and keeping PR creation separately gated.`
+Exact USER Decision Needed: `After this PR Readiness Stage 1 repair/sync validates and pushes, USER may approve PR Readiness Stage 2 / PR creation while preserving all private/runtime pending decisions.`
 Implementation Approval: `Approved for public-safe Workstream proof only. Private repos, private remotes, backups, Public-to-Dev import, provider/model execution, memory, PR, merge, release, cleanup, and v1.8.0 remain blocked until separate USER approval.`
 
 ## Product Definition Plan
@@ -187,7 +187,86 @@ User Test Summary Waiver Reason: `The branch changed source truth, validators, f
 Runtime Surface Review: `No visible runtime surface changed; screenshot/live-client proof is not applicable for this branch.`
 Provider / Private Boundary Review: `provider-visible data remains none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution remains disabled; downloads, network, external calls, memory/learning/personalization, and voice/Core sync remain gated.`
 Review Packet Proof: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007 and C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007.zip remain the active USER review packet and export.`
-Next Phase: `PR Readiness Stage 1 analysis`
+Next Phase: `PR Readiness Stage 1 analysis completed by this repair/sync; PR Readiness Stage 2 / PR creation approval remains next after validation and push.`
+
+## PR Readiness Stage 1 Analysis Packet
+
+PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
+Stage 1 Approval: `Granted - USER approved bounded PR Readiness Stage 1 repair/sync after Live Validation Stage 1 green.`
+Planned PR Title: `Prove FAM-007 Dev Owner skeleton readiness`
+Planned Base Branch: `main`
+Planned Head Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`
+Planned PR Summary: `Three-section PR body only: Summary, Branch Evidence, Validation. The summary should state that this branch proves public-safe FAM-007 Dev/Owner skeleton readiness, action gates, backup/recovery planning, public-to-private separation, and provider/model deferral without runtime AI/private setup.`
+Required Post-Merge Path: `After PR merge, this branch becomes merged-unreleased FAM-007 Dev/Owner Skeleton Readiness Foundation evidence; Release Readiness remains a separate USER decision, and the selected next FAM-007 / PKG-007 continuation branch remains deferred to Branch Readiness after updated-main revalidation.`
+Ranked Runtime FAM Candidates: `1. FAM-007 Local AI and Capability Packs - selected continuation because this branch's own accepted AI Edition plan identifies the private Dev/Owner skeleton path as the next trust-boundary step; 2. FAM-010 Safety and Privacy - related future privacy hardening but not the active FAM-007 successor; 3. FAM-008 Packaging and Install Experience - packaging identity remains future-gated after private/runtime boundaries.`
+Recommended Next Package: `FAM-007 / PKG-007 private Dev and Nexus Desktop AI Owner skeleton continuation.`
+Package-Size / Single-Slice Drift Review: `PASS - proposed continuation is a broad FAM/package path with multiple candidate slices: private Dev skeleton action gate, Owner skeleton action gate, off-boot backup/recovery implementation planning, public-to-private separation/Public-to-Dev import gating, provider/model execution deferral, and future handoff criteria.`
+Element Coverage Review: `PASS - candidate continuation touches local AI/capability packs, security/privacy, workspace/data recovery, validation, and release impact; Element Coverage remains non-identity and does not create a branch.`
+Release-Debt Impact: `No release, tag, GitHub Release, or artifact work is authorized. If this PR merges before release execution, it becomes merged-unreleased FAM-007 evidence for the next Release Readiness pass.`
+Release-Debt Handling Status: `PASS - release execution remains separately USER-gated; no release debt is hidden or assigned to an unowned branch.`
+Selected-Next / No-Release-Debt Handling Status: `PASS - USER-approved selected-next truth is encoded in Docs/feature_backlog.md and Docs/prebeta_roadmap.md for FAM-007 / PKG-007; successor branch creation is deferred to Branch Readiness.`
+Required Current-Branch Source-Truth Sync: `Completed in this Stage 1 repair/sync: branch-plan phase wording repaired, selected-next truth encoded, and Stage 2 PR creation details prepared.`
+Planned Merge-Target Canon Updates: `Before merge, PR Readiness must preserve merge-stable branch authority, historical merged-unreleased posture, selected-next truth, release-window posture, branch cleanup deferral, private/runtime exclusions, and no-visible-runtime-surface waiver proof.`
+Origin/Main Freshness Check: `Current merge base equals origin/main@98c82037e85940e630b727c8362bc9771ffd05e3; no current-main reconciliation is needed while origin/main remains at that commit.`
+Branch Creation Base: `2684080fe1abacb9c124f540f898182046193cc4`
+Current origin/main: `98c82037e85940e630b727c8362bc9771ffd05e3`
+Origin/Main Advanced Since Branch Creation: `YES - already reconciled through current-main reconciliation; current merge base equals current origin/main.`
+Origin/Main Changed Files: `None since the current reconciled baseline.`
+Branch Changed Files: `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md; Docs/validation_helper_registry.md; dev/orin_public_leak_prevention_validation.py; dev/orin_user_review_bundle.py; dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json; related historical FAM-007 records/plans and governance inventory receipts in the branch diff.`
+Reconciliation Required: `NO - current merge base equals origin/main@98c82037e85940e630b727c8362bc9771ffd05e3.`
+Reconciliation File List: `None`
+Reconciliation Recommendation: `No current-main reconciliation needed before Stage 2 while origin/main remains 98c82037e85940e630b727c8362bc9771ffd05e3.`
+Reconciliation Mutation Status: `Analysis-only with no file fixes during Stage 1 reconciliation; this Stage 1 repair/sync is limited to USER-approved PR-readiness source-truth sync and selected-next truth.`
+Planned Next Branch Block: `Successor branch creation remains blocked until later USER-approved Branch Readiness from updated main.`
+Planned Watcher Provisioning: `Stage 2 PR creation approval must provision the PR watcher after the live PR exists; no watcher is provisioned in Stage 1.`
+Expected Files To Change: `Stage 1 sync updates branch record, branch plan, backlog, roadmap, and possibly validation logic only if validation exposes a bounded PR-readiness false-positive.`
+Stage 1 Repairs Made: `Branch-plan phase wording repaired; selected-next truth recorded for FAM-007 / PKG-007; historical branch-receipt selected-next false-positive repaired in the PR readiness validator; Stage 2 PR creation packet prepared.`
+Stage 1 Repair Validation: `PASS - standard validation is green; dedicated PR readiness gate clears selected-next/source-truth blockers and leaves only the expected Stage 2 live-PR blocker after durable commit/push.`
+Release Readiness Health Pass: `Stage 1 analysis confirms release-health gate remains green before PR creation; full PR-readiness health must rerun in Stage 2 after any PR/operator metadata.`
+PR Readiness Stage 1 Repair Pending: `Cleared when this repair/sync commit validates and pushes.`
+Governance Ledger Fallback: `Not required - current FAM-007 branch legally owns this bounded PR Readiness sync.`
+Branch Readiness Fallback: `Not required for current branch; successor branch creation is deferred to Branch Readiness after merge and updated-main revalidation.`
+Stage 1 Outcome: `Stage 1 Ready For Stage 2 after this repair/sync validates and pushes.`
+Stage 2 Sync Plan: `Verify current origin/main, live branch head, review packet proof, selected-next truth, release-health, PR title/body, watcher plan, and then create/validate the PR only after explicit USER Stage 2 approval.`
+Next Legal Phase: `PR Readiness Stage 2 / PR creation approval`
+Stage 2 Green-Light Decision Needed: `USER approval for PR Readiness Stage 2 / PR creation on this branch.`
+
+## Next Workstream
+
+Selected Next Workstream: `FAM-007`
+Recommended Package: `FAM-007 / PKG-007 - private Dev and Nexus Desktop AI Owner skeleton continuation`
+Selection Basis: `USER-approved selected-next truth during PR Readiness Stage 1 repair/sync; this branch's accepted AI Edition plan identifies private Dev/Owner skeleton continuation as the next trust-boundary path after public-safe readiness proof.`
+Scope Class: `Runtime slice / trust-boundary continuation`
+Minimal Scope: `USER-gated private Dev and Nexus Desktop AI Owner skeleton continuation, including private root/repo action gates, off-boot AI data backup/recovery implementation planning, public-to-private separation, Public-to-Dev import gating, provider/model execution deferral, and future handoff criteria.`
+Release-Debt Handling: `No release execution is authorized by this selection. If this branch merges before a release, Release Readiness must include it as merged-unreleased FAM-007 evidence.`
+Pending USER Decisions: `Branch Readiness for the successor carrier, private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup/recovery implementation, Public-to-Dev import implementation, provider/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, packaging/installer work, release, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0 remain pending.`
+
+## Next Branch Pre-Plan
+
+Pre-Plan Status: `Selected-next truth only - successor branch creation deferred`
+Candidate Branch Family: `FAM-007 / PKG-007`
+Candidate Branch Purpose: `Continue the USER-gated private Dev and Nexus Desktop AI Owner skeleton path after this PR merges and origin/main is revalidated.`
+Candidate Branch Name: `Deferred to Branch Readiness`
+Branch Creation Gate: `USER-approved Branch Readiness Stage 1 after this PR merges and current origin/main is revalidated.`
+Creation Blockers: `No successor branch may be created by PR Readiness Stage 1; no private repo/root/remote/backup/provider/model work is authorized by this pre-plan.`
+
+## Next Branch
+
+Next Branch Status: `Deferred`
+Next Branch Authority: `None created`
+Selected Next Implementation Branch: `Deferred to Branch Readiness`
+Why Deferred: `Governance requires selected-next truth before PR readiness can proceed, but branch creation remains a later USER-approved Branch Readiness action from updated main.`
+
+## PR Creation Details
+
+PR Creation Status: `Pending USER Stage 2 approval`
+PR Title: `Prove FAM-007 Dev Owner skeleton readiness`
+PR Base: `main`
+PR Head: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`
+PR Body Top-Level Sections: `Summary; Branch Evidence; Validation`
+PR Summary Intent: `This branch proves public-safe FAM-007 Dev/Owner skeleton readiness, action gates, backup/recovery planning, public-to-private separation, and provider/model deferral without runtime AI/private setup.`
+PR Watcher Requirement: `Provision the PR watcher only after a live PR exists during PR Readiness Stage 2.`
+PR Creation Exclusions: `No merge, release, cleanup, private Dev repo, private Owner repo, private remote, backup implementation, Public-to-Dev import, provider/model execution, memory, voice/Core sync, shortcut/installer, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is authorized by Stage 1.`
 
 ## Remaining Workstream Seam Group Implementation Receipt
 
@@ -600,11 +679,11 @@ Seam Status: `Green`
 Slice Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Continuation Execution Latch: `Inactive - Live Validation Stage 1 is green; PR Readiness Stage 1 requires separate USER approval.`
-Next Active Seam: `PR Readiness Stage 1`
+Continuation Execution Latch: `Inactive - PR Readiness Stage 1 repair/sync is complete after USER approval; PR Readiness Stage 2 requires separate USER approval.`
+Next Active Seam: `PR Readiness Stage 2`
 Stop Basis: `Workstream Green`
 Stop Condition: `Workstream Green`
-Continuation Action: `Stop at phase boundary until USER admits the next phase; PR Readiness Stage 1 remains the expected next seam, and no private/runtime work is authorized.`
+Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stage 2 / PR creation; no private/runtime work is authorized.`
 Remaining Implementable Work: `None`
 Single-Seam Workstream Waiver: `None`
 Single-Seam Or Single-Slice Waiver Authority: `USER only - Codex, ChatGPT, validators, prompts, clean validation, or a green seam cannot infer single-seam or single-slice Workstream authority.`
@@ -629,29 +708,29 @@ Slice Status: `Green`
 Completion Status: `Green`
 Waiver Status: `None`
 Continue Decision: `Stop`
-Continuation Execution Latch: `Inactive - Live Validation Stage 1 is green; PR Readiness Stage 1 requires separate USER approval.`
-Next Active Seam: `PR Readiness Stage 1`
+Continuation Execution Latch: `Inactive - PR Readiness Stage 1 repair/sync is complete after USER approval; PR Readiness Stage 2 requires separate USER approval.`
+Next Active Seam: `PR Readiness Stage 2`
 Stop Basis: `Workstream Green`
 Stop Condition: `Workstream Green`
-Continuation Action: `Stop at phase boundary until USER admits the next phase; PR Readiness Stage 1 remains the expected next seam, and no private/runtime work is authorized.`
+Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stage 2 / PR creation; no private/runtime work is authorized.`
 
 ## Formal Next Legal Phase Digest
 
 Current Phase: `Live Validation`
 Next Legal Phase: `PR Readiness`
-Next Legal Phase Detail: `PR Readiness Stage 1 analysis for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation after Live Validation Stage 1 green.`
-Next Active Seam: `PR Readiness Stage 1`
-Why This Phase Is Next: `Live Validation Stage 1 verified no visible runtime surface changed, recorded User Test Summary Results: WAIVED, confirmed packet/ZIP integrity, and preserved provider/private/runtime exclusions; PR Readiness Stage 1 must now analyze merge-target readiness before any PR creation.`
-Approval Required: `USER approval is required because PR Readiness Stage 1 is the next legal phase after Live Validation Stage 1.`
-Exact USER Approval Text: `Approve PR Readiness Stage 1 analysis for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@98c82037e85940e630b727c8362bc9771ffd05e3 after Live Validation Stage 1 green. Scope: analyze PR readiness, current origin/main freshness, merge-target source truth, release-health, branch authority fold-down needs, selected-next/next-workstream requirements, Live Validation waiver digestion, USER review packet proof, validation expectations, and exact Stage 2 PR creation decision; do not create a PR, provision a watcher, merge, release/tag/artifacts, clean branches/worktrees, mutate sibling worktrees, create private Dev or Owner repos, configure private remotes, implement backup/restore, implement Public-to-Dev import, execute providers/models, download models, make external calls, enable memory/learning/personalization, sync voice/Core, change shortcuts/installers, import AI Product Contract or Private Dev ORIN, or execute v1.8.0-prebeta.`
-Allowed Scope: `PR Readiness Stage 1 analysis only: no PR creation, watcher provisioning, merge, release, cleanup, private/runtime work, or source edits unless Stage 1 returns a USER-approved current-branch repair.`
+Next Legal Phase Detail: `PR Readiness Stage 2 / PR creation approval for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation after Stage 1 repair/sync validates and pushes.`
+Next Active Seam: `PR Readiness Stage 2`
+Why This Phase Is Next: `Live Validation Stage 1 was green, PR Readiness Stage 1 repair/sync recorded selected-next FAM-007 / PKG-007 continuation truth, repaired branch-plan phase wording, and prepared PR details; PR creation remains separately gated.`
+Approval Required: `USER approval is required before Stage 2 can create the PR, provision a watcher, or rely on live PR state.`
+Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation in C:\Nexus Worktrees\FAM-007 from current origin/main@98c82037e85940e630b727c8362bc9771ffd05e3 after PR Readiness Stage 1 repair/sync. Scope: verify current origin/main freshness, branch head, selected-next truth, LV1 waiver proof, review packet proof, release-health, PR title/body, and validation; create the PR against main; provision the PR watcher on the approved Codex reporting surface; validate live PR state, mergeability, checks, unresolved review threads, and bot-review signal posture; do not merge, release/tag/artifacts, clean branches/worktrees, mutate sibling worktrees, create private Dev or Owner repos, configure private remotes, implement backup/restore, implement Public-to-Dev import, execute providers/models, download models, make external calls, enable memory/learning/personalization, sync voice/Core, change shortcuts/installers, import AI Product Contract or Private Dev ORIN, or execute v1.8.0-prebeta.`
+Allowed Scope: `PR Readiness Stage 2 PR creation only after verifying current origin/main, branch head, selected-next truth, release-health, review packet proof, PR title/body, watcher plan, and live PR validation.`
 Explicit Exclusions: `No private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup/recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, branch/worktree cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --worktree-confinement-gate; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_governance_efficiency_validation.py; python dev\orin_source_owner_marker_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python dev\orin_public_leak_prevention_validation.py; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_validation_suite.py --phase branch-readiness; python -m compileall -q dev desktop Audio main.py; python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md.`
 Stop Conditions: `Stop if origin/main advances beyond 98c82037e85940e630b727c8362bc9771ffd05e3, source truth points to a different branch, Live Validation waiver proof is missing, User Test Summary Results are not PASS or WAIVED, provider/private/runtime boundaries weaken, private repo or backup implementation becomes required, PR creation or watcher provisioning becomes necessary, packet decision-path fields conflict, or validation fails.`
-USER Plan Review Gate: `Required - USER may approve PR Readiness Stage 1 analysis, revise the scope, waive a review item, or reject the handoff.`
+USER Plan Review Gate: `Required - USER may approve PR Readiness Stage 2 / PR creation, revise the scope, waive a review item, or reject the handoff.`
 USER Inspection Files: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007; Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md; dev/orin_public_leak_prevention_validation.py; dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json; Docs/validation_helper_registry.md.`
-Review Required Because: `Live Validation Stage 1 is green with a no-visible-runtime-surface waiver, but PR Readiness Stage 1 must analyze merge-target readiness before PR creation can be considered.`
-Implementation Blocker: `None for Live Validation Stage 1 - PR Readiness Stage 1 is the next analysis phase, and PR creation remains blocked until Stage 2 approval.`
+Review Required Because: `PR Readiness Stage 1 repair/sync is recorded only after validation and push; PR creation remains a separate Stage 2 USER decision.`
+Implementation Blocker: `PR creation remains blocked until USER approves PR Readiness Stage 2.`
 Review Waiver Reason: `Not waived - no waiver used; next phase remains USER-admitted by governance.`
 Next Legal Phase Digest Missing: `NO - this digest is complete and must not be compacted, abbreviated, summarized away, or omitted from phase handoff packets.`
-Next Safe Move: `Request USER approval for PR Readiness Stage 1 analysis.`
+Next Safe Move: `Request USER approval for PR Readiness Stage 2 / PR creation after this sync validates and pushes.`

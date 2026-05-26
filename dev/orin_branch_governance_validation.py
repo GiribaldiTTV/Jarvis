@@ -7690,10 +7690,11 @@ def _branch_record_branch_sets(
     active_branch_record_paths: set[str],
     historical_branch_record_paths: set[str],
     current_branch: str,
-) -> tuple[dict[str, str], set[str], set[str]]:
+) -> tuple[dict[str, str], set[str], set[str], set[str]]:
     branch_class_map: dict[str, str] = {}
     all_repair_branch_names: set[str] = set()
     active_repair_branch_names: set[str] = set()
+    historical_branch_names: set[str] = set()
     for branch_record_path in active_branch_record_paths | historical_branch_record_paths:
         record_path = ROOT_DIR / Path(branch_record_path)
         if not record_path.is_file():
@@ -7704,15 +7705,18 @@ def _branch_record_branch_sets(
         if not branch_name or not branch_class:
             continue
         prefixed_branch_name = f"origin/{branch_name}"
+        if branch_record_path in historical_branch_record_paths:
+            historical_branch_names.add(branch_name)
+            historical_branch_names.add(prefixed_branch_name)
         if branch_class == EMERGENCY_CANON_REPAIR_BRANCH_CLASS:
             all_repair_branch_names.add(branch_name)
             all_repair_branch_names.add(prefixed_branch_name)
             if branch_record_path in active_branch_record_paths:
                 active_repair_branch_names.add(branch_name)
-                active_repair_branch_names.add(prefixed_branch_name)
+            active_repair_branch_names.add(prefixed_branch_name)
         branch_class_map[branch_name] = branch_class
         branch_class_map[prefixed_branch_name] = branch_class
-    return branch_class_map, all_repair_branch_names, active_repair_branch_names
+    return branch_class_map, all_repair_branch_names, active_repair_branch_names, historical_branch_names
 
 
 def _active_branch_record_for_branch(
@@ -16288,10 +16292,12 @@ def _selected_next_ignored_branch_names(
     current_branch: str,
     all_repair_branch_names: set[str],
     active_repair_branch_names: set[str],
+    historical_branch_names: set[str],
 ) -> set[str]:
+    ignored = set(historical_branch_names)
     if current_branch == "main" or current_branch in active_repair_branch_names:
-        return set(all_repair_branch_names)
-    return set()
+        ignored.update(all_repair_branch_names)
+    return ignored
 
 
 def _selected_next_repair_only_branch_info(blocks: list[str]) -> tuple[bool, set[str]]:
@@ -16735,7 +16741,7 @@ def _run_next_workstream_gate(
     current_branch_names = {current_branch, f"origin/{current_branch}"} if current_branch else set()
     same_family_successor_not_branched = (
         current_branch
-        and selected_next_branch.casefold() in {"not created", "deferred to branch readiness"}
+        and _clean_release_value(selected_next_branch).casefold() in {"not created", "deferred to branch readiness"}
         and bool(current_branch_names.intersection(matching_branches))
     )
     non_repair_matching_branches = [
@@ -20532,7 +20538,12 @@ def main() -> int:
                 "non-`codex/` prefix for active Nexus work."
             ),
         )
-    branch_record_class_map, all_repair_branch_names, active_repair_branch_names = _branch_record_branch_sets(
+    (
+        branch_record_class_map,
+        all_repair_branch_names,
+        active_repair_branch_names,
+        historical_branch_names,
+    ) = _branch_record_branch_sets(
         active_branch_record_paths,
         historical_branch_record_paths,
         current_git_branch,
@@ -20553,6 +20564,7 @@ def main() -> int:
         current_git_branch,
         all_repair_branch_names,
         active_repair_branch_names,
+        historical_branch_names,
     )
     merged_no_active_branch_truth = (
         "Repo State: No Active Branch" in backlog_text or "Repo State: No Active Branch" in roadmap_text
@@ -20991,7 +21003,7 @@ def main() -> int:
                 )
                 same_family_successor_not_branched = (
                     current_branch_names
-                    and selected_next_branch.casefold()
+                    and _clean_release_value(selected_next_branch).casefold()
                     in {"not created", "deferred to branch readiness"}
                     and bool(current_branch_names.intersection(matching_branches))
                 )

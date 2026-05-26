@@ -74,6 +74,18 @@ Package/slice release blockers remain named `Single-Slice Package User Approval 
 | `FAM-009` Workspace and Data | released baseline; future workspace/data package remains open | `Docs/family_visions/FAM-009_workspace_and_data.md` | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
 | `FAM-010` Safety and Privacy | future privacy/safety package | `Docs/family_visions/FAM-010_safety_and_privacy.md` | `Docs/family_visions/FAM-010_safety_and_privacy.md` |
 
+## Selected Next Workstream
+
+Selected Next Workstream: `FAM-007`
+Record State: `Registry-only`
+Recommended Family / Package: `FAM-007 / PKG-007 - Local AI and Capability Packs`
+Minimal Scope: `runtime slice - USER-gated private Dev and Nexus Desktop AI Owner skeleton continuation covering private root/repo action gates, off-boot AI data backup/recovery implementation planning, public-to-private separation, Public-to-Dev import gating, provider/model execution deferral, and future handoff criteria.`
+Branch: Not created
+Implementation Branch Creation: `Deferred to Branch Readiness`
+Branch Creation Gate: `After the FAM-007 Dev/Owner Skeleton Readiness Foundation PR merges and origin/main is revalidated, USER-approved Branch Readiness Stage 1 must analyze the exact successor carrier before any branch is created.`
+Selection Truth Status: `USER-approved during PR Readiness Stage 1 repair/sync for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation; this roadmap records selection only and authorizes no branch creation, private repo creation, private remote setup, backup implementation, Public-to-Dev import, provider/model execution, memory, release, cleanup, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Candidate Slices: `Private Dev skeleton action gate; Nexus Desktop AI Owner skeleton action gate; off-boot AI data backup/recovery implementation planning; public-to-private separation and Public-to-Dev import gating; provider/model execution deferral and future handoff criteria.`
+
 ## Release Readiness Contract
 
 Release Readiness is file-frozen. It must derive live candidate truth from Git/GitHub/helpers and report blockers without mutating docs.
