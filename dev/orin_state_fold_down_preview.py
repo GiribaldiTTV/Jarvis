@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import argparse
 
-from orin_external_state_common import DEFAULT_EXTERNAL_STATE_ROOT, iter_state_files, resolve_path
+from orin_external_state_common import (
+    DEFAULT_EXTERNAL_STATE_ROOT,
+    iter_state_files,
+    resolve_path,
+    validate_canonical_root,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -15,11 +20,17 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     root = resolve_path(args.root)
+    root_issues = validate_canonical_root(root)
     print("External State Fold-Down Preview")
     print(f"Root: {root}")
     print(f"Branch Slug: {args.branch_slug or 'All'}")
     print("Mutation Status: Not started - preview only")
 
+    if root_issues:
+        print("Preview Result: BLOCKED")
+        for issue in root_issues:
+            print(issue)
+        return 1
     if not root.exists():
         print("Preview Result: External State Missing")
         return 0
