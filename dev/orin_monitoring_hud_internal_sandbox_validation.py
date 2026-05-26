@@ -191,9 +191,10 @@ def _validate_static_surface(failures: list[str]) -> None:
             "Sensor Library",
             "Overlay Profile",
             "Recording Profile",
-            "Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md",
-            "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md",
-            "PR #194",
+            "Docs/family_visions/FAM-006_monitoring_and_hud.md",
+            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
+            "runtime recording implementation remains future-gated",
+            "canonical detail owners, not this compact backlog registry",
         ):
             _require_contains(
                 feature_backlog,
@@ -202,11 +203,10 @@ def _validate_static_surface(failures: list[str]) -> None:
                 failures,
             )
         for needle in (
-            "Overlay Display Acceptance Foundation is released in `v1.7.19-prebeta` via PR #207",
-            "Overlay Profile foundation evidence are released receipts",
-            "future monitoring/HUD scope remains USER-gated",
-            "Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md",
-            "Docs/branch_records/feature_fam_006_overlay_profile_runtime_foundation.md",
+            "durable planning and release receipts preserved; future recording runtime remains USER-gated",
+            "Docs/family_visions/FAM-006_monitoring_and_hud.md",
+            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
+            "Selected-next, branch-creation, live release-window, live PR, and current worktree assignment truth are not owned by this roadmap",
         ):
             _require_contains(
                 prebeta_roadmap,
