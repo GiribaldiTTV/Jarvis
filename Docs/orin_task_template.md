@@ -407,7 +407,7 @@ USER Branch Plan Review:
 [required / present / accepted by USER / revised by USER / deferred with waiver / rejected by USER / needs USER decision / not required with reason]
 
 USER Branch Plan Review Summary:
-[plain-language branch goal, planned user-facing outcome, End-State Vision, Visual / Functional Walkthrough, Surface Map, implementation breakdown, Element-to-Phase Proof Matrix summary, Hardening plan, Live Validation / UTS plan, open USER questions, Codex recommendations, Implementation Options, Recommended Direction, Current Branch Scope, Future-Gated Scope, SLC Package Plan, USER Decisions Needed, USER response, Codex response digest, alternatives/tradeoffs, accepted scope, deferred scope, rejected scope, Workstream Entry Result, exact USER decision needed, and implementation approval status]
+[plain-language branch goal, planned user-facing outcome, End-State Vision, Visual / Functional Walkthrough, Surface Map, implementation breakdown, Element-to-Phase Proof Matrix summary, Hardening plan, Live Validation / UTS plan, open USER questions, Codex recommendations, Implementation Options, Recommended Direction, Current Branch Scope, Future-Gated Scope, Implementation Staging Notes, USER Decisions Needed, USER response, Codex response digest, alternatives/tradeoffs, accepted scope, deferred scope, rejected scope, Workstream Entry Result, exact USER decision needed, and implementation approval status]
 
 Workstream Entry Whole-Package Analysis:
 [required / present / not required with reason / blocked on Workstream Entry Whole-Package Analysis Missing]

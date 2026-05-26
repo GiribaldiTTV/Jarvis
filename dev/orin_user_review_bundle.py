@@ -269,24 +269,75 @@ def _validate_export_zip(export_zip: Path, source_head: str) -> None:
     if "USER Review Packet Finding: PASS" not in start_here:
         raise ValueError("Review export zip is missing USER Review Packet Finding proof")
     for required_heading in (
+        "## Contract Status",
+        "## Contract Version / Revision",
         "## Plain-English Branch Summary",
+        "## What Will I Actually See, And Where Will I See It?",
         "## End-State Vision",
         "## Visual / Functional Walkthrough",
         "## Surface Map",
         "## Implementation Options",
         "## Recommended Direction",
-        "## Current Branch Scope",
-        "## Future-Gated Scope",
-        "## SLC Package Plan",
+        "## Why This Fits The Nexus Vision",
+        "## USER Design Direction Decision",
         "## USER Decisions Needed",
         "## USER Response",
         "## Codex Response Digest",
+        "## Implementation Constraints Created By USER Response",
+        "## USER Rejected / Deferred Ideas",
+        "## Vision Delta / Source-Truth Impact",
+        "## Contract Change Log",
+        "## Current Branch Scope",
+        "## Future-Gated Scope",
+        "## Implementation Staging Notes",
         "## Workstream Entry Result",
+        "## Contract Completion Checklist",
     ):
         if required_heading not in user_review:
             raise ValueError(
                 f"Review export zip USER_BRANCH_PLAN_REVIEW.md is missing {required_heading}"
             )
+    contract_status = _section(user_review, "Contract Status").strip().casefold()
+    if not any(
+        contract_status.startswith(prefix)
+        for prefix in (
+            "draft",
+            "pending user response",
+            "pending codex digest",
+            "pending user confirmation",
+            "complete",
+            "waived by user",
+        )
+    ):
+        raise ValueError(
+            "Review export zip USER_BRANCH_PLAN_REVIEW.md has invalid Contract Status"
+        )
+    exact_decision = _section(user_review, "Exact USER Decision Supported").casefold()
+    if contract_status.startswith(
+        ("draft", "pending user response", "pending codex digest", "pending user confirmation")
+    ) and (
+        "approve bounded slc" in exact_decision
+        or "approve workstream implementation" in exact_decision
+        or "implementation approval" in exact_decision
+    ):
+        raise ValueError(
+            "Review export zip cannot request implementation approval while "
+            "USER_BRANCH_PLAN_REVIEW.md Contract Status is blocking"
+        )
+
+
+def _section(text: str, heading: str) -> str:
+    marker = f"## {heading}"
+    start = text.find(marker)
+    if start < 0:
+        return ""
+    start = text.find("\n", start)
+    if start < 0:
+        return ""
+    next_heading = text.find("\n## ", start + 1)
+    if next_heading < 0:
+        return text[start:].strip()
+    return text[start:next_heading].strip()
 
 
 def _is_repo_relative_review_path(path: str) -> bool:
@@ -374,6 +425,88 @@ def _write_user_branch_plan_review(
         workstream_entry_result = (
             _source_marker(active_plan_source, "Workstream Entry Result:") if active_plan_source else None
         )
+        contract_status = (
+            _source_marker(active_plan_source, "Contract Status:") if active_plan_source else None
+        ) or "Pending USER Confirmation - Codex revised this review into the closed-loop USER Branch Plan Contract; USER must confirm the revised contract or explicitly waive it before implementation."
+        contract_version = (
+            _source_marker(active_plan_source, "Contract Version / Revision:") if active_plan_source else None
+        ) or "v2 - Closed-loop USER Branch Plan Contract revision."
+        what_user_sees = (
+            "HUD Overlay card: a compact recording target area inside the existing card, showing "
+            "the active Overlay Profile name, a clear Recording Target / Active Recording Target "
+            "label, and a concise summary of what would be recorded. Recording Settings: a later "
+            "compact standalone NDAI window for folder path, open-folder access, output naming/location, "
+            "and simple settings. Output files: later graph/plot-ready recording files, likely CSV-like "
+            "first but with format options proposed before file-writing is admitted."
+        )
+        why_nexus = (
+            "This fits Nexus because it keeps the HUD lightweight, ties recording to the overlay "
+            "workflow the user already understands, avoids a confusing second profile system, preserves "
+            "modular standalone windows for settings, keeps advanced output/log tooling future-gated, "
+            "and makes the recording target visible before any execution can surprise the user."
+        )
+        design_ballot = [
+            "Accept Codex recommendation.",
+            "Accept with changes.",
+            "Choose another option.",
+            "Request hybrid option.",
+            "Reject and ask for more options.",
+            "Pause / unclear.",
+        ]
+        response_structure = [
+            "Decision.",
+            "Required changes.",
+            "Must-have behavior.",
+            "Must-not-do boundaries.",
+            "Future-gated ideas.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER intent summary.",
+            "Accepted USER decisions.",
+            "Rejected or deferred USER ideas.",
+            "Implementation constraints created from USER response.",
+            "Source-truth updates required.",
+            "Review packet updates required.",
+            "Open questions.",
+            "Contract Status after digest.",
+            "Next USER decision needed.",
+        ]
+        implementation_constraints = [
+            "SLC-051 selects Option A: Target Preview First only after USER confirms this revised contract.",
+            "SLC-051 remains state/proof-only and must not add recording execution or file writing.",
+            "Recording target derives from active Overlay Profile membership and must cover null, empty, selected, switched, deleted/stale, duplicate/stale-ID, and high-volume membership states.",
+            "Start/Stop behavior remains future-gated until an approved seam admits it; any later placeholder must be clearly disabled or future-gated.",
+            "Native Log Loader remains future planning input unless USER separately approves durable source-truth mutation.",
+            "Overlay Profile, Overlay Display, Monitor Group, Dashboard, Manage Monitors, and Sensor Command Center behavior must remain preserved.",
+        ]
+        rejected_deferred = [
+            "Rejected for this branch direction: separate profile-loaded Recording Profile system.",
+            "Deferred: recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, and durable Native Log Loader source-truth mutation.",
+        ]
+        source_truth_impact = [
+            "Family vision: no durable Native Log Loader mutation in this gate.",
+            "Active branch plan and branch record: update to record the closed-loop contract and Pending USER Confirmation status.",
+            "Backlog/roadmap: no product-scope change required by this contract hardening unless USER revises the end-state.",
+            "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
+            "Workstream seam order: target model remains first as implementation staging, not the USER decision surface.",
+        ]
+        contract_change_log = [
+            "v1 - USER-facing Branch Plan Review packet introduced with end-state/options sections.",
+            "v2 - Hardened into USER Branch Plan Contract with closed-loop response/digest, implementation constraints, source-truth impact, confirmation loop, and waiver semantics.",
+        ]
+        completion_checklist = [
+            "Contract Status is Complete or Waived by USER.",
+            "USER response is present, attached, or explicitly waived.",
+            "Codex Response Digest is present.",
+            "Implementation Constraints Created By USER Response are present.",
+            "Vision Delta / Source-Truth Impact is resolved.",
+            "USER Rejected / Deferred Ideas are recorded.",
+            "Contract Change Log is current.",
+            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+            "Workstream Entry Result is present only after response/digest or waiver.",
+            "Exact implementation approval text cites completed or waived contract status.",
+        ]
         plain_english_summary = (
             "This branch is setting up the corrected FAM-006 recording direction: "
             "recording should be driven by the currently active Overlay Profile, "
@@ -419,10 +552,10 @@ def _write_user_branch_plan_review(
             "the USER vision while avoiding fake or premature recording execution."
         )
         current_scope = [
-            "Plan and implement, only after separate approval, the SLC-051 through SLC-055 active-overlay recording foundation.",
+            "Plan and implement, only after separate approval, the active-overlay recording end-state accepted by USER.",
             "Use active Overlay Profile membership as the source of truth for future recording targets.",
             "Preserve Dashboard, Manage Monitors, Sensor Command Center, Overlay Profile, Overlay Display, and Monitor Group behavior.",
-            "Create validators/helpers/source-truth proof only where required by admitted seams.",
+            "Create validators/helpers/source-truth proof only where required by the approved implementation stage.",
         ]
         future_scope = [
             "Recording execution and file writing remain blocked until an approved seam admits them.",
@@ -430,24 +563,68 @@ def _write_user_branch_plan_review(
             "Native Log Loader is early USER input only unless USER separately approves durable source-truth mutation.",
         ]
         slc_package_plan = [
-            "SLC-051 - Active Overlay recording target foundation: prove the target model first because every later UI/control/output behavior depends on knowing what would be recorded.",
-            "SLC-052 - HUD Overlay recording quick access and active-monitor transparency: plan the card area, target visibility, and future Start/Stop placement after the target model is trustworthy.",
-            "SLC-053 - Standalone Recording Settings window foundation: plan the compact independent NDAI settings window after the HUD flow is clear.",
-            "SLC-054 - Durable recording output contract: define graph/plot-ready file semantics only after target and settings assumptions are stable.",
-            "SLC-055 - Validation/live proof readiness: tie validators, H1, LV1, UTS, screenshots, and future-gated boundary proof together before PR readiness.",
+            "Implementation staging note, not the USER decision surface: Codex uses SLC-051 through SLC-055 internally to sequence the accepted end-state safely.",
+            "Target model comes first because every later UI/control/output behavior depends on knowing what would be recorded.",
+            "HUD card controls, Recording Settings, output contract, and validation/live proof follow as staged implementation only after the end-state and boundaries are accepted.",
         ]
         user_decisions = [
-            "Should SLC-051 stay state/proof-only, or should USER revise the branch plan before implementation?",
-            "Should recording execution remain outside SLC-051 and future-gated until a later seam explicitly admits file writing?",
-            "Should the HUD Overlay card show active monitored targets before Start/Stop controls are implemented, use a disabled placeholder, or wait for SLC-052?",
-            "Should the compact Recording Settings window stay limited to folder path/open folder/Start/Stop parity at first, or should USER propose additional settings for later planning?",
-            "Should durable output planning target CSV-like graph/plot readiness first, or should Codex propose multiple file-format options before SLC-054?",
+            "Does USER accept the active-overlay-driven recording end-state, or should Codex change/add/remove feature behavior before implementation planning proceeds?",
+            "Does USER want the HUD Overlay card to eventually show target preview only, disabled future Start/Stop placement, or another compact Recording area concept?",
+            "Does USER accept the compact standalone Recording Settings window direction, or want different window behavior/settings proposed?",
+            "Does USER want graph/plot-ready recording output planned around CSV-like output first, or should Codex present multiple output-format options later?",
             "Should Native Log Loader remain future planning input only for this branch?",
         ]
     else:
         accepted_user_response = None
         codex_response_digest = None
         workstream_entry_result = None
+        contract_status = "Pending USER Response - USER must accept, revise, reject, request more options, or waive this contract before implementation."
+        contract_version = "v1 - Generated USER Branch Plan Contract."
+        what_user_sees = "USER should see the feature's planned surfaces, behavior, options, boundaries, and proof path before implementation begins."
+        why_nexus = "The recommendation should explain how the branch aligns with the project vision, keeps scope bounded, and preserves user-facing clarity."
+        design_ballot = [
+            "Accept Codex recommendation.",
+            "Accept with changes.",
+            "Choose another option.",
+            "Request hybrid option.",
+            "Reject and ask for more options.",
+            "Pause / unclear.",
+        ]
+        response_structure = [
+            "Decision.",
+            "Required changes.",
+            "Must-have behavior.",
+            "Must-not-do boundaries.",
+            "Future-gated ideas.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER intent summary.",
+            "Accepted USER decisions.",
+            "Rejected or deferred USER ideas.",
+            "Implementation constraints created from USER response.",
+            "Source-truth updates required.",
+            "Review packet updates required.",
+            "Open questions.",
+            "Contract Status after digest.",
+            "Next USER decision needed.",
+        ]
+        implementation_constraints = ["Pending USER response or explicit waiver."]
+        rejected_deferred = ["Pending USER response or explicit waiver."]
+        source_truth_impact = ["Pending USER response or explicit waiver."]
+        contract_change_log = ["v1 - Generated USER Branch Plan Contract."]
+        completion_checklist = [
+            "Contract Status is Complete or Waived by USER.",
+            "USER response is present, attached, or explicitly waived.",
+            "Codex Response Digest is present.",
+            "Implementation Constraints Created By USER Response are present.",
+            "Vision Delta / Source-Truth Impact is resolved.",
+            "USER Rejected / Deferred Ideas are recorded.",
+            "Contract Change Log is current.",
+            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+            "Workstream Entry Result is present only after response/digest or waiver.",
+            "Exact implementation approval text cites completed or waived contract status.",
+        ]
         plain_english_summary = (
             "This branch-plan review summarizes the branch's intended product, "
             "runtime, source-truth, and validation direction before Workstream "
@@ -468,9 +645,9 @@ def _write_user_branch_plan_review(
             "Relevant family vision, backlog, roadmap, validators, and copied review files.",
         ]
         implementation_options = [
-            "Option A - Accept the recommended first seam and keep later seams future-gated. Pros: fastest bounded path; Cons: less redesign; Risk: low when source truth is coherent.",
-            "Option B - Revise the branch plan before implementation. Pros: better USER fit; Cons: adds planning repair work; Risk: low to medium.",
-            "Option C - Waive unresolved questions explicitly. Pros: unblocks implementation; Cons: records less USER design input; Risk: medium.",
+            "Option A - Accept Codex's recommended end-state and keep later implementation staging future-gated. Pros: fastest bounded path; Cons: less redesign; Risk: low when source truth is coherent.",
+            "Option B - Revise the end-state before implementation. Pros: better USER fit; Cons: adds planning repair work; Risk: low to medium.",
+            "Option C - Waive unresolved end-state questions explicitly. Pros: unblocks implementation; Cons: records less USER design input; Risk: medium.",
         ]
         recommended_direction = (
             "Codex recommends accepting the branch plan only when the user-facing outcome, "
@@ -485,21 +662,33 @@ def _write_user_branch_plan_review(
             "Any item not explicitly admitted by the active branch plan remains future-gated.",
         ]
         slc_package_plan = [
-            "Workstream Entry must explain every admitted seam or slice in plain language before selecting the first bounded implementation seam.",
+            "Implementation staging must support the accepted end-state; seam/slice details are background execution scaffolding, not the primary USER decision surface.",
         ]
         user_decisions = [
-            "Does USER accept the branch goal and first-seam direction?",
+            "Does USER accept the branch goal and end-state direction?",
             "Does USER want to revise any user-facing behavior, layout, workflow, or future-gated boundary before implementation?",
             "Does USER waive any unanswered design question, or should implementation remain blocked until it is answered?",
         ]
     lines = [
         f"# USER Branch Plan Review - {title}",
         "",
+        "## Contract Status",
+        "",
+        contract_status,
+        "",
+        "## Contract Version / Revision",
+        "",
+        contract_version,
+        "",
         "## Plain-English Branch Summary",
         "",
         plain_english_summary,
         "",
         "This file is a required user-facing product/design planning gate. It should help USER answer: Do I actually like what Codex is about to build?",
+        "",
+        "## What Will I Actually See, And Where Will I See It?",
+        "",
+        what_user_sees,
         "",
         "## End-State Vision",
         "",
@@ -521,6 +710,56 @@ def _write_user_branch_plan_review(
         "",
         recommended_direction,
         "",
+        "## Why This Fits The Nexus Vision",
+        "",
+        why_nexus,
+        "",
+        "## USER Design Direction Decision",
+        "",
+        "Choose one of these paths, then add any notes or changes you want:",
+        "",
+        *_markdown_lines(design_ballot),
+        "",
+        "## USER Decisions Needed",
+        "",
+        "USER may answer in order or respond generally. Useful feedback includes visual direction, workflow changes, window behavior, output-file expectations, deferred scope, or anything that would make the branch plan feel wrong before implementation planning begins.",
+        "",
+        *_markdown_lines(user_decisions),
+        "",
+        "## USER Response",
+        "",
+        accepted_user_response
+        or "Status: Pending USER Response - Workstream implementation remains blocked until USER answers, revises, rejects, accepts, or explicitly waives this contract.",
+        "",
+        "Required USER Response structure:",
+        "",
+        *_markdown_lines(response_structure),
+        "",
+        "## Codex Response Digest",
+        "",
+        codex_response_digest
+        or "Status: Pending USER Response - Codex has not yet digested USER answers for this contract. Workstream implementation requires a later digest or an explicit USER waiver.",
+        "",
+        "Required Codex Response Digest structure:",
+        "",
+        *_markdown_lines(digest_structure),
+        "",
+        "## Implementation Constraints Created By USER Response",
+        "",
+        *_markdown_lines(implementation_constraints),
+        "",
+        "## USER Rejected / Deferred Ideas",
+        "",
+        *_markdown_lines(rejected_deferred),
+        "",
+        "## Vision Delta / Source-Truth Impact",
+        "",
+        *_markdown_lines(source_truth_impact),
+        "",
+        "## Contract Change Log",
+        "",
+        *_markdown_lines(contract_change_log),
+        "",
         "## Current Branch Scope",
         "",
         *_markdown_lines(current_scope),
@@ -529,7 +768,7 @@ def _write_user_branch_plan_review(
         "",
         *_markdown_lines(future_scope),
         "",
-        "## SLC Package Plan",
+        "## Implementation Staging Notes",
         "",
         *_markdown_lines(slc_package_plan),
         "",
@@ -541,28 +780,14 @@ def _write_user_branch_plan_review(
         f"- origin/main: `{origin_main}`",
         f"- Source Repo: `{ROOT}`",
         "",
-        "## USER Decisions Needed",
-        "",
-        "USER may answer in order or respond generally. Useful feedback includes visual direction, workflow changes, window behavior, output-file expectations, deferred scope, or anything that would make the branch plan feel wrong before implementation planning begins.",
-        "",
-        *_markdown_lines(user_decisions),
-        "",
-        "## USER Response",
-        "",
-        accepted_user_response
-        or "Status: Pending USER Response - Workstream implementation remains blocked until USER answers, revises, rejects, accepts, or explicitly waives this review.",
-        "",
-        "Codex must attach or insert the USER response into this packet or branch review digest before bounded Workstream implementation.",
-        "",
-        "## Codex Response Digest",
-        "",
-        codex_response_digest
-        or "Status: Pending USER Response - Codex has not yet digested USER answers for this review packet. Workstream implementation requires a later digest or an explicit USER waiver.",
-        "",
         "## Workstream Entry Result",
         "",
         workstream_entry_result
         or "Status: Pending USER Response - first seam, affected files, validators, proof requirements, USER-facing proof, and exact implementation approval text must be returned only after USER response/digest or explicit waiver.",
+        "",
+        "## Contract Completion Checklist",
+        "",
+        *_markdown_lines(completion_checklist),
         "",
         "## Codex Recommendations And Implementation Options",
         "",
@@ -575,6 +800,10 @@ def _write_user_branch_plan_review(
         "This compatibility section is retained for older packet validators. See USER Decisions Needed above.",
         "",
         *_markdown_lines(user_decisions),
+        "",
+        "## Appendix - Legacy Validator Compatibility",
+        "",
+        "Legacy compatibility sections are retained only for older validators and should not replace the contract sections above.",
         "",
         "## Active Branch Plan Files",
         "",

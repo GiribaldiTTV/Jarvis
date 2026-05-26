@@ -101,7 +101,7 @@ Planning Packet Status: `Complete`
 Planning Revalidation Status: `PASS`
 User Test Summary Strategy: `No UTS is required for Stage 2 source-truth setup. Future user-facing active-overlay-driven recording seams require LV1 real user-facing launcher proof, per-element screenshots, compact/default comparison, output-file proof where applicable, and a USER Test Summary handoff unless explicitly waived by governance.`
 Planning Blockers: `Runtime implementation, Workstream Entry execution, Workstream implementation, recording execution, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review packet, sibling-worktree mutation, old branch cleanup/deletion, and Governance mutation remain pending USER decisions.`
-USER Decisions Needed: `USER_BRANCH_PLAN_REVIEW.md response/digest lifecycle is complete for the improved product/design review. Next USER decision is bounded SLC-051 implementation approval for Active Overlay recording target foundation only.`
+USER Decisions Needed: `USER_BRANCH_PLAN_REVIEW.md is now the USER Branch Plan Contract and is Pending USER Confirmation after the closed-loop governance hardening. Next USER decision is confirmation of the revised contract or explicit waiver; bounded SLC-051 implementation approval remains blocked until Contract Status is Complete or Waived by USER.`
 Planning Completion Waiver: `Not required`
 
 ## Runtime Branch Engineering Contract
@@ -207,7 +207,7 @@ Branch Closure Rule: `Do not claim package-complete until admitted slices are im
 
 ## Blockers
 
-Active Blockers: `SLC-051 implementation, runtime implementation beyond SLC-051 approval, Workstream implementation beyond admitted scope, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review materials, sibling-worktree mutation, old branch cleanup/deletion, tray recording controls, recording execution, file writing, export/share, provider/model work, broad theme/skin work, FAM-007 work, durable Native Log Loader source-truth mutation, and Governance worktree mutation remain pending separate USER decisions.`
+Active Blockers: `USER Branch Plan Contract confirmation or explicit waiver, SLC-051 implementation, runtime implementation beyond any later SLC-051 approval, Workstream implementation beyond admitted scope, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review materials, sibling-worktree mutation, old branch cleanup/deletion, tray recording controls, recording execution, file writing, export/share, provider/model work, broad theme/skin work, FAM-007 work, durable Native Log Loader source-truth mutation, and Governance worktree mutation remain pending separate USER decisions.`
 PR Readiness Blocker: `Pending Workstream, Hardening, Live Validation, UTS where required, and later USER approval.`
 
 ## Exit Criteria
@@ -221,7 +221,7 @@ Rollback Target: `Branch Readiness`
 ## Next Legal Phase
 
 Next Legal Phase: `Workstream`
-Next Legal Phase Detail: `USER_BRANCH_PLAN_REVIEW.md response/digest is complete. The next legal step is bounded SLC-051 implementation approval for Active Overlay recording target foundation only. Runtime implementation remains unauthorized until USER approves that SLC-051 packet.`
+Next Legal Phase Detail: `USER_BRANCH_PLAN_REVIEW.md was hardened into the USER Branch Plan Contract and is Pending USER Confirmation. The next legal step is USER confirmation of the revised contract or explicit waiver; bounded SLC-051 implementation approval remains unauthorized until Contract Status is Complete or Waived by USER.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -235,17 +235,17 @@ User Test Summary Strategy: `No UTS is required for Stage 2 source-truth setup. 
 
 Current Phase: `Branch Readiness Stage 2`
 Next Legal Phase: `Workstream`
-Why This Phase Is Next: `Stage 2 admits the corrected carrier; Workstream Entry must analyze the entire SLC-051 through SLC-055 package and return a bounded implementation approval packet before runtime mutation.`
-Approval Required: `USER must approve Workstream Entry analysis before runtime planning continues.`
-Exact USER Approval Text: `Approve bounded SLC-051 implementation for FAM-006 Active Overlay Recording Runtime Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-foundation. This approval covers Active Overlay recording target foundation only: deriving a read-only would-record target model from active Overlay Profile membership, proving null/empty/selected/switched/deleted-stale/duplicate-stale-ID/high-volume membership behavior, preserving Overlay Profile, Overlay Display, Monitor Group, Dashboard, Manage Monitors, and Sensor Command Center behavior, adding validators/helpers/source-truth proof directly required for SLC-051, refreshing USER review materials if required, running required validation, and committing/pushing if green. This does not approve recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, old branch cleanup/deletion, Governance worktree mutation, or durable Native Log Loader source-truth mutation.`
-Allowed Scope: `Analysis-only Workstream Entry for the corrected active-overlay-driven recording carrier.`
+Why This Phase Is Next: `Stage 2 admits the corrected carrier and the review gate was hardened after USER clarified the contract must be closed-loop. The revised USER Branch Plan Contract must be confirmed or explicitly waived before any SLC-051 implementation approval text is legal.`
+Approval Required: `USER must confirm the revised USER Branch Plan Contract or explicitly waive it before bounded implementation planning can continue.`
+Exact USER Approval Text: `I confirm the revised USER Branch Plan Contract for FAM-006 Active Overlay Recording Runtime Foundation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-foundation. This approval covers recording USER confirmation of the current contract version as Complete, preserving the active-overlay-driven recording end-state, recording the confirmation in the active branch plan, branch record, USER_BRANCH_PLAN_REVIEW.md, Desktop review packet, and exported ZIP, running required validation, and committing/pushing if green. This does not approve SLC-051 implementation, runtime implementation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, PR creation, merge, release, issue mutation, Governance worktree mutation, or durable Native Log Loader source-truth mutation.`
+Allowed Scope: `USER Branch Plan Contract confirmation or explicit waiver path only; no runtime implementation.`
 Explicit Exclusions: `Runtime implementation; Workstream implementation; recording execution; tray recording controls; export/share; provider/model work; broad theme/skin work; FAM-007 work; PR creation; merge; release; issue mutation; artifacts/raw evidence handling beyond approved Workstream Entry review materials; sibling-worktree mutation; old branch cleanup/deletion; Governance worktree mutation.`
 Validation Required: `Identity, source truth, branch governance, worktree confinement, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, and focused FAM-006 validators as applicable.`
 Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, missing package/slice proof, stale active-authority drift, or need for runtime implementation.`
-USER Plan Review Gate: `USER may accept, revise, waive, or reject the Workstream Entry plan before implementation.`
+USER Plan Review Gate: `USER may confirm the revised USER Branch Plan Contract, revise it again, explicitly waive it, reject it, or request more options before implementation.`
 USER Inspection Files: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Review Required Because: `Active-overlay-driven recording is a user-facing FAM-006 runtime foundation and must remain distinct from Overlay Profile editing, Monitor Group organization, tray controls, export/share, provider/model work, and broad theme/skin work.`
-Implementation Blocker: `Runtime implementation is not approved until USER_BRANCH_PLAN_REVIEW.md response/digest is complete or explicitly waived, Workstream Entry returns, and USER approves a bounded implementation seam.`
+Implementation Blocker: `Runtime implementation is not approved until USER_BRANCH_PLAN_REVIEW.md Contract Status is Complete or Waived by USER, Workstream Entry returns, and USER approves a bounded implementation seam.`
 Review Waiver Reason: `None`
 
 ## Later-Phase Expectations
