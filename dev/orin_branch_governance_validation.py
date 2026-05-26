@@ -2966,6 +2966,7 @@ STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_external_state_report.py",
     "dev/orin_external_state_snapshot.py",
     "dev/orin_external_state_validation.py",
+    "dev/orin_repo_live_state_leakage_scan.py",
     "dev/orin_state_fold_down_preview.py",
     "dev/automation_observability_report.py",
     "dev/orin_ai_provider_state_validation.py",
