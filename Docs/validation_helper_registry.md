@@ -79,6 +79,10 @@ Before PR Readiness, each workstream-scoped helper must be resolved in one of th
 - promoted to `Reusable` with this registry updated
 - kept as `Workstream-scoped` only with an explicit reason that the helper should remain branch-family-specific after merge
 
+## USER Review Bundle Stale-Output Invariant
+
+The USER review Desktop bundle helper must treat every Desktop review bundle refresh as a clean regeneration. It clears the stable worktree-labeled folder under `Nexus USER Review`, copies fresh repo-relative files, writes `START_HERE.md` with current branch/HEAD/origin-main metadata, atomically replaces the stable uploadable zip, and validates the zip file list plus `START_HERE.md` / `USER_BRANCH_PLAN_REVIEW.md` metadata before reporting PASS. A stale folder file, stale stable zip, missing `USER_BRANCH_PLAN_REVIEW.md`, branch mismatch, HEAD mismatch, origin/main mismatch, zip/folder file-list mismatch, or missing stale-guard proof is a helper failure and must block the review packet as `USER Review Packet Stale`.
+
 ## Registered Root Dev Helpers
 
 ### Repo-Wide Governance

@@ -31,8 +31,9 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "source truth for USER inspection."
 )
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
-    "PASS - helper overwrote the stable review zip from the freshly refreshed "
-    "worktree review folder after START_HERE was written for this Source HEAD."
+    "PASS - helper cleared the stable worktree review folder, copied fresh "
+    "source-truth files, wrote START_HERE for this Source HEAD, and atomically "
+    "replaced the stable review zip from that refreshed folder."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 
@@ -240,15 +241,30 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
     if target in export_zip.parents or export_zip == target:
         raise ValueError(f"Refusing to write review zip inside bundle folder: {export_zip}")
     export_zip.parent.mkdir(parents=True, exist_ok=True)
-    if export_zip.exists():
-        export_zip.unlink()
-    with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for path in sorted(_bundle_files(target)):
-            archive.write(path, path.relative_to(target).as_posix())
+    temp_zip = export_zip.with_name(f".{export_zip.name}.{os.getpid()}.tmp")
+    if temp_zip.exists():
+        temp_zip.unlink()
+    try:
+        with zipfile.ZipFile(temp_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for path in sorted(_bundle_files(target)):
+                archive.write(path, path.relative_to(target).as_posix())
+        temp_zip.replace(export_zip)
+    except Exception:
+        if temp_zip.exists():
+            temp_zip.unlink()
+        raise
 
 
-def _validate_export_zip(export_zip: Path, source_head: str) -> None:
+def _validate_export_zip(
+    export_zip: Path,
+    *,
+    source_branch: str,
+    source_head: str,
+    origin_main: str,
+    expected_entries: set[str],
+) -> None:
     with zipfile.ZipFile(export_zip, "r") as archive:
+        entries = {entry.filename for entry in archive.infolist() if not entry.is_dir()}
         try:
             start_here = archive.read("START_HERE.md").decode("utf-8")
         except KeyError as exc:
@@ -259,9 +275,31 @@ def _validate_export_zip(export_zip: Path, source_head: str) -> None:
             raise ValueError(
                 f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
             ) from exc
+    if entries != expected_entries:
+        missing = sorted(expected_entries - entries)
+        extra = sorted(entries - expected_entries)
+        raise ValueError(
+            "Review export zip file-list guard failed: "
+            f"missing={missing or 'none'} extra={extra or 'none'}"
+        )
+    if f"Source Branch: `{source_branch}`" not in start_here:
+        raise ValueError(
+            "Review export zip branch guard failed: START_HERE Source Branch "
+            f"does not match {source_branch}"
+        )
     if f"Source HEAD: `{source_head}`" not in start_here:
         raise ValueError(
             "Review export zip stale-head guard failed: START_HERE Source HEAD "
+            f"does not match {source_head}"
+        )
+    if f"origin/main: `{origin_main}`" not in start_here:
+        raise ValueError(
+            "Review export zip origin/main guard failed: START_HERE origin/main "
+            f"does not match {origin_main}"
+        )
+    if f"Review Export Zip Source HEAD: `{source_head}`" not in start_here:
+        raise ValueError(
+            "Review export zip stale-head guard failed: Review Export Zip Source HEAD "
             f"does not match {source_head}"
         )
     if "Review Export Zip Stale Guard: PASS" not in start_here:
@@ -1008,7 +1046,7 @@ def build_bundle(
     desktop = _desktop_path()
     label = _worktree_label(worktree_label)
     review_root, target = _safe_target(desktop, review_root_name, label)
-    if clear and target.exists():
+    if target.exists():
         _clear_target(target)
     target.mkdir(parents=True, exist_ok=True)
 
@@ -1127,8 +1165,17 @@ def build_bundle(
     readme_lines.append("")
 
     (target / "START_HERE.md").write_text("\n".join(readme_lines), encoding="utf-8")
+    expected_zip_entries = {
+        path.relative_to(target).as_posix() for path in _bundle_files(target)
+    }
     _write_export_zip(target, export_zip)
-    _validate_export_zip(export_zip, source_head)
+    _validate_export_zip(
+        export_zip,
+        source_branch=source_branch,
+        source_head=source_head,
+        origin_main=origin_main,
+        expected_entries=expected_zip_entries,
+    )
     return target, export_zip
 
 
@@ -1161,7 +1208,11 @@ def main() -> int:
         help="Required reason when --allow-custom-review-path is used.",
     )
     parser.add_argument("--title", default="Nexus Review Bundle", help="Title for START_HERE.md.")
-    parser.add_argument("--clear", action="store_true", help="Delete the existing Desktop bundle folder before copying.")
+    parser.add_argument(
+        "--clear",
+        action="store_true",
+        help="Legacy compatibility flag; the helper always clears the Desktop bundle folder before copying.",
+    )
     parser.add_argument("--review-purpose", help="Why USER is reviewing this bundle.")
     parser.add_argument("--validation-summary", help="Validation proof or status supporting the review bundle.")
     parser.add_argument(
