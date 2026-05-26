@@ -3,8 +3,12 @@
 Branch: `feature/fam-006-active-overlay-recording-runtime-foundation`
 Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Creation Base: `feature/fam-006-recording-profile-runtime-foundation` at `1f399003d2e6d13b34b567cd7f7900a709254bc9`
-Current origin/main: `98c82037e85940e630b727c8362bc9771ffd05e3`
-Origin/Main Advanced Since Branch Creation: `NO - branch was created from the current FAM-006 rollback receipt HEAD whose merge-base is current origin/main`
+Branch Creation origin/main Baseline: `98c82037e85940e630b727c8362bc9771ffd05e3`
+Branch Creation Baseline Meaning: `Historical creation-time baseline only; do not treat this field as current live origin/main. Live origin/main must be derived from Git and START_HERE review-packet metadata.`
+Current Reviewed HEAD: `623888a0e798d7342f0002f43e6dfa9696f63aee`
+Current Reviewed origin/main: `d35755ca5135a3c1081de27d023f2db96c2c9741`
+Current Reviewed Merge Base: `d35755ca5135a3c1081de27d023f2db96c2c9741`
+Origin/Main Advanced Since Branch Creation: `YES - origin/main advanced after branch creation; governed current-main reconciliation is complete and the current reviewed merge base equals current reviewed origin/main.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md`
 Branch Runtime Engineering Plan: `Accepted for Branch Readiness Stage 2 setup; Workstream Entry analysis remains pending USER approval.`
 Engineering Plan Status: `Branch Readiness Stage 2 setup`
@@ -180,8 +184,8 @@ Worktree Escape User Waiver Missing: `Not applicable - no off-worktree mutation 
 Carrier Lifecycle Classification: `Successor branch from rollback receipt carrier`
 Remote Branch State: `Pushed and tracking origin/feature/fam-006-active-overlay-recording-runtime-foundation`
 Unique Branch Diff: `Stage 2 source-truth setup edits only`
-Origin/Main Ancestry: `Created from FAM-006 rollback receipt HEAD 1f399003d2e6d13b34b567cd7f7900a709254bc9 whose merge-base is current origin/main 98c82037e85940e630b727c8362bc9771ffd05e3`
-Origin/Main Advanced Since Branch Creation: `NO`
+Origin/Main Ancestry: `Created from FAM-006 rollback receipt HEAD 1f399003d2e6d13b34b567cd7f7900a709254bc9 whose creation-time origin/main baseline was 98c82037e85940e630b727c8362bc9771ffd05e3; current reviewed origin/main is d35755ca5135a3c1081de27d023f2db96c2c9741 after governed current-main reconciliation.`
+Origin/Main Advanced Since Branch Creation: `YES - current reviewed origin/main d35755ca5135a3c1081de27d023f2db96c2c9741 is newer than the creation-time baseline and the branch has been reconciled to that baseline.`
 Open PR State: `No live PR`
 Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-006`
 Recommended Stage 2 Carrier Action: `Create/rebind stable FAM-006 worktree to this branch and commit/push setup source truth.`
