@@ -12,7 +12,7 @@ This model applies to governance/source-truth/process reform only.
 
 It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch deletion, worktree cleanup, provider/model execution, downloads, memory work, voice/Core sync, shortcut or installer work, AI Product Contract import, or private Dev ORIN import.
 
-External Operational State Store / Release Debt Abolition work advances only through separately USER-approved stages. Docs/source-truth contracts, helper scaffolds, local root initialization, report-only migration-map helpers, active-state migration planning packets, active-state migration execution planning packets, validator transition, active-state migration execution, repo cleanup, file moves, file deletion, file archival, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase. External-state helpers must default to report/dry-run behavior unless a later explicit USER-approved apply step authorizes mutation.
+External Operational State Store / Release Debt Abolition work advances only through separately USER-approved stages. Docs/source-truth contracts, helper scaffolds, local root initialization, report-only migration-map helpers, active-state migration planning packets, active-state migration execution planning packets, active-state migration execution, validator transition, repo cleanup, file moves, file deletion, file archival, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase. Stage 4 active-state migration execution has seeded approved local external records, but repo Docs cleanup and mandatory repo-validator enforcement remain separate stages. External-state helpers must default to report/dry-run behavior unless a later explicit USER-approved apply step authorizes mutation.
 
 Planning Reference: `Docs/external_operational_state_store_reform_plan.md` preserves the agreed sequencing, Docs Split Target Matrix, implementation annotations, and future-work design. Use it as the durable future-work reference, not as active migration authority.
 
@@ -176,14 +176,16 @@ Required State:
 - Stage 4A means report-only repo live-state leakage scanning and migration-map helper support; it may inspect repo docs and print migration candidates, but it does not edit repo docs, migrate active state, create external branch/worktree/release-window records, or transition validators.
 - Stage 4B means active-state migration planning packet only; it may use Stage 4A scanner output to name exact repo surfaces, target external records, lock/snapshot/version requirements, durable receipt preservation, and no-loss promotion rules, but it does not create or update central external records, move/delete/archive repo docs, migrate active state, or transition validators.
 - Stage 4C means active-state migration execution planning packet only; it may convert the Stage 4B planning matrix into exact execution preflight, external target record list, durable receipt preservation plan, rollback/recovery plan, and USER review question, but it does not run helper `--apply` operations, create or update central external records, move/delete/archive repo docs, migrate active state, create worktree-local staging, or transition validators.
-- Current repo branch records and branch plans remain legal active owners until a USER-approved migration stage replaces them with external operational state.
+- Stage 4 means USER-approved active-state migration execution; it may create or update only the approved central external operational records, locks, snapshots, and audit logs. It does not move, delete, archive, or rewrite repo Docs and does not transition validators unless separately approved.
+- Stage 5 means validator transition; local external-state validators may require the initialized external root and migrated records only for approved local workflows, while GitHub Actions and clean-clone repo validators remain external-root independent.
+- Current repo branch records and branch plans remain durable transition owners until a USER-approved repo cleanup stage removes live-state fields, makes them pointer-only, or folds them down as historical receipts.
 - Main, phase governance, this model, the external-state plan, branch authority record, and helper registry must agree on the current stage and next legal step.
 
 Allowed Values:
 
 - Transition Stage: `Stage 0 - Docs Plan`, `Stage 1 - Helper Bootstrap Planning`, `Stage 2 - Root Initialization`, `Stage 3 - Migration Preview`, `Stage 4A - Report-Only Migration Map Helper`, `Stage 4B - Active-State Migration Planning Packet`, `Stage 4C - Active-State Migration Execution Planning Packet`, `Stage 4 - Active-State Migration`, `Stage 5 - Validator Transition`, `Stage 6 - Repo Cleanup`, `Complete`, `Blocked`, `USER Decision Required`
 - Docs Split Matrix Status: `Current`, `Missing`, `Stale`, `Needs USER Review`
-- Active-State Owner Boundary: `Repo Current Owners`, `Hybrid Transition`, `External Canonical`, `Blocked`
+- Active-State Owner Boundary: `Repo Current Owners`, `Hybrid Transition`, `External Canonical`, `External Canonical With Repo Transition Receipts`, `Blocked`
 - External Root Approval: `Not Approved`, `Bootstrap Approved`, `Migration Waiver Approved`, `Revoked`, `USER Decision Required`
 - External Root Status: `Not Approved`, `Approved Not Initialized`, `Initialized`, `Unavailable`, `Invalid Location`
 - Drift Result: `Clear`, `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, `External State Migration Premature`, `USER Decision Required`
@@ -192,6 +194,7 @@ Invalid Values:
 
 - claiming external migration is active during Stage 0
 - requiring `C:\Nexus Governance State` in GitHub Actions or clean-clone repo validation
+- treating Stage 5 local external-state validation as permission to move, delete, archive, or rewrite repo Docs
 - moving, deleting, archiving, or rewriting repo docs before helper/bootstrap/migration approval
 - treating worktree-local staging as canonical central state
 - adding new repo live-state owners without either a transition reason, historical-receipt label, or approved migration path
@@ -200,11 +203,11 @@ Blocking Condition: `External State Transition Gate Missing`, `External State Tr
 
 Repair Owner: standing Governance intake or another USER-approved governance/source-truth carrier named by phase governance.
 
-Repair Path: update Main routing, this model, phase governance, external-state plan, helper registry, and the active branch authority record until they agree on the transition stage, active-state owner boundary, target matrix, validation posture, and next legal step. Do not initialize folders, migrate state, transition validators, or move files unless USER approval explicitly admits that stage; report-only helper scaffolds and migration-map helpers must stay no-mutation by default.
+Repair Path: update Main routing, this model, phase governance, external-state plan, helper registry, and the active branch authority record until they agree on the transition stage, active-state owner boundary, target matrix, validation posture, and next legal step. Do not initialize folders, migrate state, transition validators, move files, or clean repo Docs unless USER approval explicitly admits that stage; report-only helper scaffolds and migration-map helpers must stay no-mutation by default.
 
 USER Decision Required: required before each stage transition, applied external-state mutation, worktree-local staging creation, validator transition, active-state migration, repo cleanup, moving/deleting/archiving files, or treating external state as canonical for active branch/worktree/release-window records. Adding or running report-only helpers, planning packets, or execution-planning packets does not imply active migration approval.
 
-Validation Owner: marker-first repo validation may check the transition gate and source-truth agreement after the validator is updated; until then, PR Readiness must report the gate as a human-reviewed source-truth drift check. External operational validation remains a future helper implementation.
+Validation Owner: marker-first repo validation may check the transition gate and source-truth agreement after the validator is updated; local external-state validation may check the initialized root, required migrated record set, source repo HEAD, schema consistency, and released-lock posture only when an approved local workflow supplies the external root. External operational validation must not become a clean-clone repo requirement.
 
 Final Disposition: the branch may proceed only when the gate is `Clear`, or when USER accepts a recorded waiver/decision for a specific stage. Any unresolved drift blocks PR Readiness green.
 
