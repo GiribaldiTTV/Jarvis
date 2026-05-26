@@ -282,7 +282,9 @@ def _packet_text_status(text: str) -> str:
         "does not authorize workstream implementation",
         "blocks workstream implementation",
         "before workstream implementation",
-        "pending user decision",
+        "workstream implementation remains pending",
+        "workstream implementation remains a pending user decision",
+        "pending user decision: workstream implementation",
     )
     if any(marker in normalized for marker in implementation_markers) and not any(
         marker in normalized for marker in blocking_markers

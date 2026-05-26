@@ -56,7 +56,7 @@ Phase Status: `Active Branch` - PR Readiness Stage 2 live PR validation for PR #
 - PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/218`
 - PR Number: `218`
 - PR Readiness Stage 2 USER Approval: `Granted by USER after PR Readiness Stage 1 repair/sync.`
-- Live PR State: `OPEN; non-draft; head=af181167f230f46383d62b98a168f1fe755c8ac8; base=main@98c82037e85940e630b727c8362bc9771ffd05e3; mergeable=MERGEABLE; status checks=none reported; unresolved review threads=0 before Codex review, then one Codex review thread identified for same-PR repair; PR comments=none; reactions=EYES=1 before Codex review refresh.`
+- Live PR State: `OPEN; non-draft; head=a34aaa773246b825d9724184e0bf5d267a217d9e before second same-PR review repair; base=main@98c82037e85940e630b727c8362bc9771ffd05e3; mergeable=MERGEABLE; status checks=none reported; Codex review threads identified parser false-positive risks for historical Stage 2 context and generic Pending USER Decisions context; PR comments include @codex review request.`
 - PR Watcher: `pr-218-watcher provisioned as same-thread heartbeat in Verify Once then Silent Monitor posture.`
 
 ## Branch Class
@@ -451,7 +451,7 @@ Drift Type: `Stage 2 operator metadata and bot-review repair; no runtime/UI defe
 
 Why Current Canon Failed To Prevent It: `Stage 1 correctly stopped before live PR creation; once PR #218 existed, live PR markers required the branch to move from Live Validation posture into PR Readiness with merge-stable health-pass sections.`
 
-Required Canon Changes: `Record live PR URL, watcher proof, PR Readiness phase, post-merge projection, release-health pass, release-window audit, and bounded parser repair for the Codex review comment.`
+Required Canon Changes: `Record live PR URL, watcher proof, PR Readiness phase, post-merge projection, release-health pass, release-window audit, and bounded parser repairs for Codex review comments.`
 
 Whether The Drift Blocks Merge: `Yes until bot-review comment repair is pushed, the review thread is resolved, and PR readiness validation clears or reports only an expected approval-signal wait.`
 

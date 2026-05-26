@@ -123,6 +123,22 @@
       }
     },
     {
+      "caseId": "implementation-ready-with-pending-decisions-section",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": true,
+      "expectedValid": true,
+      "expectedStatus": "implementation-ready",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve bounded Workstream implementation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head from origin/main@synthetic-origin-main.\n\n## Pending USER Decisions\n\n- Merge.\n- Release.\n- Private Dev repo creation.\n- Private Owner repo creation.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Legal Posture is approve Workstream implementation approval. Pending USER Decisions include Merge and Release only.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head and origin/main synthetic-origin-main.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Exact USER Decision Needed: Approve bounded Workstream implementation for this Workstream.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Decision: approve Workstream implementation approval."
+      }
+    },
+    {
       "caseId": "branch-correct-repair-revalidation",
       "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
       "expectedHead": "synthetic-dev-owner-head",
