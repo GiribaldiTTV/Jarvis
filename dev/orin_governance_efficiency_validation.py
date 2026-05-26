@@ -208,6 +208,9 @@ EXPECTED_FAMILY_VISION_FILES = (
     Path("Docs/family_visions/FAM-006_monitoring_and_hud.md"),
     Path("Docs/family_visions/FAM-007_local_ai_and_capability_packs.md"),
     Path("Docs/family_visions/FAM-008_packaging_and_install_experience.md"),
+)
+
+EXPECTED_PENDING_FOLD_SOURCE_FILES = (
     Path("Docs/family_visions/FAM-009_workspace_and_data.md"),
     Path("Docs/family_visions/FAM-010_safety_and_privacy.md"),
 )
@@ -476,6 +479,13 @@ def validate() -> list[str]:
             if str(family_path).replace("\\", "/") not in family_index_text:
                 failures.append(
                     f"{FAMILY_VISION_INDEX}: missing family vision pointer {family_path}"
+                )
+        for fold_source_path in EXPECTED_PENDING_FOLD_SOURCE_FILES:
+            if not (ROOT / fold_source_path).is_file():
+                failures.append(f"{fold_source_path}: missing pending fold-source record")
+            if str(fold_source_path).replace("\\", "/") not in family_index_text:
+                failures.append(
+                    f"{FAMILY_VISION_INDEX}: missing pending fold-source pointer {fold_source_path}"
                 )
 
     stale_vision_refs = _non_historical_stale_vision_refs()

@@ -257,10 +257,20 @@ OWNER_DESCRIPTIONS = {
         "USER-accepted reusable family standards and future package boundaries",
         "active branch implementation checklists or live operational state",
     ),
+    "pending fold-source file": (
+        "temporary no-loss fold source",
+        "source material retained until durable content is folded into existing owners",
+        "active backlog identity, worktree lane, or package ownership",
+    ),
     "Nexus Vision Contract": (
         "project-wide vision contract",
         "USER-accepted project-wide product principles, long-term standards, and durable product direction",
         "branch implementation checklists, live operational state, or family-specific execution ledgers",
+    ),
+    "AI Runtime And Trust Architecture": (
+        "cross-family AI runtime/trust architecture",
+        "AI-native architecture, permission-state, deterministic routing, Trust Journal, cache governance, capability-pack architecture, and sensitive-boundary direction",
+        "backlog identity, branch authority, runtime implementation approval, or memory approval",
     ),
     "release closeout receipt": (
         "historical release/closeout receipt",
@@ -385,10 +395,17 @@ def owner_for(rel: str) -> str:
         return "workstream durable history"
     if rel == "Docs/family_visions/README.md":
         return "family vision index"
+    if rel in {
+        "Docs/family_visions/FAM-009_workspace_and_data.md",
+        "Docs/family_visions/FAM-010_safety_and_privacy.md",
+    }:
+        return "pending fold-source file"
     if rel.startswith("Docs/family_visions/"):
         return "family vision"
     if rel == "Docs/nexus_vision.md":
         return "Nexus Vision Contract"
+    if rel == "Docs/ai_runtime_and_trust_architecture.md":
+        return "AI Runtime And Trust Architecture"
     if rel.startswith("Docs/closeouts/") or rel in {
         "Docs/closeout_index.md",
         "Docs/closeout_guidance.md",
@@ -543,11 +560,23 @@ def action_for(
             completed,
             "Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.",
         )
+    if owner == "pending fold-source file":
+        return (
+            "Pending fold-source review",
+            completed,
+            "Retain only until no-loss fold proof shows durable content is preserved in existing owners; not an active backlog identity.",
+        )
     if owner == "Nexus Vision Contract":
         return (
             "Keep as project-wide vision owner",
             completed,
             "Keep as project-wide product vision contract; route family-specific durable direction to family vision records and active implementation detail to branch plans.",
+        )
+    if owner == "AI Runtime And Trust Architecture":
+        return (
+            "Keep as AI architecture owner",
+            completed,
+            "Keep as cross-family AI runtime/trust architecture; do not use as implementation approval or backlog identity.",
         )
     if owner == "unknown docs reference":
         return (
@@ -571,6 +600,10 @@ def validator_need(owner: str) -> str:
         return "Governance efficiency validator requires every historical branch plan to appear in the retirement index before deletion can be considered."
     if owner in {"workstream durable history", "family dossier"}:
         return "Branch governance validator and future dossier checks should preserve durable trace ownership without treating old live facts as current."
+    if owner == "pending fold-source file":
+        return "Future focused no-loss fold validator may prove the file can be deleted or renamed; current validation keeps it non-authoritative."
+    if owner == "AI Runtime And Trust Architecture":
+        return "Branch governance validator should require AI-native branches to cite this owner when consuming cross-family AI runtime/trust concepts."
     return "Covered by existing owner validator or future focused owner check."
 
 
@@ -604,8 +637,12 @@ def consolidation_target_for(row: dict[str, object]) -> str:
         return "Keep as family vision router; use to find durable family vision records."
     if owner == "family vision":
         return "Keep as family-specific product vision owner; move active implementation detail to branch plans and durable proof to workstreams/branch receipts."
+    if owner == "pending fold-source file":
+        return "Temporary source material only; fold durable content into existing family visions and architecture owners before any USER-approved deletion/rename."
     if owner == "Nexus Vision Contract":
         return "Keep as project-wide product vision contract; route family-specific direction to Docs/family_visions/ and active execution detail to branch plans."
+    if owner == "AI Runtime And Trust Architecture":
+        return "Keep as cross-family AI runtime/trust architecture; implementation-specific work still belongs to the owning FAM branch plan."
     if owner == "release closeout receipt":
         return "Keep as historical release/closeout receipt archive unless USER approves closeout consolidation."
     if owner in {
@@ -623,6 +660,7 @@ def consolidation_target_for(row: dict[str, object]) -> str:
         "workstream index",
         "product / architecture reference",
         "Nexus Vision Contract",
+        "AI Runtime And Trust Architecture",
         "bug / issue historical tracker",
     }:
         return "Keep unless a focused USER-approved consolidation pass names a replacement owner."
@@ -636,6 +674,8 @@ def deletion_posture_for(row: dict[str, object]) -> str:
         return "Active branch plan; do not delete, archive, or retire while this branch remains active."
     if owner == "branch runtime engineering plan":
         return "Retired from active planning posture; do not delete without separate USER approval and reference proof."
+    if owner == "pending fold-source file":
+        return "Do not delete now; delete or rename only after USER accepts no-loss fold proof."
     if "USER review" in action:
         return "Needs USER decision before delete/retire."
     if "Migrate" in action or "Organize" in action:

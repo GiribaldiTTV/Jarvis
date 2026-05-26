@@ -50,7 +50,9 @@ Backlog Taxonomy And Source-Truth Placement Gate: before Codex proposes, admits,
 
 Important concepts do not automatically deserve backlog identity. AI-native, cache, trust, provider, routine, deterministic-routing, Windows Health, gaming/competitive-integrity, or ambient-assistance concepts must pass this gate before they can become a new FAM, package, source-truth file, or implementation scope. `Backlog Taxonomy Gate Missing` blocks Branch Readiness or PR Readiness when a concept is promoted without this classification, and `Backlog Addition User Approval Missing` remains active when a new backlog family would be required.
 
-AI Operational Cache Governance is not a backlog family. Cache is operational, purpose-bound, explainable, clearable, and policy-governed; memory is durable user-personal knowledge and requires separate explicit consent. Cache concepts route through existing AI/runtime, privacy/safety, workspace/data, packaging/setup, capability-pack, and branch-plan owners unless a `Source-Truth Placement Preflight` proves `No Existing Owner Fits`.
+AI Operational Cache Governance is not a backlog family. Cache is operational, purpose-bound, explainable, clearable, and policy-governed; memory is durable user-personal knowledge and requires separate explicit consent. Cross-family cache architecture and policy route through `Docs/ai_runtime_and_trust_architecture.md`; family-specific cache concepts route through existing AI/runtime, privacy/safety, workspace/data, packaging/setup, capability-pack, and branch-plan owners unless a `Source-Truth Placement Preflight` proves `No Existing Owner Fits`.
+
+AI-native architecture placement is now routed without adding backlog families by default: `Docs/ai_runtime_and_trust_architecture.md` owns cross-family permission-state, deterministic routing, provider-orchestration boundaries, AI Operational Cache Governance, Trust Journal direction, capability-pack architecture, routine/continuity boundaries, Windows Health recommendation pipeline boundaries, and competitive-integrity architecture. Future branches may consume those concepts only after the taxonomy gate names whether the proposed work is a family vision update, architecture layer, cross-family policy owner, experience layer, runtime subsystem, capability-pack domain, or package/slice/seam.
 
 Branch Scope Standard: branches must package multiple related admitted slices under exactly one broad family by default. A package with exactly one admitted slice is blocked by `Single-Slice Package User Approval Missing` unless `Single-Slice Package User Approval: Granted` is recorded with explicit USER approval.
 
@@ -68,15 +70,17 @@ PR Evidence Standard: PR numbers are evidence only and must not become backlog i
 
 Element Coverage Standard: Element Coverage is a non-identity checklist for FAM/package review only. Coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact. Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers.
 
-The old `FB-###` namespace is historical-only after this one-time repair; new live backlog-family identities use `FAM-###`, starting at `FAM-001`, and Codex must not create or reuse a parseable `FB-###` backlog ID.
+The old `FB-###` namespace is historical-only after this one-time repair; live backlog-family identities use `FAM-###`, starting at `FAM-001`, and Codex must not create or reuse a parseable `FB-###` backlog ID.
 
-Selectable user-facing feature-family records now use the fresh `FAM-###` namespace in ascending order from `FAM-001`.
+Selectable user-facing feature-family records now use the fresh `FAM-###` namespace in ascending order from `FAM-001`; the current registry ends at `FAM-008` unless USER approves a later backlog-family admission.
 
-Live backlog-family identities use the fresh broad `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries.
+Live backlog-family identities use the fresh broad `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries. Because the current registry ends at `FAM-008`, the next USER-approved backlog family may use `FAM-009`.
 
 Only true broad feature-family backlog entries should remain as parseable `### [ID: FAM-XXX]` backlog records by default.
 
-The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.
+The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the current admitted registry ends at `FAM-008`, and the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.
+
+Backlog Family Worktree Ownership Rule: a backlog family is the local owner for its work. Work related to a backlog family should be planned and implemented inside that family's legal branch/worktree carrier. Backlog families are not dependency work queues for each other. If a branch needs another family's future implementation before it can continue, it must record the dependency as deferred/future-gated work, stop or narrow scope as governance requires, and wait for the owning family/worktree to implement its part through its own Branch Readiness path. A branch must not implement another backlog family's responsibilities merely to unblock itself.
 
 ## Derived Live Truth
 
@@ -99,6 +103,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | Branch authority router | `Docs/branch_records/index.md` |
 | Branch runtime engineering plans | `Docs/branch_plans/` |
 | Family vision records | `Docs/family_visions/` |
+| AI runtime and trust architecture | `Docs/ai_runtime_and_trust_architecture.md` |
 | Workstream routing and family dossiers | `Docs/workstreams/index.md` |
 | Stable worktree slot registry | `Docs/worktree_slots.md` |
 | Stage-breakpoint schedule posture | `Docs/prebeta_roadmap.md` |
@@ -118,8 +123,15 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | `FAM-006` | Monitoring and HUD | High | Open / durable planning receipts preserved | `PKG-006` future recording direction is preserved in the family vision and canonical detail owner; runtime recording implementation remains future-gated | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md` |
 | `FAM-007` | Local AI and Capability Packs | High | Open / package admitted | `PKG-007` remains admitted and not package-complete; selected-next and live branch posture are external operational state or future Branch Readiness truth, not backlog live state | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` |
 | `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
-| `FAM-009` | Workspace and Data | Low | Open / deferred follow-through | `PKG-009` released baseline / open | `Docs/family_visions/FAM-009_workspace_and_data.md` | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
-| `FAM-010` | Safety and Privacy | High | Pending architecture/package | `PKG-010` pending | `Docs/family_visions/FAM-010_safety_and_privacy.md` | `Docs/family_visions/FAM-010_safety_and_privacy.md` |
+
+### Folded Non-Family Concepts
+
+Workspace/data and safety/privacy concepts are not backlog families in this registry. Their durable constraints are folded into the relevant existing FAM vision records and `Docs/ai_runtime_and_trust_architecture.md`; implementation remains local to the owning backlog family/worktree that is actually building the affected surface.
+
+| Concept Area | Folded Owner Path |
+| --- | --- |
+| Workspace/data roots, evidence paths, cache storage hygiene, support bundles, cleanup, backup/export implications | `Docs/ai_runtime_and_trust_architecture.md`, `Docs/architecture.md`, `Docs/family_visions/FAM-006_monitoring_and_hud.md`, `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`, and `Docs/family_visions/FAM-008_packaging_and_install_experience.md` as applicable |
+| Safety/privacy, provider-visible data, local-only proof, Trust Journal policy, sensitive capabilities, competitive integrity, and privacy lockdown | `Docs/ai_runtime_and_trust_architecture.md`, `Docs/family_visions/FAM-003_interaction_and_actions.md`, `Docs/family_visions/FAM-005_external_integrations.md`, `Docs/family_visions/FAM-006_monitoring_and_hud.md`, `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`, and `Docs/family_visions/FAM-008_packaging_and_install_experience.md` as applicable |
 
 ### [ID: FAM-001] Boot Interface
 
@@ -257,43 +269,6 @@ Package Completion State: Not admitted
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 Canonical Detail Owner: `Docs/family_visions/FAM-008_packaging_and_install_experience.md`
 Family Vision Owner: `Docs/family_visions/FAM-008_packaging_and_install_experience.md`
-Historical Trace Coverage: no legacy FB trace; repo vision trace only.
-
-### [ID: FAM-009] Workspace and Data
-
-Status: Open / deferred follow-through
-Record State: Registry-only
-Registry Class: Feature Family
-Family Anchor: Self
-Priority: Low
-Deferred Since: historical released-baseline migration
-Deferred Because: workspace/data follow-through is not the current USER-selected implementation package.
-Selection / Unblock: USER-approved Branch Readiness must admit a concrete multi-slice workspace/data package.
-Family Scope: Workspace layout, data roots, logs/evidence organization, support bundles, dev-toolkit data intake, and local file hygiene.
-Package Summary: `PKG-009` released baseline / open.
-Package Admission State: Historical baseline / no active package admission
-Admitted Slice Count: 0
-Package Completion State: Released Baseline / Open
-Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
-Canonical Detail Owner: `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
-Family Vision Owner: `Docs/family_visions/FAM-009_workspace_and_data.md`
-Historical Trace Coverage: `FB-005`, `FB-020`, `FB-026`, `FB-028`, workspace/data trace.
-
-### [ID: FAM-010] Safety and Privacy
-
-Status: Pending architecture/package
-Record State: Registry-only
-Registry Class: Feature Family
-Family Anchor: Self
-Priority: High
-Family Scope: Local-first privacy, consent, provider-visible data boundaries, safety gates, secrets handling, data egress controls, and future AI safety posture.
-Package Summary: `PKG-010` pending.
-Package Admission State: Not admitted
-Admitted Slice Count: 0
-Package Completion State: Not admitted
-Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
-Canonical Detail Owner: `Docs/family_visions/FAM-010_safety_and_privacy.md`
-Family Vision Owner: `Docs/family_visions/FAM-010_safety_and_privacy.md`
 Historical Trace Coverage: no legacy FB trace; repo vision trace only.
 
 ## Historical Trace Pointers

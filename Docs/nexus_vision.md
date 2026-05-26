@@ -71,6 +71,24 @@ The system should not rely on:
 - unexplained automation
 - accidental authority drift between launcher, renderer, planning docs, and user-facing reporting
 
+## AI-Native Operating Experience
+
+Nexus should become an AI-native operating experience layer without pretending that provider/model fluency is the same thing as system reliability.
+
+The durable direction is:
+
+- Windows remains the host platform
+- Nexus becomes the visible experience layer
+- ORIN remains the persistent cooperative assistant identity
+- providers, models, and capability packs are replaceable extensions, not the product identity
+- objective and safety-sensitive answers prefer deterministic, tool-backed, or validation-backed paths before generative improvisation
+- AI state, provider state, permission state, cache state, privacy state, and refusal/uncertainty posture should be visible in plain language when they matter
+- trust UX should be calm, explainable, reversible, and understandable to non-technical users
+
+Cross-family AI architecture, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, routine/continuity boundaries, competitive-integrity boundaries, and capability-pack architecture live in `Docs/ai_runtime_and_trust_architecture.md`.
+
+Family-specific direction remains with the family visions. Active branches still require Branch Readiness, accepted branch vision, USER Branch Plan Review, implementation approval, and validation before runtime AI, provider/model work, memory, cache implementation, camera/microphone/desktop vision, installer behavior, or release work can begin.
+
 ## Release-Stage Meaning
 
 Across the product:
@@ -220,6 +238,7 @@ That means:
 ## Relationship To Other Canon Layers
 
 - use `Docs/architecture.md` for architectural boundaries
+- use `Docs/ai_runtime_and_trust_architecture.md` for cross-family AI runtime/trust architecture, AI operational cache governance, permission-state, deterministic routing, Trust Journal, and capability-pack architecture
 - use `Docs/phase_governance.md` for governed execution phases, proof authority, and closeout discipline
 - use `Docs/orchestration.md` for orchestration behavior and runtime ownership
 - use `Docs/boot_access_design.md` for future boot-access planning

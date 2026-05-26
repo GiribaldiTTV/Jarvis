@@ -173,6 +173,7 @@ Main routes Codex to:
 - execution posture: `Docs/development_rules.md`, `Docs/phase_governance.md`, and `Docs/codex_modes.md`
 - ChatGPT prompt-generation guardrails: `Docs/nexus_startup_contract.md`
 - project-wide product/design vision: `Docs/nexus_vision.md`
+- AI runtime/trust architecture, permission-state, deterministic-routing, Trust Journal, AI operational cache, and cross-family AI-native placement: `Docs/ai_runtime_and_trust_architecture.md`
 - public-safe AI edition/trust-boundary planning: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - reusable family vision: `Docs/family_visions/`
 - active branch authority and receipts: `Docs/branch_records/`
@@ -185,7 +186,7 @@ Main routes Codex to:
 
 Context docs may explain, summarize, or point to the owners above. They must not supersede Main or the named owner. If a context doc conflicts with Main or the relevant owner, Codex must follow Main to the owner, report the conflict, and repair through the legal branch/phase instead of inferring behavior.
 
-Vision routing follows this chain: `Docs/nexus_vision.md` for project-wide vision, `Docs/family_visions/` for reusable family-level vision, and the active branch plan for the Branch Vision Contract Snapshot and implementation proof. Codex must not promote proposed product/design ideas into durable vision owners by inference.
+Vision routing follows this chain: `Docs/nexus_vision.md` for project-wide vision, `Docs/ai_runtime_and_trust_architecture.md` for cross-family AI-native runtime/trust architecture, `Docs/family_visions/` for reusable family-level vision, and the active branch plan for the Branch Vision Contract Snapshot and implementation proof. Codex must not promote proposed product/design ideas into durable vision owners by inference.
 
 ## Analysis-First Prompt Baseline
 
@@ -256,11 +257,12 @@ Use these for current product posture, architecture boundaries, and release-stag
 
 - `Docs/architecture.md`
 - `Docs/nexus_vision.md`
+- `Docs/ai_runtime_and_trust_architecture.md`
 - `Docs/family_visions/`
 - `Docs/orchestration.md`
 
 These remain authoritative for their layer even where older naming or path references still need later normalization.
-When a task depends on future post-Beta AI behavior, privacy posture, local-vs-external execution boundaries, or AI/UI identity, route first to `Docs/nexus_vision.md` for project-wide vision and then to `Docs/family_visions/` for family-specific durable direction rather than duplicating that intent in roadmap, backlog, or workstream docs.
+When a task depends on future post-Beta AI behavior, AI-native operating experience, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, privacy posture, local-vs-external execution boundaries, capability-pack architecture, or AI/UI identity, route first to `Docs/nexus_vision.md` for project-wide vision, then to `Docs/ai_runtime_and_trust_architecture.md` for cross-family architecture/policy, and then to `Docs/family_visions/` for family-specific durable direction rather than duplicating that intent in roadmap, backlog, or workstream docs.
 
 ### Registry And Sequencing
 
@@ -274,8 +276,10 @@ Rules:
 - backlog owns identity
 - backlog identity is the user-facing feature-family registry by default
 - canonical backlog identity model: `FAM` is a broad long-lived product family; `Package` is a bulk branch/release package under exactly one FAM; `Slice` is a traceable deliverable area inside one package; `Seam` is an execution/validation checkpoint; `PR` is merge/review evidence only; legacy global `FB` is historical trace only
-- live backlog-family identities use the fresh broad `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries
+- live backlog-family identities use the fresh broad `FAM-###` namespace starting at `FAM-001`; the current admitted registry ends at `FAM-008`, and legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries
+- the next USER-approved backlog family may use `FAM-009`; workspace/data and safety/privacy concepts are folded into existing owners instead of occupying backlog-family numbers
 - branches should be family packages containing multiple admitted slices by default, not one branchable item per small feature or seam
+- backlog families are not dependency queues for each other; if a branch needs another family's work, it must defer or wait for the owning family/worktree instead of implementing another family's responsibilities
 - single-slice packages are blocked by `Single-Slice Package User Approval Missing` unless explicit USER approval records `Single-Slice Package User Approval: Granted`
 - package slices must trace to exactly one FAM and exactly one package, and Workstream must continue through all admitted package slices until package completion state is recorded before Hardening
 - Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.

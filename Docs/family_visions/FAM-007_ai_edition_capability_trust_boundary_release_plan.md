@@ -12,11 +12,11 @@ It defines how the project should eventually support:
 - `Nexus Desktop AI Dev` as the contributor/developer edition.
 - `Nexus Desktop AI Owner` as the private owner-only edition.
 
-This plan exists so future FAM-007, FAM-008, FAM-010, packaging, privacy, memory, provider, and AI-runtime branches do not drift into one blended product that leaks private owner or developer capability into the public source tree.
+This plan exists so future FAM-007, FAM-008, packaging, privacy, memory, provider, and AI-runtime branches do not drift into one blended product that leaks private owner or developer capability into the public source tree.
 
 ## Status
 
-Planning State: `USER-accepted durable planning source truth preserved after PR #210 merged the FAM-007 setup completion carrier; future FAM-007, FAM-008, FAM-010, packaging, privacy, memory, provider, and AI-runtime branches must consult this plan before implementation.`
+Planning State: `USER-accepted durable planning source truth preserved after PR #210 merged the FAM-007 setup completion carrier; future FAM-007, FAM-008, packaging, privacy, memory, provider, and AI-runtime branches must consult this plan before implementation.`
 
 Implementation State: `Not implemented.`
 
@@ -47,7 +47,8 @@ This plan is grounded in current public repo truth:
 - `Docs/nexus_vision.md` owns the project-wide AI direction and says local AI/capability-pack planning is public-safe intent only.
 - `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` owns local AI, provider setup, provider readiness, capability packs, model lifecycle, provider-visible data, execution gates, and memory/future learning boundaries.
 - `Docs/family_visions/FAM-008_packaging_and_install_experience.md` owns installer, shortcuts, packaged app identity, capability-pack install boundaries, update flow, and setup lifecycle.
-- `Docs/family_visions/FAM-010_safety_and_privacy.md` owns privacy, consent, provider-visible data boundaries, secrets handling, data egress controls, and future AI safety posture.
+- `Docs/ai_runtime_and_trust_architecture.md` owns cross-family AI runtime/trust, permission-state, provider-visible data, Local-Only, Trust Journal, privacy-lockdown, and sensitive capability architecture.
+- Relevant existing FAM visions own their own family-local privacy, safety, consent, provider-visible data, and data-root implications.
 - `desktop/ai_provider_state.py` and `dev/orin_ai_provider_state_validation.py` currently keep provider/model execution, prompt acceptance, network egress, downloads, memory, personalization, and voice/Core sync blocked until later USER-approved work.
 - `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` records that dev-only tooling, source-owner markers, and review overlays must not leak into production/public UI.
 
@@ -504,7 +505,7 @@ Each edition should eventually use separate:
 
 Secrets should never be stored in plain tracked files.
 
-Future secrets handling should use an OS credential vault, encrypted local vault, or another FAM-010-approved mechanism.
+Future secrets handling should use an OS credential vault, encrypted local vault, or another USER-approved safety/privacy mechanism.
 
 ## Public Build Exclusion Requirement
 
@@ -679,7 +680,7 @@ This registry gives future Codex runs durable, searchable identifiers for moment
 | `USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY` | Public, Dev, or Owner AI personalization, memory, private state, or edition recovery work is proposed beyond source-truth planning. | Choose approved off-boot backup/recovery root(s), decide whether Owner also uses private GitHub hosting or local-only backup first, and approve restore-proof expectations. | Planning or implementation for the exact approved backup/recovery seam, including off-boot local backup path, restore test, edition separation proof, and protected-material handling. | Relying only on the OS boot drive, copying private state to the public repo, cross-edition restore, unencrypted secret backup, hidden memory backup, provider/model execution, or private repo creation beyond the approved seam. | Off-boot path proof, restore drill or fixture proof, no public artifact proof, edition-separation proof, encryption/vault plan where private material is present, and USER-approved recovery posture. |
 | `USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION` | A future branch proposes any provider SDK integration, model execution, prompt acceptance, downloads, network calls, or `canAcceptPrompts=true`. | Approve provider/model execution scope, provider-visible data boundary, cost/privacy posture, model/download source, and rollback/disable path. | The exact approved provider/model execution seam only. | Memory/learning, voice/Core sync, installer/shortcut work, private editions, external calls beyond the approved provider path, and public release claims. | Provider-state validation, consent validation, no hidden external calls, provider-visible data proof, and direct runtime proof. |
 | `USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION` | Any branch proposes persistent memory, indexing, retrieval, learning, personalization, or memory import. | Approve memory/data scope, retention/reset/export rules, public/private edition separation, and whether any external training is allowed. | The exact approved memory/indexing/retrieval/personalization seam. | Owner-private memory in Dev/Public, unapproved training, hidden persistence, network egress, provider execution, or public-to-dev memory import without separate approval. | Consent proof, storage-boundary proof, reset/delete/export proof, no hidden indexing, and edition-separation validation. |
-| `USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY` | FAM-008 packaging/install work is ready to name or ship separate Public, Dev, or Owner identities. | Approve app names, install paths, icons, data roots, update channels, signing/channel posture, and GitHub Desktop local path guidance. | Packaging identity planning or implementation for the approved edition/channel only. | Runtime provider/model execution, private repo creation, memory, public artifact publication, release/tag execution, or edition functionality claims outside approved packaging scope. | Installer/shortcut/source proof, distinct data-root proof, signed/update-channel plan, public build exclusion proof, and FAM-008/FAM-010 validation where applicable. |
+| `USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY` | FAM-008 packaging/install work is ready to name or ship separate Public, Dev, or Owner identities. | Approve app names, install paths, icons, data roots, update channels, signing/channel posture, and GitHub Desktop local path guidance. | Packaging identity planning or implementation for the approved edition/channel only. | Runtime provider/model execution, private repo creation, memory, public artifact publication, release/tag execution, or edition functionality claims outside approved packaging scope. | Installer/shortcut/source proof, distinct data-root proof, signed/update-channel plan, public build exclusion proof, and safety/privacy validation where applicable. |
 
 The first future USER-created private assets are expected to be gated by `USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE`, `USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE`, and `USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP`. Public functional AI must not proceed past provider/model execution gates until these action gates are either completed, explicitly deferred, or waived by USER with recorded risk.
 
@@ -767,7 +768,7 @@ Recommended sequence from this planning point:
 6. Dev Edition MVP private branch.
 7. Owner Edition MVP private branch.
 8. Packaging/install identity branch through FAM-008.
-9. Safety/privacy hardening branch through FAM-010 where secrets, vaults, encryption, and egress controls need implementation.
+9. Safety/privacy hardening inside the owning implementation family where secrets, vaults, encryption, and egress controls need implementation.
 10. `v1.8.0-prebeta` release readiness only after functional AI and edition boundaries both pass validation.
 
 ## Version And Release Channel Direction
@@ -843,7 +844,7 @@ Before a future branch claims edition-boundary progress, it should answer:
 - Does it preserve provider-visible data boundaries?
 - Does it preserve consent boundaries?
 - Does it require FAM-008 packaging work?
-- Does it require FAM-010 security/privacy work?
+- Does it require safety/privacy hardening in the owning implementation family?
 - Does it need a USER review bundle?
 - Does it need a new validator?
 
@@ -874,7 +875,7 @@ Use this plan during future Branch Readiness and Workstream Entry when a branch 
 
 - FAM-007 provider/model/memory/capability-pack behavior
 - FAM-008 packaging, install, shortcut, update, or data-root identity
-- FAM-010 privacy, safety, secret, consent, memory, or egress behavior
+- privacy, safety, secret, consent, memory, or egress behavior in the owning implementation family
 - GitHub Desktop setup for edition work
 - Codex setup for public/private repo separation
 - off-boot backup/recovery planning for AI personalization, private state, or reinstall continuity

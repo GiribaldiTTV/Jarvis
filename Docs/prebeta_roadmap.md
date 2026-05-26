@@ -61,6 +61,8 @@ Package/slice release blockers remain named `Single-Slice Package User Approval 
 
 ## Public Milestone Pointers
 
+Cross-family AI-native runtime/trust architecture, including permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, capability-pack architecture, routine/continuity boundaries, Windows Health recommendation boundaries, and competitive-integrity policy, routes through `Docs/ai_runtime_and_trust_architecture.md`. Those concepts do not create new milestone families by themselves; implementation still requires future Branch Readiness classification and USER approval.
+
 | Family | Public Milestone Posture | Family Vision Owner | Detail Owner |
 | --- | --- | --- | --- |
 | `FAM-001` Boot Interface | released baseline; future lifecycle follow-through remains open | `Docs/family_visions/FAM-001_boot_interface.md` | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` |
@@ -71,8 +73,15 @@ Package/slice release blockers remain named `Single-Slice Package User Approval 
 | `FAM-006` Monitoring and HUD | durable planning and release receipts preserved; future recording runtime remains USER-gated | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md` |
 | `FAM-007` Local AI and Capability Packs | local AI readiness history preserved; future private Dev/Owner, backup/recovery, provider/model execution, and release work remain USER-gated | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` |
 | `FAM-008` Packaging and Install Experience | future install/package milestone | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
-| `FAM-009` Workspace and Data | released baseline; future workspace/data package remains open | `Docs/family_visions/FAM-009_workspace_and_data.md` | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` |
-| `FAM-010` Safety and Privacy | future privacy/safety package | `Docs/family_visions/FAM-010_safety_and_privacy.md` | `Docs/family_visions/FAM-010_safety_and_privacy.md` |
+
+## Folded Non-Family Concept Pointers
+
+Workspace/data and safety/privacy are not roadmap milestone families or independent backlog worktrees after the AI-native taxonomy repair. Existing backlog families consume those constraints inside their own Branch Readiness and family visions.
+
+| Concept Area | Consumed By |
+| --- | --- |
+| Workspace/data roots, evidence paths, cache storage, support bundles, cleanup, backup/export, and local file hygiene | Existing FAM visions and `Docs/ai_runtime_and_trust_architecture.md` where the implementing family touches those surfaces |
+| Safety/privacy, consent, provider-visible data, secrets, Local-Only, Privacy Lockdown, Trust Journal, and sensitive capabilities | Existing FAM visions and `Docs/ai_runtime_and_trust_architecture.md` where the implementing family touches those surfaces |
 
 ## Operational Selection Routing
 
