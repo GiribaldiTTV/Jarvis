@@ -141,7 +141,7 @@ Rollback Target: `Branch Readiness`
 
 ## Next Legal Phase
 
-Next Legal Phase: `PR Readiness`
+Next Legal Phase: `Release Readiness Stage 1 rerun or later USER-approved successor Branch Readiness`
 Next Legal Phase Detail: `Rerun Release Readiness Stage 1 from current origin/main after this post-merge fold-down repair validates green; future FAM-007 successor work requires a separate USER-approved Branch Readiness pass.`
 
 ## Branch Objective
