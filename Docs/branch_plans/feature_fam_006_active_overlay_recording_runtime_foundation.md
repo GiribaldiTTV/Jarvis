@@ -4,7 +4,7 @@ Branch: `feature/fam-006-active-overlay-recording-runtime-foundation`
 Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`
 Created From: `feature/fam-006-recording-profile-runtime-foundation` at `1f399003d2e6d13b34b567cd7f7900a709254bc9`
-Current Plan Phase: `Planning/governance closeout before PR Readiness`
+Current Plan Phase: `Historical traceability after PR #222 merge`
 Runtime Implementation Approval: `Blocked - this branch is not the runtime implementation carrier; SLC-051 and all runtime work are deferred to a future USER-approved carrier`
 
 ## Branch Runtime Engineering Plan
@@ -13,9 +13,9 @@ Plan Identity: `FAM-006 Active Overlay Recording Runtime Foundation`
 Owning Branch: `feature/fam-006-active-overlay-recording-runtime-foundation`
 Worktree Path: `C:\Nexus Worktrees\FAM-006`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`
-Current Phase: `Branch Readiness planning/governance closeout`
-Branch Runtime Engineering Plan: `Corrected active-overlay-driven recording carrier setup and planning admission.`
-Engineering Plan Status: `Accepted as planning/governance contract; PR Readiness Stage 1 pending USER approval`
+Current Phase: `Historical Traceability`
+Branch Runtime Engineering Plan: `Historical planning receipt for the corrected active-overlay-driven recording carrier merged by PR #222.`
+Engineering Plan Status: `Retired from active planning posture after PR #222 merge; runtime implementation remains deferred to a future USER-approved carrier.`
 Current Runtime Baseline: `FAM-006 Overlay Profile Runtime Foundation and Overlay Display Acceptance Foundation are released historical evidence. The profile-loaded Recording Profile Workstream route was rolled back by USER request and is preserved as historical receipt only.`
 Branch Purpose: `Admit a corrected FAM-006 recording carrier where recording is driven by the active Overlay Profile membership rather than a separate loaded Recording Profile.`
 Planned Runtime Delta: `None on this branch. Future runtime deltas for active-overlay recording target, HUD Overlay launcher/target preview, standalone Recording Control window, secondary settings surfaces, durable output contract, and validation/live proof are deferred to a later USER-approved carrier.`
@@ -41,7 +41,7 @@ Live Validation Proof Or Waiver Checklist: `Not applicable on this branch becaus
 PR Readiness Fold-Down / Retention Checklist: `PR Readiness must fold this branch down as planning/governance truth only, preserve accepted v3 contract in maintained source truth, and avoid claiming runtime implementation or release-user-facing behavior.`
 Release Readiness Public-Scope Translation Checklist: `Release language must describe only planning/governance/source-truth changes if this branch merges; no active-overlay recording runtime, HUD control, Recording Control window, output file, or user-facing recording behavior shipped in this branch.`
 USER Planning Review: `Completed for planning/governance closeout; USER stated the v3 plan is perfect and requested skipping Workstream on this branch.`
-PR Fold-Down Packet: `Pending PR Readiness Stage 1 analysis.`
+PR Fold-Down Packet: `Historical - PR #222 merged this planning/governance branch.`
 Runtime Implementation Approval: `Blocked - runtime implementation requires a future USER-approved carrier, Workstream Entry analysis, and separate USER approval.`
 
 ## Package And Slice Admission
@@ -63,8 +63,8 @@ Package Completion State: `Planning complete / runtime implementation deferred`
 
 ## Element-to-Phase Proof Matrix
 
-Matrix Status: `Present`
-USER Review Status: `Needs USER Decision`
+Matrix Status: `Historical`
+USER Review Status: `Accepted`
 Open Element Questions: `Queued`
 Element Coverage Owner: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md`
 Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md`
@@ -87,7 +87,7 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 ### Changed Surface: Docs/branch_records/index.md
 
 - Surface Class: `governance/source-truth`
-- Change Intent: `Replace the active FAM-006 Recording Profile rollback carrier pointer with this active-overlay-driven recording carrier pointer and move the old Recording Profile record to historical receipt posture.`
+- Change Intent: `Record that PR #222 replaced the prior FAM-006 Recording Profile rollback carrier pointer with this active-overlay-driven recording planning receipt and moved the old Recording Profile record to historical receipt posture.`
 - Why This File Was Touched: `Branch Readiness Stage 2 is the legal carrier for active branch authority admission and rollback carrier fold-down.`
 - Owned Behavior / Fact Class: `Branch authority routing.`
 - Canonical Owner / Source Owner: `Docs/branch_records/index.md`
@@ -97,18 +97,18 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - Expected Conflict Risk: `Medium if origin/main advances before PR.`
 - Semantic Merge Risk: `Medium`
 - Regression / Gating Impact: `High`
-- Conflict Resolution Rule: `Preserve standing non-FAM-006 active pointers, preserve incoming current-main governance context, keep this active branch pointer in Active Branch Authority Records, and keep the old Recording Profile branch pointer in Historical Branch Authority Records only.`
+- Conflict Resolution Rule: `Preserve standing governance active pointer, preserve incoming current-main governance context, keep this merged PR #222 branch pointer in Historical Branch Authority Records, and keep the old Recording Profile branch pointer in Historical Branch Authority Records only.`
 - Rebaseline Handling: `Run the pre-reconciliation overlap audit before any future current-main reconciliation if origin/main advances.`
 - Validation Proof: `Branch governance validation, worktree-confinement gate, release-readiness health gate, branch-readiness planning fixture validation, source-owner marker validation, FAM-006 validators, runtime-fam006 validation suite, and compileall.`
 - Fallback Evidence: `Use this branch plan and active branch authority record as branch-owned intent evidence; compatibility still requires preserving current-main governance context and validating after reconciliation.`
 - USER Decision / Waiver: `USER approved Branch Readiness Stage 2 setup for this corrected carrier; no waiver authorizes runtime implementation or old branch deletion.`
-- Fold-Down Target: `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md remains historical rollback receipt; this branch becomes active FAM-006 planning authority.`
+- Fold-Down Target: `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md remains historical rollback receipt; this branch is now historical PR #222 planning/governance receipt.`
 
 ### Changed Surface: Docs/feature_backlog.md
 
 - Surface Class: `governance/source-truth`
-- Change Intent: `Update the compact FAM-006 status and canonical detail owner from the rollback carrier to the active-overlay-driven recording carrier.`
-- Why This File Was Touched: `The backlog compact pointer must route active FAM-006 planning to the current branch authority.`
+- Change Intent: `Update the compact FAM-006 status and canonical detail owner from the rollback carrier to the PR #222 active-overlay-driven recording planning receipt.`
+- Why This File Was Touched: `The backlog compact pointer must route FAM-006 planning history to the merged PR #222 branch authority receipt without implying active runtime work.`
 - Owned Behavior / Fact Class: `Feature-family status and canonical pointer routing.`
 - Canonical Owner / Source Owner: `Docs/feature_backlog.md`
 - Resolution Owner: `Current Branch`
@@ -117,17 +117,17 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - Expected Conflict Risk: `Medium if origin/main advances before PR.`
 - Semantic Merge Risk: `Medium`
 - Regression / Gating Impact: `High`
-- Conflict Resolution Rule: `Preserve compact family status, historical released Overlay evidence, rollback receipt context, and route active detail owner to this branch.`
-- Rebaseline Handling: `If main overlaps, preserve current-main family statuses and this FAM-006 active pointer.`
+- Conflict Resolution Rule: `Preserve compact family status, historical released Overlay evidence, rollback receipt context, and route historical planning detail to this branch receipt.`
+- Rebaseline Handling: `If main overlaps, preserve current-main family statuses and this FAM-006 historical planning receipt pointer.`
 - Validation Proof: `Branch readiness planning fixture validation and FAM-006 HUD validators must pass.`
-- Fallback Evidence: `Use this plan and branch record as FAM-006 active planning evidence.`
+- Fallback Evidence: `Use this plan and branch record as FAM-006 historical planning receipt evidence.`
 - USER Decision / Waiver: `USER approved Stage 2 setup for the corrected carrier.`
-- Fold-Down Target: `Future PR Readiness decides durable family dossier or branch-record retention.`
+- Fold-Down Target: `PR #222 preserves this durable branch-record receipt; future runtime work requires a later USER-approved carrier.`
 
 ### Changed Surface: Docs/Main.md
 
 - Surface Class: `governance/source-truth`
-- Change Intent: `Preserve incoming current-main source-truth router and sync-index updates while keeping FAM-006 active-overlay recording planning/governance closeout routed through this branch's maintained authority record and plan.`
+- Change Intent: `Preserve incoming current-main source-truth router and sync-index updates while keeping FAM-006 active-overlay recording planning/governance history routed through this branch's maintained authority record and plan.`
 - Why This File Was Touched: `The FAM-006 branch history includes Main/router changes from earlier governance and branch setup work, while origin/main now carries Release Readiness/source-truth-intake updates that must remain the canonical router context before PR Readiness.`
 - Owned Behavior / Fact Class: `Primary repo source-truth router, loader map, and sync index.`
 - Canonical Owner / Source Owner: `Docs/Main.md`
@@ -138,17 +138,17 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - Semantic Merge Risk: `High`
 - Regression / Gating Impact: `High`
 - Conflict Resolution Rule: `Preserve incoming current-main router/source-truth-intake context, preserve any still-current FAM-006 active-overlay planning pointers only where they remain legitimate, and do not let this FAM-006 branch overwrite newer repo-wide source-truth routing.`
-- Rebaseline Handling: `During FAM-006 current-main reconciliation, accept current-main Main/router updates as authority and retain FAM-006 planning-governance closeout only through the active FAM-006 branch record, branch plan, family vision, backlog, roadmap, and refreshed review packet.`
+- Rebaseline Handling: `During FAM-006 current-main reconciliation, accept current-main Main/router updates as authority and retain FAM-006 planning-governance history only through the historical FAM-006 branch record, branch plan, family vision, backlog, roadmap, and refreshed review packet.`
 - Validation Proof: `Pre-reconciliation overlap audit must pass after this ledger repair; branch governance validation, release-readiness health gate, branch readiness planning fixture validation, FAM-006 validators, source-owner marker validation, and compileall must pass before current-main reconciliation resumes.`
-- Fallback Evidence: `origin/main@3dd999f873bb4f4dffb76ad2f3f613a34ccf776c includes Release Readiness/source-truth-intake updates from PR #221; this FAM-006 branch plan remains the active owner only for FAM-006 planning-governance closeout.`
+- Fallback Evidence: `origin/main@3dd999f873bb4f4dffb76ad2f3f613a34ccf776c includes Release Readiness/source-truth-intake updates from PR #221; this FAM-006 branch plan remains historical owner only for FAM-006 planning-governance receipt evidence.`
 - USER Decision / Waiver: `USER approved bounded FAM-006 pre-reconciliation overlap-intent repair to preserve incoming origin/main source-truth/governance context while preserving the FAM-006 planning/governance closeout posture.`
 - Fold-Down Target: `Docs/Main.md remains the repo router; FAM-006 branch-local proof folds into PR Readiness source-truth projection.`
 
 ### Changed Surface: Docs/prebeta_roadmap.md
 
 - Surface Class: `governance/source-truth`
-- Change Intent: `Update FAM-006 public milestone pointer to this active-overlay-driven recording carrier while preserving historical Overlay Display and rollback receipt context.`
-- Why This File Was Touched: `Roadmap compact pointer must not route active recording planning to the rolled-back profile-loaded carrier.`
+- Change Intent: `Update FAM-006 public milestone pointer to this PR #222 active-overlay-driven recording planning receipt while preserving historical Overlay Display and rollback receipt context.`
+- Why This File Was Touched: `Roadmap compact pointer must not route future recording planning to the rolled-back profile-loaded carrier or imply this merged receipt is active runtime work.`
 - Owned Behavior / Fact Class: `Pre-Beta milestone pointer routing.`
 - Canonical Owner / Source Owner: `Docs/prebeta_roadmap.md`
 - Resolution Owner: `Current Branch`
@@ -157,18 +157,18 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - Expected Conflict Risk: `Medium if origin/main advances before PR.`
 - Semantic Merge Risk: `Medium`
 - Regression / Gating Impact: `High`
-- Conflict Resolution Rule: `Preserve current-main roadmap family statuses, released FAM-006 evidence, rollback receipt context, and this active carrier pointer.`
-- Rebaseline Handling: `If main overlaps, preserve current-main release-stage context and this branch-local FAM-006 active pointer.`
+- Conflict Resolution Rule: `Preserve current-main roadmap family statuses, released FAM-006 evidence, rollback receipt context, and this PR #222 planning receipt pointer.`
+- Rebaseline Handling: `If main overlaps, preserve current-main release-stage context and this branch-local FAM-006 historical planning receipt pointer.`
 - Validation Proof: `Roadmap/backlog pointer validators and branch governance validation must pass.`
-- Fallback Evidence: `Use this plan and branch record as active FAM-006 recording carrier evidence.`
+- Fallback Evidence: `Use this plan and branch record as historical FAM-006 recording planning receipt evidence.`
 - USER Decision / Waiver: `USER approved Stage 2 setup for this corrected carrier.`
-- Fold-Down Target: `Future PR Readiness decides compact roadmap fold-down text.`
+- Fold-Down Target: `PR #222 preserves compact roadmap fold-down text; future runtime work requires a later USER-approved carrier.`
 
 ### Changed Surface: Docs/branch_plans/retirement_index.md
 
 - Surface Class: `governance/source-truth`
-- Change Intent: `Retire the old Recording Profile branch plan from active planning posture and set this active branch plan as current active plan posture.`
-- Why This File Was Touched: `The old carrier remains as rollback receipt only; the active plan pointer must route to this corrected carrier.`
+- Change Intent: `Retire the old Recording Profile branch plan from active planning posture and preserve this branch plan as the PR #222 historical planning receipt.`
+- Why This File Was Touched: `The old carrier remains as rollback receipt only; the plan pointer must route future planning history to this corrected PR #222 receipt without implying active runtime work.`
 - Owned Behavior / Fact Class: `Branch plan lifecycle and active plan posture.`
 - Canonical Owner / Source Owner: `Docs/branch_plans/retirement_index.md`
 - Resolution Owner: `Current Branch`
@@ -177,12 +177,12 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - Expected Conflict Risk: `Low to Medium`
 - Semantic Merge Risk: `Medium`
 - Regression / Gating Impact: `High`
-- Conflict Resolution Rule: `Keep historical plan rows, add old Recording Profile plan as retired, and point Active Plan Posture to this plan.`
-- Rebaseline Handling: `Preserve incoming current-main retired-plan rows and this active FAM-006 posture.`
+- Conflict Resolution Rule: `Keep historical plan rows, add old Recording Profile plan as retired, and record this plan as retired after PR #222 merge.`
+- Rebaseline Handling: `Preserve incoming current-main retired-plan rows and this historical FAM-006 posture.`
 - Validation Proof: `Branch readiness planning fixture validation must pass.`
-- Fallback Evidence: `Use this plan, active record, and retirement index row as lifecycle evidence.`
+- Fallback Evidence: `Use this plan, historical branch record, and retirement index row as lifecycle evidence.`
 - USER Decision / Waiver: `USER approved Stage 2 setup and did not authorize old branch deletion.`
-- Fold-Down Target: `Future PR Readiness may retire this plan after merge/release.`
+- Fold-Down Target: `PR #222 retires this plan from active planning posture; future runtime implementation requires a later USER-approved carrier.`
 
 ### Changed Surface: Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md
 
@@ -257,11 +257,11 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - Expected Conflict Risk: `Medium`
 - Semantic Merge Risk: `Medium`
 - Regression / Gating Impact: `Medium`
-- Conflict Resolution Rule: `Preserve incoming current-main FAM-007 historical authority receipt and do not treat the FAM-007 branch as active FAM-006 authority; keep FAM-006 active branch authority in Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md.`
-- Rebaseline Handling: `During FAM-006 current-main reconciliation, accept current-main FAM-007 historical/fold-down updates for this file while preserving FAM-006 rollback receipt context, active-overlay-driven recording carrier state, and USER_BRANCH_PLAN_REVIEW.md response/digest gate.`
+- Conflict Resolution Rule: `Preserve incoming current-main FAM-007 historical authority receipt and do not treat the FAM-007 branch as FAM-006 authority; keep FAM-006 PR #222 historical branch authority in Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md.`
+- Rebaseline Handling: `During FAM-006 current-main reconciliation, accept current-main FAM-007 historical/fold-down updates for this file while preserving FAM-006 rollback receipt context, active-overlay-driven recording planning receipt state, and USER_BRANCH_PLAN_REVIEW.md response/digest gate.`
 - Validation Proof: `Pre-reconciliation overlap audit must pass; branch governance validation, worktree-confinement gate, release-readiness health gate, branch readiness planning fixture validation, FAM-006 validators, runtime-fam006 validation suite recommendation, source-owner marker validation, and compileall must pass before current-main reconciliation can resume.`
-- Fallback Evidence: `origin/main@73b4905cc5e6c626fae56ffd83f9df6c25e116a4 contains the FAM-007 fold-down/source-truth receipt; this FAM-006 branch record remains separate and continues to own active FAM-006 carrier truth.`
-- USER Decision / Waiver: `USER approved bounded FAM-006 pre-reconciliation overlap-intent repair to preserve incoming FAM-007 fold-down/source-truth context while keeping FAM-006 active-overlay recording as the current carrier.`
+- Fallback Evidence: `origin/main@73b4905cc5e6c626fae56ffd83f9df6c25e116a4 contains the FAM-007 fold-down/source-truth receipt; this FAM-006 branch record remains separate and now owns historical FAM-006 planning receipt truth.`
+- USER Decision / Waiver: `USER approved bounded FAM-006 pre-reconciliation overlap-intent repair to preserve incoming FAM-007 fold-down/source-truth context while keeping FAM-006 active-overlay recording as future planning truth.`
 - Fold-Down Target: `FAM-007 historical branch authority receipt remains owned by the FAM-007 branch record and current-main history; this FAM-006 ledger entry is reconciliation intent evidence only.`
 
 ### Changed Surface: Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md
@@ -427,8 +427,8 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 ## USER Branch Plan Review Gate
 
 USER Branch Plan Review: Required - Stage 2 creates a USER branch-plan review packet and future Workstream Entry must present a full readable implementation plan before runtime work begins.
-Review Status: Accepted by USER - USER said the plan is perfect and requested skipping Workstream on this branch.
-Contract Status: Complete - USER accepted the v3 contract for planning/governance closeout; implementation remains blocked and deferred to a future USER-approved carrier.
+Review Status: Historical after PR #222 merge - USER said the plan is perfect and requested skipping Workstream on this branch.
+Contract Status: Complete - merged historical receipt after PR #222; USER accepted the v3 contract for planning/governance closeout; implementation remains blocked and deferred to a future USER-approved carrier.
 Contract Version / Revision: v4 - v3 product-model contract accepted; branch posture revised to planning/governance closeout with Workstream skipped.
 Desktop Review Bundle: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-006`
 USER Review Packet Finding: Required before PR Readiness - PR Readiness Stage 1 must load and digest `START_HERE.md`, `USER_BRANCH_PLAN_REVIEW.md`, and `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-006.zip`; compare packet source HEAD and review zip source HEAD with current branch HEAD; then report loaded, stale, missing, waived, or blocking status before PR creation can be approved.
@@ -443,7 +443,7 @@ Implementation Breakdown: Stage 2 admits and preserves source truth only; Workst
 Element-to-Phase Proof Matrix: Present in this plan for AOR-001 through AOR-010.
 Hardening Plan: Future H1 must pressure-test active overlay membership, Dashboard/HUD Overlay behavior, standalone settings window behavior, output contract, concept separation, compact/default UI, and future-gated boundaries.
 Live Validation / UTS Plan: Future LV1 must use real user-level input, visible cursor movement/clicks, compact/default screenshots, focused per-element screenshots, output-file proof where applicable, and UTS handoff or explicit waiver.
-Open USER Questions: USER must approve PR Readiness Stage 1 before this planning/governance branch can move toward PR creation. A later runtime carrier must run Workstream Entry to determine the first bounded seam, output file contract recommendation, exact Recording Control / secondary settings fields, permanent HUD Overlay card arrangement, snapshot-at-recording-start versus live-follow behavior for future execution, and whether actual recording execution is in that package or a later package.
+Open USER Questions: None for this merged historical carrier. A later runtime carrier must run Workstream Entry to determine the first bounded seam, output file contract recommendation, exact Recording Control / secondary settings fields, permanent HUD Overlay card arrangement, snapshot-at-recording-start versus live-follow behavior for future execution, and whether actual recording execution is in that package or a later package.
 USER Design Review Questions: Needs USER Confirmation - USER must review the generated `USER_BRANCH_PLAN_REVIEW.md` v3 end-state, HUD Overlay launcher/target preview, standalone Recording Control window direction, Native Log Loader separation, future per-overlay polling-policy constraint, and any desired revisions before bounded Workstream implementation begins. Slice/seam details remain implementation staging, not the main USER decision surface.
 Codex Recommendations: Accept the active-overlay-driven recording product model: recording targets derive from the active Overlay Profile, the HUD Overlay card previews target/status and launches recording control, the standalone Recording Control window stays compact and OS-level, Native Log Loader remains a separate future viewer, and per-overlay effective polling policy is recorded as future FAM-006 architecture so SLC-051 does not block it.
 Implementation Options: Option A - Target model proof first; Option B - target preview in the HUD Overlay card; Option C - standalone Recording Control window shell first; Option D - live Start/Stop planning later after recording execution and file writing are admitted. Codex recommends Option A first, with Option B and C following only after the target model is trustworthy.
@@ -454,7 +454,7 @@ Current Branch Scope: Current branch scope is the accepted active-overlay-driven
 Future-Gated Scope: Future-gated scope includes recording execution, file writing until admitted, tray controls, export/share/import, provider/model work, broad theme/skin work, FAM-007 branch/workstream mutation, old branch cleanup, PR, merge, release, issue mutation, and durable Native Log Loader source-truth mutation.
 Implementation Staging Notes: SLC-051 through SLC-055 remain future implementation scaffolding for the accepted end-state, not work to execute on this branch. Target model work comes first on the future runtime carrier because HUD launcher/preview, Recording Control window, output contract, validators, H1, LV1, and UTS proof all depend on a trustworthy definition of what would be recorded.
 Alternatives / Tradeoffs: The prior profile-loaded Recording Profile route is preserved only as historical rollback receipt because it did not match the clarified USER recording vision.
-USER Decisions Needed: USER should approve PR Readiness Stage 1 analysis for this planning/governance branch. Runtime implementation, SLC-051, Workstream, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, PR creation, merge, release, issue mutation, Governance worktree mutation, and durable Native Log Loader implementation remain pending decisions.
+USER Decisions Needed: None for this merged historical carrier. Runtime implementation, SLC-051, Workstream, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, release execution, issue mutation, Governance worktree mutation, and durable Native Log Loader implementation remain pending decisions.
 USER Review Response: Accepted by USER - USER said the plan is perfect, then requested skipping Workstream and treating this branch as a governance/planning branch so repo-overhaul work in another thread/worktree is not stalled by runtime implementation.
 Codex Response Digest: Digested - the accepted v3 contract remains the durable FAM-006 active-overlay recording product plan. This branch will not implement SLC-051 through SLC-055, will not claim runtime package completion, and will proceed only to PR Readiness for planning/governance merge. Future runtime implementation must use this accepted source truth on a later USER-approved carrier.
 Implementation Constraints Created By USER Response: This branch must not implement SLC-051 or any runtime/user-facing recording work; active Overlay Profile membership remains the future recording target source; no separate Recording Profile system or recording-specific sensor chooser is admitted; recording execution, file writing, real Start/Stop behavior, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, and durable Native Log Loader mutation remain blocked; future recording execution should default to snapshot-at-recording-start for clean logs unless USER revises it; future SLC-051 may prove the live current target because it records nothing; future target proof must preserve null/empty/selected/switched/deleted-stale/duplicate-stale-ID/high-volume states and existing Overlay Profile, Overlay Display, Monitor Group, Dashboard, Manage Monitors, and Sensor Command Center behavior; per-overlay effective polling policy remains future-planning/source-truth constraint.
@@ -489,5 +489,5 @@ Required Workstream Entry outputs:
 
 ## Next Legal Phase
 
-Next Legal Phase: `PR Readiness Stage 1`
-Exact USER Decision Needed: `I approve PR Readiness Stage 1 analysis for FAM-006 Active Overlay Recording Runtime Foundation planning/governance closeout in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-foundation. This approval covers PR Readiness Stage 1 analysis only; verification that the branch is planning/governance only; verification that no SLC-051/runtime implementation, recording execution, file writing, Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, or old branch cleanup/deletion occurred; verification that the accepted v3 USER Branch Plan Contract and active-overlay-driven recording vision are preserved in maintained source truth; verification that Workstream, H1, LV1, and UTS are non-applicable for this no-runtime branch; release/no-release-debt and merge-target source-truth projection analysis; current-main freshness check; required validation; and return of the exact PR Readiness Stage 2 / PR creation approval packet if green. This does not approve PR creation, merge, release, issue mutation, runtime implementation, SLC-051 implementation, Workstream implementation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 branch/workstream mutation, old branch cleanup/deletion, Governance worktree mutation, or durable Native Log Loader implementation.`
+Next Legal Phase: `Release Readiness`
+Exact USER Decision Needed: `Rerun Release Readiness Stage 1 from current origin/main after the PR #222 post-merge FAM-006 fold-down repair validates green; release execution remains a separate USER decision.`

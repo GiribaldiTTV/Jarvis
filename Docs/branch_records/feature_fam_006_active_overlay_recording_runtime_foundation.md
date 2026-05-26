@@ -10,8 +10,8 @@ Last Reconciled origin/main: `d35755ca5135a3c1081de27d023f2db96c2c9741`
 Last Reconciled Merge Base: `d35755ca5135a3c1081de27d023f2db96c2c9741`
 Origin/Main Advanced Since Branch Creation: `YES - origin/main advanced after branch creation; governed current-main reconciliation was completed through the last reconciled origin/main baseline. Live packet metadata must read START_HERE.md for current origin/main at review time.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md`
-Branch Runtime Engineering Plan: `Accepted as FAM-006 active-overlay recording planning/governance contract; Workstream implementation is intentionally skipped for this branch by USER direction so repo-overhaul work in another thread can proceed without waiting on runtime implementation.`
-Engineering Plan Status: `Planning/governance closeout; PR Readiness pending USER approval`
+Branch Runtime Engineering Plan: `Historical FAM-006 active-overlay recording planning/governance contract merged by PR #222; Workstream implementation was intentionally skipped for this branch by USER direction.`
+Engineering Plan Status: `Retired from active planning posture after PR #222 merge; runtime implementation remains deferred to a future USER-approved carrier.`
 
 ## Branch Identity
 
@@ -21,11 +21,11 @@ Engineering Plan Status: `Planning/governance closeout; PR Readiness pending USE
 
 ## Record State
 
-Record State: `Active`
+Record State: `Historical merged planning/governance receipt`
 
 ## Status
 
-Status: `Planning/governance closeout for corrected active-overlay-driven recording contract; PR Readiness pending USER approval`
+Status: `Historical receipt for the corrected active-overlay-driven recording planning/governance contract. PR #222 merged this branch into origin/main@fba23e5bccb5612c6140fc94fdc66d9474bb0830 after USER accepted the plan and skipped Workstream/runtime implementation on this branch. This record no longer authorizes active Branch Readiness, PR creation, merge, release execution, branch/worktree cleanup, Workstream implementation, SLC-051 implementation, recording execution, file writing, Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, Governance mutation, or sibling-worktree mutation.`
 
 ## Canonical Branch
 
@@ -33,15 +33,15 @@ Canonical Branch: `feature/fam-006-active-overlay-recording-runtime-foundation`
 
 ## Current Phase
 
-Phase: `Branch Readiness`
-Phase Detail: `Stage 2 established the corrected active-overlay-driven recording carrier and USER Branch Plan Contract v3; USER then approved skipping Workstream on this branch and treating it as a planning/governance branch for PR Readiness.`
+Phase: `Historical Traceability`
+Phase Detail: `PR #222 merged the corrected active-overlay-driven recording planning/governance contract; future runtime implementation requires a separate USER-approved carrier.`
 
 ## Phase Status
 
-Phase Status: `Active Branch`
-Active Branch Detail: `Planning/governance branch ready for PR Readiness Stage 1 approval`
-Authority State: `Active branch authority for FAM-006 Active Overlay Recording Runtime Foundation`
-Bounded State: `Allowed scope is planning/governance closeout only: preserve the accepted v3 USER Branch Plan Contract, preserve the active-overlay-driven recording vision as maintained source truth, record USER-approved docs-only / planning-loop bypass for this branch, skip Workstream implementation on this branch, refresh the USER review packet if needed, validate, commit, push, and return the PR Readiness Stage 1 approval packet. Runtime implementation, SLC-051 implementation, Workstream implementation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review materials, sibling-worktree mutation, and Governance worktree mutation remain pending USER decisions.`
+Phase Status: `Historical merged planning/governance receipt`
+Historical Branch Detail: `PR #222 merged this planning/governance branch into origin/main@fba23e5bccb5612c6140fc94fdc66d9474bb0830.`
+Authority State: `Historical branch authority receipt for FAM-006 Active Overlay Recording Runtime Foundation planning contract`
+Bounded State: `Traceability only after PR #222 merge: preserve the accepted v3/v4 USER Branch Plan Contract and active-overlay-driven recording vision as maintained source truth. Runtime implementation, SLC-051 implementation, Workstream implementation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review materials, sibling-worktree mutation, and Governance worktree mutation remain pending USER decisions.`
 
 ## Branch Class
 
@@ -188,9 +188,9 @@ Remote Branch State: `Pushed and tracking origin/feature/fam-006-active-overlay-
 Unique Branch Diff: `Stage 2 source-truth setup edits only`
 Origin/Main Ancestry: `Created from FAM-006 rollback receipt HEAD 1f399003d2e6d13b34b567cd7f7900a709254bc9 whose creation-time origin/main baseline was 98c82037e85940e630b727c8362bc9771ffd05e3; last reconciled origin/main is d35755ca5135a3c1081de27d023f2db96c2c9741 after governed current-main reconciliation. START_HERE.md records live packet origin/main at review time.`
 Origin/Main Advanced Since Branch Creation: `YES - last reconciled origin/main d35755ca5135a3c1081de27d023f2db96c2c9741 is newer than the creation-time baseline and the branch has been reconciled to that baseline. Later origin/main movement is handled by PR Readiness Stage 1 current-main freshness analysis.`
-Open PR State: `No live PR`
+Open PR State: `Merged by PR #222; no live PR or PR creation path remains for this historical carrier.`
 Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-006`
-Recommended Stage 2 Carrier Action: `Create/rebind stable FAM-006 worktree to this branch and commit/push setup source truth.`
+Recommended Stage 2 Carrier Action: `Closed historically by PR #222; future FAM-006 recording runtime work requires a new USER-approved carrier.`
 Stale Branch Cleanup Plan: `Do not delete the old Recording Profile branch during Stage 2. Fold it to historical/rollback receipt posture in source truth; old branch cleanup/deletion remains a pending USER decision.`
 Branch Cleanup Execution Gate: `Closed for source-truth fold-down only; no local/remote branch deletion is authorized.`
 Stable Worktree Path: `C:\Nexus Worktrees\FAM-006`
@@ -199,26 +199,26 @@ No Unique Commit Loss Proof: `Old branch is preserved as rollback receipt source
 
 ## Branch Objective
 
-Branch Objective: `Preserve the corrected FAM-006 active-overlay-driven recording plan as maintained source truth and prepare for PR Readiness without runtime Workstream execution on this branch.`
+Branch Objective: `Historical receipt preserving the corrected FAM-006 active-overlay-driven recording plan as maintained source truth after PR #222 merged without runtime Workstream execution on this branch.`
 
 ## Target End-State
 
-Target End-State: `Planning/governance closeout green, source truth aligned, stable FAM-006 worktree on the active-overlay recording planning branch, old Recording Profile branch folded to historical/rollback receipt posture, accepted v3 USER Branch Plan Contract preserved, review packet refreshed, validation green, commit pushed, and PR Readiness Stage 1 ready for USER approval.`
+Target End-State: `Historical source truth aligned after PR #222 merge, old Recording Profile branch folded to historical/rollback receipt posture, accepted v3 USER Branch Plan Contract preserved, and future runtime implementation deferred to a new USER-approved carrier.`
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Merge the accepted active-overlay-driven recording planning/governance contract without runtime implementation so future FAM-006 implementation can start from maintained source truth.`
-Known Future-Dependent Blockers: `Tray recording controls, recording execution, export/share, provider/model work, broad theme/skin work, FAM-007, Governance mutation, issue mutation, PR creation, merge, release, artifacts/raw evidence handling, and old branch cleanup/deletion remain pending USER decisions.`
-Branch Closure Rule: `Do not claim runtime package-complete on this branch. PR Readiness may close this branch only as planning/governance complete with implementation deferred to a future USER-approved carrier.`
+Branch Completion Goal: `Completed by PR #222 as accepted active-overlay-driven recording planning/governance contract without runtime implementation so future FAM-006 implementation can start from maintained source truth.`
+Known Future-Dependent Blockers: `Tray recording controls, recording execution, export/share, provider/model work, broad theme/skin work, FAM-007, Governance mutation, issue mutation, release execution, artifacts/raw evidence handling, old branch cleanup/deletion, and future successor branch creation remain pending USER decisions.`
+Branch Closure Rule: `Closed by PR #222 as planning/governance complete with implementation deferred to a future USER-approved carrier; do not claim runtime package-complete from this branch.`
 
 ## Blockers
 
-Active Blockers: `PR Readiness Stage 1 approval; PR creation; merge; release; issue mutation; artifacts/raw evidence handling beyond approved review materials; sibling-worktree mutation; old branch cleanup/deletion; SLC-051 implementation; runtime implementation; Workstream implementation; tray recording controls; recording execution; file writing; real Start/Stop controls; export/share; provider/model work; broad theme/skin work; FAM-007 work; durable Native Log Loader implementation/source-truth mutation beyond future planning; per-overlay effective polling policy implementation; and Governance worktree mutation remain pending separate USER decisions.`
-PR Readiness Blocker: `PR Readiness Stage 1 requires USER approval; Workstream/H1/LV1/UTS are explicitly skipped for this planning/governance branch because no runtime/user-facing implementation occurred.`
+Active Blockers: `None for this historical merged planning/governance receipt. Release execution, issue mutation, artifacts/raw evidence handling beyond approved review materials, sibling-worktree mutation, old branch cleanup/deletion, SLC-051 implementation, runtime implementation, Workstream implementation, tray recording controls, recording execution, file writing, real Start/Stop controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, durable Native Log Loader implementation/source-truth mutation beyond future planning, per-overlay effective polling policy implementation, and Governance worktree mutation remain pending separate USER decisions.`
+PR Readiness Blocker: `Closed historically - PR #222 already merged; Workstream/H1/LV1/UTS are explicitly skipped for this planning/governance receipt because no runtime/user-facing implementation occurred.`
 
 ## Exit Criteria
 
-Exit Criteria: `Planning/governance closeout is complete when source truth records the accepted v3 contract, Workstream/H1/LV1/UTS are skipped as non-applicable for this no-runtime branch, validation is green, commit is created, branch is pushed, and next legal gate is PR Readiness Stage 1 after USER approval.`
+Exit Criteria: `Met by PR #222 merge: source truth records the accepted v3 contract, Workstream/H1/LV1/UTS are skipped as non-applicable for this no-runtime branch, and runtime implementation is deferred to a future USER-approved carrier.`
 
 ## Rollback Target
 
@@ -226,8 +226,8 @@ Rollback Target: `Branch Readiness`
 
 ## Next Legal Phase
 
-Next Legal Phase: `PR Readiness`
-Next Legal Phase Detail: `USER accepted the v3 USER Branch Plan Contract as perfect and requested skipping Workstream on this branch. PR Readiness Stage 1 is the next legal phase for a planning/governance branch; SLC-051 and all runtime implementation remain deferred to a future USER-approved carrier.`
+Next Legal Phase: `Release Readiness`
+Next Legal Phase Detail: `Rerun Release Readiness Stage 1 from current origin/main after this post-merge fold-down repair validates green; future FAM-006 runtime implementation requires a separate USER-approved Branch Readiness carrier.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -239,20 +239,20 @@ User Test Summary Strategy: `No UTS is required for this branch because no runti
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Branch Readiness planning/governance closeout`
-Next Legal Phase: `PR Readiness Stage 1`
-Why This Phase Is Next: `USER accepted the v3 branch plan as perfect but requested skipping Workstream and treating this branch as a governance/planning branch to avoid blocking repo-overhaul work in another thread/worktree. Since no runtime/user-facing implementation occurred, Workstream, H1, LV1, and UTS are non-applicable for this branch; PR Readiness Stage 1 is the next legal review for merging the planning/governance source truth.`
-Approval Required: `USER must approve PR Readiness Stage 1 analysis for this planning/governance branch.`
-Exact USER Approval Text: `I approve PR Readiness Stage 1 analysis for FAM-006 Active Overlay Recording Runtime Foundation planning/governance closeout in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-foundation. This approval covers PR Readiness Stage 1 analysis only; verification that the branch is planning/governance only; verification that no SLC-051/runtime implementation, recording execution, file writing, Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, or old branch cleanup/deletion occurred; verification that the accepted v3 USER Branch Plan Contract and active-overlay-driven recording vision are preserved in maintained source truth; verification that Workstream, H1, LV1, and UTS are non-applicable for this no-runtime branch; release/no-release-debt and merge-target source-truth projection analysis; current-main freshness check; required validation; and return of the exact PR Readiness Stage 2 / PR creation approval packet if green. This does not approve PR creation, merge, release, issue mutation, runtime implementation, SLC-051 implementation, Workstream implementation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 branch/workstream mutation, old branch cleanup/deletion, Governance worktree mutation, or durable Native Log Loader implementation.`
-Allowed Scope: `PR Readiness Stage 1 analysis only after USER approval; no runtime implementation.`
+Current Phase: `Historical Traceability`
+Next Legal Phase: `Release Readiness`
+Why This Phase Is Next: `PR #222 already merged this planning/governance carrier. Release Readiness can evaluate current origin/main after this post-merge fold-down repair validates green, while future FAM-006 runtime implementation requires a separate USER-approved Branch Readiness carrier.`
+Approval Required: `USER approval is required before release execution, successor Branch Readiness, Workstream implementation, cleanup, issue mutation, or runtime/provider/model work.`
+Exact USER Approval Text: `Rerun Release Readiness Stage 1 from current origin/main after the PR #222 post-merge FAM-006 fold-down repair validates green; do not release, create artifacts, clean branches/worktrees, mutate FAM-006/FAM-007 runtime worktrees, or execute runtime/provider/model/recording work unless separately approved.`
+Allowed Scope: `Historical traceability only; no active branch mutation is authorized by this record.`
 Explicit Exclusions: `Runtime implementation; SLC-051 implementation; Workstream implementation; recording execution; file writing; real Start/Stop controls; tray recording controls; export/share; provider/model work; broad theme/skin work; FAM-007 work; PR creation until Stage 2 approval; merge; release; issue mutation; artifacts/raw evidence handling beyond approved review materials; sibling-worktree mutation; old branch cleanup/deletion; Governance worktree mutation.`
 Validation Required: `Identity, source truth, branch governance, worktree confinement, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, and focused FAM-006 validators as applicable.`
 Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, missing package/slice proof, stale active-authority drift, or need for runtime implementation.`
 USER Plan Review Gate: `USER accepted the v3 plan as perfect for this planning/governance closeout. Future implementation may still revise the contract on a later carrier before runtime mutation if USER changes direction.`
 USER Inspection Files: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Review Required Because: `Active-overlay-driven recording is a user-facing FAM-006 runtime foundation and must remain distinct from Overlay Profile editing, Monitor Group organization, tray controls, export/share, provider/model work, and broad theme/skin work.`
-Implementation Blocker: `Runtime implementation is not approved on this branch. Future runtime implementation requires a later USER-approved carrier, Workstream Entry, and bounded implementation approval.`
-Review Waiver Reason: `None`
+Implementation Blocker: `Runtime implementation is not approved by this historical branch receipt. Future runtime implementation requires a later USER-approved carrier, Workstream Entry, and bounded implementation approval.`
+Review Waiver Reason: `Not applicable - PR #222 already merged.`
 
 ## Later-Phase Expectations
 
@@ -272,4 +272,4 @@ Seam 5: `SLC-055 validation/live proof readiness`
 
 ## Active Seam
 
-Active seam: `Planning/governance closeout; no runtime Workstream seam is active on this branch.`
+Active seam: `None - historical merged planning/governance receipt after PR #222; no runtime Workstream seam is active on this branch.`
