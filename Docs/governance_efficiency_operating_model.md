@@ -12,7 +12,7 @@ This model applies to governance/source-truth/process reform only.
 
 It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch deletion, worktree cleanup, provider/model execution, downloads, memory work, voice/Core sync, shortcut or installer work, AI Product Contract import, or private Dev ORIN import.
 
-External Operational State Store / Release Debt Abolition work starts as docs-only source-truth contract work, then Stage 1 helper/bootstrap scaffolding. Validator code transition, external folder creation, worktree-local staging folder creation, state migration, file moves, file deletion, file archival, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase. Stage 1 helpers must default to report/dry-run behavior and must not create `C:\Nexus Governance State` without a later explicit USER-approved apply step.
+External Operational State Store / Release Debt Abolition work advances only through separately USER-approved stages. Docs/source-truth contracts, helper scaffolds, local root initialization, report-only migration-map helpers, validator transition, active-state migration, repo cleanup, file moves, file deletion, file archival, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase. External-state helpers must default to report/dry-run behavior unless a later explicit USER-approved apply step authorizes mutation.
 
 Planning Reference: `Docs/external_operational_state_store_reform_plan.md` preserves the agreed sequencing, Docs Split Target Matrix, implementation annotations, and future-work design. Use it as the durable future-work reference, not as active migration authority.
 
@@ -63,7 +63,7 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/governance_process_efficiency_reform_plan.md` | reform inventory, sequencing, and implementation records | operational live Git/GitHub facts |
 | `Docs/governance_intake_triage_and_digest_profiles.md` | governance intake and digest profile standard | branch-specific blocker narratives |
 | `Docs/pr_watcher_mode_contract.md` | watcher mode contract and approval default | live PR state beyond explicit watcher proof packets |
-| `Docs/external_operational_state_store_reform_plan.md` | Docs Split implementation plan, target matrix, Stage 1 helper/bootstrap scaffold boundary, annotations, transition sequencing, and future-work checklist | binding migration authority, root initialization authority, validator transition authority, active external-state root, or migrated branch/worktree/release-window state |
+| `Docs/external_operational_state_store_reform_plan.md` | Docs Split implementation plan, target matrix, approved-stage boundaries, migration-map helper posture, annotations, transition sequencing, and future-work checklist | binding migration authority, validator transition authority, active external-state root contents, or migrated branch/worktree/release-window state |
 
 ## Docs Source-Truth Reform Model
 
@@ -170,13 +170,16 @@ Required State:
 - `External State Transition Gate:` is reported before PR Readiness Stage 2 / PR creation for external-state reform branches.
 - `Docs/external_operational_state_store_reform_plan.md` carries a current Docs Split Target Matrix and annotated future-work recommendations.
 - Stage 0 means docs/source-truth planning only; it does not approve helper code, validator code, folder creation, external state initialization, state migration, or file movement.
-- Stage 1 means helper/bootstrap scaffolding and validation planning only; helpers may exist and run report/dry-run checks, but `--apply` external-root initialization, validator transition, active-state migration, and repo file movement remain blocked without later USER approval.
+- Stage 1 means helper/bootstrap scaffolding and validation planning only; helpers may exist and run report/dry-run checks, but applied mutation remains blocked without later USER approval.
+- Stage 2 means USER-approved local root initialization only; it may initialize `C:\Nexus Governance State`, but it does not migrate active branch/worktree/release-window state, transition repo validators, or move repo docs.
+- Stage 3 means migration planning and external preview packets only; it may record no-mutation preview packets in external state, but it does not migrate active state.
+- Stage 4A means report-only repo live-state leakage scanning and migration-map helper support; it may inspect repo docs and print migration candidates, but it does not edit repo docs, migrate active state, create external branch/worktree/release-window records, or transition validators.
 - Current repo branch records and branch plans remain legal active owners until a USER-approved migration stage replaces them with external operational state.
 - Main, phase governance, this model, the external-state plan, branch authority record, and helper registry must agree on the current stage and next legal step.
 
 Allowed Values:
 
-- Transition Stage: `Stage 0 - Docs Plan`, `Stage 1 - Helper Bootstrap Planning`, `Stage 2 - Root Initialization`, `Stage 3 - New Branch Adoption`, `Stage 4 - Active-State Migration`, `Stage 5 - Validator Transition`, `Stage 6 - Repo Cleanup`, `Complete`, `Blocked`, `USER Decision Required`
+- Transition Stage: `Stage 0 - Docs Plan`, `Stage 1 - Helper Bootstrap Planning`, `Stage 2 - Root Initialization`, `Stage 3 - Migration Preview`, `Stage 4A - Report-Only Migration Map Helper`, `Stage 4 - Active-State Migration`, `Stage 5 - Validator Transition`, `Stage 6 - Repo Cleanup`, `Complete`, `Blocked`, `USER Decision Required`
 - Docs Split Matrix Status: `Current`, `Missing`, `Stale`, `Needs USER Review`
 - Active-State Owner Boundary: `Repo Current Owners`, `Hybrid Transition`, `External Canonical`, `Blocked`
 - External Root Approval: `Not Approved`, `Bootstrap Approved`, `Migration Waiver Approved`, `Revoked`, `USER Decision Required`
@@ -195,9 +198,9 @@ Blocking Condition: `External State Transition Gate Missing`, `External State Tr
 
 Repair Owner: standing Governance intake or another USER-approved governance/source-truth carrier named by phase governance.
 
-Repair Path: update Main routing, this model, phase governance, external-state plan, helper registry, and the active branch authority record until they agree on the transition stage, active-state owner boundary, target matrix, validation posture, and next legal step. Do not initialize folders, migrate state, transition validators, or move files unless USER approval explicitly admits that stage; helper scaffolds are legal only during an approved Stage 1 helper/bootstrap pass and must stay no-mutation by default.
+Repair Path: update Main routing, this model, phase governance, external-state plan, helper registry, and the active branch authority record until they agree on the transition stage, active-state owner boundary, target matrix, validation posture, and next legal step. Do not initialize folders, migrate state, transition validators, or move files unless USER approval explicitly admits that stage; report-only helper scaffolds and migration-map helpers must stay no-mutation by default.
 
-USER Decision Required: required before advancing beyond Stage 1, initializing `C:\Nexus Governance State`, creating worktree-local staging, transitioning validators, migrating active state, cleaning repo docs, moving/deleting/archiving files, or treating external state as canonical. Adding external-state helpers requires Stage 1 approval and does not imply root initialization approval.
+USER Decision Required: required before each stage transition, applied external-state mutation, worktree-local staging creation, validator transition, active-state migration, repo cleanup, moving/deleting/archiving files, or treating external state as canonical for active branch/worktree/release-window records. Adding or running report-only helpers does not imply active migration approval.
 
 Validation Owner: marker-first repo validation may check the transition gate and source-truth agreement after the validator is updated; until then, PR Readiness must report the gate as a human-reviewed source-truth drift check. External operational validation remains a future helper implementation.
 

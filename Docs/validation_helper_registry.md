@@ -17,6 +17,21 @@ Its job is to:
 This registry owns the helper inventory and naming classification.
 Canonical workstream docs own the evidence produced by helpers for a specific branch.
 
+## Validation Output Interpretation Rule
+
+Rule Name: `Validation Output Interpretation Rule`
+Owner: `Docs/validation_helper_registry.md` for helper/validator evidence interpretation; `Docs/phase_governance.md` for phase-gate use.
+Applies To: every validator, helper, audit, scanner, harness, live-validation script, PR watcher, release helper, and Codex claim that a branch is green, red, blocked, ready, or safe to continue.
+Required State: helper output is evidence for review, not final authority. Codex retains responsibility for the phase decision and must trust but verify every validator/helper result against source truth, changed files, phase requirements, USER-approved scope, review bundles, and known drift risks before deciding the branch is green or deciding what to patch.
+Allowed Values: `Evidence Supports Green`, `Evidence Supports Repair`, `Evidence Supports Blocked`, `Tool Defect Suspected`, `Tool Defect Confirmed`, `Environment / Configuration Issue`, `Source-Truth Drift`, `USER Decision Required`.
+Invalid Values: `Green Because Validator Passed`, `Patch Validator Until Green`, `Ignore Failed Helper`, `Accept Red Without Diagnosis`, `Accept Blocked Without Diagnosis`, `Treat Helper As Source Truth`.
+Blocking Condition: `Validation Adequacy Review Missing`, `Validator Green Accepted Without Review`, or `Validator / Helper Patch By Inertia` when Codex treats PASS/GREEN as sufficient by itself, patches a validator/helper before diagnosing the failed condition, or ignores a possible false green/false red.
+Repair Owner: current branch owner for source/product defects; helper registry and owning validator/helper for proven tool defects; USER for unclear scope or waiver decisions.
+Repair Path: diagnose the result first, classify the failure or green result, inspect the changed files and relevant source-truth owners, decide whether the product/source truth or the tool is wrong, add or update fixture/smoke coverage when the defect is machine-checkable, then rerun validation. A validator/helper code patch is the last repair option unless the tool defect is directly proven by source truth, a minimal reproduction, or a review comment.
+USER Decision Required: required when fixing the reported issue would expand scope, alter product/runtime behavior, change source-truth ownership, waive validation evidence, or accept a known helper blind spot.
+Validation Owner: the helper/validator that produced the result plus the source-truth owner named by the phase packet.
+Final Disposition: every return packet that relies on validation must state that Codex reviewed the validation rather than delegated judgment to it, summarize why the validation is adequate, name what was independently checked, name whether any helper/validator limitation remains, and classify the result as `Green`, `Repair`, `Blocked`, or `USER Decision Required`.
+
 ## Helper Status Values
 
 Every durable helper or validator under root `dev/` must fit one of these statuses:
@@ -85,13 +100,13 @@ The USER review Desktop bundle helper must treat every Desktop review bundle ref
 
 ## External State Transition Validator Hook
 
-The External Operational State Store transition started as source-truth contract work and is now in Stage 1 helper/bootstrap scaffolding. Repo validators remain clean-clone safe and must not require `C:\Nexus Governance State`.
+The External Operational State Store transition started as source-truth contract work, added helper/bootstrap scaffolding, initialized the local external root after separate USER approval, and is now in Stage 4A report-only repo live-state leakage scanner / migration-map helper support. Repo validators remain clean-clone safe and must not require `C:\Nexus Governance State`.
 
 Future validator hardening should extend the existing reusable governance validators before adding a new root helper:
 
-- `dev/orin_branch_governance_validation.py` remains `Helper Status: Reusable` and should own marker-first PR Readiness checks for `External State Transition Gate:`, `Transition Stage:`, `Docs Split Target Matrix Status:`, `Active-State Owner Boundary:`, `External Root Approval:`, `External Root Status:`, `Premature Migration Scan:`, `Validator / Helper Transition Status:`, `Source-Truth Agreement:`, and the blockers `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, and `External State Migration Premature`.
+- `dev/orin_branch_governance_validation.py` remains `Helper Status: Reusable` and should own marker-first PR Readiness checks for `External State Transition Gate:`, `Transition Stage:`, `Docs Split Target Matrix Status:`, `Active-State Owner Boundary:`, `External Root Approval:`, `External Root Status:`, `Premature Migration Scan:`, `Repo Live-State Leakage Scan:`, `Validator / Helper Transition Status:`, `Source-Truth Agreement:`, and the blockers `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, and `External State Migration Premature`.
 - `dev/orin_governance_efficiency_validation.py` remains `Helper Status: Reusable` and should own contract consistency checks for the External State Transition Drift Gate, Docs Split Target Matrix presence, Stage 0 versus helper/bootstrap/migration boundary, and Main / phase governance / governance efficiency / external plan routing agreement.
-- Stage 1 external-state helpers are registered below as no-mutation-by-default scaffolds. They may report, validate missing-root posture, preview initialization, preview lock/snapshot/promotion/fold-down packets, and run smoke checks. They must not initialize `C:\Nexus Governance State`, create worktree-local staging, transition repo validators, migrate active state, or move/delete/archive repo files without later explicit USER approval and an applied command path.
+- External-state helpers are registered below as no-mutation-by-default scaffolds unless an explicit USER-approved apply path is used. They may report, validate missing-root posture, preview initialization, preview lock/snapshot/promotion/fold-down packets, scan repo live-state leakage, print migration maps, and run smoke checks. They must not create worktree-local staging, transition repo validators, migrate active state, or move/delete/archive repo files without later explicit USER approval and an applied command path.
 
 ## Registered Root Dev Helpers
 
@@ -127,6 +142,7 @@ USER Branch Plan Review Gate helper/validator reinforcement: review-bundle helpe
 | `dev/orin_state_fold_down_preview.py` | Helper Status: Reusable | external operational state fold-down preview | Report-only preview helper for external-state files that may need durable repo fold-down. It must not edit external state, repo docs, branch records, branch plans, or generated indexes. |
 | `dev/orin_external_state_promote_preview.py` | Helper Status: Reusable | external operational state promotion preview | Report-only promotion preview helper that names source state, target state, reason, and required lock/version/conflict/validation/audit steps before any staging-to-central promotion. |
 | `dev/orin_external_state_promote.py` | Helper Status: Reusable | external operational state promotion | Stage 1 promotion scaffold. Default mode is dry-run; applied promotion requires initialized external state, explicit `--apply`, and must preserve the staging source while writing audit evidence so the no-loss rule is not bypassed. |
+| `dev/orin_repo_live_state_leakage_scan.py` | Helper Status: Reusable | external operational state repo leakage scan | Report-only Stage 4A helper that scans repo Docs for live operational state, classifies historical receipts, transition-legal current owners, migration candidates, and `Repo Live-State Leakage`, and prints the migration-map target owner for each live-state category. It must not edit repo docs, write external branch/worktree/release-window records, transition validators, or move/delete/archive files. |
 
 Governance intake triage and digest profile source-checking is owned by `dev/orin_branch_governance_validation.py`. It must preserve `Docs/governance_intake_triage_and_digest_profiles.md`, the `Governance Intake Triage Packet`, the `Digest Non-Compaction Rule`, and the `Digest Profile` vocabulary (`Decision Packet`, `Return Digest`, `Validation Digest`, `Full Audit Packet`, and `Delta Digest`) so future governance reform can stay focused and avoid broad policy replay without compacting the selected digest.
 

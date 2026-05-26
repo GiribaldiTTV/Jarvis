@@ -1693,7 +1693,7 @@ The gate must explicitly answer:
 - `Next Approved Step`
 - `Remaining USER Decisions`
 
-Stage 0 is docs/source-truth planning only. It does not approve helper code, validator code, `C:\Nexus Governance State` creation, worktree-local staging, state migration, repo file movement, deletion, archival, or release execution. Stage 1 is helper/bootstrap scaffolding and validation planning only; helpers may exist and run report/dry-run checks, but `--apply` root initialization, validator transition, active-state migration, repo file movement, deletion, archival, and release execution remain blocked without later USER approval. During Stage 0 and Stage 1, repo branch records and branch plans remain legal current owners where current governance still requires them.
+Stage 0 is docs/source-truth planning only. It does not approve helper code, validator code, `C:\Nexus Governance State` creation, worktree-local staging, state migration, repo file movement, deletion, archival, or release execution. Stage 1 is helper/bootstrap scaffolding and validation planning only; helpers may exist and run report/dry-run checks, but applied mutation remains blocked without later USER approval. Stage 2 is local root initialization only. Stage 3 is migration planning and no-mutation preview packets only. Stage 4A is report-only repo live-state leakage scanning and migration-map helper support only. Validator transition, active-state migration, repo file movement, deletion, archival, and release execution remain blocked until USER approves those later stages. During Stage 0 through Stage 4A, repo branch records and branch plans remain legal current owners where current governance still requires them.
 
 If the gate is missing or source truth disagrees on the current transition stage, active-state owner, helper/bootstrap approval, external root status, migration status, or next legal step, the branch is blocked by `External State Transition Gate Missing` or `External State Transition Drift`.
 
@@ -2475,6 +2475,7 @@ Forbidden:
 Required evidence:
 
 - branch-local proof complete
+- validation adequacy review complete under `Docs/validation_helper_registry.md`: helper/validator PASS/GREEN output supports the decision but does not replace Codex responsibility, source-truth review, changed-file inspection, review-bundle freshness, phase-scope checks, or USER-approved acceptance criteria
 - accepted vision and accepted branch plan satisfied, revised, waived, or folded down with explicit receipt when a Branch Vision Contract Snapshot is required
 - required user-facing desktop shortcut validation digested, passing or explicitly waived, and no `User-Facing Shortcut Validation Pending` blocker
 - required User Test Summary results digested, passing or explicitly waived, and no `User Test Summary Results Pending` blocker
@@ -2493,6 +2494,7 @@ Required evidence:
 - branches that still rely on branch-authority truth merge with historical or removed branch-authority truth rather than lingering as active branch owners on `main`
 - no active seam
 - no unresolved blocker that should have been repaired on the current branch before merge
+- no validator/helper result was accepted or patched by inertia; any failed, blocked, red, or suspiciously green helper result was diagnosed as source-truth drift, product/runtime defect, environment/configuration issue, USER decision need, or proven helper defect before repair
 
 Exit:
 

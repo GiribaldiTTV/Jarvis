@@ -11,27 +11,29 @@ This file is a planning reference, not an active external-state migration, helpe
 2. PR #222 / FAM-006 Active Overlay Recording Runtime Foundation planning receipt merged without runtime implementation and is included in `v1.7.25-prebeta`.
 3. PR #223 folded PR #222 into historical source truth, and PR #224 hardened PR body drift checks; both are included in `v1.7.25-prebeta`.
 4. Docs Split Stage 0 landed through PR #225 and recorded the migration plan, split inventory expectations, and transition drift gate while preserving repo docs as durable source truth.
-5. Current posture is Docs Split Stage 1: helper/bootstrap scaffolding and validation planning only.
-6. Stop at PR Readiness Stage 1 for this Governance repair unless USER separately approves PR Readiness Stage 2 / PR creation.
-7. After this Stage 1 PR merges, all active worktrees must rebaseline or acknowledge the helper/bootstrap scaffold before external root initialization, validator transition, active-state migration, or repo Docs file movement begins.
+5. Docs Split Stage 1 landed through PR #226 and added report-only helper/bootstrap scaffolding.
+6. Stage 2 initialized `C:\Nexus Governance State` after separate USER approval; that local root initialization did not migrate active state or transition repo validators.
+7. Stage 3 recorded a no-mutation migration preview packet in external state after separate USER approval.
+8. Current posture is Stage 4A: report-only repo live-state leakage scanner and migration-map helper support.
+9. Stop at PR Readiness Stage 1 for this Governance repair unless USER separately approves PR Readiness Stage 2 / PR creation.
+10. Active-state migration, repo Docs file movement, repo cleanup, and validator transition remain future USER decisions after the Stage 4A helper output is reviewed.
 
 ## Current Boundaries
 
 Approved now:
 
-- Stage 1 helper/bootstrap scaffold files under `dev/`
-- durable planning record updates for the Stage 1 boundary
-- helper registry updates for the external-state helper family
-- report-only / dry-run helper smoke validation
+- Stage 4A report-only repo live-state leakage scanner helper under `dev/`
+- durable planning record updates for the Stage 4A boundary
+- helper registry updates for the scanner helper
+- report-only migration-map helper smoke validation
 - validation and PR Readiness Stage 1 analysis
 
 Not approved by this planning file:
 
-- external root initialization or `--apply` bootstrap execution
 - validator code transition into mandatory repo gates
-- external folder creation
 - worktree-local staging folder creation
 - external state migration
+- active branch/worktree/release-window external record creation
 - file moves, deletion, or archive execution
 - PR creation
 - merge
@@ -93,6 +95,37 @@ Stage 2 non-includes unless separately approved:
 - mutating FAM-006 or FAM-007
 - changing runtime behavior
 - creating a release or tag
+
+## Docs Split Stage 4A - Repo Live-State Leakage Scanner / Migration Map Helper Plan
+
+Stage Status: `Active report-only migration-map helper support`
+Source Branch: `feature/release-readiness-source-truth-intake`
+Source Worktree: `C:\Nexus Worktrees\Governance`
+Stage 4A Base: `origin/main@7f17b97bac1f0ec7d9e424fdfa8792fe420eb885`
+
+This stage adds a report-only helper that scans repo Docs for live operational state, classifies findings, and prints a migration map. It does not edit repo docs, write central branch/worktree/release-window state, move files, delete files, archive files, transition validators, or treat external state as complete.
+
+Stage 4A deliverables:
+
+- `dev/orin_repo_live_state_leakage_scan.py` report-only scanner for repo live-state leakage and migration candidates
+- helper registry entry for the scanner
+- source-truth plan updates that distinguish scanner output from active migration
+- smoke validation showing the scanner reports `CLEAR / MIGRATION CANDIDATES ONLY` when findings are transition-legal or historical receipts
+
+Stage 4A review question:
+
+```text
+Do you approve using the report-only migration map as the basis for a later active-state migration plan, without moving repo Docs files or migrating active state yet?
+```
+
+Stage 4A non-includes unless separately approved:
+
+- creating branch/worktree/release-window state records from repo docs
+- moving active branch plans or branch records out of repo
+- deleting, archiving, or renaming repo docs
+- transitioning repo validators into mandatory external-state checks
+- mutating FAM-006 or FAM-007 worktrees
+- changing runtime behavior
 
 ## Problem Statement
 
@@ -156,12 +189,12 @@ Derived live truth from Git, GitHub, and helpers:
 
 ## Docs Split Target Matrix
 
-Matrix Status: `Current for Docs Split Stage 1`
+Matrix Status: `Current for Docs Split Stage 4A`
 Matrix Owner: `Docs/external_operational_state_store_reform_plan.md`
 Binding Rule Owner: `Docs/governance_efficiency_operating_model.md`
 Phase Gate Owner: `Docs/phase_governance.md`
 
-This matrix is the Stage 1 review surface for preventing drift while repo docs still carry active operational owners. It does not move files, initialize the external root, or migrate state by itself.
+This matrix is the Stage 4A review surface for preventing drift while repo docs still carry transition-legal active operational owners. It does not move files, create migrated branch/worktree/release-window records, transition validators, or migrate state by itself.
 
 | Surface | Current Repo Role | Target Owner After Migration | Stage 0 Disposition | Drift Risk | Recommendation |
 | --- | --- | --- | --- | --- | --- |
@@ -296,11 +329,11 @@ Required named blockers:
 ## External State Transition Drift Gate
 
 Gate Status: `Required for external-state reform PR Readiness`
-Current Stage: `Stage 1 - Helper Bootstrap Planning`
-External Root Approval: `Not Approved`
-External Root Status: `Not Approved`
+Current Stage: `Stage 4A - Report-Only Migration Map Helper`
+External Root Approval: `Bootstrap Approved`
+External Root Status: `Initialized`
 Migration Status: `Not Started`
-Validator / Helper Transition Status: `Helper scaffolds approved; validator transition not approved`
+Validator / Helper Transition Status: `Report-only helper scaffolds and migration-map scanner approved; validator transition not approved`
 
 Required packet fields:
 
@@ -317,7 +350,7 @@ Required packet fields:
 - `Next Approved Step:`
 - `Remaining USER Decisions:`
 
-This gate exists so future Codex cannot treat the planning reference or Stage 1 scaffolds as already-executed migration. Stage 1 means helper/bootstrap files may exist and run in report/dry-run mode, while repo docs may still contain current active owners required by existing governance. Those owners become migration targets only after USER approves external root initialization, validates the helper path, and admits active-state migration.
+This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, or report-only scanner as already-executed migration. Stage 4A means helper files may inspect repo docs and print a migration map, while repo docs may still contain transition-legal current active owners required by existing governance. Those owners become migrated external records only after USER approves active-state migration.
 
 Drift blockers:
 
@@ -328,8 +361,8 @@ Drift blockers:
 
 Recommended near-term implementation posture:
 
-- keep this branch at Stage 1 until PR/merge and active worktree acknowledgement
-- do not create `C:\Nexus Governance State` in this PR
+- keep this branch at Stage 4A until PR/merge and active worktree acknowledgement
+- do not create migrated branch/worktree/release-window records in this PR
 - do not run helper `--apply` operations in this PR
 - do not migrate branch records, branch plans, roadmap, backlog, or worktree slots in this PR
 - require the transition gate in the next external-state implementation PR before Stage 2 / PR creation
@@ -664,13 +697,15 @@ External state must not contain plaintext secrets, tokens, cookies, provider key
 2. Land docs-only source-truth contract for repo durable truth, external operational state, deterministic language, and concurrency model.
 3. Implement helper scaffolds: init, report, lock, validate, snapshot, fold-down preview, promotion preview, and promote.
 4. Initialize the canonical external root only after explicit USER approval.
-5. Adopt external state for new or re-entering branches.
-6. Adopt ignored worktree staging for proposed state only.
-7. Migrate active branch, worktree, and release-window state out of repo docs.
-8. Transition validators: repo validators stop requiring live state in repo docs; external validators check operational state.
-9. Clean repo docs: remove stale live-state fields and keep durable receipts only.
-10. Transition Release Readiness to Git/GitHub truth plus external state plus repo durable truth.
-11. Require active worktree acknowledgements after merged governance/source-truth changes.
+5. Record report-only migration preview packets without active-state migration.
+6. Implement the report-only repo live-state leakage scanner and migration-map helper.
+7. Adopt external state for new or re-entering branches after USER approval.
+8. Adopt ignored worktree staging for proposed state only after USER approval.
+9. Migrate active branch, worktree, and release-window state out of repo docs after USER approval.
+10. Transition validators: repo validators stop requiring live state in repo docs; external validators check operational state.
+11. Clean repo docs: remove stale live-state fields and keep durable receipts only.
+12. Transition Release Readiness to Git/GitHub truth plus external state plus repo durable truth.
+13. Require active worktree acknowledgements after merged governance/source-truth changes.
 
 ## Risks And Mitigations
 
@@ -712,13 +747,13 @@ Recommendation B - require the transition gate before external-state PR creation
 - Reason: this prevents planning from being mistaken for migration complete and catches disagreement between Main, phase governance, governance efficiency, the plan, branch authority, and helper registry.
 - Future risk: without this gate, Codex could initialize helpers or demand external state before USER approves bootstrap.
 
-Recommendation C - delay helper and validator implementation until after active worktrees acknowledge this reform:
+Recommendation C - keep helper work report-only until active migration is separately approved:
 
-- Status: `Recommended next phase`
-- Reason: FAM worktrees should rebaseline or acknowledge the changed governance before a shared local operational state root starts coordinating them.
-- Future risk: if helpers land before worktree acknowledgement, the first external-state records may encode stale worktree assumptions.
+- Status: `Applied through Stage 4A for report-only helpers; validator transition and active migration remain future-gated`
+- Reason: scanner output should expose migration candidates without rewriting repo docs or creating central active branch/worktree/release-window records.
+- Future risk: if scanner output is treated as migration itself, the repo could lose durable receipts or create shadow external truth.
 
-Recommendation D - migrate active records only after helper bootstrap proves locks, snapshots, and version checks:
+Recommendation D - migrate active records only after helper bootstrap and migration-map review prove locks, snapshots, version checks, and target owners:
 
 - Status: `Future-gated`
 - Reason: moving branch records and plans out of repo without lock/version/snapshot proof risks losing the exact planning receipts the reform is meant to preserve.
@@ -730,21 +765,21 @@ Recommendation E - keep release debt narrow:
 - Reason: stale operational trackers should become `Repo Live-State Leakage` or external-state updates, not durable release debt.
 - Future risk: if Release Readiness keeps treating stale branch/worktree posture as release debt, the repair loop continues.
 
-## Current Release Sequencing Recommendation
+## Current External-State Sequencing Recommendation
 
 Default path:
 
-1. Complete the Stage 1 helper/bootstrap scaffold with no external root initialization and no active-state migration.
-2. Merge this Stage 1 helper/bootstrap repair only after validation and USER approval.
+1. Complete Stage 4A report-only repo live-state leakage scanner / migration-map helper with no active-state migration.
+2. Merge the Stage 4A helper only after validation and USER approval.
 3. Rebaseline or acknowledge active worktrees after merge.
-4. Then begin external-state root initialization only after separate USER approval.
+4. Review the migration-map output before deciding whether to approve active-state migration, validator transition, repo cleanup, or worktree-local staging.
 
 External-state implementation does not replace post-release canon closure or become a release unblocker unless USER explicitly pauses release flow and approves that route.
 
 ## Future Exact USER Decision Shape
 
-Approve the next implementation phase only after this Stage 1 helper/bootstrap scaffold PR merges and active worktrees rebaseline or acknowledge the changed governance:
+Approve the next implementation phase only after this Stage 4A report-only migration-map helper PR merges and active worktrees rebaseline or acknowledge the changed governance:
 
 ```text
-Approve External Operational State Store root initialization on C:\Nexus Worktrees\Governance after all active worktrees rebaseline or acknowledge the Stage 1 helper/bootstrap scaffold. Scope: run the approved bootstrap helper with explicit apply approval to initialize C:\Nexus Governance State and produce the external-state manifest, generated-index placeholder, lock folders, central state folders, snapshot folder, and audit-log folder. Do not migrate active state, transition repo validators, delete repo files, archive branch plans, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
+Approve External Operational State Store active-state migration planning on C:\Nexus Worktrees\Governance after all active worktrees rebaseline or acknowledge the Stage 4A report-only migration-map helper. Scope: use the scanner output to produce a USER-reviewable active-state migration packet naming exact repo fields, external target records, lock/snapshot/version requirements, durable receipt preservation, and no-loss promotion rules. Do not move repo docs, delete or archive files, transition validators, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
 ```
