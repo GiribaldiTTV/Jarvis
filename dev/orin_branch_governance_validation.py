@@ -608,6 +608,16 @@ USER_BRANCH_PLAN_REVIEW_SCOPE_MARKERS = (
     "Deferred Scope:",
     "Rejected Scope:",
 )
+USER_REVIEW_PACKET_FINDING_REQUIRED_TERMS = (
+    ("START_HERE.md",),
+    ("USER_BRANCH_PLAN_REVIEW.md",),
+    ("zip", ".zip"),
+    ("Source HEAD", "packet source HEAD", "review zip source HEAD"),
+    ("current branch HEAD", "current HEAD"),
+    ("loaded", "waived"),
+    ("digested", "waived"),
+    ("fresh", "match", "stale", "missing", "blocking", "waived"),
+)
 BRANCH_VISION_CONTRACT_HEADING = "Branch Vision Contract Snapshot"
 BRANCH_VISION_CONTRACT_REQUIRED_MARKERS = (
     "Vision Contract Required:",
@@ -9278,6 +9288,18 @@ def _validate_user_branch_plan_review_gate(
             "Bundle must name the stable Desktop review bundle or a not-required reason"
         ),
     )
+    review_packet_finding = _extract_marker_value(gate_section, "USER Review Packet Finding:")
+    normalized_review_packet_finding = _normalized_planning_value(review_packet_finding)
+    for term_group in USER_REVIEW_PACKET_FINDING_REQUIRED_TERMS:
+        require(
+            any(term.lower() in normalized_review_packet_finding for term in term_group),
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} USER Review "
+                "Packet Finding must prove START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, "
+                "the exported zip, Source HEAD/current branch HEAD freshness, and "
+                "loaded/digested or waiver/blocker status"
+            ),
+        )
 
     implementation_breakdown = _normalized_planning_value(
         _extract_marker_value(gate_section, "Implementation Breakdown:")

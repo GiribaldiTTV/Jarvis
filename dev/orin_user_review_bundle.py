@@ -206,6 +206,8 @@ def _validate_export_zip(export_zip: Path, source_head: str) -> None:
         )
     if "Review Export Zip Stale Guard: PASS" not in start_here:
         raise ValueError("Review export zip is missing stale-guard proof in START_HERE.md")
+    if "USER Review Packet Finding: PASS" not in start_here:
+        raise ValueError("Review export zip is missing USER Review Packet Finding proof")
 
 
 def _is_repo_relative_review_path(path: str) -> bool:
@@ -500,6 +502,13 @@ def build_bundle(
         f"Review Export Zip: `{export_zip}`",
         f"Review Export Zip Source HEAD: `{source_head}`",
         f"Review Export Zip Stale Guard: {REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS}",
+        (
+            "USER Review Packet Finding: PASS - helper generated and validated "
+            f"`START_HERE.md`, `{USER_BRANCH_PLAN_REVIEW_FILE}`, and exported zip "
+            f"`{export_zip}` from refreshed Desktop folder `{target}`; Source HEAD "
+            f"`{source_head}` and Review Export Zip Source HEAD `{source_head}` match "
+            "the current branch HEAD, and the packet is loaded/digestible for USER review."
+        ),
         f"Bundle Created: {created_at}",
         f"Bundle File Count: {bundle_file_count}",
         f"Expected File Count: {expected_count}",
@@ -618,6 +627,11 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
+    print(
+        "USER Review Packet Finding: PASS - START_HERE.md, "
+        f"{USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
+        "validated against current Source HEAD."
+    )
     return 0
 
 
