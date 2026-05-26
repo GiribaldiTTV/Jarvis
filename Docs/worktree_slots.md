@@ -9,7 +9,7 @@ Docs Source-Truth Reform Model: Compact Pointer Layer.
 
 It prevents temporary family names such as FAM-006 or FAM-007 from becoming permanent lane concepts. The stable concept is the slot role. The branch, family, and workstream assigned to that slot may change only through USER-approved assignment or retirement.
 
-This document records slot definitions and intended assignment receipts. It does not replace Git, GitHub, branch authority records, Branch Runtime Engineering Plans, or live preflight proof.
+This document records stable slot definitions and durable assignment receipt schema. Current worktree assignment, active thread ownership, and live branch/worktree state belong to Git/GitHub/helpers and `C:\Nexus Governance State` after the External Operational State Store transition.
 
 ## Ownership Boundary
 
@@ -17,8 +17,8 @@ This file owns:
 
 - stable slot IDs and reusable slot roles
 - expected path pattern or standing path
-- intended assignment status
-- branch authority and branch-plan pointer fields
+- durable assignment receipt status
+- branch authority and branch-plan pointer fields for historical receipts
 - USER decision pointer field
 - worktree ownership/collision-prevention requirements
 - off-worktree routing and new-worktree decision gates
@@ -102,25 +102,25 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
-- Expected Path: `C:\Nexus Worktrees\FAM-007`
-- Assignment Status: Historical post-merge receipt after PR #220; no active FAM-007 mutation carrier is assigned by this slot.
-- Assigned Branch: `None - feature/fam-007-v1-7-23-post-release-canon-closure merged by PR #220`
-- Assigned Family / Workstream: `FAM-007 held pending future USER-approved Branch Readiness`
-- Branch Authority Record: `Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md` historical receipt
-- Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md` retired planning receipt
-- GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding; no cleanup/rebinding authorized`
-- Active Thread Owner: `None after PR #220 merge unless USER assigns a new FAM-007 owner`
-- Thread Assignment Status: `Historical / held; no active mutation authority`
-- Worktree Ownership Ledger: `Historical branch record and retired branch plan only`
-- Intended Write Set: `None for active mutation; future FAM-007 work requires a new USER-approved Branch Readiness authority record or external-state acknowledgement after the later migration`
-- Same Worktree / Same Branch Collision Check: `PASS at assignment; no second writer assigned`
-- Dirty Worktree Collision Check: `PASS - pre-implementation worktree was clean; Workstream tracked changes are owned by this current approved Codex pass`
-- Dirty Worktree Recovery Packet: `Required before future mutation if dirty files appear`
-- Off-Worktree Work Routing: `FAM-006, Governance, Compact-AI, neutral-main, and parked-worktree mutation requests are sibling overlap context only and not successor authority for this historical FAM-007 receipt`
-- Governance Routing Barrier: `Active for any new mutation until USER approves a successor carrier`
-- New Worktree Decision Gate: `Pending USER approval for any worktree creation, deletion, cleanup, or rebinding beyond this carrier`
-- USER Assignment Decision: `USER approved the prior Branch Readiness Stage 2 setup; PR #220 has merged that carrier, so this slot is now a historical receipt and future mutation requires fresh USER approval.`
-- Operational Truth Source: `git status`, `git rev-parse HEAD`, `git rev-parse origin/main`, `git merge-base HEAD origin/main`, and Pre-Rebaseline Impact Audit before any future baseline mutation`
+- Expected Path: `C:\Nexus Worktrees\<USER-assigned label>`
+- Assignment Status: external operational state owns the current assignment; repo record keeps reusable slot definition only
+- Assigned Branch: see `C:\Nexus Governance State\worktrees\<worktree_label>\worktree_state.md` and live Git/GitHub/helper truth
+- Assigned Family / Workstream: see external operational state and the active branch authority record when a branch is admitted
+- Branch Authority Record: resolved by active branch authority or historical receipt, not this slot registry
+- Branch Runtime Engineering Plan: resolved by active branch authority or historical receipt, not this slot registry
+- GitHub Desktop-bound worktree: USER-gated; validate via live worktree preflight before mutation
+- Active Thread Owner: external operational state or active branch authority owns current thread assignment
+- Thread Assignment Status: external operational state owns current assignment status
+- Worktree Ownership Ledger: external operational state while active; historical branch records only after fold-down
+- Intended Write Set: active branch authority, branch plan, or external operational state owns current write set
+- Same Worktree / Same Branch Collision Check: required before mutation and recorded in operational state or branch authority
+- Dirty Worktree Collision Check: required before mutation and recorded in operational state or branch authority
+- Dirty Worktree Recovery Packet: required before future mutation if dirty files appear
+- Off-Worktree Work Routing: sibling-worktree requests are context only unless USER assigns a legal carrier
+- Governance Routing Barrier: active until USER approves a legal carrier
+- New Worktree Decision Gate: pending USER approval for worktree creation, deletion, cleanup, or rebinding
+- USER Assignment Decision: current assignment decisions are recorded in external operational state or the active branch authority record
+- Operational Truth Source: `git status`, `git rev-parse HEAD`, `git rev-parse origin/main`, `git merge-base HEAD origin/main`, `git worktree list`, GitHub helpers, and Pre-Rebaseline Impact Audit before mutation
 
 ## Runtime Slot Assignment Template
 
@@ -149,7 +149,7 @@ When a runtime branch is assigned to a slot, the branch authority record or Bran
 - Assignment Status:
 - Operational Truth Source:
 
-Current runtime slot assignment truth should be resolved from the active branch authority record and identity preflight, then mirrored here only as a compact assignment receipt when USER-approved. Do not add phase narratives, PR readiness narration, latest release references, commit hashes, or long branch histories to the slot registry.
+Current runtime slot assignment truth should be resolved from `C:\Nexus Governance State`, the active branch authority record, and identity preflight. Do not add phase narratives, PR readiness narration, latest release references, commit hashes, selected-next posture, live ownership, or long branch histories to the slot registry.
 
 ## Active Thread Ownership And Collision Recovery
 
