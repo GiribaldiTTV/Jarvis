@@ -4597,7 +4597,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 - Line count: 274
 - Current purpose: Branch Authority Record: feature/release-readiness-source-truth-intake
-- Actual observed use: branch authority / structured receipt with markers live=53, pr/release/issue=41, package/slice=2, branch/worktree/phase=213, validator/helper=143.
+- Actual observed use: branch authority / structured receipt with markers live=53, pr/release/issue=41, package/slice=2, branch/worktree/phase=213, validator/helper=146.
 - Correct owner category: branch authority / structured receipt
 - What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
 - What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
