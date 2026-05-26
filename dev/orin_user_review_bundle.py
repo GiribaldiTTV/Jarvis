@@ -419,12 +419,14 @@ def _write_user_branch_plan_review(
 ) -> Path:
     is_active_overlay_recording = any(
         "active_overlay_recording_runtime_foundation" in source_rel
+        or "active_overlay_recording_runtime_implementation" in source_rel
         for source_rel, _copied_rel in copied
     )
     active_branch_files = [
         copied_rel
         for source_rel, copied_rel in copied
         if "active_overlay_recording_runtime_foundation" in source_rel
+        or "active_overlay_recording_runtime_implementation" in source_rel
     ]
     rollback_context_files = [
         copied_rel
@@ -449,6 +451,9 @@ def _write_user_branch_plan_review(
                 source_rel
                 for source_rel, _copied_rel in copied
                 if source_rel.endswith(
+                    "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md"
+                )
+                or source_rel.endswith(
                     "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md"
                 )
             ),

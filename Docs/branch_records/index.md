@@ -139,6 +139,7 @@ Do not use this layer to replace:
 
 This repo-tracked active list is intentionally narrow after External Operational State Store Stage 6C. It preserves the single standing Governance intake exception only. Non-standing active runtime, implementation, release-packaging, repair, selected-next, PR, watcher, release-window, or worktree operational authority must be read from `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks unless USER records an explicit transition waiver.
 
+- `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md`
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
 ## Historical Branch Authority Records

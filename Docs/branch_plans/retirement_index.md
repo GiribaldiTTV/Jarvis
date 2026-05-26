@@ -51,8 +51,8 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 
 ## Active Plan Posture
 
-Active runtime Branch Runtime Engineering Plan: `None recorded in this retirement index; PR #222 merged the FAM-006 Active Overlay Recording Runtime Foundation planning/governance carrier, v1.7.25-prebeta published that planning receipt, and future runtime implementation requires a new USER-approved carrier.`
+Active runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` - fresh FAM-006 active-overlay recording runtime implementation carrier admitted by Branch Readiness Stage 2; Workstream Entry and runtime implementation remain USER-gated.
 
-Current-main runtime Branch Runtime Engineering Plan context: `None active; historical FAM plans are retired/released receipts only and must not be treated as live branch planning authority.`
+Current-main runtime Branch Runtime Engineering Plan context: `FAM-006 active-overlay recording implementation plan is active on feature/fam-006-active-overlay-recording-runtime-implementation; historical FAM plans remain retired/released receipts only.`
 
 Most recent retired runtime plan: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` - the FAM-006 Active Overlay Recording Runtime Foundation plan is retired from active planning posture after PR #222 merge and v1.7.25-prebeta publication; it is historical released planning/governance receipt evidence with runtime implementation deferred.
