@@ -29,7 +29,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 def validate_manifest(manifest_path: Path, expected_schema: str) -> list[str]:
     issues: list[str] = []
-    manifest = load_json(manifest_path)
+    try:
+        manifest = load_json(manifest_path)
+    except Exception as exc:  # noqa: BLE001 - corrupt local state should become a validation issue
+        return [f"External State Corrupt: {manifest_path}: {exc}"]
     for field in REQUIRED_STATE_FIELDS:
         if field not in manifest:
             issues.append(f"Missing required manifest field: {field}")
@@ -65,6 +68,8 @@ def main() -> int:
     schemas = set()
     for state_file in iter_state_files(root):
         if state_file.suffix.lower() != ".json":
+            continue
+        if state_file == manifest_path:
             continue
         try:
             payload = load_json(state_file)

@@ -9,6 +9,7 @@ from orin_external_state_common import (
     copy_tree_snapshot,
     resolve_path,
     utc_now,
+    validate_canonical_root,
 )
 
 
@@ -27,6 +28,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     root = resolve_path(args.root)
+    root_issues = validate_canonical_root(root)
     stamp = utc_now().replace(":", "").replace("+00:00", "Z")
     snapshot_dir = root / "snapshots" / f"snapshot-{stamp}"
 
@@ -36,6 +38,11 @@ def main() -> int:
     print(f"Reason: {args.reason}")
     print(f"Mutation Approval: {'Granted by --apply' if args.apply else 'Not granted - dry run'}")
 
+    if root_issues:
+        print("Snapshot Result: BLOCKED")
+        for issue in root_issues:
+            print(issue)
+        return 1
     if not root.exists():
         print("Snapshot Result: External State Missing")
         return 1 if args.apply else 0

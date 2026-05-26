@@ -9,6 +9,7 @@ from orin_external_state_common import (
     new_lock_id,
     resolve_path,
     utc_now,
+    validate_canonical_root,
 )
 
 
@@ -41,6 +42,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     root = resolve_path(args.root)
+    root_issues = validate_canonical_root(root)
     lock_id = new_lock_id(args.lock_type)
     lock_payload = {
         "External State Schema": args.schema,
@@ -64,6 +66,11 @@ def main() -> int:
     print("Lock State: Locked")
     print(f"Mutation Approval: {'Granted by --apply' if args.apply else 'Not granted - dry run'}")
 
+    if root_issues:
+        print("Lock Result: BLOCKED")
+        for issue in root_issues:
+            print(issue)
+        return 1
     if not root.exists():
         print("Lock Result: External State Missing")
         return 1 if args.apply else 0
