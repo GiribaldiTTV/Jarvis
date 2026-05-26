@@ -14,6 +14,7 @@ Packaging and install work should make Nexus easier to install, launch, update, 
 - Capability-pack installation should stay separate from the base app unless USER accepts a package boundary.
 - Public, Dev, and Owner edition install identities, data roots, update channels, and GitHub Desktop/source-root setup should follow the edition trust-boundary plan before packaging work creates real artifacts.
 - Setup should explain trust, privacy, provider, and disk/network implications before enabling heavier capabilities.
+- Cache-root and clear-cache UX belongs here only as setup/install/user-education direction for approved cache owners; it must not imply provider/model execution, memory, or hidden capability-pack downloads.
 - Update and migration behavior should preserve user data and make repair paths clear.
 
 ## Implementation Boundaries

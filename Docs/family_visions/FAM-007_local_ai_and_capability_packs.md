@@ -16,10 +16,12 @@ Local AI and capability packs should make Nexus feel smarter while preserving lo
 - Owner, Dev, and Public AI deployment must follow the public-safe Edition Capability / Trust Boundary plan before provider/model/runtime work claims release readiness.
 - Provider-visible data, privacy mode, hardware eligibility, network/download behavior, and memory/indexing boundaries must be explicit before runtime execution.
 - External API use should be opt-in, revocable, cost/privacy-aware, and visible.
+- AI Operational Cache Governance belongs here only for AI runtime/provider cache behavior, capability-pack cache manifests, cache provenance, cache validity windows, deterministic versus advisory cache behavior, and provider-cache sanitization; cache is operational state, not memory.
 
 ## Implementation Boundaries
 
 - This vision does not admit provider SDK integration, model downloads, external calls, memory/indexing, voice/Core sync, shortcut/installer work, or AI Product Contract import.
+- This vision does not admit persistent memory, learning, personalization, hidden provider residue, or runtime cache implementation by itself.
 - Active FAM-007 branches must carry accepted Branch Vision Snapshot and provider-state validation proof before Workstream implementation.
 
 ## Canonical Pointers

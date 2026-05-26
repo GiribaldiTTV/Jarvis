@@ -13,6 +13,7 @@ Workspace and Data should keep Nexus understandable on disk. Evidence, logs, sup
 - Keep live operational truth derived from Git, GitHub, or helpers, not copied into docs.
 - Keep evidence roots organized and reviewable.
 - Make support bundle and diagnostics paths traceable without exposing private data unnecessarily.
+- AI operational cache storage, cache evidence, cache journaling paths, retention windows, corruption quarantine, and clear-cache file hygiene belong here only as workspace/data-root direction; cache contents remain governed by the AI/runtime and privacy owners.
 - Treat workspace cleanup and branch/worktree deletion as USER-gated operations with no unique commit loss proof.
 
 ## Implementation Boundaries
