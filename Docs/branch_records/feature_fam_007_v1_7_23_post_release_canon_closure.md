@@ -95,7 +95,7 @@ Validation Contract: `Diff checks, branch governance validation, worktree confin
 Non-Includes: `Workstream implementation; private Dev or Owner repo creation; private remote configuration; backup/import/provider/model/memory/voice/Core/shortcut/installer work; PR creation; merge; release execution; cleanup; sibling-worktree mutation; AI Product Contract import; Private Dev ORIN import; v1.8.0-prebeta execution.`
 Pending USER Decisions: `Future FAM-007 successor Workstream implementation, private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work, AI Product Contract import, Private Dev ORIN import, v1.8.0-prebeta execution, branch/worktree cleanup, and any later release execution remain separate USER decisions.`
 Stop Conditions: `Do not use this historical record as active branch, PR, worktree, release-window, or selected-next truth.`
-Next Legal Phase: `Release Readiness Stage 1 rerun or later USER-approved successor Branch Readiness`
+Next Legal Phase: `Release Readiness`
 
 ## Carrier Lifecycle Decision
 
@@ -141,7 +141,7 @@ Rollback Target: `Branch Readiness`
 
 ## Next Legal Phase
 
-Next Legal Phase: `Release Readiness Stage 1 rerun or later USER-approved successor Branch Readiness`
+Next Legal Phase: `Release Readiness`
 Next Legal Phase Detail: `Rerun Release Readiness Stage 1 from current origin/main after this post-merge fold-down repair validates green; future FAM-007 successor work requires a separate USER-approved Branch Readiness pass.`
 
 ## Branch Objective
@@ -193,7 +193,7 @@ Seam Scope: `Historical source-truth canon closure only; no runtime/private/prov
 ## Formal Next Legal Phase Digest
 
 Current Phase: `Historical Traceability`
-Next Legal Phase: `Release Readiness Stage 1 rerun or later USER-approved successor Branch Readiness`
+Next Legal Phase: `Release Readiness`
 Why This Phase Is Next: `PR #220 already merged this canon-closure carrier; Release Readiness can now evaluate current origin/main, while any later FAM-007 successor requires a separate USER-approved Branch Readiness pass.`
 Approval Required: `USER approval is required before release execution, branch/worktree cleanup, successor Branch Readiness, Workstream implementation, or any private/runtime work.`
 Exact USER Approval Text: `Rerun Release Readiness Stage 1 from current origin/main after the PR #220 post-merge fold-down repair validates green; do not create a PR, merge, release, clean branches/worktrees, or execute private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work unless separately approved.`

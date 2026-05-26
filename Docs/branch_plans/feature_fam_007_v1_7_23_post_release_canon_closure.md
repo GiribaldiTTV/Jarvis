@@ -382,7 +382,7 @@ Implementation Approval: `Denied for runtime/private Workstream implementation; 
 ## Formal Next Legal Phase Digest
 
 Current Phase: `Historical Traceability`
-Next Legal Phase: `Release Readiness Stage 1 rerun or later USER-approved successor Branch Readiness`
+Next Legal Phase: `Release Readiness`
 Why This Phase Is Next: `PR #220 already merged this canon-closure carrier; Release Readiness may now evaluate current origin/main, while future FAM-007 work needs a separate USER-approved Branch Readiness pass.`
 Approval Required: `USER approval is required before release execution, cleanup, successor Branch Readiness, Workstream implementation, or private/runtime work.`
 Exact USER Approval Text: `Rerun Release Readiness Stage 1 from current origin/main after the PR #220 post-merge fold-down repair validates green; do not create a PR, merge, release, clean branches/worktrees, or execute private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work unless separately approved.`
