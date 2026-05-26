@@ -251,6 +251,27 @@ def _export_zip_path(review_root: Path, label: str) -> Path:
     return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
 
 
+def _fingerprinted_export_zip_path(
+    review_root: Path,
+    label: str,
+    source_branch: str,
+    source_head: str,
+) -> Path:
+    branch_slug = _sanitize_folder_name(source_branch.replace("/", "_"))
+    file_stem = _sanitize_folder_name(f"{label}__{branch_slug}__{source_head[:12]}")
+    return (review_root / f"{file_stem}.zip").resolve()
+
+
+def _clear_fingerprinted_exports(review_root: Path, label: str) -> None:
+    prefix = f"{_sanitize_folder_name(label)}__"
+    for path in review_root.glob(f"{prefix}*.zip*"):
+        resolved = path.resolve()
+        if resolved.parent != review_root.resolve():
+            raise ValueError(f"Refusing to clear review export outside review root: {resolved}")
+        if resolved.is_file():
+            resolved.unlink()
+
+
 def _write_export_zip(target: Path, export_zip: Path) -> None:
     if target in export_zip.parents or export_zip == target:
         raise ValueError(f"Refusing to write review zip inside bundle folder: {export_zip}")
@@ -317,6 +338,7 @@ def _write_upload_instruction(
 def _validate_export_zip(
     export_zip: Path,
     *,
+    required_upload_zip: Path,
     source_branch: str,
     source_head: str,
     origin_main: str,
@@ -368,7 +390,7 @@ def _validate_export_zip(
             f"does not match {source_head}"
         )
     for expected_upload_marker in (
-        f"Required Upload ZIP: `{export_zip}`",
+        f"Required Upload ZIP: `{required_upload_zip}`",
         f"Source Branch: `{source_branch}`",
         f"Source HEAD: `{source_head}`",
         f"origin/main: `{origin_main}`",
@@ -1210,7 +1232,14 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
-    export_zip = _export_zip_path(review_root, label)
+    stable_export_zip = _export_zip_path(review_root, label)
+    export_zip = _fingerprinted_export_zip_path(
+        review_root,
+        label,
+        source_branch,
+        source_head,
+    )
+    _clear_fingerprinted_exports(review_root, label)
     user_review_file = _write_user_branch_plan_review(
         target=target,
         title=title,
@@ -1280,13 +1309,15 @@ def build_bundle(
         f"Upstream: `{upstream}`",
         f"origin/main: `{origin_main}`",
         f"Review Export Zip: `{export_zip}`",
+        f"Stable Review Zip Alias: `{stable_export_zip}`",
         f"Review Export Zip Source HEAD: `{source_head}`",
         f"Review Export Zip Stale Guard: {REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS}",
         f"Required Upload Instruction: `{UPLOAD_THIS_ZIP_FILE}`",
         (
             "Review Export Upload Guard: PASS - exported zip must contain "
             f"`{UPLOAD_THIS_ZIP_FILE}` with the current Source Branch, Source HEAD, "
-            "origin/main, and exact stable upload path."
+            "origin/main, and exact HEAD-fingerprinted upload path; the stable "
+            "FAM-006.zip filename is only a compatibility alias."
         ),
         (
             "USER Review Packet Finding: PASS - helper generated and validated "
@@ -1333,16 +1364,27 @@ def build_bundle(
     _write_export_zip(target, export_zip)
     _validate_export_zip(
         export_zip,
+        required_upload_zip=export_zip,
         source_branch=source_branch,
         source_head=source_head,
         origin_main=origin_main,
         expected_entries=expected_zip_entries,
     )
-    digest_file = export_zip.with_name(f"{export_zip.name}.sha256")
-    digest_file.write_text(
-        f"{_sha256_file(export_zip)}  {export_zip.name}\n",
-        encoding="utf-8",
+    shutil.copy2(export_zip, stable_export_zip)
+    _validate_export_zip(
+        stable_export_zip,
+        required_upload_zip=export_zip,
+        source_branch=source_branch,
+        source_head=source_head,
+        origin_main=origin_main,
+        expected_entries=expected_zip_entries,
     )
+    for zip_path in (export_zip, stable_export_zip):
+        digest_file = zip_path.with_name(f"{zip_path.name}.sha256")
+        digest_file.write_text(
+            f"{_sha256_file(zip_path)}  {zip_path.name}\n",
+            encoding="utf-8",
+        )
     return target, export_zip
 
 
@@ -1464,8 +1506,12 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
+    stable_export_zip = _export_zip_path(export_zip.parent, _worktree_label(args.worktree_label or args.folder_name))
+    print(f"Stable review zip alias: {stable_export_zip}")
     print(f"Review export zip SHA256: {_sha256_file(export_zip)}")
     print(f"Review export zip SHA256 file: {export_zip.with_name(f'{export_zip.name}.sha256')}")
+    print(f"Stable review zip alias SHA256: {_sha256_file(stable_export_zip)}")
+    print(f"Stable review zip alias SHA256 file: {stable_export_zip.with_name(f'{stable_export_zip.name}.sha256')}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
         f"{USER_BRANCH_PLAN_REVIEW_FILE}, {UPLOAD_THIS_ZIP_FILE}, and exported zip were generated and "
