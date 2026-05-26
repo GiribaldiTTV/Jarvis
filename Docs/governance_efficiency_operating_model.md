@@ -14,7 +14,7 @@ It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation
 
 External Operational State Store / Release Debt Abolition work starts as docs-only source-truth contract work. Helper code creation, validator code changes, external folder creation, worktree-local staging folder creation, state migration, file moves, file deletion, file archival, commits, pushes, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase.
 
-Planning Reference: `Docs/external_operational_state_store_reform_plan.md` preserves the agreed sequencing and implementation design. Use it as the durable future-work reference, not as active migration authority.
+Planning Reference: `Docs/external_operational_state_store_reform_plan.md` preserves the agreed sequencing, Docs Split Target Matrix, implementation annotations, and future-work design. Use it as the durable future-work reference, not as active migration authority.
 
 ## Rule ID And Owner Model
 
@@ -63,6 +63,7 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/governance_process_efficiency_reform_plan.md` | reform inventory, sequencing, and implementation records | operational live Git/GitHub facts |
 | `Docs/governance_intake_triage_and_digest_profiles.md` | governance intake and digest profile standard | branch-specific blocker narratives |
 | `Docs/pr_watcher_mode_contract.md` | watcher mode contract and approval default | live PR state beyond explicit watcher proof packets |
+| `Docs/external_operational_state_store_reform_plan.md` | Docs Split Stage 0 implementation plan, target matrix, annotations, transition sequencing, and future-work checklist | binding migration authority, helper implementation, validator implementation, active external-state root, or migrated branch/worktree/release-window state |
 
 ## Docs Source-Truth Reform Model
 
@@ -141,6 +142,10 @@ Blocking Condition:
 - `Release Debt Misclassified`: stale operational tracker state is treated as durable public release debt.
 - `External State Corrupt`: external state cannot be parsed, validated, or matched to its schema.
 - `Stale Lock Recovery Required`: a lock is expired/stale and the recovery risk is unclear.
+- `External State Transition Gate Missing`: an external-state reform branch reaches PR Readiness without reporting the transition gate fields from this model and `Docs/phase_governance.md`.
+- `External State Transition Drift`: Main, phase governance, this model, the external-state plan, or the helper registry disagree about current transition stage, approved scope, active-state owner, or next legal step.
+- `Docs Split Target Matrix Missing`: the external-state reform plan lacks a current target matrix for repo surfaces that stay durable, move external, split/mix, or derive from Git/GitHub/helpers.
+- `External State Migration Premature`: a branch treats external helper/bootstrap/root/migration work as approved, initialized, or required before USER has approved that stage.
 
 Repair Owner: standing Governance intake or the current USER-approved legal carrier named by phase governance.
 
@@ -151,6 +156,51 @@ USER Decision Required: required before external root creation, staging folder c
 Validation Owner: repo durable-truth validation remains owned by repo validators. External operational validation is a future helper/validator implementation decision and must not be required by GitHub Actions or clean-clone repo validation before that implementation is approved.
 
 Final Disposition: external operational state may remain external-only, be folded into repo source truth as a durable receipt, be archived, expire, be rejected, or require USER decision. Governance law becomes binding only after USER-approved repo source-truth update and merge.
+
+## External State Transition Drift Gate
+
+Rule Name: `External State Transition Drift Gate`
+
+Owner: `Docs/governance_efficiency_operating_model.md`
+
+Applies To: any branch, PR Readiness packet, Release Readiness blocker repair, governance reform, helper/bootstrap pass, validator transition, review-bundle change, or repo-doc cleanup that changes the External Operational State Store contract, Docs split plan, live-state ownership, external-state schema, migration sequencing, repo live-state leakage policy, or worktree acknowledgement behavior.
+
+Required State:
+
+- `External State Transition Gate:` is reported before PR Readiness Stage 2 / PR creation for external-state reform branches.
+- `Docs/external_operational_state_store_reform_plan.md` carries a current Docs Split Target Matrix and annotated future-work recommendations.
+- Stage 0 means docs/source-truth planning only; it does not approve helper code, validator code, folder creation, external state initialization, state migration, or file movement.
+- Current repo branch records and branch plans remain legal active owners until a USER-approved migration stage replaces them with external operational state.
+- Main, phase governance, this model, the external-state plan, branch authority record, and helper registry must agree on the current stage and next legal step.
+
+Allowed Values:
+
+- Transition Stage: `Stage 0 - Docs Plan`, `Stage 1 - Helper Bootstrap Planning`, `Stage 2 - Root Initialization`, `Stage 3 - New Branch Adoption`, `Stage 4 - Active-State Migration`, `Stage 5 - Validator Transition`, `Stage 6 - Repo Cleanup`, `Complete`, `Blocked`, `USER Decision Required`
+- Docs Split Matrix Status: `Current`, `Missing`, `Stale`, `Needs USER Review`
+- Active-State Owner Boundary: `Repo Current Owners`, `Hybrid Transition`, `External Canonical`, `Blocked`
+- External Root Approval: `Not Approved`, `Bootstrap Approved`, `Migration Waiver Approved`, `Revoked`, `USER Decision Required`
+- External Root Status: `Not Approved`, `Approved Not Initialized`, `Initialized`, `Unavailable`, `Invalid Location`
+- Drift Result: `Clear`, `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, `External State Migration Premature`, `USER Decision Required`
+
+Invalid Values:
+
+- claiming external migration is active during Stage 0
+- requiring `C:\Nexus Governance State` in GitHub Actions or clean-clone repo validation
+- moving, deleting, archiving, or rewriting repo docs before helper/bootstrap/migration approval
+- treating worktree-local staging as canonical central state
+- adding new repo live-state owners without either a transition reason, historical-receipt label, or approved migration path
+
+Blocking Condition: `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, `External State Migration Premature`, or `USER Decision Required`.
+
+Repair Owner: standing Governance intake or another USER-approved governance/source-truth carrier named by phase governance.
+
+Repair Path: update Main routing, this model, phase governance, external-state plan, helper registry, and the active branch authority record until they agree on the transition stage, active-state owner boundary, target matrix, validation posture, and next legal step. Do not implement helpers, initialize folders, migrate state, or move files unless USER approval explicitly admits that stage.
+
+USER Decision Required: required before advancing beyond Stage 0, initializing `C:\Nexus Governance State`, creating worktree-local staging, adding external-state helpers, transitioning validators, migrating active state, cleaning repo docs, moving/deleting/archiving files, or treating external state as canonical.
+
+Validation Owner: marker-first repo validation may check the transition gate and source-truth agreement after the validator is updated; until then, PR Readiness must report the gate as a human-reviewed source-truth drift check. External operational validation remains a future helper implementation.
+
+Final Disposition: the branch may proceed only when the gate is `Clear`, or when USER accepts a recorded waiver/decision for a specific stage. Any unresolved drift blocks PR Readiness green.
 
 ## Deterministic Binding Language Contract
 

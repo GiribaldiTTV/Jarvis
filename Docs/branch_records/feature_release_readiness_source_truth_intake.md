@@ -21,14 +21,14 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Intake State: `Active RRI-20260526-003 - PR body drift audit and PR creation body-check hardening after last-50 PR metadata review. Runtime work, release execution, issue work, branch cleanup, FAM-006/FAM-007 runtime mutation, successor creation, provider setup, consent collection, private edition work, model/provider execution, external folder creation, and state migration remain separate USER decisions.`
+- Intake State: `Active RRI-20260526-004 - v1.7.25-prebeta post-release canon closure for PR #222/#223/#224 plus Docs Split Stage 0 planning and External State Transition Drift Gate routing for the External Operational State Store. Runtime work, release execution beyond v1.7.25 closure recording, issue work, branch cleanup, FAM-006/FAM-007 runtime mutation, successor creation, provider setup, consent collection, private edition work, model/provider execution, external folder creation, helper implementation, validator transition, and state migration remain separate USER decisions.`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
 - Bootstrap Exception Limit: `Closed after setup merge; after setup PR merge or any origin/main movement, ahead-of-main work requires a USER-approved active RRI cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or a bot-review repair on an open standing-governance PR that already has USER approval`
-- Active RRI Cycle: `RRI-20260526-003`
-- Latest Closed RRI Cycle: `RRI-20260525-003 - PR #219 merged PR #218 branch-authority fold-down prevention and released in v1.7.23-prebeta at origin/main@73b4905cc5e6c626fae56ffd83f9df6c25e116a4`
-- Return Digest Status: `In progress - RRI-20260526-003 audits the last 50 PR bodies, repairs no-loss PR body normalization, requires proposed-body checks before PR creation, and applies USER-approved live PR body normalization if green.`
-- Active Cycle Identity: `RRI-20260526-003 originated from USER report that PR creation body drift persisted and PR #222 required manual cleanup; scope is PR body metadata audit, helper/source-truth hardening, validation, PR body normalization when safe, PR, and merge.`
+- Active RRI Cycle: `RRI-20260526-004`
+- Latest Closed RRI Cycle: `RRI-20260526-003 - PR #224 merged PR body drift hardening and released in v1.7.25-prebeta at origin/main@d432af4162b4f9fc651221e9b6d1c757fab4a2a0`
+- Return Digest Status: `In progress - RRI-20260526-004 records v1.7.25-prebeta canon closure for PR #222/#223/#224, updates the external operational state Docs Split Stage 0 plan and transition drift gate, validates, refreshes the USER review bundle, and stops before PR creation unless separately approved.`
+- Active Cycle Identity: `RRI-20260526-004 originated from USER approval to roll bounded v1.7.25-prebeta post-release canon closure into the External Operational State Store / Docs split planning pass; scope is source-truth planning and release-posture closure only.`
 
 ## Historical PR Readiness Stage 2 Execution Packet - RRI-20260521-001
 
@@ -66,10 +66,10 @@ This branch is the single standing governance lane for Release Readiness source-
 - Worktree: `C:\Nexus Worktrees\Governance`
 - Intake Source: Release Readiness digest only for release-blocker intake; USER-approved automation/worktree governance intake may also use this standing lane when the repair is non-runtime, multi-worktree safety related, and held to the same one-cycle/PR-gated contract; USER-approved phase-gate governance intake may also use this standing lane when a live branch exposes a repeatable Branch Readiness, PR Readiness, Release Readiness, or Workstream gate miss and the repair is limited to governance/source-truth/validator/helper prevention; bootstrap setup is the one-time USER-approved exception recorded by RRI-20260514-001, and bot-review repair on an open standing-governance PR may use a same-lane active RRI cycle only to repair that PR before merge.
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
-- Active RRI Cycle: `RRI-20260526-003`
-- Latest Closed RRI Cycle: `RRI-20260525-003 - PR #219 merged PR #218 branch-authority fold-down prevention and released in v1.7.23-prebeta at origin/main@73b4905cc5e6c626fae56ffd83f9df6c25e116a4`
-- Return Digest Status: `In progress - RRI-20260526-003 audits the last 50 PR bodies, repairs no-loss PR body normalization, requires proposed-body checks before PR creation, and applies USER-approved live PR body normalization if green.`
-- Active Cycle Identity: `RRI-20260526-003 originated from USER report that PR creation body drift persisted and PR #222 required manual cleanup; scope is PR body metadata audit, helper/source-truth hardening, validation, PR body normalization when safe, PR, and merge.`
+- Active RRI Cycle: `RRI-20260526-004`
+- Latest Closed RRI Cycle: `RRI-20260526-003 - PR #224 merged PR body drift hardening and released in v1.7.25-prebeta at origin/main@d432af4162b4f9fc651221e9b6d1c757fab4a2a0`
+- Return Digest Status: `In progress - RRI-20260526-004 records v1.7.25-prebeta canon closure for PR #222/#223/#224, updates the external operational state Docs Split Stage 0 plan and transition drift gate, validates, refreshes the USER review bundle, and stops before PR creation unless separately approved.`
+- Active Cycle Identity: `RRI-20260526-004 originated from USER approval to roll bounded v1.7.25-prebeta post-release canon closure into the External Operational State Store / Docs split planning pass; scope is source-truth planning and release-posture closure only.`
 - One Active Cycle: Required operationally while a cycle is in flight. A second digest queues until the active cycle merges, returns its digest, and the branch syncs to origin/main; the standing Governance branch is the only branch class where merged source truth does not require a separate closeout PR solely to clear or rewrite the cycle ledger.
 - Sync Rule: Before each new intake the branch must be clean and match origin/main; otherwise `Standing Governance Intake Not Rebased` blocks work.
 - Pre-Rebaseline Impact Audit: Required before the standing branch, neutral main workspace, or any originating worktree fast-forwards, merges, rebases, branch-switches, or otherwise baselines to newer `origin/main`; report `Incoming Main Change Set:`, `Incoming Changed Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before mutation.
@@ -80,10 +80,10 @@ This branch is the single standing governance lane for Release Readiness source-
 ## Assigned Worktree Confinement
 
 - Assigned Worktree Confinement: `Required`
-- Active Thread Owner: `Current Governance thread only for RRI-20260526-003 until PR body drift audit, helper/source-truth hardening, validation, PR body normalization, PR, merge, and return digest complete; no other thread may mutate C:\Nexus Worktrees\Governance during this cycle`
+- Active Thread Owner: `Current Governance thread only for RRI-20260526-004 until v1.7.25 post-release canon closure, Docs Split Stage 0 planning, External State Transition Drift Gate routing, validation, USER review bundle refresh, commit/push, and return digest complete; no other thread may mutate C:\Nexus Worktrees\Governance during this cycle`
 - Thread Assignment Status: `Assigned and active for this RRI cycle; competing same-worktree/same-branch ownership is blocked on Parallel Worktree Coordination Missing`
 - Worktree Ownership Ledger: `This branch authority record is the ownership ledger for the standing Governance worktree; runtime worktrees must record equivalent ownership in their active authority record or Branch Runtime Engineering Plan before mutation`
-- Intended Write Set: `RRI-20260526-003 PR body drift hardening: dev/orin_pr_body_quality_audit.py, Docs/phase_governance.md, Docs/codex_modes.md, Docs/validation_helper_registry.md, and Docs/branch_records/feature_release_readiness_source_truth_intake.md`
+- Intended Write Set: `RRI-20260526-004 v1.7.25 post-release canon closure, Docs Split Stage 0 planning, and External State Transition Drift Gate routing: Docs/Main.md, Docs/phase_governance.md, Docs/governance_efficiency_operating_model.md, Docs/validation_helper_registry.md, Docs/external_operational_state_store_reform_plan.md, Docs/branch_records/feature_release_readiness_source_truth_intake.md, Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md, Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md, Docs/branch_plans/retirement_index.md, Docs/feature_backlog.md, Docs/prebeta_roadmap.md, Docs/governance_docs_full_inventory_reform_audit.md, and Docs/governance_docs_reform_user_review_index.md`
 - Same Worktree / Same Branch Collision Check: `Clear for C:\Nexus Worktrees\Governance; any second active thread targeting this same worktree and branch must stop and route through USER before mutation`
 - Dirty Worktree Collision Check: `Owner claimed by the current Governance thread during RRI-20260520-005; unowned dirty tracked files in any target worktree block mutation until a dirty-worktree recovery packet is complete`
 - Dirty Worktree Recovery Packet: `Required when a target worktree is dirty before a new thread claims it: freeze mutation, inventory dirty files, name owning thread per file, preserve/discard only with USER approval, and resume with one active owner`
@@ -228,11 +228,11 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `RRI-20260526-003 - PR body drift audit and PR creation body-check hardening`
+Active seam: `RRI-20260526-004 - v1.7.25 post-release canon closure and Docs Split Stage 0 planning`
 
-Seam Goal: `Audit the last 50 GitHub PR bodies, prove PR body drift is real, repair the no-loss PR body normalizer, require proposed-body checks before future PR creation, normalize live PR bodies when safe, validate, PR, merge, and return the Release Readiness rerun handoff.`
+Seam Goal: `Record v1.7.25-prebeta as the released closure point for PR #222/#223/#224 where repo truth requires it, preserve FAM-006 active-overlay recording as future planning truth with no runtime recording implementation shipped, update the External Operational State Store plan to Docs Split Stage 0, add transition drift tracking across Main / phase governance / governance efficiency / helper registry, validate, refresh the USER review bundle, and return the next legal repo-state packet.`
 
-Seam Scope: `PR body quality helper, PR Readiness PR body source truth, Codex mode loader PR creation instructions, validation helper registry, and standing governance intake record.`
+Seam Scope: `Standing governance intake record, FAM-006 planning receipt posture, compact backlog/roadmap pointer wording, branch-plan retirement posture, external-state split planning reference, External State Transition Drift Gate routing, generated Docs review inventory surfaces, validation, and Desktop USER review bundle refresh.`
 
 Seam Non-Includes: `FAM-006 runtime mutation, FAM-007 worktree mutation, runtime/provider/model/memory/voice/Core/shortcut/installer work, successor branch creation, release execution, tag/GitHub Release/artifact work, issue work, branch deletion, worktree cleanup, broad historical deletion/archival, direct-main source mutation, or changing canonical phase names.`
 
