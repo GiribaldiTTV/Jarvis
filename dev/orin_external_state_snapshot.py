@@ -7,6 +7,7 @@ from orin_external_state_common import (
     DEFAULT_SCHEMA_VERSION,
     atomic_write_json,
     copy_tree_snapshot,
+    new_lock_id,
     resolve_path,
     utc_now,
     validate_canonical_root,
@@ -29,8 +30,7 @@ def main() -> int:
     args = build_parser().parse_args()
     root = resolve_path(args.root)
     root_issues = validate_canonical_root(root)
-    stamp = utc_now().replace(":", "").replace("+00:00", "Z")
-    snapshot_dir = root / "snapshots" / f"snapshot-{stamp}"
+    snapshot_dir = root / "snapshots" / new_lock_id("snapshot")
 
     print("External State Snapshot Packet")
     print(f"Root: {root}")

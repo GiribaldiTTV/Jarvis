@@ -9,6 +9,7 @@ from orin_external_state_common import (
     atomic_write_bytes,
     atomic_write_json,
     is_relative_to,
+    new_lock_id,
     resolve_path,
     sha256_file,
     utc_now,
@@ -100,7 +101,7 @@ def main() -> int:
         "Reason": args.reason,
         "No-Loss Rule": "Source staging file preserved by default",
     }
-    audit_name = "promotion-" + utc_now().replace(":", "").replace("+00:00", "Z") + ".json"
+    audit_name = new_lock_id("promotion") + ".json"
     atomic_write_json(root / "audit_log" / audit_name, audit_payload)
     print(f"Promotion Result: APPLIED - audit_log/{audit_name}")
     return 0
