@@ -290,6 +290,7 @@ Required named blockers:
 
 Gate Status: `Required for external-state reform PR Readiness`
 Current Stage: `Stage 0 - Docs Plan`
+External Root Approval: `Not Approved`
 External Root Status: `Not Approved`
 Migration Status: `Not Started`
 Validator Transition Status: `Not Approved`

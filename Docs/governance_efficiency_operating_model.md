@@ -178,6 +178,7 @@ Allowed Values:
 - Transition Stage: `Stage 0 - Docs Plan`, `Stage 1 - Helper Bootstrap Planning`, `Stage 2 - Root Initialization`, `Stage 3 - New Branch Adoption`, `Stage 4 - Active-State Migration`, `Stage 5 - Validator Transition`, `Stage 6 - Repo Cleanup`, `Complete`, `Blocked`, `USER Decision Required`
 - Docs Split Matrix Status: `Current`, `Missing`, `Stale`, `Needs USER Review`
 - Active-State Owner Boundary: `Repo Current Owners`, `Hybrid Transition`, `External Canonical`, `Blocked`
+- External Root Approval: `Not Approved`, `Bootstrap Approved`, `Migration Waiver Approved`, `Revoked`, `USER Decision Required`
 - External Root Status: `Not Approved`, `Approved Not Initialized`, `Initialized`, `Unavailable`, `Invalid Location`
 - Drift Result: `Clear`, `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, `External State Migration Premature`, `USER Decision Required`
 
