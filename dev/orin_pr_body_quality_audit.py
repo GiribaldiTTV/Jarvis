@@ -197,8 +197,9 @@ def default_summary(pr: PullRequest) -> str:
     return f"This PR records {title}."
 
 
-def normalize_summary(pr: PullRequest, raw_summary: str, evidence: str) -> tuple[str, list[str]]:
+def normalize_summary(pr: PullRequest, raw_summary: str, evidence: str) -> tuple[str, str, list[str]]:
     reasons: list[str] = []
+    preserved_detail: list[str] = []
     summary = collapse_blank_lines(raw_summary)
     if not summary:
         summary = default_summary(pr)
@@ -208,6 +209,8 @@ def normalize_summary(pr: PullRequest, raw_summary: str, evidence: str) -> tuple
         trailing = summary[len(paragraph) :].strip()
         if trailing:
             reasons.append("trimmed multi-paragraph summary")
+            preserved_detail.append(trailing)
+            reasons.append("preserved trimmed summary detail in Branch Evidence")
         summary = paragraph
     if normalized_text(summary) == normalized_text(f"This PR records {pr.title}."):
         improved = default_summary(pr)
@@ -217,9 +220,14 @@ def normalize_summary(pr: PullRequest, raw_summary: str, evidence: str) -> tuple
     if len(summary) > 700:
         sentences = re.split(r"(?<=[.!?])\s+", summary)
         if len(sentences) > 1:
-            summary = sentences[0].strip()
+            shortened = sentences[0].strip()
+            trailing = summary[len(shortened) :].strip()
+            if trailing:
+                preserved_detail.append(trailing)
+                reasons.append("preserved overlong summary detail in Branch Evidence")
+            summary = shortened
             reasons.append("shortened overlong summary")
-    return summary.strip(), reasons
+    return summary.strip(), collapse_blank_lines("\n\n".join(preserved_detail)), reasons
 
 
 def improve_historical_placeholder(text: str) -> tuple[str, bool]:
@@ -416,7 +424,7 @@ def normalize_evidence(
             f"- Head commit: `{pr.head_ref_oid or 'unknown'}`"
         )
         reasons.append("filled missing Branch Evidence with historical metadata")
-    if "### Summary" in evidence or "### Purpose" in evidence:
+    if re.search(r"(?m)^###\s+(Summary|Purpose)\s*$", evidence):
         warnings.append("nested summary/purpose heading remains")
     for marker in PHASE_DIGEST_MARKERS:
         if marker in evidence:
@@ -456,7 +464,14 @@ def normalize_body(pr: PullRequest) -> NormalizedBody:
         raw_validation = collapse_blank_lines(
             f"{raw_validation}\n\n{extra_validation}" if raw_validation else extra_validation
         )
-    summary, summary_reasons = normalize_summary(pr, raw_summary, raw_evidence)
+    summary, summary_detail, summary_reasons = normalize_summary(pr, raw_summary, raw_evidence)
+    if summary_detail:
+        summary_detail_section = demoted_section("Summary Detail", summary_detail)
+        raw_evidence = collapse_blank_lines(
+            f"{summary_detail_section}\n\n{raw_evidence}"
+            if raw_evidence
+            else summary_detail_section
+        )
     validation, validation_boundaries, validation_reasons = normalize_validation(raw_validation)
     evidence, evidence_reasons, evidence_warnings = normalize_evidence(
         pr,
@@ -569,11 +584,78 @@ def audit(
     return 0 if counters["warnings"] == 0 else 1
 
 
+def audit_body_file(
+    *,
+    body_file: Path,
+    title: str,
+    apply: bool,
+    report_path: Path,
+) -> int:
+    body = body_file.read_text(encoding="utf-8")
+    pr = PullRequest(
+        number=0,
+        title=title or body_file.stem,
+        state="LOCAL",
+        is_draft=False,
+        head_ref_name="local-proposed-pr-body",
+        base_ref_name="main",
+        head_ref_oid="unknown",
+        body=body,
+        url=str(body_file),
+    )
+    normalized = normalize_body(pr)
+    original = strip_bom(body).strip()
+    is_changed = normalized.body.strip() != original
+    if apply and is_changed:
+        write_text(body_file, normalized.body)
+
+    report = {
+        "bodyFile": str(body_file),
+        "title": pr.title,
+        "apply": apply,
+        "changed": is_changed,
+        "warnings": normalized.warnings,
+        "reasons": normalized.reasons,
+    }
+    write_text(report_path, json.dumps(report, indent=2, ensure_ascii=False))
+
+    print(f"PR body file audit: {body_file}")
+    print(f"Changed: {is_changed} | Warnings: {len(normalized.warnings)}")
+    if normalized.reasons:
+        print("Reasons:")
+        for reason in normalized.reasons:
+            print(f"- {reason}")
+    if normalized.warnings:
+        print("Warnings:")
+        for warning in normalized.warnings:
+            print(f"- {warning}")
+    if apply and is_changed:
+        print("Applied normalized body file.")
+    elif is_changed:
+        print("Dry run only; rerun with --apply before PR creation or replace the proposed PR body.")
+
+    still_changed = is_changed and not apply
+    return 1 if still_changed or normalized.warnings else 0
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", default="GiribaldiTTV/Nexus-Desktop-AI")
     parser.add_argument("--limit", type=int, default=500)
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument(
+        "--body-file",
+        type=Path,
+        help=(
+            "Validate a proposed PR body file before PR creation. "
+            "Without --apply, exits nonzero if normalization would change it."
+        ),
+    )
+    parser.add_argument(
+        "--body-title",
+        default="",
+        help="Title used for fallback summary metadata when --body-file is supplied.",
+    )
     parser.add_argument(
         "--backup-dir",
         type=Path,
@@ -589,6 +671,13 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
+    if args.body_file:
+        return audit_body_file(
+            body_file=args.body_file,
+            title=args.body_title,
+            apply=args.apply,
+            report_path=args.report,
+        )
     return audit(
         repo=args.repo,
         limit=args.limit,
