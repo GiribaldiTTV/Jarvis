@@ -46,7 +46,7 @@ def main() -> int:
     if not root.exists():
         print("Promotion Preview Result: External State Missing")
         return 0
-    if not source_state.exists():
+    if not source_state.exists() or not source_state.is_file():
         print("Promotion Preview Result: BLOCKED - source state missing")
         return 1
     print("Promotion Preview Result: READY")

@@ -225,13 +225,16 @@ def iter_state_files(root: Path) -> list[Path]:
     if not root.exists():
         return []
     state_files: list[Path] = []
-    for path in root.rglob("*"):
-        if not path.is_file() or ".tmp" in path.name:
-            continue
-        relative_parts = path.relative_to(root).parts
-        if relative_parts and relative_parts[0] == "snapshots":
-            continue
-        state_files.append(path)
+    for dirpath, dirnames, filenames in os.walk(root):
+        directory = Path(dirpath)
+        if directory == root:
+            dirnames[:] = [dirname for dirname in dirnames if dirname != "snapshots"]
+        for filename in filenames:
+            if ".tmp" in filename:
+                continue
+            path = directory / filename
+            if path.is_file():
+                state_files.append(path)
     return sorted(state_files)
 
 
