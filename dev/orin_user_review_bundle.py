@@ -210,6 +210,24 @@ def _markdown_lines(items: list[str]) -> list[str]:
     return [f"- {item}" for item in items]
 
 
+def _extract_marker_from_text(text: str, marker: str) -> str | None:
+    pattern = re.compile(rf"^{re.escape(marker)}\s*(.+)$", re.MULTILINE)
+    match = pattern.search(text)
+    if not match:
+        return None
+    value = match.group(1).strip()
+    if value.startswith("`") and value.endswith("`") and len(value) >= 2:
+        value = value[1:-1].strip()
+    return value or None
+
+
+def _source_marker(relative_file: str, marker: str) -> str | None:
+    source = (ROOT / relative_file).resolve()
+    if not source.is_file() or ROOT.resolve() not in source.parents:
+        return None
+    return _extract_marker_from_text(source.read_text(encoding="utf-8"), marker)
+
+
 def _bundle_files(target: Path) -> set[Path]:
     return {path for path in target.rglob("*") if path.is_file()}
 
@@ -337,6 +355,25 @@ def _write_user_branch_plan_review(
         }
     ]
     if is_active_overlay_recording:
+        active_plan_source = next(
+            (
+                source_rel
+                for source_rel, _copied_rel in copied
+                if source_rel.endswith(
+                    "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md"
+                )
+            ),
+            None,
+        )
+        accepted_user_response = (
+            _source_marker(active_plan_source, "USER Review Response:") if active_plan_source else None
+        )
+        codex_response_digest = (
+            _source_marker(active_plan_source, "Codex Response Digest:") if active_plan_source else None
+        )
+        workstream_entry_result = (
+            _source_marker(active_plan_source, "Workstream Entry Result:") if active_plan_source else None
+        )
         plain_english_summary = (
             "This branch is setting up the corrected FAM-006 recording direction: "
             "recording should be driven by the currently active Overlay Profile, "
@@ -408,6 +445,9 @@ def _write_user_branch_plan_review(
             "Should Native Log Loader remain future planning input only for this branch?",
         ]
     else:
+        accepted_user_response = None
+        codex_response_digest = None
+        workstream_entry_result = None
         plain_english_summary = (
             "This branch-plan review summarizes the branch's intended product, "
             "runtime, source-truth, and validation direction before Workstream "
@@ -509,17 +549,20 @@ def _write_user_branch_plan_review(
         "",
         "## USER Response",
         "",
-        "Status: Pending USER Response - Workstream implementation remains blocked until USER answers, revises, rejects, accepts, or explicitly waives this review.",
+        accepted_user_response
+        or "Status: Pending USER Response - Workstream implementation remains blocked until USER answers, revises, rejects, accepts, or explicitly waives this review.",
         "",
         "Codex must attach or insert the USER response into this packet or branch review digest before bounded Workstream implementation.",
         "",
         "## Codex Response Digest",
         "",
-        "Status: Pending USER Response - Codex has not yet digested USER answers for this review packet. Workstream implementation requires a later digest or an explicit USER waiver.",
+        codex_response_digest
+        or "Status: Pending USER Response - Codex has not yet digested USER answers for this review packet. Workstream implementation requires a later digest or an explicit USER waiver.",
         "",
         "## Workstream Entry Result",
         "",
-        "Status: Pending USER Response - first seam, affected files, validators, proof requirements, USER-facing proof, and exact implementation approval text must be returned only after USER response/digest or explicit waiver.",
+        workstream_entry_result
+        or "Status: Pending USER Response - first seam, affected files, validators, proof requirements, USER-facing proof, and exact implementation approval text must be returned only after USER response/digest or explicit waiver.",
         "",
         "## Codex Recommendations And Implementation Options",
         "",
