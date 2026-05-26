@@ -6,9 +6,9 @@ Branch Creation Base: `feature/fam-006-recording-profile-runtime-foundation` at 
 Branch Creation origin/main Baseline: `98c82037e85940e630b727c8362bc9771ffd05e3`
 Branch Creation Baseline Meaning: `Historical creation-time baseline only; do not treat this field as current live origin/main. Live origin/main must be derived from Git and START_HERE review-packet metadata.`
 Current Reviewed HEAD Source: `Derived from Git and the refreshed START_HERE.md packet metadata at review-bundle generation time; this tracked branch record must not hard-code its own latest commit SHA because every authority-record repair commit changes HEAD.`
-Current Reviewed origin/main: `d35755ca5135a3c1081de27d023f2db96c2c9741`
-Current Reviewed Merge Base: `d35755ca5135a3c1081de27d023f2db96c2c9741`
-Origin/Main Advanced Since Branch Creation: `YES - origin/main advanced after branch creation; governed current-main reconciliation is complete and the current reviewed merge base equals current reviewed origin/main.`
+Last Reconciled origin/main: `d35755ca5135a3c1081de27d023f2db96c2c9741`
+Last Reconciled Merge Base: `d35755ca5135a3c1081de27d023f2db96c2c9741`
+Origin/Main Advanced Since Branch Creation: `YES - origin/main advanced after branch creation; governed current-main reconciliation was completed through the last reconciled origin/main baseline. Live packet metadata must read START_HERE.md for current origin/main at review time.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md`
 Branch Runtime Engineering Plan: `Accepted as FAM-006 active-overlay recording planning/governance contract; Workstream implementation is intentionally skipped for this branch by USER direction so repo-overhaul work in another thread can proceed without waiting on runtime implementation.`
 Engineering Plan Status: `Planning/governance closeout; PR Readiness pending USER approval`
@@ -186,8 +186,8 @@ Worktree Escape User Waiver Missing: `Not applicable - no off-worktree mutation 
 Carrier Lifecycle Classification: `Successor branch from rollback receipt carrier`
 Remote Branch State: `Pushed and tracking origin/feature/fam-006-active-overlay-recording-runtime-foundation`
 Unique Branch Diff: `Stage 2 source-truth setup edits only`
-Origin/Main Ancestry: `Created from FAM-006 rollback receipt HEAD 1f399003d2e6d13b34b567cd7f7900a709254bc9 whose creation-time origin/main baseline was 98c82037e85940e630b727c8362bc9771ffd05e3; current reviewed origin/main is d35755ca5135a3c1081de27d023f2db96c2c9741 after governed current-main reconciliation.`
-Origin/Main Advanced Since Branch Creation: `YES - current reviewed origin/main d35755ca5135a3c1081de27d023f2db96c2c9741 is newer than the creation-time baseline and the branch has been reconciled to that baseline.`
+Origin/Main Ancestry: `Created from FAM-006 rollback receipt HEAD 1f399003d2e6d13b34b567cd7f7900a709254bc9 whose creation-time origin/main baseline was 98c82037e85940e630b727c8362bc9771ffd05e3; last reconciled origin/main is d35755ca5135a3c1081de27d023f2db96c2c9741 after governed current-main reconciliation. START_HERE.md records live packet origin/main at review time.`
+Origin/Main Advanced Since Branch Creation: `YES - last reconciled origin/main d35755ca5135a3c1081de27d023f2db96c2c9741 is newer than the creation-time baseline and the branch has been reconciled to that baseline. Later origin/main movement is handled by PR Readiness Stage 1 current-main freshness analysis.`
 Open PR State: `No live PR`
 Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-006`
 Recommended Stage 2 Carrier Action: `Create/rebind stable FAM-006 worktree to this branch and commit/push setup source truth.`
