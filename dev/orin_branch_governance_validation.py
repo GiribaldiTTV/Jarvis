@@ -3613,12 +3613,14 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "USER Branch Plan Review Gate",
         "USER Branch Plan Review Missing",
         "planned user-facing outcome",
+        "Desktop Review Folder / ZIP Refresh Digest",
     ),
     Path("Docs/phase_governance.md"): (
         "USER Branch Plan Review Gate",
         "Plain-Language Branch Goal",
         "Planned User-Facing Outcome",
         "USER Review Packet Finding",
+        "Desktop Review Folder / ZIP Refresh Digest",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
     ),
@@ -3626,6 +3628,7 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "USER Branch Plan Review Gate",
         "Required review markers",
         "USER Review Packet Finding:",
+        "Desktop Review Folder / ZIP Refresh Digest",
         "Plain-Language Branch Goal:",
         "Planned User-Facing Outcome:",
         "Live Validation / UTS Plan:",
@@ -3634,11 +3637,13 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
     Path("Docs/branch_records/index.md"): (
         "USER Branch Plan Review Gate",
         "USER Review Packet Finding",
+        "Desktop Review Folder / ZIP Refresh Digest",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/development_rules.md"): (
         "USER Branch Plan Review Gate",
+        "Desktop Review Folder / ZIP Refresh Digest",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
     ),
@@ -3668,6 +3673,7 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "USER Branch Plan Review Gate",
         "invalid missing user-facing outcome",
         "invalid first-seam-only review packet",
+        "Desktop Review Folder / ZIP Refresh Digest",
     ),
 }
 

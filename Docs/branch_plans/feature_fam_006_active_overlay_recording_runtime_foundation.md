@@ -204,12 +204,112 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - USER Decision / Waiver: `USER approved Stage 2 setup to fold this plan into historical/rollback receipt posture.`
 - Fold-Down Target: `Docs/branch_plans/retirement_index.md`
 
+### Changed Surface: Docs/development_rules.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve incoming current-main USER review gate governance and add branch-local clarification that Workstream Entry return digests must explicitly state whether the Desktop review folder and exported ZIP were refreshed, reused as current, waived, or blocked after current-main reconciliation.`
+- Why This File Was Touched: `The branch needs a non-ambiguous Workstream Entry handoff rule so a stale Desktop review folder or FAM-006.zip cannot be treated as implied-green after reconciliation.`
+- Owned Behavior / Fact Class: `Execution governance for runtime Branch Readiness and Workstream Entry.`
+- Canonical Owner / Source Owner: `Docs/development_rules.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `High if origin/main carries newer FAM-007 review-gate governance.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming FAM-007 review-gate governance, preserve FAM-006 USER Review Packet Finding governance, and require a named Desktop review folder / ZIP refresh digest in Workstream Entry return packets when implementation approval follows a packet refresh or current-main reconciliation.`
+- Rebaseline Handling: `During current-main reconciliation, preserve current-main governance context and this FAM-006 clarification without accepting another branch as FAM-006 identity.`
+- Validation Proof: `Branch governance validation and branch readiness planning fixture validation must pass.`
+- Fallback Evidence: `This branch plan records the exact overlap intent before current-main reconciliation.`
+- USER Decision / Waiver: `USER explicitly requested governance repair so the desktop review folder and ZIP refresh digest is not omitted again.`
+- Fold-Down Target: `Docs/development_rules.md and branch plan review governance.`
+
+### Changed Surface: Docs/phase_governance.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve incoming phase-gate governance and add explicit Workstream Entry digest language requiring review folder and exported ZIP freshness/refresh status after packet refreshes or current-main reconciliation.`
+- Why This File Was Touched: `Phase governance owns the Workstream Entry and USER Branch Plan Review Gate contracts.`
+- Owned Behavior / Fact Class: `Phase gate and blocker behavior.`
+- Canonical Owner / Source Owner: `Docs/phase_governance.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `High if current-main phase governance changed during FAM-007.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming phase gate additions while retaining the FAM-006 requirement that Workstream Entry cannot return implementation approval unless it reports Desktop folder and exported ZIP refresh/reuse/waiver/blocker status.`
+- Rebaseline Handling: `Reconcile additively; do not remove incoming FAM-007 phase gate context.`
+- Validation Proof: `Branch governance validation must pass.`
+- Fallback Evidence: `This branch plan records the overlap intent before current-main reconciliation.`
+- USER Decision / Waiver: `USER explicitly requested governance repair for the omitted desktop folder and ZIP digest.`
+- Fold-Down Target: `Docs/phase_governance.md.`
+
+### Changed Surface: Docs/validation_helper_registry.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve incoming helper registry updates and clarify helper/validator ownership for USER review bundle refresh and digest requirements.`
+- Why This File Was Touched: `The helper registry owns reusable helper expectations for dev/orin_user_review_bundle.py and branch governance validation.`
+- Owned Behavior / Fact Class: `Validation helper ownership and reuse contract.`
+- Canonical Owner / Source Owner: `Docs/validation_helper_registry.md`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `High if current-main helper registry changed.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming helper registry context and add/keep the requirement that review bundle helpers prove both the Desktop folder and exported ZIP are current, with return digests naming refresh/reuse/waiver/blocker status.`
+- Rebaseline Handling: `Reconcile additively with current-main helper entries.`
+- Validation Proof: `Branch governance validation and branch readiness planning fixture validation must pass.`
+- Fallback Evidence: `This branch plan records the overlap intent before current-main reconciliation.`
+- USER Decision / Waiver: `USER explicitly requested governance repair for the omitted desktop folder and ZIP digest.`
+- Fold-Down Target: `Docs/validation_helper_registry.md.`
+
+### Changed Surface: dev/orin_branch_governance_validation.py
+
+- Surface Class: `validator/helper`
+- Change Intent: `Preserve incoming validator updates and, if needed, enforce the clarified USER review packet digest rule for Desktop folder and exported ZIP freshness.`
+- Why This File Was Touched: `The branch governance validator owns machine-checkable review-gate phrases and branch-plan review fixtures.`
+- Owned Behavior / Fact Class: `Governance validation.`
+- Canonical Owner / Source Owner: `dev/orin_branch_governance_validation.py`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `High if current-main validator logic changed.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming FAM-007 validator fixes, preserve FAM-006 USER Review Packet Finding checks, and keep or add checks for review folder / exported ZIP digest language where source truth makes it machine-checkable.`
+- Rebaseline Handling: `Reconcile validator logic after merge, then run branch governance and fixture validation.`
+- Validation Proof: `Branch governance validation and branch readiness planning fixture validation must pass.`
+- Fallback Evidence: `This branch plan records the overlap intent before current-main reconciliation.`
+- USER Decision / Waiver: `USER explicitly requested governance repair for the omitted desktop folder and ZIP digest.`
+- Fold-Down Target: `dev/orin_branch_governance_validation.py and source-truth validation fixtures if changed.`
+
+### Changed Surface: dev/orin_user_review_bundle.py
+
+- Surface Class: `validator/helper`
+- Change Intent: `Preserve incoming review-bundle helper fixes and keep the helper responsible for overwriting the Desktop review folder/ZIP from current branch HEAD when a packet refresh is required.`
+- Why This File Was Touched: `The helper owns creation and stale-guard proof for the stable Desktop review folder and exported FAM zip.`
+- Owned Behavior / Fact Class: `USER review Desktop bundle generation.`
+- Canonical Owner / Source Owner: `dev/orin_user_review_bundle.py`
+- Resolution Owner: `Current Branch`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `High if current-main helper behavior changed.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming helper behavior, keep stable Desktop review folder and exported ZIP stale guards, and require return packets to name whether the helper refreshed or reused the folder and ZIP.`
+- Rebaseline Handling: `Reconcile helper changes after merge, then regenerate/re-check review packet only when source truth requires it.`
+- Validation Proof: `Branch governance validation, branch readiness planning fixture validation, and compileall must pass.`
+- Fallback Evidence: `This branch plan records the overlap intent before current-main reconciliation.`
+- USER Decision / Waiver: `USER explicitly requested governance repair for the omitted desktop folder and ZIP digest.`
+- Fold-Down Target: `dev/orin_user_review_bundle.py and validation helper registry.`
+
 ## USER Branch Plan Review Gate
 
 USER Branch Plan Review: Required - Stage 2 creates a USER branch-plan review packet and future Workstream Entry must present a full readable implementation plan before runtime work begins.
 Review Status: Needs USER Decision - Workstream Entry analysis remains pending after Stage 2 setup.
 Desktop Review Bundle: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-006`
-USER Review Packet Finding: Required before implementation approval - Workstream Entry must load and digest `START_HERE.md`, `USER_BRANCH_PLAN_REVIEW.md`, and `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-006.zip`; compare packet source HEAD and review zip source HEAD with current branch HEAD; then report loaded, stale, missing, waived, or blocking status before SLC-051 implementation can begin.
+USER Review Packet Finding: Required before implementation approval - Workstream Entry must load and digest `START_HERE.md`, `USER_BRANCH_PLAN_REVIEW.md`, and `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-006.zip`; compare packet source HEAD and review zip source HEAD with current branch HEAD; then report loaded, stale, missing, waived, or blocking status before SLC-051 implementation can begin. The return digest must also include `Desktop Review Folder / ZIP Refresh Digest:` naming whether the folder and exported zip were refreshed from current HEAD, reused because they already match current HEAD, waived by exact USER/source-truth text, or blocked with the exact stale/missing artifact.
 Plain-Language Branch Goal: Establish the corrected FAM-006 recording branch where recording is driven by the active Overlay Profile instead of a separate Recording Profile.
 Planned User-Facing Outcome: No user-facing runtime change in Stage 2; future user-facing outcome is lightweight HUD Overlay recording access, transparent active monitor target, and a compact standalone Recording Settings window after later approval.
 Visual / Behavioral Description: Future recording should be visible from the HUD Overlay card, show what active overlay membership will be recorded, and let the user open a small NDAI Recording Settings window that behaves like a normal OS window.
