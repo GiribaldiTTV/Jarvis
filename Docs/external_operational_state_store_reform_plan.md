@@ -16,29 +16,27 @@ This file is a planning reference, not an active external-state migration, helpe
 7. Stage 3 recorded a no-mutation migration preview packet in external state after separate USER approval.
 8. Stage 4A landed through PR #227 and added the report-only repo live-state leakage scanner / migration-map helper.
 9. Stage 4B active-state migration planning packet landed through PR #228 and used the Stage 4A scanner output to name exact repo surfaces, target external records, lock/snapshot/version requirements, durable receipt preservation, and no-loss promotion rules.
-10. Current posture is Stage 4C: active-state migration execution planning packet. This produces the exact future execution preflight, external target record list, durable receipt preservation plan, rollback/recovery plan, and USER review question before any active-state migration write occurs.
-11. Stop at PR Readiness Stage 1 for this Governance repair unless USER separately approves PR Readiness Stage 2 / PR creation.
-12. Active-state migration execution, repo Docs file movement, repo cleanup, and validator transition remain future USER decisions after the Stage 4C execution planning packet is reviewed.
+10. Stage 4C active-state migration execution planning packet landed through PR #229 and preserved the exact execution preflight, external target record list, durable receipt preservation plan, rollback/recovery plan, and USER review question.
+11. Stage 4 active-state migration execution completed externally after PR #229 at source repo HEAD `5abdd9c011c80f5b7b57d473b973654a2427d5a8`; it created only approved central external operational records, released locks, wrote audit logs, and did not move, delete, archive, or rewrite repo Docs.
+12. Current posture is Stage 5: validator transition. This makes local external-state validation explicit for approved local workflows while keeping repo / CI / clean-clone validators safe from any dependency on `C:\Nexus Governance State`.
+13. Stop at PR Readiness Stage 1 for this Governance repair unless USER separately approves PR Readiness Stage 2 / PR creation.
+14. Repo Docs file movement, repo cleanup, worktree-local staging creation, FAM worktree reconciliation, branch cleanup, and release execution remain future USER decisions after Stage 5 is reviewed.
 
 ## Current Boundaries
 
 Approved now:
 
-- Stage 4C active-state migration execution planning packet inside this planning reference
-- report-only use of the Stage 4A scanner output and Stage 4B planning matrix as planning evidence
-- durable planning record updates for the Stage 4C boundary
-- USER review bundle refresh for execution-planning inspection
-- source-truth owner wording that distinguishes planning from migration execution
+- Stage 5 validator transition source-truth updates
+- opt-in local external-state validation for the approved migrated record set
+- source-truth owner wording that distinguishes clean-clone repo validation from local external operational validation
+- USER review bundle refresh for Stage 5 inspection
 - validation and PR Readiness Stage 1 analysis
 
 Not approved by this planning file:
 
-- active-state migration execution
 - helper `--apply` operations
-- validator code transition into mandatory repo gates
+- mandatory GitHub Actions / clean-clone dependency on `C:\Nexus Governance State`
 - worktree-local staging folder creation
-- external state migration
-- active branch/worktree/release-window external record creation
 - file moves, deletion, or archive execution
 - PR creation
 - merge
@@ -201,12 +199,12 @@ Stage 4B non-includes unless separately approved:
 
 ## Docs Split Stage 4C - Active-State Migration Execution Planning Packet
 
-Stage Status: `Active execution planning packet only`
+Stage Status: `Historical - execution planning packet landed through PR #229`
 Source Branch: `feature/release-readiness-source-truth-intake`
 Source Worktree: `C:\Nexus Worktrees\Governance`
 Stage 4C Base: `origin/main@edd65eb363ffd23428f492b4a1de8613599fd85e`
 
-This stage converts the Stage 4B migration planning matrix into an exact USER-reviewable execution packet. It plans the future active-state migration run, but it does not write central external records, update active external state, run helper `--apply` operations, create worktree-local staging, move repo docs, delete repo docs, archive repo docs, transition validators, or mutate FAM worktrees.
+This stage converted the Stage 4B migration planning matrix into an exact USER-reviewable execution packet. It planned the active-state migration run and did not write central external records, update active external state, run helper `--apply` operations, create worktree-local staging, move repo docs, delete repo docs, archive repo docs, transition validators, or mutate FAM worktrees.
 
 Stage 4C evidence:
 
@@ -287,6 +285,74 @@ Stage 4C non-includes unless separately approved:
 - mutating FAM-006 or FAM-007 worktrees
 - release execution, runtime implementation, issue work, branch cleanup, or private-state backup
 
+## Docs Split Stage 4 - Active-State Migration Execution Receipt
+
+Stage Status: `Complete - external operational records seeded`
+Source Branch: `feature/release-readiness-source-truth-intake`
+Source Worktree: `C:\Nexus Worktrees\Governance`
+Stage 4 Source Repo HEAD: `5abdd9c011c80f5b7b57d473b973654a2427d5a8`
+External Root: `C:\Nexus Governance State`
+
+Stage 4 active-state migration execution ran after PR #229 merged and after separate USER approval. It updated only `C:\Nexus Governance State`; it did not move, delete, archive, or rewrite repo Docs, did not create worktree-local staging, did not mutate FAM-006 or FAM-007 worktrees, and did not execute release/runtime work.
+
+Stage 4 execution proof:
+
+- Snapshot: `C:\Nexus Governance State\snapshots\snapshot-20260526T183300Z-37259320`
+- Manifest Source Repo HEAD: `5abdd9c011c80f5b7b57d473b973654a2427d5a8`
+- Target Records Promoted: `15`
+- Locks Acquired And Released: `8`
+- Audit Entries After Execution: `17`
+- Completion Audit: `C:\Nexus Governance State\audit_log\stage4_active_state_migration_completion_20260526T1838Z.json`
+- Validation: `python dev\orin_external_state_validation.py --root "C:\Nexus Governance State" --repo "C:\Nexus Worktrees\Governance" --require-root` returned PASS before Stage 5 work began.
+
+Stage 4 target records now exist at:
+
+- `central\active_branch_authority_state.md`
+- `central\selected_next_state.md`
+- `worktrees\Governance\worktree_state.md`
+- `branches\feature_release_readiness_source_truth_intake\branch_state.md`
+- `branches\feature_release_readiness_source_truth_intake\branch_plan.md`
+- `branches\feature_release_readiness_source_truth_intake\ufd_ledger.md`
+- `branches\feature_release_readiness_source_truth_intake\change_intent_ledger.md`
+- `branches\feature_release_readiness_source_truth_intake\element_to_phase_matrix.md`
+- `branches\feature_release_readiness_source_truth_intake\pr_readiness_state.md`
+- `release_windows\current_release_window_state.md`
+- `review_bundles\Governance\manifest.md`
+- `cross_worktree_lessons\queue_state.md`
+- `governance_candidates\queue_state.md`
+- `promotion_packets\stage4_active_state_migration_execution_20260526.md`
+- `acknowledgements\Governance\stage4_active_state_migration_execution_ack.md`
+
+## Docs Split Stage 5 - Validator Transition
+
+Stage Status: `Active validator transition`
+Source Branch: `feature/release-readiness-source-truth-intake`
+Source Worktree: `C:\Nexus Worktrees\Governance`
+Stage 5 Base: `origin/main@5abdd9c011c80f5b7b57d473b973654a2427d5a8`
+
+Stage 5 transitions validation posture after the approved Stage 4 external records exist. Repo validators remain clean-clone safe and must not require `C:\Nexus Governance State` in GitHub Actions or clean-clone validation. Local Governance workflows may require external operational validation only when the workflow explicitly depends on active local state, release-readiness analysis, worktree coordination, external-state migration, lock/snapshot/recovery, or user-review external-state evidence.
+
+Stage 5 deliverables:
+
+- `dev/orin_external_state_validation.py` gains an opt-in migrated-record check through `--require-stage4-records`.
+- `--expected-source-head <sha>` may be used to prove the manifest and required migrated markdown records match the current approved source repo HEAD.
+- The helper still treats a missing external root as clean-clone-safe unless `--require-root` is supplied.
+- Lock validation blocks local operational workflow on unreleased locks with `Stale Lock Recovery Required`.
+- Source truth is updated so future Codex does not treat local external-state validation as mandatory repo CI.
+
+Stage 5 validation command:
+
+```text
+python dev\orin_external_state_validation.py --root "C:\Nexus Governance State" --repo "C:\Nexus Worktrees\Governance" --require-root --require-stage4-records --expected-source-head 5abdd9c011c80f5b7b57d473b973654a2427d5a8
+```
+
+Stage 5 non-includes unless separately approved:
+
+- repo Docs file movement, deletion, archival, or broad cleanup
+- worktree-local `.nexus_state_staging` creation
+- FAM-006 or FAM-007 worktree mutation
+- release execution, runtime implementation, issue work, branch cleanup, private-state backup, or new external schema migration
+
 ## Problem Statement
 
 Release Readiness keeps blocking on stale live operational state in repo-tracked Docs after branches merge. Recent examples include:
@@ -349,12 +415,12 @@ Derived live truth from Git, GitHub, and helpers:
 
 ## Docs Split Target Matrix
 
-Matrix Status: `Current for Docs Split Stage 4C`
+Matrix Status: `Current for Docs Split Stage 5`
 Matrix Owner: `Docs/external_operational_state_store_reform_plan.md`
 Binding Rule Owner: `Docs/governance_efficiency_operating_model.md`
 Phase Gate Owner: `Docs/phase_governance.md`
 
-This matrix is the Stage 4B/Stage 4C review surface for preventing drift while repo docs still carry transition-legal active operational owners. It does not move files, create migrated branch/worktree/release-window records, transition validators, or migrate state by itself.
+This matrix originated as the Stage 4B/Stage 4C review surface for preventing drift while repo docs still carried transition-legal active operational owners. In Stage 5, it remains the review surface for validator transition and later repo cleanup planning. It does not move files, delete/archive repo docs, create worktree-local staging, or mutate FAM worktrees by itself.
 
 | Surface | Current Repo Role | Target Owner After Migration | Stage 0 Disposition | Drift Risk | Recommendation |
 | --- | --- | --- | --- | --- | --- |
@@ -489,11 +555,11 @@ Required named blockers:
 ## External State Transition Drift Gate
 
 Gate Status: `Required for external-state reform PR Readiness`
-Current Stage: `Stage 4C - Active-State Migration Execution Planning Packet`
+Current Stage: `Stage 5 - Validator Transition`
 External Root Approval: `Bootstrap Approved`
 External Root Status: `Initialized`
-Migration Status: `Not Started`
-Validator / Helper Transition Status: `Report-only helper scaffolds and migration-map scanner approved; validator transition not approved`
+Migration Status: `Stage 4 active-state migration execution completed externally at source repo HEAD 5abdd9c011c80f5b7b57d473b973654a2427d5a8; repo Docs cleanup not started`
+Validator / Helper Transition Status: `Stage 5 in progress - local external-state validation is opt-in and explicit; clean-clone repo validation remains external-root independent`
 
 Required packet fields:
 
@@ -510,7 +576,7 @@ Required packet fields:
 - `Next Approved Step:`
 - `Remaining USER Decisions:`
 
-This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, report-only scanner, active-state migration planning packet, or active-state migration execution planning packet as already-executed migration. Stage 4C means Codex may convert the Stage 4B plan into a USER-reviewable execution packet with preflight, target records, receipt preservation, rollback/recovery, and exact USER decision text, while repo docs may still contain transition-legal current active owners required by existing governance. Those owners become migrated external records only after USER approves active-state migration execution.
+This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, report-only scanner, active-state migration planning packet, active-state migration execution planning packet, active-state migration execution, validator transition, or repo cleanup as interchangeable. Stage 5 means the approved Stage 4 external records exist and local external-state validation may verify them, while repo docs remain durable transition owners until a later USER-approved repo cleanup stage. Clean-clone repo validators must remain external-root independent.
 
 Drift blockers:
 
@@ -518,11 +584,13 @@ Drift blockers:
 - `External State Transition Drift`: Main, phase governance, governance efficiency, this plan, branch authority, or helper registry disagree on stage, owner, or next step.
 - `Docs Split Target Matrix Missing`: the matrix is absent or stale.
 - `External State Migration Premature`: helper/bootstrap/root/migration/file-movement work is treated as approved before USER approves that stage.
+- `External State Missing`: a local active operational workflow needs external state but the root or required migrated records are absent.
+- `Stale Lock Recovery Required`: local external-state validation finds an unreleased or conflicting lock.
 
 Recommended near-term implementation posture:
 
-- keep this branch at Stage 4C until PR/merge and active worktree acknowledgement or USER-approved migration execution
-- do not create migrated branch/worktree/release-window records in this PR
+- keep this branch at Stage 5 until PR/merge and active worktree acknowledgement or USER-approved repo cleanup planning
+- validate the approved Stage 4 migrated records through explicit local external-state validation
 - do not run helper `--apply` operations in this PR
 - do not migrate branch records, branch plans, roadmap, backlog, or worktree slots in this PR
 - require the transition gate in the next external-state implementation PR before Stage 2 / PR creation
@@ -907,17 +975,17 @@ Recommendation B - require the transition gate before external-state PR creation
 - Reason: this prevents planning from being mistaken for migration complete and catches disagreement between Main, phase governance, governance efficiency, the plan, branch authority, and helper registry.
 - Future risk: without this gate, Codex could initialize helpers or demand external state before USER approves bootstrap.
 
-Recommendation C - keep helper work report-only until active migration is separately approved:
+Recommendation C - keep helper work bounded to each approved stage:
 
-- Status: `Applied through Stage 4C for report-only helpers, migration planning, and execution planning; validator transition and active migration execution remain future-gated`
+- Status: `Applied through Stage 5; report-only helpers stayed report-only until Stage 4 execution approval, and Stage 5 validation remains local/opt-in instead of a clean-clone repo requirement`
 - Reason: scanner output should expose migration candidates without rewriting repo docs or creating central active branch/worktree/release-window records.
 - Future risk: if scanner output is treated as migration itself, the repo could lose durable receipts or create shadow external truth.
 
-Recommendation D - migrate active records only after helper bootstrap and migration-map review prove locks, snapshots, version checks, and target owners:
+Recommendation D - keep repo cleanup separate from external active-record migration:
 
-- Status: `Future-gated`
-- Reason: moving branch records and plans out of repo without lock/version/snapshot proof risks losing the exact planning receipts the reform is meant to preserve.
-- Future risk: premature file movement could trade release debt for external-state corruption.
+- Status: `Stage 4 active external records exist; repo cleanup remains future-gated`
+- Reason: moving branch records and plans out of repo without a separate cleanup plan risks losing the exact planning receipts the reform is meant to preserve.
+- Future risk: premature file movement could trade release debt for durable receipt loss or external-state corruption.
 
 Recommendation E - keep release debt narrow:
 
@@ -929,17 +997,17 @@ Recommendation E - keep release debt narrow:
 
 Default path:
 
-1. Complete Stage 4C active-state migration execution planning packet with no active-state migration.
-2. Merge the Stage 4C execution planning packet only after validation and USER approval.
+1. Complete Stage 5 validator transition after Stage 4 active-state migration execution has seeded the approved external records.
+2. Merge the Stage 5 validator transition only after validation and USER approval.
 3. Rebaseline or acknowledge active worktrees after merge when USER chooses that sequencing.
-4. Review the Stage 4C execution packet before deciding whether to approve active-state migration execution, validator transition, repo cleanup, or worktree-local staging.
+4. Review the Stage 5 packet before deciding whether to approve repo cleanup planning, repo Docs file movement/deletion/archive planning, worktree-local staging, or FAM worktree reconciliation.
 
 External-state implementation does not replace post-release canon closure or become a release unblocker unless USER explicitly pauses release flow and approves that route.
 
 ## Future Exact USER Decision Shape
 
-Approve the next implementation phase only after this Stage 4C active-state migration execution planning PR merges and active worktrees rebaseline or acknowledge the changed governance when USER chooses that sequencing:
+Approve the next implementation phase only after this Stage 5 validator transition PR merges and active worktrees rebaseline or acknowledge the changed governance when USER chooses that sequencing:
 
 ```text
-Approve External Operational State Store active-state migration execution on C:\Nexus Worktrees\Governance after reviewing the Stage 4C execution planning packet. Scope: run the approved snapshot/lock/version preflight, create only the approved central external operational records, write audit logs, preserve repo docs as durable owners until separate cleanup approval, and return a validation/recovery packet. Do not move repo docs, delete or archive files, transition validators, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
+Approve External Operational State Store repo cleanup planning on C:\Nexus Worktrees\Governance after reviewing the Stage 5 validator transition packet. Scope: analyze which repo Docs live-state fields can be removed, made pointer-only, or preserved as durable historical receipts after external records exist; return a cleanup plan and review bundle only. Do not move, delete, or archive repo files, mutate runtime, create releases, clean branches/worktrees, or change FAM-006/FAM-007 without separate USER approval.
 ```
