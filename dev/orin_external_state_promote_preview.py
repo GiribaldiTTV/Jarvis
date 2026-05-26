@@ -2,7 +2,13 @@ from __future__ import annotations
 
 import argparse
 
-from orin_external_state_common import DEFAULT_EXTERNAL_STATE_ROOT, resolve_path, validate_canonical_root
+from orin_external_state_common import (
+    DEFAULT_EXTERNAL_STATE_ROOT,
+    DEFAULT_SCHEMA_VERSION,
+    resolve_path,
+    validate_canonical_root,
+    validate_initialized_root,
+)
 from orin_external_state_promote import resolve_target_state
 
 
@@ -12,6 +18,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--source-state", required=True)
     parser.add_argument("--target-state", required=True)
     parser.add_argument("--reason", required=True)
+    parser.add_argument("--schema", default=DEFAULT_SCHEMA_VERSION)
     return parser
 
 
@@ -46,6 +53,12 @@ def main() -> int:
     if not root.exists():
         print("Promotion Preview Result: External State Missing")
         return 0
+    initialization_issues = validate_initialized_root(root, args.schema)
+    if initialization_issues:
+        print("Promotion Preview Result: BLOCKED")
+        for issue in initialization_issues:
+            print(issue)
+        return 1
     if not source_state.exists() or not source_state.is_file():
         print("Promotion Preview Result: BLOCKED - source state missing")
         return 1

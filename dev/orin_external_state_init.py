@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
 
 from orin_external_state_common import (
     DEFAULT_EXTERNAL_STATE_ROOT,
@@ -10,6 +11,7 @@ from orin_external_state_common import (
     atomic_write_text,
     git_branch,
     resolve_path,
+    run_git,
     state_manifest_payload,
     validate_canonical_root,
 )
@@ -34,12 +36,24 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def validate_source_repo(repo) -> list[str]:
+    try:
+        inside_worktree = run_git(repo, "rev-parse", "--is-inside-work-tree")
+        run_git(repo, "rev-parse", "HEAD")
+    except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+        return [f"Source Repo: INVALID - --repo must point to a Git worktree with readable HEAD ({exc})"]
+    if inside_worktree.strip().lower() != "true":
+        return ["Source Repo: INVALID - --repo must point inside a Git worktree"]
+    return []
+
+
 def main() -> int:
     args = build_parser().parse_args()
     root = resolve_path(args.root)
     repo = resolve_path(args.repo)
     branch = args.branch or git_branch(repo)
     issues = validate_canonical_root(root, [repo])
+    issues.extend(validate_source_repo(repo))
 
     print("External State Bootstrap Packet")
     print(f"Desired Root: {root}")
