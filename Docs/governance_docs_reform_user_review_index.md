@@ -102,7 +102,7 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 | --- | ---: | --- | --- |
 | Ambiguous ownership/current-state wording | 142 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
 | Structure and indexability risks | 37 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
-| Migration / organization candidates | 1 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
+| Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
 | Retired branch plan review | 27 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
 | Low-risk reference consolidation | 19 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
 
@@ -145,7 +145,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 | File | Ambiguity Risk | Signals | Action |
 | --- | --- | --- | --- |
-| `Docs/Main.md` | High | `volatile-current-wording=345`; `unclear-ownership-wording=150`; `soft-commitment-wording=54`; `state-ledger-wording=191` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/Main.md` | High | `volatile-current-wording=346`; `unclear-ownership-wording=150`; `soft-commitment-wording=55`; `state-ledger-wording=192` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/README.md` | High | `volatile-current-wording=65`; `unclear-ownership-wording=53`; `soft-commitment-wording=14`; `state-ledger-wording=75` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | High | `volatile-current-wording=30`; `unclear-ownership-wording=18`; `soft-commitment-wording=4`; `state-ledger-wording=52` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | High | `volatile-current-wording=187`; `unclear-ownership-wording=151`; `soft-commitment-wording=17`; `state-ledger-wording=109` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -216,7 +216,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 | File | Owner | Recommendation | Risk |
 | --- | --- | --- | --- |
-| `Docs/external_operational_state_store_reform_plan.md` | unknown docs reference | USER review needed | Medium |
+| None | N/A | N/A | N/A |
 
 ## Safe To Leave For Now
 
