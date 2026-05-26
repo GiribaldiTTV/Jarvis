@@ -279,6 +279,12 @@ def _packet_text_status(text: str) -> str:
     blocking_markers = (
         "implementation remains blocked",
         "implementation not yet authorized",
+        "does not approve bounded workstream implementation",
+        "does not approve workstream implementation",
+        "do not approve bounded workstream implementation",
+        "do not approve workstream implementation",
+        "not approve bounded workstream implementation",
+        "not approve workstream implementation",
         "does not authorize workstream implementation",
         "blocks workstream implementation",
         "before workstream implementation",

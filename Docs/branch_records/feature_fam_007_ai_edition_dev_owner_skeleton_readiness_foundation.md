@@ -56,7 +56,7 @@ Phase Status: `Active Branch` - PR Readiness Stage 2 live PR validation for PR #
 - PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/218`
 - PR Number: `218`
 - PR Readiness Stage 2 USER Approval: `Granted by USER after PR Readiness Stage 1 repair/sync.`
-- Live PR State: `OPEN; non-draft; live PR head is verified by GitHub/PR gate at validation time because same-PR repair commits may advance it; base=main@98c82037e85940e630b727c8362bc9771ffd05e3; mergeable=MERGEABLE; status checks=none reported; Codex review threads identified parser false-positive risks for historical Stage 2 context and generic Pending USER Decisions context, both repaired and resolved before the latest @codex review request.`
+- Live PR State: `OPEN; non-draft; live PR head is verified by GitHub/PR gate at validation time because same-PR repair commits may advance it; base=main@98c82037e85940e630b727c8362bc9771ffd05e3; mergeable=MERGEABLE; status checks=none reported; Codex review threads identified parser false-positive risks for historical Stage 2 context, generic Pending USER Decisions context, and negated Workstream implementation approval wording; each repair must be pushed, resolved, and re-reviewed before merge-readiness.`
 - PR Watcher: `pr-218-watcher provisioned as same-thread heartbeat in Verify Once then Silent Monitor posture.`
 
 ## Branch Class
