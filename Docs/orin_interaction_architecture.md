@@ -19,6 +19,7 @@ Use this document to define:
 This document is downstream of:
 
 - `Docs/architecture.md` for desktop/runtime ownership boundaries
+- `Docs/ai_runtime_and_trust_architecture.md` for AI-native runtime/trust architecture, permission-state, deterministic routing, Trust Journal, routines, and capability-pack boundaries
 - `Docs/phase_governance.md` for governed execution and closeout posture
 - `Docs/nexus_vision.md` for product identity and release-stage framing
 - `Docs/orchestration.md` for runtime behavior and orchestration boundaries
@@ -229,6 +230,22 @@ Future customization should also preserve:
 - explicit user-facing type choice for custom tasks
 - safe distinction between standard built-in actions and user-defined saved actions
 - bounded plugin and external-trigger ownership instead of silent connector sprawl
+
+## AI-Native Interaction Boundary
+
+Future AI-native interaction should remain an inspectable operator surface, not hidden automation.
+
+When AI planning introduces routines, ambient assistance, daily continuity, context synchronization, provider-assisted action resolution, or confidence-aware recommendations, those concepts must route through `Docs/ai_runtime_and_trust_architecture.md` and preserve:
+
+- typed interaction as a first-class certainty path
+- visible resolved action before execution
+- permission-state enforcement
+- user review before sensitive routine start
+- plain-language uncertainty and confidence posture
+- Trust Journal / AI Activity Journal events where policy requires them
+- no silent escalation from suggestion to execution
+
+Routine and ambient-assistance planning is not implementation approval. Branch Readiness must classify the concept, define the user-facing workflow, and obtain USER approval before Workstream implementation.
 
 ## Release-Stage View
 

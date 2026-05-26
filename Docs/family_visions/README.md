@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`Docs/family_visions/` owns durable product-direction records for broad Nexus feature families when the backlog needs more than a compact pointer but less than an active branch plan.
+`Docs/family_visions/` owns durable product-direction records for broad Nexus feature families when the backlog needs more than a compact pointer but less than an active branch plan. During the AI-native taxonomy repair, the directory may temporarily retain source files whose filenames contain removed FAM labels while their content is being analyzed and folded into the correct existing owners. Those filenames are not active backlog identity and do not reserve future FAM numbers.
 Codex reaches family vision through the Main-first loader chain: `Docs/Main.md` routes to `Docs/nexus_vision.md` for project-wide vision, then to the relevant family vision record, then to the active branch plan for branch-local snapshots and implementation proof.
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
@@ -21,6 +21,9 @@ Family vision records do not own:
 - live Git, GitHub, release, PR, issue, worktree, or review state
 - package/slice execution ledgers
 - runtime implementation approval
+- dependency work for another backlog family
+
+Backlog family work stays local to its owning family/worktree. A family vision may cite cross-family context constraints, but it must not turn another backlog family or context owner into an implementation dependency queue.
 
 ## Owner Relationship
 
@@ -42,8 +45,15 @@ Family vision records do not own:
 | `FAM-006` | Monitoring and HUD | `Docs/family_visions/FAM-006_monitoring_and_hud.md` |
 | `FAM-007` | Local AI and Capability Packs | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` |
 | `FAM-008` | Packaging and Install Experience | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
-| `FAM-009` | Workspace and Data | `Docs/family_visions/FAM-009_workspace_and_data.md` |
-| `FAM-010` | Safety and Privacy | `Docs/family_visions/FAM-010_safety_and_privacy.md` |
+
+## Pending Fold-Source Files
+
+These records are source material for no-loss folding before any deletion, rename, archive, or migration. They are not parseable backlog families, selected-next work, active package owners, independent worktree lanes, or FAM number reservations. Deleting or renaming them requires proof that their durable content has been folded into existing owner files and remains USER-reviewable.
+
+| Source File | Fold Target |
+| --- | --- |
+| `Docs/family_visions/FAM-009_workspace_and_data.md` | Existing architecture, FAM-006/FAM-007/FAM-008 family visions, and AI runtime/trust architecture where workspace/data constraints apply |
+| `Docs/family_visions/FAM-010_safety_and_privacy.md` | Existing FAM-003/FAM-005/FAM-006/FAM-007/FAM-008 family visions and AI runtime/trust architecture where safety/privacy constraints apply |
 
 ## Fold-Down Rule
 

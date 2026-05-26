@@ -14,14 +14,18 @@ External integrations should make Nexus more useful without turning outside trig
 - Require clear source/origin identity and validation before external actions affect user-visible behavior.
 - Keep plugin and external-control expansion tied to explicit user consent, proof, and rollback paths.
 - Preserve first-party/local behavior where possible.
+- AI-native provider/API integration, external tool calls, plugin-triggered AI actions, and provider-visible data must follow `Docs/ai_runtime_and_trust_architecture.md` and family-local privacy/safety boundaries before implementation.
+- External integrations must not become hidden provider escalation, silent monitoring, or a bypass around permission-state, Local-Only Mode, Privacy Lockdown, or Trust Journal expectations.
 
 ## Implementation Boundaries
 
 - This vision does not admit a plugin runtime, external API execution, or third-party monitoring.
+- This vision does not admit provider/model execution, external AI calls, private connector setup, or AI Product Contract import by itself.
 - Active integration work needs Branch Readiness approval for security, privacy, validation, and user-facing proof.
 
 ## Canonical Pointers
 
 - Project vision: `Docs/nexus_vision.md`
+- AI runtime and trust architecture: `Docs/ai_runtime_and_trust_architecture.md`
 - Backlog registry: `Docs/feature_backlog.md`
 - Durable workstream owner: `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`

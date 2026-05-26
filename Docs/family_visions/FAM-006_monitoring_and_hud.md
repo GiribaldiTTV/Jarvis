@@ -16,6 +16,8 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 - Recording should be active-overlay-driven, not a separately loaded Recording Profile. The active Overlay Profile determines what is recorded.
 - Visual proof must include focused per-element review for user-facing changes.
 - Deferred actions should be disabled, removed, or clearly labeled; they must not look broken.
+- Monitoring, HUD, telemetry, screenshots, recordings, logs, and support evidence must preserve local file hygiene, clear evidence roots, privacy-safe review posture, and no fake or hidden data collection.
+- Sensitive telemetry, recording, overlay, process, or performance surfaces must make provider/external telemetry boundaries explicit before any external data path is admitted.
 
 ## Recording Vision
 
@@ -46,12 +48,14 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 ## Implementation Boundaries
 
 - This vision does not admit recording runtime, tray recording controls, broad theme/skin work, provider expansion, or external telemetry by itself.
+- This vision does not admit hidden monitoring, external telemetry, provider-visible telemetry, support-bundle export, backup/export, or cleanup/deletion behavior by itself.
 - The historical `Recording Profile Runtime Foundation` branch introduced Recording Profile state/UI foundation before this active-overlay-driven recording vision correction. Future FAM-006 planning must reconcile or retire that profile-loaded direction before implementing actual recording runtime.
 - Active FAM-006 branches must use Branch Runtime Engineering Plans, UFD disposition, and visual proof gates before implementation and Live Validation handoff.
 
 ## Canonical Pointers
 
 - Project vision: `Docs/nexus_vision.md`
+- AI runtime and trust architecture: `Docs/ai_runtime_and_trust_architecture.md`
 - Backlog registry: `Docs/feature_backlog.md`
 - Durable receipt pointer: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`
 - Active branch pointer: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`

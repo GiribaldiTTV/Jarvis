@@ -148,7 +148,7 @@ Bot Review Signal Notes: `P1` taxonomy lookup crash risk is guarded before `FRES
 - Single-Slice Drift Validation: `PASS`; only `Admission State: Admitted` rows count toward package admission, and current live package trace has no admitted single-slice package.
 - Admitted-Slice Counting Rule: `PASS`; historical evidence, merged evidence, future placeholders, deferred ideas, and future-package-required rows are trace-only and cannot satisfy the multi-slice branch/package rule.
 - Package Completion Validation: `PASS`; package completion cannot be green while admitted slices remain incomplete, and one completed admitted slice cannot authorize stopping while another admitted slice remains incomplete.
-- FAM Taxonomy Validation: `PASS`; broad `FAM-001` through `FAM-010` remain live, no live FAM is closed, and legacy global `FB-###` remains historical trace only.
+- FAM Taxonomy Validation: `Historical PASS at PR #110 time`; later AI-native taxonomy repair corrected the live registry so current parseable backlog families run `FAM-001` through `FAM-008`, with workspace/data and safety/privacy concepts folded into existing owners rather than occupying backlog-family IDs. Legacy global `FB-###` remains historical trace only.
 - PR Evidence Model: `PASS`; PR #108 and PR #109 remain evidence only, not backlog/package identities or standalone release drivers.
 - Automation Observability: `REVIEW`; external automation memory may contain stale `BLOCKER_CANDIDATE` rows, but repo-source validation separates those rows from source-of-truth blockers.
 

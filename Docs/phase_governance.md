@@ -263,7 +263,7 @@ Default rule: extend the existing owner first. A new active source-truth file re
 
 When the proposed concept touches backlog identity, family vision, architecture, cross-family policy, experience design, runtime subsystem behavior, capability-pack domains, AI-native planning, or AI operational cache behavior, the preflight must also run the `Backlog Taxonomy And Source-Truth Placement Gate` from `Docs/feature_backlog.md`. The packet must classify the concept as exactly one or more of `Backlog family`, `Family vision`, `Architecture layer`, `Cross-family policy owner`, `Experience layer`, `Runtime subsystem`, `Capability-pack domain`, or `Package/slice/seam`; name rejected owner classes; name existing owner files to extend first; and state whether USER approval is required for any new backlog family or new source-truth owner. Missing or ambiguous classification blocks on `Backlog Taxonomy Gate Missing`; creating a new FAM without explicit USER approval remains blocked on `Backlog Addition User Approval Missing`.
 
-AI Operational Cache Governance must not be promoted as a new FAM by inertia. Cache is not memory: cache is operational, purpose-bound, explainable, clearable, and policy-governed, while memory is durable user-personal knowledge and requires separate explicit consent. Cache placement must route first through existing FAM-007 AI/runtime/capability-pack owners, FAM-008 setup/install/cache-root UX owners, FAM-009 workspace/data/root/evidence owners, FAM-010 privacy/safety/local-only/provider-visible-data owners, and the active branch plan for implementation-specific cache behavior. A new AI architecture or policy owner is legal only after the placement preflight records `No Existing Owner Fits` or USER approves a companion source-truth file.
+AI Operational Cache Governance must not be promoted as a new FAM by inertia. Cache is not memory: cache is operational, purpose-bound, explainable, clearable, and policy-governed, while memory is durable user-personal knowledge and requires separate explicit consent. Cross-family cache architecture, replay safety, provenance, invalidation, Trust Journal cache events, and policy placement route through `Docs/ai_runtime_and_trust_architecture.md`; family-specific cache placement routes through existing FAM-007 AI/runtime/capability-pack owners, FAM-008 setup/install/cache-root UX owners, the relevant implementing family vision for local data/privacy implications, and the active branch plan for implementation-specific cache behavior. Any further new AI architecture or policy owner is legal only after the placement preflight records `No Existing Owner Fits` or USER approves a companion source-truth file.
 
 `Element Ledger Placement Drift` blocks Stage 2 completion when Codex adds or recommends a new active source-truth artifact without this preflight, when a new artifact duplicates an existing owner, or when the owning record does not point to a large companion ledger file.
 
@@ -801,7 +801,7 @@ Exception:
 ### Backlog Identity Admission Gate
 
 Backlog IDs are major user-facing feature-family or major release/support lanes.
-The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.
+The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the current admitted registry ends at `FAM-008`, and the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.
 
 Canonical identity model:
 

@@ -6666,24 +6666,14 @@ FRESH_FAMILY_TAXONOMY = {
         "package": "PKG-008",
         "legacy": (),
     },
-    "FAM-009": {
-        "title": "Workspace and Data",
-        "package": "PKG-009",
-        "legacy": ("FB-005", "FB-020", "FB-026", "FB-028"),
-    },
-    "FAM-010": {
-        "title": "Safety and Privacy",
-        "package": "PKG-010",
-        "legacy": (),
-    },
 }
 
 FRESH_FAMILY_NAMESPACE_REQUIRED_PHRASES = (
-    "the old `FB-###` namespace is historical-only after this one-time repair; new live backlog-family identities use `FAM-###`, starting at `FAM-001`, and Codex must not create or reuse a parseable `FB-###` backlog ID",
-    "Selectable user-facing feature-family records now use the fresh `FAM-###` namespace in ascending order from `FAM-001`.",
-    "live backlog-family identities use the fresh broad `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries",
+    "The old `FB-###` namespace is historical-only after this one-time repair; live backlog-family identities use `FAM-###`, starting at `FAM-001`, and Codex must not create or reuse a parseable `FB-###` backlog ID.",
+    "Selectable user-facing feature-family records now use the fresh `FAM-###` namespace in ascending order from `FAM-001`; the current registry ends at `FAM-008` unless USER approves a later backlog-family admission.",
+    "Live backlog-family identities use the fresh broad `FAM-###` namespace starting at `FAM-001`; legacy `FB-###` IDs are historical trace only and must not be reused for new parseable backlog entries. Because the current registry ends at `FAM-008`, the next USER-approved backlog family may use `FAM-009`.",
     "Only true broad feature-family backlog entries should remain as parseable `### [ID: FAM-XXX]` backlog records by default.",
-    "The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.",
+    "The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the current admitted registry ends at `FAM-008`, and the old `FB-###` namespace is historical-only and must not be reused for parseable backlog entries.",
 )
 
 FAMILY_PACKAGE_MODEL_REQUIRED_PHRASES = (
