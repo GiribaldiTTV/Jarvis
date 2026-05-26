@@ -165,8 +165,21 @@ def load_branch_record_posture(repo: Path) -> tuple[set[Path], set[Path]]:
 def has_historical_context(lines: list[str], index: int) -> bool:
     start = max(0, index - 2)
     end = min(len(lines), index + 3)
-    window = " ".join(lines[start:end]).lower()
-    return any(word in window for word in HISTORICAL_RECEIPT_WORDS)
+    window = " ".join(lines[start:end]).casefold()
+    return any(
+        re.search(rf"(?<![\w-]){re.escape(word.casefold())}(?![\w-])", window)
+        for word in HISTORICAL_RECEIPT_WORDS
+    )
+
+
+def is_branch_record_index_rule_line(relative_path: Path, lines: list[str], index: int) -> bool:
+    if relative_path != Path("Docs/branch_records/index.md"):
+        return False
+    for line in reversed(lines[: index + 1]):
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            return stripped == "## Rules"
+    return False
 
 
 def classify_finding(
@@ -174,13 +187,14 @@ def classify_finding(
     line: str,
     category: str,
     historical: bool,
+    rule_context: bool,
     retired_plans: set[Path],
     active_branch_records: set[Path],
     historical_branch_records: set[Path],
 ) -> tuple[str, str]:
     normalized = relative_path.as_posix()
 
-    if relative_path in RULE_SURFACES:
+    if relative_path in RULE_SURFACES or rule_context:
         return "Durable Rule Reference", "binding governance/source-truth rule surface"
 
     if relative_path in historical_branch_records:
@@ -227,11 +241,13 @@ def scan_file(
             if not pattern.search(line):
                 continue
             historical = has_historical_context(lines, index)
+            rule_context = is_branch_record_index_rule_line(relative_path, lines, index)
             classification, reason = classify_finding(
                 relative_path,
                 line,
                 category,
                 historical,
+                rule_context,
                 retired_plans,
                 active_branch_records,
                 historical_branch_records,
