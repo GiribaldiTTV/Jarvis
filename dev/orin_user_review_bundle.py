@@ -9,7 +9,6 @@ worktree. It never edits repo files.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import os
 import re
 import shutil
@@ -281,14 +280,6 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
         if temp_zip.exists():
             temp_zip.unlink()
         raise
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def _write_upload_instruction(
@@ -1355,11 +1346,6 @@ def build_bundle(
         origin_main=origin_main,
         expected_entries=expected_zip_entries,
     )
-    digest_file = export_zip.with_name(f"{export_zip.name}.sha256")
-    digest_file.write_text(
-        f"{_sha256_file(export_zip)}  {export_zip.name}\n",
-        encoding="utf-8",
-    )
     return target, export_zip
 
 
@@ -1481,8 +1467,6 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
-    print(f"Review export zip SHA256: {_sha256_file(export_zip)}")
-    print(f"Review export zip SHA256 file: {export_zip.with_name(f'{export_zip.name}.sha256')}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
         f"{USER_BRANCH_PLAN_REVIEW_FILE}, {UPLOAD_THIS_ZIP_FILE}, and exported zip were generated and "
