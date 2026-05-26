@@ -14,8 +14,12 @@ Element-to-Phase Proof Matrix: Matrix rows map public-safe copy, protected-actio
 Hardening Plan: H1 compares public copy, protected asset exclusions, disabled controls, source truth, and validators.
 Live Validation / UTS Plan: LV1 and UTS prove public surface copy, no private leakage, screenshots, and explicit waiver posture.
 Open USER Questions: Deferred With Waiver - private provider setup questions move to a future admitted branch.
+USER Design Review Questions: Deferred With Waiver - USER reviewed the private-provider setup questions and waived them to a future branch.
 Codex Recommendations: Keep this branch public-safe only and route provider setup to a later USER-approved carrier.
+Implementation Options: Deferred With Waiver - USER selected public-safe boundary implementation and waived private-provider setup options.
 Alternatives / Tradeoffs: Combining private setup now would reduce future work but greatly increases leak and scope risk.
+USER Review Response: Deferred With Waiver - USER response waived private setup questions and accepted current public-safe branch boundaries.
+Codex Response Digest: Deferred With Waiver - Codex digested the waiver and kept private provider execution outside this Workstream.
 Accepted Scope: Accepted current scope includes public copy, protected-action suppression, validator proof, screenshots, and UTS proof.
 Deferred Scope: Private provider execution, model install, downloads, memory, voice, shortcut, and installer behavior are future scope.
 Rejected Scope: Rejected current scope includes any public runtime path that imports private provider assets or setup flows.

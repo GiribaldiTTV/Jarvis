@@ -236,7 +236,7 @@ def _validate_export_zip(export_zip: Path, source_head: str) -> None:
         except KeyError as exc:
             raise ValueError(f"Review export zip is missing START_HERE.md: {export_zip}") from exc
         try:
-            archive.read(USER_BRANCH_PLAN_REVIEW_FILE)
+            user_review = archive.read(USER_BRANCH_PLAN_REVIEW_FILE).decode("utf-8")
         except KeyError as exc:
             raise ValueError(
                 f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
@@ -250,6 +250,16 @@ def _validate_export_zip(export_zip: Path, source_head: str) -> None:
         raise ValueError("Review export zip is missing stale-guard proof in START_HERE.md")
     if "USER Review Packet Finding: PASS" not in start_here:
         raise ValueError("Review export zip is missing USER Review Packet Finding proof")
+    for required_heading in (
+        "## Codex Recommendations And Implementation Options",
+        "## USER Design Review Questions",
+        "## USER Response",
+        "## Codex Response Digest",
+    ):
+        if required_heading not in user_review:
+            raise ValueError(
+                f"Review export zip USER_BRANCH_PLAN_REVIEW.md is missing {required_heading}"
+            )
 
 
 def _is_repo_relative_review_path(path: str) -> bool:
@@ -343,6 +353,18 @@ def _write_user_branch_plan_review(
             "What belongs in the lightweight Recording Settings window versus a later secondary surface.",
             "How Live Validation will prove the user-facing window/control behavior with real input and photos.",
         ]
+        codex_options = [
+            "Recommended path: start with SLC-051 target/state proof so later UI, settings, and output seams have a trustworthy active Overlay Profile target.",
+            "Option A: keep SLC-051 state/proof-only and do not add user-visible recording controls yet.",
+            "Option B: revise the package before implementation if USER wants recording execution or visible Start/Stop controls admitted earlier.",
+            "Option C: defer output-file contract details to SLC-054 while still naming the data needed for future graph/plot workflows now.",
+        ]
+        design_questions = [
+            "Should SLC-051 stay state/proof-only, or should USER revise the branch plan before implementation?",
+            "Should recording execution remain outside SLC-051 and future-gated until a later seam explicitly admits file writing?",
+            "Should the HUD Overlay card show active monitored targets before Start/Stop controls are implemented, or should target visibility wait for SLC-052?",
+            "Should Native Log Loader remain future planning input only for this branch?",
+        ]
         branch_boundaries = [
             "No runtime implementation is approved by this Stage 2 packet.",
             "No recording execution or file writing is approved yet.",
@@ -364,6 +386,17 @@ def _write_user_branch_plan_review(
             "Select the first bounded implementation seam.",
             "Name affected files, validators, helpers, proof requirements, and USER-facing review needs.",
             "Return exact implementation approval text only after the whole admitted package is analyzed.",
+        ]
+        codex_options = [
+            "Recommended path: use the accepted branch plan to select one bounded first seam before implementation.",
+            "Option A: accept the proposed first seam and keep later seams future-gated.",
+            "Option B: revise the branch plan before implementation if USER wants a different first seam or design direction.",
+            "Option C: waive unresolved questions only by explicit USER waiver text.",
+        ]
+        design_questions = [
+            "Does USER accept the branch goal and first-seam direction?",
+            "Does USER want to revise any user-facing behavior, layout, workflow, or future-gated boundary before implementation?",
+            "Does USER waive any unanswered design question, or should implementation remain blocked until it is answered?",
         ]
         branch_boundaries = [
             "This review packet does not approve runtime implementation.",
@@ -406,6 +439,24 @@ def _write_user_branch_plan_review(
         "changes to the intended recording workflow, UI priorities, window behavior, output-file "
         "expectations, deferred scope, or anything that would make the branch plan feel wrong "
         "before implementation planning begins.",
+        "",
+        "## Codex Recommendations And Implementation Options",
+        "",
+        *_markdown_lines(codex_options),
+        "",
+        "## USER Design Review Questions",
+        "",
+        *_markdown_lines(design_questions),
+        "",
+        "## USER Response",
+        "",
+        "Status: Pending USER Response - Workstream implementation remains blocked until USER answers, revises, rejects, accepts, or explicitly waives this review.",
+        "",
+        "USER may answer these questions in order or respond generally. Codex must attach or insert the response into the review packet or branch review digest before bounded Workstream implementation.",
+        "",
+        "## Codex Response Digest",
+        "",
+        "Status: Pending USER Response - Codex has not yet digested USER answers for this review packet. Workstream implementation requires a later digest or an explicit USER waiver.",
         "",
         "## Active Branch Plan Files",
         "",

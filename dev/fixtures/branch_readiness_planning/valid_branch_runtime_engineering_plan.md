@@ -62,8 +62,12 @@ Element-to-Phase Proof Matrix: Matrix rows map setup copy, consent status, disab
 Hardening Plan: H1 compares implementation against source truth, branch plan, UI copy, disabled actions, and validator output.
 Live Validation / UTS Plan: LV1 and UTS prove visible status, disabled unsafe actions, screenshot evidence, and USER acceptance path.
 Open USER Questions: None - USER accepted the current branch goal and deferred unrelated provider execution questions.
+USER Design Review Questions: Accepted by USER - USER reviewed design questions for consent copy, disabled actions, and provider execution boundaries.
 Codex Recommendations: Implement the consent-facing setup foundation first while keeping provider execution future-gated.
+Implementation Options: Accepted by USER - USER chose bounded provider-readiness status over broader provider execution setup.
 Alternatives / Tradeoffs: Alternative is a broader setup wizard, but it increases scope and provider-boundary risk.
+USER Review Response: Accepted by USER - USER response was attached to the review packet and accepted before implementation approval.
+Codex Response Digest: Digested - Codex digested the USER response and recorded future provider execution boundaries before implementation.
 Accepted Scope: Accepted scope includes consent status, safe setup copy, disabled actions, validation, screenshots, and UTS proof.
 Deferred Scope: Future provider execution, model download, memory, voice, shortcut, installer, and private-edition work remain deferred.
 Rejected Scope: No rejected current scope beyond excluding protected private-provider behavior from this branch.

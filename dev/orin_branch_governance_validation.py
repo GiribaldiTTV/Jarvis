@@ -588,8 +588,12 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "Hardening Plan:",
     "Live Validation / UTS Plan:",
     "Open USER Questions:",
+    "USER Design Review Questions:",
     "Codex Recommendations:",
+    "Implementation Options:",
     "Alternatives / Tradeoffs:",
+    "USER Review Response:",
+    "Codex Response Digest:",
     "Accepted Scope:",
     "Deferred Scope:",
     "Rejected Scope:",
@@ -607,6 +611,18 @@ USER_BRANCH_PLAN_REVIEW_SCOPE_MARKERS = (
     "Accepted Scope:",
     "Deferred Scope:",
     "Rejected Scope:",
+)
+USER_BRANCH_PLAN_REVIEW_RESPONSE_TERMS = (
+    "accepted by user",
+    "revised by user",
+    "deferred with waiver",
+    "waived",
+    "rejected by user",
+    "attached",
+    "inserted",
+    "digested",
+    "needs user response",
+    "pending user response",
 )
 USER_REVIEW_PACKET_FINDING_REQUIRED_TERMS = (
     ("START_HERE.md",),
@@ -3623,11 +3639,15 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "USER Branch Plan Review Gate",
         "USER Branch Plan Review Missing",
         "planned user-facing outcome",
+        "USER response",
     ),
     Path("Docs/phase_governance.md"): (
         "USER Branch Plan Review Gate",
         "Plain-Language Branch Goal",
         "Planned User-Facing Outcome",
+        "USER Design Review Questions",
+        "USER Review Response",
+        "Codex Response Digest",
         "USER Review Packet Finding",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
@@ -3638,22 +3658,28 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "USER Review Packet Finding:",
         "Plain-Language Branch Goal:",
         "Planned User-Facing Outcome:",
+        "USER Design Review Questions:",
+        "USER Review Response:",
+        "Codex Response Digest:",
         "Live Validation / UTS Plan:",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/branch_records/index.md"): (
         "USER Branch Plan Review Gate",
         "USER Review Packet Finding",
+        "USER Review Response",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/development_rules.md"): (
         "USER Branch Plan Review Gate",
+        "USER Review Response",
         "Live Validation / UTS plan",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/codex_modes.md"): (
         "USER Branch Plan Review Gate",
+        "USER Review Response",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/orin_task_template.md"): (
@@ -3663,21 +3689,25 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "USER Branch Plan Review Gate",
+        "USER Review Response",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/codex_user_guide.md"): (
         "USER Branch Plan Review Gate",
         "Live Validation / UTS plan",
+        "USER Review Response",
         "USER Branch Plan Review Missing",
     ),
     Path("Docs/governance_efficiency_operating_model.md"): (
         "USER Branch Plan Review Gate",
         "accepting, revising, deferring with waiver, rejecting",
+        "USER response",
     ),
     Path("Docs/validation_helper_registry.md"): (
         "USER Branch Plan Review Gate",
         "invalid missing user-facing outcome",
         "invalid first-seam-only review packet",
+        "USER Review Response",
     ),
 }
 
@@ -9267,7 +9297,9 @@ def _validate_user_branch_plan_review_gate(
         "Hardening Plan:",
         "Live Validation / UTS Plan:",
         "Codex Recommendations:",
+        "Implementation Options:",
         "Alternatives / Tradeoffs:",
+        "USER Design Review Questions:",
         "Exact USER Decision Needed:",
         "Implementation Approval:",
     ):
@@ -9304,6 +9336,29 @@ def _validate_user_branch_plan_review_gate(
                 "loaded/digested or waiver/blocker status"
             ),
         )
+
+    review_response = _normalized_planning_value(
+        _extract_marker_value(gate_section, "USER Review Response:")
+    )
+    response_digest = _normalized_planning_value(
+        _extract_marker_value(gate_section, "Codex Response Digest:")
+    )
+    require(
+        any(term in review_response for term in USER_BRANCH_PLAN_REVIEW_RESPONSE_TERMS),
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} USER Review "
+            "Response must record USER response attached/inserted/digested, "
+            "Needs USER Response/Pending USER Response, or an explicit waiver/rejection"
+        ),
+    )
+    require(
+        any(term in response_digest for term in USER_BRANCH_PLAN_REVIEW_RESPONSE_TERMS),
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Codex Response "
+            "Digest must record that USER response was digested, remains pending, "
+            "or was explicitly waived/rejected before Workstream implementation"
+        ),
+    )
 
     implementation_breakdown = _normalized_planning_value(
         _extract_marker_value(gate_section, "Implementation Breakdown:")

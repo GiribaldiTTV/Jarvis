@@ -108,6 +108,9 @@ INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_LIVE_VALIDATION_FIXTURE = (
 INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_user_branch_plan_review_first_seam_only.md"
 )
+INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_branch_plan_review_missing_response_digest.md"
+)
 VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE = (
     FIXTURE_DIR / "valid_user_branch_plan_review_deferred_scope.md"
 )
@@ -180,6 +183,9 @@ EXPECTED_USER_BRANCH_PLAN_MISSING_LIVE_VALIDATION_FAILURE_SNIPPET = (
 )
 EXPECTED_USER_BRANCH_PLAN_FIRST_SEAM_FAILURE_SNIPPET = (
     "cannot be satisfied by first-seam-only implementation planning"
+)
+EXPECTED_USER_BRANCH_PLAN_MISSING_RESPONSE_DIGEST_FAILURE_SNIPPET = (
+    "USER Review Response:"
 )
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
@@ -596,6 +602,7 @@ def validate() -> list[str]:
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_HARDENING_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_LIVE_VALIDATION_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE,
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE,
         VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE,
         VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
         INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
@@ -1004,6 +1011,19 @@ def validate() -> list[str]:
         failures.append(
             "Invalid USER Branch Plan Review fixture did not reject first-seam-only "
             "implementation breakdown"
+        )
+
+    missing_response_digest_failures = _validate_user_branch_plan_review_text(
+        INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_USER_BRANCH_PLAN_MISSING_RESPONSE_DIGEST_FAILURE_SNIPPET not in "\n".join(
+        missing_response_digest_failures
+    ):
+        failures.append(
+            "Invalid USER Branch Plan Review fixture did not reject missing "
+            "USER response / Codex digest markers"
         )
 
     deferred_review_failures = _validate_user_branch_plan_review_text(
